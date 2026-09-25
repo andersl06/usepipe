@@ -1,19 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { conteudoDaPergunta, formatoDaPergunta, preferenciasInterativasDe } from '../src/whatsapp/interativo.js';
+import { conteudoDaPergunta, formatOfPergunta, preferencesInteractiveOf } from '../src/whatsapp/interativo.js';
 import { montarCorpo } from '../src/whatsapp/real.js';
 
 const ligado = { quickReply: true, menu: true };
-const credenciais = { phoneNumberId: '1', tokenAcesso: 't' };
+const credentials = { phoneNumberId: '1', tokenAcesso: 't' };
 
 describe('pergunta do fluxo como mensagem interativa', () => {
   it('régua da origem: até 3 botões, até 10 lista, senão texto; interruptores nascem ligados', () => {
-    expect(formatoDaPergunta(3, ligado)).toBe('botoes');
-    expect(formatoDaPergunta(4, ligado)).toBe('lista');
-    expect(formatoDaPergunta(11, ligado)).toBe('texto');
-    expect(formatoDaPergunta(2, { quickReply: false, menu: true })).toBe('lista');
-    expect(formatoDaPergunta(2, { quickReply: false, menu: false })).toBe('texto');
-    expect(preferenciasInterativasDe(null)).toEqual(ligado);
-    expect(preferenciasInterativasDe({ preferencias: { menu: false } })).toEqual({ quickReply: true, menu: false });
+    expect(formatOfPergunta(3, ligado)).toBe('botoes');
+    expect(formatOfPergunta(4, ligado)).toBe('lista');
+    expect(formatOfPergunta(11, ligado)).toBe('texto');
+    expect(formatOfPergunta(2, { quickReply: false, menu: true })).toBe('lista');
+    expect(formatOfPergunta(2, { quickReply: false, menu: false })).toBe('texto');
+    expect(preferencesInteractiveOf(null)).toEqual(ligado);
+    expect(preferencesInteractiveOf({ preferencias: { menu: false } })).toEqual({ quickReply: true, menu: false });
   });
 
   it('opção longa, repetida ou corpo vazio cai para texto em vez de cortar', () => {
@@ -26,8 +26,8 @@ describe('pergunta do fluxo como mensagem interativa', () => {
   });
 
   it('corpo da Cloud API: botões de resposta e lista com uma seção', () => {
-    const botoes = conteudoDaPergunta({ texto: 'Como ajudar?', opcoes: ['Financeiro', 'Suporte'] }, ligado)!;
-    expect(montarCorpo({ para: '55', conteudo: botoes, credenciais })).toMatchObject({
+    const buttons = conteudoDaPergunta({ texto: 'Como ajudar?', opcoes: ['Financeiro', 'Suporte'] }, ligado)!;
+    expect(montarCorpo({ para: '55', conteudo: buttons, credentials })).toMatchObject({
       type: 'interactive',
       interactive: {
         type: 'button',
@@ -41,7 +41,7 @@ describe('pergunta do fluxo como mensagem interativa', () => {
       },
     });
     const lista = conteudoDaPergunta({ texto: 'Escolha', opcoes: ['a', 'b', 'c', 'd'] }, ligado)!;
-    expect(montarCorpo({ para: '55', conteudo: lista, credenciais })).toMatchObject({
+    expect(montarCorpo({ para: '55', conteudo: lista, credentials })).toMatchObject({
       interactive: {
         type: 'list',
         action: { button: 'Ver opções', sections: [{ rows: [{ id: '1', title: 'a' }, {}, {}, { id: '4', title: 'd' }] }] },

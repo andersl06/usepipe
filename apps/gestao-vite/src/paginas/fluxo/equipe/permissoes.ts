@@ -1,4 +1,4 @@
-import type { NivelNoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contracts';
+import type { LevelInFlow, RoleInFlow, PermissionsInFlow } from '@pipe/contracts';
 
 /**
  * O vocabulário da Equipe — a barra do modal de adicionar e a matriz da página
@@ -24,7 +24,7 @@ import type { NivelNoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contra
  */
 
 /** As três colunas, na ordem da origem, com o tooltip de cada uma. */
-export const COLUNAS_DE_NIVEL: readonly { nivel: NivelNoFluxo; rotulo: string; dica: string }[] = [
+export const COLUNAS_DE_NIVEL: readonly { nivel: LevelInFlow; rotulo: string; dica: string }[] = [
   {
     nivel: 'nenhum',
     rotulo: 'Sem permissão',
@@ -43,29 +43,29 @@ export const COLUNAS_DE_NIVEL: readonly { nivel: NivelNoFluxo; rotulo: string; d
 ];
 
 /** As quatro paradas da barra do modal de adicionar. */
-export const PAPEIS_DO_FLUXO: readonly {
-  papel: PapelNoFluxo;
+export const ROLES_OF_FLOW: readonly {
+  role: RoleInFlow;
   adicionar: string;
 }[] = [
-  { papel: 'visualizar', adicionar: 'Visualizar' },
-  { papel: 'personalizado', adicionar: 'Customizado' },
-  { papel: 'editar', adicionar: 'Visualizar e editar' },
-  { papel: 'admin', adicionar: 'Admin' },
+  { role: 'visualizar', adicionar: 'Visualizar' },
+  { role: 'personalizado', adicionar: 'Customizado' },
+  { role: 'editar', adicionar: 'Visualizar e editar' },
+  { role: 'admin', adicionar: 'Admin' },
 ];
 
 /** A Blip troca o CTA ao preparar a passagem do cadastro curto para `/team/edit`. */
-export const acaoDeAdicionar = (papel: PapelNoFluxo) =>
-  papel === 'personalizado' ? 'Continuar' : 'Salvar';
+export const acaoDeAdicionar = (role: RoleInFlow) =>
+  role === 'personalizado' ? 'Continuar' : 'Salvar';
 
 /** O seletor da PÁGINA de editar tem uma opção a mais que a barra de adicionar. */
-export type NivelDaEdicao = 'nenhum' | PapelNoFluxo;
+export type EditNivel = 'nenhum' | RoleInFlow;
 
-export const NIVEIS_DA_EDICAO: readonly { valor: NivelDaEdicao; rotulo: string }[] = [
-  { valor: 'nenhum', rotulo: 'Sem permissão' },
-  { valor: 'personalizado', rotulo: 'Customizado' },
-  { valor: 'visualizar', rotulo: 'Visualizar' },
-  { valor: 'editar', rotulo: 'Ver e editar' },
-  { valor: 'admin', rotulo: 'Admin' },
+export const NIVEIS_OF_EDIT: readonly { value: EditNivel; rotulo: string }[] = [
+  { value: 'nenhum', rotulo: 'Sem permissão' },
+  { value: 'personalizado', rotulo: 'Customizado' },
+  { value: 'visualizar', rotulo: 'Visualizar' },
+  { value: 'editar', rotulo: 'Ver e editar' },
+  { value: 'admin', rotulo: 'Admin' },
 ];
 
 /**
@@ -74,17 +74,17 @@ export const NIVEIS_DA_EDICAO: readonly { valor: NivelDaEdicao; rotulo: string }
  * acompanhar o traço antes de salvar, lá para o banco nunca contradizer o que
  * a pessoa viu.
  */
-export function permissoesDoPapel(
-  papel: PapelNoFluxo,
-  recursos: readonly { chave: string }[],
-  personalizadas: PermissoesNoFluxo = {},
-): PermissoesNoFluxo {
-  const mapa: PermissoesNoFluxo = {};
+export function rolePermissions(
+  role: RoleInFlow,
+  recursos: readonly { key: string }[],
+  personalizadas: PermissionsInFlow = {},
+): PermissionsInFlow {
+  const mapa: PermissionsInFlow = {};
   for (const recurso of recursos) {
-    mapa[recurso.chave] =
-      papel === 'personalizado'
-        ? (personalizadas[recurso.chave] ?? 'nenhum')
-        : papel === 'visualizar'
+    mapa[recurso.key] =
+      role === 'personalizado'
+        ? (personalizadas[recurso.key] ?? 'nenhum')
+        : role === 'visualizar'
           ? 'ler'
           : 'escrever';
   }
@@ -95,13 +95,13 @@ export function permissoesDoPapel(
  * O `permissionSelect` de `/team/edit` na Blip é derivado da matriz:
  * tudo 0 = none, tudo 1 = read, tudo 3 = readWrite; mistura = custom.
  */
-export function nivelDaEdicao(
-  papel: PapelNoFluxo,
-  recursos: readonly { chave: string }[],
-  permissoes: PermissoesNoFluxo,
-): NivelDaEdicao {
-  if (papel === 'admin') return 'admin';
-  const niveis = recursos.map((recurso) => permissoes[recurso.chave] ?? 'nenhum');
+export function editNivel(
+  role: RoleInFlow,
+  recursos: readonly { key: string }[],
+  permissions: PermissionsInFlow,
+): EditNivel {
+  if (role === 'admin') return 'admin';
+  const niveis = recursos.map((recurso) => permissions[recurso.key] ?? 'nenhum');
   if (niveis.every((nivel) => nivel === 'nenhum')) return 'nenhum';
   if (niveis.every((nivel) => nivel === 'ler')) return 'visualizar';
   if (niveis.every((nivel) => nivel === 'escrever')) return 'editar';
@@ -109,13 +109,13 @@ export function nivelDaEdicao(
 }
 
 /** `none` cabe no papel personalizado do Pipe com todas as linhas zeradas. */
-export function permissoesDoNivelDaEdicao(
-  nivel: NivelDaEdicao,
-  recursos: readonly { chave: string }[],
-  atuais: PermissoesNoFluxo,
-): PermissoesNoFluxo {
+export function permissionsOfNivelOfEdit(
+  nivel: EditNivel,
+  recursos: readonly { key: string }[],
+  current: PermissionsInFlow,
+): PermissionsInFlow {
   if (nivel === 'nenhum') {
-    return Object.fromEntries(recursos.map((recurso) => [recurso.chave, 'nenhum']));
+    return Object.fromEntries(recursos.map((recurso) => [recurso.key, 'nenhum']));
   }
-  return permissoesDoPapel(nivel, recursos, atuais);
+  return rolePermissions(nivel, recursos, current);
 }

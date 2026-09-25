@@ -2,34 +2,34 @@ import { Body, Controller, Get, HttpCode, Param, Post, Put, Req, Res } from '@ne
 import { sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import {
-  cookieDeSessao,
-  criarDesafio,
-  entrarComSso,
-  trocarCodigoOidc,
-  urlDeAutorizacaoOidc,
+  cookieOfSession,
+  createChallenge,
+  loginWithSso,
+  exchangeCodeOidc,
+  urlOfAuthorizationOidc,
 } from '@pipe/autenticacao';
-import { bancoApp, bancoDono, noTenant } from '../banco.js';
-import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { databaseApp, databaseOwner, noTenant } from '../banco.js';
+import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
   codigoDaRecusa,
   cookieDoDesafio,
-  destinoAbsoluto,
+  destinationAbsolute,
   lerDesafio,
-  opcoesDeCookie,
+  optionsOfCookie,
   origemDaQuery,
   textoDaQuery,
-  urlDeErro,
+  urlOfError,
 } from './entrar.js';
-import type { DesafioComConvite } from './entrar.js';
+import type { ChallengeWithInvitation } from './entrar.js';
 import {
-  conexaoParaFluxo,
-  definirEstado,
-  descobrirEntrada,
+  connectionForFlow,
+  defineState,
+  discoverInbound,
   lerConexao,
   marcarTestada,
   salvarConexao,
-  tenantPorSlug,
+  tenantBySlug,
 } from '../dominio/sso.js';
 
 /**
@@ -47,27 +47,27 @@ import {
  */
 
 @Controller('v1/sso')
-export class ControladorConexaoSso {
+export class SsoConnectionController {
   /** A conexão do tenant, sem segredo nenhum. Mostra também o que colar no IdP. */
   @Get()
-  @ComSessao()
-  async ver(@Req() requisicao: RequisicaoComSessao): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
+  @WithSession()
+  async ver(@Req() requisicao: RequestWithSession): Promise<Record<string, unknown>> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'tenant.configurar');
     const conexao = await lerConexao(sessao.tenantId);
     return conexao ? paraJson(conexao) : { conexao: null };
   }
 
   /** Salva a configuração. Sempre em `rascunho`: salvar não liga nada. */
   @Put()
-  @ComSessao()
+  @WithSession()
   async salvar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: Record<string, string | undefined>,
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
-    return paraJson(await salvarConexao(sessao.tenantId, sessao.usuarioId, corpo));
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'tenant.configurar');
+    return paraJson(await salvarConexao(sessao.tenantId, sessao.userId, corpo));
   }
 
   /**
@@ -77,19 +77,19 @@ export class ControladorConexaoSso {
    */
   @Post('estado')
   @HttpCode(200)
-  @ComSessao()
-  async estado(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: { estado?: string; politica?: string },
+  @WithSession()
+  async state(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { state?: string; politica?: string },
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
-    return paraJson(await definirEstado(sessao.tenantId, sessao.usuarioId, corpo));
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'tenant.configurar');
+    return paraJson(await defineState(sessao.tenantId, sessao.userId, corpo));
   }
 }
 
 @Controller('v1/auth')
-export class ControladorEntradaSso {
+export class SsoLoginController {
   /**
    * Um campo, um botão: para onde este e-mail vai?
    *
@@ -100,7 +100,7 @@ export class ControladorEntradaSso {
   @Post('descobrir')
   @HttpCode(200)
   async descobrir(@Body() corpo: { email?: string }): Promise<Record<string, unknown>> {
-    return { ...(await descobrirEntrada(corpo.email)) };
+    return { ...(await discoverInbound(corpo.email)) };
   }
 
   /**
@@ -111,19 +111,19 @@ export class ControladorEntradaSso {
    * ganha, e `:slug` casaria com `testar`.
    */
   @Get('sso/testar')
-  @ComSessao()
-  async testar(@Req() requisicao: RequisicaoComSessao, @Res() resposta: Response): Promise<void> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
+  @WithSession()
+  async testar(@Req() request: RequestWithSession, @Res() resposta: Response): Promise<void> {
+    const session = sessionOf(request);
+    await permitido(session.tenantId, session.userId, 'tenant.configurar');
     // `exigirAtiva: false`: testar uma conexão em rascunho é exatamente o ponto.
-    const fluxo = await conexaoParaFluxo(sessao.tenantId, { exigirAtiva: false });
-    const desafio: DesafioComConvite = {
-      ...criarDesafio('/'),
-      tenantId: sessao.tenantId,
-      teste: true,
+    const flow = await connectionForFlow(session.tenantId, { exigirActive: false });
+    const desafio: ChallengeWithInvitation = {
+      ...createChallenge('/'),
+      tenantId: session.tenantId,
+      test: true,
     };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
-    resposta.redirect(302, urlDeAutorizacaoOidc(fluxo.config, fluxo.descoberta, desafio));
+    resposta.redirect(302, urlOfAuthorizationOidc(flow.config, flow.descoberta, desafio));
   }
 
   /**
@@ -134,18 +134,18 @@ export class ControladorEntradaSso {
    * deixar quem monta a URL escolher em qual cliente entrar.
    */
   @Get('sso/retorno')
-  async retorno(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+  async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
     if (!desafio?.tenantId) {
       resposta.setHeader('set-cookie', apagarDesafio);
-      resposta.redirect(302, urlDeErro('falha_no_provedor'));
+      resposta.redirect(302, urlOfError('falha_no_provedor'));
       return;
     }
 
     try {
-      const fluxo = await conexaoParaFluxo(desafio.tenantId, { exigirAtiva: !desafio.teste });
-      const pessoa = await trocarCodigoOidc(fluxo.config, fluxo.descoberta, desafio, {
+      const fluxo = await connectionForFlow(desafio.tenantId, { exigirActive: !desafio.test });
+      const pessoa = await exchangeCodeOidc(fluxo.config, fluxo.descoberta, desafio, {
         code: textoDaQuery(requisicao, 'code'),
         state: textoDaQuery(requisicao, 'state'),
         error: textoDaQuery(requisicao, 'error'),
@@ -156,7 +156,7 @@ export class ControladorEntradaSso {
       // O teste para AQUI. Nada de sessão, nada de cookie novo, nada de conta
       // criada: só o que chegou e o que casaria. É o que torna seguro apontar
       // um IdP novo para um tenant que já tem gente dentro.
-      if (desafio.teste) {
+      if (desafio.test) {
         await marcarTestada(desafio.tenantId);
         resposta.status(200).json({
           resultado: 'ok',
@@ -165,7 +165,7 @@ export class ControladorEntradaSso {
           email: pessoa.email,
           emailVerificado: pessoa.emailVerificado,
           nome: pessoa.nome ?? null,
-          casaComUsuario: await usuarioComEmail(desafio.tenantId, pessoa.email),
+          casaComUsuario: await userWithEmail(desafio.tenantId, pessoa.email),
           // O aviso que evita o chamado de segunda-feira: sem e-mail verificado
           // o login real recusa, mesmo com o teste "passando".
           aviso: pessoa.emailVerificado
@@ -175,28 +175,28 @@ export class ControladorEntradaSso {
         return;
       }
 
-      const entrada = await entrarComSso(
-        bancoDono(),
-        bancoApp(),
+      const inbound = await loginWithSso(
+        databaseOwner(),
+        databaseApp(),
         pessoa,
         desafio.tenantId,
         { ip: requisicao.ip, agente: requisicao.header('user-agent') },
       );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
+        cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
       ]);
-      resposta.redirect(302, destinoAbsoluto(desafio.destino, desafio.origem));
-    } catch (erro) {
-      const codigo = codigoDaRecusa(erro);
-      if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', erro);
+      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origem));
+    } catch (error) {
+      const codigo = codigoDaRecusa(error);
+      if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', error);
       resposta.setHeader('set-cookie', apagarDesafio);
       // No teste o admin precisa do motivo; no login de verdade, não.
-      if (desafio.teste) {
-        resposta.status(200).json({ resultado: 'falhou', codigo, motivo: mensagem(erro) });
+      if (desafio.test) {
+        resposta.status(200).json({ resultado: 'falhou', codigo, motivo: message(error) });
         return;
       }
-      resposta.redirect(302, urlDeErro(codigo, desafio.origem));
+      resposta.redirect(302, urlOfError(codigo, desafio.origem));
     }
   }
 
@@ -213,29 +213,29 @@ export class ControladorEntradaSso {
     @Res() resposta: Response,
   ): Promise<void> {
     try {
-      const tenantId = await tenantPorSlug(slug);
-      const fluxo = await conexaoParaFluxo(tenantId, { exigirAtiva: true });
+      const tenantId = await tenantBySlug(slug);
+      const fluxo = await connectionForFlow(tenantId, { exigirActive: true });
       const origem = origemDaQuery(requisicao);
-      const desafio: DesafioComConvite = {
-        ...criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/'),
+      const desafio: ChallengeWithInvitation = {
+        ...createChallenge(textoDaQuery(requisicao, 'destino') ?? '/'),
         tenantId,
         ...(origem ? { origem } : {}),
       };
       resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
-      resposta.redirect(302, urlDeAutorizacaoOidc(fluxo.config, fluxo.descoberta, desafio));
+      resposta.redirect(302, urlOfAuthorizationOidc(fluxo.config, fluxo.descoberta, desafio));
     } catch (erro) {
       console.error('[api] falha ao iniciar SSO', erro);
-      resposta.redirect(302, urlDeErro('falha_no_provedor', origemDaQuery(requisicao)));
+      resposta.redirect(302, urlOfError('falha_no_provedor', origemDaQuery(requisicao)));
     }
   }
 }
 
-function mensagem(erro: unknown): string {
+function message(erro: unknown): string {
   return erro instanceof Error ? erro.message : 'Falha desconhecida.';
 }
 
 /** Só diz SE casa, e com quem. É o admin do próprio tenant quem lê. */
-async function usuarioComEmail(tenantId: string, email: string): Promise<string | null> {
+async function userWithEmail(tenantId: string, email: string): Promise<string | null> {
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ nome: string }>(
       sql`select nome from usuario where email = ${email} and ativo limit 1`,
@@ -255,11 +255,11 @@ function paraJson(conexao: Awaited<ReturnType<typeof lerConexao>>): Record<strin
     politica: conexao.politica,
     testadaEm: conexao.testadaEm?.toISOString() ?? null,
     ativadaEm: conexao.ativadaEm?.toISOString() ?? null,
-    urlDeRetorno: conexao.urlDeRetorno,
+    urlDeRetorno: conexao.callbackUrl,
   };
 }
 
 /** Mesma escolha do `convites.ts`: a permissão é conferida numa transação própria. */
-function permitido(tenantId: string, usuarioId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermissao(tx, usuarioId, codigo));
+function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
+  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
 }

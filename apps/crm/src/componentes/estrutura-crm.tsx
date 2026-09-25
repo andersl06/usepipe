@@ -3,11 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  AreaConfiguracoes,
+  AreaSettings,
   Icone,
   Simbolo,
   estaAtivo,
-  type ItemDeNavegacao,
+  type NavigationItem,
   type NomeDeIcone,
 } from '@pipe/ui';
 import { MenuDeComando } from './menu-de-comando';
@@ -44,7 +44,7 @@ import { sair } from '../app/entrar/acoes';
  * Cada item abre tela que existe — a régua contra item apagado vale aqui como
  * vale nas barras da Gestão.
  */
-const CONFIGURACOES: readonly ItemDeNavegacao[] = [
+const SETTINGS: readonly NavigationItem[] = [
   { rotulo: 'Perfil', href: '/configuracoes/perfil' },
   { rotulo: 'Espaço de trabalho', href: '/configuracoes/espaco' },
   { rotulo: 'Membros', href: '/configuracoes/membros' },
@@ -56,7 +56,7 @@ const CONFIGURACOES: readonly ItemDeNavegacao[] = [
 ];
 
 /** Quem está logado. `null` nas duas rotas públicas, e só nelas. */
-export interface UsuarioNaLateral {
+export interface UserInLateral {
   nome: string;
   email: string;
   tenant: string;
@@ -68,11 +68,11 @@ export interface UsuarioNaLateral {
  */
 const PUBLICO = /^\/(entrar|convite)(\/|$)/;
 
-export function EstruturaCrm({
-  usuario,
+export function StructureCrm({
+  user,
   children,
 }: {
-  usuario: UsuarioNaLateral | null;
+  user: UserInLateral | null;
   children: React.ReactNode;
 }) {
   const caminho = usePathname();
@@ -81,20 +81,20 @@ export function EstruturaCrm({
 
   if (caminho.startsWith('/configuracoes')) {
     return (
-      <AreaConfiguracoes
+      <AreaSettings
         nome="Pipe CRM"
-        itens={CONFIGURACOES}
+        itens={SETTINGS}
         caminhoAtual={caminho}
         Link={Link}
       >
         {children}
-      </AreaConfiguracoes>
+      </AreaSettings>
     );
   }
 
   return (
     <div className="c-app">
-      <LateralCrm caminho={caminho} usuario={usuario} />
+      <LateralCrm caminho={caminho} user={user} />
       <main className="c-conteudo">{children}</main>
       {/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
           do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */}
@@ -125,10 +125,10 @@ export function EstruturaCrm({
  */
 
 /** Seção da lateral: um rótulo e os objetos embaixo dele. */
-type SecaoLateral = { rotulo: string; itens: readonly ItemLateralCrm[] };
+type SectionLateral = { rotulo: string; itens: readonly ItemLateralCrm[] };
 type ItemLateralCrm = { rotulo: string; href: string; icone: NomeDeIcone };
 
-const SECOES: readonly SecaoLateral[] = [
+const SECTIONS: readonly SectionLateral[] = [
   {
     rotulo: 'Trabalho',
     itens: [
@@ -148,10 +148,10 @@ const SECOES: readonly SecaoLateral[] = [
 
 function LateralCrm({
   caminho,
-  usuario,
+  user,
 }: {
   caminho: string;
-  usuario: UsuarioNaLateral | null;
+  user: UserInLateral | null;
 }) {
   return (
     <nav className="c-lateral" aria-label="Navegação">
@@ -168,10 +168,10 @@ function LateralCrm({
         </Link>
       </div>
 
-      {SECOES.map((secao) => (
-        <div key={secao.rotulo}>
-          <div className="c-secao">{secao.rotulo}</div>
-          {secao.itens.map((item) => (
+      {SECTIONS.map((section) => (
+        <div key={section.rotulo}>
+          <div className="c-secao">{section.rotulo}</div>
+          {section.itens.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -188,12 +188,12 @@ function LateralCrm({
       {/* No RODAPÉ da lateral, e não no topo: quem está logado é referência,
           não navegação — e o topo é do produto. É o mesmo lugar em que o
           Twenty põe a conta. */}
-      {usuario ? (
+      {user ? (
         <div className="c-lateral-eu">
           <div className="eu-bloco">
-            <b>{usuario.nome}</b>
-            <span>{usuario.email}</span>
-            <span>{usuario.tenant}</span>
+            <b>{user.nome}</b>
+            <span>{user.email}</span>
+            <span>{user.tenant}</span>
           </div>
           <form className="eu-sair" action={sair}>
             <button type="submit" className="btn">

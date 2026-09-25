@@ -13,9 +13,9 @@ process.env['PIPE_URL_APP'] = 'http://telas.teste';
 
 const { RemetenteDuble, RemetenteHttp, definirRemetente, enviarEmailSemDerrubar, remetente } =
   await import('../src/dominio/email.js');
-const { criarConvite, reenviarConvite } = await import('../src/dominio/convites.js');
-const { aplicarEventosDeModelo } = await import('../src/dominio/whatsapp/eventos-de-modelo.js');
-const { esquecerCanal, fecharBancos, resolverCanal } = await import('../src/banco.js');
+const { createInvitation, resendInvitation } = await import('../src/dominio/convites.js');
+const { aplicarEventsOfTemplate } = await import('../src/dominio/whatsapp/eventos-de-modelo.js');
+const { esquecerChannel, fecharBancos, resolveChannel } = await import('../src/banco.js');
 const { montarCenario } = await import('./ajuda.js');
 import type { Email, RemetenteDeEmail } from '../src/dominio/email.js';
 
@@ -41,7 +41,7 @@ class RemetenteQueFalha implements RemetenteDeEmail {
   }
 }
 
-async function semearPapelDeConta(nome: string): Promise<void> {
+async function seedRoleOfAccount(nome: string): Promise<void> {
   await cenario.dono.execute(sql`
     insert into permissao (codigo, descricao, grupo)
     values ('conta.resumo.ler', 'conta.resumo.ler', 'teste') on conflict (codigo) do nothing
@@ -57,16 +57,16 @@ async function semearPapelDeConta(nome: string): Promise<void> {
 }
 
 /** Uma pessoa do tenant com a permissão dada — quem o alerta acha quando a lista está vazia. */
-async function pessoaCom(permissao: string, email: string): Promise<string> {
+async function pessoaCom(permission: string, email: string): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${email})
     returning id
   `);
   await cenario.dono.execute(sql`
     insert into permissao (codigo, descricao, grupo)
-    values (${permissao}, ${permissao}, 'teste') on conflict (codigo) do nothing
+    values (${permission}, ${permission}, 'teste') on conflict (codigo) do nothing
   `);
   const { rows: papeis } = await cenario.dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
@@ -74,27 +74,27 @@ async function pessoaCom(permissao: string, email: string): Promise<string> {
   `);
   await cenario.dono.execute(sql`
     insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-    values (${cenario.tenantId}, ${papeis[0]!.id}, ${permissao})
+    values (${cenario.tenantId}, ${papeis[0]!.id}, ${permission})
   `);
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarios[0]!.id}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${users[0]!.id}, ${papeis[0]!.id})
   `);
-  return usuarios[0]!.id;
+  return users[0]!.id;
 }
 
 /** Grava a preferência de alerta no canal do cenário e limpa o cache de canal. */
 async function configurarAlerta(ativo: boolean, emails: string[]): Promise<void> {
-  const preferencias = JSON.stringify({ alertaRecategorizacao: { ativo, emails } });
+  const preferences = JSON.stringify({ alertaRecategorizacao: { ativo, emails } });
   await cenario.dono.execute(sql`
-    update canal set config = config || jsonb_build_object('preferencias', ${preferencias}::jsonb)
-     where id = ${cenario.canalId}::uuid
+    update canal set config = config || jsonb_build_object('preferencias', ${preferences}::jsonb)
+     where id = ${cenario.channelId}::uuid
   `);
-  esquecerCanal(cenario.canalId);
+  esquecerChannel(cenario.channelId);
 }
 
 /** O evento de recategorização como a Meta manda, para o modelo do cenário. */
-function recategorizacao(nome: string, de: string, para: string): unknown {
+function recategorization(nome: string, de: string, para: string): unknown {
   return {
     object: 'whatsapp_business_account',
     entry: [
@@ -116,16 +116,16 @@ function recategorizacao(nome: string, de: string, para: string): unknown {
   };
 }
 
-async function criarModelo(nome: string, categoria: string): Promise<string> {
+async function createTemplate(nome: string, categoria: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo)
-    values (${cenario.tenantId}, ${cenario.canalId}::uuid, ${nome}, 'pt_BR', ${categoria}, 'aprovado', 'Oi')
+    values (${cenario.tenantId}, ${cenario.channelId}::uuid, ${nome}, 'pt_BR', ${categoria}, 'aprovado', 'Oi')
     returning id
   `);
   return rows[0]!.id;
 }
 
-async function categoriaDoModelo(id: string): Promise<string> {
+async function categoryOfTemplate(id: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ categoria: string }>(
     sql`select categoria from template_mensagem where id = ${id}::uuid`,
   );
@@ -134,7 +134,7 @@ async function categoriaDoModelo(id: string): Promise<string> {
 
 beforeAll(async () => {
   cenario = await montarCenario(`email-${randomUUID().slice(0, 8)}`);
-  await semearPapelDeConta('guest');
+  await seedRoleOfAccount('guest');
 }, 180_000);
 
 afterAll(async () => {
@@ -217,7 +217,7 @@ describe('o remetente', () => {
       ).rejects.toMatchObject({ codigo: 'email_recusado', detalhe: { http: 401 } });
       await new RemetenteHttp(recusa)
         .enviar({ para: ['x@y.z'], assunto: 'a', texto: 'b' })
-        .catch((erro: Error) => expect(erro.message).not.toContain('token-de-teste-bem-comprido'));
+        .catch((error: Error) => expect(error.message).not.toContain('token-de-teste-bem-comprido'));
     } finally {
       if (antes.token === undefined) delete process.env['PIPE_EMAIL_TOKEN'];
       else process.env['PIPE_EMAIL_TOKEN'] = antes.token;
@@ -232,14 +232,14 @@ describe('o remetente', () => {
 describe('convite', () => {
   it('cria o convite e manda o link por e-mail — e o link continua na resposta', async () => {
     const email = `ana.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const convite = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
-    expect(convite.url).toContain('http://telas.teste/convite/');
+    const invitation = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
+    expect(invitation.url).toContain('http://telas.teste/convite/');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
     const enviado = RemetenteDuble.enviados[0]!;
     expect(enviado.para).toEqual([email]);
     expect(enviado.assunto).toContain('Convite');
-    expect(enviado.texto).toContain(convite.url);
+    expect(enviado.texto).toContain(invitation.url);
     // Diz onde a pessoa está entrando e com que acesso.
     expect(enviado.texto).toContain(`e2e email-`);
     expect(enviado.texto).toContain('Pode visualizar');
@@ -247,21 +247,21 @@ describe('convite', () => {
 
   it('reenviar manda o link NOVO, que é o que passa a valer', async () => {
     const email = `bia.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const primeiro = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
+    const first = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
     RemetenteDuble.reiniciar();
 
-    const segundo = await reenviarConvite(cenario.tenantId, primeiro.id);
-    expect(segundo.url).not.toBe(primeiro.url);
+    const segundo = await resendInvitation(cenario.tenantId, first.id);
+    expect(segundo.url).not.toBe(first.url);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toEqual([email]);
     expect(RemetenteDuble.enviados[0]!.texto).toContain(segundo.url);
-    expect(RemetenteDuble.enviados[0]!.texto).not.toContain(primeiro.url);
+    expect(RemetenteDuble.enviados[0]!.texto).not.toContain(first.url);
   });
 
   it('o provedor fora do ar NÃO derruba o convite: ele existe e a resposta traz o link', async () => {
     definirRemetente(new RemetenteQueFalha());
     const email = `carla.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const convite = await criarConvite(cenario.tenantId, { email, papel: 'guest' });
+    const convite = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
     expect(convite.url).toContain('/convite/');
 
     const { rows } = await cenario.dono.execute<{ n: string }>(
@@ -273,16 +273,16 @@ describe('convite', () => {
 
 describe('alerta de recategorização de modelo', () => {
   it('dispara para os e-mails configurados no canal, um por modelo recategorizado', async () => {
-    const modeloId = await criarModelo(`lembrete_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const templateId = await createTemplate(`lembrete_${randomUUID().slice(0, 6)}`, 'utilidade');
     const { rows } = await cenario.dono.execute<{ nome: string }>(
-      sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
+      sql`select nome from template_mensagem where id = ${templateId}::uuid`,
     );
     const nome = rows[0]!.nome;
     await configurarAlerta(true, ['ana@pipe.app', 'bia@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const channel = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await aplicarEventsOfTemplate(channel, recategorization(nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(templateId)).toBe('marketing');
 
     expect(RemetenteDuble.enviados).toHaveLength(1);
     const enviado = RemetenteDuble.enviados[0]!;
@@ -292,53 +292,53 @@ describe('alerta de recategorização de modelo', () => {
     expect(enviado.texto).toContain('WhatsApp de teste');
 
     // Modelo que o Pipe não conhece não dispara nada.
-    expect(await aplicarEventosDeModelo(canal, recategorizacao('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
+    expect(await aplicarEventsOfTemplate(channel, recategorization('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
   it('não dispara quando o alerta está desligado — mas o modelo muda do mesmo jeito', async () => {
-    const modeloId = await criarModelo(`aviso_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const modeloId = await createTemplate(`aviso_${randomUUID().slice(0, 6)}`, 'utilidade');
     const { rows } = await cenario.dono.execute<{ nome: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(false, ['ana@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await aplicarEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(modeloId)).toBe('marketing');
     expect(RemetenteDuble.enviados).toHaveLength(0);
   });
 
   it('lista vazia = quem gerencia canal no tenant, como diz a tela da origem', async () => {
     const emailDoGestor = `gestor.${randomUUID().slice(0, 6)}@cliente.teste`;
     await pessoaCom('canal.gerenciar', emailDoGestor);
-    const modeloId = await criarModelo(`cobranca_${randomUUID().slice(0, 6)}`, 'marketing');
+    const modeloId = await createTemplate(`cobranca_${randomUUID().slice(0, 6)}`, 'marketing');
     const { rows } = await cenario.dono.execute<{ nome: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, []);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'MARKETING', 'UTILITY'))).toBe(1);
+    expect(await aplicarEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'MARKETING', 'UTILITY'))).toBe(1);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toContain(emailDoGestor);
     // O atendente do cenário não gerencia canal: não entra na lista.
-    const { rows: atendente } = await cenario.dono.execute<{ email: string }>(
-      sql`select email from usuario where id = ${cenario.atendenteId}::uuid`,
+    const { rows: agent } = await cenario.dono.execute<{ email: string }>(
+      sql`select email from usuario where id = ${cenario.agentId}::uuid`,
     );
-    expect(RemetenteDuble.enviados[0]!.para).not.toContain(atendente[0]!.email);
+    expect(RemetenteDuble.enviados[0]!.para).not.toContain(agent[0]!.email);
   });
 
   it('o provedor fora do ar NÃO derruba a recategorização', async () => {
     definirRemetente(new RemetenteQueFalha());
-    const modeloId = await criarModelo(`falha_${randomUUID().slice(0, 6)}`, 'utilidade');
+    const modeloId = await createTemplate(`falha_${randomUUID().slice(0, 6)}`, 'utilidade');
     const { rows } = await cenario.dono.execute<{ nome: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, ['ana@pipe.app']);
-    const canal = (await resolverCanal(cenario.canalId))!;
+    const canal = (await resolveChannel(cenario.channelId))!;
 
-    expect(await aplicarEventosDeModelo(canal, recategorizacao(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
-    expect(await categoriaDoModelo(modeloId)).toBe('marketing');
+    expect(await aplicarEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'UTILITY', 'MARKETING'))).toBe(1);
+    expect(await categoryOfTemplate(modeloId)).toBe('marketing');
   });
 });

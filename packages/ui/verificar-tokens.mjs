@@ -37,8 +37,8 @@ const definidos = new Set([...tokens.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map
  * cá: o apelido antigo não pode fazer a régua parecer maior do que ela é.
  * Quando a ponte for apagada, os dois conjuntos voltam a ser o mesmo.
  */
-const semPonte = tokens.slice(0, tokens.indexOf('PONTE DE MIGRAÇÃO'));
-const proprios = new Set([...semPonte.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
+const withoutBridge = tokens.slice(0, tokens.indexOf('PONTE DE MIGRAÇÃO'));
+const proprios = new Set([...withoutBridge.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
 
 /* 1 — nada usa o que não existe. ------------------------------------------ */
 const usados = new Set([...fontes.matchAll(/var\((--p-[a-z0-9-]+)\)/g)].map((m) => m[1]));
@@ -55,8 +55,8 @@ const explicito = tokens.slice(tokens.indexOf(":root[data-tema='escuro']"), toke
 
 /** Cor = tem hex ou rgba no valor. Tamanho e duração não mudam com o tema. */
 const coresClaras = [...claro.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:\s*(#|rgba)/gm)].map((m) => m[1]);
-for (const bloco of [preferencia, explicito]) {
-  const nele = new Set([...bloco.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
+for (const block of [preferencia, explicito]) {
+  const nele = new Set([...block.matchAll(/^\s*(--p-[a-z0-9-]+)\s*:/gm)].map((m) => m[1]));
   const faltando = coresClaras.filter((t) => !nele.has(t));
   assert.deepEqual(faltando, [], `cor sem versão no tema escuro: ${faltando.join(', ')}`);
 }
@@ -74,11 +74,11 @@ assert.equal(contar(/^--p-conteudo(-|$)/), 4, 'são quatro degraus de conteúdo'
 assert.equal(contar(/^--p-r-/), 3, 'são três raios: padrão, controle e pílula');
 assert.equal(contar(/^--p-t-(lg|md|sm|xs)$/), 4, 'a régua de texto tem 16, 14, 12 e 10');
 
-for (const estado of ['erro', 'alerta', 'sucesso', 'info']) {
+for (const state of ['erro', 'alerta', 'sucesso', 'info']) {
   for (const parte of ['fundo', 'linha', 'conteudo']) {
     assert.ok(
-      proprios.has(`--p-${estado}-${parte}`),
-      `estado é um par com linha: falta --p-${estado}-${parte}`,
+      proprios.has(`--p-${state}-${parte}`),
+      `estado é um par com linha: falta --p-${state}-${parte}`,
     );
   }
 }

@@ -10,9 +10,9 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { atualizadoEm, carimbos, excluidoEm, id, listaCheck, momento } from './comum.js';
-import { refTenant, usuario } from './identidade.js';
-import { canal, contato, conversa } from './conversas.js';
+import { atualizadoEm, carimbos, excluidoEm, id, listaCheck, moment } from './comum.js';
+import { refTenant, user } from './identidade.js';
+import { channel, contact, conversation } from './conversas.js';
 
 /**
  * Módulo 6 — Automação e extração. Três peças distintas que costumam ser confundidas:
@@ -20,21 +20,21 @@ import { canal, contato, conversa } from './conversas.js';
  * sistema) e a linguagem de consulta com o dicionário de dados.
  */
 
-export const ESTADOS_FLUXO = ['rascunho', 'publicado', 'arquivado'] as const;
+export const STATES_FLOW = ['rascunho', 'publicado', 'arquivado'] as const;
 
 /** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */
-export const TIPOS_FLUXO = ['fluxo', 'roteador'] as const;
+export const TYPES_FLOW = ['fluxo', 'roteador'] as const;
 
 /** O `ng-maxlength="160"` do campo "Descrição" de "Editar Fluxo" na origem. */
-export const DESCRICAO_FLUXO_MAX = 160;
+export const DESCRIPTION_FLOW_MAX = 160;
 
-export const fluxo = pgTable(
+export const flow = pgTable(
   'fluxo',
   {
     id: id(),
     tenantId: refTenant(),
     nome: text('nome').notNull(),
-    canalId: uuid('canal_id').references(() => canal.id, { onDelete: 'set null' }),
+    channelId: uuid('canal_id').references(() => channel.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('rascunho'),
     /**
      * `fluxo` ou `roteador`.
@@ -52,7 +52,7 @@ export const fluxo = pgTable(
      * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
      * avisa no console e deixa a criação seguir. Migration 0020.
      */
-    imagemUrl: text('imagem_url'),
+    imageUrl: text('imagem_url'),
     /**
      * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
      *
@@ -76,7 +76,7 @@ export const fluxo = pgTable(
      * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
      * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
      */
-    usaContextoDoRoteador: boolean('usa_contexto_do_roteador').notNull().default(false),
+    usesContextOfRouter: boolean('usa_contexto_do_roteador').notNull().default(false),
     /**
      * Configurações do contato que ainda não tinham lugar próprio: hoje só
      * "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
@@ -88,15 +88,15 @@ export const fluxo = pgTable(
      * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
      * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
      */
-    configuracao: jsonb('configuracao')
+    configuration: jsonb('configuracao')
       .notNull()
       .default(sql`'{}'::jsonb`),
     ...carimbos(),
   },
   (t) => [
-    listaCheck('fluxo_estado_ck', t.estado, ESTADOS_FLUXO),
-    listaCheck('fluxo_tipo_ck', t.tipo, TIPOS_FLUXO),
-    check('fluxo_descricao_ck', sql.raw(`char_length("descricao") <= ${DESCRICAO_FLUXO_MAX}`)),
+    listaCheck('fluxo_estado_ck', t.estado, STATES_FLOW),
+    listaCheck('fluxo_tipo_ck', t.tipo, TYPES_FLOW),
+    check('fluxo_descricao_ck', sql.raw(`char_length("descricao") <= ${DESCRIPTION_FLOW_MAX}`)),
   ],
 );
 
@@ -104,38 +104,38 @@ export const fluxo = pgTable(
  * As quatro paradas do traço "Permissão" dos modais da Equipe — as chaves
  * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
  */
-export const PAPEIS_NO_FLUXO = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
+export const PAPEIS_IN_FLOW = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
 
 /**
  * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
  * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
  * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
  */
-export const fluxoMembro = pgTable(
+export const flowMember = pgTable(
   'fluxo_membro',
   {
     id: id(),
     tenantId: refTenant(),
-    fluxoId: uuid('fluxo_id')
+    flowId: uuid('fluxo_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'cascade' }),
-    usuarioId: uuid('usuario_id')
+      .references(() => flow.id, { onDelete: 'cascade' }),
+    userId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
-    papelNoFluxo: text('papel_no_fluxo').notNull().default('visualizar'),
+      .references(() => user.id, { onDelete: 'cascade' }),
+    roleInFlow: text('papel_no_fluxo').notNull().default('visualizar'),
     /** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */
-    permissoes: jsonb('permissoes')
+    permissions: jsonb('permissoes')
       .notNull()
       .default(sql`'{}'::jsonb`)
       .$type<Partial<Record<string, 'nenhum' | 'ler' | 'escrever'>>>(),
     /** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */
-    convidadoPor: uuid('convidado_por').references(() => usuario.id, { onDelete: 'set null' }),
+    convidadoBy: uuid('convidado_por').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
   (t) => [
-    listaCheck('fluxo_membro_papel_ck', t.papelNoFluxo, PAPEIS_NO_FLUXO),
-    uniqueIndex('fluxo_membro_uk').on(t.fluxoId, t.usuarioId),
-    index('fluxo_membro_usuario_ix').on(t.usuarioId),
+    listaCheck('fluxo_membro_papel_ck', t.roleInFlow, PAPEIS_IN_FLOW),
+    uniqueIndex('fluxo_membro_uk').on(t.flowId, t.userId),
+    index('fluxo_membro_usuario_ix').on(t.userId),
   ],
 );
 
@@ -143,45 +143,45 @@ export const fluxoMembro = pgTable(
  * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
  * cada coluna e por que não existe túnel no Pipe.
  */
-export const roteadorServico = pgTable(
+export const routerService = pgTable(
   'roteador_servico',
   {
     id: id(),
     tenantId: refTenant(),
-    roteadorId: uuid('roteador_id')
+    routerId: uuid('roteador_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'cascade' }),
-    servicoId: uuid('servico_id')
+      .references(() => flow.id, { onDelete: 'cascade' }),
+    serviceId: uuid('servico_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'restrict' }),
+      .references(() => flow.id, { onDelete: 'restrict' }),
     /** O nome do serviço: é o `content.address` do `Redirect`. */
     nome: text('nome').notNull(),
     principal: boolean('principal').notNull().default(false),
     /** "Não redirecionar automaticamente para o principal". */
     persistente: boolean('persistente').notNull().default(false),
     /** "Expiração do redirecionamento", da última mensagem do cliente. */
-    expiracaoMin: integer('expiracao_min'),
+    expirationMin: integer('expiracao_min'),
     ...carimbos(),
   },
   (t) => [
-    check('roteador_servico_distintos_ck', sql`${t.roteadorId} <> ${t.servicoId}`),
-    check('roteador_servico_expiracao_ck', sql`${t.expiracaoMin} is null or ${t.expiracaoMin} > 0`),
+    check('roteador_servico_distintos_ck', sql`${t.routerId} <> ${t.serviceId}`),
+    check('roteador_servico_expiracao_ck', sql`${t.expirationMin} is null or ${t.expirationMin} > 0`),
     check(
       'roteador_servico_principal_ck',
-      sql`not ${t.principal} or (not ${t.persistente} and ${t.expiracaoMin} is null)`,
+      sql`not ${t.principal} or (not ${t.persistente} and ${t.expirationMin} is null)`,
     ),
     check(
       'roteador_servico_persistente_ck',
-      sql`not ${t.persistente} or ${t.expiracaoMin} is null`,
+      sql`not ${t.persistente} or ${t.expirationMin} is null`,
     ),
     check(
       'roteador_servico_redirecionamento_ck',
-      sql`${t.principal} or ${t.persistente} or ${t.expiracaoMin} is not null`,
+      sql`${t.principal} or ${t.persistente} or ${t.expirationMin} is not null`,
     ),
-    uniqueIndex('roteador_servico_nome_uk').on(t.roteadorId, t.nome),
-    uniqueIndex('roteador_servico_servico_uk').on(t.roteadorId, t.servicoId),
+    uniqueIndex('roteador_servico_nome_uk').on(t.routerId, t.nome),
+    uniqueIndex('roteador_servico_servico_uk').on(t.routerId, t.serviceId),
     uniqueIndex('roteador_servico_principal_uk')
-      .on(t.roteadorId)
+      .on(t.routerId)
       .where(sql`${t.principal}`),
   ],
 );
@@ -190,49 +190,49 @@ export const roteadorServico = pgTable(
  * O Master-State: em que serviço do roteador o contato está. O "túnel" da Blip é a
  * chave (roteador, contato) — o contato é o real, único no tenant. Migration 0024.
  */
-export const posicaoNoRoteador = pgTable(
+export const positionInRouter = pgTable(
   'posicao_no_roteador',
   {
     id: id(),
     tenantId: refTenant(),
     roteadorId: uuid('roteador_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'cascade' }),
-    contatoId: uuid('contato_id')
+      .references(() => flow.id, { onDelete: 'cascade' }),
+    contactId: uuid('contato_id')
       .notNull()
-      .references(() => contato.id, { onDelete: 'cascade' }),
+      .references(() => contact.id, { onDelete: 'cascade' }),
     servicoId: uuid('servico_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'cascade' }),
-    desde: momento('desde').notNull().defaultNow(),
+      .references(() => flow.id, { onDelete: 'cascade' }),
+    desde: moment('desde').notNull().defaultNow(),
     /** Nulo = não expira (principal ou persistente). */
-    expiraEm: momento('expira_em'),
+    expiraEm: moment('expira_em'),
     /** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */
-    contexto: jsonb('contexto')
+    context: jsonb('contexto')
       .notNull()
       .default(sql`'{}'::jsonb`),
     /** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */
     reiniciar: boolean('reiniciar').notNull().default(false),
-    blocoInicial: text('bloco_inicial'),
+    blockInicial: text('bloco_inicial'),
   },
-  (t) => [uniqueIndex('posicao_no_roteador_uk').on(t.roteadorId, t.contatoId)],
+  (t) => [uniqueIndex('posicao_no_roteador_uk').on(t.roteadorId, t.contactId)],
 );
 
-export const ESTADOS_FLUXO_VERSAO = ['rascunho', 'publicada', 'arquivada'] as const;
+export const STATES_FLOW_VERSION = ['rascunho', 'publicada', 'arquivada'] as const;
 
 /** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */
-export const fluxoVersao = pgTable(
+export const flowVersion = pgTable(
   'fluxo_versao',
   {
     id: id(),
     tenantId: refTenant(),
     fluxoId: uuid('fluxo_id')
       .notNull()
-      .references(() => fluxo.id, { onDelete: 'cascade' }),
+      .references(() => flow.id, { onDelete: 'cascade' }),
     versao: integer('versao').notNull(),
-    estado: text('estado').notNull().default('rascunho'),
-    publicadaEm: momento('publicada_em'),
-    publicadaPor: uuid('publicada_por').references(() => usuario.id, { onDelete: 'set null' }),
+    state: text('estado').notNull().default('rascunho'),
+    publicadaEm: moment('publicada_em'),
+    publishedBy: uuid('publicada_por').references(() => user.id, { onDelete: 'set null' }),
     /** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */
     global: jsonb('global')
       .notNull()
@@ -240,12 +240,12 @@ export const fluxoVersao = pgTable(
     ...carimbos(),
   },
   (t) => [
-    listaCheck('fluxo_versao_estado_ck', t.estado, ESTADOS_FLUXO_VERSAO),
+    listaCheck('fluxo_versao_estado_ck', t.state, STATES_FLOW_VERSION),
     uniqueIndex('fluxo_versao_uk').on(t.fluxoId, t.versao),
   ],
 );
 
-export const TIPOS_BLOCO = [
+export const TYPES_BLOCK = [
   'inicio',
   'mensagem',
   'pergunta',
@@ -257,60 +257,60 @@ export const TIPOS_BLOCO = [
   'fim',
 ] as const;
 
-export const bloco = pgTable(
+export const block = pgTable(
   'bloco',
   {
     id: id(),
     tenantId: refTenant(),
     versaoId: uuid('versao_id')
       .notNull()
-      .references(() => fluxoVersao.id, { onDelete: 'cascade' }),
+      .references(() => flowVersion.id, { onDelete: 'cascade' }),
     codigo: text('codigo').notNull(),
     nome: text('nome').notNull(),
     tipo: text('tipo').notNull(),
     conteudo: jsonb('conteudo')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    posicao: jsonb('posicao')
+    position: jsonb('posicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
   },
   (t) => [
-    listaCheck('bloco_tipo_ck', t.tipo, TIPOS_BLOCO),
+    listaCheck('bloco_tipo_ck', t.tipo, TYPES_BLOCK),
     uniqueIndex('bloco_uk').on(t.versaoId, t.codigo),
   ],
 );
 
-export const transicao = pgTable(
+export const transition = pgTable(
   'transicao',
   {
     id: id(),
     tenantId: refTenant(),
     versaoId: uuid('versao_id')
       .notNull()
-      .references(() => fluxoVersao.id, { onDelete: 'cascade' }),
-    deBlocoId: uuid('de_bloco_id')
+      .references(() => flowVersion.id, { onDelete: 'cascade' }),
+    ofBlockId: uuid('de_bloco_id')
       .notNull()
-      .references(() => bloco.id, { onDelete: 'cascade' }),
-    paraBlocoId: uuid('para_bloco_id').references(() => bloco.id, { onDelete: 'cascade' }),
+      .references(() => block.id, { onDelete: 'cascade' }),
+    forBlockId: uuid('para_bloco_id').references(() => block.id, { onDelete: 'cascade' }),
     /**
      * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
      * dois destinos é preenchido (migration 0014).
      */
-    paraVariavel: text('para_variavel'),
-    condicao: jsonb('condicao')
+    forVariable: text('para_variavel'),
+    condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
     /** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */
-    ordem: integer('ordem').notNull().default(0),
+    order: integer('ordem').notNull().default(0),
   },
   (t) => [
-    index('transicao_de_bloco_idx').on(t.versaoId, t.deBlocoId, t.ordem),
-    check('transicao_destino_ck', sql`(${t.paraBlocoId} is null) <> (${t.paraVariavel} is null)`),
+    index('transicao_de_bloco_idx').on(t.versaoId, t.ofBlockId, t.order),
+    check('transicao_destino_ck', sql`(${t.forBlockId} is null) <> (${t.forVariable} is null)`),
   ],
 );
 
-export const ESTADOS_EXECUCAO = [
+export const STATES_EXECUTION = [
   'executando',
   'aguardando',
   'concluida',
@@ -318,16 +318,16 @@ export const ESTADOS_EXECUCAO = [
   'cancelada',
 ] as const;
 
-export const execucaoFluxo = pgTable(
+export const executionFlow = pgTable(
   'execucao_fluxo',
   {
     id: id(),
     tenantId: refTenant(),
-    fluxoVersaoId: uuid('fluxo_versao_id')
+    flowVersionId: uuid('fluxo_versao_id')
       .notNull()
-      .references(() => fluxoVersao.id, { onDelete: 'restrict' }),
-    conversaId: uuid('conversa_id').references(() => conversa.id, { onDelete: 'cascade' }),
-    contatoId: uuid('contato_id').references(() => contato.id, { onDelete: 'set null' }),
+      .references(() => flowVersion.id, { onDelete: 'restrict' }),
+    conversationId: uuid('conversa_id').references(() => conversation.id, { onDelete: 'cascade' }),
+    contatoId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('executando'),
     /**
      * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
@@ -336,60 +336,60 @@ export const execucaoFluxo = pgTable(
     contexto: jsonb('contexto')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    blocoAtualId: uuid('bloco_atual_id').references(() => bloco.id, { onDelete: 'set null' }),
-    iniciadaEm: momento('iniciada_em').notNull().defaultNow(),
-    encerradaEm: momento('encerrada_em'),
+    blockAtualId: uuid('bloco_atual_id').references(() => block.id, { onDelete: 'set null' }),
+    iniciadaEm: moment('iniciada_em').notNull().defaultNow(),
+    encerradaEm: moment('encerrada_em'),
   },
   (t) => [
-    listaCheck('execucao_fluxo_estado_ck', t.estado, ESTADOS_EXECUCAO),
-    index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversaId),
+    listaCheck('execucao_fluxo_estado_ck', t.estado, STATES_EXECUTION),
+    index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversationId),
     index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
     /**
      * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
      * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
      * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
      */
-    index('execucao_fluxo_versao_idx').on(t.tenantId, t.fluxoVersaoId),
+    index('execucao_fluxo_versao_idx').on(t.tenantId, t.flowVersionId),
   ],
 );
 
-export const execucaoPasso = pgTable(
+export const executionPasso = pgTable(
   'execucao_passo',
   {
     id: id(),
     tenantId: refTenant(),
-    execucaoId: uuid('execucao_id')
+    executionId: uuid('execucao_id')
       .notNull()
-      .references(() => execucaoFluxo.id, { onDelete: 'cascade' }),
-    blocoId: uuid('bloco_id').references(() => bloco.id, { onDelete: 'set null' }),
-    entrada: jsonb('entrada'),
+      .references(() => executionFlow.id, { onDelete: 'cascade' }),
+    blockId: uuid('bloco_id').references(() => block.id, { onDelete: 'set null' }),
+    inbound: jsonb('entrada'),
     saida: jsonb('saida'),
-    erro: text('erro'),
-    duracaoMs: integer('duracao_ms'),
+    error: text('erro'),
+    durationMs: integer('duracao_ms'),
     tokens: integer('tokens'),
-    em: momento('em').notNull().defaultNow(),
+    em: moment('em').notNull().defaultNow(),
   },
   (t) => [
-    index('execucao_passo_execucao_idx').on(t.tenantId, t.execucaoId, t.em),
+    index('execucao_passo_execucao_idx').on(t.tenantId, t.executionId, t.em),
     // A mesma mensagem da Meta só vira passo uma vez (migration 0014).
     uniqueIndex('execucao_passo_entrada_uk')
-      .on(t.tenantId, sql`(${t.entrada} ->> 'id_provedor')`)
-      .where(sql`${t.entrada} ? 'id_provedor'`),
+      .on(t.tenantId, sql`(${t.inbound} ->> 'id_provedor')`)
+      .where(sql`${t.inbound} ? 'id_provedor'`),
   ],
 );
 
 export const ESTADOS_PROCESS_HTTP = ['pendente', 'chamando', 'respondida', 'retomada'] as const;
 
 /** O cursor de ProcessHttp vive separado para conservar cada posição executada. */
-export const processHttpExecucao = pgTable(
+export const processHttpExecution = pgTable(
   'process_http_execucao',
   {
     id: id(),
     tenantId: refTenant(),
-    execucaoId: uuid('execucao_id').notNull().references(() => execucaoFluxo.id, { onDelete: 'cascade' }),
-    chave: text('chave').notNull(),
-    blocoId: uuid('bloco_id').references(() => bloco.id, { onDelete: 'set null' }),
-    blocoCodigo: text('bloco_codigo').notNull(),
+    execucaoId: uuid('execucao_id').notNull().references(() => executionFlow.id, { onDelete: 'cascade' }),
+    key: text('chave').notNull(),
+    blocoId: uuid('bloco_id').references(() => block.id, { onDelete: 'set null' }),
+    blockCode: text('bloco_codigo').notNull(),
     lista: text('lista').notNull(),
     indice: integer('indice').notNull(),
     entrada: jsonb('entrada').notNull(),
@@ -401,7 +401,7 @@ export const processHttpExecucao = pgTable(
   },
   (t) => [
     listaCheck('process_http_execucao_estado_ck', t.estado, ESTADOS_PROCESS_HTTP),
-    uniqueIndex('process_http_execucao_chave_uk').on(t.execucaoId, t.chave),
+    uniqueIndex('process_http_execucao_chave_uk').on(t.execucaoId, t.key),
     index('process_http_execucao_pendente_idx').on(t.tenantId, t.estado),
   ],
 );
@@ -452,7 +452,7 @@ export const TIPOS_ACAO = [
   'funcao',
   'agente_ia',
 ] as const;
-export const POLITICAS_ERRO = ['parar', 'continuar', 'repetir'] as const;
+export const POLICYS_ERROR = ['parar', 'continuar', 'repetir'] as const;
 
 export const acao = pgTable(
   'acao',
@@ -467,17 +467,17 @@ export const acao = pgTable(
     config: jsonb('config')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    onErro: text('on_erro').notNull().default('parar'),
+    onError: text('on_erro').notNull().default('parar'),
   },
   (t) => [
     listaCheck('acao_tipo_ck', t.tipo, TIPOS_ACAO),
-    listaCheck('acao_on_erro_ck', t.onErro, POLITICAS_ERRO),
+    listaCheck('acao_on_erro_ck', t.onError, POLICYS_ERROR),
     uniqueIndex('acao_uk').on(t.workflowId, t.ordem),
   ],
 );
 
 /** Workflow que falha em silêncio é pior que workflow que não existe. */
-export const execucaoWorkflow = pgTable(
+export const executionWorkflow = pgTable(
   'execucao_workflow',
   {
     id: id(),
@@ -489,35 +489,35 @@ export const execucaoWorkflow = pgTable(
       .notNull()
       .default(sql`'{}'::jsonb`),
     estado: text('estado').notNull().default('executando'),
-    iniciadaEm: momento('iniciada_em').notNull().defaultNow(),
-    encerradaEm: momento('encerrada_em'),
+    iniciadaEm: moment('iniciada_em').notNull().defaultNow(),
+    encerradaEm: moment('encerrada_em'),
     erro: text('erro'),
   },
   (t) => [
-    listaCheck('execucao_workflow_estado_ck', t.estado, ESTADOS_EXECUCAO),
+    listaCheck('execucao_workflow_estado_ck', t.estado, STATES_EXECUTION),
     index('execucao_workflow_idx').on(t.tenantId, t.workflowId, t.iniciadaEm.desc()),
   ],
 );
 
-export const execucaoAcao = pgTable(
+export const executionAcao = pgTable(
   'execucao_acao',
   {
     id: id(),
     tenantId: refTenant(),
-    execucaoWorkflowId: uuid('execucao_workflow_id')
+    executionWorkflowId: uuid('execucao_workflow_id')
       .notNull()
-      .references(() => execucaoWorkflow.id, { onDelete: 'cascade' }),
+      .references(() => executionWorkflow.id, { onDelete: 'cascade' }),
     acaoId: uuid('acao_id').references(() => acao.id, { onDelete: 'set null' }),
     entrada: jsonb('entrada'),
     saida: jsonb('saida'),
     erro: text('erro'),
     duracaoMs: integer('duracao_ms'),
-    em: momento('em').notNull().defaultNow(),
+    em: moment('em').notNull().defaultNow(),
   },
-  (t) => [index('execucao_acao_execucao_idx').on(t.tenantId, t.execucaoWorkflowId, t.em)],
+  (t) => [index('execucao_acao_execucao_idx').on(t.tenantId, t.executionWorkflowId, t.em)],
 );
 
-export const consultaSalva = pgTable(
+export const querySaves = pgTable(
   'consulta_salva',
   {
     id: id(),
@@ -531,32 +531,32 @@ export const consultaSalva = pgTable(
     parametros: jsonb('parametros')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    criadaPor: uuid('criada_por').references(() => usuario.id, { onDelete: 'set null' }),
+    createdBy: uuid('criada_por').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
   (t) => [uniqueIndex('consulta_salva_uk').on(t.tenantId, t.nome)],
 );
 
-export const FORMATOS_EXPORTACAO = ['csv', 'json', 'parquet'] as const;
+export const FORMATS_EXPORT = ['csv', 'json', 'parquet'] as const;
 
-export const agendamentoConsulta = pgTable(
+export const schedulingQuery = pgTable(
   'agendamento_consulta',
   {
     id: id(),
     tenantId: refTenant(),
-    consultaId: uuid('consulta_id')
+    queryId: uuid('consulta_id')
       .notNull()
-      .references(() => consultaSalva.id, { onDelete: 'cascade' }),
+      .references(() => querySaves.id, { onDelete: 'cascade' }),
     cron: text('cron').notNull(),
-    formato: text('formato').notNull().default('csv'),
-    destino: jsonb('destino')
+    format: text('formato').notNull().default('csv'),
+    destination: jsonb('destino')
       .notNull()
       .default(sql`'{}'::jsonb`),
     ativo: boolean('ativo').notNull().default(true),
-    ultimaExecucaoEm: momento('ultima_execucao_em'),
+    lastExecutionAt: moment('ultima_execucao_em'),
     ...carimbos(),
   },
-  (t) => [listaCheck('agendamento_consulta_formato_ck', t.formato, FORMATOS_EXPORTACAO)],
+  (t) => [listaCheck('agendamento_consulta_formato_ck', t.format, FORMATS_EXPORT)],
 );
 
 /**
@@ -566,14 +566,14 @@ export const agendamentoConsulta = pgTable(
  * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
  * declarada à mão pelo CRM caseiro.
  */
-export const dicionarioObjeto = pgTable(
+export const dictionaryObject = pgTable(
   'dicionario_objeto',
   {
     id: id(),
     tenantId: refTenant(),
     codigo: text('codigo').notNull(),
     rotulo: text('rotulo').notNull(),
-    descricao: text('descricao'),
+    description: text('descricao'),
     twentyId: text('twenty_id'),
     namePlural: text('name_plural'),
     labelPlural: text('label_plural'),
@@ -597,7 +597,7 @@ export const dicionarioObjeto = pgTable(
  * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
  * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
  */
-export const dicionarioCampo = pgTable(
+export const dictionaryField = pgTable(
   'dicionario_campo',
   {
     id: id(),
@@ -633,7 +633,7 @@ export const dicionarioCampo = pgTable(
  * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
  * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
  */
-export const TIPOS_AUTENTICACAO_WEBHOOK = [
+export const TYPES_AUTHENTICATION_WEBHOOK = [
   'nenhuma',
   'basica',
   'oauth2_client_credentials',
@@ -650,16 +650,16 @@ export const webhookSaida = pgTable(
       .notNull()
       .default(sql`'{}'::text[]`),
     /** Segredo do HMAC de assinatura; cifrado em repouso, como o segredo de canal. */
-    segredo: text('segredo').notNull(),
+    secret: text('segredo').notNull(),
     ativo: boolean('ativo').notNull().default(true),
     /** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */
-    tipoAutenticacao: text('tipo_autenticacao').notNull().default('nenhuma'),
+    typeAuthentication: text('tipo_autenticacao').notNull().default('nenhuma'),
     /** Usuário da autenticação básica — não é segredo, fica legível. */
-    autenticacaoUsuario: text('autenticacao_usuario'),
+    authenticationUser: text('autenticacao_usuario'),
     /** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */
-    autenticacaoSenha: text('autenticacao_senha'),
+    authenticationPassword: text('autenticacao_senha'),
     /** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */
-    oauth2UrlAutorizacao: text('oauth2_url_autorizacao'),
+    oauth2UrlAuthorization: text('oauth2_url_autorizacao'),
     /** Client ID do OAuth 2.0 — não é segredo. */
     oauth2ClientId: text('oauth2_client_id'),
     /** Client Secret do OAuth 2.0 — cifrado em repouso. */
@@ -680,15 +680,15 @@ export const webhookSaida = pgTable(
     index('webhook_saida_tenant_idx').on(t.tenantId, t.ativo),
     listaCheck(
       'webhook_saida_tipo_autenticacao_ck',
-      t.tipoAutenticacao,
-      TIPOS_AUTENTICACAO_WEBHOOK,
+      t.typeAuthentication,
+      TYPES_AUTHENTICATION_WEBHOOK,
     ),
   ],
 );
 
-export const ESTADOS_ENTREGA_WEBHOOK = ['pendente', 'entregue', 'falhou', 'descartada'] as const;
+export const STATES_DELIVERY_WEBHOOK = ['pendente', 'entregue', 'falhou', 'descartada'] as const;
 
-export const entregaWebhook = pgTable(
+export const deliveryWebhook = pgTable(
   'entrega_webhook',
   {
     id: id(),
@@ -702,12 +702,12 @@ export const entregaWebhook = pgTable(
       .default(sql`'{}'::jsonb`),
     tentativas: integer('tentativas').notNull().default(0),
     estado: text('estado').notNull().default('pendente'),
-    ultimoErro: text('ultimo_erro'),
-    proximaTentativaEm: momento('proxima_tentativa_em'),
-    criadoEm: momento('criado_em').notNull().defaultNow(),
+    lastError: text('ultimo_erro'),
+    proximaTentativaEm: moment('proxima_tentativa_em'),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
   },
   (t) => [
-    listaCheck('entrega_webhook_estado_ck', t.estado, ESTADOS_ENTREGA_WEBHOOK),
+    listaCheck('entrega_webhook_estado_ck', t.estado, STATES_DELIVERY_WEBHOOK),
     index('entrega_webhook_pendente_idx').on(t.estado, t.proximaTentativaEm),
   ],
 );

@@ -3,13 +3,13 @@ import { BarraDoPortal } from '../../../componentes/barra-do-portal';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useEu } from '../../../contexto/sessao';
-import { useCascaDoPortal } from '../../../lib/casca';
-import { useLeitura } from '../../../lib/consulta';
-import type { MembroDoContrato, PapelDaConta, ResumoDoContrato } from '../../../lib/contrato';
-import { PAPEIS_DA_ORIGEM, ehPapelDeConta } from '../catalogo';
+import { portalUseShell } from '../../../lib/casca';
+import { useRead } from '../../../lib/consulta';
+import type { ContractMember, AccountRole, ContractSummary } from '../../../lib/contrato';
+import { PAPEIS_DA_ORIGEM, accountEhRole } from '../catalogo';
 import '../contrato.css';
-import { ConvidarMembros } from './convidar';
-import { AbasDeMembros, TabelaDeMembros } from './tabela';
+import { ConvidarMembers } from './convidar';
+import { MembersAbas, MembersTabela } from './tabela';
 
 /**
  * Membros — o cartão "Adicione e exclua membros do contrato" do painel, que na
@@ -36,34 +36,34 @@ import { AbasDeMembros, TabelaDeMembros } from './tabela';
  * link volta pelo estado do modal, nunca pela URL (ver `convidarMembros`). Os
  * convites emitidos aparecem na lista com "(Pendente)", como na origem.
  */
-export function PaginaDeMembros() {
+export function MembersPage() {
   const eu = useEu();
-  const casca = useCascaDoPortal();
-  const [busca] = useSearchParams();
-  const parametros = { erro: busca.get('erro') ?? undefined };
-  const podeLer = eu.permissoes.includes('conta.membros.ler');
-  const resumo = useLeitura<ResumoDoContrato>(podeLer ? '/v1/gestao/contrato/resumo' : null);
-  const lista = useLeitura<{ membros: MembroDoContrato[]; papeis: PapelDaConta[] }>(
+  const shell = portalUseShell();
+  const [search] = useSearchParams();
+  const parametros = { erro: search.get('erro') ?? undefined };
+  const podeLer = eu.permissions.includes('conta.membros.ler');
+  const resumo = useRead<ContractSummary>(podeLer ? '/v1/gestao/contrato/resumo' : null);
+  const lista = useRead<{ members: ContractMember[]; papeis: AccountRole[] }>(
     podeLer ? '/v1/gestao/contrato/membros' : null,
   );
   if (!podeLer) return <Navigate to="/contrato" replace />;
   if (!resumo.data || !lista.data) return null;
-  const contrato = resumo.data;
-  const { membros, papeis } = lista.data;
+  const contract = resumo.data;
+  const { members, papeis } = lista.data;
 
-  const podeEscrever = eu.permissoes.includes('conta.membros.escrever');
+  const podeEscrever = eu.permissions.includes('conta.membros.escrever');
 
   /* Na ordem da origem (guest, member, admin), que é a ordem das chaves do mapa. */
-  const ordem = Object.keys(PAPEIS_DA_ORIGEM);
-  const opcoesDePapel = papeis
+  const order = Object.keys(PAPEIS_DA_ORIGEM);
+  const roleOptions = papeis
     .flatMap((p) =>
-      ehPapelDeConta(p.nome) ? [{ id: p.id, roleId: p.nome, ...PAPEIS_DA_ORIGEM[p.nome] }] : [],
+      accountEhRole(p.nome) ? [{ id: p.id, roleId: p.nome, ...PAPEIS_DA_ORIGEM[p.nome] }] : [],
     )
-    .sort((a, b) => ordem.indexOf(a.roleId) - ordem.indexOf(b.roleId));
+    .sort((a, b) => order.indexOf(a.roleId) - order.indexOf(b.roleId));
 
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={casca} />
+      <BarraDoPortal data={shell} />
 
       <main className="pt-conteudo">
         <div className="mb-tela">
@@ -71,7 +71,7 @@ export function PaginaDeMembros() {
             <Link className="mb-voltar" href="/contrato" aria-label="Voltar ao painel do contrato">
               <IconePortal nome="esquerda" tamanho={24} />
             </Link>
-            <h1>Membros do contrato {contrato.nome}</h1>
+            <h1>Membros do contrato {contract.nome}</h1>
           </div>
 
           {parametros.erro ? (
@@ -82,34 +82,34 @@ export function PaginaDeMembros() {
 
           <div className="mb-quadro">
             <div className="mb-cartao">
-              <AbasDeMembros podeEscrever={podeEscrever}>
-                <TabelaDeMembros
+              <MembersAbas podeEscrever={podeEscrever}>
+                <MembersTabela
                   podeEscrever={podeEscrever}
-                  papeis={opcoesDePapel}
+                  papeis={roleOptions}
                   /* Você não entra na sua própria lista — é o filtro deles
                      (`userIdentity !== loggedUser.identity`). Quem quer sair usa
                      "Deixar contrato", no cartão de resumo do painel. */
-                  membros={membros
-                    .filter((m) => !(m.tipo === 'usuario' && m.id === eu.usuario.id))
+                  members={members
+                    .filter((m) => !(m.tipo === 'usuario' && m.id === eu.user.id))
                     .map((m) => ({
                       id: m.id,
                       tipo: m.tipo,
                       nome: m.nome,
                       email: m.email,
-                      papel: ehPapelDeConta(m.papelNome)
-                        ? PAPEIS_DA_ORIGEM[m.papelNome].rotulo
+                      papel: accountEhRole(m.roleName)
+                        ? PAPEIS_DA_ORIGEM[m.roleName].rotulo
                         : '',
                     }))}
                 />
                 {podeEscrever ? (
-                  <ConvidarMembros
-                    papeis={opcoesDePapel}
-                    emailsDeMembros={membros
+                  <ConvidarMembers
+                    papeis={roleOptions}
+                    membersEmails={members
                       .filter((m) => m.tipo === 'usuario')
                       .map((m) => m.email.toLowerCase())}
                   />
                 ) : null}
-              </AbasDeMembros>
+              </MembersAbas>
             </div>
           </div>
         </div>

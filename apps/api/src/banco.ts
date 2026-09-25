@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { criarBanco, comTenant, chaveiroDoAmbiente, decifrarConfig } from '@pipe/db';
-import type { BancoPipe, Chaveiro, TransacaoPipe } from '@pipe/db';
+import { createDatabase, comTenant, keyringOfAmbiente, decifrarConfig } from '@pipe/db';
+import type { DatabasePipe, Keyring, TransactionPipe } from '@pipe/db';
 
 /**
  * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.
@@ -20,16 +20,16 @@ const URL_APP =
   process.env['DATABASE_URL_APP'] ?? 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 const URL_DONO = process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
 
-let app: BancoPipe | null = null;
-let dono: BancoPipe | null = null;
+let app: DatabasePipe | null = null;
+let dono: DatabasePipe | null = null;
 
-export function bancoApp(): BancoPipe {
-  app ??= criarBanco({ url: URL_APP, maxConexoes: 10 });
+export function databaseApp(): DatabasePipe {
+  app ??= createDatabase({ url: URL_APP, maxConnections: 10 });
   return app;
 }
 
-export function bancoDono(): BancoPipe {
-  dono ??= criarBanco({ url: URL_DONO, maxConexoes: 2 });
+export function databaseOwner(): DatabasePipe {
+  dono ??= createDatabase({ url: URL_DONO, maxConnections: 2 });
   return dono;
 }
 
@@ -39,11 +39,11 @@ export function bancoDono(): BancoPipe {
  * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
  * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
  */
-export function noTenant<T>(tenantId: string, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> {
-  return comTenant(bancoApp(), tenantId, fn);
+export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
+  return comTenant(databaseApp(), tenantId, fn);
 }
 
-export interface CanalResolvido {
+export interface ChannelResolved {
   id: string;
   tenantId: string;
   tipo: string;
@@ -51,29 +51,29 @@ export interface CanalResolvido {
   config: Record<string, unknown>;
 }
 
-const cacheDeCanal = new Map<string, CanalResolvido>();
+const cacheOfChannel = new Map<string, ChannelResolved>();
 
 /**
  * O chaveiro é lido do ambiente uma vez e guardado. Ler a cada evento da Meta
  * seria trabalho repetido, e uma chave que muda em tempo de execução é reinício
  * de processo, não recarga.
  */
-let chaveiroGuardado: Chaveiro | null = null;
+let keyringSaved: Keyring | null = null;
 
-export function chaveiro(): Chaveiro {
-  chaveiroGuardado ??= chaveiroDoAmbiente();
-  return chaveiroGuardado;
+export function keyring(): Keyring {
+  keyringSaved ??= keyringOfAmbiente();
+  return keyringSaved;
 }
 
 /**
  * Resolve o canal do webhook. Guardado em memória porque é lido a cada evento da
  * Meta e muda quase nunca; `esquecerCanal` invalida quando a configuração mudar.
  */
-export async function resolverCanal(canalId: string): Promise<CanalResolvido | null> {
-  const guardado = cacheDeCanal.get(canalId);
+export async function resolveChannel(canalId: string): Promise<ChannelResolved | null> {
+  const guardado = cacheOfChannel.get(canalId);
   if (guardado) return guardado;
 
-  const { rows } = await bancoDono().execute<{
+  const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
     tipo: string;
@@ -83,7 +83,7 @@ export async function resolverCanal(canalId: string): Promise<CanalResolvido | n
 
   const linha = rows[0];
   if (!linha) return null;
-  const canal: CanalResolvido = {
+  const channel: ChannelResolved = {
     id: linha.id,
     tenantId: linha.tenant_id,
     tipo: linha.tipo,
@@ -91,10 +91,10 @@ export async function resolverCanal(canalId: string): Promise<CanalResolvido | n
     // Decifrado UMA vez, aqui, e o resto do código continua lendo
     // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
     // texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.
-    config: decifrarConfig(linha.config ?? {}, chaveiro()),
+    config: decifrarConfig(linha.config ?? {}, keyring()),
   };
-  cacheDeCanal.set(canalId, canal);
-  return canal;
+  cacheOfChannel.set(canalId, channel);
+  return channel;
 }
 
 /**
@@ -109,13 +109,13 @@ export async function resolverCanal(canalId: string): Promise<CanalResolvido | n
  * outro aplicativo ou de canal removido; processar no melhor palpite é como se
  * entrega o dado de um cliente a outro.
  */
-export async function resolverCanalPorIdentificador(
+export async function resolveChannelByIdentifier(
   numeroId: string | undefined,
   wabaId: string | undefined,
-): Promise<CanalResolvido | null> {
+): Promise<ChannelResolved | null> {
   if (!numeroId && !wabaId) return null;
 
-  const { rows } = await bancoDono().execute<{
+  const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
     tipo: string;
@@ -138,13 +138,13 @@ export async function resolverCanalPorIdentificador(
     tenantId: linha.tenant_id,
     tipo: linha.tipo,
     ativo: linha.ativo,
-    config: decifrarConfig(linha.config ?? {}, chaveiro()),
+    config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }
 
-export function esquecerCanal(canalId?: string): void {
-  if (canalId) cacheDeCanal.delete(canalId);
-  else cacheDeCanal.clear();
+export function esquecerChannel(channelId?: string): void {
+  if (channelId) cacheOfChannel.delete(channelId);
+  else cacheOfChannel.clear();
 }
 
 export async function fecharBancos(): Promise<void> {
@@ -152,5 +152,5 @@ export async function fecharBancos(): Promise<void> {
   if (dono) await dono.$client.end();
   app = null;
   dono = null;
-  esquecerCanal();
+  esquecerChannel();
 }

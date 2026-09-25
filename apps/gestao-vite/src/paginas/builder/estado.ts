@@ -18,11 +18,11 @@ import type { Mapa } from './modelo';
  * estava no ar continua suja.
  */
 
-export const LIMITE_DO_HISTORICO = 50;
+export const HISTORY_LIMIT = 50;
 
-export interface EstadoDoEditor {
+export interface EditorState {
   mapa: Mapa;
-  globais: Record<string, unknown>;
+  global: Record<string, unknown>;
   passado: Mapa[];
   futuro: Mapa[];
   /** O mapa antes do arrasto em curso, para o `soltar` gravar um passo só. */
@@ -33,7 +33,7 @@ export interface EstadoDoEditor {
 }
 
 export type GestoDoEditor =
-  | { tipo: 'carregar'; mapa: Mapa; globais: Record<string, unknown> }
+  | { tipo: 'carregar'; mapa: Mapa; global: Record<string, unknown> }
   | { tipo: 'aplicar'; mapa: Mapa }
   | { tipo: 'mover'; mapa: Mapa }
   | { tipo: 'soltar' }
@@ -43,68 +43,68 @@ export type GestoDoEditor =
   /** As ações globais (aba "Ações Globais" da Configuração) — fora da pilha de
    * desfazer/refazer, que só guarda `Mapa` (ver `passado`/`futuro`); Ctrl+Z
    * continua desfazendo só o desenho, como antes desta aba existir. */
-  | { tipo: 'aplicarGlobais'; globais: Record<string, unknown> };
+  | { tipo: 'aplicarGlobais'; global: Record<string, unknown> };
 
-export function estadoInicial(): EstadoDoEditor {
-  return { mapa: {}, globais: {}, passado: [], futuro: [], antesDoArrasto: null, sujo: false, gravado: null };
+export function stateInitial(): EditorState {
+  return { mapa: {}, global: {}, passado: [], futuro: [], antesDoArrasto: null, sujo: false, gravado: null };
 }
 
-export function reduzir(estado: EstadoDoEditor, gesto: GestoDoEditor): EstadoDoEditor {
+export function reduzir(state: EditorState, gesto: GestoDoEditor): EditorState {
   switch (gesto.tipo) {
     case 'carregar':
-      return { ...estadoInicial(), mapa: gesto.mapa, globais: gesto.globais, gravado: gesto.mapa };
+      return { ...stateInitial(), mapa: gesto.mapa, global: gesto.global, gravado: gesto.mapa };
     case 'aplicar': {
-      if (gesto.mapa === estado.mapa) return estado;
-      const passado = [...estado.passado, estado.mapa].slice(-LIMITE_DO_HISTORICO);
-      return { ...estado, mapa: gesto.mapa, passado, futuro: [], sujo: true };
+      if (gesto.mapa === state.mapa) return state;
+      const passado = [...state.passado, state.mapa].slice(-HISTORY_LIMIT);
+      return { ...state, mapa: gesto.mapa, passado, futuro: [], sujo: true };
     }
     case 'mover':
       return {
-        ...estado,
+        ...state,
         mapa: gesto.mapa,
-        antesDoArrasto: estado.antesDoArrasto ?? estado.mapa,
+        antesDoArrasto: state.antesDoArrasto ?? state.mapa,
         sujo: true,
       };
     case 'soltar': {
-      if (!estado.antesDoArrasto) return estado;
-      const passado = [...estado.passado, estado.antesDoArrasto].slice(-LIMITE_DO_HISTORICO);
-      return { ...estado, passado, futuro: [], antesDoArrasto: null };
+      if (!state.antesDoArrasto) return state;
+      const passado = [...state.passado, state.antesDoArrasto].slice(-HISTORY_LIMIT);
+      return { ...state, passado, futuro: [], antesDoArrasto: null };
     }
     case 'desfazer': {
       // Um arrasto em curso ainda não virou passo do histórico (só `soltar` o
       // empilha) — desfazer agora trocaria o mapa por baixo do arrasto e o
       // `soltar` seguinte empilharia o `antesDoArrasto` velho por cima, perdendo
       // o desfazer. Ctrl+Z some enquanto o botão do mouse está apertado.
-      if (estado.antesDoArrasto) return estado;
-      const anterior = estado.passado[estado.passado.length - 1];
-      if (!anterior) return estado;
+      if (state.antesDoArrasto) return state;
+      const anterior = state.passado[state.passado.length - 1];
+      if (!anterior) return state;
       return {
-        ...estado,
+        ...state,
         mapa: anterior,
-        passado: estado.passado.slice(0, -1),
-        futuro: [estado.mapa, ...estado.futuro],
-        sujo: anterior !== estado.gravado,
+        passado: state.passado.slice(0, -1),
+        futuro: [state.mapa, ...state.futuro],
+        sujo: anterior !== state.gravado,
       };
     }
     case 'refazer': {
-      if (estado.antesDoArrasto) return estado;
-      const proximo = estado.futuro[0];
-      if (!proximo) return estado;
+      if (state.antesDoArrasto) return state;
+      const proximo = state.futuro[0];
+      if (!proximo) return state;
       return {
-        ...estado,
+        ...state,
         mapa: proximo,
-        passado: [...estado.passado, estado.mapa].slice(-LIMITE_DO_HISTORICO),
-        futuro: estado.futuro.slice(1),
-        sujo: proximo !== estado.gravado,
+        passado: [...state.passado, state.mapa].slice(-HISTORY_LIMIT),
+        futuro: state.futuro.slice(1),
+        sujo: proximo !== state.gravado,
       };
     }
     case 'salvo':
-      return { ...estado, gravado: gesto.mapa, sujo: estado.mapa !== gesto.mapa };
+      return { ...state, gravado: gesto.mapa, sujo: state.mapa !== gesto.mapa };
     case 'aplicarGlobais':
-      if (gesto.globais === estado.globais) return estado;
-      return { ...estado, globais: gesto.globais, sujo: true };
+      if (gesto.global === state.global) return state;
+      return { ...state, global: gesto.global, sujo: true };
   }
 }
 
-export const podeDesfazer = (estado: EstadoDoEditor): boolean => estado.passado.length > 0;
-export const podeRefazer = (estado: EstadoDoEditor): boolean => estado.futuro.length > 0;
+export const podeDesfazer = (state: EditorState): boolean => state.passado.length > 0;
+export const podeRefazer = (state: EditorState): boolean => state.futuro.length > 0;

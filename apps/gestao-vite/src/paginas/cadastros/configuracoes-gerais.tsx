@@ -1,18 +1,18 @@
 import { Campo, Seletor } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { ConfiguracoesGerais } from '../../lib/configuracoes';
+import { useRead } from '../../lib/consulta';
+import type { SettingsGeneral } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
 import {
   DISPAROS_DE_PESQUISA,
-  ESCALA_POR_TIPO,
+  ESCALA_BY_TIPO,
   ROTULO_DISPARO,
   ROTULO_TIPO_PESQUISA,
   TIPOS_DE_PESQUISA,
   tipoDePesquisaValido,
   type TipoDePesquisa,
 } from '../../lib/pesquisa';
-import { CartaoConfig } from '../../componentes/cartao-config';
-import { salvarEtiquetasDeEncerramento, salvarIdentidade, salvarPesquisa } from '../../lib/acoes';
+import { CardConfig } from '../../componentes/cartao-config';
+import { closureSalvarTags, salvarIdentity, salvarPesquisa } from '../../lib/acoes';
 
 /**
  * Preferências ├ Configurações gerais.
@@ -32,10 +32,10 @@ import { salvarEtiquetasDeEncerramento, salvarIdentidade, salvarPesquisa } from 
  * `lib/configuracoes.ts` para que edição de configuração deixasse de ser
  * passivo.
  */
-export function PaginaConfiguracoesGerais() {
-  const leitura = useLeitura<ConfiguracoesGerais>('/v1/gestao/configuracoes/gerais');
-  if (!leitura.data) return null;
-  const { identidade, pesquisa, outrasPesquisas, etiquetas } = leitura.data;
+export function PageSettingsGeneral() {
+  const read = useRead<SettingsGeneral>('/v1/gestao/configuracoes/gerais');
+  if (!read.data) return null;
+  const { identity, pesquisa, outrasPesquisas, etiquetas } = read.data;
 
   const tipoGravado = pesquisa?.tipo ?? '';
   const tipoAtual: TipoDePesquisa = tipoDePesquisaValido(tipoGravado) ? tipoGravado : 'csat';
@@ -49,29 +49,29 @@ export function PaginaConfiguracoesGerais() {
       </div>
 
       {/* ----------------------------------------------------------- cartão 1 */}
-      <CartaoConfig
+      <CardConfig
         titulo="Identidade da operação"
-        explicacao={
+        explanation={
           <>
             O nome que aparece na barra do topo e o fuso em que a operação vive. O fuso é o que
             decide o que é <b>“hoje”</b> em todo cartão e em todo relatório — trocá-lo redesenha o
             corte do dia, não só o rótulo da hora.
           </>
         }
-        acao={salvarIdentidade}
-        rodape={`Plano ${identidade.plano} — o plano é contrato, e muda com a gente.`}
+        acao={salvarIdentity}
+        rodape={`Plano ${identity.plano} — o plano é contrato, e muda com a gente.`}
       >
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Nome da operação</span>
-            <Campo name="nome" defaultValue={identidade.nome} required />
+            <Campo name="nome" defaultValue={identity.nome} required />
           </label>
 
           <label className="form-campo" style={{ flexBasis: '240px' }}>
             <span className="sub">Fuso (IANA)</span>
             <Campo
               name="fuso"
-              defaultValue={identidade.fuso}
+              defaultValue={identity.fuso}
               placeholder="America/Sao_Paulo"
               required
             />
@@ -79,15 +79,15 @@ export function PaginaConfiguracoesGerais() {
 
           <label className="form-campo" style={{ flexBasis: '160px' }}>
             <span className="sub">Idioma</span>
-            <Campo name="idioma" defaultValue={identidade.idioma} placeholder="pt-BR" required />
+            <Campo name="idioma" defaultValue={identity.idioma} placeholder="pt-BR" required />
           </label>
         </div>
-      </CartaoConfig>
+      </CardConfig>
 
       {/* ----------------------------------------------------------- cartão 2 */}
-      <CartaoConfig
+      <CardConfig
         titulo="Pesquisa de satisfação"
-        explicacao={
+        explanation={
           <>
             Uma escala por pesquisa, e a escala sai do tipo: <b>CSAT</b> vai de 1 a 5, <b>NPS</b> de
             0 a 10. Ela não é digitável de propósito — nota de escalas diferentes somada no mesmo
@@ -99,12 +99,12 @@ export function PaginaConfiguracoesGerais() {
         interruptor={{
           name: 'ativa',
           rotulo: 'Disparar a pesquisa de satisfação',
-          ligado: pesquisa?.ativa ?? false,
+          ligado: pesquisa?.active ?? false,
         }}
         rodape={
           outrasPesquisas > 0
             ? `Há mais ${numero(outrasPesquisas)} pesquisa(s) cadastrada(s). O relatório separa por tipo e escala; esta tela edita a mais recente.`
-            : `Hoje: ${ESCALA_POR_TIPO[tipoAtual].faixas}`
+            : `Hoje: ${ESCALA_BY_TIPO[tipoAtual].faixas}`
         }
       >
         {pesquisa ? <input type="hidden" name="id" value={pesquisa.id} /> : null}
@@ -147,12 +147,12 @@ export function PaginaConfiguracoesGerais() {
           A <b>taxa de resposta</b> continua obrigatória no relatório de Satisfação: uma média de
           4,85 com 22% de resposta não é a mesma coisa que 4,85 com 90%, e a tela mostra as duas.
         </p>
-      </CartaoConfig>
+      </CardConfig>
 
       {/* ----------------------------------------------------------- cartão 3 */}
-      <CartaoConfig
+      <CardConfig
         titulo="Etiqueta no encerramento"
-        explicacao={
+        explanation={
           <>
             Torna obrigatória a inclusão de etiqueta em atendimento finalizado manualmente. O
             atendente só consegue encerrar depois de escolher uma das marcadas aqui. É a lista que
@@ -160,7 +160,7 @@ export function PaginaConfiguracoesGerais() {
             mede o que sobrou.
           </>
         }
-        acao={salvarEtiquetasDeEncerramento}
+        acao={closureSalvarTags}
         interruptor={{
           name: 'exigir',
           rotulo: 'Exigir etiqueta ao encerrar',
@@ -196,7 +196,7 @@ export function PaginaConfiguracoesGerais() {
             ))}
           </div>
         )}
-      </CartaoConfig>
+      </CardConfig>
     </>
   );
 }

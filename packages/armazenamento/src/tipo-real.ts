@@ -19,7 +19,7 @@ interface Assinatura {
   mime: string;
   /** Bytes esperados. `null` em uma posição é curinga. */
   bytes: (number | null)[];
-  deslocamento?: number;
+  offset?: number;
 }
 
 const ASSINATURAS: Assinatura[] = [
@@ -40,17 +40,17 @@ const ASSINATURAS: Assinatura[] = [
   { mime: 'audio/wav', bytes: [0x52, 0x49, 0x46, 0x46, null, null, null, null, 0x57, 0x41, 0x56, 0x45] },
   { mime: 'video/avi', bytes: [0x52, 0x49, 0x46, 0x46, null, null, null, null, 0x41, 0x56, 0x49, 0x20] },
   // `ftyp` na posição 4 é a família ISO-BMFF: mp4, m4v, mov, 3gp e o áudio m4a.
-  { mime: 'video/mp4', bytes: [0x66, 0x74, 0x79, 0x70], deslocamento: 4 },
+  { mime: 'video/mp4', bytes: [0x66, 0x74, 0x79, 0x70], offset: 4 },
   { mime: 'video/webm', bytes: [0x1a, 0x45, 0xdf, 0xa3] },
 ];
 
 /** O MIME que os bytes revelam, ou `null` quando não há assinatura reconhecível. */
-export function tipoReal(dados: Uint8Array): string | null {
+export function tipoReal(data: Uint8Array): string | null {
   for (const assinatura of ASSINATURAS) {
-    const inicio = assinatura.deslocamento ?? 0;
-    if (dados.length < inicio + assinatura.bytes.length) continue;
+    const inicio = assinatura.offset ?? 0;
+    if (data.length < inicio + assinatura.bytes.length) continue;
     const bate = assinatura.bytes.every(
-      (esperado, i) => esperado === null || dados[inicio + i] === esperado,
+      (esperado, i) => esperado === null || data[inicio + i] === esperado,
     );
     if (bate) return assinatura.mime;
   }
@@ -66,7 +66,7 @@ export function tipoReal(dados: Uint8Array): string | null {
  */
 const PERIGOSOS_INLINE = new Set(['text/html', 'image/svg+xml', 'application/xhtml+xml']);
 
-export function servirComoAnexo(mime: string): boolean {
+export function serveAsAttachment(mime: string): boolean {
   return PERIGOSOS_INLINE.has(mime);
 }
 

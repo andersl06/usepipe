@@ -1,16 +1,16 @@
 import { sql } from 'drizzle-orm';
-import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';
+import { MAX_FILES_BY_MESSAGE, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';
 import { avaliarEnvio, classificarCusto } from '@pipe/core';
-import type { CategoriaTemplate, TipoCanal } from '@pipe/core';
-import { posicaoDeVariavel } from '@pipe/workers/whatsapp';
+import type { CategoriaTemplate, TipoChannel } from '@pipe/core';
+import { positionOfVariable } from '@pipe/workers/whatsapp';
 import type { CabecalhoTemplate } from '@pipe/workers/whatsapp';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 import { registrarEvento } from './eventos.js';
 import { exigirSemPalavrasProibidas } from './gestao/palavras-proibidas.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
-import { enfileirarEntrega } from '../filas.js';
+import { enqueueDelivery } from '../filas.js';
 
 /**
  * Envio de mensagem pela API.
@@ -38,9 +38,9 @@ export interface PedidoDeEnvio {
   /** Valores das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */
   parametros?: string[];
   /** Mídia já subida para o storage. */
-  anexoId?: string | null;
+  attachmentId?: string | null;
   /** URL pública da mídia do cabeçalho do template. É ela que ocupa a posição 1. */
-  midiaUrl?: string | null;
+  mediaUrl?: string | null;
   /**
    * Resposta pronta usada para escrever a mensagem. Só alimenta o relatório de esforço
    * — mas vem no MESMO insert de propósito: a tela carimbava numa segunda ida ao banco
@@ -61,10 +61,10 @@ export interface PedidoDeEnvio {
   exigirAtribuicao?: boolean;
 }
 
-export interface MensagemEnfileirada {
+export interface MessageQueued {
   id: string;
   estadoEntrega: 'pendente';
-  dentroDaJanela: boolean;
+  insideOfWindow: boolean;
   categoriaCobranca: string | null;
   conteudo: string | null;
 }
@@ -77,20 +77,20 @@ export interface MensagemEnfileirada {
 // tem janela de 24h para resposta padrão (7 dias com a tag HUMAN_AGENT); fora dela a
 // Meta recusa o envio e o worker grava a falha na mensagem. Regra de janela própria do
 // Instagram no `@pipe/core` é decisão de produto ainda por tomar.
-function canalDoCore(tipo: string): TipoCanal {
+function channelOfCore(tipo: string): TipoChannel {
   return tipo === 'whatsapp_cloud' ? 'whatsapp_cloud' : 'widget';
 }
 
-type LinhaConversa = {
+type LineConversation = {
   id: string;
-  estado: string;
-  fila_id: string | null;
+  state: string;
+  queueId: string | null;
   atendente_id: string | null;
-  janela_expira_em: Date | string | null;
-  primeira_resposta_em: Date | string | null;
-  ultima_mensagem_em: Date | string | null;
-  canal_id: string;
-  canal_tipo: string;
+  windowExpiresAt: Date | string | null;
+  firstResponseAt: Date | string | null;
+  lastMessageAt: Date | string | null;
+  channelId: string;
+  channelType: string;
 };
 
 type LinhaTemplate = {
@@ -100,14 +100,14 @@ type LinhaTemplate = {
   corpo: string;
   status_meta: string;
   cabecalho_tipo: string;
-  variaveis: unknown;
+  variables: unknown;
 };
 
-export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnfileirada> {
+export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued> {
   const agora = new Date();
 
   const resultado = await noTenant(pedido.tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaConversa>(sql`
+    const { rows } = await tx.execute<LineConversation>(sql`
       select c.id, c.estado, c.fila_id, c.atendente_id, c.janela_expira_em,
              c.primeira_resposta_em, c.ultima_mensagem_em, ca.id as canal_id, ca.tipo as canal_tipo
         from conversa c
@@ -116,10 +116,10 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
        where c.id = ${pedido.conversaId}
        limit 1
     `);
-    const conversa = rows[0];
-    if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
-    if (conversa.estado === 'encerrada') {
-      throw ErroPipe.conflito(
+    const conversation = rows[0];
+    if (!conversation) throw PipeError.naoEncontrado('Conversa');
+    if (conversation.state === 'encerrada') {
+      throw PipeError.conflito(
         'conversa_encerrada',
         'A conversa está encerrada. Reabra antes de responder.',
       );
@@ -128,13 +128,13 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     // Atendente responde no que é dele. Conversa na fila (sem dono) também é recusada:
     // pegar a conversa é uma ação com evento próprio (`atribuida`), e deixar o envio
     // atribuir por tabela faria o relatório de TMR perder o marco.
-    if (pedido.exigirAtribuicao && conversa.atendente_id !== pedido.atendenteId) {
-      throw new ErroPipe(
+    if (pedido.exigirAtribuicao && conversation.atendente_id !== pedido.atendenteId) {
+      throw new PipeError(
         403,
         'conversa_de_outro_atendente',
         // O texto segue o da Blip ("Contato sendo atendido por outra pessoa. Para
         // atender, solicite a transferência a…"): diz o que houve e o que fazer.
-        conversa.atendente_id
+        conversation.atendente_id
           ? 'Contato sendo atendido por outra pessoa. Para atender, solicite a transferência.'
           : 'Esta conversa não está atribuída a você. Assuma a conversa antes de responder.',
       );
@@ -145,13 +145,13 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
       const { rows: linhas } = await tx.execute<LinhaTemplate>(sql`
         select id, nome, categoria, corpo, status_meta, cabecalho_tipo, variaveis
           from template_mensagem
-         where id = ${pedido.templateId} and canal_id = ${conversa.canal_id}
+         where id = ${pedido.templateId} and canal_id = ${conversation.channelId}
          limit 1
       `);
       template = linhas[0] ?? null;
-      if (!template) throw ErroPipe.naoEncontrado('Template');
+      if (!template) throw PipeError.naoEncontrado('Template');
       if (template.status_meta !== 'aprovado') {
-        throw ErroPipe.conflito(
+        throw PipeError.conflito(
           'template_nao_aprovado',
           `O template "${template.nome}" está como "${template.status_meta}" na Meta.`,
         );
@@ -159,32 +159,32 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     }
 
     const tipo = pedido.tipo ?? (template ? 'template' : 'texto');
-    const avaliacao = avaliarEnvio({
-      canal: canalDoCore(conversa.canal_tipo),
-      expiraEm: comoData(conversa.janela_expira_em),
+    const evaluation = avaliarEnvio({
+      channel: channelOfCore(conversation.channelType),
+      expiraEm: comoData(conversation.windowExpiresAt),
       agora,
       conteudo: template ? 'template' : 'texto_livre',
       categoriaTemplate: template?.categoria ?? null,
     });
 
-    if (!avaliacao.permitido) {
+    if (!evaluation.permitido) {
       // Mensagem em português e acionável: é ela que o atendente lê na tela.
-      const mensagem =
-        avaliacao.motivo === 'janela_fechada'
+      const message =
+        evaluation.motivo === 'janela_fechada'
           ? 'A janela de 24 horas fechou: fora dela só sai template aprovado pela Meta. ' +
             'Escolha um template para reabrir a conversa.'
           : 'O template não tem categoria de cobrança definida.';
-      throw new ErroPipe(409, avaliacao.motivo ?? 'envio_bloqueado', mensagem, {
-        modo: avaliacao.modo,
-        restante_seg: Math.round(avaliacao.restanteSeg),
+      throw new PipeError(409, evaluation.motivo ?? 'envio_bloqueado', message, {
+        modo: evaluation.modo,
+        restante_seg: Math.round(evaluation.restanteSeg),
       });
     }
 
     const conteudo = template
       ? renderizar(template.corpo, pedido.parametros ?? [])
       : (pedido.texto?.trim() ?? null);
-    if (!conteudo && !pedido.anexoId) {
-      throw ErroPipe.requisicao('conteudo_vazio', 'Escreva algo ou anexe um arquivo.');
+    if (!conteudo && !pedido.attachmentId) {
+      throw PipeError.request('conteudo_vazio', 'Escreva algo ou anexe um arquivo.');
     }
 
     // Palavras proibidas — ANTES de gravar, como o `sendTextMessage` do Desk da
@@ -201,94 +201,94 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
         anexo_id, template_id, resposta_pronta_id, estado_entrega, criada_em,
         dentro_da_janela, categoria_cobranca
       ) values (
-        ${pedido.tenantId}, ${conversa.id}, 'saida',
+        ${pedido.tenantId}, ${conversation.id}, 'saida',
         ${pedido.atendenteId ? 'atendente' : 'sistema'}, ${pedido.atendenteId ?? null},
-        ${tipo}, ${conteudo}, ${pedido.anexoId ?? null}, ${template?.id ?? null},
+        ${tipo}, ${conteudo}, ${pedido.attachmentId ?? null}, ${template?.id ?? null},
         ${pedido.respostaProntaId ?? null},
-        'pendente', ${agora}, ${avaliacao.dentroDaJanela},
+        'pendente', ${agora}, ${evaluation.windowDentro},
         ${classificarCusto({
           conteudo: template ? 'template' : 'texto_livre',
-          dentroDaJanela: avaliacao.dentroDaJanela,
+          windowDentro: evaluation.windowDentro,
           categoriaTemplate: template?.categoria ?? null,
         })}
       )
       returning id
     `);
-    const mensagemId = criada[0]?.id;
-    if (!mensagemId) throw new Error('não gravou a mensagem');
+    const messageId = criada[0]?.id;
+    if (!messageId) throw new Error('não gravou a mensagem');
 
     await tx.execute(sql`
       insert into outbox_mensagem (tenant_id, mensagem_id, estado)
-      values (${pedido.tenantId}, ${mensagemId}, 'pendente')
+      values (${pedido.tenantId}, ${messageId}, 'pendente')
     `);
 
     // Responder tira a conversa de `atribuida` e de `em_espera` — as duas transições
     // que a máquina de estados permite para `em_atendimento`.
-    const estadoNovo =
-      conversa.estado === 'atribuida' || conversa.estado === 'em_espera'
+    const stateNew =
+      conversation.state === 'atribuida' || conversation.state === 'em_espera'
         ? 'em_atendimento'
-        : conversa.estado;
+        : conversation.state;
     // **Resposta pressupõe pergunta.** Só conta como `primeira_resposta` se o cliente
     // já tiver falado nesta conversa (`ultima_mensagem_em` preenchido). Numa conversa
     // aberta por mensagem ativa quem começou fomos nós, e contar o disparo como
     // primeira resposta cravaria um TMR de zero segundo — enfeitando justamente a
     // métrica que a spec de métricas proíbe enfeitar.
-    const clienteJaFalou = comoData(conversa.ultima_mensagem_em) !== null;
-    const primeiraResposta =
-      comoData(conversa.primeira_resposta_em) === null && !!pedido.atendenteId && clienteJaFalou;
+    const clienteJaFalou = comoData(conversation.lastMessageAt) !== null;
+    const firstResponse =
+      comoData(conversation.firstResponseAt) === null && !!pedido.atendenteId && clienteJaFalou;
 
     await tx.execute(sql`
       update conversa
-         set estado = ${estadoNovo}, em_espera_desde = null,
+         set estado = ${stateNew}, em_espera_desde = null,
              ultima_mensagem_em = ${agora}, ultima_mensagem_de = 'atendente',
              primeira_resposta_em = coalesce(primeira_resposta_em, ${
-               primeiraResposta ? agora : null
+               firstResponse ? agora : null
              }),
              atualizado_em = now()
-       where id = ${conversa.id}
+       where id = ${conversation.id}
     `);
 
     await registrarEvento(tx, {
       tenantId: pedido.tenantId,
-      conversaId: conversa.id,
+      conversationId: conversation.id,
       tipo: 'mensagem_saida',
       em: agora,
-      usuarioId: pedido.atendenteId ?? null,
-      filaId: conversa.fila_id,
+      userId: pedido.atendenteId ?? null,
+      queueId: conversation.queueId,
     });
-    if (primeiraResposta) {
+    if (firstResponse) {
       await registrarEvento(tx, {
         tenantId: pedido.tenantId,
-        conversaId: conversa.id,
+        conversationId: conversation.id,
         tipo: 'primeira_resposta',
         em: agora,
-        usuarioId: pedido.atendenteId ?? null,
-        filaId: conversa.fila_id,
+        userId: pedido.atendenteId ?? null,
+        queueId: conversation.queueId,
       });
     }
 
     await emitir(tx, pedido.tenantId, 'mensagem.criada', {
-      mensagem_id: mensagemId,
-      conversa_id: conversa.id,
+      mensagem_id: messageId,
+      conversa_id: conversation.id,
       direcao: 'saida',
       tipo,
       conteudo,
     });
 
     return {
-      mensagemId,
-      dentroDaJanela: avaliacao.dentroDaJanela,
-      categoriaCobranca: avaliacao.categoriaCobranca,
+      messageId,
+      dentroDaJanela: evaluation.windowDentro,
+      categoriaCobranca: evaluation.categoriaCobranca,
       conteudo,
       valores: template
-        ? posicionar(template, pedido.parametros ?? [], pedido.midiaUrl ?? null)
+        ? posicionar(template, pedido.parametros ?? [], pedido.mediaUrl ?? null)
         : null,
     };
   });
 
   // Fora da transação: enfileirar e drenar webhook não podem prender o commit.
-  await enfileirarEntrega({
-    mensagemId: resultado.mensagemId,
+  await enqueueDelivery({
+    messageId: resultado.mensagemId,
     ...(resultado.valores ? { parametros: resultado.valores } : {}),
   });
   drenarEmSegundoPlano(pedido.tenantId);
@@ -298,24 +298,24 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
   return {
     id: resultado.mensagemId,
     estadoEntrega: 'pendente',
-    dentroDaJanela: resultado.dentroDaJanela,
+    insideOfWindow: resultado.dentroDaJanela,
     categoriaCobranca: resultado.categoriaCobranca,
     conteudo: resultado.conteudo,
   };
 }
 
-export interface PedidoDeLoteDeAnexos {
+export interface RequestOfLoteOfAttachments {
   tenantId: string;
-  conversaId: string;
-  atendenteId?: string | null;
+  conversationId: string;
+  agentId?: string | null;
   /** Os anexos já subidos por `POST /v1/anexos`, na ordem em que devem sair. */
-  anexoIds: string[];
+  attachmentIds: string[];
   /** Legenda opcional: vai na PRIMEIRA mensagem do lote, como a origem faz com `text`. */
   texto?: string | null;
-  exigirAtribuicao?: boolean;
+  exigirAssignment?: boolean;
 }
 
-type LinhaAnexo = { id: string; mime: string; bytes: string; nome_original: string | null };
+type LineAttachment = { id: string; mime: string; bytes: string; nome_original: string | null };
 
 /**
  * Vários arquivos num envio só — **uma mensagem por arquivo, em sequência**.
@@ -339,22 +339,22 @@ type LinhaAnexo = { id: string; mime: string; bytes: string; nome_original: stri
  * mesmo outbox, mesmo evento por mensagem. Se a primeira for recusada (janela
  * fechada, conversa de outro), nenhuma sai.
  */
-export async function enviarAnexos(pedido: PedidoDeLoteDeAnexos): Promise<MensagemEnfileirada[]> {
-  const ids = pedido.anexoIds.filter((id, i, lista) => lista.indexOf(id) === i);
+export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promise<MessageQueued[]> {
+  const ids = pedido.attachmentIds.filter((id, i, lista) => lista.indexOf(id) === i);
   if (ids.length === 0) {
-    throw ErroPipe.requisicao('conteudo_vazio', 'Anexe ao menos um arquivo.');
+    throw PipeError.request('conteudo_vazio', 'Anexe ao menos um arquivo.');
   }
-  if (ids.length > MAX_ARQUIVOS_POR_MENSAGEM) {
-    throw ErroPipe.requisicao(
+  if (ids.length > MAX_FILES_BY_MESSAGE) {
+    throw PipeError.request(
       'anexos_demais',
-      `São no máximo ${MAX_ARQUIVOS_POR_MENSAGEM} arquivos por envio; vieram ${ids.length}.`,
-      { limite: MAX_ARQUIVOS_POR_MENSAGEM, enviados: ids.length },
+      `São no máximo ${MAX_FILES_BY_MESSAGE} arquivos por envio; vieram ${ids.length}.`,
+      { limite: MAX_FILES_BY_MESSAGE, enviados: ids.length },
     );
   }
-  if (ids.some((id) => !UUID.test(id))) throw ErroPipe.naoEncontrado('Anexo');
+  if (ids.some((id) => !UUID.test(id))) throw PipeError.naoEncontrado('Anexo');
 
-  const anexos = await noTenant(pedido.tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaAnexo>(sql`
+  const attachments = await noTenant(pedido.tenantId, async (tx) => {
+    const { rows } = await tx.execute<LineAttachment>(sql`
       select id, mime, bytes::text as bytes, nome_original
         from anexo
        where id = any(${`{${ids.join(',')}}`}::uuid[])
@@ -362,42 +362,42 @@ export async function enviarAnexos(pedido: PedidoDeLoteDeAnexos): Promise<Mensag
     return rows;
   });
 
-  const porId = new Map(anexos.map((a) => [a.id, a]));
-  const ordenados: LinhaAnexo[] = [];
+  const byId = new Map(attachments.map((a) => [a.id, a]));
+  const ordenados: LineAttachment[] = [];
   for (const id of ids) {
-    const anexo = porId.get(id);
-    if (!anexo) throw ErroPipe.naoEncontrado('Anexo');
+    const attachment = byId.get(id);
+    if (!attachment) throw PipeError.naoEncontrado('Anexo');
     // `guardarAnexo` já recusou o que não passa, mas o teto é conferido de novo
     // por arquivo: o lote inteiro cai se um deles não couber, com o nome dele.
-    const nome = anexo.nome_original ?? anexo.id;
-    if (!mimeAceito(anexo.mime)) {
-      throw ErroPipe.requisicao('tipo_nao_aceito', `O arquivo "${nome}" é de um tipo não aceito.`, {
-        anexo_id: anexo.id,
-        mime: anexo.mime,
+    const nome = attachment.nome_original ?? attachment.id;
+    if (!mimeAceito(attachment.mime)) {
+      throw PipeError.request('tipo_nao_aceito', `O arquivo "${nome}" é de um tipo não aceito.`, {
+        anexo_id: attachment.id,
+        mime: attachment.mime,
       });
     }
-    const teto = maxBytesDoMime(anexo.mime);
-    if (Number(anexo.bytes) > teto) {
-      throw ErroPipe.requisicao(
+    const teto = maxBytesDoMime(attachment.mime);
+    if (Number(attachment.bytes) > teto) {
+      throw PipeError.request(
         'arquivo_grande_demais',
-        `O arquivo "${nome}" tem ${mb(Number(anexo.bytes))} MB e o limite para este tipo é ${mb(teto)} MB.`,
-        { anexo_id: anexo.id, bytes: Number(anexo.bytes), limite: teto },
+        `O arquivo "${nome}" tem ${mb(Number(attachment.bytes))} MB e o limite para este tipo é ${mb(teto)} MB.`,
+        { anexo_id: attachment.id, bytes: Number(attachment.bytes), limite: teto },
       );
     }
-    ordenados.push(anexo);
+    ordenados.push(attachment);
   }
 
-  const enviadas: MensagemEnfileirada[] = [];
-  for (const [i, anexo] of ordenados.entries()) {
+  const enviadas: MessageQueued[] = [];
+  for (const [i, attachment] of ordenados.entries()) {
     enviadas.push(
-      await enviarMensagem({
+      await sendMessage({
         tenantId: pedido.tenantId,
-        conversaId: pedido.conversaId,
-        atendenteId: pedido.atendenteId ?? null,
-        tipo: tipoDoMime(anexo.mime),
-        anexoId: anexo.id,
+        conversaId: pedido.conversationId,
+        atendenteId: pedido.agentId ?? null,
+        tipo: tipoDoMime(attachment.mime),
+        attachmentId: attachment.id,
         texto: i === 0 ? (pedido.texto ?? null) : null,
-        exigirAtribuicao: pedido.exigirAtribuicao ?? false,
+        exigirAtribuicao: pedido.exigirAssignment ?? false,
       }),
     );
   }
@@ -425,28 +425,28 @@ function mb(bytes: number): string {
  * `entregue_em` **não** é carimbado. Ele é a hora em que a Meta confirmou, e
  * preenchê-lo sem confirmação é inventar prova de entrega.
  */
-export async function reenviarMensagem(
+export async function resendMessage(
   tenantId: string,
-  mensagemId: string,
-): Promise<{ id: string; estadoEntrega: 'pendente' }> {
+  messageId: string,
+): Promise<{ id: string; stateDelivery: 'pendente' }> {
   await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       update mensagem
          set estado_entrega = 'pendente', erro_codigo = null, erro_texto = null
-       where id = ${mensagemId}::uuid and estado_entrega = 'falhou'
+       where id = ${messageId}::uuid and estado_entrega = 'falhou'
       returning id
     `);
     if (!rows[0]) {
       // Sem linha afetada, a mensagem não existe ou já não estava falha. Responder
       // 200 calado fazia o botão parecer que resolveu.
-      throw ErroPipe.conflito('mensagem_nao_falhou', 'Esta mensagem não está mais em falha.');
+      throw PipeError.conflito('mensagem_nao_falhou', 'Esta mensagem não está mais em falha.');
     }
 
     const { rows: outbox } = await tx.execute<{ id: string }>(sql`
       update outbox_mensagem
          set estado = 'pendente', tentativas = 0, proxima_tentativa_em = null,
              ultimo_erro = null, atualizado_em = now()
-       where mensagem_id = ${mensagemId}::uuid
+       where mensagem_id = ${messageId}::uuid
       returning id
     `);
     if (!outbox[0]) {
@@ -455,20 +455,20 @@ export async function reenviarMensagem(
       // mensagens antigas voltarem a ter conserto pelo botão.
       await tx.execute(sql`
         insert into outbox_mensagem (tenant_id, mensagem_id, estado)
-        values (${tenantId}, ${mensagemId}::uuid, 'pendente')
+        values (${tenantId}, ${messageId}::uuid, 'pendente')
       `);
     }
   });
 
-  await enfileirarEntrega({ mensagemId });
-  return { id: mensagemId, estadoEntrega: 'pendente' };
+  await enqueueDelivery({ messageId });
+  return { id: messageId, stateDelivery: 'pendente' };
 }
 
 /** `{{1}}`, `{{2}}`, … no corpo do template. A numeração aqui é a do **corpo**. */
 function renderizar(corpo: string, parametros: readonly string[]): string {
   return corpo.replace(/\{\{(\d+)\}\}/g, (_todo, numero: string) => {
-    const valor = parametros[Number(numero) - 1];
-    return valor ?? `{{${numero}}}`;
+    const value = parametros[Number(numero) - 1];
+    return value ?? `{{${numero}}}`;
   });
 }
 
@@ -480,15 +480,15 @@ function renderizar(corpo: string, parametros: readonly string[]): string {
 function posicionar(
   template: LinhaTemplate,
   parametros: readonly string[],
-  linkDaMidia: string | null,
+  linkOfMedia: string | null,
 ): Record<string, string> {
   const cabecalho = (template.cabecalho_tipo ?? 'nenhum') as CabecalhoTemplate;
-  const valores: Record<string, string> = {};
-  if (linkDaMidia) valores['1'] = linkDaMidia;
-  parametros.forEach((valor, indice) => {
-    valores[String(posicaoDeVariavel(indice + 1, cabecalho))] = valor;
+  const values: Record<string, string> = {};
+  if (linkOfMedia) values['1'] = linkOfMedia;
+  parametros.forEach((value, indice) => {
+    values[String(positionOfVariable(indice + 1, cabecalho))] = value;
   });
-  return valores;
+  return values;
 }
 
 function comoData(valor: Date | string | null): Date | null {

@@ -1,17 +1,17 @@
 import Link from 'next/link';
-import { Campo, Etiqueta, EstadoVazio, Tabela, type Coluna } from '@pipe/ui';
-import { QuadroFunil, type CartaoView } from '../../componentes/quadro-funil';
+import { Campo, Etiqueta, EmptyState, Tabela, type Column } from '@pipe/ui';
+import { QuadroFunil, type CardView } from '../../componentes/quadro-funil';
 import { fusoDoTenant } from '../../lib/banco';
 import {
   carregarFunil,
   FASES,
   LIMITE_LISTA,
-  listarOportunidades,
-  SITUACOES,
-  situacaoValida,
-  type LinhaOportunidade,
+  listOpportunities,
+  SITUATIONS,
+  situationValid,
+  type LinhaOpportunity,
 } from '../../lib/funil';
-import { data, dinheiro, numero } from '../../lib/formato';
+import { data, money, numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,34 +33,34 @@ export const dynamic = 'force-dynamic';
 
 type Vista = 'quadro' | 'tabela';
 
-function vistaValida(valor: string | undefined): Vista {
-  return valor === 'tabela' ? 'tabela' : 'quadro';
+function vistaValida(value: string | undefined): Vista {
+  return value === 'tabela' ? 'tabela' : 'quadro';
 }
 
-function colunasDaTabela(hoje: Date, fuso: string): readonly Coluna<LinhaOportunidade>[] {
+function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportunity>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Oportunidade',
       celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,
     },
     {
-      chave: 'conta',
+      key: 'conta',
       rotulo: 'Conta',
       celula: (o) =>
-        o.contaId ? <Link href={`/contas/${o.contaId}`}>{o.contaNome}</Link> : '—',
+        o.accountId ? <Link href={`/contas/${o.accountId}`}>{o.accountName}</Link> : '—',
     },
-    { chave: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
-    { chave: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => dinheiro(o.valor) },
+    { key: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
+    { key: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => money(o.value) },
     {
-      chave: 'probabilidade',
+      key: 'probabilidade',
       rotulo: 'Probabilidade',
       numerica: true,
-      celula: (o) => (o.probabilidade === null ? '—' : `${o.probabilidade}%`),
+      celula: (o) => (o.probability === null ? '—' : `${o.probability}%`),
     },
-    { chave: 'dono', rotulo: 'Proprietário', celula: (o) => o.proprietario ?? '—' },
+    { key: 'dono', rotulo: 'Proprietário', celula: (o) => o.proprietario ?? '—' },
     {
-      chave: 'situacao',
+      key: 'situacao',
       rotulo: 'Situação',
       // A única cor da tabela: o fechamento que venceu numa oportunidade que
       // continua aberta. É o que exige ação hoje; o resto é categoria.
@@ -72,11 +72,11 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Coluna<LinhaOportun
             </Etiqueta>
           );
         }
-        if (o.fechamentoPrevisto && o.fechamentoPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>;
+        if (o.closingPrevisto && o.closingPrevisto < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
-        return o.fechamentoPrevisto ? (
-          <Etiqueta>fecha em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>
+        return o.closingPrevisto ? (
+          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -85,15 +85,15 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Coluna<LinhaOportun
   ];
 }
 
-export default async function PaginaOportunidades({
+export default async function PageOpportunities({
   searchParams,
 }: {
-  searchParams: Promise<{ vista?: string; situacao?: string; q?: string }>;
+  searchParams: Promise<{ vista?: string; situation?: string; q?: string }>;
 }) {
   const params = await searchParams;
   const vista = vistaValida(params.vista);
-  const situacao = situacaoValida(params.situacao);
-  const busca = params.q ?? '';
+  const situation = situationValid(params.situation);
+  const search = params.q ?? '';
 
   const funil = await carregarFunil();
   const hoje = new Date();
@@ -113,15 +113,15 @@ export default async function PaginaOportunidades({
           respondem "quanto está em jogo agora", e o que já fechou não está. */}
       <div className="resumo">
         <div>
-          <b>{numero(funil.quantidadeGeral)}</b>
+          <b>{numero(funil.quantityGeneral)}</b>
           <span>oportunidades abertas</span>
         </div>
         <div>
-          <b>{dinheiro(funil.totalGeral)}</b>
+          <b>{money(funil.totalGeral)}</b>
           <span>valor em negociação</span>
         </div>
         <div>
-          <b>{dinheiro(funil.ponderadoGeral)}</b>
+          <b>{money(funil.ponderadoGeral)}</b>
           <span>ponderado pela probabilidade</span>
         </div>
       </div>
@@ -143,7 +143,7 @@ export default async function PaginaOportunidades({
         {vista === 'quadro' ? (
           <QuadroDoFunil funil={funil} />
         ) : (
-          <TabelaDeOportunidades situacao={situacao} busca={busca} hoje={hoje} />
+          <OpportunitiesTabela situation={situation} search={search} hoje={hoje} />
         )}
       </div>
     </>
@@ -153,37 +153,37 @@ export default async function PaginaOportunidades({
 function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFunil>> }) {
   const hoje = new Date();
 
-  const cartoes: CartaoView[] = funil.colunas.flatMap((coluna) =>
-    coluna.cartoes.map((c) => ({
+  const cards: CardView[] = funil.colunas.flatMap((column) =>
+    column.cards.map((c) => ({
       id: c.id,
       nome: c.nome,
-      valorNum: c.valor ?? 0,
-      valor: dinheiro(c.valor),
+      valorNum: c.value ?? 0,
+      valor: money(c.value),
       detalhe: [
         c.proprietario ?? 'sem proprietário',
         c.score !== null ? `score ${numero(c.score)}` : null,
-        c.probabilidade !== null ? `${c.probabilidade}%` : null,
+        c.probability !== null ? `${c.probability}%` : null,
       ]
         .filter((p) => p !== null)
         .join(' · '),
-      fase: coluna.fase,
+      fase: column.fase,
       // Fechamento no passado numa oportunidade que continua aberta: é a única
       // coisa do quadro que exige ação, e é a única que recebe cor.
       diasVencido:
-        c.fechamentoPrevisto && c.fechamentoPrevisto < hoje
-          ? Math.floor((hoje.getTime() - c.fechamentoPrevisto.getTime()) / 86_400_000)
+        c.closingPrevisto && c.closingPrevisto < hoje
+          ? Math.floor((hoje.getTime() - c.closingPrevisto.getTime()) / 86_400_000)
           : null,
     })),
   );
 
-  if (funil.quantidadeGeral === 0) {
+  if (funil.quantityGeneral === 0) {
     /*
       O vazio do quadro falava em `pnpm seed:crm`, que é comando de quem constrói
       o produto e não de quem o usa. Aqui ele diz de onde vem uma oportunidade,
       que é a única coisa útil quando não há nenhuma.
     */
     return (
-      <EstadoVazio titulo="Nenhuma oportunidade aberta." ilustracao="concluido">
+      <EmptyState titulo="Nenhuma oportunidade aberta." illustration="concluido">
         <span>
           Oportunidade nasce de um lead qualificado. Assim que a primeira for aberta, ela aparece
           na coluna da fase em que estiver.
@@ -193,25 +193,25 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
             Ver os leads qualificados
           </Link>
         </span>
-      </EstadoVazio>
+      </EmptyState>
     );
   }
 
-  return <QuadroFunil fases={FASES} cartoes={cartoes} />;
+  return <QuadroFunil fases={FASES} cards={cards} />;
 }
 
-async function TabelaDeOportunidades({
-  situacao,
-  busca,
+async function OpportunitiesTabela({
+  situation,
+  search,
   hoje,
 }: {
-  situacao: ReturnType<typeof situacaoValida>;
-  busca: string;
+  situation: ReturnType<typeof situationValid>;
+  search: string;
   hoje: Date;
 }) {
   const fuso = await fusoDoTenant();
-  const linhas = await listarOportunidades(situacao, busca);
-  const semBusca = new URLSearchParams({ vista: 'tabela', situacao }).toString();
+  const linhas = await listOpportunities(situation, search);
+  const withoutSearch = new URLSearchParams({ vista: 'tabela', situation }).toString();
 
   return (
     <>
@@ -219,8 +219,8 @@ async function TabelaDeOportunidades({
         <input type="hidden" name="vista" value="tabela" />
         <label className="agrupador">
           Situação
-          <select className="seletor" name="situacao" defaultValue={situacao} aria-label="Situação">
-            {SITUACOES.map((s) => (
+          <select className="seletor" name="situacao" defaultValue={situation} aria-label="Situação">
+            {SITUATIONS.map((s) => (
               <option key={s.chave} value={s.chave}>
                 {s.rotulo}
               </option>
@@ -230,7 +230,7 @@ async function TabelaDeOportunidades({
         <Campo
           type="search"
           name="q"
-          defaultValue={busca}
+          defaultValue={search}
           placeholder="Buscar por oportunidade ou conta"
           aria-label="Buscar oportunidade"
         />
@@ -243,21 +243,21 @@ async function TabelaDeOportunidades({
         </span>
       </form>
 
-      {linhas.length === 0 && busca ? (
-        <EstadoVazio titulo="Nenhuma oportunidade para esta busca." ilustracao="busca">
-          <span>Nada casou com “{busca}” no nome da oportunidade nem no da conta.</span>
+      {linhas.length === 0 && search ? (
+        <EmptyState titulo="Nenhuma oportunidade para esta busca." illustration="busca">
+          <span>Nada casou com “{search}” no nome da oportunidade nem no da conta.</span>
           <span className="acoes-erro">
-            <Link className="btn" href={`/oportunidades?${semBusca}`}>
+            <Link className="btn" href={`/oportunidades?${withoutSearch}`}>
               Limpar a busca
             </Link>
           </span>
-        </EstadoVazio>
+        </EmptyState>
       ) : (
         <Tabela
           colunas={colunasDaTabela(hoje, fuso)}
           linhas={linhas}
-          chaveDaLinha={(o) => o.id}
-          vazio="Nenhuma oportunidade neste recorte."
+          linhaKey={(o) => o.id}
+          empty="Nenhuma oportunidade neste recorte."
         />
       )}
     </>

@@ -1,29 +1,29 @@
 import { sql } from 'drizzle-orm';
 import {
-  ACOES_GLOBAIS_PADRAO,
-  FLUXO_PADRAO,
+  ACTIONS_GLOBAL_DEFAULT,
+  FLOW_DEFAULT,
   converterDoEditor,
-  errosDoFluxo,
-  ehVariavelDeContexto,
-  relatorioDaImportacao,
+  flowErrors,
+  contextEhVariable,
+  importReport,
 } from '@pipe/core';
-import type { Estado, ExportDoEditor, FluxoBlip, Saida } from '@pipe/core';
+import type { State, ExportDoEditor, FlowBlip, Saida } from '@pipe/core';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import type {
-  BuilderDoFluxo,
+  BuilderOfFlow,
   DesenhoDoBuilder,
-  ErroDoBloco,
-  EstadoDaVersao,
+  BlockError,
+  StateOfVersion,
   RascunhoGravado,
-  VersaoDoFluxo,
+  VersionOfFlow,
   VersaoPublicada,
 } from '@pipe/contracts';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { carregarFluxo, classificarEstado } from '../fluxo.js';
-import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
-import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
+import { loadFlow, classificarState } from '../fluxo.js';
+import { EDITAR_FLOW } from './ciclo-de-vida-do-fluxo.js';
+import { exigirPermissionInFlow } from './equipe-do-fluxo.js';
 
 /**
  * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO.
@@ -71,7 +71,7 @@ import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
  * atende o número é a ligação ao canal, não o botão de publicar.
  */
 
-export const PUBLICAR_FLUXO = 'automacao.fluxo.publicar';
+export const PUBLISH_FLOW = 'automacao.fluxo.publicar';
 
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
@@ -82,12 +82,12 @@ const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
  * o que não existe para a conta não existe (antes de dizer que falta
  * permissão), e só quem pode entrar fica sabendo que roteador não tem editor.
  */
-async function fluxoDoBuilder(
-  tx: TransacaoPipe,
+async function flowOfBuilder(
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
-  permissao: string,
+  permission: string,
 ): Promise<{ id: string; nome: string; estado: string }> {
   const { rows } = await tx.execute<{ id: string; nome: string; tipo: string; estado: string }>(sql`
     select id, nome, tipo, estado from fluxo
@@ -95,14 +95,14 @@ async function fluxoDoBuilder(
      limit 1
   `);
   const atual = rows[0];
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
   // Editar o desenho é permissão DO FLUXO (`builder.escrever` na aba Equipe) ou a
   // equivalente na conta — o duplo portão de `equipe-do-fluxo.ts`. Publicar continua
   // sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.
-  if (permissao === EDITAR_FLUXO) await exigirPermissaoNoFluxo(tx, usuarioId, id, 'builder.escrever');
-  else await exigirPermissao(tx, usuarioId, permissao);
+  if (permission === EDITAR_FLOW) await exigirPermissionInFlow(tx, usuarioId, id, 'builder.escrever');
+  else await exigirPermission(tx, usuarioId, permission);
   if (atual.tipo === 'roteador') {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'roteador_sem_builder',
       'Roteador não tem Builder: ele só distribui a conversa entre os serviços. Edite o desenho no fluxo de cada serviço.',
     );
@@ -115,10 +115,10 @@ async function fluxoDoBuilder(
 type LinhaVersao = {
   id: string;
   versao: number;
-  estado: EstadoDaVersao;
+  state: StateOfVersion;
   blocos: number;
   publicada_em: Date | string | null;
-  publicada_por_nome: string | null;
+  publishedByName: string | null;
   criado_em: Date | string | null;
   atualizado_em: Date | string | null;
 };
@@ -130,38 +130,38 @@ const COLUNAS_DA_VERSAO = sql`
 `;
 const DE_VERSAO = sql`from fluxo_versao v left join usuario u on u.id = v.publicada_por`;
 
-const instante = (valor: Date | string | null): string | null =>
-  valor === null ? null : new Date(valor).toISOString();
+const instante = (value: Date | string | null): string | null =>
+  value === null ? null : new Date(value).toISOString();
 
-const comoVersao = (l: LinhaVersao): VersaoDoFluxo => ({
+const comoVersao = (l: LinhaVersao): VersionOfFlow => ({
   id: l.id,
   versao: Number(l.versao),
-  estado: l.estado,
+  estado: l.state,
   blocos: Number(l.blocos),
   publicadaEm: instante(l.publicada_em),
-  publicadaPor: l.publicada_por_nome,
+  publishedBy: l.publishedByName,
   criadoEm: instante(l.criado_em),
   atualizadoEm: instante(l.atualizado_em),
 });
 
-async function versaoLida(tx: TransacaoPipe, versaoId: string): Promise<VersaoDoFluxo> {
+async function versaoLida(tx: TransactionPipe, versaoId: string): Promise<VersionOfFlow> {
   const { rows } = await tx.execute<LinhaVersao>(
     sql`select ${COLUNAS_DA_VERSAO} ${DE_VERSAO} where v.id = ${versaoId} limit 1`,
   );
   const linha = rows[0];
-  if (!linha) throw ErroPipe.naoEncontrado('versão');
+  if (!linha) throw PipeError.naoEncontrado('versão');
   return comoVersao(linha);
 }
 
 /** A versão mais nova do fluxo naquele estado, ou nada. */
-async function versaoNoEstado(
-  tx: TransacaoPipe,
-  fluxoId: string,
-  estado: EstadoDaVersao,
-): Promise<VersaoDoFluxo | null> {
+async function versionInState(
+  tx: TransactionPipe,
+  flowId: string,
+  state: StateOfVersion,
+): Promise<VersionOfFlow | null> {
   const { rows } = await tx.execute<LinhaVersao>(sql`
     select ${COLUNAS_DA_VERSAO} ${DE_VERSAO}
-     where v.fluxo_id = ${fluxoId} and v.estado = ${estado}
+     where v.fluxo_id = ${flowId} and v.estado = ${state}
      order by v.versao desc
      limit 1
   `);
@@ -170,13 +170,13 @@ async function versaoNoEstado(
 
 /* ------------------------------------------------------------ O desenho */
 
-type LinhaBloco = { id: string; codigo: string; conteudo: Record<string, unknown> };
-type LinhaTransicao = {
-  de_bloco_id: string;
+type LineBlock = { id: string; codigo: string; conteudo: Record<string, unknown> };
+type LineTransition = {
+  ofBlockId: string;
   para_codigo: string | null;
-  para_variavel: string | null;
-  condicao: { conditions?: unknown } | null;
-  ordem: number;
+  forVariable: string | null;
+  condition: { conditions?: unknown } | null;
+  order: number;
 };
 
 /**
@@ -185,7 +185,7 @@ type LinhaTransicao = {
  * Só o que o motor guarda volta: posição e título se existirem, sem os
  * `$cardContent` que a tela redesenha sozinha.
  */
-function estadoParaOEditor(
+function stateForOEditor(
   codigo: string,
   conteudo: Record<string, unknown>,
   saidas: Saida[],
@@ -201,8 +201,8 @@ function estadoParaOEditor(
     $tags,
     root,
     ...extensao
-  } = conteudo as Partial<Estado> & { name?: unknown; $position?: unknown; $tags?: unknown };
-  const condicionais = saidas.filter((s) => s.conditions?.length);
+  } = conteudo as Partial<State> & { name?: unknown; $position?: unknown; $tags?: unknown };
+  const conditionals = saidas.filter((s) => s.conditions?.length);
   const padrao = saidas.find((s) => !s.conditions?.length);
   return {
     ...extensao,
@@ -219,20 +219,20 @@ function estadoParaOEditor(
     $leavingCustomActions: outputActions ?? [],
     $afterStateChangedActions: afterStateChangedActions ?? [],
     ...(localCustomActions?.length ? { $localCustomActions: localCustomActions } : {}),
-    $conditionOutputs: condicionais.map((s) => ({ stateId: s.stateId, conditions: s.conditions })),
+    $conditionOutputs: conditionals.map((s) => ({ stateId: s.stateId, conditions: s.conditions })),
     $defaultOutput: padrao ? { stateId: padrao.stateId } : null,
   };
 }
 
 /** O desenho de uma versão: o que o editor guardou, ou o do motor remontado. */
-async function desenhoDaVersao(tx: TransacaoPipe, versaoId: string): Promise<DesenhoDoBuilder> {
-  const { rows: versoes } = await tx.execute<{ global: Record<string, unknown> }>(
+async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<DesenhoDoBuilder> {
+  const { rows: versions } = await tx.execute<{ global: Record<string, unknown> }>(
     sql`select global from fluxo_versao where id = ${versaoId}`,
   );
-  const { rows: blocos } = await tx.execute<LinhaBloco>(
+  const { rows: blocos } = await tx.execute<LineBlock>(
     sql`select id, codigo, conteudo from bloco where versao_id = ${versaoId} order by codigo`,
   );
-  const { rows: transicoes } = await tx.execute<LinhaTransicao>(sql`
+  const { rows: transitions } = await tx.execute<LineTransition>(sql`
     select t.de_bloco_id, b.codigo as para_codigo, t.para_variavel, t.condicao, t.ordem
       from transicao t
       left join bloco b on b.id = t.para_bloco_id
@@ -240,48 +240,48 @@ async function desenhoDaVersao(tx: TransacaoPipe, versaoId: string): Promise<Des
      order by t.ordem
   `);
   const saidas = new Map<string, Saida[]>();
-  for (const t of transicoes) {
-    const condicoes = t.condicao?.conditions;
-    const lista = saidas.get(t.de_bloco_id) ?? [];
+  for (const t of transitions) {
+    const conditions = t.condition?.conditions;
+    const lista = saidas.get(t.ofBlockId) ?? [];
     lista.push({
-      order: t.ordem,
-      stateId: t.para_codigo ?? t.para_variavel ?? '',
-      ...(Array.isArray(condicoes) ? { conditions: condicoes } : {}),
+      order: t.order,
+      stateId: t.para_codigo ?? t.forVariable ?? '',
+      ...(Array.isArray(conditions) ? { conditions: conditions } : {}),
     });
-    saidas.set(t.de_bloco_id, lista);
+    saidas.set(t.ofBlockId, lista);
   }
 
-  const fluxo: Record<string, unknown> = {};
-  for (const bloco of blocos) {
-    const original = bloco.conteudo?.['original'];
-    fluxo[bloco.codigo] =
+  const flow: Record<string, unknown> = {};
+  for (const block of blocos) {
+    const original = block.conteudo?.['original'];
+    flow[block.codigo] =
       original && typeof original === 'object'
         ? original
-        : estadoParaOEditor(bloco.codigo, bloco.conteudo ?? {}, saidas.get(bloco.id) ?? []);
+        : stateForOEditor(block.codigo, block.conteudo ?? {}, saidas.get(block.id) ?? []);
   }
 
-  const global = versoes[0]?.global ?? {};
+  const global = versions[0]?.global ?? {};
   const editor = global['editor'];
-  const globais =
+  const globals =
     editor && typeof editor === 'object'
       ? (editor as Record<string, unknown>)
       : {
-          ...ACOES_GLOBAIS_PADRAO,
+          ...ACTIONS_GLOBAL_DEFAULT,
           $enteringCustomActions: global['inputActions'] ?? [],
           $leavingCustomActions: global['outputActions'] ?? [],
           $afterStateChangedActions: global['afterStateChangedActions'] ?? [],
         };
-  return { fluxo, globais };
+  return { flow, globals };
 }
 
-const DESENHO_PADRAO: DesenhoDoBuilder = { fluxo: FLUXO_PADRAO, globais: ACOES_GLOBAIS_PADRAO };
+const DESENHO_PADRAO: DesenhoDoBuilder = { flow: FLOW_DEFAULT, globals: ACTIONS_GLOBAL_DEFAULT };
 
 /* ---------------------------------------------------------- Compilação */
 
 interface Compilado {
-  fluxo: FluxoBlip;
+  flow: FlowBlip;
   desenho: DesenhoDoBuilder;
-  erros: ErroDoBloco[];
+  errors: BlockError[];
   naoSuportado: Record<string, number>;
 }
 
@@ -297,7 +297,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   const bruto = ehObjeto(desenho) ? desenho : {};
   const mapa = bruto['fluxo'];
   if (!ehObjeto(mapa) || Object.values(mapa).some((e) => !ehObjeto(e))) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'desenho_invalido',
       'O desenho precisa ser o mapa de blocos do editor: um objeto com um bloco por chave.',
     );
@@ -307,79 +307,79 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
     const e = estado as Record<string, unknown>;
     fluxo[codigo] = typeof e['id'] === 'string' && e['id'] ? e : { ...e, id: codigo };
   }
-  const globais = ehObjeto(bruto['globais']) ? bruto['globais'] : { ...ACOES_GLOBAIS_PADRAO };
+  const globais = ehObjeto(bruto['globais']) ? bruto['globais'] : { ...ACTIONS_GLOBAL_DEFAULT };
 
-  let compilado: FluxoBlip;
+  let compilado: FlowBlip;
   try {
     compilado = converterDoEditor(
       { flow: fluxo, globalActions: globais } as unknown as ExportDoEditor,
       fluxoId,
     );
-  } catch (erro) {
+  } catch (error) {
     // Bloco com `$contentActions` que não é lista, saída que não é objeto: o
     // conversor tropeça, e a culpa é do desenho, não do servidor.
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'desenho_invalido',
-      `O desenho não está no formato do editor: ${(erro as Error).message}`,
+      `O desenho não está no formato do editor: ${(error as Error).message}`,
     );
   }
   return {
-    fluxo: compilado,
-    desenho: { fluxo, globais },
-    erros: errosDoFluxo(compilado).map((e) => ({ bloco: e.estadoId, mensagem: e.mensagem })),
-    naoSuportado: relatorioDaImportacao(compilado).naoSuportado,
+    flow: compilado,
+    desenho: { flow, globals },
+    errors: flowErrors(compilado).map((e) => ({ bloco: e.stateId, mensagem: e.message })),
+    naoSuportado: importReport(compilado).naoSuportado,
   };
 }
 
 /** O que é do `Flow` e não de um estado, mais o que o editor guardou das ações globais. */
 function globalDe(compilado: Compilado): string {
-  const global: Record<string, unknown> = { ...compilado.fluxo };
+  const global: Record<string, unknown> = { ...compilado.flow };
   delete global['states'];
   delete global['id'];
-  global['editor'] = compilado.desenho.globais;
+  global['editor'] = compilado.desenho.globals;
   return JSON.stringify(global);
 }
 
 /** Blocos e transições de uma versão, do zero — o miolo de `importarFluxoDaBlip`. */
 async function gravarBlocos(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   versaoId: string,
   compilado: Compilado,
 ): Promise<void> {
   await tx.execute(sql`delete from bloco where versao_id = ${versaoId}`);
 
-  const blocoPorCodigo = new Map<string, string>();
-  for (const estado of compilado.fluxo.states) {
+  const blockByCode = new Map<string, string>();
+  for (const estado of compilado.flow.states) {
     const codigo = estado.id;
     const conteudo: Record<string, unknown> = { ...estado };
     delete conteudo['id'];
     delete conteudo['outputs'];
-    const original = compilado.desenho.fluxo[codigo];
+    const original = compilado.desenho.flow[codigo];
     const nome =
       typeof estado['name'] === 'string' && estado['name'].trim() ? estado['name'] : codigo;
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into bloco (tenant_id, versao_id, codigo, nome, tipo, conteudo, posicao)
       values (
-        ${tid}, ${versaoId}, ${codigo}, ${nome}, ${classificarEstado(estado)},
+        ${tid}, ${versaoId}, ${codigo}, ${nome}, ${classificarState(estado)},
         ${JSON.stringify(original ? { ...conteudo, original } : conteudo)}::jsonb,
         ${JSON.stringify(estado['$position'] ?? {})}::jsonb
       )
       returning id
     `);
-    blocoPorCodigo.set(codigo, rows[0]!.id);
+    blockByCode.set(codigo, rows[0]!.id);
   }
 
-  for (const estado of compilado.fluxo.states) {
+  for (const estado of compilado.flow.states) {
     for (const [i, saida] of (estado.outputs ?? []).entries()) {
-      const variavel = ehVariavelDeContexto(saida.stateId) ? saida.stateId : null;
-      const para = variavel ? null : (blocoPorCodigo.get(saida.stateId) ?? null);
+      const variable = contextEhVariable(saida.stateId) ? saida.stateId : null;
+      const para = variable ? null : (blockByCode.get(saida.stateId) ?? null);
       // Destino que não existe fica só no desenho (`original`) e na lista de erros.
-      if (!variavel && !para) continue;
+      if (!variable && !para) continue;
       await tx.execute(sql`
         insert into transicao (tenant_id, versao_id, de_bloco_id, para_bloco_id, para_variavel, condicao, ordem)
         values (
-          ${tid}, ${versaoId}, ${blocoPorCodigo.get(estado.id)!}, ${para}, ${variavel},
+          ${tid}, ${versaoId}, ${blockByCode.get(estado.id)!}, ${para}, ${variable},
           ${JSON.stringify(saida.conditions ? { conditions: saida.conditions } : {})}::jsonb, ${saida.order ?? i}
         )
       `);
@@ -393,14 +393,14 @@ async function gravarBlocos(
  * conferiu, e `restaurarVersao` passa por aqui com o desenho de outra versão.
  */
 async function gravarRascunho(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
-  usuarioId: string,
+  userId: string,
   fluxoId: string,
   compilado: Compilado,
   extraNoLog: Record<string, unknown> = {},
 ): Promise<RascunhoGravado> {
-  const anterior = await versaoNoEstado(tx, fluxoId, 'rascunho');
+  const anterior = await versionInState(tx, fluxoId, 'rascunho');
   let versaoId: string;
   if (anterior) {
     versaoId = anterior.id;
@@ -425,7 +425,7 @@ async function gravarRascunho(
 
   const versao = await versaoLida(tx, versaoId);
   await registrarAuditoria(tx, tid, {
-    ator: ator(usuarioId),
+    ator: ator(userId),
     acao: anterior ? 'alterou' : 'criou',
     objetoTipo: 'fluxo_versao',
     objetoId: versaoId,
@@ -435,48 +435,48 @@ async function gravarRascunho(
       versao: versao.versao,
       estado: 'rascunho',
       blocos: versao.blocos,
-      erros: compilado.erros.length,
+      erros: compilado.errors.length,
       ...extraNoLog,
     },
   });
-  return { versao, erros: compilado.erros, naoSuportado: compilado.naoSuportado };
+  return { versao, erros: compilado.errors, naoSuportado: compilado.naoSuportado };
 }
 
 /* -------------------------------------------------------------- Gestos */
 
 /** O que o Builder abre: o rascunho, senão a publicada, senão o fluxo padrão. */
 export async function carregarBuilder(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<BuilderDoFluxo> {
-  await fluxoDoBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLUXO);
-  const publicada = await versaoNoEstado(tx, fluxoId, 'publicada');
-  const rascunho = await versaoNoEstado(tx, fluxoId, 'rascunho');
+): Promise<BuilderOfFlow> {
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  const publicada = await versionInState(tx, fluxoId, 'publicada');
+  const rascunho = await versionInState(tx, fluxoId, 'rascunho');
   const carregada = rascunho ?? publicada;
   const desenho = carregada ? await desenhoDaVersao(tx, carregada.id) : DESENHO_PADRAO;
   const compilado = compilar(desenho, fluxoId);
   return {
-    fluxoId,
+    flowId,
     origem: rascunho ? 'rascunho' : publicada ? 'publicada' : 'padrao',
     versao: carregada,
     publicada,
     desenho: compilado.desenho,
-    erros: compilado.erros,
+    errors: compilado.errors,
     naoSuportado: compilado.naoSuportado,
   };
 }
 
 /** O "salvar" do Builder. Grava mesmo inválido — e devolve o que o motor recusaria. */
 export async function salvarRascunho(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   fluxoId: string,
   desenho: unknown,
 ): Promise<RascunhoGravado> {
-  await fluxoDoBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLUXO);
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
   const compilado = compilar(desenho, fluxoId);
   return gravarRascunho(tx, tid, usuarioId, fluxoId, compilado);
 }
@@ -486,15 +486,15 @@ export async function salvarRascunho(
  * no `detalhe` do 409, bloco a bloco, para a tela marcar.
  */
 export async function publicarRascunho(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   fluxoId: string,
 ): Promise<VersaoPublicada> {
-  const atual = await fluxoDoBuilder(tx, tid, usuarioId, fluxoId, PUBLICAR_FLUXO);
-  const rascunho = await versaoNoEstado(tx, fluxoId, 'rascunho');
+  const atual = await flowOfBuilder(tx, tid, usuarioId, fluxoId, PUBLISH_FLOW);
+  const rascunho = await versionInState(tx, fluxoId, 'rascunho');
   if (!rascunho) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'sem_rascunho',
       'Não há rascunho para publicar: salve o desenho antes de publicar.',
     );
@@ -503,22 +503,22 @@ export async function publicarRascunho(
   // Duas conferências, e as duas têm de passar: o DESENHO (o que a pessoa vê — é
   // onde mora a saída para um bloco que não existe, que `gravarBlocos` não grava)
   // e o que está em `bloco`/`transicao`, remontado como o motor vai remontar.
-  const erros: ErroDoBloco[] = compilar(await desenhoDaVersao(tx, rascunho.id), fluxoId).erros;
-  const { fluxo } = await carregarFluxo(tx, { fluxoId, versaoId: rascunho.id });
-  for (const e of errosDoFluxo(fluxo)) {
-    if (!erros.some((x) => x.bloco === e.estadoId && x.mensagem === e.mensagem)) {
-      erros.push({ bloco: e.estadoId, mensagem: e.mensagem });
+  const errors: BlockError[] = compilar(await desenhoDaVersao(tx, rascunho.id), fluxoId).errors;
+  const { flow } = await loadFlow(tx, { flowId, versaoId: rascunho.id });
+  for (const e of flowErrors(flow)) {
+    if (!errors.some((x) => x.block === e.stateId && x.mensagem === e.message)) {
+      errors.push({ block: e.stateId, mensagem: e.message });
     }
   }
-  if (erros.length > 0) {
-    throw ErroPipe.conflito(
+  if (errors.length > 0) {
+    throw PipeError.conflito(
       'fluxo_invalido',
-      `O fluxo não pode ser publicado: ${erros[0]!.mensagem}`,
-      { erros },
+      `O fluxo não pode ser publicado: ${errors[0]!.mensagem}`,
+      { errors },
     );
   }
 
-  const anterior = await versaoNoEstado(tx, fluxoId, 'publicada');
+  const anterior = await versionInState(tx, fluxoId, 'publicada');
   const { rows: maior } = await tx.execute<{ versao: number }>(sql`
     select coalesce(max(versao), 0) as versao from fluxo_versao
      where fluxo_id = ${fluxoId} and id <> ${rascunho.id}
@@ -565,13 +565,13 @@ export async function publicarRascunho(
 }
 
 /** O histórico, da mais nova para a mais antiga. */
-export async function listarVersoes(
-  tx: TransacaoPipe,
+export async function listVersions(
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<VersaoDoFluxo[]> {
-  await fluxoDoBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLUXO);
+): Promise<VersionOfFlow[]> {
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
   const { rows } = await tx.execute<LinhaVersao>(sql`
     select ${COLUNAS_DA_VERSAO} ${DE_VERSAO}
      where v.fluxo_id = ${fluxoId}
@@ -581,20 +581,20 @@ export async function listarVersoes(
 }
 
 /** Uma versão antiga de volta como rascunho — a publicada continua no ar até publicar de novo. */
-export async function restaurarVersao(
-  tx: TransacaoPipe,
+export async function restoreVersion(
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   fluxoId: string,
   numero: number,
 ): Promise<RascunhoGravado> {
-  await fluxoDoBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLUXO);
-  if (!Number.isInteger(numero) || numero < 1) throw ErroPipe.naoEncontrado('versão');
+  await flowOfBuilder(tx, tid, usuarioId, fluxoId, EDITAR_FLOW);
+  if (!Number.isInteger(numero) || numero < 1) throw PipeError.naoEncontrado('versão');
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from fluxo_versao where fluxo_id = ${fluxoId} and versao = ${numero} limit 1
   `);
   const origem = rows[0];
-  if (!origem) throw ErroPipe.naoEncontrado('versão');
+  if (!origem) throw PipeError.naoEncontrado('versão');
 
   const desenho = await desenhoDaVersao(tx, origem.id);
   const compilado = compilar(desenho, fluxoId);

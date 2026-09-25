@@ -1,4 +1,4 @@
-import { gravarContato } from '../gravar';
+import { saveContact } from '../gravar';
 import { irPara } from '../../../lib/navegacao';
 import { RECADOS } from './regras';
 
@@ -7,14 +7,14 @@ import { RECADOS } from './regras';
  * — o `goToApplicationDetails()` da origem. Com erro, volta ao passo do nome
  * com o motivo e o nome digitado na URL.
  */
-export async function criarRoteador(dados: FormData): Promise<void> {
-  const resultado = await gravarContato(dados, { tipo: 'roteador', recados: RECADOS });
-  if (resultado.erro) return voltarComErro(resultado.erro, String(dados.get('nome') ?? ''));
+export async function createRouter(data: FormData): Promise<void> {
+  const resultado = await saveContact(data, { tipo: 'roteador', recados: RECADOS });
+  if (resultado.error) return voltarWithError(resultado.error, String(data.get('nome') ?? ''));
   irPara(`/roteador/${resultado.id}`);
 }
 
-function voltarComErro(motivo: string, nome: string): void {
-  const busca = new URLSearchParams({ passo: 'nome', erro: motivo });
-  if (nome) busca.set('nome', nome);
-  irPara(`/criar/roteador?${busca}`);
+function voltarWithError(motivo: string, nome: string): void {
+  const search = new URLSearchParams({ passo: 'nome', erro: motivo });
+  if (nome) search.set('nome', nome);
+  irPara(`/criar/roteador?${search}`);
 }

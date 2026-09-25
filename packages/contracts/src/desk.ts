@@ -10,37 +10,37 @@
  * entra ou sai de lá, entra ou sai daqui, e o `tsc` do front acusa.
  */
 
-export type EstadoConversa = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
+export type StateConversation = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
 /**
  * A régua de prioridade é a de `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`),
  * escrita aqui por extenso porque o contrato não importa pacote nenhum. Os
  * cinco literais são os mesmos, e o `tsc` do front acusa se um deles divergir
  * ao indexar `ROTULOS_PRIORIDADE` com este tipo.
  */
-export type PrioridadeDoDesk = 'maxima' | 'alta' | 'media' | 'baixa' | 'sem_prioridade';
-export type TipoCanalBanco = 'whatsapp_cloud' | 'instagram' | 'email' | 'widget';
-export type EstadoAtendente = 'online' | 'pausa' | 'invisivel' | 'offline';
+export type PriorityOfDesk = 'maxima' | 'alta' | 'media' | 'baixa' | 'sem_prioridade';
+export type TypeChannelDatabase = 'whatsapp_cloud' | 'instagram' | 'email' | 'widget';
+export type StateAgent = 'online' | 'pausa' | 'invisivel' | 'offline';
 
 /* ------------------------------------------------------------ a fila */
 
-export interface ConversaDaLista {
+export interface ConversationOfList {
   id: string;
-  estado: EstadoConversa;
-  prioridade: PrioridadeDoDesk;
+  estado: StateConversation;
+  prioridade: PriorityOfDesk;
   criadaEm: string;
   /** Nulo é conversa que o atendente ainda não respondeu — é a ficha "Sem resposta". */
   primeiraRespostaEm: string | null;
   ultimaMensagemEm: string | null;
-  ultimaMensagemDe: string | null;
+  lastMessageFrom: string | null;
   janelaExpiraEm: string | null;
   /** Desde quando está em espera — o cronômetro da ficha 'Em espera' do cartão. */
   emEsperaDesde: string | null;
   contatoNome: string | null;
   contatoTelefone: string | null;
   filaNome: string | null;
-  canalTipo: TipoCanalBanco;
-  ultimaMensagem: string | null;
-  ultimaMensagemTipo: string | null;
+  canalTipo: TypeChannelDatabase;
+  lastMessage: string | null;
+  lastMessageType: string | null;
   /**
    * As marcações DESTE atendente (`marcacao_conversa`, migração 0041): fixada no
    * topo da lista e marcada à mão como não lida. Nulo é "não marcada". São do
@@ -50,8 +50,8 @@ export interface ConversaDaLista {
   naoLidaEm: string | null;
 }
 
-export interface StatusDoAtendente {
-  estado: EstadoAtendente;
+export interface StatusOfAgent {
+  estado: StateAgent;
   desde: string;
   motivoPausa: string | null;
 }
@@ -59,14 +59,14 @@ export interface StatusDoAtendente {
 export interface MotivoDePausa {
   id: string;
   nome: string;
-  duracaoSugeridaMin: number | null;
+  durationSuggestedMin: number | null;
 }
 
 export interface EtiquetaDoDesk {
   id: string;
   nome: string;
   cor: string | null;
-  obrigatoriaNoEncerramento: boolean;
+  requiredInClosure: boolean;
 }
 
 export interface Colega {
@@ -76,7 +76,7 @@ export interface Colega {
 
 export interface RespostaProntaDoDesk {
   id: string;
-  escopo: 'empresa' | 'pessoal';
+  scope: 'empresa' | 'pessoal';
   categoria: string | null;
   atalho: string;
   titulo: string;
@@ -90,11 +90,11 @@ export interface RespostaProntaDoDesk {
  * Next fazia; a busca, a ficha, a ordem e o recorte por fila continuam sendo
  * do navegador (`lib/ordem.ts`), porque são regras puras sobre a lista inteira.
  */
-export interface FilaDoDesk {
-  conversas: ConversaDaLista[];
+export interface QueueOfDesk {
+  conversations: ConversationOfList[];
   /** "Clientes aguardando": conversas na fila, nas filas do atendente. O botão "Atender" puxa a mais antiga. */
   aguardando: number;
-  status: StatusDoAtendente;
+  status: StatusOfAgent;
   motivos: MotivoDePausa[];
   etiquetas: EtiquetaDoDesk[];
   colegas: Colega[];
@@ -103,39 +103,39 @@ export interface FilaDoDesk {
 
 /* ------------------------------------------------------- a conversa */
 
-export interface ConversaAberta {
+export interface ConversationOpen {
   id: string;
-  estado: EstadoConversa;
-  prioridade: PrioridadeDoDesk;
+  state: StateConversation;
+  priority: PriorityOfDesk;
   criadaEm: string;
-  primeiraRespostaEm: string | null;
+  firstResponseAt: string | null;
   emEsperaDesde: string | null;
-  janelaExpiraEm: string | null;
-  filaNome: string | null;
-  canalId: string;
-  canalTipo: TipoCanalBanco;
-  contatoId: string;
-  contatoNome: string | null;
-  contatoTelefone: string | null;
-  contatoEmail: string | null;
-  contatoDocumento: string | null;
-  contatoAtributos: Record<string, unknown>;
+  windowExpiresAt: string | null;
+  queueName: string | null;
+  channelId: string;
+  channelType: TypeChannelDatabase;
+  contactId: string;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  contactDocument: string | null;
+  contactAtributos: Record<string, unknown>;
   resumo: string | null;
   resumoEm: string | null;
-  resumoModelo: string | null;
+  summaryTemplate: string | null;
 }
 
-export type ItemDaConversa =
+export type ItemOfConversation =
   | {
       genero: 'mensagem';
       id: string;
       criadaEm: string;
-      direcao: 'entrada' | 'saida';
+      direction: 'entrada' | 'saida';
       tipo: string;
       conteudo: string | null;
-      estadoEntrega: string | null;
-      erroCodigo: string | null;
-      erroTexto: string | null;
+      stateDelivery: string | null;
+      errorCode: string | null;
+      errorText: string | null;
       lidaEm: string | null;
       entregueEm: string | null;
       deRespostaPronta: boolean;
@@ -152,35 +152,35 @@ export interface TemplateAprovado {
    * Os nomes das variáveis NA ORDEM das posições `{{1}}`, `{{2}}`, … Sem
    * isto a tela não tem como resolver o corpo.
    */
-  variaveis: unknown;
+  variables: unknown;
 }
 
-export interface EtiquetaDaConversa {
+export interface LabelOfConversation {
   id: string;
   nome: string;
 }
 
-export interface ConversaDoHistorico {
+export interface ConversationOfHistory {
   id: string;
   criadaEm: string;
   encerradaEm: string | null;
-  estado: EstadoConversa;
+  estado: StateConversation;
   filaNome: string | null;
 }
 
 /** A conversa aberta e tudo o que a coluna do meio e o painel do contato mostram dela. */
-export interface ConversaDoDesk {
-  conversa: ConversaAberta;
-  itens: ItemDaConversa[];
+export interface ConversationOfDesk {
+  conversation: ConversationOpen;
+  itens: ItemOfConversation[];
   templates: TemplateAprovado[];
-  etiquetasDaConversa: EtiquetaDaConversa[];
+  conversationTags: LabelOfConversation[];
   /**
    * As etiquetas do CONTATO (`contato_etiqueta`), que o painel "Dados do
    * Contato" mostra e edita. Separadas das da conversa porque são de escopos
    * diferentes (`etiqueta.escopo`) e não se herdam.
    */
-  etiquetasDoContato: EtiquetaDaConversa[];
-  historico: ConversaDoHistorico[];
+  contactTags: LabelOfConversation[];
+  history: ConversationOfHistory[];
 }
 
 /**
@@ -189,32 +189,32 @@ export interface ConversaDoDesk {
  * fazer nesse caso: volta para a fila sem conversa aberta, como a página em
  * Next fazia, sem passar pelo caminho de erro do cache.
  */
-export interface RespostaDaConversa {
-  aberta: ConversaDoDesk | null;
+export interface ResponseOfConversation {
+  aberta: ConversationOfDesk | null;
 }
 
 /* ------------------------------------------------------ o ticket antigo */
 
 export interface TicketAntigo {
   id: string;
-  estado: EstadoConversa;
-  prioridade: PrioridadeDoDesk;
+  estado: StateConversation;
+  prioridade: PriorityOfDesk;
   criadaEm: string;
   primeiraRespostaEm: string | null;
-  ultimaMensagemEm: string | null;
+  lastMessageAt: string | null;
   encerradaEm: string | null;
-  motivoEncerramento: string | null;
+  reasonClosure: string | null;
   pausadoSeg: number;
   filaNome: string | null;
-  canalTipo: TipoCanalBanco;
-  contatoId: string;
+  canalTipo: TypeChannelDatabase;
+  contactId: string;
   contatoNome: string | null;
   contatoTelefone: string | null;
   /** Quem atendeu. Nulo é atendimento que nunca saiu do robô. */
-  atendenteNome: string | null;
-  atendenteEmail: string | null;
+  agentName: string | null;
+  agentEmail: string | null;
   /** Quem encerrou. Nulo com `encerradaEm` preenchido é fim automático. */
-  encerradaPorNome: string | null;
+  closedByName: string | null;
 }
 
 /**
@@ -226,14 +226,14 @@ export interface TicketAntigo {
  */
 export interface TicketDoDesk {
   ticket: TicketAntigo;
-  itens: ItemDaConversa[];
-  etiquetas: EtiquetaDaConversa[];
-  status: StatusDoAtendente;
+  itens: ItemOfConversation[];
+  etiquetas: LabelOfConversation[];
+  status: StatusOfAgent;
 }
 
 /* ------------------------------------------------------------ métricas */
 
-export interface ContagemDeSituacao {
+export interface CountOfSituation {
   abertos: number;
   fechados: number;
   finalizados: number;
@@ -245,9 +245,9 @@ export interface ContagemDeSituacao {
 
 export interface TemposMedios {
   /** Da chegada até a primeira palavra do atendente, em segundos. */
-  primeiraRespostaSeg: number | null;
+  firstResponseSeg: number | null;
   /** Da abertura até cair no colo de alguém, em segundos. */
-  esperaNaFilaSeg: number | null;
+  waitInQueueSeg: number | null;
   /** Fila mais o tempo que a conversa passou em espera, em segundos. */
   esperaTotalSeg: number | null;
 }
@@ -258,8 +258,8 @@ export interface DiaDaSerie {
   fechados: number;
 }
 
-export interface MetricasDoAtendente {
-  situacoes: ContagemDeSituacao;
+export interface MetricsOfAgent {
+  situations: CountOfSituation;
   tempos: TemposMedios;
   serie: DiaDaSerie[];
 }
@@ -272,9 +272,9 @@ export interface MetricasDoAtendente {
  * O `status` vai junto porque o trilho o mostra em toda tela, e uma ida só à
  * `api` por tela é a régua.
  */
-export interface RespostaDasMetricas {
-  metricas: MetricasDoAtendente;
-  status: StatusDoAtendente;
+export interface ResponseOfMetrics {
+  metrics: MetricsOfAgent;
+  status: StatusOfAgent;
 }
 
 /** O que o CRM sabe do contato, no painel. `null` some da tela. */

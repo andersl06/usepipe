@@ -32,7 +32,7 @@ function TituloMarca({ children, fs20 }: { children: ReactNode; fs20?: boolean }
 }
 
 /** `UN`: 20 embaixo. */
-function Bloco({ children }: { children: ReactNode }) {
+function Block({ children }: { children: ReactNode }) {
   return <div className="dd-bloco">{children}</div>;
 }
 
@@ -65,7 +65,7 @@ function Importante({ titulo = 'Importante' }: { titulo?: string }) {
 }
 
 /** O link de suporte da origem vai para `support.blip.ai`: fica o texto, sem destino. */
-function LinkSemDestino({ children }: { children: ReactNode }) {
+function LinkWithoutDestination({ children }: { children: ReactNode }) {
   return <span className="dd-link">{children}</span>;
 }
 
@@ -227,10 +227,10 @@ function Tabela({
 }
 
 const COLUNAS = ['Nome da coluna', 'Descrição'] as const;
-const METRICA_DEFINICAO_FORMULA = ['Métrica', 'Definição', 'Fórmula'] as const;
+const METRIC_DEFINITION_FORMULA = ['Métrica', 'Definição', 'Fórmula'] as const;
 
 /** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: título azul, uma linha e a tabela. */
-function RelatorioAnexo({
+function ReportAttachment({
   titulo,
   texto,
   linhas,
@@ -240,24 +240,24 @@ function RelatorioAnexo({
   linhas: readonly (readonly Celula[])[];
 }) {
   return (
-    <Bloco>
+    <Block>
       <TituloMarca>{titulo}</TituloMarca>
       <Texto>
         <Linha>{texto}</Linha>
       </Texto>
       <Tabela cabecalho={COLUNAS} linhas={linhas} />
-    </Bloco>
+    </Block>
   );
 }
 
 /* ------------------------------------------------------------- Sobre dados */
 
 /** `zN` (dicionário `cN`). */
-export function SobreDados() {
+export function AboutData() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Aviso sobre a disponibilidade de dados:</Titulo>
         <Texto>
           O Dicionário de Dados tem o objetivo de prover todas as informações necessárias sobre as
@@ -273,7 +273,7 @@ export function SobreDados() {
                 {
                   'Aviso sobre a disponibilidade de dados: todos os dados a partir de 01/10/2022 ficarão disponíveis durante 90 dias (3 meses) para consulta nas soluções do módulo de Análise de cada chatbot  no portal Pipe. Para obter dados com períodos superiores a 90 dias, fale com nossa equipe de '
                 }
-                <LinkSemDestino>{' suporte '}</LinkSemDestino>
+                <LinkWithoutDestination>{' suporte '}</LinkWithoutDestination>
                 {' , que poderá enviá-los sob demanda.'}
               </>,
               'As soluções de Análise de dados tem o propósito de oferecer inteligência e insights sobre a performance e desempenho dos seus chatbots e utiliza regras e filtros exclusivos para os dados mostrados. Estes dados não devem ser utilizados para cobranças, e sim como indicadores de desempenho e performance do seu contato inteligente que ajudem a construir melhores conversas, experiências e fluxos conversacionais. ',
@@ -283,7 +283,7 @@ export function SobreDados() {
             ]}
           />
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
@@ -295,7 +295,7 @@ function Dashboard() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Dashboard</Titulo>
         <Texto>
           A tela de Dashboard apresenta informações, dados e indicadores automatizados sobre a
@@ -312,17 +312,17 @@ function Dashboard() {
           {'  Atualizar  '}
           no canto superior direito da tela
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `SU` (dicionário `yU`). */
-function FiltroDeData() {
+function DataFilter() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Filtro de data</Titulo>
         <Texto>
           O filtro de data é a funcionalidade que permite que períodos fechados ou personalizados
@@ -378,17 +378,17 @@ function FiltroDeData() {
             ]}
           />
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `JN` (dicionário `PN`). */
-function IndicadorDeComparacao() {
+function ComparisonIndicador() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Indicador de Comparação</Titulo>
         <Linha>
           <IndicadorDeExemplo />
@@ -415,17 +415,17 @@ function IndicadorDeComparacao() {
             dias de um período anterior (de 15 a 1 de junho).
           </span>
         </Linha>
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `lU` (dicionário `sU`). */
-function Contatos() {
+function Contacts() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Contatos</Titulo>
         <Texto>
           <Linha>
@@ -441,7 +441,7 @@ function Contatos() {
           </Linha>
         </Texto>
         <Tabela
-          cabecalho={METRICA_DEFINICAO_FORMULA}
+          cabecalho={METRIC_DEFINITION_FORMULA}
           linhas={[
             [
               'Total de contatos único',
@@ -483,7 +483,7 @@ function Contatos() {
             ]}
           />
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
@@ -507,7 +507,7 @@ function Recorrencia() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Recorrência</Titulo>
         <Texto>
           <Linha>
@@ -552,7 +552,7 @@ function Recorrencia() {
           ],
         )}
         <Tabela
-          cabecalho={METRICA_DEFINICAO_FORMULA}
+          cabecalho={METRIC_DEFINITION_FORMULA}
           linhas={[
             [
               'Taxa de recorrência',
@@ -571,24 +571,24 @@ function Recorrencia() {
             ],
           ]}
         />
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `VU` (dicionário `UU`). */
-function Mensagens() {
+function Messages() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Mensagens</Titulo>
         <Texto>
           Nesta seção é possível ter acesso aos dados de mensagens trocadas entre seus contatos e
           chatbots.
         </Texto>
         <Tabela
-          cabecalho={METRICA_DEFINICAO_FORMULA}
+          cabecalho={METRIC_DEFINITION_FORMULA}
           linhas={[
             [
               'Mensagens ativas enviadas',
@@ -639,17 +639,17 @@ function Mensagens() {
             ]}
           />
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `gU` (dicionário `hU`). */
-function FluxoConversacional() {
+function FlowConversacional() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Fluxo Conversacional</Titulo>
         <Importante />
         <Texto>
@@ -720,7 +720,7 @@ function FluxoConversacional() {
           incluindo o dia de hoje (D-0).
         </Linha>
         <Tabela
-          cabecalho={METRICA_DEFINICAO_FORMULA}
+          cabecalho={METRIC_DEFINITION_FORMULA}
           linhas={[
             [
               'Média de blocos antes do transbordo',
@@ -759,7 +759,7 @@ function FluxoConversacional() {
             ],
           ]}
         />
-      </Bloco>
+      </Block>
     </>
   );
 }
@@ -992,7 +992,7 @@ function ListaDeBlocos() {
 
 /** `_U` (dicionário `EU`). Da segunda resposta em diante o `VN` vai sem `variant`: fs-16. */
 function PerguntasFrequentes() {
-  const demais: readonly [string, string][] = [
+  const rest: readonly [string, string][] = [
     [
       'Qual o comportamento da tela de Dashboard com o roteador?',
       'A tela de dashboard do roteador mostrará dados agregados de todos os chatbots que estão conectados e ativos ao roteador selecionado, e para isso é essencial que o contexto de roteador esteja ativado. Não é possível a partir do roteador selecionar um chatbot específico para análise, mas é possível ver os dados de um chatbot específico abrindo a aba de Dashboard do mesmo',
@@ -1017,24 +1017,24 @@ function PerguntasFrequentes() {
   return (
     <>
       <Atualizado data="Atualizado em 21/09/2022" />
-      <Bloco>
+      <Block>
         <Titulo>Perguntas frequentes</Titulo>
-        <Bloco>
+        <Block>
           <Destaque>Qual o intervalo de dados disponíveis para minhas análises?</Destaque>
           <Texto>
             {
               'Os dados estão disponíveis para consulta no portal Pipe nas soluções de Análise pelo intervalo de 90 dias (3 meses) corridos a partir do dia de hoje para trás. Para obter dados de períodos superiores a 90 dias, fale com nossa equipe de '
             }
-            <LinkSemDestino>{' suporte. '}</LinkSemDestino>
+            <LinkWithoutDestination>{' suporte. '}</LinkWithoutDestination>
           </Texto>
-        </Bloco>
-        {demais.map(([pergunta, resposta]) => (
-          <Bloco key={pergunta}>
+        </Block>
+        {rest.map(([pergunta, resposta]) => (
+          <Block key={pergunta}>
             <Destaque>{pergunta}</Destaque>
             <Texto fs16>{resposta}</Texto>
-          </Bloco>
+          </Block>
         ))}
-      </Bloco>
+      </Block>
     </>
   );
 }
@@ -1042,13 +1042,13 @@ function PerguntasFrequentes() {
 /* ------------------------------------------------ Gerenciador de Relatórios */
 
 /** `KU` (dicionário `$U`). */
-function GerenciadorDeRelatorios() {
+function ReportsManager() {
   const somente = (tipo: string) => [tipo, '-', '✔️', '-'] as const;
   const todos = (tipo: string) => [tipo, '✔️', '✔️', '✔️'] as const;
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>Gerenciador de Relatórios</Titulo>
         <Texto>
           <Linha>
@@ -1124,13 +1124,13 @@ function GerenciadorDeRelatorios() {
             gerar um novo relatório com os mesmos filtros.
           </Linha>
         </Texto>
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /* As nove métricas que se repetem nas abas do Notifications Summary (`IU`). */
-const METRICAS_DE_NOTIFICACAO: readonly (readonly Celula[])[] = [
+const METRICS_OF_NOTIFICATION: readonly (readonly Celula[])[] = [
   ['Enviadas', 'Quantidade de mensagens enviadas/disparadas pelos bots.'],
   ['Falhas', 'Quantidade de mensagens que tiveram alguma indicação de falha no envio.'],
   [
@@ -1152,11 +1152,11 @@ const METRICAS_DE_NOTIFICACAO: readonly (readonly Celula[])[] = [
 ];
 
 /** `ZU` (dicionário `OU`) + `WU` + `AU`. */
-function MensagensAtivas() {
+function ActiveMessages() {
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>Mensagens ativas</Titulo>
         <Texto>
           <Linha>
@@ -1202,10 +1202,10 @@ function MensagensAtivas() {
             resumidos dos bots/clientes no período:
           </Linha>
         </Texto>
-      </Bloco>
+      </Block>
 
       {/* `WU` */}
-      <Bloco>
+      <Block>
         <TituloMarca>Notifications Summary</TituloMarca>
         <Texto>
           <Linha>
@@ -1235,7 +1235,7 @@ function MensagensAtivas() {
               'Templates Distintos',
               'Quantidade de templates (modelos de mensagem do WhatsApp) distintos.',
             ],
-            ...METRICAS_DE_NOTIFICACAO,
+            ...METRICS_OF_NOTIFICATION,
           ]}
         />
         <Texto>
@@ -1261,7 +1261,7 @@ function MensagensAtivas() {
               'Templates Distintos',
               'Quantidade de templates (modelos de mensagem do WhatsApp) distintos.',
             ],
-            ...METRICAS_DE_NOTIFICACAO,
+            ...METRICS_OF_NOTIFICATION,
           ]}
         />
         <Texto>
@@ -1280,7 +1280,7 @@ function MensagensAtivas() {
             ['BotId', 'Bot em que a mensagem ativa foi enviada.'],
             ['Data', 'Data do envio da Mensagem ativa.'],
             ['Template', 'Id do template.'],
-            ...METRICAS_DE_NOTIFICACAO,
+            ...METRICS_OF_NOTIFICATION,
           ]}
         />
         <Texto>
@@ -1306,10 +1306,10 @@ function MensagensAtivas() {
             ],
           ]}
         />
-      </Bloco>
+      </Block>
 
       {/* `AU` */}
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="Notifications Users"
         texto="<Nome_do_cliente>_Notifications_Users_<data_inicial>_<data_final>"
         linhas={[
@@ -1360,11 +1360,11 @@ function MensagensAtivas() {
 }
 
 /** `XU` (dicionário `qU`). */
-function RastreamentoDeEventos() {
+function EventsTracking() {
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>Rastreamento de eventos</Titulo>
         <Texto>
           <Linha>
@@ -1402,13 +1402,13 @@ function RastreamentoDeEventos() {
             ],
           ]}
         />
-      </Bloco>
+      </Block>
     </>
   );
 }
 
 /** `GU` (dicionário `BU`) + `QU` + `JU` + `PU`. */
-function MetricasDeChatbot() {
+function ChatbotMetrics() {
   const ABAS_USERS: readonly (readonly Celula[])[] = [
     ['Ano_Mes', 'Ano-Mês em que os dados foram coletados.'],
     ['Bot Router', 'Indicador do bot roteador analisado.'],
@@ -1455,22 +1455,22 @@ function MetricasDeChatbot() {
       'Volume de DEUs total registrados nos routers, independentemente dos subbots.',
     ],
   ];
-  const CONVERSAS_WABA: readonly (readonly Celula[])[] = [
+  const CONVERSATIONS_WABA: readonly (readonly Celula[])[] = [
     ['WabaId', 'Identificador único da WABA (Whatsapp Business Account).'],
     ['WabaName', 'Nome da WABA.'],
     ['PhoneNumber', 'Número de telefone associado a WABA/Bot.'],
   ];
-  const DIRECAO_TIPO: readonly (readonly Celula[])[] = [
+  const DIRECTION_TIPO: readonly (readonly Celula[])[] = [
     ['Conversation_Direction', 'Indica se a sessão foi user_initiated ou business_initiated.'],
     [
       'Conversation_Type',
       'Indica se a sessão será cobrada regularmente (REGULAR) ou se foi uma sessão gratuita (FREE_TIER ou FREE_ENTRY_POINT).',
     ],
   ];
-  const CONVERSAS_SUBBOTS: readonly (readonly Celula[])[] = [
+  const CONVERSATIONS_SUBBOTS: readonly (readonly Celula[])[] = [
     ['Bot Router', 'Indicador do bot router analisado.'],
     ['SubBot', 'Indicador do subbot analisado.'],
-    ...DIRECAO_TIPO,
+    ...DIRECTION_TIPO,
     ['Users', 'Volume de pessoas usuárias únicas identificadas no período.'],
     ['Conversations', 'Volume estimado de conversas/sessões geradas no período.'],
     ['Estimated_Cost_USD', 'Custo estimado em dólares (USD) das sessões geradas no período.'],
@@ -1524,7 +1524,7 @@ function MetricasDeChatbot() {
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>Métricas de chatbot e usuários</Titulo>
         <Texto>
           <Linha>
@@ -1584,10 +1584,10 @@ function MetricasDeChatbot() {
             />
           </Linha>
         </Texto>
-      </Bloco>
+      </Block>
 
       {/* `QU`: o `UN` dele fecha depois da segunda tabela; o resto vem solto. */}
-      <Bloco>
+      <Block>
         <TituloMarca>Conversation Summary</TituloMarca>
         <Texto>
           <Linha>Subbots_Users_Conversations_Summary_</Linha>
@@ -1637,7 +1637,7 @@ function MetricasDeChatbot() {
             'Volume de MAUS corrigidos somados ao volume de MAUS não encontrados nos subBots, divididos para cada subbot.',
           ],
         ])}
-      </Bloco>
+      </Block>
       {aba('Aba: Users - SubBots - Daily', [
         ['Data', 'Data em que os dados foram coletados.'],
         ['Bot Router', 'Indicador do bot roteador analisado.'],
@@ -1658,9 +1658,9 @@ function MetricasDeChatbot() {
       ])}
       {aba('Aba: Conversations - Router', [
         ['Ano_Mes', 'Ano e mês em que as sessões foram iniciadas.'],
-        ...CONVERSAS_WABA,
+        ...CONVERSATIONS_WABA,
         ['BotId', 'Indicador do bot router analisado.'],
-        ...DIRECAO_TIPO,
+        ...DIRECTION_TIPO,
         ['Usuários Únicos', 'Volume de pessoas usuárias únicas identificadas no período.'],
         [
           'Volumetria de Conversas Estimada',
@@ -1670,13 +1670,13 @@ function MetricasDeChatbot() {
       ])}
       {aba('Aba: Conversations - Subbots', [
         ['Ano_Mes', 'Ano e mês em que as sessões foram iniciadas.'],
-        ...CONVERSAS_WABA,
-        ...CONVERSAS_SUBBOTS,
+        ...CONVERSATIONS_WABA,
+        ...CONVERSATIONS_SUBBOTS,
       ])}
       {aba('Aba: Conversations - SubBots - Daily', [
         ['Data', 'Data em que as sessões foram iniciadas.'],
-        ...CONVERSAS_WABA,
-        ...CONVERSAS_SUBBOTS,
+        ...CONVERSATIONS_WABA,
+        ...CONVERSATIONS_SUBBOTS,
         [
           'Volume de conversas do Router',
           'Volume de Conversas registradas nos routers, independentemente dos subbots.',
@@ -1688,7 +1688,7 @@ function MetricasDeChatbot() {
       ])}
 
       {/* `JU` */}
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="User Details"
         texto="SubBots_Users_Details_"
         linhas={[
@@ -1719,11 +1719,11 @@ function MetricasDeChatbot() {
       />
 
       {/* `PU` */}
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="Conversations Details"
         texto="SubBots_Conversations_Details_"
         linhas={[
-          ...CONVERSAS_WABA,
+          ...CONVERSATIONS_WABA,
           ['BotId', 'Indicador do bot roteador analisado.'],
           ['ChildUserId', 'Indicador do usuário da conversa dentro do seu respectivo subbot.'],
           ['ChildBotId', 'Indicador do subbot analisado.'],
@@ -1738,7 +1738,7 @@ function MetricasDeChatbot() {
             'Início da janela de tempo em que a sessão foi iniciada (no fuso GMT-0).',
           ],
           ['EndDateTime', 'Fim da janela de tempo em que a sessão foi iniciada (no fuso GMT-0).'],
-          ...DIRECAO_TIPO,
+          ...DIRECTION_TIPO,
           ['Country', 'País do número de WhatsApp com o qual a conversa foi estabelecida.'],
           ['CountryCode', 'Código de DDI do número com o qual foi iniciada a sessão.'],
           ['Cost', 'Custo estimado da sessão conforme a tabela do WhatsApp de precificação.'],
@@ -1777,12 +1777,12 @@ const TEMPOS_DE_STATUS: readonly (readonly Celula[])[] = [
 ];
 
 /** `pV` (dicionário `rV`) + `uV` + `lV` + `iV` + `hV`. */
-function StatusDosAtendentes() {
-  const ATENDENTE = ['AgentIdentity', 'Identificador/E-mail do atendente.'] as const;
+function AgentsStatus() {
+  const AGENT = ['AgentIdentity', 'Identificador/E-mail do atendente.'] as const;
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>Status dos atendentes</Titulo>
         <Texto>
           <Linha>
@@ -1816,12 +1816,12 @@ function StatusDosAtendentes() {
             cumpriu nos 4 status e com algumas informações extras sobre a sua performance.
           </Linha>
         </Texto>
-      </Bloco>
-      <RelatorioAnexo
+      </Block>
+      <ReportAttachment
         titulo="Status - Minutes"
         texto="Cálculo do tempo que cada atendente cumpriu nos 4 status, calculados em relação ao Atendente e ao período da janela de tempo em minutos designada."
         linhas={[
-          ATENDENTE,
+          AGENT,
           ['BotID', 'Identificador do bot de atendimento.'],
           ['Teams', 'Times/Filas às quais o atendente se encontra cadastrado.'],
           ['Device', 'Dispositivo pelo qual a pessoa usuária entrou.'],
@@ -1829,11 +1829,11 @@ function StatusDosAtendentes() {
           ...TEMPOS_DE_STATUS,
         ]}
       />
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="Status - Dia"
         texto="Cálculo do tempo que cada atendente cumpriu nos 4 status agregados por Atendente/Bot/Dia."
         linhas={[
-          ATENDENTE,
+          AGENT,
           ['BotID', 'Identificador do bot de atendimento.'],
           ['Teams', 'Times/Filas às quais o atendente se encontra cadastrado.'],
           ['Date', 'Data da análise.'],
@@ -1841,22 +1841,22 @@ function StatusDosAtendentes() {
           ['Devices', 'Dispositivo pelo qual a pessoa usuária entrou.'],
         ]}
       />
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="Histórico - Alterações de Status"
         texto="Registro das alterações de status realizadas pelos atendentes no dia. Esta é a fonte dos cálculos realizados nas abas anteriores."
         linhas={[
-          ATENDENTE,
+          AGENT,
           ['Device', 'Dispositivo pelo qual a pessoa usuária entrou.'],
           ['DateTime', 'Data/Hora da mudança de status registrada.'],
           ['OldStatus', 'Status prévio à mudança indicada.'],
           ['NewStatus', 'Status após à mudança registrada.'],
         ]}
       />
-      <RelatorioAnexo
+      <ReportAttachment
         titulo="Volume de Tickets"
         texto="Registro do volume de tickets fechados que foram atendidos pelos agentes no período, agrupados em relação à data de encerramento dos tickets e seus status finais."
         linhas={[
-          ATENDENTE,
+          AGENT,
           ['CloseDate', 'Data de encerramento dos tickets.'],
           [
             'ClosedAttendant',
@@ -1881,7 +1881,7 @@ function StatusDosAtendentes() {
 }
 
 /** `oV`/`tV`: título, texto, "Importante" e a tabela. */
-function RelatorioDeAtendimento({
+function AttendanceReport({
   titulo,
   texto,
   cabecalho,
@@ -1895,7 +1895,7 @@ function RelatorioDeAtendimento({
   return (
     <>
       <Atualizado data="Atualizado em 16/04/2024" />
-      <Bloco>
+      <Block>
         <Titulo>{titulo}</Titulo>
         <Texto>
           <Linha>{texto}</Linha>
@@ -1906,12 +1906,12 @@ function RelatorioDeAtendimento({
           </Linha>
         </Texto>
         <Tabela cabecalho={cabecalho} linhas={linhas} />
-      </Bloco>
+      </Block>
     </>
   );
 }
 
-const ORIGINAL_DO_ROTEADOR: readonly (readonly Celula[])[] = [
+const ORIGINAL_OF_ROUTER: readonly (readonly Celula[])[] = [
   [
     'Original_CustomerIdentity',
     'Caso o bot de atendimento seja um subbot de um bot roteador, este campo traz o identificador original do usuário no bot.',
@@ -1923,9 +1923,9 @@ const ORIGINAL_DO_ROTEADOR: readonly (readonly Celula[])[] = [
 ];
 
 /** `oV` (dicionário `nV`). */
-function MetricasDeAtendimento() {
+function AttendanceMetrics() {
   return (
-    <RelatorioDeAtendimento
+    <AttendanceReport
       titulo="Métricas de atendimento"
       texto="Esse relatório traz dados principais dos tickets de atendimento registrados no período do relatório. Ele contempla também as mensagens de template do WhatsApp que foram disparadas nos bots e aparecem nas volumetrias de mensagens trafegadas."
       cabecalho={COLUNAS}
@@ -1973,16 +1973,16 @@ function MetricasDeAtendimento() {
         ['CustomerExtras', 'Informações extras do contato do cliente armazenadas na plataforma.'],
         ['AgentName', 'Nome do atendente conforme seu cadastro na plataforma.'],
         ['AgentEmail', 'Email do atendente conforme o cadastro deste na plataforma.'],
-        ...ORIGINAL_DO_ROTEADOR,
+        ...ORIGINAL_OF_ROUTER,
       ]}
     />
   );
 }
 
 /** `tV` (dicionário `eV`). */
-function HistoricoDeAtendimento() {
+function AttendanceHistory() {
   return (
-    <RelatorioDeAtendimento
+    <AttendanceReport
       titulo="Histórico de atendimento"
       texto="Esse tipo de relatório traz o histórico de mensagens trocadas entre atendentes e clientes no Desk, incluindo a transcrição delas. Ele pode incluir os IDs de usuários e bots originais da conversa (em caso de o atendimento ocorrer em algum subbot)."
       cabecalho={['Métrica', 'Fórmula']}
@@ -2021,22 +2021,22 @@ function HistoricoDeAtendimento() {
  * A página de cada chave de `path`. Subseção e seção dividem o espaço de nomes
  * porque na origem também dividem (`selectedSubSection` é um só).
  */
-export const PAGINAS: Readonly<Record<string, () => JSX.Element>> = {
-  aboutData: SobreDados,
+export const PAGES: Readonly<Record<string, () => JSX.Element>> = {
+  aboutData: AboutData,
   dashboard: Dashboard,
-  dateFilter: FiltroDeData,
-  comparisonIndicator: IndicadorDeComparacao,
-  contacts: Contatos,
+  dateFilter: DataFilter,
+  comparisonIndicator: ComparisonIndicador,
+  contacts: Contacts,
   recurrence: Recorrencia,
-  messages: Mensagens,
-  conversationalFlow: FluxoConversacional,
+  messages: Messages,
+  conversationalFlow: FlowConversacional,
   listOfBlocks: ListaDeBlocos,
   frequentlyAskedQuestions: PerguntasFrequentes,
-  reportManager: GerenciadorDeRelatorios,
-  activeMessages: MensagensAtivas,
-  eventTracking: RastreamentoDeEventos,
-  chatbotUserMetrics: MetricasDeChatbot,
-  statusAttendants: StatusDosAtendentes,
-  serviceMetrics: MetricasDeAtendimento,
-  serviceHistory: HistoricoDeAtendimento,
+  reportManager: ReportsManager,
+  activeMessages: ActiveMessages,
+  eventTracking: EventsTracking,
+  chatbotUserMetrics: ChatbotMetrics,
+  statusAttendants: AgentsStatus,
+  serviceMetrics: AttendanceMetrics,
+  serviceHistory: AttendanceHistory,
 };

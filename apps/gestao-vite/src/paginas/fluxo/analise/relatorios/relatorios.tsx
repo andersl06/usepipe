@@ -1,6 +1,6 @@
-import { IconeBusca, IconePortal } from '../../../../componentes/icones-portal';
-import type { RelatorioPersonalizado } from '@pipe/core/analise';
-import { CabecalhoDaPagina } from '../pecas';
+import { IconeSearch, IconePortal } from '../../../../componentes/icones-portal';
+import type { ReportCustom } from '@pipe/core/analise';
+import { PageHeader } from '../pecas';
 
 /**
  * Relatórios Personalizados — o componente `customReports` do módulo
@@ -9,12 +9,12 @@ import { CabecalhoDaPagina } from '../pecas';
  * Dois estados, os dois do template: a lista de `bds-paper.cards` e, sem
  * relatório, o `bds-typo.no-content-found` "Nenhum relatório encontrado :(".
  */
-export function RelatoriosPersonalizados({
-  relatorios,
+export function ReportsCustom({
+  reports,
   agora,
   fuso,
 }: {
-  relatorios: RelatorioPersonalizado[];
+  reports: ReportCustom[];
   agora: Date;
   fuso: string;
 }) {
@@ -22,7 +22,7 @@ export function RelatoriosPersonalizados({
     <>
       {/* `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, SEM
           `helper-confirm` — por isso não há ícone de ajuda. */}
-      <CabecalhoDaPagina
+      <PageHeader
         titulo="Relatórios personalizados"
         extra={
           <>
@@ -30,7 +30,7 @@ export function RelatoriosPersonalizados({
                 nasce com largura 0 e só abre ao focar. O `<label>` faz o clique
                 na lupa focar o campo, que é o `focusInput()` deles. */}
             <label className="rl-busca">
-              <IconeBusca tamanho={32} className="rl-busca-lupa" />
+              <IconeSearch tamanho={32} className="rl-busca-lupa" />
               <input type="text" placeholder="Buscar relatórios" />
             </label>
             {/* `goToReport()` abre o editor de relatório, que não existe aqui. */}
@@ -45,7 +45,7 @@ export function RelatoriosPersonalizados({
       />
 
       <div className="fx-coluna rl-lista" id="reports-id">
-        {relatorios.map((r) => (
+        {reports.map((r) => (
           <div key={r.id} className="rl-cartao">
             <div className="rl-coluna rl-coluna--nome">
               <p className="an-t12 rl-rotulo">Nome do relatório</p>
@@ -53,11 +53,11 @@ export function RelatoriosPersonalizados({
             </div>
             <div className="rl-coluna rl-coluna--autor">
               <p className="an-t12 rl-rotulo">Criado por</p>
-              <p className="an-t14 rl-valor">{r.criadoPor}</p>
+              <p className="an-t14 rl-valor">{r.criadoBy}</p>
             </div>
             <div className="rl-coluna rl-coluna--data">
               <p className="an-t12 rl-rotulo">Última modificação</p>
-              <p className="an-t14 rl-valor">{dataDoRelatorio(r.modificadoEm, agora, fuso)}</p>
+              <p className="an-t14 rl-valor">{reportData(r.modificadoEm, agora, fuso)}</p>
             </div>
             {/* `.card-icons.card-icons--hidden.w-10`: editar e excluir, só
                 para o dono, e só aparecem com o cursor sobre o cartão. */}
@@ -79,13 +79,13 @@ export function RelatoriosPersonalizados({
 
         {/* Fora da fileira: o `.cards` é `white-space: nowrap`, e o modal do
             `ModalService` nasce no `body`, não dentro do cartão. */}
-        {relatorios
+        {reports
           .filter((r) => r.souDono)
           .map((r) => (
             <ConfirmarExclusao key={r.id} id={r.id} />
           ))}
 
-        {relatorios.length === 0 ? (
+        {reports.length === 0 ? (
           <p className="an-t16 rl-vazio">Nenhum relatório encontrado :(</p>
         ) : null}
       </div>
@@ -97,7 +97,7 @@ export function RelatoriosPersonalizados({
  * `handleReport()`: modificado HOJE mostra `moment(...).fromNow()`; outro dia,
  * `DD/MM/YYYY - HH:mm`; sem data, `N/A`. O "hoje" é o do fuso da conta.
  */
-export function dataDoRelatorio(quando: Date | null, agora: Date, fuso: string): string {
+export function reportData(quando: Date | null, agora: Date, fuso: string): string {
   if (!quando) return 'N/A';
   const dia = (d: Date) => d.toLocaleDateString('pt-BR', { timeZone: fuso });
   if (dia(quando) !== dia(agora)) {

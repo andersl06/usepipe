@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { estadoDasFilas } from './filas.js';
+import { stateOfQueues } from './filas.js';
 import { migrationsPendentes } from './saude.js';
 
 /**
@@ -34,7 +34,7 @@ export const BALDES_SEGUNDOS = [0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10] as c
 interface Contador {
   nome: string;
   rotulos: Rotulos;
-  valor: number;
+  value: number;
 }
 
 interface Histograma {
@@ -43,7 +43,7 @@ interface Histograma {
   /** Contagem por balde, já acumulada — é o que o formato `le` exige. */
   baldes: number[];
   soma: number;
-  contagem: number;
+  count: number;
 }
 
 const AJUDA: Record<string, string> = {
@@ -58,7 +58,7 @@ const AJUDA: Record<string, string> = {
 const contadores = new Map<string, Contador>();
 const histogramas = new Map<string, Histograma>();
 
-function chave(nome: string, rotulos: Rotulos): string {
+function key(nome: string, rotulos: Rotulos): string {
   const partes = Object.keys(rotulos)
     .sort()
     .map((k) => `${k}=${rotulos[k] ?? ''}`);
@@ -66,21 +66,21 @@ function chave(nome: string, rotulos: Rotulos): string {
 }
 
 export function contar(nome: string, rotulos: Rotulos = {}, delta = 1): void {
-  const k = chave(nome, rotulos);
+  const k = key(nome, rotulos);
   const atual = contadores.get(k);
-  if (atual) atual.valor += delta;
-  else contadores.set(k, { nome, rotulos, valor: delta });
+  if (atual) atual.value += delta;
+  else contadores.set(k, { nome, rotulos, value: delta });
 }
 
-export function observar(nome: string, rotulos: Rotulos, valor: number): void {
-  const k = chave(nome, rotulos);
+export function watch(nome: string, rotulos: Rotulos, valor: number): void {
+  const k = key(nome, rotulos);
   let histograma = histogramas.get(k);
   if (!histograma) {
-    histograma = { nome, rotulos, baldes: BALDES_SEGUNDOS.map(() => 0), soma: 0, contagem: 0 };
+    histograma = { nome, rotulos, baldes: BALDES_SEGUNDOS.map(() => 0), soma: 0, count: 0 };
     histogramas.set(k, histograma);
   }
   histograma.soma += valor;
-  histograma.contagem += 1;
+  histograma.count += 1;
   // Somar em TODO balde cujo teto alcança o valor é o que deixa a contagem
   // acumulada, que é como o Prometheus lê `le`.
   BALDES_SEGUNDOS.forEach((teto, i) => {
@@ -95,7 +95,7 @@ export function observar(nome: string, rotulos: Rotulos, valor: number): void {
  * corpo grande demais nunca chegam a um controlador, e são exatamente os dois
  * sintomas que a gente quer ver no gráfico.
  */
-export function medirRequisicao(
+export function medirRequest(
   requisicao: Request,
   resposta: Response,
   seguir: NextFunction,
@@ -109,20 +109,20 @@ export function medirRequisicao(
       metodo: requisicao.method,
       status: String(resposta.statusCode),
     });
-    observar('http_request_duration_seconds', { rota, metodo: requisicao.method }, segundos);
+    watch('http_request_duration_seconds', { rota, metodo: requisicao.method }, segundos);
   });
   seguir();
 }
 
-function rotaDe(requisicao: Request): string {
-  const caminho = (requisicao as Request & { route?: { path?: string } }).route?.path;
+function rotaDe(request: Request): string {
+  const caminho = (request as Request & { route?: { path?: string } }).route?.path;
   // `desconhecida` em vez do caminho cru: sem rota casada, o caminho é entrada do
   // cliente, e entrada do cliente como rótulo é cardinalidade sem teto.
   return caminho ?? 'desconhecida';
 }
 
-function escapar(valor: string): string {
-  return valor.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
+function escapar(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n');
 }
 
 function serie(nome: string, rotulos: Rotulos, valor: number): string {
@@ -139,13 +139,13 @@ function cabecalho(nome: string, tipo: string): string {
 async function medidores(): Promise<string> {
   let texto = '';
 
-  const filas = await estadoDasFilas();
-  if (filas.length > 0) {
+  const queues = await stateOfQueues();
+  if (queues.length > 0) {
     texto += cabecalho('pipe_fila_profundidade', 'gauge');
-    for (const f of filas) texto += serie('pipe_fila_profundidade', { fila: f.fila }, f.profundidade);
+    for (const f of queues) texto += serie('pipe_fila_profundidade', { fila: f.queue }, f.depth);
     texto += cabecalho('pipe_fila_idade_item_mais_velho_segundos', 'gauge');
-    for (const f of filas) {
-      texto += serie('pipe_fila_idade_item_mais_velho_segundos', { fila: f.fila }, f.idadeSegundos);
+    for (const f of queues) {
+      texto += serie('pipe_fila_idade_item_mais_velho_segundos', { fila: f.queue }, f.ageSeconds);
     }
   }
 
@@ -164,7 +164,7 @@ export async function renderizar(): Promise<string> {
   for (const nome of [...new Set([...contadores.values()].map((c) => c.nome))].sort()) {
     texto += cabecalho(nome, 'counter');
     for (const c of contadores.values()) {
-      if (c.nome === nome) texto += serie(nome, c.rotulos, c.valor);
+      if (c.nome === nome) texto += serie(nome, c.rotulos, c.value);
     }
   }
 
@@ -175,9 +175,9 @@ export async function renderizar(): Promise<string> {
       BALDES_SEGUNDOS.forEach((teto, i) => {
         texto += serie(`${nome}_bucket`, { ...h.rotulos, le: String(teto) }, h.baldes[i] ?? 0);
       });
-      texto += serie(`${nome}_bucket`, { ...h.rotulos, le: '+Inf' }, h.contagem);
+      texto += serie(`${nome}_bucket`, { ...h.rotulos, le: '+Inf' }, h.count);
       texto += serie(`${nome}_sum`, h.rotulos, h.soma);
-      texto += serie(`${nome}_count`, h.rotulos, h.contagem);
+      texto += serie(`${nome}_count`, h.rotulos, h.count);
     }
   }
 

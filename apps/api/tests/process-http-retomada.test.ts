@@ -15,13 +15,13 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { subirApi } = await import('../src/servidor.js');
+const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
-const { importarFluxoDaBlip, executarProcessHttp } = await import('../src/dominio/fluxo.js');
-const { assinar, montarCenario, payloadDeMensagem } = await import('./ajuda.js');
+const { importFlowOfBlip, executarProcessHttp } = await import('../src/dominio/fluxo.js');
+const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Regressão do bug diagnosticado em `.planning/debug/process-http-auto-resume.md`:
@@ -78,17 +78,17 @@ let api: ApiNoAr;
 
 beforeAll(async () => {
   cenario = await montarCenario(`process-http-retomada-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
   const r = await noTenant(cenario.tenantId, (tx) =>
-    importarFluxoDaBlip(tx, {
+    importFlowOfBlip(tx, {
       tenantId: cenario.tenantId,
       nome: 'Retomada de ProcessHttp',
-      canalId: cenario.canalId,
+      channelId: cenario.channelId,
       json: fluxoComProcessHttp(),
       publicar: true,
     }),
   );
-  expect(r.erroDeValidacao).toBeNull();
+  expect(r.errorOfValidation).toBeNull();
 }, 180_000);
 
 afterAll(async () => {
@@ -101,8 +101,8 @@ afterEach(() => {
 });
 
 async function falar(texto: string, id?: string): Promise<void> {
-  const corpo = JSON.stringify(payloadDeMensagem(CONTATO, texto, id ? { id } : {}));
-  const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.canalId}`, {
+  const corpo = JSON.stringify(payloadOfMessage(CONTATO, texto, id ? { id } : {}));
+  const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.channelId}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
     body: corpo,

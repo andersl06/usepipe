@@ -2,25 +2,25 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
 import Link from '../../componentes/link';
-import { IconeGestao } from '../../componentes/icones-gestao';
-import { CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
-import { Selecao } from '../../componentes/selecao';
+import { IconeManagement } from '../../componentes/icones-gestao';
+import { FieldPeriod, PanelFilters } from '../../componentes/painel-filtros';
+import { Selection } from '../../componentes/selecao';
 import { Dica } from '../../componentes/metrica';
-import { useLeitura } from '../../lib/consulta';
-import { type RelatorioSatisfacao, type GrupoSatisfacao } from '../../lib/satisfacao';
+import { useRead } from '../../lib/consulta';
+import { type ReportSatisfaction, type GroupSatisfaction } from '../../lib/satisfacao';
 import { dataHora, dataOuNada, numero, percentual } from '../../lib/formato';
-import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import { periodCurrent, periodRotulo } from '../../lib/periodos';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 
-interface RespostaDaSatisfacao {
+interface SatisfactionResposta {
   fuso: string;
   de: string;
   ate: string;
-  relatorio: RelatorioSatisfacao;
+  report: ReportSatisfaction;
 }
 
-interface Busca {
+interface Search {
   de?: string;
   ate?: string;
   aba?: string;
@@ -32,7 +32,7 @@ function rotuloDoTipo(tipo: string): string {
   return NOME_DO_TIPO[tipo] ?? tipo.toUpperCase();
 }
 
-function escalaDe(grupo: GrupoSatisfacao): string {
+function escalaDe(grupo: GroupSatisfaction): string {
   return `${rotuloDoTipo(grupo.tipo)}, escala ${numero(grupo.escalaMin)} a ${numero(grupo.escalaMax)}`;
 }
 
@@ -84,32 +84,32 @@ function Rotulo({ texto, dica }: { texto: string; dica: string }) {
  * comparativo por atendente/fila e a série por dia não têm consulta nossa e
  * ficam com o vazio honesto.
  */
-export function PaginaSatisfacao() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const [busca] = useSearchParams();
-  const crus = Object.fromEntries(busca.entries()) as Busca;
+export function PageSatisfaction() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const [search] = useSearchParams();
+  const crus = Object.fromEntries(search.entries()) as Search;
   /* Data torta vira "sem filtro", em vez de virar 500 no `::date` do Postgres. */
-  const params: Busca = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
+  const params: Search = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const leitura = useLeitura<RespostaDaSatisfacao>(`/v1/gestao/relatorios/satisfacao?${q}`);
-  const [painelAberto, setPainelAberto] = useState(false);
-  if (!leitura.data) return null;
-  const { fuso, de, ate, relatorio } = leitura.data;
-  const grupos = relatorio.grupos;
+  const read = useRead<SatisfactionResposta>(`/v1/gestao/relatorios/satisfacao?${q}`);
+  const [panelAberto, setPanelAberto] = useState(false);
+  if (!read.data) return null;
+  const { fuso, de, ate, report } = read.data;
+  const groups = report.groups;
   const aba = abaValida(crus.aba);
-  const hrefAba = (chave: Aba) => {
+  const hrefAba = (key: Aba) => {
     const p = new URLSearchParams(q);
-    p.set('aba', chave);
+    p.set('aba', key);
     return `${base}/relatorios/satisfacao?${p}`;
   };
 
-  const totalRespostas = grupos.reduce((t, g) => t + g.respostas, 0);
-  const taxa = relatorio.encerradas > 0 ? totalRespostas / relatorio.encerradas : null;
-  const unico = grupos.length === 1 ? grupos[0] : undefined;
-  const mediasPorEscala = grupos.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
+  const totalRespostas = groups.reduce((t, g) => t + g.respostas, 0);
+  const taxa = report.encerradas > 0 ? totalRespostas / report.encerradas : null;
+  const unico = groups.length === 1 ? groups[0] : undefined;
+  const mediasByEscala = groups.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
 
   return (
     <>
@@ -123,26 +123,26 @@ export function PaginaSatisfacao() {
             type="button"
             className="btn fantasma rel-periodo"
             title={`${de} → ${ate}`}
-            onClick={() => setPainelAberto(true)}
+            onClick={() => setPanelAberto(true)}
           >
-            {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
+            {periodRotulo(periodCurrent(de, ate, fuso))}
           </button>
-          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+          <button type="button" className="btn" onClick={() => setPanelAberto(true)}>
             <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
         </div>
       </div>
 
-      <PainelFiltros
-        aberto={painelAberto}
-        aoFechar={() => setPainelAberto(false)}
+      <PanelFilters
+        aberto={panelAberto}
+        aoFechar={() => setPanelAberto(false)}
         acao={`${base}/relatorios/satisfacao`}
         limpar={null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
-        <CampoPeriodo de={de} ate={ate} fuso={fuso} />
-      </PainelFiltros>
+        <FieldPeriod de={de} ate={ate} fuso={fuso} />
+      </PanelFilters>
 
       {/* ------------------------------------------------------------ bloco 1 */}
       <section className="bloco-rel">
@@ -160,9 +160,9 @@ export function PaginaSatisfacao() {
               dica={
                 unico
                   ? `Média das notas na ${escalaDe(unico)}.`
-                  : grupos.length === 0
+                  : groups.length === 0
                     ? 'Nenhuma pesquisa respondida no período.'
-                    : `Há mais de uma escala no período, e nota de escalas diferentes não se soma. ${mediasPorEscala}.`
+                    : `Há mais de uma escala no período, e nota de escalas diferentes não se soma. ${mediasByEscala}.`
               }
             />
             <span className="v">{unico ? numero(unico.media, 2) : '—'}</span>
@@ -172,7 +172,7 @@ export function PaginaSatisfacao() {
               texto="Total de tickets fechados"
               dica="Conversas encerradas no período — a população que recebeu a pesquisa."
             />
-            <span className="v">{numero(relatorio.encerradas)}</span>
+            <span className="v">{numero(report.encerradas)}</span>
           </div>
           <div className="cartao-rel">
             <Rotulo texto="Total de respostas" dica="Pesquisas respondidas com nota no período." />
@@ -181,7 +181,7 @@ export function PaginaSatisfacao() {
           <div className="cartao-rel">
             <Rotulo
               texto="Taxa de resposta"
-              dica={`Respostas divididas pelos tickets fechados: ${numero(totalRespostas)} ÷ ${numero(relatorio.encerradas)}.`}
+              dica={`Respostas divididas pelos tickets fechados: ${numero(totalRespostas)} ÷ ${numero(report.encerradas)}.`}
             />
             <span className="v">{percentual(taxa)}</span>
           </div>
@@ -196,12 +196,12 @@ export function PaginaSatisfacao() {
                 texto="Distribuição das respostas por classe de satisfação"
               />
             </h4>
-            {grupos.length === 0 || grupos.every((g) => g.classes.length === 0) ? (
+            {groups.length === 0 || groups.every((g) => g.classes.length === 0) ? (
               <div className="vazio">
                 <b>Dados insuficientes</b>
               </div>
             ) : (
-              grupos.map((g) => (
+              groups.map((g) => (
                 <div key={`${g.tipo}-${g.escalaMin}-${g.escalaMax}`} className="scroll" style={{ marginTop: 20 }}>
                   <table>
                     <thead>
@@ -215,8 +215,8 @@ export function PaginaSatisfacao() {
                       {g.classes.map((c) => (
                         <tr key={c.nome}>
                           <td className="who">{c.nome}</td>
-                          <td className="num">{numero(c.quantidade)}</td>
-                          <td className="num">{percentual(c.fracao)}</td>
+                          <td className="num">{numero(c.quantity)}</td>
+                          <td className="num">{percentual(c.fraction)}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -234,10 +234,10 @@ export function PaginaSatisfacao() {
                 formula="A consulta de satisfação ainda não cruza a resposta com o atendente ou a fila do ticket."
               />
               <span className="faixa-fim">
-                <Selecao aria-label="Comparar por" defaultValue="Atendentes" disabled>
+                <Selection aria-label="Comparar por" defaultValue="Atendentes" disabled>
                   <option>Atendentes</option>
                   <option>Filas</option>
-                </Selecao>
+                </Selection>
               </span>
             </h4>
             <div className="vazio">
@@ -282,12 +282,12 @@ export function PaginaSatisfacao() {
             ))}
           </div>
           <button type="button" className="iconbtn" title="Baixar tabela" aria-label="Baixar tabela" disabled>
-            <IconeGestao nome="baixar" tamanho={24} />
+            <IconeManagement nome="baixar" tamanho={24} />
           </button>
         </div>
 
         {aba === 'geral' ? (
-          relatorio.comentarios.length === 0 ? (
+          report.comentarios.length === 0 ? (
             <div className="cartao-rel">
               <div className="vazio-linha" style={{ border: 0, minHeight: 0 }}>
                 Dados insuficientes
@@ -309,7 +309,7 @@ export function PaginaSatisfacao() {
                   </tr>
                 </thead>
                 <tbody>
-                  {relatorio.comentarios.map((c) => (
+                  {report.comentarios.map((c) => (
                     <tr key={c.id}>
                       <td className="num">—</td>
                       <td className="num">{dataHora(c.em, fuso)}</td>

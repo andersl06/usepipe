@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
 import { irPara } from '../../../../lib/navegacao';
-import { BotaoBds, CabecalhoDaPagina } from '../pecas';
-import { excluirFluxo, salvarBasicas } from './gravar';
+import { BotaoBds, PageHeader } from '../pecas';
+import { excluirFlow, salvarBasicas } from './gravar';
 import './basicas.css';
 
 /**
@@ -47,7 +47,7 @@ import './basicas.css';
 function CampoDeLinha({
   id,
   rotulo,
-  valor,
+  value,
   aoMudar,
   maxLength,
   minLength,
@@ -56,14 +56,14 @@ function CampoDeLinha({
 }: {
   id: string;
   rotulo: string;
-  valor: string;
-  aoMudar: (valor: string) => void;
+  value: string;
+  aoMudar: (value: string) => void;
   maxLength: number;
   minLength?: number;
   obrigatorio?: boolean;
   linhas?: number;
 }) {
-  const preenchido = valor.length > 0;
+  const preenchido = value.length > 0;
   return (
     <div className="cf-basicas-linha">
       {preenchido ? (
@@ -75,7 +75,7 @@ function CampoDeLinha({
         {linhas ? (
           <textarea
             id={id}
-            value={valor}
+            value={value}
             onChange={(evento) => aoMudar(evento.target.value)}
             placeholder={preenchido ? undefined : rotulo}
             required={obrigatorio}
@@ -87,7 +87,7 @@ function CampoDeLinha({
           <input
             id={id}
             type="text"
-            value={valor}
+            value={value}
             onChange={(evento) => aoMudar(evento.target.value)}
             placeholder={preenchido ? undefined : rotulo}
             required={obrigatorio}
@@ -96,7 +96,7 @@ function CampoDeLinha({
             autoComplete="off"
           />
         )}
-        <span className="cf-basicas-linha-contador">{maxLength - valor.length}</span>
+        <span className="cf-basicas-linha-contador">{maxLength - value.length}</span>
       </div>
     </div>
   );
@@ -104,60 +104,60 @@ function CampoDeLinha({
 
 /** `ng-minlength="2"` / `ng-maxlength="30"` do nome; `2` / `160` da descrição. */
 const NOME = { min: 2, max: 30 } as const;
-const DESCRICAO = { min: 2, max: 160 } as const;
+const DESCRIPTION = { min: 2, max: 160 } as const;
 
 /** O `$ctrl.applicationForm.$invalid` deles, com os mesmos atributos. */
-function formularioInvalido(nome: string, descricao: string): boolean {
+function formularioInvalido(nome: string, description: string): boolean {
   const n = nome.trim().length;
-  const d = descricao.trim().length;
+  const d = description.trim().length;
   if (n < NOME.min || n > NOME.max) return true;
-  if (d > 0 && (d < DESCRICAO.min || d > DESCRICAO.max)) return true;
+  if (d > 0 && (d < DESCRIPTION.min || d > DESCRIPTION.max)) return true;
   return false;
 }
 
-export function TelaDeConfiguracoesBasicas({
+export function SettingsBasicTela({
   id,
   nome,
-  descricao: descricaoInicial,
-  imagemUrl,
+  description: descriptionInitial,
+  imageUrl,
   shortName,
   podeExcluir,
 }: {
   id: string;
   nome: string;
-  descricao: string;
-  imagemUrl: string | null;
+  description: string;
+  imageUrl: string | null;
   shortName: string | null;
   /** `canDeleteBot` deles: só quem tem `automacao.fluxo.excluir`. */
   podeExcluir: boolean;
 }) {
   const [nomeEditado, setNomeEditado] = useState(nome);
-  const [descricao, setDescricao] = useState(descricaoInicial);
+  const [description, setDescription] = useState(descriptionInitial);
   /* O que a prévia mostra (a URL gravada ou a do arquivo escolhido) e o
      arquivo em si — `undefined` é "a foto não foi mexida". */
-  const [imagem, setImagem] = useState(imagemUrl);
-  const [arquivo, setArquivo] = useState<File | null | undefined>(undefined);
+  const [image, setImage] = useState(imageUrl);
+  const [file, setFile] = useState<File | null | undefined>(undefined);
   const [aviso, setAviso] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [salvando, setSalvando] = useState(false);
   const [excluindo, setExcluindo] = useState(false);
   const [ciente, setCiente] = useState(false);
   const [removendo, setRemovendo] = useState(false);
-  const arquivoRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   /* A URL de objeto da prévia é liberada quando troca ou quando a tela sai. */
   useEffect(() => {
-    if (!imagem?.startsWith('blob:')) return;
-    return () => URL.revokeObjectURL(imagem);
-  }, [imagem]);
+    if (!image?.startsWith('blob:')) return;
+    return () => URL.revokeObjectURL(image);
+  }, [image]);
 
   const mudou =
-    nomeEditado !== nome || descricao !== descricaoInicial || arquivo !== undefined;
-  const invalido = formularioInvalido(nomeEditado, descricao);
+    nomeEditado !== nome || description !== descriptionInitial || file !== undefined;
+  const invalido = formularioInvalido(nomeEditado, description);
 
-  function indisponivel(mensagem: string) {
+  function indisponivel(message: string) {
     setSucesso('');
-    setAviso(mensagem);
+    setAviso(message);
   }
 
   async function salvar() {
@@ -166,20 +166,20 @@ export function TelaDeConfiguracoesBasicas({
     setSalvando(true);
     const resultado = await salvarBasicas(id, {
       nome: nomeEditado,
-      descricao,
-      imagem: arquivo,
+      description,
+      image: file,
     });
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     /* O que voltou é o que ficou gravado: o nome saneado pela `api`, a foto
        como `data:`. A partir daqui é o novo "sem mudança". */
-    setNomeEditado(resultado.valor.nome);
-    setDescricao(resultado.valor.descricao ?? '');
-    setImagem(resultado.valor.imagemUrl);
-    setArquivo(undefined);
+    setNomeEditado(resultado.value.nome);
+    setDescription(resultado.value.description ?? '');
+    setImage(resultado.value.imageUrl);
+    setFile(undefined);
     /* `saveSuccessText` deles. */
     setSucesso('Configuração salva com sucesso.');
   }
@@ -187,10 +187,10 @@ export function TelaDeConfiguracoesBasicas({
   async function excluir() {
     setAviso('');
     setRemovendo(true);
-    const resultado = await excluirFluxo(id);
+    const resultado = await excluirFlow(id);
     setRemovendo(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     /* Lá, depois de excluir, `$state.go` para a lista de chatbots. Aqui, o portal. */
@@ -199,7 +199,7 @@ export function TelaDeConfiguracoesBasicas({
 
   return (
     <>
-      <CabecalhoDaPagina titulo={<h1>Editar Fluxo</h1>} />
+      <PageHeader titulo={<h1>Editar Fluxo</h1>} />
       <div className="cf-container cf-basicas">
         <h2 className="cf-basicas-secao">Informações básicas</h2>
         <form
@@ -212,7 +212,7 @@ export function TelaDeConfiguracoesBasicas({
           <CampoDeLinha
             id="nomeDoFluxo"
             rotulo="Nome do fluxo"
-            valor={nomeEditado}
+            value={nomeEditado}
             aoMudar={setNomeEditado}
             minLength={NOME.min}
             maxLength={NOME.max}
@@ -221,10 +221,10 @@ export function TelaDeConfiguracoesBasicas({
           <CampoDeLinha
             id="descricaoDoFluxo"
             rotulo="Descrição"
-            valor={descricao}
-            aoMudar={setDescricao}
-            minLength={DESCRICAO.min}
-            maxLength={DESCRICAO.max}
+            value={description}
+            aoMudar={setDescription}
+            minLength={DESCRIPTION.min}
+            maxLength={DESCRIPTION.max}
             linhas={1}
           />
 
@@ -233,19 +233,19 @@ export function TelaDeConfiguracoesBasicas({
               Imagem do avatar <small className="cf-basicas-opcional">(Opcional)</small>
             </span>
             <div className="cf-basicas-solta">
-              {imagem ? (
+              {image ? (
                 <>
-                  <img src={imagem} alt="" className="cf-basicas-previa" />
+                  <img src={image} alt="" className="cf-basicas-previa" />
                   <button
                     type="button"
                     className="cf-basicas-remover"
                     aria-label="Remover imagem"
                     onClick={() => {
-                      setImagem(null);
+                      setImage(null);
                       /* Tirar a foto gravada é `imagem: null`; desfazer a
                          escolha de um arquivo novo é só voltar ao que estava. */
-                      setArquivo(imagemUrl ? null : undefined);
-                      if (arquivoRef.current) arquivoRef.current.value = '';
+                      setFile(imageUrl ? null : undefined);
+                      if (fileRef.current) fileRef.current.value = '';
                     }}
                   >
                     <IconePortal nome="fechar" tamanho={16} />
@@ -255,22 +255,22 @@ export function TelaDeConfiguracoesBasicas({
                 <button
                   type="button"
                   className="cf-basicas-anexar"
-                  onClick={() => arquivoRef.current?.click()}
+                  onClick={() => fileRef.current?.click()}
                 >
                   <IconePortal nome="anexo" tamanho={24} />
                   <span>Clique para escolher uma imagem</span>
                 </button>
               )}
               <input
-                ref={arquivoRef}
+                ref={fileRef}
                 type="file"
                 accept=".gif,.png,.jpeg,.jpg"
                 hidden
                 onChange={(evento) => {
                   const escolhido = evento.target.files?.[0];
                   if (!escolhido) return;
-                  setArquivo(escolhido);
-                  setImagem(URL.createObjectURL(escolhido));
+                  setFile(escolhido);
+                  setImage(URL.createObjectURL(escolhido));
                 }}
               />
             </div>

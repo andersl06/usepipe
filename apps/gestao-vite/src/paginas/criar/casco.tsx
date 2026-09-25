@@ -1,7 +1,7 @@
 import Link from '../../componentes/link';
 import { Icone } from '@pipe/ui';
 import { IconePortal } from '../../componentes/icones-portal';
-import { IMAGEM, TAMANHO } from './regras-de-nome';
+import { IMAGE, TAMANHO } from './regras-de-nome';
 
 /**
  * As duas peças que o roteador e o fluxo têm IGUAIS — porque na origem elas são
@@ -45,13 +45,13 @@ import { IMAGEM, TAMANHO } from './regras-de-nome';
    `URL_AJUDA` do portal: link para página que ainda não existe é pior do que um
    convite a menos. Na origem é `createApplication.needHelpUrl`, a página de
    contato comercial deles. */
-const URL_ORCAMENTO = (import.meta.env['VITE_PIPE_ORCAMENTO_URL'] as string | undefined) ?? '';
+const URL_BUDGET = (import.meta.env['VITE_PIPE_ORCAMENTO_URL'] as string | undefined) ?? '';
 
 /* Sem página de orçamento, o pedido vira e-mail para o suporte — o MESMO
    endereço que o menu do "?" do portal usa. O rodapé não some: ele é parte do
    casco na origem, e escondê-lo porque falta uma variável de ambiente tirava da
    tela um pedaço que existe. */
-const DESTINO_ORCAMENTO = URL_ORCAMENTO || 'mailto:suporte@usepipe.ai';
+const DESTINATION_BUDGET = URL_BUDGET || 'mailto:suporte@usepipe.ai';
 
 /** `createApplication.needHelp` e `createApplication.requestAQuote` — as duas
     frases do rodapé são as mesmas nas duas telas, sem variante por template. */
@@ -61,7 +61,7 @@ const RODAPE = {
 } as const;
 
 /** O casco de tela cheia: o "x", a marca, o miolo e o rodapé. */
-export function CascoDeCriacao({ children }: { children: React.ReactNode }) {
+export function CreationCasco({ children }: { children: React.ReactNode }) {
   return (
     <div className="cr-tela">
       {/* O `close-icon` deles: 40px (`size="xxx-large"`), absoluto à direita,
@@ -85,8 +85,8 @@ export function CascoDeCriacao({ children }: { children: React.ReactNode }) {
       <footer className="cr-rodape">
         <span>{RODAPE.precisaDeAjuda} </span>
         <a
-          href={DESTINO_ORCAMENTO}
-          {...(URL_ORCAMENTO ? { target: '_blank', rel: 'noreferrer' } : {})}
+          href={DESTINATION_BUDGET}
+          {...(URL_BUDGET ? { target: '_blank', rel: 'noreferrer' } : {})}
         >
           {RODAPE.pecaOrcamento}
         </a>
@@ -105,7 +105,7 @@ export interface RotulosDoPassoDoNome {
   rotuloDoNome: string;
   /** `modules.ui.uploadButton.title`. Igual nas duas, mas mora no `ROTULOS`
       de cada tela porque é a lista de palavras da tela. */
-  definirImagem: string;
+  definirImage: string;
   /** `name.back`. */
   voltar: string;
 }
@@ -121,16 +121,16 @@ export function PassoDoNome({
   acao,
   voltarPara,
   rotulos,
-  tituloDoErro,
-  erro,
+  errorTitulo,
+  error,
   nome,
   camposOcultos,
 }: {
-  acao: (dados: FormData) => Promise<void>;
+  acao: (data: FormData) => Promise<void>;
   voltarPara: string;
   rotulos: RotulosDoPassoDoNome;
-  tituloDoErro: string;
-  erro?: string;
+  errorTitulo: string;
+  error?: string;
   nome?: string;
   /** Campos que o passo anterior precisa repassar pelo POST — hoje só o
       `template` do marketplace do fluxo, para o retorno com erro lembrar de
@@ -147,8 +147,8 @@ export function PassoDoNome({
 
       <div className="cr-nome">
         {camposOcultos
-          ? Object.entries(camposOcultos).map(([campo, valor]) => (
-              <input key={campo} type="hidden" name={campo} value={valor} />
+          ? Object.entries(camposOcultos).map(([campo, value]) => (
+              <input key={campo} type="hidden" name={campo} value={value} />
             ))
           : null}
 
@@ -156,10 +156,10 @@ export function PassoDoNome({
             flutuante com título e mensagem. Aqui ele é fixo acima do seletor:
             sem cliente, aviso que some sozinho não some, e aviso que não some
             flutuando tapa o formulário. O título é o mesmo. */}
-        {erro ? (
+        {error ? (
           <p className="cr-aviso" role="alert">
-            <b>{tituloDoErro}</b>
-            <span>{erro}</span>
+            <b>{errorTitulo}</b>
+            <span>{error}</span>
           </p>
         ) : null}
 
@@ -168,11 +168,11 @@ export function PassoDoNome({
             OPCIONAL de verdade — `uploadApplicationImageSafely` engole o erro e
             segue —, e as Server Actions fazem o mesmo. */}
         <label className="cr-foto">
-          <input type="file" name="imagem" accept={IMAGEM.aceitos.join(',')} />
-          <span>{rotulos.definirImagem}</span>
+          <input type="file" name="imagem" accept={IMAGE.aceitos.join(',')} />
+          <span>{rotulos.definirImage}</span>
         </label>
 
-        <div className="cr-campo" data-erro={erro ? '' : undefined}>
+        <div className="cr-campo" data-erro={error ? '' : undefined}>
           <input
             id="nome"
             name="nome"

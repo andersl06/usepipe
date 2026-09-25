@@ -7,15 +7,15 @@ process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
-const { avaliarPrioridade, ordenarRegrasDePrioridade } = await import(
+const { avaliarPriority, ordenarRulesOfPriority } = await import(
   '../src/dominio/gestao/prioridade-motor.js'
 );
-const { subirApi } = await import('../src/servidor.js');
-const { assinar, montarCenario, payloadDeMensagem } = await import('./ajuda.js');
+const { upApi } = await import('../src/servidor.js');
+const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
-type RegraDeMotor = Parameters<typeof avaliarPrioridade>[0][number];
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
+type RegraDeMotor = Parameters<typeof avaliarPriority>[0][number];
 
 /**
  * O motor de `regra_prioridade` (`dominio/gestao/prioridade-motor.ts`) — item 2
@@ -33,9 +33,9 @@ type RegraDeMotor = Parameters<typeof avaliarPrioridade>[0][number];
 
 function regra(parcial: Partial<RegraDeMotor> & Pick<RegraDeMotor, 'id' | 'nivel'>): RegraDeMotor {
   return {
-    escopoTipo: 'tenant',
-    escopoId: null,
-    condicao: {},
+    scopeType: 'tenant',
+    scopeId: null,
+    condition: {},
     criadoEm: new Date('2026-01-01T00:00:00Z'),
     ...parcial,
   };
@@ -48,31 +48,31 @@ describe('avaliarPrioridade — primeira que casa vence (sem banco)', () => {
       nivel: 'baixa',
       criadoEm: new Date('2026-01-01T00:00:00Z'),
     });
-    const daFila = regra({
+    const ofQueue = regra({
       id: 'r-fila',
       nivel: 'alta',
-      escopoTipo: 'fila',
-      escopoId: 'fila-vip',
+      scopeType: 'fila',
+      scopeId: 'fila-vip',
       // Cadastrada DEPOIS da regra do tenant — decisão Pipe: escopo específico
       // vence por ser mais específico, não por ter sido cadastrado antes.
       criadoEm: new Date('2026-02-01T00:00:00Z'),
     });
-    expect(avaliarPrioridade([doTenant, daFila], { filaId: 'fila-vip' })).toBe('alta');
+    expect(avaliarPriority([doTenant, ofQueue], { queueId: 'fila-vip' })).toBe('alta');
     // Fora da fila-vip, só a regra do tenant se aplica.
-    expect(avaliarPrioridade([doTenant, daFila], { filaId: 'outra-fila' })).toBe('baixa');
+    expect(avaliarPriority([doTenant, ofQueue], { queueId: 'outra-fila' })).toBe('baixa');
   });
 
   it('dentro do MESMO escopo, a regra mais antiga vence', () => {
     const antiga = regra({ id: 'antiga', nivel: 'media', criadoEm: new Date('2026-01-01T00:00:00Z') });
     const nova = regra({ id: 'nova', nivel: 'alta', criadoEm: new Date('2026-06-01T00:00:00Z') });
     // Ordem de entrada não importa — só a data de criação.
-    expect(ordenarRegrasDePrioridade([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
-    expect(avaliarPrioridade([nova, antiga], {})).toBe('media');
+    expect(ordenarRulesOfPriority([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
+    expect(avaliarPriority([nova, antiga], {})).toBe('media');
   });
 
   it('condição vazia sempre casa — decisão Pipe: escopo já filtra, condição é refinamento opcional', () => {
-    const semCondicao = regra({ id: 'sem-condicao', nivel: 'maxima', condicao: {} });
-    expect(avaliarPrioridade([semCondicao], { filaId: null, mensagem: 'qualquer coisa' })).toBe(
+    const withoutCondition = regra({ id: 'sem-condicao', nivel: 'maxima', condition: {} });
+    expect(avaliarPriority([withoutCondition], { queueId: null, message: 'qualquer coisa' })).toBe(
       'maxima',
     );
   });
@@ -81,19 +81,19 @@ describe('avaliarPrioridade — primeira que casa vence (sem banco)', () => {
     const urgente = regra({
       id: 'urgente',
       nivel: 'maxima',
-      condicao: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
+      condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
-    expect(avaliarPrioridade([urgente], { mensagem: 'isso é urgente, por favor' })).toBe('maxima');
-    expect(avaliarPrioridade([urgente], { mensagem: 'mensagem qualquer' })).toBeNull();
+    expect(avaliarPriority([urgente], { message: 'isso é urgente, por favor' })).toBe('maxima');
+    expect(avaliarPriority([urgente], { message: 'mensagem qualquer' })).toBeNull();
   });
 
   it('sem nenhuma regra casando, devolve null — não muda o padrão sem_prioridade', () => {
     const doTenant = regra({
       id: 'r1',
       nivel: 'alta',
-      condicao: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
+      condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
-    expect(avaliarPrioridade([doTenant], { mensagem: 'oi, tudo bem?' })).toBeNull();
+    expect(avaliarPriority([doTenant], { message: 'oi, tudo bem?' })).toBeNull();
   });
 });
 
@@ -103,7 +103,7 @@ describe('a entrada liga o motor quando a conversa entra na fila', () => {
 
   beforeAll(async () => {
     cenario = await montarCenario(`prioridade-${randomUUID().slice(0, 8)}`);
-    api = await subirApi(0);
+    api = await upApi(0);
   }, 180_000);
 
   afterAll(async () => {
@@ -111,22 +111,22 @@ describe('a entrada liga o motor quando a conversa entra na fila', () => {
     await cenario?.encerrar();
   });
 
-  async function criarRegra(opts: {
+  async function createRule(opts: {
     nivel: string;
-    condicao?: Record<string, unknown>;
+    condition?: Record<string, unknown>;
   }): Promise<void> {
     await cenario.dono.execute(sql`
       insert into regra_prioridade (tenant_id, nome, nivel, condicao)
       values (
         ${cenario.tenantId}::uuid, ${`regra ${randomUUID().slice(0, 8)}`}, ${opts.nivel},
-        ${JSON.stringify(opts.condicao ?? {})}::jsonb
+        ${JSON.stringify(opts.condition ?? {})}::jsonb
       )
     `);
   }
 
   async function falar(de: string, texto: string): Promise<void> {
-    const corpo = JSON.stringify(payloadDeMensagem(de, texto));
-    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.canalId}`, {
+    const corpo = JSON.stringify(payloadOfMessage(de, texto));
+    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.channelId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
       body: corpo,
@@ -134,8 +134,8 @@ describe('a entrada liga o motor quando a conversa entra na fila', () => {
     expect(resposta.status).toBe(200);
   }
 
-  async function prioridadeDoTelefone(telefone: string): Promise<string> {
-    const { rows } = await cenario.dono.execute<{ prioridade: string }>(sql`
+  async function priorityOfPhone(telefone: string): Promise<string> {
+    const { rows } = await cenario.dono.execute<{ priority: string }>(sql`
       select c.prioridade
         from conversa c
         join contato ct on ct.id = c.contato_id
@@ -143,21 +143,21 @@ describe('a entrada liga o motor quando a conversa entra na fila', () => {
        order by c.criada_em desc
        limit 1
     `);
-    return rows[0]!.prioridade;
+    return rows[0]!.priority;
   }
 
   it('regra que casa define a prioridade da conversa nova', async () => {
-    await criarRegra({
+    await createRule({
       nivel: 'maxima',
-      condicao: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
+      condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
     await falar('5521987650001', 'preciso de ajuda urgente com meu pedido');
-    expect(await prioridadeDoTelefone('+5521987650001')).toBe('maxima');
+    expect(await priorityOfPhone('+5521987650001')).toBe('maxima');
   });
 
   it('regra cadastrada mas que NÃO casa mantém sem_prioridade', async () => {
     await falar('5521987650002', 'só queria tirar uma dúvida tranquila');
-    expect(await prioridadeDoTelefone('+5521987650002')).toBe('sem_prioridade');
+    expect(await priorityOfPhone('+5521987650002')).toBe('sem_prioridade');
   });
 
   it('isolamento entre tenants: regra de um tenant não pega conversa de outro', async () => {
@@ -171,7 +171,7 @@ describe('a entrada liga o motor quando a conversa entra na fila', () => {
 
       // Mensagem chega no tenant principal, que não tem regra nenhuma cadastrada.
       await falar('5521987650003', 'mensagem qualquer');
-      expect(await prioridadeDoTelefone('+5521987650003')).toBe('sem_prioridade');
+      expect(await priorityOfPhone('+5521987650003')).toBe('sem_prioridade');
     } finally {
       await outro.encerrar();
     }

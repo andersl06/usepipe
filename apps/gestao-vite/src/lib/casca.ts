@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { useEu, useSessao } from '../contexto/sessao';
+import { useEu, useSession } from '../contexto/sessao';
 import { api } from './api';
-import { useLeitura } from './consulta';
+import { useRead } from './consulta';
 
 /**
  * A casca do portal: quem está logado, a conta em vigor e a lista do seletor.
@@ -11,7 +11,7 @@ import { useLeitura } from './consulta';
  * a partir do que a `api` já responde — `GET /v1/eu` (o contexto de sessão) e
  * `GET /v1/contas/minhas`. Nenhum endpoint novo.
  */
-export interface ContaNaLista {
+export interface AccountInLista {
   tenantId: string;
   nome: string;
   slug: string;
@@ -21,22 +21,22 @@ export interface ContaNaLista {
   pessoal: boolean;
 }
 
-export interface CascaDoPortal {
-  usuario: { nome: string; email: string; avatarUrl: string | null };
+export interface PortalShell {
+  user: { nome: string; email: string; avatarUrl: string | null };
   tenant: { nome: string; slug: string; plano: string };
-  contas: ContaNaLista[];
-  podeCriar: boolean;
+  accounts: AccountInLista[];
+  canCreate: boolean;
 }
 
-export function useCascaDoPortal(): CascaDoPortal {
+export function portalUseShell(): PortalShell {
   const eu = useEu();
   // A lista do seletor não derruba a tela: sem ela, o seletor mostra só a conta em vigor.
-  const contas = useLeitura<ContaNaLista[]>('/v1/contas/minhas', { staleTime: 5 * 60_000 });
+  const accounts = useRead<AccountInLista[]>('/v1/contas/minhas', { staleTime: 5 * 60_000 });
   return {
-    usuario: { nome: eu.usuario.nome, email: eu.usuario.email, avatarUrl: eu.usuario.avatarUrl },
+    user: { nome: eu.user.nome, email: eu.user.email, avatarUrl: eu.user.avatarUrl },
     tenant: { nome: eu.tenant.nome, slug: eu.tenant.slug, plano: eu.tenant.plano },
-    contas: contas.data ?? [],
-    podeCriar: eu.permissoes.includes('automacao.fluxo.editar'),
+    accounts: accounts.data ?? [],
+    canCreate: eu.permissions.includes('automacao.fluxo.editar'),
   };
 }
 
@@ -45,15 +45,15 @@ export function useCascaDoPortal(): CascaDoPortal {
  * navegador; depois a sessão é relida e a pessoa vai para o portal da conta
  * NOVA — o que ela quer ver depois de trocar é o que existe do outro lado.
  */
-export function useTrocarDeConta() {
-  const { atualizar } = useSessao();
+export function accountUseSwitch() {
+  const { atualizar } = useSession();
   const navegar = useNavigate();
-  const fila = useQueryClient();
+  const queue = useQueryClient();
   return useMutation({
     mutationFn: (tenantId: string) => api.post('/v1/contas/trocar', { tenantId }),
     onSuccess: async () => {
       await atualizar();
-      fila.clear();
+      queue.clear();
       navegar('/portal');
     },
     onError: () => navegar('/portal?erro=troca'),
@@ -62,12 +62,12 @@ export function useTrocarDeConta() {
 
 /** Sair: encerra na `api`, esquece tudo que estava em cache e volta à entrada. */
 export function useSair() {
-  const { sair } = useSessao();
+  const { sair } = useSession();
   const navegar = useNavigate();
-  const fila = useQueryClient();
+  const queue = useQueryClient();
   return async () => {
     await sair();
-    fila.clear();
+    queue.clear();
     navegar('/entrar', { replace: true });
   };
 }

@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { Avatar } from '@pipe/ui';
-import type { EquipeDoFluxo, MembroDoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contracts';
+import type { TeamOfFlow, MemberOfFlow, RoleInFlow, PermissionsInFlow } from '@pipe/contracts';
 import { useNavigate, useParams } from 'react-router-dom';
 import { IconePortal } from '../../../componentes/icones-portal';
-import { Selecao } from '../../../componentes/selecao';
+import { Selection } from '../../../componentes/selecao';
 import { atualizarLeituras } from '../../../lib/acoes';
-import { api, ErroDaApi } from '../../../lib/api';
-import { useLeitura } from '../../../lib/consulta';
+import { api, ApiError } from '../../../lib/api';
+import { useRead } from '../../../lib/consulta';
 import { NaoEncontrado } from '../../nao-encontrado';
-import { BarrasDoContato, baseDoContato, useContato } from '../contato';
-import { BotaoBds, CabecalhoDaPagina, Papel } from '../configuracoes/pecas';
-import { ListaDePermissoes } from './tela';
+import { ContactBarras, contactBase, useContact } from '../contato';
+import { BotaoBds, PageHeader, Role } from '../configuracoes/pecas';
+import { PermissionsLista } from './tela';
 import {
-  NIVEIS_DA_EDICAO,
-  nivelDaEdicao,
-  permissoesDoNivelDaEdicao,
-  type NivelDaEdicao,
+  NIVEIS_OF_EDIT,
+  editNivel,
+  permissionsOfNivelOfEdit,
+  type EditNivel,
 } from './permissoes';
 import '../configuracoes/configuracoes.css';
 import './equipe.css';
@@ -25,38 +25,38 @@ import './equipe.css';
  * `url:"/team/edit"`, `back-button="auth.application.detail.team"` e o botão
  * Salvar no cabeçalho; por isso a edição não volta a ser modal.
  */
-export function PaginaDeEditarMembro() {
-  const { contato } = useContato();
-  const { usuarioId = '' } = useParams();
-  const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
-  const semPermissao = leitura.error instanceof ErroDaApi && leitura.error.status === 403;
-  const membro = leitura.data?.membros.find((item) => item.usuarioId === usuarioId);
+export function EditMemberPage() {
+  const { contact } = useContact();
+  const { userId = '' } = useParams();
+  const read = useRead<TeamOfFlow>(`/v1/gestao/fluxos/${contact.id}/equipe`);
+  const withoutPermission = read.error instanceof ApiError && read.error.status === 403;
+  const member = read.data?.members.find((item) => item.userId === userId);
 
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Equipe" />
+      <ContactBarras ativo="Equipe" />
       <main>
-        {semPermissao ? (
+        {withoutPermission ? (
           <p className="cf-aviso cf-container" role="alert">
             Você não tem permissão para editar a equipe.
           </p>
-        ) : leitura.error ? (
+        ) : read.error ? (
           <p className="cf-aviso cf-container" role="alert">
-            Não foi possível carregar o membro: {leitura.error.message}
+            Não foi possível carregar o membro: {read.error.message}
           </p>
-        ) : !leitura.data ? null : !leitura.data.podeGerir ? (
+        ) : !read.data ? null : !read.data.podeGerir ? (
           <p className="cf-aviso cf-container" role="alert">
             Você não tem permissão para editar a equipe.
           </p>
-        ) : !membro ? (
+        ) : !member ? (
           <NaoEncontrado />
         ) : (
-          <Edicao
-            key={membro.usuarioId}
-            fluxoId={contato.id}
-            base={baseDoContato(contato.tipo, contato.id)}
-            membro={membro}
-            recursos={leitura.data.recursos}
+          <Edit
+            key={member.userId}
+            flowId={contact.id}
+            base={contactBase(contact.tipo, contact.id)}
+            member={member}
+            recursos={read.data.recursos}
           />
         )}
       </main>
@@ -64,57 +64,57 @@ export function PaginaDeEditarMembro() {
   );
 }
 
-function Edicao({
-  fluxoId,
+function Edit({
+  flowId,
   base,
-  membro,
+  member,
   recursos,
 }: {
-  fluxoId: string;
+  flowId: string;
   base: string;
-  membro: MembroDoFluxo;
-  recursos: EquipeDoFluxo['recursos'];
+  member: MemberOfFlow;
+  recursos: TeamOfFlow['recursos'];
 }) {
   const navegar = useNavigate();
-  const [nivel, setNivel] = useState<NivelDaEdicao>(() =>
-    nivelDaEdicao(membro.papelNoFluxo, recursos, membro.permissoes),
+  const [nivel, setNivel] = useState<EditNivel>(() =>
+    editNivel(member.roleInFlow, recursos, member.permissions),
   );
-  const [permissoes, setPermissoes] = useState<PermissoesNoFluxo>(membro.permissoes);
+  const [permissions, setPermissions] = useState<PermissionsInFlow>(member.permissions);
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
-  const papelNoFluxo: PapelNoFluxo = nivel === 'nenhum' ? 'personalizado' : nivel;
+  const roleInFlow: RoleInFlow = nivel === 'nenhum' ? 'personalizado' : nivel;
   const mudou =
-    papelNoFluxo !== membro.papelNoFluxo ||
+    roleInFlow !== member.roleInFlow ||
     recursos.some(
       (recurso) =>
-        (permissoes[recurso.chave] ?? 'nenhum') !==
-        (membro.permissoes[recurso.chave] ?? 'nenhum'),
+        (permissions[recurso.key] ?? 'nenhum') !==
+        (member.permissions[recurso.key] ?? 'nenhum'),
     );
 
-  function escolher(proximo: NivelDaEdicao) {
+  function escolher(proximo: EditNivel) {
     setNivel(proximo);
-    setPermissoes(permissoesDoNivelDaEdicao(proximo, recursos, permissoes));
+    setPermissions(permissionsOfNivelOfEdit(proximo, recursos, permissions));
   }
 
   async function salvar() {
     setEnviando(true);
     setAviso('');
     try {
-      await api.patch(`/v1/gestao/fluxos/${fluxoId}/equipe/${membro.usuarioId}`, {
-        papelNoFluxo,
-        permissoes,
+      await api.patch(`/v1/gestao/fluxos/${flowId}/equipe/${member.userId}`, {
+        roleInFlow,
+        permissions,
       });
       atualizarLeituras();
       navegar(`${base}/equipe`);
-    } catch (erro) {
-      setAviso((erro as Error).message || 'Não foi possível salvar as alterações.');
+    } catch (error) {
+      setAviso((error as Error).message || 'Não foi possível salvar as alterações.');
       setEnviando(false);
     }
   }
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         titulo={
           <div className="cf-equipe-editar-titulo">
             <button
@@ -128,7 +128,7 @@ function Edicao({
             <h1>Editar</h1>
           </div>
         }
-        acoes={
+        actions={
           <BotaoBds variante="bot" disabled={enviando || !mudou} onClick={salvar}>
             Salvar
           </BotaoBds>
@@ -137,38 +137,38 @@ function Edicao({
 
       <div className="cf-container cf-equipe-editar">
         <div className="cf-equipe-editar-pessoa">
-          <Avatar nome={membro.nome} className="cf-equipe-editar-avatar" />
+          <Avatar nome={member.nome} className="cf-equipe-editar-avatar" />
           <div>
             <div className="cf-equipe-editar-nome">
-              <strong>{membro.nome}</strong>
+              <strong>{member.nome}</strong>
               {nivel === 'admin' ? <span className="cf-equipe-selo">Admin</span> : null}
             </div>
-            <span>{membro.email}</span>
+            <span>{member.email}</span>
           </div>
         </div>
 
-        <Papel className="cf-equipe-editar-cartao">
+        <Role className="cf-equipe-editar-cartao">
           <div className="cf-equipe-editar-controle">
             <h2>Permissões</h2>
-            <Selecao
+            <Selection
               value={nivel}
-              onChange={(evento) => escolher(evento.currentTarget.value as NivelDaEdicao)}
+              onChange={(evento) => escolher(evento.currentTarget.value as EditNivel)}
               aria-label="Permissões"
             >
-              {NIVEIS_DA_EDICAO.map((opcao) => (
-                <option key={opcao.valor} value={opcao.valor}>
-                  {opcao.rotulo}
+              {NIVEIS_OF_EDIT.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.rotulo}
                 </option>
               ))}
-            </Selecao>
+            </Selection>
           </div>
-          <ListaDePermissoes
+          <PermissionsLista
             recursos={recursos}
-            permissoes={permissoes}
+            permissions={permissions}
             editavel={nivel === 'personalizado'}
-            aoTrocar={(chave, valor) => {
+            toSwitch={(key, value) => {
               setNivel('personalizado');
-              setPermissoes({ ...permissoes, [chave]: valor });
+              setPermissions({ ...permissions, [key]: value });
             }}
           />
           {aviso ? (
@@ -176,7 +176,7 @@ function Edicao({
               {aviso}
             </p>
           ) : null}
-        </Papel>
+        </Role>
       </div>
     </>
   );

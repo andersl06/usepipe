@@ -1,8 +1,8 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig } from '@pipe/db';
-import { bancoDono, chaveiro, esquecerCanal, noTenant } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
+import { databaseOwner, keyring, esquecerChannel, noTenant } from '../../banco.js';
+import { PipeError } from '../../erros.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/models/channel/whatsapp.rb — as partes
@@ -18,7 +18,7 @@ import { ErroPipe } from '../../erros.js';
  * (`docs/specs/2026-09-07-webhook-por-cliente.md` §4).
  */
 
-export interface CanalWhatsApp {
+export interface ChannelWhatsApp {
   id: string;
   tenantId: string;
   nome: string;
@@ -37,17 +37,17 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * Diferença do original: lá a URL leva o número (`/webhooks/whatsapp/+5511…`);
  * aqui leva o `canalId`, que é o que a spec do webhook por cliente decidiu.
  */
-export function urlDoWebhook(canalId: string): string {
+export function urlDoWebhook(channelId: string): string {
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
-  return `${base}/webhooks/whatsapp/${canalId}`;
+  return `${base}/webhooks/whatsapp/${channelId}`;
 }
 
-export function texto(valor: unknown): string | null {
-  return typeof valor === 'string' && valor !== '' ? valor : null;
+export function texto(value: unknown): string | null {
+  return typeof value === 'string' && value !== '' ? value : null;
 }
 
-type LinhaCanal = {
-  [coluna: string]: unknown;
+type LineChannel = {
+  [column: string]: unknown;
   id: string;
   tenant_id: string;
   nome: string;
@@ -58,10 +58,10 @@ type LinhaCanal = {
 };
 
 /** O canal do tenant, com o `config` decifrado. Canal de outro tenant é 404, não 403. */
-export async function lerCanalWhatsApp(tenantId: string, canalId: string): Promise<CanalWhatsApp> {
-  if (!UUID.test(canalId)) throw ErroPipe.naoEncontrado('Canal');
+export async function readChannelWhatsApp(tenantId: string, canalId: string): Promise<ChannelWhatsApp> {
+  if (!UUID.test(canalId)) throw PipeError.naoEncontrado('Canal');
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaCanal>(sql`
+    const { rows } = await tx.execute<LineChannel>(sql`
       select id, tenant_id, nome, ativo, waba_id, numero_id, config
         from canal
        where id = ${canalId}::uuid and tipo = 'whatsapp_cloud'
@@ -69,7 +69,7 @@ export async function lerCanalWhatsApp(tenantId: string, canalId: string): Promi
     `);
     return rows[0] ?? null;
   });
-  if (!linha) throw ErroPipe.naoEncontrado('Canal');
+  if (!linha) throw PipeError.naoEncontrado('Canal');
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
@@ -77,7 +77,7 @@ export async function lerCanalWhatsApp(tenantId: string, canalId: string): Promi
     ativo: linha.ativo,
     wabaId: linha.waba_id,
     numeroId: linha.numero_id,
-    config: decifrarConfig(linha.config ?? {}, chaveiro()),
+    config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }
 
@@ -85,13 +85,13 @@ export async function lerCanalWhatsApp(tenantId: string, canalId: string): Promi
  * `channel.provider_config = …merge(…)` + `save!`. O `config` inteiro é cifrado de
  * novo na gravação: `cifrarConfig` só toca os campos secretos e é idempotente.
  */
-export async function atualizarCanal(
-  canal: CanalWhatsApp,
-  alteracoes: Record<string, unknown>,
+export async function atualizarChannel(
+  canal: ChannelWhatsApp,
+  changes: Record<string, unknown>,
   colunas: { wabaId?: string; numeroId?: string } = {},
-): Promise<CanalWhatsApp> {
-  const config = { ...canal.config, ...alteracoes };
-  const cifrado = cifrarConfig(config, chaveiro());
+): Promise<ChannelWhatsApp> {
+  const config = { ...canal.config, ...changes };
+  const cifrado = cifrarConfig(config, keyring());
   await noTenant(canal.tenantId, async (tx) => {
     await tx.execute(sql`
       update canal
@@ -102,7 +102,7 @@ export async function atualizarCanal(
        where id = ${canal.id}::uuid
     `);
   });
-  esquecerCanal(canal.id);
+  esquecerChannel(canal.id);
   return {
     ...canal,
     config,
@@ -120,16 +120,16 @@ export function novoVerifyToken(): string {
  * `prompt_reauthorization!`. No Chatwoot é coluna do canal; aqui é uma marca no
  * `config`, que já é o lugar do estado da conexão e não pede migration.
  */
-export function pedirReautorizacao(canal: CanalWhatsApp): Promise<CanalWhatsApp> {
-  return atualizarCanal(canal, { reautorizacaoPendente: true });
+export function pedirReauthorization(channel: ChannelWhatsApp): Promise<ChannelWhatsApp> {
+  return atualizarChannel(channel, { reautorizacaoPendente: true });
 }
 
 /** `reauthorized!`. */
-export function marcarReautorizado(canal: CanalWhatsApp): Promise<CanalWhatsApp> {
-  return atualizarCanal(canal, { reautorizacaoPendente: false });
+export function marcarReautorizado(canal: ChannelWhatsApp): Promise<ChannelWhatsApp> {
+  return atualizarChannel(canal, { reautorizacaoPendente: false });
 }
 
-export function reautorizacaoPendente(canal: { config: Record<string, unknown> }): boolean {
+export function reauthorizationPending(canal: { config: Record<string, unknown> }): boolean {
   return canal.config['reautorizacaoPendente'] === true;
 }
 
@@ -142,7 +142,7 @@ export function reautorizacaoPendente(canal: { config: Record<string, unknown> }
  * que o original compara.
  */
 export async function numeroJaConectado(numeroId: string, numero: string | null): Promise<boolean> {
-  const { rows } = await bancoDono().execute<{ tem: boolean }>(sql`
+  const { rows } = await databaseOwner().execute<{ tem: boolean }>(sql`
     select exists (
       select 1 from canal
        where tipo = 'whatsapp_cloud'

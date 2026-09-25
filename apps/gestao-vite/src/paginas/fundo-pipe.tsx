@@ -45,13 +45,13 @@ type Particula = {
  * máquina e em toda recarga. Fundo que muda de forma a cada visita é ruído, e
  * ainda impede comparar duas capturas de tela.
  */
-function criar(largura: number, altura: number): Particula[] {
+function create(largura: number, altura: number): Particula[] {
   const R = Math.hypot(largura, altura) * CENTRO.R;
   const pontos: Particula[] = [];
-  let semente = 20260912;
+  let seed = 20260912;
   const rnd = () => {
-    semente = (semente * 1103515245 + 12345) % 2147483648;
-    return semente / 2147483648;
+    seed = (seed * 1103515245 + 12345) % 2147483648;
+    return seed / 2147483648;
   };
 
   for (const b of BANDAS) {
@@ -135,7 +135,7 @@ export function FundoPipe() {
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
       largura = l;
       altura = a;
-      pontos = criar(l, a);
+      pontos = create(l, a);
       desenhar(quadro ? (performance.now() - inicio) / 1000 : 0);
     }
 

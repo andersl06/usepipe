@@ -1,12 +1,12 @@
 import { Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../banco.js';
-import { lerDicionario } from '../dominio/dicionario-crm.js';
-import type { ObjetoDoDicionario } from '../dominio/dicionario-crm.js';
+import { readDictionary } from '../dominio/dicionario-crm.js';
+import type { ObjectOfDictionary } from '../dominio/dicionario-crm.js';
 import { configDoTenant, lerFicha, linkDaPessoa } from '../dominio/twenty.js';
-import { enfileirarDicionarioCrm } from '../filas.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { enqueueDictionaryCrm } from '../filas.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import { Req } from '@nestjs/common';
 
 /**
@@ -34,46 +34,46 @@ export interface FichaDoCrm {
 }
 
 @Controller('v1/crm')
-export class ControladorCrm {
+export class CrmController {
   /**
    * O dicionário de dados do CRM do tenant da sessão: objetos e campos, no formato dos
    * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
    * sob RLS — não chama o CRM.
    */
   @Get('dicionario')
-  @ComSessao()
-  async dicionario(
-    @Req() requisicao: RequisicaoComSessao,
-  ): Promise<{ objetos: ObjetoDoDicionario[] }> {
-    const sessao = sessaoDe(requisicao);
-    return { objetos: await noTenant(sessao.tenantId, lerDicionario) };
+  @WithSession()
+  async dictionary(
+    @Req() request: RequestWithSession,
+  ): Promise<{ objetos: ObjectOfDictionary[] }> {
+    const session = sessionOf(request);
+    return { objetos: await noTenant(session.tenantId, readDictionary) };
   }
 
   /** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */
   @Post('dicionario/sincronizar')
-  @ComSessao()
+  @WithSession()
   @HttpCode(202)
-  async sincronizarDicionario(
-    @Req() requisicao: RequisicaoComSessao,
+  async syncDictionary(
+    @Req() requisicao: RequestWithSession,
   ): Promise<{ enfileirado: boolean }> {
-    const sessao = sessaoDe(requisicao);
-    return { enfileirado: await enfileirarDicionarioCrm({ tenantId: sessao.tenantId }) };
+    const sessao = sessionOf(requisicao);
+    return { enfileirado: await enqueueDictionaryCrm({ tenantId: sessao.tenantId }) };
   }
 
   @Get('contato/:contatoId')
-  @ComSessao()
-  async doContato(
-    @Req() requisicao: RequisicaoComSessao,
-    @Param('contatoId') contatoId: string,
+  @WithSession()
+  async ofContact(
+    @Req() requisicao: RequestWithSession,
+    @Param('contatoId') contactId: string,
   ): Promise<FichaDoCrm> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
 
     const preparo = await noTenant(sessao.tenantId, async (tx) => {
       const config = await configDoTenant(tx, sessao.tenantId);
       if (!config) return null;
       const { rows } = await tx.execute<{ twenty_pessoa_id: string | null }>(sql`
         select twenty_pessoa_id from contato
-         where id = ${contatoId}::uuid and excluido_em is null
+         where id = ${contactId}::uuid and excluido_em is null
          limit 1
       `);
       const pessoaId = rows[0]?.twenty_pessoa_id;
@@ -96,10 +96,10 @@ export class ControladorCrm {
           link: ficha.link,
         },
       };
-    } catch (erro) {
+    } catch (error) {
       // O CRM fora do ar não pode quebrar o painel do atendente. O link continua
       // valendo, porque ele é montado do nosso lado.
-      console.error(`[crm] ficha de ${contatoId} falhou: ${(erro as Error).message}`);
+      console.error(`[crm] ficha de ${contactId} falhou: ${(error as Error).message}`);
       return {
         ficha: {
           nome: '',

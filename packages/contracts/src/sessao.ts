@@ -7,7 +7,7 @@
 
 /** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */
 export interface Eu {
-  usuario: {
+  user: {
     id: string;
     nome: string;
     email: string;
@@ -29,16 +29,16 @@ export interface Eu {
     onboardingConcluido: boolean;
   };
   /** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */
-  permissoes: string[];
+  permissions: string[];
   /** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */
-  origem: OrigemDeSessao;
+  origem: OriginOfSession;
 }
 
 export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
 export type Plano = (typeof PLANOS)[number];
 
-export const ORIGENS_DE_SESSAO = ['senha', 'google', 'sso'] as const;
-export type OrigemDeSessao = (typeof ORIGENS_DE_SESSAO)[number];
+export const ORIGINS_OF_SESSION = ['senha', 'google', 'sso'] as const;
+export type OriginOfSession = (typeof ORIGINS_OF_SESSION)[number];
 
 /**
  * Por que a entrada foi recusada.
@@ -47,7 +47,7 @@ export type OrigemDeSessao = (typeof ORIGENS_DE_SESSAO)[number];
  * Cada um destes tem uma saída diferente para a pessoa, e é por isso que não
  * viram um "não autorizado" genérico.
  */
-export const RECUSAS_DE_ENTRADA = [
+export const REFUSESS_OF_INBOUND = [
   /** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */
   'dominio_publico',
   /** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */
@@ -63,11 +63,11 @@ export const RECUSAS_DE_ENTRADA = [
   /** Falha na conversa com o Google. Saída: tentar de novo. */
   'falha_no_provedor',
 ] as const;
-export type RecusaDeEntrada = (typeof RECUSAS_DE_ENTRADA)[number];
+export type RefusesOfInbound = (typeof REFUSESS_OF_INBOUND)[number];
 
-export interface ErroDaApi {
+export interface ApiError {
   codigo: string;
-  mensagem: string;
+  message: string;
 }
 
 /**
@@ -94,9 +94,9 @@ export interface RespostaDaDescoberta {
  * qual e-mail, com qual papel e até quando. Nada de dado do tenant além do nome
  * — quem chega aqui não está logado.
  */
-export interface ConviteVisivel {
+export interface InvitationVisible {
   email: string;
-  papel: string;
+  role: string;
   tenant: { nome: string; slug: string };
   /** ISO-8601, como sai da API. Quem formata é a tela. */
   expiraEm: string;

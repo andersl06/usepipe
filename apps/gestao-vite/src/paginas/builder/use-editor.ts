@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import type { BuilderDoFluxo, ErroDoBloco } from '@pipe/contracts';
+import type { BuilderOfFlow, BlockError } from '@pipe/contracts';
 import { salvarRascunho } from '../builder-gravar';
-import { estadoInicial, reduzir } from './estado';
-import type { EstadoDoEditor, GestoDoEditor } from './estado';
+import { stateInitial, reduzir } from './estado';
+import type { EditorState, GestoDoEditor } from './estado';
 import { lerDesenho, montarDesenho } from './modelo';
 import type { Mapa } from './modelo';
 
@@ -25,21 +25,21 @@ import type { Mapa } from './modelo';
 
 export const ESPERA_PARA_GRAVAR_MS = 1500;
 
-export type SituacaoDaGravacao =
-  | { estado: 'salvo' }
-  | { estado: 'pendente' }
-  | { estado: 'salvando' }
-  | { estado: 'erro'; erro: string };
+export type RecordingSituation =
+  | { state: 'salvo' }
+  | { state: 'pendente' }
+  | { state: 'salvando' }
+  | { state: 'erro'; error: string };
 
-const chaveDaVersao = (dados: BuilderDoFluxo): string =>
-  dados.versao ? `${dados.versao.id}:${dados.versao.atualizadoEm ?? ''}` : 'padrao';
+const versionKey = (data: BuilderOfFlow): string =>
+  data.versao ? `${data.versao.id}:${data.versao.atualizadoEm ?? ''}` : 'padrao';
 
 export interface EditorDoBuilder {
-  estado: EstadoDoEditor;
+  state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
-  gravacao: SituacaoDaGravacao;
+  recording: RecordingSituation;
   /** Os erros que a `api` apontou no último salvar (ou na leitura). */
-  errosDaApi: ErroDoBloco[];
+  apiErrors: BlockError[];
   /** Grava agora o que está na tela; devolve se deu certo. */
   salvarAgora: () => Promise<boolean>;
   /** Depois de restaurar: recarrega quando a leitura trouxer esta versão. */
@@ -47,68 +47,68 @@ export interface EditorDoBuilder {
   carregado: boolean;
 }
 
-export function useEditorDoBuilder(fluxoId: string, dados: BuilderDoFluxo | null): EditorDoBuilder {
-  const [estado, despachar] = useReducer(reduzir, undefined, estadoInicial);
+export function useEditorDoBuilder(flowId: string, data: BuilderOfFlow | null): EditorDoBuilder {
+  const [state, despachar] = useReducer(reduzir, undefined, stateInitial);
   const [esperando, setEsperando] = useState<string | null>('inicial');
   const [carregado, setCarregado] = useState(false);
-  const [gravacao, setGravacao] = useState<SituacaoDaGravacao>({ estado: 'salvo' });
-  const [errosDaApi, setErrosDaApi] = useState<ErroDoBloco[]>([]);
+  const [recording, setRecording] = useState<RecordingSituation>({ state: 'salvo' });
+  const [apiErrors, apiSetErrors] = useState<BlockError[]>([]);
   const ultimoPedido = useRef(0);
   const emCurso = useRef<Promise<boolean>>(Promise.resolve(true));
 
   /* Carrega do servidor: na primeira leitura, e quando a versão esperada chegar. */
   useEffect(() => {
-    if (!dados || esperando === null) return;
-    if (esperando !== 'inicial' && chaveDaVersao(dados) !== esperando) return;
+    if (!data || esperando === null) return;
+    if (esperando !== 'inicial' && versionKey(data) !== esperando) return;
     ultimoPedido.current += 1;
-    despachar({ tipo: 'carregar', mapa: lerDesenho(dados.desenho), globais: dados.desenho.globais });
-    setErrosDaApi(dados.erros);
-    setGravacao({ estado: 'salvo' });
+    despachar({ tipo: 'carregar', mapa: lerDesenho(data.desenho), global: data.desenho.globals });
+    apiSetErrors(data.errors);
+    setRecording({ state: 'salvo' });
     setEsperando(null);
     setCarregado(true);
-  }, [dados, esperando]);
+  }, [data, esperando]);
 
   const gravar = useCallback(
-    async (mapa: Mapa, globais: Record<string, unknown>): Promise<boolean> => {
-      setGravacao({ estado: 'salvando' });
-      const r = await salvarRascunho(fluxoId, montarDesenho(mapa, globais));
+    async (mapa: Mapa, global: Record<string, unknown>): Promise<boolean> => {
+      setRecording({ state: 'salvando' });
+      const r = await salvarRascunho(flowId, montarDesenho(mapa, global));
       if (!r.ok) {
-        setGravacao({ estado: 'erro', erro: r.erro });
+        setRecording({ state: 'erro', error: r.error });
         return false;
       }
       despachar({ tipo: 'salvo', mapa });
-      setErrosDaApi(r.valor.erros);
-      setGravacao({ estado: 'salvo' });
+      apiSetErrors(r.value.erros);
+      setRecording({ state: 'salvo' });
       return true;
     },
-    [fluxoId],
+    [flowId],
   );
 
   /* A gravação automática: um pouco depois da última mudança. */
   useEffect(() => {
-    if (!estado.sujo || !carregado) return;
-    setGravacao((g) => (g.estado === 'salvando' ? g : { estado: 'pendente' }));
+    if (!state.sujo || !carregado) return;
+    setRecording((g) => (g.state === 'salvando' ? g : { state: 'pendente' }));
     const pedido = ++ultimoPedido.current;
-    const { mapa, globais } = estado;
+    const { mapa, global } = state;
     const temporizador = setTimeout(() => {
       emCurso.current = emCurso.current.then(async () => {
         if (pedido !== ultimoPedido.current) return true;
-        return gravar(mapa, globais);
+        return gravar(mapa, global);
       });
     }, ESPERA_PARA_GRAVAR_MS);
     return () => clearTimeout(temporizador);
-  }, [estado, carregado, gravar]);
+  }, [state, carregado, gravar]);
 
   const salvarAgora = useCallback(async (): Promise<boolean> => {
     ultimoPedido.current += 1;
-    const { mapa, globais } = estado;
-    emCurso.current = emCurso.current.then(() => gravar(mapa, globais));
+    const { mapa, global } = state;
+    emCurso.current = emCurso.current.then(() => gravar(mapa, global));
     return emCurso.current;
-  }, [estado, gravar]);
+  }, [state, gravar]);
 
   const recarregarQuando = useCallback((versaoId: string, atualizadoEm: string | null): void => {
     setEsperando(`${versaoId}:${atualizadoEm ?? ''}`);
   }, []);
 
-  return { estado, despachar, gravacao, errosDaApi, salvarAgora, recarregarQuando, carregado };
+  return { state, despachar, recording, apiErrors, salvarAgora, recarregarQuando, carregado };
 }

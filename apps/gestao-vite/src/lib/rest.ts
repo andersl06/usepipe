@@ -1,4 +1,4 @@
-import { ErroDaApi } from './api';
+import { ApiError } from './api';
 
 /**
  * O resultado de uma escrita REST de verdade (`POST`/`PATCH`/`DELETE` com
@@ -10,14 +10,14 @@ import { ErroDaApi } from './api';
  * REST — os cadastros de Atendimento (filas, respostas prontas, pausas)
  * passam a escrever assim também.
  */
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
 /** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
-export function motivoDe(erro: unknown, padrao: string): string {
-  if (erro instanceof ErroDaApi) {
-    const corpo = erro.corpo as { erro?: { mensagem?: unknown } } | null;
-    const mensagem = corpo?.erro?.mensagem;
-    if (typeof mensagem === 'string' && mensagem) return mensagem;
+export function motivoDe(error: unknown, padrao: string): string {
+  if (error instanceof ApiError) {
+    const corpo = error.corpo as { error?: { message?: unknown } } | null;
+    const message = corpo?.error?.message;
+    if (typeof message === 'string' && message) return message;
   }
   return padrao;
 }

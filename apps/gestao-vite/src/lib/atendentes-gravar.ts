@@ -1,7 +1,7 @@
 import { api } from './api';
 import { atualizarLeituras } from './acoes';
 import { motivoDe, type Resultado } from './rest';
-import { desvincularAtendenteDaFila, vincularAtendenteNaFila } from './cadastros-gravar';
+import { queueDesvincularAgent, vincularAgentInQueue } from './cadastros-gravar';
 
 /**
  * Escrita das telas de atendente — permissões, edição em lote e "Excluir".
@@ -12,10 +12,10 @@ import { desvincularAtendenteDaFila, vincularAtendenteNaFila } from './cadastros
  */
 
 /** Uma linha da tabela "Tipo de permissão" × "Status" da origem. */
-export interface LinhaDePermissao {
+export interface PermissionLinha {
   codigo: string;
   grupo: string;
-  descricao: string;
+  description: string;
   dosPapeis: boolean;
   override: boolean | null;
   ligada: boolean;
@@ -23,31 +23,31 @@ export interface LinhaDePermissao {
   parcial: boolean;
 }
 
-export interface PermissoesDoAtendente {
-  atendentes: { id: string; nome: string; email: string }[];
-  permissoes: LinhaDePermissao[];
+export interface AgentPermissions {
+  agents: { id: string; nome: string; email: string }[];
+  permissions: PermissionLinha[];
 }
 
 /** O caminho da leitura — os ids vão na busca, como na rota sem `:id` da origem. */
-export function caminhoDasPermissoes(ids: readonly string[]): string | null {
+export function permissionsCaminho(ids: readonly string[]): string | null {
   if (ids.length === 0) return null;
   return `/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}`;
 }
 
 /** "Salvar alterações": manda só o que a tela MEXEU. */
-export async function salvarPermissoes(
-  usuarioIds: readonly string[],
-  permissoes: Record<string, boolean>,
+export async function salvarPermissions(
+  userIds: readonly string[],
+  permissions: Record<string, boolean>,
 ): Promise<Resultado<void>> {
   try {
     await api.patch('/v1/gestao/atendentes/permissoes', {
-      usuarioIds: [...usuarioIds],
-      permissoes,
+      usuarioIds: [...userIds],
+      permissions,
     });
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível salvar as permissões.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar as permissões.') };
   }
 }
 
@@ -62,16 +62,16 @@ export async function salvarPermissoes(
  * os dois campos são a mesma gravação, `POST /filas/:id/atendentes`. Quem já
  * está na fila tem a capacidade trocada; quem não está, entra.
  */
-export async function aplicarNaSelecao(
-  usuarioIds: readonly string[],
-  filaId: string,
-  capacidadeOverride: number | null,
+export async function aplicarInSelection(
+  userIds: readonly string[],
+  queueId: string,
+  capacityOverride: number | null,
 ): Promise<Resultado<void>> {
-  for (const id of usuarioIds) {
-    const r = await vincularAtendenteNaFila(filaId, id, capacidadeOverride);
-    if (!r.ok) return { ok: false, erro: r.erro };
+  for (const id of userIds) {
+    const r = await vincularAgentInQueue(queueId, id, capacityOverride);
+    if (!r.ok) return { ok: false, error: r.error };
   }
-  return { ok: true, valor: undefined };
+  return { ok: true, value: undefined };
 }
 
 /**
@@ -84,44 +84,44 @@ export async function aplicarNaSelecao(
  * filas e deixa de receber conversa, continuando com a conta. Apagar o usuário
  * seria destruir histórico de conversa, e não é o que o ícone promete.
  */
-export async function tirarDeTodasAsFilas(
-  atendenteId: string,
-  filaIds: readonly string[],
+export async function removeFromAllQueues(
+  agentId: string,
+  queueIds: readonly string[],
 ): Promise<Resultado<void>> {
-  for (const filaId of filaIds) {
-    const r = await desvincularAtendenteDaFila(filaId, atendenteId);
+  for (const queueId of queueIds) {
+    const r = await queueDesvincularAgent(queueId, agentId);
     if (!r.ok) return r;
   }
-  return { ok: true, valor: undefined };
+  return { ok: true, value: undefined };
 }
 
 /* ------------------------------------------- regras de priorização da fila */
 
-export interface PedidoDeRegraDePrioridade {
+export interface RequestOfRuleOfPriority {
   nome: string;
   nivel: string;
-  escopoTipo: 'fila' | 'tenant';
-  escopoId: string | null;
+  scopeType: 'fila' | 'tenant';
+  scopeId: string | null;
 }
 
-export async function criarRegraDePrioridade(
-  pedido: PedidoDeRegraDePrioridade,
+export async function priorityCreateRule(
+  pedido: RequestOfRuleOfPriority,
 ): Promise<Resultado<void>> {
   try {
     await api.post('/v1/gestao/regras/prioridade', pedido);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível criar a regra de priorização.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível criar a regra de priorização.') };
   }
 }
 
-export async function excluirRegraDePrioridade(id: string): Promise<Resultado<void>> {
+export async function priorityExcluirRule(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/gestao/regras/prioridade/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a regra de priorização.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a regra de priorização.') };
   }
 }

@@ -1,4 +1,4 @@
-import type { Posicao } from './modelo';
+import type { Position } from './modelo';
 
 /**
  * A geometria das setas: o conector "Flowchart" do jsPlumb com que o editor da
@@ -12,8 +12,8 @@ import type { Posicao } from './modelo';
  */
 
 /** As medidas do cartão deles: 175px de largura (`.diagram-node`). A altura é medida no DOM. */
-export const LARGURA_DO_BLOCO = 175;
-export const ALTURA_PADRAO_DO_BLOCO = 76;
+export const LARGURA_OF_BLOCK = 175;
+export const ALTURA_DEFAULT_OF_BLOCK = 76;
 export const TOCO = 30;
 export const PONTA = 10;
 
@@ -30,7 +30,7 @@ export function houveArrasto(dx: number, dy: number, limiar = LIMIAR_DE_ARRASTO)
   return Math.abs(dx) >= limiar || Math.abs(dy) >= limiar;
 }
 
-export interface Caixa extends Posicao {
+export interface Caixa extends Position {
   largura: number;
   altura: number;
 }
@@ -131,14 +131,14 @@ export function caminhoProvisorio(de: Ponto, ate: Ponto): string {
 }
 
 /** Onde o "Adicionar bloco" põe o bloco novo: no meio do que se vê, arredondado à grade de 16. */
-export function posicaoNoCentro(
-  janela: { largura: number; altura: number },
-  deslocamento: Posicao,
+export function positionInCentro(
+  window: { largura: number; altura: number },
+  offset: Position,
   zoom: number,
-): Posicao {
+): Position {
   const grade = 16;
-  const left = (janela.largura / 2 - deslocamento.left) / zoom - LARGURA_DO_BLOCO / 2;
-  const top = (janela.altura / 2 - deslocamento.top) / zoom - ALTURA_PADRAO_DO_BLOCO / 2;
+  const left = (window.largura / 2 - offset.left) / zoom - LARGURA_OF_BLOCK / 2;
+  const top = (window.altura / 2 - offset.top) / zoom - ALTURA_DEFAULT_OF_BLOCK / 2;
   return {
     left: Math.max(0, Math.round(left / grade) * grade),
     top: Math.max(0, Math.round(top / grade) * grade),
@@ -150,7 +150,7 @@ export const ZOOM_MINIMO = 20;
 export const ZOOM_MAXIMO = 100;
 export const PASSO_DO_ZOOM = 10;
 
-export function zoomAjustado(valor: number): number {
-  if (!Number.isFinite(valor)) return ZOOM_MAXIMO;
-  return Math.min(ZOOM_MAXIMO, Math.max(ZOOM_MINIMO, Math.round(valor)));
+export function zoomAjustado(value: number): number {
+  if (!Number.isFinite(value)) return ZOOM_MAXIMO;
+  return Math.min(ZOOM_MAXIMO, Math.max(ZOOM_MINIMO, Math.round(value)));
 }

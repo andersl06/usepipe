@@ -12,17 +12,17 @@
 
 /* ------------------------------------------------------------------- filas */
 
-export interface PedidoDeFila {
+export interface RequestOfQueue {
   nome: string;
   cor?: string | null;
   horarioId?: string | null;
-  capacidadePadrao: number;
+  capacityDefault: number;
   ordem?: number;
   ativa?: boolean;
 }
 
 /** Só o que veio muda; campo ausente é "não mexa" — igual ao `PATCH` de fluxo. */
-export interface PedidoDeEdicaoDeFila {
+export interface RequestOfEditOfQueue {
   nome?: string;
   cor?: string | null;
   horarioId?: string | null;
@@ -31,7 +31,7 @@ export interface PedidoDeEdicaoDeFila {
   ativa?: boolean;
 }
 
-export interface FilaGravada {
+export interface QueueWritten {
   id: string;
   nome: string;
   cor: string | null;
@@ -41,21 +41,21 @@ export interface FilaGravada {
   ativa: boolean;
 }
 
-export interface PedidoDeVinculoDeAtendente {
-  usuarioId: string;
-  capacidadeOverride?: number | null;
+export interface RequestOfLinkOfAgent {
+  userId: string;
+  capacityOverride?: number | null;
 }
 
 /* ---------------------------------------------------------- pausas */
 
 export interface PedidoDeMotivoPausa {
   nome: string;
-  duracaoSugeridaMin?: number | null;
-  contaComoProdutivo?: boolean;
+  durationSuggestedMin?: number | null;
+  countsAsProductive?: boolean;
   ativo?: boolean;
 }
 
-export interface PedidoDeEdicaoDeMotivoPausa {
+export interface RequestOfEditOfReasonPause {
   nome?: string;
   duracaoSugeridaMin?: number | null;
   contaComoProdutivo?: boolean;
@@ -83,7 +83,7 @@ export interface PedidoDeRespostaPronta {
   ativa?: boolean;
 }
 
-export interface PedidoDeEdicaoDeRespostaPronta {
+export interface RequestOfEditOfResponseReady {
   atalho?: string;
   titulo?: string;
   corpo?: string;
@@ -97,37 +97,37 @@ export interface RespostaProntaGravada {
   titulo: string;
   corpo: string;
   categoria: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
 /* --------------------------------------------------- regras de atendimento */
 
 /** Os quatro operadores de `apps/api/src/dominio/gestao/regra-fila.ts` — duplicado à mão, como o resto deste arquivo. */
-export type OperadorDeRegraFila = 'contem' | 'nao_contem' | 'igual' | 'diferente';
+export type OperatorOfRuleQueue = 'contem' | 'nao_contem' | 'igual' | 'diferente';
 
-export interface CondicaoDeRegraFila {
+export interface ConditionOfRuleQueue {
   campo: string;
-  operador: OperadorDeRegraFila;
-  valor: string;
+  operador: OperatorOfRuleQueue;
+  value: string;
 }
 
 /** Só o que veio muda; `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
-export interface PedidoDeEdicaoDeRegraFila {
+export interface RequestOfEditOfRuleQueue {
   nome?: string;
-  ordem?: number;
+  order?: number;
   combinador?: 'e' | 'ou';
-  filaDestinoId?: string;
-  condicoes?: CondicaoDeRegraFila[];
+  queueDestinationId?: string;
+  conditions?: ConditionOfRuleQueue[];
 }
 
-export interface RegraFilaGravada {
+export interface RuleQueueWritten {
   id: string;
   nome: string;
   ordem: number;
   combinador: 'e' | 'ou';
   filaDestinoId: string;
   ativa: boolean;
-  condicoes: CondicaoDeRegraFila[];
+  condicoes: ConditionOfRuleQueue[];
 }
 
 /* ------------------------------------------------------------------- SLA */
@@ -137,12 +137,12 @@ export interface PedidoDeRegraSla {
   alvo: string;
   prazoSeg: number;
   alertaSeg?: number | null;
-  escopoTipo?: string;
-  escopoId?: string | null;
+  scopeType?: string;
+  scopeId?: string | null;
   ativa?: boolean;
 }
 
-export interface PedidoDeEdicaoDeRegraSla {
+export interface RequestOfEditOfRuleSla {
   nome?: string;
   alvo?: string;
   prazoSeg?: number;
@@ -165,7 +165,7 @@ export interface RegraSlaGravada {
 
 /* --------------------------------------------------------------- horários */
 
-export interface PedidoDeEdicaoDeFaixa {
+export interface RequestOfEditOfRange {
   diaSemana?: number;
   inicio?: string;
   fim?: string;
@@ -179,7 +179,7 @@ export interface FaixaGravada {
   fim: string;
 }
 
-export interface PedidoDeEdicaoDeExcecao {
+export interface RequestOfEditOfException {
   data?: string;
   fechado?: boolean;
   inicio?: string | null;
@@ -187,7 +187,7 @@ export interface PedidoDeEdicaoDeExcecao {
   motivo?: string | null;
 }
 
-export interface ExcecaoGravada {
+export interface ExceptionWritten {
   id: string;
   horarioId: string;
   data: string;
@@ -199,16 +199,16 @@ export interface ExcecaoGravada {
 
 /* ------------------------------------------------------------ prioridade */
 
-export interface PedidoDeRegraPrioridade {
+export interface RequestOfRulePriority {
   nome: string;
   nivel: string;
   escopoTipo?: string;
   escopoId?: string | null;
-  condicao?: Record<string, unknown>;
+  condition?: Record<string, unknown>;
   ativa?: boolean;
 }
 
-export interface PedidoDeEdicaoDeRegraPrioridade {
+export interface RequestOfEditOfRulePriority {
   nome?: string;
   nivel?: string;
   escopoTipo?: string;
@@ -217,7 +217,7 @@ export interface PedidoDeEdicaoDeRegraPrioridade {
   ativa?: boolean;
 }
 
-export interface RegraPrioridadeGravada {
+export interface RulePriorityWritten {
   id: string;
   nome: string;
   nivel: string;

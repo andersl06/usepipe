@@ -1,16 +1,16 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { motivoInelegivel } from '@pipe/core';
 import type { MotivoInelegivel } from '@pipe/core';
-import { notaInterna, pausa, statusAtendente } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { EstadoAtendente } from '@pipe/contracts';
+import { notaInterna, pausa, statusAgent } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
+import type { StateAgent } from '@pipe/contracts';
 import type { Campos, Resultado } from '../gestao/acoes/campos.js';
 import { registrarEvento } from '../eventos.js';
-import { transferirConversa } from '../conversa.js';
-import { filasDoAtendente, tetoSemPrimeiraResposta } from '../distribuicao.js';
+import { transferConversation } from '../conversa.js';
+import { queuesOfAgent, tetoWithoutFirstResponse } from '../distribuicao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como no Desk. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -31,36 +31,36 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
 const OK: Resultado = { ok: true };
 
 function falha(erro: string): Resultado {
-  return { ok: false, erro };
+  return { ok: false, error };
 }
 
 // --- status do atendente ---
 
 export async function definirStatus(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   atendenteId: string,
   dados: Campos,
 ): Promise<Resultado> {
-  const estado = String(dados.get('estado') ?? '') as EstadoAtendente;
+  const state = String(dados.get('estado') ?? '') as StateAgent;
   const motivoId = String(dados.get('motivoId') ?? '') || null;
 
-  if (!['online', 'pausa', 'invisivel', 'offline'].includes(estado)) {
+  if (!['online', 'pausa', 'invisivel', 'offline'].includes(state)) {
     return falha('Estado desconhecido.');
   }
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
   // de pausa não alimenta relatório nenhum — e é exatamente por isso que é obrigatório.
-  if (estado === 'pausa' && !motivoId) {
+  if (state === 'pausa' && !motivoId) {
     return falha('Escolha o motivo da pausa.');
   }
 
   await consultar(tx, async (tx) => {
     await tx
-      .insert(statusAtendente)
-      .values({ usuarioId: atendenteId, tenantId, estado, desde: new Date() })
+      .insert(statusAgent)
+      .values({ usuarioId: atendenteId, tenantId, state, desde: new Date() })
       .onConflictDoUpdate({
-        target: statusAtendente.usuarioId,
-        set: { estado, desde: new Date() },
+        target: statusAgent.usuarioId,
+        set: { state, desde: new Date() },
       });
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta
@@ -70,7 +70,7 @@ export async function definirStatus(
       .set({ encerradaEm: new Date() })
       .where(and(eq(pausa.usuarioId, atendenteId), isNull(pausa.encerradaEm)));
 
-    if (estado === 'pausa' && motivoId) {
+    if (state === 'pausa' && motivoId) {
       await tx.insert(pausa).values({ tenantId, usuarioId: atendenteId, motivoId });
     }
   });
@@ -96,27 +96,27 @@ export async function definirStatus(
  * A pausa aberta é encerrada junto, pelo mesmo motivo de `definirStatus`: pausa
  * sem fim conta o mesmo minuto para sempre no relatório de ocupação.
  */
-export async function cairPorInatividade(
-  tx: TransacaoPipe,
+export async function cairByInactivity(
+  tx: TransactionPipe,
   tenantId: string,
-  atendenteId: string,
-  _dados: Campos,
+  agentId: string,
+  unusedData: Campos,
 ): Promise<Resultado> {
   await consultar(tx, async (tx) => {
     const agora = new Date();
     await tx
-      .insert(statusAtendente)
-      .values({ usuarioId: atendenteId, tenantId, estado: 'offline', desde: agora })
+      .insert(statusAgent)
+      .values({ usuarioId: agentId, tenantId, estado: 'offline', desde: agora })
       .onConflictDoUpdate({
-        target: statusAtendente.usuarioId,
+        target: statusAgent.usuarioId,
         set: { estado: 'offline', desde: agora },
-        where: sql`${statusAtendente.estado} <> 'offline'`,
+        where: sql`${statusAgent.estado} <> 'offline'`,
       });
 
     await tx
       .update(pausa)
       .set({ encerradaEm: agora })
-      .where(and(eq(pausa.usuarioId, atendenteId), isNull(pausa.encerradaEm)));
+      .where(and(eq(pausa.usuarioId, agentId), isNull(pausa.encerradaEm)));
   });
 
   return OK;
@@ -133,21 +133,21 @@ export async function cairPorInatividade(
  * `POST /v1/conversas/:id/mensagens`, direto do navegador.
  */
 export async function salvarNotaInterna(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   atendenteId: string,
-  dados: Campos,
+  data: Campos,
 ): Promise<Resultado> {
-  const conversaId = String(dados.get('conversaId') ?? '');
-  const texto = String(dados.get('texto') ?? '').trim();
+  const conversationId = String(data.get('conversaId') ?? '');
+  const texto = String(data.get('texto') ?? '').trim();
 
-  if (!conversaId) return falha('Conversa não informada.');
+  if (!conversationId) return falha('Conversa não informada.');
   if (!texto) return falha('Escreva alguma coisa antes de enviar.');
 
   await consultar(tx, async (tx) => {
     await tx
       .insert(notaInterna)
-      .values({ tenantId, conversaId, usuarioId: atendenteId, corpo: texto });
+      .values({ tenantId, conversationId, usuarioId: atendenteId, corpo: texto });
   });
 
   return OK;
@@ -156,7 +156,7 @@ export async function salvarNotaInterna(
 // --- atender (puxar o próximo da fila) ---
 
 /** A mensagem de "cheio" — o `code 23 / "Agent ticket list is full."` da origem, em português. */
-function mensagemDeLimite(motivo: MotivoInelegivel, ativas: number): string {
+function messageOfLimit(motivo: MotivoInelegivel, ativas: number): string {
   if (motivo === 'teto_sem_primeira_resposta') {
     return 'Responda os atendimentos que ainda estão sem primeira resposta antes de puxar outro.';
   }
@@ -190,56 +190,56 @@ function mensagemDeLimite(motivo: MotivoInelegivel, ativas: number): string {
  * entre atendentes DIFERENTES pela mesma linha.
  */
 export async function atender(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   atendenteId: string,
   _dados: Campos,
-): Promise<Resultado & { conversaId?: string }> {
+): Promise<Resultado & { conversationId?: string }> {
   return consultar(tx, async (tx) => {
     // `for update` é a serialização por atendente descrita acima. Quem está online
     // sempre tem esta linha (é ela que diz que está online).
-    const { rows: status } = await tx.execute<{ estado: string }>(
+    const { rows: status } = await tx.execute<{ state: string }>(
       sql`select estado from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
     );
-    if (status[0]?.estado !== 'online') return falha('Fique online para atender.');
+    if (status[0]?.state !== 'online') return falha('Fique online para atender.');
 
-    const opcoes = { tetoSemPrimeiraResposta: tetoSemPrimeiraResposta() };
-    const porFila = await filasDoAtendente(tx, atendenteId);
+    const options = { tetoSemPrimeiraResposta: tetoWithoutFirstResponse() };
+    const byQueue = await queuesOfAgent(tx, atendenteId);
     const comVaga: string[] = [];
     let motivoDeRecusa: MotivoInelegivel | null = null;
-    for (const linha of porFila) {
-      const filaId = linha.filas[0]!;
-      const motivo = motivoInelegivel(linha, { filaId, ...opcoes });
-      if (motivo === null) comVaga.push(filaId);
+    for (const linha of byQueue) {
+      const queueId = linha.queues[0]!;
+      const motivo = motivoInelegivel(linha, { queueId, ...options });
+      if (motivo === null) comVaga.push(queueId);
       else motivoDeRecusa ??= motivo;
     }
-    const ativas = porFila[0]?.ativas ?? 0;
+    const ativas = byQueue[0]?.ativas ?? 0;
 
     // Sem fila nenhuma com vaga e sem fila nenhuma cadastrada, a recusa é o limite:
     // não adianta procurar conversa que a pessoa não pode receber. (Quem não está em
     // fila alguma só puxa conversa sem fila, e para essa não há limite cadastrado.)
     if (comVaga.length === 0 && motivoDeRecusa !== null) {
-      return falha(mensagemDeLimite(motivoDeRecusa, ativas));
+      return falha(messageOfLimit(motivoDeRecusa, ativas));
     }
 
     // Conversa sem fila (transferência direta que voltou para a espera) vale para
     // qualquer atendente — desde que ele tenha vaga em alguma fila, ou não esteja em
     // fila alguma (aí não há limite que se aplique).
-    const aceitaSemFila = porFila.length === 0 || comVaga.length > 0;
-    const filasSql =
+    const acceptsWithoutQueue = byQueue.length === 0 || comVaga.length > 0;
+    const queuesSql =
       comVaga.length > 0
         ? sql`c.fila_id = any(${`{${comVaga.join(',')}}`}::uuid[])`
         : sql`false`;
 
     const em = new Date();
-    const { rows } = await tx.execute<{ id: string; fila_id: string | null }>(sql`
+    const { rows } = await tx.execute<{ id: string; queueId: string | null }>(sql`
       update conversa
          set atendente_id = ${atendenteId}::uuid, estado = 'atribuida',
              atribuida_em = ${em}, atualizado_em = now()
        where id = (
          select c.id from conversa c
           where c.estado = 'na_fila'
-            and ((c.fila_id is null and ${aceitaSemFila}::boolean) or ${filasSql})
+            and ((c.fila_id is null and ${acceptsWithoutQueue}::boolean) or ${queuesSql})
           order by c.criada_em asc
           for update skip locked
           limit 1
@@ -257,7 +257,7 @@ export async function atender(
              and c.fila_id in (select fila_id from fila_atendente where usuario_id = ${atendenteId}::uuid)
         `);
         if (Number(esperando[0]?.n ?? 0) > 0) {
-          return falha(mensagemDeLimite(motivoDeRecusa, ativas));
+          return falha(messageOfLimit(motivoDeRecusa, ativas));
         }
       }
       return falha('Não há clientes aguardando.');
@@ -266,15 +266,15 @@ export async function atender(
     await tx.execute(sql`
       insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, por_usuario_id, em)
       values (${tenantId}::uuid, ${puxada.id}::uuid, ${atendenteId}::uuid,
-              ${puxada.fila_id}, 'assumida_pelo_atendente', ${atendenteId}::uuid, ${em})
+              ${puxada.queueId}, 'assumida_pelo_atendente', ${atendenteId}::uuid, ${em})
     `);
     await registrarEvento(tx, {
       tenantId,
-      conversaId: puxada.id,
+      conversationId: puxada.id,
       tipo: 'atribuida',
       em,
-      usuarioId: atendenteId,
-      filaId: puxada.fila_id,
+      userId: atendenteId,
+      queueId: puxada.queueId,
     });
     return { ok: true, conversaId: puxada.id };
   });
@@ -289,31 +289,31 @@ export async function atender(
  * mesma regra (encerra e abre outra) e o mesmo evento. O resultado diz quantas
  * foram, e o primeiro motivo de recusa, se houve.
  */
-export async function transferirEmMassa(
-  _tx: TransacaoPipe,
+export async function transferInBulk(
+  _tx: TransactionPipe,
   tenantId: string,
   atendenteId: string,
   dados: Campos,
 ): Promise<Resultado & { transferidas?: number }> {
   const ids = dados.getAll('conversaId').filter(Boolean);
-  const paraFilaId = String(dados.get('paraFilaId') ?? '') || null;
-  const paraAtendenteId = String(dados.get('paraAtendenteId') ?? '') || null;
+  const forQueueId = String(dados.get('paraFilaId') ?? '') || null;
+  const forAgentId = String(dados.get('paraAtendenteId') ?? '') || null;
   if (ids.length === 0) return falha('Selecione ao menos um atendimento.');
-  if (!paraFilaId && !paraAtendenteId) return falha('Escolha a fila ou o atendente de destino.');
+  if (!forQueueId && !forAgentId) return falha('Escolha a fila ou o atendente de destino.');
 
   let transferidas = 0;
-  let primeiroErro: string | null = null;
-  for (const conversaId of ids) {
+  let firstError: string | null = null;
+  for (const conversationId of ids) {
     try {
-      await transferirConversa(
-        { tenantId, atendenteId, exigirAtribuicao: true },
-        { conversaId, paraFilaId, paraAtendenteId, motivo: 'Transferência em massa' },
+      await transferConversation(
+        { tenantId, agentId, exigirAssignment: true },
+        { conversationId, forQueueId, forAgentId, motivo: 'Transferência em massa' },
       );
       transferidas += 1;
-    } catch (erro) {
-      primeiroErro ??= erro instanceof Error ? erro.message : 'Falha ao transferir.';
+    } catch (error) {
+      firstError ??= error instanceof Error ? error.message : 'Falha ao transferir.';
     }
   }
-  if (transferidas === 0) return falha(primeiroErro ?? 'Nenhum atendimento foi transferido.');
-  return { ok: true, transferidas, ...(primeiroErro ? { erro: primeiroErro } : {}) };
+  if (transferidas === 0) return falha(firstError ?? 'Nenhum atendimento foi transferido.');
+  return { ok: true, transferidas, ...(firstError ? { error: firstError } : {}) };
 }

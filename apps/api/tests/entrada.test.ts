@@ -16,16 +16,16 @@ process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/retorno';
 process.env['PIPE_METRICS_TOKEN'] = 'token-de-metricas';
 
-const { EntradaRecusada, LoginErro, NOME_DO_COOKIE, criarToken } =
+const { InboundRefusedEntradaRecusadaInboundRefused, LoginErrorLoginErroLoginError, NOME_DO_COOKIE, createTokencriarTokencreateToken } =
   await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
-const { baseDoApp, codigoDaRecusa, destinoAbsoluto, urlDeErro } = await import(
+const { upApi } = await import('../src/servidor.js');
+const { baseDoApp, codigoDaRecusa, destinationAbsolute, urlOfError } = await import(
   '../src/controladores/entrar.js',
 );
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Entrar, `GET /v1/eu`, sair, `/saude` e `/metrics`.
@@ -39,13 +39,13 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 
 let cenario: Cenario;
 let api: ApiNoAr;
-let sessaoToken: string;
-const PERMISSOES = ['conversa.responder', 'conversa.ver', 'relatorio.ver'];
+let sessionToken: string;
+const PERMISSIONS = ['conversa.responder', 'conversa.ver', 'relatorio.ver'];
 
 /** Dois papéis com permissão em comum: prova que a união vem sem repetido. */
-async function semearIdentidade(): Promise<void> {
+async function seedIdentity(): Promise<void> {
   const dono = cenario.dono;
-  for (const codigo of PERMISSOES) {
+  for (const codigo of PERMISSIONS) {
     await dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
       values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
@@ -60,30 +60,30 @@ async function semearIdentidade(): Promise<void> {
     const { rows } = await dono.execute<{ id: string }>(sql`
       insert into papel (tenant_id, nome) values (${cenario.tenantId}, ${nome}) returning id
     `);
-    const papelId = rows[0]!.id;
-    papeis.push(papelId);
+    const roleId = rows[0]!.id;
+    papeis.push(roleId);
     for (const codigo of codigos) {
       await dono.execute(sql`
         insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-        values (${cenario.tenantId}, ${papelId}, ${codigo})
+        values (${cenario.tenantId}, ${roleId}, ${codigo})
       `);
     }
   }
 
-  for (const papelId of papeis) {
+  for (const roleId of papeis) {
     await dono.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id)
-      values (${cenario.tenantId}, ${cenario.atendenteId}, ${papelId})
+      values (${cenario.tenantId}, ${cenario.agentId}, ${roleId})
     `);
   }
 }
 
 /** Grava uma sessão viva e devolve o token que iria para o cookie. */
-async function abrirSessao(duracaoMs?: number): Promise<string> {
-  const novo = criarToken(duracaoMs);
+async function openSession(durationMs?: number): Promise<string> {
+  const novo = createTokencriarTokencreateToken(durationMs);
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.atendenteId}, ${novo.hash}, ${novo.expiraEm},
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm},
             'google')
   `);
   return novo.token;
@@ -95,9 +95,9 @@ function comCookie(token: string | undefined): Record<string, string> {
 
 beforeAll(async () => {
   cenario = await montarCenario(randomUUID().slice(0, 8));
-  await semearIdentidade();
-  api = await subirApi(0);
-  sessaoToken = await abrirSessao();
+  await seedIdentity();
+  api = await upApi(0);
+  sessionToken = await openSession();
 }, 180_000);
 
 afterAll(async () => {
@@ -109,8 +109,8 @@ describe('guarda de sessão', () => {
   it('sem cookie, 401', async () => {
     const resposta = await fetch(`${api.url}/v1/eu`);
     expect(resposta.status).toBe(401);
-    const corpo = (await resposta.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('nao_autorizado');
+    const corpo = (await resposta.json()) as { error: { codigo: string } };
+    expect(corpo.error.codigo).toBe('nao_autorizado');
   });
 
   it('cookie com token inexistente, 401', async () => {
@@ -121,7 +121,7 @@ describe('guarda de sessão', () => {
   });
 
   it('sessão expirada, 401 — e a mesma resposta de quem não mandou nada', async () => {
-    const vencida = await abrirSessao(-1_000);
+    const vencida = await openSession(-1_000);
     const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(vencida) });
     expect(resposta.status).toBe(401);
   });
@@ -129,38 +129,38 @@ describe('guarda de sessão', () => {
 
 describe('GET /v1/eu', () => {
   it('devolve o Eu do contrato, com as permissões dos papéis', async () => {
-    const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(sessaoToken) });
+    const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(sessionToken) });
     expect(resposta.status).toBe(200);
 
     const eu = (await resposta.json()) as {
-      usuario: { id: string; nome: string; email: string; avatarUrl: string | null };
+      user: { id: string; nome: string; email: string; avatarUrl: string | null };
       tenant: { id: string; nome: string; slug: string; plano: string };
-      permissoes: string[];
+      permissions: string[];
       origem: string;
     };
 
-    expect(eu.usuario.id).toBe(cenario.atendenteId);
-    expect(eu.usuario.nome).toBe('Ana Ribeiro');
-    expect(eu.usuario.avatarUrl).toBeNull();
+    expect(eu.user.id).toBe(cenario.agentId);
+    expect(eu.user.nome).toBe('Ana Ribeiro');
+    expect(eu.user.avatarUrl).toBeNull();
     expect(eu.tenant.id).toBe(cenario.tenantId);
     expect(eu.tenant.plano).toBe('essencial');
     expect(eu.origem).toBe('google');
 
     // União dos dois papéis, sem repetir `conversa.ver`.
-    expect(eu.permissoes).toEqual(PERMISSOES);
+    expect(eu.permissions).toEqual(PERMISSIONS);
   });
 
   it('sessão de usuário desativado não entra', async () => {
-    const token = await abrirSessao();
+    const token = await openSession();
     await cenario.dono.execute(
-      sql`update usuario set ativo = false where id = ${cenario.atendenteId}::uuid`,
+      sql`update usuario set ativo = false where id = ${cenario.agentId}::uuid`,
     );
     try {
       const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(token) });
       expect(resposta.status).toBe(401);
     } finally {
       await cenario.dono.execute(
-        sql`update usuario set ativo = true where id = ${cenario.atendenteId}::uuid`,
+        sql`update usuario set ativo = true where id = ${cenario.agentId}::uuid`,
       );
     }
   });
@@ -168,7 +168,7 @@ describe('GET /v1/eu', () => {
 
 describe('POST /v1/auth/sair', () => {
   it('encerra a sessão, apaga o cookie e o token não vale mais', async () => {
-    const token = await abrirSessao();
+    const token = await openSession();
     const resposta = await fetch(`${api.url}/v1/auth/sair`, {
       method: 'POST',
       headers: comCookie(token),
@@ -192,13 +192,13 @@ describe('GET /v1/auth/google', () => {
     });
     expect(resposta.status).toBe(302);
 
-    const destino = new URL(resposta.headers.get('location') ?? '');
-    expect(destino.origin + destino.pathname).toBe(
+    const destination = new URL(resposta.headers.get('location') ?? '');
+    expect(destination.origin + destination.pathname).toBe(
       'https://accounts.google.com/o/oauth2/v2/auth',
     );
-    expect(destino.searchParams.get('code_challenge_method')).toBe('S256');
-    expect(destino.searchParams.get('code_challenge')).toBeTruthy();
-    expect(destino.searchParams.get('state')).toBeTruthy();
+    expect(destination.searchParams.get('code_challenge_method')).toBe('S256');
+    expect(destination.searchParams.get('code_challenge')).toBeTruthy();
+    expect(destination.searchParams.get('state')).toBeTruthy();
 
     const cookie = resposta.headers.get('set-cookie') ?? '';
     expect(cookie).toContain('pipe_desafio=');
@@ -209,8 +209,8 @@ describe('GET /v1/auth/google', () => {
     // O `state` do cookie tem que ser o mesmo que foi para o Google, senão a volta
     // nunca confere.
     const desafio = lerDesafioDoCookie(cookie);
-    expect(desafio.state).toBe(destino.searchParams.get('state'));
-    expect(desafio.destino).toBe('/conversas/42');
+    expect(desafio.state).toBe(destination.searchParams.get('state'));
+    expect(desafio.destination).toBe('/conversas/42');
   });
 
   it('destino absoluto é descartado: redirecionamento aberto é phishing com o nosso domínio', async () => {
@@ -218,7 +218,7 @@ describe('GET /v1/auth/google', () => {
       `${api.url}/v1/auth/google?destino=${encodeURIComponent('https://malvado.example/roubar')}`,
       { redirect: 'manual' },
     );
-    expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').destino).toBe('/');
+    expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').destination).toBe('/');
   });
 });
 
@@ -251,19 +251,19 @@ describe('códigos de recusa', () => {
       'sem_convite',
       'usuario_inativo',
     ] as const) {
-      expect(codigoDaRecusa(new EntradaRecusada(codigo, 'motivo'))).toBe(codigo);
+      expect(codigoDaRecusa(new InboundRefusedEntradaRecusadaInboundRefused(codigo, 'motivo'))).toBe(codigo);
     }
   });
 
   it('e-mail não verificado pelo Google tem código próprio', () => {
-    expect(codigoDaRecusa(new LoginErro('email_nao_verificado', 'sem confirmação'))).toBe(
+    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('email_nao_verificado', 'sem confirmação'))).toBe(
       'email_nao_verificado',
     );
   });
 
   it('tudo o mais vira falha_no_provedor', () => {
-    expect(codigoDaRecusa(new LoginErro('state_invalido', 'forjado'))).toBe('falha_no_provedor');
-    expect(codigoDaRecusa(new LoginErro('troca_falhou', 'timeout'))).toBe('falha_no_provedor');
+    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('state_invalido', 'forjado'))).toBe('falha_no_provedor');
+    expect(codigoDaRecusa(new LoginErrorLoginErroLoginError('troca_falhou', 'timeout'))).toBe('falha_no_provedor');
     expect(codigoDaRecusa(new Error('qualquer coisa'))).toBe('falha_no_provedor');
     expect(codigoDaRecusa(undefined)).toBe('falha_no_provedor');
   });
@@ -272,7 +272,7 @@ describe('códigos de recusa', () => {
 describe('CORS', () => {
   it('libera origem da lista, com credencial', async () => {
     const resposta = await fetch(`${api.url}/v1/eu`, {
-      headers: { origin: 'http://telas.teste', ...comCookie(sessaoToken) },
+      headers: { origin: 'http://telas.teste', ...comCookie(sessionToken) },
     });
     expect(resposta.headers.get('access-control-allow-origin')).toBe('http://telas.teste');
     expect(resposta.headers.get('access-control-allow-credentials')).toBe('true');
@@ -280,7 +280,7 @@ describe('CORS', () => {
 
   it('origem de fora da lista não recebe o cabeçalho — e nunca curinga', async () => {
     const resposta = await fetch(`${api.url}/v1/eu`, {
-      headers: { origin: 'http://malvado.example', ...comCookie(sessaoToken) },
+      headers: { origin: 'http://malvado.example', ...comCookie(sessionToken) },
     });
     expect(resposta.headers.get('access-control-allow-origin')).toBeNull();
   });
@@ -293,11 +293,11 @@ describe('GET /saude', () => {
     const corpo = (await resposta.json()) as {
       ok: boolean;
       versao: string;
-      banco: string;
+      database: string;
       redis: string;
     };
     expect(corpo.ok).toBe(true);
-    expect(corpo.banco).toBe('ok');
+    expect(corpo.database).toBe('ok');
     expect(corpo.versao).toBeTruthy();
     expect(['ok', 'falha']).toContain(corpo.redis);
   });
@@ -331,18 +331,18 @@ describe('GET /metrics', () => {
 
     // O balde acumulado nunca pode passar da contagem total da mesma série.
     const infinito = /http_request_duration_seconds_bucket\{[^}]*le="\+Inf"\} (\d+)/.exec(texto);
-    const contagem = /http_request_duration_seconds_count\{[^}]*\} (\d+)/.exec(texto);
-    expect(Number(infinito?.[1])).toBe(Number(contagem?.[1]));
+    const count = /http_request_duration_seconds_count\{[^}]*\} (\d+)/.exec(texto);
+    expect(Number(infinito?.[1])).toBe(Number(count?.[1]));
   });
 });
 
 function lerDesafioDoCookie(cabecalho: string): {
   state: string;
-  destino: string;
+  destination: string;
   origem?: string;
 } {
-  const valor = /pipe_desafio=([^;]*)/.exec(cabecalho)?.[1] ?? '';
-  return JSON.parse(Buffer.from(valor, 'base64url').toString('utf8')) as {
+  const value = /pipe_desafio=([^;]*)/.exec(cabecalho)?.[1] ?? '';
+  return JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
     state: string;
     destino: string;
     origem?: string;
@@ -358,19 +358,19 @@ function lerDesafioDoCookie(cabecalho: string): {
  */
 describe('a origem de quem começou o login', () => {
   it('origem da lista manda a volta para o aplicativo certo', () => {
-    expect(destinoAbsoluto('/leads', 'http://gestao.teste')).toBe('http://gestao.teste/leads');
-    expect(urlDeErro('sem_convite', 'http://gestao.teste')).toBe(
+    expect(destinationAbsolute('/leads', 'http://gestao.teste')).toBe('http://gestao.teste/leads');
+    expect(urlOfError('sem_convite', 'http://gestao.teste')).toBe(
       'http://gestao.teste/entrar?erro=sem_convite',
     );
   });
 
   it('origem fora da lista é ignorada — senão o login vira redirecionamento aberto', () => {
     expect(baseDoApp('https://malvado.example')).toBe('http://telas.teste');
-    expect(destinoAbsoluto('/', 'https://malvado.example')).toBe('http://telas.teste/');
+    expect(destinationAbsolute('/', 'https://malvado.example')).toBe('http://telas.teste/');
   });
 
   it('sem origem, cai no fallback do ambiente', () => {
-    expect(destinoAbsoluto('/conversas')).toBe('http://telas.teste/conversas');
+    expect(destinationAbsolute('/conversas')).toBe('http://telas.teste/conversas');
   });
 
   it('a barra final não separa a mesma origem em duas', () => {

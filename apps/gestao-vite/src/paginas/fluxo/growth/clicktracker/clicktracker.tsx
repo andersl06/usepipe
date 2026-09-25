@@ -1,4 +1,4 @@
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 import { IconePortal, LogoPortal } from '../../../../componentes/icones-portal';
 
 /* Painel do Click Tracker como o microfrontend `portal-fragment-click-tracker`
@@ -18,14 +18,14 @@ const INDICADORES = [
   { rotulo: 'Taxa média de conversão', valor: null, rodape: null, alerta: true },
 ];
 
-function periodoAnalisado(hoje: Date) {
+function periodAnalyzed(hoje: Date) {
   const inicio = new Date(hoje);
   inicio.setDate(inicio.getDate() - 7);
   return { de: inicio.toLocaleDateString('pt-BR'), ate: hoje.toLocaleDateString('pt-BR') };
 }
 
-export default function PaginaClickTracker() {
-  const periodo = periodoAnalisado(new Date());
+export default function PageClickTracker() {
+  const period = periodAnalyzed(new Date());
   return (
     <div className="ck-pagina">
       <div className="ck-topo">
@@ -92,7 +92,7 @@ export default function PaginaClickTracker() {
                   </span>
                   <span className="ck-data-container">
                     <span className="ck-data-rotulo">De</span>
-                    <input className="ck-data-texto" readOnly value={periodo.de} />
+                    <input className="ck-data-texto" readOnly value={period.de} />
                   </span>
                 </label>
                 <label className="ck-data">
@@ -101,7 +101,7 @@ export default function PaginaClickTracker() {
                   </span>
                   <span className="ck-data-container">
                     <span className="ck-data-rotulo">Até</span>
-                    <input className="ck-data-texto" readOnly value={periodo.ate} />
+                    <input className="ck-data-texto" readOnly value={period.ate} />
                   </span>
                 </label>
               </div>
@@ -201,7 +201,7 @@ export default function PaginaClickTracker() {
 
       <div className="ck-vazio">
         <div className="ck-vazio-ilustracao">
-          <Ilustracao nome="busca" tamanho={128} />
+          <Illustration nome="busca" tamanho={128} />
         </div>
         <strong className="ck-vazio-titulo">Nenhum dado encontrado</strong>
         <p className="ck-vazio-texto">

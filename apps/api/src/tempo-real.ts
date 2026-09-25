@@ -27,7 +27,7 @@ import type { Assunto, EventoDoServidor } from '@pipe/contracts';
 /** O envelope que trafega no Redis: o evento do contrato mais o destinatário. */
 export interface EventoPublicado extends EventoDoServidor {
   /** Quando preenchido, só as conexões DESTA pessoa recebem. */
-  usuarioId?: string;
+  userId?: string;
 }
 
 export interface Conexao {
@@ -37,7 +37,7 @@ export interface Conexao {
   entregar: (evento: EventoDoServidor) => void;
 }
 
-function canalDoTenant(tenantId: string): string {
+function channelOfTenant(tenantId: string): string {
   return `pipe:eventos:${tenantId}`;
 }
 
@@ -54,13 +54,13 @@ function conexaoPublicador(): IORedis {
 }
 
 /** As conexões vivas DESTE processo, agrupadas por tenant. */
-const porTenant = new Map<string, Set<Conexao>>();
+const byTenant = new Map<string, Set<Conexao>>();
 
 function conexaoAssinante(): IORedis {
   if (assinante) return assinante;
   assinante = new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
-  assinante.on('message', (canal, corpo) => {
-    const tenantId = canal.slice('pipe:eventos:'.length);
+  assinante.on('message', (channel, corpo) => {
+    const tenantId = channel.slice('pipe:eventos:'.length);
     let evento: EventoPublicado;
     try {
       evento = JSON.parse(corpo) as EventoPublicado;
@@ -74,18 +74,18 @@ function conexaoAssinante(): IORedis {
 }
 
 function entregarNoProcesso(tenantId: string, evento: EventoPublicado): void {
-  const conexoes = porTenant.get(tenantId);
+  const conexoes = byTenant.get(tenantId);
   if (!conexoes) return;
 
-  const { usuarioId, ...doContrato } = evento;
+  const { userId, ...ofContract } = evento;
   for (const conexao of conexoes) {
     // O canal já é do tenant, mas a conferência é repetida de propósito: se um dia
     // alguém errar a chave do canal, o erro para aqui em vez de virar vazamento.
     if (conexao.tenantId !== tenantId) continue;
-    if (usuarioId && conexao.usuarioId !== usuarioId) continue;
-    if (!conexao.assuntos.has(doContrato.assunto)) continue;
+    if (userId && conexao.usuarioId !== userId) continue;
+    if (!conexao.assuntos.has(ofContract.assunto)) continue;
     try {
-      conexao.entregar(doContrato);
+      conexao.entregar(ofContract);
     } catch {
       // Um cliente com o socket já morrendo não pode impedir a entrega aos outros.
     }
@@ -105,18 +105,18 @@ function entregarNoProcesso(tenantId: string, evento: EventoPublicado): void {
  */
 export async function publicar(tenantId: string, evento: EventoPublicado): Promise<void> {
   try {
-    await conexaoPublicador().publish(canalDoTenant(tenantId), JSON.stringify(evento));
-  } catch (erro) {
-    console.error(`[tempo-real] não publicou para ${tenantId}: ${(erro as Error).message}`);
+    await conexaoPublicador().publish(channelOfTenant(tenantId), JSON.stringify(evento));
+  } catch (error) {
+    console.error(`[tempo-real] não publicou para ${tenantId}: ${(error as Error).message}`);
   }
 }
 
 /** Atalho de quem só quer dizer "a conversa X mudou". */
-export function evento(assunto: Assunto, id?: string, usuarioId?: string): EventoPublicado {
+export function evento(assunto: Assunto, id?: string, userId?: string): EventoPublicado {
   return {
     assunto,
     ...(id ? { id } : {}),
-    ...(usuarioId ? { usuarioId } : {}),
+    ...(userId ? { userId } : {}),
     em: new Date().toISOString(),
   };
 }
@@ -129,38 +129,38 @@ export function evento(assunto: Assunto, id?: string, usuarioId?: string): Event
  * nada daquele cliente.
  */
 export async function registrar(conexao: Conexao): Promise<() => Promise<void>> {
-  let conexoes = porTenant.get(conexao.tenantId);
-  if (!conexoes) {
-    conexoes = new Set();
-    porTenant.set(conexao.tenantId, conexoes);
-    await conexaoAssinante().subscribe(canalDoTenant(conexao.tenantId));
+  let connections = byTenant.get(conexao.tenantId);
+  if (!connections) {
+    connections = new Set();
+    byTenant.set(conexao.tenantId, connections);
+    await conexaoAssinante().subscribe(channelOfTenant(conexao.tenantId));
   }
-  conexoes.add(conexao);
+  connections.add(conexao);
 
   let encerrada = false;
   return async () => {
     if (encerrada) return;
     encerrada = true;
-    const vivas = porTenant.get(conexao.tenantId);
+    const vivas = byTenant.get(conexao.tenantId);
     if (!vivas) return;
     vivas.delete(conexao);
     if (vivas.size === 0) {
-      porTenant.delete(conexao.tenantId);
-      await conexaoAssinante().unsubscribe(canalDoTenant(conexao.tenantId));
+      byTenant.delete(conexao.tenantId);
+      await conexaoAssinante().unsubscribe(channelOfTenant(conexao.tenantId));
     }
   };
 }
 
 /** Quantas conexões vivas há neste processo. Alimenta `/metrics` e o teste. */
-export function conexoesVivas(tenantId?: string): number {
-  if (tenantId) return porTenant.get(tenantId)?.size ?? 0;
+export function connectionsVivas(tenantId?: string): number {
+  if (tenantId) return byTenant.get(tenantId)?.size ?? 0;
   let total = 0;
-  for (const conexoes of porTenant.values()) total += conexoes.size;
+  for (const connections of byTenant.values()) total += connections.size;
   return total;
 }
 
-export async function fecharTempoReal(): Promise<void> {
-  porTenant.clear();
+export async function closeTimeReal(): Promise<void> {
+  byTenant.clear();
   await assinante?.quit();
   await publicador?.quit();
   assinante = null;

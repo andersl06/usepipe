@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Simbolo } from '@pipe/ui';
-import { urlDeEntradaComGoogle, verConvite } from '../../../lib/sessao';
+import { inboundWithGoogleUrl, verInvitation } from '../../../lib/sessao';
 
 /**
  * O convite visto por quem ainda está do lado de fora.
@@ -25,13 +25,13 @@ export const metadata: Metadata = {
 
 const DATA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
-export default async function PaginaConvite({
+export default async function PageInvitation({
   params,
 }: {
   params: Promise<{ token: string }>;
 }) {
   const { token } = await params;
-  const convite = await verConvite(token);
+  const invitation = await verInvitation(token);
 
   return (
     <main className="entrar">
@@ -41,26 +41,26 @@ export default async function PaginaConvite({
           <b>Pipe CRM</b>
         </div>
 
-        {convite ? (
+        {invitation ? (
           <>
             <h1 id="convite-titulo">Você foi convidado</h1>
             <p className="entrar-sub">
-              {convite.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
+              {invitation.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
               conta.
             </p>
 
             <dl className="entrar-dados">
               <dt>Para</dt>
-              <dd>{convite.email}</dd>
+              <dd>{invitation.email}</dd>
               <dt>Papel</dt>
-              <dd>{convite.papel}</dd>
+              <dd>{invitation.role}</dd>
               <dt>Vale até</dt>
-              <dd>{DATA.format(new Date(convite.expiraEm))}</dd>
+              <dd>{DATA.format(new Date(invitation.expiraEm))}</dd>
             </dl>
 
             <a
               className="btn primario entrar-google"
-              href={urlDeEntradaComGoogle({ convite: token })}
+              href={inboundWithGoogleUrl({ invitation: token })}
             >
               Entrar com Google e aceitar
             </a>

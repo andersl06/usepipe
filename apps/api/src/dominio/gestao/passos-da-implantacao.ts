@@ -15,27 +15,27 @@
  * Puro, sem banco e sem Next, para o `node --test` rodar.
  */
 
-export interface SinaisDaImplantacao {
+export interface SignalsOfDeployment {
   adminEntrou: boolean;
-  canaisConectados: number;
+  channelsConectados: number;
   /** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */
-  canaisPendentes: number;
+  channelsPending: number;
   convites: number;
   /** Usuários ativos, o administrador incluído. */
-  membros: number;
-  filasAtivas: number;
-  filasComAtendente: number;
-  ultimaImportacao: {
+  members: number;
+  queuesActive: number;
+  queuesWithAgent: number;
+  lastImport: {
     id: string;
-    estado: string;
+    state: string;
     aceitos: number;
     rejeitados: number;
     temFalhas: boolean;
   } | null;
-  conversaAtendida: boolean;
+  conversationAtendida: boolean;
 }
 
-export type EstadoDoPasso = 'feito' | 'andamento' | 'pendente';
+export type StateOfPasso = 'feito' | 'andamento' | 'pendente';
 
 export type IdDoPasso = 'acesso' | 'whatsapp' | 'equipe' | 'fila' | 'contatos' | 'conversa';
 
@@ -45,10 +45,10 @@ export interface AcaoDoPasso {
   externo?: boolean;
 }
 
-export interface PassoDaImplantacao {
+export interface PassoOfDeployment {
   id: IdDoPasso;
   titulo: string;
-  estado: EstadoDoPasso;
+  estado: StateOfPasso;
   /** O que falta, ou o que já existe. Uma frase. */
   resumo: string;
   acao: AcaoDoPasso | null;
@@ -58,23 +58,23 @@ function quantos(n: number, um: string, varios: string): string {
   return `${n} ${n === 1 ? um : varios}`;
 }
 
-function passoDosContatos(
-  s: SinaisDaImplantacao,
-): Omit<PassoDaImplantacao, 'id' | 'titulo' | 'acao'> {
-  const ultima = s.ultimaImportacao;
+function passoOfContacts(
+  s: SignalsOfDeployment,
+): Omit<PassoOfDeployment, 'id' | 'titulo' | 'acao'> {
+  const ultima = s.lastImport;
   if (!ultima) {
     return {
       estado: 'pendente',
       resumo: 'Opcional: traga a base de clientes de uma planilha CSV.',
     };
   }
-  if (ultima.estado === 'pronta' || ultima.estado === 'executando') {
+  if (ultima.state === 'pronta' || ultima.state === 'executando') {
     return {
       estado: 'andamento',
       resumo: 'Importação em andamento. Arquivo grande leva alguns minutos.',
     };
   }
-  if (ultima.estado === 'falhou') {
+  if (ultima.state === 'falhou') {
     return {
       estado: 'pendente',
       resumo:
@@ -91,8 +91,8 @@ function passoDosContatos(
   };
 }
 
-export function montarPassos(s: SinaisDaImplantacao, urlDoDesk: string): PassoDaImplantacao[] {
-  const temWhatsApp = s.canaisConectados > 0;
+export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOfDeployment[] {
+  const temWhatsApp = s.channelsConectados > 0;
   return [
     {
       id: 'acesso',
@@ -106,10 +106,10 @@ export function montarPassos(s: SinaisDaImplantacao, urlDoDesk: string): PassoDa
     {
       id: 'whatsapp',
       titulo: 'Conectar o WhatsApp',
-      estado: temWhatsApp ? 'feito' : s.canaisPendentes > 0 ? 'andamento' : 'pendente',
+      estado: temWhatsApp ? 'feito' : s.channelsPending > 0 ? 'andamento' : 'pendente',
       resumo: temWhatsApp
-        ? `${quantos(s.canaisConectados, 'número conectado', 'números conectados')}.`
-        : s.canaisPendentes > 0
+        ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
+        : s.channelsPending > 0
           ? 'O número foi ligado, mas a Meta pede reautorização. Refaça a conexão.'
           : 'Sem número conectado, nenhuma conversa chega ao Desk.',
       acao: temWhatsApp
@@ -119,10 +119,10 @@ export function montarPassos(s: SinaisDaImplantacao, urlDoDesk: string): PassoDa
     {
       id: 'equipe',
       titulo: 'Convidar a equipe',
-      estado: s.membros > 1 ? 'feito' : s.convites > 0 ? 'andamento' : 'pendente',
+      estado: s.members > 1 ? 'feito' : s.convites > 0 ? 'andamento' : 'pendente',
       resumo:
-        s.membros > 1
-          ? `${quantos(s.membros, 'pessoa', 'pessoas')} com acesso.`
+        s.members > 1
+          ? `${quantos(s.members, 'pessoa', 'pessoas')} com acesso.`
           : s.convites > 0
             ? `${quantos(s.convites, 'convite enviado', 'convites enviados')}, ninguém aceitou ainda.`
             : 'Só o administrador tem acesso. Atendente entra por convite.',
@@ -131,11 +131,11 @@ export function montarPassos(s: SinaisDaImplantacao, urlDoDesk: string): PassoDa
     {
       id: 'fila',
       titulo: 'Criar a primeira fila com atendente',
-      estado: s.filasComAtendente > 0 ? 'feito' : 'pendente',
+      estado: s.queuesWithAgent > 0 ? 'feito' : 'pendente',
       resumo:
-        s.filasComAtendente > 0
-          ? `${quantos(s.filasComAtendente, 'fila', 'filas')} com atendente habilitado.`
-          : s.filasAtivas > 0
+        s.queuesWithAgent > 0
+          ? `${quantos(s.queuesWithAgent, 'fila', 'filas')} com atendente habilitado.`
+          : s.queuesActive > 0
             ? 'Há fila ativa, mas nenhum atendente habilitado nela: a conversa chega e ninguém a recebe.'
             : 'Nenhuma fila ativa.',
       acao: { rotulo: 'Abrir filas', href: '/atendentes/filas' },
@@ -143,20 +143,20 @@ export function montarPassos(s: SinaisDaImplantacao, urlDoDesk: string): PassoDa
     {
       id: 'contatos',
       titulo: 'Importar contatos',
-      ...passoDosContatos(s),
+      ...passoOfContacts(s),
       acao: { rotulo: 'Importar', href: '#contatos' },
     },
     {
       id: 'conversa',
       titulo: 'Atender a conversa de teste',
-      estado: s.conversaAtendida ? 'feito' : 'pendente',
-      resumo: s.conversaAtendida
+      estado: s.conversationAtendida ? 'feito' : 'pendente',
+      resumo: s.conversationAtendida
         ? 'Uma conversa já foi respondida pelo Desk.'
         : temWhatsApp
           ? 'Mande um WhatsApp do seu celular para o número conectado e responda pelo Desk.'
           : 'Depende do WhatsApp conectado.',
       acao:
-        temWhatsApp && !s.conversaAtendida
+        temWhatsApp && !s.conversationAtendida
           ? { rotulo: 'Abrir o Desk', href: urlDoDesk, externo: true }
           : null,
     },

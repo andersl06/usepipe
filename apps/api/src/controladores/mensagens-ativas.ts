@@ -1,16 +1,16 @@
 import { Body, Controller, Get, HttpCode, Post, Query, Req } from '@nestjs/common';
-import { ChaveOuSessao, atorDe } from '../autenticacao.js';
-import type { RequisicaoAutenticada } from '../autenticacao.js';
-import { resolverCanal } from '../banco.js';
+import { KeyOrSession, atorDe } from '../autenticacao.js';
+import type { RequestAuthenticated } from '../autenticacao.js';
+import { resolveChannel } from '../banco.js';
 import {
-  LIMITE_DIARIO_POR_CONTATO,
-  MAX_CONTATOS_POR_DISPARO,
-  dispararMensagemAtiva,
-  painelDeAtivas,
+  DAILY_LIMIT_BY_CONTACT,
+  MAX_CONTACTS_BY_TRIGGER,
+  dispararMessageActive,
+  applicationOfActive,
 } from '../dominio/mensagem-ativa.js';
-import type { DestinoDoDisparo } from '../dominio/mensagem-ativa.js';
-import { ErroPipe } from '../erros.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import type { DestinationOfTrigger } from '../dominio/mensagem-ativa.js';
+import { PipeError } from '../erros.js';
+import type { RequestWithSession } from '../sessao.js';
 
 /**
  * `/v1/mensagens-ativas` — disparo de template para uma lista de contatos.
@@ -23,46 +23,46 @@ import type { RequisicaoComSessao } from '../sessao.js';
  */
 
 interface CorpoDoDisparo {
-  canal_id?: string;
+  channelId?: string;
   template_id?: string;
-  contatos?: { contato_id?: string; telefone?: string; nome?: string; parametros?: string[] }[];
+  contacts?: { contactId?: string; telefone?: string; nome?: string; parametros?: string[] }[];
   parametros?: string[];
 }
 
 @Controller('v1/mensagens-ativas')
-export class ControladorMensagensAtivas {
+export class ActiveMessagesController {
   /** Os limites em vigor, para a tela não repetir número mágico. */
   @Get('limites')
-  @ChaveOuSessao('mensagens:ler')
+  @KeyOrSession('mensagens:ler')
   limites(): Record<string, unknown> {
     return {
-      max_contatos_por_disparo: MAX_CONTATOS_POR_DISPARO,
+      max_contatos_por_disparo: MAX_CONTACTS_BY_TRIGGER,
       // 0 desliga, como o `ActiveMessageLimitCount` deles.
-      limite_diario_por_contato: LIMITE_DIARIO_POR_CONTATO,
+      limite_diario_por_contato: DAILY_LIMIT_BY_CONTACT,
     };
   }
 
   /** O painel "Status geral": últimas 72 horas, como o deles. */
   @Get()
-  @ChaveOuSessao('mensagens:ler')
-  async painel(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+  @KeyOrSession('mensagens:ler')
+  async application(
+    @Req() request: RequestAuthenticated & RequestWithSession,
     @Query('horas') horas: string | undefined,
   ): Promise<Record<string, unknown>> {
-    const ator = atorDe(requisicao);
-    const janela = Math.min(Math.max(Number(horas ?? 72) || 72, 1), 720);
-    const linhas = await painelDeAtivas(ator.tenantId, janela);
+    const ator = atorDe(request);
+    const window = Math.min(Math.max(Number(horas ?? 72) || 72, 1), 720);
+    const linhas = await applicationOfActive(ator.tenantId, window);
     return {
-      janela_horas: janela,
+      janela_horas: window,
       data: linhas.map((l) => ({
-        id: l.mensagemId,
-        conversa_id: l.conversaId,
-        contato_id: l.contatoId,
-        contato_nome: l.contatoNome,
+        id: l.messageId,
+        conversa_id: l.conversationId,
+        contato_id: l.contactId,
+        contato_nome: l.contactName,
         telefone: l.telefone,
         template_nome: l.templateNome,
-        estado_entrega: l.estadoEntrega,
-        erro_codigo: l.erroCodigo,
+        estado_entrega: l.stateDelivery,
+        erro_codigo: l.errorCode,
         criada_em: l.criadaEm,
       })),
     };
@@ -70,44 +70,44 @@ export class ControladorMensagensAtivas {
 
   @Post()
   @HttpCode(201)
-  @ChaveOuSessao('mensagens:escrever')
+  @KeyOrSession('mensagens:escrever')
   async disparar(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Body() corpo: CorpoDoDisparo,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    if (!corpo.canal_id) throw ErroPipe.requisicao('canal_obrigatorio', 'Informe `canal_id`.');
+    if (!corpo.channelId) throw PipeError.request('canal_obrigatorio', 'Informe `canal_id`.');
     if (!corpo.template_id) {
-      throw ErroPipe.requisicao('template_obrigatorio', 'Escolha um modelo aprovado.');
+      throw PipeError.request('template_obrigatorio', 'Escolha um modelo aprovado.');
     }
 
-    const canal = await resolverCanal(corpo.canal_id);
+    const channel = await resolveChannel(corpo.channelId);
     // O canal é resolvido pelo papel dono, então CONFERIR O TENANT aqui não é
     // paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número
     // dele com a nossa credencial.
-    if (!canal || canal.tenantId !== ator.tenantId) throw ErroPipe.naoEncontrado('Canal');
-    if (!canal.ativo) throw ErroPipe.conflito('canal_inativo', 'O canal está desativado.');
+    if (!channel || channel.tenantId !== ator.tenantId) throw PipeError.naoEncontrado('Canal');
+    if (!channel.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
 
-    const destinos: DestinoDoDisparo[] = (corpo.contatos ?? []).map((c) => ({
-      contatoId: c.contato_id ?? null,
+    const destinos: DestinationOfTrigger[] = (corpo.contacts ?? []).map((c) => ({
+      contatoId: c.contactId ?? null,
       telefone: c.telefone ?? null,
       nome: c.nome ?? null,
       parametros: c.parametros ?? null,
     }));
     if (destinos.some((d) => !d.contatoId && !d.telefone)) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'destino_invalido',
         'Cada contato precisa de `contato_id` ou `telefone`.',
       );
     }
 
-    const resultados = await dispararMensagemAtiva(canal, {
+    const resultados = await dispararMessageActive(channel, {
       tenantId: ator.tenantId,
-      canalId: corpo.canal_id,
+      channelId: corpo.channelId,
       templateId: corpo.template_id,
       destinos,
       ...(corpo.parametros ? { parametros: corpo.parametros } : {}),
-      atendenteId: ator.viaSessao ? ator.usuarioId : null,
+      agentId: ator.viaSession ? ator.userId : null,
     });
 
     return {

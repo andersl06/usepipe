@@ -3,7 +3,7 @@ import { estaAtivo } from '@pipe/ui';
 import Link from '../../componentes/link';
 import { IconePortal, type NomeDeIconePortal } from '../../componentes/icones-portal';
 import { URL_DESK } from '../../componentes/estrutura-gestao';
-import { CascaDoModulo, baseDoContato, useContato } from '../fluxo/contato';
+import { ModuloShell, contactBase, useContact } from '../fluxo/contato';
 import './atendimento.css';
 
 /**
@@ -38,7 +38,7 @@ const ITENS: readonly ItemLateral[] = [
   { rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },
 ];
 
-const GRUPOS: readonly GrupoLateral[] = [
+const GROUPS: readonly GrupoLateral[] = [
   {
     rotulo: 'Relatórios',
     icone: 'relatorios',
@@ -87,11 +87,11 @@ const GRUPOS: readonly GrupoLateral[] = [
 ];
 
 /** `/{tipo}/{id}/atendimento` — o prefixo que toda tela deste módulo pendura. */
-export function baseDoAtendimento(tipo: string, id: string): string {
-  return `${baseDoContato(tipo, id)}/atendimento`;
+export function attendanceBase(tipo: string, id: string): string {
+  return `${contactBase(tipo, id)}/atendimento`;
 }
 
-function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string }) {
+function NavigationAttendance({ base, caminho }: { base: string; caminho: string }) {
   return (
     <nav className="g-lateral" aria-label="Atendimento">
       <div className="g-lateral-itens">
@@ -110,7 +110,7 @@ function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string
           );
         })}
 
-        {GRUPOS.map((g) => {
+        {GROUPS.map((g) => {
           const aberto = g.filhos.some((f) => estaAtivo(`${base}/${f.rota}`, caminho));
           return (
             <details key={g.rotulo} className="g-grupo" open={aberto}>
@@ -153,20 +153,20 @@ function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string
  * `desk-sidebar` ao lado do `<Outlet>`, fora do recuo de 80% que `fx-coluna`
  * aplica às telas de coluna única (mesma saída de `configuracoes/casca.tsx`).
  */
-export function CascaDeAtendimento() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
+export function AttendanceShell() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
   const caminho = useLocation().pathname;
   return (
-    <CascaDoModulo ativo="Atendimento">
+    <ModuloShell ativo="Atendimento">
       <div className="at-casca">
-        <NavegacaoAtendimento base={base} caminho={caminho} />
+        <NavigationAttendance base={base} caminho={caminho} />
         <section className="at-miolo">
           <div className="p-conteudo">
             <Outlet />
           </div>
         </section>
       </div>
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import type { CanalDoFluxo, CanalDoFluxoNaTela } from '@pipe/contracts';
+import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { Botao } from '@pipe/ui';
 import { LogoPortal } from '../../../../componentes/icones-portal';
-import { ErroDaApi } from '../../../../lib/api';
-import { useLeitura } from '../../../../lib/consulta';
-import { estadoDoCanalNoBot } from '../../../../lib/canal-do-fluxo';
+import { ApiError } from '../../../../lib/api';
+import { useRead } from '../../../../lib/consulta';
+import { channelInBotState } from '../../../../lib/canal-do-fluxo';
 import { ConectarInstagramManual } from '../../../cadastros/canal-conectar-manual';
-import { FalhaDeLeitura, useContato } from '../../contato';
-import { CascaDoCanal, type AbaDoCanal } from '../casca-do-canal';
-import { AvisoDeOutroCanal, EscolherCanalExistente, ModalDesconectar } from '../conexao';
+import { ReadFalha, useContact } from '../../contato';
+import { ChannelShell, type ChannelAba } from '../casca-do-canal';
+import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
 
 /**
  * O Instagram por dentro do BOT — `…channels/instagram` (template 230473,
@@ -28,44 +28,44 @@ import { AvisoDeOutroCanal, EscolherCanalExistente, ModalDesconectar } from '../
  * (`variant="delete"`, à direita) com o modal de motivo + concordância.
  */
 
-const ABAS: readonly AbaDoCanal[] = [
-  { rotulo: 'Visão Geral', segmento: '' },
-  { rotulo: 'Configurações', segmento: 'configuracoes', emBreve: true },
+const ABAS: readonly ChannelAba[] = [
+  { rotulo: 'Visão Geral', segment: '' },
+  { rotulo: 'Configurações', segment: 'configuracoes', emBreve: true },
 ];
 
-export function PaginaCanalInstagram() {
-  const { contato } = useContato();
-  const leitura = useLeitura<CanalDoFluxoNaTela>(`/v1/gestao/fluxos/${contato.id}/canal`);
+export function PageChannelInstagram() {
+  const { contact } = useContact();
+  const read = useRead<ChannelOfFlowInScreen>(`/v1/gestao/fluxos/${contact.id}/canal`);
 
-  if (leitura.error && !(leitura.error instanceof ErroDaApi && leitura.error.status === 404)) {
-    return <FalhaDeLeitura erro={leitura.error} />;
+  if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
+    return <ReadFalha error={read.error} />;
   }
-  if (!leitura.data) return null;
-  const situacao = estadoDoCanalNoBot(leitura.data.canal, 'instagram');
+  if (!read.data) return null;
+  const situation = channelInBotState(read.data.channel, 'instagram');
 
   return (
-    <CascaDoCanal tipo="instagram" titulo="Instagram" abas={ABAS} conectado={situacao.estado === 'conectado'}>
-      {situacao.estado === 'conectado' ? (
-        <Conectado fluxoId={contato.id} canal={situacao.canal} />
-      ) : situacao.estado === 'outro_canal' ? (
+    <ChannelShell tipo="instagram" titulo="Instagram" abas={ABAS} conectado={situation.state === 'conectado'}>
+      {situation.state === 'conectado' ? (
+        <Conectado flowId={contact.id} channel={situation.channel} />
+      ) : situation.state === 'outro_canal' ? (
         <div className="cb-linha">
           <div className="cb-icone-coluna">
             <LogoPortal nome="instagram" tamanho={64} />
           </div>
           <div className="cb-coluna">
-            <AvisoDeOutroCanal canal={situacao.canal} rotulo="Instagram" />
+            <OtherChannelNotice channel={situation.channel} rotulo="Instagram" />
           </div>
         </div>
       ) : (
-        <Desconectado fluxoId={contato.id} disponiveis={leitura.data.disponiveis} />
+        <Desconectado flowId={contact.id} disponiveis={read.data.disponiveis} />
       )}
-    </CascaDoCanal>
+    </ChannelShell>
   );
 }
 
-function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo }) {
+function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow }) {
   const [desconectando, setDesconectando] = useState(false);
-  const usuario = canal.numero ? `@${canal.numero.replace(/^@/, '')}` : canal.nome;
+  const user = channel.numero ? `@${channel.numero.replace(/^@/, '')}` : channel.nome;
   return (
     <div className="cb-linha">
       <div className="cb-icone-coluna">
@@ -79,7 +79,7 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
           <span className="cb-chip-avatar" aria-hidden="true">
             <LogoPortal nome="instagram" tamanho={28} />
           </span>
-          {usuario}
+          {user}
         </span>
         <p className="cb-typo-16">
           Você já pode conversar com seus clientes pelo Instagram e gerar mais insights para o seu
@@ -92,7 +92,7 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
         </div>
         <ModalDesconectar
           aberto={desconectando}
-          fluxoId={fluxoId}
+          flowId={flowId}
           tipo="instagram"
           onFechar={() => setDesconectando(false)}
         />
@@ -101,16 +101,16 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
   );
 }
 
-function Desconectado({ fluxoId, disponiveis }: { fluxoId: string; disponiveis: CanalDoFluxo[] }) {
+function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: ChannelOfFlow[] }) {
   const [escolhendo, setEscolhendo] = useState(false);
-  const temContaLivre = disponiveis.some(
-    (c) => c.tipo === 'instagram' && c.ativo && (c.fluxoId === null || c.fluxoId === fluxoId),
+  const temAccountLivre = disponiveis.some(
+    (c) => c.tipo === 'instagram' && c.ativo && (c.flowId === null || c.flowId === flowId),
   );
 
   if (escolhendo) {
     return (
-      <EscolherCanalExistente
-        fluxoId={fluxoId}
+      <EscolherChannelExistente
+        flowId={flowId}
         tipo="instagram"
         disponiveis={disponiveis}
         onVoltar={() => setEscolhendo(false)}
@@ -135,8 +135,8 @@ function Desconectado({ fluxoId, disponiveis }: { fluxoId: string; disponiveis: 
           administrador das páginas do Facebook e do Instagram da sua empresa. 🤓
         </p>
         <div className="cb-acoes-direita">
-          <ConectarInstagramManual fluxoId={fluxoId} rotulo="Iniciar conexão" variante="primario" />
-          {temContaLivre ? (
+          <ConectarInstagramManual flowId={flowId} rotulo="Iniciar conexão" variante="primario" />
+          {temAccountLivre ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma conta já conectada
             </Botao>

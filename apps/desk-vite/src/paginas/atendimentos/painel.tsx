@@ -1,13 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import type { ConversaDoDesk, EtiquetaDaConversa, EtiquetaDoDesk } from '@pipe/contracts';
+import type { ConversationOfDesk, LabelOfConversation, EtiquetaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Link } from '../../componentes/link';
 import { api } from '../../lib/api';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import { executar, atualizarLeituras } from '../../lib/acoes';
-import { canalDe, numeroDoTicket } from '../../lib/canal';
+import { channelOf, numeroDoTicket } from '../../lib/canal';
 import { dataAbreviada } from '../../lib/formato';
-import { nomeDeExibicao } from '../../lib/ordem';
+import { displayName } from '../../lib/ordem';
 
 /**
  * O painel do contato — `.drawer` da referência
@@ -25,14 +25,14 @@ import { nomeDeExibicao } from '../../lib/ordem';
  */
 type Aba = 'informacoes' | 'historico' | 'comentarios';
 
-export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora: Date }) {
+export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; agora: Date }) {
   const [aba, setAba] = useState<Aba>('informacoes');
-  const [editandoContato, setEditandoContato] = useState(false);
-  const conversaId = aberta?.conversa.id ?? null;
+  const [editandoContact, setEditandoContact] = useState(false);
+  const conversationId = aberta?.conversation.id ?? null;
 
   // Trocar de ticket sai do modo de edição: senão o formulário de um contato fica
   // aberto por cima dos dados de outro.
-  useEffect(() => setEditandoContato(false), [conversaId]);
+  useEffect(() => setEditandoContact(false), [conversationId]);
 
   if (!aberta) {
     return (
@@ -58,7 +58,7 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
     );
   }
 
-  const { conversa, itens, historico, etiquetasDoContato } = aberta;
+  const { conversation, itens, history, contactTags } = aberta;
   const notas = itens.filter((i) => i.genero === 'nota');
   const abas: { id: Aba; rotulo: string }[] = [
     { id: 'informacoes', rotulo: 'Informações' },
@@ -90,12 +90,12 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
         {aba === 'informacoes' ? (
           <div className="dk-painel-corpo" role="tabpanel">
             <section className="dk-papel">
-              {editandoContato ? (
-                <EdicaoDoContato
-                  conversa={conversa}
-                  aoFechar={() => setEditandoContato(false)}
+              {editandoContact ? (
+                <ContactEdit
+                  conversation={conversation}
+                  aoFechar={() => setEditandoContact(false)}
                   aoSalvar={() => {
-                    setEditandoContato(false);
+                    setEditandoContact(false);
                     atualizarLeituras();
                   }}
                 />
@@ -106,42 +106,42 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
                     <button
                       type="button"
                       className="dk-botao dk-botao-secundario dk-botao-curto"
-                      onClick={() => setEditandoContato(true)}
+                      onClick={() => setEditandoContact(true)}
                     >
                       Editar
                     </button>
                   </h3>
-                  <Campo rotulo="Nome:" valor={nomeDeExibicao(conversa)} />
-                  <Campo rotulo="Id:" valor={conversa.contatoId} />
+                  <Campo rotulo="Nome:" value={displayName(conversation)} />
+                  <Campo rotulo="Id:" value={conversation.contactId} />
                   <Campo
                     rotulo="E-mail:"
-                    valor={conversa.contatoEmail}
-                    link={conversa.contatoEmail ? `mailto:${conversa.contatoEmail}` : undefined}
+                    value={conversation.contactEmail}
+                    link={conversation.contactEmail ? `mailto:${conversation.contactEmail}` : undefined}
                   />
-                  <Campo rotulo="Telefone:" valor={conversa.contatoTelefone} />
-                  <Campo rotulo="Documento:" valor={conversa.contatoDocumento} />
+                  <Campo rotulo="Telefone:" value={conversation.contactPhone} />
+                  <Campo rotulo="Documento:" value={conversation.contactDocument} />
                 </>
               )}
-              {!editandoContato && Object.keys(conversa.contatoAtributos).length > 0 ? (
+              {!editandoContact && Object.keys(conversation.contactAtributos).length > 0 ? (
                 <>
                   <h3 className="dk-papel-titulo">Extras</h3>
-                  {Object.entries(conversa.contatoAtributos).map(([chave, valor]) => (
+                  {Object.entries(conversation.contactAtributos).map(([key, value]) => (
                     <Campo
-                      key={chave}
-                      rotulo={`${chave}:`}
-                      valor={valor === null || valor === undefined ? '' : String(valor)}
+                      key={key}
+                      rotulo={`${key}:`}
+                      value={value === null || value === undefined ? '' : String(value)}
                     />
                   ))}
                 </>
               ) : null}
-              <Campo rotulo="Canal:" valor={canalDe(conversa.canalTipo).nome} />
-              <Campo rotulo="fila:" valor={conversa.filaNome} />
+              <Campo rotulo="Canal:" value={channelOf(conversation.channelType).nome} />
+              <Campo rotulo="fila:" value={conversation.queueName} />
             </section>
             <section className="dk-papel">
-              <EtiquetasDoContato contatoId={conversa.contatoId} aplicadas={etiquetasDoContato} />
+              <ContactTags contactId={conversation.contactId} aplicadas={contactTags} />
             </section>
             <section className="dk-papel">
-              <Comentarios conversaId={conversa.id} notas={notas} agora={agora} />
+              <Comentarios conversationId={conversation.id} notas={notas} agora={agora} />
             </section>
           </div>
         ) : null}
@@ -149,15 +149,15 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
           <div className="dk-painel-corpo" role="tabpanel">
             <section className="dk-papel">
               <h3 className="dk-papel-titulo">Histórico</h3>
-              {historico.length === 0 ? (
+              {history.length === 0 ? (
                 <div className="dk-comentarios-vazio" style={{ minHeight: 120 }}>
                   Não há mensagens nos últimos 90 dias.
                 </div>
               ) : (
-                historico.map((h) => (
+                history.map((h) => (
                   <Link
                     key={h.id}
-                    href={`/contacts/${conversa.contatoId}?ticket=${h.id}`}
+                    href={`/contacts/${conversation.contactId}?ticket=${h.id}`}
                     className="dk-historico-item"
                   >
                     <b>Ticket {numeroDoTicket(h.id)}</b>
@@ -174,7 +174,7 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
         {aba === 'comentarios' ? (
           <div className="dk-painel-corpo" role="tabpanel">
             <section className="dk-papel" style={{ flexBasis: '100%' }}>
-              <Comentarios conversaId={conversa.id} notas={notas} agora={agora} />
+              <Comentarios conversationId={conversation.id} notas={notas} agora={agora} />
             </section>
           </div>
         ) : null}
@@ -184,9 +184,9 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
 }
 
 /** `.profile-info-item`: rótulo em cima, valor embaixo e o botão de copiar. */
-function Campo({ rotulo, valor, link }: { rotulo: string; valor: string | null; link?: string }) {
+function Campo({ rotulo, value, link }: { rotulo: string; value: string | null; link?: string }) {
   const [copiado, setCopiado] = useState(false);
-  const texto = valor ?? '';
+  const texto = value ?? '';
   return (
     <p className="dk-campo-perfil">
       <b>{rotulo}</b>
@@ -222,36 +222,36 @@ function Campo({ rotulo, valor, link }: { rotulo: string; valor: string | null; 
  * mudou; campo vazio manda string vazia, que a API grava como está (ela é quem
  * decide o que é "apagar" vs. "não mexeu").
  */
-function EdicaoDoContato({
-  conversa,
+function ContactEdit({
+  conversation,
   aoFechar,
   aoSalvar,
 }: {
-  conversa: ConversaDoDesk['conversa'];
+  conversation: ConversationOfDesk['conversation'];
   aoFechar: () => void;
   aoSalvar: () => void;
 }) {
-  const [nome, setNome] = useState(conversa.contatoNome ?? '');
-  const [telefone, setTelefone] = useState(conversa.contatoTelefone ?? '');
-  const [email, setEmail] = useState(conversa.contatoEmail ?? '');
-  const [documento, setDocumento] = useState(conversa.contatoDocumento ?? '');
-  const [erro, setErro] = useState<string | null>(null);
+  const [nome, setNome] = useState(conversation.contactName ?? '');
+  const [telefone, setTelefone] = useState(conversation.contactPhone ?? '');
+  const [email, setEmail] = useState(conversation.contactEmail ?? '');
+  const [document, setDocument] = useState(conversation.contactDocument ?? '');
+  const [error, setError] = useState<string | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   async function salvar(e: FormEvent) {
     e.preventDefault();
     setSalvando(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.patch(`/v1/contatos/${conversa.contatoId}`, {
+      await api.patch(`/v1/contatos/${conversation.contactId}`, {
         nome: nome.trim() || null,
         telefone_e164: telefone.trim() || null,
         email: email.trim() || null,
-        documento: documento.trim() || null,
+        documento: document.trim() || null,
       });
       aoSalvar();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível salvar o contato.');
+      setError(e instanceof Error ? e.message : 'Não foi possível salvar o contato.');
     } finally {
       setSalvando(false);
     }
@@ -274,9 +274,9 @@ function EdicaoDoContato({
       </label>
       <label className="dk-campo-flutuante">
         <span>Documento</span>
-        <input type="text" value={documento} onChange={(e) => setDocumento(e.target.value)} />
+        <input type="text" value={document} onChange={(e) => setDocument(e.target.value)} />
       </label>
-      {erro ? <p className="dk-erro">{erro}</p> : null}
+      {error ? <p className="dk-erro">{error}</p> : null}
       <div className="dk-modal-acoes">
         <button
           type="button"
@@ -301,15 +301,15 @@ function EdicaoDoContato({
  * /v1/contatos/:id/etiquetas`, com a mesma permissão de editar a ficha
  * (`contato.editar`) — a etiqueta do contato é dado do contato.
  */
-function EtiquetasDoContato({
-  contatoId,
+function ContactTags({
+  contactId,
   aplicadas,
 }: {
-  contatoId: string;
-  aplicadas: EtiquetaDaConversa[];
+  contactId: string;
+  aplicadas: LabelOfConversation[];
 }) {
-  const catalogo = useLeitura<{ etiquetas: EtiquetaDoDesk[] }>('/v1/etiquetas?escopo=contato');
-  const [erro, setErro] = useState<string | null>(null);
+  const catalogo = useRead<{ etiquetas: EtiquetaDoDesk[] }>('/v1/etiquetas?escopo=contato');
+  const [error, setError] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
   const jaTem = new Set(aplicadas.map((e) => e.id));
   const disponiveis = (catalogo.data?.etiquetas ?? []).filter((e) => !jaTem.has(e.id));
@@ -317,26 +317,26 @@ function EtiquetasDoContato({
   async function aplicar(etiquetaId: string) {
     if (!etiquetaId || ocupado) return;
     setOcupado(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/contatos/${contatoId}/etiquetas`, { etiqueta_id: etiquetaId });
+      await api.post(`/v1/contatos/${contactId}/etiquetas`, { etiqueta_id: etiquetaId });
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível etiquetar o contato.');
+      setError(e instanceof Error ? e.message : 'Não foi possível etiquetar o contato.');
     } finally {
       setOcupado(false);
     }
   }
 
-  async function remover(etiqueta: EtiquetaDaConversa) {
+  async function remover(etiqueta: LabelOfConversation) {
     if (ocupado) return;
     setOcupado(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.delete(`/v1/contatos/${contatoId}/etiquetas/${etiqueta.id}`);
+      await api.delete(`/v1/contatos/${contactId}/etiquetas/${etiqueta.id}`);
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
+      setError(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
     } finally {
       setOcupado(false);
     }
@@ -385,33 +385,33 @@ function EtiquetasDoContato({
           ))}
         </select>
       </label>
-      {erro ? <p className="dk-erro">{erro}</p> : null}
+      {error ? <p className="dk-erro">{error}</p> : null}
     </>
   );
 }
 
 function Comentarios({
-  conversaId,
+  conversationId,
   notas,
   agora,
 }: {
-  conversaId: string;
-  notas: Extract<ConversaDoDesk['itens'][number], { genero: 'nota' }>[];
+  conversationId: string;
+  notas: Extract<ConversationOfDesk['itens'][number], { genero: 'nota' }>[];
   agora: Date;
 }) {
   const [texto, setTexto] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   void agora;
 
   async function enviar(e: FormEvent) {
     e.preventDefault();
     const corpo = texto.trim();
     if (!corpo) return;
-    const r = await executar('salvarNotaInterna', { conversaId, texto: corpo });
-    if (!r.ok) setErro(r.erro ?? 'Não foi possível salvar o comentário.');
+    const r = await executar('salvarNotaInterna', { conversationId, texto: corpo });
+    if (!r.ok) setError(r.error ?? 'Não foi possível salvar o comentário.');
     else {
       setTexto('');
-      setErro(null);
+      setError(null);
     }
   }
 
@@ -451,7 +451,7 @@ function Comentarios({
             }}
           />
         </label>
-        {erro ? <p className="dk-erro">{erro}</p> : null}
+        {error ? <p className="dk-erro">{error}</p> : null}
       </form>
     </div>
   );

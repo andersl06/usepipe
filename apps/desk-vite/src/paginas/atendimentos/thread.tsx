@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ItemDaConversa } from '@pipe/contracts';
+import type { ItemOfConversation } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { horarioDoBalao } from '../../lib/formato';
-import { agrupar, sinalDeEntrega, type Mensagem } from '../../lib/grupos';
+import { agrupar, deliverySignal, type Message } from '../../lib/grupos';
 import { numeroDoTicket } from '../../lib/canal';
 
 /**
@@ -17,27 +17,27 @@ import { numeroDoTicket } from '../../lib/canal';
  * fim (`MINIMUM_SCROLL_DISTANCE` do settings.json de lá).
  */
 export function Thread({
-  conversaId,
+  conversationId,
   itens,
   agora,
   aoReenviar,
-  somenteLeitura = false,
+  somenteRead = false,
 }: {
-  conversaId: string;
-  itens: ItemDaConversa[];
+  conversationId: string;
+  itens: ItemOfConversation[];
   agora: Date;
-  aoReenviar?: (mensagemId: string) => void;
-  somenteLeitura?: boolean;
+  aoReenviar?: (messageId: string) => void;
+  somenteRead?: boolean;
 }) {
   const rolador = useRef<HTMLDivElement>(null);
   const [longeDoFim, setLongeDoFim] = useState(false);
-  const grupos = agrupar(itens);
+  const groups = agrupar(itens);
 
   /* Começa no fim (`startBottom`) e volta ao fim a cada mensagem nova. */
   useEffect(() => {
     const el = rolador.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [conversaId, itens.length]);
+  }, [conversationId, itens.length]);
 
   function aoRolar() {
     const el = rolador.current;
@@ -51,22 +51,22 @@ export function Thread({
         <div className="dk-thread-miolo">
           <div className="dk-ticket-linha">
             <p>
-              <span>Ticket {numeroDoTicket(conversaId)}</span>
+              <span>Ticket {numeroDoTicket(conversationId)}</span>
             </p>
           </div>
-          {grupos.map((g, i) =>
+          {groups.map((g, i) =>
             g.genero === 'nota' ? (
               <div key={g.nota.id} className="dk-nota">
                 <b>{g.nota.autor ?? 'Nota interna'}</b>
                 {g.nota.corpo}
               </div>
             ) : (
-              <GrupoDeBaloes
-                key={g.mensagens[0]?.id ?? i}
-                direcao={g.direcao}
-                mensagens={g.mensagens}
+              <BubblesGroup
+                key={g.messages[0]?.id ?? i}
+                direction={g.direction}
+                messages={g.messages}
                 agora={agora}
-                aoReenviar={somenteLeitura ? undefined : aoReenviar}
+                aoReenviar={somenteRead ? undefined : aoReenviar}
               />
             ),
           )}
@@ -89,39 +89,39 @@ export function Thread({
   );
 }
 
-function GrupoDeBaloes({
-  direcao,
-  mensagens,
+function BubblesGroup({
+  direction,
+  messages,
   agora,
   aoReenviar,
 }: {
-  direcao: 'entrada' | 'saida';
-  mensagens: Mensagem[];
+  direction: 'entrada' | 'saida';
+  messages: Message[];
   agora: Date;
-  aoReenviar?: (mensagemId: string) => void;
+  aoReenviar?: (messageId: string) => void;
 }) {
-  const ultima = mensagens[mensagens.length - 1];
-  const sinal = direcao === 'saida' ? sinalDeEntrega(mensagens) : null;
+  const ultima = messages[messages.length - 1];
+  const sinal = direction === 'saida' ? deliverySignal(messages) : null;
   return (
-    <div className={`dk-grupo ${direcao === 'saida' ? 'dk-grupo-saida' : 'dk-grupo-entrada'}`}>
-      {mensagens.map((m) => (
+    <div className={`dk-grupo ${direction === 'saida' ? 'dk-grupo-saida' : 'dk-grupo-entrada'}`}>
+      {messages.map((m) => (
         <div
           key={m.id}
           className="dk-balao-caixa"
-          data-falhou={m.estadoEntrega === 'falhou' ? 'true' : 'false'}
+          data-falhou={m.stateDelivery === 'falhou' ? 'true' : 'false'}
         >
           <div
             className="dk-balao"
             tabIndex={0}
-            aria-label={`${horarioDoBalao(new Date(m.criadaEm), agora)} ${direcao === 'entrada' ? 'Cliente diz:' : 'Agente diz:'} ${m.conteudo ?? ''}`}
+            aria-label={`${horarioDoBalao(new Date(m.criadaEm), agora)} ${direction === 'entrada' ? 'Cliente diz:' : 'Agente diz:'} ${m.conteudo ?? ''}`}
           >
-            <Conteudo mensagem={m} />
+            <Conteudo message={m} />
           </div>
-          {m.estadoEntrega === 'falhou' && aoReenviar ? (
+          {m.stateDelivery === 'falhou' && aoReenviar ? (
             <button
               type="button"
               className="dk-balao-falha"
-              title={m.erroTexto ?? 'Falha ao enviar a mensagem.'}
+              title={m.errorText ?? 'Falha ao enviar a mensagem.'}
               aria-label="Falha ao enviar a mensagem. Reenviar"
               onClick={() => aoReenviar(m.id)}
             >
@@ -142,14 +142,14 @@ function GrupoDeBaloes({
 }
 
 /** O miolo do balão: texto (`plain-text`), ou o tipo por extenso quando é mídia. */
-function Conteudo({ mensagem }: { mensagem: Mensagem }) {
-  if (mensagem.tipo === 'texto' || mensagem.tipo === 'template' || !mensagem.tipo) {
-    return <div>{mensagem.conteudo ?? ''}</div>;
+function Conteudo({ message }: { message: Message }) {
+  if (message.tipo === 'texto' || message.tipo === 'template' || !message.tipo) {
+    return <div>{message.conteudo ?? ''}</div>;
   }
-  if (mensagem.tipo === 'imagem' && mensagem.conteudo?.startsWith('http')) {
+  if (message.tipo === 'imagem' && message.conteudo?.startsWith('http')) {
     return (
       <img
-        src={mensagem.conteudo}
+        src={message.conteudo}
         alt="Imagem enviada"
         style={{ maxWidth: '100%', borderRadius: 8 }}
       />
@@ -163,11 +163,11 @@ function Conteudo({ mensagem }: { mensagem: Mensagem }) {
   };
   return (
     <div>
-      {rotulos[mensagem.tipo] ?? 'Conteúdo não suportado'}
-      {mensagem.conteudo?.startsWith('http') ? (
+      {rotulos[message.tipo] ?? 'Conteúdo não suportado'}
+      {message.conteudo?.startsWith('http') ? (
         <>
           {' '}
-          <a href={mensagem.conteudo} target="_blank" rel="noreferrer">
+          <a href={message.conteudo} target="_blank" rel="noreferrer">
             abrir
           </a>
         </>

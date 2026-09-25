@@ -1,4 +1,4 @@
-import { avaliarSla, cumprimentoDoAlvo, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
+import { avaliarSla, alvoFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
 
 /**
  * Coluna SLA do monitoramento detalhado.
@@ -17,20 +17,20 @@ export interface RegraSlaCarregada {
   alvo: AlvoSla;
   prazoSeg: number;
   alertaSeg: number | null;
-  escopoTipo: string;
-  escopoId: string | null;
+  scopeType: string;
+  scopeId: string | null;
 }
 
-export type EstadoPill = 'dentro' | 'alerta' | 'estourado' | 'sem_regra' | 'cumprido';
+export type StatePill = 'dentro' | 'alerta' | 'estourado' | 'sem_regra' | 'cumprido';
 
 export interface PillSla {
-  estado: EstadoPill;
+  state: StatePill;
   rotulo: string;
   /** Segundos além do prazo, quando estourou. */
   excedidoSeg: number | null;
 }
 
-const SEM_REGRA: PillSla = { estado: 'sem_regra', rotulo: '—', excedidoSeg: null };
+const SEM_REGRA: PillSla = { state: 'sem_regra', rotulo: '—', excedidoSeg: null };
 
 /**
  * Regra aplicável: a de escopo de fila vence a de escopo do tenant, porque a mais
@@ -38,25 +38,25 @@ const SEM_REGRA: PillSla = { estado: 'sem_regra', rotulo: '—', excedidoSeg: nu
  */
 function escolherRegra(
   regras: readonly RegraSlaCarregada[],
-  filaId: string | null,
+  queueId: string | null,
 ): RegraSlaCarregada | null {
-  const daFila = regras.find((r) => r.escopoTipo === 'fila' && r.escopoId === filaId);
-  return daFila ?? regras.find((r) => r.escopoTipo === 'tenant') ?? null;
+  const ofQueue = regras.find((r) => r.scopeType === 'fila' && r.scopeId === queueId);
+  return ofQueue ?? regras.find((r) => r.scopeType === 'tenant') ?? null;
 }
 
-export function avaliarSlaDaConversa(
+export function conversationAvaliarSla(
   regras: readonly RegraSlaCarregada[],
   marcos: Marcos,
-  filaId: string | null,
+  queueId: string | null,
   agora: Date,
 ): PillSla {
-  const regra = escolherRegra(regras, filaId);
+  const regra = escolherRegra(regras, queueId);
   if (!regra) return SEM_REGRA;
 
   const inicio = inicioDoAlvo(regra.alvo, marcos);
   if (!inicio) return SEM_REGRA;
 
-  const cumpridoEm = cumprimentoDoAlvo(regra.alvo, marcos);
+  const cumpridoEm = alvoFulfillment(regra.alvo, marcos);
   const r = avaliarSla({
     regra: { prazoSeg: regra.prazoSeg, alertaSeg: regra.alertaSeg },
     inicio,
@@ -64,14 +64,14 @@ export function avaliarSlaDaConversa(
     cumpridoEm,
   });
 
-  if (r.estado === 'estourado') {
+  if (r.state === 'estourado') {
     return {
-      estado: 'estourado',
+      state: 'estourado',
       rotulo: 'ESTOUROU',
       excedidoSeg: r.decorridoSeg - regra.prazoSeg,
     };
   }
-  if (r.cumprido) return { estado: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
-  if (r.estado === 'alerta') return { estado: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
-  return { estado: 'dentro', rotulo: 'DENTRO', excedidoSeg: null };
+  if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
+  if (r.state === 'alerta') return { state: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
+  return { state: 'dentro', rotulo: 'DENTRO', excedidoSeg: null };
 }

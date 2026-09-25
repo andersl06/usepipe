@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
-import { TransicaoInvalidaError, transitar } from '@pipe/core';
-import type { EstadoConversa } from '@pipe/core';
+import { TransitionInvalidError, transitar } from '@pipe/core';
+import type { StateConversation } from '@pipe/core';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 import { registrarEvento } from './eventos.js';
-import { exigirPermissao } from '../sessao.js';
+import { exigirPermission } from '../sessao.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
 
@@ -21,40 +21,40 @@ import { evento, publicar } from '../tempo-real.js';
  * está certo é o evento.
  */
 
-type LinhaConversa = {
+type LineConversation = {
   id: string;
   estado: string;
-  fila_id: string | null;
+  queueId: string | null;
   atendente_id: string | null;
   em_espera_desde: Date | string | null;
 };
 
 /** Quem está pedindo. `atendenteId` nulo é integração — não é dono de conversa. */
-export interface AtorDaConversa {
+export interface AtorOfConversation {
   tenantId: string;
-  atendenteId: string | null;
+  agentId: string | null;
   /** Exige que a conversa esteja atribuída ao `atendenteId`. Ver `envio.ts`. */
-  exigirAtribuicao: boolean;
+  exigirAssignment: boolean;
 }
 
 async function carregar(
   tx: Parameters<Parameters<typeof noTenant>[1]>[0],
   conversaId: string,
-  ator: AtorDaConversa,
-  permissaoDeSupervisor?: string,
-): Promise<LinhaConversa> {
-  const { rows } = await tx.execute<LinhaConversa>(sql`
+  ator: AtorOfConversation,
+  permissionOfSupervisor?: string,
+): Promise<LineConversation> {
+  const { rows } = await tx.execute<LineConversation>(sql`
     select id, estado, fila_id, atendente_id, em_espera_desde
       from conversa where id = ${conversaId}::uuid limit 1
   `);
   const conversa = rows[0];
-  if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
-  if (ator.exigirAtribuicao && conversa.atendente_id !== ator.atendenteId) {
-    if (ator.atendenteId && permissaoDeSupervisor) {
-      await exigirPermissao(tx, ator.atendenteId, permissaoDeSupervisor);
+  if (!conversa) throw PipeError.naoEncontrado('Conversa');
+  if (ator.exigirAssignment && conversa.atendente_id !== ator.agentId) {
+    if (ator.agentId && permissionOfSupervisor) {
+      await exigirPermission(tx, ator.agentId, permissionOfSupervisor);
       return conversa;
     }
-    throw new ErroPipe(
+    throw new PipeError(
       403,
       'conversa_de_outro_atendente',
       conversa.atendente_id
@@ -66,18 +66,18 @@ async function carregar(
 }
 
 /** Traduz a recusa da máquina de estados em 409, sem vazar `never` para o controlador. */
-function exigirTransicao(de: string, para: EstadoConversa): void {
+function exigirTransition(de: string, para: StateConversation): void {
   try {
-    transitar(de as EstadoConversa, para);
-  } catch (erro) {
-    if (erro instanceof TransicaoInvalidaError) {
-      throw ErroPipe.conflito('transicao_invalida', erro.message);
+    transitar(de as StateConversation, para);
+  } catch (error) {
+    if (error instanceof TransitionInvalidError) {
+      throw PipeError.conflito('transicao_invalida', error.message);
     }
-    throw erro;
+    throw error;
   }
 }
 
-export interface PedidoDeEncerramento {
+export interface RequestOfClosure {
   conversaId: string;
   /**
    * A Blip (`close-modal-container.js`) envia uma coleção e bloqueia só quando
@@ -88,37 +88,37 @@ export interface PedidoDeEncerramento {
   etiquetaId?: string;
 }
 
-export async function encerrarConversa(
-  ator: AtorDaConversa,
-  pedido: PedidoDeEncerramento,
+export async function closeConversation(
+  ator: AtorOfConversation,
+  pedido: RequestOfClosure,
 ): Promise<{ estado: 'encerrada'; motivo: string }> {
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversa = await carregar(tx, pedido.conversaId, ator, 'conversa.encerrar');
-    exigirTransicao(conversa.estado, 'encerrada');
+    exigirTransition(conversa.estado, 'encerrada');
 
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaId ? [pedido.etiquetaId] : []))];
     const { rows: etiquetas } = etiquetaIds.length
-      ? await tx.execute<{ id: string; nome: string; obrigatoria_no_encerramento: boolean }>(sql`
+      ? await tx.execute<{ id: string; nome: string; requiredInClosure: boolean }>(sql`
           select id, nome, obrigatoria_no_encerramento from etiqueta
            where id in (${sql.join(etiquetaIds.map((id) => sql`${id}::uuid`), sql`, `)})
         `)
       : { rows: [] as { id: string; nome: string; obrigatoria_no_encerramento: boolean }[] };
-    if (etiquetas.length !== etiquetaIds.length) throw ErroPipe.naoEncontrado('Etiqueta');
+    if (etiquetas.length !== etiquetaIds.length) throw PipeError.naoEncontrado('Etiqueta');
 
     const { rows: obrigatorias } = await tx.execute<{ id: string }>(sql`
       select id from etiqueta
        where obrigatoria_no_encerramento = true and escopo in ('conversa', 'ambos')
     `);
     if (obrigatorias.some((obrigatoria) => !etiquetaIds.includes(obrigatoria.id))) {
-      throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha as tags obrigatórias para finalizar.');
+      throw PipeError.request('etiqueta_obrigatoria', 'Escolha as tags obrigatórias para finalizar.');
     }
 
     for (const etiqueta of etiquetas) {
       await tx.execute(sql`
         insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
-        values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.atendenteId})
+        values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.agentId})
         on conflict do nothing
       `);
     }
@@ -133,7 +133,7 @@ export async function encerrarConversa(
 
     await tx.execute(sql`
       update conversa
-         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.atendenteId},
+         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.agentId},
              motivo_encerramento = ${motivo || null}, em_espera_desde = null,
              pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
        where id = ${conversa.id}
@@ -142,25 +142,25 @@ export async function encerrarConversa(
     if (pausaEmAberto) {
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
-        conversaId: conversa.id,
+        conversationId: conversa.id,
         tipo: 'espera_encerrada',
         em: agora,
-        usuarioId: ator.atendenteId,
-        filaId: conversa.fila_id,
-        dados: { motivo: 'encerramento', pausado_seg: pausadoSeg },
+        userId: ator.agentId,
+        queueId: conversa.queueId,
+        data: { motivo: 'encerramento', pausado_seg: pausadoSeg },
       });
     }
 
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId: conversa.id,
+      conversationId: conversa.id,
       tipo: 'encerrada',
       em: agora,
-      usuarioId: ator.atendenteId,
-      filaId: conversa.fila_id,
+      userId: ator.agentId,
+      queueId: conversa.queueId,
       // `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.
-      dados: {
-        encerrada_por: ator.atendenteId ? 'atendente' : 'transferencia',
+      data: {
+        encerrada_por: ator.agentId ? 'atendente' : 'transferencia',
         ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.nome } : {}),
         etiquetas: etiquetas.map((etiqueta) => etiqueta.nome),
       },
@@ -169,7 +169,7 @@ export async function encerrarConversa(
     await emitir(tx, ator.tenantId, 'conversa.encerrada', {
       conversa_id: conversa.id,
       motivo: motivo || null,
-      encerrada_por: ator.atendenteId,
+      encerrada_por: ator.agentId,
     });
 
     return { motivo };
@@ -183,7 +183,7 @@ export async function encerrarConversa(
 }
 
 export interface EsperaAlternada {
-  estado: 'em_espera' | 'em_atendimento';
+  state: 'em_espera' | 'em_atendimento';
   /** Segundos somados ao acumulado nesta virada. Zero ao entrar em espera. */
   pausadoSeg: number;
 }
@@ -194,78 +194,78 @@ export interface EsperaAlternada {
  * O intervalo em espera vira coluna própria no relatório — some do SLA, não do número.
  */
 export async function alternarEspera(
-  ator: AtorDaConversa,
-  conversaId: string,
+  ator: AtorOfConversation,
+  conversationId: string,
 ): Promise<EsperaAlternada> {
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    const conversa = await carregar(tx, conversaId, ator);
-    const destino: EstadoConversa = conversa.estado === 'em_espera' ? 'em_atendimento' : 'em_espera';
-    exigirTransicao(conversa.estado, destino);
+    const conversation = await carregar(tx, conversationId, ator);
+    const destination: StateConversation = conversation.estado === 'em_espera' ? 'em_atendimento' : 'em_espera';
+    exigirTransition(conversation.estado, destination);
 
-    if (destino === 'em_espera') {
+    if (destination === 'em_espera') {
       await tx.execute(sql`
         update conversa set estado = 'em_espera', em_espera_desde = ${agora},
                             atualizado_em = ${agora}
-         where id = ${conversa.id}
+         where id = ${conversation.id}
       `);
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
-        conversaId: conversa.id,
+        conversationId: conversation.id,
         tipo: 'espera_iniciada',
         em: agora,
-        usuarioId: ator.atendenteId,
-        filaId: conversa.fila_id,
+        userId: ator.agentId,
+        queueId: conversation.queueId,
       });
       await emitir(tx, ator.tenantId, 'conversa.estado_alterado', {
-        conversa_id: conversa.id,
+        conversa_id: conversation.id,
         estado: 'em_espera',
       });
-      return { estado: destino, pausadoSeg: 0 };
+      return { estado: destination, pausadoSeg: 0 };
     }
 
-    const inicio = comoData(conversa.em_espera_desde);
+    const inicio = comoData(conversation.em_espera_desde);
     const pausadoSeg = inicio ? Math.round((agora.getTime() - inicio.getTime()) / 1000) : 0;
     await tx.execute(sql`
       update conversa set estado = 'em_atendimento', em_espera_desde = null,
                           pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
-       where id = ${conversa.id}
+       where id = ${conversation.id}
     `);
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId: conversa.id,
+      conversationId: conversation.id,
       tipo: 'espera_encerrada',
       em: agora,
-      usuarioId: ator.atendenteId,
-      filaId: conversa.fila_id,
-      dados: { pausado_seg: pausadoSeg },
+      userId: ator.agentId,
+      queueId: conversation.queueId,
+      data: { pausado_seg: pausadoSeg },
     });
     await emitir(tx, ator.tenantId, 'conversa.estado_alterado', {
-      conversa_id: conversa.id,
+      conversa_id: conversation.id,
       estado: 'em_atendimento',
     });
-    return { estado: destino, pausadoSeg };
+    return { estado: destination, pausadoSeg };
   });
 
   // Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.
-  await publicar(ator.tenantId, evento('conversa', conversaId));
+  await publicar(ator.tenantId, evento('conversa', conversationId));
   return resultado;
 }
 
 export interface PedidoDeTransferencia {
-  conversaId: string;
+  conversationId: string;
   /** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */
-  paraFilaId?: string | null;
-  paraAtendenteId?: string | null;
+  forQueueId?: string | null;
+  forAgentId?: string | null;
   motivo?: string | null;
 }
 
 export interface Transferida {
   /** A conversa que foi ENCERRADA. */
-  deConversaId: string;
+  ofConversationId: string;
   /** A conversa NOVA, no destino. */
-  paraConversaId: string;
+  forConversationId: string;
   estado: 'na_fila' | 'atribuida';
 }
 
@@ -297,14 +297,14 @@ export interface Transferida {
  * preço do modelo da Blip, e o relatório de transferências (`atribuicao`) é o que
  * permite remontar a jornada inteira do cliente.
  */
-export async function transferirConversa(
-  ator: AtorDaConversa,
+export async function transferConversation(
+  ator: AtorOfConversation,
   pedido: PedidoDeTransferencia,
 ): Promise<Transferida> {
-  const paraFila = pedido.paraFilaId ?? null;
-  const paraAtendente = pedido.paraAtendenteId ?? null;
-  if ((paraFila && paraAtendente) || (!paraFila && !paraAtendente)) {
-    throw ErroPipe.requisicao(
+  const forQueue = pedido.forQueueId ?? null;
+  const forAgent = pedido.forAgentId ?? null;
+  if ((forQueue && forAgent) || (!forQueue && !forAgent)) {
+    throw PipeError.request(
       'destino_invalido',
       'Informe `para_fila_id` OU `para_atendente_id`, um só.',
     );
@@ -314,52 +314,52 @@ export async function transferirConversa(
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const { rows } = await tx.execute<
-      LinhaConversa & {
+      LineConversation & {
         inbox_id: string;
-        contato_id: string;
-        prioridade: string;
-        janela_expira_em: Date | string | null;
-        janela_aberta_por_mensagem_id: string | null;
-        ultima_mensagem_em: Date | string | null;
-        ultima_mensagem_de: string | null;
+        contactId: string;
+        priority: string;
+        windowExpiresAt: Date | string | null;
+        windowOpenByMessageId: string | null;
+        lastMessageAt: Date | string | null;
+        lastMessageOf: string | null;
       }
     >(sql`
       select id, estado, fila_id, atendente_id, em_espera_desde, inbox_id, contato_id,
              prioridade, janela_expira_em, janela_aberta_por_mensagem_id,
              ultima_mensagem_em, ultima_mensagem_de
-        from conversa where id = ${pedido.conversaId}::uuid limit 1
+        from conversa where id = ${pedido.conversationId}::uuid limit 1
     `);
     const conversa = rows[0];
-    if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
+    if (!conversa) throw PipeError.naoEncontrado('Conversa');
     if (conversa.estado === 'encerrada') {
-      throw ErroPipe.conflito('conversa_encerrada', 'A conversa já está encerrada.');
+      throw PipeError.conflito('conversa_encerrada', 'A conversa já está encerrada.');
     }
 
     // Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a
     // permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a
     // própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho
     // do ticket do próprio atendente.
-    const ehDono = conversa.atendente_id === ator.atendenteId && ator.atendenteId !== null;
-    if (ator.exigirAtribuicao && !ehDono) {
-      if (!ator.atendenteId) throw ErroPipe.naoAutorizado();
-      await exigirPermissao(tx, ator.atendenteId, 'conversa.transferir');
+    const ehDono = conversa.atendente_id === ator.agentId && ator.agentId !== null;
+    if (ator.exigirAssignment && !ehDono) {
+      if (!ator.agentId) throw PipeError.naoAutorizado();
+      await exigirPermission(tx, ator.agentId, 'conversa.transferir');
     }
 
-    if (paraFila) {
+    if (forQueue) {
       const { rows: f } = await tx.execute<{ id: string }>(
-        sql`select id from fila where id = ${paraFila}::uuid and ativa limit 1`,
+        sql`select id from fila where id = ${forQueue}::uuid and ativa limit 1`,
       );
-      if (!f[0]) throw ErroPipe.naoEncontrado('Fila');
-      if (paraFila === conversa.fila_id && !conversa.atendente_id) {
-        throw ErroPipe.conflito('mesmo_destino', 'A conversa já está nesta fila.');
+      if (!f[0]) throw PipeError.naoEncontrado('Fila');
+      if (forQueue === conversa.queueId && !conversa.atendente_id) {
+        throw PipeError.conflito('mesmo_destino', 'A conversa já está nesta fila.');
       }
     } else {
       const { rows: u } = await tx.execute<{ id: string }>(
-        sql`select id from usuario where id = ${paraAtendente}::uuid and ativo limit 1`,
+        sql`select id from usuario where id = ${forAgent}::uuid and ativo limit 1`,
       );
-      if (!u[0]) throw ErroPipe.naoEncontrado('Atendente');
-      if (paraAtendente === conversa.atendente_id) {
-        throw ErroPipe.conflito('mesmo_destino', 'A conversa já está com este atendente.');
+      if (!u[0]) throw PipeError.naoEncontrado('Atendente');
+      if (forAgent === conversa.atendente_id) {
+        throw PipeError.conflito('mesmo_destino', 'A conversa já está com este atendente.');
       }
     }
 
@@ -372,36 +372,36 @@ export async function transferirConversa(
     if (pausaEmAberto) {
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
-        conversaId: conversa.id,
+        conversationId: conversa.id,
         tipo: 'espera_encerrada',
         em: agora,
-        usuarioId: ator.atendenteId,
-        filaId: conversa.fila_id,
-        dados: { motivo: 'transferencia', pausado_seg: pausadoSeg },
+        userId: ator.agentId,
+        queueId: conversa.queueId,
+        data: { motivo: 'transferencia', pausado_seg: pausadoSeg },
       });
     }
 
     await tx.execute(sql`
       update conversa
-         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.atendenteId},
+         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.agentId},
              motivo_encerramento = 'Transferida', em_espera_desde = null,
              pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
        where id = ${conversa.id}
     `);
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId: conversa.id,
+      conversationId: conversa.id,
       tipo: 'encerrada',
       em: agora,
-      usuarioId: ator.atendenteId,
-      filaId: conversa.fila_id,
+      userId: ator.agentId,
+      queueId: conversa.queueId,
       // `encerrada_por = transferencia` é o que separa, no relatório, a conversa que
       // acabou da que só mudou de mãos.
-      dados: { encerrada_por: 'transferencia', motivo: pedido.motivo ?? null },
+      data: { encerrada_por: 'transferencia', motivo: pedido.motivo ?? null },
     });
 
-    const filaDestino = paraFila ?? conversa.fila_id;
-    const estadoNovo: 'na_fila' | 'atribuida' = paraAtendente ? 'atribuida' : 'na_fila';
+    const queueDestination = forQueue ?? conversa.queueId;
+    const stateNew: 'na_fila' | 'atribuida' = forAgent ? 'atribuida' : 'na_fila';
 
     const { rows: nova } = await tx.execute<{ id: string }>(sql`
       insert into conversa (
@@ -409,11 +409,11 @@ export async function transferirConversa(
         criada_em, atribuida_em, janela_expira_em, janela_aberta_por_mensagem_id,
         ultima_mensagem_em, ultima_mensagem_de
       ) values (
-        ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contato_id}, ${filaDestino},
-        ${paraAtendente}, ${estadoNovo}, ${conversa.prioridade},
-        ${agora}, ${paraAtendente ? agora : null},
-        ${conversa.janela_expira_em}, ${conversa.janela_aberta_por_mensagem_id},
-        ${conversa.ultima_mensagem_em}, ${conversa.ultima_mensagem_de}
+        ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contactId}, ${queueDestination},
+        ${forAgent}, ${stateNew}, ${conversa.priority},
+        ${agora}, ${forAgent ? agora : null},
+        ${conversa.windowExpiresAt}, ${conversa.windowOpenByMessageId},
+        ${conversa.lastMessageAt}, ${conversa.lastMessageOf}
       )
       returning id
     `);
@@ -422,21 +422,21 @@ export async function transferirConversa(
 
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId: novaId,
+      conversationId: novaId,
       tipo: 'criada',
       em: agora,
-      usuarioId: ator.atendenteId,
-      filaId: filaDestino,
+      userId: ator.agentId,
+      queueId: queueDestination,
     });
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId: novaId,
+      conversationId: novaId,
       // Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.
-      tipo: paraAtendente ? 'atribuida' : 'transferida_fila',
+      tipo: forAgent ? 'atribuida' : 'transferida_fila',
       em: agora,
-      usuarioId: paraAtendente ?? ator.atendenteId,
-      filaId: filaDestino,
-      dados: { de_conversa_id: conversa.id },
+      userId: forAgent ?? ator.agentId,
+      queueId: queueDestination,
+      data: { de_conversa_id: conversa.id },
     });
 
     // `atribuicao` é o que costura as duas conversas: é por ela que o painel de
@@ -446,24 +446,24 @@ export async function transferirConversa(
         tenant_id, conversa_id, de_usuario_id, para_usuario_id,
         de_fila_id, para_fila_id, motivo, por_usuario_id, em
       ) values (
-        ${ator.tenantId}, ${conversa.id}, ${conversa.atendente_id}, ${paraAtendente},
-        ${conversa.fila_id}, ${paraFila}, ${pedido.motivo ?? null}, ${ator.atendenteId}, ${agora}
+        ${ator.tenantId}, ${conversa.id}, ${conversa.atendente_id}, ${forAgent},
+        ${conversa.queueId}, ${forQueue}, ${pedido.motivo ?? null}, ${ator.agentId}, ${agora}
       )
     `);
 
     await emitir(tx, ator.tenantId, 'conversa.encerrada', {
       conversa_id: conversa.id,
       motivo: 'Transferida',
-      encerrada_por: ator.atendenteId,
+      encerrada_por: ator.agentId,
     });
     await emitir(tx, ator.tenantId, 'conversa.criada', {
       conversa_id: novaId,
-      contato_id: conversa.contato_id,
-      fila_id: filaDestino,
+      contato_id: conversa.contactId,
+      fila_id: queueDestination,
       de_conversa_id: conversa.id,
     });
 
-    return { deConversaId: conversa.id, paraConversaId: novaId, estado: estadoNovo };
+    return { deConversaId: conversa.id, paraConversaId: novaId, estado: stateNew };
   });
 
   drenarEmSegundoPlano(ator.tenantId);
@@ -474,7 +474,7 @@ export async function transferirConversa(
   return resultado;
 }
 
-function comoData(valor: Date | string | null): Date | null {
-  if (valor === null) return null;
-  return valor instanceof Date ? valor : new Date(valor);
+function comoData(value: Date | string | null): Date | null {
+  if (value === null) return null;
+  return value instanceof Date ? value : new Date(value);
 }

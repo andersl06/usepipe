@@ -1,36 +1,36 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import type { Monitoramento } from '../../lib/monitoramento';
-import { useLeitura } from '../../lib/consulta';
-import { denominador, duracao, numero } from '../../lib/formato';
-import { IconeGestao } from '../../componentes/icones-gestao';
-import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
-import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
-import { Selecao } from '../../componentes/selecao';
-import { SelecaoChips } from '../../componentes/selecao-chips';
-import { parametrosComFiltros, idsDoFiltro } from '../../lib/filtros-monitoramento';
+import type { Monitoring } from '../../lib/monitoramento';
+import { useRead } from '../../lib/consulta';
+import { denominador, duration, numero } from '../../lib/formato';
+import { IconeManagement } from '../../componentes/icones-gestao';
+import { SListaFilter, SOperationFilter } from '../../componentes/filtros-rapidos';
+import { PanelField, PanelFilters } from '../../componentes/painel-filtros';
+import { Selection } from '../../componentes/selecao';
+import { SelectionChips } from '../../componentes/selecao-chips';
+import { parametrosWithFilters, filterIds } from '../../lib/filtros-monitoramento';
 import { Metrica } from '../../componentes/metrica';
-import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import { MonitoringDetailed } from '../../componentes/monitoramento-detalhado';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 
-interface RespostaDoMonitoramento {
+interface MonitoringResposta {
   fuso: string;
-  janela: { inicio: string; fim: string };
-  dados: Monitoramento;
+  window: { inicio: string; fim: string };
+  data: Monitoring;
 }
 
-interface Busca {
-  fila?: string;
-  atendente?: string;
-  contato?: string;
+interface Search {
+  queue?: string;
+  agent?: string;
+  contact?: string;
   status?: string;
   aba?: string;
-  busca?: string;
+  search?: string;
 }
 
-const ESTADOS_DE_ATENDENTE = [
+const STATES_OF_AGENT = [
   { id: 'online', nome: 'Online' },
   { id: 'pausa', nome: 'Em pausa' },
   { id: 'invisivel', nome: 'Invisível' },
@@ -42,16 +42,16 @@ const ESTADOS_DE_ATENDENTE = [
  * leitura da `api` e a tela refaz a consulta.
  */
 function BotaoAtualizar() {
-  const fila = useQueryClient();
+  const queue = useQueryClient();
   return (
     <button
       type="button"
       className="iconbtn"
       title="Atualizar tela"
       aria-label="Atualizar tela"
-      onClick={() => void fila.invalidateQueries({ queryKey: ['api'] })}
+      onClick={() => void queue.invalidateQueries({ queryKey: ['api'] })}
     >
-      <IconeGestao nome="atualizar" tamanho={24} />
+      <IconeManagement nome="atualizar" tamanho={24} />
     </button>
   );
 }
@@ -62,7 +62,7 @@ function BotaoAtualizar() {
  * moram só no cabeçalho da página (nenhum `bds-button` dentro dos quatro
  * `bds-paper` em `dom/monitoring.html`; a ficha dizia o contrário, o DOM não).
  */
-function CartaoMetrica({ titulo, children }: { titulo: string; children: ReactNode }) {
+function CardMetric({ titulo, children }: { titulo: string; children: ReactNode }) {
   return (
     <div className="card">
       <div className="card-cabecalho">
@@ -80,21 +80,21 @@ function CartaoMetrica({ titulo, children }: { titulo: string; children: ReactNo
  * fresco enquanto o supervisor olha.
  */
 function useRecargaSilenciosa(segundos: number) {
-  const fila = useQueryClient();
+  const queue = useQueryClient();
   useEffect(() => {
     const id = setInterval(
-      () => void fila.invalidateQueries({ queryKey: ['api'] }),
+      () => void queue.invalidateQueries({ queryKey: ['api'] }),
       segundos * 1000,
     );
     return () => clearInterval(id);
-  }, [fila, segundos]);
+  }, [queue, segundos]);
 }
 
 /**
  * "Expandir tela": o segundo ícone do cabeçalho, ao lado de "Atualizar tela"
  * (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
  */
-function BotaoExpandirPagina({
+function ButtonExpandirPage({
   cheia,
   aoMudar,
 }: {
@@ -102,9 +102,9 @@ function BotaoExpandirPagina({
   aoMudar: (cheia: boolean) => void;
 }) {
   useEffect(() => {
-    const aoTrocar = () => aoMudar(document.fullscreenElement !== null);
-    document.addEventListener('fullscreenchange', aoTrocar);
-    return () => document.removeEventListener('fullscreenchange', aoTrocar);
+    const toSwitch = () => aoMudar(document.fullscreenElement !== null);
+    document.addEventListener('fullscreenchange', toSwitch);
+    return () => document.removeEventListener('fullscreenchange', toSwitch);
   }, [aoMudar]);
   function alternar() {
     if (document.fullscreenElement) void document.exitFullscreen();
@@ -119,12 +119,12 @@ function BotaoExpandirPagina({
       aria-pressed={cheia}
       onClick={alternar}
     >
-      <IconeGestao nome="telaCheia" tamanho={24} />
+      <IconeManagement nome="telaCheia" tamanho={24} />
     </button>
   );
 }
 
-function TicketsAbertosPorHora({ horas }: { horas: readonly number[] }) {
+function TicketsAbertosByHora({ horas }: { horas: readonly number[] }) {
   const maior = Math.max(1, ...horas);
   return (
     <section className="mon-por-hora" aria-label="Tickets abertos por hora">
@@ -151,13 +151,13 @@ function MetricaCarregando() {
   );
 }
 
-function CartaoCarregando({
+function CardCarregando({
   titulo,
-  quantidade,
+  quantity,
   dividido = false,
 }: {
   titulo: string;
-  quantidade: number;
+  quantity: number;
   dividido?: boolean;
 }) {
   return (
@@ -179,14 +179,14 @@ function CartaoCarregando({
             </div>
           </>
         ) : (
-          Array.from({ length: quantidade }, (_, indice) => <MetricaCarregando key={indice} />)
+          Array.from({ length: quantity }, (_, indice) => <MetricaCarregando key={indice} />)
         )}
       </div>
     </div>
   );
 }
 
-function MonitoramentoCarregando() {
+function MonitoringCarregando() {
   return (
     <div className="mon-pagina mon-carregando" role="status" aria-label="Carregando monitoramento">
       <div className="board-head">
@@ -204,10 +204,10 @@ function MonitoramentoCarregando() {
         </div>
       </div>
       <div className="mon" aria-hidden="true">
-        <CartaoCarregando titulo="Atendimentos em tempo real" quantidade={5} dividido />
-        <CartaoCarregando titulo="Status dos atendentes" quantidade={3} />
-        <CartaoCarregando titulo="Atendimento hoje" quantidade={4} />
-        <CartaoCarregando titulo="Status dos tickets hoje" quantidade={4} />
+        <CardCarregando titulo="Atendimentos em tempo real" quantity={5} dividido />
+        <CardCarregando titulo="Status dos atendentes" quantity={3} />
+        <CardCarregando titulo="Atendimento hoje" quantity={4} />
+        <CardCarregando titulo="Status dos tickets hoje" quantity={4} />
       </div>
       <div className="faixa-filtros" aria-hidden="true">
         <span className="lbl">Filtros rápidos:</span>
@@ -231,8 +231,8 @@ function MonitoramentoCarregando() {
         <div className="scroll mon-tabela-carregando">
           {Array.from({ length: 4 }, (_, indice) => (
             <div className="mon-tabela-linha" key={indice}>
-              {Array.from({ length: 5 }, (_, coluna) => (
-                <span className="mon-esqueletico celula" key={coluna} />
+              {Array.from({ length: 5 }, (_, column) => (
+                <span className="mon-esqueletico celula" key={column} />
               ))}
             </div>
           ))}
@@ -267,34 +267,34 @@ function MonitoramentoCarregando() {
  * tela deles o cartão não tem terceira linha sob o rótulo, e a régua desta
  * rodada é a forma deles; a informação nossa não some, muda de lugar.
  */
-export function PaginaMonitoramento() {
-  const { contato } = useContato();
-  const base = `${baseDoAtendimento(contato.tipo, contato.id)}/monitoramento`;
-  const [busca, definirBusca] = useSearchParams();
-  const [painelAberto, setPainelAberto] = useState(false);
-  const [campoPainel, setCampoPainel] = useState<string | null>(null);
-  const abrirPainel = (campo: string | null = null) => {
-    setCampoPainel(campo);
-    setPainelAberto(true);
+export function PageMonitoring() {
+  const { contact } = useContact();
+  const base = `${attendanceBase(contact.tipo, contact.id)}/monitoramento`;
+  const [search, definirSearch] = useSearchParams();
+  const [panelAberto, setPanelAberto] = useState(false);
+  const [fieldPanel, setFieldPanel] = useState<string | null>(null);
+  const abrirPanel = (campo: string | null = null) => {
+    setFieldPanel(campo);
+    setPanelAberto(true);
   };
   const [modoTv, setModoTv] = useState(false);
-  const crus = Object.fromEntries(busca.entries()) as Busca;
+  const crus = Object.fromEntries(search.entries()) as Search;
   /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
      de virar 500 no `::uuid` do Postgres. */
-  const params: Busca = {
+  const params: Search = {
     ...crus,
-    fila: idsDoFiltro(busca.getAll('fila')).join(','),
-    atendente: idsDoFiltro(busca.getAll('atendente')).join(','),
+    queue: filterIds(search.getAll('fila')).join(','),
+    agent: filterIds(search.getAll('atendente')).join(','),
   };
   const q = new URLSearchParams();
-  if (params.fila) q.set('fila', params.fila);
-  if (params.atendente) q.set('atendente', params.atendente);
-  const leitura = useLeitura<RespostaDoMonitoramento>(`/v1/gestao/monitoramento?${q}`, {
+  if (params.queue) q.set('fila', params.queue);
+  if (params.agent) q.set('atendente', params.agent);
+  const read = useRead<MonitoringResposta>(`/v1/gestao/monitoramento?${q}`, {
     staleTime: 0,
   });
   useRecargaSilenciosa(30);
 
-  if (!leitura.data && leitura.isError) {
+  if (!read.data && read.isError) {
     return (
       <div className="mon-pagina">
         <div className="board-head">
@@ -303,16 +303,16 @@ export function PaginaMonitoramento() {
         <div className="card mon-erro" role="alert">
           <h3>Não foi possível carregar o monitoramento</h3>
           <p>Verifique a conexão e tente novamente.</p>
-          <button type="button" className="btn" onClick={() => void leitura.refetch()}>
+          <button type="button" className="btn" onClick={() => void read.refetch()}>
             Tentar novamente
           </button>
         </div>
       </div>
     );
   }
-  if (!leitura.data) return <MonitoramentoCarregando />;
-  const { dados: m } = leitura.data;
-  const { tempoReal, atendentes, hoje } = m;
+  if (!read.data) return <MonitoringCarregando />;
+  const { data: m } = read.data;
+  const { realTime, agents, hoje } = m;
 
   return (
     <div className={modoTv ? 'mon-pagina mon-pagina-tv' : 'mon-pagina'}>
@@ -320,245 +320,245 @@ export function PaginaMonitoramento() {
         <h2>Monitoramento</h2>
         <div className="filters">
           <BotaoAtualizar />
-          <BotaoExpandirPagina cheia={modoTv} aoMudar={setModoTv} />
+          <ButtonExpandirPage cheia={modoTv} aoMudar={setModoTv} />
         </div>
       </div>
 
       {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
           é ali que ele mora nesta tela, não no cabeçalho. */}
-      <FiltrosDaOperacao
+      <SOperationFilter
         atual={params}
-        aoAbrirPainel={() => abrirPainel('fila')}
-        painelAberto={painelAberto && campoPainel === 'fila'}
+        toAbrirPanel={() => abrirPanel('fila')}
+        panelAberto={panelAberto && fieldPanel === 'fila'}
       />
 
       {/* ---------------------------------------------------- grade 2×2 */}
       <div className="mon">
-        <CartaoMetrica titulo="Atendimentos em tempo real">
+        <CardMetric titulo="Atendimentos em tempo real">
           <div className="metrics">
             <div className="metrics-grupo estreito">
               <Metrica
                 destaque
-                valor={numero(tempoReal.naFila)}
+                value={numero(realTime.inQueue)}
                 rotulo="Na fila"
                 dica="Número de atendimentos aguardando por um atendente"
                 formula="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
               />
               <Metrica
-                valor={duracao(tempoReal.maiorEsperaNaFilaSeg)}
+                value={duration(realTime.maiorEsperaInQueueSeg)}
                 rotulo="Tempo máximo na fila"
                 dica="Tempo máximo que um atendimento ficou na fila"
                 formula="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em."
-                denominador={`Entre ${numero(tempoReal.naFila)} na fila.`}
+                denominador={`Entre ${numero(realTime.inQueue)} na fila.`}
               />
             </div>
             <div className="metrics-grupo largo">
               <Metrica
-                valor={duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}
+                value={duration(realTime.maiorEsperaFirstRespostaSeg)}
                 rotulo="Tempo máximo até 1ª resposta"
                 dica="Tempo máximo que um atendimento ficou sem resposta"
                 formula="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
-                denominador={`Entre ${numero(tempoReal.aguardandoPrimeiraResposta)} aguardando.`}
+                denominador={`Entre ${numero(realTime.aguardandoFirstResposta)} aguardando.`}
               />
               <Metrica
                 destaque
-                valor={numero(tempoReal.emAtendimento)}
+                value={numero(realTime.inAttendance)}
                 rotulo="Em atendimento"
                 dica="Número de atendimentos em andamento"
                 formula="Conversas abertas com atendente atribuído, neste instante."
               />
               <Metrica
-                valor={numero(tempoReal.mediaPorAtendente, 1)}
+                value={numero(realTime.mediaByAgent, 1)}
                 rotulo="Média de tickets por atendente"
                 dica="Número de atendimentos por atendente"
                 formula="Conversas em atendimento divididas pelos atendentes online. Ponderada por volume, nunca média de médias."
-                denominador={`${numero(tempoReal.emAtendimento)} ÷ ${numero(tempoReal.atendentesOnline)} online.`}
+                denominador={`${numero(realTime.inAttendance)} ÷ ${numero(realTime.agentsOnline)} online.`}
               />
             </div>
           </div>
-        </CartaoMetrica>
+        </CardMetric>
 
-        <CartaoMetrica titulo="Status dos atendentes">
+        <CardMetric titulo="Status dos atendentes">
           <div className="metrics">
             <Metrica
-              valor={numero(atendentes.online)}
+              value={numero(agents.online)}
               rotulo="Online"
               dica="Número de atendentes online"
             />
             <Metrica
-              valor={numero(atendentes.pausa)}
+              value={numero(agents.pausa)}
               rotulo="Pausa"
               dica="Número de atendentes em pausa"
               denominador={
-                atendentes.pausasEstouradas > 0
-                  ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
+                agents.pausasEstouradas > 0
+                  ? `${numero(agents.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
                   : undefined
               }
             />
             <Metrica
-              valor={numero(atendentes.invisivel)}
+              value={numero(agents.invisivel)}
               rotulo="Invisível"
               dica="Número de atendentes invisíveis"
             />
           </div>
-        </CartaoMetrica>
+        </CardMetric>
 
-        <CartaoMetrica titulo="Atendimento hoje">
+        <CardMetric titulo="Atendimento hoje">
           <div className="metrics">
             <Metrica
-              valor={duracao(hoje.esperaDoCliente.valor)}
+              value={duration(hoje.esperaDoCliente.value)}
               rotulo="Tempo médio de espera"
               dica="Tempo médio de espera para atendimento"
               formula="Espera total do cliente. Com resposta: primeira_resposta_em menos criada_em. Sem resposta: encerrada_em menos criada_em. População: todas as conversas encerradas no período."
               denominador={denominador(hoje.esperaDoCliente, 'sem início')}
             />
             <Metrica
-              valor={duracao(hoje.tempoDeResposta.valor)}
+              value={duration(hoje.respostaTime.value)}
               rotulo="Tempo médio de resposta"
               dica="Tempo médio de resposta para atendimento"
               formula="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
-              denominador={`${numero(hoje.tempoDeResposta.conversasConsideradas)} com troca completa · ${numero(hoje.tempoDeResposta.populacao)} intervalos.`}
+              denominador={`${numero(hoje.respostaTime.conversationsConsideradas)} com troca completa · ${numero(hoje.respostaTime.population)} intervalos.`}
             />
             <Metrica
-              valor={duracao(hoje.atePrimeiraResposta.valor)}
+              value={duration(hoje.ateFirstResposta.value)}
               rotulo="Tempo médio até 1ª resposta"
               dica="Tempo médio de primeira resposta para atendimento"
               formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
-              denominador={denominador(hoje.atePrimeiraResposta)}
+              denominador={denominador(hoje.ateFirstResposta)}
             />
             <Metrica
-              valor={duracao(hoje.tempoDeAtendimento.valor)}
+              value={duration(hoje.attendanceTime.value)}
               rotulo="Tempo médio de atendimento"
               dica="Tempo médio de atendimento"
               formula="encerrada_em menos primeira_resposta_em. População: conversas que tiveram 1ª resposta."
-              denominador={denominador(hoje.tempoDeAtendimento)}
+              denominador={denominador(hoje.attendanceTime)}
             />
           </div>
-        </CartaoMetrica>
+        </CardMetric>
 
-        <CartaoMetrica titulo="Status dos tickets hoje">
+        <CardMetric titulo="Status dos tickets hoje">
           <div className="metrics">
             <Metrica
               tom="erro"
-              valor={numero(hoje.encerramentos.perdida)}
+              value={numero(hoje.closures.perdida)}
               rotulo="Perdidos"
               dica="Número de tickets que foram perdidos hoje"
               formula="Perdido saiu ANTES da atribuição, e é capacidade ou fila."
             />
             <Metrica
               tom="erro"
-              valor={numero(hoje.encerramentos.abandonada)}
+              value={numero(hoje.closures.abandonada)}
               rotulo="Abandonados"
               dica="Número de tickets fechados pelo cliente hoje"
               formula="Abandonado saiu DEPOIS da atribuição, e é atendimento."
             />
             <Metrica
-              valor={numero(hoje.encerramentos.finalizada)}
+              value={numero(hoje.closures.finalizada)}
               rotulo="Finalizados"
               dica="Número de tickets que foram atendidos hoje"
             />
             <Metrica
-              valor={numero(hoje.encerramentos.fechada)}
+              value={numero(hoje.closures.fechada)}
               rotulo="Fechados"
               dica="Número de tickets que foram fechados hoje"
               formula="Fechados é a soma de perdidos, abandonados e finalizados."
             />
           </div>
-        </CartaoMetrica>
+        </CardMetric>
       </div>
 
-      {modoTv ? <TicketsAbertosPorHora horas={m.ticketsAbertosPorHora} /> : null}
+      {modoTv ? <TicketsAbertosByHora horas={m.ticketsAbertosByHora} /> : null}
 
       {!modoTv ? (
         <>
-          <FiltrosDaLista
+          <SListaFilter
             atual={params}
-            aoAbrirPainel={() => abrirPainel('lista')}
-            painelAberto={painelAberto && campoPainel === 'lista'}
+            toAbrirPanel={() => abrirPanel('lista')}
+            panelAberto={panelAberto && fieldPanel === 'lista'}
           />
 
-          <MonitoramentoDetalhado
-            monitoramento={m}
+          <MonitoringDetailed
+            monitoring={m}
             aba={params.aba ?? 'atribuido'}
-            busca={params.busca ?? ''}
-            filtro={params}
+            search={params.search ?? ''}
+            filter={params}
           />
         </>
       ) : null}
 
-      <PainelFiltros
-        aberto={painelAberto}
+      <PanelFilters
+        aberto={panelAberto}
         aoFechar={() => {
-          setPainelAberto(false);
-          setCampoPainel(null);
+          setPanelAberto(false);
+          setFieldPanel(null);
         }}
         acao={base}
-        aoAplicar={(dados) => {
-          const proximos = new URLSearchParams(busca);
-          for (const [chave, valor] of dados) {
-            proximos.delete(chave);
-            if (typeof valor === 'string' && valor.trim()) proximos.set(chave, valor.trim());
+        aoAplicar={(data) => {
+          const proximos = new URLSearchParams(search);
+          for (const [key, value] of data) {
+            proximos.delete(key);
+            if (typeof value === 'string' && value.trim()) proximos.set(key, value.trim());
           }
-          definirBusca(proximos);
-          setPainelAberto(false);
+          definirSearch(proximos);
+          setPanelAberto(false);
         }}
-        limpar={`${base}?${parametrosComFiltros(busca, campoPainel === 'fila' ? { fila: '' } : { atendente: '', contato: '', status: '' })}`}
+        limpar={`${base}?${parametrosWithFilters(search, fieldPanel === 'fila' ? { fila: '' } : { atendente: '', contact: '', status: '' })}`}
       >
         <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
-        {params.busca ? <input type="hidden" name="busca" value={params.busca} /> : null}
-        {campoPainel === 'fila' ? (
+        {params.search ? <input type="hidden" name="busca" value={params.search} /> : null}
+        {fieldPanel === 'fila' ? (
           <>
-            <input type="hidden" name="atendente" value={params.atendente ?? ''} />
-            <input type="hidden" name="contato" value={params.contato ?? ''} />
+            <input type="hidden" name="atendente" value={params.agent ?? ''} />
+            <input type="hidden" name="contato" value={params.contact ?? ''} />
             <input type="hidden" name="status" value={params.status ?? ''} />
           </>
         ) : (
-          <input type="hidden" name="fila" value={params.fila ?? ''} />
+          <input type="hidden" name="fila" value={params.queue ?? ''} />
         )}
-        {campoPainel === 'fila' ? (
+        {fieldPanel === 'fila' ? (
           <>
-            <CampoDoPainel rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
-              <SelecaoChips
+            <PanelField rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
+              <SelectionChips
                 name="fila"
                 rotulo="Filas"
                 placeholder="Selecione as filas"
-                opcoes={m.filas}
-                valoresIniciais={idsDoFiltro(params.fila)}
+                options={m.queues}
+                valuesInitials={filterIds(params.queue)}
               />
-            </CampoDoPainel>
+            </PanelField>
           </>
         ) : null}
-        {campoPainel === 'lista' ? (
+        {fieldPanel === 'lista' ? (
           <>
-            <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-              <SelecaoChips
+            <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+              <SelectionChips
                 name="atendente"
                 rotulo="Atendentes"
                 placeholder="Selecione os atendentes"
-                opcoes={m.listaAtendentes}
-                valoresIniciais={idsDoFiltro(params.atendente)}
+                options={m.listaAgents}
+                valuesInitials={filterIds(params.agent)}
               />
-            </CampoDoPainel>
-            <CampoDoPainel rotulo="Contato" apoio="Busque pelo nome do contato">
-              <input type="search" name="contato" defaultValue={params.contato ?? ''} />
-            </CampoDoPainel>
-            <CampoDoPainel rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
-              <Selecao
+            </PanelField>
+            <PanelField rotulo="Contato" apoio="Busque pelo nome do contato">
+              <input type="search" name="contato" defaultValue={params.contact ?? ''} />
+            </PanelField>
+            <PanelField rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
+              <Selection
                 name="status"
                 defaultValue={params.status ?? ''}
                 aria-label="Status do atendente"
               >
                 <option value="">Todos os status</option>
-                {ESTADOS_DE_ATENDENTE.map((estado) => (
-                  <option key={estado.id} value={estado.id}>
-                    {estado.nome}
+                {STATES_OF_AGENT.map((state) => (
+                  <option key={state.id} value={state.id}>
+                    {state.nome}
                   </option>
                 ))}
-              </Selecao>
-            </CampoDoPainel>
+              </Selection>
+            </PanelField>
           </>
         ) : null}
-      </PainelFiltros>
+      </PanelFilters>
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useSessao } from '../contexto/sessao';
+import { useSession } from '../contexto/sessao';
 
 /**
  * O portão das telas de produto — o que `exigirEu()` fazia no servidor do Next.
@@ -12,13 +12,13 @@ import { useSessao } from '../contexto/sessao';
  */
 const ROTAS_DO_ONBOARDING = /^\/(bem-vindo|minha-conta|trocar-conta)(\/|$)/;
 
-export function ExigirSessao() {
-  const { eu } = useSessao();
+export function ExigirSession() {
+  const { eu } = useSession();
   const { pathname, search } = useLocation();
   if (eu === undefined) return null;
   if (eu === null) {
-    const destino = pathname + search;
-    return <Navigate to={`/entrar?destino=${encodeURIComponent(destino)}`} replace />;
+    const destination = pathname + search;
+    return <Navigate to={`/entrar?destino=${encodeURIComponent(destination)}`} replace />;
   }
   if (!eu.tenant.onboardingConcluido && !ROTAS_DO_ONBOARDING.test(pathname)) {
     return <Navigate to="/bem-vindo" replace />;

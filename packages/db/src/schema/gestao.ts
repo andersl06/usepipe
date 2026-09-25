@@ -18,14 +18,14 @@ import {
 } from 'drizzle-orm/pg-core';
 import {
   TIPOS_DIMENSAO,
-  TIPOS_EVENTO_ATENDIMENTO,
+  TYPES_EVENT_ATTENDANCE,
   carimbos,
   id,
   listaCheck,
-  momento,
+  moment,
 } from './comum.js';
-import { refTenant, usuario } from './identidade.js';
-import { conversa, fila } from './conversas.js';
+import { refTenant, user } from './identidade.js';
+import { conversation, queue } from './conversas.js';
 
 /**
  * Módulo 4 — Gestão. Toda métrica é derivada de `evento_atendimento`, nunca de campo
@@ -37,7 +37,7 @@ import { conversa, fila } from './conversas.js';
  * Imutável e particionada por mês em `em`. A chave primária carrega a chave de
  * partição, como em `mensagem`.
  */
-export const eventoAtendimento = pgTable(
+export const eventAttendance = pgTable(
   'evento_atendimento',
   {
     id: uuid('id')
@@ -46,18 +46,18 @@ export const eventoAtendimento = pgTable(
     tenantId: refTenant(),
     conversaId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
     tipo: text('tipo').notNull(),
-    em: momento('em').notNull().defaultNow(),
-    usuarioId: uuid('usuario_id').references(() => usuario.id, { onDelete: 'set null' }),
-    filaId: uuid('fila_id').references(() => fila.id, { onDelete: 'set null' }),
-    dados: jsonb('dados')
+    em: moment('em').notNull().defaultNow(),
+    usuarioId: uuid('usuario_id').references(() => user.id, { onDelete: 'set null' }),
+    queueId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
+    data: jsonb('dados')
       .notNull()
       .default(sql`'{}'::jsonb`),
   },
   (t) => [
     primaryKey({ columns: [t.id, t.em] }),
-    listaCheck('evento_atendimento_tipo_ck', t.tipo, TIPOS_EVENTO_ATENDIMENTO),
+    listaCheck('evento_atendimento_tipo_ck', t.tipo, TYPES_EVENT_ATTENDANCE),
     index('evento_atendimento_conversa_idx').on(t.tenantId, t.conversaId, t.em),
     index('evento_atendimento_tipo_idx').on(t.tenantId, t.tipo, t.em),
   ],
@@ -71,19 +71,19 @@ export const metricaDiaria = pgTable(
     dia: date('dia').notNull(),
     dimensaoTipo: text('dimensao_tipo').notNull(),
     dimensaoId: uuid('dimensao_id'),
-    conversasCriadas: integer('conversas_criadas').notNull().default(0),
-    conversasEncerradas: integer('conversas_encerradas').notNull().default(0),
-    conversasPerdidas: integer('conversas_perdidas').notNull().default(0),
-    conversasAbandonadas: integer('conversas_abandonadas').notNull().default(0),
-    mensagensEntrada: integer('mensagens_entrada').notNull().default(0),
-    mensagensSaida: integer('mensagens_saida').notNull().default(0),
+    conversationsCreated: integer('conversas_criadas').notNull().default(0),
+    conversationsCloseds: integer('conversas_encerradas').notNull().default(0),
+    conversationsPerdidas: integer('conversas_perdidas').notNull().default(0),
+    conversationsAbandonadas: integer('conversas_abandonadas').notNull().default(0),
+    messagesInbound: integer('mensagens_entrada').notNull().default(0),
+    messagesOutput: integer('mensagens_saida').notNull().default(0),
     /** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */
-    esperaFilaSeg: integer('espera_fila_seg').notNull().default(0),
-    esperaFilaN: integer('espera_fila_n').notNull().default(0),
-    primeiraRespostaSeg: integer('primeira_resposta_seg').notNull().default(0),
-    primeiraRespostaN: integer('primeira_resposta_n').notNull().default(0),
-    atendimentoSeg: integer('atendimento_seg').notNull().default(0),
-    atendimentoN: integer('atendimento_n').notNull().default(0),
+    waitQueueSeg: integer('espera_fila_seg').notNull().default(0),
+    waitQueueN: integer('espera_fila_n').notNull().default(0),
+    firstResponseSeg: integer('primeira_resposta_seg').notNull().default(0),
+    firstResponseN: integer('primeira_resposta_n').notNull().default(0),
+    attendanceSeg: integer('atendimento_seg').notNull().default(0),
+    attendanceN: integer('atendimento_n').notNull().default(0),
     slaCumpridos: integer('sla_cumpridos').notNull().default(0),
     slaEstourados: integer('sla_estourados').notNull().default(0),
     ...carimbos(),
@@ -99,94 +99,94 @@ export const metricaDiaria = pgTable(
  * lido, áudio em 1×. `chars_de_resposta_pronta` é o desconto do texto que o atendente
  * não digitou — sem ele, template e resposta pronta inflam o esforço.
  */
-export const esforcoConversa = pgTable(
+export const effortConversation = pgTable(
   'esforco_conversa',
   {
     id: id(),
     tenantId: refTenant(),
-    conversaId: uuid('conversa_id')
+    conversationId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
-    atendenteId: uuid('atendente_id').references(() => usuario.id, { onDelete: 'set null' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
     charsEscritos: integer('chars_escritos').notNull().default(0),
     charsLidos: integer('chars_lidos').notNull().default(0),
     audioOuvidoSeg: integer('audio_ouvido_seg').notNull().default(0),
     audioGravadoSeg: integer('audio_gravado_seg').notNull().default(0),
     charsDeRespostaPronta: integer('chars_de_resposta_pronta').notNull().default(0),
-    esforcoSeg: integer('esforco_seg').notNull().default(0),
+    effortSeg: integer('esforco_seg').notNull().default(0),
     pausadoSeg: integer('pausado_seg').notNull().default(0),
-    calculadoEm: momento('calculado_em').notNull().defaultNow(),
+    calculadoEm: moment('calculado_em').notNull().defaultNow(),
   },
-  (t) => [uniqueIndex('esforco_conversa_uk').on(t.conversaId, t.atendenteId)],
+  (t) => [uniqueIndex('esforco_conversa_uk').on(t.conversationId, t.agentId)],
 );
 
-export const esforcoAtendenteDia = pgTable(
+export const effortAgentDay = pgTable(
   'esforco_atendente_dia',
   {
     id: id(),
     tenantId: refTenant(),
     dia: date('dia').notNull(),
-    usuarioId: uuid('usuario_id')
+    userId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     esforcoSeg: integer('esforco_seg').notNull().default(0),
     tickets: integer('tickets').notNull().default(0),
-    sessaoSeg: integer('sessao_seg').notNull().default(0),
-    ocupacao: numeric('ocupacao', { precision: 5, scale: 4 }),
+    sessionSeg: integer('sessao_seg').notNull().default(0),
+    occupancy: numeric('ocupacao', { precision: 5, scale: 4 }),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('esforco_atendente_dia_uk').on(t.tenantId, t.dia, t.usuarioId)],
+  (t) => [uniqueIndex('esforco_atendente_dia_uk').on(t.tenantId, t.dia, t.userId)],
 );
 
 export const COMBINADORES = ['e', 'ou'] as const;
 
-export const regraFila = pgTable(
+export const ruleQueue = pgTable(
   'regra_fila',
   {
     id: id(),
     tenantId: refTenant(),
     nome: text('nome').notNull(),
-    ordem: integer('ordem').notNull().default(0),
+    order: integer('ordem').notNull().default(0),
     combinador: text('combinador').notNull().default('e'),
-    filaDestinoId: uuid('fila_destino_id')
+    queueDestinationId: uuid('fila_destino_id')
       .notNull()
-      .references(() => fila.id, { onDelete: 'cascade' }),
-    ativa: boolean('ativa').notNull().default(true),
+      .references(() => queue.id, { onDelete: 'cascade' }),
+    active: boolean('ativa').notNull().default(true),
     ...carimbos(),
   },
   (t) => [
     listaCheck('regra_fila_combinador_ck', t.combinador, COMBINADORES),
-    index('regra_fila_ordem_idx').on(t.tenantId, t.ativa, t.ordem),
+    index('regra_fila_ordem_idx').on(t.tenantId, t.active, t.order),
   ],
 );
 
-export const regraFilaCondicao = pgTable(
+export const ruleQueueCondition = pgTable(
   'regra_fila_condicao',
   {
     id: id(),
     tenantId: refTenant(),
     regraId: uuid('regra_id')
       .notNull()
-      .references(() => regraFila.id, { onDelete: 'cascade' }),
+      .references(() => ruleQueue.id, { onDelete: 'cascade' }),
     campo: text('campo').notNull(),
     operador: text('operador').notNull(),
-    valor: text('valor'),
+    value: text('valor'),
   },
   (t) => [index('regra_fila_condicao_regra_idx').on(t.regraId)],
 );
 
-export const ESCOPOS_REGRA = ['tenant', 'fila', 'inbox', 'equipe', 'etiqueta'] as const;
+export const SCOPES_RULE = ['tenant', 'fila', 'inbox', 'equipe', 'etiqueta'] as const;
 
-export const regraPrioridade = pgTable(
+export const rulePriority = pgTable(
   'regra_prioridade',
   {
     id: id(),
     tenantId: refTenant(),
     nome: text('nome').notNull(),
     nivel: text('nivel').notNull(),
-    escopoTipo: text('escopo_tipo').notNull().default('tenant'),
-    escopoId: uuid('escopo_id'),
-    condicao: jsonb('condicao')
+    scopeType: text('escopo_tipo').notNull().default('tenant'),
+    scopeId: uuid('escopo_id'),
+    condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
     ativa: boolean('ativa').notNull().default(true),
@@ -194,7 +194,7 @@ export const regraPrioridade = pgTable(
   },
   (t) => [
     listaCheck('regra_prioridade_nivel_ck', t.nivel, NIVEIS_ATRIBUIVEIS),
-    listaCheck('regra_prioridade_escopo_tipo_ck', t.escopoTipo, ESCOPOS_REGRA),
+    listaCheck('regra_prioridade_escopo_tipo_ck', t.scopeType, SCOPES_RULE),
   ],
 );
 
@@ -222,33 +222,33 @@ export const regraSla = pgTable(
   },
   (t) => [
     listaCheck('regra_sla_alvo_ck', t.alvo, ALVOS_SLA),
-    listaCheck('regra_sla_escopo_tipo_ck', t.escopoTipo, ESCOPOS_REGRA),
+    listaCheck('regra_sla_escopo_tipo_ck', t.escopoTipo, SCOPES_RULE),
   ],
 );
 
 export const ESTADOS_SLA = ['correndo', 'alertado', 'estourado', 'cumprido', 'cancelado'] as const;
 
-export const slaConversa = pgTable(
+export const slaConversation = pgTable(
   'sla_conversa',
   {
     id: id(),
     tenantId: refTenant(),
     conversaId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
     regraId: uuid('regra_id')
       .notNull()
       .references(() => regraSla.id, { onDelete: 'cascade' }),
-    prazoEm: momento('prazo_em').notNull(),
-    alertadoEm: momento('alertado_em'),
-    estouradoEm: momento('estourado_em'),
-    estado: text('estado').notNull().default('correndo'),
+    prazoEm: moment('prazo_em').notNull(),
+    alertadoEm: moment('alertado_em'),
+    estouradoEm: moment('estourado_em'),
+    state: text('estado').notNull().default('correndo'),
     ...carimbos(),
   },
   (t) => [
-    listaCheck('sla_conversa_estado_ck', t.estado, ESTADOS_SLA),
+    listaCheck('sla_conversa_estado_ck', t.state, ESTADOS_SLA),
     uniqueIndex('sla_conversa_uk').on(t.conversaId, t.regraId),
-    index('sla_conversa_prazo_idx').on(t.tenantId, t.estado, t.prazoEm),
+    index('sla_conversa_prazo_idx').on(t.tenantId, t.state, t.prazoEm),
   ],
 );
 
@@ -276,7 +276,7 @@ export const palavraProibida = pgTable(
   ],
 );
 
-export const horarioAtendimento = pgTable('horario_atendimento', {
+export const scheduleAttendance = pgTable('horario_atendimento', {
   id: id(),
   tenantId: refTenant(),
   nome: text('nome').notNull(),
@@ -291,7 +291,7 @@ export const horarioFaixa = pgTable(
     tenantId: refTenant(),
     horarioId: uuid('horario_id')
       .notNull()
-      .references(() => horarioAtendimento.id, { onDelete: 'cascade' }),
+      .references(() => scheduleAttendance.id, { onDelete: 'cascade' }),
     /** 0 = domingo, seguindo `extract(dow)` do Postgres. */
     diaSemana: smallint('dia_semana').notNull(),
     inicio: time('inicio').notNull(),
@@ -300,14 +300,14 @@ export const horarioFaixa = pgTable(
   (t) => [index('horario_faixa_horario_idx').on(t.horarioId, t.diaSemana)],
 );
 
-export const horarioExcecao = pgTable(
+export const scheduleException = pgTable(
   'horario_excecao',
   {
     id: id(),
     tenantId: refTenant(),
     horarioId: uuid('horario_id')
       .notNull()
-      .references(() => horarioAtendimento.id, { onDelete: 'cascade' }),
+      .references(() => scheduleAttendance.id, { onDelete: 'cascade' }),
     data: date('data').notNull(),
     fechado: boolean('fechado').notNull().default(true),
     inicio: time('inicio'),
@@ -347,7 +347,7 @@ export const respostaPesquisa = pgTable(
     tenantId: refTenant(),
     conversaId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
     pesquisaId: uuid('pesquisa_id')
       .notNull()
       .references(() => pesquisa.id, { onDelete: 'cascade' }),
@@ -357,8 +357,8 @@ export const respostaPesquisa = pgTable(
     /** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */
     classe: text('classe'),
     comentario: text('comentario'),
-    respondidaEm: momento('respondida_em'),
-    criadoEm: momento('criado_em').notNull().defaultNow(),
+    respondidaEm: moment('respondida_em'),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
   },
   (t) => [
     uniqueIndex('resposta_pesquisa_uk').on(t.conversaId, t.pesquisaId),

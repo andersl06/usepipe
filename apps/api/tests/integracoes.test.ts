@@ -9,12 +9,12 @@ process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 29).toString('base64')}`;
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * As três telas de Integrações do fluxo (`dominio/gestao/integracoes.ts`):
@@ -32,26 +32,26 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 /** Tem as três permissões — chave, integração e edição de fluxo. */
-let sessaoCompleta: string;
+let sessionComplete: string;
 /** Só edita fluxo: prova que ler a conexão não pede a permissão de integração. */
-let sessaoSoEditor: string;
+let sessionOnlyEditor: string;
 /** Sem nenhuma das três. */
-let sessaoSemPoder: string;
+let sessionWithoutPoder: string;
 /** Tenant B, com as três permissões — prova que o tenant vem da sessão. */
-let sessaoDoOutroTenant: string;
-let fluxoId: string;
+let sessionOfOtherTenant: string;
+let flowId: string;
 
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissions.length === 0) return userId;
 
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
       values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
@@ -61,25 +61,25 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  const papelId = papeis[0]!.id;
-  for (const codigo of permissoes) {
+  const roleId = papeis[0]!.id;
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, ${codigo})
+      values (${cenario.tenantId}, ${roleId}, ${codigo})
     `);
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papelId})
+    values (${cenario.tenantId}, ${userId}, ${roleId})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -88,7 +88,7 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
-async function criarFluxo(cenario: Cenario, nome: string): Promise<string> {
+async function createFlow(cenario: Cenario, nome: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome) values (${cenario.tenantId}, ${nome}) returning id
   `);
@@ -99,12 +99,12 @@ type Resposta<T> = { status: number; corpo: T };
 
 async function pedir<T>(
   caminho: string,
-  sessao: string,
+  session: string,
   init: RequestInit = {},
 ): Promise<Resposta<T>> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     ...init,
-    headers: comCookie(sessao),
+    headers: comCookie(session),
   });
   return { status: resposta.status, corpo: (await resposta.json().catch(() => null)) as T };
 }
@@ -135,12 +135,12 @@ beforeAll(async () => {
     'automacao.fluxo.editar',
   ]);
 
-  api = await subirApi(0);
-  sessaoCompleta = await abrirSessao(a, completo);
-  sessaoSoEditor = await abrirSessao(a, soEditor);
-  sessaoSemPoder = await abrirSessao(a, semPoder);
-  sessaoDoOutroTenant = await abrirSessao(b, completoDoB);
-  fluxoId = await criarFluxo(a, `Fluxo de integração ${randomUUID().slice(0, 6)}`);
+  api = await upApi(0);
+  sessionComplete = await openSession(a, completo);
+  sessionOnlyEditor = await openSession(a, soEditor);
+  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionOfOtherTenant = await openSession(b, completoDoB);
+  flowId = await createFlow(a, `Fluxo de integração ${randomUUID().slice(0, 6)}`);
 }, 180_000);
 
 afterAll(async () => {
@@ -154,50 +154,50 @@ describe('Chaves de acesso do fluxo', () => {
     const { status, corpo } = await post<{
       id: string;
       nome: string;
-      prefixo: string;
+      prefix: string;
       token: string;
-    }>(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoCompleta, { nome: 'Integração CRM' });
+    }>(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, { nome: 'Integração CRM' });
     expect(status).toBe(201);
     expect(corpo.token).toMatch(/^pipe_[0-9a-f]{12}_[0-9a-f]{48}$/);
-    expect(corpo.prefixo).toBe(corpo.token.split('_')[1]);
+    expect(corpo.prefix).toBe(corpo.token.split('_')[1]);
 
     const linha = (
       await a.dono.execute<{ hash: string; fluxo_id: string }>(sql`
         select hash, fluxo_id from chave_api where id = ${corpo.id}::uuid
       `)
     ).rows[0];
-    expect(linha?.fluxo_id).toBe(fluxoId);
+    expect(linha?.fluxo_id).toBe(flowId);
     // O banco guarda o HASH sha256, não o segredo em claro que veio no token.
     expect(linha?.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(linha?.hash).not.toBe(corpo.token.split('_')[2]);
 
     const lista = await get<Array<Record<string, unknown>>>(
-      `/v1/gestao/fluxos/${fluxoId}/chaves`,
-      sessaoCompleta,
+      `/v1/gestao/fluxos/${flowId}/chaves`,
+      sessionComplete,
     );
     expect(lista.status).toBe(200);
     const criada = lista.corpo.find((c) => c['id'] === corpo.id);
     expect(criada).toBeDefined();
     expect(criada).not.toHaveProperty('token');
     expect(criada).not.toHaveProperty('hash');
-    expect(criada?.['prefixo']).toBe(corpo.prefixo);
+    expect(criada?.['prefixo']).toBe(corpo.prefix);
   });
 
   it('sem nome é 400; no limite de 3 chaves vivas, a quarta é 400', async () => {
-    const fluxoDoLimite = await criarFluxo(a, `Limite ${randomUUID().slice(0, 6)}`);
-    const semNome = await post(`/v1/gestao/fluxos/${fluxoDoLimite}/chaves`, sessaoCompleta, {
+    const flowOfLimit = await createFlow(a, `Limite ${randomUUID().slice(0, 6)}`);
+    const semNome = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
       nome: '   ',
     });
     expect(semNome.status).toBe(400);
-    expect((semNome.corpo as { erro: { codigo: string } }).erro.codigo).toBe('nome_ausente');
+    expect((semNome.corpo as { error: { codigo: string } }).error.codigo).toBe('nome_ausente');
 
     for (let i = 0; i < 3; i += 1) {
-      const criada = await post(`/v1/gestao/fluxos/${fluxoDoLimite}/chaves`, sessaoCompleta, {
+      const criada = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
         nome: `Chave ${i}`,
       });
       expect(criada.status).toBe(201);
     }
-    const quarta = await post(`/v1/gestao/fluxos/${fluxoDoLimite}/chaves`, sessaoCompleta, {
+    const quarta = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
       nome: 'Quarta',
     });
     expect(quarta.status).toBe(400);
@@ -205,63 +205,63 @@ describe('Chaves de acesso do fluxo', () => {
   });
 
   it('sem chave_api.gerenciar é 403; de outro tenant e uuid malformado são 404', async () => {
-    const semPoder = await post(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoSemPoder, {
+    const semPoder = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionWithoutPoder, {
       nome: 'Proibida',
     });
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo as { erro: { detalhe: { permissao: string } } }).erro.detalhe.permissao).toBe(
+    expect((semPoder.corpo as { erro: { detalhe: { permission: string } } }).erro.detalhe.permission).toBe(
       'chave_api.gerenciar',
     );
 
-    const outroTenant = await post(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoDoOutroTenant, {
+    const outroTenant = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionOfOtherTenant, {
       nome: 'Vizinho',
     });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/chaves`, sessaoCompleta);
+    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/chaves`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 
   it('excluir REVOGA (não apaga a linha) e é idempotente; cross-tenant e sem permissão são recusa', async () => {
-    const criada = await post<{ id: string }>(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoCompleta, {
+    const criada = await post<{ id: string }>(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, {
       nome: `A revogar ${randomUUID().slice(0, 6)}`,
     });
     expect(criada.status).toBe(201);
-    const chaveId = criada.corpo.id;
+    const keyId = criada.corpo.id;
 
-    const outroTenant = await del(`/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId}`, sessaoDoOutroTenant);
+    const outroTenant = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
 
-    const semPoder = await del(`/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId}`, sessaoSemPoder);
+    const semPoder = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionWithoutPoder);
     expect(semPoder.status).toBe(403);
 
-    const primeira = await del(`/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId}`, sessaoCompleta);
-    expect(primeira.status).toBe(204);
+    const first = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionComplete);
+    expect(first.status).toBe(204);
 
     const linha = (
       await a.dono.execute<{ revogada_em: Date | null }>(
-        sql`select revogada_em from chave_api where id = ${chaveId}::uuid`,
+        sql`select revogada_em from chave_api where id = ${keyId}::uuid`,
       )
     ).rows[0];
     expect(linha).toBeDefined();
     expect(linha?.revogada_em).not.toBeNull();
 
     // Idempotente: revogar de novo não é erro, e não duplica o registro de auditoria.
-    const segunda = await del(`/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId}`, sessaoCompleta);
+    const segunda = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionComplete);
     expect(segunda.status).toBe(204);
     const log = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from log_auditoria
-       where objeto_tipo = 'chave_api' and objeto_id = ${chaveId}::uuid and acao = 'desativou'
+       where objeto_tipo = 'chave_api' and objeto_id = ${keyId}::uuid and acao = 'desativou'
     `);
     expect(log.rows[0]?.n).toBe('1');
 
     const visiveis = await get<Array<{ id: string }>>(
-      `/v1/gestao/fluxos/${fluxoId}/chaves`,
-      sessaoCompleta,
+      `/v1/gestao/fluxos/${flowId}/chaves`,
+      sessionComplete,
     );
-    expect(visiveis.corpo.some((chave) => chave.id === chaveId)).toBe(false);
+    expect(visiveis.corpo.some((key) => key.id === keyId)).toBe(false);
 
-    const nova = await post(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoCompleta, {
+    const nova = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, {
       nome: 'Depois de revogar',
     });
     expect(nova.status).toBe(201);
@@ -270,23 +270,23 @@ describe('Chaves de acesso do fluxo', () => {
 
 describe('Informações de conexão do fluxo', () => {
   it('lê com automacao.fluxo.editar; identificador e endpoint são reais', async () => {
-    const conexaoFluxo = await criarFluxo(a, `Conexão ${randomUUID().slice(0, 6)}`);
+    const connectionFlow = await createFlow(a, `Conexão ${randomUUID().slice(0, 6)}`);
     const { status, corpo } = await get<{
-      fluxoId: string;
+      flowId: string;
       endpoint: string;
-      chavePrefixo: string | null;
-      urlMensagens: string | null;
-      urlNotificacoes: string | null;
-    }>(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessaoSoEditor);
+      keyPrefix: string | null;
+      urlMessages: string | null;
+      urlNotifications: string | null;
+    }>(`/v1/gestao/fluxos/${connectionFlow}/conexao`, sessionOnlyEditor);
     expect(status).toBe(200);
-    expect(corpo.fluxoId).toBe(conexaoFluxo);
+    expect(corpo.flowId).toBe(connectionFlow);
     expect(corpo.endpoint).toMatch(/\/v1$/);
-    expect(corpo.urlMensagens).toBeNull();
-    expect(corpo.urlNotificacoes).toBeNull();
+    expect(corpo.urlMessages).toBeNull();
+    expect(corpo.urlNotifications).toBeNull();
   });
 
   it('recusa SSRF: http, localhost e IP privado; aceita https e some ao apagar', async () => {
-    const conexaoFluxo = await criarFluxo(a, `SSRF ${randomUUID().slice(0, 6)}`);
+    const conexaoFluxo = await createFlow(a, `SSRF ${randomUUID().slice(0, 6)}`);
 
     for (const urlProibida of [
       'http://exemplo.pipe.app/webhook',
@@ -295,7 +295,7 @@ describe('Informações de conexão do fluxo', () => {
       'https://10.0.0.5/webhook',
       'https://192.168.1.1/webhook',
     ]) {
-      const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessaoCompleta, {
+      const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessionComplete, {
         urlMensagens: urlProibida,
       });
       expect(resposta.status, urlProibida).toBe(400);
@@ -303,7 +303,7 @@ describe('Informações de conexão do fluxo', () => {
 
     const salva = await put<{ urlMensagens: string | null }>(
       `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
-      sessaoCompleta,
+      sessionComplete,
       { urlMensagens: 'https://exemplo.pipe.app/mensagens' },
     );
     expect(salva.status).toBe(200);
@@ -311,13 +311,13 @@ describe('Informações de conexão do fluxo', () => {
 
     const relida = await get<{ urlMensagens: string | null }>(
       `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
-      sessaoSoEditor,
+      sessionOnlyEditor,
     );
     expect(relida.corpo.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
 
     const apagada = await put<{ urlMensagens: string | null }>(
       `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
-      sessaoCompleta,
+      sessionComplete,
       { urlMensagens: null },
     );
     expect(apagada.status).toBe(200);
@@ -325,8 +325,8 @@ describe('Informações de conexão do fluxo', () => {
   });
 
   it('só editar fluxo não basta para GRAVAR a conexão: pede automacao.integracao.gerenciar', async () => {
-    const conexaoFluxo = await criarFluxo(a, `Sem integração ${randomUUID().slice(0, 6)}`);
-    const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessaoSoEditor, {
+    const conexaoFluxo = await createFlow(a, `Sem integração ${randomUUID().slice(0, 6)}`);
+    const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessionOnlyEditor, {
       urlMensagens: 'https://exemplo.pipe.app/mensagens',
     });
     expect(resposta.status).toBe(403);
@@ -336,9 +336,9 @@ describe('Informações de conexão do fluxo', () => {
   });
 
   it('cross-tenant e uuid malformado são 404', async () => {
-    const outroTenant = await get(`/v1/gestao/fluxos/${fluxoId}/conexao`, sessaoDoOutroTenant);
+    const outroTenant = await get(`/v1/gestao/fluxos/${flowId}/conexao`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
-    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/conexao`, sessaoCompleta);
+    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/conexao`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 });
@@ -349,60 +349,60 @@ describe('Webhook de saída (Integrações)', () => {
   });
 
   it('cria com segredo mostrado só uma vez; recusa SSRF e evento fora do catálogo', async () => {
-    const semEventos = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const semEventos = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: [],
     });
     expect(semEventos.status).toBe(400);
     expect((semEventos.corpo as { erro: { codigo: string } }).erro.codigo).toBe('eventos_ausentes');
 
-    const eventoInvalido = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const eventoInvalido = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: ['isto.nao.existe'],
     });
     expect(eventoInvalido.status).toBe(400);
     expect((eventoInvalido.corpo as { erro: { codigo: string } }).erro.codigo).toBe('evento_invalido');
 
-    const http = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const http = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: 'http://exemplo.pipe.app/hook',
       eventos: ['mensagem.criada'],
     });
     expect(http.status).toBe(400);
 
-    const privado = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const privado = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: 'https://169.254.169.254/hook',
       eventos: ['mensagem.criada'],
     });
     expect(privado.status).toBe(400);
 
-    const criado = await post<{ id: string; url: string; eventos: string[]; segredo: string }>(
+    const criado = await post<{ id: string; url: string; eventos: string[]; secret: string }>(
       `/v1/gestao/webhooks`,
-      sessaoCompleta,
+      sessionComplete,
       { url: `https://exemplo.pipe.app/hook-${randomUUID().slice(0, 8)}`, eventos: ['mensagem.criada', 'conversa.criada'] },
     );
     expect(criado.status).toBe(201);
-    expect(criado.corpo.segredo).toMatch(/^[0-9a-f]{64}$/);
+    expect(criado.corpo.secret).toMatch(/^[0-9a-f]{64}$/);
 
-    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessaoCompleta);
+    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessionComplete);
     const linha = lista.corpo.find((w) => w['id'] === criado.corpo.id);
     expect(linha).not.toHaveProperty('segredo');
     expect(linha?.['ativo']).toBe(true);
   });
 
   it('ativar/desativar registra a ação certa; excluir apaga a linha de verdade', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/toggle-${randomUUID().slice(0, 8)}`,
       eventos: ['contato.criado'],
     });
     const id = criado.corpo.id;
 
-    const desativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessaoCompleta, {
+    const desativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessionComplete, {
       ativo: false,
     });
     expect(desativado.status).toBe(200);
     expect(desativado.corpo.ativo).toBe(false);
 
-    const ativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessaoCompleta, {
+    const ativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessionComplete, {
       ativo: true,
     });
     expect(ativado.corpo.ativo).toBe(true);
@@ -414,7 +414,7 @@ describe('Webhook de saída (Integrações)', () => {
     `);
     expect(log.rows.map((l) => l.acao)).toEqual(['criou', 'desativou', 'ativou']);
 
-    const excluido = await del(`/v1/gestao/webhooks/${id}`, sessaoCompleta);
+    const excluido = await del(`/v1/gestao/webhooks/${id}`, sessionComplete);
     expect(excluido.status).toBe(204);
     const restante = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from webhook_saida where id = ${id}::uuid`,
@@ -423,7 +423,7 @@ describe('Webhook de saída (Integrações)', () => {
   });
 
   it('testar assina e envia; falha de rede volta como { ok: false }, sem gravar entrega', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/teste-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
@@ -434,12 +434,12 @@ describe('Webhook de saída (Integrações)', () => {
     // o mesmo global. O stub intercepta só a URL do webhook fake e deixa
     // tudo que vai para `api.url` (o servidor de teste) passar pelo fetch de
     // verdade, senão o teste conversa consigo mesmo.
-    const fetchDeVerdade = fetch;
+    const fetchOfTruth = fetch;
     const chamadas: Array<[string, RequestInit | undefined]> = [];
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string, init?: RequestInit) => {
-        if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
+        if (url.startsWith(api.url)) return fetchOfTruth(url, init);
         chamadas.push([url, init]);
         return new Response('ok', { status: 200 });
       }),
@@ -447,7 +447,7 @@ describe('Webhook de saída (Integrações)', () => {
 
     const ok = await post<{ ok: boolean; status?: number }>(
       `/v1/gestao/webhooks/${id}/testar`,
-      sessaoCompleta,
+      sessionComplete,
     );
     expect(ok.status).toBe(200);
     expect(ok.corpo.ok).toBe(true);
@@ -460,13 +460,13 @@ describe('Webhook de saída (Integrações)', () => {
     vi.stubGlobal(
       'fetch',
       vi.fn(async (url: string, init?: RequestInit) => {
-        if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
+        if (url.startsWith(api.url)) return fetchOfTruth(url, init);
         throw new Error('falha de rede simulada');
       }),
     );
     const falhou = await post<{ ok: boolean; erro?: string }>(
       `/v1/gestao/webhooks/${id}/testar`,
-      sessaoCompleta,
+      sessionComplete,
     );
     expect(falhou.status).toBe(200);
     expect(falhou.corpo.ok).toBe(false);
@@ -479,19 +479,19 @@ describe('Webhook de saída (Integrações)', () => {
   });
 
   it('sem automacao.integracao.gerenciar é 403; de outro tenant e uuid malformado são 404', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/perm-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
     const id = criado.corpo.id;
 
-    const semPoder = await get(`/v1/gestao/webhooks`, sessaoSemPoder);
+    const semPoder = await get(`/v1/gestao/webhooks`, sessionWithoutPoder);
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessaoDoOutroTenant, { ativo: false });
+    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessionOfOtherTenant, { ativo: false });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await del(`/v1/gestao/webhooks/nao-e-uuid`, sessaoCompleta);
+    const malformado = await del(`/v1/gestao/webhooks/nao-e-uuid`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 });
@@ -502,9 +502,9 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
   });
 
   it('autenticação básica: senha cifrada no banco, nunca devolvida, vira Authorization: Basic no teste', async () => {
-    const criado = await post<{ id: string; autenticacao: Record<string, unknown> }>(
+    const criado = await post<{ id: string; authentication: Record<string, unknown> }>(
       `/v1/gestao/webhooks`,
-      sessaoCompleta,
+      sessionComplete,
       {
         url: `https://exemplo.pipe.app/basica-${randomUUID().slice(0, 8)}`,
         eventos: ['mensagem.criada'],
@@ -512,7 +512,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
       },
     );
     expect(criado.status).toBe(201);
-    expect(criado.corpo.autenticacao).toEqual({
+    expect(criado.corpo.authentication).toEqual({
       tipo: 'basica',
       usuario: 'robo',
       urlAutorizacao: null,
@@ -521,14 +521,14 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     const id = criado.corpo.id;
 
     const linha = (
-      await a.dono.execute<{ autenticacao_senha: string }>(
+      await a.dono.execute<{ authenticationPassword: string }>(
         sql`select autenticacao_senha from webhook_saida where id = ${id}::uuid`,
       )
     ).rows[0];
-    expect(linha?.autenticacao_senha).toMatch(/^pipev1\./);
-    expect(linha?.autenticacao_senha).not.toContain('segredo-123');
+    expect(linha?.authenticationPassword).toMatch(/^pipev1\./);
+    expect(linha?.authenticationPassword).not.toContain('segredo-123');
 
-    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessaoCompleta);
+    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessionComplete);
     const naLista = lista.corpo.find((w) => w['id'] === id);
     expect(JSON.stringify(naLista)).not.toContain('segredo-123');
     expect(JSON.stringify(naLista)).not.toContain('pipev1.');
@@ -543,13 +543,13 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('recebido', { status: 200 });
       }),
     );
-    const teste = await post<{ ok: boolean; corpo?: string }>(
+    const test = await post<{ ok: boolean; corpo?: string }>(
       `/v1/gestao/webhooks/${id}/testar`,
-      sessaoCompleta,
+      sessionComplete,
     );
-    expect(teste.status).toBe(200);
-    expect(teste.corpo.ok).toBe(true);
-    expect(teste.corpo.corpo).toBe('recebido');
+    expect(test.status).toBe(200);
+    expect(test.corpo.ok).toBe(true);
+    expect(test.corpo.corpo).toBe('recebido');
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
     expect(cabecalhos['authorization']).toBe(
       `Basic ${Buffer.from('robo:segredo-123').toString('base64')}`,
@@ -558,7 +558,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
 
   it('OAuth 2.0 client_credentials: busca o token na URL de autorização e usa Bearer', async () => {
     const urlToken = `https://exemplo.pipe.app/oauth-${randomUUID().slice(0, 8)}/token`;
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-destino-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: {
@@ -592,23 +592,23 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('ok', { status: 200 });
       }),
     );
-    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessaoCompleta);
+    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessionComplete);
     expect(teste.status).toBe(200);
     expect(teste.corpo.ok).toBe(true);
     expect(chamadas).toHaveLength(2);
-    const [chamadaToken, chamadaDestino] = chamadas as [
+    const [chamadaToken, chamadaDestination] = chamadas as [
       [string, RequestInit | undefined],
       [string, RequestInit | undefined],
     ];
     expect(chamadaToken[0]).toBe(urlToken);
     expect(String(chamadaToken[1]?.body)).toContain('grant_type=client_credentials');
     expect(String(chamadaToken[1]?.body)).toContain('client_secret=segredo-oauth-xyz');
-    const cabecalhosDestino = chamadaDestino[1]?.headers as Record<string, string>;
-    expect(cabecalhosDestino['authorization']).toBe('Bearer token-de-mentira');
+    const headersDestination = chamadaDestination[1]?.headers as Record<string, string>;
+    expect(headersDestination['authorization']).toBe('Bearer token-de-mentira');
   });
 
   it('cabeçalhos customizados chegam na entrega, sem derrubar a assinatura', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/cabecalhos-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [{ chave: 'X-Minha-Chave', valor: 'valor-customizado' }],
@@ -626,7 +626,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('ok', { status: 200 });
       }),
     );
-    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessaoCompleta);
+    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessionComplete);
     expect(teste.status).toBe(200);
     expect(teste.corpo.ok).toBe(true);
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
@@ -635,7 +635,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
   });
 
   it('recusa cabeçalho reservado, cabeçalho repetido e autenticação incompleta', async () => {
-    const reservado = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const reservado = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/reservado-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [{ chave: 'Content-Type', valor: 'text/plain' }],
@@ -643,7 +643,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(reservado.status).toBe(400);
     expect((reservado.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_reservado');
 
-    const repetido = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const repetido = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/repetido-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [
@@ -654,7 +654,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(repetido.status).toBe(400);
     expect((repetido.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_repetido');
 
-    const semSenha = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const semSenha = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: { tipo: 'basica', usuario: 'robo' },
@@ -662,7 +662,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(semSenha.status).toBe(400);
     expect((semSenha.corpo as { erro: { codigo: string } }).erro.codigo).toBe('autenticacao_incompleta');
 
-    const oauthSsrf = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const oauthSsrf = await post(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: {
@@ -676,7 +676,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
   });
 
   it('editar autenticação substitui por inteiro; cross-tenant é 404', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/editar-auth-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
@@ -685,7 +685,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
 
     const editado = await patch<{ autenticacao: Record<string, unknown> }>(
       `/v1/gestao/webhooks/${id}`,
-      sessaoCompleta,
+      sessionComplete,
       { autenticacao: { tipo: 'nenhuma' } },
     );
     expect(editado.status).toBe(200);
@@ -696,7 +696,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
       clientId: null,
     });
 
-    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessaoDoOutroTenant, {
+    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessionOfOtherTenant, {
       autenticacao: { tipo: 'nenhuma' },
     });
     expect(outroTenant.status).toBe(404);

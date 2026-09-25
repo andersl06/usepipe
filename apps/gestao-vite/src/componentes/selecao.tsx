@@ -13,16 +13,16 @@ import {
 } from 'react';
 import { Icone } from '@pipe/ui';
 
-type Opcao = { valor: string; rotulo: ReactNode; desabilitada: boolean };
+type Option = { value: string; rotulo: ReactNode; desabilitada: boolean };
 
-function opcoesDe(children: ReactNode): Opcao[] {
+function optionsOf(children: ReactNode): Option[] {
   return Children.toArray(children).flatMap((filho) => {
     if (!isValidElement(filho)) return [];
-    if (filho.type === Fragment) return opcoesDe((filho.props as { children?: ReactNode }).children);
+    if (filho.type === Fragment) return optionsOf((filho.props as { children?: ReactNode }).children);
     if (filho.type !== 'option') return [];
     const props = filho.props as { value?: string | number; disabled?: boolean; children?: ReactNode };
     return [{
-      valor: String(props.value ?? ''),
+      value: String(props.value ?? ''),
       rotulo: props.children,
       desabilitada: Boolean(props.disabled),
     }];
@@ -34,7 +34,7 @@ function opcoesDe(children: ReactNode): Opcao[] {
  * O input hidden preserva `name` e o envio GET/POST dos formulários existentes;
  * o evento continua expondo `.target.value`, como o select nativo substituído.
  */
-export function Selecao({
+export function Selection({
   children,
   className,
   defaultValue,
@@ -44,15 +44,15 @@ export function Selecao({
   value,
   'aria-label': ariaLabel,
 }: Omit<ComponentPropsWithoutRef<'select'>, 'multiple' | 'size' | 'children'> & { children: ReactNode }) {
-  const opcoes = opcoesDe(children);
-  const inicial = String(value ?? defaultValue ?? opcoes.find((opcao) => !opcao.desabilitada)?.valor ?? '');
+  const options = optionsOf(children);
+  const inicial = String(value ?? defaultValue ?? options.find((option) => !option.desabilitada)?.value ?? '');
   const [selecionado, setSelecionado] = useState(inicial);
   const [aberto, setAberto] = useState(false);
   const raiz = useRef<HTMLDivElement>(null);
   const campo = useRef<HTMLInputElement>(null);
   const listaId = useId();
   const atual = value === undefined ? selecionado : String(value);
-  const opcaoAtual = opcoes.find((opcao) => opcao.valor === atual);
+  const optionCurrent = options.find((option) => option.value === atual);
 
   useEffect(() => {
     if (value !== undefined) setSelecionado(String(value));
@@ -66,34 +66,34 @@ export function Selecao({
     return () => document.removeEventListener('mousedown', aoClicarFora);
   }, []);
 
-  function escolher(valor: string) {
-    if (value === undefined) setSelecionado(valor);
+  function escolher(value: string) {
+    if (value === undefined) setSelecionado(value);
     setAberto(false);
-    if (campo.current) campo.current.value = valor;
+    if (campo.current) campo.current.value = value;
     const alvo = campo.current as unknown as HTMLSelectElement;
     onChange?.({ target: alvo, currentTarget: alvo } as ChangeEvent<HTMLSelectElement>);
   }
 
   function aoTeclar(evento: KeyboardEvent<HTMLButtonElement>) {
-    const disponiveis = opcoes.filter((opcao) => !opcao.desabilitada);
-    const indice = Math.max(0, disponiveis.findIndex((opcao) => opcao.valor === atual));
+    const disponiveis = options.filter((option) => !option.desabilitada);
+    const indice = Math.max(0, disponiveis.findIndex((option) => option.value === atual));
     if (evento.key === 'Escape') {
       setAberto(false);
       return;
     }
     if (evento.key === 'Enter' || evento.key === ' ') {
       evento.preventDefault();
-      setAberto((estado) => !estado);
+      setAberto((state) => !state);
       return;
     }
-    const destino =
+    const destination =
       evento.key === 'ArrowDown' ? disponiveis[Math.min(indice + 1, disponiveis.length - 1)] :
       evento.key === 'ArrowUp' ? disponiveis[Math.max(indice - 1, 0)] :
       evento.key === 'Home' ? disponiveis[0] :
       evento.key === 'End' ? disponiveis.at(-1) : undefined;
-    if (destino) {
+    if (destination) {
       evento.preventDefault();
-      escolher(destino.valor);
+      escolher(destination.value);
     }
   }
 
@@ -109,27 +109,27 @@ export function Selecao({
         aria-expanded={aberto}
         aria-controls={listaId}
         aria-haspopup="listbox"
-        aria-activedescendant={opcaoAtual ? `${listaId}-${opcaoAtual.valor}` : undefined}
-        onClick={() => setAberto((estado) => !estado)}
+        aria-activedescendant={optionCurrent ? `${listaId}-${optionCurrent.value}` : undefined}
+        onClick={() => setAberto((state) => !state)}
         onKeyDown={aoTeclar}
       >
-        <span className={opcaoAtual ? undefined : 'selecao-placeholder'}>{opcaoAtual?.rotulo}</span>
+        <span className={optionCurrent ? undefined : 'selecao-placeholder'}>{optionCurrent?.rotulo}</span>
         <Icone nome="baixo" tamanho={16} />
       </button>
       {aberto ? (
         <div id={listaId} className="selecao-lista" role="listbox" aria-label={ariaLabel}>
-          {opcoes.map((opcao) => (
+          {options.map((option) => (
             <button
-              key={opcao.valor}
-              id={`${listaId}-${opcao.valor}`}
+              key={option.value}
+              id={`${listaId}-${option.value}`}
               type="button"
               role="option"
-              aria-selected={opcao.valor === atual}
-              disabled={opcao.desabilitada}
-              className={opcao.valor === atual ? 'selecionada' : undefined}
-              onClick={() => escolher(opcao.valor)}
+              aria-selected={option.value === atual}
+              disabled={option.desabilitada}
+              className={option.value === atual ? 'selecionada' : undefined}
+              onClick={() => escolher(option.value)}
             >
-              {opcao.rotulo}
+              {option.rotulo}
             </button>
           ))}
         </div>

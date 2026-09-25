@@ -1,22 +1,22 @@
 import { createHash } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import {
-  ArmazenamentoEmDisco,
-  VALIDADE_LINK_MS,
+  StorageInDisk,
+  VALIDITY_LINK_MS,
   assinar,
   assinaturaValida,
-  chaveDeAnexo,
-  chaveDoTenant,
+  keyOfAttachment,
+  keyOfTenant,
   maxBytesDoMime,
   mimeAceito,
   mimeParaServir,
-  servirComoAnexo,
+  serveAsAttachment,
   tipoDoMime,
 } from '@pipe/armazenamento';
-import type { Armazenamento } from '@pipe/armazenamento';
-import { chaveiroDoAmbiente } from '@pipe/db';
+import type { Storage } from '@pipe/armazenamento';
+import { keyringOfAmbiente } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 
 /**
  * Anexo: subir, ler e montar o link.
@@ -31,15 +31,15 @@ import { ErroPipe } from '../erros.js';
  *    que o cliente escreveu; um `.png` que é HTML vira XSS na tela de quem abrir.
  */
 
-let armazem: Armazenamento | null = null;
+let armazem: Storage | null = null;
 
-export function armazenamento(): Armazenamento {
-  armazem ??= new ArmazenamentoEmDisco();
+export function storage(): Storage {
+  armazem ??= new StorageInDisk();
   return armazem;
 }
 
 /** Só para teste: troca o backend sem subir infra. */
-export function usarArmazenamento(novo: Armazenamento | null): void {
+export function useStorage(novo: Storage | null): void {
   armazem = novo;
 }
 
@@ -49,14 +49,14 @@ export function usarArmazenamento(novo: Armazenamento | null): void {
  * Reaproveita o chaveiro que já protege o token da Meta — uma chave a menos para
  * rotacionar e um lugar a menos para vazar.
  */
-function segredoDeLink(): string {
-  const chaveiro = chaveiroDoAmbiente();
-  const chave = chaveiro.chaves.get(chaveiro.atual);
+function secretOfLink(): string {
+  const keyring = keyringOfAmbiente();
+  const chave = keyring.chaves.get(keyring.atual);
   if (!chave) throw new Error('chaveiro sem a chave atual: link de anexo não pode ser assinado');
   return chave.toString('base64');
 }
 
-export interface AnexoGuardado {
+export interface AttachmentSaved {
   id: string;
   mime: string;
   bytes: number;
@@ -71,9 +71,9 @@ export interface PedidoDeUpload {
   dados: Uint8Array;
 }
 
-export async function guardarAnexo(pedido: PedidoDeUpload): Promise<AnexoGuardado> {
+export async function saveAttachment(pedido: PedidoDeUpload): Promise<AttachmentSaved> {
   if (!mimeAceito(pedido.mimeDeclarado)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'tipo_nao_aceito',
       `O tipo "${pedido.mimeDeclarado}" não é aceito.`,
       { mime: pedido.mimeDeclarado },
@@ -84,7 +84,7 @@ export async function guardarAnexo(pedido: PedidoDeUpload): Promise<AnexoGuardad
   // PDF passaria pelo limite de 100 MB em vez do de 16 MB.
   const mime = mimeParaServir(pedido.mimeDeclarado, pedido.dados);
   if (!mimeAceito(mime)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'tipo_real_nao_aceito',
       `O arquivo diz ser "${pedido.mimeDeclarado}", mas o conteúdo é "${mime}".`,
       { declarado: pedido.mimeDeclarado, real: mime },
@@ -93,27 +93,27 @@ export async function guardarAnexo(pedido: PedidoDeUpload): Promise<AnexoGuardad
 
   const teto = maxBytesDoMime(mime);
   if (pedido.dados.byteLength > teto) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'arquivo_grande_demais',
       `O arquivo tem ${mb(pedido.dados.byteLength)} MB e o limite para este tipo é ${mb(teto)} MB.`,
       { bytes: pedido.dados.byteLength, limite: teto },
     );
   }
   if (pedido.dados.byteLength === 0) {
-    throw ErroPipe.requisicao('arquivo_vazio', 'O arquivo está vazio.');
+    throw PipeError.request('arquivo_vazio', 'O arquivo está vazio.');
   }
 
-  const chave = chaveDeAnexo(pedido.tenantId, pedido.nomeOriginal);
+  const key = keyOfAttachment(pedido.tenantId, pedido.nomeOriginal);
   const checksum = createHash('sha256').update(pedido.dados).digest('hex');
 
   // Grava no storage ANTES do banco: linha sem arquivo é anexo quebrado na tela;
   // arquivo sem linha é só lixo, e o disco aguenta.
-  await armazenamento().guardar(chave, pedido.dados);
+  await storage().guardar(key, pedido.dados);
 
   const id = await noTenant(pedido.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into anexo (tenant_id, chave_storage, mime, bytes, nome_original, checksum)
-      values (${pedido.tenantId}, ${chave}, ${mime}, ${pedido.dados.byteLength},
+      values (${pedido.tenantId}, ${key}, ${mime}, ${pedido.dados.byteLength},
               ${pedido.nomeOriginal}, ${checksum})
       returning id
     `);
@@ -127,7 +127,7 @@ export async function guardarAnexo(pedido: PedidoDeUpload): Promise<AnexoGuardad
     mime,
     bytes: pedido.dados.byteLength,
     tipo: tipoDoMime(mime),
-    link: linkDoAnexo(id),
+    link: linkOfAttachment(id),
   };
 }
 
@@ -138,23 +138,23 @@ export async function guardarAnexo(pedido: PedidoDeUpload): Promise<AnexoGuardad
  * porque a Meta busca de fora — `PIPE_STORAGE_URL_BASE` deixa de apontar para um host
  * que não existe e passa a ser a base pública da própria `api`.
  */
-export function linkDoAnexo(anexoId: string, agora = Date.now()): string {
-  const expira = agora + VALIDADE_LINK_MS;
-  const assinatura = assinar(anexoId, expira, segredoDeLink());
+export function linkOfAttachment(attachmentId: string, agora = Date.now()): string {
+  const expira = agora + VALIDITY_LINK_MS;
+  const assinatura = assinar(attachmentId, expira, secretOfLink());
   const base = (
     process.env['PIPE_STORAGE_URL_BASE'] ??
     process.env['PIPE_URL_API'] ??
     'http://localhost:3000'
   ).replace(/\/$/, '');
-  return `${base}/v1/anexos/${anexoId}?expira=${expira}&assinatura=${assinatura}`;
+  return `${base}/v1/anexos/${attachmentId}?expira=${expira}&assinatura=${assinatura}`;
 }
 
-export interface AnexoParaServir {
-  dados: Uint8Array;
+export interface AttachmentForServe {
+  data: Uint8Array;
   mime: string;
   nomeOriginal: string | null;
   /** `true` obriga download em vez de abrir inline. Ver `servirComoAnexo`. */
-  comoAnexo: boolean;
+  asAttachment: boolean;
 }
 
 /**
@@ -167,24 +167,24 @@ export interface AnexoParaServir {
  * prova que o link saiu de nós; a conferência de prefixo prova que o arquivo é do
  * tenant daquele anexo.
  */
-export async function lerAnexoAssinado(
+export async function readAttachmentSigned(
   anexoId: string,
   expira: number,
   assinatura: string,
-  tenantIdDoAnexo: (id: string) => Promise<{ tenantId: string } | null>,
-): Promise<AnexoParaServir> {
-  if (!assinaturaValida(anexoId, expira, assinatura, segredoDeLink())) {
+  tenantIdOfAttachment: (id: string) => Promise<{ tenantId: string } | null>,
+): Promise<AttachmentForServe> {
+  if (!assinaturaValida(anexoId, expira, assinatura, secretOfLink())) {
     // Link vencido e link forjado dão a MESMA resposta: distinguir contaria a quem
     // tenta qual metade do palpite acertou.
-    throw ErroPipe.naoAutorizado('Link inválido ou vencido.');
+    throw PipeError.naoAutorizado('Link inválido ou vencido.');
   }
 
-  const dono = await tenantIdDoAnexo(anexoId);
-  if (!dono) throw ErroPipe.naoEncontrado('Anexo');
+  const dono = await tenantIdOfAttachment(anexoId);
+  if (!dono) throw PipeError.naoEncontrado('Anexo');
 
   const linha = await noTenant(dono.tenantId, async (tx) => {
     const { rows } = await tx.execute<{
-      chave_storage: string;
+      keyStorage: string;
       mime: string;
       nome_original: string | null;
     }>(sql`
@@ -192,21 +192,21 @@ export async function lerAnexoAssinado(
     `);
     return rows[0] ?? null;
   });
-  if (!linha) throw ErroPipe.naoEncontrado('Anexo');
+  if (!linha) throw PipeError.naoEncontrado('Anexo');
 
   // Cinto e suspensório: a chave gravada tem de estar na faixa do tenant dela.
-  if (!chaveDoTenant(linha.chave_storage, dono.tenantId)) {
-    throw ErroPipe.naoEncontrado('Anexo');
+  if (!keyOfTenant(linha.keyStorage, dono.tenantId)) {
+    throw PipeError.naoEncontrado('Anexo');
   }
 
-  const objeto = await armazenamento().ler(linha.chave_storage);
-  if (!objeto) throw ErroPipe.naoEncontrado('Anexo');
+  const objeto = await storage().ler(linha.keyStorage);
+  if (!objeto) throw PipeError.naoEncontrado('Anexo');
 
   return {
-    dados: objeto.dados,
+    data: objeto.data,
     mime: linha.mime,
     nomeOriginal: linha.nome_original,
-    comoAnexo: servirComoAnexo(linha.mime),
+    asAttachment: serveAsAttachment(linha.mime),
   };
 }
 

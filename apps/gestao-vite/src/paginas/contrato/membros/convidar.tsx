@@ -1,9 +1,9 @@
 import { useActionState, useId, useRef, useState } from 'react';
 import type { ClipboardEvent, KeyboardEvent } from 'react';
 import { IconePortal } from '../../../componentes/icones-portal';
-import { convidarMembros } from '../acoes';
-import type { ResultadoDoConvite } from '../acoes';
-import type { OpcaoDePapel } from './tabela';
+import { convidarMembers } from '../acoes';
+import type { InvitationResult } from '../acoes';
+import type { RoleOption } from './tabela';
 
 /**
  * O botão "Convidar" e o modal "Convidar pessoas".
@@ -34,14 +34,14 @@ import type { OpcaoDePapel } from './tabela';
    member → admin — chega pronto em `papeis` (`PAPEIS_DA_ORIGEM`, na página). */
 
 /** O `emailValidation` do blip-ds é um formato, não uma consulta. */
-const FORMATO_DE_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
+const FORMAT_OF_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
 /** Acima disto o chip corta e o tooltip mostra o resto (medido na tela deles). */
 const LETRAS_DO_CHIP = 20;
 
 /* "Veja a formatacão da tabela aqui." baixa um modelo. Um `data:` num `<a
    download>` dispensa script, que alguns navegadores bloqueiam para download. */
-const MODELO_CSV = 'nome@empresa.com.br\noutra.pessoa@empresa.com.br\n';
+const TEMPLATE_CSV = 'nome@empresa.com.br\noutra.pessoa@empresa.com.br\n';
 
 function separar(texto: string): string[] {
   return texto
@@ -50,39 +50,39 @@ function separar(texto: string): string[] {
     .filter(Boolean);
 }
 
-export function ConvidarMembros({
+export function ConvidarMembers({
   papeis,
-  emailsDeMembros,
+  membersEmails,
 }: {
-  papeis: OpcaoDePapel[];
+  papeis: RoleOption[];
   /** Em minúsculas. Quem já está no contrato não pode ser convidado de novo. */
-  emailsDeMembros: string[];
+  membersEmails: string[];
 }) {
   const modal = useRef<HTMLDialogElement>(null);
-  const arquivo = useRef<HTMLInputElement>(null);
+  const file = useRef<HTMLInputElement>(null);
   const campoDeTexto = useRef<HTMLInputElement>(null);
-  const botaoDoPapel = useRef<HTMLButtonElement>(null);
+  const roleButton = useRef<HTMLButtonElement>(null);
   const lista = useRef<HTMLUListElement>(null);
   const id = useId();
 
   const [chips, definirChips] = useState<string[]>([]);
   const [texto, definirTexto] = useState('');
-  const [papelId, escolherPapelId] = useState('');
+  const [roleId, escolherRoleId] = useState('');
   const [aberta, abrirLista] = useState(false);
-  const [ativa, definirAtiva] = useState(0);
+  const [active, definirActive] = useState(0);
   const [copiado, marcarCopiado] = useState<string | null>(null);
   /* O resultado da ação sobrevive ao fechar; este é o que a pessoa já viu, para
      o modal reabrir limpo. */
-  const [visto, marcarVisto] = useState<ResultadoDoConvite | null>(null);
-  const [resultado, enviar, enviando] = useActionState(convidarMembros, null);
+  const [visto, marcarVisto] = useState<InvitationResult | null>(null);
+  const [resultado, enviar, enviando] = useActionState(convidarMembers, null);
 
-  const opcoes = papeis;
-  const papel = opcoes.find((p) => p.id === papelId) ?? null;
+  const options = papeis;
+  const role = options.find((p) => p.id === roleId) ?? null;
   const novo = resultado !== visto ? resultado : null;
 
-  const invalido = chips.some((c) => !FORMATO_DE_EMAIL.test(c));
-  const jaMembro = chips.some((c) => emailsDeMembros.includes(c.toLowerCase()));
-  const travado = chips.length === 0 || invalido || !papel || jaMembro || enviando;
+  const invalido = chips.some((c) => !FORMAT_OF_EMAIL.test(c));
+  const alreadyMember = chips.some((c) => membersEmails.includes(c.toLowerCase()));
+  const travado = chips.length === 0 || invalido || !role || alreadyMember || enviando;
 
   function acrescentar(novos: string[]) {
     definirChips((antes) => {
@@ -114,27 +114,27 @@ export function ConvidarMembros({
     definirTexto('');
   }
 
-  async function importar(lido: File | undefined) {
+  async function import(lido: File | undefined) {
     if (!lido) return;
     const linhas = (await lido.text())
       .split(/\r?\n/)
       .map((l) => l.trim())
       .filter((l) => l && !l.toLowerCase().startsWith('sep='));
     acrescentar(linhas.flatMap(separar));
-    if (arquivo.current) arquivo.current.value = '';
+    if (file.current) file.current.value = '';
   }
 
-  function escolher(p: OpcaoDePapel) {
-    escolherPapelId(p.id);
+  function escolher(p: RoleOption) {
+    escolherRoleId(p.id);
     abrirLista(false);
-    botaoDoPapel.current?.focus();
+    roleButton.current?.focus();
   }
 
   function abrir() {
-    definirAtiva(
+    definirActive(
       Math.max(
         0,
-        opcoes.findIndex((p) => p.id === papelId),
+        options.findIndex((p) => p.id === roleId),
       ),
     );
     abrirLista(true);
@@ -145,15 +145,15 @@ export function ConvidarMembros({
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const passo = e.key === 'ArrowDown' ? 1 : -1;
-      definirAtiva((a) => (a + passo + opcoes.length) % opcoes.length);
+      definirActive((a) => (a + passo + options.length) % options.length);
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (opcoes[ativa]) escolher(opcoes[ativa]);
+      if (options[active]) escolher(options[active]);
     } else if (e.key === 'Escape') {
       /* Sem isto o Esc fecharia o `<dialog>` inteiro, e não só a lista. */
       e.preventDefault();
       abrirLista(false);
-      botaoDoPapel.current?.focus();
+      roleButton.current?.focus();
     }
   }
 
@@ -161,7 +161,7 @@ export function ConvidarMembros({
     modal.current?.close();
     definirChips([]);
     definirTexto('');
-    escolherPapelId('');
+    escolherRoleId('');
     abrirLista(false);
     marcarCopiado(null);
     marcarVisto(resultado);
@@ -197,7 +197,7 @@ export function ConvidarMembros({
                 </li>
               ))}
             </ul>
-            {novo.erros.length > 0 ? <Erros erros={novo.erros} /> : null}
+            {novo.errors.length > 0 ? <SError errors={novo.errors} /> : null}
             <button type="button" className="mb-botao" onClick={fechar}>
               OK :)
             </button>
@@ -213,7 +213,7 @@ export function ConvidarMembros({
             <form action={enviar} hidden={enviando}>
               <input type="hidden" name="emails" value={chips.join(',')} />
               {/* A API casa o papel pelo NOME do banco — o `roleId`, não o rótulo. */}
-              <input type="hidden" name="papel" value={papel?.roleId ?? ''} />
+              <input type="hidden" name="papel" value={role?.roleId ?? ''} />
 
               <div className="mb-convite-topo">
                 {/* ponytail: o `/fonts/invite_envelope.svg` deles não está em
@@ -285,7 +285,7 @@ export function ConvidarMembros({
                   {/* O rótulo mora dentro da borda, como no `bds-select`; o
                       nome do botão é "Permissão" seguido do valor. */}
                   <button
-                    ref={botaoDoPapel}
+                    ref={roleButton}
                     type="button"
                     className={`mb-campo mb-select-campo${aberta ? ' mb-campo--aberto' : ''}`}
                     aria-haspopup="listbox"
@@ -302,8 +302,8 @@ export function ConvidarMembros({
                       <span className="mb-campo-rotulo" id={`${id}-rotulo-papel`}>
                         Permissão
                       </span>
-                      <span className={`mb-select-valor${papel ? '' : ' mb-select-vazio'}`}>
-                        {papel?.rotulo ?? 'Selecione'}
+                      <span className={`mb-select-valor${role ? '' : ' mb-select-vazio'}`}>
+                        {role?.rotulo ?? 'Selecione'}
                       </span>
                     </span>
                     <IconePortal nome="baixo" tamanho={20} />
@@ -315,21 +315,21 @@ export function ConvidarMembros({
                       tabIndex={-1}
                       className="mb-opcoes"
                       aria-labelledby={`${id}-rotulo-papel`}
-                      aria-activedescendant={`${id}-opcao-${ativa}`}
+                      aria-activedescendant={`${id}-opcao-${active}`}
                       onKeyDown={teclaNaLista}
                       onBlur={(e) => {
-                        if (e.relatedTarget !== botaoDoPapel.current) abrirLista(false);
+                        if (e.relatedTarget !== roleButton.current) abrirLista(false);
                       }}
                     >
-                      {opcoes.map((p, i) => (
+                      {options.map((p, i) => (
                         <li
                           key={p.id}
                           id={`${id}-opcao-${i}`}
                           role="option"
-                          aria-selected={p.id === papelId}
-                          className={`mb-opcao${i === ativa ? ' mb-opcao--ativa' : ''}`}
+                          aria-selected={p.id === roleId}
+                          className={`mb-opcao${i === active ? ' mb-opcao--ativa' : ''}`}
                           onMouseDown={(e) => e.preventDefault()}
-                          onMouseEnter={() => definirAtiva(i)}
+                          onMouseEnter={() => definirActive(i)}
                           onClick={() => escolher(p)}
                         >
                           <IconePortal
@@ -339,7 +339,7 @@ export function ConvidarMembros({
                           />
                           <span className="mb-opcao-texto">
                             <span className="mb-opcao-titulo">{p.rotulo}</span>
-                            <span className="mb-opcao-descricao">{p.descricao}</span>
+                            <span className="mb-opcao-descricao">{p.description}</span>
                           </span>
                         </li>
                       ))}
@@ -348,7 +348,7 @@ export function ConvidarMembros({
                 </div>
               </div>
 
-              {jaMembro ? (
+              {alreadyMember ? (
                 <div className="mb-convite-aviso" role="alert">
                   <IconePortal nome="alerta" tamanho={40} />
                   <span>
@@ -367,30 +367,30 @@ export function ConvidarMembros({
                   <button
                     type="button"
                     className="mb-botao mb-botao--fantasma mb-botao--curto"
-                    onClick={() => arquivo.current?.click()}
+                    onClick={() => file.current?.click()}
                   >
                     <IconePortal nome="planilha" tamanho={24} />
                     Importar vários
                   </button>
                   <input
-                    ref={arquivo}
+                    ref={file}
                     type="file"
                     accept=".csv"
                     hidden
-                    onChange={(e) => importar(e.target.files?.[0])}
+                    onChange={(e) => import(e.target.files?.[0])}
                   />
                 </div>
                 {/* O "formatacão" sem acento no lugar certo é deles. */}
                 <a
                   className="mb-convite-modelo"
-                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(MODELO_CSV)}`}
+                  href={`data:text/csv;charset=utf-8,${encodeURIComponent(TEMPLATE_CSV)}`}
                   download="modelo-convite.csv"
                 >
                   Veja a formatacão da tabela aqui.
                 </a>
               </div>
 
-              {novo?.erros.length ? <Erros erros={novo.erros} /> : null}
+              {novo?.errors.length ? <SError errors={novo.errors} /> : null}
 
               <div className="mb-convite-rodape">
                 <button type="button" className="mb-botao mb-botao--secundario" onClick={fechar}>
@@ -408,10 +408,10 @@ export function ConvidarMembros({
   );
 }
 
-function Erros({ erros }: { erros: string[] }) {
+function SError({ errors }: { errors: string[] }) {
   return (
     <ul className="mb-erros" role="alert">
-      {erros.map((e) => (
+      {errors.map((e) => (
         <li key={e}>{e}</li>
       ))}
     </ul>

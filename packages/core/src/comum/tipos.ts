@@ -20,9 +20,9 @@
  */
 export interface ResultadoMetrica {
   /** Média em segundos, ou `null` quando a população é zero. Nunca `0` por falta de dado. */
-  valor: number | null;
+  value: number | null;
   /** Denominador do cálculo. */
-  populacao: number;
+  population: number;
   /** Itens candidatos que ficaram fora do denominador. */
   excluidas: number;
   /** Soma dos tempos, em segundos. */
@@ -30,16 +30,16 @@ export interface ResultadoMetrica {
 }
 
 /** Constrói um `ResultadoMetrica` a partir da soma e das contagens. */
-export function resultado(soma: number, populacao: number, excluidas: number): ResultadoMetrica {
+export function resultado(soma: number, population: number, excluidas: number): ResultadoMetrica {
   return {
-    valor: populacao > 0 ? soma / populacao : null,
-    populacao,
+    value: population > 0 ? soma / population : null,
+    population,
     excluidas,
     soma,
   };
 }
 
 /** Resultado vazio — nenhuma conversa entrou no cálculo. */
-export function resultadoVazio(excluidas = 0): ResultadoMetrica {
-  return { valor: null, populacao: 0, excluidas, soma: 0 };
+export function resultEmpty(excluidas = 0): ResultadoMetrica {
+  return { value: null, population: 0, excluidas, soma: 0 };
 }

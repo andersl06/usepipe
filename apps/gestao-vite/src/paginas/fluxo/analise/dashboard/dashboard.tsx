@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { useLeitura } from '../../../../lib/consulta';
-import { useContato } from '../../contato';
+import { useRead } from '../../../../lib/consulta';
+import { useContact } from '../../contato';
 import type { RespostaDoDashboard } from './resposta';
 import { TelaDoDashboard } from './tela';
 import './dashboard.css';
@@ -14,26 +14,26 @@ import './dashboard.css';
  * `7days`, `lastWeek`…), `de`/`ate` para o personalizado, `contatos=` para a
  * barra lateral. Período inválido cai em "Hoje", que é o inicial de lá.
  */
-export function PaginaDoDashboard() {
-  const { contato } = useContato();
-  const [busca] = useSearchParams();
+export function DashboardPage() {
+  const { contact } = useContact();
+  const [search] = useSearchParams();
   const q = new URLSearchParams();
-  for (const chave of ['periodo', 'de', 'ate', 'contatos']) {
-    const v = busca.get(chave);
-    if (v) q.set(chave, v);
+  for (const key of ['periodo', 'de', 'ate', 'contatos']) {
+    const v = search.get(key);
+    if (v) q.set(key, v);
   }
-  const leitura = useLeitura<RespostaDoDashboard>(
-    `/v1/gestao/fluxos/${contato.id}/analise/dashboard?${q.toString()}`,
+  const read = useRead<RespostaDoDashboard>(
+    `/v1/gestao/fluxos/${contact.id}/analise/dashboard?${q.toString()}`,
   );
-  if (!leitura.data) return null;
-  const { periodo, intervalo, hoje, dados, lista } = leitura.data;
+  if (!read.data) return null;
+  const { period, intervalo, hoje, data, lista } = read.data;
   return (
     <TelaDoDashboard
-      id={contato.id}
-      periodo={periodo}
+      id={contact.id}
+      period={period}
       intervalo={intervalo}
       hoje={hoje}
-      dados={dados}
+      data={data}
       lista={lista}
     />
   );

@@ -1,32 +1,32 @@
-import type { ItemDaConversa } from '@pipe/contracts';
+import type { ItemOfConversation } from '@pipe/contracts';
 
 /**
  * O agrupamento da thread — a regra dos `.blip-message-group` da referência:
  * mensagens seguidas do mesmo lado formam um grupo, com um horário só (o do
  * último balão); uma nota interna quebra o grupo e fica sozinha.
  */
-export type Mensagem = Extract<ItemDaConversa, { genero: 'mensagem' }>;
-export type Nota = Extract<ItemDaConversa, { genero: 'nota' }>;
+export type Message = Extract<ItemOfConversation, { genero: 'mensagem' }>;
+export type Nota = Extract<ItemOfConversation, { genero: 'nota' }>;
 
 export type Grupo =
-  | { genero: 'grupo'; direcao: 'entrada' | 'saida'; mensagens: Mensagem[] }
+  | { genero: 'grupo'; direction: 'entrada' | 'saida'; messages: Message[] }
   | { genero: 'nota'; nota: Nota };
 
-export function agrupar(itens: readonly ItemDaConversa[]): Grupo[] {
-  const grupos: Grupo[] = [];
+export function agrupar(itens: readonly ItemOfConversation[]): Grupo[] {
+  const groups: Grupo[] = [];
   for (const item of itens) {
     if (item.genero === 'nota') {
-      grupos.push({ genero: 'nota', nota: item });
+      groups.push({ genero: 'nota', nota: item });
       continue;
     }
-    const ultimo = grupos[grupos.length - 1];
-    if (ultimo && ultimo.genero === 'grupo' && ultimo.direcao === item.direcao) {
-      ultimo.mensagens.push(item);
+    const ultimo = groups[groups.length - 1];
+    if (ultimo && ultimo.genero === 'grupo' && ultimo.direction === item.direction) {
+      ultimo.messages.push(item);
     } else {
-      grupos.push({ genero: 'grupo', direcao: item.direcao, mensagens: [item] });
+      groups.push({ genero: 'grupo', direction: item.direction, messages: [item] });
     }
   }
-  return grupos;
+  return groups;
 }
 
 /**
@@ -34,12 +34,12 @@ export function agrupar(itens: readonly ItemDaConversa[]): Grupo[] {
  * são os `estado_entrega` do domínio; a referência mostra relógio para
  * pendente, um check para enviada, dois para entregue e dois azuis para lida.
  */
-export type SinalDeEntrega = 'relogio' | 'check' | 'duplo-check' | 'lida' | 'erro' | null;
+export type DeliverySignal = 'relogio' | 'check' | 'duplo-check' | 'lida' | 'erro' | null;
 
-export function sinalDeEntrega(mensagens: readonly Mensagem[]): SinalDeEntrega {
-  const ultima = mensagens[mensagens.length - 1];
+export function deliverySignal(messages: readonly Message[]): DeliverySignal {
+  const ultima = messages[messages.length - 1];
   if (!ultima) return null;
-  switch (ultima.estadoEntrega) {
+  switch (ultima.stateDelivery) {
     case 'pendente':
     case 'enviando':
       return 'relogio';

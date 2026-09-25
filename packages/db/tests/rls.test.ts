@@ -28,21 +28,21 @@ describe('isolamento por tenant', () => {
       return r.rows;
     });
 
-    expect(doA.map((linha) => linha.id)).toEqual([cenario.filaA]);
-    expect(doA.map((linha) => linha.id)).not.toContain(cenario.filaB);
+    expect(doA.map((linha) => linha.id)).toEqual([cenario.queueA]);
+    expect(doA.map((linha) => linha.id)).not.toContain(cenario.queueB);
 
     // E o caminho inverso, para descartar que o filtro seja coincidência de ordem.
     const doB = await comTenant(cenario.app, cenario.tenantB, async (tx) => {
       const r = await tx.execute<{ id: string }>(sql`select id from fila`);
       return r.rows;
     });
-    expect(doB.map((linha) => linha.id)).toEqual([cenario.filaB]);
+    expect(doB.map((linha) => linha.id)).toEqual([cenario.queueB]);
 
     // Buscar pelo id do outro tenant também não devolve nada: a política filtra a
     // linha, não a consulta.
     const espiada = await comTenant(cenario.app, cenario.tenantA, async (tx) => {
       const r = await tx.execute<{ id: string }>(
-        sql`select id from fila where id = ${cenario.filaB}::uuid`,
+        sql`select id from fila where id = ${cenario.queueB}::uuid`,
       );
       return r.rows;
     });
@@ -56,11 +56,11 @@ describe('isolamento por tenant', () => {
     expect(fechou).toBe(true);
 
     // Nem o total escapa: `count(*)` sem tenant não pode devolver 2.
-    const contagem = await cenario.app
+    const count = await cenario.app
       .execute<{ n: string }>(sql`select count(*)::text as n from fila`)
       .then((r) => r.rows[0]?.n ?? null)
       .catch(() => null);
-    expect(contagem).not.toBe('2');
+    expect(count).not.toBe('2');
 
     // E a escrita também: inserir sem tenant em vigor não pode passar.
     await expect(
@@ -86,7 +86,7 @@ describe('isolamento por tenant', () => {
       const r = await tx.execute<{ id: string }>(sql`select id from fila`);
       return r.rows.map((linha) => linha.id);
     });
-    expect(depois).toEqual([cenario.filaB]);
+    expect(depois).toEqual([cenario.queueB]);
 
     // E a política também vale na escrita: gravar linha carimbada com o outro tenant
     // é barrado pelo `with check`.
@@ -150,11 +150,11 @@ describe('isolamento por tenant', () => {
   it('a partição criada agora nasce com a política, e não é porta dos fundos', async () => {
     const mes = new Date();
     mes.setMonth(mes.getMonth() + 2);
-    const primeiro = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}-01`;
-    const { rows: criada } = await cenario.dono.execute<{ pipe_criar_particao_mes: string }>(
-      sql`select pipe_criar_particao_mes('mensagem', ${primeiro}::date)`,
+    const first = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}-01`;
+    const { rows: criada } = await cenario.dono.execute<{ pipeCreatePartitionMonth: string }>(
+      sql`select pipe_criar_particao_mes('mensagem', ${first}::date)`,
     );
-    const nome = criada[0]?.pipe_criar_particao_mes ?? '';
+    const nome = criada[0]?.pipeCreatePartitionMonth ?? '';
     expect(nome).toMatch(/^mensagem_\d{4}_\d{2}$/);
 
     const { rows: politica } = await cenario.dono.execute<{ n: string }>(sql`

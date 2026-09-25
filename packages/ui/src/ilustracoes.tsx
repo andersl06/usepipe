@@ -24,10 +24,10 @@ import type { ReactNode, SVGProps } from 'react';
  * - `concluido` — a fila zerou. É o único estado vazio que é boa notícia.
  * - `erro`     — a tela não conseguiu carregar. Tubulação partida.
  */
-export type NomeDeIlustracao = 'vazio' | 'busca' | 'concluido' | 'erro';
+export type IllustrationName = 'vazio' | 'busca' | 'concluido' | 'erro';
 
-export type PropsDeIlustracao = {
-  nome?: NomeDeIlustracao;
+export type IllustrationProps = {
+  nome?: IllustrationName;
   /** Largura em px. Padrão 96 — cabe num cartão sem virar o assunto da tela. */
   tamanho?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'name'>;
@@ -36,7 +36,7 @@ export type PropsDeIlustracao = {
    120) reduzida à metade porque a ilustração é maior que o logotipo. */
 const TRACO = 6;
 
-export function Ilustracao({ nome = 'vazio', tamanho = 96, className, ...resto }: PropsDeIlustracao) {
+export function Illustration({ nome = 'vazio', tamanho = 96, className, ...resto }: IllustrationProps) {
   return (
     <svg
       width={tamanho}
@@ -57,14 +57,14 @@ export function Ilustracao({ nome = 'vazio', tamanho = 96, className, ...resto }
 }
 
 /** Texto alternativo. A ilustração é decorativa, mas quem lê tela merece saber. */
-const ROTULOS: Record<NomeDeIlustracao, string> = {
+const ROTULOS: Record<IllustrationName, string> = {
   vazio: 'Nada aqui ainda',
   busca: 'Nenhum resultado',
   concluido: 'Tudo resolvido',
   erro: 'Não foi possível carregar',
 };
 
-const CENAS: Record<NomeDeIlustracao, ReactNode> = {
+const CENAS: Record<IllustrationName, ReactNode> = {
   /* Dois cotovelos que não se encontram: o vão é o vazio. */
   vazio: (
     <>

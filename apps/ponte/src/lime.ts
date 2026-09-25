@@ -11,8 +11,8 @@
  * como no protocolo. O resto do arquivo é nosso e fica em português.
  */
 
-export const TIPO_COLECAO = 'application/vnd.lime.collection+json';
-export const TIPO_DOCUMENTO = 'application/vnd.lime.document+json';
+export const TIPO_COLLECTION = 'application/vnd.lime.collection+json';
+export const TIPO_DOCUMENT = 'application/vnd.lime.document+json';
 export const TIPO_TICKET = 'application/vnd.iris.ticket+json';
 export const TIPO_ACCOUNT = 'application/vnd.lime.account+json';
 
@@ -41,19 +41,19 @@ export function ok(recurso: unknown, tipo?: string): RespostaLime {
  * a tela usa esse número no contador ("3 clientes aguardando"), e mandar o tamanho
  * da página faz o contador mentir assim que a lista passar de uma página.
  */
-export function colecao(itens: unknown[], tipoItem?: string, total?: number): RespostaLime {
+export function collection(itens: unknown[], tipoItem?: string, total?: number): RespostaLime {
   return ok(
     {
       total: total ?? itens.length,
       itemType: tipoItem ?? 'application/json',
       items: itens,
     },
-    TIPO_COLECAO,
+    TIPO_COLLECTION,
   );
 }
 
-export function vazio(tipoItem?: string): RespostaLime {
-  return colecao([], tipoItem);
+export function empty(tipoItem?: string): RespostaLime {
+  return collection([], tipoItem);
 }
 
 /**
@@ -65,8 +65,8 @@ export function ausente(): RespostaLime {
   return { status: 'failure', reason: { code: 67, description: 'The requested resource was not found' } };
 }
 
-export function falha(codigo: number, descricao: string): RespostaLime {
-  return { status: 'failure', reason: { code: codigo, description: descricao } };
+export function falha(codigo: number, description: string): RespostaLime {
+  return { status: 'failure', reason: { code: codigo, description: description } };
 }
 
 /** Desmonta `lime://bot@msging.net/caminho?a=1` em caminho e query. */

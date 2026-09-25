@@ -1,4 +1,4 @@
-import { AvisoDeCarregamento, EsqueletoDeCampos } from '../../../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeCampos } from '../../../componentes/esqueleto';
 
 /**
  * O esqueleto da ficha, na mesma grade de duas colunas da tela pronta: a lateral
@@ -8,7 +8,7 @@ import { AvisoDeCarregamento, EsqueletoDeCampos } from '../../../componentes/esq
 export default function CarregandoFicha() {
   return (
     <>
-      <AvisoDeCarregamento>Carregando a ficha do lead.</AvisoDeCarregamento>
+      <LoadingNotice>Carregando a ficha do lead.</LoadingNotice>
       <div className="ficha">
         <div className="coluna">
           <div className="tblwrap">

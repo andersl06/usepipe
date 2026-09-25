@@ -14,7 +14,7 @@
  * cor entra no código da Gestão.
  */
 
-export const CORES_DE_FILA = [
+export const COLORS_OF_QUEUE = [
   { valor: 'grafico-1', rotulo: 'Sage' },
   { valor: 'grafico-2', rotulo: 'Azul profundo' },
   { valor: 'grafico-3', rotulo: 'Ocre' },
@@ -22,8 +22,8 @@ export const CORES_DE_FILA = [
   { valor: 'grafico-5', rotulo: 'Verde escuro' },
 ] as const;
 
-export function corValida(valor: string): boolean {
-  return CORES_DE_FILA.some((c) => c.valor === valor);
+export function corValida(value: string): boolean {
+  return COLORS_OF_QUEUE.some((c) => c.valor === value);
 }
 
 /**
@@ -34,11 +34,11 @@ export function corValida(valor: string): boolean {
  * fora do token que a régua proíbe. Eles aparecem como texto, e o próximo
  * cadastro os substitui.
  */
-export function corDaFila(valor: string | null): string | null {
+export function colorOfQueue(valor: string | null): string | null {
   return valor !== null && corValida(valor) ? `var(--p-${valor})` : null;
 }
 
 export function rotuloDaCor(valor: string | null): string {
   if (valor === null) return 'Sem cor';
-  return CORES_DE_FILA.find((c) => c.valor === valor)?.rotulo ?? `Fora da paleta (${valor})`;
+  return COLORS_OF_QUEUE.find((c) => c.valor === valor)?.rotulo ?? `Fora da paleta (${valor})`;
 }

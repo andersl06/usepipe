@@ -1,21 +1,21 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import {
-  camposVisiveisDoServico,
-  chatbotsDaBusca,
+  serviceFieldsVisiveis,
+  searchChatbots,
   pedidoDoFormulario,
 } from '../src/paginas/fluxo/servicos/regras';
 
 describe('formulário de serviço', () => {
   it('esconde redirecionamento quando o serviço é o principal', () => {
-    assert.deepEqual(camposVisiveisDoServico(true, false), {
+    assert.deepEqual(serviceFieldsVisiveis(true, false), {
       mostrarPersistente: false,
       mostrarExpiracao: false,
     });
   });
 
   it('esconde somente a expiração quando o redirecionamento é persistente', () => {
-    assert.deepEqual(camposVisiveisDoServico(false, true), {
+    assert.deepEqual(serviceFieldsVisiveis(false, true), {
       mostrarPersistente: true,
       mostrarExpiracao: false,
     });
@@ -48,11 +48,11 @@ describe('formulário de serviço', () => {
       tipo: 'fluxo',
       shortName: null,
     });
-    const busca = [bot('1', 'Suporte'), bot('2', 'Vendas'), bot('3', 'Suporte VIP')];
+    const search = [bot('1', 'Suporte'), bot('2', 'Vendas'), bot('3', 'Suporte VIP')];
     assert.deepEqual(
-      chatbotsDaBusca(busca, 'sup', new Set(['1'])).map((b) => b.id),
+      searchChatbots(search, 'sup', new Set(['1'])).map((b) => b.id),
       ['3'],
     );
-    assert.deepEqual(chatbotsDaBusca(busca, 'nada', new Set()), []);
+    assert.deepEqual(searchChatbots(search, 'nada', new Set()), []);
   });
 });

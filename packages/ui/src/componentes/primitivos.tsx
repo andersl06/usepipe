@@ -17,7 +17,7 @@ import type {
   SelectHTMLAttributes,
 } from 'react';
 import { Icone, type NomeDeIcone } from '../icones';
-import { Ilustracao, type NomeDeIlustracao } from '../ilustracoes';
+import { Illustration, type IllustrationName } from '../ilustracoes';
 
 /* ------------------------------------------------------------------ botão */
 
@@ -100,7 +100,7 @@ export type PropsDeEtiqueta = {
    */
   aoClicar?: () => void;
   /** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */
-  ativa?: boolean;
+  active?: boolean;
   titulo?: string;
   className?: string;
   children: ReactNode;
@@ -110,7 +110,7 @@ export function Etiqueta({
   tom = 'neutro',
   redonda,
   aoClicar,
-  ativa,
+  active,
   titulo,
   className,
   children,
@@ -123,7 +123,7 @@ export function Etiqueta({
 
   if (aoClicar) {
     return (
-      <button type="button" className={classe} title={titulo} aria-pressed={ativa} onClick={aoClicar}>
+      <button type="button" className={classe} title={titulo} aria-pressed={active} onClick={aoClicar}>
         {children}
       </button>
     );
@@ -152,17 +152,17 @@ export function Seletor({ className, children, ...resto }: SelectHTMLAttributes<
 
 /* ------------------------------------------------------------------ abas */
 
-export type Aba = { chave: string; rotulo: string; href: string };
+export type Aba = { key: string; rotulo: string; href: string };
 
 export function Abas({ abas, atual }: { abas: readonly Aba[]; atual: string }) {
   return (
     <div className="tabs" role="tablist">
       {abas.map((aba) => (
         <a
-          key={aba.chave}
+          key={aba.key}
           href={aba.href}
           role="tab"
-          aria-current={aba.chave === atual ? 'true' : undefined}
+          aria-current={aba.key === atual ? 'true' : undefined}
         >
           {aba.rotulo}
         </a>
@@ -181,18 +181,18 @@ export function Abas({ abas, atual }: { abas: readonly Aba[]; atual: string }) {
  * `ilustracao={false}` para o vazio que aparece dentro de uma tabela, onde uma
  * cena de 96px empurra a linha seguinte para fora da tela.
  */
-export function EstadoVazio({
+export function EmptyState({
   titulo,
-  ilustracao = 'vazio',
+  illustration = 'vazio',
   children,
 }: {
   titulo: string;
-  ilustracao?: NomeDeIlustracao | false;
+  illustration?: IllustrationName | false;
   children?: ReactNode;
 }) {
   return (
     <div className="vazio">
-      {ilustracao ? <Ilustracao nome={ilustracao} /> : null}
+      {illustration ? <Illustration nome={illustration} /> : null}
       <b>{titulo}</b>
       {children}
     </div>
@@ -206,31 +206,31 @@ export function Carregando({ rotulo = 'Carregando' }: { rotulo?: string }) {
 /* ---------------------------------------------------------------- avatar */
 
 /** Iniciais do nome. Duas, no máximo — mais do que isso não cabe em 26px. */
-export function iniciais(nome: string): string {
+export function initials(nome: string): string {
   const partes = nome.trim().split(/\s+/).filter(Boolean);
-  const primeira = partes[0]?.[0] ?? '';
+  const first = partes[0]?.[0] ?? '';
   const ultima = partes.length > 1 ? (partes[partes.length - 1]?.[0] ?? '') : '';
-  return (primeira + ultima).toUpperCase();
+  return (first + ultima).toUpperCase();
 }
 
 export function Avatar({ nome, className }: { nome: string; className?: string }) {
   return (
     <span className={className ? `avatar ${className}` : 'avatar'} title={nome} aria-hidden="true">
-      {iniciais(nome)}
+      {initials(nome)}
     </span>
   );
 }
 
 /* ---------------------------------------------------------------- cartão */
 
-export function Cartao({
+export function Card({
   titulo,
-  acoes,
+  actions,
   className,
   children,
 }: {
   titulo?: string;
-  acoes?: ReactNode;
+  actions?: ReactNode;
   className?: string;
   children: ReactNode;
 }) {
@@ -239,7 +239,7 @@ export function Cartao({
       {titulo ? (
         <header className="p-cabecalho">
           <h3>{titulo}</h3>
-          {acoes ? <div className="p-cabecalho-fim">{acoes}</div> : null}
+          {actions ? <div className="p-cabecalho-fim">{actions}</div> : null}
         </header>
       ) : null}
       {children}

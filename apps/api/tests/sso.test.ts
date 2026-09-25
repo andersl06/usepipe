@@ -9,16 +9,16 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('ba
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_URL_API'] = 'https://api.teste';
 
-const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/autenticacao');
+const { InboundRefusedEntradaRecusadaInboundRefused, loginWithGoogleentrarComGoogleloginWithGoogle, loginWithSsoentrarComSsologinWithSso } = await import('@pipe/autenticacao');
 const { estaCifrado } = await import('@pipe/db');
 const {
-  conexaoParaFluxo,
-  definirEstado,
-  descobrirEntrada,
+  connectionForFlow,
+  defineState,
+  discoverInbound,
   lerConexao,
   marcarTestada,
   salvarConexao,
-  tenantPorSlug,
+  tenantBySlug,
 } = await import('../src/dominio/sso.js');
 const { montarCenario } = await import('./ajuda.js');
 const { fecharBancos } = await import('../src/banco.js');
@@ -37,7 +37,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
  */
 
 const SUFIXO = randomUUID().slice(0, 8);
-const DOMINIO = `sso-${SUFIXO}.teste`;
+const DOMAIN = `sso-${SUFIXO}.teste`;
 const EMISSOR = 'https://acme.okta.example';
 
 let cenario: Cenario;
@@ -74,16 +74,16 @@ beforeAll(async () => {
   // Domínio verificado do tenant: é ele que liga e-mail a empresa.
   await cenario.dono.execute(sql`
     insert into dominio_tenant (tenant_id, dominio, token_verificacao, verificado_em)
-    values (${cenario.tenantId}, ${DOMINIO}, 'tok', now())
+    values (${cenario.tenantId}, ${DOMAIN}, 'tok', now())
   `);
 
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
-    values (${cenario.tenantId}, 'Ana Ribeiro', ${`ana@${DOMINIO}`})
+    values (${cenario.tenantId}, 'Ana Ribeiro', ${`ana@${DOMAIN}`})
     returning id
   `);
   ana = rows[0]!.id;
-  admin = cenario.atendenteId;
+  admin = cenario.agentId;
 });
 
 afterAll(async () => {
@@ -96,7 +96,7 @@ async function configurar(): Promise<void> {
     provedor: 'okta',
     emissor: EMISSOR,
     clienteId: 'cliente-do-pipe',
-    clienteSegredo: 'segredo-do-cliente',
+    customerSecret: 'segredo-do-cliente',
   });
 }
 
@@ -123,7 +123,7 @@ describe('configuração da conexão', () => {
 
   it('devolve a URL de retorno para o cliente colar no IdP dele', async () => {
     const visivel = await lerConexao(cenario.tenantId);
-    expect(visivel?.urlDeRetorno).toBe('https://api.teste/v1/auth/sso/retorno');
+    expect(visivel?.callbackUrl).toBe('https://api.teste/v1/auth/sso/retorno');
   });
 
   it('recusa emissor que não é https', async () => {
@@ -131,7 +131,7 @@ describe('configuração da conexão', () => {
       salvarConexao(cenario.tenantId, admin, {
         emissor: 'http://acme.example',
         clienteId: 'x',
-        clienteSegredo: 'y',
+        customerSecret: 'y',
       }),
     ).rejects.toMatchObject({ codigo: 'emissor_invalido' });
   });
@@ -141,10 +141,10 @@ describe('configuração da conexão', () => {
       provedor: 'entra',
       emissor: 'https://login.microsoftonline.com/common/v2.0',
       clienteId: 'cliente',
-      clienteSegredo: 'segredo',
+      customerSecret: 'segredo',
     });
     await expect(
-      conexaoParaFluxo(cenario.tenantId, { exigirAtiva: false }, buscarDescoberta),
+      connectionForFlow(cenario.tenantId, { exigirActive: false }, buscarDescoberta),
     ).rejects.toMatchObject({ codigo: 'emissor_multi_tenant' });
     await configurar();
   });
@@ -153,14 +153,14 @@ describe('configuração da conexão', () => {
 describe('estado e política são dois botões', () => {
   it('não ativa sem teste verde — "salvei e liguei" manda todo mundo para um IdP mudo', async () => {
     await configurar();
-    await expect(definirEstado(cenario.tenantId, admin, { estado: 'ativa' })).rejects.toMatchObject({
+    await expect(defineState(cenario.tenantId, admin, { state: 'ativa' })).rejects.toMatchObject({
       codigo: 'sem_teste_valido',
     });
   });
 
   it('não exige SSO com a conexão desligada — é o incidente clássico', async () => {
     await expect(
-      definirEstado(cenario.tenantId, admin, { politica: 'obrigatorio' }),
+      defineState(cenario.tenantId, admin, { politica: 'obrigatorio' }),
     ).rejects.toMatchObject({ codigo: 'conexao_inativa' });
   });
 
@@ -168,20 +168,20 @@ describe('estado e política são dois botões', () => {
     await marcarTestada(cenario.tenantId);
     expect((await lerConexao(cenario.tenantId))?.estado).toBe('testada');
 
-    const ativa = await definirEstado(cenario.tenantId, admin, { estado: 'ativa' });
-    expect(ativa.estado).toBe('ativa');
-    expect(ativa.ativadaEm).toBeInstanceOf(Date);
+    const active = await defineState(cenario.tenantId, admin, { state: 'ativa' });
+    expect(active.estado).toBe('ativa');
+    expect(active.ativadaEm).toBeInstanceOf(Date);
     // Ativar NÃO exige SSO: a senha e o Google continuam valendo.
-    expect(ativa.politica).toBe('desligado');
+    expect(active.politica).toBe('desligado');
 
-    const exigindo = await definirEstado(cenario.tenantId, admin, { politica: 'obrigatorio' });
+    const exigindo = await defineState(cenario.tenantId, admin, { politica: 'obrigatorio' });
     expect(exigindo.politica).toBe('obrigatorio');
   });
 
   it('regravar a configuração rebaixa a conexão para rascunho', async () => {
     // Trocar o emissor de uma conexão ativa sem rebaixar o estado apontaria todo
     // o cliente para um diretório que ninguém testou.
-    await definirEstado(cenario.tenantId, admin, { politica: 'desligado' });
+    await defineState(cenario.tenantId, admin, { politica: 'desligado' });
     await configurar();
     const visivel = await lerConexao(cenario.tenantId);
     expect(visivel?.estado).toBe('rascunho');
@@ -204,18 +204,18 @@ describe('descoberta do tenant no login', () => {
   beforeAll(async () => {
     await configurar();
     await marcarTestada(cenario.tenantId);
-    await definirEstado(cenario.tenantId, admin, { estado: 'ativa', politica: 'opcional' });
+    await defineState(cenario.tenantId, admin, { state: 'ativa', politica: 'opcional' });
   });
 
   it('domínio verificado com SSO ativo vai para o IdP da empresa', async () => {
-    const achado = await descobrirEntrada(`ana@${DOMINIO}`);
+    const achado = await discoverInbound(`ana@${DOMAIN}`);
     expect(achado.metodo).toBe('sso');
     expect(achado.irPara).toBe(`/v1/auth/sso/e2e-sso-${SUFIXO}`);
   });
 
   it('domínio desconhecido responde igualzinho a um conhecido sem SSO', async () => {
     // Sem essa simetria o endpoint vira catálogo de "quais empresas usam Pipe".
-    expect(await descobrirEntrada('alguem@empresa-que-nao-existe.teste')).toEqual({
+    expect(await discoverInbound('alguem@empresa-que-nao-existe.teste')).toEqual({
       metodo: 'google',
     });
   });
@@ -229,27 +229,27 @@ describe('descoberta do tenant no login', () => {
       on conflict (dominio) do nothing
     `);
     try {
-      expect(await descobrirEntrada('alguem@gmail.com')).toEqual({ metodo: 'google' });
+      expect(await discoverInbound('alguem@gmail.com')).toEqual({ metodo: 'google' });
     } finally {
       await cenario.dono.execute(sql`delete from dominio_tenant where dominio = 'gmail.com'`);
     }
   });
 
   it('o link direto /e/<slug> resolve o tenant pela URL', async () => {
-    expect(await tenantPorSlug(`e2e-sso-${SUFIXO}`)).toBe(cenario.tenantId);
-    await expect(tenantPorSlug('empresa-que-nao-existe')).rejects.toMatchObject({ status: 404 });
+    expect(await tenantBySlug(`e2e-sso-${SUFIXO}`)).toBe(cenario.tenantId);
+    await expect(tenantBySlug('empresa-que-nao-existe')).rejects.toMatchObject({ status: 404 });
   });
 });
 
 describe('entrada pelo IdP do cliente', () => {
   it('liga a conta por (emissor, sujeito) e marca a sessão como sso', async () => {
-    const entrada = await entrarComSso(
+    const inbound = await loginWithSsoentrarComSsologinWithSso(
       cenario.dono,
       cenario.dono,
-      pessoa(`ana@${DOMINIO}`),
+      pessoa(`ana@${DOMAIN}`),
       cenario.tenantId,
     );
-    expect(entrada.usuarioId).toBe(ana);
+    expect(inbound.usuarioId).toBe(ana);
 
     const { rows } = await cenario.dono.execute<{ origem: string }>(
       sql`select origem from sessao where usuario_id = ${ana}::uuid order by criado_em desc limit 1`,
@@ -261,10 +261,10 @@ describe('entrada pelo IdP do cliente', () => {
     // Quem conseguir um IdP a emitir o e-mail da vítima entraria como ela, com os
     // papéis dela. No Entra é a ausência de `xms_edov` que cai aqui.
     await expect(
-      entrarComSso(
+      loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
         cenario.dono,
-        pessoa(`chefe@${DOMINIO}`, false),
+        pessoa(`chefe@${DOMAIN}`, false),
         cenario.tenantId,
       ),
     ).rejects.toMatchObject({ codigo: 'email_nao_verificado' });
@@ -274,7 +274,7 @@ describe('entrada pelo IdP do cliente', () => {
     // O IdP de um cliente não autentica gente de outro só por mandar o e-mail
     // certo: o domínio continua tendo de estar verificado, e verificado aqui.
     await expect(
-      entrarComSso(
+      loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
         cenario.dono,
         pessoa('ana@outra-empresa.teste'),
@@ -285,7 +285,7 @@ describe('entrada pelo IdP do cliente', () => {
 
   it('recusa quem nunca foi convidado: descobrir domínio não é entrar no cliente', async () => {
     await expect(
-      entrarComSso(cenario.dono, cenario.dono, pessoa(`novato@${DOMINIO}`), cenario.tenantId),
+      loginWithSsoentrarComSsologinWithSso(cenario.dono, cenario.dono, pessoa(`novato@${DOMAIN}`), cenario.tenantId),
     ).rejects.toMatchObject({ codigo: 'sem_convite' });
   });
 });
@@ -294,37 +294,37 @@ describe('convivência: SSO obrigatório não tem porta dos fundos', () => {
   it('com politica=obrigatorio o login pelo Google é recusado no SERVIDOR', async () => {
     // Não é a tela que esconde o botão. A identidade já está ligada, o usuário
     // está ativo, e mesmo assim a entrada por outro caminho recusa.
-    await definirEstado(cenario.tenantId, admin, { politica: 'obrigatorio' });
+    await defineState(cenario.tenantId, admin, { politica: 'obrigatorio' });
     try {
       await expect(
-        entrarComGoogle(cenario.dono, cenario.dono, {
+        loginWithGoogleentrarComGoogleloginWithGoogle(cenario.dono, cenario.dono, {
           emissor: 'https://accounts.google.com',
           sujeito: 'google-da-ana',
-          email: `ana@${DOMINIO}`,
+          email: `ana@${DOMAIN}`,
           emailVerificado: true,
           nome: 'Ana',
           avatarUrl: undefined,
         }),
-      ).rejects.toBeInstanceOf(EntradaRecusada);
+      ).rejects.toBeInstanceOf(InboundRefusedEntradaRecusadaInboundRefused);
 
       // ...e o SSO continua passando, que é o ponto da política.
-      const entrada = await entrarComSso(
+      const entrada = await loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
         cenario.dono,
-        pessoa(`ana@${DOMINIO}`),
+        pessoa(`ana@${DOMAIN}`),
         cenario.tenantId,
       );
       expect(entrada.usuarioId).toBe(ana);
     } finally {
-      await definirEstado(cenario.tenantId, admin, { politica: 'opcional' });
+      await defineState(cenario.tenantId, admin, { politica: 'opcional' });
     }
   });
 
   it('com politica=opcional os dois caminhos valem — é o que permite migrar', async () => {
-    const entrada = await entrarComGoogle(cenario.dono, cenario.dono, {
+    const entrada = await loginWithGoogleentrarComGoogleloginWithGoogle(cenario.dono, cenario.dono, {
       emissor: 'https://accounts.google.com',
       sujeito: `google-${randomUUID()}`,
-      email: `ana@${DOMINIO}`,
+      email: `ana@${DOMAIN}`,
       emailVerificado: true,
       nome: 'Ana',
       avatarUrl: undefined,

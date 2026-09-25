@@ -1,5 +1,5 @@
 import { logAuditoria } from './schema/identidade.js';
-import type { TransacaoPipe } from './tenant.js';
+import type { TransactionPipe } from './tenant.js';
 
 /**
  * O registro de quem mudou o quê.
@@ -29,8 +29,8 @@ export type TipoDeAtor = (typeof TIPOS_DE_ATOR)[number];
  * Lista fechada de propósito: string livre vira `update`, `atualizar`,
  * `atualizou` e `edit` na mesma tabela, e aí o log não se consulta mais.
  */
-export const ACOES = ['criou', 'alterou', 'excluiu', 'ativou', 'desativou'] as const;
-export type Acao = (typeof ACOES)[number];
+export const ACTIONS = ['criou', 'alterou', 'excluiu', 'ativou', 'desativou'] as const;
+export type Acao = (typeof ACTIONS)[number];
 
 export interface Ator {
   tipo: TipoDeAtor;
@@ -76,9 +76,9 @@ function limpar(
 ): Record<string, unknown> | null {
   if (!objeto) return null;
   const saida: Record<string, unknown> = {};
-  for (const [chave, valor] of Object.entries(objeto)) {
+  for (const [chave, value] of Object.entries(objeto)) {
     if (NUNCA_REGISTRAR.has(chave)) continue;
-    saida[chave] = valor instanceof Date ? valor.toISOString() : valor;
+    saida[chave] = value instanceof Date ? value.toISOString() : value;
   }
   return saida;
 }
@@ -93,7 +93,7 @@ function limpar(
  * quem chama seria deixar registrar evento no nome do vizinho.
  */
 export async function registrarAuditoria(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   evento: EventoDeAuditoria,
 ): Promise<void> {
@@ -123,17 +123,17 @@ export function diferenca(
 ): { antes: Record<string, unknown>; depois: Record<string, unknown> } {
   const a: Record<string, unknown> = {};
   const d: Record<string, unknown> = {};
-  for (const chave of new Set([...Object.keys(antes), ...Object.keys(depois)])) {
-    const va = antes[chave];
-    const vd = depois[chave];
-    if (mesmoValor(va, vd)) continue;
-    a[chave] = va;
-    d[chave] = vd;
+  for (const key of new Set([...Object.keys(antes), ...Object.keys(depois)])) {
+    const va = antes[key];
+    const vd = depois[key];
+    if (sameValue(va, vd)) continue;
+    a[key] = va;
+    d[key] = vd;
   }
   return { antes: a, depois: d };
 }
 
-function mesmoValor(a: unknown, b: unknown): boolean {
+function sameValue(a: unknown, b: unknown): boolean {
   if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
   if (a === b) return true;
   // `null` e `undefined` são a mesma ausência para efeito de log: o driver

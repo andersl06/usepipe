@@ -1,24 +1,24 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import './selecao-chips.css';
 
-type Opcao = { id: string; nome: string };
+type Option = { id: string; nome: string };
 
 /** Geometria do bds-select-chips e chip-clickable da referência do Atendimento. */
-export function SelecaoChips({
+export function SelectionChips({
   name,
   rotulo,
   placeholder,
-  opcoes,
-  valoresIniciais = [],
+  options,
+  valuesInitials = [],
 }: {
   name: string;
   rotulo: string;
   placeholder: string;
-  opcoes: readonly Opcao[];
-  valoresIniciais?: readonly string[];
+  options: readonly Option[];
+  valuesInitials?: readonly string[];
 }) {
-  const [valores, setValores] = useState(() => [...new Set(valoresIniciais)]);
-  const [busca, setBusca] = useState('');
+  const [values, setValues] = useState(() => [...new Set(valuesInitials)]);
+  const [search, setSearch] = useState('');
   const [aberta, setAberta] = useState(false);
   const [indice, setIndice] = useState(0);
   const raiz = useRef<HTMLDivElement>(null);
@@ -29,8 +29,8 @@ export function SelecaoChips({
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .toLocaleLowerCase();
-  const disponiveis = opcoes.filter(
-    (o) => !valores.includes(o.id) && normalizar(o.nome).includes(normalizar(busca)),
+  const disponiveis = options.filter(
+    (o) => !values.includes(o.id) && normalizar(o.nome).includes(normalizar(search)),
   );
   const ativo = disponiveis[Math.min(indice, disponiveis.length - 1)];
 
@@ -43,8 +43,8 @@ export function SelecaoChips({
   }, []);
 
   function adicionar(id: string) {
-    setValores((atuais) => (atuais.includes(id) ? atuais : [...atuais, id]));
-    setBusca('');
+    setValues((current) => (current.includes(id) ? current : [...current, id]));
+    setSearch('');
     setIndice(0);
     setAberta(false);
     input.current?.focus();
@@ -69,7 +69,7 @@ export function SelecaoChips({
       if (aberta && ativo) adicionar(ativo.id);
       else setAberta(true);
     }
-    if (e.key === 'Backspace' && !busca) setValores((atuais) => atuais.slice(0, -1));
+    if (e.key === 'Backspace' && !search) setValues((current) => current.slice(0, -1));
   }
 
   return (
@@ -88,10 +88,10 @@ export function SelecaoChips({
         }}
       >
         <div className="at-sc-conteudo">
-          {valores.length > 0 && (
+          {values.length > 0 && (
             <span className="at-sc-chips">
-              {valores.map((id) => {
-                const nome = opcoes.find((o) => o.id === id)?.nome ?? id;
+              {values.map((id) => {
+                const nome = options.find((o) => o.id === id)?.nome ?? id;
                 return (
                   <span className="at-sc-chip" key={id}>
                     <span className="at-sc-chip-texto" title={nome}>
@@ -103,7 +103,7 @@ export function SelecaoChips({
                       aria-label={`Remover ${nome}`}
                       onClick={(e) => {
                         e.stopPropagation();
-                        setValores((atuais) => atuais.filter((v) => v !== id));
+                        setValues((current) => current.filter((v) => v !== id));
                         input.current?.focus();
                       }}
                     >
@@ -134,9 +134,9 @@ export function SelecaoChips({
             aria-activedescendant={aberta && ativo ? `${listaId}-${ativo.id}` : undefined}
             autoComplete="off"
             placeholder={placeholder}
-            value={busca}
+            value={search}
             onChange={(e) => {
-              setBusca(e.target.value);
+              setSearch(e.target.value);
               setIndice(0);
               setAberta(true);
             }}
@@ -189,7 +189,7 @@ export function SelecaoChips({
           )}
         </div>
       )}
-      <input type="hidden" name={name} value={valores.join(',')} />
+      <input type="hidden" name={name} value={values.join(',')} />
     </div>
   );
 }

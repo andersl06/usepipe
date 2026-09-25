@@ -3,8 +3,8 @@ import { test } from 'node:test';
 import {
   CLUSTER_DA_CAPTURA,
   FLAGS_DA_CAPTURA,
-  abasDaAnalise,
-  mostraGerenciador,
+  analyticsAbas,
+  mostraManager,
 } from '../src/paginas/fluxo/analise/abas.ts';
 
 /**
@@ -17,7 +17,7 @@ import {
  */
 
 const visiveis = (flags = FLAGS_DA_CAPTURA, cluster = CLUSTER_DA_CAPTURA) =>
-  abasDaAnalise(flags, cluster)
+  analyticsAbas(flags, cluster)
     .filter((a) => a.visivel)
     .map((a) => a.rotulo);
 
@@ -34,32 +34,32 @@ test('o contrato da captura vê sete abas, na ordem do template', () => {
 });
 
 test('o Gerenciador navega na árvore atual do fluxo', () => {
-  const aba = abasDaAnalise(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
-    (item) => item.chave === 'dataExtractor',
+  const aba = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
+    (item) => item.key === 'dataExtractor',
   );
-  assert.equal(aba?.segmento, 'gerenciador-de-relatorios');
+  assert.equal(aba?.segment, 'gerenciador-de-relatorios');
 });
 
 test('o Gerenciador cai em `default` quando o cluster não tem chave própria', () => {
-  const porCluster = FLAGS_DA_CAPTURA.gerenciadorPorCluster;
-  assert.equal(mostraGerenciador(porCluster, 'Beagle'), true);
-  assert.equal(mostraGerenciador(porCluster, 'Golden'), false);
-  assert.equal(mostraGerenciador(porCluster, 'DOBERMANN'), false);
+  const byCluster = FLAGS_DA_CAPTURA.managerByCluster;
+  assert.equal(mostraManager(byCluster, 'Beagle'), true);
+  assert.equal(mostraManager(byCluster, 'Golden'), false);
+  assert.equal(mostraManager(byCluster, 'DOBERMANN'), false);
 });
 
 test('aba escondida continua na fileira, só que invisível', () => {
-  const abas = abasDaAnalise(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA);
+  const abas = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA);
   assert.equal(abas.length, 8);
-  assert.equal(abas.at(-1)?.chave, 'goodData');
+  assert.equal(abas.at(-1)?.key, 'goodData');
   assert.equal(abas.at(-1)?.visivel, false);
 });
 
 test('cada flag desliga só a sua aba', () => {
   const sem = visiveis({
     ...FLAGS_DA_CAPTURA,
-    abaMensagensAtivas: false,
+    abaActiveMessages: false,
     abaVisaoGeral: false,
-    dicionarioDeDados: false,
+    dataDictionary: false,
   });
   assert.deepEqual(sem, [
     'Dashboard',

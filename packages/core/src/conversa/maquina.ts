@@ -20,16 +20,16 @@
  * comunidade da Blip reclama.
  */
 
-import type { EventoAtendimento, TipoEvento } from '../metricas/eventos.js';
+import type { EventAttendance, TipoEvento } from '../metricas/eventos.js';
 
-export type EstadoConversa =
+export type StateConversation =
   | 'na_fila'
   | 'atribuida'
   | 'em_atendimento'
   | 'em_espera'
   | 'encerrada';
 
-export const ESTADOS_CONVERSA: readonly EstadoConversa[] = [
+export const STATES_CONVERSATION: readonly StateConversation[] = [
   'na_fila',
   'atribuida',
   'em_atendimento',
@@ -38,24 +38,24 @@ export const ESTADOS_CONVERSA: readonly EstadoConversa[] = [
 ];
 
 /** Transições permitidas, exatamente as do diagrama da §8. */
-export const TRANSICOES: Readonly<Record<EstadoConversa, readonly EstadoConversa[]>> = {
-  na_fila: ['atribuida', 'encerrada'],
+export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConversation[]>> = {
+  inQueue: ['atribuida', 'encerrada'],
   atribuida: ['em_atendimento', 'encerrada'],
-  em_atendimento: ['em_espera', 'encerrada'],
+  inAttendance: ['em_espera', 'encerrada'],
   em_espera: ['em_atendimento', 'encerrada'],
   encerrada: ['na_fila'],
 };
 
 /** Erro tipado de transição inválida. Nada de `throw new Error('opa')`. */
-export class TransicaoInvalidaError extends Error {
+export class TransitionInvalidError extends Error {
   readonly codigo = 'transicao_invalida' as const;
-  readonly de: EstadoConversa;
-  readonly para: EstadoConversa;
+  readonly de: StateConversation;
+  readonly para: StateConversation;
   readonly evento?: TipoEvento;
 
-  constructor(de: EstadoConversa, para: EstadoConversa, evento?: TipoEvento) {
-    const porCausaDe = evento ? ` (evento ${evento})` : '';
-    super(`Transição inválida de ${de} para ${para}${porCausaDe}`);
+  constructor(de: StateConversation, para: StateConversation, evento?: TipoEvento) {
+    const byCausaOf = evento ? ` (evento ${evento})` : '';
+    super(`Transição inválida de ${de} para ${para}${byCausaOf}`);
     this.name = 'TransicaoInvalidaError';
     this.de = de;
     this.para = para;
@@ -63,29 +63,29 @@ export class TransicaoInvalidaError extends Error {
   }
 }
 
-export function transicaoPermitida(de: EstadoConversa, para: EstadoConversa): boolean {
-  return TRANSICOES[de].includes(para);
+export function transitionAllowed(de: StateConversation, para: StateConversation): boolean {
+  return TRANSITIONS[de].includes(para);
 }
 
 /** Transita ou lança `TransicaoInvalidaError`. */
-export function transitar(de: EstadoConversa, para: EstadoConversa): EstadoConversa {
-  if (!transicaoPermitida(de, para)) throw new TransicaoInvalidaError(de, para);
+export function transitar(de: StateConversation, para: StateConversation): StateConversation {
+  if (!transitionAllowed(de, para)) throw new TransitionInvalidError(de, para);
   return para;
 }
 
 export type Tentativa<T> =
-  | { ok: true; estado: T }
-  | { ok: false; erro: TransicaoInvalidaError };
+  | { ok: true; state: T }
+  | { ok: false; error: TransitionInvalidError };
 
 /** Versão sem exceção, para o caminho quente do consumidor de eventos. */
 export function tentarTransitar(
-  de: EstadoConversa,
-  para: EstadoConversa,
-): Tentativa<EstadoConversa> {
-  if (!transicaoPermitida(de, para)) {
-    return { ok: false, erro: new TransicaoInvalidaError(de, para) };
+  de: StateConversation,
+  para: StateConversation,
+): Tentativa<StateConversation> {
+  if (!transitionAllowed(de, para)) {
+    return { ok: false, error: new TransitionInvalidError(de, para) };
   }
-  return { ok: true, estado: para };
+  return { ok: true, state: para };
 }
 
 /**
@@ -93,7 +93,7 @@ export function tentarTransitar(
  * estado (mensagem do cliente, alerta de SLA, avaliação, transferência de fila
  * registrada como histórico).
  */
-export function estadoAlvoDoEvento(tipo: TipoEvento): EstadoConversa | null {
+export function eventStateAlvo(tipo: TipoEvento): StateConversation | null {
   switch (tipo) {
     case 'criada':
     case 'enfileirada':
@@ -116,8 +116,8 @@ export function estadoAlvoDoEvento(tipo: TipoEvento): EstadoConversa | null {
   }
 }
 
-export interface ResultadoAplicacao {
-  estado: EstadoConversa;
+export interface ResultApplication {
+  state: StateConversation;
   mudou: boolean;
 }
 
@@ -132,28 +132,28 @@ export interface ResultadoAplicacao {
  *   permitido, lança `TransicaoInvalidaError`.
  */
 export function aplicarEvento(
-  estadoAtual: EstadoConversa,
-  evento: Pick<EventoAtendimento, 'tipo'>,
-): ResultadoAplicacao {
-  const alvo = estadoAlvoDoEvento(evento.tipo);
-  if (alvo === null) return { estado: estadoAtual, mudou: false };
-  if (alvo === estadoAtual) return { estado: estadoAtual, mudou: false };
-  if (!transicaoPermitida(estadoAtual, alvo)) {
-    throw new TransicaoInvalidaError(estadoAtual, alvo, evento.tipo);
+  stateCurrent: StateConversation,
+  evento: Pick<EventAttendance, 'tipo'>,
+): ResultApplication {
+  const alvo = eventStateAlvo(evento.tipo);
+  if (alvo === null) return { state: stateCurrent, mudou: false };
+  if (alvo === stateCurrent) return { state: stateCurrent, mudou: false };
+  if (!transitionAllowed(stateCurrent, alvo)) {
+    throw new TransitionInvalidError(stateCurrent, alvo, evento.tipo);
   }
-  return { estado: alvo, mudou: true };
+  return { state: alvo, mudou: true };
 }
 
 /** Versão sem exceção de `aplicarEvento`. */
 export function tentarAplicarEvento(
-  estadoAtual: EstadoConversa,
-  evento: Pick<EventoAtendimento, 'tipo'>,
-): Tentativa<ResultadoAplicacao> {
+  stateCurrent: StateConversation,
+  evento: Pick<EventAttendance, 'tipo'>,
+): Tentativa<ResultApplication> {
   try {
-    return { ok: true, estado: aplicarEvento(estadoAtual, evento) };
-  } catch (erro) {
-    if (erro instanceof TransicaoInvalidaError) return { ok: false, erro };
-    throw erro;
+    return { ok: true, state: aplicarEvento(stateCurrent, evento) };
+  } catch (error) {
+    if (error instanceof TransitionInvalidError) return { ok: false, error };
+    throw error;
   }
 }
 
@@ -162,21 +162,21 @@ export function tentarAplicarEvento(
  * Serve para recalcular o passado — a razão de os eventos serem imutáveis.
  */
 export function reproduzirEventos(
-  eventos: readonly Pick<EventoAtendimento, 'tipo'>[],
-  estadoInicial: EstadoConversa = 'na_fila',
-): EstadoConversa {
-  let estado = estadoInicial;
+  eventos: readonly Pick<EventAttendance, 'tipo'>[],
+  stateInitial: StateConversation = 'na_fila',
+): StateConversation {
+  let state = stateInitial;
   for (const evento of eventos) {
-    estado = aplicarEvento(estado, evento).estado;
+    state = aplicarEvento(state, evento).state;
   }
-  return estado;
+  return state;
 }
 
 // --- Máquina da mensagem de saída (§8, segundo diagrama) ---
 
-export type EstadoEntrega = 'pendente' | 'enviando' | 'enviada' | 'entregue' | 'lida' | 'falhou';
+export type StateDelivery = 'pendente' | 'enviando' | 'enviada' | 'entregue' | 'lida' | 'falhou';
 
-export const TRANSICOES_ENTREGA: Readonly<Record<EstadoEntrega, readonly EstadoEntrega[]>> = {
+export const TRANSITIONS_DELIVERY: Readonly<Record<StateDelivery, readonly StateDelivery[]>> = {
   pendente: ['enviando'],
   enviando: ['enviada', 'falhou'],
   enviada: ['entregue', 'lida', 'falhou'],
@@ -186,12 +186,12 @@ export const TRANSICOES_ENTREGA: Readonly<Record<EstadoEntrega, readonly EstadoE
   falhou: ['pendente'],
 };
 
-export class TransicaoEntregaInvalidaError extends Error {
+export class TransitionDeliveryInvalidError extends Error {
   readonly codigo = 'transicao_entrega_invalida' as const;
-  readonly de: EstadoEntrega;
-  readonly para: EstadoEntrega;
+  readonly de: StateDelivery;
+  readonly para: StateDelivery;
 
-  constructor(de: EstadoEntrega, para: EstadoEntrega) {
+  constructor(de: StateDelivery, para: StateDelivery) {
     super(`Transição de entrega inválida de ${de} para ${para}`);
     this.name = 'TransicaoEntregaInvalidaError';
     this.de = de;
@@ -199,11 +199,11 @@ export class TransicaoEntregaInvalidaError extends Error {
   }
 }
 
-export function transicaoEntregaPermitida(de: EstadoEntrega, para: EstadoEntrega): boolean {
-  return TRANSICOES_ENTREGA[de].includes(para);
+export function transitionDeliveryAllowed(de: StateDelivery, para: StateDelivery): boolean {
+  return TRANSITIONS_DELIVERY[de].includes(para);
 }
 
-export function transitarEntrega(de: EstadoEntrega, para: EstadoEntrega): EstadoEntrega {
-  if (!transicaoEntregaPermitida(de, para)) throw new TransicaoEntregaInvalidaError(de, para);
+export function transitarDelivery(de: StateDelivery, para: StateDelivery): StateDelivery {
+  if (!transitionDeliveryAllowed(de, para)) throw new TransitionDeliveryInvalidError(de, para);
   return para;
 }

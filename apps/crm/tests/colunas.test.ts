@@ -15,7 +15,7 @@ import { arranjar, moverVisivel, type Config } from '../src/componentes/colunas.
  */
 
 const CHAVES = ['lead', 'origem', 'score', 'faixa', 'proprietario'];
-const LIMPA: Config = { ordem: [], ocultas: [] };
+const LIMPA: Config = { order: [], ocultas: [] };
 
 test('sem nada guardado, a ordem é a da tela e a fixa fica de fora das móveis', () => {
   const a = arranjar(CHAVES, LIMPA, 'lead');
@@ -25,7 +25,7 @@ test('sem nada guardado, a ordem é a da tela e a fixa fica de fora das móveis'
 });
 
 test('a coluna fixa nunca é ocultada, nem que alguém edite o armazenamento', () => {
-  const a = arranjar(CHAVES, { ordem: ['lead'], ocultas: ['lead', 'score'] }, 'lead');
+  const a = arranjar(CHAVES, { order: ['lead'], ocultas: ['lead', 'score'] }, 'lead');
   assert.equal(a.todas.includes('lead'), false);
   assert.equal(a.visiveis.includes('lead'), false);
   assert.equal(a.ocultas.includes('lead'), false);
@@ -34,14 +34,14 @@ test('a coluna fixa nunca é ocultada, nem que alguém edite o armazenamento', (
 
 test('a coluna nova de um deploy entra no fim, sem empurrar o que já estava', () => {
   // `faixa` e `proprietario` não existiam quando a pessoa arrumou a tabela.
-  const guardada: Config = { ordem: ['score', 'origem'], ocultas: [] };
+  const guardada: Config = { order: ['score', 'origem'], ocultas: [] };
   const a = arranjar(CHAVES, guardada, 'lead');
   assert.deepEqual(a.visiveis, ['score', 'origem', 'faixa', 'proprietario']);
 });
 
 test('coluna que sumiu da tela some do arranjo, e não deixa buraco', () => {
   // É o que acontece ao agrupar por origem: a coluna redundante sai da lista.
-  const guardada: Config = { ordem: ['score', 'origem', 'faixa'], ocultas: ['faixa'] };
+  const guardada: Config = { order: ['score', 'origem', 'faixa'], ocultas: ['faixa'] };
   const a = arranjar(['lead', 'score', 'proprietario'], guardada, 'lead');
   assert.deepEqual(a.todas, ['score', 'proprietario']);
   assert.deepEqual(a.visiveis, ['score', 'proprietario']);
@@ -49,11 +49,11 @@ test('coluna que sumiu da tela some do arranjo, e não deixa buraco', () => {
 });
 
 test('a oculta guarda o lugar: mostrar de volta não a joga no fim', () => {
-  const guardada: Config = { ordem: ['origem', 'score', 'faixa'], ocultas: ['score'] };
+  const guardada: Config = { order: ['origem', 'score', 'faixa'], ocultas: ['score'] };
   const escondida = arranjar(CHAVES, guardada, 'lead');
   assert.deepEqual(escondida.visiveis, ['origem', 'faixa', 'proprietario']);
 
-  const mostrada = arranjar(CHAVES, { ordem: escondida.todas, ocultas: [] }, 'lead');
+  const mostrada = arranjar(CHAVES, { order: escondida.todas, ocultas: [] }, 'lead');
   assert.deepEqual(mostrada.visiveis, ['origem', 'score', 'faixa', 'proprietario']);
 });
 
@@ -70,7 +70,7 @@ test('mover para cima põe a coluna antes da que ocupava o destino', () => {
 test('mover devolve a ordem COMPLETA, com as ocultas ancoradas na vizinha', () => {
   // `score` está oculta entre `origem` e `faixa`. Mover `faixa` para o começo
   // não pode fazer `score` desaparecer da ordem gravada.
-  const a = arranjar(CHAVES, { ordem: [], ocultas: ['score'] }, 'lead');
+  const a = arranjar(CHAVES, { order: [], ocultas: ['score'] }, 'lead');
   assert.deepEqual(a.visiveis, ['origem', 'faixa', 'proprietario']);
   const nova = moverVisivel(a, 1, 0);
   assert.deepEqual(nova, ['faixa', 'origem', 'score', 'proprietario']);

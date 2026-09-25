@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { api } from '../../../lib/api';
-import { useLeitura } from '../../../lib/consulta';
-import { CascaDoModulo, useContato } from '../contato';
+import { useRead } from '../../../lib/consulta';
+import { ModuloShell, useContact } from '../contato';
 import { TelaDoLog } from './tela';
 import '../integracoes/cabecalho-de-pagina.css';
 import './log.css';
@@ -21,7 +21,7 @@ import './log.css';
 interface LinhaDoLog {
   id: string;
   criadaEm: string;
-  direcao: string;
+  direction: string;
   tipo: string;
   conteudo: string | null;
   metadata: unknown;
@@ -29,30 +29,30 @@ interface LinhaDoLog {
   para: string | null;
 }
 
-interface PaginaDoLog {
+interface LogPage {
   data: LinhaDoLog[];
   page_info: { has_next_page: boolean; end_cursor: string | null };
 }
 
-export function PaginaLog() {
-  const { contato } = useContato();
+export function PageLog() {
+  const { contact } = useContact();
   const [parametros] = useSearchParams();
-  const busca = parametros.get('busca') ?? '';
+  const search = parametros.get('busca') ?? '';
   const de = parametros.get('de') ?? '';
   const ate = parametros.get('ate') ?? '';
-  const direcao = parametros.get('direcao') ?? '';
+  const direction = parametros.get('direcao') ?? '';
   const tipo = parametros.get('tipo') ?? '';
 
-  const consultaBase = new URLSearchParams();
-  if (busca) consultaBase.set('busca', busca);
-  if (de) consultaBase.set('de', de);
-  if (ate) consultaBase.set('ate', ate);
-  if (direcao) consultaBase.set('direcao', direcao);
-  if (tipo) consultaBase.set('tipo', tipo);
-  const chaveDoFiltro = consultaBase.toString();
+  const queryBase = new URLSearchParams();
+  if (search) queryBase.set('busca', search);
+  if (de) queryBase.set('de', de);
+  if (ate) queryBase.set('ate', ate);
+  if (direction) queryBase.set('direcao', direction);
+  if (tipo) queryBase.set('tipo', tipo);
+  const filterKey = queryBase.toString();
 
-  const primeiraPagina = useLeitura<PaginaDoLog>(
-    `/v1/gestao/fluxos/${contato.id}/analise/log?${chaveDoFiltro}`,
+  const firstPage = useRead<LogPage>(
+    `/v1/gestao/fluxos/${contact.id}/analise/log?${filterKey}`,
     { staleTime: 0 },
   );
 
@@ -65,45 +65,45 @@ export function PaginaLog() {
 
   useEffect(() => {
     setExtras([]);
-  }, [chaveDoFiltro]);
+  }, [filterKey]);
 
   useEffect(() => {
-    if (!primeiraPagina.data) return;
-    setCursor(primeiraPagina.data.page_info.end_cursor);
-    setTemMais(primeiraPagina.data.page_info.has_next_page);
-  }, [primeiraPagina.data]);
+    if (!firstPage.data) return;
+    setCursor(firstPage.data.page_info.end_cursor);
+    setTemMais(firstPage.data.page_info.has_next_page);
+  }, [firstPage.data]);
 
   async function carregarMais() {
     if (!cursor || carregandoMais) return;
     setCarregandoMais(true);
     try {
-      const q = new URLSearchParams(consultaBase);
+      const q = new URLSearchParams(queryBase);
       q.set('cursor', cursor);
-      const pagina = await api.get<PaginaDoLog>(
-        `/v1/gestao/fluxos/${contato.id}/analise/log?${q.toString()}`,
+      const page = await api.get<LogPage>(
+        `/v1/gestao/fluxos/${contact.id}/analise/log?${q.toString()}`,
       );
-      setExtras((atuais) => [...atuais, ...pagina.data]);
-      setCursor(pagina.page_info.end_cursor);
-      setTemMais(pagina.page_info.has_next_page);
+      setExtras((current) => [...current, ...page.data]);
+      setCursor(page.page_info.end_cursor);
+      setTemMais(page.page_info.has_next_page);
     } finally {
       setCarregandoMais(false);
     }
   }
 
-  const logs = [...(primeiraPagina.data?.data ?? []), ...extras];
+  const logs = [...(firstPage.data?.data ?? []), ...extras];
 
   return (
-    <CascaDoModulo ativo="Log">
+    <ModuloShell ativo="Log">
       <TelaDoLog
-        busca={busca}
+        search={search}
         de={de}
         ate={ate}
-        direcao={direcao}
+        direction={direction}
         tipo={tipo}
         temMais={temMais}
         carregandoMais={carregandoMais}
         aoCarregarMais={carregarMais}
-        mensagens={logs.map((log) => ({
+        messages={logs.map((log) => ({
           id: log.id,
           /* `{{message.storageDate | date: 'yyyy-MM-dd HH:mm:ss'}}` */
           data: new Date(log.criadaEm).toLocaleString('sv-SE'),
@@ -115,6 +115,6 @@ export function PaginaLog() {
           metadata: log.metadata ? JSON.stringify(log.metadata, undefined, 2) : null,
         }))}
       />
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

@@ -15,31 +15,31 @@ import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import type { z } from 'zod';
 
-import { MODELO_PADRAO, consumoDe, type Consumo } from '../consumo/index.js';
-import { ErroChamadaIa, ErroFormatoIa } from './erros.js';
+import { TEMPLATE_DEFAULT, consumoDe, type Consumo } from '../consumo/index.js';
+import { CallIaError, FormatIaError } from './erros.js';
 
 /** Níveis de esforço aceitos pela API (`output_config.effort`). */
-export type Esforco = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
+export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 
 export interface PedidoIa<T> {
   /** Instrução persistente da tarefa. Vem sempre de um arquivo de `prompts/`. */
   sistema: string;
   /** O material da vez: transcrição, taxonomia, formulário. */
-  usuario: string;
+  user: string;
   /** Formato exigido da resposta. Fora dele, a chamada falha. */
   esquema: z.ZodType<T>;
-  modelo?: string;
+  template?: string;
   maxTokens?: number;
-  esforco?: Esforco;
+  effort?: Effort;
   /** Identifica a chamada em `consumo_ia.funcionalidade`. */
-  funcionalidade: string;
+  feature: string;
 }
 
 export interface RespostaIa<T> {
-  dados: T;
+  data: T;
   consumo: Consumo;
   /** Modelo que efetivamente respondeu. */
-  modelo: string;
+  template: string;
 }
 
 /** Assinatura da chamada ao modelo. Injetável para teste com dublê. */
@@ -50,16 +50,16 @@ export type ChamadaEstruturada = <T>(pedido: PedidoIa<T>) => Promise<RespostaIa<
  * orçamento de raciocínio **piorou** a acurácia da classificação, e zero saiu
  * igual ou melhor. Quem precisar de mais passa `esforco` no pedido.
  */
-export const ESFORCO_PADRAO: Esforco = 'low';
+export const EFFORT_DEFAULT: Effort = 'low';
 
 export const MAX_TOKENS_PADRAO = 8000;
 
 /** Modelo em uso: `PIPE_IA_MODELO` quando definido, senão `claude-sonnet-5`. */
-export function modeloConfigurado(): string {
-  return process.env['PIPE_IA_MODELO']?.trim() || MODELO_PADRAO;
+export function templateConfigured(): string {
+  return process.env['PIPE_IA_MODELO']?.trim() || TEMPLATE_DEFAULT;
 }
 
-export interface OpcoesRetentativa {
+export interface OptionsRetentativa {
   /** Total de tentativas, incluindo a primeira. */
   tentativas?: number;
   /** Espera da primeira retentativa, em ms. Dobra a cada rodada. */
@@ -68,7 +68,7 @@ export interface OpcoesRetentativa {
   dormir?: (ms: number) => Promise<void>;
 }
 
-const dormirDeVerdade = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
+const trueDormir = (ms: number) => new Promise<void>((ok) => setTimeout(ok, ms));
 
 /**
  * Erro de rede ou limite de taxa: vale tentar de novo. Erro nosso (4xx de
@@ -80,11 +80,11 @@ const dormirDeVerdade = (ms: number) => new Promise<void>((ok) => setTimeout(ok,
  */
 export const STATUS_QUE_REPETEM = new Set([408, 409, 429]);
 
-export function vaiDeNovo(erro: unknown): boolean {
-  if (erro instanceof Anthropic.APIConnectionError) return true;
-  if (erro instanceof Anthropic.APIError) {
+export function vaiDeNovo(error: unknown): boolean {
+  if (error instanceof Anthropic.APIConnectionError) return true;
+  if (error instanceof Anthropic.APIError) {
     return (
-      typeof erro.status === 'number' && (STATUS_QUE_REPETEM.has(erro.status) || erro.status >= 500)
+      typeof error.status === 'number' && (STATUS_QUE_REPETEM.has(error.status) || error.status >= 500)
     );
   }
   return false;
@@ -106,19 +106,19 @@ export function esperaDaTentativa(
 /** Repete `tarefa` enquanto o erro for de rede ou limite de taxa. */
 export async function comRetentativa<T>(
   tarefa: () => Promise<T>,
-  opcoes: OpcoesRetentativa = {},
+  options: OptionsRetentativa = {},
 ): Promise<T> {
-  const tentativas = opcoes.tentativas ?? 4;
-  const esperaBaseMs = opcoes.esperaBaseMs ?? 500;
-  const dormir = opcoes.dormir ?? dormirDeVerdade;
+  const tentativas = options.tentativas ?? 4;
+  const esperaBaseMs = options.esperaBaseMs ?? 500;
+  const dormir = options.dormir ?? trueDormir;
 
   let ultimo: unknown;
   for (let i = 0; i < tentativas; i++) {
     try {
       return await tarefa();
-    } catch (erro) {
-      ultimo = erro;
-      if (!vaiDeNovo(erro) || i === tentativas - 1) throw erro;
+    } catch (error) {
+      ultimo = error;
+      if (!vaiDeNovo(error) || i === tentativas - 1) throw error;
       await dormir(esperaDaTentativa(i, esperaBaseMs));
     }
   }
@@ -137,62 +137,62 @@ function cliente(): Anthropic {
  * resposta é cortada por `max_tokens` e quando o conteúdo não passa no esquema —
  * em nenhum desses casos ela adivinha.
  */
-export function criarChamada(opcoes: OpcoesRetentativa = {}): ChamadaEstruturada {
+export function createCall(options: OptionsRetentativa = {}): ChamadaEstruturada {
   return async function chamar<T>(pedido: PedidoIa<T>): Promise<RespostaIa<T>> {
-    const modelo = pedido.modelo ?? modeloConfigurado();
+    const template = pedido.template ?? templateConfigured();
 
     const resposta = await comRetentativa(
       () =>
         cliente().messages.parse({
-          model: modelo,
+          model: template,
           max_tokens: pedido.maxTokens ?? MAX_TOKENS_PADRAO,
           system: pedido.sistema,
-          messages: [{ role: 'user', content: pedido.usuario }],
+          messages: [{ role: 'user', content: pedido.user }],
           output_config: {
-            effort: pedido.esforco ?? ESFORCO_PADRAO,
+            effort: pedido.effort ?? EFFORT_DEFAULT,
             format: zodOutputFormat(pedido.esquema as z.ZodType),
           },
         }),
-      opcoes,
+      options,
     );
 
     if (resposta.stop_reason === 'refusal') {
-      throw new ErroChamadaIa(
-        `O modelo recusou a tarefa "${pedido.funcionalidade}": ` +
+      throw new CallIaError(
+        `O modelo recusou a tarefa "${pedido.feature}": ` +
           `${resposta.stop_details?.category ?? 'sem categoria'}.`,
         resposta.stop_details,
       );
     }
     if (resposta.stop_reason === 'max_tokens') {
-      throw new ErroChamadaIa(
-        `Resposta de "${pedido.funcionalidade}" cortada em ${pedido.maxTokens ?? MAX_TOKENS_PADRAO} tokens. ` +
+      throw new CallIaError(
+        `Resposta de "${pedido.feature}" cortada em ${pedido.maxTokens ?? MAX_TOKENS_PADRAO} tokens. ` +
           'Aumente `maxTokens` ou trunque mais a transcrição.',
       );
     }
 
     const bruto = resposta.parsed_output;
     if (bruto == null) {
-      throw new ErroFormatoIa(
-        `"${pedido.funcionalidade}" devolveu conteúdo fora do formato exigido.`,
+      throw new FormatIaError(
+        `"${pedido.feature}" devolveu conteúdo fora do formato exigido.`,
         resposta.content,
       );
     }
 
     const validado = pedido.esquema.safeParse(bruto);
     if (!validado.success) {
-      throw new ErroFormatoIa(
-        `"${pedido.funcionalidade}" não passou na validação: ${validado.error.message}`,
+      throw new FormatIaError(
+        `"${pedido.feature}" não passou na validação: ${validado.error.message}`,
         bruto,
       );
     }
 
     return {
-      dados: validado.data,
-      modelo: resposta.model ?? modelo,
-      consumo: consumoDe(modelo, resposta.usage.input_tokens, resposta.usage.output_tokens),
+      data: validado.data,
+      template: resposta.model ?? template,
+      consumo: consumoDe(template, resposta.usage.input_tokens, resposta.usage.output_tokens),
     };
   };
 }
 
 /** Chamada padrão do pacote, usada quando o chamador não injeta uma. */
-export const chamadaPadrao: ChamadaEstruturada = (pedido) => criarChamada()(pedido);
+export const chamadaPadrao: ChamadaEstruturada = (pedido) => createCall()(pedido);

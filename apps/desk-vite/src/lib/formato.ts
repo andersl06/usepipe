@@ -59,7 +59,7 @@ export function dataAbreviada(instante: Date): string {
  * (45 s, 90 s, 45 min, 90 min, 22 h, 36 h, 26 d, 45 d, 320 d, 548 d), com as
  * palavras do `pt-br`.
  */
-export function tempoDecorrido(de: Date, agora: Date): string {
+export function timeElapsed(de: Date, agora: Date): string {
   const seg = Math.round(Math.abs(agora.getTime() - de.getTime()) / 1000);
   const min = Math.round(seg / 60);
   const h = Math.round(min / 60);
@@ -81,7 +81,7 @@ export function tempoDecorrido(de: Date, agora: Date): string {
 
 /** O horário do cartão da lista (`lastMessage.relativeDate`). */
 export function horarioRelativo(instante: Date, agora = new Date()): string {
-  return mesmoDia(instante, agora) ? hora(instante) : tempoDecorrido(instante, agora);
+  return mesmoDia(instante, agora) ? hora(instante) : timeElapsed(instante, agora);
 }
 
 /** O horário abaixo do balão (`getChatDisplayDate`). */
@@ -100,10 +100,10 @@ export function cronometro(segundos: number): string {
 }
 
 /** Iniciais do avatar (`bds-avatar name=`): primeira letra do primeiro e do último nome. */
-export function iniciais(nome: string | null | undefined): string {
+export function initials(nome: string | null | undefined): string {
   const partes = (nome ?? '').trim().split(/\s+/).filter(Boolean);
   if (partes.length === 0) return '';
-  const primeira = partes[0]?.charAt(0) ?? '';
+  const first = partes[0]?.charAt(0) ?? '';
   const ultima = partes.length > 1 ? (partes[partes.length - 1]?.charAt(0) ?? '') : '';
-  return (primeira + ultima).toUpperCase();
+  return (first + ultima).toUpperCase();
 }

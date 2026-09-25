@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { criarModeloNoCanal } from '../../lib/canais-gravar';
+import { createTemplateInChannel } from '../../lib/canais-gravar';
 
 /**
  * Duplica, de propósito, os catálogos de `lib/comunicacao.ts` em vez de
@@ -34,7 +34,7 @@ const CABECALHO_TEXTO_MAX = 60;
 const CORPO_MAX = 1024;
 
 /** As variáveis do corpo, na ordem em que aparecem — mesma regra de `variaveisDoTexto` na `api`. */
-function variaveisDoTexto(texto: string): string[] {
+function textVariables(texto: string): string[] {
   const vistas: string[] = [];
   for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
     if (!vistas.includes(achado[1]!)) vistas.push(achado[1]!);
@@ -43,10 +43,10 @@ function variaveisDoTexto(texto: string): string[] {
 }
 
 const rotulo = { display: 'flex', flexDirection: 'column' as const, gap: '4px' };
-const coluna = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
+const column = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
 
-export function FormularioModelo({ canais }: { canais: { id: string; nome: string }[] }) {
-  const [canalId, setCanalId] = useState('');
+export function FormularioTemplate({ channels }: { channels: { id: string; nome: string }[] }) {
+  const [channelId, setChannelId] = useState('');
   const [nome, setNome] = useState('');
   const [idioma, setIdioma] = useState('pt_BR');
   const [categoria, setCategoria] = useState<(typeof CATEGORIAS)[number] | ''>('');
@@ -57,10 +57,10 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
   const [rodape, setRodape] = useState('');
   const [exemplos, setExemplos] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const variaveis = useMemo(() => variaveisDoTexto(corpo), [corpo]);
-  const variaveisDoCabecalho = useMemo(() => variaveisDoTexto(cabecalho), [cabecalho]);
+  const variables = useMemo(() => textVariables(corpo), [corpo]);
+  const headerVariables = useMemo(() => textVariables(cabecalho), [cabecalho]);
 
   function limpar() {
     setNome('');
@@ -75,28 +75,28 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
   }
 
   async function enviar() {
-    setErro(null);
-    if (!canalId) return setErro('Escolha o canal.');
-    if (!categoria) return setErro('Escolha a categoria.');
-    if (variaveisDoCabecalho.length > 1) return setErro('O cabeçalho aceita no máximo uma variável.');
-    const listaDeExemplos = variaveis.map((v) => (exemplos[v] ?? '').trim());
+    setError(null);
+    if (!channelId) return setError('Escolha o canal.');
+    if (!categoria) return setError('Escolha a categoria.');
+    if (headerVariables.length > 1) return setError('O cabeçalho aceita no máximo uma variável.');
+    const listaDeExemplos = variables.map((v) => (exemplos[v] ?? '').trim());
     if (listaDeExemplos.some((e) => !e)) {
-      return setErro('Dê um exemplo para cada variável do texto.');
+      return setError('Dê um exemplo para cada variável do texto.');
     }
     setEnviando(true);
-    const resultado = await criarModeloNoCanal(canalId, {
+    const resultado = await createTemplateInChannel(channelId, {
       nome,
       idioma,
       categoria,
       corpo,
       ...(cabecalhoTipo === 'texto' && cabecalho ? { cabecalho } : {}),
-      ...(cabecalhoTipo === 'texto' && variaveisDoCabecalho.length === 1 ? { exemploDoCabecalho } : {}),
+      ...(cabecalhoTipo === 'texto' && headerVariables.length === 1 ? { exemploDoCabecalho } : {}),
       ...(rodape ? { rodape } : {}),
       exemplos: listaDeExemplos,
     });
     setEnviando(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
     limpar();
@@ -106,10 +106,10 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
   useEffect(() => {
     setExemplos((atual) => {
       const novo: Record<string, string> = {};
-      for (const v of variaveis) if (atual[v] !== undefined) novo[v] = atual[v];
+      for (const v of variables) if (atual[v] !== undefined) novo[v] = atual[v];
       return novo;
     });
-  }, [variaveis]);
+  }, [variables]);
 
   return (
     <section className="card">
@@ -119,19 +119,19 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
         que só reflete o que já está lá. O texto que vale para o disparo é o aprovado por ela.
       </p>
 
-      {canais.length === 0 ? (
+      {channels.length === 0 ? (
         <Etiqueta tom="alerta">
           Nenhum canal WhatsApp ativo neste tenant. Cadastre o canal antes de cadastrar o modelo.
         </Etiqueta>
       ) : (
-        <form onSubmit={(e) => { e.preventDefault(); void enviar(); }} style={coluna}>
+        <form onSubmit={(e) => { e.preventDefault(); void enviar(); }} style={column}>
           <label style={rotulo}>
             <span className="sub">Canal</span>
-            <Seletor value={canalId} onChange={(e) => setCanalId(e.target.value)} required disabled={enviando}>
+            <Seletor value={channelId} onChange={(e) => setChannelId(e.target.value)} required disabled={enviando}>
               <option value="" disabled>
                 Escolha o canal
               </option>
-              {canais.map((c) => (
+              {channels.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.nome}
                 </option>
@@ -203,7 +203,7 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
                   {cabecalho.length}/{CABECALHO_TEXTO_MAX}
                 </span>
               </label>
-              {variaveisDoCabecalho.length === 1 ? (
+              {headerVariables.length === 1 ? (
                 <label style={rotulo}>
                   <span className="sub">Exemplo da variável do cabeçalho</span>
                   <Campo
@@ -234,10 +234,10 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
             </span>
           </label>
 
-          {variaveis.length > 0 ? (
+          {variables.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-2)' }}>
               <span className="sub">Um exemplo por variável do corpo — a Meta exige para aprovar.</span>
-              {variaveis.map((v) => (
+              {variables.map((v) => (
                 <label key={v} style={rotulo}>
                   <span className="sub">
                     Exemplo de <code>{`{{${v}}}`}</code>
@@ -263,7 +263,7 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
             />
           </label>
 
-          {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+          {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
           <div className="cl-acoes">
             <Botao type="submit" variante="primario" disabled={enviando}>

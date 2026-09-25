@@ -1,6 +1,6 @@
 import { IconePortal } from '../../../../componentes/icones-portal';
 import type { DiaDaVisaoGeral, VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analise';
-import { CabecalhoDaPagina, Cartao, SeletorDePeriodo } from '../pecas';
+import { PageHeader, Card, PeriodSeletor } from '../pecas';
 
 /**
  * Visão Geral — o componente `generalDashboard` do módulo `analyticsComponents`
@@ -15,19 +15,19 @@ import { CabecalhoDaPagina, Cartao, SeletorDePeriodo } from '../pecas';
  * sete dias.
  */
 export function VisaoGeral({
-  dados,
+  data,
   de,
   ate,
 }: {
-  dados: DadosDaVisaoGeral;
+  data: DadosDaVisaoGeral;
   de: string;
   ate: string;
 }) {
-  const c = dados.contagens;
+  const c = data.contagens;
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         tituloProprio={
           <div className="vg-titulo">
             <p className="an-t32 vg-titulo-texto">Visão geral</p>
@@ -44,7 +44,7 @@ export function VisaoGeral({
         }
         extra={
           /* `ng-if="$ctrl.usersPerDay && $ctrl.usersPerDay.length > 0"`. */
-          dados.porDia.length > 0 ? (
+          data.byDia.length > 0 ? (
             <>
               <a className="an-bds-btn an-bds-btn--secundario vg-botao" href="">
                 <IconePortal nome="atualizar" tamanho={24} />
@@ -65,7 +65,7 @@ export function VisaoGeral({
       <div className="fx-coluna vg-painel" id="general-dashboard">
         <div className="vg-filtros">
           <div className="vg-filtro-periodo">
-            <SeletorDePeriodo de={de} ate={ate} />
+            <PeriodSeletor de={de} ate={ate} />
           </div>
         </div>
 
@@ -80,12 +80,12 @@ export function VisaoGeral({
             <div className="vg-contadores">
               <Contador
                 nome="Ativos"
-                valor={c.ativos}
+                value={c.ativos}
                 dica="Contatos que enviaram ou receberam pelo menos uma mensagem do chatbot no período selecionado."
               />
               <Contador
                 nome="Engajados"
-                valor={c.engajados}
+                value={c.engajados}
                 dica="Contatos que enviaram pelo menos uma mensagem para o chatbot no período selecionado."
               />
             </div>
@@ -101,22 +101,22 @@ export function VisaoGeral({
             <div className="vg-contadores">
               <Contador
                 nome="Total"
-                valor={c.total}
+                value={c.total}
                 dica="Quantidade total de mensagens enviadas e recebidas pelo chatbot no período selecionado."
               />
               <Contador
                 nome="Recebidas"
-                valor={c.recebidas}
+                value={c.recebidas}
                 dica="Mensagens recebidas pelo chatbot no período selecionado."
               />
               <Contador
                 nome="Enviadas"
-                valor={c.enviadas}
+                value={c.enviadas}
                 dica="Mensagens enviadas pelo chatbot no período selecionado."
               />
               <Contador
                 nome="Ativas"
-                valor={c.ativas}
+                value={c.ativas}
                 dica="Mensagens enviadas pelo chatbot após 24 horas do recebimento da última mensagem do contato. Estão sujeitas a políticas de utilização e tarifação, específicas de cada canal."
               />
             </div>
@@ -126,16 +126,16 @@ export function VisaoGeral({
 
       <div className="fx-coluna">
         <div className="vg-margem">
-          {dados.ativasPorCanal.length === 0 ? (
-            <Cartao>
+          {data.activeByChannel.length === 0 ? (
+            <Card>
               <p className="an-t24 vg-cartao-titulo">Mensagens ativas por canal</p>
               <p className="an-t20 vg-sem-conteudo">
                 Não há mensagens ativas no período selecionado
               </p>
-            </Cartao>
+            </Card>
           ) : (
             <div className="vg-linha vg-grafico">
-              <Cartao className="vg-grafico-cartao" titulo="Mensagens ativas por canal">
+              <Card className="vg-grafico-cartao" titulo="Mensagens ativas por canal">
                 <div className="vg-grafico-area">
                   <table className="vg-lista">
                     <thead>
@@ -145,50 +145,50 @@ export function VisaoGeral({
                       </tr>
                     </thead>
                     <tbody>
-                      {dados.ativasPorCanal.map((l) => (
-                        <tr key={l.canal}>
-                          <td>{l.canal}</td>
+                      {data.activeByChannel.map((l) => (
+                        <tr key={l.channel}>
+                          <td>{l.channel}</td>
                           <td>{numero(l.total)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
-              </Cartao>
+              </Card>
             </div>
           )}
         </div>
 
         <div className="vg-linha vg-grafico vg-grafico--24">
-          <Cartao
+          <Card
             className="vg-grafico-cartao"
             titulo="Usuários por dia (DAUs e DEUs)"
             dica="Total diário de usuários do bot"
           >
             <GraficoDeLinha
-              dias={dados.porDia}
+              dias={data.byDia}
               series={[
-                { nome: 'Ativos', chave: 'ativos' },
-                { nome: 'Engajados', chave: 'engajados' },
+                { nome: 'Ativos', key: 'ativos' },
+                { nome: 'Engajados', key: 'engajados' },
               ]}
             />
-          </Cartao>
+          </Card>
         </div>
 
         <div className="vg-linha vg-grafico vg-grafico--24">
-          <Cartao
+          <Card
             className="vg-grafico-cartao"
             titulo="Mensagens por dia"
             dica="Mensagens que o bot recebeu dos usuários (ativos)"
           >
             <GraficoDeLinha
-              dias={dados.porDia}
+              dias={data.byDia}
               series={[
-                { nome: 'Recebidas', chave: 'recebidas' },
-                { nome: 'Enviadas', chave: 'enviadas' },
+                { nome: 'Recebidas', key: 'recebidas' },
+                { nome: 'Enviadas', key: 'enviadas' },
               ]}
             />
-          </Cartao>
+          </Card>
         </div>
       </div>
 
@@ -203,7 +203,7 @@ function numero(n: number): string {
 }
 
 /** `<counter-child-card>`: nome em negrito com a dica, e o valor em fs-20. */
-function Contador({ nome, valor, dica }: { nome: string; valor: number; dica: string }) {
+function Contador({ nome, value, dica }: { nome: string; value: number; dica: string }) {
   return (
     <div className="vg-contador">
       <div className="vg-contador-nome">
@@ -212,12 +212,12 @@ function Contador({ nome, valor, dica }: { nome: string; valor: number; dica: st
           <IconePortal nome="informacao-cheia" tamanho={16} />
         </span>
       </div>
-      <p className="an-t20 vg-contador-valor">{numero(valor)}</p>
+      <p className="an-t20 vg-contador-valor">{numero(value)}</p>
     </div>
   );
 }
 
-type ChaveDeSerie = 'ativos' | 'engajados' | 'recebidas' | 'enviadas';
+type SerieKey = 'ativos' | 'engajados' | 'recebidas' | 'enviadas';
 
 /**
  * O `chart type="line"` do `analyticsChart`, que na origem é o `LineChart` do
@@ -229,7 +229,7 @@ function GraficoDeLinha({
   series,
 }: {
   dias: DiaDaVisaoGeral[];
-  series: { nome: string; chave: ChaveDeSerie }[];
+  series: { nome: string; key: SerieKey }[];
 }) {
   const L = 1000;
   const A = 290;
@@ -246,7 +246,7 @@ function GraficoDeLinha({
     );
   }
 
-  const maior = Math.max(1, ...dias.flatMap((d) => series.map((s) => d[s.chave])));
+  const maior = Math.max(1, ...dias.flatMap((d) => series.map((s) => d[s.key])));
   const teto = Math.ceil(maior / 4) * 4;
   const x = (i: number) =>
     esq + (dias.length === 1 ? 0 : (i * (L - esq - dir)) / (dias.length - 1));
@@ -275,8 +275,8 @@ function GraficoDeLinha({
           </text>
         ))}
         {series.map((s, i) => (
-          <g key={s.chave} className={`vg-serie vg-serie--${i}`}>
-            <polyline points={dias.map((d, j) => `${x(j)},${y(d[s.chave])}`).join(' ')} />
+          <g key={s.key} className={`vg-serie vg-serie--${i}`}>
+            <polyline points={dias.map((d, j) => `${x(j)},${y(d[s.key])}`).join(' ')} />
             <line
               x1={L - dir + 20}
               x2={L - dir + 44}

@@ -21,13 +21,13 @@ export function urlDaApi(caminho: string): string {
  * Uma resposta que a API deu e que não é sucesso. Diferente de rede fora do ar:
  * 401/403 dizem que a sessão acabou de verdade; `TypeError` do fetch não diz nada.
  */
-export class ErroDaApi extends Error {
+export class ApiError extends Error {
   constructor(
     readonly status: number,
     readonly corpo: unknown,
-    mensagem?: string,
+    message?: string,
   ) {
-    super(mensagem ?? `A api respondeu ${status}.`);
+    super(message ?? `A api respondeu ${status}.`);
   }
 }
 
@@ -50,11 +50,11 @@ export async function pedir<T>(caminho: string, init: RequestInit = {}): Promise
     } catch {
       /* corpo vazio ou não-JSON: o status já diz o bastante */
     }
-    const mensagem =
+    const message =
       corpo && typeof corpo === 'object' && 'mensagem' in corpo
-        ? String((corpo as { mensagem: unknown }).mensagem)
+        ? String((corpo as { message: unknown }).message)
         : undefined;
-    throw new ErroDaApi(resposta.status, corpo, mensagem);
+    throw new ApiError(resposta.status, corpo, message);
   }
   if (resposta.status === 204) return undefined as T;
   return (await resposta.json()) as T;
@@ -91,8 +91,8 @@ export function chamarApi(caminho: string, init: RequestInit = {}): Promise<Resp
 /** O `erro.mensagem` que a `api` põe no corpo, ou o status. */
 export async function motivoDaFalha(resposta: Response): Promise<string> {
   try {
-    const corpo = (await resposta.json()) as { erro?: { mensagem?: string } };
-    return corpo.erro?.mensagem ?? `A API respondeu ${resposta.status}.`;
+    const corpo = (await resposta.json()) as { error?: { message?: string } };
+    return corpo.error?.message ?? `A API respondeu ${resposta.status}.`;
   } catch {
     return `A API respondeu ${resposta.status}.`;
   }

@@ -14,15 +14,15 @@ process.env['PIPE_URL_API'] = 'https://api.teste';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
-const { importarFluxoDaBlip } = await import('../src/dominio/fluxo.js');
+const { importFlowOfBlip } = await import('../src/dominio/fluxo.js');
 const { ClienteGraphDuble } = await import('../src/dominio/whatsapp/cliente-graph.js');
-const { assinar, montarCenario, payloadDeMensagem } = await import('./ajuda.js');
+const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * O canal DO BOT — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, o `GET` que a
@@ -41,27 +41,27 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 /** Quem edita fluxo na conta — o equivalente de conta de `channels.escrever`. */
-let sessaoEditor: string;
+let sessionEditor: string;
 /** Gente do tenant A sem permissão nenhuma. */
-let sessaoSemPoder: string;
+let sessionWithoutPoder: string;
 /** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */
-let membroDoFluxo: string;
-let sessaoDoOutroTenant: string;
+let memberOfFlow: string;
+let sessionOfOtherTenant: string;
 
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissions.length === 0) return userId;
   const { rows: papeis } = await cenario.dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
       values (${cenario.tenantId}, ${papeis[0]!.id}, ${codigo})
@@ -69,16 +69,16 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${userId}, ${papeis[0]!.id})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -88,16 +88,16 @@ function comCookie(token: string): Record<string, string> {
 }
 
 /** Um contato (fluxo ou roteador) direto no banco. */
-async function novoFluxo(
+async function newFlow(
   cenario: Cenario,
   tipo: 'fluxo' | 'roteador',
-  extra: { estado?: string; canalId?: string } = {},
+  extra: { state?: string; channelId?: string } = {},
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
     values (
       ${cenario.tenantId}, ${`${tipo} ${randomUUID().slice(0, 8)}`}, ${tipo},
-      ${extra.estado ?? 'rascunho'}, ${extra.canalId ?? null}
+      ${extra.state ?? 'rascunho'}, ${extra.channelId ?? null}
     )
     returning id
   `);
@@ -105,7 +105,7 @@ async function novoFluxo(
 }
 
 /** Um canal a mais no tenant, sem passar pela Meta. */
-async function novoCanal(
+async function newChannel(
   cenario: Cenario,
   extra: { tipo?: string; ativo?: boolean; numero?: string } = {},
 ): Promise<string> {
@@ -122,14 +122,14 @@ async function novoCanal(
 }
 
 async function chamar(
-  sessao: string,
+  session: string,
   metodo: string,
   caminho: string,
   corpo?: unknown,
 ): Promise<{ status: number; corpo: Record<string, unknown> }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
-    headers: comCookie(sessao),
+    headers: comCookie(session),
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   const texto = await resposta.text();
@@ -141,14 +141,14 @@ const codigo = (r: { corpo: Record<string, unknown> }) =>
 const detalhe = (r: { corpo: Record<string, unknown> }) =>
   (r.corpo['erro'] as { detalhe?: Record<string, unknown> } | undefined)?.detalhe ?? {};
 
-const ligar = (sessao: string, fluxoId: string, canalId: string) =>
-  chamar(sessao, 'PUT', `/v1/gestao/fluxos/${fluxoId}/canal`, { canalId });
+const ligar = (sessao: string, flowId: string, channelId: string) =>
+  chamar(sessao, 'PUT', `/v1/gestao/fluxos/${flowId}/canal`, { channelId });
 const desligar = (sessao: string, fluxoId: string) =>
   chamar(sessao, 'DELETE', `/v1/gestao/fluxos/${fluxoId}/canal`);
-const lerCanal = (sessao: string, fluxoId: string) =>
+const readChannel = (sessao: string, fluxoId: string) =>
   chamar(sessao, 'GET', `/v1/gestao/fluxos/${fluxoId}/canal`);
 
-async function canalDoBanco(fluxoId: string): Promise<string | null> {
+async function channelOfDatabase(fluxoId: string): Promise<string | null> {
   const { rows } = await a.dono.execute<{ canal_id: string | null }>(
     sql`select canal_id from fluxo where id = ${fluxoId}::uuid`,
   );
@@ -171,11 +171,11 @@ async function auditoriaDe(fluxoId: string) {
 beforeAll(async () => {
   a = await montarCenario(`cf-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`cf-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
-  sessaoEditor = await abrirSessao(a, await pessoaCom(a, ['automacao.fluxo.editar']));
-  sessaoSemPoder = await abrirSessao(a, await pessoaCom(a, []));
-  membroDoFluxo = await pessoaCom(a, []);
-  sessaoDoOutroTenant = await abrirSessao(b, await pessoaCom(b, ['automacao.fluxo.editar']));
+  api = await upApi(0);
+  sessionEditor = await openSession(a, await pessoaCom(a, ['automacao.fluxo.editar']));
+  sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
+  memberOfFlow = await pessoaCom(a, []);
+  sessionOfOtherTenant = await openSession(b, await pessoaCom(b, ['automacao.fluxo.editar']));
 }, 180_000);
 
 afterAll(async () => {
@@ -186,143 +186,143 @@ afterAll(async () => {
 
 describe('PUT e GET /v1/gestao/fluxos/:id/canal', () => {
   it('liga o canal ao bot, registra no log, e o GET do contato passa a dizer tipo, nome e número', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
-    const canalId = await novoCanal(a, { numero: '+5511900000001' });
+    const flowId = await newFlow(a, 'fluxo');
+    const channelId = await newChannel(a, { numero: '+5511900000001' });
 
-    const ligado = await ligar(sessaoEditor, fluxoId, canalId);
+    const ligado = await ligar(sessionEditor, flowId, channelId);
     expect(ligado.status).toBe(200);
     expect(ligado.corpo).toMatchObject({
-      id: canalId,
+      id: channelId,
       tipo: 'whatsapp_cloud',
       numero: '+5511900000001',
       ativo: true,
-      fluxoId,
+      flowId,
     });
-    expect(await canalDoBanco(fluxoId)).toBe(canalId);
+    expect(await channelOfDatabase(flowId)).toBe(channelId);
 
-    const log = await auditoriaDe(fluxoId);
+    const log = await auditoriaDe(flowId);
     expect(log.at(-1)).toMatchObject({
       acao: 'alterou',
       antes: { canalId: null },
-      depois: { canalId, canalTipo: 'whatsapp_cloud' },
+      depois: { channelId, canalTipo: 'whatsapp_cloud' },
     });
 
-    const lido = await lerCanal(sessaoEditor, fluxoId);
+    const lido = await readChannel(sessionEditor, flowId);
     expect(lido.status).toBe(200);
-    expect(lido.corpo['canal']).toMatchObject({ id: canalId, fluxoId });
-    const disponiveis = lido.corpo['disponiveis'] as { id: string; fluxoId: string | null }[];
-    expect(disponiveis.find((c) => c.id === canalId)?.fluxoId).toBe(fluxoId);
+    expect(lido.corpo['canal']).toMatchObject({ id: channelId, flowId });
+    const disponiveis = lido.corpo['disponiveis'] as { id: string; flowId: string | null }[];
+    expect(disponiveis.find((c) => c.id === channelId)?.flowId).toBe(flowId);
 
-    const contato = await chamar(sessaoEditor, 'GET', `/v1/gestao/fluxos/${fluxoId}`);
-    expect(contato.corpo['contato']).toMatchObject({
-      canalId,
+    const contact = await chamar(sessionEditor, 'GET', `/v1/gestao/fluxos/${flowId}`);
+    expect(contact.corpo['contato']).toMatchObject({
+      channelId,
       canalTipo: 'whatsapp_cloud',
       canalAtivo: true,
       canalNumero: '+5511900000001',
     });
-    expect((contato.corpo['contato'] as { canalNome: string }).canalNome).toMatch(/^Canal /);
+    expect((contact.corpo['contato'] as { channelName: string }).channelName).toMatch(/^Canal /);
 
     // Ligar de novo o mesmo canal não é erro nem gera registro.
-    expect((await ligar(sessaoEditor, fluxoId, canalId)).status).toBe(200);
-    expect(await auditoriaDe(fluxoId)).toHaveLength(log.length);
+    expect((await ligar(sessionEditor, flowId, channelId)).status).toBe(200);
+    expect(await auditoriaDe(flowId)).toHaveLength(log.length);
   });
 
   it('um bot por número: o segundo bot é recusado com a frase da origem, e só liga depois de o primeiro desligar', async () => {
-    const primeiro = await novoFluxo(a, 'fluxo');
-    const segundo = await novoFluxo(a, 'roteador');
-    const canalId = await novoCanal(a);
-    expect((await ligar(sessaoEditor, primeiro, canalId)).status).toBe(200);
+    const first = await newFlow(a, 'fluxo');
+    const segundo = await newFlow(a, 'roteador');
+    const canalId = await newChannel(a);
+    expect((await ligar(sessionEditor, first, canalId)).status).toBe(200);
 
-    const recusa = await ligar(sessaoEditor, segundo, canalId);
+    const recusa = await ligar(sessionEditor, segundo, canalId);
     expect(recusa.status).toBe(409);
     expect(codigo(recusa)).toBe('numero_em_uso');
-    expect((recusa.corpo['erro'] as { mensagem: string }).mensagem).toBe(
+    expect((recusa.corpo['erro'] as { message: string }).message).toBe(
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
     );
-    expect(detalhe(recusa)['fluxoId']).toBe(primeiro);
-    expect(await canalDoBanco(segundo)).toBeNull();
+    expect(detalhe(recusa)['fluxoId']).toBe(first);
+    expect(await channelOfDatabase(segundo)).toBeNull();
 
     // A tela do segundo vê o canal como "em uso pelo primeiro".
-    const lido = await lerCanal(sessaoEditor, segundo);
+    const lido = await readChannel(sessionEditor, segundo);
     const disponiveis = lido.corpo['disponiveis'] as { id: string; fluxoId: string | null }[];
-    expect(disponiveis.find((c) => c.id === canalId)?.fluxoId).toBe(primeiro);
+    expect(disponiveis.find((c) => c.id === canalId)?.fluxoId).toBe(first);
 
     // Trocar de bot é: desligar no anterior, ligar no novo.
-    expect((await desligar(sessaoEditor, primeiro)).status).toBe(204);
-    expect(await canalDoBanco(primeiro)).toBeNull();
-    expect((await ligar(sessaoEditor, segundo, canalId)).status).toBe(200);
-    expect(await canalDoBanco(segundo)).toBe(canalId);
+    expect((await desligar(sessionEditor, first)).status).toBe(204);
+    expect(await channelOfDatabase(first)).toBeNull();
+    expect((await ligar(sessionEditor, segundo, canalId)).status).toBe(200);
+    expect(await channelOfDatabase(segundo)).toBe(canalId);
 
     // Arquivado não segura número: um terceiro liga por cima.
     await a.dono.execute(sql`update fluxo set estado = 'arquivado' where id = ${segundo}::uuid`);
-    const terceiro = await novoFluxo(a, 'fluxo');
-    expect((await ligar(sessaoEditor, terceiro, canalId)).status).toBe(200);
+    const third = await newFlow(a, 'fluxo');
+    expect((await ligar(sessionEditor, third, canalId)).status).toBe(200);
   });
 
   it('um bot tem um canal só (decisão Pipe): ligar um segundo canal é 409 e diz qual está lá', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
-    const whatsapp = await novoCanal(a);
-    const instagram = await novoCanal(a, { tipo: 'instagram' });
-    expect((await ligar(sessaoEditor, fluxoId, whatsapp)).status).toBe(200);
+    const fluxoId = await newFlow(a, 'fluxo');
+    const whatsapp = await newChannel(a);
+    const instagram = await newChannel(a, { tipo: 'instagram' });
+    expect((await ligar(sessionEditor, fluxoId, whatsapp)).status).toBe(200);
 
-    const recusa = await ligar(sessaoEditor, fluxoId, instagram);
+    const recusa = await ligar(sessionEditor, fluxoId, instagram);
     expect(recusa.status).toBe(409);
     expect(codigo(recusa)).toBe('fluxo_ja_tem_canal');
     expect(detalhe(recusa)['canalId']).toBe(whatsapp);
-    expect(await canalDoBanco(fluxoId)).toBe(whatsapp);
+    expect(await channelOfDatabase(fluxoId)).toBe(whatsapp);
   });
 
   it('canal inativo é 409; canal de outro tenant, uuid malformado e fluxo de outro tenant são 404', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
-    const desligado = await novoCanal(a, { ativo: false });
-    const inativo = await ligar(sessaoEditor, fluxoId, desligado);
+    const fluxoId = await newFlow(a, 'fluxo');
+    const desligado = await newChannel(a, { ativo: false });
+    const inativo = await ligar(sessionEditor, fluxoId, desligado);
     expect(inativo.status).toBe(409);
     expect(codigo(inativo)).toBe('canal_inativo');
 
-    const canalDeB = await novoCanal(b);
-    expect((await ligar(sessaoEditor, fluxoId, canalDeB)).status).toBe(404);
-    expect((await ligar(sessaoEditor, fluxoId, 'nao-e-uuid')).status).toBe(404);
-    expect((await ligar(sessaoEditor, 'nao-e-uuid', canalDeB)).status).toBe(404);
-    expect((await chamar(sessaoEditor, 'PUT', `/v1/gestao/fluxos/${fluxoId}/canal`, {})).status).toBe(400);
+    const channelOfB = await newChannel(b);
+    expect((await ligar(sessionEditor, fluxoId, channelOfB)).status).toBe(404);
+    expect((await ligar(sessionEditor, fluxoId, 'nao-e-uuid')).status).toBe(404);
+    expect((await ligar(sessionEditor, 'nao-e-uuid', channelOfB)).status).toBe(404);
+    expect((await chamar(sessionEditor, 'PUT', `/v1/gestao/fluxos/${fluxoId}/canal`, {})).status).toBe(400);
 
-    const canalDeA = await novoCanal(a);
-    expect((await ligar(sessaoDoOutroTenant, fluxoId, canalDeA)).status).toBe(404);
-    expect((await lerCanal(sessaoDoOutroTenant, fluxoId)).status).toBe(404);
-    expect((await desligar(sessaoDoOutroTenant, fluxoId)).status).toBe(404);
-    expect(await canalDoBanco(fluxoId)).toBeNull();
+    const channelOfA = await newChannel(a);
+    expect((await ligar(sessionOfOtherTenant, fluxoId, channelOfA)).status).toBe(404);
+    expect((await readChannel(sessionOfOtherTenant, fluxoId)).status).toBe(404);
+    expect((await desligar(sessionOfOtherTenant, fluxoId)).status).toBe(404);
+    expect(await channelOfDatabase(fluxoId)).toBeNull();
   });
 
   it('a permissão é a `channels` DO BOT: sem nada é 403; membro do fluxo com channels.escrever liga, mesmo sem poder na conta', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
-    const outroFluxo = await novoFluxo(a, 'fluxo');
-    const canalId = await novoCanal(a);
+    const fluxoId = await newFlow(a, 'fluxo');
+    const otherFlow = await newFlow(a, 'fluxo');
+    const canalId = await newChannel(a);
 
-    const semPoder = await ligar(sessaoSemPoder, fluxoId, canalId);
+    const semPoder = await ligar(sessionWithoutPoder, fluxoId, canalId);
     expect(semPoder.status).toBe(403);
     expect(codigo(semPoder)).toBe('sem_permissao');
-    expect((await desligar(sessaoSemPoder, fluxoId)).status).toBe(403);
+    expect((await desligar(sessionWithoutPoder, fluxoId)).status).toBe(403);
 
     await a.dono.execute(sql`
       insert into fluxo_membro (tenant_id, fluxo_id, usuario_id, papel_no_fluxo, permissoes)
-      values (${a.tenantId}, ${fluxoId}::uuid, ${membroDoFluxo}::uuid, 'personalizado',
+      values (${a.tenantId}, ${fluxoId}::uuid, ${memberOfFlow}::uuid, 'personalizado',
               ${JSON.stringify({ channels: 'escrever' })}::jsonb)
     `);
-    const sessaoMembro = await abrirSessao(a, membroDoFluxo);
-    expect((await ligar(sessaoMembro, fluxoId, canalId)).status).toBe(200);
-    expect((await desligar(sessaoMembro, fluxoId)).status).toBe(204);
+    const sessionMember = await openSession(a, memberOfFlow);
+    expect((await ligar(sessionMember, fluxoId, canalId)).status).toBe(200);
+    expect((await desligar(sessionMember, fluxoId)).status).toBe(204);
     // No fluxo em que não é membro, continua sem poder.
-    expect((await ligar(sessaoMembro, outroFluxo, canalId)).status).toBe(403);
+    expect((await ligar(sessionMember, otherFlow, canalId)).status).toBe(403);
   });
 });
 
 describe('DELETE /v1/gestao/fluxos/:id/canal', () => {
   it('desliga o bot do canal sem mexer no canal, registra, e desligar de novo é silencioso', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
-    const canalId = await novoCanal(a);
-    await ligar(sessaoEditor, fluxoId, canalId);
+    const fluxoId = await newFlow(a, 'fluxo');
+    const canalId = await newChannel(a);
+    await ligar(sessionEditor, fluxoId, canalId);
 
-    expect((await desligar(sessaoEditor, fluxoId)).status).toBe(204);
-    expect(await canalDoBanco(fluxoId)).toBeNull();
+    expect((await desligar(sessionEditor, fluxoId)).status).toBe(204);
+    expect(await channelOfDatabase(fluxoId)).toBeNull();
     const { rows } = await a.dono.execute<{ ativo: boolean }>(
       sql`select ativo from canal where id = ${canalId}::uuid`,
     );
@@ -331,10 +331,10 @@ describe('DELETE /v1/gestao/fluxos/:id/canal', () => {
     const log = await auditoriaDe(fluxoId);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', antes: { canalId }, depois: { canalId: null } });
 
-    expect((await desligar(sessaoEditor, fluxoId)).status).toBe(204);
+    expect((await desligar(sessionEditor, fluxoId)).status).toBe(204);
     expect(await auditoriaDe(fluxoId)).toHaveLength(log.length);
 
-    const lido = await lerCanal(sessaoEditor, fluxoId);
+    const lido = await readChannel(sessionEditor, fluxoId);
     expect(lido.corpo['canal']).toBeNull();
   });
 });
@@ -343,9 +343,9 @@ describe('conexão manual com fluxo_id', () => {
   const appSecret = 'a'.repeat(32);
 
   it('o canal nasce já ligado ao bot, com a permissão do bot', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
+    const fluxoId = await newFlow(a, 'fluxo');
     const numeroId = ClienteGraphDuble.sufixo(`ligado-${fluxoId}`);
-    const criado = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', {
+    const criado = await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', {
       waba_id: 'waba-do-bot',
       phone_number_id: numeroId,
       access_token: `manual-${numeroId}`,
@@ -355,14 +355,14 @@ describe('conexão manual com fluxo_id', () => {
     });
     expect(criado.status).toBe(201);
     const canalId = criado.corpo['id'] as string;
-    expect(await canalDoBanco(fluxoId)).toBe(canalId);
+    expect(await channelOfDatabase(fluxoId)).toBe(canalId);
 
-    const lido = await lerCanal(sessaoEditor, fluxoId);
+    const lido = await readChannel(sessionEditor, fluxoId);
     expect(lido.corpo['canal']).toMatchObject({ id: canalId, tipo: 'whatsapp_cloud', nome: 'Número do bot', fluxoId });
   });
 
   it('sem poder no bot é 403 e NADA é criado; bot que já tem canal é 409 antes de gravar; fluxo malformado é 404', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
+    const fluxoId = await newFlow(a, 'fluxo');
     const numeroId = ClienteGraphDuble.sufixo(`negado-${fluxoId}`);
     const corpo = {
       waba_id: 'waba-do-bot',
@@ -378,16 +378,16 @@ describe('conexão manual com fluxo_id', () => {
       return Number(rows[0]!.n);
     };
 
-    expect((await chamar(sessaoSemPoder, 'POST', '/v1/canais/whatsapp/manual', corpo)).status).toBe(403);
+    expect((await chamar(sessionWithoutPoder, 'POST', '/v1/canais/whatsapp/manual', corpo)).status).toBe(403);
     expect(await contar()).toBe(0);
 
     expect(
-      (await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', { ...corpo, fluxo_id: 'nao-e-uuid' })).status,
+      (await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', { ...corpo, fluxo_id: 'nao-e-uuid' })).status,
     ).toBe(404);
     expect(await contar()).toBe(0);
 
-    await ligar(sessaoEditor, fluxoId, await novoCanal(a));
-    const cheio = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', corpo);
+    await ligar(sessionEditor, fluxoId, await newChannel(a));
+    const cheio = await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', corpo);
     expect(cheio.status).toBe(409);
     expect(codigo(cheio)).toBe('fluxo_ja_tem_canal');
     expect(await contar()).toBe(0);
@@ -412,29 +412,29 @@ const PRINCIPAL = {
 describe('ligado o roteador ao número, a mensagem que chega nele cai no roteador', () => {
   it('a primeira mensagem do cliente é respondida pelo serviço principal do roteador', async () => {
     const principal = await noTenant(a.tenantId, (tx) =>
-      importarFluxoDaBlip(tx, {
+      importFlowOfBlip(tx, {
         tenantId: a.tenantId,
         nome: `Principal ${randomUUID().slice(0, 6)}`,
-        canalId: null,
+        channelId: null,
         json: PRINCIPAL,
         publicar: true,
       }),
     );
-    expect(principal.erroDeValidacao).toBeNull();
+    expect(principal.errorOfValidation).toBeNull();
 
     // Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.
-    const roteadorId = await novoFluxo(a, 'roteador', { estado: 'publicado' });
+    const routerId = await newFlow(a, 'roteador', { state: 'publicado' });
     await a.dono.execute(sql`
       insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
-      values (${a.tenantId}, ${roteadorId}, ${principal.fluxoId}, 'Principal', true, false, null)
+      values (${a.tenantId}, ${routerId}, ${principal.fluxoId}, 'Principal', true, false, null)
     `);
 
     // Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.
-    expect((await ligar(sessaoEditor, roteadorId, a.canalId)).status).toBe(200);
+    expect((await ligar(sessionEditor, routerId, a.channelId)).status).toBe(200);
 
     const CLIENTE = '5511933330001';
-    const corpo = JSON.stringify(payloadDeMensagem(CLIENTE, 'oi'));
-    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${a.canalId}`, {
+    const corpo = JSON.stringify(payloadOfMessage(CLIENTE, 'oi'));
+    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${a.channelId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
       body: corpo,
@@ -451,15 +451,15 @@ describe('ligado o roteador ao número, a mensagem que chega nele cai no roteado
     `);
     expect(rows[0]?.conteudo).toBe('Roteador: olá!');
 
-    const { rows: posicao } = await a.dono.execute<{ servico_id: string }>(sql`
+    const { rows: position } = await a.dono.execute<{ serviceId: string }>(sql`
       select p.servico_id from posicao_no_roteador p
         join contato ct on ct.id = p.contato_id
-       where p.roteador_id = ${roteadorId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
+       where p.roteador_id = ${routerId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
     `);
-    expect(posicao[0]?.servico_id).toBe(principal.fluxoId);
+    expect(position[0]?.serviceId).toBe(principal.fluxoId);
 
     // Desligado o roteador do número, a próxima conversa nova já não passa por ele.
-    expect((await desligar(sessaoEditor, roteadorId)).status).toBe(204);
+    expect((await desligar(sessionEditor, routerId)).status).toBe(204);
   });
 });
 
@@ -475,7 +475,7 @@ describe('reconexão manual do mesmo número', () => {
    * no próprio número.
    */
   it('com canal_id troca a credencial do canal que já existe, em vez de recusar por número em uso', async () => {
-    const fluxoId = await novoFluxo(a, 'fluxo');
+    const fluxoId = await newFlow(a, 'fluxo');
     const numeroId = ClienteGraphDuble.sufixo(`reconecta-${fluxoId}`);
     const corpo = {
       waba_id: 'waba-do-bot',
@@ -484,46 +484,46 @@ describe('reconexão manual do mesmo número', () => {
       app_secret: appSecret,
       fluxo_id: fluxoId,
     };
-    const criado = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', corpo);
+    const criado = await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', corpo);
     expect(criado.status).toBe(201);
     const canalId = criado.corpo['id'] as string;
 
     /* Sem `canal_id`: é o beco que o dono encontrou — o número já é de um canal.
        Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */
-    const sessaoDeCanal = await abrirSessao(a, await pessoaCom(a, ['canal.gerenciar']));
+    const sessionOfChannel = await openSession(a, await pessoaCom(a, ['canal.gerenciar']));
     const { fluxo_id: _semBot, ...semBot } = corpo;
-    const repetido = await chamar(sessaoDeCanal, 'POST', '/v1/canais/whatsapp/manual', semBot);
+    const repetido = await chamar(sessionOfChannel, 'POST', '/v1/canais/whatsapp/manual', semBot);
     expect(repetido.status).toBe(422);
     expect(codigo(repetido)).toBe('configuracao_invalida');
 
     /* O duble da Meta casa token com número, então o token de teste é o mesmo;
        o que prova a troca é o App Secret novo gravado no canal. */
-    const novoSegredo = 'c'.repeat(32);
-    const refeito = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', {
+    const newSecret = 'c'.repeat(32);
+    const refeito = await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', {
       ...corpo,
-      app_secret: novoSegredo,
+      app_secret: newSecret,
       canal_id: canalId,
     });
     expect(refeito.status).toBe(201);
     expect(refeito.corpo['id']).toBe(canalId);
     /* O canal continua ligado ao mesmo bot e não nasceu um segundo. */
-    expect(await canalDoBanco(fluxoId)).toBe(canalId);
+    expect(await channelOfDatabase(fluxoId)).toBe(canalId);
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from canal where tenant_id = ${a.tenantId}::uuid and numero_id = ${numeroId}`,
     );
     expect(Number(rows[0]!.n)).toBe(1);
 
-    const { rows: guardado } = await a.dono.execute<{ segredo: string }>(
+    const { rows: guardado } = await a.dono.execute<{ secret: string }>(
       sql`select config->>'appSecret' as segredo from canal where id = ${canalId}::uuid`,
     );
     /* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */
-    expect(guardado[0]!.segredo).toBeTruthy();
-    expect(guardado[0]!.segredo).not.toBe(appSecret);
+    expect(guardado[0]!.secret).toBeTruthy();
+    expect(guardado[0]!.secret).not.toBe(appSecret);
   });
 
   it('canal de outro tenant não se reconecta por aqui', async () => {
-    const alheio = await novoCanal(b);
-    const resposta = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', {
+    const alheio = await newChannel(b);
+    const resposta = await chamar(sessionEditor, 'POST', '/v1/canais/whatsapp/manual', {
       waba_id: 'waba-do-bot',
       phone_number_id: ClienteGraphDuble.sufixo('alheio'),
       access_token: 'manual-alheio',

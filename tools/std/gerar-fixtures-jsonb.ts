@@ -59,16 +59,16 @@ const { gerarRegistros } = await import('../../apps/api/tests/gerar-fixtures-jso
 
 const arquivos = await gerarRegistros();
 
-for (const [arquivo, registros] of arquivos) {
+for (const [file, registros] of arquivos) {
   const redigidos = registros.map((registro) => {
     const copia: Record<string, unknown> = {};
-    for (const [chave, valor] of Object.entries(registro)) {
-      copia[chave] = chave === 'id' ? valor : redigir(valor);
+    for (const [key, value] of Object.entries(registro)) {
+      copia[key] = key === 'id' ? value : redigir(value);
     }
     return copia;
   });
-  writeFileSync(`${FIXTURES}${arquivo}`, `${JSON.stringify(redigidos, null, 2)}\n`);
-  console.log(`wrote ${arquivo} (${redigidos.length} registro(s), gerado)`);
+  writeFileSync(`${FIXTURES}${file}`, `${JSON.stringify(redigidos, null, 2)}\n`);
+  console.log(`wrote ${file} (${redigidos.length} registro(s), gerado)`);
 }
 
 console.log(`\n${arquivos.size} arquivo(s) de fixture gerados em ${FIXTURES}`);

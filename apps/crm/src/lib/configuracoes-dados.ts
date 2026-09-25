@@ -2,28 +2,28 @@ import { createHash, randomBytes } from 'node:crypto';
 import { and, asc, eq, isNull, sql } from 'drizzle-orm';
 import {
   cifrar,
-  chaveiroDoAmbiente,
+  keyringOfAmbiente,
   diferenca,
   registrarAuditoria,
   type Ator,
-  type TransacaoPipe,
+  type TransactionPipe,
 } from '@pipe/db';
 import {
-  chaveApi,
-  convite,
-  dicionarioCampo,
-  dominioTenant,
-  papel,
-  papelPermissao,
-  permissao,
+  keyApi,
+  invitation,
+  dictionaryField,
+  domainTenant,
+  role,
+  rolePermission,
+  permission,
   tenant,
-  usuario,
-  usuarioPapel,
+  user,
+  userRole,
   webhookSaida,
 } from '@pipe/db/schema';
 import { consultar, paraData, tenantId } from './banco';
 import {
-  escoposValidos,
+  scopesValid,
   eventosValidos,
   fusoValido,
   normalizar,
@@ -34,15 +34,15 @@ import {
   recusarUrl,
   tipoDeCampoValido,
   type CampoPersonalizado,
-  type ChaveDeApi,
-  type ConvitePendente,
+  type ApiKey,
+  type InvitationPendente,
   type Espaco,
-  type Membro,
-  type PapelDetalhado,
+  type Member,
+  type RoleDetailed,
   type Perfil,
-  type PermissaoDoCatalogo,
+  type CatalogoPermission,
   type Resultado,
-  type ResumoDePapel,
+  type RoleSummary,
   type WebhookDeSaida,
 } from './configuracoes-comum';
 
@@ -67,7 +67,7 @@ import {
  */
 
 /** Abre a transação já com o tenant fixado, e entrega o id junto para a auditoria. */
-async function escrever<T>(fn: (tx: TransacaoPipe, tenant: string) => Promise<T>): Promise<T> {
+async function escrever<T>(fn: (tx: TransactionPipe, tenant: string) => Promise<T>): Promise<T> {
   const id = await tenantId();
   return consultar((tx) => fn(tx, id));
 }
@@ -85,31 +85,31 @@ const OK: Resultado = { ok: true };
  * ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o
  * resto do arquivo só conhece o `Ator` que sai daqui.
  */
-export async function usuarioAtual(): Promise<Perfil> {
+export async function userCurrent(): Promise<Perfil> {
   const fixo = process.env['PIPE_USUARIO_ID'];
   return consultar(async (tx) => {
     const linhas = await tx
       .select({
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        avatarUrl: usuario.avatarUrl,
-        ultimoAcessoEm: usuario.ultimoAcessoEm,
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        ultimoAcessoEm: user.lastAccessAt,
       })
-      .from(usuario)
-      .where(fixo ? eq(usuario.id, fixo) : eq(usuario.ativo, true))
-      .orderBy(asc(usuario.criadoEm))
+      .from(user)
+      .where(fixo ? eq(user.id, fixo) : eq(user.ativo, true))
+      .orderBy(asc(user.criadoEm))
       .limit(1);
 
     const pessoa = linhas[0];
     if (!pessoa) throw new Error('nenhum usuário neste tenant: rode a semente antes.');
 
     const papeis = await tx
-      .select({ nome: papel.nome })
-      .from(usuarioPapel)
-      .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .where(eq(usuarioPapel.usuarioId, pessoa.id))
-      .orderBy(asc(papel.nome));
+      .select({ nome: role.nome })
+      .from(userRole)
+      .innerJoin(role, eq(role.id, userRole.papelId))
+      .where(eq(userRole.userId, pessoa.id))
+      .orderBy(asc(role.nome));
 
     return {
       ...pessoa,
@@ -121,32 +121,32 @@ export async function usuarioAtual(): Promise<Perfil> {
 
 /** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */
 export async function atorAtual(): Promise<Ator> {
-  const pessoa = await usuarioAtual();
+  const pessoa = await userCurrent();
   return { tipo: 'usuario', id: pessoa.id };
 }
 
 export async function salvarPerfil(
   ator: Ator,
-  dados: { nome: string; avatarUrl: string | null },
+  data: { nome: string; avatarUrl: string | null },
 ): Promise<Resultado> {
-  const nome = normalizar(dados.nome);
+  const nome = normalizar(data.nome);
   const queixa =
-    recusarNome(nome) ?? recusarUrl(normalizar(dados.avatarUrl), { obrigatoria: false });
-  if (queixa) return { ok: false, erro: queixa };
+    recusarNome(nome) ?? recusarUrl(normalizar(data.avatarUrl), { obrigatoria: false });
+  if (queixa) return { ok: false, error: queixa };
 
-  const avatarUrl = normalizar(dados.avatarUrl);
+  const avatarUrl = normalizar(data.avatarUrl);
   const id = ator.id;
-  if (!id) return { ok: false, erro: 'Não sei quem está salvando.' };
+  if (!id) return { ok: false, error: 'Não sei quem está salvando.' };
 
   return escrever(async (tx, tenant) => {
     const [antes] = await tx
-      .select({ nome: usuario.nome, avatarUrl: usuario.avatarUrl })
-      .from(usuario)
-      .where(eq(usuario.id, id));
-    if (!antes) return { ok: false, erro: 'Este acesso não existe mais.' };
+      .select({ nome: user.nome, avatarUrl: user.avatarUrl })
+      .from(user)
+      .where(eq(user.id, id));
+    if (!antes) return { ok: false, error: 'Este acesso não existe mais.' };
 
     const depois = { nome: nome!, avatarUrl };
-    await tx.update(usuario).set({ ...depois, atualizadoEm: new Date() }).where(eq(usuario.id, id));
+    await tx.update(user).set({ ...depois, atualizadoEm: new Date() }).where(eq(user.id, id));
     await registrarAuditoria(tx, tenant, {
       ator,
       acao: 'alterou',
@@ -171,25 +171,25 @@ export async function lerEspaco(): Promise<Espaco> {
         idioma: tenant.idioma,
         logoUrl: tenant.logoUrl,
         plano: tenant.plano,
-        implantacao: tenant.implantacao,
+        implantacao: tenant.deployment,
       })
       .from(tenant)
       .limit(1);
     if (!linha) throw new Error('o tenant desta instância sumiu.');
 
-    const [contagem] = await tx
+    const [count] = await tx
       .select({ n: sql<number>`count(*)::int` })
-      .from(usuario)
-      .where(eq(usuario.ativo, true));
+      .from(user)
+      .where(eq(user.ativo, true));
 
     const dominios = await tx
-      .select({ dominio: dominioTenant.dominio, verificadoEm: dominioTenant.verificadoEm })
-      .from(dominioTenant)
-      .orderBy(asc(dominioTenant.dominio));
+      .select({ dominio: domainTenant.domain, verificadoEm: domainTenant.verificadoEm })
+      .from(domainTenant)
+      .orderBy(asc(domainTenant.domain));
 
     return {
       ...linha,
-      membros: contagem?.n ?? 0,
+      membros: count?.n ?? 0,
       dominios: dominios.map((d) => ({ dominio: d.dominio, verificado: d.verificadoEm !== null })),
     };
   });
@@ -197,22 +197,22 @@ export async function lerEspaco(): Promise<Espaco> {
 
 export async function salvarEspaco(
   ator: Ator,
-  dados: { nome: string; logoUrl: string | null; fuso: string },
+  data: { nome: string; logoUrl: string | null; fuso: string },
 ): Promise<Resultado> {
-  const nome = normalizar(dados.nome);
-  const logoUrl = normalizar(dados.logoUrl);
-  const fuso = normalizar(dados.fuso);
+  const nome = normalizar(data.nome);
+  const logoUrl = normalizar(data.logoUrl);
+  const fuso = normalizar(data.fuso);
 
   const queixa = recusarNome(nome, 'O nome da empresa') ?? recusarUrl(logoUrl, { obrigatoria: false });
-  if (queixa) return { ok: false, erro: queixa };
-  if (!fuso || !fusoValido(fuso)) return { ok: false, erro: 'Este fuso horário não existe.' };
+  if (queixa) return { ok: false, error: queixa };
+  if (!fuso || !fusoValido(fuso)) return { ok: false, error: 'Este fuso horário não existe.' };
 
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
       .select({ nome: tenant.nome, logoUrl: tenant.logoUrl, fuso: tenant.fuso })
       .from(tenant)
       .where(eq(tenant.id, tenantIdAtual));
-    if (!antes) return { ok: false, erro: 'Este espaço não existe mais.' };
+    if (!antes) return { ok: false, error: 'Este espaço não existe mais.' };
 
     const depois = { nome: nome!, logoUrl, fuso };
     await tx
@@ -232,44 +232,44 @@ export async function salvarEspaco(
 
 /* ================================================================ membros */
 
-export async function listarMembros(): Promise<Membro[]> {
+export async function listMembers(): Promise<Member[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        ativo: usuario.ativo,
-        ultimoAcessoEm: usuario.ultimoAcessoEm,
-        papelId: papel.id,
-        papel: papel.nome,
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        ativo: user.ativo,
+        ultimoAcessoEm: user.lastAccessAt,
+        papelId: role.id,
+        papel: role.nome,
       })
-      .from(usuario)
-      .leftJoin(usuarioPapel, eq(usuarioPapel.usuarioId, usuario.id))
-      .leftJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .orderBy(asc(usuario.nome), asc(papel.nome));
+      .from(user)
+      .leftJoin(userRole, eq(userRole.userId, user.id))
+      .leftJoin(role, eq(role.id, userRole.papelId))
+      .orderBy(asc(user.nome), asc(role.nome));
 
     // O `left join` devolve uma linha por papel, e o schema permite vários. A tela
     // oferece UM papel (ver `definirPapel`), então aqui fica o primeiro em ordem
     // alfabética — e nunca duas linhas para a mesma pessoa, que viraria chave
     // repetida na tabela e uma pessoa contada duas vezes.
-    const porPessoa = new Map<string, Membro>();
+    const byPessoa = new Map<string, Member>();
     for (const l of linhas) {
-      if (porPessoa.has(l.id)) continue;
-      porPessoa.set(l.id, { ...l, ultimoAcessoEm: paraData(l.ultimoAcessoEm) });
+      if (byPessoa.has(l.id)) continue;
+      byPessoa.set(l.id, { ...l, ultimoAccessIn: paraData(l.ultimoAcessoEm) });
     }
-    return [...porPessoa.values()];
+    return [...byPessoa.values()];
   });
 }
 
-export async function listarConvitesPendentes(): Promise<ConvitePendente[]> {
+export async function listarConvitesPendentes(): Promise<InvitationPendente[]> {
   return consultar(async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
       email: string;
-      papel: string;
+      role: string;
       expira_em: unknown;
-      convidado_por: string | null;
+      convidadoBy: string | null;
     }>(sql`
       select c.id, c.email, p.nome as papel, c.expira_em, u.nome as convidado_por
         from convite c
@@ -281,15 +281,15 @@ export async function listarConvitesPendentes(): Promise<ConvitePendente[]> {
     return rows.map((r) => ({
       id: r.id,
       email: r.email,
-      papel: r.papel,
+      papel: r.role,
       expiraEm: paraData(r.expira_em) ?? new Date(),
-      convidadoPor: r.convidado_por,
+      convidadoPor: r.convidadoBy,
     }));
   });
 }
 
 /** Sete dias, o mesmo prazo de `apps/api/src/dominio/convites.ts`. */
-const PRAZO_CONVITE_MS = 7 * 24 * 60 * 60 * 1000;
+const PRAZO_INVITATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 /**
  * O token de convite, no formato que `apps/api` já sabe aceitar: 32 bytes
@@ -311,7 +311,7 @@ function novoToken(): { token: string; hash: string } {
  * soubesse. Quando a variável não está posta, o destino honesto é ESTE
  * aplicativo, que tem a rota (`app/convite/[token]/page.tsx`).
  */
-export function urlDoConvite(token: string): string {
+export function invitationUrl(token: string): string {
   const base = (
     process.env['PIPE_URL_APP'] ??
     process.env['PIPE_URL_ESTE_APP'] ??
@@ -332,23 +332,23 @@ export function urlDoConvite(token: string): string {
  */
 export async function convidar(
   ator: Ator,
-  dados: { email: string; papelId: string },
+  data: { email: string; roleId: string },
 ): Promise<Resultado> {
-  const email = normalizarEmail(dados.email);
+  const email = normalizarEmail(data.email);
   const queixa = recusarEmail(email);
-  if (queixa) return { ok: false, erro: queixa };
+  if (queixa) return { ok: false, error: queixa };
 
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
-      .select({ id: papel.id, nome: papel.nome })
-      .from(papel)
-      .where(eq(papel.id, dados.papelId));
+      .select({ id: role.id, nome: role.nome })
+      .from(role)
+      .where(eq(role.id, data.roleId));
     if (!alvo) return { ok: false, erro: 'Este papel não existe nesta conta.' };
 
     const [jaDentro] = await tx
-      .select({ id: usuario.id })
-      .from(usuario)
-      .where(eq(usuario.email, email!));
+      .select({ id: user.id })
+      .from(user)
+      .where(eq(user.email, email!));
     if (jaDentro) return { ok: false, erro: `${email} já tem acesso a esta conta.` };
 
     await tx.execute(sql`
@@ -358,16 +358,16 @@ export async function convidar(
 
     const novo = novoToken();
     const [criado] = await tx
-      .insert(convite)
+      .insert(invitation)
       .values({
         tenantId: tenantIdAtual,
         email: email!,
         papelId: alvo.id,
         tokenHash: novo.hash,
-        expiraEm: new Date(Date.now() + PRAZO_CONVITE_MS),
+        expiraEm: new Date(Date.now() + PRAZO_INVITATION_MS),
         criadoPor: ator.id ?? null,
       })
-      .returning({ id: convite.id });
+      .returning({ id: invitation.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
@@ -377,22 +377,22 @@ export async function convidar(
       depois: { email, papel: alvo.nome },
     });
 
-    return { ok: true, segredo: urlDoConvite(novo.token) };
+    return { ok: true, segredo: invitationUrl(novo.token) };
   });
 }
 
-export async function cancelarConvite(ator: Ator, id: string): Promise<Resultado> {
+export async function cancelarInvitation(ator: Ator, id: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
-      .select({ id: convite.id, email: convite.email, expiraEm: convite.expiraEm })
-      .from(convite)
-      .where(and(eq(convite.id, id), isNull(convite.aceitoEm)));
-    if (!antes) return { ok: false, erro: 'Este convite já foi usado ou não existe.' };
+      .select({ id: invitation.id, email: invitation.email, expiraEm: invitation.expiraEm })
+      .from(invitation)
+      .where(and(eq(invitation.id, id), isNull(invitation.aceitoEm)));
+    if (!antes) return { ok: false, error: 'Este convite já foi usado ou não existe.' };
 
     await tx
-      .update(convite)
+      .update(invitation)
       .set({ expiraEm: new Date(), atualizadoEm: new Date() })
-      .where(eq(convite.id, id));
+      .where(eq(invitation.id, id));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'excluiu',
@@ -412,40 +412,40 @@ export async function cancelarConvite(ator: Ator, id: string): Promise<Resultado
  * pergunta sem resposta na tela. Quem precisar de soma cria um papel que a
  * descreva — que é a resposta honesta e é a que a auditoria consegue explicar.
  */
-export async function definirPapel(
+export async function definirRole(
   ator: Ator,
-  usuarioIdAlvo: string,
-  papelId: string,
+  userIdAlvo: string,
+  roleId: string,
 ): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
-      .select({ id: usuario.id, nome: usuario.nome })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioIdAlvo));
-    if (!alvo) return { ok: false, erro: 'Esta pessoa não existe nesta conta.' };
+      .select({ id: user.id, nome: user.nome })
+      .from(user)
+      .where(eq(user.id, userIdAlvo));
+    if (!alvo) return { ok: false, error: 'Esta pessoa não existe nesta conta.' };
 
     const [novo] = await tx
-      .select({ id: papel.id, nome: papel.nome })
-      .from(papel)
-      .where(eq(papel.id, papelId));
-    if (!novo) return { ok: false, erro: 'Este papel não existe nesta conta.' };
+      .select({ id: role.id, nome: role.nome })
+      .from(role)
+      .where(eq(role.id, roleId));
+    if (!novo) return { ok: false, error: 'Este papel não existe nesta conta.' };
 
     const antigos = await tx
-      .select({ nome: papel.nome })
-      .from(usuarioPapel)
-      .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .where(eq(usuarioPapel.usuarioId, usuarioIdAlvo));
+      .select({ nome: role.nome })
+      .from(userRole)
+      .innerJoin(role, eq(role.id, userRole.papelId))
+      .where(eq(userRole.userId, userIdAlvo));
 
-    await tx.delete(usuarioPapel).where(eq(usuarioPapel.usuarioId, usuarioIdAlvo));
+    await tx.delete(userRole).where(eq(userRole.userId, userIdAlvo));
     await tx
-      .insert(usuarioPapel)
-      .values({ tenantId: tenantIdAtual, usuarioId: usuarioIdAlvo, papelId: novo.id });
+      .insert(userRole)
+      .values({ tenantId: tenantIdAtual, usuarioId: userIdAlvo, papelId: novo.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'alterou',
       objetoTipo: 'usuario_papel',
-      objetoId: usuarioIdAlvo,
+      objetoId: userIdAlvo,
       antes: { papeis: antigos.map((p) => p.nome) },
       depois: { papeis: [novo.nome] },
     });
@@ -460,32 +460,32 @@ export async function definirPapel(
  * apagaria a autoria de tudo o que a pessoa fez. Desativar tira o acesso e mantém
  * a história, que é o que uma auditoria de contrato pede.
  */
-export async function definirAtivoDoMembro(
+export async function memberDefinirActive(
   ator: Ator,
-  usuarioIdAlvo: string,
+  userIdAlvo: string,
   ativo: boolean,
 ): Promise<Resultado> {
-  if (ator.id === usuarioIdAlvo && !ativo) {
-    return { ok: false, erro: 'Você não pode desativar o próprio acesso.' };
+  if (ator.id === userIdAlvo && !ativo) {
+    return { ok: false, error: 'Você não pode desativar o próprio acesso.' };
   }
 
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
-      .select({ ativo: usuario.ativo, nome: usuario.nome })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioIdAlvo));
-    if (!antes) return { ok: false, erro: 'Esta pessoa não existe nesta conta.' };
+      .select({ ativo: user.ativo, nome: user.nome })
+      .from(user)
+      .where(eq(user.id, userIdAlvo));
+    if (!antes) return { ok: false, error: 'Esta pessoa não existe nesta conta.' };
     if (antes.ativo === ativo) return OK;
 
     await tx
-      .update(usuario)
+      .update(user)
       .set({ ativo, atualizadoEm: new Date() })
-      .where(eq(usuario.id, usuarioIdAlvo));
+      .where(eq(user.id, userIdAlvo));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: ativo ? 'ativou' : 'desativou',
       objetoTipo: 'usuario',
-      objetoId: usuarioIdAlvo,
+      objetoId: userIdAlvo,
       antes: { ativo: antes.ativo },
       depois: { ativo },
     });
@@ -495,15 +495,15 @@ export async function definirAtivoDoMembro(
 
 /* ================================================== papéis e permissões */
 
-export async function listarPapeis(): Promise<ResumoDePapel[]> {
+export async function listarPapeis(): Promise<RoleSummary[]> {
   return consultar(async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
       nome: string;
-      descricao: string | null;
+      description: string | null;
       de_sistema: boolean;
-      permissoes: number;
-      membros: number;
+      permissions: number;
+      members: number;
     }>(sql`
       select p.id, p.nome, p.descricao, p.de_sistema,
              (select count(*)::int from papel_permissao pp where pp.papel_id = p.id) as permissoes,
@@ -514,87 +514,87 @@ export async function listarPapeis(): Promise<ResumoDePapel[]> {
     return rows.map((r) => ({
       id: r.id,
       nome: r.nome,
-      descricao: r.descricao,
+      descricao: r.description,
       deSistema: r.de_sistema,
-      permissoes: Number(r.permissoes),
-      membros: Number(r.membros),
+      permissoes: Number(r.permissions),
+      membros: Number(r.members),
     }));
   });
 }
 
 /** O catálogo é global — vocabulário do produto, igual para todo cliente. */
-export async function listarCatalogoDePermissoes(): Promise<PermissaoDoCatalogo[]> {
+export async function permissionsListarCatalogo(): Promise<CatalogoPermission[]> {
   return consultar(async (tx) =>
     tx
       .select({
-        codigo: permissao.codigo,
-        descricao: permissao.descricao,
-        grupo: permissao.grupo,
+        codigo: permission.codigo,
+        descricao: permission.descricao,
+        grupo: permission.grupo,
       })
-      .from(permissao)
-      .orderBy(asc(permissao.grupo), asc(permissao.codigo)),
+      .from(permission)
+      .orderBy(asc(permission.grupo), asc(permission.codigo)),
   );
 }
 
-export async function lerPapel(id: string): Promise<PapelDetalhado | null> {
+export async function readRole(id: string): Promise<RoleDetailed | null> {
   return consultar(async (tx) => {
     const [linha] = await tx
       .select({
-        id: papel.id,
-        nome: papel.nome,
-        descricao: papel.descricao,
-        deSistema: papel.deSistema,
+        id: role.id,
+        nome: role.nome,
+        descricao: role.description,
+        deSistema: role.deSistema,
       })
-      .from(papel)
-      .where(eq(papel.id, id));
+      .from(role)
+      .where(eq(role.id, id));
     if (!linha) return null;
 
     const concedidas = await tx
-      .select({ codigo: papelPermissao.permissaoCodigo })
-      .from(papelPermissao)
-      .where(eq(papelPermissao.papelId, id));
+      .select({ codigo: rolePermission.permissionCode })
+      .from(rolePermission)
+      .where(eq(rolePermission.roleId, id));
 
-    const membros = await tx
-      .select({ nome: usuario.nome })
-      .from(usuarioPapel)
-      .innerJoin(usuario, eq(usuario.id, usuarioPapel.usuarioId))
-      .where(eq(usuarioPapel.papelId, id))
-      .orderBy(asc(usuario.nome));
+    const members = await tx
+      .select({ nome: user.nome })
+      .from(userRole)
+      .innerJoin(user, eq(user.id, userRole.userId))
+      .where(eq(userRole.papelId, id))
+      .orderBy(asc(user.nome));
 
     return {
       ...linha,
       permissoes: concedidas.length,
-      membros: membros.length,
+      membros: members.length,
       concedidas: concedidas.map((c) => c.codigo),
-      nomesDosMembros: membros.map((m) => m.nome),
+      nomesDosMembros: members.map((m) => m.nome),
     };
   });
 }
 
-export async function criarPapel(
+export async function createRole(
   ator: Ator,
-  dados: { nome: string; descricao: string | null },
+  data: { nome: string; description: string | null },
 ): Promise<Resultado> {
-  const nome = normalizar(dados.nome);
+  const nome = normalizar(data.nome);
   const queixa = recusarNome(nome, 'O nome do papel');
-  if (queixa) return { ok: false, erro: queixa };
+  if (queixa) return { ok: false, error: queixa };
 
   return escrever(async (tx, tenantIdAtual) => {
-    const [existe] = await tx.select({ id: papel.id }).from(papel).where(eq(papel.nome, nome!));
-    if (existe) return { ok: false, erro: `Já existe um papel chamado "${nome}".` };
+    const [existe] = await tx.select({ id: role.id }).from(role).where(eq(role.nome, nome!));
+    if (existe) return { ok: false, error: `Já existe um papel chamado "${nome}".` };
 
-    const descricao = normalizar(dados.descricao);
+    const description = normalizar(data.description);
     const [criado] = await tx
-      .insert(papel)
-      .values({ tenantId: tenantIdAtual, nome: nome!, descricao })
-      .returning({ id: papel.id });
+      .insert(role)
+      .values({ tenantId: tenantIdAtual, nome: nome!, description })
+      .returning({ id: role.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'criou',
       objetoTipo: 'papel',
       objetoId: criado!.id,
-      depois: { nome, descricao },
+      depois: { nome, description },
     });
     return OK;
   });
@@ -610,41 +610,41 @@ export async function criarPapel(
  * Papel de sistema não é editável — é o do dia 1, e o cliente que quiser um
  * administrador diferente cria o dele.
  */
-export async function salvarPermissoesDoPapel(
+export async function roleSalvarPermissions(
   ator: Ator,
-  papelId: string,
+  roleId: string,
   codigos: string[],
 ): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
-      .select({ id: papel.id, nome: papel.nome, deSistema: papel.deSistema })
-      .from(papel)
-      .where(eq(papel.id, papelId));
-    if (!alvo) return { ok: false, erro: 'Este papel não existe nesta conta.' };
+      .select({ id: role.id, nome: role.nome, deSistema: role.deSistema })
+      .from(role)
+      .where(eq(role.id, roleId));
+    if (!alvo) return { ok: false, error: 'Este papel não existe nesta conta.' };
     if (alvo.deSistema) {
-      return { ok: false, erro: 'Papel de sistema não é editável. Crie um papel próprio.' };
+      return { ok: false, error: 'Papel de sistema não é editável. Crie um papel próprio.' };
     }
 
-    const catalogo = await tx.select({ codigo: permissao.codigo }).from(permissao);
+    const catalogo = await tx.select({ codigo: permission.codigo }).from(permission);
     const conhecidas = new Set(catalogo.map((c) => c.codigo));
     const pedidas = [...new Set(codigos)].filter((c) => conhecidas.has(c));
 
-    const atuais = await tx
-      .select({ codigo: papelPermissao.permissaoCodigo })
-      .from(papelPermissao)
-      .where(eq(papelPermissao.papelId, papelId));
-    const tinha = new Set(atuais.map((a) => a.codigo));
+    const current = await tx
+      .select({ codigo: rolePermission.permissionCode })
+      .from(rolePermission)
+      .where(eq(rolePermission.roleId, roleId));
+    const tinha = new Set(current.map((a) => a.codigo));
 
     const entraram = pedidas.filter((c) => !tinha.has(c));
     const sairam = [...tinha].filter((c) => !pedidas.includes(c));
     if (entraram.length === 0 && sairam.length === 0) return OK;
 
-    await tx.delete(papelPermissao).where(eq(papelPermissao.papelId, papelId));
+    await tx.delete(rolePermission).where(eq(rolePermission.roleId, roleId));
     if (pedidas.length > 0) {
-      await tx.insert(papelPermissao).values(
+      await tx.insert(rolePermission).values(
         pedidas.map((codigo) => ({
           tenantId: tenantIdAtual,
-          papelId,
+          roleId,
           permissaoCodigo: codigo,
         })),
       );
@@ -654,7 +654,7 @@ export async function salvarPermissoesDoPapel(
       ator,
       acao: 'alterou',
       objetoTipo: 'papel_permissao',
-      objetoId: papelId,
+      objetoId: roleId,
       antes: { removidas: sairam },
       depois: { concedidas: entraram },
     });
@@ -662,32 +662,32 @@ export async function salvarPermissoesDoPapel(
   });
 }
 
-export async function excluirPapel(ator: Ator, papelId: string): Promise<Resultado> {
+export async function excluirRole(ator: Ator, roleId: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [alvo] = await tx
-      .select({ nome: papel.nome, descricao: papel.descricao, deSistema: papel.deSistema })
-      .from(papel)
-      .where(eq(papel.id, papelId));
-    if (!alvo) return { ok: false, erro: 'Este papel não existe nesta conta.' };
-    if (alvo.deSistema) return { ok: false, erro: 'Papel de sistema não pode ser excluído.' };
+      .select({ nome: role.nome, descricao: role.description, deSistema: role.deSistema })
+      .from(role)
+      .where(eq(role.id, roleId));
+    if (!alvo) return { ok: false, error: 'Este papel não existe nesta conta.' };
+    if (alvo.deSistema) return { ok: false, error: 'Papel de sistema não pode ser excluído.' };
 
     const [comGente] = await tx
       .select({ n: sql<number>`count(*)::int` })
-      .from(usuarioPapel)
-      .where(eq(usuarioPapel.papelId, papelId));
+      .from(userRole)
+      .where(eq(userRole.papelId, roleId));
     if ((comGente?.n ?? 0) > 0) {
       return {
         ok: false,
-        erro: 'Ainda há gente com este papel. Troque o papel dessas pessoas antes de excluir.',
+        error: 'Ainda há gente com este papel. Troque o papel dessas pessoas antes de excluir.',
       };
     }
 
-    await tx.delete(papel).where(eq(papel.id, papelId));
+    await tx.delete(role).where(eq(role.id, roleId));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'excluiu',
       objetoTipo: 'papel',
-      objetoId: papelId,
+      objetoId: roleId,
       antes: { nome: alvo.nome, descricao: alvo.descricao },
     });
     return OK;
@@ -703,71 +703,71 @@ export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]
   return consultar(async (tx) => {
     const campos = await tx
       .select({
-        id: dicionarioCampo.id,
-        codigo: dicionarioCampo.codigo,
-        rotulo: dicionarioCampo.rotulo,
-        tipo: dicionarioCampo.tipo,
-        descricao: dicionarioCampo.descricao,
+        id: dictionaryField.id,
+        codigo: dictionaryField.codigo,
+        rotulo: dictionaryField.rotulo,
+        tipo: dictionaryField.tipo,
+        descricao: dictionaryField.descricao,
       })
-      .from(dicionarioCampo)
-      .where(eq(dicionarioCampo.objetoCodigo, OBJETO_LEAD))
-      .orderBy(asc(dicionarioCampo.rotulo));
+      .from(dictionaryField)
+      .where(eq(dictionaryField.objetoCodigo, OBJETO_LEAD))
+      .orderBy(asc(dictionaryField.rotulo));
 
     if (campos.length === 0) return [];
 
     // Uma varredura só, com o índice GIN de `lead.customizados` fazendo o trabalho.
-    const { rows } = await tx.execute<{ chave: string; n: number }>(sql`
+    const { rows } = await tx.execute<{ key: string; n: number }>(sql`
       select chave, count(*)::int as n
         from lead, lateral jsonb_object_keys(customizados) as chave
        where excluido_em is null
        group by chave
     `);
-    const usoPorChave = new Map(rows.map((r) => [r.chave, Number(r.n)]));
+    const usoByKey = new Map(rows.map((r) => [r.key, Number(r.n)]));
 
-    return campos.map((c) => ({ ...c, preenchidos: usoPorChave.get(c.codigo) ?? 0 }));
+    return campos.map((c) => ({ ...c, preenchidos: usoByKey.get(c.codigo) ?? 0 }));
   });
 }
 
-export async function criarCampoPersonalizado(
+export async function createFieldCustom(
   ator: Ator,
-  dados: { codigo: string; rotulo: string; tipo: string; descricao: string | null },
+  data: { codigo: string; rotulo: string; tipo: string; description: string | null },
 ): Promise<Resultado> {
-  const codigo = normalizar(dados.codigo)?.toLowerCase() ?? null;
-  const rotulo = normalizar(dados.rotulo);
+  const codigo = normalizar(data.codigo)?.toLowerCase() ?? null;
+  const rotulo = normalizar(data.rotulo);
   const queixa = recusarCodigoDeCampo(codigo) ?? recusarNome(rotulo, 'O rótulo');
-  if (queixa) return { ok: false, erro: queixa };
-  if (!tipoDeCampoValido(dados.tipo)) return { ok: false, erro: 'Escolha um tipo para o campo.' };
+  if (queixa) return { ok: false, error: queixa };
+  if (!tipoDeCampoValido(data.tipo)) return { ok: false, error: 'Escolha um tipo para o campo.' };
 
   return escrever(async (tx, tenantIdAtual) => {
     const [existe] = await tx
-      .select({ id: dicionarioCampo.id })
-      .from(dicionarioCampo)
+      .select({ id: dictionaryField.id })
+      .from(dictionaryField)
       .where(
-        and(eq(dicionarioCampo.objetoCodigo, OBJETO_LEAD), eq(dicionarioCampo.codigo, codigo!)),
+        and(eq(dictionaryField.objetoCodigo, OBJETO_LEAD), eq(dictionaryField.codigo, codigo!)),
       );
-    if (existe) return { ok: false, erro: `Já existe um campo com o código "${codigo}".` };
+    if (existe) return { ok: false, error: `Já existe um campo com o código "${codigo}".` };
 
-    const descricao = normalizar(dados.descricao);
+    const description = normalizar(data.description);
     const [criado] = await tx
-      .insert(dicionarioCampo)
+      .insert(dictionaryField)
       .values({
         tenantId: tenantIdAtual,
         objetoCodigo: OBJETO_LEAD,
         codigo: codigo!,
         rotulo: rotulo!,
-        tipo: dados.tipo,
-        descricao,
+        tipo: data.tipo,
+        description,
         consultavel: true,
-        agregavel: dados.tipo === 'numero',
+        agregavel: data.tipo === 'numero',
       })
-      .returning({ id: dicionarioCampo.id });
+      .returning({ id: dictionaryField.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'criou',
       objetoTipo: 'dicionario_campo',
       objetoId: criado!.id,
-      depois: { codigo, rotulo, tipo: dados.tipo, descricao },
+      depois: { codigo, rotulo, tipo: data.tipo, description },
     });
     return OK;
   });
@@ -783,21 +783,21 @@ export async function criarCampoPersonalizado(
 export async function renomearCampoPersonalizado(
   ator: Ator,
   id: string,
-  dados: { rotulo: string; descricao: string | null },
+  data: { rotulo: string; description: string | null },
 ): Promise<Resultado> {
-  const rotulo = normalizar(dados.rotulo);
+  const rotulo = normalizar(data.rotulo);
   const queixa = recusarNome(rotulo, 'O rótulo');
-  if (queixa) return { ok: false, erro: queixa };
+  if (queixa) return { ok: false, error: queixa };
 
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
-      .select({ rotulo: dicionarioCampo.rotulo, descricao: dicionarioCampo.descricao })
-      .from(dicionarioCampo)
-      .where(eq(dicionarioCampo.id, id));
-    if (!antes) return { ok: false, erro: 'Este campo não existe mais.' };
+      .select({ rotulo: dictionaryField.rotulo, descricao: dictionaryField.descricao })
+      .from(dictionaryField)
+      .where(eq(dictionaryField.id, id));
+    if (!antes) return { ok: false, error: 'Este campo não existe mais.' };
 
-    const depois = { rotulo: rotulo!, descricao: normalizar(dados.descricao) };
-    await tx.update(dicionarioCampo).set(depois).where(eq(dicionarioCampo.id, id));
+    const depois = { rotulo: rotulo!, descricao: normalizar(data.description) };
+    await tx.update(dictionaryField).set(depois).where(eq(dictionaryField.id, id));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'alterou',
@@ -820,15 +820,15 @@ export async function excluirCampoPersonalizado(ator: Ator, id: string): Promise
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
       .select({
-        codigo: dicionarioCampo.codigo,
-        rotulo: dicionarioCampo.rotulo,
-        tipo: dicionarioCampo.tipo,
+        codigo: dictionaryField.codigo,
+        rotulo: dictionaryField.rotulo,
+        tipo: dictionaryField.tipo,
       })
-      .from(dicionarioCampo)
-      .where(eq(dicionarioCampo.id, id));
-    if (!antes) return { ok: false, erro: 'Este campo não existe mais.' };
+      .from(dictionaryField)
+      .where(eq(dictionaryField.id, id));
+    if (!antes) return { ok: false, error: 'Este campo não existe mais.' };
 
-    await tx.delete(dicionarioCampo).where(eq(dicionarioCampo.id, id));
+    await tx.delete(dictionaryField).where(eq(dictionaryField.id, id));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'excluiu',
@@ -842,21 +842,21 @@ export async function excluirCampoPersonalizado(ator: Ator, id: string): Promise
 
 /* ============================================================ chave de API */
 
-export async function listarChaves(): Promise<ChaveDeApi[]> {
+export async function listarChaves(): Promise<ApiKey[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({
-        id: chaveApi.id,
-        nome: chaveApi.nome,
-        prefixo: chaveApi.prefixo,
-        escopos: chaveApi.escopos,
-        criadoEm: chaveApi.criadoEm,
-        expiraEm: chaveApi.expiraEm,
-        ultimoUsoEm: chaveApi.ultimoUsoEm,
-        revogadaEm: chaveApi.revogadaEm,
+        id: keyApi.id,
+        nome: keyApi.nome,
+        prefixo: keyApi.prefix,
+        escopos: keyApi.scopes,
+        criadoEm: keyApi.criadoEm,
+        expiraEm: keyApi.expiraEm,
+        ultimoUsoEm: keyApi.ultimoUsoEm,
+        revogadaEm: keyApi.revogadaEm,
       })
-      .from(chaveApi)
-      .orderBy(asc(chaveApi.nome));
+      .from(keyApi)
+      .orderBy(asc(keyApi.nome));
 
     return linhas.map((l) => ({
       ...l,
@@ -877,58 +877,58 @@ export async function listarChaves(): Promise<ChaveDeApi[]> {
  * **O token completo só existe nesta resposta.** Quem perder pede outra: mostrar
  * de novo exigiria guardá-lo, e aí a tabela viraria a credencial.
  */
-export async function criarChave(
+export async function createKey(
   ator: Ator,
-  dados: { nome: string; escopos: string[] },
+  data: { nome: string; scopes: string[] },
 ): Promise<Resultado> {
-  const nome = normalizar(dados.nome);
+  const nome = normalizar(data.nome);
   const queixa = recusarNome(nome, 'O nome da chave');
-  if (queixa) return { ok: false, erro: queixa };
+  if (queixa) return { ok: false, error: queixa };
 
-  const escopos = escoposValidos(dados.escopos);
-  if (escopos.length === 0) return { ok: false, erro: 'Escolha ao menos um escopo.' };
+  const scopes = scopesValid(data.scopes);
+  if (scopes.length === 0) return { ok: false, error: 'Escolha ao menos um escopo.' };
 
-  const prefixo = randomBytes(6).toString('hex');
-  const segredo = randomBytes(24).toString('base64url');
+  const prefix = randomBytes(6).toString('hex');
+  const secret = randomBytes(24).toString('base64url');
 
   return escrever(async (tx, tenantIdAtual) => {
     const [criada] = await tx
-      .insert(chaveApi)
+      .insert(keyApi)
       .values({
         tenantId: tenantIdAtual,
         nome: nome!,
-        prefixo,
-        hash: createHash('sha256').update(segredo).digest('hex'),
-        escopos,
+        prefix,
+        hash: createHash('sha256').update(secret).digest('hex'),
+        scopes,
         criadaPor: ator.id ?? null,
       })
-      .returning({ id: chaveApi.id });
+      .returning({ id: keyApi.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'criou',
       objetoTipo: 'chave_api',
       objetoId: criada!.id,
-      depois: { nome, prefixo, escopos },
+      depois: { nome, prefix, scopes },
     });
 
-    return { ok: true, segredo: `pipe_${prefixo}_${segredo}` };
+    return { ok: true, segredo: `pipe_${prefix}_${secret}` };
   });
 }
 
-export async function revogarChave(ator: Ator, id: string): Promise<Resultado> {
+export async function revogarKey(ator: Ator, id: string): Promise<Resultado> {
   return escrever(async (tx, tenantIdAtual) => {
     const [antes] = await tx
-      .select({ nome: chaveApi.nome, revogadaEm: chaveApi.revogadaEm })
-      .from(chaveApi)
-      .where(eq(chaveApi.id, id));
-    if (!antes) return { ok: false, erro: 'Esta chave não existe mais.' };
+      .select({ nome: keyApi.nome, revogadaEm: keyApi.revogadaEm })
+      .from(keyApi)
+      .where(eq(keyApi.id, id));
+    if (!antes) return { ok: false, error: 'Esta chave não existe mais.' };
     if (antes.revogadaEm) return OK;
 
     await tx
-      .update(chaveApi)
+      .update(keyApi)
       .set({ revogadaEm: new Date(), atualizadoEm: new Date() })
-      .where(eq(chaveApi.id, id));
+      .where(eq(keyApi.id, id));
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
       acao: 'desativou',
@@ -981,25 +981,25 @@ export async function listarWebhooks(): Promise<WebhookDeSaida[]> {
  * quem vai conferir a assinatura do outro lado; depois disso nem a tela o
  * recupera. `estaCifrado` já garante que ninguém grave texto claro por engano.
  */
-export async function criarWebhook(
+export async function createWebhook(
   ator: Ator,
-  dados: { url: string; eventos: string[] },
+  data: { url: string; eventos: string[] },
 ): Promise<Resultado> {
-  const url = normalizar(dados.url);
+  const url = normalizar(data.url);
   const queixa = recusarUrl(url, { exigirHttps: true });
-  if (queixa) return { ok: false, erro: queixa };
+  if (queixa) return { ok: false, error: queixa };
 
-  const eventos = eventosValidos(dados.eventos);
-  if (eventos.length === 0) return { ok: false, erro: 'Escolha ao menos um evento.' };
+  const eventos = eventosValidos(data.eventos);
+  if (eventos.length === 0) return { ok: false, error: 'Escolha ao menos um evento.' };
 
-  const segredo = randomBytes(32).toString('base64url');
+  const secret = randomBytes(32).toString('base64url');
   let cifrado: string;
   try {
-    cifrado = cifrar(segredo, chaveiroDoAmbiente());
+    cifrado = cifrar(secret, keyringOfAmbiente());
   } catch {
     return {
       ok: false,
-      erro: 'O chaveiro de segredos não está configurado (PIPE_CHAVES_SEGREDO).',
+      error: 'O chaveiro de segredos não está configurado (PIPE_CHAVES_SEGREDO).',
     };
   }
 
@@ -1017,7 +1017,7 @@ export async function criarWebhook(
       depois: { url, eventos },
     });
 
-    return { ok: true, segredo };
+    return { ok: true, secret };
   });
 }
 
@@ -1031,7 +1031,7 @@ export async function definirAtivoDoWebhook(
       .select({ url: webhookSaida.url, ativo: webhookSaida.ativo })
       .from(webhookSaida)
       .where(eq(webhookSaida.id, id));
-    if (!antes) return { ok: false, erro: 'Este webhook não existe mais.' };
+    if (!antes) return { ok: false, error: 'Este webhook não existe mais.' };
     if (antes.ativo === ativo) return OK;
 
     await tx
@@ -1056,7 +1056,7 @@ export async function excluirWebhook(ator: Ator, id: string): Promise<Resultado>
       .select({ url: webhookSaida.url, eventos: webhookSaida.eventos })
       .from(webhookSaida)
       .where(eq(webhookSaida.id, id));
-    if (!antes) return { ok: false, erro: 'Este webhook não existe mais.' };
+    if (!antes) return { ok: false, error: 'Este webhook não existe mais.' };
 
     await tx.delete(webhookSaida).where(eq(webhookSaida.id, id));
     await registrarAuditoria(tx, tenantIdAtual, {

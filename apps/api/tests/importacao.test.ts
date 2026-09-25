@@ -9,14 +9,14 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { criarBanco, fecharBanco, migrar, semear } = await import('@pipe/db');
+const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
 const { fecharBancos } = await import('../src/banco.js');
 const workers = await import('@pipe/workers');
-const { criarImportacao, lerFalhas, lerImportacao } = await import(
+const { createImport, lerFalhas, readImport } = await import(
   '../src/dominio/importacao-de-contatos.js'
 );
-const { ControladorImportacoesDeContatos } = await import('../src/controladores/importacoes.js');
-import type { RequisicaoComSessao } from '../src/sessao.js';
+const { ContactImportsController } = await import('../src/controladores/importacoes.js');
+import type { RequestWithSession } from '../src/sessao.js';
 
 /**
  * A importação de contatos por CSV, com banco de verdade: o porte do
@@ -28,18 +28,18 @@ import type { RequisicaoComSessao } from '../src/sessao.js';
 const URL_DONO = process.env['DATABASE_URL']!;
 const S = randomUUID().slice(0, 8);
 
-type Dono = ReturnType<typeof criarBanco>;
+type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
 let dono: Dono;
 let A: { tenantId: string; adminId: string };
 let B: { tenantId: string; adminId: string };
 
 async function tenantComAdmin(nome: string): Promise<{ tenantId: string; adminId: string }> {
-  const { tenantId } = await semear(dono, { nome: `importa ${nome}`, slug: `importa-${nome}` });
-  const adminId = await usuarioCom(tenantId, `admin-${nome}`, 'administrador');
+  const { tenantId } = await seedsemearseed(dono, { nome: `importa ${nome}`, slug: `importa-${nome}` });
+  const adminId = await userWith(tenantId, `admin-${nome}`, 'administrador');
   return { tenantId, adminId };
 }
 
-async function usuarioCom(tenantId: string, nome: string, papel: string): Promise<string> {
+async function userWith(tenantId: string, nome: string, role: string): Promise<string> {
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenantId}::uuid, ${nome}, ${`${nome}@importa.pipe.app`})
@@ -48,12 +48,12 @@ async function usuarioCom(tenantId: string, nome: string, papel: string): Promis
   await dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
     select ${tenantId}::uuid, ${rows[0]!.id}::uuid, id from papel
-     where tenant_id = ${tenantId}::uuid and nome = ${papel}
+     where tenant_id = ${tenantId}::uuid and nome = ${role}
   `);
   return rows[0]!.id;
 }
 
-type Contato = {
+type Contact = {
   [c: string]: unknown;
   id: string;
   nome: string | null;
@@ -62,8 +62,8 @@ type Contato = {
   atributos: Record<string, unknown>;
 };
 
-async function contatosCom(tenantId: string, telefones: string[]): Promise<Contato[]> {
-  const { rows } = await dono.execute<Contato>(sql`
+async function contactsWith(tenantId: string, telefones: string[]): Promise<Contact[]> {
+  const { rows } = await dono.execute<Contact>(sql`
     select id, nome, email, telefone_e164, atributos from contato
      where tenant_id = ${tenantId}::uuid
        and telefone_e164 in (${sql.join(telefones.map((t) => sql`${t}`), sql`, `)})
@@ -72,27 +72,27 @@ async function contatosCom(tenantId: string, telefones: string[]): Promise<Conta
   return rows;
 }
 
-function importar(quem: { tenantId: string; adminId: string }, csv: string) {
-  return criarImportacao(quem.tenantId, quem.adminId, csv, `teste-${S}.csv`);
+function runImport(quem: { tenantId: string; adminId: string }, csv: string) {
+  return createImport(quem.tenantId, quem.adminId, csv, `teste-${S}.csv`);
 }
 
 beforeAll(async () => {
-  await migrar(URL_DONO);
-  dono = criarBanco({ url: URL_DONO, maxConexoes: 2 });
+  await migratemigrarmigrate(URL_DONO);
+  dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 2 });
   A = await tenantComAdmin(`a-${S}`);
   B = await tenantComAdmin(`b-${S}`);
 }, 180_000);
 
 afterAll(async () => {
   await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`);
-  await fecharBanco(dono);
+  await closeDatabasefecharBancocloseDatabase(dono);
   await fecharBancos();
   await workers.fecharBancos();
 });
 
 describe('telefone em E.164, com o nono dígito do Brasil', () => {
   it('celular antigo ganha o 9, fixo fica como está, e número sem DDI ganha o 55', async () => {
-    const importacao = await importar(
+    const importacao = await runImport(
       A,
       [
         'nome;telefone',
@@ -104,13 +104,13 @@ describe('telefone em E.164, com o nono dígito do Brasil', () => {
     );
 
     expect(importacao).toMatchObject({ estado: 'concluida', total: 4, aceitos: 4, rejeitados: 0 });
-    const contatos = await contatosCom(A.tenantId, [
+    const contacts = await contactsWith(A.tenantId, [
       '+5511988887777',
       '+551132324545',
       '+5511987654321',
       '+5541988881234',
     ]);
-    expect(contatos.map((c) => [c.nome, c.telefone_e164])).toEqual([
+    expect(contacts.map((c) => [c.nome, c.telefone_e164])).toEqual([
       ['Beto', '+551132324545'],
       ['Caio', '+5511987654321'],
       ['Ana', '+5511988887777'],
@@ -135,7 +135,7 @@ describe('deduplicação por telefone dentro do tenant', () => {
     `);
     const idDaEva = rows[0]!.id;
 
-    const importacao = await importar(
+    const import = await importar(
       A,
       [
         'name,phone_number,email',
@@ -145,9 +145,9 @@ describe('deduplicação por telefone dentro do tenant', () => {
         'Fabi,(11) 97777-6666,fabi@exemplo.com.br',
       ].join('\n'),
     );
-    expect(importacao).toMatchObject({ estado: 'concluida', aceitos: 4, rejeitados: 0 });
+    expect(import).toMatchObject({ estado: 'concluida', aceitos: 4, rejeitados: 0 });
 
-    const eva = await contatosCom(A.tenantId, ['+554199990000', '+5541999990000']);
+    const eva = await contactsWith(A.tenantId, ['+554199990000', '+5541999990000']);
     expect(eva).toHaveLength(1);
     // O contato que já existia é o que fica, mesclado: nome da última linha, e-mail
     // da primeira, telefone agora na forma canônica.
@@ -158,22 +158,22 @@ describe('deduplicação por telefone dentro do tenant', () => {
       telefone_e164: '+5541999990000',
     });
 
-    const fabi = await contatosCom(A.tenantId, ['+5511977776666']);
+    const fabi = await contactsWith(A.tenantId, ['+5511977776666']);
     expect(fabi).toHaveLength(1);
     expect(fabi[0]!.email).toBe('fabi@exemplo.com.br');
   });
 
   it('reimportar o mesmo arquivo não cria ninguém de novo', async () => {
     const csv = 'nome,telefone\nGui,11966665555\n';
-    await importar(A, csv);
-    await importar(A, csv);
-    expect(await contatosCom(A.tenantId, ['+5511966665555'])).toHaveLength(1);
+    await runImport(A, csv);
+    await runImport(A, csv);
+    expect(await contactsWith(A.tenantId, ['+5511966665555'])).toHaveLength(1);
   });
 });
 
 describe('linhas inválidas', () => {
   it('são recusadas com o motivo, num CSV que a tela oferece para baixar', async () => {
-    const importacao = await importar(
+    const importacao = await runImport(
       A,
       [
         'name,phone_number,email',
@@ -199,40 +199,40 @@ describe('linhas inválidas', () => {
     expect(falhas).toContain('Telefone deve estar no formato e164');
     expect(falhas).toContain('E-mail inválido');
 
-    const [aceito] = await contatosCom(A.tenantId, ['+5511988881111']);
+    const [aceito] = await contactsWith(A.tenantId, ['+5511988881111']);
     expect(aceito?.nome).toBe('Aspas, e vírgula');
   });
 
   it('CSV malformado falha inteiro, e nada dele entra (data_import_job_spec)', async () => {
-    const importacao = await importar(
+    const importacao = await runImport(
       A,
       'id,name,email,phone_number,company_name\n' +
         '1,"Clarice Uzzell,"missing_quote,918080808080,Acmecorp\n' +
         '2,Marieann Creegan,,+918080808081,Acmecorp',
     );
-    expect(importacao.estado).toBe('falhou');
-    expect(await contatosCom(A.tenantId, ['+918080808081'])).toHaveLength(0);
+    expect(importacao.state).toBe('falhou');
+    expect(await contactsWith(A.tenantId, ['+918080808081'])).toHaveLength(0);
   });
 
   it('tira o BOM, e coluna desconhecida vira atributo do contato', async () => {
-    await importar(A, '﻿nome,telefone,empresa,plano\nHeitor,11955554444,Acme,ouro\n');
-    const [heitor] = await contatosCom(A.tenantId, ['+5511955554444']);
+    await runImport(A, '﻿nome,telefone,empresa,plano\nHeitor,11955554444,Acme,ouro\n');
+    const [heitor] = await contactsWith(A.tenantId, ['+5511955554444']);
     expect(heitor?.nome).toBe('Heitor');
     expect(heitor?.atributos).toMatchObject({ company_name: 'Acme', plano: 'ouro' });
   });
 
   it('arquivo vazio é recusado antes de gravar qualquer coisa', async () => {
-    await expect(importar(A, '   \n')).rejects.toMatchObject({ codigo: 'arquivo_vazio', status: 422 });
+    await expect(runImport(A, '   \n')).rejects.toMatchObject({ codigo: 'arquivo_vazio', status: 422 });
   });
 });
 
 describe('isolamento entre tenants', () => {
   it('o mesmo telefone em outro cliente é outro contato, e o do primeiro não muda', async () => {
-    await importar(A, 'nome,telefone\nIsa de A,11944443333\n');
-    await importar(B, 'nome,telefone\nIsa de B,11944443333\n');
+    await runImport(A, 'nome,telefone\nIsa de A,11944443333\n');
+    await runImport(B, 'nome,telefone\nIsa de B,11944443333\n');
 
-    const deA = await contatosCom(A.tenantId, ['+5511944443333']);
-    const deB = await contatosCom(B.tenantId, ['+5511944443333']);
+    const deA = await contactsWith(A.tenantId, ['+5511944443333']);
+    const deB = await contactsWith(B.tenantId, ['+5511944443333']);
     expect(deA).toHaveLength(1);
     expect(deB).toHaveLength(1);
     expect(deA[0]!.nome).toBe('Isa de A');
@@ -241,36 +241,36 @@ describe('isolamento entre tenants', () => {
   });
 
   it('um job com o tenant de B e a importação de A não acha nada para processar', async () => {
-    const deA = await importar(A, 'nome,telefone\nJoão,11933332222\n');
-    const resultado = await workers.processarImportacao({
+    const deA = await runImport(A, 'nome,telefone\nJoão,11933332222\n');
+    const resultado = await workers.processarImport({
       tenantId: B.tenantId,
-      importacaoId: deA.id,
+      importId: deA.id,
     });
-    expect(resultado.estado).toBe('ausente');
+    expect(resultado.state).toBe('ausente');
   });
 
   it('a importação e o relatório de A são 404 para B', async () => {
-    const deA = await importar(A, 'nome,telefone\nSem Telefone,\n');
-    await expect(lerImportacao(B.tenantId, deA.id)).rejects.toMatchObject({ status: 404 });
+    const deA = await runImport(A, 'nome,telefone\nSem Telefone,\n');
+    await expect(readImport(B.tenantId, deA.id)).rejects.toMatchObject({ status: 404 });
     await expect(lerFalhas(B.tenantId, deA.id)).rejects.toMatchObject({ status: 404 });
   });
 });
 
 describe('a rota, com a permissão conferida no banco', () => {
-  const controlador = new ControladorImportacoesDeContatos();
-  const requisicao = (tenantId: string, usuarioId: string) =>
-    ({ sessao: { tenantId, usuarioId, origem: 'google' } }) as unknown as RequisicaoComSessao;
+  const controller = new ContactImportsController();
+  const request = (tenantId: string, userId: string) =>
+    ({ sessao: { tenantId, userId, origem: 'google' } }) as unknown as RequestWithSession;
 
   it('atendente não importa: 403 sem_permissao', async () => {
-    const atendente = await usuarioCom(A.tenantId, `atendente-${S}`, 'atendente');
+    const agent = await userWith(A.tenantId, `atendente-${S}`, 'atendente');
     await expect(
-      controlador.importar(requisicao(A.tenantId, atendente), 'nome,telefone\nX,11911112222\n', undefined),
+      controller.import(request(A.tenantId, agent), 'nome,telefone\nX,11911112222\n', undefined),
     ).rejects.toMatchObject({ codigo: 'sem_permissao', status: 403 });
   });
 
   it('administrador importa, e o corpo cru é o CSV', async () => {
-    const feita = await controlador.importar(
-      requisicao(A.tenantId, A.adminId),
+    const feita = await controller.import(
+      request(A.tenantId, A.adminId),
       'nome,telefone\nKarla,11922221111\n',
       'planilha.csv',
     );

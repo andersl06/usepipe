@@ -10,7 +10,7 @@
  */
 
 /** `MAX_ATTACHMENT_SIZE` = 104857600 bytes = 100 MB. */
-export const MAX_BYTES_POR_ARQUIVO = 104_857_600;
+export const MAX_BYTES_BY_FILE = 104_857_600;
 
 /**
  * Áudio e vídeo têm teto MENOR: 16 MB.
@@ -26,11 +26,11 @@ export const MAX_BYTES_AUDIO_VIDEO = 16_777_216;
 /** O teto que vale para aquele MIME. */
 export function maxBytesDoMime(mime: string): number {
   const tipo = tipoDoMime(mime);
-  return tipo === 'audio' || tipo === 'video' ? MAX_BYTES_AUDIO_VIDEO : MAX_BYTES_POR_ARQUIVO;
+  return tipo === 'audio' || tipo === 'video' ? MAX_BYTES_AUDIO_VIDEO : MAX_BYTES_BY_FILE;
 }
 
 /** `MAX_ATTACHMENT_COUNT` = 10 arquivos por mensagem. */
-export const MAX_ARQUIVOS_POR_MENSAGEM = 10;
+export const MAX_FILES_BY_MESSAGE = 10;
 
 /**
  * `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutos.
@@ -38,10 +38,10 @@ export const MAX_ARQUIVOS_POR_MENSAGEM = 10;
  * É o modelo deles e é o nosso: o arquivo NUNCA é servido por URL pública adivinhável
  * por id. Sai token com validade, e vencido é vencido.
  */
-export const VALIDADE_LINK_MS = 900_000;
+export const VALIDITY_LINK_MS = 900_000;
 
 /** `IMAGE_ACCEPT_EXTENSION` — o que o seletor de imagem aceita. */
-export const MIMES_IMAGEM = [
+export const MIME_TYPES_IMAGE = [
   'image/gif',
   'image/jpeg',
   'image/jpg',
@@ -54,7 +54,7 @@ export const MIMES_IMAGEM = [
 ] as const;
 
 /** `ARCHIEVE_ACCEPT_EXTENSION` — o que o seletor de arquivo aceita (inclui as imagens). */
-export const MIMES_ARQUIVO = [
+export const MIME_TYPES_FILE = [
   'audio/aac',
   'audio/midi',
   'audio/mp3',
@@ -105,10 +105,10 @@ export const MIMES_ARQUIVO = [
   'text/plain',
 ] as const;
 
-export type MimeAceito = (typeof MIMES_ARQUIVO)[number];
+export type MimeAceito = (typeof MIME_TYPES_FILE)[number];
 
 export function mimeAceito(mime: string): mime is MimeAceito {
-  return (MIMES_ARQUIVO as readonly string[]).includes(mime);
+  return (MIME_TYPES_FILE as readonly string[]).includes(mime);
 }
 
 /**

@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { intervaloDoAtalho, intervaloPersonalizado, tempoMedio } from '../src/lib/periodo';
-import { agruparContatos } from '../src/lib/contatos';
+import { intervaloDoAtalho, intervaloPersonalizado, timeMedio } from '../src/lib/periodo';
+import { agruparContacts } from '../src/lib/contatos';
 import { aplicarParametros } from '../src/lib/modelo';
-import { lerPreferencias } from '../src/lib/preferencias';
+import { readPreferences } from '../src/lib/preferencias';
 
 const agora = new Date(2026, 8, 17, 15, 30);
 
@@ -28,8 +28,8 @@ test('o intervalo à mão vira quando invertido e cabe no teto de 90 dias', () =
 });
 
 test('o tempo médio sem valor é traço, não zero', () => {
-  assert.equal(tempoMedio(null), '-');
-  assert.equal(tempoMedio(61), '00:01:01');
+  assert.equal(timeMedio(null), '-');
+  assert.equal(timeMedio(61), '00:01:01');
 });
 
 const c = (id: string, nome: string | null, ultima: string | null) => ({
@@ -41,22 +41,22 @@ const c = (id: string, nome: string | null, ultima: string | null) => ({
 });
 
 test('ordem alfabética agrupa pela letra e manda os sem-nome para o fim', () => {
-  const grupos = agruparContatos(
+  const groups = agruparContacts(
     [c('1', null, null), c('2', 'Álvaro', null), c('3', 'Bia', null), c('4', 'ana', null)],
     'alfabetica',
   );
   assert.deepEqual(
-    grupos.map((g) => g.rotulo),
+    groups.map((g) => g.rotulo),
     ['A', 'B', '#'],
   );
   assert.deepEqual(
-    grupos[0]?.contatos.map((x) => x.id),
+    groups[0]?.contacts.map((x) => x.id),
     ['2', '4'],
   );
 });
 
 test('última interação agrupa por dia, do mais recente', () => {
-  const grupos = agruparContatos(
+  const groups = agruparContacts(
     [
       c('1', 'A', '2026-09-01T10:00:00'),
       c('2', 'B', '2026-09-17T10:00:00'),
@@ -65,7 +65,7 @@ test('última interação agrupa por dia, do mais recente', () => {
     'ultima-interacao',
   );
   assert.deepEqual(
-    grupos.map((g) => g.contatos.map((x) => x.id)),
+    groups.map((g) => g.contacts.map((x) => x.id)),
     [['2', '3'], ['1']],
   );
 });
@@ -75,7 +75,7 @@ test('parâmetros do modelo e preferências com padrão', () => {
     aplicarParametros('Olá {{1}}, seu pedido {{2}}', ['Ana']),
     'Olá Ana, seu pedido {{2}}',
   );
-  const prefs = lerPreferencias((k) => (k === 'desk.pref.continuarOnline' ? '1' : null));
+  const prefs = readPreferences((k) => (k === 'desk.pref.continuarOnline' ? '1' : null));
   assert.equal(prefs.continuarOnline, true);
   assert.equal(prefs.corretorOrtografico, true);
 });

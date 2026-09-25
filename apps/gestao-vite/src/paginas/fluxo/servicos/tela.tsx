@@ -2,45 +2,45 @@ import { useState } from 'react';
 
 import { IconePortal } from '../../../componentes/icones-portal';
 
-import type { DadosDeServicos, ServicoVinculado } from '@pipe/contracts';
+import type { DataOfServices, LinkedService } from '@pipe/contracts';
 
-import { baseDoContato } from '../contato';
+import { contactBase } from '../contato';
 
-import { excluirServico, salvarServico } from './gravar';
+import { excluirService, salvarService } from './gravar';
 
 import {
-  camposVisiveisDoServico,
-  chatbotsDaBusca,
+  serviceFieldsVisiveis,
+  searchChatbots,
   pedidoDoFormulario,
-  type FormularioDeServico,
+  type ServiceFormulario,
 } from './regras';
 
-const VAZIO: FormularioDeServico = {
+const EMPTY: ServiceFormulario = {
   nome: '',
   chatbotId: '',
   principal: false,
   persistente: false,
-  expiracao: '',
+  expiration: '',
 };
 
-function formularioDe(servico: ServicoVinculado): FormularioDeServico {
+function formularioDe(service: LinkedService): ServiceFormulario {
   return {
-    nome: servico.nome,
-    chatbotId: servico.chatbot.id,
-    principal: servico.principal,
-    persistente: servico.persistente,
-    expiracao:
-      servico.expiracaoMin === null
+    nome: service.nome,
+    chatbotId: service.chatbot.id,
+    principal: service.principal,
+    persistente: service.persistente,
+    expiration:
+      service.expirationMin === null
         ? ''
-        : String(servico.expiracaoMin),
+        : String(service.expirationMin),
   };
 }
 
 export function TelaDeServicos({
-  dados,
+  data,
   podeEditar,
 }: {
-  dados: DadosDeServicos;
+  data: DataOfServices;
   podeEditar: boolean;
 }) {
   /**
@@ -51,20 +51,20 @@ export function TelaDeServicos({
   const [aberto, setAberto] = useState<string | null>(null);
 
   const [formulario, setFormulario] =
-    useState<FormularioDeServico>(VAZIO);
+    useState<ServiceFormulario>(EMPTY);
 
-  const [textoDaBusca, setTextoDaBusca] = useState('');
-  const [erro, setErro] = useState('');
+  const [searchText, searchSetText] = useState('');
+  const [error, setError] = useState('');
   const [gravando, setGravando] = useState(false);
 
-  const roteador = dados.roteador!;
+  const router = data.router!;
 
   const servicos = [
-    ...(dados.principal ? [dados.principal] : []),
-    ...dados.filhos,
+    ...(data.principal ? [data.principal] : []),
+    ...data.filhos,
   ];
 
-  const campos = camposVisiveisDoServico(
+  const campos = serviceFieldsVisiveis(
     formulario.principal,
     formulario.persistente,
   );
@@ -80,9 +80,9 @@ export function TelaDeServicos({
       .map((s) => s.chatbot.id),
   );
 
-  const encontrados = chatbotsDaBusca(
-    dados.busca,
-    textoDaBusca,
+  const encontrados = searchChatbots(
+    data.search,
+    searchText,
     jaUsados,
   );
 
@@ -91,31 +91,31 @@ export function TelaDeServicos({
     : 'Adicionar um serviço';
 
   const abrir = (
-    servico: ServicoVinculado | null,
+    service: LinkedService | null,
   ) => {
     setFormulario(
-      servico
-        ? formularioDe(servico)
-        : VAZIO,
+      service
+        ? formularioDe(service)
+        : EMPTY,
     );
 
-    setTextoDaBusca(
-      servico
-        ? servico.chatbot.nome
+    searchSetText(
+      service
+        ? service.chatbot.nome
         : '',
     );
 
-    setErro('');
+    setError('');
 
     setAberto(
-      servico
-        ? servico.id
+      service
+        ? service.id
         : 'novo',
     );
   };
 
   const mudar = (
-    parte: Partial<FormularioDeServico>,
+    parte: Partial<ServiceFormulario>,
   ) =>
     setFormulario((atual) => ({
       ...atual,
@@ -125,8 +125,8 @@ export function TelaDeServicos({
   const gravar = async () => {
     setGravando(true);
 
-    const r = await salvarServico(
-      roteador.id,
+    const r = await salvarService(
+      router.id,
       editando,
       pedidoDoFormulario(formulario),
     );
@@ -134,22 +134,22 @@ export function TelaDeServicos({
     setGravando(false);
 
     if (!r.ok) {
-      return setErro(r.erro);
+      return setError(r.error);
     }
 
     setAberto(null);
   };
 
   const excluir = async (
-    servico: ServicoVinculado,
+    service: LinkedService,
   ) => {
-    const r = await excluirServico(
-      roteador.id,
-      servico.id,
+    const r = await excluirService(
+      router.id,
+      service.id,
     );
 
     if (!r.ok) {
-      setErro(r.erro);
+      setError(r.error);
     }
   };
 
@@ -247,9 +247,9 @@ export function TelaDeServicos({
                   type="search"
                   autoCapitalize="off"
                   autoComplete="off"
-                  value={textoDaBusca}
+                  value={searchText}
                   onChange={(evento) => {
-                    setTextoDaBusca(evento.target.value);
+                    searchSetText(evento.target.value);
 
                     mudar({
                       chatbotId: '',
@@ -268,7 +268,7 @@ export function TelaDeServicos({
             ) : (
               <ul className="sv-busca">
                 {encontrados.map((item) => {
-                  const iniciais = item.nome
+                  const initials = item.nome
                     .trim()
                     .split(/\s+/)
                     .slice(0, 2)
@@ -296,7 +296,7 @@ export function TelaDeServicos({
                             chatbotId: item.id,
                           });
 
-                          setTextoDaBusca(
+                          searchSetText(
                             item.nome,
                           );
                         }}
@@ -305,7 +305,7 @@ export function TelaDeServicos({
                           className="sv-chatbot-avatar"
                           aria-hidden="true"
                         >
-                          {iniciais}
+                          {initials}
                         </span>
 
                         <span className="sv-chatbot-texto">
@@ -380,10 +380,10 @@ export function TelaDeServicos({
                     step={1}
                     autoComplete="off"
                     placeholder="Defina o tempo, em segundos, que clientes voltarão para o chatbot principal após a última interação. Padrão: 1800 s (30 min)"
-                    value={formulario.expiracao}
+                    value={formulario.expiration}
                     onChange={(evento) =>
                       mudar({
-                        expiracao: evento.target.value,
+                        expiration: evento.target.value,
                       })
                     }
                   />
@@ -420,22 +420,22 @@ export function TelaDeServicos({
           </div>
         ) : null}
 
-        {erro ? (
+        {error ? (
           <p
             className="sv-erro"
             role="alert"
           >
-            {erro}
+            {error}
           </p>
         ) : null}
 
-        {servicos.map((servico) => (
+        {servicos.map((service) => (
           <article
             className="sv-cartao"
-            key={servico.id}
+            key={service.id}
           >
             <div className="sv-cartao-corpo">
-              {servico.principal ? (
+              {service.principal ? (
                 <h2>
                   Chatbot principal{' '}
 
@@ -452,23 +452,23 @@ export function TelaDeServicos({
 
               <Linha
                 rotulo="Serviço:"
-                valor={servico.nome}
+                value={service.nome}
               />
 
               <Linha
                 rotulo="Chatbot:"
-                valor={
-                  servico.chatbot.nome
+                value={
+                  service.chatbot.nome
                 }
-                href={baseDoContato(
-                  servico.chatbot.tipo,
-                  servico.chatbot.id,
+                href={contactBase(
+                  service.chatbot.tipo,
+                  service.chatbot.id,
                 )}
               />
 
               <Linha
                 rotulo="Contrato:"
-                valor="Pipe"
+                value="Pipe"
               />
             </div>
 
@@ -478,7 +478,7 @@ export function TelaDeServicos({
                   aria-label="Editar serviço"
                   type="button"
                   onClick={() =>
-                    abrir(servico)
+                    abrir(service)
                   }
                 >
                   <IconePortal
@@ -491,7 +491,7 @@ export function TelaDeServicos({
                   aria-label="Excluir serviço"
                   type="button"
                   onClick={() =>
-                    void excluir(servico)
+                    void excluir(service)
                   }
                 >
                   <IconePortal
@@ -510,11 +510,11 @@ export function TelaDeServicos({
 
 function Linha({
   rotulo,
-  valor,
+  value,
   href,
 }: {
   rotulo: string;
-  valor: string;
+  value: string;
   href?: string;
 }) {
   return (
@@ -523,10 +523,10 @@ function Linha({
 
       {href ? (
         <a href={href}>
-          {valor}
+          {value}
         </a>
       ) : (
-        <span>{valor}</span>
+        <span>{value}</span>
       )}
     </div>
   );

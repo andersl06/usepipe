@@ -9,12 +9,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`,
@@ -27,24 +27,24 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-let sessaoEditor: string;
-let sessaoSemPoder: string;
-let sessaoDoOutroTenant: string;
+let sessionEditor: string;
+let sessionWithoutPoder: string;
+let sessionOfOtherTenant: string;
 
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissions.length === 0) return userId;
   const { rows: papeis } = await cenario.dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
       values (${cenario.tenantId}, ${papeis[0]!.id}, ${codigo})
@@ -52,16 +52,16 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${userId}, ${papeis[0]!.id})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -70,7 +70,7 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
-async function novoContato(
+async function newContact(
   cenario: Cenario,
   extra: { nome?: string; email?: string; telefone?: string; atributos?: Record<string, unknown> } = {},
 ): Promise<string> {
@@ -87,24 +87,24 @@ async function novoContato(
 }
 
 async function editar(
-  sessao: string,
+  session: string,
   id: string,
   corpo: Record<string, unknown>,
 ): Promise<{ status: number; corpo: Record<string, unknown> }> {
   const resposta = await fetch(`${api.url}/v1/contatos/${id}`, {
     method: 'PATCH',
-    headers: comCookie(sessao),
+    headers: comCookie(session),
     body: JSON.stringify(corpo),
   });
   return { status: resposta.status, corpo: (await resposta.json()) as Record<string, unknown> };
 }
 
-async function linhaDoContato(id: string) {
+async function lineOfContact(id: string) {
   const { rows } = await a.dono.execute<{
     nome: string | null;
     email: string | null;
     telefone_e164: string | null;
-    documento: string | null;
+    document: string | null;
     atributos: Record<string, unknown>;
   }>(sql`
     select nome, email, telefone_e164, documento, atributos from contato where id = ${id}::uuid
@@ -129,10 +129,10 @@ beforeAll(async () => {
   const semPoder = await pessoaCom(a, []);
   const editorDoB = await pessoaCom(b, ['contato.editar']);
 
-  api = await subirApi(0);
-  sessaoEditor = await abrirSessao(a, editorPessoa);
-  sessaoSemPoder = await abrirSessao(a, semPoder);
-  sessaoDoOutroTenant = await abrirSessao(b, editorDoB);
+  api = await upApi(0);
+  sessionEditor = await openSession(a, editorPessoa);
+  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionOfOtherTenant = await openSession(b, editorDoB);
 }, 180_000);
 
 afterAll(async () => {
@@ -143,8 +143,8 @@ afterAll(async () => {
 
 describe('PATCH /v1/contatos/:id', () => {
   it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {
-    const id = await novoContato(a, { nome: 'Ana', telefone: '+5511900000001' });
-    const { status, corpo } = await editar(sessaoEditor, id, {
+    const id = await newContact(a, { nome: 'Ana', telefone: '+5511900000001' });
+    const { status, corpo } = await editar(sessionEditor, id, {
       nome: 'Ana Ribeiro',
       email: 'ana@exemplo.com',
     });
@@ -163,62 +163,62 @@ describe('PATCH /v1/contatos/:id', () => {
   });
 
   it('null apaga o campo; campo ausente não mexe', async () => {
-    const id = await novoContato(a, { nome: 'Bia', email: 'bia@exemplo.com' });
-    const { status, corpo } = await editar(sessaoEditor, id, { email: null });
+    const id = await newContact(a, { nome: 'Bia', email: 'bia@exemplo.com' });
+    const { status, corpo } = await editar(sessionEditor, id, { email: null });
     expect(status).toBe(200);
     expect(corpo['email']).toBeNull();
     expect(corpo['nome']).toBe('Bia');
   });
 
   it('recusa telefone fora do E.164', async () => {
-    const id = await novoContato(a);
-    const { status, corpo } = await editar(sessaoEditor, id, { telefone_e164: '011987654321' });
+    const id = await newContact(a);
+    const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '011987654321' });
     expect(status).toBe(400);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_invalido' } });
   });
 
   it('recusa e-mail sem formato de e-mail', async () => {
-    const id = await novoContato(a);
-    const { status, corpo } = await editar(sessaoEditor, id, { email: 'não é um email' });
+    const id = await newContact(a);
+    const { status, corpo } = await editar(sessionEditor, id, { email: 'não é um email' });
     expect(status).toBe(400);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_email_invalido' } });
   });
 
   it('telefone único no tenant: recusa repetir o de outro contato', async () => {
-    await novoContato(a, { telefone: '+5511900000002' });
-    const id = await novoContato(a, { telefone: '+5511900000003' });
-    const { status, corpo } = await editar(sessaoEditor, id, { telefone_e164: '+5511900000002' });
+    await newContact(a, { telefone: '+5511900000002' });
+    const id = await newContact(a, { telefone: '+5511900000003' });
+    const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '+5511900000002' });
     expect(status).toBe(409);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_em_uso' } });
 
     // O mesmo telefone que o contato já tem não é conflito consigo mesmo.
-    const semMudanca = await editar(sessaoEditor, id, { telefone_e164: '+5511900000003' });
+    const semMudanca = await editar(sessionEditor, id, { telefone_e164: '+5511900000003' });
     expect(semMudanca.status).toBe(200);
   });
 
   it('atributos é mescla: só as chaves enviadas mudam, as extras do contato continuam', async () => {
-    const id = await novoContato(a, { atributos: { city: 'Fortaleza', origem: 'importação' } });
-    const { status } = await editar(sessaoEditor, id, { atributos: { gender: 'female' } });
+    const id = await newContact(a, { atributos: { city: 'Fortaleza', origem: 'importação' } });
+    const { status } = await editar(sessionEditor, id, { atributos: { gender: 'female' } });
     expect(status).toBe(200);
 
-    const linha = await linhaDoContato(id);
+    const linha = await lineOfContact(id);
     expect(linha?.atributos).toEqual({ city: 'Fortaleza', origem: 'importação', gender: 'female' });
   });
 
   it('sem contato.editar é 403; contato de outro tenant e uuid malformado são 404', async () => {
-    const id = await novoContato(a);
-    const semPoder = await editar(sessaoSemPoder, id, { nome: 'X' });
+    const id = await newContact(a);
+    const semPoder = await editar(sessionWithoutPoder, id, { nome: 'X' });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await editar(sessaoDoOutroTenant, id, { nome: 'X' });
+    const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'X' });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await editar(sessaoEditor, 'nao-e-uuid', { nome: 'X' });
+    const malformado = await editar(sessionEditor, 'nao-e-uuid', { nome: 'X' });
     expect(malformado.status).toBe(404);
   });
 
   it('sem sessão é 401', async () => {
-    const id = await novoContato(a);
+    const id = await newContact(a);
     const resposta = await fetch(`${api.url}/v1/contatos/${id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },

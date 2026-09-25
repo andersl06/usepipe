@@ -1,4 +1,4 @@
-import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconeManagement } from '../../componentes/icones-gestao';
 import { IconePortal } from '../../componentes/icones-portal';
 import { Icone } from '@pipe/ui';
 
@@ -24,21 +24,21 @@ import { Icone } from '@pipe/ui';
  * clicados").
  */
 
-type CartaoDoCatalogo = {
+type CatalogoCard = {
   titulo: string;
   subtitulo: string;
   icone: 'desk' | 'salesforce' | 'nuvem';
   conectado?: boolean;
 };
 
-const CATALOGO: readonly CartaoDoCatalogo[] = [
+const CATALOGO: readonly CatalogoCard[] = [
   { titulo: 'Pipe Desk', subtitulo: 'Canal de atendimento do Pipe', icone: 'desk', conectado: true },
   { titulo: 'Salesforce', subtitulo: 'Live Agent da Salesforce', icone: 'salesforce' },
   { titulo: 'Salesforce MIAW', subtitulo: 'Nova integração', icone: 'salesforce' },
   { titulo: 'Canal Personalizado', subtitulo: 'Conecte-se a outros canais', icone: 'nuvem' },
 ];
 
-export function PaginaCanais() {
+export function PageChannels() {
   return (
     <>
       <div className="board-head">
@@ -61,7 +61,7 @@ export function PaginaCanais() {
               {c.conectado ? (
                 <span className="btn fantasma">
                   Conectado
-                  <IconeGestao nome="circuloOk" tamanho={20} />
+                  <IconeManagement nome="circuloOk" tamanho={20} />
                 </span>
               ) : (
                 <span className="btn primario" aria-disabled="true" title="Integração ainda não disponível no Pipe">

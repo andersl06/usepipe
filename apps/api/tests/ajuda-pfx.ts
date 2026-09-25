@@ -8,7 +8,7 @@ import {
   sign,
 } from 'node:crypto';
 import type { KeyObject } from 'node:crypto';
-import { derivarChavePkcs12 } from '../src/dominio/gestao/pfx.js';
+import { derivarKeyPkcs12 } from '../src/dominio/gestao/pfx.js';
 
 /**
  * Um `.pfx` (PKCS#12) de verdade, montado no teste — sem arquivo binário no
@@ -52,7 +52,7 @@ const utf8 = (texto: string) => tlv(0x0c, Buffer.from(texto, 'utf8'));
 const utcTime = (texto: string) => tlv(0x17, Buffer.from(texto, 'ascii'));
 const bitString = (dados: Buffer) => tlv(0x03, Buffer.from([0]), dados);
 
-function inteiro(n: number): Buffer {
+function integer(n: number): Buffer {
   const bytes: number[] = [];
   let resto = n;
   do {
@@ -66,9 +66,9 @@ function inteiro(n: number): Buffer {
 function oid(pontuado: string): Buffer {
   const arcos = pontuado.split('.').map(Number);
   const bytes: number[] = [];
-  const codificar = (valor: number) => {
-    const grupo: number[] = [valor & 0x7f];
-    let resto = Math.floor(valor / 128);
+  const codificar = (value: number) => {
+    const grupo: number[] = [value & 0x7f];
+    let resto = Math.floor(value / 128);
     while (resto > 0) {
       grupo.unshift((resto & 0x7f) | 0x80);
       resto = Math.floor(resto / 128);
@@ -99,42 +99,42 @@ const OID = {
 
 /** Certificado v1 autoassinado, `CN=<cn>`, com a validade em UTCTime (`YYMMDDHHMMSSZ`). */
 function certificadoAutoAssinado(
-  chave: { publicKey: KeyObject; privateKey: KeyObject },
+  key: { publicKey: KeyObject; privateKey: KeyObject },
   cn: string,
   validoDesde: string,
   validoAte: string,
 ): Buffer {
   const nome = seq(conjunto(seq(oid(OID.commonName), utf8(cn))));
   const algoritmo = seq(oid(OID.sha256WithRSA), nulo());
-  const spki = chave.publicKey.export({ type: 'spki', format: 'der' });
+  const spki = key.publicKey.export({ type: 'spki', format: 'der' });
   const tbs = seq(
-    inteiro(1), // serialNumber
+    integer(1), // serialNumber
     algoritmo,
     nome, // issuer
     seq(utcTime(validoDesde), utcTime(validoAte)),
     nome, // subject
     spki,
   );
-  const assinatura = sign('sha256', tbs, chave.privateKey);
+  const assinatura = sign('sha256', tbs, key.privateKey);
   return seq(tbs, algoritmo, bitString(assinatura));
 }
 
 /* --------------------------------------------------------- PKCS#12 */
 
 /** PBES2: PBKDF2-HMAC-SHA256 (senha em UTF-8) + AES-256-CBC. */
-function cifrarPbes2(dados: Buffer, senha: string): { algoritmo: Buffer; cifrado: Buffer } {
+function cifrarPbes2(data: Buffer, senha: string): { algoritmo: Buffer; cifrado: Buffer } {
   const sal = randomBytes(8);
   const iv = randomBytes(16);
-  const iteracoes = 2048;
-  const chave = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iteracoes, 32, 'sha256');
-  const cifra = createCipheriv('aes-256-cbc', chave, iv);
-  const cifrado = Buffer.concat([cifra.update(dados), cifra.final()]);
+  const iterations = 2048;
+  const key = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iterations, 32, 'sha256');
+  const cifra = createCipheriv('aes-256-cbc', key, iv);
+  const cifrado = Buffer.concat([cifra.update(data), cifra.final()]);
   const algoritmo = seq(
     oid(OID.pbes2),
     seq(
       seq(
         oid(OID.pbkdf2),
-        seq(octetos(sal), inteiro(iteracoes), seq(oid(OID.hmacWithSHA256), nulo())),
+        seq(octetos(sal), integer(iterations), seq(oid(OID.hmacWithSHA256), nulo())),
       ),
       seq(oid(OID.aes256Cbc), octetos(iv)),
     ),
@@ -142,7 +142,7 @@ function cifrarPbes2(dados: Buffer, senha: string): { algoritmo: Buffer; cifrado
   return { algoritmo, cifrado };
 }
 
-export interface PfxDeTeste {
+export interface PfxOfTest {
   pfx: Buffer;
   senha: string;
   /** O DER do certificado, para conferir a impressão digital lida pela `api`. */
@@ -157,59 +157,59 @@ export interface PfxDeTeste {
  * Gera chave + certificado autoassinado e embrulha os dois num `.pfx` com a
  * senha. `validoAte` em `YYYY-MM-DD` (até 2049, pelo UTCTime).
  */
-export function gerarPfxDeTeste(opcoes: {
+export function generatePfxOfTest(options: {
   senha: string;
   cn?: string;
   validoDesde?: string;
   validoAte?: string;
-}): PfxDeTeste {
-  const validoDesde = opcoes.validoDesde ?? '2020-01-01';
-  const validoAte = opcoes.validoAte ?? '2035-01-01';
+}): PfxOfTest {
+  const validoDesde = options.validoDesde ?? '2020-01-01';
+  const validoAte = options.validoAte ?? '2035-01-01';
   const emUtcTime = (data: string) => `${data.slice(2).replaceAll('-', '')}000000Z`;
 
   const chave = generateKeyPairSync('rsa', { modulusLength: 2048 });
   const certificado = certificadoAutoAssinado(
     chave,
-    opcoes.cn ?? 'cliente.exemplo.com.br',
+    options.cn ?? 'cliente.exemplo.com.br',
     emUtcTime(validoDesde),
     emUtcTime(validoAte),
   );
 
   // A chave: o EncryptedPrivateKeyInfo que o Node já sabe escrever.
-  const chaveCifrada = chave.privateKey.export({
+  const keyEncrypted = chave.privateKey.export({
     type: 'pkcs8',
     format: 'der',
     cipher: 'aes-256-cbc',
-    passphrase: opcoes.senha,
+    passphrase: options.senha,
   });
-  const sacoDaChave = seq(oid(OID.pkcs8ShroudedKeyBag), ctx0(chaveCifrada));
-  const conteudoDaChave = seq(oid(OID.data), ctx0(octetos(seq(sacoDaChave))));
+  const sacoOfKey = seq(oid(OID.pkcs8ShroudedKeyBag), ctx0(keyEncrypted));
+  const contentOfKey = seq(oid(OID.data), ctx0(octetos(seq(sacoOfKey))));
 
   // O certificado: certBag dentro de um encryptedData PBES2.
   const sacoDoCertificado = seq(
     oid(OID.certBag),
     ctx0(seq(oid(OID.x509Certificate), ctx0(octetos(certificado)))),
   );
-  const { algoritmo, cifrado } = cifrarPbes2(seq(sacoDoCertificado), opcoes.senha);
+  const { algoritmo, cifrado } = cifrarPbes2(seq(sacoDoCertificado), options.senha);
   const conteudoDoCertificado = seq(
     oid(OID.encryptedData),
-    ctx0(seq(inteiro(0), seq(oid(OID.data), algoritmo, tlv(0x80, cifrado)))),
+    ctx0(seq(integer(0), seq(oid(OID.data), algoritmo, tlv(0x80, cifrado)))),
   );
 
-  const authenticatedSafe = seq(conteudoDaChave, conteudoDoCertificado);
+  const authenticatedSafe = seq(contentOfKey, conteudoDoCertificado);
 
   // O MAC: HMAC-SHA256 sobre o AuthenticatedSafe, chave pela derivação do PKCS#12 (id 3).
   const salDoMac = randomBytes(8);
-  const iteracoesDoMac = 2048;
-  const chaveDoMac = derivarChavePkcs12('sha256', opcoes.senha, salDoMac, iteracoesDoMac, 3, 32);
-  const mac = createHmac('sha256', chaveDoMac).update(authenticatedSafe).digest();
+  const iterationsOfMac = 2048;
+  const keyOfMac = derivarKeyPkcs12('sha256', options.senha, salDoMac, iterationsOfMac, 3, 32);
+  const mac = createHmac('sha256', keyOfMac).update(authenticatedSafe).digest();
   const macData = seq(
     seq(seq(oid(OID.sha256), nulo()), octetos(mac)),
     octetos(salDoMac),
-    inteiro(iteracoesDoMac),
+    integer(iterationsOfMac),
   );
 
-  const pfx = seq(inteiro(3), seq(oid(OID.data), ctx0(octetos(authenticatedSafe))), macData);
+  const pfx = seq(integer(3), seq(oid(OID.data), ctx0(octetos(authenticatedSafe))), macData);
 
   const impressaoDigital = createHash('sha256')
     .update(certificado)
@@ -218,5 +218,5 @@ export function gerarPfxDeTeste(opcoes: {
     .match(/.{2}/g)!
     .join(':');
 
-  return { pfx, senha: opcoes.senha, certificado, impressaoDigital, expiraEm: validoAte };
+  return { pfx, senha: options.senha, certificado, impressaoDigital, expiraEm: validoAte };
 }

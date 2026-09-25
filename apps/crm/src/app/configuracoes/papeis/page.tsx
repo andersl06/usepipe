@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Campo, Etiqueta, Tabela, type Coluna } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Campo, Etiqueta, Tabela, type Column } from '@pipe/ui';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import { Formulario } from '../../../componentes/configuracoes/formulario';
-import { listarCatalogoDePermissoes, listarPapeis } from '../../../lib/configuracoes-dados';
-import type { ResumoDePapel } from '../../../lib/configuracoes-comum';
+import { permissionsListarCatalogo, listarPapeis } from '../../../lib/configuracoes-dados';
+import type { RoleSummary } from '../../../lib/configuracoes-comum';
 import { numero } from '../../../lib/formato';
-import { acaoCriarPapel } from '../acoes';
+import { actionCreateRole } from '../acoes';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,9 +23,9 @@ export const dynamic = 'force-dynamic';
  * de outra combinação cria um papel próprio, que é o que este bloco oferece.
  */
 
-const COLUNAS: readonly Coluna<ResumoDePapel>[] = [
+const COLUNAS: readonly Column<RoleSummary>[] = [
   {
-    chave: 'nome',
+    key: 'nome',
     rotulo: 'Papel',
     celula: (p) => (
       <Link className="cfg-link-forte" href={`/configuracoes/papeis/${p.id}`}>
@@ -35,49 +35,49 @@ const COLUNAS: readonly Coluna<ResumoDePapel>[] = [
     ),
   },
   {
-    chave: 'descricao',
+    key: 'descricao',
     rotulo: 'O que faz',
-    celula: (p) => p.descricao ?? <span className="sub">—</span>,
+    celula: (p) => p.description ?? <span className="sub">—</span>,
   },
   {
-    chave: 'permissoes',
+    key: 'permissoes',
     rotulo: 'Permissões',
     numerica: true,
-    celula: (p) => numero(p.permissoes),
+    celula: (p) => numero(p.permissions),
   },
-  { chave: 'membros', rotulo: 'Pessoas', numerica: true, celula: (p) => numero(p.membros) },
+  { key: 'membros', rotulo: 'Pessoas', numerica: true, celula: (p) => numero(p.members) },
 ];
 
-export default async function PaginaPapeis() {
+export default async function PageRoles() {
   const papeis = await listarPapeis();
-  const catalogo = await listarCatalogoDePermissoes();
+  const catalogo = await permissionsListarCatalogo();
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Papéis e permissões">
+      <SectionHeader titulo="Papéis e permissões">
         Papel é um conjunto de permissões com nome. São {numero(catalogo.length)} capacidades no
         catálogo do produto, e cada papel diz sim ou não a cada uma.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco titulo="Papéis" descricao="Clique num papel para ver e mudar o que ele pode fazer.">
+      <Block titulo="Papéis" description="Clique num papel para ver e mudar o que ele pode fazer.">
         <Tabela
           colunas={COLUNAS}
           linhas={papeis}
-          chaveDaLinha={(p) => p.id}
+          linhaKey={(p) => p.id}
           larguraMinima={620}
-          vazio={
+          empty={
             <>
               Nenhum papel cadastrado. Rode <code>pnpm banco:semear</code>.
             </>
           }
         />
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Criar papel"
-        descricao="Nasce sem nenhuma permissão. Você escolhe as dele na tela seguinte."
+        description="Nasce sem nenhuma permissão. Você escolhe as dele na tela seguinte."
       >
-        <Formulario acao={acaoCriarPapel} rotuloBotao="Criar" className="cfg-form-linha">
+        <Formulario acao={actionCreateRole} rotuloBotao="Criar" className="cfg-form-linha">
           <label className="cfg-campo">
             <span>Nome</span>
             <Campo name="nome" required maxLength={120} placeholder="closer" />
@@ -87,7 +87,7 @@ export default async function PaginaPapeis() {
             <Campo name="descricao" maxLength={200} placeholder="Fecha a venda do lead qualificado" />
           </label>
         </Formulario>
-      </Bloco>
+      </Block>
     </>
   );
 }

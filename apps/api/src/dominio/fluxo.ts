@@ -1,39 +1,39 @@
 import { sql } from 'drizzle-orm';
 import {
-  ErroDoMotor,
-  chaveDoEstado,
+  MotorError,
+  stateKey,
   classificarCusto,
-  criarEntrada,
+  createInbound,
   ehExportDoEditor,
-  ehVariavelDeContexto,
-  estadoGuardado,
-  lerFluxoDaBlip,
-  processarEntrada,
-  relatorioDaImportacao,
+  contextEhVariable,
+  stateSaved,
+  blipReadFlow,
+  processarInbound,
+  importReport,
   SuspensaoDeProcessHttp,
-  validarFluxo,
+  validateFlow,
 } from '@pipe/core';
 import type {
-  Contexto,
-  Estado,
-  FluxoBlip,
-  MensagemDeEntrada,
-  MensagemDeSaida,
+  Context,
+  State,
+  FlowBlip,
+  InboundMessage,
+  OutputMessage,
   PedidoDeHttp,
   CursorDeProcessHttp,
   RespostaDeHttp,
-  RastroDaEntrada,
-  RelatorioDaImportacao,
+  InboundRastro,
+  ImportReport,
   Saida,
   ServicosDoMotor,
 } from '@pipe/core';
-import type { TransacaoPipe } from '@pipe/db';
-import { bancoDono, noTenant } from '../banco.js';
+import type { TransactionPipe } from '@pipe/db';
+import { databaseOwner, noTenant } from '../banco.js';
 import { emitir } from '../webhooks-saida.js';
-import { distribuirConversa } from './distribuicao.js';
+import { distribuirConversation } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
-import { avaliarPrioridade, carregarRegrasDePrioridadeAtivas } from './gestao/prioridade-motor.js';
-import { redirecionarNoRoteador, servicoDoRoteador } from './roteador.js';
+import { avaliarPriority, loadRulesOfPriorityActive } from './gestao/prioridade-motor.js';
+import { redirecionarInRouter, serviceOfRouter } from './roteador.js';
 import { chamarComMtls } from './mtls.js';
 import { confirmarUrlSegura } from './gestao/integracoes.js';
 
@@ -68,19 +68,19 @@ import { confirmarUrlSegura } from './gestao/integracoes.js';
  * posição é do contato, não da conversa.
  */
 
-export interface FluxoPublicado {
-  fluxoId: string;
+export interface FlowPublished {
+  flowId: string;
   versaoId: string;
   /** Presente quando o canal é de um roteador: o fluxo acima é o serviço da vez. */
-  roteador?: {
+  router?: {
     id: string;
     /** O serviço usa o contexto do roteador (`usa_contexto_do_roteador`). */
-    compartilhaContexto: boolean;
+    compartilhaContext: boolean;
     /** O contexto do par (roteador, contato). */
     contexto: Record<string, string>;
     /** Change-User-State pendente do último `Redirect`. */
     reiniciar: boolean;
-    blocoInicial: string | null;
+    blockInicial: string | null;
   };
 }
 
@@ -88,40 +88,40 @@ export interface FluxoPublicado {
  * O bot do canal. Roteador publicado ganha do fluxo ligado direto (um bot por número), e
  * resolve o serviço do contato — por isso o contato entra aqui.
  */
-export async function fluxoPublicadoDoCanal(
-  tx: TransacaoPipe,
-  canalId: string,
+export async function flowPublishedOfChannel(
+  tx: TransactionPipe,
+  channelId: string,
   contatoId: string,
-): Promise<FluxoPublicado | null> {
+): Promise<FlowPublished | null> {
   const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`
     select id, tenant_id from fluxo
-     where canal_id = ${canalId} and tipo = 'roteador' and estado = 'publicado'
+     where canal_id = ${channelId} and tipo = 'roteador' and estado = 'publicado'
      order by criado_em desc
      limit 1
   `);
-  const roteador = roteadores[0];
-  if (roteador) {
-    return servicoDoRoteador(tx, { id: roteador.id, tenantId: roteador.tenant_id }, contatoId);
+  const router = roteadores[0];
+  if (router) {
+    return serviceOfRouter(tx, { id: router.id, tenantId: router.tenant_id }, contatoId);
   }
   const { rows } = await tx.execute<{ fluxo_id: string; versao_id: string }>(sql`
     select f.id as fluxo_id, v.id as versao_id
       from fluxo f
       join fluxo_versao v on v.fluxo_id = f.id
-     where f.canal_id = ${canalId} and f.estado = 'publicado' and v.estado = 'publicada'
+     where f.canal_id = ${channelId} and f.estado = 'publicado' and v.estado = 'publicada'
      order by v.versao desc
      limit 1
   `);
   const linha = rows[0];
-  return linha ? { fluxoId: linha.fluxo_id, versaoId: linha.versao_id } : null;
+  return linha ? { flowId: linha.fluxo_id, versaoId: linha.versao_id } : null;
 }
 
-type LinhaBloco = { id: string; codigo: string; conteudo: Record<string, unknown> };
-type LinhaTransicao = {
-  de_bloco_id: string;
+type LineBlock = { id: string; codigo: string; conteudo: Record<string, unknown> };
+type LineTransition = {
+  ofBlockId: string;
   para_codigo: string | null;
-  para_variavel: string | null;
-  condicao: { conditions?: unknown } | null;
-  ordem: number;
+  forVariable: string | null;
+  condition: { conditions?: unknown } | null;
+  order: number;
 };
 
 /**
@@ -130,17 +130,17 @@ type LinhaTransicao = {
  * ponytail: três consultas por mensagem de entrada. Versão publicada não muda, então
  * um cache por `versaoId` é seguro quando isto aparecer no perfil.
  */
-export async function carregarFluxo(
-  tx: TransacaoPipe,
-  publicado: FluxoPublicado,
-): Promise<{ fluxo: FluxoBlip; blocoPorCodigo: Map<string, string> }> {
-  const { rows: versoes } = await tx.execute<{ global: Record<string, unknown> }>(
+export async function loadFlow(
+  tx: TransactionPipe,
+  publicado: FlowPublished,
+): Promise<{ flow: FlowBlip; blockByCode: Map<string, string> }> {
+  const { rows: versions } = await tx.execute<{ global: Record<string, unknown> }>(
     sql`select global from fluxo_versao where id = ${publicado.versaoId}`,
   );
-  const { rows: blocos } = await tx.execute<LinhaBloco>(
+  const { rows: blocos } = await tx.execute<LineBlock>(
     sql`select id, codigo, conteudo from bloco where versao_id = ${publicado.versaoId}`,
   );
-  const { rows: transicoes } = await tx.execute<LinhaTransicao>(sql`
+  const { rows: transitions } = await tx.execute<LineTransition>(sql`
     select t.de_bloco_id, b.codigo as para_codigo, t.para_variavel, t.condicao, t.ordem
       from transicao t
       left join bloco b on b.id = t.para_bloco_id
@@ -149,45 +149,45 @@ export async function carregarFluxo(
   `);
 
   const saidas = new Map<string, Saida[]>();
-  for (const t of transicoes) {
-    const condicoes = t.condicao?.conditions;
-    const lista = saidas.get(t.de_bloco_id) ?? [];
+  for (const t of transitions) {
+    const conditions = t.condition?.conditions;
+    const lista = saidas.get(t.ofBlockId) ?? [];
     lista.push({
-      order: t.ordem,
-      stateId: t.para_codigo ?? t.para_variavel ?? '',
-      ...(Array.isArray(condicoes) ? { conditions: condicoes } : {}),
+      order: t.order,
+      stateId: t.para_codigo ?? t.forVariable ?? '',
+      ...(Array.isArray(conditions) ? { conditions: conditions } : {}),
     });
-    saidas.set(t.de_bloco_id, lista);
+    saidas.set(t.ofBlockId, lista);
   }
 
   const states = blocos.map((b) => {
-    const estado: Record<string, unknown> = { ...b.conteudo };
+    const state: Record<string, unknown> = { ...b.conteudo };
     // `original` é o estado do editor guardado na importação; o motor não o lê.
-    delete estado['original'];
-    return { ...estado, id: b.codigo, outputs: saidas.get(b.id) ?? [] } as Estado;
+    delete state['original'];
+    return { ...state, id: b.codigo, outputs: saidas.get(b.id) ?? [] } as State;
   });
-  const global = versoes[0]?.global ?? {};
+  const global = versions[0]?.global ?? {};
   return {
-    fluxo: { ...global, id: publicado.fluxoId, states } as FluxoBlip,
-    blocoPorCodigo: new Map(blocos.map((b) => [b.codigo, b.id])),
+    flow: { ...global, id: publicado.flowId, states } as FlowBlip,
+    blockByCode: new Map(blocos.map((b) => [b.codigo, b.id])),
   };
 }
 
-export interface EntradaNoFluxo {
+export interface InboundInFlow {
   tenantId: string;
-  conversa: {
+  conversation: {
     id: string;
     /** Nasceu com esta mensagem. Só conversa nova começa fluxo. */
     nova: boolean;
-    filaId: string | null;
-    atendenteId: string | null;
-    filaPadraoId: string | null;
+    queueId: string | null;
+    agentId: string | null;
+    queueDefaultId: string | null;
   };
-  contatoId: string;
-  mensagem: { id: string | null; idProvedor: string; tipo: string; conteudo: string | null };
+  contactId: string;
+  message: { id: string | null; idProvedor: string; tipo: string; conteudo: string | null };
 }
 
-export interface ResultadoDoFluxo {
+export interface ResultOfFlow {
   /** O bot ficou com a mensagem. `false` = segue o caminho normal, da fila. */
   tratou: boolean;
   /** Quantas respostas foram para o outbox — para empurrar a entrega depois do commit. */
@@ -195,13 +195,13 @@ export interface ResultadoDoFluxo {
   processHttpId?: string;
 }
 
-const NAO_TRATOU: ResultadoDoFluxo = { tratou: false, respostas: 0 };
+const NAO_TRATOU: ResultOfFlow = { tratou: false, respostas: 0 };
 
-type LinhaExecucao = {
+type LineExecution = {
   id: string;
-  fluxo_versao_id: string;
+  flowVersionId: string;
   fluxo_id: string;
-  contexto: Record<string, string>;
+  context: Record<string, string>;
 };
 
 /** `Ticket.Status` da Blip a partir de quem encerrou a conversa no Pipe. */
@@ -212,31 +212,31 @@ const STATUS_DO_TICKET: Readonly<Record<string, string>> = {
   transferencia: 'Transferred',
 };
 
-export async function rodarFluxoNaEntrada(
-  tx: TransacaoPipe,
-  publicado: FluxoPublicado | null,
-  e: EntradaNoFluxo,
-  retomada?: { execucaoId: string; cursor: CursorDeProcessHttp; resposta: RespostaDeHttp },
-): Promise<ResultadoDoFluxo> {
-  const { conversa } = e;
+export async function rodarFlowInInbound(
+  tx: TransactionPipe,
+  publicado: FlowPublished | null,
+  e: InboundInFlow,
+  retomada?: { executionId: string; cursor: CursorDeProcessHttp; resposta: RespostaDeHttp },
+): Promise<ResultOfFlow> {
+  const { conversation } = e;
   // Humano ganha: com atendente, o bot não fala.
-  if (conversa.atendenteId && !retomada) return NAO_TRATOU;
+  if (conversation.agentId && !retomada) return NAO_TRATOU;
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
-  const { rows: execucoes } = await tx.execute<LinhaExecucao>(sql`
+  const { rows: executions } = await tx.execute<LineExecution>(sql`
     select e.id, e.fluxo_versao_id, v.fluxo_id, e.contexto from execucao_fluxo e
       join fluxo_versao v on v.id = e.fluxo_versao_id
-     where e.conversa_id = ${conversa.id}
+     where e.conversa_id = ${conversation.id}
      order by e.iniciada_em desc
      limit 1
      for update of e
   `);
-  let execucao = execucoes[0] ?? null;
+  let execution = executions[0] ?? null;
 
-  if (execucao && !retomada) {
+  if (execution && !retomada) {
     const { rows: pendentes } = await tx.execute<{ id: string }>(sql`
       select id from process_http_execucao
-       where execucao_id = ${execucao.id} and estado in ('pendente', 'chamando')
+       where execucao_id = ${execution.id} and estado in ('pendente', 'chamando')
        limit 1
     `);
     // Decisão Pipe: enquanto o HTTP está pendente, a mensagem fica gravada e espera
@@ -245,76 +245,76 @@ export async function rodarFluxoNaEntrada(
   }
 
   // Já na fila, esperando gente: também é do humano.
-  if (conversa.filaId && !retomada) return NAO_TRATOU;
-  if (!execucao && (!conversa.nova || !publicado) && !retomada) return NAO_TRATOU;
+  if (conversation.queueId && !retomada) return NAO_TRATOU;
+  if (!execution && (!conversation.nova || !publicado) && !retomada) return NAO_TRATOU;
 
   if (!publicado) {
     // A conversa estava com o bot e o fluxo saiu do ar: vai para a fila em vez de ficar muda.
-    await transbordarSemFalhar(tx, e, execucao?.contexto ?? {}, 'o fluxo do canal saiu do ar');
+    await transbordarSemFalhar(tx, e, execution?.context ?? {}, 'o fluxo do canal saiu do ar');
     return { tratou: true, respostas: 0 };
   }
 
-  const roteador = publicado.roteador ?? null;
-  if (execucao && execucao.fluxo_id !== publicado.fluxoId) {
+  const roteador = publicado.router ?? null;
+  if (execution && execution.fluxo_id !== publicado.flowId) {
     // O roteador mandou o contato para outro serviço: a execução do anterior termina aqui.
     await tx.execute(sql`
-      update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execucao.id}
+      update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execution.id}
     `);
-    execucao = null;
+    execution = null;
   }
 
   // Só a conversa nova recebe o `Ticket` do atendimento que acabou.
-  const nova = execucao === null && conversa.nova;
-  if (!execucao) {
+  const nova = execution === null && conversation.nova;
+  if (!execution) {
     // O contexto é do CONTATO, como na Blip: a conversa nova herda o que o bot já sabia.
     const { rows: anteriores } = await tx.execute<{ contexto: Record<string, string> }>(sql`
       select e.contexto from execucao_fluxo e
         join fluxo_versao v on v.id = e.fluxo_versao_id
-       where e.contato_id = ${e.contatoId} and v.fluxo_id = ${publicado.fluxoId}
+       where e.contato_id = ${e.contactId} and v.fluxo_id = ${publicado.flowId}
        order by e.iniciada_em desc
        limit 1
     `);
-    const { rows: criada } = await tx.execute<LinhaExecucao>(sql`
+    const { rows: criada } = await tx.execute<LineExecution>(sql`
       insert into execucao_fluxo (tenant_id, fluxo_versao_id, conversa_id, contato_id, estado, contexto)
       values (
-        ${e.tenantId}, ${publicado.versaoId}, ${conversa.id}, ${e.contatoId}, 'executando',
+        ${e.tenantId}, ${publicado.versaoId}, ${conversation.id}, ${e.contactId}, 'executando',
         ${JSON.stringify(anteriores[0]?.contexto ?? {})}::jsonb
       )
-      returning id, fluxo_versao_id, ${publicado.fluxoId}::uuid as fluxo_id, contexto
+      returning id, fluxo_versao_id, ${publicado.flowId}::uuid as fluxo_id, contexto
     `);
-    execucao = criada[0]!;
-  } else if (execucao.fluxo_versao_id !== publicado.versaoId) {
+    execution = criada[0]!;
+  } else if (execution.flowVersionId !== publicado.versaoId) {
     // Versão nova publicada no meio da conversa: segue com o mesmo contexto. Estado que
     // não existe mais cai na raiz — é o que o `FlowManager` faz.
     await tx.execute(
-      sql`update execucao_fluxo set fluxo_versao_id = ${publicado.versaoId} where id = ${execucao.id}`,
+      sql`update execucao_fluxo set fluxo_versao_id = ${publicado.versaoId} where id = ${execution.id}`,
     );
   }
-  const execucaoId = execucao.id;
+  const executionId = execution.id;
 
-  const { fluxo, blocoPorCodigo } = await carregarFluxo(tx, publicado);
+  const { flow, blockByCode } = await loadFlow(tx, publicado);
   // Com o contexto do roteador ligado, as variáveis são do par (roteador, contato).
-  const variaveis: Record<string, string> = {
-    ...(roteador?.compartilhaContexto ? roteador.contexto : execucao.contexto),
+  const variables: Record<string, string> = {
+    ...(roteador?.compartilhaContext ? roteador.contexto : execution.context),
   };
   if (roteador?.reiniciar) {
     // Change-User-State depois do Master-State: o destino começa no bloco pedido, ou na raiz.
-    if (roteador.blocoInicial) variaveis[chaveDoEstado(fluxo.id)] = roteador.blocoInicial;
-    else delete variaveis[chaveDoEstado(fluxo.id)];
+    if (roteador.blockInicial) variables[stateKey(flow.id)] = roteador.blockInicial;
+    else delete variables[stateKey(flow.id)];
     await tx.execute(sql`
       update posicao_no_roteador set reiniciar = false, bloco_inicial = null
-       where roteador_id = ${roteador.id} and contato_id = ${e.contatoId}
+       where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
     `);
   }
   /** O contexto do roteador acompanha o da execução, sempre que ela grava. */
-  const guardarContextoDoRoteador = async (): Promise<void> => {
-    if (!roteador?.compartilhaContexto) return;
+  const saveContextOfRouter = async (): Promise<void> => {
+    if (!roteador?.compartilhaContext) return;
     await tx.execute(sql`
-      update posicao_no_roteador set contexto = ${JSON.stringify(variaveis)}::jsonb
-       where roteador_id = ${roteador.id} and contato_id = ${e.contatoId}
+      update posicao_no_roteador set contexto = ${JSON.stringify(variables)}::jsonb
+       where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
     `);
   };
-  const contato = await carregarContato(tx, e.contatoId);
+  const contact = await loadContact(tx, e.contactId);
   const relogio = relogioCrescente();
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
@@ -322,24 +322,24 @@ export async function rodarFluxoNaEntrada(
   let processHttpId: string | undefined;
 
   const servicos: ServicosDoMotor = {
-    enviar: async (m) => {
-      const texto = textoParaOCanal(m);
+    send: async (m) => {
+      const texto = textForOChannel(m);
       if (texto === null) return;
       const pergunta = perguntaDoSelect(m);
-      await gravarRespostaDoBot(tx, e.tenantId, conversa.id, texto, relogio(), pergunta ? { pergunta } : null);
+      await gravarRespostaDoBot(tx, e.tenantId, conversation.id, texto, relogio(), pergunta ? { pergunta } : null);
       respostas += 1;
     },
-    encaminharParaAtendimento: async ({ settings }) => {
-      const filaId =
-        typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversa.filaPadraoId;
-      await transbordar(tx, e, filaId, variaveis, null, relogio());
+    encaminharForAttendance: async ({ settings }) => {
+      const queueId =
+        typeof settings?.['filaId'] === 'string' ? settings['filaId'] : conversation.queueDefaultId;
+      await transbordar(tx, e, queueId, variables, null, relogio());
       transferida = true;
-      return { id: conversa.id, status: 'Waiting' };
+      return { id: conversation.id, status: 'Waiting' };
     },
-    registrarEvento: async (evento) => {
+    registerEvent: async (evento) => {
       eventos.push(evento);
     },
-    chamarHttp: async (pedido: PedidoDeHttp) => {
+    callHttp: async (pedido: PedidoDeHttp) => {
       confirmarUrlSegura(pedido.url);
       try {
         const resposta = await chamarComMtls(e.tenantId, pedido.url, {
@@ -355,32 +355,32 @@ export async function rodarFluxoNaEntrada(
         return { status: resposta.status, corpo: corpo.slice(0, limite) };
       } catch (erro) {
         // Regra da origem: rede/timeout não derruba ProcessHttp; o fluxo recebe status sintético.
-        const mensagem = erro instanceof Error ? erro.message : String(erro);
-        const timeout = /timeout|aborted|timed out/i.test(mensagem);
+        const message = erro instanceof Error ? erro.message : String(erro);
+        const timeout = /timeout|aborted|timed out/i.test(message);
         return {
           status: timeout ? 504 : 503,
-          corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: mensagem }),
+          corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: message }),
         };
       }
     },
-    suspenderHttp: async (pedido, cursor) => {
+    suspendHttp: async (pedido, cursor) => {
       confirmarUrlSegura(pedido.url);
-      const chave = `${execucaoId}:${e.mensagem.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
+      const key = `${executionId}:${e.message.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
       const { rows } = await tx.execute<{ id: string }>(sql`
         insert into process_http_execucao (
           tenant_id, execucao_id, chave, bloco_id, bloco_codigo, lista, indice,
           entrada, contexto, pedido, estado
         ) values (
-          ${e.tenantId}, ${execucaoId}, ${chave},
-          ${cursor.estadoId ? (blocoPorCodigo.get(cursor.estadoId) ?? null) : null},
+          ${e.tenantId}, ${executionId}, ${key},
+          ${cursor.estadoId ? (blockByCode.get(cursor.estadoId) ?? null) : null},
           ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
           ${JSON.stringify({
-            id: e.mensagem.id,
-            id_provedor: e.mensagem.idProvedor,
-            tipo: e.mensagem.tipo,
-            conteudo: e.mensagem.conteudo,
+            id: e.message.id,
+            id_provedor: e.message.idProvedor,
+            tipo: e.message.tipo,
+            conteudo: e.message.conteudo,
           })}::jsonb,
-          ${JSON.stringify(variaveis)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
+          ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
         )
         on conflict (execucao_id, chave) do nothing
         returning id
@@ -394,12 +394,12 @@ export async function rodarFluxoNaEntrada(
     // destino aqui dentro, com o fluxo dele carregado.
     ...(roteador
       ? {
-          redirecionar: async ({ endereco }: { endereco: string }) => {
-            await redirecionarNoRoteador(tx, {
+          redirect: async ({ endereco }: { endereco: string }) => {
+            await redirecionarInRouter(tx, {
               tenantId: e.tenantId,
-              roteadorId: roteador.id,
-              contatoId: e.contatoId,
-              servico: endereco,
+              routerId: roteador.id,
+              contactId: e.contactId,
+              service: endereco,
             });
           },
         }
@@ -408,30 +408,30 @@ export async function rodarFluxoNaEntrada(
 
   /** Uma entrada no motor. Falha do fluxo não derruba a mensagem: vai para a fila. */
   const rodar = async (
-    mensagem: MensagemDeEntrada,
-    entrada: Record<string, unknown>,
+    message: InboundMessage,
+    inbound: Record<string, unknown>,
   ): Promise<boolean> => {
-    const contexto: Contexto = {
-      usuario: e.contatoId,
-      fluxo,
-      entrada: criarEntrada(mensagem),
-      variaveis,
-      entradaContexto: new Map(),
-      contato,
-      servicos,
+    const context: Context = {
+      user: e.contactId,
+      flow,
+      inbound: createInbound(message),
+      variables,
+      inboundContext: new Map(),
+      contact,
+      services,
     };
     try {
-      const rastro = await processarEntrada(
-        contexto,
+      const rastro = await processarInbound(
+        context,
         retomada ? { retomarProcessHttp: retomada.cursor } : {},
       );
       await gravarPassos(
         tx,
         e.tenantId,
-        execucaoId,
+        executionId,
         rastro,
-        blocoPorCodigo,
-        entrada,
+        blockByCode,
+        inbound,
         eventos.splice(0),
         relogio,
       );
@@ -441,42 +441,42 @@ export async function rodarFluxoNaEntrada(
         await gravarPassos(
           tx,
           e.tenantId,
-          execucaoId,
-          erro.rastro ?? { estados: [], acoesGlobais: [], estadoFinalId: erro.cursor.estadoId },
-          blocoPorCodigo,
-          entrada,
+          executionId,
+          erro.rastro ?? { estados: [], actionsGlobal: [], stateFinalId: erro.cursor.estadoId },
+          blockByCode,
+          inbound,
           eventos.splice(0),
           relogio,
         );
         await tx.execute(sql`
           update execucao_fluxo
-             set estado = 'aguardando', contexto = ${JSON.stringify(variaveis)}::jsonb,
-                 bloco_atual_id = ${erro.cursor.estadoId ? (blocoPorCodigo.get(erro.cursor.estadoId) ?? null) : null}
-           where id = ${execucaoId}
+             set estado = 'aguardando', contexto = ${JSON.stringify(variables)}::jsonb,
+                 bloco_atual_id = ${erro.cursor.estadoId ? (blockByCode.get(erro.cursor.estadoId) ?? null) : null}
+           where id = ${executionId}
         `);
-        await guardarContextoDoRoteador();
+        await saveContextOfRouter();
         return true;
       }
-      if (!(erro instanceof ErroDoMotor)) throw erro;
+      if (!(erro instanceof MotorError)) throw erro;
       await gravarPassos(
         tx,
         e.tenantId,
-        execucaoId,
+        executionId,
         erro.rastro,
-        blocoPorCodigo,
-        entrada,
+        blockByCode,
+        inbound,
         eventos.splice(0),
         relogio,
       );
       await tx.execute(sql`
         update execucao_fluxo
-           set estado = 'falhou', contexto = ${JSON.stringify(variaveis)}::jsonb, encerrada_em = now()
-         where id = ${execucaoId}
+           set estado = 'falhou', contexto = ${JSON.stringify(variables)}::jsonb, encerrada_em = now()
+         where id = ${executionId}
       `);
-      await guardarContextoDoRoteador();
+      await saveContextOfRouter();
       // Na Blip o usuário ficaria parado sem resposta. Aqui ele vai para a fila.
       if (!transferida)
-        await transbordarSemFalhar(tx, e, variaveis, `o fluxo falhou: ${erro.message}`);
+        await transbordarSemFalhar(tx, e, variables, `o fluxo falhou: ${erro.message}`);
       return false;
     }
   };
@@ -486,45 +486,45 @@ export async function rodarFluxoNaEntrada(
   // `execucao_passo_entrada_uk` (a proteção contra webhook duplicado da Meta,
   // migration 0014), então uma retomada nunca inclui `id_provedor` de novo.
   let idProvedorUsado = Boolean(retomada);
-  const estadoAntes = estadoGuardado(variaveis, fluxo.id);
-  if (nova && estadoAntes?.startsWith('desk:') && fluxo.states.some((s) => s.id === estadoAntes)) {
-    const ticket = await ultimoAtendimento(tx, e.contatoId, conversa.id);
+  const stateBefore = stateSaved(variables, flow.id);
+  if (nova && stateBefore?.startsWith('desk:') && flow.states.some((s) => s.id === stateBefore)) {
+    const ticket = await lastAttendance(tx, e.contactId, conversation.id);
     idProvedorUsado = true;
     const certo = await rodar(
       {
         id: `ticket:${ticket.id}`,
         tipo: 'application/vnd.iris.ticket+json',
         conteudo: ticket,
-        de: e.contatoId,
+        de: e.contactId,
       },
-      { ticket, id_provedor: e.mensagem.idProvedor, mensagem_id: e.mensagem.id },
+      { ticket, id_provedor: e.message.idProvedor, mensagem_id: e.message.id },
     );
     if (!certo) return { tratou: true, respostas };
     // Parou num bloco que já falou com o cliente: a mensagem dele serviu para acordar o bot.
     // Voltou para a raiz (ou saiu do fluxo): a mensagem é a primeira entrada, como na Blip.
-    const depois = estadoGuardado(variaveis, fluxo.id);
-    if (depois !== null && depois !== fluxo.states.find((s) => s.root)?.id) {
-      await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
-      await guardarContextoDoRoteador();
+    const depois = stateSaved(variables, flow.id);
+    if (depois !== null && depois !== flow.states.find((s) => s.root)?.id) {
+      await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
+      await saveContextOfRouter();
       return { tratou: true, respostas };
     }
   }
 
   const certo = await rodar(
     {
-      id: e.mensagem.idProvedor,
-      tipo: MIME_DO_TIPO[e.mensagem.tipo] ?? 'text/plain',
-      conteudo: e.mensagem.conteudo ?? '',
-      de: e.contatoId,
+      id: e.message.idProvedor,
+      tipo: MIME_DO_TIPO[e.message.tipo] ?? 'text/plain',
+      conteudo: e.message.conteudo ?? '',
+      de: e.contactId,
     },
     {
-      mensagem_id: e.mensagem.id,
-      ...(idProvedorUsado ? {} : { id_provedor: e.mensagem.idProvedor }),
+      mensagem_id: e.message.id,
+      ...(idProvedorUsado ? {} : { id_provedor: e.message.idProvedor }),
     },
   );
   if (certo) {
-    await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
-    await guardarContextoDoRoteador();
+    await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
+    await saveContextOfRouter();
   }
   return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}) };
 }
@@ -532,16 +532,16 @@ export async function rodarFluxoNaEntrada(
 /** Executa o HTTP fora da transação e, numa segunda transação, retoma o cursor. */
 export async function executarProcessHttp(processoId: string): Promise<string[]> {
   type Linha = {
-    id: string; tenant_id: string; execucao_id: string; estado: string;
-    pedido: PedidoDeHttp; entrada: Record<string, unknown>; bloco_codigo: string;
+    id: string; tenant_id: string; execucao_id: string; state: string;
+    pedido: PedidoDeHttp; inbound: Record<string, unknown>; blockCode: string;
     lista: CursorDeProcessHttp['lista']; indice: number;
   };
-  const dono = await bancoDono().execute<Linha>(sql`
+  const dono = await databaseOwner().execute<Linha>(sql`
     select id, tenant_id, execucao_id, estado, pedido, entrada, bloco_codigo, lista, indice
       from process_http_execucao where id = ${processoId} limit 1
   `);
   const encontrado = dono.rows[0];
-  if (!encontrado || encontrado.estado !== 'pendente') return [];
+  if (!encontrado || encontrado.state !== 'pendente') return [];
 
   const tomou = await noTenant(encontrado.tenant_id, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
@@ -577,7 +577,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     const { rows } = await tx.execute<{
       execucao_id: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
       indice: number; entrada: Record<string, unknown>; contexto: Record<string, string>;
-      conversa_id: string; contato_id: string; canal_id: string; fila_id: string | null;
+      conversationId: string; contato_id: string; canal_id: string; fila_id: string | null;
       atendente_id: string | null; fila_padrao_id: string | null;
     }>(sql`
       select p.execucao_id, p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
@@ -598,34 +598,34 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
       update process_http_execucao set resposta = ${JSON.stringify(resposta)}::jsonb,
              estado = 'respondida', atualizado_em = now() where id = ${processoId}
     `);
-    const publicado = await fluxoPublicadoDoCanal(tx, p.canal_id, p.contato_id);
+    const publicado = await flowPublishedOfChannel(tx, p.canal_id, p.contato_id);
     if (!publicado) return;
-    const retomada = await rodarFluxoNaEntrada(tx, publicado, {
+    const retomada = await rodarFlowInInbound(tx, publicado, {
       tenantId: encontrado.tenant_id,
-      conversa: {
-        id: p.conversa_id, nova: false, filaId: p.fila_id,
-        atendenteId: p.atendente_id, filaPadraoId: p.fila_padrao_id,
+      conversation: {
+        id: p.conversationId, nova: false, queueId: p.fila_id,
+        agentId: p.atendente_id, queueDefaultId: p.fila_padrao_id,
       },
-      contatoId: p.contato_id,
-      mensagem: {
+      contactId: p.contato_id,
+      message: {
         id: typeof p.entrada['id'] === 'string' ? p.entrada['id'] : null,
         idProvedor: String(p.entrada['id_provedor'] ?? ''),
         tipo: String(p.entrada['tipo'] ?? 'texto'),
         conteudo: typeof p.entrada['conteudo'] === 'string' ? p.entrada['conteudo'] : null,
       },
     }, {
-      execucaoId: p.execucao_id,
+      executionId: p.execucao_id,
       cursor: { lista: p.lista, estadoId: p.bloco_codigo || null, indice: p.indice, resposta },
       resposta,
     });
     if (retomada.processHttpId) novosProcessos.push(retomada.processHttpId);
 
-    const { rows: mensagensPendentes } = await tx.execute<{
+    const { rows: messagesPending } = await tx.execute<{
       id: string; id_provedor: string; tipo: string; conteudo: string | null;
     }>(sql`
       select m.id, m.id_provedor, m.tipo, m.conteudo
         from mensagem m
-       where m.conversa_id = ${p.conversa_id} and m.direcao = 'entrada'
+       where m.conversa_id = ${p.conversationId} and m.direcao = 'entrada'
          and not exists (
            select 1 from execucao_passo ep
             where ep.execucao_id = ${p.execucao_id}
@@ -633,15 +633,15 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
          )
        order by m.criada_em, m.id
     `);
-    for (const mensagem of mensagensPendentes) {
-      const atual = await rodarFluxoNaEntrada(tx, publicado, {
+    for (const mensagem of messagesPending) {
+      const atual = await rodarFlowInInbound(tx, publicado, {
         tenantId: encontrado.tenant_id,
-        conversa: {
-          id: p.conversa_id, nova: false, filaId: null,
-          atendenteId: null, filaPadraoId: p.fila_padrao_id,
+        conversation: {
+          id: p.conversationId, nova: false, queueId: null,
+          agentId: null, queueDefaultId: p.fila_padrao_id,
         },
-        contatoId: p.contato_id,
-        mensagem: {
+        contactId: p.contato_id,
+        message: {
           id: mensagem.id,
           idProvedor: mensagem.id_provedor,
           tipo: mensagem.tipo,
@@ -669,33 +669,33 @@ const MIME_DO_TIPO: Readonly<Record<string, string>> = {
   localizacao: 'application/vnd.lime.location+json',
 };
 
-async function salvarExecucao(
-  tx: TransacaoPipe,
-  execucaoId: string,
-  variaveis: Record<string, string>,
-  fluxoId: string,
-  blocoPorCodigo: Map<string, string>,
+async function saveExecution(
+  tx: TransactionPipe,
+  executionId: string,
+  variables: Record<string, string>,
+  flowId: string,
+  blockByCode: Map<string, string>,
   transferida: boolean,
 ): Promise<void> {
-  const estado = estadoGuardado(variaveis, fluxoId);
+  const estado = stateSaved(variables, flowId);
   // Sem estado, o próximo contato recomeça na raiz; transferida, a conversa é do humano.
   const concluida = transferida || estado === null;
   await tx.execute(sql`
     update execucao_fluxo
-       set contexto = ${JSON.stringify(variaveis)}::jsonb,
-           bloco_atual_id = ${estado ? (blocoPorCodigo.get(estado) ?? null) : null},
+       set contexto = ${JSON.stringify(variables)}::jsonb,
+           bloco_atual_id = ${estado ? (blockByCode.get(estado) ?? null) : null},
            estado = ${concluida ? 'concluida' : 'aguardando'},
            encerrada_em = ${concluida ? sql`now()` : null}
-     where id = ${execucaoId}
+     where id = ${executionId}
   `);
 }
 
 /** Cada estado visitado vira um passo; o primeiro leva a entrada (e o `id_provedor`). */
 async function gravarPassos(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   execucaoId: string,
-  rastro: RastroDaEntrada,
+  rastro: InboundRastro,
   blocoPorCodigo: Map<string, string>,
   entrada: Record<string, unknown>,
   eventos: Record<string, unknown>[],
@@ -705,19 +705,19 @@ async function gravarPassos(
   for (const [i, passo] of estados.entries()) {
     const ultimo = i === estados.length - 1;
     const saida = {
-      acoes: passo.acoes,
-      proximo: 'proximoEstadoId' in passo ? (passo.proximoEstadoId ?? null) : null,
-      ...(i === 0 && rastro.acoesGlobais.length > 0 ? { acoesGlobais: rastro.acoesGlobais } : {}),
+      acoes: passo.actions,
+      proximo: 'proximoEstadoId' in passo ? (passo.proximoStateId ?? null) : null,
+      ...(i === 0 && rastro.actionsGlobal.length > 0 ? { acoesGlobais: rastro.actionsGlobal } : {}),
       ...(ultimo && eventos.length > 0 ? { eventos } : {}),
     };
-    const erro =
-      ('erro' in passo ? passo.erro : undefined) ?? (ultimo ? rastro.erro : undefined) ?? null;
+    const error =
+      ('erro' in passo ? passo.error : undefined) ?? (ultimo ? rastro.error : undefined) ?? null;
     await tx.execute(sql`
       insert into execucao_passo (tenant_id, execucao_id, bloco_id, entrada, saida, erro, em)
       values (
-        ${tenantId}, ${execucaoId}, ${blocoPorCodigo.get(passo.estadoId) ?? null},
+        ${tenantId}, ${execucaoId}, ${blocoPorCodigo.get(passo.stateId) ?? null},
         ${i === 0 ? JSON.stringify(entrada) : null}::jsonb, ${JSON.stringify(saida)}::jsonb,
-        ${erro}, ${relogio()}
+        ${error}, ${relogio()}
       )
     `);
   }
@@ -732,18 +732,18 @@ async function gravarPassos(
  * conta da equipe a conversa com o robô — na Blip, o ticket também só nasce no transbordo.
  */
 async function transbordar(
-  tx: TransacaoPipe,
-  e: EntradaNoFluxo,
-  filaId: string | null,
+  tx: TransactionPipe,
+  e: InboundInFlow,
+  queueId: string | null,
   variaveis: Record<string, string>,
   motivo: string | null,
   em: Date,
 ): Promise<void> {
-  if (!filaId)
+  if (!queueId)
     throw new Error('A inbox do canal não tem fila padrão: o bot não tem para onde transferir.');
   const { rows } = await tx.execute<{ id: string }>(sql`
-    update conversa set fila_id = ${filaId}, estado = 'na_fila', atualizado_em = now()
-     where id = ${e.conversa.id} and atendente_id is null and fila_id is null
+    update conversa set fila_id = ${queueId}, estado = 'na_fila', atualizado_em = now()
+     where id = ${e.conversation.id} and atendente_id is null and fila_id is null
     returning id
   `);
   if (!rows[0]) return;
@@ -751,65 +751,65 @@ async function transbordar(
   // A conversa acabou de entrar na fila (o `update` acima só afeta linha uma vez,
   // por causa do `fila_id is null` na condição) — é o único momento em que a
   // prioridade é avaliada para ela. Ver decisão Pipe em `gestao/prioridade-motor.ts`.
-  const regrasDePrioridade = await carregarRegrasDePrioridadeAtivas(tx);
-  if (regrasDePrioridade.length > 0) {
-    const nivel = avaliarPrioridade(regrasDePrioridade, {
-      filaId,
-      mensagem: e.mensagem.conteudo,
+  const rulesOfPriority = await loadRulesOfPriorityActive(tx);
+  if (rulesOfPriority.length > 0) {
+    const nivel = avaliarPriority(rulesOfPriority, {
+      queueId,
+      message: e.message.conteudo,
     });
     if (nivel) {
       await tx.execute(sql`
-        update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${e.conversa.id}
+        update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${e.conversation.id}
       `);
     }
   }
 
-  const dados = { origem: 'fluxo', ...(motivo ? { motivo } : {}) };
+  const data = { origem: 'fluxo', ...(motivo ? { motivo } : {}) };
   await registrarEvento(tx, {
     tenantId: e.tenantId,
-    conversaId: e.conversa.id,
+    conversationId: e.conversation.id,
     tipo: 'criada',
     em,
-    filaId,
-    dados,
+    queueId,
+    data,
   });
   await registrarEvento(tx, {
     tenantId: e.tenantId,
-    conversaId: e.conversa.id,
+    conversationId: e.conversation.id,
     tipo: 'enfileirada',
     em,
-    filaId,
-    dados,
+    queueId,
+    data,
   });
   // O atendente recebe o cliente já sabendo o que o robô coletou: é a nota que o Desk mostra.
   await tx.execute(sql`
     insert into nota_interna (tenant_id, conversa_id, corpo, em)
-    values (${e.tenantId}, ${e.conversa.id}, ${resumoDoContexto(variaveis, motivo)}, ${em})
+    values (${e.tenantId}, ${e.conversation.id}, ${summaryOfContext(variaveis, motivo)}, ${em})
   `);
   await emitir(tx, e.tenantId, 'conversa.estado_alterado', {
-    conversa_id: e.conversa.id,
+    conversa_id: e.conversation.id,
     estado: 'na_fila',
-    fila_id: filaId,
+    fila_id: queueId,
   });
-  await distribuirConversa(tx, e.tenantId, e.conversa.id, filaId, em);
+  await distribuirConversation(tx, e.tenantId, e.conversation.id, queueId, em);
 }
 
 /** A saída de emergência não pode derrubar a mensagem que chegou. */
 async function transbordarSemFalhar(
-  tx: TransacaoPipe,
-  e: EntradaNoFluxo,
+  tx: TransactionPipe,
+  e: InboundInFlow,
   variaveis: Record<string, string>,
   motivo: string,
 ): Promise<void> {
   try {
-    await transbordar(tx, e, e.conversa.filaPadraoId, variaveis, motivo, new Date());
+    await transbordar(tx, e, e.conversation.queueDefaultId, variaveis, motivo, new Date());
   } catch (erro) {
-    console.error(`[fluxo] conversa ${e.conversa.id} ficou sem fila: ${(erro as Error).message}`);
+    console.error(`[fluxo] conversa ${e.conversation.id} ficou sem fila: ${(erro as Error).message}`);
   }
 }
 
 /** As variáveis que o bot coletou, sem as chaves de controle do motor. */
-export function resumoDoContexto(variaveis: Record<string, string>, motivo: string | null): string {
+export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
     .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_'))
     .map(([k, v]) => `- ${k}: ${v}`);
@@ -825,17 +825,17 @@ export function resumoDoContexto(variaveis: Record<string, string>, motivo: stri
  * entrega é o worker. Dentro da janela sempre: o bot só fala em resposta ao cliente.
  */
 async function gravarRespostaDoBot(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
-  conversaId: string,
+  conversationId: string,
   texto: string,
   em: Date,
   /** `{ pergunta }` quando é menu: o worker decide se sai em botões, lista ou texto. */
-  dados: Record<string, unknown> | null = null,
+  data: Record<string, unknown> | null = null,
 ): Promise<void> {
   const categoria = classificarCusto({
     conteudo: 'texto_livre',
-    dentroDaJanela: true,
+    windowDentro: true,
     categoriaTemplate: null,
   });
   const { rows } = await tx.execute<{ id: string }>(sql`
@@ -843,25 +843,25 @@ async function gravarRespostaDoBot(
       tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
       dentro_da_janela, categoria_cobranca, dados
     ) values (
-      ${tenantId}, ${conversaId}, 'saida', 'bot', 'texto', ${texto}, 'pendente', ${em}, true, ${categoria},
-      ${dados ? JSON.stringify(dados) : null}::jsonb
+      ${tenantId}, ${conversationId}, 'saida', 'bot', 'texto', ${texto}, 'pendente', ${em}, true, ${categoria},
+      ${data ? JSON.stringify(data) : null}::jsonb
     )
     returning id
   `);
-  const mensagemId = rows[0]?.id;
-  if (!mensagemId) throw new Error('não gravou a resposta do bot');
+  const messageId = rows[0]?.id;
+  if (!messageId) throw new Error('não gravou a resposta do bot');
   await tx.execute(sql`
-    insert into outbox_mensagem (tenant_id, mensagem_id, estado) values (${tenantId}, ${mensagemId}, 'pendente')
+    insert into outbox_mensagem (tenant_id, mensagem_id, estado) values (${tenantId}, ${messageId}, 'pendente')
   `);
   await tx.execute(sql`
     update conversa set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'bot', atualizado_em = now()
-     where id = ${conversaId}
+     where id = ${conversationId}
   `);
   // `usuarioId` nulo é o que separa, na métrica, a saída do bot da do atendente.
-  await registrarEvento(tx, { tenantId, conversaId, tipo: 'mensagem_saida', em });
+  await registrarEvento(tx, { tenantId, conversationId, tipo: 'mensagem_saida', em });
   await emitir(tx, tenantId, 'mensagem.criada', {
-    mensagem_id: mensagemId,
-    conversa_id: conversaId,
+    mensagem_id: messageId,
+    conversa_id: conversationId,
     direcao: 'saida',
     tipo: 'texto',
     conteudo: texto,
@@ -878,7 +878,7 @@ async function gravarRespostaDoBot(
  * botões ou lista (`interativo.ts` de `@pipe/workers/whatsapp`). O texto numerado
  * de `textoParaOCanal` continua sendo o conteúdo gravado e o plano B.
  */
-export function perguntaDoSelect(m: MensagemDeSaida): { texto: string; opcoes: string[] } | null {
+export function perguntaDoSelect(m: OutputMessage): { texto: string; opcoes: string[] } | null {
   if (m.tipo.toLowerCase() !== 'application/vnd.lime.select+json') return null;
   let conteudo = m.conteudo;
   if (typeof conteudo === 'string') {
@@ -894,7 +894,7 @@ export function perguntaDoSelect(m: MensagemDeSaida): { texto: string; opcoes: s
   return { texto: menu?.text ?? '', opcoes };
 }
 
-export function textoParaOCanal(m: MensagemDeSaida): string | null {
+export function textForOChannel(m: OutputMessage): string | null {
   const tipo = m.tipo.toLowerCase();
   if (tipo === 'application/vnd.lime.chatstate+json') return null;
   let conteudo = m.conteudo;
@@ -915,9 +915,9 @@ export function textoParaOCanal(m: MensagemDeSaida): string | null {
   throw new Error(`O canal do Pipe ainda não envia conteúdo do tipo '${m.tipo}'.`);
 }
 
-async function carregarContato(
-  tx: TransacaoPipe,
-  contatoId: string,
+async function loadContact(
+  tx: TransactionPipe,
+  contactId: string,
 ): Promise<Record<string, unknown> | null> {
   const { rows } = await tx.execute<{
     nome: string | null;
@@ -925,13 +925,13 @@ async function carregarContato(
     email: string | null;
     atributos: Record<string, unknown> | null;
   }>(
-    sql`select nome, telefone_e164, email, atributos from contato where id = ${contatoId} limit 1`,
+    sql`select nome, telefone_e164, email, atributos from contato where id = ${contactId} limit 1`,
   );
   const c = rows[0];
   // O vocabulário é o do `Contact` da Blip, que é o que o fluxo importado usa.
   return c
     ? {
-        identity: contatoId,
+        identity: contactId,
         name: c.nome,
         phoneNumber: c.telefone_e164,
         email: c.email,
@@ -941,25 +941,25 @@ async function carregarContato(
 }
 
 /** O último atendimento encerrado do contato, como o `Ticket` que a Blip manda ao bot. */
-async function ultimoAtendimento(
-  tx: TransacaoPipe,
+async function lastAttendance(
+  tx: TransactionPipe,
   contatoId: string,
-  conversaAtualId: string,
+  conversationAtualId: string,
 ): Promise<{ id: string; status: string; closed: true }> {
-  const { rows } = await tx.execute<{ id: string; por: string | null }>(sql`
+  const { rows } = await tx.execute<{ id: string; by: string | null }>(sql`
     select c.id,
            (select ev.dados->>'encerrada_por' from evento_atendimento ev
              where ev.conversa_id = c.id and ev.tipo = 'encerrada'
              order by ev.em desc limit 1) as por
       from conversa c
-     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversaAtualId}
+     where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationAtualId}
      order by c.encerrada_em desc nulls last
      limit 1
   `);
   const linha = rows[0];
   return {
-    id: linha?.id ?? conversaAtualId,
-    status: STATUS_DO_TICKET[linha?.por ?? ''] ?? 'ClosedAttendant',
+    id: linha?.id ?? conversationAtualId,
+    status: STATUS_DO_TICKET[linha?.by ?? ''] ?? 'ClosedAttendant',
     closed: true,
   };
 }
@@ -975,21 +975,21 @@ function relogioCrescente(): () => Date {
 
 // --- importação ---
 
-export interface ImportacaoDeFluxo {
+export interface ImportOfFlow {
   fluxoId: string;
   versaoId: string;
   versao: number;
   publicado: boolean;
-  relatorio: RelatorioDaImportacao;
+  report: ImportReport;
   /** O fluxo foi gravado, mas o motor recusaria rodar: por isso não publica. */
-  erroDeValidacao: string | null;
+  errorOfValidation: string | null;
 }
 
 /**
  * O tipo do bloco no Pipe. A Blip não tem tipo de bloco; este rótulo é só para a tela
  * e o relatório — o motor não o lê.
  */
-export function classificarEstado(e: Estado): string {
+export function classificarState(e: State): string {
   const tipos = [...(e.inputActions ?? []), ...(e.outputActions ?? [])].map((a) => a.type);
   if (
     e.id.startsWith('desk:') ||
@@ -1012,103 +1012,103 @@ export function classificarEstado(e: Estado): string {
  * o motor não executa volta no relatório, por tipo. Publicar arquiva a versão publicada
  * anterior e o outro fluxo publicado do mesmo canal — um bot por número.
  */
-export async function importarFluxoDaBlip(
-  tx: TransacaoPipe,
+export async function importFlowOfBlip(
+  tx: TransactionPipe,
   pedido: {
     tenantId: string;
     nome: string;
-    canalId: string | null;
+    channelId: string | null;
     json: unknown;
     publicar: boolean;
   },
-): Promise<ImportacaoDeFluxo> {
+): Promise<ImportOfFlow> {
   const { rows: existentes } = await tx.execute<{ id: string }>(sql`
-    select id from fluxo where nome = ${pedido.nome} and canal_id is not distinct from ${pedido.canalId} limit 1
+    select id from fluxo where nome = ${pedido.nome} and canal_id is not distinct from ${pedido.channelId} limit 1
   `);
-  let fluxoId = existentes[0]?.id;
-  if (!fluxoId) {
+  let flowId = existentes[0]?.id;
+  if (!flowId) {
     const { rows } = await tx.execute<{ id: string }>(sql`
-      insert into fluxo (tenant_id, nome, canal_id) values (${pedido.tenantId}, ${pedido.nome}, ${pedido.canalId})
+      insert into fluxo (tenant_id, nome, canal_id) values (${pedido.tenantId}, ${pedido.nome}, ${pedido.channelId})
       returning id
     `);
-    fluxoId = rows[0]!.id;
+    flowId = rows[0]!.id;
   }
 
-  const fluxo = lerFluxoDaBlip(pedido.json, fluxoId);
-  const originais = ehExportDoEditor(pedido.json) ? pedido.json.flow : null;
-  let erroDeValidacao: string | null = null;
+  const flow = blipReadFlow(pedido.json, flowId);
+  const original = ehExportDoEditor(pedido.json) ? pedido.json.flow : null;
+  let errorOfValidation: string | null = null;
   try {
-    validarFluxo(fluxo);
-  } catch (erro) {
-    erroDeValidacao = (erro as Error).message;
+    validateFlow(flow);
+  } catch (error) {
+    errorOfValidation = (error as Error).message;
   }
-  if (pedido.publicar && erroDeValidacao) {
-    throw new Error(`O fluxo não pode ser publicado: ${erroDeValidacao}`);
+  if (pedido.publicar && errorOfValidation) {
+    throw new Error(`O fluxo não pode ser publicado: ${errorOfValidation}`);
   }
 
   const { rows: numero } = await tx.execute<{ versao: number }>(
-    sql`select coalesce(max(versao), 0) + 1 as versao from fluxo_versao where fluxo_id = ${fluxoId}`,
+    sql`select coalesce(max(versao), 0) + 1 as versao from fluxo_versao where fluxo_id = ${flowId}`,
   );
   const versao = Number(numero[0]?.versao ?? 1);
   if (pedido.publicar) {
     await tx.execute(
-      sql`update fluxo_versao set estado = 'arquivada' where fluxo_id = ${fluxoId} and estado = 'publicada'`,
+      sql`update fluxo_versao set estado = 'arquivada' where fluxo_id = ${flowId} and estado = 'publicada'`,
     );
     await tx.execute(sql`
       update fluxo set estado = 'arquivado', atualizado_em = now()
-       where canal_id = ${pedido.canalId} and id <> ${fluxoId} and estado = 'publicado'
+       where canal_id = ${pedido.channelId} and id <> ${flowId} and estado = 'publicado'
     `);
     await tx.execute(
-      sql`update fluxo set estado = 'publicado', atualizado_em = now() where id = ${fluxoId}`,
+      sql`update fluxo set estado = 'publicado', atualizado_em = now() where id = ${flowId}`,
     );
   }
 
   // O que é do `Flow` e não de um estado: ações globais, `configuration`, versão.
-  const global: Record<string, unknown> = { ...fluxo };
+  const global: Record<string, unknown> = { ...flow };
   delete global['states'];
   delete global['id'];
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into fluxo_versao (tenant_id, fluxo_id, versao, estado, publicada_em, global)
     values (
-      ${pedido.tenantId}, ${fluxoId}, ${versao}, ${pedido.publicar ? 'publicada' : 'rascunho'},
+      ${pedido.tenantId}, ${flowId}, ${versao}, ${pedido.publicar ? 'publicada' : 'rascunho'},
       ${pedido.publicar ? new Date() : null}, ${JSON.stringify(global)}::jsonb
     )
     returning id
   `);
   const versaoId = criada[0]!.id;
 
-  const blocoPorCodigo = new Map<string, string>();
-  for (const estado of fluxo.states) {
-    const codigo = estado.id;
+  const blockByCode = new Map<string, string>();
+  for (const state of flow.states) {
+    const codigo = state.id;
     // Id e saídas têm coluna e tabela próprias (`codigo`, `transicao`); o resto é o estado.
-    const conteudo: Record<string, unknown> = { ...estado };
+    const conteudo: Record<string, unknown> = { ...state };
     delete conteudo['id'];
     delete conteudo['outputs'];
-    const original = originais?.[codigo];
+    const original = original?.[codigo];
     const nome =
-      typeof estado['name'] === 'string' && estado['name'].trim() ? estado['name'] : codigo;
+      typeof state['name'] === 'string' && state['name'].trim() ? state['name'] : codigo;
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into bloco (tenant_id, versao_id, codigo, nome, tipo, conteudo, posicao)
       values (
-        ${pedido.tenantId}, ${versaoId}, ${codigo}, ${nome}, ${classificarEstado(estado)},
+        ${pedido.tenantId}, ${versaoId}, ${codigo}, ${nome}, ${classificarState(state)},
         ${JSON.stringify(original ? { ...conteudo, original } : conteudo)}::jsonb,
-        ${JSON.stringify(estado['$position'] ?? {})}::jsonb
+        ${JSON.stringify(state['$position'] ?? {})}::jsonb
       )
       returning id
     `);
-    blocoPorCodigo.set(codigo, rows[0]!.id);
+    blockByCode.set(codigo, rows[0]!.id);
   }
 
-  for (const estado of fluxo.states) {
+  for (const estado of flow.states) {
     for (const [i, saida] of (estado.outputs ?? []).entries()) {
-      const variavel = ehVariavelDeContexto(saida.stateId) ? saida.stateId : null;
-      const para = variavel ? null : (blocoPorCodigo.get(saida.stateId) ?? null);
+      const variable = contextEhVariable(saida.stateId) ? saida.stateId : null;
+      const para = variable ? null : (blockByCode.get(saida.stateId) ?? null);
       // Destino inexistente só passa se o fluxo não for publicado — e já está no erro de validação.
-      if (!variavel && !para) continue;
+      if (!variable && !para) continue;
       await tx.execute(sql`
         insert into transicao (tenant_id, versao_id, de_bloco_id, para_bloco_id, para_variavel, condicao, ordem)
         values (
-          ${pedido.tenantId}, ${versaoId}, ${blocoPorCodigo.get(estado.id)!}, ${para}, ${variavel},
+          ${pedido.tenantId}, ${versaoId}, ${blockByCode.get(estado.id)!}, ${para}, ${variable},
           ${JSON.stringify(saida.conditions ? { conditions: saida.conditions } : {})}::jsonb, ${saida.order ?? i}
         )
       `);
@@ -1116,11 +1116,11 @@ export async function importarFluxoDaBlip(
   }
 
   return {
-    fluxoId,
+    flowId,
     versaoId,
     versao,
     publicado: pedido.publicar,
-    relatorio: relatorioDaImportacao(fluxo),
-    erroDeValidacao,
+    report: importReport(flow),
+    errorOfValidation,
   };
 }

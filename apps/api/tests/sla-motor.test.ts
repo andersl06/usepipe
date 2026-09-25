@@ -9,10 +9,10 @@ process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
 const { montarCenario } = await import('./ajuda.js');
-const { checarSlaDaConversa, regrasVencedorasPorAlvo } = await import(
+const { checarSlaOfConversation, rulesWinningByTarget } = await import(
   '../src/dominio/gestao/sla-motor.js'
 );
-const { ordenarFilaDeEspera } = await import('../src/dominio/gestao/monitoramento.js');
+const { ordenarQueueOfWait } = await import('../src/dominio/gestao/monitoramento.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
@@ -40,39 +40,39 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-async function criarContato(cenario: Cenario, nome = 'Cliente'): Promise<string> {
+async function createContact(cenario: Cenario, nome = 'Cliente'): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome) values (${cenario.tenantId}::uuid, ${nome}) returning id
   `);
   return rows[0]!.id;
 }
 
-async function criarConversa(
+async function createConversation(
   cenario: Cenario,
   opts: {
     prioridade?: string;
     criadaEm: Date;
     atribuidaEm?: Date | null;
-    primeiraRespostaEm?: Date | null;
+    firstResponseAt?: Date | null;
     encerradaEm?: Date | null;
   },
 ): Promise<string> {
-  const contatoId = await criarContato(cenario);
+  const contactId = await createContact(cenario);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
       tenant_id, inbox_id, contato_id, fila_id, estado, prioridade,
       criada_em, atribuida_em, primeira_resposta_em, encerrada_em
     ) values (
-      ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contatoId}::uuid, ${cenario.filaId}::uuid,
+      ${cenario.tenantId}::uuid, ${cenario.inboxId}::uuid, ${contactId}::uuid, ${cenario.queueId}::uuid,
       ${opts.encerradaEm ? 'encerrada' : 'atribuida'}, ${opts.prioridade ?? 'sem_prioridade'},
-      ${opts.criadaEm}, ${opts.atribuidaEm ?? null}, ${opts.primeiraRespostaEm ?? null}, ${opts.encerradaEm ?? null}
+      ${opts.criadaEm}, ${opts.atribuidaEm ?? null}, ${opts.firstResponseAt ?? null}, ${opts.encerradaEm ?? null}
     )
     returning id
   `);
   return rows[0]!.id;
 }
 
-async function criarRegraSla(
+async function createRuleSla(
   cenario: Cenario,
   opts: {
     alvo: string;
@@ -94,7 +94,7 @@ async function criarRegraSla(
   return rows[0]!.id;
 }
 
-async function criarWebhook(cenario: Cenario, eventos: string[]): Promise<void> {
+async function createWebhook(cenario: Cenario, eventos: string[]): Promise<void> {
   // Literal de array do Postgres construído à mão — o mesmo truque de `ajuda.ts`
   // (`criarChave`, coluna `escopos`): passar um array JS direto no `sql` cru não vira
   // `{a,b}`, vira parâmetro de texto solto e o Postgres recusa.
@@ -107,17 +107,17 @@ async function criarWebhook(cenario: Cenario, eventos: string[]): Promise<void> 
   `);
 }
 
-async function slaConversaDe(
+async function slaConversationOf(
   cenario: Cenario,
-  conversaId: string,
-): Promise<{ estado: string; alertadoEm: Date | null; estouradoEm: Date | null } | null> {
+  conversationId: string,
+): Promise<{ state: string; alertadoEm: Date | null; estouradoEm: Date | null } | null> {
   const { rows } = await cenario.dono.execute<{
     estado: string;
     alertado_em: Date | null;
     estourado_em: Date | null;
-  }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversaId}::uuid`);
+  }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
   const r = rows[0];
-  return r ? { estado: r.estado, alertadoEm: r.alertado_em, estouradoEm: r.estourado_em } : null;
+  return r ? { state: r.estado, alertadoEm: r.alertado_em, estouradoEm: r.estourado_em } : null;
 }
 
 async function contarEventos(cenario: Cenario, conversaId: string, tipo: string): Promise<number> {
@@ -134,16 +134,16 @@ async function contarEntregas(cenario: Cenario, evento: string): Promise<number>
   return rows[0]!.n;
 }
 
-async function prioridadeDe(cenario: Cenario, conversaId: string): Promise<string> {
-  const { rows } = await cenario.dono.execute<{ prioridade: string }>(
+async function priorityOf(cenario: Cenario, conversaId: string): Promise<string> {
+  const { rows } = await cenario.dono.execute<{ priority: string }>(
     sql`select prioridade from conversa where id = ${conversaId}::uuid`,
   );
-  return rows[0]!.prioridade;
+  return rows[0]!.priority;
 }
 
 describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', () => {
   it('regra de escopo fila vence a de escopo tenant, no MESMO alvo', () => {
-    const daFila = {
+    const ofQueue = {
       id: 'r-fila',
       nome: 'da fila',
       alvo: 'primeira_resposta' as const,
@@ -154,14 +154,14 @@ describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', (
       acaoAlerta: {},
       acaoEstouro: {},
     };
-    const doTenant = { ...daFila, id: 'r-tenant', nome: 'do tenant', escopoTipo: 'tenant', escopoId: null };
-    expect(regrasVencedorasPorAlvo([doTenant, daFila], 'fila-1')).toEqual([daFila]);
+    const doTenant = { ...ofQueue, id: 'r-tenant', nome: 'do tenant', escopoTipo: 'tenant', escopoId: null };
+    expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-1')).toEqual([ofQueue]);
     // Fora da fila que a regra específica escolheu: só a do tenant se aplica.
-    expect(regrasVencedorasPorAlvo([doTenant, daFila], 'fila-2')).toEqual([doTenant]);
+    expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-2')).toEqual([doTenant]);
   });
 
   it('alvos diferentes rendem regras vencedoras diferentes — sla_conversa rastreia por regra', () => {
-    const primeiraResposta = {
+    const firstResponse = {
       id: 'r1',
       nome: '1a resposta',
       alvo: 'primeira_resposta' as const,
@@ -172,10 +172,10 @@ describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', (
       acaoAlerta: {},
       acaoEstouro: {},
     };
-    const resolucao = { ...primeiraResposta, id: 'r2', nome: 'resolução', alvo: 'encerramento' as const };
-    expect(regrasVencedorasPorAlvo([primeiraResposta, resolucao], null)).toEqual([
-      primeiraResposta,
-      resolucao,
+    const resolution = { ...firstResponse, id: 'r2', nome: 'resolução', alvo: 'encerramento' as const };
+    expect(rulesWinningByTarget([firstResponse, resolution], null)).toEqual([
+      firstResponse,
+      resolution,
     ]);
   });
 });
@@ -190,63 +190,63 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
   });
 
   it('alerta no limiar certo, estourado no prazo certo, e idempotente nos dois', async () => {
-    await criarRegraSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
     const agora0 = new Date();
     const criadaEm = new Date(agora0.getTime() - 400_000); // 400s atrás: já passou do alerta (300s), não do prazo (600s)
-    const conversaId = await criarConversa(a, { criadaEm, atribuidaEm: criadaEm });
+    const conversationId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
 
-    await checarSlaDaConversa(a.tenantId, conversaId, agora0);
-    let linha = await slaConversaDe(a, conversaId);
-    expect(linha?.estado).toBe('alertado');
+    await checarSlaOfConversation(a.tenantId, conversationId, agora0);
+    let linha = await slaConversationOf(a, conversationId);
+    expect(linha?.state).toBe('alertado');
     expect(linha?.alertadoEm).not.toBeNull();
     expect(linha?.estouradoEm).toBeNull();
-    expect(await contarEventos(a, conversaId, 'sla_alertado')).toBe(1);
+    expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // Idempotência: rodar de novo no MESMO instante não duplica o evento nem muda o carimbo.
     const alertadoEmAntes = linha!.alertadoEm;
-    await checarSlaDaConversa(a.tenantId, conversaId, agora0);
-    linha = await slaConversaDe(a, conversaId);
+    await checarSlaOfConversation(a.tenantId, conversationId, agora0);
+    linha = await slaConversationOf(a, conversationId);
     expect(linha?.alertadoEm).toEqual(alertadoEmAntes);
-    expect(await contarEventos(a, conversaId, 'sla_alertado')).toBe(1);
+    expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
     // O tempo passa e o prazo estoura (400s + 300s = 700s > 600s do prazo).
     const agora1 = new Date(agora0.getTime() + 300_000);
-    await checarSlaDaConversa(a.tenantId, conversaId, agora1);
-    linha = await slaConversaDe(a, conversaId);
-    expect(linha?.estado).toBe('estourado');
+    await checarSlaOfConversation(a.tenantId, conversationId, agora1);
+    linha = await slaConversationOf(a, conversationId);
+    expect(linha?.state).toBe('estourado');
     expect(linha?.estouradoEm).not.toBeNull();
-    expect(await contarEventos(a, conversaId, 'sla_estourado')).toBe(1);
+    expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
 
     // Idempotência do estouro: rodar de novo não duplica nem regride o estado.
     const estouradoEmAntes = linha!.estouradoEm;
-    await checarSlaDaConversa(a.tenantId, conversaId, new Date(agora1.getTime() + 60_000));
-    linha = await slaConversaDe(a, conversaId);
-    expect(linha?.estado).toBe('estourado');
+    await checarSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
+    linha = await slaConversationOf(a, conversationId);
+    expect(linha?.state).toBe('estourado');
     expect(linha?.estouradoEm).toEqual(estouradoEmAntes);
-    expect(await contarEventos(a, conversaId, 'sla_estourado')).toBe(1);
+    expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
   });
 
   it('conversa encerrada antes do prazo (e antes do alerta) não dispara nada', async () => {
-    await criarRegraSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 100_000);
     // Encerrou 50s depois de criada — MUITO antes do alerta (300s) e do prazo (600s).
     const encerradaEm = new Date(criadaEm.getTime() + 50_000);
-    const conversaId = await criarConversa(a, { criadaEm, atribuidaEm: criadaEm, encerradaEm });
+    const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm, encerradaEm });
 
-    await checarSlaDaConversa(a.tenantId, conversaId, agora);
+    await checarSlaOfConversation(a.tenantId, conversaId, agora);
 
     expect(await contarEventos(a, conversaId, 'sla_alertado')).toBe(0);
     expect(await contarEventos(a, conversaId, 'sla_estourado')).toBe(0);
-    const linha = await slaConversaDe(a, conversaId);
+    const linha = await slaConversationOf(a, conversaId);
     // Fechou sem cumprir (nunca teve 1ª resposta) e sem estourar: cancelado, não
     // "correndo" para sempre — decisão Pipe em `sla-motor.ts`.
-    expect(linha?.estado).toBe('cancelado');
+    expect(linha?.state).toBe('cancelado');
   });
 
   it('a ação notificar_supervisor emite o webhook UMA vez só, mesmo reavaliando', async () => {
-    await criarWebhook(a, ['sla.alertou']);
-    await criarRegraSla(a, {
+    await createWebhook(a, ['sla.alertou']);
+    await createRuleSla(a, {
       alvo: 'primeira_resposta',
       prazoSeg: 600,
       alertaSeg: 100,
@@ -254,11 +254,11 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
     });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 200_000); // já passou do alerta (100s)
-    const conversaId = await criarConversa(a, { criadaEm, atribuidaEm: criadaEm });
+    const conversaId = await createConversation(a, { criadaEm, atribuidaEm: criadaEm });
 
-    await checarSlaDaConversa(a.tenantId, conversaId, agora);
-    await checarSlaDaConversa(a.tenantId, conversaId, new Date(agora.getTime() + 5_000));
-    await checarSlaDaConversa(a.tenantId, conversaId, new Date(agora.getTime() + 10_000));
+    await checarSlaOfConversation(a.tenantId, conversaId, agora);
+    await checarSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 5_000));
+    await checarSlaOfConversation(a.tenantId, conversaId, new Date(agora.getTime() + 10_000));
 
     expect(await contarEntregas(a, 'sla.alertou')).toBe(1);
   });
@@ -266,7 +266,7 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
   it('elevar_prioridade sobe um degrau e muda a ordem da fila de espera', async () => {
     // `resolucao` é o nome do alvo NO BANCO (`ALVOS_SLA`); `sla.ts` traduz para o
     // alvo `encerramento` do `@pipe/core` (`ALVO_DO_BANCO`).
-    await criarRegraSla(a, {
+    await createRuleSla(a, {
       alvo: 'resolucao',
       prazoSeg: 60,
       alertaSeg: null,
@@ -275,27 +275,27 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
     const agora = new Date();
     // A: mais antiga, prioridade `baixa`, prazo de resolução já estourado (criada há 100s, prazo é 60s).
     const criadaA = new Date(agora.getTime() - 100_000);
-    const conversaA = await criarConversa(a, { criadaEm: criadaA, prioridade: 'baixa' });
+    const conversationA = await createConversation(a, { criadaEm: criadaA, prioridade: 'baixa' });
     // B: mais nova, prioridade `media` — sem regra de SLA estourando para ela.
     const criadaB = new Date(agora.getTime() - 10_000);
-    const conversaB = await criarConversa(a, { criadaEm: criadaB, prioridade: 'media' });
+    const conversationB = await createConversation(a, { criadaEm: criadaB, prioridade: 'media' });
 
     const linhaAntes = [
-      { id: conversaA, prioridade: 'baixa', marcos: { criadaEm: criadaA } },
-      { id: conversaB, prioridade: 'media', marcos: { criadaEm: criadaB } },
+      { id: conversationA, prioridade: 'baixa', marcos: { criadaEm: criadaA } },
+      { id: conversationB, prioridade: 'media', marcos: { criadaEm: criadaB } },
     ];
     // Antes: `media` (B) vence `baixa` (A) — B primeiro.
-    expect(ordenarFilaDeEspera(linhaAntes).map((l) => l.id)).toEqual([conversaB, conversaA]);
+    expect(ordenarQueueOfWait(linhaAntes).map((l) => l.id)).toEqual([conversationB, conversationA]);
 
-    await checarSlaDaConversa(a.tenantId, conversaA, agora);
+    await checarSlaOfConversation(a.tenantId, conversationA, agora);
 
-    expect(await prioridadeDe(a, conversaA)).toBe('media');
+    expect(await priorityOf(a, conversationA)).toBe('media');
     const linhaDepois = [
-      { id: conversaA, prioridade: await prioridadeDe(a, conversaA), marcos: { criadaEm: criadaA } },
-      { id: conversaB, prioridade: await prioridadeDe(a, conversaB), marcos: { criadaEm: criadaB } },
+      { id: conversationA, prioridade: await priorityOf(a, conversationA), marcos: { criadaEm: criadaA } },
+      { id: conversationB, prioridade: await priorityOf(a, conversationB), marcos: { criadaEm: criadaB } },
     ];
     // Depois: A e B empatam em `media`; o desempate é pela mais ANTIGA — A vence agora.
-    expect(ordenarFilaDeEspera(linhaDepois).map((l) => l.id)).toEqual([conversaA, conversaB]);
+    expect(ordenarQueueOfWait(linhaDepois).map((l) => l.id)).toEqual([conversationA, conversationB]);
   });
 });
 
@@ -306,19 +306,19 @@ describe('checarSlaDaConversa — isolamento entre tenants', () => {
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);
     try {
       // Regra cadastrada SÓ no tenant B.
-      await criarRegraSla(b, { alvo: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
+      await createRuleSla(b, { alvo: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
 
       const agora = new Date();
       // Estouraria fácil, SE a regra de B valesse para este tenant.
       const criadaEm = new Date(agora.getTime() - 100_000);
-      const conversaSemRegra = await criarConversa(semRegra, { criadaEm, atribuidaEm: criadaEm });
+      const conversationWithoutRule = await createConversation(semRegra, { criadaEm, atribuidaEm: criadaEm });
 
-      await checarSlaDaConversa(semRegra.tenantId, conversaSemRegra, agora);
+      await checarSlaOfConversation(semRegra.tenantId, conversationWithoutRule, agora);
 
       // Sem regra cadastrada NESTE tenant: não muda nada, nenhuma linha em `sla_conversa`.
-      expect(await slaConversaDe(semRegra, conversaSemRegra)).toBeNull();
-      expect(await contarEventos(semRegra, conversaSemRegra, 'sla_alertado')).toBe(0);
-      expect(await contarEventos(semRegra, conversaSemRegra, 'sla_estourado')).toBe(0);
+      expect(await slaConversationOf(semRegra, conversationWithoutRule)).toBeNull();
+      expect(await contarEventos(semRegra, conversationWithoutRule, 'sla_alertado')).toBe(0);
+      expect(await contarEventos(semRegra, conversationWithoutRule, 'sla_estourado')).toBe(0);
     } finally {
       await semRegra.encerrar();
     }

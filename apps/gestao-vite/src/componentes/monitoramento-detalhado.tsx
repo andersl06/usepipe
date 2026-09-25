@@ -2,20 +2,20 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
-import { ROTULOS_PRIORIDADE, type NivelPrioridade } from '@pipe/core/conversa';
+import { ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversa';
 import {
-  ordenarFilaDeEspera,
-  type LinhaConversaAberta,
-  type Monitoramento,
+  esperaOrdenarQueue,
+  type LinhaConversationAberta,
+  type Monitoring,
 } from '../lib/monitoramento';
 import { numero } from '../lib/formato';
 import { api } from '../lib/api';
-import { IconeGestao } from './icones-gestao';
+import { IconeManagement } from './icones-gestao';
 import { IconePortal } from './icones-portal';
-import { Paginacao, usePagina } from './paginacao';
-import { Selecao } from './selecao';
-import { useLeitura } from '../lib/consulta';
-import { ModalFinalizarMonitoramento } from './modal-finalizar-monitoramento';
+import { Pagination, usePage } from './paginacao';
+import { Selection } from './selecao';
+import { useRead } from '../lib/consulta';
+import { ModalFinalizarMonitoring } from './modal-finalizar-monitoramento';
 
 /**
  * Monitoramento detalhado: o cartão do fim da tela deles.
@@ -49,18 +49,18 @@ const ABAS = [
   { chave: 'etiquetas', rotulo: 'Tags' },
 ] as const;
 
-type Filtro = {
-  fila?: string;
-  atendente?: string;
-  contato?: string;
+type Filter = {
+  queue?: string;
+  agent?: string;
+  contact?: string;
   status?: string;
-  busca?: string;
+  search?: string;
 };
 
-type AcoesDoMonitoramento = Pick<Monitoramento, 'filas' | 'listaAtendentes' | 'etiquetas'>;
+type MonitoringActions = Pick<Monitoring, 'filas' | 'listaAtendentes' | 'etiquetas'>;
 
 /** Formato usado pelo BDS nas tabelas: sempre hh:mm:ss e, acima de 24h, dias. */
-function duracaoMonitoramento(segundos: number | null | undefined): string {
+function durationMonitoring(segundos: number | null | undefined): string {
   if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
   const total = Math.max(0, Math.round(segundos));
   const dias = Math.floor(total / 86400);
@@ -82,13 +82,13 @@ function IconeTransferir() {
   );
 }
 
-function querystring(filtro: Filtro, aba: string): URLSearchParams {
+function querystring(filter: Filter, aba: string): URLSearchParams {
   const p = new URLSearchParams();
-  if (filtro.fila) p.set('fila', filtro.fila);
-  if (filtro.atendente) p.set('atendente', filtro.atendente);
-  if (filtro.contato) p.set('contato', filtro.contato);
-  if (filtro.status) p.set('status', filtro.status);
-  if (filtro.busca) p.set('busca', filtro.busca);
+  if (filter.queue) p.set('fila', filter.queue);
+  if (filter.agent) p.set('atendente', filter.agent);
+  if (filter.contact) p.set('contato', filter.contact);
+  if (filter.status) p.set('status', filter.status);
+  if (filter.search) p.set('busca', filter.search);
   p.set('aba', aba);
   return p;
 }
@@ -106,10 +106,10 @@ function querystring(filtro: Filtro, aba: string): URLSearchParams {
  * pela 1ª resposta dividem o mesmo degrau amarelo, e ter os dois na mesma cor é
  * de propósito — os dois pedem a mesma coisa do supervisor.
  */
-function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
-  if (linha.sla.estado === 'estourado') return 'critico';
-  if (linha.sla.estado === 'alerta') return 'grave';
-  if (linha.primeiraRespostaCorrendo) return 'grave';
+function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
+  if (linha.sla.state === 'estourado') return 'critico';
+  if (linha.sla.state === 'alerta') return 'grave';
+  if (linha.firstRespostaCorrendo) return 'grave';
   return undefined;
 }
 
@@ -126,8 +126,8 @@ function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
  * O rótulo sai de `ROTULOS_PRIORIDADE`, e não de um mapa local: a régua tem um
  * dono só, que é quem também define a ordem da fila.
  */
-function PillPrioridade({ nivel }: { nivel: string }) {
-  const rotulo = ROTULOS_PRIORIDADE[nivel as NivelPrioridade] ?? nivel;
+function PillPriority({ nivel }: { nivel: string }) {
+  const rotulo = ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
   const tinta = nivel === 'maxima' ? ' erro' : nivel === 'alta' ? ' alerta' : '';
   return <span className={`etiqueta${tinta}`}>{rotulo}</span>;
 }
@@ -138,18 +138,18 @@ function PillPrioridade({ nivel }: { nivel: string }) {
  * `desk-grid-tabled-paginated-empty-*`). Sem explicação e sem botão — o que
  * o nosso acrescentava era texto que a tela deles não tem.
  */
-function SemDados() {
+function WithoutData() {
   return <div className="vazio-linha">Dados insuficientes</div>;
 }
 
 /** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */
-function AcoesDoTicket({
+function TicketActions({
   linha,
   catalogos,
   aoAbrir,
 }: {
-  linha: LinhaConversaAberta;
-  catalogos: AcoesDoMonitoramento;
+  linha: LinhaConversationAberta;
+  catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
   const [aberto, setAberto] = useState(false);
@@ -177,7 +177,7 @@ function AcoesDoTicket({
           title="Mais opções"
           aria-label={`Mais opções do ticket ${linha.ticket}`}
           aria-expanded={aberto}
-          onClick={() => setAberto((valor) => !valor)}
+          onClick={() => setAberto((value) => !value)}
         >
           <IconePortal nome="mais" tamanho={24} />
         </button>
@@ -191,14 +191,14 @@ function AcoesDoTicket({
         ) : null}
       </div>
       {modal === 'transferir' ? (
-        <ModalTransferirMonitoramento
+        <ModalTransferirMonitoring
           linha={linha}
           catalogos={catalogos}
           aoFechar={() => setModal(null)}
         />
       ) : null}
       {modal === 'finalizar' ? (
-        <ModalFinalizarMonitoramento
+        <ModalFinalizarMonitoring
           linha={linha}
           aoFechar={() => setModal(null)}
         />
@@ -207,72 +207,72 @@ function AcoesDoTicket({
   );
 }
 
-function ModalTransferirMonitoramento({
+function ModalTransferirMonitoring({
   linha,
   catalogos,
   aoFechar,
 }: {
-  linha: LinhaConversaAberta;
-  catalogos: AcoesDoMonitoramento;
+  linha: LinhaConversationAberta;
+  catalogos: MonitoringActions;
   aoFechar: () => void;
 }) {
   const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
-  const [destino, setDestino] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [destination, setDestination] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
-  const opcoes = alvo === 'fila' ? catalogos.filas : catalogos.listaAtendentes;
+  const options = alvo === 'fila' ? catalogos.queues : catalogos.listaAgents;
 
   async function transferir() {
-    if (!destino) return;
+    if (!destination) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
       await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/transferir`,
-        alvo === 'fila' ? { para_fila_id: destino } : { para_atendente_id: destino },
+        alvo === 'fila' ? { para_fila_id: destination } : { para_atendente_id: destination },
       );
       await consultas.invalidateQueries({ queryKey: ['api'] });
       aoFechar();
     } catch (causa) {
-      setErro(causa instanceof Error ? causa.message : 'Não foi possível transferir o ticket.');
+      setError(causa instanceof Error ? causa.message : 'Não foi possível transferir o ticket.');
       setEnviando(false);
     }
   }
 
   return (
-    <ModalDoMonitoramento titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
+    <MonitoringModal titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
       <div className="mon-radios">
         <label>
-          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestino(''); }} />
+          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestination(''); }} />
           Fila
         </label>
         <label>
-          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestino(''); }} />
+          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestination(''); }} />
           Atendente
         </label>
       </div>
       <label className="mon-campo">
         {alvo === 'fila' ? 'Fila' : 'Atendente'}
-        <Selecao value={destino} onChange={(evento) => setDestino(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
+        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
           <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
-          {opcoes.map((opcao) => (
-            <option key={opcao.id} value={opcao.id}>{opcao.nome}</option>
+          {options.map((option) => (
+            <option key={option.id} value={option.id}>{option.nome}</option>
           ))}
-        </Selecao>
+        </Selection>
       </label>
       <p className="mon-modal-aviso">A transferência encerra este ticket e cria um novo no destino.</p>
-      {erro ? <p className="mon-modal-erro">{erro}</p> : null}
+      {error ? <p className="mon-modal-erro">{error}</p> : null}
       <div className="mon-modal-acoes">
         <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
-        <button type="button" className="btn primary" disabled={!destino || enviando} onClick={() => void transferir()}>
+        <button type="button" className="btn primary" disabled={!destination || enviando} onClick={() => void transferir()}>
           Transferir ticket
         </button>
       </div>
-    </ModalDoMonitoramento>
+    </MonitoringModal>
   );
 }
 
-function ModalDoMonitoramento({
+function MonitoringModal({
   titulo,
   children,
   aoFechar,
@@ -296,16 +296,16 @@ function ModalDoMonitoramento({
  * filtrada por ele. É a mesma coluna de Ações que a ficha lista para esta
  * aba — sem inventar dado novo, só reaproveitando o filtro que a tela já tem.
  */
-function AcaoVerConversas({ filtro, atendenteId }: { filtro: Filtro; atendenteId: string }) {
+function ActionVerConversations({ filter, agentId }: { filter: Filter; agentId: string }) {
   return (
     <td className="acts">
       <Link
         className="iconbtn"
-        href={`?${querystring({ ...filtro, atendente: atendenteId }, 'atribuido').toString()}`}
+        href={`?${querystring({ ...filter, agent: agentId }, 'atribuido').toString()}`}
         title="Ver as conversas deste atendente"
         aria-label="Ver as conversas deste atendente"
       >
-        <IconeGestao nome="externo" tamanho={24} />
+        <IconeManagement nome="externo" tamanho={24} />
       </Link>
     </td>
   );
@@ -339,11 +339,11 @@ function TabelaAtribuidas({
   catalogos,
   aoAbrir,
 }: {
-  linhas: readonly LinhaConversaAberta[];
-  catalogos: AcoesDoMonitoramento;
+  linhas: readonly LinhaConversationAberta[];
+  catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
-  const pg = usePagina(linhas);
+  const pg = usePage(linhas);
   return (
     <>
       <div className="scroll">
@@ -361,39 +361,39 @@ function TabelaAtribuidas({
           </tr>
         </thead>
         <tbody>
-          {linhas.length === 0 ? <tr><td colSpan={8}><SemDados /></td></tr> : pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={8}><WithoutData /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
-                {duracaoMonitoramento(l.naFilaSeg)}
-                {l.filaCorrendo ? ' ⟳' : ''}
+                {durationMonitoring(l.inQueueSeg)}
+                {l.queueCorrendo ? ' ⟳' : ''}
               </td>
               <td className="num">
-                {duracaoMonitoramento(l.primeiraRespostaSeg)}
-                {l.primeiraRespostaCorrendo ? ' ⟳' : ''}
+                {durationMonitoring(l.firstRespostaSeg)}
+                {l.firstRespostaCorrendo ? ' ⟳' : ''}
               </td>
               <td className="tempo-sla">
                 {/* Enquanto não houve 1ª resposta não existe tempo de
                     atendimento para medir, e o vazio deles não é travessão: é
                     "Aguardando...". Travessão diz "não se aplica"; "Aguardando"
                     diz "o cronômetro ainda não começou", que é o caso. */}
-                {l.atendimentoSeg === null ? (
+                {l.attendanceSeg === null ? (
                   <span className="g-vazio-espera">Aguardando...</span>
                 ) : (
-                  <span className="num">{duracaoMonitoramento(l.atendimentoSeg)}</span>
+                  <span className="num">{durationMonitoring(l.attendanceSeg)}</span>
                 )}
               </td>
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
-              <td className="who">{l.contatoNome}</td>
-              <td>{l.filaNome ?? '—'}</td>
-              <td>{l.atendenteNome ?? '—'}</td>
-              <AcoesDoTicket linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
+              <td className="who">{l.contactName}</td>
+              <td>{l.queueName ?? '—'}</td>
+              <td>{l.agentName ?? '—'}</td>
+              <TicketActions linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
             </tr>
           ))}
         </tbody>
         </table>
       </div>
 
-      <Paginacao estado={pg} grade="open-tickets-grid" />
+      <Pagination state={pg} grade="open-tickets-grid" />
       <p className="tbl-legenda">
         O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda não recebeu a primeira resposta.
       </p>
@@ -411,11 +411,11 @@ function TabelaAguardando({
   catalogos,
   aoAbrir,
 }: {
-  linhas: readonly LinhaConversaAberta[];
-  catalogos: AcoesDoMonitoramento;
+  linhas: readonly LinhaConversationAberta[];
+  catalogos: MonitoringActions;
   aoAbrir: (id: string) => void;
 }) {
-  const pg = usePagina(linhas);
+  const pg = usePage(linhas);
   return (
     <>
       <div className="scroll">
@@ -432,26 +432,26 @@ function TabelaAguardando({
           </tr>
         </thead>
         <tbody>
-          {linhas.length === 0 ? <tr><td colSpan={7}><SemDados /></td></tr> : pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={7}><WithoutData /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
-                {duracaoMonitoramento(l.naFilaSeg)}
-                {l.filaCorrendo ? ' ⟳' : ''}
+                {durationMonitoring(l.inQueueSeg)}
+                {l.queueCorrendo ? ' ⟳' : ''}
               </td>
               <td>
-                <PillPrioridade nivel={l.prioridade} />
+                <PillPriority nivel={l.priority} />
               </td>
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
-              <td className="who">{l.contatoNome}</td>
-              <td>{l.filaNome ?? '—'}</td>
-              <td>{l.atendenteNome ?? '—'}</td>
-              <AcoesDoTicket linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
+              <td className="who">{l.contactName}</td>
+              <td>{l.queueName ?? '—'}</td>
+              <td>{l.agentName ?? '—'}</td>
+              <TicketActions linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
             </tr>
           ))}
         </tbody>
         </table>
       </div>
-      <Paginacao estado={pg} grade="waiting-tickets-grid" />
+      <Pagination state={pg} grade="waiting-tickets-grid" />
     </>
   );
 }
@@ -463,14 +463,14 @@ function TabelaAguardando({
  * número ali seria pior do que o travessão — é a régua do trabalho: dado que a
  * API não tem fica vazio, honesto, e registrado no relato desta entrega.
  */
-function TabelaAtendentes({
-  atendentes,
-  filtro,
+function TabelaAgents({
+  agents,
+  filter,
 }: {
-  atendentes: Monitoramento['carga'];
-  filtro: Filtro;
+  agents: Monitoring['carga'];
+  filter: Filter;
 }) {
-  const pg = usePagina(atendentes);
+  const pg = usePage(agents);
   return (
     <>
       <div className="scroll">
@@ -485,19 +485,19 @@ function TabelaAtendentes({
           </tr>
         </thead>
         <tbody>
-          {atendentes.length === 0 ? <tr><td colSpan={5}><SemDados /></td></tr> : pg.visiveis.map((a) => (
+          {agents.length === 0 ? <tr><td colSpan={5}><WithoutData /></td></tr> : pg.visiveis.map((a) => (
             <tr key={a.id}>
               <td className="who">{a.nome}</td>
               <td className="num">{numero(a.ativas)}</td>
-              <td className="num">{duracaoMonitoramento(a.tempoMedioRespostaSeg)}</td>
-              <td className="num">{duracaoMonitoramento(a.tempoMedioAtendimentoSeg)}</td>
-              <AcaoVerConversas filtro={filtro} atendenteId={a.id} />
+              <td className="num">{durationMonitoring(a.timeMedioRespostaSeg)}</td>
+              <td className="num">{durationMonitoring(a.timeMedioAttendanceSeg)}</td>
+              <ActionVerConversations filter={filter} agentId={a.id} />
             </tr>
           ))}
         </tbody>
         </table>
       </div>
-      <Paginacao estado={pg} grade="attendants-grid" />
+      <Pagination state={pg} grade="attendants-grid" />
     </>
   );
 }
@@ -508,8 +508,8 @@ function TabelaAtendentes({
  * seria o número que inventa, não o número que falta. As três colunas de
  * média ficam honestamente vazias até a consulta trazer o dado certo.
  */
-function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
-  const pg = usePagina(filas);
+function TabelaQueues({ queues }: { queues: Monitoring['queues'] }) {
+  const pg = usePage(queues);
   return (
     <>
       <div className="scroll">
@@ -525,23 +525,23 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
           </tr>
         </thead>
         <tbody>
-          {filas.length === 0 ? <tr><td colSpan={6}><SemDados /></td></tr> : pg.visiveis.map((f) => (
+          {queues.length === 0 ? <tr><td colSpan={6}><WithoutData /></td></tr> : pg.visiveis.map((f) => (
             <tr
               key={f.id}
-              className={f.atendentesOnline === 0 && f.naFila > 0 ? 'critico' : undefined}
+              className={f.agentsOnline === 0 && f.inQueue > 0 ? 'critico' : undefined}
             >
               <td className="who">{f.nome}</td>
-              <td className="num">{numero(f.naFila)}</td>
-              <td className="num">{numero(f.emAtendimento)}</td>
-              <td className="num">{duracaoMonitoramento(f.tempoMedioNaFilaSeg)}</td>
-              <td className="num">{duracaoMonitoramento(f.tempoMedioRespostaSeg)}</td>
-              <td className="num">{duracaoMonitoramento(f.tempoMedioAtendimentoSeg)}</td>
+              <td className="num">{numero(f.inQueue)}</td>
+              <td className="num">{numero(f.inAttendance)}</td>
+              <td className="num">{durationMonitoring(f.timeMedioInQueueSeg)}</td>
+              <td className="num">{durationMonitoring(f.timeMedioRespostaSeg)}</td>
+              <td className="num">{durationMonitoring(f.timeMedioAttendanceSeg)}</td>
             </tr>
           ))}
         </tbody>
         </table>
       </div>
-      <Paginacao estado={pg} grade="teams-grid" />
+      <Pagination state={pg} grade="teams-grid" />
     </>
   );
 }
@@ -552,8 +552,8 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
  * o rótulo para caber no dado que já temos seria a mesma mentira ao contrário;
  * o travessão fica até existir uma consulta de encerradas por etiqueta.
  */
-function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
-  const pg = usePagina(etiquetas);
+function TabelaTags({ etiquetas }: { etiquetas: Monitoring['etiquetas'] }) {
+  const pg = usePage(etiquetas);
   return (
     <>
       <div className="scroll">
@@ -566,17 +566,17 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
           </tr>
         </thead>
         <tbody>
-          {etiquetas.length === 0 ? <tr><td colSpan={3}><SemDados /></td></tr> : pg.visiveis.map((e) => (
+          {etiquetas.length === 0 ? <tr><td colSpan={3}><WithoutData /></td></tr> : pg.visiveis.map((e) => (
             <tr key={e.id}>
               <td className="who">{e.nome}</td>
               <td className="num">{numero(e.finalizadas)}</td>
-              <td className="num">{duracaoMonitoramento(e.tempoMedioAtendimentoSeg)}</td>
+              <td className="num">{durationMonitoring(e.timeMedioAttendanceSeg)}</td>
             </tr>
           ))}
         </tbody>
         </table>
       </div>
-      <Paginacao estado={pg} grade="tags-grid" />
+      <Pagination state={pg} grade="tags-grid" />
     </>
   );
 }
@@ -584,16 +584,16 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
 type Previa = {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaNome: string | null;
-  atendenteNome: string | null;
-  itens: { id: string; em: string; tipo: 'mensagem' | 'nota'; direcao?: string; texto: string; autor?: string | null }[];
+  contactName: string;
+  queueName: string | null;
+  agentName: string | null;
+  itens: { id: string; em: string; tipo: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 };
 
-function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }) {
-  const leitura = useLeitura<Previa>(`/v1/gestao/monitoramento/conversas/${id}`);
+function ConversationPrevia({ id, aoFechar }: { id: string; aoFechar: () => void }) {
+  const read = useRead<Previa>(`/v1/gestao/monitoramento/conversas/${id}`);
   const [texto, setTexto] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
 
@@ -601,13 +601,13 @@ function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }
     evento.preventDefault();
     if (!texto.trim() || enviando) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
       await api.post(`/v1/gestao/monitoramento/conversas/${id}/notas`, { texto });
       setTexto('');
       await consultas.invalidateQueries({ queryKey: ['api', `/v1/gestao/monitoramento/conversas/${id}`] });
     } catch (causa) {
-      setErro(causa instanceof Error ? causa.message : 'Não foi possível falar com o atendente.');
+      setError(causa instanceof Error ? causa.message : 'Não foi possível falar com o atendente.');
     } finally {
       setEnviando(false);
     }
@@ -619,17 +619,17 @@ function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }
       <aside className="mon-previa" role="dialog" aria-modal="true" aria-label="Conversa">
         <header>
           <div>
-            <h3>{leitura.data ? `Ticket ${leitura.data.ticket}` : 'Conversa'}</h3>
-            {leitura.data ? <p>{leitura.data.contatoNome}{leitura.data.atendenteNome ? ` · ${leitura.data.atendenteNome}` : ''}</p> : null}
+            <h3>{read.data ? `Ticket ${read.data.ticket}` : 'Conversa'}</h3>
+            {read.data ? <p>{read.data.contactName}{read.data.agentName ? ` · ${read.data.agentName}` : ''}</p> : null}
           </div>
           <button type="button" className="iconbtn" aria-label="Fechar conversa" onClick={aoFechar}><Icone nome="x" tamanho={16} /></button>
         </header>
         <div className="mon-previa-historico" aria-live="polite">
-          {leitura.isLoading ? <p>Carregando conversa…</p> : null}
-          {leitura.isError ? <p>Não foi possível carregar a conversa.</p> : null}
-          {leitura.data?.itens.map((item) => (
+          {read.isLoading ? <p>Carregando conversa…</p> : null}
+          {read.isError ? <p>Não foi possível carregar a conversa.</p> : null}
+          {read.data?.itens.map((item) => (
             item.tipo === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
-            <div key={item.id} className={item.direcao === 'entrada' ? 'mon-balao entrada' : 'mon-balao saida'}>
+            <div key={item.id} className={item.direction === 'entrada' ? 'mon-balao entrada' : 'mon-balao saida'}>
               <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
             </div>
           ))}
@@ -637,7 +637,7 @@ function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }
         <form className="mon-previa-compositor" onSubmit={enviar}>
           <label htmlFor="mensagem-atendente">Falar com atendente</label>
           <textarea id="mensagem-atendente" value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Escreva uma mensagem..." rows={3} />
-          {erro ? <p className="mon-modal-erro">{erro}</p> : null}
+          {error ? <p className="mon-modal-erro">{error}</p> : null}
           <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
         </form>
       </aside>
@@ -645,47 +645,47 @@ function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }
   );
 }
 
-export function MonitoramentoDetalhado({
-  monitoramento,
+export function MonitoringDetailed({
+  monitoring,
   aba,
-  busca,
-  filtro,
+  search,
+  filter,
 }: {
-  monitoramento: Monitoramento;
+  monitoring: Monitoring;
   aba: string;
-  busca: string;
-  filtro: Filtro;
+  search: string;
+  filter: Filter;
 }) {
-  const [conversaAberta, setConversaAberta] = useState<string | null>(null);
-  const termo = busca.trim().toLowerCase();
-  const contato = (filtro.contato ?? '').trim().toLowerCase();
+  const [conversationAberta, setConversationAberta] = useState<string | null>(null);
+  const termo = search.trim().toLowerCase();
+  const contact = (filter.contact ?? '').trim().toLowerCase();
 
   /* Estado do atendente por id: `carga` já traz o estado de cada um, então o
      filtro "Status do atendente" do painel não custa consulta nova. */
-  const estadoPorAtendente = new Map(monitoramento.carga.map((a) => [a.id, a.estado]));
+  const stateByAgent = new Map(monitoring.carga.map((a) => [a.id, a.state]));
 
-  const casa = (l: LinhaConversaAberta) => {
+  const casa = (l: LinhaConversationAberta) => {
     /* A busca do cartão é PELO NÚMERO DO TICKET, e só — é onde ela mora na
        tela deles. "Contato" tem campo próprio na faixa de filtros. */
     if (termo && !l.ticket.toLowerCase().includes(termo)) return false;
-    if (contato && !l.contatoNome.toLowerCase().includes(contato)) return false;
-    if (filtro.status) {
-      const estado = l.atendenteId ? estadoPorAtendente.get(l.atendenteId) : undefined;
-      if (estado !== filtro.status) return false;
+    if (contact && !l.contactName.toLowerCase().includes(contact)) return false;
+    if (filter.status) {
+      const state = l.agentId ? stateByAgent.get(l.agentId) : undefined;
+      if (state !== filter.status) return false;
     }
     return true;
   };
 
-  const atribuidas = monitoramento.abertas.filter((l) => l.atendenteId !== null).filter(casa);
+  const atribuidas = monitoring.abertas.filter((l) => l.agentId !== null).filter(casa);
   /* A fila de espera sai ORDENADA POR PRIORIDADE; a lista de atribuídas fica na
      ordem de criação que a consulta já devolve. Ver `ordenarFilaDeEspera`. */
-  const aguardando = ordenarFilaDeEspera(
-    monitoramento.abertas.filter((l) => l.atendenteId === null).filter(casa),
+  const aguardando = esperaOrdenarQueue(
+    monitoring.abertas.filter((l) => l.agentId === null).filter(casa),
   );
-  const catalogosDeAcoes: AcoesDoMonitoramento = {
-    filas: monitoramento.filas,
-    listaAtendentes: monitoramento.listaAtendentes,
-    etiquetas: monitoramento.etiquetas,
+  const actionsCatalogos: MonitoringActions = {
+    queues: monitoring.queues,
+    listaAgents: monitoring.listaAgents,
+    etiquetas: monitoring.etiquetas,
   };
 
   return (
@@ -696,16 +696,16 @@ export function MonitoramentoDetalhado({
         {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
             filtros. Ela procura pelo número do ticket. */}
         <form className="tbl-busca" method="get">
-          {[...querystring(filtro, aba)]
-            .filter(([chave]) => chave !== 'busca')
-            .map(([chave, valor]) => (
-              <input key={chave} type="hidden" name={chave} value={valor} />
+          {[...querystring(filter, aba)]
+            .filter(([key]) => key !== 'busca')
+            .map(([key, value]) => (
+              <input key={key} type="hidden" name={key} value={value} />
             ))}
           <IconePortal nome="busca" tamanho={20} />
           <input
             type="search"
             name="busca"
-            defaultValue={busca}
+            defaultValue={search}
             placeholder="Buscar pelo Nº do ticket"
             aria-label="Buscar pelo Nº do ticket"
           />
@@ -716,7 +716,7 @@ export function MonitoramentoDetalhado({
         {ABAS.map((a) => (
           <Link
             key={a.chave}
-            href={`?${querystring(filtro, a.chave).toString()}`}
+            href={`?${querystring(filter, a.chave).toString()}`}
             aria-current={aba === a.chave ? 'true' : undefined}
           >
             {a.rotulo}
@@ -724,14 +724,14 @@ export function MonitoramentoDetalhado({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={catalogosDeAcoes} aoAbrir={setConversaAberta} /> : null}
-      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={catalogosDeAcoes} aoAbrir={setConversaAberta} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={actionsCatalogos} aoAbrir={setConversationAberta} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={actionsCatalogos} aoAbrir={setConversationAberta} /> : null}
       {aba === 'atendentes' ? (
-        <TabelaAtendentes atendentes={monitoramento.carga} filtro={filtro} />
+        <TabelaAgents agents={monitoring.carga} filter={filter} />
       ) : null}
-      {aba === 'filas' ? <TabelaFilas filas={monitoramento.filas} /> : null}
-      {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoramento.etiquetas} /> : null}
-      {conversaAberta ? <PreviaDaConversa id={conversaAberta} aoFechar={() => setConversaAberta(null)} /> : null}
+      {aba === 'filas' ? <TabelaQueues queues={monitoring.queues} /> : null}
+      {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoring.etiquetas} /> : null}
+      {conversationAberta ? <ConversationPrevia id={conversationAberta} aoFechar={() => setConversationAberta(null)} /> : null}
     </div>
   );
 }

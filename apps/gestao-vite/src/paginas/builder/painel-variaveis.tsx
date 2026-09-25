@@ -3,10 +3,10 @@ import { Campo } from '@pipe/ui';
 import { IconePortal } from '../../componentes/icones-portal';
 import type { Mapa } from './modelo';
 import {
-  VARIAVEIS_DO_SISTEMA,
-  filtrarVariaveis,
-  filtrarVariaveisDoSistema,
-  variaveisDoUsuario,
+  VARIABLES_OF_SISTEMA,
+  filterVariables,
+  sistemaFiltrarVariables,
+  userVariables,
 } from './variaveis';
 
 /**
@@ -32,22 +32,22 @@ function copiar(texto: string, onAviso: (texto: string) => void): void {
   );
 }
 
-export function PainelDeVariaveis({
+export function VariablesPanel({
   mapa,
-  globais,
+  global,
   onFechar,
   onAviso,
 }: {
   mapa: Mapa;
-  globais: Record<string, unknown>;
+  global: Record<string, unknown>;
   onFechar: () => void;
   onAviso: (texto: string) => void;
 }) {
   const [aba, setAba] = useState<Aba>('sistema');
-  const [busca, setBusca] = useState('');
-  const usuario = variaveisDoUsuario(mapa, globais);
-  const sistemaFiltrado = filtrarVariaveisDoSistema(VARIAVEIS_DO_SISTEMA, busca);
-  const usuarioFiltrado = filtrarVariaveis(usuario, busca);
+  const [search, setSearch] = useState('');
+  const user = userVariables(mapa, global);
+  const sistemaFiltrado = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, search);
+  const userFiltered = filterVariables(user, search);
 
   return (
     <aside className="bl-painel bl-painel--esquerda" aria-label="Biblioteca de variáveis">
@@ -79,10 +79,10 @@ export function PainelDeVariaveis({
       </div>
       <div className="bl-painel-corpo">
         <Campo
-          value={busca}
+          value={search}
           placeholder="Pesquisar variável"
           aria-label="Pesquisar variável"
-          onChange={(e) => setBusca(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
         />
         {aba === 'sistema' ? (
           sistemaFiltrado.length === 0 ? (
@@ -103,20 +103,20 @@ export function PainelDeVariaveis({
                       <IconePortal nome="copiar" tamanho={16} />
                     </button>
                   </div>
-                  <p className="sub">{v.descricao}</p>
+                  <p className="sub">{v.description}</p>
                 </li>
               ))}
             </ul>
           )
-        ) : usuarioFiltrado.length === 0 ? (
+        ) : userFiltered.length === 0 ? (
           <p className="sub bl-variaveis-vazio">
-            {usuario.length === 0
+            {user.length === 0
               ? 'Nenhuma variável de contexto neste fluxo ainda — crie uma em "Definir variável" ou na entrada de um bloco.'
               : 'Nenhuma variável encontrada.'}
           </p>
         ) : (
           <ul className="bl-variaveis-lista">
-            {usuarioFiltrado.map((nome) => (
+            {userFiltered.map((nome) => (
               <li key={nome}>
                 <div className="bl-variavel-linha">
                   <span className="bl-variavel-nome">{nome}</span>

@@ -1,16 +1,16 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { fluxo, roteadorServico } from '@pipe/db/schema';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { flow, routerService } from '@pipe/db/schema';
 import type {
-  DadosDeServicos,
-  PedidoDeServico,
-  ServicoDoRoteador,
-  ServicoVinculado,
+  DataOfServices,
+  RequestOfService,
+  RouterService,
+  LinkedService,
 } from '@pipe/contracts';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
+import { PipeError } from '../../erros.js';
+import { exigirPermissionInFlow } from './equipe-do-fluxo.js';
 
 /**
  * Os serviços do roteador — a tela `master.services` da Blip
@@ -41,32 +41,32 @@ import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
  * mexer em serviço é editar o roteador.
  */
 
-export const NOME_DO_SERVICO_MAX = 60;
-export const EXPIRACAO_MAX_MIN = 525_600;
+export const NAME_OF_SERVICE_MAX = 60;
+export const EXPIRATION_MAX_MIN = 525_600;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 const colunasDoChatbot = {
-  id: fluxo.id,
-  nome: fluxo.nome,
-  estado: fluxo.estado,
-  tipo: fluxo.tipo,
-  shortName: fluxo.shortName,
+  id: flow.id,
+  nome: flow.nome,
+  estado: flow.estado,
+  tipo: flow.tipo,
+  shortName: flow.shortName,
 };
 
 /* ------------------------------------------------------------- Leitura */
 
 /** Os vínculos do roteador, com o chatbot de cada um. Principal primeiro. */
-async function vinculos(tx: TransacaoPipe, roteadorId: string): Promise<ServicoVinculado[]> {
-  const chatbot = alias(fluxo, 'chatbot');
+async function vinculos(tx: TransactionPipe, roteadorId: string): Promise<LinkedService[]> {
+  const chatbot = alias(flow, 'chatbot');
   const linhas = await tx
     .select({
-      id: roteadorServico.id,
-      nome: roteadorServico.nome,
-      principal: roteadorServico.principal,
-      persistente: roteadorServico.persistente,
-      expiracaoMin: roteadorServico.expiracaoMin,
+      id: routerService.id,
+      nome: routerService.nome,
+      principal: routerService.principal,
+      persistente: routerService.persistente,
+      expiracaoMin: routerService.expirationMin,
       chatbot: {
         id: chatbot.id,
         nome: chatbot.nome,
@@ -75,10 +75,10 @@ async function vinculos(tx: TransacaoPipe, roteadorId: string): Promise<ServicoV
         shortName: chatbot.shortName,
       },
     })
-    .from(roteadorServico)
-    .innerJoin(chatbot, eq(chatbot.id, roteadorServico.servicoId))
-    .where(eq(roteadorServico.roteadorId, roteadorId))
-    .orderBy(asc(roteadorServico.criadoEm), asc(roteadorServico.nome));
+    .from(routerService)
+    .innerJoin(chatbot, eq(chatbot.id, routerService.serviceId))
+    .where(eq(routerService.routerId, roteadorId))
+    .orderBy(asc(routerService.criadoEm), asc(routerService.nome));
   return linhas;
 }
 
@@ -87,98 +87,98 @@ async function vinculos(tx: TransacaoPipe, roteadorId: string): Promise<ServicoV
  * não é roteador, a resposta vem vazia — a tela mostra "não encontrado".
  */
 export async function carregarServicos(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   id: string,
-): Promise<DadosDeServicos | null> {
-  const [roteador] = await tx
+): Promise<DataOfServices | null> {
+  const [router] = await tx
     .select(colunasDoChatbot)
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id), ne(fluxo.estado, 'arquivado')))
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, id), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!roteador) return null;
-  if (roteador.tipo !== 'roteador')
-    return { roteador: null, principal: null, filhos: [], busca: [] };
+  if (!router) return null;
+  if (router.tipo !== 'roteador')
+    return { router: null, principal: null, filhos: [], search: [] };
 
   const todos = await vinculos(tx, id);
-  const busca: ServicoDoRoteador[] = await tx
+  const search: RouterService[] = await tx
     .select(colunasDoChatbot)
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.tipo, 'fluxo'), ne(fluxo.estado, 'arquivado')))
-    .orderBy(asc(fluxo.nome));
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.tipo, 'fluxo'), ne(flow.estado, 'arquivado')))
+    .orderBy(asc(flow.nome));
   return {
-    roteador,
+    router,
     principal: todos.find((s) => s.principal) ?? null,
     filhos: todos.filter((s) => !s.principal),
-    busca,
+    search,
   };
 }
 
 /* ------------------------------------------------------------- Regras */
 
 /** O roteador vivo desta conta, ou 404; fluxo que não é roteador é pedido inválido. */
-async function roteadorVivo(tx: TransacaoPipe, tid: string, id: string) {
+async function routerVivo(tx: TransactionPipe, tid: string, id: string) {
   const [atual] = await tx
-    .select({ id: fluxo.id, tipo: fluxo.tipo })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id), ne(fluxo.estado, 'arquivado')))
+    .select({ id: flow.id, tipo: flow.tipo })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, id), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
   if (atual.tipo !== 'roteador') {
-    throw ErroPipe.requisicao('nao_e_roteador', 'Só o roteador tem serviços.');
+    throw PipeError.request('nao_e_roteador', 'Só o roteador tem serviços.');
   }
   return atual;
 }
 
-type Formulario = Omit<PedidoDeServico, 'nome'> & { nome: string };
+type Formulario = Omit<RequestOfService, 'nome'> & { nome: string };
 
 /** O formulário normalizado: o que a tela esconde, o banco não guarda. */
-function conferido(pedido: Partial<PedidoDeServico>): Formulario {
+function conferido(pedido: Partial<RequestOfService>): Formulario {
   const nome = typeof pedido.nome === 'string' ? pedido.nome.trim() : '';
-  if (!nome) throw ErroPipe.requisicao('servico_nome', 'Crie um nome para seu serviço.');
-  if (nome.length > NOME_DO_SERVICO_MAX) {
-    throw ErroPipe.requisicao(
+  if (!nome) throw PipeError.request('servico_nome', 'Crie um nome para seu serviço.');
+  if (nome.length > NAME_OF_SERVICE_MAX) {
+    throw PipeError.request(
       'servico_nome',
-      `O nome do serviço pode ter até ${NOME_DO_SERVICO_MAX} caracteres.`,
+      `O nome do serviço pode ter até ${NAME_OF_SERVICE_MAX} caracteres.`,
     );
   }
   const chatbotId = typeof pedido.chatbotId === 'string' ? pedido.chatbotId : '';
   if (!UUID.test(chatbotId)) {
-    throw ErroPipe.requisicao('servico_chatbot', 'Associe um chatbot para este serviço.');
+    throw PipeError.request('servico_chatbot', 'Associe um chatbot para este serviço.');
   }
   const principal = pedido.principal === true;
   const persistente = !principal && pedido.persistente === true;
-  let expiracaoMin: number | null = null;
+  let expirationMin: number | null = null;
   if (!principal && !persistente) {
     const n = pedido.expiracaoMin;
-    if (typeof n !== 'number' || !Number.isInteger(n) || n < 1 || n > EXPIRACAO_MAX_MIN) {
-      throw ErroPipe.requisicao(
+    if (typeof n !== 'number' || !Number.isInteger(n) || n < 1 || n > EXPIRATION_MAX_MIN) {
+      throw PipeError.request(
         'servico_expiracao',
-        `Informe a expiração do redirecionamento, em minutos (de 1 a ${EXPIRACAO_MAX_MIN}).`,
+        `Informe a expiração do redirecionamento, em minutos (de 1 a ${EXPIRATION_MAX_MIN}).`,
       );
     }
-    expiracaoMin = n;
+    expirationMin = n;
   }
-  return { nome, chatbotId, principal, persistente, expiracaoMin };
+  return { nome, chatbotId, principal, persistente, expirationMin };
 }
 
 /** Os conflitos do formulário com os outros serviços do mesmo roteador. */
 async function conferirConflitos(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
-  roteadorId: string,
+  routerId: string,
   f: Formulario,
   excetoId: string | null,
   chatbotMudou: boolean,
 ): Promise<void> {
   if (chatbotMudou) {
     const [bot] = await tx
-      .select({ tipo: fluxo.tipo, estado: fluxo.estado })
-      .from(fluxo)
-      .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, f.chatbotId)))
+      .select({ tipo: flow.tipo, estado: flow.estado })
+      .from(flow)
+      .where(and(eq(flow.tenantId, tid), eq(flow.id, f.chatbotId)))
       .limit(1);
     if (!bot || bot.tipo !== 'fluxo' || bot.estado === 'arquivado') {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'servico_chatbot',
         'O chatbot do serviço precisa ser um fluxo desta conta, e não pode estar excluído.',
       );
@@ -187,28 +187,28 @@ async function conferirConflitos(
   const outros = (
     await tx
       .select({
-        id: roteadorServico.id,
-        nome: roteadorServico.nome,
-        servicoId: roteadorServico.servicoId,
-        principal: roteadorServico.principal,
+        id: routerService.id,
+        nome: routerService.nome,
+        servicoId: routerService.serviceId,
+        principal: routerService.principal,
       })
-      .from(roteadorServico)
-      .where(eq(roteadorServico.roteadorId, roteadorId))
+      .from(routerService)
+      .where(eq(routerService.routerId, routerId))
   ).filter((s) => s.id !== excetoId);
   if (outros.some((s) => s.nome === f.nome)) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'servico_nome_em_uso',
       'Já existe um serviço com este nome neste roteador.',
     );
   }
   if (outros.some((s) => s.servicoId === f.chatbotId)) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'servico_chatbot_em_uso',
       'Este chatbot já é um serviço deste roteador.',
     );
   }
   if (f.principal && outros.some((s) => s.principal)) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'servico_principal_em_uso',
       'Este roteador já tem um chatbot principal.',
     );
@@ -217,55 +217,55 @@ async function conferirConflitos(
 
 /** O vínculo como a tela lê. */
 async function vinculoLido(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   roteadorId: string,
   id: string,
-): Promise<ServicoVinculado> {
+): Promise<LinkedService> {
   const lido = (await vinculos(tx, roteadorId)).find((s) => s.id === id);
-  if (!lido) throw ErroPipe.naoEncontrado('serviço');
+  if (!lido) throw PipeError.naoEncontrado('serviço');
   return lido;
 }
 
 /** O vínculo deste roteador, ou 404. */
-async function vinculoAtual(tx: TransacaoPipe, roteadorId: string, id: string) {
-  if (!UUID.test(id)) throw ErroPipe.naoEncontrado('serviço');
+async function vinculoAtual(tx: TransactionPipe, roteadorId: string, id: string) {
+  if (!UUID.test(id)) throw PipeError.naoEncontrado('serviço');
   const [atual] = await tx
     .select({
-      id: roteadorServico.id,
-      nome: roteadorServico.nome,
-      chatbotId: roteadorServico.servicoId,
-      principal: roteadorServico.principal,
-      persistente: roteadorServico.persistente,
-      expiracaoMin: roteadorServico.expiracaoMin,
+      id: routerService.id,
+      nome: routerService.nome,
+      chatbotId: routerService.serviceId,
+      principal: routerService.principal,
+      persistente: routerService.persistente,
+      expiracaoMin: routerService.expirationMin,
     })
-    .from(roteadorServico)
-    .where(and(eq(roteadorServico.roteadorId, roteadorId), eq(roteadorServico.id, id)))
+    .from(routerService)
+    .where(and(eq(routerService.routerId, roteadorId), eq(routerService.id, id)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('serviço');
+  if (!atual) throw PipeError.naoEncontrado('serviço');
   return atual;
 }
 
 /* ------------------------------------------------------------- Gestos */
 
-export async function criarServico(
-  tx: TransacaoPipe,
+export async function createService(
+  tx: TransactionPipe,
   tid: string,
-  usuarioId: string,
+  userId: string,
   roteadorId: string,
-  pedido: Partial<PedidoDeServico>,
-): Promise<ServicoVinculado> {
-  await roteadorVivo(tx, tid, roteadorId);
+  pedido: Partial<RequestOfService>,
+): Promise<LinkedService> {
+  await routerVivo(tx, tid, roteadorId);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, userId, roteadorId, 'basicConfigurations.escrever');
   const f = conferido(pedido);
   await conferirConflitos(tx, tid, roteadorId, f, null, true);
 
   const [criado] = await tx
-    .insert(roteadorServico)
+    .insert(routerService)
     .values({
       tenantId: tid,
       roteadorId,
@@ -275,11 +275,11 @@ export async function criarServico(
       persistente: f.persistente,
       expiracaoMin: f.expiracaoMin,
     })
-    .returning({ id: roteadorServico.id });
-  if (!criado) throw ErroPipe.naoEncontrado('serviço');
+    .returning({ id: routerService.id });
+  if (!criado) throw PipeError.naoEncontrado('serviço');
 
   await registrarAuditoria(tx, tid, {
-    ator: ator(usuarioId),
+    ator: ator(userId),
     acao: 'criou',
     objetoTipo: 'roteador_servico',
     objetoId: criado.id,
@@ -289,22 +289,22 @@ export async function criarServico(
 }
 
 /** Só o que veio muda; o resultado passa pelas mesmas regras da criação. */
-export async function editarServico(
-  tx: TransacaoPipe,
+export async function editarService(
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   roteadorId: string,
   id: string,
-  pedido: Partial<PedidoDeServico>,
-): Promise<ServicoVinculado> {
-  await roteadorVivo(tx, tid, roteadorId);
+  pedido: Partial<RequestOfService>,
+): Promise<LinkedService> {
+  await routerVivo(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,
@@ -315,14 +315,14 @@ export async function editarServico(
   };
   const definidos = Object.fromEntries(
     Object.entries(pedido ?? {}).filter(([, v]) => v !== undefined),
-  ) as Partial<PedidoDeServico>;
+  ) as Partial<RequestOfService>;
   const f = conferido({ ...antes, ...definidos });
   const mudanca = diferenca(antes, f);
   if (Object.keys(mudanca.depois).length === 0) return vinculoLido(tx, roteadorId, id);
   await conferirConflitos(tx, tid, roteadorId, f, id, f.chatbotId !== antes.chatbotId);
 
   await tx
-    .update(roteadorServico)
+    .update(routerService)
     .set({
       nome: f.nome,
       servicoId: f.chatbotId,
@@ -331,7 +331,7 @@ export async function editarServico(
       expiracaoMin: f.expiracaoMin,
       atualizadoEm: new Date(),
     })
-    .where(and(eq(roteadorServico.tenantId, tid), eq(roteadorServico.id, id)));
+    .where(and(eq(routerService.tenantId, tid), eq(routerService.id, id)));
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
@@ -348,25 +348,25 @@ export async function editarServico(
  * Tira o serviço do roteador. O chatbot continua existindo; quem estava nele volta ao
  * principal na próxima mensagem (a posição aponta para um serviço que não está mais lá).
  */
-export async function excluirServico(
-  tx: TransacaoPipe,
+export async function deleteService(
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   roteadorId: string,
   id: string,
 ): Promise<void> {
-  await roteadorVivo(tx, tid, roteadorId);
+  await routerVivo(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
   /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
      segue editando (migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   await tx
-    .delete(roteadorServico)
-    .where(and(eq(roteadorServico.tenantId, tid), eq(roteadorServico.id, id)));
+    .delete(routerService)
+    .where(and(eq(routerService.tenantId, tid), eq(routerService.id, id)));
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),

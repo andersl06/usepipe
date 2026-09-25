@@ -1,45 +1,45 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
-import { GuardaChaveApi } from './autenticacao.js';
-import { GuardaSessao } from './sessao.js';
-import { ControladorAnexos } from './controladores/anexos.js';
-import { ControladorCanais } from './controladores/canais.js';
-import { ControladorConversas } from './controladores/conversas.js';
-import { ControladorCrm } from './controladores/crm.js';
-import { ControladorDesk } from './controladores/desk.js';
+import { ApiKeyGuard } from './autenticacao.js';
+import { SessionGuard } from './sessao.js';
+import { AttachmentsController } from './controladores/anexos.js';
+import { ChannelsController } from './controladores/canais.js';
+import { ConversationsController } from './controladores/conversas.js';
+import { CrmController } from './controladores/crm.js';
+import { DeskController } from './controladores/desk.js';
 import {
-  ControladorAtendentes,
-  ControladorContatos,
-  ControladorFilas,
+  AgentsController,
+  ContactsController,
+  QueuesController,
 } from './controladores/catalogo.js';
-import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
-import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
+import { InvitationsController, DomainsController } from './controladores/convites.js';
+import { LoginController, MeController } from './controladores/entrar.js';
 import {
-  ControladorEtiquetas,
-  ControladorEtiquetasDaConversa,
-  ControladorEtiquetasDoContato,
+  LabelsController,
+  ConversationLabelsController,
+  ContactLabelsController,
 } from './controladores/etiquetas.js';
-import { ControladorGestaoAnalise } from './controladores/gestao-analise.js';
-import { ControladorGestaoBuilder } from './controladores/gestao-builder.js';
-import { ControladorGestaoCadastros } from './controladores/gestao-cadastros.js';
-import { ControladorGestaoConta } from './controladores/gestao-conta.js';
-import { ControladorGestaoEquipe } from './controladores/gestao-equipe.js';
-import { ControladorGestaoFluxo } from './controladores/gestao-fluxo.js';
-import { ControladorGestaoIntegracoes } from './controladores/gestao-integracoes.js';
-import { ControladorGestaoOperacao } from './controladores/gestao-operacao.js';
-import { ControladorMinhaConta } from './controladores/minha-conta.js';
-import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
-import { ControladorContas } from './controladores/contas.js';
-import { ControladorMensagensAtivas } from './controladores/mensagens-ativas.js';
-import { ControladorLinksRastreados } from './controladores/rastreador-de-cliques.js';
-import { ControladorRedirecionamento } from './controladores/redirecionamento.js';
-import { ControladorOperacao } from './controladores/operacao.js';
-import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/sso.js';
-import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
-import { ControladorWebhookInstagram } from './controladores/webhooks-instagram.js';
-import { ControladorCanaisInstagram } from './controladores/canais-instagram.js';
-import { ControladorCanaisMessenger } from './controladores/canais-messenger.js';
-import { ControladorWebhookMessenger } from './controladores/webhooks-messenger.js';
+import { ManagementAnalyticsController } from './controladores/gestao-analise.js';
+import { ManagementBuilderController } from './controladores/gestao-builder.js';
+import { ManagementRegistrationsController } from './controladores/gestao-cadastros.js';
+import { ManagementAccountController } from './controladores/gestao-conta.js';
+import { ManagementTeamController } from './controladores/gestao-equipe.js';
+import { ManagementFlowController } from './controladores/gestao-fluxo.js';
+import { ManagementIntegrationsController } from './controladores/gestao-integracoes.js';
+import { ManagementOperationsController } from './controladores/gestao-operacao.js';
+import { MyAccountController } from './controladores/minha-conta.js';
+import { ContactImportsController } from './controladores/importacoes.js';
+import { AccountsController } from './controladores/contas.js';
+import { ActiveMessagesController } from './controladores/mensagens-ativas.js';
+import { TrackedLinksController } from './controladores/rastreador-de-cliques.js';
+import { RedirectController } from './controladores/redirecionamento.js';
+import { OperationsController } from './controladores/operacao.js';
+import { SsoConnectionController, SsoLoginController } from './controladores/sso.js';
+import { WhatsAppWebhookController } from './controladores/webhooks-whatsapp.js';
+import { InstagramWebhookController } from './controladores/webhooks-instagram.js';
+import { InstagramChannelsController } from './controladores/canais-instagram.js';
+import { MessengerChannelsController } from './controladores/canais-messenger.js';
+import { MessengerWebhookController } from './controladores/webhooks-messenger.js';
 
 /**
  * Módulo raiz.
@@ -56,47 +56,47 @@ import { ControladorWebhookMessenger } from './controladores/webhooks-messenger.
  */
 @Module({
   controllers: [
-    ControladorWebhookWhatsApp,
-    ControladorWebhookInstagram,
-    ControladorWebhookMessenger,
-    ControladorEntrada,
-    ControladorEntradaSso,
-    ControladorEu,
-    ControladorMinhaConta,
-    ControladorGestaoFluxo,
-    ControladorGestaoBuilder,
-    ControladorGestaoEquipe,
-    ControladorGestaoIntegracoes,
-    ControladorGestaoAnalise,
-    ControladorGestaoOperacao,
-    ControladorGestaoCadastros,
-    ControladorGestaoConta,
-    ControladorDesk,
-    ControladorConexaoSso,
-    ControladorConvites,
-    ControladorDominios,
-    ControladorOperacao,
-    ControladorConversas,
-    ControladorEtiquetas,
-    ControladorEtiquetasDaConversa,
-    ControladorEtiquetasDoContato,
-    ControladorMensagensAtivas,
-    ControladorLinksRastreados,
-    ControladorRedirecionamento,
-    ControladorCrm,
-    ControladorAnexos,
-    ControladorCanais,
-    ControladorCanaisInstagram,
-    ControladorCanaisMessenger,
-    ControladorContatos,
-    ControladorFilas,
-    ControladorAtendentes,
-    ControladorImportacoesDeContatos,
-    ControladorContas,
+    WhatsAppWebhookController,
+    InstagramWebhookController,
+    MessengerWebhookController,
+    LoginController,
+    SsoLoginController,
+    MeController,
+    MyAccountController,
+    ManagementFlowController,
+    ManagementBuilderController,
+    ManagementTeamController,
+    ManagementIntegrationsController,
+    ManagementAnalyticsController,
+    ManagementOperationsController,
+    ManagementRegistrationsController,
+    ManagementAccountController,
+    DeskController,
+    SsoConnectionController,
+    InvitationsController,
+    DomainsController,
+    OperationsController,
+    ConversationsController,
+    LabelsController,
+    ConversationLabelsController,
+    ContactLabelsController,
+    ActiveMessagesController,
+    TrackedLinksController,
+    RedirectController,
+    CrmController,
+    AttachmentsController,
+    ChannelsController,
+    InstagramChannelsController,
+    MessengerChannelsController,
+    ContactsController,
+    QueuesController,
+    AgentsController,
+    ContactImportsController,
+    AccountsController,
   ],
   providers: [
-    { provide: APP_GUARD, useValue: new GuardaChaveApi(new Reflector()) },
-    { provide: APP_GUARD, useValue: new GuardaSessao(new Reflector()) },
+    { provide: APP_GUARD, useValue: new ApiKeyGuard(new Reflector()) },
+    { provide: APP_GUARD, useValue: new SessionGuard(new Reflector()) },
   ],
 })
 export class AppModulo {}

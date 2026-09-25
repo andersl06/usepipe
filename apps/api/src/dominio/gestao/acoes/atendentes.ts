@@ -1,7 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
-import type { TransacaoPipe, Ator } from '@pipe/db';
-import { ErroPipe } from '../../../erros.js';
-import { criarFila, criarMotivoPausa } from '../cadastros.js';
+import type { TransactionPipe, Ator } from '@pipe/db';
+import { PipeError } from '../../../erros.js';
+import { createQueue, createReasonPause } from '../cadastros.js';
 
 /**
  * Server Actions de Atendentes — filas e motivos de pausa.
@@ -23,8 +23,8 @@ import { criarFila, criarMotivoPausa } from '../cadastros.js';
 
 const OK: Resultado = { ok: true };
 
-function falha(erro: string): Resultado {
-  return { ok: false, erro };
+function falha(error: string): Resultado {
+  return { ok: false, error };
 }
 
 /** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */
@@ -33,29 +33,29 @@ async function comoResultado(fn: () => Promise<unknown>): Promise<Resultado> {
     await fn();
     return OK;
   } catch (erro) {
-    if (erro instanceof ErroPipe) return falha(erro.message);
+    if (erro instanceof PipeError) return falha(erro.message);
     throw erro;
   }
 }
 
 // -------------------------------------------------------------------- filas
 
-export async function salvarFila(
-  tx: TransacaoPipe,
+export async function saveQueue(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  dados: Campos,
+  data: Campos,
 ): Promise<Resultado> {
-  const capacidadeBruta = dados.get('capacidadePadrao');
-  const ordemBruta = dados.get('ordem');
+  const capacityRaw = data.get('capacidadePadrao');
+  const orderRaw = data.get('ordem');
   return comoResultado(() =>
-    criarFila(tx, tid, ator.id ?? '', {
-      nome: String(dados.get('nome') ?? '').trim(),
-      cor: dados.get('cor'),
-      horarioId: dados.get('horarioId'),
-      capacidadePadrao: Number(capacidadeBruta ?? Number.NaN),
-      ordem: ordemBruta === null ? 0 : Number(ordemBruta),
-      ativa: dados.get('ativa') !== null,
+    createQueue(tx, tid, ator.id ?? '', {
+      nome: String(data.get('nome') ?? '').trim(),
+      cor: data.get('cor'),
+      horarioId: data.get('horarioId'),
+      capacityDefault: Number(capacityRaw ?? Number.NaN),
+      order: orderRaw === null ? 0 : Number(orderRaw),
+      active: data.get('ativa') !== null,
     }),
   );
 }
@@ -63,17 +63,17 @@ export async function salvarFila(
 // ------------------------------------------------------------------- pausas
 
 export async function salvarMotivoPausa(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  const duracaoBruta = dados.get('duracaoSugeridaMin');
+  const durationRaw = dados.get('duracaoSugeridaMin');
   return comoResultado(() =>
-    criarMotivoPausa(tx, tid, ator.id ?? '', {
+    createReasonPause(tx, tid, ator.id ?? '', {
       nome: String(dados.get('nome') ?? '').trim(),
-      duracaoSugeridaMin: duracaoBruta === null || duracaoBruta === '' ? null : Number(duracaoBruta),
-      contaComoProdutivo: dados.get('contaComoProdutivo') !== null,
+      durationSuggestedMin: durationRaw === null || durationRaw === '' ? null : Number(durationRaw),
+      countsAsProductive: dados.get('contaComoProdutivo') !== null,
       ativo: dados.get('ativo') !== null,
     }),
   );

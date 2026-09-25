@@ -8,7 +8,7 @@
  * Quando a frequência justificar, isto vira tabela sem mudar a tela.
  */
 
-export interface Novidade {
+export interface Update {
   /** O trecho que vai na URL quando cada novidade ganhar página própria. */
   id: string;
   categoria: string;
@@ -17,14 +17,14 @@ export interface Novidade {
   /** ISO, só a data. O fuso não importa num aviso de versão. */
   data: string;
   /** Minutos de leitura, arredondados para cima. */
-  leitura: number;
+  read: number;
   /** A primeira da lista vira o cartão grande, como no blog do Barboo. */
   destaque?: boolean;
 }
 
 export const CATEGORIAS = ['Todas as categorias', 'Portal', 'Atendimento', 'Automação'] as const;
 
-export const NOVIDADES: readonly Novidade[] = [
+export const UPDATES: readonly Update[] = [
   {
     id: 'portal-igual-a-referencia',
     categoria: 'Portal',
@@ -32,7 +32,7 @@ export const NOVIDADES: readonly Novidade[] = [
     resumo:
       'A barra do topo foi refeita peça por peça: o bloco do contrato com o plano embaixo, o sino, o menu do "?", o menu da conta com nome e e-mail, e a busca sem caixa. Os cartões de ação passaram a aparecer também em conta que já tem fluxo.',
     data: '2026-09-13',
-    leitura: 3,
+    read: 3,
     destaque: true,
   },
   {
@@ -42,7 +42,7 @@ export const NOVIDADES: readonly Novidade[] = [
     resumo:
       'O roteador reúne vários fluxos num contato só. A criação agora tem o passo do convite e o passo do nome, com a validação do nome explicada — em vez de um "nome inválido" que não diz o que fazer.',
     data: '2026-09-13',
-    leitura: 2,
+    read: 2,
   },
   {
     id: 'painel-do-contrato',
@@ -51,6 +51,6 @@ export const NOVIDADES: readonly Novidade[] = [
     resumo:
       'Quem administra o contrato vê membros, certificados e consumo; quem é membro vê o que pode editar; quem é convidado vê o resumo. O painel monta a lista conforme a permissão de quem abriu.',
     data: '2026-09-13',
-    leitura: 4,
+    read: 4,
   },
 ];

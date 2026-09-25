@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  comparacao,
+  comparison,
   diasDoIntervalo,
   escalaDoEixo,
   formatar,
   intervaloAnterior,
-  intervaloDoPeriodo,
-  lerPeriodo,
+  periodInterval,
+  readPeriod,
   rotuloDoIntervalo,
-  variacao,
+  variation,
 } from '@pipe/core/analise';
 
 /**
@@ -24,71 +24,71 @@ import {
 const HOJE = '2026-09-13';
 
 test('"Últimos 7 dias" é D-7 a D-1, sem hoje', () => {
-  assert.deepEqual(intervaloDoPeriodo('7days', HOJE), { inicio: '2026-09-06', fim: '2026-09-12' });
+  assert.deepEqual(periodInterval('7days', HOJE), { inicio: '2026-09-06', fim: '2026-09-12' });
 });
 
 test('"Hoje" e "Ontem" são um dia só', () => {
-  assert.deepEqual(intervaloDoPeriodo('today', HOJE), { inicio: HOJE, fim: HOJE });
-  assert.deepEqual(intervaloDoPeriodo('yesterday', HOJE), {
+  assert.deepEqual(periodInterval('today', HOJE), { inicio: HOJE, fim: HOJE });
+  assert.deepEqual(periodInterval('yesterday', HOJE), {
     inicio: '2026-09-12',
     fim: '2026-09-12',
   });
 });
 
 test('semana anterior é domingo a sábado; a atual começa no domingo', () => {
-  assert.deepEqual(intervaloDoPeriodo('lastWeek', '2026-09-16'), {
+  assert.deepEqual(periodInterval('lastWeek', '2026-09-16'), {
     inicio: '2026-09-06',
     fim: '2026-09-12',
   });
-  assert.deepEqual(intervaloDoPeriodo('currentWeek', '2026-09-16'), {
+  assert.deepEqual(periodInterval('currentWeek', '2026-09-16'), {
     inicio: '2026-09-13',
     fim: '2026-09-16',
   });
   /* No domingo a "semana atual" é só hoje. */
-  assert.deepEqual(intervaloDoPeriodo('currentWeek', HOJE), { inicio: HOJE, fim: HOJE });
+  assert.deepEqual(periodInterval('currentWeek', HOJE), { inicio: HOJE, fim: HOJE });
 });
 
 test('mês anterior vai do dia 1 ao último dia, atravessando o ano', () => {
-  assert.deepEqual(intervaloDoPeriodo('lastMonth', '2026-03-10'), {
+  assert.deepEqual(periodInterval('lastMonth', '2026-03-10'), {
     inicio: '2026-02-01',
     fim: '2026-02-28',
   });
-  assert.deepEqual(intervaloDoPeriodo('lastMonth', '2027-01-05'), {
+  assert.deepEqual(periodInterval('lastMonth', '2027-01-05'), {
     inicio: '2026-12-01',
     fim: '2026-12-31',
   });
-  assert.deepEqual(intervaloDoPeriodo('currentMonth', HOJE), { inicio: '2026-09-01', fim: HOJE });
+  assert.deepEqual(periodInterval('currentMonth', HOJE), { inicio: '2026-09-01', fim: HOJE });
 });
 
 test('personalizado respeita o limite para trás, não passa de hoje e não inverte', () => {
-  const ok = intervaloDoPeriodo('custom', HOJE, {
+  const ok = periodInterval('custom', HOJE, {
     de: '2026-09-01',
     ate: '2026-09-10',
     limiteDias: 90,
   });
   assert.deepEqual(ok, { inicio: '2026-09-01', fim: '2026-09-10' });
   assert.equal(
-    intervaloDoPeriodo('custom', HOJE, { de: '2026-05-01', ate: '2026-05-02', limiteDias: 90 }),
+    periodInterval('custom', HOJE, { de: '2026-05-01', ate: '2026-05-02', limiteDias: 90 }),
     null,
   );
   assert.ok(
-    intervaloDoPeriodo('custom', HOJE, { de: '2026-05-01', ate: '2026-05-02', limiteDias: 186 }),
+    periodInterval('custom', HOJE, { de: '2026-05-01', ate: '2026-05-02', limiteDias: 186 }),
   );
   assert.equal(
-    intervaloDoPeriodo('custom', HOJE, { de: '2026-09-10', ate: '2026-09-01', limiteDias: 90 }),
+    periodInterval('custom', HOJE, { de: '2026-09-10', ate: '2026-09-01', limiteDias: 90 }),
     null,
   );
   assert.equal(
-    intervaloDoPeriodo('custom', HOJE, { de: '2026-09-10', ate: '2026-09-14', limiteDias: 90 }),
+    periodInterval('custom', HOJE, { de: '2026-09-10', ate: '2026-09-14', limiteDias: 90 }),
     null,
   );
-  assert.equal(intervaloDoPeriodo('custom', HOJE, { limiteDias: 90 }), null);
+  assert.equal(periodInterval('custom', HOJE, { limiteDias: 90 }), null);
 });
 
 test('período desconhecido na URL cai em "Hoje"', () => {
-  assert.equal(lerPeriodo('ontem'), 'today');
-  assert.equal(lerPeriodo(undefined), 'today');
-  assert.equal(lerPeriodo('15days'), '15days');
+  assert.equal(readPeriod('ontem'), 'today');
+  assert.equal(readPeriod(undefined), 'today');
+  assert.equal(readPeriod('15days'), '15days');
 });
 
 test('o anterior tem o mesmo tanto de dias, logo antes', () => {
@@ -105,15 +105,15 @@ test('rótulo do período e a dica da comparação', () => {
     '13 de setembro de 2026 - 00h às 23h59',
   );
   assert.equal(
-    comparacao({ inicio: HOJE, fim: HOJE }, HOJE).dica,
+    comparison({ inicio: HOJE, fim: HOJE }, HOJE).dica,
     'Em comparação com a data 12 de setembro de 2026 - 00h às 23h59.',
   );
   assert.equal(
-    comparacao({ inicio: '2026-09-06', fim: '2026-09-12' }, HOJE).dica,
+    comparison({ inicio: '2026-09-06', fim: '2026-09-12' }, HOJE).dica,
     'Em comparação com o período de 30 de agosto de 2026 a 05 de setembro de 2026.',
   );
   /* O anterior de 60 dias começa antes de 90 dias atrás: some o número. */
-  const longe = comparacao({ inicio: '2026-07-01', fim: '2026-08-29' }, HOJE);
+  const longe = comparison({ inicio: '2026-07-01', fim: '2026-08-29' }, HOJE);
   assert.equal(longe.foraDoAlcance, true);
 });
 
@@ -143,9 +143,9 @@ test('eixo do chart.js 3.9.1: zero é 0 a 1, e o passo é o niceNum sem arredond
 });
 
 test('variação: igual é zero, anterior zero é infinito, ausente é indefinida', () => {
-  assert.equal(variacao(5, 5), 0);
-  assert.equal(variacao(0, 0), 0);
-  assert.equal(variacao(3, 0), Infinity);
-  assert.equal(variacao(15, 10), 0.5);
-  assert.equal(variacao(undefined, 3), undefined);
+  assert.equal(variation(5, 5), 0);
+  assert.equal(variation(0, 0), 0);
+  assert.equal(variation(3, 0), Infinity);
+  assert.equal(variation(15, 10), 0.5);
+  assert.equal(variation(undefined, 3), undefined);
 });

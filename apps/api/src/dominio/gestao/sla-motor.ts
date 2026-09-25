@@ -1,15 +1,15 @@
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import {
-  NIVEIS_PRIORIDADE,
+  NIVEIS_PRIORITY,
   avaliarSla,
-  cumprimentoDoAlvo,
+  alvoFulfillment,
   inicioDoAlvo,
   type MarcosSla,
-  type NivelPrioridade,
+  type NivelPriority,
 } from '@pipe/core';
-import { conversa, slaConversa } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import { bancoDono, noTenant } from '../../banco.js';
+import { conversation, slaConversation } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
+import { databaseOwner, noTenant } from '../../banco.js';
 import { registrarEvento } from '../eventos.js';
 import { emitir } from '../../webhooks-saida.js';
 import { carregarRegrasSla, type RegraSlaCarregada } from './sla.js';
@@ -55,29 +55,29 @@ import { carregarRegrasSla, type RegraSlaCarregada } from './sla.js';
  * escopo `tenant`, por ser mais específica).
  */
 
-const ESTADOS_TERMINAIS = new Set(['cumprido', 'cancelado']);
+const STATES_TERMINALS = new Set(['cumprido', 'cancelado']);
 
 function vencedoraDoAlvo(
   regras: readonly RegraSlaCarregada[],
-  filaId: string | null,
+  queueId: string | null,
 ): RegraSlaCarregada | null {
-  const daFila = regras.find((r) => r.escopoTipo === 'fila' && r.escopoId === filaId);
-  return daFila ?? regras.find((r) => r.escopoTipo === 'tenant') ?? null;
+  const ofQueue = regras.find((r) => r.scopeType === 'fila' && r.scopeId === queueId);
+  return ofQueue ?? regras.find((r) => r.scopeType === 'tenant') ?? null;
 }
 
 /** Agrupa por alvo e escolhe, em cada grupo, a regra de escopo mais específico. */
-export function regrasVencedorasPorAlvo(
+export function rulesWinningByTarget(
   regras: readonly RegraSlaCarregada[],
   filaId: string | null,
 ): RegraSlaCarregada[] {
-  const porAlvo = new Map<string, RegraSlaCarregada[]>();
+  const byTarget = new Map<string, RegraSlaCarregada[]>();
   for (const r of regras) {
-    const lista = porAlvo.get(r.alvo);
+    const lista = byTarget.get(r.alvo);
     if (lista) lista.push(r);
-    else porAlvo.set(r.alvo, [r]);
+    else byTarget.set(r.alvo, [r]);
   }
   const vencedoras: RegraSlaCarregada[] = [];
-  for (const lista of porAlvo.values()) {
+  for (const lista of byTarget.values()) {
     const v = vencedoraDoAlvo(lista, filaId);
     if (v) vencedoras.push(v);
   }
@@ -85,11 +85,11 @@ export function regrasVencedorasPorAlvo(
 }
 
 /** Sobe um degrau na régua de prioridade (§`conversa/prioridade.ts`). Já em `maxima`, não faz nada. */
-function nivelElevado(atual: string): NivelPrioridade | null {
-  const posicao = (NIVEIS_PRIORIDADE as readonly string[]).indexOf(atual);
+function nivelElevado(atual: string): NivelPriority | null {
+  const position = (NIVEIS_PRIORITY as readonly string[]).indexOf(atual);
   // -1 (valor desconhecido) ou 0 (já é `maxima`): nada a elevar.
-  if (posicao <= 0) return null;
-  return NIVEIS_PRIORIDADE[posicao - 1] as NivelPrioridade;
+  if (position <= 0) return null;
+  return NIVEIS_PRIORITY[position - 1] as NivelPriority;
 }
 
 /**
@@ -107,69 +107,69 @@ function nivelElevado(atual: string): NivelPrioridade | null {
  * não pode derrubar o relógio de SLA de todas as outras conversas.
  */
 async function executarAcao(
-  tx: TransacaoPipe,
-  ctx: { tenantId: string; conversaId: string; filaId: string | null; prioridadeAtual: string },
+  tx: TransactionPipe,
+  ctx: { tenantId: string; conversationId: string; queueId: string | null; priorityAtual: string },
   acao: Record<string, unknown>,
   eventoWebhook: 'sla.alertou' | 'sla.estourou',
 ): Promise<void> {
   const tipo = typeof acao['tipo'] === 'string' ? acao['tipo'] : '';
   if (tipo === 'notificar_supervisor') {
     await emitir(tx, ctx.tenantId, eventoWebhook, {
-      conversa_id: ctx.conversaId,
-      fila_id: ctx.filaId,
+      conversa_id: ctx.conversationId,
+      fila_id: ctx.queueId,
     });
     return;
   }
   if (tipo === 'elevar_prioridade') {
-    const novoNivel = nivelElevado(ctx.prioridadeAtual);
+    const novoNivel = nivelElevado(ctx.priorityAtual);
     if (!novoNivel) return;
     await tx
-      .update(conversa)
+      .update(conversation)
       .set({ prioridade: novoNivel, atualizadoEm: new Date() })
-      .where(eq(conversa.id, ctx.conversaId));
+      .where(eq(conversation.id, ctx.conversationId));
   }
 }
 
-interface ConversaParaSla {
+interface ConversationForSla {
   id: string;
   filaId: string | null;
-  prioridade: string;
+  priority: string;
   criadaEm: Date;
   atribuidaEm: Date | null;
-  primeiraRespostaEm: Date | null;
+  firstResponseAt: Date | null;
   encerradaEm: Date | null;
-  ultimaMensagemEm: Date | null;
-  ultimaMensagemDe: string | null;
+  lastMessageAt: Date | null;
+  lastMessageFrom: string | null;
 }
 
 interface LinhaSlaExistente {
   id: string;
-  estado: string;
+  state: string;
   alertadoEm: Date | null;
   estouradoEm: Date | null;
 }
 
 /** Uma regra, contra uma conversa: decide o novo estado e dispara alerta/estouro no máximo uma vez cada. */
 async function processarRegra(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
-  c: ConversaParaSla,
+  c: ConversationForSla,
   regra: RegraSlaCarregada,
   existente: LinhaSlaExistente | undefined,
   agora: Date,
 ): Promise<void> {
   // Idempotência dura: linha terminal nunca mais muda, mesmo que a varredura rode de
   // novo sobre a mesma conversa daqui a um mês.
-  if (existente && ESTADOS_TERMINAIS.has(existente.estado)) return;
+  if (existente && STATES_TERMINALS.has(existente.state)) return;
 
   const marcos: MarcosSla = {
     criadaEm: c.criadaEm,
     atribuidaEm: c.atribuidaEm,
-    primeiraRespostaEm: c.primeiraRespostaEm,
+    firstRespostaIn: c.firstResponseAt,
     encerradaEm: c.encerradaEm,
     // `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do
     // contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.
-    aguardandoRespostaDesde: c.ultimaMensagemDe === 'contato' ? c.ultimaMensagemEm : null,
+    aguardandoRespostaDesde: c.lastMessageFrom === 'contato' ? c.lastMessageAt : null,
   };
 
   const inicio = inicioDoAlvo(regra.alvo, marcos);
@@ -184,14 +184,14 @@ async function processarRegra(
     // própria; hoje ninguém pediu esse histórico.
     if (existente) {
       await tx
-        .update(slaConversa)
+        .update(slaConversation)
         .set({ estado: 'cumprido', atualizadoEm: agora })
-        .where(eq(slaConversa.id, existente.id));
+        .where(eq(slaConversation.id, existente.id));
     }
     return;
   }
 
-  const cumpridoEm = cumprimentoDoAlvo(regra.alvo, marcos);
+  const cumpridoEm = alvoFulfillment(regra.alvo, marcos);
   const encerrouAntes = marcos.encerradaEm !== null && marcos.encerradaEm.getTime() < agora.getTime();
   // O relógio congela em `encerradaEm` — ver decisão Pipe no topo do arquivo.
   const fimEfetivo = encerrouAntes ? (marcos.encerradaEm as Date) : agora;
@@ -203,81 +203,81 @@ async function processarRegra(
     cumpridoEm,
   });
 
-  let novoEstado: string;
+  let newState: string;
   let alertadoEm = existente?.alertadoEm ?? null;
   let estouradoEm = existente?.estouradoEm ?? null;
   let dispararAlerta = false;
   let dispararEstouro = false;
 
   if (resultado.cumprido) {
-    novoEstado = 'cumprido';
-  } else if (resultado.estado === 'estourado') {
-    novoEstado = 'estourado';
+    newState = 'cumprido';
+  } else if (resultado.state === 'estourado') {
+    newState = 'estourado';
     if (!estouradoEm) {
       estouradoEm = fimEfetivo;
       dispararEstouro = true;
     }
-  } else if (resultado.estado === 'alerta') {
-    novoEstado = 'alertado';
+  } else if (resultado.state === 'alerta') {
+    newState = 'alertado';
     if (!alertadoEm) {
       alertadoEm = fimEfetivo;
       dispararAlerta = true;
     }
   } else {
-    novoEstado = 'correndo';
+    newState = 'correndo';
   }
 
   // Encerrou sem cumprir o alvo e sem ter estourado antes de fechar: não fica
   // "correndo"/"alertado" para sempre — é isso que garante que fechar cedo não
   // dispara nada mais tarde.
-  if (marcos.encerradaEm && !resultado.cumprido && novoEstado !== 'estourado') {
-    novoEstado = 'cancelado';
+  if (marcos.encerradaEm && !resultado.cumprido && newState !== 'estourado') {
+    newState = 'cancelado';
   }
 
   if (!existente) {
-    await tx.insert(slaConversa).values({
+    await tx.insert(slaConversation).values({
       tenantId,
       conversaId: c.id,
       regraId: regra.id,
       prazoEm: resultado.prazoEm ?? fimEfetivo,
-      estado: novoEstado,
+      estado: newState,
       alertadoEm,
       estouradoEm,
     });
   } else if (
-    novoEstado !== existente.estado ||
+    newState !== existente.state ||
     alertadoEm?.getTime() !== existente.alertadoEm?.getTime() ||
     estouradoEm?.getTime() !== existente.estouradoEm?.getTime()
   ) {
     await tx
-      .update(slaConversa)
-      .set({ estado: novoEstado, alertadoEm, estouradoEm, atualizadoEm: agora })
-      .where(eq(slaConversa.id, existente.id));
+      .update(slaConversation)
+      .set({ estado: newState, alertadoEm, estouradoEm, atualizadoEm: agora })
+      .where(eq(slaConversation.id, existente.id));
   }
 
-  const contexto = { tenantId, conversaId: c.id, filaId: c.filaId, prioridadeAtual: c.prioridade };
+  const context = { tenantId, conversaId: c.id, filaId: c.filaId, prioridadeAtual: c.priority };
 
   if (dispararAlerta) {
     await registrarEvento(tx, {
       tenantId,
-      conversaId: c.id,
+      conversationId: c.id,
       tipo: 'sla_alertado',
       em: alertadoEm!,
-      filaId: c.filaId,
-      dados: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
+      queueId: c.filaId,
+      data: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
     });
-    await executarAcao(tx, contexto, regra.acaoAlerta, 'sla.alertou');
+    await executarAcao(tx, context, regra.acaoAlerta, 'sla.alertou');
   }
   if (dispararEstouro) {
     await registrarEvento(tx, {
       tenantId,
-      conversaId: c.id,
+      conversationId: c.id,
       tipo: 'sla_estourado',
       em: estouradoEm!,
-      filaId: c.filaId,
-      dados: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
+      queueId: c.filaId,
+      data: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
     });
-    await executarAcao(tx, contexto, regra.acaoEstouro, 'sla.estourou');
+    await executarAcao(tx, context, regra.acaoEstouro, 'sla.estourou');
   }
 }
 
@@ -288,58 +288,58 @@ async function processarRegra(
  * Tudo dentro de `noTenant`: a RLS decide o que `carregarRegrasSla` enxerga, a
  * mesma garantia de isolamento entre tenants que o resto da `api` usa.
  */
-export async function checarSlaDaConversa(
+export async function checarSlaOfConversation(
   tenantId: string,
-  conversaId: string,
+  conversationId: string,
   agora = new Date(),
 ): Promise<void> {
   await noTenant(tenantId, async (tx) => {
     const [c] = await tx
       .select({
-        id: conversa.id,
-        filaId: conversa.filaId,
-        prioridade: conversa.prioridade,
-        criadaEm: conversa.criadaEm,
-        atribuidaEm: conversa.atribuidaEm,
-        primeiraRespostaEm: conversa.primeiraRespostaEm,
-        encerradaEm: conversa.encerradaEm,
-        ultimaMensagemEm: conversa.ultimaMensagemEm,
-        ultimaMensagemDe: conversa.ultimaMensagemDe,
+        id: conversation.id,
+        filaId: conversation.filaId,
+        prioridade: conversation.priority,
+        criadaEm: conversation.criadaEm,
+        atribuidaEm: conversation.atribuidaEm,
+        primeiraRespostaEm: conversation.firstResponseAt,
+        encerradaEm: conversation.encerradaEm,
+        ultimaMensagemEm: conversation.lastMessageAt,
+        ultimaMensagemDe: conversation.lastMessageOf,
       })
-      .from(conversa)
-      .where(eq(conversa.id, conversaId))
+      .from(conversation)
+      .where(eq(conversation.id, conversationId))
       .limit(1);
     // A conversa sumiu entre o enfileirar e o processar (mesma tolerância do
     // download de mídia): nada a fazer, a próxima varredura nem vai mais achá-la.
     if (!c) return;
 
     const regras = await carregarRegrasSla(tx);
-    const vencedoras = regrasVencedorasPorAlvo(regras, c.filaId);
+    const vencedoras = rulesWinningByTarget(regras, c.filaId);
     // Sem regra cadastrada para esta fila/tenant: não muda nada, como pedido.
     if (vencedoras.length === 0) return;
 
     const existentes = await tx
       .select({
-        id: slaConversa.id,
-        regraId: slaConversa.regraId,
-        estado: slaConversa.estado,
-        alertadoEm: slaConversa.alertadoEm,
-        estouradoEm: slaConversa.estouradoEm,
+        id: slaConversation.id,
+        regraId: slaConversation.regraId,
+        estado: slaConversation.state,
+        alertadoEm: slaConversation.alertadoEm,
+        estouradoEm: slaConversation.estouradoEm,
       })
-      .from(slaConversa)
+      .from(slaConversation)
       .where(
         and(
-          eq(slaConversa.conversaId, c.id),
+          eq(slaConversation.conversaId, c.id),
           inArray(
-            slaConversa.regraId,
+            slaConversation.regraId,
             vencedoras.map((r) => r.id),
           ),
         ),
       );
-    const porRegraId = new Map(existentes.map((e) => [e.regraId, e]));
+    const byRuleId = new Map(existentes.map((e) => [e.regraId, e]));
 
     for (const regra of vencedoras) {
-      await processarRegra(tx, tenantId, c, regra, porRegraId.get(regra.id), agora);
+      await processarRegra(tx, tenantId, c, regra, byRuleId.get(regra.id), agora);
     }
   });
 }
@@ -358,8 +358,8 @@ export interface CandidataASla {
  * atravessa tenant para achar QUEM precisa de trabalho; o trabalho em si
  * (`checarSlaDaConversa`) roda depois, um tenant de cada vez, sob RLS.
  */
-export async function conversasParaChecarSla(lote = 200): Promise<CandidataASla[]> {
-  const { rows } = await bancoDono().execute<{ tenant_id: string; id: string }>(sql`
+export async function conversationsForChecarSla(lote = 200): Promise<CandidataASla[]> {
+  const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select distinct c.tenant_id, c.id
       from conversa c
      where c.estado <> 'encerrada'

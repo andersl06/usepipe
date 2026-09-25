@@ -23,15 +23,15 @@ const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
 
 test('a Análise leva à análise DO contato, no prefixo do próprio tipo', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
-    const analise = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
-    assert.equal(analise?.href, `/${tipo}/${ID}/analise`);
+    const analytics = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
+    assert.equal(analytics?.href, `/${tipo}/${ID}/analise`);
   }
 });
 
 test('Canais leva aos canais DO contato, no prefixo do próprio tipo', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
-    const canais = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
-    assert.equal(canais?.href, `/${tipo}/${ID}/canais`);
+    const channels = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
+    assert.equal(channels?.href, `/${tipo}/${ID}/canais`);
   }
 });
 
@@ -80,8 +80,8 @@ test('o fluxo mantém os dois que o roteador perde', () => {
 });
 
 test('Atendimento continua na rota interna de monitoramento', () => {
-  const atendimento = itensDoMenu('fluxo', ID).find((item) => item.rotulo === 'Atendimento');
-  assert.equal(atendimento?.href, `/fluxo/${ID}/atendimento/monitoramento`);
+  const attendance = itensDoMenu('fluxo', ID).find((item) => item.rotulo === 'Atendimento');
+  assert.equal(attendance?.href, `/fluxo/${ID}/atendimento/monitoramento`);
 });
 
 test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
@@ -124,9 +124,9 @@ test('sobra item para o "…" nos dois tipos', () => {
  * permissões DA PESSOA naquele bot. Sem o argumento nada muda — é o que os
  * testes acima travam, e é o que todo tenant que nunca abriu a Equipe vê.
  */
-const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
+const SO_ISSO = (permissions: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
   papelNoFluxo: 'personalizado' as const,
-  permissoes,
+  permissions,
   editaPelaConta: false,
 });
 
@@ -159,8 +159,8 @@ test('"Conteúdos" é o recurso `resources` da lista de permissões, não `conte
 test('quem edita fluxo pela CONTA continua vendo a fileira inteira', () => {
   /* O outro lado do duplo portão: a permissão de conta não é peneirada pela
      do fluxo, senão a 0035 tiraria acesso de quem já tinha. */
-  const conta = { papelNoFluxo: null, permissoes: {}, editaPelaConta: true };
-  assert.deepEqual(itensDoMenu('fluxo', ID, conta), itensDoMenu('fluxo', ID));
+  const account = { papelNoFluxo: null, permissoes: {}, editaPelaConta: true };
+  assert.deepEqual(itensDoMenu('fluxo', ID, account), itensDoMenu('fluxo', ID));
 });
 
 test('o item do template do roteador não passa pela peneira de permissão', () => {

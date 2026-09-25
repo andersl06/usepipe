@@ -6,70 +6,70 @@
 
 import { z } from 'zod';
 
-import type { ChamadaEstruturada, Esforco } from '../cliente/cliente.js';
+import type { ChamadaEstruturada, Effort } from '../cliente/cliente.js';
 import { chamadaPadrao } from '../cliente/cliente.js';
 import type { Consumo } from '../consumo/index.js';
-import { PROMPT_RESUMO_ABERTURA, PROMPT_RESUMO_ENCERRAMENTO } from '../prompts/resumo.js';
-import type { EntradaResumo } from '../prompts/resumo.js';
+import { PROMPT_RESUMO_ABERTURA, PROMPT_SUMMARY_CLOSURE } from '../prompts/resumo.js';
+import type { InboundSummary } from '../prompts/resumo.js';
 import type { Prompt } from '../prompts/tipos.js';
 import { identificador } from '../prompts/tipos.js';
-import type { Transcricao } from '../transcricao/transcricao.js';
+import type { Transcription } from '../transcricao/transcricao.js';
 
 const EsquemaResumo = z.object({
   resumo: z.string().min(1),
 });
 
-export interface OpcoesResumo {
-  transcricao: Transcricao;
+export interface OptionsSummary {
+  transcription: Transcription;
   /** Fila, produto, campanha — o que ajude a situar a conversa. */
-  contexto?: string | null;
+  context?: string | null;
   maxPalavras?: number;
-  modelo?: string;
-  esforco?: Esforco;
+  template?: string;
+  effort?: Effort;
   chamar?: ChamadaEstruturada;
 }
 
 export interface ResultadoResumo {
   resumo: string;
   consumo: Consumo;
-  modelo: string;
+  template: string;
   /** `resumo-encerramento@v1` — qual prompt produziu este texto. */
   prompt: string;
 }
 
 async function resumirCom(
-  prompt: Prompt<EntradaResumo>,
-  funcionalidade: string,
-  opcoes: OpcoesResumo,
+  prompt: Prompt<InboundSummary>,
+  feature: string,
+  options: OptionsSummary,
 ): Promise<ResultadoResumo> {
-  const chamar = opcoes.chamar ?? chamadaPadrao;
+  const chamar = options.chamar ?? chamadaPadrao;
   const texto = prompt.montar({
-    transcricao: opcoes.transcricao.texto,
-    truncada: opcoes.transcricao.truncada,
-    mensagensOmitidas: opcoes.transcricao.mensagensOmitidas,
-    maxPalavras: opcoes.maxPalavras,
-    contexto: opcoes.contexto,
+    transcription: options.transcription.texto,
+    truncada: options.transcription.truncada,
+    messagesOmitidas: options.transcription.messagesOmitidas,
+    maxPalavras: options.maxPalavras,
+    context: options.context,
   });
 
-  const { dados, consumo, modelo } = await chamar({
+  const { data, consumo, template } = await chamar({
     sistema: texto.sistema,
-    usuario: texto.usuario,
+    user: texto.user,
     esquema: EsquemaResumo,
-    funcionalidade,
-    modelo: opcoes.modelo,
-    esforco: opcoes.esforco,
+    feature,
+    template: options.template,
+    effort: options.effort,
     maxTokens: 2_000,
   });
 
-  return { resumo: dados.resumo.trim(), consumo, modelo, prompt: identificador(prompt) };
+  return { resumo: data.resumo.trim(), consumo, template, prompt: identificador(prompt) };
 }
 
 /** O que aconteceu antes, para o atendente que está assumindo a conversa. */
-export function resumirAbertura(opcoes: OpcoesResumo): Promise<ResultadoResumo> {
-  return resumirCom(PROMPT_RESUMO_ABERTURA, 'resumo_abertura', opcoes);
+export function resumirAbertura(options: OptionsSummary): Promise<ResultadoResumo> {
+  return resumirCom(PROMPT_RESUMO_ABERTURA, 'resumo_abertura', options);
 }
 
 /** O que aconteceu agora, para subir na linha do tempo do lead. */
-export function resumirEncerramento(opcoes: OpcoesResumo): Promise<ResultadoResumo> {
-  return resumirCom(PROMPT_RESUMO_ENCERRAMENTO, 'resumo_encerramento', opcoes);
+export function resumirClosure(options: OptionsSummary): Promise<ResultadoResumo> {
+  return resumirCom(PROMPT_SUMMARY_CLOSURE, 'resumo_encerramento', options);
 }

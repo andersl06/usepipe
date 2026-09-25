@@ -3,22 +3,22 @@ import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
-import type { RequisicaoAutenticada } from '../autenticacao.js';
-import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
-import { definirStatus, ehEstadoAtendente } from '../dominio/status-atendente.js';
+import { KeyOrSession, Scopes, atorDe, contextOf } from '../autenticacao.js';
+import type { RequestAuthenticated } from '../autenticacao.js';
+import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
+import { definirStatus, ehStateAgent } from '../dominio/status-atendente.js';
 import { telefoneValido } from '../dominio/mensagem-ativa.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 import {
-  condicaoDeCursor,
+  conditionOfCursor,
   lerCursor,
   lerLimite,
-  lerOrdenacao,
-  montarPagina,
-  ordemSql,
+  readSorting,
+  assemblePage,
+  orderSql,
 } from '../paginacao.js';
-import type { Pagina } from '../paginacao.js';
+import type { Page } from '../paginacao.js';
 import { igualEmLista, juntar } from './conversas.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -34,18 +34,18 @@ const EMAIL_RAZOAVEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * nenhuma clareza a mais.
  */
 
-type LinhaContato = {
+type LineContact = {
   id: string;
   nome: string | null;
   telefone_e164: string | null;
   email: string | null;
-  documento: string | null;
+  document: string | null;
   bloqueado: boolean;
   criado_em: Date | string;
   atributos: Record<string, unknown> | null;
 };
 
-interface CorpoContato {
+interface BodyContact {
   nome?: string;
   telefone_e164?: string;
   email?: string;
@@ -54,7 +54,7 @@ interface CorpoContato {
 }
 
 /** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */
-interface CorpoEdicaoContato {
+interface BodyEditContact {
   nome?: string | null;
   email?: string | null;
   telefone_e164?: string | null;
@@ -63,19 +63,19 @@ interface CorpoEdicaoContato {
 }
 
 @Controller('v1/contatos')
-export class ControladorContatos {
+export class ContactsController {
   @Get()
-  @Escopos('contatos:ler')
+  @Scopes('contatos:ler')
   async listar(
-    @Req() requisicao: RequisicaoAutenticada,
+    @Req() requisicao: RequestAuthenticated,
     @Query() consulta: Record<string, string | undefined>,
-  ): Promise<Pagina<Record<string, unknown>>> {
-    const { tenantId } = contextoDe(requisicao);
+  ): Promise<Page<Record<string, unknown>>> {
+    const { tenantId } = contextOf(requisicao);
     const limite = lerLimite(consulta['limit']);
     const cursor = lerCursor(consulta['cursor']);
-    const ordem = lerOrdenacao(consulta['order_by'], ['criado_em'], {
+    const ordem = readSorting(consulta['order_by'], ['criado_em'], {
       campo: 'criado_em',
-      direcao: 'desc',
+      direction: 'desc',
     });
 
     const filtros: SQL[] = [sql`excluido_em is null`];
@@ -85,58 +85,58 @@ export class ControladorContatos {
     if (consulta['busca']) filtros.push(sql`nome ilike ${`%${consulta['busca']}%`}`);
 
     const linhas = await noTenant(tenantId, async (tx) => {
-      const { rows } = await tx.execute<LinhaContato>(sql`
+      const { rows } = await tx.execute<LineContact>(sql`
         select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
           from contato
          where ${juntar(filtros)}
-           and ${condicaoDeCursor('criado_em', 'timestamptz', ordem.direcao, cursor)}
-         order by ${ordemSql('criado_em', ordem.direcao)}
+           and ${conditionOfCursor('criado_em', 'timestamptz', ordem.direction, cursor)}
+         order by ${orderSql('criado_em', ordem.direction)}
          limit ${limite + 1}
       `);
       return rows;
     });
 
-    const pagina = montarPagina(linhas, limite, (l) => ({
-      valor: iso(l.criado_em) ?? '',
+    const pagina = assemblePage(linhas, limite, (l) => ({
+      value: iso(l.criado_em) ?? '',
       id: l.id,
     }));
-    return { data: pagina.data.map(comoContato), page_info: pagina.page_info };
+    return { data: pagina.data.map(asContact), page_info: pagina.page_info };
   }
 
   @Get(':id')
-  @Escopos('contatos:ler')
+  @Scopes('contatos:ler')
   async obter(
-    @Req() requisicao: RequisicaoAutenticada,
+    @Req() request: RequestAuthenticated,
     @Param('id') id: string,
   ): Promise<Record<string, unknown>> {
-    const { tenantId } = contextoDe(requisicao);
+    const { tenantId } = contextOf(request);
     const linha = await noTenant(tenantId, async (tx) => {
-      const { rows } = await tx.execute<LinhaContato>(sql`
+      const { rows } = await tx.execute<LineContact>(sql`
         select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
           from contato where id = ${id}::uuid and excluido_em is null limit 1
       `);
       return rows[0] ?? null;
     });
-    if (!linha) throw ErroPipe.naoEncontrado('Contato');
-    return comoContato(linha);
+    if (!linha) throw PipeError.naoEncontrado('Contato');
+    return asContact(linha);
   }
 
   @Post()
   @HttpCode(201)
-  @Escopos('contatos:escrever')
-  async criar(
-    @Req() requisicao: RequisicaoAutenticada,
-    @Body() corpo: CorpoContato,
+  @Scopes('contatos:escrever')
+  async create(
+    @Req() requisicao: RequestAuthenticated,
+    @Body() corpo: BodyContact,
   ): Promise<Record<string, unknown>> {
-    const { tenantId } = contextoDe(requisicao);
+    const { tenantId } = contextOf(requisicao);
     if (!corpo.telefone_e164 && !corpo.email) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'contato_sem_identificador',
         'Informe telefone_e164 ou email: contato sem identificador não recebe mensagem.',
       );
     }
     const linha = await noTenant(tenantId, async (tx) => {
-      const { rows } = await tx.execute<LinhaContato>(sql`
+      const { rows } = await tx.execute<LineContact>(sql`
         insert into contato (tenant_id, nome, telefone_e164, email, documento, atributos)
         values (
           ${tenantId}, ${corpo.nome ?? null}, ${corpo.telefone_e164 ?? null},
@@ -159,7 +159,7 @@ export class ControladorContatos {
       }
       return criado;
     });
-    return comoContato(linha);
+    return asContact(linha);
   }
 
   /**
@@ -170,91 +170,91 @@ export class ControladorContatos {
    * as outras extras do contato continuam como estavam.
    */
   @Patch(':id')
-  @ComSessao()
+  @WithSession()
   async editar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: CorpoEdicaoContato,
+    @Body() corpo: BodyEditContact,
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Contato');
+    const session = sessionOf(requisicao);
+    if (!UUID.test(id)) throw PipeError.naoEncontrado('Contato');
 
     const nome = corpo?.nome;
     const email = corpo?.email;
     const telefone = corpo?.telefone_e164;
-    const documento = corpo?.documento;
+    const document = corpo?.documento;
     const atributos = corpo?.atributos;
 
     if (typeof email === 'string' && email && !EMAIL_RAZOAVEL.test(email)) {
-      throw ErroPipe.requisicao('contato_email_invalido', 'Informe um e-mail válido.');
+      throw PipeError.request('contato_email_invalido', 'Informe um e-mail válido.');
     }
     if (typeof telefone === 'string' && telefone && !telefoneValido(telefone)) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'contato_telefone_invalido',
         'Informe um telefone no formato E.164 (ex.: +5511987654321).',
       );
     }
 
-    return noTenant(sessao.tenantId, async (tx) => {
-      await exigirPermissao(tx, sessao.usuarioId, 'contato.editar');
+    return noTenant(session.tenantId, async (tx) => {
+      await exigirPermission(tx, session.userId, 'contato.editar');
 
-      const { rows: atuais } = await tx.execute<LinhaContato>(sql`
+      const { rows: current } = await tx.execute<LineContact>(sql`
         select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
           from contato
-         where id = ${id}::uuid and tenant_id = ${sessao.tenantId}::uuid and excluido_em is null
+         where id = ${id}::uuid and tenant_id = ${session.tenantId}::uuid and excluido_em is null
          limit 1
       `);
-      const atual = atuais[0];
-      if (!atual) throw ErroPipe.naoEncontrado('Contato');
+      const atual = current[0];
+      if (!atual) throw PipeError.naoEncontrado('Contato');
 
       if (typeof telefone === 'string' && telefone && telefone !== atual.telefone_e164) {
         const { rows: conflitos } = await tx.execute<{ id: string }>(sql`
           select id from contato
-           where tenant_id = ${sessao.tenantId}::uuid and telefone_e164 = ${telefone}
+           where tenant_id = ${session.tenantId}::uuid and telefone_e164 = ${telefone}
              and excluido_em is null and id <> ${id}::uuid
            limit 1
         `);
         if (conflitos[0]) {
-          throw ErroPipe.conflito(
+          throw PipeError.conflito(
             'contato_telefone_em_uso',
             'Já existe um contato com este telefone.',
           );
         }
       }
 
-      const { rows: gravados } = await tx.execute<LinhaContato>(sql`
+      const { rows: gravados } = await tx.execute<LineContact>(sql`
         update contato set
           nome = ${nome === undefined ? sql`nome` : nome},
           email = ${email === undefined ? sql`email` : email},
           telefone_e164 = ${telefone === undefined ? sql`telefone_e164` : telefone},
-          documento = ${documento === undefined ? sql`documento` : documento},
+          documento = ${document === undefined ? sql`documento` : document},
           atributos = ${
             atributos === undefined ? sql`atributos` : sql`atributos || ${JSON.stringify(atributos)}::jsonb`
           },
           atualizado_em = now()
-        where id = ${id}::uuid and tenant_id = ${sessao.tenantId}::uuid
+        where id = ${id}::uuid and tenant_id = ${session.tenantId}::uuid
         returning id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
       `);
       const gravado = gravados[0];
-      if (!gravado) throw ErroPipe.naoEncontrado('Contato');
+      if (!gravado) throw PipeError.naoEncontrado('Contato');
 
       const mudanca = diferenca(
         {
           nome: atual.nome,
           email: atual.email,
           telefone_e164: atual.telefone_e164,
-          documento: atual.documento,
+          documento: atual.document,
         },
         {
           nome: gravado.nome,
           email: gravado.email,
           telefone_e164: gravado.telefone_e164,
-          documento: gravado.documento,
+          documento: gravado.document,
         },
       );
       if (Object.keys(mudanca.depois).length > 0 || atributos !== undefined) {
-        await registrarAuditoria(tx, sessao.tenantId, {
-          ator: { tipo: 'usuario', id: sessao.usuarioId },
+        await registrarAuditoria(tx, session.tenantId, {
+          ator: { tipo: 'usuario', id: session.userId },
           acao: 'alterou',
           objetoTipo: 'contato',
           objetoId: id,
@@ -262,40 +262,40 @@ export class ControladorContatos {
           depois: atributos !== undefined ? { ...mudanca.depois, atributos: gravado.atributos } : mudanca.depois,
         });
       }
-      return comoContato(gravado);
+      return asContact(gravado);
     });
   }
 }
 
 @Controller('v1/filas')
-export class ControladorFilas {
+export class QueuesController {
   @Get()
-  @Escopos('filas:ler')
+  @Scopes('filas:ler')
   async listar(
-    @Req() requisicao: RequisicaoAutenticada,
-    @Query() consulta: Record<string, string | undefined>,
-  ): Promise<Pagina<Record<string, unknown>>> {
-    const { tenantId } = contextoDe(requisicao);
-    const limite = lerLimite(consulta['limit']);
-    const cursor = lerCursor(consulta['cursor']);
-    const ordem = lerOrdenacao(consulta['order_by'], ['nome', 'ordem'], {
+    @Req() requisicao: RequestAuthenticated,
+    @Query() query: Record<string, string | undefined>,
+  ): Promise<Page<Record<string, unknown>>> {
+    const { tenantId } = contextOf(requisicao);
+    const limite = lerLimite(query['limit']);
+    const cursor = lerCursor(query['cursor']);
+    const order = readSorting(query['order_by'], ['nome', 'ordem'], {
       campo: 'nome',
-      direcao: 'asc',
+      direction: 'asc',
     });
 
-    const filtros: SQL[] = [];
-    if (consulta['ativa']) filtros.push(sql`ativa = ${consulta['ativa'] === 'true'}`);
+    const filters: SQL[] = [];
+    if (query['ativa']) filters.push(sql`ativa = ${query['ativa'] === 'true'}`);
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<{
         id: string;
         nome: string;
         cor: string | null;
-        ordem: number;
-        ativa: boolean;
-        capacidade_padrao: number;
+        order: number;
+        active: boolean;
+        capacityDefault: number;
         aguardando: string;
-        em_atendimento: string;
+        inAttendance: string;
       }>(sql`
         select f.id, f.nome, f.cor, f.ordem, f.ativa, f.capacidade_padrao,
                (select count(*) from conversa c
@@ -305,75 +305,75 @@ export class ControladorFilas {
                    and c.estado in ('atribuida', 'em_atendimento', 'em_espera'))::text
                  as em_atendimento
           from fila f
-         where ${juntar(filtros)}
-           and ${condicaoDeCursor('f.nome', 'text', ordem.direcao, cursor, 'f.id')}
-         order by ${ordemSql(`f.${ordem.campo}`, ordem.direcao, 'f.id')}
+         where ${juntar(filters)}
+           and ${conditionOfCursor('f.nome', 'text', order.direction, cursor, 'f.id')}
+         order by ${orderSql(`f.${order.campo}`, order.direction, 'f.id')}
          limit ${limite + 1}
       `);
       return rows;
     });
 
-    const pagina = montarPagina(linhas, limite, (l) => ({ valor: l.nome, id: l.id }));
+    const page = assemblePage(linhas, limite, (l) => ({ value: l.nome, id: l.id }));
     return {
-      data: pagina.data.map((l) => ({
+      data: page.data.map((l) => ({
         id: l.id,
         nome: l.nome,
         cor: l.cor,
-        ordem: l.ordem,
-        ativa: l.ativa,
-        capacidade_padrao: l.capacidade_padrao,
+        ordem: l.order,
+        ativa: l.active,
+        capacidade_padrao: l.capacityDefault,
         aguardando: Number(l.aguardando),
-        em_atendimento: Number(l.em_atendimento),
+        em_atendimento: Number(l.inAttendance),
       })),
-      page_info: pagina.page_info,
+      page_info: page.page_info,
     };
   }
 }
 
 @Controller('v1/atendentes')
-export class ControladorAtendentes {
+export class AgentsController {
   /**
    * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
    * (a Gestão desconectando quem ficou inativo), e aí exige permissão.
    */
   @Post('status')
-  @ChaveOuSessao('atendentes:ler')
+  @KeyOrSession('atendentes:ler')
   async status(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
-    @Body() corpo: { estado?: string; motivo_pausa_id?: string; usuario_id?: string },
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
+    @Body() corpo: { state?: string; motivo_pausa_id?: string; userId?: string },
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    const estado = corpo.estado ?? '';
-    if (!ehEstadoAtendente(estado)) {
-      throw ErroPipe.requisicao(
+    const state = corpo.state ?? '';
+    if (!ehStateAgent(state)) {
+      throw PipeError.request(
         'estado_desconhecido',
-        `"${estado}" não é um status válido.`,
+        `"${state}" não é um status válido.`,
       );
     }
-    const alvo = corpo.usuario_id ?? ator.usuarioId;
+    const alvo = corpo.userId ?? ator.userId;
     if (!alvo) {
-      throw ErroPipe.requisicao('usuario_obrigatorio', 'Informe `usuario_id`.');
+      throw PipeError.request('usuario_obrigatorio', 'Informe `usuario_id`.');
     }
     const r = await definirStatus({
       tenantId: ator.tenantId,
-      porUsuarioId: ator.usuarioId,
-      alvoUsuarioId: alvo,
-      estado,
+      byUserId: ator.userId,
+      targetUserId: alvo,
+      state,
       motivoPausaId: corpo.motivo_pausa_id ?? null,
     });
     return { usuario_id: alvo, estado: r.estado };
   }
 
   @Get()
-  @Escopos('atendentes:ler')
+  @Scopes('atendentes:ler')
   async listar(
-    @Req() requisicao: RequisicaoAutenticada,
+    @Req() requisicao: RequestAuthenticated,
     @Query() consulta: Record<string, string | undefined>,
-  ): Promise<Pagina<Record<string, unknown>>> {
-    const { tenantId } = contextoDe(requisicao);
+  ): Promise<Page<Record<string, unknown>>> {
+    const { tenantId } = contextOf(requisicao);
     const limite = lerLimite(consulta['limit']);
     const cursor = lerCursor(consulta['cursor']);
-    const ordem = lerOrdenacao(consulta['order_by'], ['nome'], { campo: 'nome', direcao: 'asc' });
+    const ordem = readSorting(consulta['order_by'], ['nome'], { campo: 'nome', direction: 'asc' });
 
     const filtros: SQL[] = [sql`u.ativo`];
     if (consulta['estado']) {
@@ -408,14 +408,14 @@ export class ControladorAtendentes {
           from usuario u
           left join status_atendente s on s.usuario_id = u.id
          where ${juntar(filtros)}
-           and ${condicaoDeCursor('u.nome', 'text', ordem.direcao, cursor, 'u.id')}
-         order by ${ordemSql('u.nome', ordem.direcao, 'u.id')}
+           and ${conditionOfCursor('u.nome', 'text', ordem.direction, cursor, 'u.id')}
+         order by ${orderSql('u.nome', ordem.direction, 'u.id')}
          limit ${limite + 1}
       `);
       return rows;
     });
 
-    const pagina = montarPagina(linhas, limite, (l) => ({ valor: l.nome, id: l.id }));
+    const pagina = assemblePage(linhas, limite, (l) => ({ value: l.nome, id: l.id }));
     return {
       data: pagina.data.map((l) => ({
         id: l.id,
@@ -430,20 +430,20 @@ export class ControladorAtendentes {
   }
 }
 
-function comoContato(linha: LinhaContato): Record<string, unknown> {
+function asContact(linha: LineContact): Record<string, unknown> {
   return {
     id: linha.id,
     nome: linha.nome,
     telefone_e164: linha.telefone_e164,
     email: linha.email,
-    documento: linha.documento,
+    documento: linha.document,
     bloqueado: linha.bloqueado,
     criado_em: iso(linha.criado_em),
     atributos: linha.atributos ?? {},
   };
 }
 
-function iso(valor: Date | string | null | undefined): string | null {
-  if (valor === null || valor === undefined) return null;
-  return (valor instanceof Date ? valor : new Date(valor)).toISOString();
+function iso(value: Date | string | null | undefined): string | null {
+  if (value === null || value === undefined) return null;
+  return (value instanceof Date ? value : new Date(value)).toISOString();
 }

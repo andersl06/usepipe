@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Icone } from '@pipe/ui';
-import { CHAVE_TEMA, TEMAS, temaValido, type Tema } from '../../lib/configuracoes-comum';
+import { KEY_TEMA, TEMAS, temaValido, type Tema } from '../../lib/configuracoes-comum';
 
 /**
  * O seletor de tema.
@@ -47,31 +47,31 @@ export function SeletorDeTema() {
   const [tema, setTema] = useState<Tema>('sistema');
 
   useEffect(() => {
-    const salvo = window.localStorage.getItem(CHAVE_TEMA);
+    const salvo = window.localStorage.getItem(KEY_TEMA);
     if (temaValido(salvo)) setTema(salvo);
   }, []);
 
   function escolher(novo: Tema) {
     setTema(novo);
-    window.localStorage.setItem(CHAVE_TEMA, novo);
+    window.localStorage.setItem(KEY_TEMA, novo);
     aplicar(novo);
   }
 
   return (
     <fieldset className="cfg-temas">
       <legend>Tema</legend>
-      {TEMAS.map((opcao) => (
-        <label key={opcao} className="cfg-tema">
+      {TEMAS.map((option) => (
+        <label key={option} className="cfg-tema">
           <input
             type="radio"
             name="tema"
-            value={opcao}
-            checked={tema === opcao}
-            onChange={() => escolher(opcao)}
+            value={option}
+            checked={tema === option}
+            onChange={() => escolher(option)}
           />
           <span>
-            <Icone nome={ROTULOS[opcao].icone} tamanho={16} />
-            {ROTULOS[opcao].texto}
+            <Icone nome={ROTULOS[option].icone} tamanho={16} />
+            {ROTULOS[option].texto}
           </span>
         </label>
       ))}

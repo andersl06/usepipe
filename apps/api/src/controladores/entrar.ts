@@ -2,33 +2,33 @@ import { Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Request, Response } from 'express';
 import {
-  EntradaRecusada,
-  LoginErro,
+  InboundRefused,
+  LoginError,
   configDoAmbiente,
   cookieDeSaida,
-  cookieDeSessao,
-  criarDesafio,
-  criarToken,
-  entrarComGoogle,
+  cookieOfSession,
+  createChallenge,
+  createToken,
+  loginWithGoogle,
   hashDoToken,
   origemPermitida,
   origensPermitidas,
   sair as encerrarSessao,
-  trocarCodigo,
-  urlDeAutorizacao,
+  exchangeCode,
+  urlOfAuthorization,
 } from '@pipe/autenticacao';
-import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/autenticacao';
-import type { Eu, OrigemDeSessao, Plano, RecusaDeEntrada } from '@pipe/contracts';
-import { bancoApp, bancoDono, noTenant } from '../banco.js';
-import { aceitarConvite } from '../dominio/convites.js';
+import type { DesafioDeLogin, OptionsOfCookie, PessoaDoGoogle } from '@pipe/autenticacao';
+import type { Eu, OriginOfSession, Plano, RefusesOfInbound } from '@pipe/contracts';
+import { databaseApp, databaseOwner, noTenant } from '../banco.js';
+import { aceitarInvitation } from '../dominio/convites.js';
 import {
-  cadastroDeContaHabilitado,
-  construirContaDoLogin,
+  registrationOfAccountEnabled,
+  buildAccountOfLogin,
 } from '../dominio/construtor-de-conta.js';
-import type { EntradaPorConvite } from '../dominio/convites.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, lerCookies, sessaoDe, tokenDaSessao } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import type { InboundByInvitation } from '../dominio/convites.js';
+import { PipeError } from '../erros.js';
+import { WithSession, lerCookies, sessionOf, tokenOfSession } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 
 /**
  * Entrar, saber quem entrou e sair.
@@ -50,13 +50,13 @@ const DESAFIO_SEGUNDOS = 300;
 /** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */
 const CAMINHO_DESAFIO = '/v1/auth';
 
-export function opcoesDeCookie(): OpcoesDeCookie {
-  const dominio = process.env['PIPE_COOKIE_DOMINIO'];
+export function optionsOfCookie(): OptionsOfCookie {
+  const domain = process.env['PIPE_COOKIE_DOMINIO'];
   return {
     // `Domain=.usepipe.com.br` é o que faz o cookie emitido por `api.usepipe.com.br` valer
     // em `app.`, `gestao.` e `crm.`. Vazio em desenvolvimento: `Domain=localhost`
     // invalida o cookie em vários navegadores, e o sintoma é login que "não faz nada".
-    dominio: dominio && dominio.length > 0 ? dominio : undefined,
+    domain: domain && domain.length > 0 ? domain : undefined,
     seguro: process.env['PIPE_COOKIE_SEGURO'] !== 'false',
   };
 }
@@ -83,7 +83,7 @@ export function baseDoApp(origem: string | undefined): string {
   return limpa && origemPermitida(limpa, origensPermitidas()) ? limpa : urlDoApp();
 }
 
-export function urlDeErro(codigo: RecusaDeEntrada, origem?: string): string {
+export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
   const base = baseDoApp(origem);
   // `PIPE_URL_ENTRADA` só decide quando NÃO se sabe de onde a pessoa veio: fixá-la
   // por cima de uma origem conhecida devolveria todo mundo ao mesmo lugar de novo.
@@ -100,8 +100,8 @@ export function urlDeErro(codigo: RecusaDeEntrada, origem?: string): string {
  * destino absoluto vira redirecionamento aberto, que é phishing usando o nosso
  * domínio como trampolim.
  */
-export function destinoAbsoluto(destino: string, origem?: string): string {
-  const interno = destino.startsWith('/') && !destino.startsWith('//') ? destino : '/';
+export function destinationAbsolute(destination: string, origem?: string): string {
+  const interno = destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
   return `${baseDoApp(origem)}${interno}`;
 }
 
@@ -112,21 +112,21 @@ export function destinoAbsoluto(destino: string, origem?: string): string {
  * Google e voltar: sem isso, a volta não teria como saber que aquela conta acabou
  * de ser convidada, e cairia na recusa por domínio desconhecido.
  */
-export type DesafioComConvite = DesafioDeLogin & {
-  convite?: string;
+export type ChallengeWithInvitation = DesafioDeLogin & {
+  invitation?: string;
   /** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */
   origem?: string;
   /** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */
   tenantId?: string;
   /** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */
-  teste?: boolean;
+  test?: boolean;
 };
 
-export function cookieDoDesafio(desafio: DesafioComConvite | null): string {
-  const opcoes = opcoesDeCookie();
-  const valor = desafio ? Buffer.from(JSON.stringify(desafio)).toString('base64url') : '';
+export function cookieDoDesafio(desafio: ChallengeWithInvitation | null): string {
+  const options = optionsOfCookie();
+  const value = desafio ? Buffer.from(JSON.stringify(desafio)).toString('base64url') : '';
   const partes = [
-    `${COOKIE_DESAFIO}=${valor}`,
+    `${COOKIE_DESAFIO}=${value}`,
     `Path=${CAMINHO_DESAFIO}`,
     'HttpOnly',
     // `Lax`, e não `Strict`: a volta do Google é navegação de topo vinda de outro
@@ -134,8 +134,8 @@ export function cookieDoDesafio(desafio: DesafioComConvite | null): string {
     'SameSite=Lax',
     `Max-Age=${desafio ? DESAFIO_SEGUNDOS : 0}`,
   ];
-  if (opcoes.dominio) partes.push(`Domain=${opcoes.dominio}`);
-  if (opcoes.seguro ?? true) partes.push('Secure');
+  if (options.domain) partes.push(`Domain=${options.domain}`);
+  if (options.seguro ?? true) partes.push('Secure');
   return partes.join('; ');
 }
 
@@ -146,15 +146,15 @@ export function cookieDoDesafio(desafio: DesafioComConvite | null): string {
  * próprio dono do navegador forjar o próprio login — que é o que ele já pode fazer.
  * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
  */
-export function lerDesafio(requisicao: Request): DesafioComConvite | null {
+export function lerDesafio(request: Request): ChallengeWithInvitation | null {
   /* Cada valor recebido com esse nome, e não só o primeiro: quando o `Domain`
      do cookie muda entre duas versões, o navegador passa a mandar os dois, e o
      velho costuma vir na frente. Era isso que derrubava o login sem erro. */
-  for (const cru of lerCookies(requisicao.header('cookie'), COOKIE_DESAFIO)) {
+  for (const cru of lerCookies(request.header('cookie'), COOKIE_DESAFIO)) {
     try {
       const objeto = JSON.parse(
         Buffer.from(cru, 'base64url').toString('utf8'),
-      ) as DesafioComConvite;
+      ) as ChallengeWithInvitation;
       if (objeto.state && objeto.nonce && objeto.verificadorPkce) return objeto;
     } catch {
       // valor ilegível: tenta o próximo
@@ -164,20 +164,20 @@ export function lerDesafio(requisicao: Request): DesafioComConvite | null {
 }
 
 /** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */
-export function codigoDaRecusa(erro: unknown): RecusaDeEntrada {
-  if (erro instanceof EntradaRecusada) {
+export function codigoDaRecusa(error: unknown): RefusesOfInbound {
+  if (error instanceof InboundRefused) {
     // Conta do provedor que já é de outro cliente: para quem está entrando é a
     // mesma coisa que não ter sido convidado, e dizer mais contaria que aquele
     // e-mail existe em outra empresa do Pipe.
-    return erro.codigo === 'outro_tenant' ? 'sem_convite' : erro.codigo;
+    return error.codigo === 'outro_tenant' ? 'sem_convite' : error.codigo;
   }
-  if (erro instanceof LoginErro && erro.codigo === 'email_nao_verificado') {
+  if (error instanceof LoginError && error.codigo === 'email_nao_verificado') {
     return 'email_nao_verificado';
   }
   // Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de
   // outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não
   // serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.
-  if (erro instanceof ErroPipe && erro.status !== 500) return 'sem_convite';
+  if (error instanceof PipeError && error.status !== 500) return 'sem_convite';
   // Todo o resto — `state` errado, troca de código falhada, config ausente — é
   // problema nosso ou do provedor, e para quem está entrando a saída é uma só:
   // tentar de novo.
@@ -202,18 +202,18 @@ export function origemDaQuery(requisicao: Request): string | undefined {
  * quando recebe a pessoa. Virar 500 aqui seria melhor do que redirecionar como se
  * tivesse dado certo.
  */
-async function entrarPorConvite(
+async function loginByInvitation(
   token: string,
   pessoa: PessoaDoGoogle,
-  contexto: { ip?: string; agente?: string },
-): Promise<EntradaPorConvite> {
-  const aceito = await aceitarConvite(token, pessoa, contexto);
-  if (!aceito.sessao) throw new Error('convite aceito sem abrir sessão');
-  return aceito.sessao;
+  context: { ip?: string; agente?: string },
+): Promise<InboundByInvitation> {
+  const aceito = await aceitarInvitation(token, pessoa, context);
+  if (!aceito.session) throw new Error('convite aceito sem abrir sessão');
+  return aceito.session;
 }
 
 @Controller('v1/auth')
-export class ControladorEntrada {
+export class LoginController {
   /**
    * Login SÓ DE DESENVOLVIMENTO, sem Google.
    *
@@ -234,7 +234,7 @@ export class ControladorEntrada {
     const email = (textoDaQuery(requisicao, 'email') ?? 'ana.ribeiro@demo.pipe.app')
       .trim()
       .toLowerCase();
-    const { rows } = await bancoDono().execute<{ id: string; tenant_id: string }>(sql`
+    const { rows } = await databaseOwner().execute<{ id: string; tenant_id: string }>(sql`
       select id, tenant_id from usuario where lower(email) = ${email} limit 1
     `);
     const u = rows[0];
@@ -244,12 +244,12 @@ export class ControladorEntrada {
         .end(`sem usuário "${email}" — rode o seed (pnpm banco:semear && pnpm seed:demo)`);
       return;
     }
-    const novo = criarToken();
-    await bancoDono().execute(sql`
+    const novo = createToken();
+    await databaseOwner().execute(sql`
       insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
       values (${u.tenant_id}::uuid, ${u.id}::uuid, ${novo.hash}, ${novo.expiraEm}, 'senha')
     `);
-    resposta.setHeader('set-cookie', cookieDeSessao(novo.token, novo.expiraEm, opcoesDeCookie()));
+    resposta.setHeader('set-cookie', cookieOfSession(novo.token, novo.expiraEm, optionsOfCookie()));
     const permitidas = origensPermitidas();
     const origem = origemDaQuery(requisicao);
     const base =
@@ -270,24 +270,24 @@ export class ControladorEntrada {
     try {
       config = configDoAmbiente();
     } catch {
-      resposta.redirect(302, urlDeErro('falha_no_provedor', origemDaQuery(requisicao)));
+      resposta.redirect(302, urlOfError('falha_no_provedor', origemDaQuery(requisicao)));
       return;
     }
 
-    const convite = textoDaQuery(requisicao, 'convite');
+    const invitation = textoDaQuery(requisicao, 'convite');
     const origem = origemDaQuery(requisicao);
-    const desafio: DesafioComConvite = {
-      ...criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/'),
-      ...(convite ? { convite } : {}),
+    const desafio: ChallengeWithInvitation = {
+      ...createChallenge(textoDaQuery(requisicao, 'destino') ?? '/'),
+      ...(invitation ? { invitation } : {}),
       ...(origem ? { origem } : {}),
     };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
-    resposta.redirect(302, urlDeAutorizacao(config, desafio));
+    resposta.redirect(302, urlOfAuthorization(config, desafio));
   }
 
   /** A volta do Google. Daqui a pessoa sai logada ou sai com um código de recusa. */
   @Get('google/retorno')
-  async retorno(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+  async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
     if (!desafio) {
@@ -302,56 +302,56 @@ export class ControladorEntrada {
         JSON.stringify({ cookies: (requisicao.header('cookie') ?? '').split(';').length }),
       );
       resposta.setHeader('set-cookie', apagarDesafio);
-      resposta.redirect(302, urlDeErro('falha_no_provedor'));
+      resposta.redirect(302, urlOfError('falha_no_provedor'));
       return;
     }
 
     try {
-      const pessoa = await trocarCodigo(configDoAmbiente(), desafio, {
+      const pessoa = await exchangeCode(configDoAmbiente(), desafio, {
         code: textoDaQuery(requisicao, 'code'),
         state: textoDaQuery(requisicao, 'state'),
         error: textoDaQuery(requisicao, 'error'),
       });
-      const contexto = { ip: requisicao.ip, agente: requisicao.header('user-agent') };
+      const context = { ip: requisicao.ip, agente: requisicao.header('user-agent') };
       // Com convite no desafio, é o convite que decide o tenant e liga a conta do
       // Google — e não o domínio. É a única porta de quem não tem domínio verificado.
-      const entrada = desafio.convite
-        ? await entrarPorConvite(desafio.convite, pessoa, contexto)
-        : await entrarComGoogle(
-            bancoDono(),
-            bancoApp(),
+      const inbound = desafio.invitation
+        ? await loginByInvitation(desafio.invitation, pessoa, context)
+        : await loginWithGoogle(
+            databaseOwner(),
+            databaseApp(),
             pessoa,
-            contexto,
+            context,
             // Com o autosserviço desligado (o padrão), nada muda: quem não tem
             // convite nem domínio verificado continua recusado. Ligado, a conta
             // nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.
-            cadastroDeContaHabilitado()
+            registrationOfAccountEnabled()
               ? (quem) =>
-                  construirContaDoLogin({ email: quem.email, nome: quem.nome }).then((conta) => ({
-                    tenantId: conta.tenantId,
-                    usuarioId: conta.usuarioId,
+                  buildAccountOfLogin({ email: quem.email, nome: quem.nome }).then((account) => ({
+                    tenantId: account.tenantId,
+                    usuarioId: account.userId,
                   }))
               : undefined,
           );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
+        cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
       ]);
-      resposta.redirect(302, destinoAbsoluto(desafio.destino, desafio.origem));
+      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origem));
     } catch (erro) {
       const codigo = codigoDaRecusa(erro);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar', erro);
       resposta.setHeader('set-cookie', apagarDesafio);
-      resposta.redirect(302, urlDeErro(codigo, desafio.origem));
+      resposta.redirect(302, urlOfError(codigo, desafio.origem));
     }
   }
 
   /** Encerra a sessão e apaga o cookie. Sair duas vezes não é erro. */
   @Post('sair')
   async sair(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
-    const token = tokenDaSessao(requisicao);
-    if (token) await encerrarSessao(bancoDono(), hashDoToken(token));
-    resposta.setHeader('set-cookie', cookieDeSaida(opcoesDeCookie()));
+    const token = tokenOfSession(requisicao);
+    if (token) await encerrarSessao(databaseOwner(), hashDoToken(token));
+    resposta.setHeader('set-cookie', cookieDeSaida(optionsOfCookie()));
     resposta.status(204).end();
   }
 }
@@ -369,25 +369,25 @@ type LinhaEu = {
 };
 
 @Controller('v1')
-export class ControladorEu {
+export class MeController {
   /** Quem está logado, no formato do contrato `Eu`. É a fonte de verdade das telas. */
   @Get('eu')
-  @ComSessao()
-  async eu(@Req() requisicao: RequisicaoComSessao): Promise<Eu> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async eu(@Req() requisicao: RequestWithSession): Promise<Eu> {
+    const session = sessionOf(requisicao);
 
-    const encontrado = await noTenant(sessao.tenantId, async (tx) => {
+    const encontrado = await noTenant(session.tenantId, async (tx) => {
       const { rows } = await tx.execute<LinhaEu>(sql`
         select u.id, u.nome, u.email, u.avatar_url,
                t.id as tenant_id, t.nome as tenant_nome, t.slug, t.plano,
                t.onboarding_concluido_em
           from usuario u
           join tenant t on t.id = u.tenant_id
-         where u.id = ${sessao.usuarioId}::uuid and u.ativo
+         where u.id = ${session.userId}::uuid and u.ativo
          limit 1
       `);
-      const usuario = rows[0];
-      if (!usuario) return null;
+      const user = rows[0];
+      if (!user) return null;
 
       // As permissões são a UNIÃO dos papéis da pessoa, com a EXCEÇÃO por
       // pessoa por cima (`usuario_permissao`, migração 0046 — a tela
@@ -399,50 +399,50 @@ export class ControladorEu {
       // não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro
       // da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem
       // tenant.
-      const { rows: permissoes } = await tx.execute<{ codigo: string }>(sql`
+      const { rows: permissions } = await tx.execute<{ codigo: string }>(sql`
         select codigo from (
           select distinct pp.permissao_codigo as codigo
             from usuario_papel up
             join papel_permissao pp on pp.papel_id = up.papel_id
-           where up.usuario_id = ${sessao.usuarioId}::uuid
+           where up.usuario_id = ${session.userId}::uuid
           union
           select uperm.permissao_codigo as codigo
             from usuario_permissao uperm
-           where uperm.usuario_id = ${sessao.usuarioId}::uuid and uperm.concedida
+           where uperm.usuario_id = ${session.userId}::uuid and uperm.concedida
         ) efetivas
          where not exists (
            select 1 from usuario_permissao negada
-            where negada.usuario_id = ${sessao.usuarioId}::uuid
+            where negada.usuario_id = ${session.userId}::uuid
               and negada.permissao_codigo = efetivas.codigo
               and not negada.concedida
          )
          order by 1
       `);
 
-      return { usuario, permissoes: permissoes.map((p) => p.codigo) };
+      return { user, permissoes: permissions.map((p) => p.codigo) };
     });
 
     // Sessão viva apontando para usuário que sumiu ou foi desativado entre um
     // pedido e outro: é recusa, não 500.
-    if (!encontrado) throw ErroPipe.naoAutorizado('Sessão ausente ou expirada.');
+    if (!encontrado) throw PipeError.naoAutorizado('Sessão ausente ou expirada.');
 
-    const { usuario, permissoes } = encontrado;
+    const { user, permissoes } = encontrado;
     return {
-      usuario: {
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        avatarUrl: usuario.avatar_url,
+      user: {
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        avatarUrl: user.avatar_url,
       },
       tenant: {
-        id: usuario.tenant_id,
-        nome: usuario.tenant_nome,
-        slug: usuario.slug,
-        plano: usuario.plano as Plano,
-        onboardingConcluido: usuario.onboarding_concluido_em !== null,
+        id: user.tenant_id,
+        nome: user.tenant_nome,
+        slug: user.slug,
+        plano: user.plano as Plano,
+        onboardingConcluido: user.onboarding_concluido_em !== null,
       },
-      permissoes,
-      origem: sessao.origem as OrigemDeSessao,
+      permissions,
+      origem: session.origem as OriginOfSession,
     };
   }
 }

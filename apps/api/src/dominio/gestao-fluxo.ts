@@ -1,19 +1,19 @@
 import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import {
-  canal,
-  classificacaoConversa,
-  contato,
-  contatoIdentidade,
-  conversa,
-  fila,
-  fluxo,
+  channel,
+  classificationConversation,
+  contact,
+  contactIdentity,
+  conversation,
+  queue,
+  flow,
   inbox,
-  mensagem,
-  templateMensagem,
+  message,
+  templateMessage,
   tenant,
-  usuario,
+  user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
 
 /**
@@ -32,220 +32,220 @@ import type { GradeDoPortal } from '@pipe/contracts';
  * Nenhum dos três é segredo — ficam legíveis no `config` cifrado
  * (`dominio/canais.ts`, `visivel`).
  */
-export const identificadorDoCanal = sql<string | null>`coalesce(
-  ${canal.config} ->> 'numero', ${canal.config} ->> 'username', ${canal.numeroId}
+export const identifierOfChannel = sql<string | null>`coalesce(
+  ${channel.config} ->> 'numero', ${channel.config} ->> 'username', ${channel.numeroId}
 )`;
 
 /** O contato (o `fluxo`) e o canal dele. Uma consulta, um `leftJoin`. */
-export async function carregarContato(tx: TransacaoPipe, tid: string, id: string) {
+export async function loadContact(tx: TransactionPipe, tid: string, id: string) {
   const [linha] = await tx
     .select({
-      id: fluxo.id,
-      nome: fluxo.nome,
-      estado: fluxo.estado,
-      tipo: fluxo.tipo,
-      imagemUrl: fluxo.imagemUrl,
-      shortName: fluxo.shortName,
-      descricao: fluxo.descricao,
-      criadoEm: fluxo.criadoEm,
-      canalId: fluxo.canalId,
-      canalNome: canal.nome,
-      canalTipo: canal.tipo,
-      canalAtivo: canal.ativo,
-      canalNumero: identificadorDoCanal,
+      id: flow.id,
+      nome: flow.nome,
+      estado: flow.estado,
+      tipo: flow.tipo,
+      imagemUrl: flow.imageUrl,
+      shortName: flow.shortName,
+      descricao: flow.descricao,
+      criadoEm: flow.criadoEm,
+      canalId: flow.channelId,
+      canalNome: channel.nome,
+      canalTipo: channel.tipo,
+      canalAtivo: channel.ativo,
+      canalNumero: identifierOfChannel,
     })
-    .from(fluxo)
-    .leftJoin(canal, eq(canal.id, fluxo.canalId))
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id)))
+    .from(flow)
+    .leftJoin(channel, eq(channel.id, flow.channelId))
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, id)))
     .limit(1);
   return linha ?? null;
 }
 
-export type ContatoDoFluxo = NonNullable<Awaited<ReturnType<typeof carregarContato>>>;
+export type ContactOfFlow = NonNullable<Awaited<ReturnType<typeof loadContact>>>;
 
 /** O fuso do tenant, para o "hoje" e o "criado em" não serem o fuso do servidor. */
-export async function fusoDoTenant(tx: TransacaoPipe): Promise<string> {
+export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
   const [linha] = await tx.select({ fuso: tenant.fuso }).from(tenant).limit(1);
   return linha?.fuso ?? 'America/Sao_Paulo';
 }
 
 /* ------------------------------------------------------------- Contatos */
 
-export async function listarContatosDoFluxo(tx: TransacaoPipe, tid: string, fluxoId: string) {
+export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxoId: string) {
   const [bot] = await tx
-    .select({ canalId: fluxo.canalId, canalNome: canal.nome, canalTipo: canal.tipo })
-    .from(fluxo)
-    .leftJoin(canal, eq(canal.id, fluxo.canalId))
-    .where(and(eq(fluxo.id, fluxoId), eq(fluxo.tenantId, tid)))
+    .select({ canalId: flow.channelId, canalNome: channel.nome, canalTipo: channel.tipo })
+    .from(flow)
+    .leftJoin(channel, eq(channel.id, flow.channelId))
+    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
     .limit(1);
   if (!bot?.canalId) return [];
 
   return tx
     .select({
-      id: contato.id,
-      nome: contato.nome,
-      email: contato.email,
-      telefone: contato.telefoneE164,
-      avatarUrl: contato.avatarUrl,
-      canalNome: canal.nome,
-      canalTipo: canal.tipo,
-      conversas: sql<number>`count(distinct ${conversa.id})::int`,
-      ultimaConversa: sql<Date | null>`max(coalesce(${conversa.ultimaMensagemEm}, ${conversa.criadaEm}))`,
+      id: contact.id,
+      nome: contact.nome,
+      email: contact.email,
+      telefone: contact.telefoneE164,
+      avatarUrl: contact.avatarUrl,
+      canalNome: channel.nome,
+      canalTipo: channel.tipo,
+      conversas: sql<number>`count(distinct ${conversation.id})::int`,
+      ultimaConversa: sql<Date | null>`max(coalesce(${conversation.lastMessageAt}, ${conversation.criadaEm}))`,
     })
-    .from(contato)
-    .innerJoin(conversa, eq(conversa.contatoId, contato.id))
-    .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
-    .innerJoin(canal, eq(canal.id, inbox.canalId))
+    .from(contact)
+    .innerJoin(conversation, eq(conversation.contatoId, contact.id))
+    .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
+    .innerJoin(channel, eq(channel.id, inbox.channelId))
     .where(
-      and(eq(contato.tenantId, tid), eq(inbox.canalId, bot.canalId), isNull(contato.excluidoEm)),
+      and(eq(contact.tenantId, tid), eq(inbox.channelId, bot.canalId), isNull(contact.excluidoEm)),
     )
-    .groupBy(contato.id, canal.id)
-    .orderBy(asc(contato.nome))
+    .groupBy(contact.id, channel.id)
+    .orderBy(asc(contact.nome))
     .limit(500);
 }
 
-export type ContatoListado = Awaited<ReturnType<typeof listarContatosDoFluxo>>[number];
+export type ContactListed = Awaited<ReturnType<typeof listContactsOfFlow>>[number];
 
-export async function carregarDetalheContatoDoFluxo(
-  tx: TransacaoPipe,
+export async function loadDetalheContactOfFlow(
+  tx: TransactionPipe,
   tid: string,
-  fluxoId: string,
-  contatoId: string,
+  flowId: string,
+  contactId: string,
   ticketId?: string,
 ) {
   const [bot] = await tx
-    .select({ canalId: fluxo.canalId, canalNome: canal.nome, canalTipo: canal.tipo })
-    .from(fluxo)
-    .leftJoin(canal, eq(canal.id, fluxo.canalId))
-    .where(and(eq(fluxo.id, fluxoId), eq(fluxo.tenantId, tid)))
+    .select({ canalId: flow.channelId, canalNome: channel.nome, canalTipo: channel.tipo })
+    .from(flow)
+    .leftJoin(channel, eq(channel.id, flow.channelId))
+    .where(and(eq(flow.id, flowId), eq(flow.tenantId, tid)))
     .limit(1);
   if (!bot) return null;
 
   const [pessoa] = await tx
     .select({
-      id: contato.id,
-      nome: contato.nome,
-      email: contato.email,
-      telefone: contato.telefoneE164,
-      documento: contato.documento,
-      avatarUrl: contato.avatarUrl,
-      atributos: contato.atributos,
-      criadoEm: contato.criadoEm,
+      id: contact.id,
+      nome: contact.nome,
+      email: contact.email,
+      telefone: contact.telefoneE164,
+      documento: contact.document,
+      avatarUrl: contact.avatarUrl,
+      atributos: contact.atributos,
+      criadoEm: contact.criadoEm,
     })
-    .from(contato)
-    .where(and(eq(contato.id, contatoId), eq(contato.tenantId, tid), isNull(contato.excluidoEm)))
+    .from(contact)
+    .where(and(eq(contact.id, contactId), eq(contact.tenantId, tid), isNull(contact.excluidoEm)))
     .limit(1);
   if (!pessoa) return null;
 
-  const [identidade] = bot.canalTipo
+  const [identity] = bot.canalTipo
     ? await tx
-        .select({ valor: contatoIdentidade.identificador })
-        .from(contatoIdentidade)
+        .select({ valor: contactIdentity.identificador })
+        .from(contactIdentity)
         .where(
           and(
-            eq(contatoIdentidade.tenantId, tid),
-            eq(contatoIdentidade.contatoId, contatoId),
-            eq(contatoIdentidade.canalTipo, bot.canalTipo),
+            eq(contactIdentity.tenantId, tid),
+            eq(contactIdentity.contactId, contactId),
+            eq(contactIdentity.channelType, bot.canalTipo),
           ),
         )
         .limit(1)
     : [];
 
-  const conversas = bot.canalId
+  const conversations = bot.canalId
     ? await tx
         .select({
-          id: conversa.id,
-          estado: conversa.estado,
-          criadaEm: conversa.criadaEm,
-          encerradaEm: conversa.encerradaEm,
+          id: conversation.id,
+          estado: conversation.state,
+          criadaEm: conversation.criadaEm,
+          encerradaEm: conversation.encerradaEm,
           inbox: inbox.nome,
-          fila: fila.nome,
-          atendente: usuario.nome,
-          atendenteEmail: usuario.email,
-          resumo: classificacaoConversa.resumo,
+          fila: queue.nome,
+          atendente: user.nome,
+          atendenteEmail: user.email,
+          resumo: classificationConversation.resumo,
         })
-        .from(conversa)
-        .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
-        .leftJoin(fila, eq(fila.id, conversa.filaId))
-        .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-        .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, conversa.id))
+        .from(conversation)
+        .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
+        .leftJoin(queue, eq(queue.id, conversation.filaId))
+        .leftJoin(user, eq(user.id, conversation.agentId))
+        .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
         .where(
           and(
-            eq(conversa.tenantId, tid),
-            eq(conversa.contatoId, contatoId),
-            eq(inbox.canalId, bot.canalId),
+            eq(conversation.tenantId, tid),
+            eq(conversation.contatoId, contactId),
+            eq(inbox.channelId, bot.canalId),
           ),
         )
-        .orderBy(desc(conversa.criadaEm))
+        .orderBy(desc(conversation.criadaEm))
         .limit(50)
     : [];
 
-  const selecionada = conversas.find((item) => item.id === ticketId) ?? conversas[0];
-  const historico = selecionada
+  const selecionada = conversations.find((item) => item.id === ticketId) ?? conversations[0];
+  const history = selecionada
     ? await tx
         .select({
-          id: mensagem.id,
-          texto: mensagem.conteudo,
-          tipo: mensagem.tipo,
-          direcao: mensagem.direcao,
-          autor: mensagem.autorTipo,
-          estado: mensagem.estadoEntrega,
-          criadaEm: mensagem.criadaEm,
+          id: message.id,
+          texto: message.conteudo,
+          tipo: message.tipo,
+          direcao: message.direction,
+          autor: message.autorTipo,
+          estado: message.stateDelivery,
+          criadaEm: message.criadaEm,
         })
-        .from(mensagem)
-        .where(and(eq(mensagem.tenantId, tid), eq(mensagem.conversaId, selecionada.id)))
-        .orderBy(asc(mensagem.criadaEm))
+        .from(message)
+        .where(and(eq(message.tenantId, tid), eq(message.conversationId, selecionada.id)))
+        .orderBy(asc(message.criadaEm))
         .limit(200)
     : [];
 
   return {
     pessoa,
-    identidade: identidade?.valor ?? null,
+    identidade: identity?.valor ?? null,
     canal: bot.canalNome,
-    conversas,
+    conversations,
     selecionada: selecionada ?? null,
-    historico,
+    history,
   };
 }
 
-export type DetalheDoContato = NonNullable<
-  Awaited<ReturnType<typeof carregarDetalheContatoDoFluxo>>
+export type DetalheOfContact = NonNullable<
+  Awaited<ReturnType<typeof loadDetalheContactOfFlow>>
 >;
 
 /* ------------------------------------------------------------------ Log */
 
-export async function carregarLogsDoFluxo(
-  tx: TransacaoPipe,
+export async function loadLogsOfFlow(
+  tx: TransactionPipe,
   tid: string,
   fluxoId: string,
-  busca = '',
+  search = '',
 ) {
   const [bot] = await tx
-    .select({ canalId: fluxo.canalId, nome: canal.nome })
-    .from(fluxo)
-    .leftJoin(canal, eq(canal.id, fluxo.canalId))
-    .where(and(eq(fluxo.id, fluxoId), eq(fluxo.tenantId, tid)))
+    .select({ canalId: flow.channelId, nome: channel.nome })
+    .from(flow)
+    .leftJoin(channel, eq(channel.id, flow.channelId))
+    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
     .limit(1);
   if (!bot?.canalId) return [];
-  const filtroBusca = busca.trim() ? ilike(mensagem.conteudo, `%${busca.trim()}%`) : undefined;
+  const filterSearch = search.trim() ? ilike(message.conteudo, `%${search.trim()}%`) : undefined;
   const linhas = await tx
     .select({
-      id: mensagem.id,
-      criadaEm: mensagem.criadaEm,
-      direcao: mensagem.direcao,
-      tipo: mensagem.tipo,
-      conteudo: mensagem.conteudo,
-      metadata: mensagem.dados,
-      contato: contato.telefoneE164,
-      canal: canal.nome,
+      id: message.id,
+      criadaEm: message.criadaEm,
+      direcao: message.direction,
+      tipo: message.tipo,
+      conteudo: message.conteudo,
+      metadata: message.data,
+      contato: contact.telefoneE164,
+      canal: channel.nome,
     })
-    .from(mensagem)
-    .innerJoin(conversa, eq(conversa.id, mensagem.conversaId))
-    .innerJoin(contato, eq(contato.id, conversa.contatoId))
-    .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
-    .innerJoin(canal, eq(canal.id, inbox.canalId))
-    .where(and(eq(mensagem.tenantId, tid), eq(inbox.canalId, bot.canalId), filtroBusca))
-    .orderBy(desc(mensagem.criadaEm))
+    .from(message)
+    .innerJoin(conversation, eq(conversation.id, message.conversationId))
+    .innerJoin(contact, eq(contact.id, conversation.contatoId))
+    .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
+    .innerJoin(channel, eq(channel.id, inbox.channelId))
+    .where(and(eq(message.tenantId, tid), eq(inbox.channelId, bot.canalId), filterSearch))
+    .orderBy(desc(message.criadaEm))
     .limit(20);
   return linhas.map((linha) => ({
     ...linha,
@@ -254,44 +254,44 @@ export async function carregarLogsDoFluxo(
   }));
 }
 
-export type LogDoFluxo = Awaited<ReturnType<typeof carregarLogsDoFluxo>>[number];
+export type LogOfFlow = Awaited<ReturnType<typeof loadLogsOfFlow>>[number];
 
 /* --------------------------------------------------------------- Growth */
 
 export interface EnvioGrowth {
   id: string;
   disparoId: string | null;
-  contatoNome: string | null;
+  contactName: string | null;
   templateNome: string | null;
-  canalNome: string;
-  estado: string | null;
-  erroCodigo: string | null;
+  channelName: string;
+  state: string | null;
+  errorCode: string | null;
   criadaEm: string;
   custoCentavos: number | null;
 }
 
-export interface ModeloGrowth {
+export interface TemplateGrowth {
   id: string;
   nome: string;
   idioma: string;
   categoria: string;
   statusMeta: string;
   corpo: string;
-  variaveis: string[];
-  canalId: string;
+  variables: string[];
+  channelId: string;
   canalNome: string;
 }
 
-export interface ContatoGrowth {
+export interface ContactGrowth {
   id: string;
   nome: string | null;
   telefone: string;
 }
 
-export interface DadosDeGrowth {
-  canais: { id: string; nome: string }[];
-  modelos: ModeloGrowth[];
-  contatos: ContatoGrowth[];
+export interface DataOfGrowth {
+  channels: { id: string; nome: string }[];
+  modelos: TemplateGrowth[];
+  contacts: ContactGrowth[];
   envios: EnvioGrowth[];
 }
 
@@ -302,81 +302,81 @@ export interface DadosDeGrowth {
  * campanha; quando houver entidade campanha, agrupar por disparo_id sem inferir
  * campanhas a partir de horário ou modelo.
  */
-export async function carregarGrowth(tx: TransacaoPipe, tid: string): Promise<DadosDeGrowth> {
+export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<DataOfGrowth> {
   const desde = new Date(Date.now() - 72 * 60 * 60 * 1000);
   /* As consultas vão em série: em paralelo o driver disputa a mesma conexão
      e o `set_config` do tenant se perde. */
-  const canais = await tx
-    .select({ id: canal.id, nome: canal.nome })
-    .from(canal)
-    .where(and(eq(canal.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud'), eq(canal.ativo, true)))
-    .orderBy(asc(canal.nome));
+  const channels = await tx
+    .select({ id: channel.id, nome: channel.nome })
+    .from(channel)
+    .where(and(eq(channel.tenantId, tid), eq(channel.tipo, 'whatsapp_cloud'), eq(channel.ativo, true)))
+    .orderBy(asc(channel.nome));
   const modelos = await tx
     .select({
-      id: templateMensagem.id,
-      nome: templateMensagem.nome,
-      idioma: templateMensagem.idioma,
-      categoria: templateMensagem.categoria,
-      statusMeta: templateMensagem.statusMeta,
-      corpo: templateMensagem.corpo,
-      variaveis: templateMensagem.variaveis,
-      canalId: canal.id,
-      canalNome: canal.nome,
+      id: templateMessage.id,
+      nome: templateMessage.nome,
+      idioma: templateMessage.idioma,
+      categoria: templateMessage.categoria,
+      statusMeta: templateMessage.statusMeta,
+      corpo: templateMessage.corpo,
+      variaveis: templateMessage.variables,
+      canalId: channel.id,
+      canalNome: channel.nome,
     })
-    .from(templateMensagem)
-    .innerJoin(canal, eq(canal.id, templateMensagem.canalId))
-    .where(and(eq(templateMensagem.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud')))
-    .orderBy(asc(templateMensagem.nome));
-  const contatos = await tx
-    .select({ id: contato.id, nome: contato.nome, telefone: contato.telefoneE164 })
-    .from(contato)
+    .from(templateMessage)
+    .innerJoin(channel, eq(channel.id, templateMessage.canalId))
+    .where(and(eq(templateMessage.tenantId, tid), eq(channel.tipo, 'whatsapp_cloud')))
+    .orderBy(asc(templateMessage.nome));
+  const contacts = await tx
+    .select({ id: contact.id, nome: contact.nome, telefone: contact.telefoneE164 })
+    .from(contact)
     .where(
       and(
-        eq(contato.tenantId, tid),
-        eq(contato.bloqueado, false),
-        isNull(contato.excluidoEm),
-        isNotNull(contato.telefoneE164),
+        eq(contact.tenantId, tid),
+        eq(contact.bloqueado, false),
+        isNull(contact.excluidoEm),
+        isNotNull(contact.telefoneE164),
       ),
     )
-    .orderBy(asc(contato.nome))
+    .orderBy(asc(contact.nome))
     .limit(1000);
   const envios = await tx
     .select({
-      id: mensagem.id,
-      disparoId: mensagem.disparoId,
-      contatoNome: contato.nome,
-      templateNome: templateMensagem.nome,
-      canalNome: canal.nome,
-      estado: mensagem.estadoEntrega,
-      erroCodigo: mensagem.erroCodigo,
-      criadaEm: mensagem.criadaEm,
-      custoCentavos: mensagem.custoCentavos,
+      id: message.id,
+      disparoId: message.disparoId,
+      contatoNome: contact.nome,
+      templateNome: templateMessage.nome,
+      canalNome: channel.nome,
+      estado: message.stateDelivery,
+      erroCodigo: message.errorCode,
+      criadaEm: message.criadaEm,
+      custoCentavos: message.custoCentavos,
     })
-    .from(mensagem)
-    .innerJoin(conversa, eq(conversa.id, mensagem.conversaId))
-    .innerJoin(contato, eq(contato.id, conversa.contatoId))
-    .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
-    .innerJoin(canal, eq(canal.id, inbox.canalId))
-    .leftJoin(templateMensagem, eq(templateMensagem.id, mensagem.templateId))
+    .from(message)
+    .innerJoin(conversation, eq(conversation.id, message.conversationId))
+    .innerJoin(contact, eq(contact.id, conversation.contatoId))
+    .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
+    .innerJoin(channel, eq(channel.id, inbox.channelId))
+    .leftJoin(templateMessage, eq(templateMessage.id, message.templateId))
     .where(
       and(
-        eq(mensagem.tenantId, tid),
-        eq(mensagem.direcao, 'saida'),
-        isNotNull(mensagem.templateId),
-        gte(mensagem.criadaEm, desde),
+        eq(message.tenantId, tid),
+        eq(message.direction, 'saida'),
+        isNotNull(message.templateId),
+        gte(message.criadaEm, desde),
       ),
     )
-    .orderBy(desc(mensagem.criadaEm))
+    .orderBy(desc(message.criadaEm))
     .limit(500);
 
   return {
-    canais,
-    contatos: contatos.flatMap((pessoa) =>
+    channels,
+    contacts: contacts.flatMap((pessoa) =>
       pessoa.telefone ? [{ ...pessoa, telefone: pessoa.telefone }] : [],
     ),
-    modelos: modelos.map((modelo) => ({
-      ...modelo,
-      variaveis: lerVariaveis(modelo.variaveis),
+    modelos: modelos.map((template) => ({
+      ...template,
+      variaveis: readVariables(template.variaveis),
     })),
     envios: envios.map((envio) => ({
       ...envio,
@@ -387,7 +387,7 @@ export async function carregarGrowth(tx: TransacaoPipe, tid: string): Promise<Da
 
 /* ------------------------------------------------------------ Conteúdos */
 
-export interface ModeloListado {
+export interface TemplateListed {
   id: string;
   canalId: string;
   corpo: string;
@@ -401,44 +401,44 @@ export interface ModeloListado {
 }
 
 /** `variaveis` é `jsonb` sem `check`: uma linha corrompida não pode derrubar a lista inteira. */
-function lerVariaveis(valor: unknown): string[] {
-  return Array.isArray(valor) ? valor.filter((v): v is string => typeof v === 'string') : [];
+function readVariables(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
 }
 
 export async function carregarModelos(
-  tx: TransacaoPipe,
-  canalId?: string,
-): Promise<ModeloListado[]> {
+  tx: TransactionPipe,
+  channelId?: string,
+): Promise<TemplateListed[]> {
   const linhas = await tx
     .select({
-      id: templateMensagem.id,
-      canalId: templateMensagem.canalId,
-      corpo: templateMensagem.corpo,
-      nome: templateMensagem.nome,
-      idioma: templateMensagem.idioma,
-      categoria: templateMensagem.categoria,
-      statusMeta: templateMensagem.statusMeta,
-      cabecalhoTipo: templateMensagem.cabecalhoTipo,
-      variaveis: templateMensagem.variaveis,
-      canalNome: canal.nome,
+      id: templateMessage.id,
+      canalId: templateMessage.canalId,
+      corpo: templateMessage.corpo,
+      nome: templateMessage.nome,
+      idioma: templateMessage.idioma,
+      categoria: templateMessage.categoria,
+      statusMeta: templateMessage.statusMeta,
+      cabecalhoTipo: templateMessage.cabecalhoTipo,
+      variaveis: templateMessage.variables,
+      canalNome: channel.nome,
     })
-    .from(templateMensagem)
-    .innerJoin(canal, eq(canal.id, templateMensagem.canalId))
-    .where(canalId ? eq(templateMensagem.canalId, canalId) : undefined)
-    .orderBy(asc(templateMensagem.nome));
+    .from(templateMessage)
+    .innerJoin(channel, eq(channel.id, templateMessage.canalId))
+    .where(channelId ? eq(templateMessage.canalId, channelId) : undefined)
+    .orderBy(asc(templateMessage.nome));
 
-  return linhas.map((l) => ({ ...l, variaveis: lerVariaveis(l.variaveis) }));
+  return linhas.map((l) => ({ ...l, variaveis: readVariables(l.variaveis) }));
 }
 
-export async function carregarCanalDoFluxo(
-  tx: TransacaoPipe,
+export async function loadChannelOfFlow(
+  tx: TransactionPipe,
   tid: string,
   fluxoId: string,
 ): Promise<string | null> {
   const [bot] = await tx
-    .select({ canalId: fluxo.canalId })
-    .from(fluxo)
-    .where(and(eq(fluxo.id, fluxoId), eq(fluxo.tenantId, tid)))
+    .select({ canalId: flow.channelId })
+    .from(flow)
+    .where(and(eq(flow.id, fluxoId), eq(flow.tenantId, tid)))
     .limit(1);
   return bot?.canalId ?? null;
 }
@@ -451,29 +451,29 @@ export async function carregarCanalDoFluxo(
  * Do mais novo para o mais antigo, que é a ordem da origem.
  */
 export async function carregarGradeDoPortal(
-  tx: TransacaoPipe,
-  pedido: { busca: string; pagina: number; porPagina: number },
+  tx: TransactionPipe,
+  pedido: { search: string; page: number; byPage: number },
 ): Promise<GradeDoPortal> {
-  const busca = pedido.busca.trim();
-  const emUso = ne(fluxo.estado, 'arquivado');
-  const filtro = busca ? and(emUso, ilike(fluxo.nome, `%${busca}%`)) : emUso;
+  const search = pedido.search.trim();
+  const emUso = ne(flow.estado, 'arquivado');
+  const filter = search ? and(emUso, ilike(flow.nome, `%${search}%`)) : emUso;
   /* UMA de cada vez: a transação vive numa conexão só. */
-  const total = (await tx.select({ n: count() }).from(fluxo).where(emUso))[0]?.n ?? 0;
-  const encontrados = busca
-    ? ((await tx.select({ n: count() }).from(fluxo).where(filtro))[0]?.n ?? 0)
+  const total = (await tx.select({ n: count() }).from(flow).where(emUso))[0]?.n ?? 0;
+  const encontrados = search
+    ? ((await tx.select({ n: count() }).from(flow).where(filter))[0]?.n ?? 0)
     : total;
-  const fluxos = await tx
+  const flows = await tx
     .select({
-      id: fluxo.id,
-      nome: fluxo.nome,
-      estado: fluxo.estado,
-      tipo: fluxo.tipo,
-      imagemUrl: fluxo.imagemUrl,
+      id: flow.id,
+      nome: flow.nome,
+      estado: flow.estado,
+      tipo: flow.tipo,
+      imagemUrl: flow.imageUrl,
     })
-    .from(fluxo)
-    .where(filtro)
-    .orderBy(desc(fluxo.criadoEm))
-    .limit(pedido.porPagina)
-    .offset((pedido.pagina - 1) * pedido.porPagina);
-  return { fluxos, total, encontrados };
+    .from(flow)
+    .where(filter)
+    .orderBy(desc(flow.criadoEm))
+    .limit(pedido.byPage)
+    .offset((pedido.page - 1) * pedido.byPage);
+  return { flows, total, encontrados };
 }

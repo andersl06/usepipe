@@ -1,5 +1,5 @@
 import { ilike, or, sql } from 'drizzle-orm';
-import { conta, contato, lead, oportunidade } from '@pipe/db/schema';
+import { account, contact, lead, opportunity } from '@pipe/db/schema';
 import { consultar } from './banco';
 import type { Resultado } from './busca-tipos';
 
@@ -23,7 +23,7 @@ export * from './busca-tipos';
  * comando é uma segunda lista para percorrer.
  */
 
-export const POR_OBJETO = 5;
+export const BY_OBJETO = 5;
 
 export async function buscar(termo: string): Promise<Resultado[]> {
   const limpo = termo.trim();
@@ -36,37 +36,37 @@ export async function buscar(termo: string): Promise<Resultado[]> {
     const leads = await tx
       .select({
         id: lead.id,
-        nome: contato.nome,
-        email: contato.email,
+        nome: contact.nome,
+        email: contact.email,
         fase: lead.fase,
       })
       .from(lead)
-      .innerJoin(contato, sql`${contato.id} = ${lead.contatoId}`)
+      .innerJoin(contact, sql`${contact.id} = ${lead.contatoId}`)
       .where(
         and0(
           sql`${lead.excluidoEm} is null`,
-          or(ilike(contato.nome, padrao), ilike(contato.email, padrao)),
+          or(ilike(contact.nome, padrao), ilike(contact.email, padrao)),
         ),
       )
-      .limit(POR_OBJETO);
+      .limit(BY_OBJETO);
 
-    const oportunidades = await tx
-      .select({ id: oportunidade.id, nome: oportunidade.nome, fase: oportunidade.fase })
-      .from(oportunidade)
-      .where(ilike(oportunidade.nome, padrao))
-      .limit(POR_OBJETO);
+    const opportunities = await tx
+      .select({ id: opportunity.id, nome: opportunity.nome, fase: opportunity.fase })
+      .from(opportunity)
+      .where(ilike(opportunity.nome, padrao))
+      .limit(BY_OBJETO);
 
-    const contas = await tx
-      .select({ id: conta.id, nome: conta.nome, dominio: conta.dominio })
-      .from(conta)
-      .where(or(ilike(conta.nome, padrao), ilike(conta.dominio, padrao)))
-      .limit(POR_OBJETO);
+    const accounts = await tx
+      .select({ id: account.id, nome: account.nome, dominio: account.dominio })
+      .from(account)
+      .where(or(ilike(account.nome, padrao), ilike(account.dominio, padrao)))
+      .limit(BY_OBJETO);
 
-    const contatos = await tx
-      .select({ id: contato.id, nome: contato.nome, email: contato.email })
-      .from(contato)
-      .where(or(ilike(contato.nome, padrao), ilike(contato.email, padrao)))
-      .limit(POR_OBJETO);
+    const contacts = await tx
+      .select({ id: contact.id, nome: contact.nome, email: contact.email })
+      .from(contact)
+      .where(or(ilike(contact.nome, padrao), ilike(contact.email, padrao)))
+      .limit(BY_OBJETO);
 
     return [
       ...leads.map((l) => ({
@@ -76,21 +76,21 @@ export async function buscar(termo: string): Promise<Resultado[]> {
         detalhe: l.email ?? l.fase,
         href: `/leads/${l.id}`,
       })),
-      ...oportunidades.map((o) => ({
+      ...opportunities.map((o) => ({
         tipo: 'oportunidade' as const,
         id: o.id,
         titulo: o.nome,
         detalhe: o.fase,
         href: `/oportunidades`,
       })),
-      ...contas.map((c) => ({
+      ...accounts.map((c) => ({
         tipo: 'conta' as const,
         id: c.id,
         titulo: c.nome,
         detalhe: c.dominio,
         href: `/contas/${c.id}`,
       })),
-      ...contatos.map((c) => ({
+      ...contacts.map((c) => ({
         tipo: 'contato' as const,
         id: c.id,
         titulo: c.nome ?? 'Sem nome',

@@ -1,13 +1,13 @@
 import Link from '../../componentes/link';
-import { Selecao } from '../../componentes/selecao';
+import { Selection } from '../../componentes/selecao';
 import { useSearchParams } from 'react-router-dom';
-import { useLeitura } from '../../lib/consulta';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import { useRead } from '../../lib/consulta';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 import {
   ROTULO_AVALIADOR,
-  ROTULO_ESTADO_AVALIACAO,
-  type PainelDeMonitoria,
+  ROTULO_STATE_EVALUATION,
+  type QualityReviewPanel,
 } from '../../lib/monitoria';
 import type { Catalogos } from '../../lib/historico';
 import {
@@ -19,18 +19,18 @@ import {
   uuidOuNada,
 } from '../../lib/formato';
 
-interface RespostaDaMonitoria {
+interface QualityReviewResposta {
   fuso: string;
   de: string;
   ate: string;
   catalogos: Catalogos;
-  painel: PainelDeMonitoria;
+  panel: QualityReviewPanel;
 }
 
-interface Busca {
+interface Search {
   de?: string;
   ate?: string;
-  atendente?: string;
+  agent?: string;
   avaliador?: string;
 }
 
@@ -51,28 +51,28 @@ interface Busca {
  * População: avaliações CONCLUÍDAS dentro do período (`avaliada_em`), com o
  * cronômetro parado — a mesma separação de §3 que vale para os relatórios.
  */
-export function PaginaMonitoria() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const [busca] = useSearchParams();
-  const crus = Object.fromEntries(busca.entries()) as Busca;
+export function PageQualityReview() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const [search] = useSearchParams();
+  const crus = Object.fromEntries(search.entries()) as Search;
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
      virarem 500 no `::uuid` e no `::date` do Postgres. */
-  const params: Busca = {
+  const params: Search = {
     ...crus,
-    atendente: uuidOuNada(crus.atendente),
+    agent: uuidOuNada(crus.agent),
     de: dataOuNada(crus.de),
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const chave of ['atendente', 'avaliador', 'de', 'ate'] as const) {
-    if (params[chave]) q.set(chave, params[chave] as string);
+  for (const key of ['atendente', 'avaliador', 'de', 'ate'] as const) {
+    if (params[key]) q.set(key, params[key] as string);
   }
-  const leitura = useLeitura<RespostaDaMonitoria>(`/v1/gestao/monitoria?${q}`);
-  if (!leitura.data) return null;
-  const { fuso, de, ate, catalogos, painel } = leitura.data;
+  const read = useRead<QualityReviewResposta>(`/v1/gestao/monitoria?${q}`);
+  if (!read.data) return null;
+  const { fuso, de, ate, catalogos, panel } = read.data;
 
-  const zeradas = painel.porAtendente.reduce((s, l) => s + l.zeradas, 0);
+  const zeradas = panel.byAgent.reduce((s, l) => s + l.zeradas, 0);
 
   return (
     <>
@@ -89,21 +89,21 @@ export function PaginaMonitoria() {
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
 
-        <Selecao
+        <Selection
           name="atendente"
-          defaultValue={params.atendente ?? ''}
+          defaultValue={params.agent ?? ''}
           className="btn"
           aria-label="Atendente avaliado"
         >
           <option value="">Todos os avaliados</option>
-          {catalogos.atendentes.map((a) => (
+          {catalogos.agents.map((a) => (
             <option key={a.id} value={a.id}>
               {a.nome}
             </option>
           ))}
-        </Selecao>
+        </Selection>
 
-        <Selecao
+        <Selection
           name="avaliador"
           defaultValue={params.avaliador ?? ''}
           className="btn"
@@ -112,7 +112,7 @@ export function PaginaMonitoria() {
           <option value="">IA e humano</option>
           <option value="ia">Só a IA</option>
           <option value="humano">Só humano</option>
-        </Selecao>
+        </Selection>
 
         <div className="faixa-fim">
           <a href={`${base}/monitoria`} className="btn">
@@ -132,11 +132,11 @@ export function PaginaMonitoria() {
           <div className="cartao-rel">
             <span className="r">Nota média</span>
             <span className="v">
-              {painel.media.valor === null
+              {panel.media.value === null
                 ? '—'
-                : `${numero(painel.media.valor, 1)} / ${numero(painel.escala)}`}
+                : `${numero(panel.media.value, 1)} / ${numero(panel.escala)}`}
             </span>
-            <span className="den">{denominador(painel.media, 'sem nota fechada')}</span>
+            <span className="den">{denominador(panel.media, 'sem nota fechada')}</span>
           </div>
 
           <div className="cartao-rel">
@@ -150,20 +150,20 @@ export function PaginaMonitoria() {
           <div className="cartao-rel">
             <span className="r">Confiança da IA</span>
             <span className="v">
-              {painel.confiancaIa.valor === null ? '—' : percentual(painel.confiancaIa.valor)}
+              {panel.confiancaIa.value === null ? '—' : percentual(panel.confiancaIa.value)}
             </span>
             <span className="den">
-              {denominador(painel.confiancaIa, 'sem confiança declarada')}
+              {denominador(panel.confiancaIa, 'sem confiança declarada')}
             </span>
           </div>
 
           <div className="cartao-rel">
             <span className="r">Quem avaliou</span>
-            <span className="v">{numero(painel.avaliacoes.length)}</span>
+            <span className="v">{numero(panel.evaluations.length)}</span>
             <span className="den">
-              {painel.porAvaliador.length === 0
+              {panel.byAvaliador.length === 0
                 ? 'nenhuma avaliação no período'
-                : painel.porAvaliador
+                : panel.byAvaliador
                     .map((p) => `${numero(p.total)} ${ROTULO_AVALIADOR[p.tipo] ?? p.tipo}`)
                     .join(' · ')}
             </span>
@@ -179,7 +179,7 @@ export function PaginaMonitoria() {
 
       <section className="bloco-rel">
         <h3>Por atendente</h3>
-        {painel.porAtendente.length === 0 ? (
+        {panel.byAgent.length === 0 ? (
           <div className="cartao-rel">
             <div className="vazio">
               <b>Nenhuma avaliação neste período.</b>
@@ -201,11 +201,11 @@ export function PaginaMonitoria() {
                 </tr>
               </thead>
               <tbody>
-                {painel.porAtendente.map((l) => (
-                  <tr key={l.atendente}>
-                    <td className="who">{l.atendente}</td>
+                {panel.byAgent.map((l) => (
+                  <tr key={l.agent}>
+                    <td className="who">{l.agent}</td>
                     <td className="num">
-                      {l.media.valor === null ? '—' : numero(l.media.valor, 1)}
+                      {l.media.value === null ? '—' : numero(l.media.value, 1)}
                       <span className="den">{denominador(l.media, 'sem nota fechada')}</span>
                     </td>
                     <td className="num">{numero(l.zeradas)}</td>
@@ -223,7 +223,7 @@ export function PaginaMonitoria() {
 
       <section className="bloco-rel">
         <h3>Conversas avaliadas</h3>
-        {painel.avaliacoes.length === 0 ? (
+        {panel.evaluations.length === 0 ? (
           <div className="cartao-rel">
             <div className="vazio">
               <b>Nada avaliado no período.</b>
@@ -247,12 +247,12 @@ export function PaginaMonitoria() {
                 </tr>
               </thead>
               <tbody>
-                {painel.avaliacoes.map((a) => (
+                {panel.evaluations.map((a) => (
                   <tr key={a.id}>
                     <td className="mono">{dataHora(a.avaliadaEm, fuso)}</td>
-                    <td className="who">{a.contato ?? 'Sem contato'}</td>
+                    <td className="who">{a.contact ?? 'Sem contato'}</td>
                     <td>{a.avaliado ?? 'Sem atendente'}</td>
-                    <td>{a.fila ?? 'Sem fila'}</td>
+                    <td>{a.queue ?? 'Sem fila'}</td>
                     <td>{a.formulario}</td>
                     <td>
                       {ROTULO_AVALIADOR[a.avaliadorTipo] ?? a.avaliadorTipo}
@@ -266,7 +266,7 @@ export function PaginaMonitoria() {
                     </td>
                     <td>
                       <span className={a.nota === 0 ? 'etiqueta alerta' : 'etiqueta'}>
-                        {ROTULO_ESTADO_AVALIACAO[a.estado] ?? a.estado}
+                        {ROTULO_STATE_EVALUATION[a.state] ?? a.state}
                       </span>
                     </td>
                     <td>

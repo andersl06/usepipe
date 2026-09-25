@@ -5,4 +5,4 @@
  * teste `tests/fluxo-padrao.test.ts` inclusive, que continua provando que o padrão
  * é publicável sem mexer em nada.
  */
-export { ACOES_GLOBAIS_PADRAO, FLUXO_PADRAO } from '@pipe/core';
+export { ACTIONS_GLOBAL_DEFAULT, FLOW_DEFAULT } from '@pipe/core';

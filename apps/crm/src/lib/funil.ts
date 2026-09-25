@@ -1,7 +1,7 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
-import { conta, lead, oportunidade, usuario } from '@pipe/db/schema';
+import { account, lead, opportunity, user } from '@pipe/db/schema';
 import { consultar, paraData, paraNumero } from './banco';
-import { carregarLinhaDoTempo, type ItemLinhaDoTempo } from './leads';
+import { timeCarregarLinha, type TimeItemLinha } from './leads';
 
 /**
  * Funil de oportunidades.
@@ -13,33 +13,33 @@ import { carregarLinhaDoTempo, type ItemLinhaDoTempo } from './leads';
 export const FASES = ['Novo', 'Qualificado', 'Reunião', 'Proposta', 'Fechamento'] as const;
 export type Fase = (typeof FASES)[number];
 
-export function faseValida(valor: string): valor is Fase {
-  return (FASES as readonly string[]).includes(valor);
+export function faseValida(value: string): value is Fase {
+  return (FASES as readonly string[]).includes(value);
 }
 
-export interface CartaoOportunidade {
+export interface CardOpportunity {
   id: string;
   nome: string;
-  valor: number | null;
-  probabilidade: number | null;
+  value: number | null;
+  probability: number | null;
   proprietario: string | null;
-  contaNome: string | null;
+  accountName: string | null;
   leadId: string | null;
   score: number | null;
-  fechamentoPrevisto: Date | null;
+  closingPrevisto: Date | null;
 }
 
-export interface ColunaFunil {
+export interface ColumnFunil {
   fase: string;
-  cartoes: CartaoOportunidade[];
+  cards: CardOpportunity[];
   total: number;
-  quantidade: number;
+  quantity: number;
 }
 
 export interface Funil {
-  colunas: ColunaFunil[];
+  colunas: ColumnFunil[];
   totalGeral: number;
-  quantidadeGeral: number;
+  quantityGeneral: number;
   ponderadoGeral: number;
 }
 
@@ -47,26 +47,26 @@ export async function carregarFunil(): Promise<Funil> {
   const linhas = await consultar(async (tx) =>
     tx
       .select({
-        id: oportunidade.id,
-        nome: oportunidade.nome,
-        valor: oportunidade.valor,
-        probabilidade: oportunidade.probabilidade,
-        fase: oportunidade.fase,
-        fechamentoPrevisto: oportunidade.fechamentoPrevisto,
-        proprietario: usuario.nome,
-        contaNome: conta.nome,
-        leadId: oportunidade.leadId,
+        id: opportunity.id,
+        nome: opportunity.nome,
+        valor: opportunity.valor,
+        probabilidade: opportunity.probabilidade,
+        fase: opportunity.fase,
+        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        proprietario: user.nome,
+        contaNome: account.nome,
+        leadId: opportunity.leadId,
         score: lead.scoreAtual,
       })
-      .from(oportunidade)
-      .leftJoin(usuario, eq(usuario.id, oportunidade.proprietarioId))
-      .leftJoin(conta, eq(conta.id, oportunidade.contaId))
-      .leftJoin(lead, eq(lead.id, oportunidade.leadId))
-      .where(isNull(oportunidade.fechadaEm))
-      .orderBy(asc(oportunidade.nome)),
+      .from(opportunity)
+      .leftJoin(user, eq(user.id, opportunity.proprietarioId))
+      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(lead, eq(lead.id, opportunity.leadId))
+      .where(isNull(opportunity.fechadaEm))
+      .orderBy(asc(opportunity.nome)),
   );
 
-  const colunas: ColunaFunil[] = FASES.map((fase) => ({
+  const colunas: ColumnFunil[] = FASES.map((fase) => ({
     fase,
     cartoes: [],
     total: 0,
@@ -75,29 +75,29 @@ export async function carregarFunil(): Promise<Funil> {
   let ponderadoGeral = 0;
 
   for (const l of linhas) {
-    const coluna = colunas.find((c) => c.fase === l.fase);
-    if (!coluna) continue; // Fase fora do catálogo: some do quadro em vez de criar coluna órfã.
-    const valor = paraNumero(l.valor);
-    coluna.cartoes.push({
+    const column = colunas.find((c) => c.fase === l.fase);
+    if (!column) continue; // Fase fora do catálogo: some do quadro em vez de criar coluna órfã.
+    const value = paraNumero(l.valor);
+    column.cards.push({
       id: l.id,
       nome: l.nome,
-      valor,
-      probabilidade: l.probabilidade,
+      value,
+      probability: l.probabilidade,
       proprietario: l.proprietario,
-      contaNome: l.contaNome,
+      accountName: l.contaNome,
       leadId: l.leadId,
       score: l.score,
-      fechamentoPrevisto: paraData(l.fechamentoPrevisto),
+      closingPrevisto: paraData(l.fechamentoPrevisto),
     });
-    coluna.total += valor ?? 0;
-    coluna.quantidade += 1;
-    ponderadoGeral += ((valor ?? 0) * (l.probabilidade ?? 0)) / 100;
+    column.total += value ?? 0;
+    column.quantity += 1;
+    ponderadoGeral += ((value ?? 0) * (l.probabilidade ?? 0)) / 100;
   }
 
   return {
     colunas,
     totalGeral: colunas.reduce((s, c) => s + c.total, 0),
-    quantidadeGeral: colunas.reduce((s, c) => s + c.quantidade, 0),
+    quantityGeneral: colunas.reduce((s, c) => s + c.quantity, 0),
     ponderadoGeral,
   };
 }
@@ -107,7 +107,7 @@ export async function carregarFunil(): Promise<Funil> {
  * valor ponderado do painel — deixar a probabilidade parada faria o painel discordar
  * do quadro que o vendedor acabou de mexer.
  */
-const PROBABILIDADE_POR_FASE: Record<Fase, number> = {
+const PROBABILITY_BY_FASE: Record<Fase, number> = {
   Novo: 10,
   Qualificado: 25,
   Reunião: 45,
@@ -128,78 +128,78 @@ const PROBABILIDADE_POR_FASE: Record<Fase, number> = {
  * é ela que responde "o que ganhamos este mês".
  */
 
-export const SITUACOES = [
+export const SITUATIONS = [
   { chave: 'abertas', rotulo: 'Abertas' },
   { chave: 'ganhas', rotulo: 'Ganhas' },
   { chave: 'perdidas', rotulo: 'Perdidas' },
   { chave: 'todas', rotulo: 'Todas' },
 ] as const;
 
-export type Situacao = (typeof SITUACOES)[number]['chave'];
+export type Situation = (typeof SITUATIONS)[number]['chave'];
 
-export function situacaoValida(valor: string | undefined): Situacao {
-  return (SITUACOES.find((s) => s.chave === valor)?.chave ?? 'abertas') as Situacao;
+export function situationValid(value: string | undefined): Situation {
+  return (SITUATIONS.find((s) => s.chave === value)?.chave ?? 'abertas') as Situation;
 }
 
 /** A listagem é tela de trabalho, não de exportação. Mesmo teto das outras. */
 export const LIMITE_LISTA = 200;
 
-export interface LinhaOportunidade {
+export interface LinhaOpportunity {
   id: string;
   nome: string;
-  contaId: string | null;
-  contaNome: string | null;
+  accountId: string | null;
+  accountName: string | null;
   leadId: string | null;
   fase: string;
-  valor: number | null;
-  probabilidade: number | null;
+  value: number | null;
+  probability: number | null;
   proprietario: string | null;
-  fechamentoPrevisto: Date | null;
+  closingPrevisto: Date | null;
   fechadaEm: Date | null;
   ganha: boolean | null;
 }
 
-function recorteDaSituacao(situacao: Situacao) {
-  if (situacao === 'abertas') return isNull(oportunidade.fechadaEm);
-  if (situacao === 'ganhas') return and(isNotNull(oportunidade.fechadaEm), eq(oportunidade.ganha, true));
-  if (situacao === 'perdidas')
-    return and(isNotNull(oportunidade.fechadaEm), eq(oportunidade.ganha, false));
+function situationRecorte(situation: Situation) {
+  if (situation === 'abertas') return isNull(opportunity.fechadaEm);
+  if (situation === 'ganhas') return and(isNotNull(opportunity.fechadaEm), eq(opportunity.ganha, true));
+  if (situation === 'perdidas')
+    return and(isNotNull(opportunity.fechadaEm), eq(opportunity.ganha, false));
   return undefined;
 }
 
-export async function listarOportunidades(
-  situacao: Situacao = 'abertas',
-  busca = '',
-): Promise<LinhaOportunidade[]> {
+export async function listOpportunities(
+  situation: Situation = 'abertas',
+  search = '',
+): Promise<LinhaOpportunity[]> {
   return consultar(async (tx) => {
-    const termo = busca.trim();
-    const filtro = termo
-      ? sql`(${oportunidade.nome} ilike ${'%' + termo + '%'}
-             or ${conta.nome} ilike ${'%' + termo + '%'})`
+    const termo = search.trim();
+    const filter = termo
+      ? sql`(${opportunity.nome} ilike ${'%' + termo + '%'}
+             or ${account.nome} ilike ${'%' + termo + '%'})`
       : undefined;
 
     const linhas = await tx
       .select({
-        id: oportunidade.id,
-        nome: oportunidade.nome,
-        contaId: oportunidade.contaId,
-        contaNome: conta.nome,
-        leadId: oportunidade.leadId,
-        fase: oportunidade.fase,
-        valor: oportunidade.valor,
-        probabilidade: oportunidade.probabilidade,
-        proprietario: usuario.nome,
-        fechamentoPrevisto: oportunidade.fechamentoPrevisto,
-        fechadaEm: oportunidade.fechadaEm,
-        ganha: oportunidade.ganha,
+        id: opportunity.id,
+        nome: opportunity.nome,
+        contaId: opportunity.contaId,
+        contaNome: account.nome,
+        leadId: opportunity.leadId,
+        fase: opportunity.fase,
+        valor: opportunity.valor,
+        probabilidade: opportunity.probabilidade,
+        proprietario: user.nome,
+        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        fechadaEm: opportunity.fechadaEm,
+        ganha: opportunity.ganha,
       })
-      .from(oportunidade)
-      .leftJoin(conta, eq(conta.id, oportunidade.contaId))
-      .leftJoin(usuario, eq(usuario.id, oportunidade.proprietarioId))
-      .where(recorteDaSituacao(situacao) ? and(recorteDaSituacao(situacao), filtro) : filtro)
+      .from(opportunity)
+      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(user, eq(user.id, opportunity.proprietarioId))
+      .where(situationRecorte(situation) ? and(situationRecorte(situation), filter) : filter)
       // Aberta primeiro, e dentro disso a de maior valor: é o que ainda dá para
       // mexer, na ordem em que se mexe.
-      .orderBy(asc(oportunidade.fechadaEm), desc(oportunidade.valor))
+      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
       .limit(LIMITE_LISTA);
 
     return linhas.map((o) => ({
@@ -211,7 +211,7 @@ export async function listarOportunidades(
   });
 }
 
-export interface FichaOportunidade extends LinhaOportunidade {
+export interface FichaOpportunity extends LinhaOpportunity {
   moeda: string;
   motivoPerda: string | null;
   criadoEm: Date | null;
@@ -219,39 +219,39 @@ export interface FichaOportunidade extends LinhaOportunidade {
   score: number | null;
   faixa: string | null;
   /** As outras da mesma conta: o contexto comercial de quem já está negociando. */
-  irmas: LinhaOportunidade[];
+  irmas: LinhaOpportunity[];
   /** O histórico do lead, que é o histórico da negociação. */
-  linhaDoTempo: ItemLinhaDoTempo[];
+  timeLinha: TimeItemLinha[];
 }
 
-export async function carregarOportunidade(id: string): Promise<FichaOportunidade | null> {
+export async function loadOpportunity(id: string): Promise<FichaOpportunity | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({
-        id: oportunidade.id,
-        nome: oportunidade.nome,
-        contaId: oportunidade.contaId,
-        contaNome: conta.nome,
-        leadId: oportunidade.leadId,
+        id: opportunity.id,
+        nome: opportunity.nome,
+        contaId: opportunity.contaId,
+        contaNome: account.nome,
+        leadId: opportunity.leadId,
         contatoId: lead.contatoId,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
-        fase: oportunidade.fase,
-        valor: oportunidade.valor,
-        moeda: oportunidade.moeda,
-        probabilidade: oportunidade.probabilidade,
-        proprietario: usuario.nome,
-        fechamentoPrevisto: oportunidade.fechamentoPrevisto,
-        fechadaEm: oportunidade.fechadaEm,
-        ganha: oportunidade.ganha,
-        motivoPerda: oportunidade.motivoPerda,
-        criadoEm: oportunidade.criadoEm,
+        fase: opportunity.fase,
+        valor: opportunity.valor,
+        moeda: opportunity.moeda,
+        probabilidade: opportunity.probabilidade,
+        proprietario: user.nome,
+        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        fechadaEm: opportunity.fechadaEm,
+        ganha: opportunity.ganha,
+        motivoPerda: opportunity.motivoPerda,
+        criadoEm: opportunity.criadoEm,
       })
-      .from(oportunidade)
-      .leftJoin(conta, eq(conta.id, oportunidade.contaId))
-      .leftJoin(usuario, eq(usuario.id, oportunidade.proprietarioId))
-      .leftJoin(lead, and(eq(lead.id, oportunidade.leadId), isNull(lead.excluidoEm)))
-      .where(eq(oportunidade.id, id))
+      .from(opportunity)
+      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(user, eq(user.id, opportunity.proprietarioId))
+      .leftJoin(lead, and(eq(lead.id, opportunity.leadId), isNull(lead.excluidoEm)))
+      .where(eq(opportunity.id, id))
       .limit(1);
 
     if (!cabeca) return null;
@@ -261,28 +261,28 @@ export async function carregarOportunidade(id: string): Promise<FichaOportunidad
     const irmas = cabeca.contaId
       ? await tx
           .select({
-            id: oportunidade.id,
-            nome: oportunidade.nome,
-            contaId: oportunidade.contaId,
-            contaNome: conta.nome,
-            leadId: oportunidade.leadId,
-            fase: oportunidade.fase,
-            valor: oportunidade.valor,
-            probabilidade: oportunidade.probabilidade,
-            proprietario: usuario.nome,
-            fechamentoPrevisto: oportunidade.fechamentoPrevisto,
-            fechadaEm: oportunidade.fechadaEm,
-            ganha: oportunidade.ganha,
+            id: opportunity.id,
+            nome: opportunity.nome,
+            contaId: opportunity.contaId,
+            contaNome: account.nome,
+            leadId: opportunity.leadId,
+            fase: opportunity.fase,
+            valor: opportunity.valor,
+            probabilidade: opportunity.probabilidade,
+            proprietario: user.nome,
+            fechamentoPrevisto: opportunity.fechamentoPrevisto,
+            fechadaEm: opportunity.fechadaEm,
+            ganha: opportunity.ganha,
           })
-          .from(oportunidade)
-          .leftJoin(conta, eq(conta.id, oportunidade.contaId))
-          .leftJoin(usuario, eq(usuario.id, oportunidade.proprietarioId))
-          .where(and(eq(oportunidade.contaId, cabeca.contaId), sql`${oportunidade.id} <> ${id}`))
-          .orderBy(asc(oportunidade.fechadaEm), desc(oportunidade.valor))
+          .from(opportunity)
+          .leftJoin(account, eq(account.id, opportunity.contaId))
+          .leftJoin(user, eq(user.id, opportunity.proprietarioId))
+          .where(and(eq(opportunity.contaId, cabeca.contaId), sql`${opportunity.id} <> ${id}`))
+          .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
       : [];
 
-    const linhaDoTempo = cabeca.leadId
-      ? await carregarLinhaDoTempo(tx, cabeca.leadId, cabeca.contatoId)
+    const timeLinha = cabeca.leadId
+      ? await timeCarregarLinha(tx, cabeca.leadId, cabeca.contatoId)
       : [];
 
     return {
@@ -297,20 +297,20 @@ export async function carregarOportunidade(id: string): Promise<FichaOportunidad
         fechamentoPrevisto: paraData(o.fechamentoPrevisto),
         fechadaEm: paraData(o.fechadaEm),
       })),
-      linhaDoTempo,
+      timeLinha,
     };
   });
 }
 
-export async function moverParaFase(oportunidadeId: string, fase: Fase): Promise<void> {
+export async function moverParaFase(opportunityId: string, fase: Fase): Promise<void> {
   await consultar(async (tx) => {
     await tx
-      .update(oportunidade)
+      .update(opportunity)
       .set({
         fase,
-        probabilidade: PROBABILIDADE_POR_FASE[fase],
+        probabilidade: PROBABILITY_BY_FASE[fase],
         atualizadoEm: sql`now()`,
       })
-      .where(and(eq(oportunidade.id, oportunidadeId), isNull(oportunidade.fechadaEm)));
+      .where(and(eq(opportunity.id, opportunityId), isNull(opportunity.fechadaEm)));
   });
 }

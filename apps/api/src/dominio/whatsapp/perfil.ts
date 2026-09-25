@@ -1,8 +1,8 @@
 import { registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
-import { lerCanalWhatsApp, texto } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import { PipeError } from '../../erros.js';
+import { readChannelWhatsApp, texto } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { clienteGraph } from './cliente-graph.js';
 import type { PerfilDoNumero, PerfilParaGravar } from './cliente-graph.js';
 
@@ -38,14 +38,14 @@ const TIPOS_DE_FOTO = ['image/jpeg', 'image/png'] as const;
 export interface PerfilVisivel {
   sobre: string;
   endereco: string;
-  descricao: string;
+  description: string;
   email: string;
   sites: string[];
   categoria: string;
   fotoUrl: string | null;
   /** Só leitura: o nome e o estado da análise da Meta. */
   nome: {
-    exibicao: string | null;
+    display: string | null;
     status: string | null;
     novoNome: string | null;
     novoStatus: string | null;
@@ -63,19 +63,19 @@ export interface PedidoDePerfil {
   foto?: string;
 }
 
-function recusa(campo: string, mensagem: string): ErroPipe {
-  return new ErroPipe(422, 'perfil_invalido', mensagem, { campo });
+function recusa(campo: string, message: string): PipeError {
+  return new PipeError(422, 'perfil_invalido', message, { campo });
 }
 
-function tokenDo(canal: CanalWhatsApp): string {
-  const token = texto(canal.config['tokenAcesso']);
-  if (!token) throw ErroPipe.conflito('canal_sem_token', 'O canal não tem token: reconecte o WhatsApp.');
+function tokenDo(channel: ChannelWhatsApp): string {
+  const token = texto(channel.config['tokenAcesso']);
+  if (!token) throw PipeError.conflito('canal_sem_token', 'O canal não tem token: reconecte o WhatsApp.');
   return token;
 }
 
-function numeroDo(canal: CanalWhatsApp): string {
+function numeroDo(canal: ChannelWhatsApp): string {
   const numero = texto(canal.config['phoneNumberId']) ?? canal.numeroId;
-  if (!numero) throw ErroPipe.conflito('canal_sem_numero', 'O canal não tem número: reconecte o WhatsApp.');
+  if (!numero) throw PipeError.conflito('canal_sem_numero', 'O canal não tem número: reconecte o WhatsApp.');
   return numero;
 }
 
@@ -83,13 +83,13 @@ function comoVisivel(perfil: PerfilDoNumero, numero: Record<string, unknown>): P
   return {
     sobre: perfil.about ?? '',
     endereco: perfil.address ?? '',
-    descricao: perfil.description ?? '',
+    description: perfil.description ?? '',
     email: perfil.email ?? '',
     sites: perfil.websites ?? [],
     categoria: perfil.vertical ?? '',
     fotoUrl: perfil.profile_picture_url ?? null,
     nome: {
-      exibicao: texto(numero['verified_name']),
+      display: texto(numero['verified_name']),
       status: texto(numero['name_status']),
       novoNome: texto(numero['new_display_name']),
       novoStatus: texto(numero['new_name_status']),
@@ -97,10 +97,10 @@ function comoVisivel(perfil: PerfilDoNumero, numero: Record<string, unknown>): P
   };
 }
 
-export async function lerPerfilDoCanal(tenantId: string, canalId: string): Promise<PerfilVisivel> {
-  const canal = await lerCanalWhatsApp(tenantId, canalId);
-  const cliente = clienteGraph(tokenDo(canal));
-  const numeroId = numeroDo(canal);
+export async function readProfileOfChannel(tenantId: string, channelId: string): Promise<PerfilVisivel> {
+  const channel = await readChannelWhatsApp(tenantId, channelId);
+  const cliente = clienteGraph(tokenDo(channel));
+  const numeroId = numeroDo(channel);
   // Em série: a segunda chamada só faz sentido se a primeira alcançou o número.
   const perfil = await cliente.lerPerfil(numeroId);
   const numero = await cliente.buscarNumero(
@@ -114,13 +114,13 @@ export async function lerPerfilDoCanal(tenantId: string, canalId: string): Promi
 export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   const saida: PerfilParaGravar = {};
   const textoLimitado = (
-    valor: string | undefined,
+    value: string | undefined,
     campo: keyof typeof LIMITES_DO_PERFIL,
     rotulo: string,
   ): string | undefined => {
-    if (valor === undefined) return undefined;
-    if (typeof valor !== 'string') throw recusa(campo, `${rotulo} tem de ser texto.`);
-    const limpo = valor.trim();
+    if (value === undefined) return undefined;
+    if (typeof value !== 'string') throw recusa(campo, `${rotulo} tem de ser texto.`);
+    const limpo = value.trim();
     if (limpo.length > LIMITES_DO_PERFIL[campo]) {
       throw recusa(campo, `${rotulo} aceita no máximo ${LIMITES_DO_PERFIL[campo]} caracteres.`);
     }
@@ -135,8 +135,8 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   }
   const endereco = textoLimitado(pedido.endereco, 'endereco', 'O endereço');
   if (endereco !== undefined) saida.address = endereco;
-  const descricao = textoLimitado(pedido.descricao, 'descricao', 'A descrição');
-  if (descricao !== undefined) saida.description = descricao;
+  const description = textoLimitado(pedido.descricao, 'descricao', 'A descrição');
+  if (description !== undefined) saida.description = description;
   const email = textoLimitado(pedido.email, 'email', 'O e-mail');
   if (email !== undefined) {
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw recusa('email', 'O e-mail não é válido.');
@@ -177,17 +177,17 @@ export function lerFoto(foto: string): { bytes: Buffer; tipo: string } {
   return { bytes, tipo };
 }
 
-export async function gravarPerfilDoCanal(
+export async function writeProfileOfChannel(
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   canalId: string,
   pedido: PedidoDePerfil,
 ): Promise<PerfilVisivel> {
-  const canal = await lerCanalWhatsApp(tenantId, canalId);
+  const canal = await readChannelWhatsApp(tenantId, canalId);
   const perfil = validarPerfil(pedido);
   const foto = pedido.foto === undefined ? null : lerFoto(pedido.foto);
   if (!foto && Object.keys(perfil).length === 0) {
-    throw ErroPipe.requisicao('nada_para_gravar', 'Nada mudou no perfil.');
+    throw PipeError.request('nada_para_gravar', 'Nada mudou no perfil.');
   }
 
   const cliente = clienteGraph(tokenDo(canal));
@@ -196,18 +196,18 @@ export async function gravarPerfilDoCanal(
     // A foto sobe no app dono do token: o do cliente (manual) ou o nosso (embutido).
     const appId = texto(canal.config['appId']) ?? process.env['WHATSAPP_APP_ID'] ?? '';
     if (!appId) {
-      throw ErroPipe.conflito(
+      throw PipeError.conflito(
         'canal_sem_app',
         'Não sabemos o aplicativo deste canal para enviar a foto: reconecte o WhatsApp.',
       );
     }
-    perfil.profile_picture_handle = await cliente.subirFoto(appId, foto.bytes, foto.tipo);
+    perfil.profile_picture_handle = await cliente.upPhoto(appId, foto.bytes, foto.tipo);
   }
   await cliente.gravarPerfil(numeroId, perfil);
 
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: canal.id,
@@ -219,5 +219,5 @@ export async function gravarPerfilDoCanal(
     }),
   );
 
-  return lerPerfilDoCanal(tenantId, canalId);
+  return readProfileOfChannel(tenantId, canalId);
 }

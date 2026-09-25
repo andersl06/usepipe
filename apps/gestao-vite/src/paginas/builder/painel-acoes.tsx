@@ -1,13 +1,13 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconeManagement } from '../../componentes/icones-gestao';
 import { IconePortal } from '../../componentes/icones-portal';
 import { CabecalhoInfo } from './cabecalho-info';
-import type { AcaoDoEditor, Bloco } from './modelo';
-import { ehAtendimento } from './modelo';
+import type { AcaoDoEditor, Block } from './modelo';
+import { ehAttendance } from './modelo';
 import {
-  CATALOGO_DE_ACOES,
-  ROTULOS_DAS_ACOES,
+  CATALOGO_OF_ACTIONS,
+  ROTULOS_OF_ACTIONS,
   acaoDoSistema,
   acaoSemSuporte,
   adicionarAcao,
@@ -15,22 +15,22 @@ import {
   comCabecalhos,
   comCampo,
   comCampoJson,
-  colarAcoes,
-  comCondicoes,
+  colarActions,
+  withConditions,
   comTitulo,
-  errosDaAcao,
+  actionErrors,
   moverAcao,
   novaAcao,
   removerAcao,
   rotuloDaAcao,
   substituirAcao,
   tipoDeAcao,
-  valorDoCampo,
+  fieldValue,
 } from './acoes-do-bloco';
-import type { ListaDeAcoes } from './acoes-do-bloco';
-import { EditorDeCondicoes } from './condicao';
+import type { ActionsLista } from './acoes-do-bloco';
+import { ConditionsEditor } from './condicao';
 
-let acoesCopiadas: AcaoDoEditor[] = [];
+let actionsCopied: AcaoDoEditor[] = [];
 
 /**
  * A aba "Ações" do editor: as duas listas — "Ações de Entrada" ("Inclua ações
@@ -45,32 +45,32 @@ let acoesCopiadas: AcaoDoEditor[] = [];
  * interferir nas ações de entrada e saída".
  */
 
-export function PainelDeAcoes({
-  bloco,
+export function ActionsPanel({
+  block,
   onMudar,
   onAviso,
 }: {
-  bloco: Bloco;
-  onMudar: (bloco: Bloco) => void;
+  block: Block;
+  onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
 }) {
-  const [copiadas, setCopiadas] = useState(acoesCopiadas);
-  function copiar(acoes: AcaoDoEditor[]): void {
-    acoesCopiadas = structuredClone(acoes);
-    setCopiadas(acoesCopiadas);
+  const [copiadas, setCopiadas] = useState(actionsCopied);
+  function copiar(actions: AcaoDoEditor[]): void {
+    actionsCopied = structuredClone(actions);
+    setCopiadas(actionsCopied);
   }
-  if (ehAtendimento(bloco.id)) {
+  if (ehAttendance(block.id)) {
     return (
       <div className="bl-aba-corpo">
-        <p className="sub">{ROTULOS_DAS_ACOES.atendimento}</p>
+        <p className="sub">{ROTULOS_OF_ACTIONS.atendimento}</p>
       </div>
     );
   }
   return (
     <div className="bl-aba-corpo">
-      {bloco.root ? (
+      {block.root ? (
         <section className="bl-secao">
-          <CabecalhoInfo titulo={ROTULOS_DAS_ACOES.entrada} aberto>
+          <CabecalhoInfo titulo={ROTULOS_OF_ACTIONS.entrada} aberto>
             <p>
               Este bloco é usado para marcar pontos especiais do fluxo a serem tratados pela
               plataforma, portanto{' '}
@@ -86,24 +86,24 @@ export function PainelDeAcoes({
           </CabecalhoInfo>
         </section>
       ) : (
-        <ListaDeAcoesDoBloco
-          bloco={bloco}
+        <ListaOfActionsOfBlock
+          block={block}
           lista="$enteringCustomActions"
-          titulo={ROTULOS_DAS_ACOES.entrada}
-          descricao={ROTULOS_DAS_ACOES.entradaDescricao}
-          rotuloAdicionar={ROTULOS_DAS_ACOES.adicionarEntrada}
+          titulo={ROTULOS_OF_ACTIONS.entrada}
+          description={ROTULOS_OF_ACTIONS.entradaDescricao}
+          rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarEntrada}
           onMudar={onMudar}
           onAviso={onAviso}
           copiadas={copiadas}
           onCopiar={copiar}
         />
       )}
-      <ListaDeAcoesDoBloco
-        bloco={bloco}
+      <ListaOfActionsOfBlock
+        block={block}
         lista="$leavingCustomActions"
-        titulo={ROTULOS_DAS_ACOES.saida}
-        descricao={ROTULOS_DAS_ACOES.saidaDescricao}
-        rotuloAdicionar={ROTULOS_DAS_ACOES.adicionarSaida}
+        titulo={ROTULOS_OF_ACTIONS.saida}
+        description={ROTULOS_OF_ACTIONS.saidaDescricao}
+        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarSaida}
         onMudar={onMudar}
         onAviso={onAviso}
         copiadas={copiadas}
@@ -113,65 +113,65 @@ export function PainelDeAcoes({
   );
 }
 
-function ListaDeAcoesDoBloco({
-  bloco,
+function ListaOfActionsOfBlock({
+  block,
   lista,
   titulo,
-  descricao,
+  description,
   rotuloAdicionar,
   onMudar,
   onAviso,
   copiadas,
   onCopiar,
 }: {
-  bloco: Bloco;
-  lista: ListaDeAcoes;
+  block: Block;
+  lista: ActionsLista;
   titulo: string;
-  descricao: string;
+  description: string;
   rotuloAdicionar: string;
-  onMudar: (bloco: Bloco) => void;
+  onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
   copiadas: AcaoDoEditor[];
-  onCopiar: (acoes: AcaoDoEditor[]) => void;
+  onCopiar: (actions: AcaoDoEditor[]) => void;
 }) {
-  const acoes = bloco[lista] ?? [];
+  const actions = block[lista] ?? [];
   const [menuAberto, setMenuAberto] = useState(false);
-  const [posicaoMenu, setPosicaoMenu] = useState({ top: 16, right: 484 });
+  const [positionMenu, setPositionMenu] = useState({ top: 16, right: 484 });
   const [aberta, setAberta] = useState<number | null>(null);
   const [selecionadas, setSelecionadas] = useState<number[]>([]);
   const arrastada = useRef<number | null>(null);
 
   function colar(): void {
-    const resultado = colarAcoes(bloco, lista, copiadas);
-    if (resultado.ok) onMudar(resultado.bloco);
-    else onAviso(resultado.erro);
+    const resultado = colarActions(block, lista, copiadas);
+    if (resultado.ok) onMudar(resultado.block);
+    else onAviso(resultado.error);
   }
 
   function adicionar(tipo: string): void {
-    const r = adicionarAcao(bloco, lista, novaAcao(tipo));
+    const r = adicionarAcao(block, lista, novaAcao(tipo));
     setMenuAberto(false);
     if (!r.ok) {
-      onAviso(r.erro);
+      onAviso(r.error);
       return;
     }
-    onMudar(r.bloco);
-    setAberta(acoes.length);
+    onMudar(r.block);
+    setAberta(actions.length);
   }
 
-  const grupos = ['Executar', 'Manipular'] as const;
+  const groups = ['Executar', 'Manipular'] as const;
 
   return (
     <section className="bl-secao bl-lista-de-acoes">
-      <CabecalhoInfo titulo={titulo} contador={`${acoes.length}/15`} aberto={acoes.length === 0}>
-        <p>{descricao}</p>
+      <CabecalhoInfo titulo={titulo} contador={`${actions.length}/15`} aberto={actions.length === 0}>
+        <p>{description}</p>
       </CabecalhoInfo>
       <div className="bl-acoes-selecao">
         <label>
           <input
             type="checkbox"
-            disabled={!acoes.length}
-            checked={acoes.length > 0 && selecionadas.length === acoes.length}
-            onChange={(e) => setSelecionadas(e.target.checked ? acoes.map((_, i) => i) : [])}
+            disabled={!actions.length}
+            checked={actions.length > 0 && selecionadas.length === actions.length}
+            onChange={(e) => setSelecionadas(e.target.checked ? actions.map((_, i) => i) : [])}
           />
           Selecionar todos
         </label>
@@ -181,7 +181,7 @@ function ListaDeAcoesDoBloco({
           disabled={!selecionadas.length && !copiadas.length}
           onClick={() =>
             selecionadas.length
-              ? onCopiar(acoes.filter((_, i) => selecionadas.includes(i)))
+              ? onCopiar(actions.filter((_, i) => selecionadas.includes(i)))
               : colar()
           }
         >
@@ -189,8 +189,8 @@ function ListaDeAcoesDoBloco({
         </button>
       </div>
 
-      {acoes.map((acao, i) => (
-        <CartaoDeAcao
+      {actions.map((acao, i) => (
+        <ActionCard
           key={acao.$id ?? i}
           acao={acao}
           onArrastar={() => {
@@ -198,7 +198,7 @@ function ListaDeAcoesDoBloco({
           }}
           onSoltar={() => {
             if (arrastada.current !== null) {
-              onMudar(moverAcao(bloco, lista, arrastada.current, i));
+              onMudar(moverAcao(block, lista, arrastada.current, i));
               setSelecionadas([]);
               setAberta(null);
             }
@@ -215,16 +215,16 @@ function ListaDeAcoesDoBloco({
           }
           onCopiar={() => onCopiar([acao])}
           aberta={aberta === i}
-          primeira={i === 0}
-          ultima={i === acoes.length - 1}
+          first={i === 0}
+          ultima={i === actions.length - 1}
           onAbrir={() => setAberta(aberta === i ? null : i)}
-          onMudar={(nova) => onMudar(substituirAcao(bloco, lista, i, nova))}
-          onSubir={() => onMudar(moverAcao(bloco, lista, i, i - 1))}
-          onDescer={() => onMudar(moverAcao(bloco, lista, i, i + 1))}
+          onMudar={(nova) => onMudar(substituirAcao(block, lista, i, nova))}
+          onStart={() => onMudar(moverAcao(block, lista, i, i - 1))}
+          onLower={() => onMudar(moverAcao(block, lista, i, i + 1))}
           onRemover={() => {
             setAberta(null);
             setSelecionadas([]);
-            onMudar(removerAcao(bloco, lista, i));
+            onMudar(removerAcao(block, lista, i));
           }}
         />
       ))}
@@ -235,14 +235,14 @@ function ListaDeAcoesDoBloco({
           className="bl-mais"
           onClick={(e) => {
             const rect = e.currentTarget.closest('aside')!.getBoundingClientRect();
-            setPosicaoMenu({ top: rect.top, right: window.innerWidth - rect.left + 8 });
+            setPositionMenu({ top: rect.top, right: window.innerWidth - rect.left + 8 });
             setMenuAberto((v) => !v);
           }}
         >
           {rotuloAdicionar}
         </button>
         {menuAberto ? (
-          <div className="bl-menu-acoes bl-ferramentas" role="menu" style={posicaoMenu}>
+          <div className="bl-menu-acoes bl-ferramentas" role="menu" style={positionMenu}>
             <header>
               <b>{rotuloAdicionar.toUpperCase()}</b>
               <button
@@ -254,10 +254,10 @@ function ListaDeAcoesDoBloco({
                 <Icone nome="x" tamanho={16} />
               </button>
             </header>
-            {grupos.map((grupo) => (
+            {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-acoes-grupo">
                 <span className="sub">{grupo}</span>
-                {CATALOGO_DE_ACOES.filter((t) => t.grupo === grupo).map((t) => (
+                {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button
                     key={t.tipo}
                     type="button"
@@ -277,15 +277,15 @@ function ListaDeAcoesDoBloco({
 }
 
 /** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */
-export function CartaoDeAcao({
+export function ActionCard({
   acao,
   aberta,
-  primeira,
+  first,
   ultima,
   onAbrir,
   onMudar,
-  onSubir,
-  onDescer,
+  onStart,
+  onLower,
   onRemover,
   onCopiar,
   selecionada,
@@ -296,12 +296,12 @@ export function CartaoDeAcao({
 }: {
   acao: AcaoDoEditor;
   aberta: boolean;
-  primeira: boolean;
+  first: boolean;
   ultima: boolean;
   onAbrir: () => void;
   onMudar: (acao: AcaoDoEditor) => void;
-  onSubir: () => void;
-  onDescer: () => void;
+  onStart: () => void;
+  onLower: () => void;
   onRemover: () => void;
   onCopiar?: () => void;
   selecionada?: boolean;
@@ -319,11 +319,11 @@ export function CartaoDeAcao({
   const tipo = tipoDeAcao(acao.type);
   const semSuporte = acaoSemSuporte(acao);
   const doSistema = acaoDoSistema(acao);
-  const erros = errosDaAcao(acao);
+  const errors = actionErrors(acao);
   const editavel = !!tipo && !doSistema;
   return (
     <article
-      className={`bl-acao${erros.length > 0 ? ' bl-acao--erro' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
+      className={`bl-acao${errors.length > 0 ? ' bl-acao--erro' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
       onDragOver={onSoltar ? (e) => e.preventDefault() : undefined}
       onDrop={
         onSoltar
@@ -350,8 +350,8 @@ export function CartaoDeAcao({
             onKeyDown={(e) => {
               if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (e.key === 'ArrowUp' && !primeira) onSubir();
-                if (e.key === 'ArrowDown' && !ultima) onDescer();
+                if (e.key === 'ArrowUp' && !first) onStart();
+                if (e.key === 'ArrowDown' && !ultima) onLower();
               }
             }}
           >
@@ -376,11 +376,11 @@ export function CartaoDeAcao({
         <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
           <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
         </button>
-        {semSuporte ? <Etiqueta tom="alerta">{ROTULOS_DAS_ACOES.naoExecutada}</Etiqueta> : null}
-        {doSistema ? <Etiqueta>{ROTULOS_DAS_ACOES.doSistema}</Etiqueta> : null}
-        {erros.length > 0 ? (
+        {semSuporte ? <Etiqueta tom="alerta">{ROTULOS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
+        {doSistema ? <Etiqueta>{ROTULOS_OF_ACTIONS.doSistema}</Etiqueta> : null}
+        {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda>
-            {erros.length}
+            {errors.length}
           </Etiqueta>
         ) : null}
         <span className="bl-saida-ordem">
@@ -389,8 +389,8 @@ export function CartaoDeAcao({
             className="iconbtn"
             title="Subir"
             aria-label="Subir"
-            disabled={primeira}
-            onClick={onSubir}
+            disabled={first}
+            onClick={onStart}
           >
             <Icone nome="cima" tamanho={16} />
           </button>
@@ -400,7 +400,7 @@ export function CartaoDeAcao({
             title="Descer"
             aria-label="Descer"
             disabled={ultima}
-            onClick={onDescer}
+            onClick={onLower}
           >
             <Icone nome="baixo" tamanho={16} />
           </button>
@@ -408,11 +408,11 @@ export function CartaoDeAcao({
             <button
               type="button"
               className="iconbtn"
-              title={ROTULOS_DAS_ACOES.excluir}
-              aria-label={ROTULOS_DAS_ACOES.excluir}
+              title={ROTULOS_OF_ACTIONS.excluir}
+              aria-label={ROTULOS_OF_ACTIONS.excluir}
               onClick={onRemover}
             >
-              <IconeGestao nome="lixeira" tamanho={18} />
+              <IconeManagement nome="lixeira" tamanho={18} />
             </button>
           ) : null}
         </span>
@@ -479,7 +479,7 @@ export function CartaoDeAcao({
                 <IconePortal nome="voltar" tamanho={24} />
               </button>
               <input
-                aria-label={ROTULOS_DAS_ACOES.nome}
+                aria-label={ROTULOS_OF_ACTIONS.nome}
                 value={acao.$title || ''}
                 placeholder={tipo?.titulo ?? acao.type}
                 onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
@@ -499,7 +499,7 @@ export function CartaoDeAcao({
             <>
               {!onCopiar ? (
                 <label className="bl-campo">
-                  <span className="sub">{ROTULOS_DAS_ACOES.nome}</span>
+                  <span className="sub">{ROTULOS_OF_ACTIONS.nome}</span>
                   <Campo
                     value={acao.$title ?? ''}
                     onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
@@ -508,7 +508,7 @@ export function CartaoDeAcao({
               ) : null}
               {tipo!.campos.map((campo) => (
                 <label
-                  key={campo.chave}
+                  key={campo.key}
                   className={`bl-campo${onCopiar ? ' bl-campo--interno' : ''}`}
                 >
                   <span className="sub">
@@ -517,18 +517,18 @@ export function CartaoDeAcao({
                   </span>
                   {campo.tipo === 'cabecalhos' ? (
                     <EditorDeCabecalhos
-                      cabecalhos={cabecalhosDoCampo(acao, campo.chave)}
-                      onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.chave, cabecalhos))}
+                      cabecalhos={cabecalhosDoCampo(acao, campo.key)}
+                      onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.key, cabecalhos))}
                     />
-                  ) : campo.opcoes ? (
+                  ) : campo.options ? (
                     <select
                       className="campo"
-                      value={valorDoCampo(acao, campo.chave)}
-                      onChange={(e) => onMudar(comCampo(acao, campo.chave, e.target.value))}
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
                     >
-                      {campo.opcoes.map((opcao) => (
-                        <option key={opcao} value={opcao}>
-                          {opcao}
+                      {campo.options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
                         </option>
                       ))}
                     </select>
@@ -536,37 +536,37 @@ export function CartaoDeAcao({
                     <textarea
                       className="campo bl-campo-longo"
                       rows={3}
-                      value={valorDoCampo(acao, campo.chave)}
+                      value={fieldValue(acao, campo.key)}
                       onChange={(e) =>
                         onMudar(
                           campo.tipo === 'json'
-                            ? comCampoJson(acao, campo.chave, e.target.value)
-                            : comCampo(acao, campo.chave, e.target.value),
+                            ? comCampoJson(acao, campo.key, e.target.value)
+                            : comCampo(acao, campo.key, e.target.value),
                         )
                       }
                     />
                   ) : (
                     <Campo
-                      value={valorDoCampo(acao, campo.chave)}
-                      onChange={(e) => onMudar(comCampo(acao, campo.chave, e.target.value))}
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
                     />
                   )}
                   {campo.ajuda ? <span className="bl-ajuda">{campo.ajuda}</span> : null}
                 </label>
               ))}
-              <h5 className="bl-secao-subtitulo">{ROTULOS_DAS_ACOES.condicao}</h5>
-              <EditorDeCondicoes
-                condicoes={acao.conditions ?? []}
-                onMudar={(condicoes) => onMudar(comCondicoes(acao, condicoes))}
-                rotuloAdicionar={ROTULOS_DAS_ACOES.adicionarCondicao}
+              <h5 className="bl-secao-subtitulo">{ROTULOS_OF_ACTIONS.condicao}</h5>
+              <ConditionsEditor
+                conditions={acao.conditions ?? []}
+                onMudar={(conditions) => onMudar(withConditions(acao, conditions))}
+                rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarCondicao}
               />
             </>
           ) : (
             <pre className="bl-acao-bruta">{JSON.stringify(acao.settings ?? {}, null, 2)}</pre>
           )}
-          {erros.length > 0 ? (
+          {errors.length > 0 ? (
             <ul className="bl-erros">
-              {erros.map((e) => (
+              {errors.map((e) => (
                 <li key={e}>{e}</li>
               ))}
             </ul>
@@ -581,27 +581,27 @@ function EditorDeCabecalhos({
   cabecalhos,
   onMudar,
 }: {
-  cabecalhos: { chave: string; valor: string }[];
-  onMudar: (cabecalhos: { chave: string; valor: string }[]) => void;
+  cabecalhos: { key: string; value: string }[];
+  onMudar: (cabecalhos: { key: string; value: string }[]) => void;
 }) {
   return (
     <div className="bl-cabecalhos">
       {cabecalhos.map((cabecalho, indice) => (
-        <div className="bl-cabecalho-fileira" key={`${cabecalho.chave}-${indice}`}>
+        <div className="bl-cabecalho-fileira" key={`${cabecalho.key}-${indice}`}>
           <Campo
-            value={cabecalho.chave}
+            value={cabecalho.key}
             placeholder="Chave"
             aria-label={`Chave do cabeçalho ${indice + 1}`}
             onChange={(e) =>
-              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, chave: e.target.value } : c)))
+              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, key: e.target.value } : c)))
             }
           />
           <Campo
-            value={cabecalho.valor}
+            value={cabecalho.value}
             placeholder="Valor"
             aria-label={`Valor do cabeçalho ${indice + 1}`}
             onChange={(e) =>
-              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, valor: e.target.value } : c)))
+              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, value: e.target.value } : c)))
             }
           />
           <button
@@ -610,14 +610,14 @@ function EditorDeCabecalhos({
             aria-label="Remover cabeçalho"
             onClick={() => onMudar(cabecalhos.filter((_, i) => i !== indice))}
           >
-            <IconeGestao nome="lixeira" tamanho={18} />
+            <IconeManagement nome="lixeira" tamanho={18} />
           </button>
         </div>
       ))}
       <button
         type="button"
         className="bl-adicionar-cabecalho"
-        onClick={() => onMudar([...cabecalhos, { chave: '', valor: '' }])}
+        onClick={() => onMudar([...cabecalhos, { key: '', value: '' }])}
       >
         + Adicionar cabeçalho
       </button>

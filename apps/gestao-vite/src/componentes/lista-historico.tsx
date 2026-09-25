@@ -18,33 +18,33 @@ import { memo } from 'react';
  * Aqui ficam "Selecionar todos" e a contagem dos cartões visíveis.
  */
 
-export interface CartaoHistorico {
+export interface CardHistory {
   id: string;
   ticket: string;
   encerrada: string;
-  contato: string;
-  fila: string;
-  atendente: string;
+  contact: string;
+  queue: string;
+  agent: string;
   espera: string;
-  primeiraResposta: string;
-  atendimento: string;
+  firstResposta: string;
+  attendance: string;
   statusTexto: string;
   statusClasse: string;
   critico: boolean;
   etiquetas: string[];
 }
 
-export interface GrupoDeCartoes {
+export interface CardsGroup {
   titulo: string;
-  cartoes: CartaoHistorico[];
+  cards: CardHistory[];
 }
 
-function Campo({ rotulo, valor, classe }: { rotulo: string; valor: string; classe?: string }) {
+function Campo({ rotulo, value, classe }: { rotulo: string; value: string; classe?: string }) {
   return (
     <div className="cl-campo">
       <span className="r">{rotulo}</span>
-      <span className={classe ? `v ${classe}` : 'v'} title={valor}>
-        {valor}
+      <span className={classe ? `v ${classe}` : 'v'} title={value}>
+        {value}
       </span>
     </div>
   );
@@ -60,44 +60,44 @@ const OITO_COLUNAS = { '--cl-colunas': 8 } as React.CSSProperties;
  * segundos — medido, não suposto. Com `memo` e um `aoAlternar` estável, marcar
  * uma caixa redesenha um cartão só.
  */
-const Cartao = memo(function Cartao({
-  cartao,
+const Card = memo(function Cartao({
+  card,
   marcado,
   aoAlternar,
 }: {
-  cartao: CartaoHistorico;
+  card: CardHistory;
   marcado: boolean;
   aoAlternar: (id: string) => void;
 }) {
   return (
-    <article className={cartao.critico ? 'cartao-lista critico' : 'cartao-lista'}>
+    <article className={card.critico ? 'cartao-lista critico' : 'cartao-lista'}>
       <label className="cl-sel">
         <input
           type="checkbox"
           checked={marcado}
-          onChange={() => aoAlternar(cartao.id)}
-          aria-label={`Selecionar o ticket ${cartao.ticket}`}
+          onChange={() => aoAlternar(card.id)}
+          aria-label={`Selecionar o ticket ${card.ticket}`}
         />
       </label>
 
       <div className="cl-campos" style={OITO_COLUNAS}>
-        <Campo rotulo="Ticket" valor={cartao.ticket} classe="id" />
-        <Campo rotulo="Encerrada" valor={cartao.encerrada} classe="num" />
-        <Campo rotulo="Contato" valor={cartao.contato} />
-        <Campo rotulo="Fila" valor={cartao.fila} />
-        <Campo rotulo="Atendente" valor={cartao.atendente} />
-        <Campo rotulo="Espera do cliente" valor={cartao.espera} classe="num" />
-        <Campo rotulo="1ª resposta" valor={cartao.primeiraResposta} classe="num" />
-        <Campo rotulo="Atendimento" valor={cartao.atendimento} classe="num" />
+        <Campo rotulo="Ticket" value={card.ticket} classe="id" />
+        <Campo rotulo="Encerrada" value={card.encerrada} classe="num" />
+        <Campo rotulo="Contato" value={card.contact} />
+        <Campo rotulo="Fila" value={card.queue} />
+        <Campo rotulo="Atendente" value={card.agent} />
+        <Campo rotulo="Espera do cliente" value={card.espera} classe="num" />
+        <Campo rotulo="1ª resposta" value={card.firstResposta} classe="num" />
+        <Campo rotulo="Atendimento" value={card.attendance} classe="num" />
       </div>
 
       <div className="cl-acoes">
-        <span className={cartao.statusClasse}>{cartao.statusTexto}</span>
+        <span className={card.statusClasse}>{card.statusTexto}</span>
       </div>
 
-      {cartao.etiquetas.length > 0 ? (
+      {card.etiquetas.length > 0 ? (
         <div className="cl-rodape">
-          {cartao.etiquetas.map((e) => (
+          {card.etiquetas.map((e) => (
             <span key={e} className="etiqueta">
               {e}
             </span>
@@ -108,16 +108,16 @@ const Cartao = memo(function Cartao({
   );
 });
 
-export function ListaHistorico({
-  grupos,
+export function ListaHistory({
+  groups,
   todos,
   marcados,
   aoAlternar,
   aoAlternarTodos,
 }: {
-  grupos: readonly GrupoDeCartoes[];
+  groups: readonly CardsGroup[];
   /** A lista única, sem repetição por grupo — quem manda no "selecionar todos". */
-  todos: readonly CartaoHistorico[];
+  todos: readonly CardHistory[];
   marcados: ReadonlySet<string>;
   aoAlternar: (id: string) => void;
   aoAlternarTodos: () => void;
@@ -139,18 +139,18 @@ export function ListaHistorico({
       </div>
 
       <div className="lista-cartoes">
-        {grupos.map((grupo) => (
+        {groups.map((grupo) => (
           <div key={grupo.titulo || 'todos'} className="lista-cartoes">
             {grupo.titulo ? (
               <div className="grupo-cartoes">
-                {grupo.titulo} <span className="qt">{grupo.cartoes.length}</span>
+                {grupo.titulo} <span className="qt">{grupo.cards.length}</span>
               </div>
             ) : null}
 
-            {grupo.cartoes.map((c) => (
-              <Cartao
+            {grupo.cards.map((c) => (
+              <Card
                 key={`${grupo.titulo}-${c.id}`}
-                cartao={c}
+                card={c}
                 marcado={marcados.has(c.id)}
                 aoAlternar={aoAlternar}
               />

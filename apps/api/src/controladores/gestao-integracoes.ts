@@ -1,28 +1,28 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Put, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
-  carregarConexaoDoFluxo,
-  criarChaveDoFluxo,
-  criarWebhook,
+  loadConnectionOfFlow,
+  createKeyOfFlow,
+  createWebhook,
   editarWebhook,
   excluirWebhook,
-  listarChavesDoFluxo,
+  listKeysOfFlow,
   listarWebhooks,
-  revogarChaveDoFluxo,
-  salvarConexaoDoFluxo,
+  revogarKeyOfFlow,
+  saveConnectionOfFlow,
   testarWebhook,
 } from '../dominio/gestao/integracoes.js';
 import type {
-  ChaveDeFluxo,
-  ChaveDeFluxoCriada,
-  ConexaoDoFluxo,
+  KeyOfFlow,
+  KeyOfFlowCreated,
+  ConnectionOfFlow,
   PedidoDeConexao,
-  PedidoDeEdicaoDeWebhook,
+  RequestOfEditOfWebhook,
   PedidoDeWebhook,
-  ResultadoDoTeste,
+  ResultOfTest,
   WebhookDeSaida,
   WebhookDeSaidaCriado,
 } from '../dominio/gestao/integracoes.js';
@@ -40,185 +40,185 @@ import type {
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function uuidOu404(valor: string, oQue: string): string {
-  if (!UUID.test(valor)) throw ErroPipe.naoEncontrado(oQue);
-  return valor;
+function uuidOu404(value: string, oQue: string): string {
+  if (!UUID.test(value)) throw PipeError.naoEncontrado(oQue);
+  return value;
 }
 
-interface CorpoDeChave {
+interface BodyOfKey {
   nome?: unknown;
 }
 
 interface CorpoDeConexao {
-  urlMensagens?: unknown;
-  urlNotificacoes?: unknown;
+  urlMessages?: unknown;
+  urlNotifications?: unknown;
 }
 
 interface CorpoDeWebhook {
   url?: unknown;
   eventos?: unknown;
   ativo?: unknown;
-  autenticacao?: unknown;
+  authentication?: unknown;
   cabecalhos?: unknown;
 }
 
 @Controller()
-export class ControladorGestaoIntegracoes {
+export class ManagementIntegrationsController {
   /* ------------------------------------------------------- Chaves do fluxo */
 
   @Get('v1/gestao/fluxos/:id/chaves')
-  @ComSessao()
+  @WithSession()
   async chaves(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<ChaveDeFluxo[]> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<KeyOfFlow[]> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      listarChavesDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id),
+      listKeysOfFlow(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Post('v1/gestao/fluxos/:id/chaves')
-  @ComSessao()
-  async criarChave(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createKey(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: CorpoDeChave,
-  ): Promise<ChaveDeFluxoCriada> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: BodyOfKey,
+  ): Promise<KeyOfFlowCreated> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     const nome = corpo?.nome;
     return noTenant(sessao.tenantId, (tx) =>
-      criarChaveDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id, typeof nome === 'string' ? nome : ''),
+      createKeyOfFlow(tx, sessao.tenantId, sessao.userId, id, typeof nome === 'string' ? nome : ''),
     );
   }
 
   /** "Excluir chave" da tela — a regra REVOGA (`revogada_em`), nunca apaga a linha. */
   @Delete('v1/gestao/fluxos/:id/chaves/:chaveId')
   @HttpCode(204)
-  @ComSessao()
-  async revogarChave(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async revogarKey(
+    @Req() request: RequestWithSession,
     @Param('id') id: string,
-    @Param('chaveId') chaveId: string,
+    @Param('chaveId') keyId: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const session = sessionOf(request);
     uuidOu404(id, 'fluxo');
-    uuidOu404(chaveId, 'chave de API');
-    await noTenant(sessao.tenantId, (tx) =>
-      revogarChaveDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id, chaveId),
+    uuidOu404(keyId, 'chave de API');
+    await noTenant(session.tenantId, (tx) =>
+      revogarKeyOfFlow(tx, session.tenantId, session.userId, id, keyId),
     );
   }
 
   /* --------------------------------------------------- Informações de conexão */
 
   @Get('v1/gestao/fluxos/:id/conexao')
-  @ComSessao()
+  @WithSession()
   async conexao(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<ConexaoDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ConnectionOfFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      carregarConexaoDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id),
+      loadConnectionOfFlow(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Put('v1/gestao/fluxos/:id/conexao')
-  @ComSessao()
+  @WithSession()
   async salvarConexao(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: CorpoDeConexao,
-  ): Promise<ConexaoDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ConnectionOfFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     const pedido: PedidoDeConexao = {};
-    if (corpo?.urlMensagens !== undefined) {
-      pedido.urlMensagens = corpo.urlMensagens === null ? null : String(corpo.urlMensagens);
+    if (corpo?.urlMessages !== undefined) {
+      pedido.urlMensagens = corpo.urlMessages === null ? null : String(corpo.urlMessages);
     }
-    if (corpo?.urlNotificacoes !== undefined) {
-      pedido.urlNotificacoes = corpo.urlNotificacoes === null ? null : String(corpo.urlNotificacoes);
+    if (corpo?.urlNotifications !== undefined) {
+      pedido.urlNotificacoes = corpo.urlNotifications === null ? null : String(corpo.urlNotifications);
     }
     return noTenant(sessao.tenantId, (tx) =>
-      salvarConexaoDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id, pedido),
+      saveConnectionOfFlow(tx, sessao.tenantId, sessao.userId, id, pedido),
     );
   }
 
   /* ---------------------------------------------------------------- Webhook */
 
   @Get('v1/gestao/webhooks')
-  @ComSessao()
-  async webhooks(@Req() requisicao: RequisicaoComSessao): Promise<WebhookDeSaida[]> {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => listarWebhooks(tx, sessao.tenantId, sessao.usuarioId));
+  @WithSession()
+  async webhooks(@Req() requisicao: RequestWithSession): Promise<WebhookDeSaida[]> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => listarWebhooks(tx, sessao.tenantId, sessao.userId));
   }
 
   @Post('v1/gestao/webhooks')
-  @ComSessao()
-  async criarWebhook(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createWebhook(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: CorpoDeWebhook,
   ): Promise<WebhookDeSaidaCriado> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     const pedido: PedidoDeWebhook = {
       url: typeof corpo?.url === 'string' ? corpo.url : '',
       eventos: Array.isArray(corpo?.eventos) ? (corpo.eventos as unknown[]).map(String) : [],
-      autenticacao: corpo?.autenticacao,
+      autenticacao: corpo?.authentication,
       cabecalhos: corpo?.cabecalhos,
     };
     return noTenant(sessao.tenantId, (tx) =>
-      criarWebhook(tx, sessao.tenantId, sessao.usuarioId, pedido),
+      createWebhook(tx, sessao.tenantId, sessao.userId, pedido),
     );
   }
 
   @Patch('v1/gestao/webhooks/:webhookId')
-  @ComSessao()
+  @WithSession()
   async editarWebhook(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('webhookId') webhookId: string,
     @Body() corpo: CorpoDeWebhook,
   ): Promise<WebhookDeSaida> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(webhookId, 'webhook');
-    const pedido: PedidoDeEdicaoDeWebhook = {};
+    const pedido: RequestOfEditOfWebhook = {};
     if (typeof corpo?.url === 'string') pedido.url = corpo.url;
     if (Array.isArray(corpo?.eventos)) pedido.eventos = (corpo.eventos as unknown[]).map(String);
     if (typeof corpo?.ativo === 'boolean') pedido.ativo = corpo.ativo;
-    if (corpo?.autenticacao !== undefined) pedido.autenticacao = corpo.autenticacao;
+    if (corpo?.authentication !== undefined) pedido.autenticacao = corpo.authentication;
     if (corpo?.cabecalhos !== undefined) pedido.cabecalhos = corpo.cabecalhos;
     return noTenant(sessao.tenantId, (tx) =>
-      editarWebhook(tx, sessao.tenantId, sessao.usuarioId, webhookId, pedido),
+      editarWebhook(tx, sessao.tenantId, sessao.userId, webhookId, pedido),
     );
   }
 
   @Delete('v1/gestao/webhooks/:webhookId')
   @HttpCode(204)
-  @ComSessao()
+  @WithSession()
   async excluirWebhook(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('webhookId') webhookId: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(webhookId, 'webhook');
     await noTenant(sessao.tenantId, (tx) =>
-      excluirWebhook(tx, sessao.tenantId, sessao.usuarioId, webhookId),
+      excluirWebhook(tx, sessao.tenantId, sessao.userId, webhookId),
     );
   }
 
   @Post('v1/gestao/webhooks/:webhookId/testar')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async testarWebhook(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('webhookId') webhookId: string,
-  ): Promise<ResultadoDoTeste> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ResultOfTest> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(webhookId, 'webhook');
     return noTenant(sessao.tenantId, (tx) =>
-      testarWebhook(tx, sessao.tenantId, sessao.usuarioId, webhookId),
+      testarWebhook(tx, sessao.tenantId, sessao.userId, webhookId),
     );
   }
 }

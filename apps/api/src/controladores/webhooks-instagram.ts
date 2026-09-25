@@ -1,12 +1,12 @@
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { segredoConfere } from '@pipe/db';
-import { resolverCanal } from '../banco.js';
-import type { CanalResolvido } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { enfileirarEntrada } from '../filas.js';
+import { secretConfere } from '@pipe/db';
+import { resolveChannel } from '../banco.js';
+import type { ChannelResolved } from '../banco.js';
+import { PipeError } from '../erros.js';
+import { enqueueInbound } from '../filas.js';
 import { assinaturaConfere } from './webhooks-whatsapp.js';
-import type { RequisicaoComCorpoCru } from './webhooks-whatsapp.js';
+import type { RequestWithBodyRaw } from './webhooks-whatsapp.js';
 
 /**
  * Webhook do Instagram (Direct), por canal. Reconstruído de chatwoot/chatwoot (MIT),
@@ -19,19 +19,19 @@ import type { RequisicaoComCorpoCru } from './webhooks-whatsapp.js';
  * Instagram é manual, e sem o segredo do canal a recusa é fechada.
  */
 @Controller('webhooks/instagram')
-export class ControladorWebhookInstagram {
+export class InstagramWebhookController {
   @Get(':canalId')
   async verificar(
-    @Param('canalId') canalId: string,
+    @Param('canalId') channelId: string,
     @Query('hub.mode') modo: string | undefined,
     @Query('hub.verify_token') token: string | undefined,
     @Query('hub.challenge') desafio: string | undefined,
     @Res() resposta: Response,
   ): Promise<void> {
-    const canal = await canalDoInstagram(canalId);
-    const esperado = String(canal.config['verifyToken'] ?? '');
-    if (modo !== 'subscribe' || !esperado || !segredoConfere(token ?? '', esperado)) {
-      throw new ErroPipe(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+    const channel = await channelOfInstagram(channelId);
+    const esperado = String(channel.config['verifyToken'] ?? '');
+    if (modo !== 'subscribe' || !esperado || !secretConfere(token ?? '', esperado)) {
+      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
     }
     resposta.status(200).type('text/plain').send(desafio ?? '');
   }
@@ -40,33 +40,33 @@ export class ControladorWebhookInstagram {
   @HttpCode(200)
   async receber(
     @Param('canalId') canalId: string,
-    @Req() requisicao: RequisicaoComCorpoCru,
+    @Req() request: RequestWithBodyRaw,
   ): Promise<{ recebido: true }> {
-    const canal = await canalDoInstagram(canalId);
-    if (!canal.ativo) throw ErroPipe.conflito('canal_inativo', 'O canal está desativado.');
+    const canal = await channelOfInstagram(canalId);
+    if (!canal.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
 
-    const segredo = String(canal.config['appSecret'] ?? '');
-    if (!segredo) {
-      throw new ErroPipe(
+    const secret = String(canal.config['appSecret'] ?? '');
+    if (!secret) {
+      throw new PipeError(
         403,
         'canal_sem_app_secret',
         'O canal não tem appSecret configurado: sem ele a assinatura não pode ser conferida.',
       );
     }
-    const corpo = requisicao.corpoCru;
-    if (!corpo) throw new ErroPipe(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
-    if (!assinaturaConfere(segredo, corpo, requisicao.header('x-hub-signature-256'))) {
-      throw new ErroPipe(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+    const corpo = request.corpoCru;
+    if (!corpo) throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+    if (!assinaturaConfere(secret, corpo, request.header('x-hub-signature-256'))) {
+      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
     }
 
-    await enfileirarEntrada(canalId, requisicao.body);
+    await enqueueInbound(canalId, request.body);
     return { recebido: true };
   }
 }
 
 /** Canal que não é do Instagram é 404 aqui: a URL de um WhatsApp não vira porta de entrada do Direct. */
-async function canalDoInstagram(canalId: string): Promise<CanalResolvido> {
-  const canal = /^[0-9a-f-]{36}$/i.test(canalId) ? await resolverCanal(canalId) : null;
-  if (!canal || canal.tipo !== 'instagram') throw ErroPipe.naoEncontrado('Canal');
+async function channelOfInstagram(canalId: string): Promise<ChannelResolved> {
+  const canal = /^[0-9a-f-]{36}$/i.test(canalId) ? await resolveChannel(canalId) : null;
+  if (!canal || canal.tipo !== 'instagram') throw PipeError.naoEncontrado('Canal');
   return canal;
 }

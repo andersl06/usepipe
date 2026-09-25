@@ -8,12 +8,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 11).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Encerrar e pausar têm de gravar `evento_atendimento`.
@@ -30,17 +30,17 @@ let cenario: Cenario;
 let api: ApiNoAr;
 let cookie: string;
 let etiquetaId: string;
-let contatoId: string;
-let outroAtendenteId: string;
+let contactId: string;
+let otherAgentId: string;
 
 beforeAll(async () => {
   cenario = await montarCenario(`eventos-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
 
-  const novo = criarToken();
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookie = novo.token;
 
@@ -55,14 +55,14 @@ beforeAll(async () => {
     values (${cenario.tenantId}, 'Cliente Eventos', '+5511944443333')
     returning id
   `);
-  contatoId = c[0]!.id;
+  contactId = c[0]!.id;
 
   const { rows: o } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, 'Carla Colega', ${`carla-${randomUUID().slice(0, 8)}@e2e.pipe.app`})
     returning id
   `);
-  outroAtendenteId = o[0]!.id;
+  otherAgentId = o[0]!.id;
 });
 
 afterAll(async () => {
@@ -70,18 +70,18 @@ afterAll(async () => {
   await cenario.encerrar();
 });
 
-async function novaConversa(
-  estado: string,
-  atendenteId: string | null = cenario.atendenteId,
+async function newConversation(
+  state: string,
+  agentId: string | null = cenario.agentId,
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
       tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado,
       em_espera_desde, janela_expira_em
     ) values (
-      ${cenario.tenantId}, ${cenario.inboxId}, ${contatoId}, ${cenario.filaId},
-      ${atendenteId}, ${estado},
-      ${estado === 'em_espera' ? sql`now() - interval '30 seconds'` : null},
+      ${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, ${cenario.queueId},
+      ${agentId}, ${state},
+      ${state === 'em_espera' ? sql`now() - interval '30 seconds'` : null},
       now() + interval '20 hours'
     )
     returning id
@@ -97,16 +97,16 @@ function chamar(caminho: string, corpo?: unknown): Promise<Response> {
   });
 }
 
-async function eventosDe(conversaId: string): Promise<string[]> {
+async function eventosDe(conversationId: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ tipo: string }>(sql`
-    select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by em, tipo
+    select tipo from evento_atendimento where conversa_id = ${conversationId}::uuid order by em, tipo
   `);
   return rows.map((r) => r.tipo);
 }
 
 describe('encerrar conversa', () => {
   it('grava o evento `encerrada` — sem ele o relatório não sabe que fechou', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
 
     const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
 
@@ -115,21 +115,21 @@ describe('encerrar conversa', () => {
   });
 
   it('carimba quem encerrou e com que etiqueta, nos dados do evento', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
 
     await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
 
-    const { rows } = await cenario.dono.execute<{ usuario_id: string; dados: Record<string, string> }>(sql`
+    const { rows } = await cenario.dono.execute<{ userId: string; data: Record<string, string> }>(sql`
       select usuario_id, dados from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'encerrada' limit 1
     `);
-    expect(rows[0]?.usuario_id).toBe(cenario.atendenteId);
-    expect(rows[0]?.dados['encerrada_por']).toBe('atendente');
-    expect(rows[0]?.dados['etiqueta']).toBe('Resolvido');
+    expect(rows[0]?.userId).toBe(cenario.agentId);
+    expect(rows[0]?.data['encerrada_por']).toBe('atendente');
+    expect(rows[0]?.data['etiqueta']).toBe('Resolvido');
   });
 
   it('grava todas as tags escolhidas e mantém a primeira como motivo do evento legado', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into etiqueta (tenant_id, nome) values (${cenario.tenantId}, 'Dúvida') returning id
     `);
@@ -145,14 +145,14 @@ describe('encerrar conversa', () => {
   });
 
   it('exige etiqueta: conversa fechada sem motivo não explica nada depois', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
     const resposta = await chamar(`/v1/conversas/${id}/encerrar`, {});
     expect(resposta.status).toBe(400);
     expect(await eventosDe(id)).toHaveLength(0);
   });
 
   it('fecha a espera em aberto antes de encerrar, senão o pausado some do esforço', async () => {
-    const id = await novaConversa('em_espera');
+    const id = await newConversation('em_espera');
 
     await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
 
@@ -166,13 +166,13 @@ describe('encerrar conversa', () => {
   });
 
   it('recusa transição inválida — encerrar o que já está encerrado', async () => {
-    const id = await novaConversa('encerrada');
+    const id = await newConversation('encerrada');
     const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(409);
   });
 
   it('recusa conversa de outro atendente', async () => {
-    const id = await novaConversa('em_atendimento', outroAtendenteId);
+    const id = await newConversation('em_atendimento', otherAgentId);
     const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
@@ -183,17 +183,17 @@ describe('encerrar conversa', () => {
       insert into papel (tenant_id, nome) values (${cenario.tenantId}, ${`Supervisor ${randomUUID().slice(0, 6)}`})
       returning id
     `);
-    const papelId = p[0]!.id;
+    const roleId = p[0]!.id;
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, 'conversa.encerrar') on conflict do nothing
+      values (${cenario.tenantId}, ${roleId}, 'conversa.encerrar') on conflict do nothing
     `);
     await cenario.dono.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id)
-      values (${cenario.tenantId}, ${cenario.atendenteId}, ${papelId}) on conflict do nothing
+      values (${cenario.tenantId}, ${cenario.agentId}, ${roleId}) on conflict do nothing
     `);
 
-    const id = await novaConversa('em_atendimento', outroAtendenteId);
+    const id = await newConversation('em_atendimento', otherAgentId);
     expect((await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId })).status).toBe(201);
     expect(await eventosDe(id)).toContain('encerrada');
   });
@@ -201,17 +201,17 @@ describe('encerrar conversa', () => {
 
 describe('espera', () => {
   it('entrar em espera grava `espera_iniciada`', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
 
     const resposta = await chamar(`/v1/conversas/${id}/espera`);
 
     expect(resposta.status).toBe(201);
-    expect(((await resposta.json()) as { estado: string }).estado).toBe('em_espera');
+    expect(((await resposta.json()) as { state: string }).state).toBe('em_espera');
     expect(await eventosDe(id)).toContain('espera_iniciada');
   });
 
   it('sair da espera grava `espera_encerrada` com os segundos pausados', async () => {
-    const id = await novaConversa('em_espera');
+    const id = await newConversation('em_espera');
 
     const resposta = await chamar(`/v1/conversas/${id}/espera`);
     const corpo = (await resposta.json()) as { estado: string; pausado_seg: number };
@@ -227,7 +227,7 @@ describe('espera', () => {
   });
 
   it('ida e volta deixam o par de eventos, e o acumulado na conversa', async () => {
-    const id = await novaConversa('em_atendimento');
+    const id = await newConversation('em_atendimento');
 
     await chamar(`/v1/conversas/${id}/espera`);
     await chamar(`/v1/conversas/${id}/espera`);
@@ -238,7 +238,7 @@ describe('espera', () => {
   });
 
   it('recusa conversa de outro atendente', async () => {
-    const id = await novaConversa('em_atendimento', outroAtendenteId);
+    const id = await newConversation('em_atendimento', otherAgentId);
     const resposta = await chamar(`/v1/conversas/${id}/espera`);
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);

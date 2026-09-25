@@ -50,7 +50,7 @@ export interface SaudeDoNumero {
 }
 
 export interface AlvoDaSaude {
-  tokenAcesso: string | null;
+  tokenAccess: string | null;
   numeroId: string | null;
   wabaId: string | null;
 }
@@ -61,17 +61,17 @@ export function versaoDaSaude(): string {
   return `v${versao.toFixed(1)}`;
 }
 
-function comoTexto(valor: unknown): string | undefined {
-  return typeof valor === 'string' ? valor : undefined;
+function comoTexto(value: unknown): string | undefined {
+  return typeof value === 'string' ? value : undefined;
 }
 
 export async function buscarSaude(alvo: AlvoDaSaude): Promise<SaudeDoNumero> {
   // `validate_channel!`
-  if (!alvo.tokenAcesso) throw new Error('Falta o token de acesso.');
+  if (!alvo.tokenAccess) throw new Error('Falta o token de acesso.');
   if (!alvo.numeroId) throw new Error('Falta o phone number id.');
   if (!alvo.wabaId) throw new Error('Falta o business account id.');
 
-  const cliente = clienteGraph(alvo.tokenAcesso);
+  const cliente = clienteGraph(alvo.tokenAccess);
   const versao = versaoDaSaude();
 
   const numero = await cliente.buscarNumero(alvo.numeroId, CAMPOS_DO_NUMERO, versao);

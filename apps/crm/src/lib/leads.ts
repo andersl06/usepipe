@@ -1,16 +1,16 @@
 import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
 import type { PgColumn } from 'drizzle-orm/pg-core';
-import type { ItemExplicacao } from '@pipe/core';
+import type { ItemExplanation } from '@pipe/core';
 import {
-  atividade,
-  classificacaoConversa,
-  contato,
-  contatoEtiqueta,
-  conta,
-  conversa,
+  activity,
+  classificationConversation,
+  contact,
+  contactLabel,
+  account,
+  conversation,
   etiqueta,
   faixaScore,
-  fila,
+  queue,
   formulario,
   formularioPergunta,
   formularioVersao,
@@ -18,13 +18,13 @@ import {
   regraScore,
   respostaFormulario,
   scoreLead,
-  usuario,
+  user,
 } from '@pipe/db/schema';
-import { diferenca, registrarAuditoria, type TransacaoPipe } from '@pipe/db';
+import { diferenca, registrarAuditoria, type TransactionPipe } from '@pipe/db';
 import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './banco';
 // Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
 // lê no navegador, e é ele que fecha a lista de colunas graváveis.
-import type { ChaveCampo } from './campos-editaveis';
+import type { KeyField } from './campos-editaveis';
 
 /**
  * Leads: a listagem e a ficha.
@@ -42,55 +42,55 @@ import type { ChaveCampo } from './campos-editaveis';
 export {
   ABAS,
   abaValida,
-  AGRUPAMENTOS,
-  agrupamentoValido,
+  GROUPINGS,
+  groupingValid,
   agrupar,
-  colunaDoAgrupamento,
-  colunaOrdenavel,
-  direcaoInicial,
-  direcaoValida,
-  escreverFiltros,
+  groupingColumn,
+  columnOrdenavel,
+  directionInitial,
+  directionValid,
+  escreverFilters,
   FILTRAVEIS,
-  filtroValido,
-  lerFiltros,
+  filterValid,
+  readFilters,
   LIMITE_LISTA,
-  ordemValida,
-  ROTULO_ATIVIDADE,
+  orderValid,
+  ROTULO_ACTIVITY,
   ROTULO_STATUS,
-  rotuloDoFiltro,
-  SEM_VALOR,
+  filterRotulo,
+  WITHOUT_VALUE,
 } from './leads-visao';
 export type {
   Aba,
-  Agrupamento,
-  ChaveDeFiltro,
-  Direcao,
-  Filtros,
+  Grouping,
+  FilterKey,
+  Direction,
+  SFilter,
   Grupo,
   LinhaLead,
-  Ordem,
+  Order,
   Proprietario,
 } from './leads-visao';
 
 // Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo
 // usam quase todos. Por isso a segunda linha, que parece redundante e não é.
-import { filtroValido, LIMITE_LISTA, ROTULO_ATIVIDADE, SEM_VALOR } from './leads-visao';
+import { filterValid, LIMITE_LISTA, ROTULO_ACTIVITY, WITHOUT_VALUE } from './leads-visao';
 import type {
   Aba,
-  ChaveDeFiltro,
-  Direcao,
-  Filtros,
+  FilterKey,
+  Direction,
+  SFilter,
   LinhaLead,
-  Ordem,
+  Order,
   Proprietario,
 } from './leads-visao';
 
 /** Nome da fila por faixa, da versão mais recente de `faixa_score`. */
-async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
+async function queuesByTier(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
   const linhas = await tx
-    .select({ nome: faixaScore.nome, versao: faixaScore.versao, fila: fila.nome })
+    .select({ nome: faixaScore.nome, versao: faixaScore.versao, fila: queue.nome })
     .from(faixaScore)
-    .leftJoin(fila, eq(fila.id, faixaScore.filaId))
+    .leftJoin(queue, eq(queue.id, faixaScore.filaId))
     .orderBy(faixaScore.versao);
   const mapa = new Map<string, string | null>();
   // Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.
@@ -103,12 +103,12 @@ async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0])
  * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
  * porque precisa do esquema.
  */
-const COLUNA_SQL = {
-  lead: contato.nome,
+const COLUMN_SQL = {
+  lead: contact.nome,
   origem: lead.origem,
   score: lead.scoreAtual,
   faixa: lead.faixaAtual,
-  proprietario: usuario.nome,
+  proprietario: user.nome,
   fase: lead.fase,
   /** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
    *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */
@@ -130,14 +130,14 @@ export interface ListaDeLeads {
  * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
  *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
  */
-function ordenacaoSql(ordem: Ordem, direcao: Direcao) {
+function sortingSql(order: Order, direction: Direction) {
   const recente = desc(lead.criadoEm);
-  if (ordem === 'nenhuma') return [recente];
+  if (order === 'nenhuma') return [recente];
 
-  const coluna = COLUNA_SQL[ordem];
-  const crescente = ordem === 'dias' ? direcao === 'desc' : direcao === 'asc';
+  const column = COLUMN_SQL[order];
+  const crescente = order === 'dias' ? direction === 'desc' : direction === 'asc';
   return [
-    crescente ? sql`${coluna} asc nulls last` : sql`${coluna} desc nulls last`,
+    crescente ? sql`${column} asc nulls last` : sql`${column} desc nulls last`,
     recente,
   ];
 }
@@ -154,12 +154,12 @@ function ordenacaoSql(ordem: Ordem, direcao: Direcao) {
  * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
  * carregar id e nome só para esconder um dos dois.
  */
-function condicaoDeFiltro(chave: ChaveDeFiltro, valor: string) {
-  const vazio = valor === SEM_VALOR;
-  if (chave === 'origem') return vazio ? isNull(lead.origem) : eq(lead.origem, valor);
-  if (chave === 'faixa') return vazio ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, valor);
-  if (chave === 'fase') return vazio ? isNull(lead.fase) : eq(lead.fase, valor);
-  return vazio ? isNull(lead.proprietarioId) : eq(usuario.nome, valor);
+function filterCondition(key: FilterKey, value: string) {
+  const empty = value === WITHOUT_VALUE;
+  if (key === 'origem') return empty ? isNull(lead.origem) : eq(lead.origem, value);
+  if (key === 'faixa') return empty ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, value);
+  if (key === 'fase') return empty ? isNull(lead.fase) : eq(lead.fase, value);
+  return empty ? isNull(lead.proprietarioId) : eq(user.nome, value);
 }
 
 /**
@@ -172,17 +172,17 @@ function condicaoDeFiltro(chave: ChaveDeFiltro, valor: string) {
  * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
  * de trezentas origens não é um menu, é uma segunda listagem.
  */
-const TETO_DE_OPCOES = 40;
+const TETO_OF_OPTIONS = 40;
 
-export async function opcoesDeFiltro(): Promise<Record<ChaveDeFiltro, string[]>> {
+export async function filterOptions(): Promise<Record<FilterKey, string[]>> {
   return consultar(async (tx) => {
-    const distintos = async (coluna: PgColumn) => {
+    const distintos = async (column: PgColumn) => {
       const linhas = await tx
-        .selectDistinct({ v: coluna })
+        .selectDistinct({ v: column })
         .from(lead)
-        .where(and(isNull(lead.excluidoEm), sql`${coluna} is not null`))
-        .orderBy(coluna)
-        .limit(TETO_DE_OPCOES);
+        .where(and(isNull(lead.excluidoEm), sql`${column} is not null`))
+        .orderBy(column)
+        .limit(TETO_OF_OPTIONS);
       // O `is not null` já está no `where`; o filtro aqui é só para o tipo.
       return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
     };
@@ -191,12 +191,12 @@ export async function opcoesDeFiltro(): Promise<Record<ChaveDeFiltro, string[]>>
     const faixa = await distintos(lead.faixaAtual);
     const fase = await distintos(lead.fase);
     const donos = await tx
-      .selectDistinct({ v: usuario.nome })
+      .selectDistinct({ v: user.nome })
       .from(lead)
-      .innerJoin(usuario, eq(usuario.id, lead.proprietarioId))
+      .innerJoin(user, eq(user.id, lead.proprietarioId))
       .where(isNull(lead.excluidoEm))
-      .orderBy(usuario.nome)
-      .limit(TETO_DE_OPCOES);
+      .orderBy(user.nome)
+      .limit(TETO_OF_OPTIONS);
 
     return { origem, faixa, fase, proprietario: donos.map((d) => d.v) };
   });
@@ -217,10 +217,10 @@ export async function opcoesDeFiltro(): Promise<Record<ChaveDeFiltro, string[]>>
  */
 export async function carregarListaDeLeads(
   aba: Aba,
-  busca: string,
-  ordem: Ordem = 'nenhuma',
-  direcao: Direcao = 'desc',
-  filtros: Filtros = {},
+  search: string,
+  order: Order = 'nenhuma',
+  direction: Direction = 'desc',
+  filters: SFilter = {},
 ): Promise<ListaDeLeads> {
   return consultar(async (tx) => {
     const recorte = {
@@ -235,26 +235,26 @@ export async function carregarListaDeLeads(
       desqualificados: eq(lead.status, 'desqualificado'),
     }[aba];
 
-    const termo = busca.trim();
-    const filtroBusca = termo
-      ? sql`(${contato.nome} ilike ${'%' + termo + '%'}
-             or ${contato.documento} ilike ${'%' + termo + '%'}
-             or ${contato.telefoneE164} ilike ${'%' + termo + '%'}
-             or ${contato.email} ilike ${'%' + termo + '%'})`
+    const termo = search.trim();
+    const filterSearch = termo
+      ? sql`(${contact.nome} ilike ${'%' + termo + '%'}
+             or ${contact.document} ilike ${'%' + termo + '%'}
+             or ${contact.telefoneE164} ilike ${'%' + termo + '%'}
+             or ${contact.email} ilike ${'%' + termo + '%'})`
       : undefined;
 
-    const condicoes = Object.entries(filtros)
-      .filter((par): par is [ChaveDeFiltro, string] => filtroValido(par[0]))
-      .map(([chave, valor]) => condicaoDeFiltro(chave, valor));
+    const conditions = Object.entries(filters)
+      .filter((par): par is [FilterKey, string] => filterValid(par[0]))
+      .map(([key, value]) => filterCondition(key, value));
 
     const cru = await tx
       .select({
         id: lead.id,
-        nome: contato.nome,
+        nome: contact.nome,
         origem: lead.origem,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
-        proprietario: usuario.nome,
+        proprietario: user.nome,
         // O id, e não só o nome: a célula editável da listagem grava o id, e
         // nome muda sem que a atribuição mude junto.
         proprietarioId: lead.proprietarioId,
@@ -263,18 +263,18 @@ export async function carregarListaDeLeads(
         faseDesde: lead.faseDesde,
       })
       .from(lead)
-      .leftJoin(contato, eq(contato.id, lead.contatoId))
-      .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
-      .where(and(isNull(lead.excluidoEm), recorte, filtroBusca, ...condicoes))
-      .orderBy(...ordenacaoSql(ordem, direcao))
+      .leftJoin(contact, eq(contact.id, lead.contatoId))
+      .leftJoin(user, eq(user.id, lead.proprietarioId))
+      .where(and(isNull(lead.excluidoEm), recorte, filterSearch, ...conditions))
+      .orderBy(...sortingSql(order, direction))
       .limit(LIMITE_LISTA);
 
-    const filas = await filasPorFaixa(tx);
-    const ultimas = await ultimaAtividadePorLead(
+    const queues = await queuesByTier(tx);
+    const ultimas = await ultimaActivityByLead(
       tx,
       cru.map((l) => l.id),
     );
-    const [contagem] = await tx
+    const [count] = await tx
       .select({
         todos: sql<number>`count(*)::int`,
         novos: sql<number>`count(*) filter (where ${lead.status} = 'novo')::int`,
@@ -298,7 +298,7 @@ export async function carregarListaDeLeads(
         origem: l.origem,
         score: l.score,
         faixa: l.faixa,
-        fila: l.faixa ? (filas.get(l.faixa) ?? null) : null,
+        fila: l.faixa ? (queues.get(l.faixa) ?? null) : null,
         proprietario: l.proprietario,
         proprietarioId: l.proprietarioId,
         status: l.status,
@@ -312,18 +312,18 @@ export async function carregarListaDeLeads(
     return {
       linhas,
       contagens: {
-        todos: contagem?.todos ?? 0,
-        novos: contagem?.novos ?? 0,
-        qualificados: contagem?.qualificados ?? 0,
-        'sem-proprietario': contagem?.semProprietario ?? 0,
-        parados: contagem?.parados ?? 0,
-        desqualificados: contagem?.desqualificados ?? 0,
+        todos: count?.todos ?? 0,
+        novos: count?.novos ?? 0,
+        qualificados: count?.qualificados ?? 0,
+        'sem-proprietario': count?.semProprietario ?? 0,
+        parados: count?.parados ?? 0,
+        desqualificados: count?.desqualificados ?? 0,
       },
     };
   });
 }
 
-async function ultimaAtividadePorLead(
+async function ultimaActivityByLead(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   ids: string[],
 ): Promise<Map<string, { em: Date; tipo: string }>> {
@@ -332,53 +332,53 @@ async function ultimaAtividadePorLead(
 
   const linhas = await tx
     .select({
-      leadId: atividade.leadId,
-      tipo: atividade.tipo,
-      em: atividade.ocorridaEm,
+      leadId: activity.leadId,
+      tipo: activity.tipo,
+      em: activity.ocorridaEm,
     })
-    .from(atividade)
-    .where(inArray(atividade.leadId, ids))
-    .orderBy(atividade.ocorridaEm);
+    .from(activity)
+    .where(inArray(activity.leadId, ids))
+    .orderBy(activity.ocorridaEm);
 
   // Ordenado crescente: a última escrita por lead é a atividade mais recente.
   for (const l of linhas) {
     const em = paraData(l.em);
-    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: ROTULO_ATIVIDADE[l.tipo] ?? l.tipo });
+    if (l.leadId && em) mapa.set(l.leadId, { em, tipo: ROTULO_ACTIVITY[l.tipo] ?? l.tipo });
   }
   return mapa;
 }
 
 /* ------------------------------------------------------------------ a ficha */
 
-export interface RegraExplicada extends ItemExplicacao {
+export interface RegraExplicada extends ItemExplanation {
   nome: string;
 }
 
 export interface ScoreExplicado {
-  valor: number;
+  value: number;
   faixa: string | null;
   versaoRegra: number;
   calculadoEm: Date | null;
   itens: RegraExplicada[];
   /** Da faixa vigente: é ela que decide fila e proprietário. */
-  fila: string | null;
+  queue: string | null;
   corte: number | null;
 }
 
 export interface RespostaExibida {
   pergunta: string;
   tipo: string;
-  valor: string;
+  value: string;
 }
 
-export interface BlocoRespostas {
+export interface BlockRespostas {
   formulario: string;
   versao: number;
   respondidoEm: Date | null;
   respostas: RespostaExibida[];
 }
 
-export interface ItemLinhaDoTempo {
+export interface TimeItemLinha {
   id: string;
   tipo: string;
   titulo: string;
@@ -392,9 +392,9 @@ export interface Ficha {
   nome: string;
   email: string | null;
   telefone: string | null;
-  documento: string | null;
-  contaId: string | null;
-  contaNome: string | null;
+  document: string | null;
+  accountId: string | null;
+  accountName: string | null;
   origem: string | null;
   campanha: string | null;
   utm: Record<string, unknown>;
@@ -409,30 +409,30 @@ export interface Ficha {
   criadoEm: Date | null;
   etiquetas: { nome: string; cor: string | null }[];
   score: ScoreExplicado | null;
-  formularios: BlocoRespostas[];
-  linhaDoTempo: ItemLinhaDoTempo[];
+  formularios: BlockRespostas[];
+  timeLinha: TimeItemLinha[];
 }
 
 function textoDaResposta(r: {
   tipo: string;
-  valorTexto: string | null;
-  valorNum: unknown;
-  valorData: unknown;
-  valorBool: boolean | null;
-  valorJson: unknown;
+  valueText: string | null;
+  valueNum: unknown;
+  valueData: unknown;
+  valueBool: boolean | null;
+  valueJson: unknown;
 }): string {
-  if (r.valorTexto !== null && r.valorTexto !== undefined) return r.valorTexto;
-  if (r.valorBool !== null && r.valorBool !== undefined) return r.valorBool ? 'Sim' : 'Não';
-  const num = paraNumero(r.valorNum);
+  if (r.valueText !== null && r.valueText !== undefined) return r.valueText;
+  if (r.valueBool !== null && r.valueBool !== undefined) return r.valueBool ? 'Sim' : 'Não';
+  const num = paraNumero(r.valueNum);
   if (num !== null) {
     return r.tipo === 'numero'
       ? num.toLocaleString('pt-BR', { maximumFractionDigits: 2 })
       : String(num);
   }
-  const dt = paraData(r.valorData);
+  const dt = paraData(r.valueData);
   if (dt) return dt.toLocaleDateString('pt-BR');
-  if (Array.isArray(r.valorJson)) return r.valorJson.join(', ');
-  if (r.valorJson !== null && r.valorJson !== undefined) return JSON.stringify(r.valorJson);
+  if (Array.isArray(r.valueJson)) return r.valueJson.join(', ');
+  if (r.valueJson !== null && r.valueJson !== undefined) return JSON.stringify(r.valueJson);
   return '—';
 }
 
@@ -442,12 +442,12 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       .select({
         id: lead.id,
         contatoId: lead.contatoId,
-        nome: contato.nome,
-        email: contato.email,
-        telefone: contato.telefoneE164,
-        documento: contato.documento,
+        nome: contact.nome,
+        email: contact.email,
+        telefone: contact.telefoneE164,
+        documento: contact.document,
         contaId: lead.contaId,
-        contaNome: conta.nome,
+        contaNome: account.nome,
         origem: lead.origem,
         campanha: lead.campanha,
         utm: lead.utm,
@@ -455,14 +455,14 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
         status: lead.status,
         fase: lead.fase,
         faseDesde: lead.faseDesde,
-        proprietario: usuario.nome,
+        proprietario: user.nome,
         proprietarioId: lead.proprietarioId,
         criadoEm: lead.criadoEm,
       })
       .from(lead)
-      .leftJoin(contato, eq(contato.id, lead.contatoId))
-      .leftJoin(conta, eq(conta.id, lead.contaId))
-      .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
+      .leftJoin(contact, eq(contact.id, lead.contatoId))
+      .leftJoin(account, eq(account.id, lead.contaId))
+      .leftJoin(user, eq(user.id, lead.proprietarioId))
       .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
       .limit(1);
 
@@ -471,15 +471,15 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
     const etiquetas = cabeca.contatoId
       ? await tx
           .select({ nome: etiqueta.nome, cor: etiqueta.cor })
-          .from(contatoEtiqueta)
-          .innerJoin(etiqueta, eq(etiqueta.id, contatoEtiqueta.etiquetaId))
-          .where(eq(contatoEtiqueta.contatoId, cabeca.contatoId))
+          .from(contactLabel)
+          .innerJoin(etiqueta, eq(etiqueta.id, contactLabel.etiquetaId))
+          .where(eq(contactLabel.contatoId, cabeca.contatoId))
           .orderBy(etiqueta.nome)
       : [];
 
     const score = await carregarScore(tx, id);
     const formularios = await carregarRespostas(tx, id);
-    const linhaDoTempo = await carregarLinhaDoTempo(tx, id, cabeca.contatoId);
+    const timeLinha = await timeCarregarLinha(tx, id, cabeca.contatoId);
 
     const desdeFase = paraData(cabeca.faseDesde);
 
@@ -505,7 +505,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       etiquetas,
       score,
       formularios,
-      linhaDoTempo,
+      timeLinha,
     };
   });
 }
@@ -537,7 +537,7 @@ async function carregarScore(
 
   if (!linha) return null;
 
-  const itensCrus = (Array.isArray(linha.explicacao) ? linha.explicacao : []) as ItemExplicacao[];
+  const itensCrus = (Array.isArray(linha.explicacao) ? linha.explicacao : []) as ItemExplanation[];
   const ids = itensCrus.map((i) => i.regra).filter((i) => typeof i === 'string');
 
   const nomes = new Map<string, string>();
@@ -549,26 +549,26 @@ async function carregarScore(
     for (const r of regras) nomes.set(r.id, r.nome);
   }
 
-  let filaDaFaixa: string | null = null;
+  let tierQueue: string | null = null;
   let corte: number | null = null;
   if (linha.faixa) {
     const [f] = await tx
-      .select({ fila: fila.nome, minimo: faixaScore.minimo })
+      .select({ fila: queue.nome, minimo: faixaScore.minimo })
       .from(faixaScore)
-      .leftJoin(fila, eq(fila.id, faixaScore.filaId))
+      .leftJoin(queue, eq(queue.id, faixaScore.filaId))
       .where(and(eq(faixaScore.nome, linha.faixa), eq(faixaScore.versao, linha.versaoRegra)))
       .limit(1);
-    filaDaFaixa = f?.fila ?? null;
+    tierQueue = f?.fila ?? null;
     corte = f?.minimo ?? null;
   }
 
   return {
-    valor: linha.valor,
+    value: linha.valor,
     faixa: linha.faixa,
     versaoRegra: linha.versaoRegra,
     calculadoEm: paraData(linha.calculadoEm),
     itens: itensCrus.map((i) => ({ ...i, nome: nomes.get(i.regra) ?? 'regra removida' })),
-    fila: filaDaFaixa,
+    queue: tierQueue,
     corte,
   };
 }
@@ -580,7 +580,7 @@ async function carregarScore(
 async function carregarRespostas(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
-): Promise<BlocoRespostas[]> {
+): Promise<BlockRespostas[]> {
   const linhas = await tx
     .select({
       formulario: formulario.nome,
@@ -603,19 +603,19 @@ async function carregarRespostas(
     .where(eq(respostaFormulario.leadId, leadId))
     .orderBy(formulario.nome, formularioVersao.versao, formularioPergunta.ordem);
 
-  const blocos = new Map<string, BlocoRespostas>();
+  const blocos = new Map<string, BlockRespostas>();
   for (const l of linhas) {
-    let bloco = blocos.get(l.versaoId);
-    if (!bloco) {
-      bloco = {
+    let block = blocos.get(l.versaoId);
+    if (!block) {
+      block = {
         formulario: l.formulario,
         versao: l.versao,
         respondidoEm: paraData(l.criadoEm),
         respostas: [],
       };
-      blocos.set(l.versaoId, bloco);
+      blocos.set(l.versaoId, block);
     }
-    bloco.respostas.push({ pergunta: l.pergunta, tipo: l.tipo, valor: textoDaResposta(l) });
+    block.respostas.push({ pergunta: l.pergunta, tipo: l.tipo, value: textoDaResposta(l) });
   }
   return [...blocos.values()];
 }
@@ -630,55 +630,55 @@ async function carregarRespostas(
  * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
  * na transação da ficha que a pediu.
  */
-export async function carregarLinhaDoTempo(
+export async function timeCarregarLinha(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
-  contatoId: string | null,
-): Promise<ItemLinhaDoTempo[]> {
-  const atividades = await tx
+  contactId: string | null,
+): Promise<TimeItemLinha[]> {
+  const activities = await tx
     .select({
-      id: atividade.id,
-      tipo: atividade.tipo,
-      resumo: atividade.resumo,
-      corpo: atividade.corpo,
-      autor: usuario.nome,
-      em: atividade.ocorridaEm,
+      id: activity.id,
+      tipo: activity.tipo,
+      resumo: activity.resumo,
+      corpo: activity.corpo,
+      autor: user.nome,
+      em: activity.ocorridaEm,
     })
-    .from(atividade)
-    .leftJoin(usuario, eq(usuario.id, atividade.usuarioId))
-    .where(eq(atividade.leadId, leadId))
-    .orderBy(desc(atividade.ocorridaEm))
+    .from(activity)
+    .leftJoin(user, eq(user.id, activity.usuarioId))
+    .where(eq(activity.leadId, leadId))
+    .orderBy(desc(activity.ocorridaEm))
     .limit(50);
 
-  const itens: ItemLinhaDoTempo[] = atividades.map((a) => ({
+  const itens: TimeItemLinha[] = activities.map((a) => ({
     id: a.id,
-    tipo: ROTULO_ATIVIDADE[a.tipo] ?? a.tipo,
-    titulo: a.resumo ?? (ROTULO_ATIVIDADE[a.tipo] ?? a.tipo),
+    tipo: ROTULO_ACTIVITY[a.tipo] ?? a.tipo,
+    titulo: a.resumo ?? (ROTULO_ACTIVITY[a.tipo] ?? a.tipo),
     corpo: a.corpo,
     autor: a.autor,
     em: paraData(a.em) ?? new Date(0),
   }));
 
-  if (contatoId) {
-    const conversas = await tx
+  if (contactId) {
+    const conversations = await tx
       .select({
-        id: conversa.id,
-        encerradaEm: conversa.encerradaEm,
-        criadaEm: conversa.criadaEm,
-        atendente: usuario.nome,
-        filaNome: fila.nome,
-        resumo: classificacaoConversa.resumo,
-        categoria: classificacaoConversa.categoria,
+        id: conversation.id,
+        encerradaEm: conversation.encerradaEm,
+        criadaEm: conversation.criadaEm,
+        atendente: user.nome,
+        filaNome: queue.nome,
+        resumo: classificationConversation.resumo,
+        categoria: classificationConversation.categoria,
       })
-      .from(conversa)
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, conversa.id))
-      .where(eq(conversa.contatoId, contatoId))
-      .orderBy(desc(conversa.criadaEm))
+      .from(conversation)
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
+      .where(eq(conversation.contatoId, contactId))
+      .orderBy(desc(conversation.criadaEm))
       .limit(20);
 
-    for (const c of conversas) {
+    for (const c of conversations) {
       itens.push({
         id: `conversa-${c.id}`,
         tipo: 'Atendimento',
@@ -701,10 +701,10 @@ export async function carregarLinhaDoTempo(
 export async function listarProprietarios(): Promise<Proprietario[]> {
   return consultar(async (tx) =>
     tx
-      .select({ id: usuario.id, nome: usuario.nome })
-      .from(usuario)
-      .where(eq(usuario.ativo, true))
-      .orderBy(usuario.nome),
+      .select({ id: user.id, nome: user.nome })
+      .from(user)
+      .where(eq(user.ativo, true))
+      .orderBy(user.nome),
   );
 }
 
@@ -788,8 +788,8 @@ export async function desqualificarLeads(ids: string[]): Promise<number> {
  */
 export async function atualizarCampoDoLead(
   id: string,
-  campo: ChaveCampo,
-  valor: string | null,
+  campo: KeyField,
+  value: string | null,
 ): Promise<boolean> {
   const tid = await tenantId();
 
@@ -808,10 +808,10 @@ export async function atualizarCampoDoLead(
 
       const mudanca =
         campo === 'origem'
-          ? { origem: valor }
+          ? { origem: value }
           : campo === 'campanha'
-            ? { campanha: valor }
-            : { proprietarioId: valor };
+            ? { campanha: value }
+            : { proprietarioId: value };
       const mudadas = await tx
         .update(lead)
         .set({ ...mudanca, atualizadoEm: sql`now()` })
@@ -831,18 +831,18 @@ export async function atualizarCampoDoLead(
     if (!dono?.contatoId) return false;
 
     const [antes] = await tx
-      .select({ email: contato.email, telefoneE164: contato.telefoneE164 })
-      .from(contato)
-      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
+      .select({ email: contact.email, telefoneE164: contact.telefoneE164 })
+      .from(contact)
+      .where(and(eq(contact.id, dono.contatoId), isNull(contact.excluidoEm)))
       .limit(1);
     if (!antes) return false;
 
-    const mudanca = campo === 'email' ? { email: valor } : { telefoneE164: valor };
+    const mudanca = campo === 'email' ? { email: value } : { telefoneE164: value };
     const mudadas = await tx
-      .update(contato)
+      .update(contact)
       .set({ ...mudanca, atualizadoEm: sql`now()` })
-      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
-      .returning({ id: contato.id });
+      .where(and(eq(contact.id, dono.contatoId), isNull(contact.excluidoEm)))
+      .returning({ id: contact.id });
     if (mudadas.length === 0) return false;
 
     // O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,
@@ -861,7 +861,7 @@ export async function atualizarCampoDoLead(
  * evento.
  */
 async function anotar(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   objetoTipo: string,
   objetoId: string,

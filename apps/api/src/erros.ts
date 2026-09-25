@@ -10,7 +10,7 @@ import type { Response } from 'express';
  * `{ "erro": { "codigo", "mensagem" } }`, para o cliente distinguir sucesso de
  * falha sem inspecionar o corpo.
  */
-export class ErroPipe extends Error {
+export class PipeError extends Error {
   readonly codigo: string;
   readonly status: number;
   readonly detalhe: Record<string, unknown> | undefined;
@@ -18,79 +18,79 @@ export class ErroPipe extends Error {
   constructor(
     status: number,
     codigo: string,
-    mensagem: string,
+    message: string,
     detalhe?: Record<string, unknown>,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroPipe';
     this.codigo = codigo;
     this.status = status;
     this.detalhe = detalhe;
   }
 
-  static requisicao(codigo: string, mensagem: string, detalhe?: Record<string, unknown>): ErroPipe {
-    return new ErroPipe(400, codigo, mensagem, detalhe);
+  static request(codigo: string, mensagem: string, detalhe?: Record<string, unknown>): PipeError {
+    return new PipeError(400, codigo, mensagem, detalhe);
   }
 
-  static naoAutorizado(mensagem = 'Chave de API ausente ou inválida.'): ErroPipe {
-    return new ErroPipe(401, 'nao_autorizado', mensagem);
+  static naoAutorizado(mensagem = 'Chave de API ausente ou inválida.'): PipeError {
+    return new PipeError(401, 'nao_autorizado', mensagem);
   }
 
-  static semEscopo(escopo: string): ErroPipe {
-    return new ErroPipe(403, 'sem_escopo', `A chave não tem o escopo "${escopo}".`, { escopo });
+  static withoutScope(scope: string): PipeError {
+    return new PipeError(403, 'sem_escopo', `A chave não tem o escopo "${scope}".`, { scope });
   }
 
   /** Irmã de `semEscopo`, para gente logada: escopo é chave de API, permissão é pessoa. */
-  static semPermissao(codigo: string): ErroPipe {
-    return new ErroPipe(403, 'sem_permissao', `Você não tem a permissão "${codigo}".`, {
+  static withoutPermission(codigo: string): PipeError {
+    return new PipeError(403, 'sem_permissao', `Você não tem a permissão "${codigo}".`, {
       permissao: codigo,
     });
   }
 
-  static naoEncontrado(oQue: string): ErroPipe {
-    return new ErroPipe(404, 'nao_encontrado', `${oQue} não encontrado.`);
+  static naoEncontrado(oQue: string): PipeError {
+    return new PipeError(404, 'nao_encontrado', `${oQue} não encontrado.`);
   }
 
-  static conflito(codigo: string, mensagem: string, detalhe?: Record<string, unknown>): ErroPipe {
-    return new ErroPipe(409, codigo, mensagem, detalhe);
+  static conflito(codigo: string, mensagem: string, detalhe?: Record<string, unknown>): PipeError {
+    return new PipeError(409, codigo, mensagem, detalhe);
   }
 }
 
 @Catch()
-export class FiltroDeErro implements ExceptionFilter {
-  catch(excecao: unknown, host: ArgumentsHost): void {
+export class ErrorFilter implements ExceptionFilter {
+  catch(exception: unknown, host: ArgumentsHost): void {
     const resposta = host.switchToHttp().getResponse<Response>();
 
-    if (excecao instanceof ErroPipe) {
-      resposta.status(excecao.status).json({
+    if (exception instanceof PipeError) {
+      resposta.status(exception.status).json({
         erro: {
-          codigo: excecao.codigo,
-          mensagem: excecao.message,
-          ...(excecao.detalhe ? { detalhe: excecao.detalhe } : {}),
+          codigo: exception.codigo,
+          mensagem: exception.message,
+          ...(exception.detalhe ? { detalhe: exception.detalhe } : {}),
         },
       });
       return;
     }
 
-    if (excecao instanceof HttpException) {
-      const corpo = excecao.getResponse();
-      resposta.status(excecao.getStatus()).json({
+    if (exception instanceof HttpException) {
+      const corpo = exception.getResponse();
+      resposta.status(exception.getStatus()).json({
         erro: {
           codigo: 'http',
-          mensagem: typeof corpo === 'string' ? corpo : excecao.message,
+          mensagem: typeof corpo === 'string' ? corpo : exception.message,
         },
       });
       return;
     }
 
     // O `body-parser` recusa corpo grande antes do Nest: culpa de quem mandou, não 500.
-    if ((excecao as { type?: string } | null)?.type === 'entity.too.large') {
+    if ((exception as { type?: string } | null)?.type === 'entity.too.large') {
       resposta.status(413).json({ erro: { codigo: 'corpo_grande', mensagem: 'O corpo da requisição é grande demais.' } });
       return;
     }
 
     // Erro não previsto não vaza stack para o cliente, mas vai inteiro para o log.
-    console.error('[api] erro não tratado', excecao);
+    console.error('[api] erro não tratado', exception);
     resposta.status(500).json({
       erro: { codigo: 'erro_interno', mensagem: 'Erro interno.' },
     });

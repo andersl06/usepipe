@@ -9,12 +9,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * A tela "Permissões" do atendente — `GET`/`PATCH /v1/gestao/atendentes/permissoes`.
@@ -34,12 +34,12 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 /** Quem pode mexer na permissão dos outros (`usuario.gerenciar`). */
-let sessaoGestor: string;
+let sessionManager: string;
 /** Atendente comum: é o alvo, e não pode se promover. */
-let sessaoAtendente: string;
-let sessaoDoOutroTenant: string;
+let sessionAgent: string;
+let sessionOfOtherTenant: string;
 let gestorId: string;
-let atendenteId: string;
+let agentId: string;
 let segundoId: string;
 
 /**
@@ -58,7 +58,7 @@ const DO_CATALOGO = [
   'usuario.gerenciar',
 ];
 
-async function semearCatalogo(cenario: Cenario): Promise<void> {
+async function seedCatalog(cenario: Cenario): Promise<void> {
   for (const codigo of DO_CATALOGO) {
     await cenario.dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
@@ -70,13 +70,13 @@ async function semearCatalogo(cenario: Cenario): Promise<void> {
 /** Um usuário novo no tenant, com um papel que carrega estas permissões. */
 async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissoes.length === 0) return userId;
 
   for (const codigo of permissoes) {
     await cenario.dono.execute(sql`
@@ -88,25 +88,25 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  const papelId = papeis[0]!.id;
+  const roleId = papeis[0]!.id;
   for (const codigo of permissoes) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, ${codigo})
+      values (${cenario.tenantId}, ${roleId}, ${codigo})
     `);
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papelId})
+    values (${cenario.tenantId}, ${userId}, ${roleId})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -118,31 +118,31 @@ function comCookie(token: string): Record<string, string> {
 type Linha = {
   codigo: string;
   grupo: string;
-  descricao: string;
+  description: string;
   dosPapeis: boolean;
   override: boolean | null;
   ligada: boolean;
   parcial: boolean;
 };
 type Resposta = {
-  atendentes?: { id: string; nome: string; email: string }[];
-  permissoes?: Linha[];
-  erro?: unknown;
+  agents?: { id: string; nome: string; email: string }[];
+  permissions?: Linha[];
+  error?: unknown;
 };
 
-async function ler(sessao: string, ids: string[]) {
+async function ler(session: string, ids: string[]) {
   const resposta = await fetch(
     `${api.url}/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}`,
-    { headers: comCookie(sessao) },
+    { headers: comCookie(session) },
   );
   return { status: resposta.status, corpo: (await resposta.json()) as Resposta };
 }
 
-async function salvar(sessao: string, usuarioIds: string[], permissoes: Record<string, boolean>) {
+async function salvar(sessao: string, userIds: string[], permissions: Record<string, boolean>) {
   const resposta = await fetch(`${api.url}/v1/gestao/atendentes/permissoes`, {
     method: 'PATCH',
     headers: comCookie(sessao),
-    body: JSON.stringify({ usuarioIds, permissoes }),
+    body: JSON.stringify({ userIds, permissions }),
   });
   return { status: resposta.status, corpo: (await resposta.json()) as Record<string, unknown> };
 }
@@ -155,24 +155,24 @@ async function linhaDe(usuarioId: string, codigo: string) {
   return rows[0];
 }
 
-function permissao(corpo: Resposta, codigo: string): Linha | undefined {
-  return corpo.permissoes?.find((p) => p.codigo === codigo);
+function permission(corpo: Resposta, codigo: string): Linha | undefined {
+  return corpo.permissions?.find((p) => p.codigo === codigo);
 }
 
 beforeAll(async () => {
   a = await montarCenario(`perm-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`perm-${randomUUID().slice(0, 8)}`);
-  await semearCatalogo(a);
+  await seedCatalog(a);
 
   gestorId = await pessoaCom(a, ['usuario.gerenciar']);
-  atendenteId = await pessoaCom(a, ['conversa.ver', 'conversa.responder']);
+  agentId = await pessoaCom(a, ['conversa.ver', 'conversa.responder']);
   segundoId = await pessoaCom(a, ['conversa.ver']);
   const gestorDoB = await pessoaCom(b, ['usuario.gerenciar']);
 
-  api = await subirApi(0);
-  sessaoGestor = await abrirSessao(a, gestorId);
-  sessaoAtendente = await abrirSessao(a, atendenteId);
-  sessaoDoOutroTenant = await abrirSessao(b, gestorDoB);
+  api = await upApi(0);
+  sessionManager = await openSession(a, gestorId);
+  sessionAgent = await openSession(a, agentId);
+  sessionOfOtherTenant = await openSession(b, gestorDoB);
 }, 180_000);
 
 afterAll(async () => {
@@ -183,18 +183,18 @@ afterAll(async () => {
 
 describe('GET /v1/gestao/atendentes/permissoes', () => {
   it('devolve o catálogo inteiro e o Status vindo do papel, sem exceção nenhuma', async () => {
-    const { status, corpo } = await ler(sessaoGestor, [atendenteId]);
+    const { status, corpo } = await ler(sessionManager, [agentId]);
     expect(status).toBe(200);
-    expect(corpo.atendentes).toHaveLength(1);
-    expect(corpo.atendentes?.[0]?.id).toBe(atendenteId);
+    expect(corpo.agents).toHaveLength(1);
+    expect(corpo.agents?.[0]?.id).toBe(agentId);
 
-    expect(permissao(corpo, 'conversa.responder')).toMatchObject({
+    expect(permission(corpo, 'conversa.responder')).toMatchObject({
       dosPapeis: true,
       override: null,
       ligada: true,
       parcial: false,
     });
-    expect(permissao(corpo, 'conversa.encerrar')).toMatchObject({
+    expect(permission(corpo, 'conversa.encerrar')).toMatchObject({
       dosPapeis: false,
       override: null,
       ligada: false,
@@ -202,7 +202,7 @@ describe('GET /v1/gestao/atendentes/permissoes', () => {
     /* A tabela é o catálogo DO ATENDENTE, não só o que a pessoa tem: a linha
        desligada precisa aparecer para poder ser ligada. O que é de gestão
        (relatório, regra, usuário) fica de fora: vem do papel. */
-    const codigos = corpo.permissoes?.map((p) => p.codigo) ?? [];
+    const codigos = corpo.permissions?.map((p) => p.codigo) ?? [];
     for (const codigo of DO_CATALOGO) {
       if (/^(conversa|contato)./.test(codigo)) expect(codigos).toContain(codigo);
       else expect(codigos).not.toContain(codigo);
@@ -210,27 +210,27 @@ describe('GET /v1/gestao/atendentes/permissoes', () => {
   });
 
   it("não concede por atendente o que é de gestão", async () => {
-    const { status } = await salvar(sessaoGestor, [atendenteId], { "usuario.gerenciar": true });
+    const { status } = await salvar(sessionManager, [agentId], { "usuario.gerenciar": true });
     expect(status).toBe(400);
-    expect(await linhaDe(atendenteId, "usuario.gerenciar")).toBeUndefined();
+    expect(await linhaDe(agentId, "usuario.gerenciar")).toBeUndefined();
   });
 
   it('com dois atendentes, o que um tem e o outro não vem como parcial', async () => {
-    const { corpo } = await ler(sessaoGestor, [atendenteId, segundoId]);
-    expect(corpo.atendentes).toHaveLength(2);
+    const { corpo } = await ler(sessionManager, [agentId, segundoId]);
+    expect(corpo.agents).toHaveLength(2);
     /* Os dois têm `conversa.ver`; só o primeiro tem `conversa.responder`. */
-    expect(permissao(corpo, 'conversa.ver')).toMatchObject({ ligada: true, parcial: false });
-    expect(permissao(corpo, 'conversa.responder')).toMatchObject({ ligada: false, parcial: true });
+    expect(permission(corpo, 'conversa.ver')).toMatchObject({ ligada: true, parcial: false });
+    expect(permission(corpo, 'conversa.responder')).toMatchObject({ ligada: false, parcial: true });
   });
 
   it('atendente de outro tenant é 404, e id que não é uuid também', async () => {
-    expect((await ler(sessaoDoOutroTenant, [atendenteId])).status).toBe(404);
-    expect((await ler(sessaoGestor, ['nao-e-uuid'])).status).toBe(404);
+    expect((await ler(sessionOfOtherTenant, [agentId])).status).toBe(404);
+    expect((await ler(sessionManager, ['nao-e-uuid'])).status).toBe(404);
   });
 
   it('sem atendente nenhum é recusa de requisição, não lista vazia', async () => {
     const resposta = await fetch(`${api.url}/v1/gestao/atendentes/permissoes?atendentes=`, {
-      headers: comCookie(sessaoGestor),
+      headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(400);
   });
@@ -238,12 +238,12 @@ describe('GET /v1/gestao/atendentes/permissoes', () => {
 
 describe('PATCH /v1/gestao/atendentes/permissoes', () => {
   it('liga o que o papel não dá e grava a exceção', async () => {
-    const { status } = await salvar(sessaoGestor, [atendenteId], { 'conversa.encerrar': true });
+    const { status } = await salvar(sessionManager, [agentId], { 'conversa.encerrar': true });
     expect(status).toBe(200);
-    expect(await linhaDe(atendenteId, 'conversa.encerrar')).toMatchObject({ concedida: true });
+    expect(await linhaDe(agentId, 'conversa.encerrar')).toMatchObject({ concedida: true });
 
-    const { corpo } = await ler(sessaoGestor, [atendenteId]);
-    expect(permissao(corpo, 'conversa.encerrar')).toMatchObject({
+    const { corpo } = await ler(sessionManager, [agentId]);
+    expect(permission(corpo, 'conversa.encerrar')).toMatchObject({
       dosPapeis: false,
       override: true,
       ligada: true,
@@ -251,11 +251,11 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
   });
 
   it('desliga o que o papel dá e grava a negativa', async () => {
-    await salvar(sessaoGestor, [atendenteId], { 'conversa.responder': false });
-    expect(await linhaDe(atendenteId, 'conversa.responder')).toMatchObject({ concedida: false });
+    await salvar(sessionManager, [agentId], { 'conversa.responder': false });
+    expect(await linhaDe(agentId, 'conversa.responder')).toMatchObject({ concedida: false });
 
-    const { corpo } = await ler(sessaoGestor, [atendenteId]);
-    expect(permissao(corpo, 'conversa.responder')).toMatchObject({
+    const { corpo } = await ler(sessionManager, [agentId]);
+    expect(permission(corpo, 'conversa.responder')).toMatchObject({
       dosPapeis: true,
       override: false,
       ligada: false,
@@ -263,67 +263,67 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
   });
 
   it('voltar a coincidir com o papel APAGA a exceção — a tabela só guarda o que difere', async () => {
-    await salvar(sessaoGestor, [atendenteId], { 'conversa.responder': true });
-    expect(await linhaDe(atendenteId, 'conversa.responder')).toBeUndefined();
+    await salvar(sessionManager, [agentId], { 'conversa.responder': true });
+    expect(await linhaDe(agentId, 'conversa.responder')).toBeUndefined();
 
-    await salvar(sessaoGestor, [atendenteId], { 'conversa.encerrar': false });
-    expect(await linhaDe(atendenteId, 'conversa.encerrar')).toBeUndefined();
+    await salvar(sessionManager, [agentId], { 'conversa.encerrar': false });
+    expect(await linhaDe(agentId, 'conversa.encerrar')).toBeUndefined();
   });
 
   it('a exceção vale de verdade: desligar tira o acesso da rota, religar devolve', async () => {
     /* `regra.gerenciar` é o que `POST /v1/gestao/regras/prioridade` cobra. */
-    const criar = () =>
+    const create = () =>
       fetch(`${api.url}/v1/gestao/regras/prioridade`, {
         method: 'POST',
-        headers: comCookie(sessaoAtendente),
+        headers: comCookie(sessionAgent),
         body: JSON.stringify({ nome: `Regra ${randomUUID().slice(0, 6)}`, nivel: 'alta' }),
       });
 
-    expect((await criar()).status).toBe(403);
+    expect((await create()).status).toBe(403);
 
     /* `regra.gerenciar` é de gestão e a página não o concede (vem do papel);
        a exceção vai direto na tabela para provar que `exigirPermissao` a lê. */
     await a.dono.execute(sql`
       insert into usuario_permissao (tenant_id, usuario_id, permissao_codigo, concedida)
-      values (${a.tenantId}, ${atendenteId}::uuid, 'regra.gerenciar', true)
+      values (${a.tenantId}, ${agentId}::uuid, 'regra.gerenciar', true)
     `);
     /* `POST` sem `@HttpCode` é 201 no Nest — o que importa aqui é não ser 403. */
-    expect((await criar()).status).toBe(201);
+    expect((await create()).status).toBe(201);
 
     await a.dono.execute(sql`
       update usuario_permissao set concedida = false
-       where usuario_id = ${atendenteId}::uuid and permissao_codigo = 'regra.gerenciar'
+       where usuario_id = ${agentId}::uuid and permissao_codigo = 'regra.gerenciar'
     `);
-    expect((await criar()).status).toBe(403);
+    expect((await create()).status).toBe(403);
   });
 
   it('salva para vários atendentes de uma vez', async () => {
-    await salvar(sessaoGestor, [atendenteId, segundoId], { 'conversa.nota_interna': true });
-    expect(await linhaDe(atendenteId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
+    await salvar(sessionManager, [agentId, segundoId], { 'conversa.nota_interna': true });
+    expect(await linhaDe(agentId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
     expect(await linhaDe(segundoId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
 
-    const { corpo } = await ler(sessaoGestor, [atendenteId, segundoId]);
-    expect(permissao(corpo, 'conversa.nota_interna')).toMatchObject({ ligada: true, parcial: false });
+    const { corpo } = await ler(sessionManager, [agentId, segundoId]);
+    expect(permission(corpo, 'conversa.nota_interna')).toMatchObject({ ligada: true, parcial: false });
   });
 
   it('quem não tem usuario.gerenciar não mexe na permissão de ninguém — nem na própria', async () => {
-    const { status } = await salvar(sessaoAtendente, [atendenteId], { 'usuario.gerenciar': true });
+    const { status } = await salvar(sessionAgent, [agentId], { 'usuario.gerenciar': true });
     expect(status).toBe(403);
-    expect(await linhaDe(atendenteId, 'usuario.gerenciar')).toBeUndefined();
+    expect(await linhaDe(agentId, 'usuario.gerenciar')).toBeUndefined();
   });
 
   it('permissão que não está no catálogo é recusa, não linha órfã', async () => {
-    const { status } = await salvar(sessaoGestor, [atendenteId], { 'inventada.total': true });
+    const { status } = await salvar(sessionManager, [agentId], { 'inventada.total': true });
     expect(status).toBe(400);
   });
 
   it('gestor de outro tenant não alcança o atendente daqui', async () => {
-    const { status } = await salvar(sessaoDoOutroTenant, [atendenteId], { 'conversa.ver': false });
+    const { status } = await salvar(sessionOfOtherTenant, [agentId], { 'conversa.ver': false });
     expect(status).toBe(404);
   });
 
   it('a mudança entra no log de auditoria, com o autor e o que mudou', async () => {
-    await salvar(sessaoGestor, [segundoId], { 'conversa.encerrar': true });
+    await salvar(sessionManager, [segundoId], { 'conversa.encerrar': true });
     const { rows } = await a.dono.execute<{ acao: string; depois: Record<string, unknown> | null }>(sql`
       select acao, depois from log_auditoria
        where objeto_tipo = 'usuario_permissao' and objeto_id = ${segundoId}::uuid
@@ -342,7 +342,7 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     };
     const antes = await contar();
     /* `relatorio.ver` já foi ligado no teste anterior: pedir de novo é o mesmo estado. */
-    await salvar(sessaoGestor, [segundoId], { 'relatorio.ver': true });
+    await salvar(sessionManager, [segundoId], { 'relatorio.ver': true });
     expect(await contar()).toBe(antes);
   });
 });

@@ -11,29 +11,29 @@ import { motivoDe } from '../../configuracoes/basicas/gravar';
  * 0036): `autenticacao.senha`/`autenticacao.clientSecret` só existem no
  * PEDIDO de criação/edição — a resposta nunca os devolve (nem cifrados).
  */
-export const TIPOS_AUTENTICACAO = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
-export type TipoAutenticacao = (typeof TIPOS_AUTENTICACAO)[number];
+export const TIPOS_AUTHENTICATION = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
+export type TipoAuthentication = (typeof TIPOS_AUTHENTICATION)[number];
 
-export interface AutenticacaoVisivel {
-  tipo: TipoAutenticacao;
-  usuario: string | null;
-  urlAutorizacao: string | null;
+export interface AuthenticationVisivel {
+  tipo: TipoAuthentication;
+  user: string | null;
+  urlAuthorization: string | null;
   clientId: string | null;
 }
 
 /** O que a tela ENVIA — os campos de segredo só aqui, nunca na resposta. */
-export interface AutenticacaoEntrada {
-  tipo: TipoAutenticacao;
-  usuario?: string;
+export interface AuthenticationInbound {
+  tipo: TipoAuthentication;
+  user?: string;
   senha?: string;
-  urlAutorizacao?: string;
+  urlAuthorization?: string;
   clientId?: string;
   clientSecret?: string;
 }
 
 export interface CabecalhoCustomizado {
-  chave: string;
-  valor: string;
+  key: string;
+  value: string;
 }
 
 export interface WebhookListado {
@@ -42,42 +42,42 @@ export interface WebhookListado {
   eventos: string[];
   ativo: boolean;
   criadoEm: string;
-  autenticacao: AutenticacaoVisivel;
+  authentication: AuthenticationVisivel;
   cabecalhos: CabecalhoCustomizado[];
 }
 
 export interface WebhookCriado extends WebhookListado {
   /** Só existe na resposta da criação — o banco guarda o segredo para assinar, a tela não. */
-  segredo: string;
+  secret: string;
 }
 
-export interface ResultadoDeTeste {
+export interface TestResult {
   ok: boolean;
   status?: number;
-  erro?: string;
+  error?: string;
   /** Prévia curta do corpo da resposta — "mostra a resposta (status e corpo curto)". */
   corpo?: string;
 }
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
-export async function criarWebhook(
+export async function createWebhook(
   url: string,
   eventos: string[],
-  autenticacao?: AutenticacaoEntrada,
+  authentication?: AuthenticationInbound,
   cabecalhos?: CabecalhoCustomizado[],
 ): Promise<Resultado<WebhookCriado>> {
   try {
-    const valor = await api.post<WebhookCriado>('/v1/gestao/webhooks', {
+    const value = await api.post<WebhookCriado>('/v1/gestao/webhooks', {
       url,
       eventos,
-      autenticacao,
+      authentication,
       cabecalhos,
     });
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível criar o webhook.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível criar o webhook.') };
   }
 }
 
@@ -87,16 +87,16 @@ export async function editarWebhook(
     url?: string;
     eventos?: string[];
     ativo?: boolean;
-    autenticacao?: AutenticacaoEntrada;
+    authentication?: AuthenticationInbound;
     cabecalhos?: CabecalhoCustomizado[];
   },
 ): Promise<Resultado<WebhookListado>> {
   try {
-    const valor = await api.patch<WebhookListado>(`/v1/gestao/webhooks/${id}`, pedido);
+    const value = await api.patch<WebhookListado>(`/v1/gestao/webhooks/${id}`, pedido);
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível salvar o webhook.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar o webhook.') };
   }
 }
 
@@ -104,17 +104,17 @@ export async function excluirWebhook(id: string): Promise<Resultado<void>> {
   try {
     await api.delete<void>(`/v1/gestao/webhooks/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir o webhook.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir o webhook.') };
   }
 }
 
-export async function testarWebhook(id: string): Promise<Resultado<ResultadoDeTeste>> {
+export async function testarWebhook(id: string): Promise<Resultado<TestResult>> {
   try {
-    const valor = await api.post<ResultadoDeTeste>(`/v1/gestao/webhooks/${id}/testar`);
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível testar o webhook.') };
+    const value = await api.post<TestResult>(`/v1/gestao/webhooks/${id}/testar`);
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível testar o webhook.') };
   }
 }

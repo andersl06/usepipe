@@ -1,20 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { Botao, Icone } from '@pipe/ui';
 import { IconePortal } from '../../componentes/icones-portal';
-import { baseDoAtendimento } from '../operacao/casca';
+import { attendanceBase } from '../operacao/casca';
 
 /**
  * Atalho do Builder ao cadastro real de filas. A listagem, criação, edição,
  * ativação e exclusão já existem em PaginaFilas e nas rotas de gestão; manter
  * o formulário aqui duplicaria regras de cadastro e validação.
  */
-export function PainelDeFilas({
-  tipoDoContato,
-  contatoId,
+export function QueuesPanel({
+  contactTipo,
+  contactId,
   onFechar,
 }: {
-  tipoDoContato: string;
-  contatoId: string;
+  contactTipo: string;
+  contactId: string;
   onFechar: () => void;
 }) {
   const navegar = useNavigate();
@@ -33,7 +33,7 @@ export function PainelDeFilas({
         <Botao
           type="button"
           variante="primario"
-          onClick={() => navegar(`${baseDoAtendimento(tipoDoContato, contatoId)}/atendentes/filas`)}
+          onClick={() => navegar(`${attendanceBase(contactTipo, contactId)}/atendentes/filas`)}
         >
           Abrir gerenciamento de filas
         </Botao>

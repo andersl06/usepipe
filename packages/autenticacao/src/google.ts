@@ -31,34 +31,34 @@ export const GOOGLE = {
   jwks: 'https://www.googleapis.com/oauth2/v3/certs',
 } as const;
 
-export class LoginErro extends Error {
+export class LoginError extends Error {
   constructor(
     readonly codigo: string,
-    mensagem: string,
+    message: string,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'LoginErro';
   }
 }
 
 export interface ConfigDoGoogle {
   clienteId: string;
-  clienteSegredo: string;
+  customerSecret: string;
   /** Precisa bater EXATAMENTE com o cadastrado no Google Cloud Console. */
-  urlDeRetorno: string;
+  urlOfCallback: string;
 }
 
 export function configDoAmbiente(env: NodeJS.ProcessEnv = process.env): ConfigDoGoogle {
   const clienteId = env['GOOGLE_CLIENTE_ID'];
-  const clienteSegredo = env['GOOGLE_CLIENTE_SEGREDO'];
-  const urlDeRetorno = env['GOOGLE_URL_RETORNO'];
-  if (!clienteId || !clienteSegredo || !urlDeRetorno) {
-    throw new LoginErro(
+  const customerSecret = env['GOOGLE_CLIENTE_SEGREDO'];
+  const urlOfCallback = env['GOOGLE_URL_RETORNO'];
+  if (!clienteId || !customerSecret || !urlOfCallback) {
+    throw new LoginError(
       'google_sem_config',
       'Faltam GOOGLE_CLIENTE_ID, GOOGLE_CLIENTE_SEGREDO ou GOOGLE_URL_RETORNO.',
     );
   }
-  return { clienteId, clienteSegredo, urlDeRetorno };
+  return { clienteId, customerSecret, urlOfCallback };
 }
 
 /** O que precisa sobreviver entre a ida e a volta, guardado em cookie assinado. */
@@ -67,25 +67,25 @@ export interface DesafioDeLogin {
   nonce: string;
   verificadorPkce: string;
   /** Para onde voltar depois de entrar. Caminho interno, nunca URL absoluta. */
-  destino: string;
+  destination: string;
 }
 
-export function criarDesafio(destino = '/'): DesafioDeLogin {
+export function createChallenge(destination = '/'): DesafioDeLogin {
   return {
     state: randomBytes(24).toString('base64url'),
     nonce: randomBytes(24).toString('base64url'),
     verificadorPkce: randomBytes(32).toString('base64url'),
     // Só caminho interno: destino absoluto vira redirecionamento aberto, que é
     // como se monta phishing usando o nosso domínio como trampolim.
-    destino: destino.startsWith('/') && !destino.startsWith('//') ? destino : '/',
+    destination: destination.startsWith('/') && !destination.startsWith('//') ? destination : '/',
   };
 }
 
-export function urlDeAutorizacao(config: ConfigDoGoogle, desafio: DesafioDeLogin): string {
+export function urlOfAuthorization(config: ConfigDoGoogle, desafio: DesafioDeLogin): string {
   const desafioPkce = createHash('sha256').update(desafio.verificadorPkce).digest('base64url');
   const parametros = new URLSearchParams({
     client_id: config.clienteId,
-    redirect_uri: config.urlDeRetorno,
+    redirect_uri: config.urlOfCallback,
     response_type: 'code',
     scope: 'openid email profile',
     state: desafio.state,
@@ -128,7 +128,7 @@ const jwks = createRemoteJWKSet(new URL(GOOGLE.jwks));
  * código, que é a parte que fala com o Google, possa ser exercitada sem segredo
  * de verdade.
  */
-export async function trocarCodigo(
+export async function exchangeCode(
   config: ConfigDoGoogle,
   desafio: DesafioDeLogin,
   parametros: { code?: string; state?: string; error?: string },
@@ -136,14 +136,14 @@ export async function trocarCodigo(
   chaves: Parameters<typeof jwtVerify>[1] = jwks,
 ): Promise<PessoaDoGoogle> {
   if (parametros.error) {
-    throw new LoginErro('google_recusou', `O Google recusou: ${parametros.error}`);
+    throw new LoginError('google_recusou', `O Google recusou: ${parametros.error}`);
   }
-  if (!parametros.code) throw new LoginErro('sem_codigo', 'A volta do Google veio sem código.');
+  if (!parametros.code) throw new LoginError('sem_codigo', 'A volta do Google veio sem código.');
 
   // Comparação simples serve: `state` é nosso, gerado agora, e não é segredo de
   // longa duração — o que importa é que o valor volte igual ao que mandamos.
   if (!parametros.state || parametros.state !== desafio.state) {
-    throw new LoginErro('state_invalido', 'O `state` não confere: tentativa de login forjada.');
+    throw new LoginError('state_invalido', 'O `state` não confere: tentativa de login forjada.');
   }
 
   const resposta = await buscar(GOOGLE.token, {
@@ -152,18 +152,18 @@ export async function trocarCodigo(
     body: new URLSearchParams({
       code: parametros.code,
       client_id: config.clienteId,
-      client_secret: config.clienteSegredo,
-      redirect_uri: config.urlDeRetorno,
+      client_secret: config.customerSecret,
+      redirect_uri: config.urlOfCallback,
       grant_type: 'authorization_code',
       code_verifier: desafio.verificadorPkce,
     }),
   });
 
   if (!resposta.ok) {
-    throw new LoginErro('troca_falhou', `A troca do código falhou (${resposta.status}).`);
+    throw new LoginError('troca_falhou', `A troca do código falhou (${resposta.status}).`);
   }
   const corpo = (await resposta.json()) as { id_token?: string };
-  if (!corpo.id_token) throw new LoginErro('sem_id_token', 'A resposta veio sem `id_token`.');
+  if (!corpo.id_token) throw new LoginError('sem_id_token', 'A resposta veio sem `id_token`.');
 
   return verificarIdToken(corpo.id_token, config, desafio.nonce, chaves);
 }
@@ -180,20 +180,20 @@ export async function verificarIdToken(
   });
 
   if (payload['nonce'] !== nonce) {
-    throw new LoginErro('nonce_invalido', 'O `nonce` não confere: token reaproveitado.');
+    throw new LoginError('nonce_invalido', 'O `nonce` não confere: token reaproveitado.');
   }
 
   const sujeito = typeof payload.sub === 'string' ? payload.sub : '';
   const email = typeof payload['email'] === 'string' ? payload['email'].toLowerCase() : '';
   if (!sujeito || !email) {
-    throw new LoginErro('token_incompleto', 'O `id_token` veio sem `sub` ou sem `email`.');
+    throw new LoginError('token_incompleto', 'O `id_token` veio sem `sub` ou sem `email`.');
   }
 
   // Sem isto, quem cria conta no Google com o endereço de outra pessoa entra
   // como ela. O Google marca `email_verified` para conta de Workspace e para
   // Gmail; ausência é motivo de recusa, não de tolerância.
   if (payload['email_verified'] !== true) {
-    throw new LoginErro('email_nao_verificado', 'O Google não confirmou este e-mail.');
+    throw new LoginError('email_nao_verificado', 'O Google não confirmou este e-mail.');
   }
 
   return {
@@ -208,7 +208,7 @@ export async function verificarIdToken(
 }
 
 /** O domínio do e-mail, para descobrir a que tenant a pessoa pertence. */
-export function dominioDoEmail(email: string): string {
+export function domainOfEmail(email: string): string {
   return email.slice(email.lastIndexOf('@') + 1).toLowerCase();
 }
 
@@ -236,6 +236,6 @@ export const DOMINIOS_PUBLICOS = new Set([
   'protonmail.com',
 ]);
 
-export function ehDominioPublico(email: string): boolean {
-  return DOMINIOS_PUBLICOS.has(dominioDoEmail(email));
+export function ehDomainPublic(email: string): boolean {
+  return DOMINIOS_PUBLICOS.has(domainOfEmail(email));
 }

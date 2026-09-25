@@ -25,7 +25,7 @@ import { campoValido, normalizar, recusar } from '../../lib/campos-editaveis';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const TETO = 200;
 
-export interface ResultadoEmMassa {
+export interface ResultInBulk {
   /** Quantas linhas o banco realmente mudou. */
   mudadas: number;
   /** Quantas foram pedidas. Diferente de `mudadas` quando alguma foi recusada. */
@@ -41,10 +41,10 @@ function recarregar() {
   revalidatePath('/');
 }
 
-export async function atribuirEmMassa(
+export async function assignInBulk(
   ids: string[],
   proprietarioId: string,
-): Promise<ResultadoEmMassa> {
+): Promise<ResultInBulk> {
   const limpos = idsLimpos(ids);
   const donos = await listarProprietarios();
   if (!donos.some((d) => d.id === proprietarioId)) {
@@ -55,7 +55,7 @@ export async function atribuirEmMassa(
   return { mudadas, pedidas: limpos.length };
 }
 
-export async function desqualificarEmMassa(ids: string[]): Promise<ResultadoEmMassa> {
+export async function desqualificarInBulk(ids: string[]): Promise<ResultInBulk> {
   const limpos = idsLimpos(ids);
   const mudadas = await desqualificarLeads(limpos);
   recarregar();
@@ -67,9 +67,9 @@ export async function desqualificarEmMassa(ids: string[]): Promise<ResultadoEmMa
 export interface ResultadoCampo {
   ok: boolean;
   /** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */
-  valor: string | null;
+  value: string | null;
   /** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */
-  erro?: string;
+  error?: string;
 }
 
 /**
@@ -93,28 +93,28 @@ export async function salvarCampoDoLead(
   bruto: string,
   anterior: string | null,
 ): Promise<ResultadoCampo> {
-  if (!UUID.test(leadId)) return { ok: false, valor: anterior, erro: 'Lead desconhecido.' };
+  if (!UUID.test(leadId)) return { ok: false, value: anterior, error: 'Lead desconhecido.' };
   if (!campoValido(campo)) {
-    return { ok: false, valor: anterior, erro: 'Este campo não é editável.' };
+    return { ok: false, value: anterior, error: 'Este campo não é editável.' };
   }
 
-  const valor = normalizar(bruto);
-  const queixa = recusar(campo, valor);
-  if (queixa) return { ok: false, valor: anterior, erro: queixa };
+  const value = normalizar(bruto);
+  const queixa = recusar(campo, value);
+  if (queixa) return { ok: false, value: anterior, error: queixa };
 
-  if (campo === 'proprietario' && valor !== null) {
+  if (campo === 'proprietario' && value !== null) {
     const donos = await listarProprietarios();
-    if (!donos.some((d) => d.id === valor)) {
-      return { ok: false, valor: anterior, erro: 'Proprietário desconhecido.' };
+    if (!donos.some((d) => d.id === value)) {
+      return { ok: false, value: anterior, error: 'Proprietário desconhecido.' };
     }
   }
 
-  const gravou = await atualizarCampoDoLead(leadId, campo, valor);
+  const gravou = await atualizarCampoDoLead(leadId, campo, value);
   if (!gravou) {
     return {
       ok: false,
-      valor: anterior,
-      erro:
+      value: anterior,
+      error:
         campo === 'email' || campo === 'telefone'
           ? 'Este lead não tem contato: não há onde guardar e-mail nem telefone.'
           : 'O banco recusou: o lead pode ter sido excluído.',
@@ -123,5 +123,5 @@ export async function salvarCampoDoLead(
 
   revalidatePath(`/leads/${leadId}`);
   recarregar();
-  return { ok: true, valor };
+  return { ok: true, value };
 }

@@ -1,5 +1,5 @@
-import type { AcaoDoEditor, Bloco, Mapa } from './modelo';
-import { valorDoCampo } from './acoes-do-bloco';
+import type { AcaoDoEditor, Block, Mapa } from './modelo';
+import { fieldValue } from './acoes-do-bloco';
 
 /**
  * A "Biblioteca de variáveis" do editor (`$ctrl.openVarLib()`, painel à
@@ -18,58 +18,58 @@ import { valorDoCampo } from './acoes-do-bloco';
  *   `resource`, `tunnel`… não têm provedor aqui e ficariam mentindo).
  */
 
-export interface VariavelDoSistema {
+export interface SistemaVariable {
   nome: string;
-  descricao: string;
+  description: string;
 }
 
 /** As propriedades que os provedores do motor (`contexto.ts`) de fato respondem. */
-export const VARIAVEIS_DO_SISTEMA: readonly VariavelDoSistema[] = [
-  { nome: 'input.content', descricao: 'O conteúdo da última mensagem recebida.' },
-  { nome: 'input.type', descricao: 'O tipo (MIME) da última mensagem recebida.' },
-  { nome: 'contact.name', descricao: 'O nome do contato.' },
-  { nome: 'contact.phoneNumber', descricao: 'O telefone do contato.' },
-  { nome: 'contact.email', descricao: 'O e-mail do contato.' },
-  { nome: 'contact.extras.<chave>', descricao: 'Um campo extra do contato.' },
-  { nome: 'state.id', descricao: 'O id do bloco atual.' },
-  { nome: 'ticket.id', descricao: 'O id do atendimento em curso, dentro do bloco Humano.' },
+export const VARIABLES_OF_SISTEMA: readonly SistemaVariable[] = [
+  { nome: 'input.content', description: 'O conteúdo da última mensagem recebida.' },
+  { nome: 'input.type', description: 'O tipo (MIME) da última mensagem recebida.' },
+  { nome: 'contact.name', description: 'O nome do contato.' },
+  { nome: 'contact.phoneNumber', description: 'O telefone do contato.' },
+  { nome: 'contact.email', description: 'O e-mail do contato.' },
+  { nome: 'contact.extras.<chave>', description: 'Um campo extra do contato.' },
+  { nome: 'state.id', description: 'O id do bloco atual.' },
+  { nome: 'ticket.id', description: 'O id do atendimento em curso, dentro do bloco Humano.' },
 ] as const;
 
-function acrescentarDeAcoes(acoes: AcaoDoEditor[] | undefined, nomes: Set<string>): void {
-  for (const acao of acoes ?? []) {
+function actionsAcrescentar(actions: AcaoDoEditor[] | undefined, nomes: Set<string>): void {
+  for (const acao of actions ?? []) {
     if (acao.type === 'SetVariable' || acao.type === 'DeleteVariable') {
-      const nome = valorDoCampo(acao, 'variable').trim();
+      const nome = fieldValue(acao, 'variable').trim();
       if (nome) nomes.add(nome);
     }
-    for (const condicao of acao.conditions ?? []) {
-      if (condicao.source === 'context' && condicao.variable?.trim()) nomes.add(condicao.variable.trim());
+    for (const condition of acao.conditions ?? []) {
+      if (condition.source === 'context' && condition.variable?.trim()) nomes.add(condition.variable.trim());
     }
   }
 }
 
-function acrescentarDeBloco(bloco: Bloco, nomes: Set<string>): void {
-  acrescentarDeAcoes(bloco.$enteringCustomActions, nomes);
-  acrescentarDeAcoes(bloco.$leavingCustomActions, nomes);
-  for (const item of bloco.$contentActions ?? []) {
+function blockAcrescentar(block: Block, nomes: Set<string>): void {
+  actionsAcrescentar(block.$enteringCustomActions, nomes);
+  actionsAcrescentar(block.$leavingCustomActions, nomes);
+  for (const item of block.$contentActions ?? []) {
     if (item.input?.variable?.trim()) nomes.add(item.input.variable.trim());
-    for (const condicao of item.input?.conditions ?? []) {
-      if (condicao.source === 'context' && condicao.variable?.trim()) nomes.add(condicao.variable.trim());
+    for (const condition of item.input?.conditions ?? []) {
+      if (condition.source === 'context' && condition.variable?.trim()) nomes.add(condition.variable.trim());
     }
   }
-  for (const saida of bloco.$conditionOutputs ?? []) {
-    for (const condicao of saida.conditions ?? []) {
-      if (condicao.source === 'context' && condicao.variable?.trim()) nomes.add(condicao.variable.trim());
+  for (const saida of block.$conditionOutputs ?? []) {
+    for (const condition of saida.conditions ?? []) {
+      if (condition.source === 'context' && condition.variable?.trim()) nomes.add(condition.variable.trim());
     }
   }
 }
 
 /** Toda variável de `context` que este fluxo cria ou lê, em ordem alfabética. */
-export function variaveisDoUsuario(mapa: Mapa, globais: Record<string, unknown>): string[] {
+export function userVariables(mapa: Mapa, global: Record<string, unknown>): string[] {
   const nomes = new Set<string>();
-  for (const bloco of Object.values(mapa)) acrescentarDeBloco(bloco, nomes);
-  const globaisComAcoes = globais as { $enteringCustomActions?: AcaoDoEditor[]; $leavingCustomActions?: AcaoDoEditor[] };
-  acrescentarDeAcoes(globaisComAcoes.$enteringCustomActions, nomes);
-  acrescentarDeAcoes(globaisComAcoes.$leavingCustomActions, nomes);
+  for (const block of Object.values(mapa)) blockAcrescentar(block, nomes);
+  const globalWithActions = global as { $enteringCustomActions?: AcaoDoEditor[]; $leavingCustomActions?: AcaoDoEditor[] };
+  actionsAcrescentar(globalWithActions.$enteringCustomActions, nomes);
+  actionsAcrescentar(globalWithActions.$leavingCustomActions, nomes);
   return [...nomes].sort((a, b) => a.localeCompare(b));
 }
 
@@ -81,17 +81,17 @@ function normalizar(texto: string): string {
     .toLowerCase();
 }
 
-export function filtrarVariaveis(nomes: readonly string[], busca: string): string[] {
-  const alvo = normalizar(busca.trim());
+export function filterVariables(nomes: readonly string[], search: string): string[] {
+  const alvo = normalizar(search.trim());
   if (!alvo) return [...nomes];
   return nomes.filter((nome) => normalizar(nome).includes(alvo));
 }
 
-export function filtrarVariaveisDoSistema(
-  variaveis: readonly VariavelDoSistema[],
-  busca: string,
-): VariavelDoSistema[] {
-  const alvo = normalizar(busca.trim());
-  if (!alvo) return [...variaveis];
-  return variaveis.filter((v) => normalizar(v.nome).includes(alvo) || normalizar(v.descricao).includes(alvo));
+export function sistemaFiltrarVariables(
+  variables: readonly SistemaVariable[],
+  search: string,
+): SistemaVariable[] {
+  const alvo = normalizar(search.trim());
+  if (!alvo) return [...variables];
+  return variables.filter((v) => normalizar(v.nome).includes(alvo) || normalizar(v.description).includes(alvo));
 }

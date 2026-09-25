@@ -16,15 +16,15 @@ import type { Formulario, GrupoCriterio } from '../avaliacao/tipos.js';
 import { TETO_ESCALA, TETO_NOTA } from '../avaliacao/tipos.js';
 import type { Prompt } from './tipos.js';
 
-export interface EntradaAvaliacao {
-  transcricao: string;
+export interface InboundEvaluation {
+  transcription: string;
   truncada: boolean;
-  mensagensOmitidas: number;
+  messagesOmitidas: number;
   formulario: Formulario;
-  contexto?: string | null;
+  context?: string | null;
 }
 
-function valoresAceitos(tipo: string): string {
+function valuesAceitos(tipo: string): string {
   switch (tipo) {
     case 'escala':
       return `um inteiro de 0 a ${TETO_ESCALA}, ou "nao_se_aplica"`;
@@ -38,29 +38,29 @@ function valoresAceitos(tipo: string): string {
 function listarGrupo(grupo: GrupoCriterio): string {
   const criterios = grupo.criterios
     .map((c) => {
-      const descricao = c.descricao?.trim() ? `\n    O que verificar: ${c.descricao.trim()}` : '';
+      const description = c.description?.trim() ? `\n    O que verificar: ${c.description.trim()}` : '';
       const fatal = c.fatal
         ? '\n    CRITÉRIO FATAL: não conforme aqui zera a avaliação inteira.'
         : '';
-      return `  - id: ${c.id}\n    critério: ${c.nome}\n    valores: ${valoresAceitos(c.tipo)}${descricao}${fatal}`;
+      return `  - id: ${c.id}\n    critério: ${c.nome}\n    valores: ${valuesAceitos(c.tipo)}${description}${fatal}`;
     })
     .join('\n');
   return `Grupo "${grupo.nome}":\n${criterios}`;
 }
 
-export const PROMPT_AVALIACAO: Prompt<EntradaAvaliacao> = {
+export const PROMPT_EVALUATION: Prompt<InboundEvaluation> = {
   nome: 'avaliacao',
   versao: 'v1',
-  montar(entrada) {
-    const aviso = entrada.truncada
-      ? `\n\nAviso: ${entrada.mensagensOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros. Se um critério só puder ser julgado pelo trecho omitido, responda "nao_se_aplica" e diga isso na justificativa.`
+  montar(inbound) {
+    const aviso = inbound.truncada
+      ? `\n\nAviso: ${inbound.messagesOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros. Se um critério só puder ser julgado pelo trecho omitido, responda "nao_se_aplica" e diga isso na justificativa.`
       : '';
-    const contexto = entrada.contexto?.trim() ? `Contexto: ${entrada.contexto.trim()}\n\n` : '';
+    const context = inbound.context?.trim() ? `Contexto: ${inbound.context.trim()}\n\n` : '';
 
     return {
       sistema: `Você é monitor de qualidade de uma central de atendimento brasileira. Avalia o **atendente**, nunca o cliente.
 
-Responda TODOS os critérios do formulário "${entrada.formulario.nome}", um por um, usando o \`id\` exato de cada um. Não some, não pule, não invente critério.
+Responda TODOS os critérios do formulário "${inbound.formulario.nome}", um por um, usando o \`id\` exato de cada um. Não some, não pule, não invente critério.
 
 Para cada critério devolva:
 - \`criterioId\`: o id exato listado abaixo.
@@ -81,8 +81,8 @@ Regras de julgamento:
 - Ao final, \`confianca\`: um número de 0 a 1 dizendo o quanto a transcrição bastava para avaliar. Conversa curta, com áudio não transcrito ou truncada no meio pede confiança baixa.
 
 Formulário:
-${entrada.formulario.grupos.map(listarGrupo).join('\n\n')}`,
-      usuario: `${contexto}Transcrição:\n${entrada.transcricao}${aviso}`,
+${inbound.formulario.groups.map(listarGrupo).join('\n\n')}`,
+      user: `${context}Transcrição:\n${inbound.transcription}${aviso}`,
     };
   },
 };

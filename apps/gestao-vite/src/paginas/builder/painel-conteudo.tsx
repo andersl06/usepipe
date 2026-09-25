@@ -1,18 +1,18 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconeManagement } from '../../componentes/icones-gestao';
 import { IconePortal } from '../../componentes/icones-portal';
-import { Selecao } from '../../componentes/selecao';
-import type { Bloco, EntradaDoEditor, ItemDeConteudo } from './modelo';
-import { ehAtendimento, novaEntrada } from './modelo';
+import { Selection } from '../../componentes/selecao';
+import type { Block, EditorInbound, ItemDeConteudo } from './modelo';
+import { ehAttendance, newInbound } from './modelo';
 import {
   LIMITE_DO_MENU,
   LIMITE_DO_QUICK_REPLY,
-  REGRAS_DE_VALIDACAO,
+  RULES_OF_VALIDATION,
   ROTULOS_DO_CONTEUDO,
   adicionarConteudo,
-  cartoesDe,
-  definirEntrada,
+  cardsOf,
+  definirInbound,
   definirEspera,
   definirMenu,
   definirTexto,
@@ -21,10 +21,10 @@ import {
   novoQuickReply,
   novoTexto,
   removerConteudo,
-  temEntrada,
-  validacaoComRegra,
+  temInbound,
+  validationWithRule,
 } from './conteudo';
-import type { Cartao, OpcaoDoMenu } from './conteudo';
+import type { Card, MenuOption } from './conteudo';
 
 /**
  * A aba "Conteúdo" do editor: a conversa do bloco em cartões — as falas do
@@ -39,16 +39,16 @@ import type { Cartao, OpcaoDoMenu } from './conteudo';
  * que espera o fim do atendimento — nada a editar além da variável.
  */
 
-export function PainelDeConteudo({
-  bloco,
+export function ContentPanel({
+  block,
   onMudar,
   onAviso,
 }: {
-  bloco: Bloco;
-  onMudar: (bloco: Bloco) => void;
+  block: Block;
+  onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
 }) {
-  const cartoes = cartoesDe(bloco);
+  const cards = cardsOf(block);
   const [menuAberto, setMenuAberto] = useState(false);
   const [selecionado, setSelecionado] = useState<number | null>(null);
   const conteudo = useRef<HTMLDivElement>(null);
@@ -56,22 +56,22 @@ export function PainelDeConteudo({
     if (selecionado !== null) conteudo.current?.closest('.bl-painel-corpo')?.scrollTo(0, 0);
   }, [selecionado]);
   const [alterarEspera, setAlterarEspera] = useState(false);
-  const atendimento = ehAtendimento(bloco.id);
-  const raiz = !!bloco.root;
+  const attendance = ehAttendance(block.id);
+  const raiz = !!block.root;
 
   function adicionar(item: ItemDeConteudo): void {
     setMenuAberto(false);
-    const r = adicionarConteudo(bloco, item);
+    const r = adicionarConteudo(block, item);
     if (r.ok) {
-      onMudar(r.bloco);
-      setSelecionado(r.bloco.$contentActions?.indexOf(item) ?? null);
-    } else onAviso(r.erro);
+      onMudar(r.block);
+      setSelecionado(r.block.$contentActions?.indexOf(item) ?? null);
+    } else onAviso(r.error);
   }
 
   return (
     <div ref={conteudo} className="bl-aba-corpo bl-conteudo-bloco">
       <span className="bl-conteudo-contador">
-        {cartoes.filter((c) => c.tipo !== 'entrada' && c.tipo !== 'digitando').length}/25
+        {cards.filter((c) => c.tipo !== 'entrada' && c.tipo !== 'digitando').length}/25
       </span>
       {raiz ? (
         <div className="bl-conteudo-introducao">
@@ -82,7 +82,7 @@ export function PainelDeConteudo({
           </p>
         </div>
       ) : null}
-      {atendimento ? (
+      {attendance ? (
         <div className="bl-conteudo-introducao">
           <h4>Atendimento humano</h4>
           <p>Este bloco encaminhará a conversa para a sua fila de atendimento.</p>
@@ -90,12 +90,12 @@ export function PainelDeConteudo({
             Para utilizar este recurso, você precisará ativar a integração com o{' '}
             <strong>Blip Desk</strong>.
           </p>
-          <small>v.{bloco.deskStateVersion ?? '3.0.0'}</small>
+          <small>v.{block.deskStateVersion ?? '3.0.0'}</small>
         </div>
       ) : null}
       <div className="bl-conversa-conteudo bl-lista-de-cartoes">
-        {!atendimento
-          ? cartoes.map((c) => (
+        {!attendance
+          ? cards.map((c) => (
               <div
                 key={c.indice}
                 className={`bl-previa-linha${c.tipo === 'entrada' ? ' bl-previa-linha--entrada' : ''}`}
@@ -107,8 +107,8 @@ export function PainelDeConteudo({
                 >
                   {c.tipo === 'entrada'
                     ? raiz
-                      ? ROTULOS_DO_CONTEUDO.entrada
-                      : c.entrada.bypass
+                      ? ROTULOS_DO_CONTEUDO.inbound
+                      : c.inbound.bypass
                         ? ROTULOS_DO_CONTEUDO.direto
                         : ROTULOS_DO_CONTEUDO.aguardando
                     : c.tipo === 'outro'
@@ -118,7 +118,7 @@ export function PainelDeConteudo({
                         : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
                   {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
                     <span className="bl-previa-opcoes">
-                      {c.opcoes.map((o, i) => (
+                      {c.options.map((o, i) => (
                         <span key={i}>{o.text}</span>
                       ))}
                     </span>
@@ -127,7 +127,7 @@ export function PainelDeConteudo({
                 {c.tipo === 'entrada' && !raiz ? (
                   <div className="bl-espera-controle">
                     <span>
-                      {c.entrada.bypass
+                      {c.inbound.bypass
                         ? ROTULOS_DO_CONTEUDO.naoAguardar
                         : ROTULOS_DO_CONTEUDO.aguardar}
                     </span>
@@ -146,7 +146,7 @@ export function PainelDeConteudo({
                             type="button"
                             key={String(aguardar)}
                             onClick={() => {
-                              onMudar(definirEspera(bloco, aguardar));
+                              onMudar(definirEspera(block, aguardar));
                               setAlterarEspera(false);
                             }}
                           >
@@ -164,7 +164,7 @@ export function PainelDeConteudo({
           : null}
       </div>
 
-      {!raiz && !atendimento ? (
+      {!raiz && !attendance ? (
         <div className="bl-adicionar-acao bl-adicionar-conteudo">
           <button type="button" className="bl-mais" onClick={() => setMenuAberto((v) => !v)}>
             + {ROTULOS_DO_CONTEUDO.adicionar}
@@ -180,9 +180,9 @@ export function PainelDeConteudo({
               <button type="button" role="menuitem" onClick={() => adicionar(novoQuickReply())}>
                 {ROTULOS_DO_CONTEUDO.quickReply}
               </button>
-              {!temEntrada(bloco) ? (
-                <button type="button" role="menuitem" onClick={() => adicionar(novaEntrada())}>
-                  {ROTULOS_DO_CONTEUDO.entrada}
+              {!temInbound(block) ? (
+                <button type="button" role="menuitem" onClick={() => adicionar(newInbound())}>
+                  {ROTULOS_DO_CONTEUDO.inbound}
                 </button>
               ) : null}
             </div>
@@ -197,7 +197,7 @@ export function PainelDeConteudo({
       >
         Entenda como funcionam os tipos de conteúdo
       </a>
-      {selecionado !== null && cartoes.some((c) => c.indice === selecionado) ? (
+      {selecionado !== null && cards.some((c) => c.indice === selecionado) ? (
         <section className="bl-detalhe" aria-label="Detalhes do conteúdo">
           <header className="bl-detalhe-cabecalho">
             <button
@@ -210,17 +210,17 @@ export function PainelDeConteudo({
             </button>
             <h4>
               {(() => {
-                const c = cartoes.find((c) => c.indice === selecionado)!;
+                const c = cards.find((c) => c.indice === selecionado)!;
                 return c.tipo === 'outro' ? c.mime : ROTULOS_DO_CONTEUDO[c.tipo];
               })()}
             </h4>
           </header>
-          <CartaoDeConteudo
-            cartao={cartoes.find((c) => c.indice === selecionado)!}
-            bloco={bloco}
-            fixo={raiz || atendimento}
-            primeiro={selecionado === 0}
-            ultimo={selecionado === cartoes.length - 1}
+          <ContentCard
+            card={cards.find((c) => c.indice === selecionado)!}
+            block={block}
+            fixo={raiz || attendance}
+            first={selecionado === 0}
+            ultimo={selecionado === cards.length - 1}
             onMudar={onMudar}
           />
         </section>
@@ -229,34 +229,34 @@ export function PainelDeConteudo({
   );
 }
 
-function CartaoDeConteudo({
-  cartao,
-  bloco,
+function ContentCard({
+  card,
+  block,
   fixo,
-  primeiro,
+  first,
   ultimo,
   onMudar,
 }: {
-  cartao: Cartao;
-  bloco: Bloco;
+  card: Card;
+  block: Block;
   /** Início e atendimento: a entrada não sai nem se troca por "Não aguardar". */
   fixo: boolean;
-  primeiro: boolean;
+  first: boolean;
   ultimo: boolean;
-  onMudar: (bloco: Bloco) => void;
+  onMudar: (block: Block) => void;
 }) {
-  const i = cartao.indice;
-  const entrada = cartao.tipo === 'entrada';
-  const ordem =
-    entrada || fixo ? null : (
+  const i = card.indice;
+  const inbound = card.tipo === 'entrada';
+  const order =
+    inbound || fixo ? null : (
       <span className="bl-saida-ordem">
         <button
           type="button"
           className="iconbtn"
           title="Subir"
           aria-label="Subir"
-          disabled={primeiro}
-          onClick={() => onMudar(moverConteudo(bloco, i, i - 1))}
+          disabled={first}
+          onClick={() => onMudar(moverConteudo(block, i, i - 1))}
         >
           <Icone nome="cima" tamanho={16} />
         </button>
@@ -265,74 +265,74 @@ function CartaoDeConteudo({
           className="iconbtn"
           title="Descer"
           aria-label="Descer"
-          disabled={ultimo || bloco.$contentActions?.[i + 1]?.input !== undefined}
-          onClick={() => onMudar(moverConteudo(bloco, i, i + 1))}
+          disabled={ultimo || block.$contentActions?.[i + 1]?.input !== undefined}
+          onClick={() => onMudar(moverConteudo(block, i, i + 1))}
         >
           <Icone nome="baixo" tamanho={16} />
         </button>
       </span>
     );
   const excluir =
-    fixo && entrada ? null : (
+    fixo && inbound ? null : (
       <button
         type="button"
         className="iconbtn"
         title="Excluir"
         aria-label="Excluir"
-        onClick={() => onMudar(removerConteudo(bloco, i))}
+        onClick={() => onMudar(removerConteudo(block, i))}
       >
-        <IconeGestao nome="lixeira" tamanho={18} />
+        <IconeManagement nome="lixeira" tamanho={18} />
       </button>
     );
 
-  switch (cartao.tipo) {
+  switch (card.tipo) {
     case 'texto':
       return (
         <article className="bl-cartao bl-cartao--robo">
           <header>
             <b>{ROTULOS_DO_CONTEUDO.texto}</b>
-            {ordem}
+            {order}
             {excluir}
           </header>
           <textarea
             className="campo bl-campo-longo"
             rows={3}
-            value={cartao.texto}
+            value={card.texto}
             placeholder="Digite a mensagem"
-            onChange={(e) => onMudar(definirTexto(bloco, i, e.target.value))}
+            onChange={(e) => onMudar(definirTexto(block, i, e.target.value))}
           />
         </article>
       );
     case 'menu':
     case 'quickReply': {
-      const menu = cartao.tipo === 'menu';
+      const menu = card.tipo === 'menu';
       const limite = menu ? LIMITE_DO_MENU : LIMITE_DO_QUICK_REPLY;
-      const trocarOpcoes = (opcoes: OpcaoDoMenu[]): void =>
-        onMudar(definirMenu(bloco, i, cartao.texto, opcoes));
+      const switchOptions = (options: MenuOption[]): void =>
+        onMudar(definirMenu(block, i, card.texto, options));
       return (
         <article className="bl-cartao bl-cartao--robo">
           <header>
             <b>{menu ? ROTULOS_DO_CONTEUDO.menu : ROTULOS_DO_CONTEUDO.quickReply}</b>
-            {ordem}
+            {order}
             {excluir}
           </header>
           <textarea
             className="campo bl-campo-longo"
             rows={2}
-            value={cartao.texto}
+            value={card.texto}
             placeholder="Texto do menu"
-            onChange={(e) => onMudar(definirMenu(bloco, i, e.target.value, cartao.opcoes))}
+            onChange={(e) => onMudar(definirMenu(block, i, e.target.value, card.options))}
           />
           <ol className="bl-opcoes">
-            {cartao.opcoes.map((o, j) => (
+            {card.options.map((o, j) => (
               <li key={j}>
                 <Campo
                   value={o.text}
                   maxLength={limite.caracteres}
                   placeholder={`Opção ${j + 1}`}
                   onChange={(e) =>
-                    trocarOpcoes(
-                      cartao.opcoes.map((x, k) => (k === j ? { ...x, text: e.target.value } : x)),
+                    switchOptions(
+                      card.options.map((x, k) => (k === j ? { ...x, text: e.target.value } : x)),
                     )
                   }
                 />
@@ -341,7 +341,7 @@ function CartaoDeConteudo({
                   className="iconbtn"
                   title="Remover opção"
                   aria-label="Remover opção"
-                  onClick={() => trocarOpcoes(cartao.opcoes.filter((_, k) => k !== j))}
+                  onClick={() => switchOptions(card.options.filter((_, k) => k !== j))}
                 >
                   <Icone nome="x" tamanho={14} />
                 </button>
@@ -351,8 +351,8 @@ function CartaoDeConteudo({
           <button
             type="button"
             className="bl-mais"
-            disabled={cartao.opcoes.length >= limite.opcoes}
-            onClick={() => trocarOpcoes([...cartao.opcoes, { text: '' }])}
+            disabled={card.options.length >= limite.opcoes}
+            onClick={() => switchOptions([...card.options, { text: '' }])}
           >
             + Adicionar opção
           </button>
@@ -364,14 +364,14 @@ function CartaoDeConteudo({
     }
     case 'entrada':
       return (
-        <CartaoDeEntrada entrada={cartao.entrada} bloco={bloco} fixo={fixo} onMudar={onMudar} />
+        <InboundCard inbound={card.inbound} block={block} fixo={fixo} onMudar={onMudar} />
       );
     case 'digitando':
       return (
         <article className="bl-cartao bl-cartao--robo bl-cartao--apagado">
           <header>
             <b>{ROTULOS_DO_CONTEUDO.digitando}</b>
-            {ordem}
+            {order}
             {excluir}
           </header>
           <p className="sub">Roda sem efeito no Pipe.</p>
@@ -381,11 +381,11 @@ function CartaoDeConteudo({
       return (
         <article className="bl-cartao bl-cartao--robo bl-cartao--apagado">
           <header>
-            <b>{cartao.mime}</b>
-            {ordem}
+            <b>{card.mime}</b>
+            {order}
             {excluir}
           </header>
-          {!cartao.suportado ? (
+          {!card.suportado ? (
             <Etiqueta tom="alerta">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
           ) : null}
         </article>
@@ -393,25 +393,25 @@ function CartaoDeConteudo({
   }
 }
 
-function CartaoDeEntrada({
-  entrada,
-  bloco,
+function InboundCard({
+  inbound,
+  block,
   fixo,
   onMudar,
 }: {
-  entrada: EntradaDoEditor;
-  bloco: Bloco;
+  inbound: EditorInbound;
+  block: Block;
   fixo: boolean;
-  onMudar: (bloco: Bloco) => void;
+  onMudar: (block: Block) => void;
 }) {
-  const validando = !!entrada.validation;
-  const aguardando = !entrada.bypass;
-  const trocar = (nova: EntradaDoEditor): void => onMudar(definirEntrada(bloco, nova));
+  const validando = !!inbound.validation;
+  const aguardando = !inbound.bypass;
+  const switch = (nova: EditorInbound): void => onMudar(definirInbound(block, nova));
 
   return (
     <article className="bl-cartao bl-cartao--cliente">
       <header>
-        <b>{ROTULOS_DO_CONTEUDO.entrada}</b>
+        <b>{ROTULOS_DO_CONTEUDO.inbound}</b>
         <span className="sub">
           {aguardando ? ROTULOS_DO_CONTEUDO.aguardando : ROTULOS_DO_CONTEUDO.direto}
         </span>
@@ -424,7 +424,7 @@ function CartaoDeEntrada({
                 <input
                   type="radio"
                   checked={aguardando}
-                  onChange={() => onMudar(definirEspera(bloco, true))}
+                  onChange={() => onMudar(definirEspera(block, true))}
                 />{' '}
                 {ROTULOS_DO_CONTEUDO.aguardar}
               </label>
@@ -432,7 +432,7 @@ function CartaoDeEntrada({
                 <input
                   type="radio"
                   checked={!aguardando}
-                  onChange={() => onMudar(definirEspera(bloco, false))}
+                  onChange={() => onMudar(definirEspera(block, false))}
                 />{' '}
                 {ROTULOS_DO_CONTEUDO.naoAguardar}
               </label>
@@ -445,74 +445,74 @@ function CartaoDeEntrada({
             <label className="bl-campo">
               <span className="sub">{ROTULOS_DO_CONTEUDO.variavel}</span>
               <Campo
-                value={entrada.variable ?? ''}
+                value={inbound.variable ?? ''}
                 placeholder="nomeDaVariavel"
-                onChange={(e) => trocar({ ...entrada, variable: e.target.value || null })}
+                onChange={(e) => switch({ ...inbound, variable: e.target.value || null })}
               />
             </label>
           </section>
 
-          {aguardando && !ehAtendimento(bloco.id) ? (
+          {aguardando && !ehAttendance(block.id) ? (
             <section className="bl-secao">
               <label className="form-caixa">
                 <input
                   type="checkbox"
                   checked={validando}
                   onChange={(e) =>
-                    trocar({
-                      ...entrada,
+                    switch({
+                      ...inbound,
                       validation: e.target.checked
-                        ? validacaoComRegra(entrada.validation, 'text')
+                        ? validationWithRule(inbound.validation, 'text')
                         : null,
                     })
                   }
                 />
                 <span className="bl-secao-subtitulo">{ROTULOS_DO_CONTEUDO.validar}</span>
               </label>
-              {entrada.validation ? (
+              {inbound.validation ? (
                 <>
                   <label className="bl-campo">
                     <span className="sub">{ROTULOS_DO_CONTEUDO.tipoDeValidacao}</span>
-                    <Selecao
-                      value={entrada.validation.rule}
+                    <Selection
+                      value={inbound.validation.rule}
                       onChange={(e) =>
-                        trocar({
-                          ...entrada,
-                          validation: validacaoComRegra(entrada.validation, e.target.value),
+                        switch({
+                          ...inbound,
+                          validation: validationWithRule(inbound.validation, e.target.value),
                         })
                       }
                     >
-                      {REGRAS_DE_VALIDACAO.map((r) => (
+                      {RULES_OF_VALIDATION.map((r) => (
                         <option key={r.valor} value={r.valor}>
                           {r.rotulo}
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
-                  {entrada.validation.rule === 'regex' ? (
+                  {inbound.validation.rule === 'regex' ? (
                     <label className="bl-campo">
                       <span className="sub">{ROTULOS_DO_CONTEUDO.regex}</span>
                       <Campo
-                        value={entrada.validation.regex ?? ''}
+                        value={inbound.validation.regex ?? ''}
                         onChange={(e) =>
-                          trocar({
-                            ...entrada,
-                            validation: { ...entrada.validation!, regex: e.target.value },
+                          switch({
+                            ...inbound,
+                            validation: { ...inbound.validation!, regex: e.target.value },
                           })
                         }
                       />
                     </label>
                   ) : null}
-                  {entrada.validation.rule === 'type' ? (
+                  {inbound.validation.rule === 'type' ? (
                     <label className="bl-campo">
                       <span className="sub">{ROTULOS_DO_CONTEUDO.tipoDeMidia}</span>
                       <Campo
-                        value={entrada.validation.type ?? ''}
+                        value={inbound.validation.type ?? ''}
                         placeholder="image/jpeg"
                         onChange={(e) =>
-                          trocar({
-                            ...entrada,
-                            validation: { ...entrada.validation!, type: e.target.value },
+                          switch({
+                            ...inbound,
+                            validation: { ...inbound.validation!, type: e.target.value },
                           })
                         }
                       />
@@ -521,11 +521,11 @@ function CartaoDeEntrada({
                   <label className="bl-campo">
                     <span className="sub">{ROTULOS_DO_CONTEUDO.instrucao}</span>
                     <Campo
-                      value={entrada.validation.error ?? ''}
+                      value={inbound.validation.error ?? ''}
                       onChange={(e) =>
-                        trocar({
-                          ...entrada,
-                          validation: { ...entrada.validation!, error: e.target.value },
+                        switch({
+                          ...inbound,
+                          validation: { ...inbound.validation!, error: e.target.value },
                         })
                       }
                     />

@@ -13,14 +13,14 @@ import { useNavigate, type NavigateFunction } from 'react-router-dom';
  */
 let navegar: NavigateFunction | null = null;
 
-export function irPara(url: string, opcoes: { substituir?: boolean } = {}): void {
-  if (navegar) navegar(url, { replace: opcoes.substituir ?? false });
-  else if (opcoes.substituir) window.location.replace(url);
+export function irPara(url: string, options: { substituir?: boolean } = {}): void {
+  if (navegar) navegar(url, { replace: options.substituir ?? false });
+  else if (options.substituir) window.location.replace(url);
   else window.location.assign(url);
 }
 
 /** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */
-export function useRegistrarNavegacao(): void {
+export function useRegistrarNavigation(): void {
   const navigate = useNavigate();
   useEffect(() => {
     navegar = navigate;

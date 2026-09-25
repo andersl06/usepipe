@@ -4,7 +4,7 @@ import {
   diaCurto,
   diasDoIntervalo,
   escalaDoEixo as escala,
-  type DadosDeMensagensAtivas,
+  type ActiveMessagesData,
   type Intervalo,
 } from '@pipe/core/analise';
 
@@ -17,16 +17,16 @@ import {
  * não entra biblioteca: é CSS e um SVG de linha, com os padrões do chart.js que
  * aparecem na tela (tique 12px, linha de 3px, grade a 10%).
  */
-export function MioloDeMensagensAtivas({
-  dados,
+export function ActiveMessagesMiolo({
+  data,
   intervalo,
 }: {
-  dados: DadosDeMensagensAtivas;
+  data: ActiveMessagesData;
   intervalo: Intervalo;
 }) {
   /* `ne()`: a soma das linhas de `/active-messages/status` (`read` é
      `consumed`, `replied` é `response`). */
-  const t = dados.status.reduce(
+  const t = data.status.reduce(
     (s, d) => ({
       enviadas: s.enviadas + d.enviadas,
       recebidas: s.recebidas + d.recebidas,
@@ -46,20 +46,20 @@ export function MioloDeMensagensAtivas({
         </div>
       </div>
       <div className="ma-fileira">
-        <Conversoes dados={dados} intervalo={intervalo} />
+        <Conversions data={data} intervalo={intervalo} />
         <Taxas t={t} />
       </div>
       <div className="ma-fileira ma-fileira-ultima">
         <div className="ma-papel ma-flex1">
-          <Picos horas={dados.respostasPorHora} />
+          <Picos horas={data.respostasByHora} />
         </div>
-        <Falhas falhas={dados.falhas} />
+        <Falhas falhas={data.falhas} />
       </div>
     </div>
   );
 }
 
-type Totais = {
+type Totals = {
   enviadas: number;
   recebidas: number;
   lidas: number;
@@ -90,10 +90,10 @@ const CONTAGENS = {
   falhas: ['Falharam', 'Todas as mensagens que falharam no envio e não chegaram aos contatos'],
 } as const;
 
-function Numeros({ t }: { t: Totais }) {
+function Numeros({ t }: { t: Totals }) {
   /* `Ft`: ícone, fundo, número cru (a origem não formata aqui) e rótulo. */
-  const cartao = (
-    chave: 'recebidas' | 'lidas' | 'respondidas' | 'falhas',
+  const card = (
+    key: 'recebidas' | 'lidas' | 'respondidas' | 'falhas',
     icone: NomeDeIconePortal,
     fundo: string,
   ) => (
@@ -103,10 +103,10 @@ function Numeros({ t }: { t: Totais }) {
       </span>
       <div className="ma-cartao-textos">
         <div className="ma-par">
-          <b className="ma-cartao-numero">{t[chave]}</b>
-          <Dica texto={CONTAGENS[chave][1]} />
+          <b className="ma-cartao-numero">{t[key]}</b>
+          <Dica texto={CONTAGENS[key][1]} />
         </div>
-        <span className="ma-cartao-titulo">{CONTAGENS[chave][0]}</span>
+        <span className="ma-cartao-titulo">{CONTAGENS[key][0]}</span>
       </div>
     </div>
   );
@@ -128,12 +128,12 @@ function Numeros({ t }: { t: Totais }) {
         </div>
         <div className="ma-cartoes">
           <div className="ma-cartoes-linha">
-            {cartao('recebidas', 'cheque', 'ma-fundo-recebidas')}
-            {cartao('lidas', 'duplo-cheque', 'ma-fundo-lidas')}
+            {card('recebidas', 'cheque', 'ma-fundo-recebidas')}
+            {card('lidas', 'duplo-cheque', 'ma-fundo-lidas')}
           </div>
           <div className="ma-cartoes-linha">
-            {cartao('respondidas', 'responder', 'ma-fundo-respondidas')}
-            {cartao('falhas', 'erro-contorno', 'ma-fundo-falharam')}
+            {card('respondidas', 'responder', 'ma-fundo-respondidas')}
+            {card('falhas', 'erro-contorno', 'ma-fundo-falharam')}
           </div>
         </div>
       </div>
@@ -143,7 +143,7 @@ function Numeros({ t }: { t: Totais }) {
 
 /* ------------------------------------------------------------------ `fc` */
 
-function Funil({ t }: { t: Totais }) {
+function Funil({ t }: { t: Totals }) {
   /* `D()`: tudo em porcentagem das enviadas; sem envio, tudo zero. */
   const pct = (v: number) => (t.enviadas === 0 ? 0 : Math.round((v / t.enviadas) * 100));
   const barras = [
@@ -165,9 +165,9 @@ function Funil({ t }: { t: Totais }) {
           </span>
         </div>
         <div className="ma-funil-grafico">
-          {barras.map(([rotulo, valor, fundo]) => (
-            <FunilLinha key={rotulo} rotulo={rotulo} largura={(valor / topo) * 100} fundo={fundo}>
-              {valor}%
+          {barras.map(([rotulo, value, fundo]) => (
+            <FunilLinha key={rotulo} rotulo={rotulo} largura={(value / topo) * 100} fundo={fundo}>
+              {value}%
             </FunilLinha>
           ))}
         </div>
@@ -208,14 +208,14 @@ const SERIES = [
   ['falhas', 'Falharam', 'ma-serie-falharam'],
 ] as const;
 
-function Conversoes({ dados, intervalo }: { dados: DadosDeMensagensAtivas; intervalo: Intervalo }) {
+function Conversions({ data, intervalo }: { data: ActiveMessagesData; intervalo: Intervalo }) {
   /* `b()`: um ponto por dia do período, zero onde não houve envio. */
-  const porDia = new Map(dados.status.map((s) => [s.dia, s]));
+  const byDia = new Map(data.status.map((s) => [s.dia, s]));
   const dias = diasDoIntervalo(intervalo).map((d) => ({
     dia: d,
-    enviadas: porDia.get(d)?.enviadas ?? 0,
-    respondidas: porDia.get(d)?.respondidas ?? 0,
-    falhas: porDia.get(d)?.falhas ?? 0,
+    enviadas: byDia.get(d)?.enviadas ?? 0,
+    respondidas: byDia.get(d)?.respondidas ?? 0,
+    falhas: byDia.get(d)?.falhas ?? 0,
   }));
 
   /* `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap="2" padding="2"`:
@@ -252,18 +252,18 @@ function Conversoes({ dados, intervalo }: { dados: DadosDeMensagensAtivas; inter
 
 /** `f()` + as `options` de um dia só: três barras, sem eixo nem grade. */
 function BarrasDoDia({ dia }: { dia?: { enviadas: number; respondidas: number; falhas: number } }) {
-  const valores = SERIES.map(([chave]) => dia?.[chave] ?? 0);
-  const { topo } = escala(Math.max(...valores));
+  const values = SERIES.map(([key]) => dia?.[key] ?? 0);
+  const { topo } = escala(Math.max(...values));
   return (
     <div className="ma-area">
       <span />
       <div className="ma-barras">
-        {SERIES.map(([chave, rotulo, serie], i) => (
+        {SERIES.map(([key, rotulo, serie], i) => (
           <span
-            key={chave}
+            key={key}
             className={serie}
             title={rotulo}
-            style={{ height: `${((valores[i] ?? 0) / topo) * 100}%` }}
+            style={{ height: `${((values[i] ?? 0) / topo) * 100}%` }}
           />
         ))}
       </div>
@@ -318,14 +318,14 @@ function Linhas({
               vectorEffect="non-scaling-stroke"
             />
           ))}
-          {SERIES.map(([chave, , serie]) => {
-            const alto = escala(Math.max(...dias.map((d) => d[chave]))).topo;
+          {SERIES.map(([key, , serie]) => {
+            const alto = escala(Math.max(...dias.map((d) => d[key]))).topo;
             return (
               <polyline
-                key={chave}
+                key={key}
                 className={`ma-linha ${serie}`}
                 vectorEffect="non-scaling-stroke"
-                points={dias.map((d, i) => `${x(i)},${100 - (d[chave] / alto) * 100}`).join(' ')}
+                points={dias.map((d, i) => `${x(i)},${100 - (d[key] / alto) * 100}`).join(' ')}
               />
             );
           })}
@@ -347,19 +347,19 @@ function Linhas({
 
 /* ------------------------------------------------------------------ `Wl` */
 
-function Taxas({ t }: { t: Totais }) {
+function Taxas({ t }: { t: Totals }) {
   /* `(l / c * 100).toFixed(2).replace(".", ",")`, e o "0%" inicial sem envio. */
   const taxa = (v: number) =>
     t.enviadas ? `${((v / t.enviadas) * 100).toFixed(2).replace('.', ',')}%` : '0%';
-  const cartao = (icone: NomeDeIconePortal, titulo: string, descricao: string, valor: string) => (
+  const card = (icone: NomeDeIconePortal, titulo: string, description: string, value: string) => (
     <div className="ma-taxa">
       <IconePortal nome={icone} tamanho={48} />
       <div className="ma-taxa-miolo">
         <div>
           <p className="ma-taxa-titulo">{titulo}</p>
-          <p className="ma-taxa-descricao">{descricao}</p>
+          <p className="ma-taxa-descricao">{description}</p>
         </div>
-        <b className="ma-t24">{valor}</b>
+        <b className="ma-t24">{value}</b>
       </div>
     </div>
   );
@@ -368,13 +368,13 @@ function Taxas({ t }: { t: Totais }) {
     <div className="ma-flex1 ma-taxas-fora">
       <div className="ma-papel ma-taxas">
         <div className="ma-taxas-caixa">
-          {cartao(
+          {card(
             'mensagem-lida',
             'Taxa de Conversão',
             'Total de respostas dos contatos em relação às mensagens enviadas',
             taxa(t.respondidas),
           )}
-          {cartao(
+          {card(
             'mensagem-erro',
             'Taxa de Falha',
             'Total de mensagens que falharam em relação às mensagens enviadas',
@@ -390,8 +390,8 @@ function Taxas({ t }: { t: Totais }) {
 
 function Picos({ horas }: { horas: number[] }) {
   /* Zero é desenhado como 0,5 (a barra mínima) e o eixo vai a 50 no mínimo. */
-  const valores = Array.from({ length: 24 }, (_, h) => horas[h] || 0.5);
-  const { topo } = escala(Math.max(50, ...valores));
+  const values = Array.from({ length: 24 }, (_, h) => horas[h] || 0.5);
+  const { topo } = escala(Math.max(50, ...values));
 
   return (
     <div className="ma-picos">
@@ -403,14 +403,14 @@ function Picos({ horas }: { horas: number[] }) {
       </div>
       <div className="ma-picos-grafico">
         <div className="ma-picos-area">
-          {valores.map((v, h) => (
+          {values.map((v, h) => (
             <span key={h} className="ma-picos-coluna" title={`Respostas: ${v === 0.5 ? 0 : v}`}>
               <span style={{ height: `${(v / topo) * 100}%` }} />
             </span>
           ))}
         </div>
         <div className="ma-picos-eixo">
-          {valores.map((_, h) => (
+          {values.map((_, h) => (
             <span key={h}>{h % 2 === 0 ? `${h}h` : ''}</span>
           ))}
         </div>
@@ -421,7 +421,7 @@ function Picos({ horas }: { horas: number[] }) {
 
 /* ------------------------------------------------------------------ `bc` */
 
-function Falhas({ falhas }: { falhas: DadosDeMensagensAtivas['falhas'] }) {
+function Falhas({ falhas }: { falhas: ActiveMessagesData['falhas'] }) {
   return (
     <div className="ma-papel ma-falhas">
       <div className="ma-falhas-caixa">
@@ -452,7 +452,7 @@ function Falhas({ falhas }: { falhas: DadosDeMensagensAtivas['falhas'] }) {
               {falhas.map((f, i) => (
                 <tr key={`${f.codigo}-${i}`}>
                   <td>{f.codigo ?? 'N/A'}</td>
-                  <td>{f.descricao}</td>
+                  <td>{f.description}</td>
                   <td>{f.ocorrencias}</td>
                 </tr>
               ))}

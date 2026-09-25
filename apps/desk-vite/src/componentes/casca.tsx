@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Trilho } from './trilho';
+import { Rail } from './trilho';
 
 /**
  * A casca do Desk: o trilho à esquerda e a tela à direita, em altura fixa com
@@ -10,11 +10,11 @@ import { Trilho } from './trilho';
  * `state--chat`/`state--drawer` do `#container` de lá: governam as faixas
  * abaixo de 1600 e de 950 no CSS.
  */
-export function Casca() {
+export function Shell() {
   const [statusAberto, setStatusAberto] = useState(false);
   return (
     <div className="dk-app" data-status={statusAberto ? 'aberto' : 'fechado'}>
-      <Trilho aberto={statusAberto} aoAbrir={setStatusAberto} />
+      <Rail aberto={statusAberto} aoAbrir={setStatusAberto} />
       <div className="dk-container">
         <Outlet />
       </div>

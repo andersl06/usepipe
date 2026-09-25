@@ -19,9 +19,9 @@
 
 export interface LinkRastreado {
   id: string;
-  fluxoId: string;
+  flowId: string;
   nome: string;
-  destinoUrl: string;
+  destinationUrl: string;
   codigo: string;
   urlCurta: string;
   cliques: number;
@@ -29,8 +29,8 @@ export interface LinkRastreado {
 }
 
 export type Resultado<T> =
-  | { ok: true; valor: T }
-  | { ok: false; erro: string; campo?: 'nome' | 'destino' };
+  | { ok: true; value: T }
+  | { ok: false; error: string; campo?: 'nome' | 'destino' };
 
 /**
  * O corpo do erro (`{erro:{codigo,mensagem}}`) deste endpoint não manda
@@ -39,7 +39,7 @@ export type Resultado<T> =
  * `dominio/gestao/integracoes.ts`). Mapeado aqui, não lá: mudar de campo é
  * mudar de tela, não de domínio.
  */
-export function campoDoErroDeLink(codigo: string): 'nome' | 'destino' | undefined {
+export function fieldOfErrorOfLink(codigo: string): 'nome' | 'destino' | undefined {
   if (codigo === 'nome_obrigatorio') return 'nome';
   if (
     codigo === 'destino_obrigatorio' ||

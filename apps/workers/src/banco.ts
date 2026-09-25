@@ -1,5 +1,5 @@
-import { criarBanco, comTenant } from '@pipe/db';
-import type { BancoPipe, TransacaoPipe } from '@pipe/db';
+import { createDatabase, comTenant } from '@pipe/db';
+import type { DatabasePipe, TransactionPipe } from '@pipe/db';
 
 /**
  * Dois pools, dois papéis.
@@ -19,16 +19,16 @@ const URL_APP =
   process.env['DATABASE_URL_APP'] ?? 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 const URL_DONO = process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
 
-let app: BancoPipe | null = null;
-let dono: BancoPipe | null = null;
+let app: DatabasePipe | null = null;
+let dono: DatabasePipe | null = null;
 
-export function bancoApp(): BancoPipe {
-  app ??= criarBanco({ url: URL_APP, maxConexoes: 8 });
+export function databaseApp(): DatabasePipe {
+  app ??= createDatabase({ url: URL_APP, maxConnections: 8 });
   return app;
 }
 
-export function bancoDono(): BancoPipe {
-  dono ??= criarBanco({ url: URL_DONO, maxConexoes: 2 });
+export function databaseOwner(): DatabasePipe {
+  dono ??= createDatabase({ url: URL_DONO, maxConnections: 2 });
   return dono;
 }
 
@@ -38,8 +38,8 @@ export function bancoDono(): BancoPipe {
  * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
  * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
  */
-export function noTenant<T>(tenantId: string, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> {
-  return comTenant(bancoApp(), tenantId, fn);
+export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
+  return comTenant(databaseApp(), tenantId, fn);
 }
 
 export async function fecharBancos(): Promise<void> {

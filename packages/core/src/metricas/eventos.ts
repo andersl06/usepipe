@@ -25,38 +25,38 @@ export type TipoEvento =
   | 'pesquisa_respondida';
 
 /** Quem tirou a conversa da tela do atendente. */
-export type EncerradaPor = 'atendente' | 'cliente' | 'inatividade' | 'transferencia';
+export type ClosedBy = 'atendente' | 'cliente' | 'inatividade' | 'transferencia';
 
-export interface EventoAtendimento {
-  conversaId: string;
+export interface EventAttendance {
+  conversationId: string;
   tipo: TipoEvento;
   em: Date;
   /** Atendente envolvido, quando houver. Em `mensagem_saida` distingue atendente de bot. */
-  usuarioId?: string | null;
-  filaId?: string | null;
+  userId?: string | null;
+  queueId?: string | null;
   /** Em `encerrada`, carrega `encerradaPor`. */
-  encerradaPor?: EncerradaPor | null;
+  encerradaBy?: ClosedBy | null;
 }
 
 /** Conversa como lista de eventos — a unidade de entrada de toda métrica. */
-export interface ConversaEventos {
-  conversaId: string;
-  eventos: readonly EventoAtendimento[];
+export interface ConversationEvents {
+  conversationId: string;
+  eventos: readonly EventAttendance[];
 }
 
 /** Os cinco carimbos de tempo da §1 da spec de métricas. */
 export interface Marcos {
-  conversaId: string;
+  conversationId: string;
   criadaEm: Date | null;
   atribuidaEm: Date | null;
-  primeiraRespostaEm: Date | null;
+  firstRespostaIn: Date | null;
   encerradaEm: Date | null;
-  encerradaPor: EncerradaPor | null;
+  encerradaBy: ClosedBy | null;
   /** Quantidade de atribuições — reatribuição grava evento novo, não sobrescreve o primeiro. */
-  atribuicoes: number;
+  assignments: number;
 }
 
-function ordenar(eventos: readonly EventoAtendimento[]): EventoAtendimento[] {
+function ordenar(eventos: readonly EventAttendance[]): EventAttendance[] {
   // Ordenação estável por instante: eventos do mesmo milissegundo mantêm a ordem
   // de gravação, que é a ordem em que a `api` os emitiu.
   return eventos
@@ -78,17 +78,17 @@ function ordenar(eventos: readonly EventoAtendimento[]): EventoAtendimento[] {
  * - `encerradaEm` é o **último** `encerrada`, para conversa reaberta e fechada
  *   de novo carimbar o fechamento que vale.
  */
-export function derivarMarcos(conversa: ConversaEventos): Marcos {
-  const eventos = ordenar(conversa.eventos);
+export function derivarMarcos(conversation: ConversationEvents): Marcos {
+  const eventos = ordenar(conversation.eventos);
 
   let criadaEm: Date | null = null;
   let enfileiradaEm: Date | null = null;
   let atribuidaEm: Date | null = null;
-  let primeiraRespostaEm: Date | null = null;
-  let primeiraSaidaDeAtendenteEm: Date | null = null;
+  let firstRespostaIn: Date | null = null;
+  let agentInFirstOutput: Date | null = null;
   let encerradaEm: Date | null = null;
-  let encerradaPor: EncerradaPor | null = null;
-  let atribuicoes = 0;
+  let closedBy: ClosedBy | null = null;
+  let assignments = 0;
 
   for (const evento of eventos) {
     switch (evento.tipo) {
@@ -100,24 +100,24 @@ export function derivarMarcos(conversa: ConversaEventos): Marcos {
         break;
       case 'atribuida':
       case 'reatribuida':
-        atribuicoes += 1;
+        assignments += 1;
         if (atribuidaEm === null) atribuidaEm = evento.em;
         break;
       case 'primeira_resposta':
-        if (primeiraRespostaEm === null) primeiraRespostaEm = evento.em;
+        if (firstRespostaIn === null) firstRespostaIn = evento.em;
         break;
       case 'mensagem_saida':
-        if (primeiraSaidaDeAtendenteEm === null && evento.usuarioId) {
-          primeiraSaidaDeAtendenteEm = evento.em;
+        if (agentInFirstOutput === null && evento.userId) {
+          agentInFirstOutput = evento.em;
         }
         break;
       case 'encerrada':
         encerradaEm = evento.em;
-        encerradaPor = evento.encerradaPor ?? null;
+        closedBy = evento.encerradaBy ?? null;
         break;
       case 'reaberta':
         encerradaEm = null;
-        encerradaPor = null;
+        closedBy = null;
         break;
       default:
         break;
@@ -125,18 +125,18 @@ export function derivarMarcos(conversa: ConversaEventos): Marcos {
   }
 
   return {
-    conversaId: conversa.conversaId,
+    conversationId: conversation.conversationId,
     criadaEm: criadaEm ?? enfileiradaEm,
     atribuidaEm,
-    primeiraRespostaEm: primeiraRespostaEm ?? primeiraSaidaDeAtendenteEm,
+    firstRespostaIn: firstRespostaIn ?? agentInFirstOutput,
     encerradaEm,
-    encerradaPor,
-    atribuicoes,
+    closedBy,
+    assignments,
   };
 }
 
-export function derivarMarcosDeVarias(conversas: readonly ConversaEventos[]): Marcos[] {
-  return conversas.map(derivarMarcos);
+export function derivarMarcosDeVarias(conversations: readonly ConversationEvents[]): Marcos[] {
+  return conversations.map(derivarMarcos);
 }
 
 /**
@@ -147,8 +147,8 @@ export function derivarMarcosDeVarias(conversas: readonly ConversaEventos[]): Ma
  * **uma** troca: o relógio começa na primeira, que é quando o atendente passou a
  * dever resposta.
  */
-export function intervalosDeResposta(conversa: ConversaEventos): number[] {
-  const eventos = ordenar(conversa.eventos);
+export function intervalosDeResposta(conversation: ConversationEvents): number[] {
+  const eventos = ordenar(conversation.eventos);
   const intervalos: number[] = [];
   let aguardandoDesde: Date | null = null;
 
@@ -157,9 +157,9 @@ export function intervalosDeResposta(conversa: ConversaEventos): number[] {
       if (aguardandoDesde === null) aguardandoDesde = evento.em;
       continue;
     }
-    const ehRespostaDeAtendente =
-      (evento.tipo === 'mensagem_saida' && !!evento.usuarioId) || evento.tipo === 'primeira_resposta';
-    if (ehRespostaDeAtendente && aguardandoDesde !== null) {
+    const agentEhResposta =
+      (evento.tipo === 'mensagem_saida' && !!evento.userId) || evento.tipo === 'primeira_resposta';
+    if (agentEhResposta && aguardandoDesde !== null) {
       intervalos.push((evento.em.getTime() - aguardandoDesde.getTime()) / 1000);
       aguardandoDesde = null;
     }

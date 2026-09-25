@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { criarBanco, fecharBanco } from '../src/cliente.js';
-import type { BancoPipe } from '../src/cliente.js';
-import { migrar } from '../src/migrar.js';
-import { garantirPapelDeConta, semear } from '../src/semente.js';
+import { createDatabase, closeDatabase } from '../src/cliente.js';
+import type { DatabasePipe } from '../src/cliente.js';
+import { migrate } from '../src/migrar.js';
+import { garantirRoleOfAccount, seed } from '../src/semente.js';
 import { URL_DONO } from './ajuda.js';
 
 /**
@@ -14,81 +14,81 @@ import { URL_DONO } from './ajuda.js';
  * do contrato vazia no tenant de demonstração.
  */
 
-let dono: BancoPipe;
+let dono: DatabasePipe;
 let slug: string;
 let tenantId: string;
 
 beforeAll(async () => {
-  await migrar(URL_DONO);
-  dono = criarBanco({ url: URL_DONO, maxConexoes: 2 });
+  await migrate(URL_DONO);
+  dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
   slug = `semente-${randomUUID().slice(0, 8)}`;
-  tenantId = (await semear(dono, { nome: `Semente ${slug}`, slug })).tenantId;
+  tenantId = (await seed(dono, { nome: `Semente ${slug}`, slug })).tenantId;
 }, 120_000);
 
 afterAll(async () => {
   await dono.execute(sql`delete from tenant where id = ${tenantId}::uuid`);
-  await fecharBanco(dono);
+  await closeDatabase(dono);
 });
 
-async function papeisDeConta(usuarioId: string): Promise<string[]> {
+async function papeisOfAccount(userId: string): Promise<string[]> {
   const { rows } = await dono.execute<{ nome: string }>(sql`
     select p.nome from usuario_papel up
       join papel p on p.id = up.papel_id
-     where up.usuario_id = ${usuarioId}::uuid and up.escopo = 'conta'
+     where up.usuario_id = ${userId}::uuid and up.escopo = 'conta'
      order by p.nome
   `);
   return rows.map((r) => r.nome);
 }
 
-async function criarUsuario(papelDeAtendimento: string | null): Promise<string> {
+async function createUser(roleOfAttendance: string | null): Promise<string> {
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenantId}, 'Pessoa', ${`pessoa-${randomUUID().slice(0, 8)}@semente.pipe.app`})
     returning id
   `);
-  const usuarioId = rows[0]!.id;
-  if (papelDeAtendimento) {
+  const userId = rows[0]!.id;
+  if (roleOfAttendance) {
     await dono.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
-      select ${tenantId}, ${usuarioId}::uuid, id, 'atendimento'
-        from papel where tenant_id = ${tenantId}::uuid and nome = ${papelDeAtendimento}
+      select ${tenantId}, ${userId}::uuid, id, 'atendimento'
+        from papel where tenant_id = ${tenantId}::uuid and nome = ${roleOfAttendance}
     `);
   }
-  return usuarioId;
+  return userId;
 }
 
 describe('papel de conta para todo usuário semeado', () => {
   it('quem nasceu sem papel de conta ganha um, pela mesma régua da migração 0021', async () => {
-    const atendente = await criarUsuario('atendente');
-    const gestor = await criarUsuario('gestor');
-    const administrador = await criarUsuario('administrador');
-    const semNada = await criarUsuario(null);
+    const agent = await createUser('atendente');
+    const gestor = await createUser('gestor');
+    const administrador = await createUser('administrador');
+    const semNada = await createUser(null);
 
-    const dados = await garantirPapelDeConta(dono, tenantId);
-    expect(dados).toBe(4);
+    const data = await garantirRoleOfAccount(dono, tenantId);
+    expect(data).toBe(4);
 
-    expect(await papeisDeConta(atendente)).toEqual(['guest']);
+    expect(await papeisOfAccount(agent)).toEqual(['guest']);
     // O gestor edita fluxo (`automacao.fluxo.editar`) → `member`.
-    expect(await papeisDeConta(gestor)).toEqual(['member']);
-    expect(await papeisDeConta(administrador)).toEqual(['admin']);
-    expect(await papeisDeConta(semNada)).toEqual(['guest']);
+    expect(await papeisOfAccount(gestor)).toEqual(['member']);
+    expect(await papeisOfAccount(administrador)).toEqual(['admin']);
+    expect(await papeisOfAccount(semNada)).toEqual(['guest']);
   });
 
   it('é idempotente: a segunda rodada não dá nada a quem já tem, e não troca papel dado à mão', async () => {
-    const pessoa = await criarUsuario('atendente');
+    const pessoa = await createUser('atendente');
     await dono.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
       select ${tenantId}, ${pessoa}::uuid, id, 'conta'
         from papel where tenant_id = ${tenantId}::uuid and nome = 'admin' and escopo = 'conta'
     `);
 
-    expect(await garantirPapelDeConta(dono, tenantId)).toBe(0);
-    expect(await papeisDeConta(pessoa)).toEqual(['admin']);
+    expect(await garantirRoleOfAccount(dono, tenantId)).toBe(0);
+    expect(await papeisOfAccount(pessoa)).toEqual(['admin']);
 
     // `semear` de novo, no mesmo tenant: nada duplica.
-    const segunda = await semear(dono, { nome: `Semente ${slug}`, slug });
+    const segunda = await seed(dono, { nome: `Semente ${slug}`, slug });
     expect(segunda.tenantId).toBe(tenantId);
-    expect(segunda.papeisDeContaDados).toBe(0);
+    expect(segunda.papeisOfAccountData).toBe(0);
     const { rows } = await dono.execute<{ n: string }>(sql`
       select count(*)::text as n from usuario_papel up
         join usuario u on u.id = up.usuario_id

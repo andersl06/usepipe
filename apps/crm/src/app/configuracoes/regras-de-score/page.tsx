@@ -1,5 +1,5 @@
-import { Etiqueta, Tabela, type Coluna } from '@pipe/ui';
-import { condicaoEmTexto, listarRegras, type LinhaRegra } from '../../../lib/regras';
+import { Etiqueta, Tabela, type Column } from '@pipe/ui';
+import { conditionInText, listarRegras, type LinhaRegra } from '../../../lib/regras';
 import { numero, pontos } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -16,27 +16,27 @@ export const dynamic = 'force-dynamic';
  * verdes, e o verde deixava de querer dizer alguma coisa. As duas são neutras,
  * e a palavra basta.
  */
-const COLUNAS: readonly Coluna<LinhaRegra>[] = [
-  { chave: 'nome', rotulo: 'Regra', celula: (r) => <span className="forte">{r.nome}</span> },
-  { chave: 'condicao', rotulo: 'Condição', celula: (r) => <span className="condicao">{condicaoEmTexto(r.condicao)}</span> },
-  { chave: 'pontos', rotulo: 'Peso', numerica: true, celula: (r) => pontos(r.pontos) },
-  { chave: 'versao', rotulo: 'Versão', numerica: true, celula: (r) => `v${r.versao}` },
+const COLUNAS: readonly Column<LinhaRegra>[] = [
+  { key: 'nome', rotulo: 'Regra', celula: (r) => <span className="forte">{r.nome}</span> },
+  { key: 'condicao', rotulo: 'Condição', celula: (r) => <span className="condicao">{conditionInText(r.condition)}</span> },
+  { key: 'pontos', rotulo: 'Peso', numerica: true, celula: (r) => pontos(r.pontos) },
+  { key: 'versao', rotulo: 'Versão', numerica: true, celula: (r) => `v${r.versao}` },
   {
-    chave: 'ativa',
+    key: 'ativa',
     rotulo: 'Ativa',
-    celula: (r) => <Etiqueta>{r.ativa ? 'Ativa' : 'Inativa'}</Etiqueta>,
+    celula: (r) => <Etiqueta>{r.active ? 'Ativa' : 'Inativa'}</Etiqueta>,
   },
   {
-    chave: 'afetados',
+    key: 'afetados',
     rotulo: 'Leads afetados',
     numerica: true,
     celula: (r) => numero(r.leadsAfetados),
   },
 ];
 
-export default async function PaginaRegras() {
+export default async function PageRules() {
   const regras = await listarRegras();
-  const versoes = [...new Set(regras.map((r) => r.versao))].sort((a, b) => b - a);
+  const versions = [...new Set(regras.map((r) => r.versao))].sort((a, b) => b - a);
 
   return (
     <>
@@ -55,13 +55,13 @@ export default async function PaginaRegras() {
           </div>
         </div>
       ) : (
-        versoes.map((versao) => {
+        versions.map((versao) => {
           const daVersao = regras.filter((r) => r.versao === versao);
           const somaPositiva = daVersao
-            .filter((r) => r.ativa && r.pontos > 0)
+            .filter((r) => r.active && r.pontos > 0)
             .reduce((s, r) => s + r.pontos, 0);
           const somaNegativa = daVersao
-            .filter((r) => r.ativa && r.pontos < 0)
+            .filter((r) => r.active && r.pontos < 0)
             .reduce((s, r) => s + r.pontos, 0);
 
           return (
@@ -70,10 +70,10 @@ export default async function PaginaRegras() {
                 <h3>Versão {versao}</h3>
                 <span className="lbl">
                   teto {pontos(somaPositiva)} · piso {pontos(somaNegativa)} ·{' '}
-                  {numero(daVersao.filter((r) => r.ativa).length)} regras ativas
+                  {numero(daVersao.filter((r) => r.active).length)} regras ativas
                 </span>
               </header>
-              <Tabela colunas={COLUNAS} linhas={daVersao} chaveDaLinha={(r) => r.id} />
+              <Tabela colunas={COLUNAS} linhas={daVersao} linhaKey={(r) => r.id} />
               <div className="mensagem">
                 &quot;Leads afetados&quot; conta o cálculo vigente de cada lead, não todos os
                 cálculos: lead recalculado três vezes conta uma.

@@ -30,7 +30,7 @@
  * nada. No primeiro "salvar", o que vale é o desenho dele.
  */
 
-function estado(
+function state(
   id: string,
   titulo: string,
   topo: string,
@@ -95,16 +95,16 @@ function espera(id: string, dica: string, extras: Record<string, unknown> = {}):
 }
 
 export const ID_DA_RAIZ_PADRAO = 'onboarding';
-export const ID_DO_ATENDIMENTO_PADRAO = 'desk:atendimento';
+export const ID_OF_ATTENDANCE_DEFAULT = 'desk:atendimento';
 
-export const FLUXO_PADRAO: Record<string, unknown> = {
-  [ID_DA_RAIZ_PADRAO]: estado(ID_DA_RAIZ_PADRAO, 'Início', '120px', '640px', {
+export const FLOW_DEFAULT: Record<string, unknown> = {
+  [ID_DA_RAIZ_PADRAO]: state(ID_DA_RAIZ_PADRAO, 'Início', '120px', '640px', {
     root: true,
     $contentActions: [espera('inicio-1', 'mensagem do cliente')],
-    $defaultOutput: { stateId: ID_DO_ATENDIMENTO_PADRAO, $invalid: false },
+    $defaultOutput: { stateId: ID_OF_ATTENDANCE_DEFAULT, $invalid: false },
   }),
-  [ID_DO_ATENDIMENTO_PADRAO]: estado(
-    ID_DO_ATENDIMENTO_PADRAO,
+  [ID_OF_ATTENDANCE_DEFAULT]: state(
+    ID_OF_ATTENDANCE_DEFAULT,
     'Atendimento humano',
     '360px',
     '640px',
@@ -137,7 +137,7 @@ export const FLUXO_PADRAO: Record<string, unknown> = {
   ),
 };
 
-export const ACOES_GLOBAIS_PADRAO: Record<string, unknown> = {
+export const ACTIONS_GLOBAL_DEFAULT: Record<string, unknown> = {
   id: 'global-actions',
   $contentActions: [],
   $conditionOutputs: [],

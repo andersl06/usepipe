@@ -1,4 +1,4 @@
-import { Etiqueta, Tabela, type Coluna } from '@pipe/ui';
+import { Etiqueta, Tabela, type Column } from '@pipe/ui';
 import { listarFaixas, type LinhaFaixa } from '../../../lib/regras';
 import { numero } from '../../../lib/formato';
 
@@ -11,21 +11,21 @@ const ROTULO_ESTRATEGIA: Record<string, string> = {
   nenhuma: 'nenhuma',
 };
 
-const COLUNAS: readonly Coluna<LinhaFaixa>[] = [
-  { chave: 'nome', rotulo: 'Faixa', celula: (f) => <Etiqueta>{f.nome}</Etiqueta> },
-  { chave: 'versao', rotulo: 'Versão', numerica: true, celula: (f) => `v${f.versao}` },
-  { chave: 'minimo', rotulo: 'De', numerica: true, celula: (f) => numero(f.minimo) },
-  { chave: 'maximo', rotulo: 'Até', numerica: true, celula: (f) => numero(f.maximo) },
-  { chave: 'fila', rotulo: 'Fila', celula: (f) => (f.fila ? <Etiqueta>{f.fila}</Etiqueta> : '—') },
+const COLUNAS: readonly Column<LinhaFaixa>[] = [
+  { key: 'nome', rotulo: 'Faixa', celula: (f) => <Etiqueta>{f.nome}</Etiqueta> },
+  { key: 'versao', rotulo: 'Versão', numerica: true, celula: (f) => `v${f.versao}` },
+  { key: 'minimo', rotulo: 'De', numerica: true, celula: (f) => numero(f.minimo) },
+  { key: 'maximo', rotulo: 'Até', numerica: true, celula: (f) => numero(f.maximo) },
+  { key: 'fila', rotulo: 'Fila', celula: (f) => (f.queue ? <Etiqueta>{f.queue}</Etiqueta> : '—') },
   {
-    chave: 'estrategia',
+    key: 'estrategia',
     rotulo: 'Proprietário',
     celula: (f) => ROTULO_ESTRATEGIA[f.estrategiaProprietario] ?? f.estrategiaProprietario,
   },
-  { chave: 'leads', rotulo: 'Leads na faixa', numerica: true, celula: (f) => numero(f.leads) },
+  { key: 'leads', rotulo: 'Leads na faixa', numerica: true, celula: (f) => numero(f.leads) },
 ];
 
-export default async function PaginaFaixas() {
+export default async function PageTiers() {
   const faixas = await listarFaixas();
 
   return (
@@ -45,8 +45,8 @@ export default async function PaginaFaixas() {
         <Tabela
           colunas={COLUNAS}
           linhas={faixas}
-          chaveDaLinha={(f) => `${f.versao}-${f.nome}`}
-          vazio={
+          linhaKey={(f) => `${f.versao}-${f.nome}`}
+          empty={
             <>
               Nenhuma faixa cadastrada. Rode <code>pnpm --filter @pipe/crm seed:crm</code>.
             </>

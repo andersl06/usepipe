@@ -1,10 +1,10 @@
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { exigirPermissao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { exigirPermission } from '../sessao.js';
 import {
   conferirQuePodeLigar,
-  ligarCanalAoFluxo,
-  podeReconectarNoFluxo,
+  connectChannelToFlow,
+  canReconnectInFlow,
 } from '../dominio/gestao/canal-do-fluxo.js';
 
 /**
@@ -22,10 +22,10 @@ import {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** `fluxo_id` do corpo, se veio; fora do padrão de uuid é 404 antes de ir ao banco. */
-export function fluxoIdDoCorpo(corpo: { fluxo_id?: unknown } | undefined): string | undefined {
-  const bruto = corpo?.fluxo_id;
+export function flowIdOfBody(corpo: { flowId?: unknown } | undefined): string | undefined {
+  const bruto = corpo?.flowId;
   if (bruto === undefined || bruto === null || bruto === '') return undefined;
-  if (typeof bruto !== 'string' || !UUID.test(bruto)) throw ErroPipe.naoEncontrado('fluxo');
+  if (typeof bruto !== 'string' || !UUID.test(bruto)) throw PipeError.naoEncontrado('fluxo');
   return bruto;
 }
 
@@ -35,12 +35,12 @@ export function fluxoIdDoCorpo(corpo: { fluxo_id?: unknown } | undefined): strin
  */
 export function permitidoConectar(
   tenantId: string,
-  usuarioId: string,
-  fluxoId: string | undefined,
+  userId: string,
+  flowId: string | undefined,
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
-    if (fluxoId) await conferirQuePodeLigar(tx, tenantId, usuarioId, fluxoId);
-    else await exigirPermissao(tx, usuarioId, 'canal.gerenciar');
+    if (flowId) await conferirQuePodeLigar(tx, tenantId, userId, flowId);
+    else await exigirPermission(tx, userId, 'canal.gerenciar');
   });
 }
 
@@ -53,22 +53,22 @@ export function permitidoReconectar(
   tenantId: string,
   usuarioId: string,
   fluxoId: string | undefined,
-  canalId: string,
+  channelId: string,
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
-    if (fluxoId && (await podeReconectarNoFluxo(tx, tenantId, usuarioId, fluxoId, canalId))) return;
-    await exigirPermissao(tx, usuarioId, 'canal.gerenciar');
+    if (fluxoId && (await canReconnectInFlow(tx, tenantId, usuarioId, fluxoId, channelId))) return;
+    await exigirPermission(tx, usuarioId, 'canal.gerenciar');
   });
 }
 
 /** O canal recém-criado passa a ser do bot. */
-export function ligarAoFluxo(
+export function connectToFlow(
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   canalId: string,
 ): Promise<void> {
   return noTenant(tenantId, async (tx) => {
-    await ligarCanalAoFluxo(tx, tenantId, usuarioId, fluxoId, canalId);
+    await connectChannelToFlow(tx, tenantId, usuarioId, fluxoId, canalId);
   });
 }

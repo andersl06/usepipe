@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { metricasPorChave, normalizarTicketsPorHora } from '../src/dominio/gestao/monitoramento.js';
+import { metricsByKey, normalizeTicketsByHour } from '../src/dominio/gestao/monitoramento.js';
 
-const metrica = (valor: number | null) => ({ valor, populacao: valor === null ? 0 : 1, excluidas: 0, soma: valor ?? 0 });
+const metrica = (value: number | null) => ({ value, populacao: value === null ? 0 : 1, excluidas: 0, soma: value ?? 0 });
 
 describe('resumo detalhado do monitoramento', () => {
   it('leva as médias já calculadas no relatório para cada linha da tabela', () => {
-    const resumo = metricasPorChave([
+    const resumo = metricsByKey([
       {
         chave: 'Comercial',
-        conversas: 3,
-        naFila: metrica(30),
-        primeiraResposta: metrica(45),
+        conversations: 3,
+        inQueue: metrica(30),
+        firstResponse: metrica(45),
         esperaTotal: metrica(60),
-        resposta: { ...metrica(20), conversasConsideradas: 2 },
-        atendimento: metrica(120),
-        encerramentos: { perdida: 0, abandonada: 0, finalizada: 3, fechada: 3, abertas: 0 },
+        resposta: { ...metrica(20), conversationsConsideradas: 2 },
+        attendance: metrica(120),
+        closures: { perdida: 0, abandonada: 0, finalizada: 3, fechada: 3, abertas: 0 },
       },
     ]);
 
@@ -29,7 +29,7 @@ describe('resumo detalhado do monitoramento', () => {
 
 describe('tickets abertos por hora', () => {
   it('preenche as 24 horas sem inventar dados entre os horários retornados pelo banco', () => {
-    expect(normalizarTicketsPorHora([{ hora: 8, total: 3 }, { hora: 23, total: 1 }])).toEqual([
+    expect(normalizeTicketsByHour([{ hora: 8, total: 3 }, { hora: 23, total: 1 }])).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     ]);
   });

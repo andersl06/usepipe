@@ -18,7 +18,7 @@ import { IconePortal } from '../../../componentes/icones-portal';
  * `helperBody` E `helperConfirm`; nenhuma das três abas passa o terceiro, então
  * nenhum dos dois aparece.
  */
-export function CabecalhoDaPagina({
+export function PageHeader({
   id,
   titulo,
   tituloProprio,
@@ -70,7 +70,7 @@ export function dataDoSeletor(iso: string): string {
  * dentro da mesma moldura: o que muda é só o miolo do painel, e o formulário
  * manda `de` e `ate` pela URL. "Cancelar" recarrega a tela como estava.
  */
-export function SeletorDePeriodo({
+export function PeriodSeletor({
   de,
   ate,
   min,
@@ -128,7 +128,7 @@ export function SeletorDePeriodo({
  * com título, o `div.card-header` antes (o `p.card-title` e o `i.icon-info`
  * que só aparece com o cursor sobre o cartão).
  */
-export function Cartao({
+export function Card({
   id,
   className,
   titulo,
@@ -180,13 +180,13 @@ export function somarDias(dia: string, n: number): string {
  * `de` e `ate` vêm da URL, que é texto de fora: só passam no formato de dia e
  * em ordem; senão, vale o período padrão da tela.
  */
-export function periodoDaUrl(
-  busca: Record<string, string | string[] | undefined>,
+export function urlPeriod(
+  search: Record<string, string | string[] | undefined>,
   padraoDe: string,
   padraoAte: string,
 ): { de: string; ate: string } {
-  const de = busca.de;
-  const ate = busca.ate;
+  const de = search.de;
+  const ate = search.ate;
   if (
     typeof de === 'string' &&
     typeof ate === 'string' &&

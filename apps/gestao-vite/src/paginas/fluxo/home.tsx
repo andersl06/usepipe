@@ -1,13 +1,13 @@
 import { Avatar } from '@pipe/ui';
-import { BarrasDoContato, baseDoContato, useContato } from './contato';
+import { ContactBarras, contactBase, useContact } from './contato';
 import {
-  CartaoCanais,
-  CartaoEquipe,
-  CartaoExtensoes,
-  CartaoMetricas,
-  CartaoPreferencias,
+  CardChannels,
+  CardTeam,
+  CardExtensions,
+  CardMetrics,
+  CardPreferences,
 } from './cartoes';
-import { useCascaDoPortal } from '../../lib/casca';
+import { portalUseShell } from '../../lib/casca';
 import './fluxo.css';
 
 /**
@@ -43,13 +43,13 @@ import './fluxo.css';
  * barra ESCURA do contato, mas a barra de cima continua a mesma. Por isso
  * `/fluxo` entrou na lista de casco próprio de `estrutura-gestao.tsx`.
  */
-export function HomeDoContato() {
-  const { contato, fuso } = useContato();
-  const casca = useCascaDoPortal();
+export function ContactHome() {
+  const { contact, fuso } = useContact();
+  const shell = portalUseShell();
 
   return (
     <div className="pt-app">
-      <BarrasDoContato />
+      <ContactBarras />
 
       {/* `#main-content-area` é `pa0`: quem recua é a `.container` de dentro. */}
       <main className="pt-conteudo fx-miolo">
@@ -58,22 +58,22 @@ export function HomeDoContato() {
               data de criação encostada na direita, na mesma linha. */}
           <header className="fx-cabecalho">
             <div className="fx-identidade">
-              {contato.imagemUrl ? (
-                <img className="fx-foto" src={contato.imagemUrl} alt="" width={72} height={72} />
+              {contact.imageUrl ? (
+                <img className="fx-foto" src={contact.imageUrl} alt="" width={72} height={72} />
               ) : (
-                <Avatar nome={contato.nome} className="fx-foto" />
+                <Avatar nome={contact.nome} className="fx-foto" />
               )}
               <div className="fx-titulos">
                 {/* Lá o nome é um `bds-input-editable` para quem tem a claim 109
                     (`basicConfigurations`), e um texto para quem não tem. Aqui é
                     sempre texto: renomear grava no mesmo lugar que a criação, e
                     a Server Action dessa edição ainda não existe. */}
-                <h1 className="fx-nome">{contato.nome}</h1>
-                <p className="fx-id">Id: {contato.shortName ?? contato.id}</p>
+                <h1 className="fx-nome">{contact.nome}</h1>
+                <p className="fx-id">Id: {contact.shortName ?? contact.id}</p>
               </div>
             </div>
             <p className="fx-criado">
-              <span>Criado em</span> {porData(contato.criadoEm, fuso)}
+              <span>Criado em</span> {byData(contact.criadoEm, fuso)}
             </p>
           </header>
 
@@ -83,15 +83,15 @@ export function HomeDoContato() {
               métricas — a grade posiciona por `grid-area`. O que o Pipe não tem
               (loja, equipe por contato, contagem por contato) vai vazio. */}
           <div className="fx-grade">
-            <CartaoExtensoes extensoes={[]} />
-            <CartaoCanais
-              ativos={contato.canalAtivo && contato.canalTipo ? [contato.canalTipo] : []}
-              id={contato.id}
-              tipo={contato.tipo}
+            <CardExtensions extensions={[]} />
+            <CardChannels
+              ativos={contact.channelActive && contact.channelTipo ? [contact.channelTipo] : []}
+              id={contact.id}
+              tipo={contact.tipo}
             />
-            <CartaoEquipe membros={[]} />
-            <CartaoPreferencias fuso={fuso} plano={casca.tenant.plano} />
-            <CartaoMetricas metricas={null} base={baseDoContato(contato.tipo, contato.id)} />
+            <CardTeam members={[]} />
+            <CardPreferences fuso={fuso} plano={shell.tenant.plano} />
+            <CardMetrics metrics={null} base={contactBase(contact.tipo, contact.id)} />
           </div>
         </div>
       </main>
@@ -102,7 +102,7 @@ export function HomeDoContato() {
 /* ------------------------------------------------------------------ peças */
 
 /** O `moment(created).format('L')` deles, no fuso da conta: `13/09/2026`. */
-function porData(instante: string | null, fuso: string): string {
+function byData(instante: string | null, fuso: string): string {
   if (!instante) return '—';
   return new Date(instante).toLocaleDateString('pt-BR', {
     timeZone: fuso,

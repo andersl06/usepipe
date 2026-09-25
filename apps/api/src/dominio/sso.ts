@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig, registrarAuditoria } from '@pipe/db';
-import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/autenticacao';
+import { DOMINIOS_PUBLICOS, descobrir, domainOfEmail } from '@pipe/autenticacao';
 import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/autenticacao';
 import type { RespostaDaDescoberta } from '@pipe/contracts';
-import { bancoDono, chaveiro, noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { databaseOwner, keyring, noTenant } from '../banco.js';
+import { PipeError } from '../erros.js';
 
 /**
  * A conexão de SSO do cliente: o que ele preenche, em que estado ela está, e
@@ -26,13 +26,13 @@ import { ErroPipe } from '../erros.js';
  */
 
 /** Um teste vale 30 dias. Conexão testada no ano passado não prova nada hoje. */
-export const DIAS_DE_TESTE_VALIDO = 30;
+export const DAYS_OF_TEST_VALID = 30;
 
 export const ESTADOS = ['rascunho', 'testada', 'ativa'] as const;
 export const POLITICAS = ['desligado', 'opcional', 'obrigatorio'] as const;
 export const PROVEDORES = ['generico', 'entra', 'google_workspace', 'okta'] as const;
 
-export type EstadoConexao = (typeof ESTADOS)[number];
+export type StateConnection = (typeof ESTADOS)[number];
 export type PoliticaSso = (typeof POLITICAS)[number];
 
 /** O que a tela vê. Sem segredo, e é por isso que existe um tipo só para isto. */
@@ -41,17 +41,17 @@ export interface ConexaoSsoVisivel {
   provedor: ProvedorSso;
   emissor: string;
   clienteId: string;
-  estado: EstadoConexao;
+  estado: StateConnection;
   politica: PoliticaSso;
   testadaEm: Date | null;
   ativadaEm: Date | null;
   /** O que o cliente cola no IdP dele. */
-  urlDeRetorno: string;
+  callbackUrl: string;
 }
 
 interface LinhaConexao {
   /** O `execute` do drizzle exige forma indexável; as colunas acima continuam tipadas. */
-  [coluna: string]: unknown;
+  [column: string]: unknown;
   id: string;
   tenant_id: string;
   provedor: string;
@@ -65,7 +65,7 @@ interface LinhaConexao {
 }
 
 /** A URL de retorno é UMA, para todos os clientes: o tenant vem do `state`, não da URL. */
-export function urlDeRetornoSso(): string {
+export function ssoCallbackUrl(): string {
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
   return `${base}/v1/auth/sso/retorno`;
 }
@@ -76,11 +76,11 @@ function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
     provedor: linha.provedor as ProvedorSso,
     emissor: linha.emissor,
     clienteId: linha.cliente_id,
-    estado: linha.estado as EstadoConexao,
+    estado: linha.estado as StateConnection,
     politica: linha.politica as PoliticaSso,
     testadaEm: linha.testada_em ? new Date(linha.testada_em) : null,
     ativadaEm: linha.ativada_em ? new Date(linha.ativada_em) : null,
-    urlDeRetorno: urlDeRetornoSso(),
+    callbackUrl: ssoCallbackUrl(),
   };
 }
 
@@ -88,7 +88,7 @@ export interface CorpoDeConexao {
   provedor?: string;
   emissor?: string;
   clienteId?: string;
-  clienteSegredo?: string;
+  customerSecret?: string;
 }
 
 /**
@@ -100,28 +100,28 @@ export interface CorpoDeConexao {
  */
 export async function salvarConexao(
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   corpo: CorpoDeConexao,
 ): Promise<ConexaoSsoVisivel> {
   const provedor = (corpo.provedor ?? 'generico').trim();
   if (!PROVEDORES.includes(provedor as ProvedorSso)) {
-    throw ErroPipe.requisicao('provedor_invalido', `"${provedor}" não é um provedor conhecido.`);
+    throw PipeError.request('provedor_invalido', `"${provedor}" não é um provedor conhecido.`);
   }
 
   const emissor = (corpo.emissor ?? '').trim().replace(/\/$/, '');
   if (!emissor.startsWith('https://')) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'emissor_invalido',
       'O emissor precisa ser a URL https do provedor — a mesma de onde sai o `.well-known`.',
     );
   }
   const clienteId = (corpo.clienteId ?? '').trim();
-  const clienteSegredo = (corpo.clienteSegredo ?? '').trim();
-  if (!clienteId || !clienteSegredo) {
-    throw ErroPipe.requisicao('config_incompleta', 'Faltam `clienteId` ou `clienteSegredo`.');
+  const customerSecret = (corpo.customerSecret ?? '').trim();
+  if (!clienteId || !customerSecret) {
+    throw PipeError.request('config_incompleta', 'Faltam `clienteId` ou `clienteSegredo`.');
   }
 
-  const config = cifrarConfig({ clientSecret: clienteSegredo }, chaveiro());
+  const config = cifrarConfig({ clientSecret: customerSecret }, keyring());
 
   return noTenant(tenantId, async (tx) => {
     const { rows: antes } = await tx.execute<LinhaConexao>(
@@ -147,7 +147,7 @@ export async function salvarConexao(
 
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: userId },
       acao: antes[0] ? 'alterou' : 'criou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,
@@ -174,8 +174,8 @@ async function linhaDoTenant(tenantId: string): Promise<LinhaConexao | null> {
   });
 }
 
-export interface MudancaDeEstado {
-  estado?: string;
+export interface MudancaOfState {
+  state?: string;
   politica?: string;
 }
 
@@ -188,31 +188,31 @@ export interface MudancaDeEstado {
  * - `obrigatorio` exige a conexão `ativa`. Exigir SSO com o SSO desligado tranca
  *   o cliente inteiro do lado de fora, e é o incidente mais comum do assunto.
  */
-export async function definirEstado(
+export async function defineState(
   tenantId: string,
   usuarioId: string,
-  mudanca: MudancaDeEstado,
+  mudanca: MudancaOfState,
 ): Promise<ConexaoSsoVisivel> {
   const atual = await linhaDoTenant(tenantId);
-  if (!atual) throw ErroPipe.naoEncontrado('Conexão de SSO');
+  if (!atual) throw PipeError.naoEncontrado('Conexão de SSO');
 
-  const estado = (mudanca.estado ?? atual.estado) as EstadoConexao;
+  const state = (mudanca.state ?? atual.estado) as StateConnection;
   const politica = (mudanca.politica ?? atual.politica) as PoliticaSso;
-  if (!ESTADOS.includes(estado)) {
-    throw ErroPipe.requisicao('estado_invalido', `"${estado}" não é um estado de conexão.`);
+  if (!ESTADOS.includes(state)) {
+    throw PipeError.request('estado_invalido', `"${state}" não é um estado de conexão.`);
   }
   if (!POLITICAS.includes(politica)) {
-    throw ErroPipe.requisicao('politica_invalida', `"${politica}" não é uma política de SSO.`);
+    throw PipeError.request('politica_invalida', `"${politica}" não é uma política de SSO.`);
   }
 
-  if (estado === 'ativa' && !testeValido(atual.testada_em)) {
-    throw ErroPipe.requisicao(
+  if (state === 'ativa' && !testValid(atual.testada_em)) {
+    throw PipeError.request(
       'sem_teste_valido',
-      `Teste a conexão antes de ativá-la — o teste vale ${DIAS_DE_TESTE_VALIDO} dias.`,
+      `Teste a conexão antes de ativá-la — o teste vale ${DAYS_OF_TEST_VALID} dias.`,
     );
   }
-  if (politica !== 'desligado' && estado !== 'ativa') {
-    throw ErroPipe.requisicao(
+  if (politica !== 'desligado' && state !== 'ativa') {
+    throw PipeError.request(
       'conexao_inativa',
       'Exigir SSO com a conexão desligada tranca todo mundo do lado de fora. Ative primeiro.',
     );
@@ -221,9 +221,9 @@ export async function definirEstado(
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<LinhaConexao>(sql`
       update conexao_sso
-         set estado = ${estado},
+         set estado = ${state},
              politica = ${politica},
-             ativada_em = case when ${estado} = 'ativa' and ativada_em is null
+             ativada_em = case when ${state} = 'ativa' and ativada_em is null
                                then now() else ativada_em end,
              atualizado_em = now()
        where tenant_id = ${tenantId}::uuid
@@ -232,20 +232,20 @@ export async function definirEstado(
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
       ator: { tipo: 'usuario', id: usuarioId },
-      acao: estado === 'ativa' ? 'ativou' : 'alterou',
+      acao: state === 'ativa' ? 'ativou' : 'alterou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,
       antes: { estado: atual.estado, politica: atual.politica },
-      depois: { estado, politica },
+      depois: { state, politica },
     });
     return visivel(linha);
   });
 }
 
-export function testeValido(testadaEm: string | Date | null, agora = new Date()): boolean {
+export function testValid(testadaEm: string | Date | null, agora = new Date()): boolean {
   if (!testadaEm) return false;
   const quando = testadaEm instanceof Date ? testadaEm : new Date(testadaEm);
-  return agora.getTime() - quando.getTime() <= DIAS_DE_TESTE_VALIDO * 24 * 60 * 60 * 1000;
+  return agora.getTime() - quando.getTime() <= DAYS_OF_TEST_VALID * 24 * 60 * 60 * 1000;
 }
 
 /** Marca o teste verde. Só o retorno do fluxo de teste chama isto. */
@@ -261,7 +261,7 @@ export async function marcarTestada(tenantId: string): Promise<void> {
   });
 }
 
-export interface ConexaoParaFluxo {
+export interface ConnectionForFlow {
   tenantId: string;
   config: ConfigOidc;
   descoberta: DescobertaOidc;
@@ -274,21 +274,21 @@ export interface ConexaoParaFluxo {
  * `exigirAtiva` separa os dois usos: o login de verdade só anda com a conexão
  * ligada; o teste anda com ela em rascunho — é justamente para isso que ele existe.
  */
-export async function conexaoParaFluxo(
+export async function connectionForFlow(
   tenantId: string,
-  opcoes: { exigirAtiva: boolean },
+  options: { exigirActive: boolean },
   buscar: typeof fetch = fetch,
-): Promise<ConexaoParaFluxo> {
+): Promise<ConnectionForFlow> {
   const linha = await linhaDoTenant(tenantId);
-  if (!linha) throw ErroPipe.naoEncontrado('Conexão de SSO');
-  if (opcoes.exigirAtiva && linha.estado !== 'ativa') {
-    throw ErroPipe.requisicao('sso_inativo', 'O SSO desta conta ainda não foi ativado.');
+  if (!linha) throw PipeError.naoEncontrado('Conexão de SSO');
+  if (options.exigirActive && linha.estado !== 'ativa') {
+    throw PipeError.request('sso_inativo', 'O SSO desta conta ainda não foi ativado.');
   }
 
-  const config = decifrarConfig(linha.config ?? {}, chaveiro());
+  const config = decifrarConfig(linha.config ?? {}, keyring());
   const clienteSegredo = typeof config['clientSecret'] === 'string' ? config['clientSecret'] : '';
   if (!clienteSegredo) {
-    throw ErroPipe.requisicao('config_incompleta', 'A conexão está sem o segredo do cliente.');
+    throw PipeError.request('config_incompleta', 'A conexão está sem o segredo do cliente.');
   }
 
   return {
@@ -297,8 +297,8 @@ export async function conexaoParaFluxo(
       provedor: linha.provedor as ProvedorSso,
       emissor: linha.emissor,
       clienteId: linha.cliente_id,
-      clienteSegredo,
-      urlDeRetorno: urlDeRetornoSso(),
+      customerSecret,
+      urlOfCallback: ssoCallbackUrl(),
       ...(linha.provedor === 'entra' ? { tenantsEntra: tenantsDoEntra(linha.emissor) } : {}),
     },
     descoberta: await descobrir(linha.emissor, buscar),
@@ -317,7 +317,7 @@ function tenantsDoEntra(emissor: string): readonly string[] {
   const casado = /login\.microsoftonline\.com\/([^/]+)/.exec(emissor);
   const tid = casado?.[1];
   if (!tid || tid === 'common' || tid === 'organizations' || tid === 'consumers') {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'emissor_multi_tenant',
       'Use o emissor do diretório da empresa (com o id do tenant), não `common`: com `common` qualquer diretório da Microsoft entraria.',
     );
@@ -340,19 +340,19 @@ export type { RespostaDaDescoberta };
  * Por isso não há atalho para domínio público: a consulta roda igual nos dois
  * casos e o descarte vem depois. Tempo de resposta também conta.
  */
-export async function descobrirEntrada(emailCru: string | undefined): Promise<RespostaDaDescoberta> {
+export async function discoverInbound(emailCru: string | undefined): Promise<RespostaDaDescoberta> {
   const email = (emailCru ?? '').trim().toLowerCase();
   if (!email.includes('@')) {
-    throw ErroPipe.requisicao('email_invalido', 'Informe um e-mail.');
+    throw PipeError.request('email_invalido', 'Informe um e-mail.');
   }
-  const dominio = dominioDoEmail(email);
+  const domain = domainOfEmail(email);
 
-  const { rows } = await bancoDono().execute<{ slug: string }>(sql`
+  const { rows } = await databaseOwner().execute<{ slug: string }>(sql`
     select t.slug
       from dominio_tenant d
       join tenant t on t.id = d.tenant_id
       join conexao_sso c on c.tenant_id = d.tenant_id
-     where d.dominio = ${dominio}
+     where d.dominio = ${domain}
        and d.verificado_em is not null
        and c.estado = 'ativa'
        and c.politica <> 'desligado'
@@ -363,7 +363,7 @@ export async function descobrirEntrada(emailCru: string | undefined): Promise<Re
   // O descarte vem DEPOIS da consulta, e é o que garante que `gmail.com` custe o
   // mesmo tempo que um domínio de empresa. Domínio público nunca roteia: quem
   // mapeasse `gmail.com` capturaria o login de meio Brasil.
-  const slug = DOMINIOS_PUBLICOS.has(dominio) ? undefined : rows[0]?.slug;
+  const slug = DOMINIOS_PUBLICOS.has(domain) ? undefined : rows[0]?.slug;
   // `google`, e não `senha`: o Pipe não guarda senha de ninguém, e prometer um
   // campo que não existe faz a tela desenhar o que não sabe fazer.
   if (!slug) return { metodo: 'google' };
@@ -376,11 +376,11 @@ export async function descobrirEntrada(emailCru: string | undefined): Promise<Re
  * Existe para quem tem e-mail pessoal e por isso nunca é descoberto pelo domínio
  * — o dono da agência com `@gmail.com`, o terceirizado, o consultor.
  */
-export async function tenantPorSlug(slug: string): Promise<string> {
-  const { rows } = await bancoDono().execute<{ id: string }>(
+export async function tenantBySlug(slug: string): Promise<string> {
+  const { rows } = await databaseOwner().execute<{ id: string }>(
     sql`select id from tenant where slug = ${slug} and ativo limit 1`,
   );
   const id = rows[0]?.id;
-  if (!id) throw ErroPipe.naoEncontrado('Empresa');
+  if (!id) throw PipeError.naoEncontrado('Empresa');
   return id;
 }

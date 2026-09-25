@@ -1,37 +1,37 @@
 import Link from 'next/link';
 import { Campo, Seletor } from '@pipe/ui';
-import { Filtro } from '../../componentes/filtros';
+import { Filter } from '../../componentes/filtros';
 import { ListaDeLeads } from '../../componentes/lista-de-leads';
-import { VisoesSalvas } from '../../componentes/visoes-salvas';
+import { ViewsSalvas } from '../../componentes/visoes-salvas';
 import { fusoDoTenant } from '../../lib/banco';
 import {
   ABAS,
   abaValida,
-  AGRUPAMENTOS,
-  agrupamentoValido,
+  GROUPINGS,
+  groupingValid,
   agrupar,
   carregarListaDeLeads,
-  direcaoValida,
-  escreverFiltros,
-  lerFiltros,
+  directionValid,
+  escreverFilters,
+  readFilters,
   LIMITE_LISTA,
   listarProprietarios,
-  opcoesDeFiltro,
-  ordemValida,
-  type Filtros,
+  filterOptions,
+  orderValid,
+  type SFilter,
 } from '../../lib/leads';
 import { numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
-interface Busca {
+interface Search {
   aba?: string;
   q?: string;
   agrupar?: string;
-  ordem?: string;
+  order?: string;
   dir?: string;
   /** Os `f.*` do filtro por coluna. `lerFiltros` decide quais valem. */
-  [chave: string]: string | string[] | undefined;
+  [key: string]: string | string[] | undefined;
 }
 
 /**
@@ -45,31 +45,31 @@ interface Busca {
  * e ordenar depois de buscar responderia "os 200 leads mais novos, dispostos por
  * score" quando a pergunta é "os 200 de maior score".
  */
-export default async function PaginaLeads({ searchParams }: { searchParams: Promise<Busca> }) {
+export default async function PageLeads({ searchParams }: { searchParams: Promise<Search> }) {
   const params = await searchParams;
   const aba = abaValida(typeof params.aba === 'string' ? params.aba : undefined);
-  const busca = typeof params.q === 'string' ? params.q : '';
-  const por = agrupamentoValido(typeof params.agrupar === 'string' ? params.agrupar : undefined);
-  const ordem = ordemValida(typeof params.ordem === 'string' ? params.ordem : undefined);
-  const direcao = direcaoValida(typeof params.dir === 'string' ? params.dir : undefined);
-  const filtros = lerFiltros(params);
+  const search = typeof params.q === 'string' ? params.q : '';
+  const by = groupingValid(typeof params.agrupar === 'string' ? params.agrupar : undefined);
+  const order = orderValid(typeof params.order === 'string' ? params.order : undefined);
+  const direction = directionValid(typeof params.dir === 'string' ? params.dir : undefined);
+  const filters = readFilters(params);
 
   const fuso = await fusoDoTenant();
-  const { linhas, contagens } = await carregarListaDeLeads(aba, busca, ordem, direcao, filtros);
+  const { linhas, contagens } = await carregarListaDeLeads(aba, search, order, direction, filters);
   const proprietarios = await listarProprietarios();
-  const opcoes = await opcoesDeFiltro();
-  const grupos = agrupar(linhas, por);
+  const options = await filterOptions();
+  const groups = agrupar(linhas, by);
 
-  const consulta = (extra: Record<string, string> = {}, comFiltros: Filtros = filtros) => {
-    const p = new URLSearchParams({ aba, ...(busca ? { q: busca } : {}), ...extra });
-    if (por !== 'nenhum' && !('agrupar' in extra)) p.set('agrupar', por);
-    if (ordem !== 'nenhuma') {
-      p.set('ordem', ordem);
-      p.set('dir', direcao);
+  const query = (extra: Record<string, string> = {}, withFilters: SFilter = filters) => {
+    const p = new URLSearchParams({ aba, ...(search ? { q: search } : {}), ...extra });
+    if (by !== 'nenhum' && !('agrupar' in extra)) p.set('agrupar', by);
+    if (order !== 'nenhuma') {
+      p.set('ordem', order);
+      p.set('dir', direction);
     }
     // O filtro entra por último, e por isso a visão salva o guarda: `consulta()`
     // sem argumento é exatamente o endereço da tela como ela está agora.
-    return escreverFiltros(p, comFiltros).toString();
+    return escreverFilters(p, withFilters).toString();
   };
 
   return (
@@ -86,7 +86,7 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           {ABAS.map((a) => (
             <Link
               key={a.chave}
-              href={`/leads?${consulta({ aba: a.chave })}`}
+              href={`/leads?${query({ aba: a.chave })}`}
               role="tab"
               aria-current={a.chave === aba ? 'true' : undefined}
             >
@@ -101,29 +101,29 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
         */}
         <form className="tblhead" method="get" action="/leads">
           <input type="hidden" name="aba" value={aba} />
-          {ordem !== 'nenhuma' ? (
+          {order !== 'nenhuma' ? (
             <>
-              <input type="hidden" name="ordem" value={ordem} />
-              <input type="hidden" name="dir" value={direcao} />
+              <input type="hidden" name="ordem" value={order} />
+              <input type="hidden" name="dir" value={direction} />
             </>
           ) : null}
           {/* O filtro sobrevive ao envio da busca. Sem estes campos, digitar no
               campo de busca apagaria o filtro em silêncio — e o formulário GET
               só manda o que ele mesmo carrega. */}
-          {Object.entries(filtros).map(([chave, valor]) => (
-            <input key={chave} type="hidden" name={`f.${chave}`} value={valor} />
+          {Object.entries(filters).map(([key, value]) => (
+            <input key={key} type="hidden" name={`f.${key}`} value={value} />
           ))}
           <Campo
             type="search"
             name="q"
-            defaultValue={busca}
+            defaultValue={search}
             placeholder="Buscar por nome, CPF, telefone ou e-mail"
             aria-label="Buscar lead"
           />
           <label className="agrupador">
             Agrupar por
-            <Seletor name="agrupar" defaultValue={por} aria-label="Agrupar por">
-              {AGRUPAMENTOS.map((a) => (
+            <Seletor name="agrupar" defaultValue={by} aria-label="Agrupar por">
+              {GROUPINGS.map((a) => (
                 <option key={a.chave} value={a.chave}>
                   {a.rotulo}
                 </option>
@@ -133,12 +133,12 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           <button type="submit" className="btn">
             Aplicar
           </button>
-          <Filtro
-            filtros={filtros}
-            opcoes={opcoes}
-            href={(proximos) => `/leads?${consulta({}, proximos)}`}
+          <Filter
+            filters={filters}
+            options={options}
+            href={(proximos) => `/leads?${query({}, proximos)}`}
           />
-          <VisoesSalvas consultaAtual={consulta()} />
+          <ViewsSalvas queryCurrent={query()} />
           {/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
               escrita ao lado da contagem, na mesma linha, sem ocupar tela. */}
           <span className="sub" style={{ marginLeft: 'auto' }}>
@@ -149,15 +149,15 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
         </form>
 
         <ListaDeLeads
-          grupos={grupos}
+          groups={groups}
           fuso={fuso}
           agora={new Date()}
           aba={aba}
-          busca={busca}
-          por={por}
-          ordem={ordem}
-          direcao={direcao}
-          filtros={filtros}
+          search={search}
+          by={by}
+          order={order}
+          direction={direction}
+          filters={filters}
           proprietarios={proprietarios}
           total={linhas.length}
         />

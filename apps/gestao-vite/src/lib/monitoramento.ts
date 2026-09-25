@@ -1,53 +1,53 @@
 import {
-  pesoPrioridade,
-  type ContagemEncerramento,
-  type EstadoAtendente,
+  pesoPriority,
+  type CountClosure,
+  type StateAgent,
   type Marcos,
   type ResultadoMetrica,
-  type ResultadoTempoDeResposta,
+  type ResponseTimeResult,
 } from '@pipe/core';
 import { type PillSla } from './sla';
 
-export interface LinhaConversaAberta {
+export interface LinhaConversationAberta {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaId: string | null;
-  filaNome: string | null;
-  atendenteId: string | null;
-  atendenteNome: string | null;
-  estado: string;
-  prioridade: string;
+  contactName: string;
+  queueId: string | null;
+  queueName: string | null;
+  agentId: string | null;
+  agentName: string | null;
+  state: string;
+  priority: string;
   marcos: Marcos;
   /** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */
-  naFilaSeg: number | null;
-  filaCorrendo: boolean;
-  primeiraRespostaSeg: number | null;
-  primeiraRespostaCorrendo: boolean;
-  atendimentoSeg: number | null;
+  inQueueSeg: number | null;
+  queueCorrendo: boolean;
+  firstRespostaSeg: number | null;
+  firstRespostaCorrendo: boolean;
+  attendanceSeg: number | null;
   emEspera: boolean;
   /** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */
-  aguardandoAtendente: boolean;
+  aguardandoAgent: boolean;
   sla: PillSla;
   etiquetas: string[];
 }
 
-export interface CartoesTempoReal {
-  naFila: number;
-  maiorEsperaNaFilaSeg: number | null;
+export interface CardsRealTime {
+  inQueue: number;
+  maiorEsperaInQueueSeg: number | null;
   /**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
    * entre duas conversas e entre duzentas pedem reações opostas.
    */
-  aguardandoPrimeiraResposta: number;
-  maiorEsperaPrimeiraRespostaSeg: number | null;
-  emAtendimento: number;
-  atendentesOnline: number;
-  mediaPorAtendente: number | null;
+  aguardandoFirstResposta: number;
+  maiorEsperaFirstRespostaSeg: number | null;
+  inAttendance: number;
+  agentsOnline: number;
+  mediaByAgent: number | null;
 }
 
-export interface CartaoAtendentes {
+export interface CardAgents {
   online: number;
   pausa: number;
   invisivel: number;
@@ -55,38 +55,38 @@ export interface CartaoAtendentes {
   pausasEstouradas: number;
 }
 
-export interface CartoesDeHoje {
+export interface TodayCards {
   esperaDoCliente: ResultadoMetrica;
-  atePrimeiraResposta: ResultadoMetrica;
-  tempoDeAtendimento: ResultadoMetrica;
-  tempoDeResposta: ResultadoTempoDeResposta;
-  encerramentos: ContagemEncerramento;
+  ateFirstResposta: ResultadoMetrica;
+  attendanceTime: ResultadoMetrica;
+  respostaTime: ResponseTimeResult;
+  closures: CountClosure;
 }
 
-export interface CargaAtendente {
+export interface CargaAgent {
   id: string;
   nome: string;
-  estado: EstadoAtendente;
+  state: StateAgent;
   ativas: number;
-  aguardandoAtendente: number;
+  aguardandoAgent: number;
   limite: number;
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
-  tempoMedioRespostaSeg: number | null;
-  tempoMedioAtendimentoSeg: number | null;
+  timeMedioRespostaSeg: number | null;
+  timeMedioAttendanceSeg: number | null;
 }
 
-export interface ResumoFila {
+export interface SummaryQueue {
   id: string;
   nome: string;
-  naFila: number;
-  emAtendimento: number;
+  inQueue: number;
+  inAttendance: number;
   maiorEsperaSeg: number | null;
-  atendentesOnline: number;
-  tempoMedioNaFilaSeg: number | null;
-  tempoMedioRespostaSeg: number | null;
-  tempoMedioAtendimentoSeg: number | null;
+  agentsOnline: number;
+  timeMedioInQueueSeg: number | null;
+  timeMedioRespostaSeg: number | null;
+  timeMedioAttendanceSeg: number | null;
 }
 
 export interface ResumoEtiqueta {
@@ -95,22 +95,22 @@ export interface ResumoEtiqueta {
   cor: string | null;
   abertas: number;
   finalizadas: number;
-  tempoMedioAtendimentoSeg: number | null;
+  timeMedioAttendanceSeg: number | null;
 }
 
-export interface Monitoramento {
+export interface Monitoring {
   agora: Date;
   fuso: string;
-  tempoReal: CartoesTempoReal;
-  atendentes: CartaoAtendentes;
-  hoje: CartoesDeHoje;
-  abertas: LinhaConversaAberta[];
-  carga: CargaAtendente[];
-  filas: ResumoFila[];
+  realTime: CardsRealTime;
+  agents: CardAgents;
+  hoje: TodayCards;
+  abertas: LinhaConversationAberta[];
+  carga: CargaAgent[];
+  queues: SummaryQueue[];
   etiquetas: ResumoEtiqueta[];
-  ticketsAbertosPorHora: number[];
+  ticketsAbertosByHora: number[];
   /** Catálogo para os filtros rápidos. */
-  listaAtendentes: { id: string; nome: string }[];
+  listaAgents: { id: string; nome: string }[];
 }
 
 /** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */
@@ -125,9 +125,9 @@ export function ticketDe(id: string): string {
  * correndo e o instante precisa ser o mesmo em todos os cartões, senão a soma
  * dos cartões não fecha com a tabela.
  */
-export interface FiltroMonitoramento {
-  filaId?: string | undefined;
-  atendenteId?: string | undefined;
+export interface MonitoringFilter {
+  queueId?: string | undefined;
+  agentId?: string | undefined;
 }
 
 /**
@@ -144,11 +144,11 @@ export interface FiltroMonitoramento {
  * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
  * mais quem atende.
  */
-export function ordenarFilaDeEspera<
-  T extends { prioridade: string; marcos: { criadaEm: Date | string | null } },
+export function esperaOrdenarQueue<
+  T extends { priority: string; marcos: { criadaEm: Date | string | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {
-    const diferenca = pesoPrioridade(a.prioridade) - pesoPrioridade(b.prioridade);
+    const diferenca = pesoPriority(a.priority) - pesoPriority(b.priority);
     if (diferenca !== 0) return diferenca;
     /* Sem marco de criação vai para o fim: ela não é "a mais antiga", é a que
        não sabemos quando começou. Mesma regra do `null` na ordem do Desk.

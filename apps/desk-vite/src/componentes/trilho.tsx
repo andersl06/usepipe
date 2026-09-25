@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import type { EstadoAtendente, FilaDoDesk, MotivoDePausa } from '@pipe/contracts';
-import { useLeitura } from '../lib/consulta';
-import { useSessao } from '../contexto/sessao';
+import type { StateAgent, QueueOfDesk, MotivoDePausa } from '@pipe/contracts';
+import { useRead } from '../lib/consulta';
+import { useSession } from '../contexto/sessao';
 import { executar } from '../lib/acoes';
 import { IconeDesk, type NomeDeIconeDesk } from './icones-desk';
 import { Avatar } from './avatar';
@@ -28,23 +28,23 @@ const DESTINOS: { para: string; icone: NomeDeIconeDesk; rotulo: string }[] = [
 ];
 
 /** Os rótulos de status do menu do avatar (`{"online":"Online","pause":"Em pausa","invisible":"Invisível"}`). */
-export const ROTULOS_DE_STATUS: Record<EstadoAtendente, string> = {
+export const ROTULOS_DE_STATUS: Record<StateAgent, string> = {
   online: 'Online',
   pausa: 'Em pausa',
   invisivel: 'Invisível',
   offline: 'Offline',
 };
 
-export function Trilho({
+export function Rail({
   aberto,
   aoAbrir,
 }: {
   aberto: boolean;
   aoAbrir: (aberto: boolean) => void;
 }) {
-  const { eu } = useSessao();
-  const fila = useLeitura<FilaDoDesk>('/v1/desk/fila');
-  const estado: EstadoAtendente = fila.data?.status.estado ?? 'offline';
+  const { eu } = useSession();
+  const queue = useRead<QueueOfDesk>('/v1/desk/fila');
+  const state: StateAgent = queue.data?.status.estado ?? 'offline';
   const { pathname } = useLocation();
 
   return (
@@ -98,22 +98,22 @@ export function Trilho({
             <button
               type="button"
               className="dk-trilho-avatar"
-              title={`Seu status é: ${ROTULOS_DE_STATUS[estado]}`}
-              aria-label={`Opções de status. Seu status é: ${ROTULOS_DE_STATUS[estado]}`}
+              title={`Seu status é: ${ROTULOS_DE_STATUS[state]}`}
+              aria-label={`Opções de status. Seu status é: ${ROTULOS_DE_STATUS[state]}`}
               aria-expanded={aberto}
               onClick={() => aoAbrir(!aberto)}
             >
-              <Avatar nome={eu?.usuario.nome} tamanho={32} />
-              <span className="dk-presenca" data-estado={estado} />
+              <Avatar nome={eu?.user.nome} tamanho={32} />
+              <span className="dk-presenca" data-estado={state} />
             </button>
           </li>
         </ul>
       </nav>
-      {aberto && fila.data ? (
-        <PainelDeStatus
-          estado={estado}
-          motivos={fila.data.motivos}
-          motivoAtual={fila.data.status.motivoPausa}
+      {aberto && queue.data ? (
+        <StatusPanel
+          state={state}
+          motivos={queue.data.motivos}
+          motivoAtual={queue.data.status.motivoPausa}
           aoFechar={() => aoAbrir(false)}
         />
       ) : null}
@@ -128,40 +128,40 @@ export function Trilho({
  * o em vigor com fundo a 8% e o check), e "Desconectar" no rodapé.
  * "Em pausa" abre a lista de motivos (`personalized-breaks-select`).
  */
-function PainelDeStatus({
-  estado,
+function StatusPanel({
+  state,
   motivos,
   motivoAtual,
   aoFechar,
 }: {
-  estado: EstadoAtendente;
+  state: StateAgent;
   motivos: MotivoDePausa[];
   motivoAtual: string | null;
   aoFechar: () => void;
 }) {
-  const { eu, sair } = useSessao();
+  const { eu, sair } = useSession();
   const [escolhendoPausa, setEscolhendoPausa] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const primeiro = useRef<HTMLButtonElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const first = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    primeiro.current?.focus();
+    first.current?.focus();
   }, []);
 
-  async function mudar(novo: EstadoAtendente, motivoId?: string) {
-    setErro(null);
-    const r = await executar('definirStatus', { estado: novo, ...(motivoId ? { motivoId } : {}) });
-    if (!r.ok) setErro(r.erro ?? 'Não foi possível mudar o status.');
+  async function mudar(novo: StateAgent, motivoId?: string) {
+    setError(null);
+    const r = await executar('definirStatus', { state: novo, ...(motivoId ? { motivoId } : {}) });
+    if (!r.ok) setError(r.error ?? 'Não foi possível mudar o status.');
     else aoFechar();
   }
 
-  const opcoes: EstadoAtendente[] = ['online', 'pausa', 'invisivel'];
+  const options: StateAgent[] = ['online', 'pausa', 'invisivel'];
 
   return (
     <aside className="dk-status-painel" aria-label="Seu status">
       <div className="dk-status-cabecalho">
         <button
-          ref={primeiro}
+          ref={first}
           type="button"
           className="dk-botao-icone"
           onClick={aoFechar}
@@ -173,9 +173,9 @@ function PainelDeStatus({
       </div>
       <div className="dk-status-conteudo">
         <section className="dk-status-eu">
-          <Avatar nome={eu?.usuario.nome} tamanho={56} />
-          <b>{eu?.usuario.nome}</b>
-          <small>{eu?.usuario.email}</small>
+          <Avatar nome={eu?.user.nome} tamanho={56} />
+          <b>{eu?.user.nome}</b>
+          <small>{eu?.user.email}</small>
         </section>
         {escolhendoPausa ? (
           <div className="dk-status-pausas">
@@ -196,13 +196,13 @@ function PainelDeStatus({
                   <button
                     type="button"
                     role="menuitemradio"
-                    aria-checked={estado === 'pausa' && motivoAtual === m.nome}
+                    aria-checked={state === 'pausa' && motivoAtual === m.nome}
                     className="dk-status-opcao"
                     onClick={() => void mudar('pausa', m.id)}
                   >
                     <span className="dk-status-ponto" data-estado="pausa" />
                     <span className="dk-status-rotulo">{m.nome}</span>
-                    {estado === 'pausa' && motivoAtual === m.nome ? (
+                    {state === 'pausa' && motivoAtual === m.nome ? (
                       <IconeDesk nome="check" />
                     ) : null}
                   </button>
@@ -215,27 +215,27 @@ function PainelDeStatus({
           </div>
         ) : (
           <ul className="dk-status-opcoes" role="menu" aria-label="Opções de status">
-            {opcoes.map((o) => (
+            {options.map((o) => (
               <li key={o} role="presentation">
                 <button
                   type="button"
                   role="menuitemradio"
-                  aria-checked={estado === o}
+                  aria-checked={state === o}
                   className="dk-status-opcao"
                   onClick={() => (o === 'pausa' ? setEscolhendoPausa(true) : void mudar(o))}
                 >
                   <span className="dk-status-ponto" data-estado={o} />
                   <span className="dk-status-rotulo">
                     {ROTULOS_DE_STATUS[o]}
-                    {o === 'pausa' && estado === 'pausa' && motivoAtual ? ` · ${motivoAtual}` : ''}
+                    {o === 'pausa' && state === 'pausa' && motivoAtual ? ` · ${motivoAtual}` : ''}
                   </span>
-                  {estado === o ? <IconeDesk nome="check" /> : null}
+                  {state === o ? <IconeDesk nome="check" /> : null}
                 </button>
               </li>
             ))}
           </ul>
         )}
-        {erro ? <p className="dk-erro">{erro}</p> : null}
+        {error ? <p className="dk-erro">{error}</p> : null}
       </div>
       <button type="button" className="dk-status-sair" onClick={() => void sair()}>
         <span>Desconectar</span>

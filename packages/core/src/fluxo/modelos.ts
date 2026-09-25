@@ -7,15 +7,15 @@
  * `BuilderConfiguration` ficaram de fora.
  */
 
-import type { CondicaoBlip } from './condicao.js';
-import { ErroDeValidacao, validarCondicao } from './condicao.js';
+import type { ConditionBlip } from './condicao.js';
+import { ValidationError, validateCondition } from './condicao.js';
 
 /** `Action`. `settings` é o JSON livre de cada tipo (o `JRaw` do original). */
 export interface Acao {
   id?: string;
   $title?: string;
   order?: number;
-  conditions?: CondicaoBlip[] | null;
+  conditions?: ConditionBlip[] | null;
   /** Segundos, como no original. */
   timeout?: number | null;
   continueOnError?: boolean;
@@ -24,10 +24,10 @@ export interface Acao {
   settings?: unknown;
 }
 
-export const REGRAS_DE_VALIDACAO = ['text', 'number', 'date', 'regex', 'type'] as const;
+export const RULES_OF_VALIDATION = ['text', 'number', 'date', 'regex', 'type'] as const;
 
 /** `InputValidation`. */
-export interface ValidacaoDeEntrada {
+export interface InboundValidation {
   rule: string;
   regex?: string | null;
   type?: string | null;
@@ -35,10 +35,10 @@ export interface ValidacaoDeEntrada {
 }
 
 /** `Input`: o que o estado espera do usuário. */
-export interface Entrada {
+export interface Inbound {
   bypass?: boolean;
-  conditions?: CondicaoBlip[] | null;
-  validation?: ValidacaoDeEntrada | null;
+  conditions?: ConditionBlip[] | null;
+  validation?: InboundValidation | null;
   expiration?: string | null;
   variable?: string | null;
 }
@@ -46,7 +46,7 @@ export interface Entrada {
 /** `Output`: a transição. */
 export interface Saida {
   order?: number;
-  conditions?: CondicaoBlip[] | null;
+  conditions?: ConditionBlip[] | null;
   stateId: string;
 }
 
@@ -54,12 +54,12 @@ export interface Saida {
  * `State`. O que não é do modelo (`name`, `$position`, `$tags`…) fica no próprio objeto,
  * como o `ExtensionData` do original — é dali que `{{state.name}}` lê.
  */
-export interface Estado {
+export interface State {
   id: string;
   root?: boolean;
   end?: boolean;
   inputActions?: Acao[] | null;
-  input?: Entrada | null;
+  input?: Inbound | null;
   outputActions?: Acao[] | null;
   afterStateChangedActions?: Acao[] | null;
   outputs?: Saida[] | null;
@@ -68,7 +68,7 @@ export interface Estado {
 }
 
 /** As chaves do modelo; o resto do estado é `ExtensionData`. */
-export const CHAVES_DO_ESTADO = new Set([
+export const KEYS_OF_STATE = new Set([
   'id',
   'root',
   'end',
@@ -81,48 +81,48 @@ export const CHAVES_DO_ESTADO = new Set([
 ]);
 
 /** `Flow`. */
-export interface FluxoBlip {
+export interface FlowBlip {
   id: string;
   version?: number;
   /** `flow` ou `subflow`. */
   type?: string;
   sessionState?: string;
   inputActions?: Acao[] | null;
-  states: Estado[];
+  states: State[];
   outputActions?: Acao[] | null;
   afterStateChangedActions?: Acao[] | null;
   configuration?: Record<string, string> | null;
 }
 
 const VERSAO_ATUAL_DE_SUBFLUXO = 2;
-const VARIAVEL_DE_ENTRADA = /^([a-zA-Z0-9.]+)$/;
+const VARIABLE_OF_INBOUND = /^([a-zA-Z0-9.]+)$/;
 
-export const ehSubfluxo = (fluxo: FluxoBlip): boolean => fluxo.type?.toLowerCase() === 'subflow';
+export const ehSubfluxo = (flow: FlowBlip): boolean => flow.type?.toLowerCase() === 'subflow';
 
 /** `stateId` no formato `{{variavel}}`: destino calculado em tempo de execução. */
-export const ehVariavelDeContexto = (id: string): boolean =>
+export const contextEhVariable = (id: string): boolean =>
   id.startsWith('{{') && id.endsWith('}}');
 
 /** `Action.Validate()`. */
 export function validarAcao(acao: Acao): void {
-  if (!acao.type) throw new ErroDeValidacao('O tipo da ação é obrigatório.');
+  if (!acao.type) throw new ValidationError('O tipo da ação é obrigatório.');
 }
 
 /** `Input.Validate()`. */
-export function validarEntrada(entrada: Entrada): void {
-  const v = entrada.validation;
+export function validateInbound(inbound: Inbound): void {
+  const v = inbound.validation;
   if (v) {
     if (v.rule?.toLowerCase() === 'regex' && !v.regex?.trim()) {
-      throw new ErroDeValidacao('A expressão regular é obrigatória na regra de validação regex.');
+      throw new ValidationError('A expressão regular é obrigatória na regra de validação regex.');
     }
     if (!v.error?.trim())
-      throw new ErroDeValidacao('A mensagem de erro da validação é obrigatória.');
+      throw new ValidationError('A mensagem de erro da validação é obrigatória.');
     if (v.rule?.toLowerCase() === 'type' && !v.type) {
-      throw new ErroDeValidacao('O tipo de mídia é obrigatório na regra de validação type.');
+      throw new ValidationError('O tipo de mídia é obrigatório na regra de validação type.');
     }
   }
-  if (entrada.variable?.trim() && !VARIAVEL_DE_ENTRADA.test(entrada.variable)) {
-    throw new ErroDeValidacao(
+  if (inbound.variable?.trim() && !VARIABLE_OF_INBOUND.test(inbound.variable)) {
+    throw new ValidationError(
       'O nome da variável de entrada só pode ter letras, números e pontos.',
     );
   }
@@ -130,18 +130,18 @@ export function validarEntrada(entrada: Entrada): void {
 
 /** `Output.Validate()`. */
 export function validarSaida(saida: Saida): void {
-  if (!saida.stateId) throw new ErroDeValidacao('O estado de destino da saída é obrigatório.');
-  for (const c of saida.conditions ?? []) validarCondicao(c);
+  if (!saida.stateId) throw new ValidationError('O estado de destino da saída é obrigatório.');
+  for (const c of saida.conditions ?? []) validateCondition(c);
 }
 
 /** `State.Validate()`. */
-export function validarEstado(estado: Estado): void {
-  if (!estado.id) throw new ErroDeValidacao('O id do estado é obrigatório.');
-  for (const a of estado.inputActions ?? []) validarAcao(a);
-  if (estado.input) validarEntrada(estado.input);
-  for (const a of estado.outputActions ?? []) validarAcao(a);
-  for (const a of estado.afterStateChangedActions ?? []) validarAcao(a);
-  for (const s of estado.outputs ?? []) validarSaida(s);
+export function validateState(state: State): void {
+  if (!state.id) throw new ValidationError('O id do estado é obrigatório.');
+  for (const a of state.inputActions ?? []) validarAcao(a);
+  if (state.input) validateInbound(state.input);
+  for (const a of state.outputActions ?? []) validarAcao(a);
+  for (const a of state.afterStateChangedActions ?? []) validarAcao(a);
+  for (const s of state.outputs ?? []) validarSaida(s);
 }
 
 /**
@@ -149,82 +149,82 @@ export function validarEstado(estado: Estado): void {
  * espera entrada e não tem condição, ids únicos, destino de saída existente (ou
  * `{{variável}}`) e nenhum laço que não passe por uma entrada.
  */
-export function validarFluxo(fluxo: FluxoBlip): void {
-  if (!fluxo.id) throw new ErroDeValidacao('O id do fluxo é obrigatório.');
-  if (!Array.isArray(fluxo.states))
-    throw new ErroDeValidacao('O fluxo precisa de pelo menos um estado.');
-  const subfluxo = ehSubfluxo(fluxo);
-  if (subfluxo && (fluxo.version ?? 1) < VERSAO_ATUAL_DE_SUBFLUXO) {
-    throw new ErroDeValidacao(
+export function validateFlow(flow: FlowBlip): void {
+  if (!flow.id) throw new ValidationError('O id do fluxo é obrigatório.');
+  if (!Array.isArray(flow.states))
+    throw new ValidationError('O fluxo precisa de pelo menos um estado.');
+  const subfluxo = ehSubfluxo(flow);
+  if (subfluxo && (flow.version ?? 1) < VERSAO_ATUAL_DE_SUBFLUXO) {
+    throw new ValidationError(
       `A versão do subfluxo precisa ser maior ou igual a ${VERSAO_ATUAL_DE_SUBFLUXO}.`,
     );
   }
 
-  const raizes = fluxo.states.filter((s) => s.root);
+  const raizes = flow.states.filter((s) => s.root);
   if (raizes.length !== 1)
-    throw new ErroDeValidacao('O fluxo precisa de exatamente um estado raiz.');
+    throw new ValidationError('O fluxo precisa de exatamente um estado raiz.');
   const raiz = raizes[0]!;
   if (!raiz.input || (!subfluxo && raiz.input.bypass)) {
-    throw new ErroDeValidacao('O estado raiz precisa esperar uma entrada.');
+    throw new ValidationError('O estado raiz precisa esperar uma entrada.');
   }
   if (raiz.input.conditions?.length) {
-    throw new ErroDeValidacao('O estado raiz não pode ter condições de entrada.');
+    throw new ValidationError('O estado raiz não pode ter condições de entrada.');
   }
 
-  for (const a of fluxo.inputActions ?? []) validarAcao(a);
+  for (const a of flow.inputActions ?? []) validarAcao(a);
 
-  const porId = new Map(fluxo.states.map((s) => [s.id, s]));
+  const byId = new Map(flow.states.map((s) => [s.id, s]));
 
   // Existe um caminho direto (sem entrada) de volta a `alvo`?
-  const podeSerAlcancado = (alvo: Estado, saida: Saida, vistos: Set<string>): boolean => {
+  const podeSerAlcancado = (alvo: State, saida: Saida, vistos: Set<string>): boolean => {
     if (vistos.has(saida.stateId)) return false;
-    const estadoDaSaida = porId.get(saida.stateId);
-    if (!estadoDaSaida?.outputs?.length) return false;
-    if (estadoDaSaida.input && !estadoDaSaida.input.bypass) return false;
-    if (estadoDaSaida.outputs.some((o) => o.stateId === alvo.id)) return true;
+    const outputState = byId.get(saida.stateId);
+    if (!outputState?.outputs?.length) return false;
+    if (outputState.input && !outputState.input.bypass) return false;
+    if (outputState.outputs.some((o) => o.stateId === alvo.id)) return true;
     vistos.add(saida.stateId);
-    return estadoDaSaida.outputs.some((o) => podeSerAlcancado(alvo, o, vistos));
+    return outputState.outputs.some((o) => podeSerAlcancado(alvo, o, vistos));
   };
 
-  for (const estado of fluxo.states) {
-    validarEstado(estado);
-    if (fluxo.states.filter((s) => s.id === estado.id).length > 1) {
-      throw new ErroDeValidacao(`O id de estado '${estado.id}' se repete no fluxo.`);
+  for (const state of flow.states) {
+    validateState(state);
+    if (flow.states.filter((s) => s.id === state.id).length > 1) {
+      throw new ValidationError(`O id de estado '${state.id}' se repete no fluxo.`);
     }
-    for (const saida of estado.outputs ?? []) {
-      if (!porId.has(saida.stateId) && !ehVariavelDeContexto(saida.stateId)) {
-        throw new ErroDeValidacao(`O estado de destino '${saida.stateId}' da saída não existe.`);
+    for (const saida of state.outputs ?? []) {
+      if (!byId.has(saida.stateId) && !contextEhVariable(saida.stateId)) {
+        throw new ValidationError(`O estado de destino '${saida.stateId}' da saída não existe.`);
       }
       // Igual ao original: a segunda metade testa a entrada da RAIZ, não a do estado.
       // Como a raiz com bypass já foi recusada acima, na prática só estado sem
       // entrada nenhuma é conferido.
-      if (!estado.input || (!subfluxo && raiz.input.bypass)) {
-        if (podeSerAlcancado(estado, saida, new Set())) {
-          throw new ErroDeValidacao(
-            `Há um laço no fluxo começando no estado ${estado.id} que não pede entrada do usuário.`,
+      if (!state.input || (!subfluxo && raiz.input.bypass)) {
+        if (podeSerAlcancado(state, saida, new Set())) {
+          throw new ValidationError(
+            `Há um laço no fluxo começando no estado ${state.id} que não pede entrada do usuário.`,
           );
         }
       }
     }
   }
 
-  for (const a of fluxo.outputActions ?? []) validarAcao(a);
-  for (const a of fluxo.afterStateChangedActions ?? []) validarAcao(a);
+  for (const a of flow.outputActions ?? []) validarAcao(a);
+  for (const a of flow.afterStateChangedActions ?? []) validarAcao(a);
 }
 
 /** Um erro de `validarFluxo` preso ao estado que o causa; `null` quando é do fluxo inteiro. */
-export interface ErroPorEstado {
-  estadoId: string | null;
-  mensagem: string;
+export interface ByStateError {
+  stateId: string | null;
+  message: string;
 }
 
-const mensagemDeValidacao = (conferir: () => void): string | null => {
+const validationMessage = (conferir: () => void): string | null => {
   try {
     conferir();
     return null;
-  } catch (erro) {
-    if (erro instanceof ErroDeValidacao) return erro.message;
-    throw erro;
+  } catch (error) {
+    if (error instanceof ValidationError) return error.message;
+    throw error;
   }
 };
 
@@ -239,29 +239,29 @@ const mensagemDeValidacao = (conferir: () => void): string | null => {
  * repetida, id repetido, laço sem entrada. As frases são as MESMAS de `validarFluxo`:
  * lista vazia aqui é o mesmo que `validarFluxo` passar.
  */
-export function errosDoFluxo(fluxo: FluxoBlip): ErroPorEstado[] {
-  const erros: ErroPorEstado[] = [];
-  const anotar = (estadoId: string | null, mensagem: string): void => {
-    if (!erros.some((e) => e.estadoId === estadoId && e.mensagem === mensagem)) {
-      erros.push({ estadoId, mensagem });
+export function flowErrors(flow: FlowBlip): ByStateError[] {
+  const errors: ByStateError[] = [];
+  const anotar = (stateId: string | null, message: string): void => {
+    if (!errors.some((e) => e.stateId === stateId && e.message === message)) {
+      errors.push({ stateId, message });
     }
   };
 
-  const estados = Array.isArray(fluxo.states) ? fluxo.states : [];
+  const estados = Array.isArray(flow.states) ? flow.states : [];
   const ids = new Set(estados.map((s) => s.id));
-  for (const estado of estados) {
-    const proprio = mensagemDeValidacao(() => validarEstado(estado));
-    if (proprio) anotar(estado.id, proprio);
-    for (const saida of estado.outputs ?? []) {
-      if (saida.stateId && !ids.has(saida.stateId) && !ehVariavelDeContexto(saida.stateId)) {
-        anotar(estado.id, `O estado de destino '${saida.stateId}' da saída não existe.`);
+  for (const state of estados) {
+    const proprio = validationMessage(() => validateState(state));
+    if (proprio) anotar(state.id, proprio);
+    for (const saida of state.outputs ?? []) {
+      if (saida.stateId && !ids.has(saida.stateId) && !contextEhVariable(saida.stateId)) {
+        anotar(state.id, `O estado de destino '${saida.stateId}' da saída não existe.`);
       }
     }
   }
 
-  const geral = mensagemDeValidacao(() => validarFluxo(fluxo));
+  const geral = validationMessage(() => validateFlow(flow));
   // O que `validarFluxo` apontou e já está na lista por estado não entra duas vezes.
-  if (!geral || erros.some((e) => e.mensagem === geral)) return erros;
+  if (!geral || errors.some((e) => e.message === geral)) return errors;
 
   const raizes = estados.filter((s) => s.root);
   const laco = /começando no estado (.+) que não pede entrada/.exec(geral)?.[1];
@@ -269,5 +269,5 @@ export function errosDoFluxo(fluxo: FluxoBlip): ErroPorEstado[] {
     estados.find((s) => s.id === laco || geral.includes(`'${s.id}'`)) ??
     (geral.includes('raiz') && raizes.length === 1 ? raizes[0] : undefined);
   anotar(citado?.id ?? null, geral);
-  return erros;
+  return errors;
 }

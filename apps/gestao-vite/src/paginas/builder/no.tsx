@@ -1,8 +1,8 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
 import { Etiqueta } from '@pipe/ui';
-import type { Bloco } from './modelo';
-import { ehAtendimento, posicaoDe } from './modelo';
-import { etiquetasDoBloco } from './etiquetas-do-bloco';
+import type { Block } from './modelo';
+import { ehAttendance, positionOf } from './modelo';
+import { blockTags } from './etiquetas-do-bloco';
 
 /**
  * O cartão de um bloco no canvas — o `builder-node.diagram-node` deles:
@@ -19,8 +19,8 @@ import { etiquetasDoBloco } from './etiquetas-do-bloco';
  */
 
 export interface PropsDoNo {
-  bloco: Bloco;
-  erros: string[];
+  block: Block;
+  errors: string[];
   selecionado: boolean;
   editando: boolean;
   /** Alvo possível da ligação que está sendo arrastada. */
@@ -32,11 +32,11 @@ export interface PropsDoNo {
 }
 
 /** As etiquetas automáticas do editor: o tipo de cada ação, e "UserInput" se espera resposta. */
-export type { EtiquetaDoBloco } from './etiquetas-do-bloco';
+export type { BlockTag } from './etiquetas-do-bloco';
 
 export function No({
-  bloco,
-  erros,
+  block,
+  errors,
   selecionado,
   editando,
   alvo,
@@ -45,31 +45,31 @@ export function No({
   onPointerDownNaSaida,
   onContextMenu,
 }: PropsDoNo) {
-  const posicao = posicaoDe(bloco);
+  const position = positionOf(block);
   const classes = ['bl-no'];
-  if (bloco.root) classes.push('bl-no--inicio');
-  if (ehAtendimento(bloco.id)) classes.push('bl-no--atendimento');
-  if (erros.length > 0) classes.push('bl-no--erro');
+  if (block.root) classes.push('bl-no--inicio');
+  if (ehAttendance(block.id)) classes.push('bl-no--atendimento');
+  if (errors.length > 0) classes.push('bl-no--erro');
   if (selecionado) classes.push('bl-no--selecionado');
   if (editando) classes.push('bl-no--editando');
   if (alvo) classes.push('bl-no--alvo');
   if (!corresponde) classes.push('bl-no--fora-da-busca');
-  const etiquetas = etiquetasDoBloco(bloco);
+  const etiquetas = blockTags(block);
   return (
     <div
       className={classes.join(' ')}
-      style={{ top: posicao.top, left: posicao.left }}
-      data-bloco={bloco.id}
-      data-test={`builder-block-${bloco.id}`}
-      title={erros.join('\n') || undefined}
+      style={{ top: position.top, left: position.left }}
+      data-bloco={block.id}
+      data-test={`builder-block-${block.id}`}
+      title={errors.join('\n') || undefined}
       onPointerDown={onPointerDown}
       onContextMenu={onContextMenu}
     >
       <div className="bl-no-corpo">
-        <span className="bl-no-titulo">{bloco.$title || bloco.id}</span>
-        {erros.length > 0 ? (
+        <span className="bl-no-titulo">{block.$title || block.id}</span>
+        {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda className="bl-no-erros">
-            {erros.length}
+            {errors.length}
           </Etiqueta>
         ) : null}
       </div>

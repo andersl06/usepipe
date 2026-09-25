@@ -4,23 +4,23 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
   atorAtual,
-  definirAtivoDoMembro,
-  cancelarConvite,
+  memberDefinirActive,
+  cancelarInvitation,
   convidar,
-  criarCampoPersonalizado,
-  criarChave,
-  criarPapel,
-  criarWebhook,
+  createFieldCustom,
+  createKey,
+  createRole,
+  createWebhook,
   definirAtivoDoWebhook,
-  definirPapel,
+  definirRole,
   excluirCampoPersonalizado,
-  excluirPapel,
+  excluirRole,
   excluirWebhook,
   renomearCampoPersonalizado,
-  revogarChave,
+  revogarKey,
   salvarEspaco,
   salvarPerfil,
-  salvarPermissoesDoPapel,
+  roleSalvarPermissions,
 } from '../../lib/configuracoes-dados';
 import { ehUuid, sugerirCodigo, type Resultado } from '../../lib/configuracoes-comum';
 
@@ -43,23 +43,23 @@ import { ehUuid, sugerirCodigo, type Resultado } from '../../lib/configuracoes-c
  * não define valor de escrita.
  */
 
-type Acao = (anterior: Resultado | null, dados: FormData) => Promise<Resultado>;
+type Acao = (anterior: Resultado | null, data: FormData) => Promise<Resultado>;
 
-function texto(dados: FormData, campo: string): string {
-  const valor = dados.get(campo);
-  return typeof valor === 'string' ? valor : '';
+function texto(data: FormData, campo: string): string {
+  const value = data.get(campo);
+  return typeof value === 'string' ? value : '';
 }
 
-function lista(dados: FormData, campo: string): string[] {
-  return dados.getAll(campo).filter((v): v is string => typeof v === 'string');
+function lista(data: FormData, campo: string): string[] {
+  return data.getAll(campo).filter((v): v is string => typeof v === 'string');
 }
 
-function id(dados: FormData, campo: string): string | null {
-  const valor = texto(dados, campo);
-  return ehUuid(valor) ? valor : null;
+function id(data: FormData, campo: string): string | null {
+  const value = texto(data, campo);
+  return ehUuid(value) ? value : null;
 }
 
-const DESCONHECIDO: Resultado = { ok: false, erro: 'Não reconheço este registro.' };
+const DESCONHECIDO: Resultado = { ok: false, error: 'Não reconheço este registro.' };
 
 function recarregar(...rotas: string[]) {
   for (const rota of rotas) revalidatePath(rota);
@@ -67,10 +67,10 @@ function recarregar(...rotas: string[]) {
 
 /* ---------------------------------------------------------------- perfil */
 
-export const acaoSalvarPerfil: Acao = async (_anterior, dados) => {
+export const acaoSalvarPerfil: Acao = async (_anterior, data) => {
   const resultado = await salvarPerfil(await atorAtual(), {
-    nome: texto(dados, 'nome'),
-    avatarUrl: texto(dados, 'avatarUrl'),
+    nome: texto(data, 'nome'),
+    avatarUrl: texto(data, 'avatarUrl'),
   });
   if (resultado.ok) recarregar('/configuracoes/perfil');
   return resultado;
@@ -78,11 +78,11 @@ export const acaoSalvarPerfil: Acao = async (_anterior, dados) => {
 
 /* ------------------------------------------------------ espaço de trabalho */
 
-export const acaoSalvarEspaco: Acao = async (_anterior, dados) => {
+export const acaoSalvarEspaco: Acao = async (_anterior, data) => {
   const resultado = await salvarEspaco(await atorAtual(), {
-    nome: texto(dados, 'nome'),
-    logoUrl: texto(dados, 'logoUrl'),
-    fuso: texto(dados, 'fuso'),
+    nome: texto(data, 'nome'),
+    logoUrl: texto(data, 'logoUrl'),
+    fuso: texto(data, 'fuso'),
   });
   if (resultado.ok) recarregar('/configuracoes/espaco');
   return resultado;
@@ -90,42 +90,42 @@ export const acaoSalvarEspaco: Acao = async (_anterior, dados) => {
 
 /* --------------------------------------------------------------- membros */
 
-export const acaoConvidar: Acao = async (_anterior, dados) => {
-  const papelId = id(dados, 'papelId');
-  if (!papelId) return { ok: false, erro: 'Escolha o papel de quem está sendo convidado.' };
+export const acaoConvidar: Acao = async (_anterior, data) => {
+  const roleId = id(data, 'papelId');
+  if (!roleId) return { ok: false, error: 'Escolha o papel de quem está sendo convidado.' };
 
-  const resultado = await convidar(await atorAtual(), { email: texto(dados, 'email'), papelId });
+  const resultado = await convidar(await atorAtual(), { email: texto(data, 'email'), roleId });
   if (resultado.ok) recarregar('/configuracoes/membros');
   return resultado;
 };
 
-export const acaoCancelarConvite: Acao = async (_anterior, dados) => {
-  const conviteId = id(dados, 'id');
-  if (!conviteId) return DESCONHECIDO;
+export const actionCancelarInvitation: Acao = async (_anterior, data) => {
+  const invitationId = id(data, 'id');
+  if (!invitationId) return DESCONHECIDO;
 
-  const resultado = await cancelarConvite(await atorAtual(), conviteId);
+  const resultado = await cancelarInvitation(await atorAtual(), invitationId);
   if (resultado.ok) recarregar('/configuracoes/membros');
   return resultado;
 };
 
-export const acaoDefinirPapel: Acao = async (_anterior, dados) => {
-  const usuarioId = id(dados, 'usuarioId');
-  const papelId = id(dados, 'papelId');
-  if (!usuarioId || !papelId) return DESCONHECIDO;
+export const actionDefinirRole: Acao = async (_anterior, data) => {
+  const userId = id(data, 'usuarioId');
+  const roleId = id(data, 'papelId');
+  if (!userId || !roleId) return DESCONHECIDO;
 
-  const resultado = await definirPapel(await atorAtual(), usuarioId, papelId);
+  const resultado = await definirRole(await atorAtual(), userId, roleId);
   if (resultado.ok) recarregar('/configuracoes/membros', '/configuracoes/papeis');
   return resultado;
 };
 
-export const acaoAlternarMembro: Acao = async (_anterior, dados) => {
-  const usuarioId = id(dados, 'usuarioId');
-  if (!usuarioId) return DESCONHECIDO;
+export const actionAlternarMember: Acao = async (_anterior, data) => {
+  const userId = id(data, 'usuarioId');
+  if (!userId) return DESCONHECIDO;
 
-  const resultado = await definirAtivoDoMembro(
+  const resultado = await memberDefinirActive(
     await atorAtual(),
-    usuarioId,
-    texto(dados, 'ativo') === 'sim',
+    userId,
+    texto(data, 'ativo') === 'sim',
   );
   if (resultado.ok) recarregar('/configuracoes/membros');
   return resultado;
@@ -133,33 +133,33 @@ export const acaoAlternarMembro: Acao = async (_anterior, dados) => {
 
 /* ------------------------------------------------------ papéis e permissões */
 
-export const acaoCriarPapel: Acao = async (_anterior, dados) => {
-  const resultado = await criarPapel(await atorAtual(), {
-    nome: texto(dados, 'nome'),
-    descricao: texto(dados, 'descricao'),
+export const actionCreateRole: Acao = async (_anterior, data) => {
+  const resultado = await createRole(await atorAtual(), {
+    nome: texto(data, 'nome'),
+    description: texto(data, 'descricao'),
   });
   if (resultado.ok) recarregar('/configuracoes/papeis');
   return resultado;
 };
 
-export const acaoSalvarPermissoes: Acao = async (_anterior, dados) => {
-  const papelId = id(dados, 'papelId');
-  if (!papelId) return DESCONHECIDO;
+export const actionSalvarPermissions: Acao = async (_anterior, data) => {
+  const roleId = id(data, 'papelId');
+  if (!roleId) return DESCONHECIDO;
 
-  const resultado = await salvarPermissoesDoPapel(
+  const resultado = await roleSalvarPermissions(
     await atorAtual(),
-    papelId,
-    lista(dados, 'permissao'),
+    roleId,
+    lista(data, 'permissao'),
   );
-  if (resultado.ok) recarregar(`/configuracoes/papeis/${papelId}`, '/configuracoes/papeis');
+  if (resultado.ok) recarregar(`/configuracoes/papeis/${roleId}`, '/configuracoes/papeis');
   return resultado;
 };
 
-export const acaoExcluirPapel: Acao = async (_anterior, dados) => {
-  const papelId = id(dados, 'papelId');
-  if (!papelId) return DESCONHECIDO;
+export const actionExcluirRole: Acao = async (_anterior, data) => {
+  const roleId = id(data, 'papelId');
+  if (!roleId) return DESCONHECIDO;
 
-  const resultado = await excluirPapel(await atorAtual(), papelId);
+  const resultado = await excluirRole(await atorAtual(), roleId);
   if (!resultado.ok) return resultado;
 
   // A tela de onde o clique veio deixou de existir. Ficar nela mostraria um
@@ -170,36 +170,36 @@ export const acaoExcluirPapel: Acao = async (_anterior, dados) => {
 
 /* --------------------------------------------------- campos personalizados */
 
-export const acaoCriarCampo: Acao = async (_anterior, dados) => {
-  const rotulo = texto(dados, 'rotulo');
+export const actionCreateField: Acao = async (_anterior, data) => {
+  const rotulo = texto(data, 'rotulo');
   // Código em branco vira o rótulo em forma de chave: ninguém precisa aprender a
   // regra do `jsonb` para cadastrar um campo, e quem quiser mandar continua podendo.
-  const codigo = texto(dados, 'codigo').trim() || sugerirCodigo(rotulo);
+  const codigo = texto(data, 'codigo').trim() || sugerirCodigo(rotulo);
 
-  const resultado = await criarCampoPersonalizado(await atorAtual(), {
+  const resultado = await createFieldCustom(await atorAtual(), {
     codigo,
     rotulo,
-    tipo: texto(dados, 'tipo'),
-    descricao: texto(dados, 'descricao'),
+    tipo: texto(data, 'tipo'),
+    description: texto(data, 'descricao'),
   });
   if (resultado.ok) recarregar('/configuracoes/campos');
   return resultado;
 };
 
-export const acaoRenomearCampo: Acao = async (_anterior, dados) => {
-  const campoId = id(dados, 'id');
+export const acaoRenomearCampo: Acao = async (_anterior, data) => {
+  const campoId = id(data, 'id');
   if (!campoId) return DESCONHECIDO;
 
   const resultado = await renomearCampoPersonalizado(await atorAtual(), campoId, {
-    rotulo: texto(dados, 'rotulo'),
-    descricao: texto(dados, 'descricao'),
+    rotulo: texto(data, 'rotulo'),
+    description: texto(data, 'descricao'),
   });
   if (resultado.ok) recarregar('/configuracoes/campos');
   return resultado;
 };
 
-export const acaoExcluirCampo: Acao = async (_anterior, dados) => {
-  const campoId = id(dados, 'id');
+export const acaoExcluirCampo: Acao = async (_anterior, data) => {
+  const campoId = id(data, 'id');
   if (!campoId) return DESCONHECIDO;
 
   const resultado = await excluirCampoPersonalizado(await atorAtual(), campoId);
@@ -209,48 +209,48 @@ export const acaoExcluirCampo: Acao = async (_anterior, dados) => {
 
 /* ------------------------------------------------------- chaves e webhooks */
 
-export const acaoCriarChave: Acao = async (_anterior, dados) => {
-  const resultado = await criarChave(await atorAtual(), {
-    nome: texto(dados, 'nome'),
-    escopos: lista(dados, 'escopo'),
+export const actionCreateKey: Acao = async (_anterior, data) => {
+  const resultado = await createKey(await atorAtual(), {
+    nome: texto(data, 'nome'),
+    scopes: lista(data, 'escopo'),
   });
   if (resultado.ok) recarregar('/configuracoes/api');
   return resultado;
 };
 
-export const acaoRevogarChave: Acao = async (_anterior, dados) => {
-  const chaveId = id(dados, 'id');
-  if (!chaveId) return DESCONHECIDO;
+export const actionRevogarKey: Acao = async (_anterior, data) => {
+  const keyId = id(data, 'id');
+  if (!keyId) return DESCONHECIDO;
 
-  const resultado = await revogarChave(await atorAtual(), chaveId);
+  const resultado = await revogarKey(await atorAtual(), keyId);
   if (resultado.ok) recarregar('/configuracoes/api');
   return resultado;
 };
 
-export const acaoCriarWebhook: Acao = async (_anterior, dados) => {
-  const resultado = await criarWebhook(await atorAtual(), {
-    url: texto(dados, 'url'),
-    eventos: lista(dados, 'evento'),
+export const actionCreateWebhook: Acao = async (_anterior, data) => {
+  const resultado = await createWebhook(await atorAtual(), {
+    url: texto(data, 'url'),
+    eventos: lista(data, 'evento'),
   });
   if (resultado.ok) recarregar('/configuracoes/api');
   return resultado;
 };
 
-export const acaoAlternarWebhook: Acao = async (_anterior, dados) => {
-  const webhookId = id(dados, 'id');
+export const acaoAlternarWebhook: Acao = async (_anterior, data) => {
+  const webhookId = id(data, 'id');
   if (!webhookId) return DESCONHECIDO;
 
   const resultado = await definirAtivoDoWebhook(
     await atorAtual(),
     webhookId,
-    texto(dados, 'ativo') === 'sim',
+    texto(data, 'ativo') === 'sim',
   );
   if (resultado.ok) recarregar('/configuracoes/api');
   return resultado;
 };
 
-export const acaoExcluirWebhook: Acao = async (_anterior, dados) => {
-  const webhookId = id(dados, 'id');
+export const acaoExcluirWebhook: Acao = async (_anterior, data) => {
+  const webhookId = id(data, 'id');
   if (!webhookId) return DESCONHECIDO;
 
   const resultado = await excluirWebhook(await atorAtual(), webhookId);

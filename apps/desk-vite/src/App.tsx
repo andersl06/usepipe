@@ -1,16 +1,16 @@
 import { Route, Routes } from 'react-router-dom';
-import { AvisoEncerramento } from '@pipe/ui';
-import { ExigirSessao } from './componentes/exigir-sessao';
-import { Casca } from './componentes/casca';
-import { useRegistrarNavegacao } from './lib/navegacao';
-import { PaginaEntrar } from './paginas/entrar';
-import { PaginaConvite } from './paginas/convite';
-import { PaginaAtendimentos } from './paginas/atendimentos/page';
-import { PaginaContatos } from './paginas/contatos/page';
-import { PaginaMetricas } from './paginas/analytics/page';
-import { PaginaMensagemAtiva } from './paginas/mensagem-ativa/page';
-import { PaginaAcoesEmMassa } from './paginas/acoes-em-massa/page';
-import { PaginaPreferencias } from './paginas/preferencias/page';
+import { ClosureNotice } from '@pipe/ui';
+import { ExigirSession } from './componentes/exigir-sessao';
+import { Shell } from './componentes/casca';
+import { useRegistrarNavigation } from './lib/navegacao';
+import { PageLogin } from './paginas/entrar';
+import { PageInvitation } from './paginas/convite';
+import { PageAttendances } from './paginas/atendimentos/page';
+import { PageContacts } from './paginas/contatos/page';
+import { PageMetrics } from './paginas/analytics/page';
+import { PageActiveMessage } from './paginas/mensagem-ativa/page';
+import { PageBulkActions } from './paginas/acoes-em-massa/page';
+import { PagePreferences } from './paginas/preferencias/page';
 import { NaoEncontrado } from './paginas/nao-encontrado';
 
 /**
@@ -23,25 +23,25 @@ import { NaoEncontrado } from './paginas/nao-encontrado';
  * `ExigirSessao`.
  */
 export function App() {
-  useRegistrarNavegacao();
+  useRegistrarNavigation();
   return (
     <>
-    <AvisoEncerramento />
+    <ClosureNotice />
     <Routes>
-      <Route path="/entrar" element={<PaginaEntrar />} />
-      <Route path="/convite/:token" element={<PaginaConvite />} />
+      <Route path="/entrar" element={<PageLogin />} />
+      <Route path="/convite/:token" element={<PageInvitation />} />
 
-      <Route element={<ExigirSessao />}>
-        <Route element={<Casca />}>
-          <Route path="/" element={<PaginaAtendimentos />} />
-          <Route path="/chat" element={<PaginaAtendimentos />} />
-          <Route path="/chat/:id" element={<PaginaAtendimentos />} />
-          <Route path="/contacts" element={<PaginaContatos />} />
-          <Route path="/contacts/:id" element={<PaginaContatos />} />
-          <Route path="/analytics" element={<PaginaMetricas />} />
-          <Route path="/activeMessage/send" element={<PaginaMensagemAtiva />} />
-          <Route path="/bulk-ticket" element={<PaginaAcoesEmMassa />} />
-          <Route path="/preferences" element={<PaginaPreferencias />} />
+      <Route element={<ExigirSession />}>
+        <Route element={<Shell />}>
+          <Route path="/" element={<PageAttendances />} />
+          <Route path="/chat" element={<PageAttendances />} />
+          <Route path="/chat/:id" element={<PageAttendances />} />
+          <Route path="/contacts" element={<PageContacts />} />
+          <Route path="/contacts/:id" element={<PageContacts />} />
+          <Route path="/analytics" element={<PageMetrics />} />
+          <Route path="/activeMessage/send" element={<PageActiveMessage />} />
+          <Route path="/bulk-ticket" element={<PageBulkActions />} />
+          <Route path="/preferences" element={<PagePreferences />} />
           <Route path="*" element={<NaoEncontrado />} />
         </Route>
       </Route>

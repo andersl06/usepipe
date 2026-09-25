@@ -9,14 +9,14 @@ process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 31).toString('base64')}`;
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { conferirFluxoDaChave, fluxoDaRota } = await import('../src/autenticacao.js');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { checkFlowOfKey, flowOfRoute } = await import('../src/autenticacao.js');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 import type { Request } from 'express';
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * A chave de acesso criada na tela "Chaves de acesso" do fluxo
@@ -37,21 +37,21 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 
 let a: Cenario;
 let api: ApiNoAr;
-let sessao: string;
-let fluxoA: string;
-let fluxoB: string;
+let session: string;
+let flowA: string;
+let flowB: string;
 /** Chave criada na tela do fluxo A: `conversas:*`, `mensagens:*`, `contatos:ler`. */
-let chaveDoFluxoA: string;
+let keyOfFlowA: string;
 
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  for (const codigo of permissoes) {
+  const userId = users[0]!.id;
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
       values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
@@ -61,30 +61,30 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  const papelId = papeis[0]!.id;
-  for (const codigo of permissoes) {
+  const roleId = papeis[0]!.id;
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, ${codigo})
+      values (${cenario.tenantId}, ${roleId}, ${codigo})
     `);
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papelId})
+    values (${cenario.tenantId}, ${userId}, ${roleId})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
 
-async function criarFluxo(cenario: Cenario, nome: string): Promise<string> {
+async function createFlow(cenario: Cenario, nome: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome) values (${cenario.tenantId}, ${nome}) returning id
   `);
@@ -95,7 +95,7 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
-function comChave(token: string): Record<string, string> {
+function withKey(token: string): Record<string, string> {
   return { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
 }
 
@@ -119,30 +119,30 @@ async function chamar(
 }
 
 /** O erro estruturado de `erros.ts`: `{ erro: { codigo, mensagem, detalhe? } }`. */
-function erroDe(resposta: Resposta): { codigo: string; mensagem: string; detalhe?: Record<string, unknown> } {
+function errorOf(resposta: Resposta): { codigo: string; message: string; detalhe?: Record<string, unknown> } {
   return resposta.corpo['erro'] as { codigo: string; mensagem: string; detalhe?: Record<string, unknown> };
 }
 
 /** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */
-async function chaveDaTela(fluxoId: string, nome: string): Promise<{ id: string; token: string }> {
-  const criada = await chamar('POST', `/v1/gestao/fluxos/${fluxoId}/chaves`, comCookie(sessao), { nome });
+async function keyOfScreen(flowId: string, nome: string): Promise<{ id: string; token: string }> {
+  const criada = await chamar('POST', `/v1/gestao/fluxos/${flowId}/chaves`, comCookie(session), { nome });
   expect(criada.status).toBe(201);
   return { id: criada.corpo['id'] as string, token: criada.corpo['token'] as string };
 }
 
 /** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */
-function requisicaoCasada(padrao: string, params: Record<string, string>): Request {
+function requestMatched(padrao: string, params: Record<string, string>): Request {
   return { params, route: { path: padrao } } as unknown as Request;
 }
 
 beforeAll(async () => {
   a = await montarCenario(`cf-${randomUUID().slice(0, 8)}`);
   const gestor = await pessoaCom(a, ['chave_api.gerenciar']);
-  api = await subirApi(0);
-  sessao = await abrirSessao(a, gestor);
-  fluxoA = await criarFluxo(a, `Fluxo A ${randomUUID().slice(0, 6)}`);
-  fluxoB = await criarFluxo(a, `Fluxo B ${randomUUID().slice(0, 6)}`);
-  chaveDoFluxoA = (await chaveDaTela(fluxoA, 'Integração do fluxo A')).token;
+  api = await upApi(0);
+  session = await openSession(a, gestor);
+  flowA = await createFlow(a, `Fluxo A ${randomUUID().slice(0, 6)}`);
+  flowB = await createFlow(a, `Fluxo B ${randomUUID().slice(0, 6)}`);
+  keyOfFlowA = (await keyOfScreen(flowA, 'Integração do fluxo A')).token;
 }, 180_000);
 
 afterAll(async () => {
@@ -152,117 +152,117 @@ afterAll(async () => {
 
 describe('a cerca do guarda (conferirFluxoDaChave + fluxoDaRota)', () => {
   it('chave do fluxo A age no fluxo A e é 403 no fluxo B, com o código e a mensagem certos', () => {
-    const chave = { fluxoId: fluxoA };
-    expect(() => conferirFluxoDaChave(chave, fluxoA)).not.toThrow();
+    const key = { fluxoId: flowA };
+    expect(() => checkFlowOfKey(key, flowA)).not.toThrow();
     // Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.
-    expect(() => conferirFluxoDaChave(chave, fluxoA.toUpperCase())).not.toThrow();
+    expect(() => checkFlowOfKey(key, flowA.toUpperCase())).not.toThrow();
 
-    let erro: unknown;
+    let error: unknown;
     try {
-      conferirFluxoDaChave(chave, fluxoB);
+      checkFlowOfKey(key, flowB);
     } catch (e) {
-      erro = e;
+      error = e;
     }
-    expect(erro).toMatchObject({
+    expect(error).toMatchObject({
       status: 403,
       codigo: 'chave_de_outro_fluxo',
-      detalhe: { fluxoId: fluxoA },
+      detalhe: { fluxoId: flowA },
     });
-    expect((erro as Error).message).toBe('Esta chave pertence a outro fluxo e não pode agir neste.');
+    expect((error as Error).message).toBe('Esta chave pertence a outro fluxo e não pode agir neste.');
   });
 
   it('chave de fluxo em rota que não é por fluxo é 403 `chave_de_fluxo`; chave de conta passa em qualquer rota', () => {
     let erro: unknown;
     try {
-      conferirFluxoDaChave({ fluxoId: fluxoA }, null);
+      checkFlowOfKey({ flowId: flowA }, null);
     } catch (e) {
       erro = e;
     }
     expect(erro).toMatchObject({ status: 403, codigo: 'chave_de_fluxo' });
     expect((erro as Error).message).toContain('/v1/gestao/fluxos/:id/');
 
-    expect(() => conferirFluxoDaChave({ fluxoId: null }, null)).not.toThrow();
-    expect(() => conferirFluxoDaChave({ fluxoId: null }, fluxoA)).not.toThrow();
-    expect(() => conferirFluxoDaChave({ fluxoId: null }, fluxoB)).not.toThrow();
+    expect(() => checkFlowOfKey({ flowId: null }, null)).not.toThrow();
+    expect(() => checkFlowOfKey({ flowId: null }, flowA)).not.toThrow();
+    expect(() => checkFlowOfKey({ flowId: null }, flowB)).not.toThrow();
   });
 
   it('fluxoDaRota lê o PADRÃO da rota: `:id` depois de /fluxos/, `:fluxoId` em qualquer lugar, e nada fora disso', () => {
-    expect(fluxoDaRota(requisicaoCasada('/v1/gestao/fluxos/:id/chaves', { id: fluxoA }))).toBe(fluxoA);
-    expect(fluxoDaRota(requisicaoCasada('/v1/gestao/fluxos/:id', { id: fluxoB }))).toBe(fluxoB);
+    expect(flowOfRoute(requestMatched('/v1/gestao/fluxos/:id/chaves', { id: flowA }))).toBe(flowA);
+    expect(flowOfRoute(requestMatched('/v1/gestao/fluxos/:id', { id: flowB }))).toBe(flowB);
     expect(
-      fluxoDaRota(
-        requisicaoCasada('/v1/gestao/fluxos/:fluxoId/links-rastreados/:linkId', {
-          fluxoId: fluxoA,
+      flowOfRoute(
+        requestMatched('/v1/gestao/fluxos/:fluxoId/links-rastreados/:linkId', {
+          fluxoId: flowA,
           linkId: randomUUID(),
         }),
       ),
-    ).toBe(fluxoA);
+    ).toBe(flowA);
     // `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.
-    expect(fluxoDaRota(requisicaoCasada('/v1/conversas/:id/mensagens', { id: fluxoA }))).toBeNull();
-    expect(fluxoDaRota(requisicaoCasada('/v1/conversas', {}))).toBeNull();
+    expect(flowOfRoute(requestMatched('/v1/conversas/:id/mensagens', { id: flowA }))).toBeNull();
+    expect(flowOfRoute(requestMatched('/v1/conversas', {}))).toBeNull();
   });
 });
 
 describe('a chave do fluxo na API (Bearer)', () => {
   it('é recusada em rota que não é por fluxo, com 403 e mensagem clara — a chave de conta continua passando', async () => {
-    const recusada = await chamar('GET', '/v1/conversas', comChave(chaveDoFluxoA));
+    const recusada = await chamar('GET', '/v1/conversas', withKey(keyOfFlowA));
     expect(recusada.status).toBe(403);
-    expect(erroDe(recusada).codigo).toBe('chave_de_fluxo');
-    expect(erroDe(recusada).mensagem).toContain('só vale nas rotas desse fluxo');
-    expect(erroDe(recusada).detalhe).toEqual({ fluxoId: fluxoA });
+    expect(errorOf(recusada).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(recusada).message).toContain('só vale nas rotas desse fluxo');
+    expect(errorOf(recusada).detalhe).toEqual({ fluxoId: flowA });
 
-    const escrita = await chamar('POST', `/v1/conversas/${randomUUID()}/mensagens`, comChave(chaveDoFluxoA), {
+    const escrita = await chamar('POST', `/v1/conversas/${randomUUID()}/mensagens`, withKey(keyOfFlowA), {
       texto: 'oi',
     });
     expect(escrita.status).toBe(403);
-    expect(erroDe(escrita).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(escrita).codigo).toBe('chave_de_fluxo');
 
     // Chave de CONTA: o tenant inteiro, como hoje.
-    const conta = await chamar('GET', '/v1/conversas', comChave(a.token));
-    expect(conta.status).toBe(200);
-    expect(conta.corpo).toHaveProperty('data');
+    const account = await chamar('GET', '/v1/conversas', withKey(a.token));
+    expect(account.status).toBe(200);
+    expect(account.corpo).toHaveProperty('data');
   });
 
   it('o escopo continua valendo, e é conferido antes da cerca de fluxo', async () => {
     // A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.
-    const semEscopo = await chamar('GET', '/v1/filas', comChave(chaveDoFluxoA));
-    expect(semEscopo.status).toBe(403);
-    expect(erroDe(semEscopo).codigo).toBe('sem_escopo');
-    expect(erroDe(semEscopo).detalhe).toEqual({ escopo: 'filas:ler' });
+    const withoutScope = await chamar('GET', '/v1/filas', withKey(keyOfFlowA));
+    expect(withoutScope.status).toBe(403);
+    expect(errorOf(withoutScope).codigo).toBe('sem_escopo');
+    expect(errorOf(withoutScope).detalhe).toEqual({ escopo: 'filas:ler' });
 
     // Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.
-    const filas = await chamar('GET', '/v1/filas', comChave(a.tokenSemEscopo));
-    expect(filas.status).toBe(200);
-    const conversas = await chamar('GET', '/v1/conversas', comChave(a.tokenSemEscopo));
-    expect(conversas.status).toBe(403);
-    expect(erroDe(conversas).codigo).toBe('sem_escopo');
+    const queues = await chamar('GET', '/v1/filas', withKey(a.tokenWithoutScope));
+    expect(queues.status).toBe(200);
+    const conversations = await chamar('GET', '/v1/conversas', withKey(a.tokenWithoutScope));
+    expect(conversations.status).toBe(403);
+    expect(errorOf(conversations).codigo).toBe('sem_escopo');
   });
 
   it('revogada na tela é 401 em qualquer rota, antes de escopo e de cerca', async () => {
-    const { id, token } = await chaveDaTela(fluxoB, 'A revogar');
-    const viva = await chamar('GET', '/v1/conversas', comChave(token));
+    const { id, token } = await keyOfScreen(flowB, 'A revogar');
+    const viva = await chamar('GET', '/v1/conversas', withKey(token));
     expect(viva.status).toBe(403); // válida, só cercada
-    expect(erroDe(viva).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(viva).codigo).toBe('chave_de_fluxo');
 
-    const revogada = await chamar('DELETE', `/v1/gestao/fluxos/${fluxoB}/chaves/${id}`, comCookie(sessao));
+    const revogada = await chamar('DELETE', `/v1/gestao/fluxos/${flowB}/chaves/${id}`, comCookie(session));
     expect(revogada.status).toBe(204);
 
-    const depois = await chamar('GET', '/v1/conversas', comChave(token));
+    const depois = await chamar('GET', '/v1/conversas', withKey(token));
     expect(depois.status).toBe(401);
-    expect(erroDe(depois).codigo).toBe('nao_autorizado');
-    expect(erroDe(depois).mensagem).toBe('Chave revogada.');
+    expect(errorOf(depois).codigo).toBe('nao_autorizado');
+    expect(errorOf(depois).message).toBe('Chave revogada.');
 
-    const filas = await chamar('GET', '/v1/filas', comChave(token));
+    const filas = await chamar('GET', '/v1/filas', withKey(token));
     expect(filas.status).toBe(401);
   });
 
   it('a linha da chave carrega o fluxo, e é dele que a cerca vem', async () => {
-    const { rows } = await a.dono.execute<{ fluxo_id: string | null; escopos: string[] }>(sql`
+    const { rows } = await a.dono.execute<{ flowId: string | null; scopes: string[] }>(sql`
       select fluxo_id, escopos from chave_api
-       where tenant_id = ${a.tenantId} and prefixo = ${chaveDoFluxoA.split('_')[1]}
+       where tenant_id = ${a.tenantId} and prefixo = ${keyOfFlowA.split('_')[1]}
     `);
-    expect(rows[0]?.fluxo_id).toBe(fluxoA);
-    expect(rows[0]?.escopos).toContain('conversas:ler');
-    expect(rows[0]?.escopos).not.toContain('filas:ler');
+    expect(rows[0]?.flowId).toBe(flowA);
+    expect(rows[0]?.scopes).toContain('conversas:ler');
+    expect(rows[0]?.scopes).not.toContain('filas:ler');
   });
 });

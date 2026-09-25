@@ -2,33 +2,33 @@
 
 import { useState } from 'react';
 import { Icone } from '../icones';
-import { encerramentoPodeConfirmar, type EtiquetaDeEncerramento } from '../regras-encerramento';
+import { closureCanConfirm, type ClosureTag } from '../regras-encerramento';
 
 /**
  * Modal compartilhado, baseado no `close-ticket-modal` compilado do Desk e
  * nas traduções do modal `closeTicket` de Monitoramento.
  */
-export function CartaoEncerramentoTicket({
+export function CardClosureTicket({
   numero,
   etiquetas,
   selecionadas,
-  erro,
+  error,
   enviando = false,
   aoSelecionar,
   aoCancelar,
   aoFinalizar,
 }: {
   numero: string;
-  etiquetas: readonly EtiquetaDeEncerramento[];
+  etiquetas: readonly ClosureTag[];
   selecionadas: readonly string[];
-  erro?: string | null;
+  error?: string | null;
   enviando?: boolean;
   aoSelecionar: (ids: string[]) => void;
   aoCancelar: () => void;
   aoFinalizar: () => void;
 }) {
   const [listaAberta, setListaAberta] = useState(false);
-  const podeFinalizar = encerramentoPodeConfirmar(etiquetas, selecionadas, enviando);
+  const podeFinalizar = closureCanConfirm(etiquetas, selecionadas, enviando);
   const selecionadasVisiveis = etiquetas.filter((etiqueta) => selecionadas.includes(etiqueta.id));
 
   function alternar(id: string) {
@@ -119,7 +119,7 @@ export function CartaoEncerramentoTicket({
             )}
           </div>
         </div>
-        {erro ? <p className="pipe-encerramento-erro" role="alert">{erro}</p> : null}
+        {error ? <p className="pipe-encerramento-erro" role="alert">{error}</p> : null}
         <div className="pipe-encerramento-acoes">
           <button type="button" className="secundario" onClick={aoCancelar} disabled={enviando}>Cancelar</button>
           <button type="button" className="primario" onClick={aoFinalizar} disabled={!podeFinalizar}>Finalizar</button>

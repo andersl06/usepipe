@@ -1,16 +1,16 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarRegraFila, type Resultado } from '../../lib/acoes';
-import { editarRegraFila } from '../../lib/cadastros-gravar';
+import { salvarRuleQueue, type Resultado } from '../../lib/acoes';
+import { editRuleQueue } from '../../lib/cadastros-gravar';
 import {
   CAMPOS_DE_REGRA,
   OPERADORES_DE_REGRA,
-  PREFIXO_ATRIBUTO,
+  PREFIX_ATRIBUTO,
   ROTULO_CAMPO,
   ROTULO_OPERADOR,
   type OperadorDeRegra,
 } from '../../lib/regra-fila';
-import type { FilaParaEscolher, RegraDeFilaCadastrada } from '../../lib/cadastros';
+import type { QueueForEscolher, QueueRegisteredRule } from '../../lib/cadastros';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
@@ -29,26 +29,26 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 /** Campo extra do contato: a chave é livre, e o prefixo é o que o motor entende. */
 const EXTRA = '__extra__';
 
-interface CondicaoInicial {
+interface ConditionInitial {
   campo: string;
   operador: OperadorDeRegra;
-  valor: string;
+  value: string;
 }
 
-function LinhaDeCondicao({
+function ConditionLinha({
   desabilitado,
   inicial,
 }: {
   desabilitado: boolean;
   /** Preenche a linha ao editar uma regra existente — ausente é "linha em branco" (criação). */
-  inicial?: CondicaoInicial;
+  inicial?: ConditionInitial;
 }) {
   const campoInicialEhFixo = !inicial || (CAMPOS_DE_REGRA as readonly string[]).includes(inicial.campo);
   const [campo, setCampo] = useState<string>(
     inicial ? (campoInicialEhFixo ? inicial.campo : EXTRA) : CAMPOS_DE_REGRA[0],
   );
-  const chaveExtraInicial =
-    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIXO_ATRIBUTO.length) : '';
+  const keyExtraInitial =
+    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIX_ATRIBUTO.length) : '';
 
   return (
     <div className="form-linha">
@@ -71,7 +71,7 @@ function LinhaDeCondicao({
               é montado. A ação recebe `contato.atributos.plano` dos dois jeitos. */}
           <Campo
             name="campo"
-            defaultValue={chaveExtraInicial}
+            defaultValue={keyExtraInitial}
             placeholder="plano"
             pattern="[A-Za-z0-9_]+"
             title="Letras, números e sublinhado."
@@ -96,59 +96,59 @@ function LinhaDeCondicao({
 
       <label className="form-campo" style={{ flexBasis: '240px' }}>
         <span className="sub">Valor</span>
-        <Campo name="valor" defaultValue={inicial?.valor ?? ''} placeholder="boleto" disabled={desabilitado} />
+        <Campo name="valor" defaultValue={inicial?.value ?? ''} placeholder="boleto" disabled={desabilitado} />
       </label>
     </div>
   );
 }
 
 /** `(prev, dados) => Resultado` no mesmo formato de `acaoRemota`, mas chamando o `PATCH` REST em vez de `acoes/:acao`. */
-function acaoDeEdicao(id: string) {
-  return async (_anterior: Resultado, dados: FormData): Promise<Resultado> => {
-    const campos = dados.getAll('campo').map((v) => String(v));
-    const operadores = dados.getAll('operador').map((v) => String(v));
-    const valores = dados.getAll('valor').map((v) => String(v));
-    const condicoes = campos
+function editAction(id: string) {
+  return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
+    const campos = data.getAll('campo').map((v) => String(v));
+    const operadores = data.getAll('operador').map((v) => String(v));
+    const values = data.getAll('valor').map((v) => String(v));
+    const conditions = campos
       .map((campo, i) => ({
         campo,
         operador: (operadores[i] ?? 'contem') as OperadorDeRegra,
-        valor: valores[i] ?? '',
+        valor: values[i] ?? '',
       }))
       // Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).
       .filter((c) => c.campo || c.valor);
 
-    const resultado = await editarRegraFila(id, {
-      nome: String(dados.get('nome') ?? '').trim(),
-      filaDestinoId: String(dados.get('filaDestinoId') ?? '').trim(),
-      combinador: (String(dados.get('combinador') ?? 'e') as 'e' | 'ou'),
-      ordem: Number(dados.get('ordem') ?? '0'),
-      condicoes,
+    const resultado = await editRuleQueue(id, {
+      nome: String(data.get('nome') ?? '').trim(),
+      queueDestinationId: String(data.get('filaDestinoId') ?? '').trim(),
+      combinador: (String(data.get('combinador') ?? 'e') as 'e' | 'ou'),
+      order: Number(data.get('ordem') ?? '0'),
+      conditions,
     });
-    return resultado.ok ? { ok: true } : { ok: false, erro: resultado.erro };
+    return resultado.ok ? { ok: true } : { ok: false, error: resultado.error };
   };
 }
 
-export function FormularioRegraFila({
-  filas,
+export function FormularioRuleQueue({
+  queues,
   regraExistente,
   aoSalvar,
 }: {
-  filas: readonly FilaParaEscolher[];
+  queues: readonly QueueForEscolher[];
   /** Presente = editar esta regra (`PATCH`); ausente = criar (mesmo de sempre). */
-  regraExistente?: RegraDeFilaCadastrada;
+  regraExistente?: QueueRegisteredRule;
   /** Fecha o modal quando o salvamento dá certo — sem isso a pessoa fica
       olhando para o próprio formulário limpo, sem saber se funcionou. */
   aoSalvar?: () => void;
 }) {
   const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
-  const [linhas, setLinhas] = useState(regraExistente?.condicoes.length ?? 1);
+  const [linhas, setLinhas] = useState(regraExistente?.conditions.length ?? 1);
   /* O `reset()` do formulário não desfaz o estado do seletor de campo, que é
      controlado. Trocar a geração remonta as linhas zeradas — é o mesmo efeito,
      com uma linha em vez de um `useImperativeHandle` por linha. */
-  const [geracao, setGeracao] = useState(0);
+  const [generation, setGeneration] = useState(0);
   const [resultado, enviar, enviando] = useActionState(
-    regraExistente ? acaoDeEdicao(regraExistente.id) : salvarRegraFila,
+    regraExistente ? editAction(regraExistente.id) : salvarRuleQueue,
     { ok: true },
   );
   /* `useActionState` nasce com `{ ok: true }` — o valor inicial, não uma
@@ -158,14 +158,14 @@ export function FormularioRegraFila({
      por identidade, e não por uma `ref` de "já montou": o `useEffect` do
      StrictMode roda invoke→cleanup→invoke uma vez a mais em desenvolvimento,
      e uma `ref` de booleano vira verdadeira cedo demais nesse replay. */
-  const estadoInicial = useRef(resultado);
+  const stateInitial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado === estadoInicial.current) return;
+    if (resultado === stateInitial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
-      setLinhas(regraExistente?.condicoes.length ?? 1);
-      setGeracao((g) => g + 1);
+      setLinhas(regraExistente?.conditions.length ?? 1);
+      setGeneration((g) => g + 1);
       aoSalvar?.();
     }
   }, [resultado]);
@@ -179,17 +179,17 @@ export function FormularioRegraFila({
 
       <form
         ref={formRef}
-        onSubmit={envioQuePreserva((dados) => {
+        onSubmit={envioQuePreserva((data) => {
           // O campo extra vai para o servidor com o prefixo que o motor lê.
           // Montar aqui evita um `name` diferente por tipo de linha, que faria
           // as três listas paralelas ficarem com tamanhos diferentes.
-          const campos = dados.getAll('campo').map((v) => String(v));
-          dados.delete('campo');
+          const campos = data.getAll('campo').map((v) => String(v));
+          data.delete('campo');
           for (const c of campos) {
             const fixo = (CAMPOS_DE_REGRA as readonly string[]).includes(c);
-            dados.append('campo', fixo || c === '' ? c : `${PREFIXO_ATRIBUTO}${c}`);
+            data.append('campo', fixo || c === '' ? c : `${PREFIX_ATRIBUTO}${c}`);
           }
-          enviar(dados);
+          enviar(data);
         })}
         className="form-cadastro"
       >
@@ -209,14 +209,14 @@ export function FormularioRegraFila({
             <span className="sub">Fila de destino</span>
             <Seletor
               name="filaDestinoId"
-              defaultValue={regraExistente?.filaDestinoId ?? ''}
+              defaultValue={regraExistente?.queueDestinationId ?? ''}
               required
               disabled={enviando}
             >
               <option value="">Escolha a fila</option>
-              {filas.map((f) => (
+              {queues.map((f) => (
                 <option key={f.id} value={f.id}>
-                  {f.ativa ? f.nome : `${f.nome} (desativada)`}
+                  {f.active ? f.nome : `${f.nome} (desativada)`}
                 </option>
               ))}
             </Seletor>
@@ -229,7 +229,7 @@ export function FormularioRegraFila({
               type="number"
               min={0}
               max={999}
-              defaultValue={regraExistente?.ordem ?? 0}
+              defaultValue={regraExistente?.order ?? 0}
               disabled={enviando}
             />
           </label>
@@ -250,7 +250,7 @@ export function FormularioRegraFila({
         </p>
 
         {Array.from({ length: linhas }, (_, i) => (
-          <LinhaDeCondicao key={`${geracao}-${i}`} desabilitado={enviando} inicial={regraExistente?.condicoes[i]} />
+          <ConditionLinha key={`${generation}-${i}`} desabilitado={enviando} inicial={regraExistente?.conditions[i]} />
         ))}
 
         <div className="cl-acoes" style={{ justifyContent: 'flex-start' }}>
@@ -259,7 +259,7 @@ export function FormularioRegraFila({
           </Botao>
         </div>
 
-        {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+        {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
         <div className="cl-acoes">
           <Botao type="submit" variante="primario" disabled={enviando}>

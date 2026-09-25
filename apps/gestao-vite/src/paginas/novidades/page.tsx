@@ -1,10 +1,10 @@
 import Link from '../../componentes/link';
 import { BarraDoPortal } from '../../componentes/barra-do-portal';
-import { IconeBusca, IconePortal } from '../../componentes/icones-portal';
-import { Selecao } from '../../componentes/selecao';
+import { IconeSearch, IconePortal } from '../../componentes/icones-portal';
+import { Selection } from '../../componentes/selecao';
 import { useSearchParams } from 'react-router-dom';
-import { useCascaDoPortal } from '../../lib/casca';
-import { CATEGORIAS, NOVIDADES, type Novidade } from './conteudo';
+import { portalUseShell } from '../../lib/casca';
+import { CATEGORIAS, UPDATES, type Update } from './conteudo';
 import './novidades.css';
 
 /**
@@ -25,30 +25,30 @@ import './novidades.css';
  * Busca e filtro são `<form method="get">`: a lista é do servidor, e a URL fica
  * compartilhável. Nenhum estado de cliente nesta tela.
  */
-export function PaginaNovidades() {
-  const casca = useCascaDoPortal();
+export function PageUpdates() {
+  const shell = portalUseShell();
   const [parametrosDaUrl] = useSearchParams();
   const parametros = Object.fromEntries(parametrosDaUrl.entries());
 
-  const busca = primeiro(parametros['q']).trim();
-  const categoria = primeiro(parametros['categoria']).trim();
+  const search = first(parametros['q']).trim();
+  const categoria = first(parametros['categoria']).trim();
 
-  const achados = NOVIDADES.filter((n) => {
+  const achados = UPDATES.filter((n) => {
     const combinaCategoria = !categoria || categoria === CATEGORIAS[0] || n.categoria === categoria;
-    const combinaBusca =
-      !busca || `${n.titulo} ${n.resumo}`.toLowerCase().includes(busca.toLowerCase());
-    return combinaCategoria && combinaBusca;
+    const combinaSearch =
+      !search || `${n.titulo} ${n.resumo}`.toLowerCase().includes(search.toLowerCase());
+    return combinaCategoria && combinaSearch;
   });
 
   /* O cartão grande só existe na lista inteira: filtrada, destacar o primeiro
      resultado seria dar peso a um acaso da busca. */
-  const filtrando = Boolean(busca || (categoria && categoria !== CATEGORIAS[0]));
+  const filtrando = Boolean(search || (categoria && categoria !== CATEGORIAS[0]));
   const destaque = filtrando ? null : (achados.find((n) => n.destaque) ?? achados[0] ?? null);
-  const demais = destaque ? achados.filter((n) => n !== destaque) : achados;
+  const rest = destaque ? achados.filter((n) => n !== destaque) : achados;
 
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={casca} />
+      <BarraDoPortal data={shell} />
 
       <main className="nv-conteudo">
         <div className="nv-coluna">
@@ -61,17 +61,17 @@ export function PaginaNovidades() {
 
           <form className="nv-filtros" method="get" action="/novidades" role="search">
             <div className="nv-campo">
-              <IconeBusca tamanho={20} />
+              <IconeSearch tamanho={20} />
               <input
                 type="search"
                 name="q"
-                defaultValue={busca}
+                defaultValue={search}
                 placeholder="Buscar por tema…"
                 aria-label="Buscar novidades"
               />
             </div>
             <div className="nv-campo nv-campo-lista">
-              <Selecao
+              <Selection
                 name="categoria"
                 defaultValue={categoria || CATEGORIAS[0]}
                 aria-label="Categoria"
@@ -81,7 +81,7 @@ export function PaginaNovidades() {
                     {c}
                   </option>
                 ))}
-              </Selecao>
+              </Selection>
               <IconePortal nome="baixo" tamanho={20} />
             </div>
             {/* Sem JavaScript: o filtro aplica no envio, como a busca do portal. */}
@@ -94,12 +94,12 @@ export function PaginaNovidades() {
             <p className="nv-nada">Nenhuma novidade encontrada com esse filtro.</p>
           ) : null}
 
-          {destaque ? <Cartao novidade={destaque} grande /> : null}
+          {destaque ? <Card update={destaque} grande /> : null}
 
-          {demais.length > 0 ? (
+          {rest.length > 0 ? (
             <div className="nv-grade">
-              {demais.map((n) => (
-                <Cartao key={n.id} novidade={n} />
+              {rest.map((n) => (
+                <Card key={n.id} update={n} />
               ))}
             </div>
           ) : null}
@@ -117,27 +117,27 @@ export function PaginaNovidades() {
  * foto de banco genérica em cima de um aviso de versão mente sobre o conteúdo.
  * A cor vem da categoria, então a grade continua legível de longe.
  */
-function Cartao({ novidade, grande }: { novidade: Novidade; grande?: boolean }) {
+function Card({ update, grande }: { update: Update; grande?: boolean }) {
   return (
     <article className={grande ? 'nv-cartao nv-cartao-grande' : 'nv-cartao'}>
-      <div className="nv-capa" data-categoria={novidade.categoria}>
-        <span className="nv-capa-etq">{novidade.categoria}</span>
+      <div className="nv-capa" data-categoria={update.categoria}>
+        <span className="nv-capa-etq">{update.categoria}</span>
       </div>
 
       <div className="nv-corpo">
         {grande ? <span className="nv-destaque">Destaque</span> : null}
-        <h2 className="nv-cartao-titulo">{novidade.titulo}</h2>
-        <p className="nv-resumo">{novidade.resumo}</p>
+        <h2 className="nv-cartao-titulo">{update.titulo}</h2>
+        <p className="nv-resumo">{update.resumo}</p>
         <p className="nv-meta">
-          <time dateTime={novidade.data}>{porExtenso(novidade.data)}</time>
+          <time dateTime={update.data}>{byExtenso(update.data)}</time>
           {' · '}
-          {novidade.leitura} min de leitura
+          {update.read} min de leitura
         </p>
         {/* Cada novidade ainda não tem página própria; o link leva à lista com
             o tema já filtrado, que é o mais perto de útil sem inventar rota. */}
         <Link
           className="nv-ler"
-          href={`/novidades?categoria=${encodeURIComponent(novidade.categoria)}`}
+          href={`/novidades?categoria=${encodeURIComponent(update.categoria)}`}
         >
           Ler mais <span aria-hidden="true">→</span>
         </Link>
@@ -147,7 +147,7 @@ function Cartao({ novidade, grande }: { novidade: Novidade; grande?: boolean }) 
 }
 
 /** "20 de julho de 2026" — o formato que o blog usa, em caixa alta pelo CSS. */
-function porExtenso(iso: string): string {
+function byExtenso(iso: string): string {
   const [ano, mes, dia] = iso.split('-').map(Number);
   const meses = [
     'janeiro',
@@ -167,6 +167,6 @@ function porExtenso(iso: string): string {
 }
 
 /** O primeiro valor de um parâmetro que pode vir repetido na URL. */
-function primeiro(valor: string | string[] | undefined): string {
-  return Array.isArray(valor) ? (valor[0] ?? '') : (valor ?? '');
+function first(value: string | string[] | undefined): string {
+  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
 }

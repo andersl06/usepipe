@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
-import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';
-import { bancoDono, noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { provisionarCliente } from '../provisionar.js';
+import { domainOfEmail, ehDomainPublic } from '@pipe/autenticacao';
+import { databaseOwner, noTenant } from '../banco.js';
+import { PipeError } from '../erros.js';
+import { provisionCustomer } from '../provisionar.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/builders/account_builder.rb, e a
@@ -29,20 +29,20 @@ import { provisionarCliente } from '../provisionar.js';
  */
 
 /** `GlobalConfigService.account_signup_enabled?`: qualquer valor que não seja `false` liga. */
-export function cadastroDeContaHabilitado(env: NodeJS.ProcessEnv = process.env): boolean {
-  const valor = (env['ENABLE_ACCOUNT_SIGNUP'] ?? '').trim() || 'false';
-  return valor !== 'false';
+export function registrationOfAccountEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  const value = (env['ENABLE_ACCOUNT_SIGNUP'] ?? '').trim() || 'false';
+  return value !== 'false';
 }
 
 const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-export interface PedidoDeConta {
-  nomeDaConta?: string | undefined;
-  nomeDoUsuario?: string | undefined;
+export interface RequestOfAccount {
+  nameOfAccount?: string | undefined;
+  nameOfUser?: string | undefined;
   email?: string | undefined;
 }
 
-export interface ContaCriada {
+export interface AccountCreated {
   tenantId: string;
   adminId: string;
   slug: string;
@@ -50,8 +50,8 @@ export interface ContaCriada {
 }
 
 /** O slug do espaço a partir do nome (a sugestão que a Blip faz em `/tenant-valid-id`). */
-export function slugDaConta(nome: string, email: string): string {
-  const base = (nome || dominioDoEmail(email).split('.')[0] || 'conta')
+export function slugOfAccount(nome: string, email: string): string {
+  const base = (nome || domainOfEmail(email).split('.')[0] || 'conta')
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
@@ -80,28 +80,28 @@ export function slugDaConta(nome: string, email: string): string {
  * diferente com o mesmo nome de empresa, e derrubar o login de quem chegou
  * depois seria o pior jeito de contar isso.
  */
-export async function construirContaDoLogin(pessoa: {
+export async function buildAccountOfLogin(pessoa: {
   email: string;
   nome?: string | undefined;
-}): Promise<{ tenantId: string; usuarioId: string; slug: string }> {
+}): Promise<{ tenantId: string; userId: string; slug: string }> {
   const email = pessoa.email.trim().toLowerCase();
-  const publico = ehDominioPublico(email);
+  const publico = ehDomainPublic(email);
 
   // O nome da conta: o da empresa quando o e-mail é corporativo, o da pessoa
   // quando não é. Ambos são provisórios — "minha conta" reescreve.
   const nome = publico
     ? pessoa.nome?.trim() || email.slice(0, email.indexOf('@'))
-    : dominioDoEmail(email).split('.')[0] || email.slice(0, email.indexOf('@'));
+    : domainOfEmail(email).split('.')[0] || email.slice(0, email.indexOf('@'));
 
-  const cliente = await provisionarCliente({
+  const cliente = await provisionCustomer({
     nome,
-    slug: await slugLivre(enderecoDaConta(email)),
+    slug: await slugLivre(enderecoOfAccount(email)),
     plano: 'essencial',
     admin: email,
     // E-mail pessoal não reivindica domínio; corporativo também não, aqui:
     // domínio é o que dá entrada a TODO mundo daquele endereço, e isso se pede
     // depois, com verificação por DNS.
-    semDominio: true,
+    withoutDomain: true,
   });
 
   const nomeDaPessoa = pessoa.nome?.trim();
@@ -114,7 +114,7 @@ export async function construirContaDoLogin(pessoa: {
     );
   }
 
-  return { tenantId: cliente.tenantId, usuarioId: cliente.adminId, slug: cliente.slug };
+  return { tenantId: cliente.tenantId, userId: cliente.adminId, slug: cliente.slug };
 }
 
 /**
@@ -130,7 +130,7 @@ export async function construirContaDoLogin(pessoa: {
  * segunda entraria numa fila de `-2`, `-3` que denuncia quantas contas existem.
  * Cinco caracteres em base 36 dão 60 milhões de combinações por nome.
  */
-export function enderecoDaConta(email: string, aleatorio = Math.random): string {
+export function enderecoOfAccount(email: string, aleatorio = Math.random): string {
   const local = email.slice(0, email.indexOf('@') > 0 ? email.indexOf('@') : undefined);
   const base = local
     .normalize('NFD')
@@ -150,7 +150,7 @@ export function enderecoDaConta(email: string, aleatorio = Math.random): string 
 async function slugLivre(base: string): Promise<string> {
   for (let tentativa = 1; tentativa <= 50; tentativa++) {
     const slug = tentativa === 1 ? base : `${base}-${tentativa}`;
-    const { rows } = await bancoDono().execute<{ existe: boolean }>(
+    const { rows } = await databaseOwner().execute<{ existe: boolean }>(
       sql`select exists (select 1 from tenant where slug = ${slug}) as existe`,
     );
     if (!rows[0]?.existe) return slug;
@@ -160,15 +160,15 @@ async function slugLivre(base: string): Promise<string> {
   return `${base}-${Date.now().toString(36)}`;
 }
 
-export async function construirConta(pedido: PedidoDeConta): Promise<ContaCriada> {
+export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCreated> {
   const email = (pedido.email ?? '').trim().toLowerCase();
 
   // `validate_email` — o `SignUpEmailValidationService`, com as frases do pt_BR dele.
   if (!EMAIL_ACEITAVEL.test(email)) {
-    throw ErroPipe.requisicao('email_invalido', 'Você digitou um email inválido');
+    throw PipeError.request('email_invalido', 'Você digitou um email inválido');
   }
-  if (ehDominioPublico(email)) {
-    throw ErroPipe.requisicao(
+  if (ehDomainPublic(email)) {
+    throw PipeError.request(
       'dominio_bloqueado',
       'Este domínio não é permitido. Se você acredita que isso é um erro, por favor contate o suporte.',
     );
@@ -176,27 +176,27 @@ export async function construirConta(pedido: PedidoDeConta): Promise<ContaCriada
 
   // `validate_user`: e-mail que já é usuário em qualquer cliente. Papel dono,
   // porque a pergunta é global, e só volta sim ou não.
-  const { rows } = await bancoDono().execute<{ existe: boolean }>(
+  const { rows } = await databaseOwner().execute<{ existe: boolean }>(
     sql`select exists (select 1 from usuario where lower(email) = ${email}) as existe`,
   );
   if (rows[0]?.existe) {
-    throw ErroPipe.conflito('usuario_existe', `Você já se cadastrou para uma conta com ${email}`);
+    throw PipeError.conflito('usuario_existe', `Você já se cadastrou para uma conta com ${email}`);
   }
 
   // `create_account` e `create_and_link_user`, pelo provisionamento de sempre.
-  const nome = pedido.nomeDaConta?.trim() || pedido.nomeDoUsuario?.trim() || dominioDoEmail(email);
-  const cliente = await provisionarCliente({
+  const nome = pedido.nameOfAccount?.trim() || pedido.nameOfUser?.trim() || domainOfEmail(email);
+  const cliente = await provisionCustomer({
     nome,
-    slug: slugDaConta(nome, email),
+    slug: slugOfAccount(nome, email),
     plano: 'essencial',
     admin: email,
   });
 
   // `name: user_full_name` — o provisionamento põe a parte local do e-mail.
-  const nomeDoUsuario = pedido.nomeDoUsuario?.trim();
-  if (nomeDoUsuario) {
+  const nameOfUser = pedido.nameOfUser?.trim();
+  if (nameOfUser) {
     await noTenant(cliente.tenantId, (tx) =>
-      tx.execute(sql`update usuario set nome = ${nomeDoUsuario} where id = ${cliente.adminId}::uuid`),
+      tx.execute(sql`update usuario set nome = ${nameOfUser} where id = ${cliente.adminId}::uuid`),
     );
   }
 

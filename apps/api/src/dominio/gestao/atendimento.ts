@@ -1,33 +1,33 @@
 import { and, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import {
-  contarEncerramentos,
-  tempoAtePrimeiraResposta,
-  tempoDeAtendimento,
-  tempoDeResposta,
-  tempoNaFila,
-  tempoTotalDeEsperaDoCliente,
-  type ContagemEncerramento,
-  type ConversaEventos,
-  type EncerradaPor,
-  type EventoAtendimento,
+  contarClosures,
+  timeAteFirstResposta,
+  attendanceTime,
+  respostaTime,
+  timeInQueue,
+  timeTotalOfEsperaOfCliente,
+  type CountClosure,
+  type ConversationEvents,
+  type ClosedBy,
+  type EventAttendance,
   type ResultadoMetrica,
-  type ResultadoTempoDeResposta,
+  type ResponseTimeResult,
   type TipoEvento,
 } from '@pipe/core';
 import {
-  conversa,
-  conversaEtiqueta,
+  conversation,
+  conversationLabel,
   etiqueta,
-  eventoAtendimento,
-  fila,
+  eventAttendance,
+  queue,
   inbox,
-  usuario,
+  user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { Janela } from './janela.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { Window } from './janela.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -42,25 +42,25 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * O cronômetro parou; nenhuma conversa aberta entra em nada disto.
  */
 
-export interface BlocoDeTempos {
-  naFila: ResultadoMetrica;
-  primeiraResposta: ResultadoMetrica;
+export interface BlockOfTimes {
+  inQueue: ResultadoMetrica;
+  firstResponse: ResultadoMetrica;
   esperaTotal: ResultadoMetrica;
-  resposta: ResultadoTempoDeResposta;
-  atendimento: ResultadoMetrica;
-  encerramentos: ContagemEncerramento;
+  resposta: ResponseTimeResult;
+  attendance: ResultadoMetrica;
+  closures: CountClosure;
   /** Conversas do recorte — o universo de onde saíram os denominadores acima. */
-  conversas: number;
+  conversations: number;
 }
 
-export interface LinhaDeQuebra extends BlocoDeTempos {
+export interface LinhaDeQuebra extends BlockOfTimes {
   chave: string;
 }
 
-export interface RelatorioAtendimento {
-  geral: BlocoDeTempos;
-  porFila: LinhaDeQuebra[];
-  porAtendente: LinhaDeQuebra[];
+export interface ReportAttendance {
+  geral: BlockOfTimes;
+  byQueue: LinhaDeQuebra[];
+  byAgent: LinhaDeQuebra[];
   /**
    * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
    * rótulo (aqui, etiqueta). Ver `referencias-blip/pesquisa/chatwoot.md`.
@@ -71,27 +71,27 @@ export interface RelatorioAtendimento {
    * de criação da conversa. Aqui as duas populações são a mesma do resto do
    * relatório: conversas ENCERRADAS no período.
    */
-  porInbox: LinhaDeQuebra[];
-  porEtiqueta: LinhaDeQuebra[];
+  byInbox: LinhaDeQuebra[];
+  byLabel: LinhaDeQuebra[];
   /** Conversas encerradas no período que não têm nenhuma etiqueta. */
   semEtiqueta: number;
 }
 
-export interface FiltroAtendimento {
-  filaId?: string | undefined;
-  atendenteId?: string | undefined;
+export interface AttendanceFilter {
+  queueId?: string | undefined;
+  agentId?: string | undefined;
 }
 
 /** Aplica as cinco métricas de tempo e a contagem de encerramentos a um recorte. */
-function medir(conversas: readonly ConversaEventos[]): BlocoDeTempos {
+function medir(conversas: readonly ConversationEvents[]): BlockOfTimes {
   return {
-    naFila: tempoNaFila(conversas),
-    primeiraResposta: tempoAtePrimeiraResposta(conversas),
-    esperaTotal: tempoTotalDeEsperaDoCliente(conversas),
-    resposta: tempoDeResposta(conversas),
-    atendimento: tempoDeAtendimento(conversas),
-    encerramentos: contarEncerramentos(conversas),
-    conversas: conversas.length,
+    inQueue: timeInQueue(conversas),
+    firstResponse: timeAteFirstResposta(conversas),
+    esperaTotal: timeTotalOfEsperaOfCliente(conversas),
+    resposta: respostaTime(conversas),
+    attendance: attendanceTime(conversas),
+    closures: contarClosures(conversas),
+    conversations: conversas.length,
   };
 }
 
@@ -107,22 +107,22 @@ function medir(conversas: readonly ConversaEventos[]): BlocoDeTempos {
 type EixoDeQuebra = 'fila' | 'atendente' | 'inbox';
 
 function quebrar(
-  conversas: readonly {
+  conversations: readonly {
     chaves: Record<EixoDeQuebra, string>;
-    eventos: ConversaEventos;
+    eventos: ConversationEvents;
   }[],
   eixo: EixoDeQuebra,
 ): LinhaDeQuebra[] {
-  const grupos = new Map<string, ConversaEventos[]>();
-  for (const c of conversas) {
-    const chave = c.chaves[eixo];
-    const atual = grupos.get(chave);
+  const groups = new Map<string, ConversationEvents[]>();
+  for (const c of conversations) {
+    const key = c.chaves[eixo];
+    const atual = groups.get(key);
     if (atual) atual.push(c.eventos);
-    else grupos.set(chave, [c.eventos]);
+    else groups.set(key, [c.eventos]);
   }
-  return [...grupos.keys()]
+  return [...groups.keys()]
     .sort()
-    .map((chave) => ({ chave, ...medir(grupos.get(chave) as ConversaEventos[]) }));
+    .map((key) => ({ key, ...medir(groups.get(key) as ConversationEvents[]) }));
 }
 
 /**
@@ -136,56 +136,56 @@ function quebrar(
  * O que NÃO fazemos é o que o Chatwoot faz: lá a coluna de contagem conta
  * marcações (`taggings`), não conversas distintas, e ninguém avisa.
  */
-function quebrarPorMuitas(
-  eventosPorConversa: ReadonlyMap<string, ConversaEventos>,
-  vinculos: readonly { conversaId: string; chave: string }[],
+function quebrarByMuitas(
+  eventsByConversation: ReadonlyMap<string, ConversationEvents>,
+  vinculos: readonly { conversationId: string; key: string }[],
 ): LinhaDeQuebra[] {
-  const grupos = new Map<string, ConversaEventos[]>();
+  const grupos = new Map<string, ConversationEvents[]>();
   for (const v of vinculos) {
-    const eventos = eventosPorConversa.get(v.conversaId);
+    const eventos = eventsByConversation.get(v.conversationId);
     if (!eventos) continue;
-    const atual = grupos.get(v.chave);
+    const atual = grupos.get(v.key);
     if (atual) atual.push(eventos);
-    else grupos.set(v.chave, [eventos]);
+    else grupos.set(v.key, [eventos]);
   }
   return [...grupos.keys()]
     .sort()
-    .map((chave) => ({ chave, ...medir(grupos.get(chave) as ConversaEventos[]) }));
+    .map((chave) => ({ chave, ...medir(grupos.get(chave) as ConversationEvents[]) }));
 }
 
-export async function carregarAtendimento(
-  tx: TransacaoPipe,
-  janela: Janela,
-  filtro: FiltroAtendimento = {},
-): Promise<RelatorioAtendimento> {
+export async function loadAttendance(
+  tx: TransactionPipe,
+  window: Window,
+  filter: AttendanceFilter = {},
+): Promise<ReportAttendance> {
   return consultar(tx, async (tx) => {
     const recorte = [
-      isNotNull(conversa.encerradaEm),
-      gte(conversa.encerradaEm, janela.inicio),
-      lt(conversa.encerradaEm, janela.fim),
-      filtro.filaId ? eq(conversa.filaId, filtro.filaId) : undefined,
-      filtro.atendenteId ? eq(conversa.atendenteId, filtro.atendenteId) : undefined,
+      isNotNull(conversation.encerradaEm),
+      gte(conversation.encerradaEm, window.inicio),
+      lt(conversation.encerradaEm, window.fim),
+      filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
+      filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     // Duas consultas em SÉRIE: dentro do `comTenant` nada roda em paralelo, sob
     // pena de o `pipe.tenant_id` da transação sumir.
     const linhas = await tx
       .select({
-        id: conversa.id,
-        filaNome: fila.nome,
-        atendenteNome: usuario.nome,
+        id: conversation.id,
+        filaNome: queue.nome,
+        atendenteNome: user.nome,
         inboxNome: inbox.nome,
       })
-      .from(conversa)
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
+      .from(conversation)
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
       .where(and(...recorte));
 
     if (linhas.length === 0) {
-      const vazio = medir([]);
+      const empty = medir([]);
       return {
-        geral: vazio,
+        geral: empty,
         porFila: [],
         porAtendente: [],
         porInbox: [],
@@ -198,60 +198,60 @@ export async function carregarAtendimento(
     // inteiro de um relatório passa fácil dos milhares de conversas.
     const eventos = await tx
       .select({
-        conversaId: eventoAtendimento.conversaId,
-        tipo: eventoAtendimento.tipo,
-        em: eventoAtendimento.em,
-        usuarioId: eventoAtendimento.usuarioId,
-        dados: eventoAtendimento.dados,
+        conversaId: eventAttendance.conversaId,
+        tipo: eventAttendance.tipo,
+        em: eventAttendance.em,
+        usuarioId: eventAttendance.usuarioId,
+        dados: eventAttendance.data,
       })
-      .from(eventoAtendimento)
-      .innerJoin(conversa, eq(conversa.id, eventoAtendimento.conversaId))
+      .from(eventAttendance)
+      .innerJoin(conversation, eq(conversation.id, eventAttendance.conversaId))
       .where(and(...recorte));
 
-    const porConversa = new Map<string, EventoAtendimento[]>();
+    const byConversation = new Map<string, EventAttendance[]>();
     for (const e of eventos) {
-      const dados = (e.dados ?? {}) as { encerrada_por?: string };
-      const evento: EventoAtendimento = {
-        conversaId: e.conversaId,
+      const data = (e.dados ?? {}) as { closedBy?: string };
+      const evento: EventAttendance = {
+        conversationId: e.conversaId,
         tipo: e.tipo as TipoEvento,
         em: e.em,
-        usuarioId: e.usuarioId,
-        encerradaPor: (dados.encerrada_por ?? null) as EncerradaPor | null,
+        userId: e.usuarioId,
+        encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
       };
-      const atual = porConversa.get(e.conversaId);
+      const atual = byConversation.get(e.conversaId);
       if (atual) atual.push(evento);
-      else porConversa.set(e.conversaId, [evento]);
+      else byConversation.set(e.conversaId, [evento]);
     }
 
     // As etiquetas das mesmas conversas, pelo mesmo recorte. Uma consulta, em
     // série como as outras — e ela vem depois porque só faz sentido se houver
     // conversa no período.
     const vinculos = await tx
-      .select({ conversaId: conversaEtiqueta.conversaId, chave: etiqueta.nome })
-      .from(conversaEtiqueta)
-      .innerJoin(etiqueta, eq(etiqueta.id, conversaEtiqueta.etiquetaId))
-      .innerJoin(conversa, eq(conversa.id, conversaEtiqueta.conversaId))
+      .select({ conversaId: conversationLabel.conversaId, chave: etiqueta.nome })
+      .from(conversationLabel)
+      .innerJoin(etiqueta, eq(etiqueta.id, conversationLabel.etiquetaId))
+      .innerJoin(conversation, eq(conversation.id, conversationLabel.conversaId))
       .where(and(...recorte));
 
-    const conversas = linhas.map((l) => ({
+    const conversations = linhas.map((l) => ({
       chaves: {
         fila: l.filaNome ?? 'Sem fila',
         atendente: l.atendenteNome ?? 'Sem atendente',
         inbox: l.inboxNome,
       },
-      eventos: { conversaId: l.id, eventos: porConversa.get(l.id) ?? [] } as ConversaEventos,
+      eventos: { conversationId: l.id, eventos: byConversation.get(l.id) ?? [] } as ConversationEvents,
     }));
 
-    const eventosPorConversa = new Map(conversas.map((c) => [c.eventos.conversaId, c.eventos]));
+    const eventsByConversation = new Map(conversations.map((c) => [c.eventos.conversationId, c.eventos]));
     const etiquetadas = new Set(vinculos.map((v) => v.conversaId));
 
     return {
-      geral: medir(conversas.map((c) => c.eventos)),
-      porFila: quebrar(conversas, 'fila'),
-      porAtendente: quebrar(conversas, 'atendente'),
-      porInbox: quebrar(conversas, 'inbox'),
-      porEtiqueta: quebrarPorMuitas(eventosPorConversa, vinculos),
-      semEtiqueta: conversas.filter((c) => !etiquetadas.has(c.eventos.conversaId)).length,
+      geral: medir(conversations.map((c) => c.eventos)),
+      porFila: quebrar(conversations, 'fila'),
+      porAtendente: quebrar(conversations, 'atendente'),
+      porInbox: quebrar(conversations, 'inbox'),
+      porEtiqueta: quebrarByMuitas(eventsByConversation, vinculos),
+      semEtiqueta: conversations.filter((c) => !etiquetadas.has(c.eventos.conversationId)).length,
     };
   });
 }

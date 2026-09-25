@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { salvarCampoDoLead } from '../app/leads/acoes';
-import { CAMPOS_EDITAVEIS, normalizar, recusar, type ChaveCampo } from '../lib/campos-editaveis';
+import { CAMPOS_EDITAVEIS, normalizar, recusar, type KeyField } from '../lib/campos-editaveis';
 import type { Proprietario } from '../lib/leads-visao';
 import { IconeCrm } from './icones-crm';
 
@@ -37,13 +37,13 @@ import { IconeCrm } from './icones-crm';
 
 interface Props {
   leadId: string;
-  campo: ChaveCampo;
+  campo: KeyField;
   /** O valor gravado. Para seleção é o id; o rótulo sai de `opcoes`. */
-  valor: string | null;
+  value: string | null;
   /** Só para `tipo: 'selecao'`. Vazio na lista significa "sem proprietário". */
-  opcoes?: Proprietario[];
+  options?: Proprietario[];
   /** O que aparece quando não há valor. Padrão: o rótulo do campo. */
-  vazio?: string;
+  empty?: string;
   /**
    * Como desenhar o valor em repouso.
    *
@@ -55,12 +55,12 @@ interface Props {
   pintar?: (texto: string) => ReactNode;
 }
 
-export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar }: Props) {
+export function CelulaInline({ leadId, campo, value, options = [], empty, pintar }: Props) {
   const { rotulo, tipo, maximo } = CAMPOS_EDITAVEIS[campo];
-  const [gravado, setGravado] = useState<string | null>(valor);
+  const [gravado, setGravado] = useState<string | null>(value);
   const [editando, setEditando] = useState(false);
   const [rascunho, setRascunho] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [emCurso, iniciar] = useTransition();
   const campoRef = useRef<HTMLInputElement | HTMLSelectElement | null>(null);
   /** Trava o `blur` quando é o Esc que está fechando: senão ele grava o que a
@@ -70,7 +70,7 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
   // A ficha é servidor: depois do `revalidatePath` ela volta com o valor novo, e
   // é ele que vale. Sem isto, editar, sair e voltar mostraria o estado local
   // velho até um recarregamento completo.
-  useEffect(() => setGravado(valor), [valor]);
+  useEffect(() => setGravado(value), [value]);
 
   useEffect(() => {
     if (!editando) return;
@@ -80,13 +80,13 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
   }, [editando]);
 
   const rotuloDe = (id: string | null) =>
-    id === null ? null : (opcoes.find((o) => o.id === id)?.nome ?? id);
+    id === null ? null : (options.find((o) => o.id === id)?.name ?? id);
 
   const texto = tipo === 'selecao' ? rotuloDe(gravado) : gravado;
-  const placeholder = vazio ?? rotulo;
+  const placeholder = empty ?? rotulo;
 
   function abrir() {
-    setErro(null);
+    setError(null);
     setRascunho(gravado ?? '');
     setEditando(true);
   }
@@ -94,14 +94,14 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
   function fechar() {
     desistindo.current = true;
     setEditando(false);
-    setErro(null);
+    setError(null);
   }
 
   function gravar(bruto: string) {
     setEditando(false);
     const novo = normalizar(bruto);
     if (novo === gravado) {
-      setErro(null);
+      setError(null);
       return;
     }
 
@@ -109,17 +109,17 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
     // precisa de ida e volta para ser recusado.
     const queixa = recusar(campo, novo);
     if (queixa) {
-      setErro(queixa);
+      setError(queixa);
       return;
     }
 
     const anterior = gravado;
     setGravado(novo); // otimista: a célula mostra o novo enquanto grava.
-    setErro(null);
+    setError(null);
     iniciar(async () => {
       const r = await salvarCampoDoLead(leadId, campo, bruto, anterior);
-      setGravado(r.valor);
-      setErro(r.ok ? null : (r.erro ?? 'Não deu para gravar.'));
+      setGravado(r.value);
+      setError(r.ok ? null : (r.error ?? 'Não deu para gravar.'));
     });
   }
 
@@ -160,9 +160,9 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
             onChange={(e) => setRascunho(e.target.value)}
           >
             <option value="">sem {rotulo.toLowerCase()}</option>
-            {opcoes.map((o) => (
+            {options.map((o) => (
               <option key={o.id} value={o.id}>
-                {o.nome}
+                {o.name}
               </option>
             ))}
           </select>
@@ -197,9 +197,9 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar 
           <IconeCrm nome="lapis" tamanho={16} />
         </span>
       ) : null}
-      {erro ? (
+      {error ? (
         <span className="queixa" role="alert">
-          {erro}
+          {error}
         </span>
       ) : null}
     </span>

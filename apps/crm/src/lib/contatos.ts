@@ -1,12 +1,12 @@
 import { and, asc, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import {
-  classificacaoConversa,
-  conta,
-  contato,
-  conversa,
-  fila,
+  classificationConversation,
+  account,
+  contact,
+  conversation,
+  queue,
   lead,
-  usuario,
+  user,
 } from '@pipe/db/schema';
 import { consultar, paraData } from './banco';
 
@@ -26,65 +26,65 @@ import { consultar, paraData } from './banco';
 
 export const LIMITE_LISTA = 200;
 
-export interface LinhaContato {
+export interface LinhaContact {
   id: string;
   nome: string;
   email: string | null;
   telefone: string | null;
-  contaId: string | null;
-  contaNome: string | null;
+  accountId: string | null;
+  accountName: string | null;
   leadId: string | null;
   faixa: string | null;
-  conversas: number;
-  ultimaConversa: Date | null;
+  conversations: number;
+  ultimaConversation: Date | null;
 }
 
-export async function listarContatos(busca = ''): Promise<LinhaContato[]> {
+export async function listContacts(search = ''): Promise<LinhaContact[]> {
   return consultar(async (tx) => {
-    const termo = busca.trim();
-    const filtro = termo
-      ? sql`(${contato.nome} ilike ${'%' + termo + '%'}
-             or ${contato.documento} ilike ${'%' + termo + '%'}
-             or ${contato.telefoneE164} ilike ${'%' + termo + '%'}
-             or ${contato.email} ilike ${'%' + termo + '%'})`
+    const termo = search.trim();
+    const filter = termo
+      ? sql`(${contact.nome} ilike ${'%' + termo + '%'}
+             or ${contact.document} ilike ${'%' + termo + '%'}
+             or ${contact.telefoneE164} ilike ${'%' + termo + '%'}
+             or ${contact.email} ilike ${'%' + termo + '%'})`
       : undefined;
 
     const linhas = await tx
       .select({
-        id: contato.id,
-        nome: contato.nome,
-        email: contato.email,
-        telefone: contato.telefoneE164,
-        contaId: contato.contaId,
-        contaNome: conta.nome,
+        id: contact.id,
+        nome: contact.nome,
+        email: contact.email,
+        telefone: contact.telefoneE164,
+        contaId: contact.accountId,
+        contaNome: account.nome,
         leadId: lead.id,
         faixa: lead.faixaAtual,
       })
-      .from(contato)
-      .leftJoin(conta, eq(conta.id, contato.contaId))
-      .leftJoin(lead, and(eq(lead.contatoId, contato.id), isNull(lead.excluidoEm)))
-      .where(and(isNull(contato.excluidoEm), filtro))
-      .orderBy(asc(contato.nome))
+      .from(contact)
+      .leftJoin(account, eq(account.id, contact.accountId))
+      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .where(and(isNull(contact.excluidoEm), filter))
+      .orderBy(asc(contact.nome))
       .limit(LIMITE_LISTA);
 
     const ids = linhas.map((l) => l.id);
-    const conversas =
+    const conversations =
       ids.length === 0
         ? []
         : await tx
             .select({
-              contatoId: conversa.contatoId,
+              contatoId: conversation.contatoId,
               n: sql<number>`count(*)::int`,
-              ultima: sql<string | null>`max(coalesce(${conversa.ultimaMensagemEm}, ${conversa.criadaEm}))`,
+              ultima: sql<string | null>`max(coalesce(${conversation.lastMessageAt}, ${conversation.criadaEm}))`,
             })
-            .from(conversa)
-            .where(inArray(conversa.contatoId, ids))
-            .groupBy(conversa.contatoId);
+            .from(conversation)
+            .where(inArray(conversation.contatoId, ids))
+            .groupBy(conversation.contatoId);
 
-    const porContato = new Map(conversas.map((c) => [c.contatoId, c]));
+    const byContact = new Map(conversations.map((c) => [c.contatoId, c]));
 
     return linhas.map((l) => {
-      const c = porContato.get(l.id);
+      const c = byContact.get(l.id);
       return {
         ...l,
         nome: l.nome ?? 'Contato sem nome',
@@ -97,25 +97,25 @@ export async function listarContatos(busca = ''): Promise<LinhaContato[]> {
 
 /* -------------------------------------------------------------- a ficha */
 
-export interface ConversaDoContato {
+export interface ContactConversation {
   id: string;
-  fila: string | null;
-  atendente: string | null;
-  estado: string;
+  queue: string | null;
+  agent: string | null;
+  state: string;
   categoria: string | null;
   resumo: string | null;
   criadaEm: Date | null;
   encerradaEm: Date | null;
 }
 
-export interface FichaContato {
+export interface FichaContact {
   id: string;
   nome: string;
   email: string | null;
   telefone: string | null;
-  documento: string | null;
-  contaId: string | null;
-  contaNome: string | null;
+  document: string | null;
+  accountId: string | null;
+  accountName: string | null;
   criadoEm: Date | null;
   /** Campo customizado por tenant, em JSONB. A ficha o mostra na lateral. */
   atributos: Record<string, unknown>;
@@ -126,56 +126,56 @@ export interface FichaContato {
   faixa: string | null;
   origem: string | null;
   proprietario: string | null;
-  conversas: ConversaDoContato[];
+  conversations: ContactConversation[];
 }
 
-export async function carregarContato(id: string): Promise<FichaContato | null> {
+export async function loadContact(id: string): Promise<FichaContact | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({
-        id: contato.id,
-        nome: contato.nome,
-        email: contato.email,
-        telefone: contato.telefoneE164,
-        documento: contato.documento,
-        contaId: contato.contaId,
-        contaNome: conta.nome,
-        criadoEm: contato.criadoEm,
-        atributos: contato.atributos,
+        id: contact.id,
+        nome: contact.nome,
+        email: contact.email,
+        telefone: contact.telefoneE164,
+        documento: contact.document,
+        contaId: contact.accountId,
+        contaNome: account.nome,
+        criadoEm: contact.criadoEm,
+        atributos: contact.atributos,
         leadId: lead.id,
         leadStatus: lead.status,
         leadFase: lead.fase,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         origem: lead.origem,
-        proprietario: usuario.nome,
+        proprietario: user.nome,
       })
-      .from(contato)
-      .leftJoin(conta, eq(conta.id, contato.contaId))
-      .leftJoin(lead, and(eq(lead.contatoId, contato.id), isNull(lead.excluidoEm)))
-      .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
-      .where(and(eq(contato.id, id), isNull(contato.excluidoEm)))
+      .from(contact)
+      .leftJoin(account, eq(account.id, contact.accountId))
+      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .leftJoin(user, eq(user.id, lead.proprietarioId))
+      .where(and(eq(contact.id, id), isNull(contact.excluidoEm)))
       .limit(1);
 
     if (!cabeca) return null;
 
-    const conversas = await tx
+    const conversations = await tx
       .select({
-        id: conversa.id,
-        fila: fila.nome,
-        atendente: usuario.nome,
-        estado: conversa.estado,
-        categoria: classificacaoConversa.categoria,
-        resumo: classificacaoConversa.resumo,
-        criadaEm: conversa.criadaEm,
-        encerradaEm: conversa.encerradaEm,
+        id: conversation.id,
+        fila: queue.nome,
+        atendente: user.nome,
+        estado: conversation.state,
+        categoria: classificationConversation.categoria,
+        resumo: classificationConversation.resumo,
+        criadaEm: conversation.criadaEm,
+        encerradaEm: conversation.encerradaEm,
       })
-      .from(conversa)
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, conversa.id))
-      .where(eq(conversa.contatoId, id))
-      .orderBy(desc(conversa.criadaEm))
+      .from(conversation)
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
+      .where(eq(conversation.contatoId, id))
+      .orderBy(desc(conversation.criadaEm))
       .limit(40);
 
     return {
@@ -183,7 +183,7 @@ export async function carregarContato(id: string): Promise<FichaContato | null> 
       nome: cabeca.nome ?? 'Contato sem nome',
       criadoEm: paraData(cabeca.criadoEm),
       atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
-      conversas: conversas.map((c) => ({
+      conversas: conversations.map((c) => ({
         ...c,
         criadaEm: paraData(c.criadaEm),
         encerradaEm: paraData(c.encerradaEm),

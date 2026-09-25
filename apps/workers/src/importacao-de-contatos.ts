@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from './banco.js';
 import { CsvMalformado, escreverCsv, lerCsv } from './csv.js';
-import type { JobImportacao } from './filas.js';
-import { montarContato, salvarContato } from './gerenciador-de-contatos.js';
-import type { ParametrosDoContato } from './gerenciador-de-contatos.js';
+import type { JobImport } from './filas.js';
+import { assembleContact, saveContact } from './gerenciador-de-contatos.js';
+import type { ParametersOfContact } from './gerenciador-de-contatos.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/jobs/data_import_job.rb
@@ -61,7 +61,7 @@ const APELIDOS: Readonly<Record<string, string>> = {
   identificador: 'identifier',
 };
 
-export function chaveDaColuna(cabecalho: string): string {
+export function keyOfColumn(cabecalho: string): string {
   const limpo = cabecalho
     .trim()
     .toLowerCase()
@@ -70,57 +70,57 @@ export function chaveDaColuna(cabecalho: string): string {
   return APELIDOS[limpo] ?? cabecalho.trim();
 }
 
-function paraParametros(chaves: readonly string[], linha: readonly string[]): ParametrosDoContato {
-  const params: ParametrosDoContato = {};
-  chaves.forEach((chave, i) => {
-    const valor = (linha[i] ?? '').trim();
-    if (chave && valor) params[chave] = valor;
+function paraParametros(chaves: readonly string[], linha: readonly string[]): ParametersOfContact {
+  const params: ParametersOfContact = {};
+  chaves.forEach((key, i) => {
+    const value = (linha[i] ?? '').trim();
+    if (key && value) params[key] = value;
   });
   return params;
 }
 
-export interface ResultadoDaImportacao {
-  estado: 'concluida' | 'falhou' | 'ausente';
+export interface ResultOfImport {
+  state: 'concluida' | 'falhou' | 'ausente';
   aceitos: number;
   rejeitados: number;
 }
 
-async function marcar(job: JobImportacao, estado: 'executando' | 'falhou'): Promise<void> {
+async function marcar(job: JobImport, state: 'executando' | 'falhou'): Promise<void> {
   await noTenant(job.tenantId, (tx) =>
     tx.execute(sql`
-      update importacao set estado = ${estado}, atualizado_em = now()
-       where id = ${job.importacaoId}::uuid
+      update importacao set estado = ${state}, atualizado_em = now()
+       where id = ${job.importId}::uuid
     `),
   );
 }
 
-export async function processarImportacao(job: JobImportacao): Promise<ResultadoDaImportacao> {
+export async function processarImport(job: JobImport): Promise<ResultOfImport> {
   const carregado = await noTenant(job.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ conteudo: string }>(sql`
       select a.conteudo
         from importacao i
         join importacao_arquivo a on a.importacao_id = i.id
-       where i.id = ${job.importacaoId}::uuid
+       where i.id = ${job.importId}::uuid
        limit 1
     `);
     return rows[0] ?? null;
   });
-  if (!carregado) return { estado: 'ausente', aceitos: 0, rejeitados: 0 };
+  if (!carregado) return { state: 'ausente', aceitos: 0, rejeitados: 0 };
 
   await marcar(job, 'executando');
 
   let tabela;
   try {
     tabela = lerCsv(carregado.conteudo);
-  } catch (erro) {
-    if (!(erro instanceof CsvMalformado)) throw erro;
+  } catch (error) {
+    if (!(error instanceof CsvMalformado)) throw error;
     // `handle_csv_error`
-    console.error(`[importacao] ${job.importacaoId}: ${erro.message}`);
+    console.error(`[importacao] ${job.importId}: ${error.message}`);
     await marcar(job, 'falhou');
-    return { estado: 'falhou', aceitos: 0, rejeitados: 0 };
+    return { state: 'falhou', aceitos: 0, rejeitados: 0 };
   }
 
-  const chaves = tabela.cabecalhos.map(chaveDaColuna);
+  const chaves = tabela.cabecalhos.map(keyOfColumn);
   const rejeitadas: string[][] = [];
   let aceitos = 0;
 
@@ -131,19 +131,19 @@ export async function processarImportacao(job: JobImportacao): Promise<Resultado
         // Em série: a linha seguinte precisa ver o contato que a anterior criou,
         // senão duas linhas do mesmo telefone viram dois contatos.
         for (const linha of lote) {
-          const contato = await montarContato(tx, paraParametros(chaves, linha));
-          if (contato.erros.length === 0) {
-            await salvarContato(tx, job.tenantId, contato);
+          const contact = await assembleContact(tx, paraParametros(chaves, linha));
+          if (contact.errors.length === 0) {
+            await saveContact(tx, job.tenantId, contact);
             aceitos += 1;
           } else {
-            rejeitadas.push([...linha, contato.erros.join(', ')]);
+            rejeitadas.push([...linha, contact.errors.join(', ')]);
           }
         }
         await tx.execute(sql`
           update importacao
              set total = ${aceitos + rejeitadas.length}, aceitos = ${aceitos},
                  rejeitados = ${rejeitadas.length}, atualizado_em = now()
-           where id = ${job.importacaoId}::uuid
+           where id = ${job.importId}::uuid
         `);
       });
     }
@@ -160,13 +160,13 @@ export async function processarImportacao(job: JobImportacao): Promise<Resultado
       update importacao
          set estado = 'concluida', total = ${aceitos + rejeitadas.length},
              aceitos = ${aceitos}, rejeitados = ${rejeitadas.length}, atualizado_em = now()
-       where id = ${job.importacaoId}::uuid
+       where id = ${job.importId}::uuid
     `);
     await tx.execute(sql`
       update importacao_arquivo set falhas_csv = ${falhas}
-       where importacao_id = ${job.importacaoId}::uuid
+       where importacao_id = ${job.importId}::uuid
     `);
   });
 
-  return { estado: 'concluida', aceitos, rejeitados: rejeitadas.length };
+  return { state: 'concluida', aceitos, rejeitados: rejeitadas.length };
 }

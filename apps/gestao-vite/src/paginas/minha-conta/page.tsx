@@ -3,11 +3,11 @@ import { Avatar } from '@pipe/ui';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import { useEu } from '../../contexto/sessao';
 import { useSair } from '../../lib/casca';
-import { useLeitura } from '../../lib/consulta';
-import type { ContaEmVigor } from '../../lib/conta';
-import { salvarConta } from './acoes';
+import { useRead } from '../../lib/consulta';
+import type { AccountInVigor } from '../../lib/conta';
+import { salvarAccount } from './acoes';
 import { PADRAO_DE_SITE, RECADOS, ROTULO_DE_FUSO, ROTULO_DE_IDIOMA, TAMANHO } from './regras';
-import { Selecao } from '../../componentes/selecao';
+import { Selection } from '../../componentes/selecao';
 import './minha-conta.css';
 
 /**
@@ -66,20 +66,20 @@ const ESTADOS = [
   'TO',
 ] as const;
 
-export function PaginaMinhaConta() {
+export function PageMyAccount() {
   const eu = useEu();
   const sair = useSair();
-  const [busca] = useSearchParams();
+  const [search] = useSearchParams();
   const parametros = {
-    erro: busca.get('erro') ?? undefined,
-    campo: busca.get('campo') ?? undefined,
+    erro: search.get('erro') ?? undefined,
+    campo: search.get('campo') ?? undefined,
   };
-  const leitura = useLeitura<ContaEmVigor>('/v1/conta');
-  if (leitura.error) return <Navigate to="/entrar" replace />;
-  if (!leitura.data) return null;
-  const conta = leitura.data;
+  const read = useRead<AccountInVigor>('/v1/conta');
+  if (read.error) return <Navigate to="/entrar" replace />;
+  if (!read.data) return null;
+  const account = read.data;
 
-  const primeiraVez = conta.onboardingConcluidoEm === null;
+  const firstVez = account.onboardingConcluidoEm === null;
   /* O campo que o servidor recusou volta marcado. `data-erro` só existe quando
      há um, e é ele que acende o anel vermelho na caixa certa. */
   const recusado = (nome: string) => (parametros.campo === nome ? '' : undefined);
@@ -103,9 +103,9 @@ export function PaginaMinhaConta() {
         </div>
 
         <div className="conta-barra-dir">
-          <Avatar nome={eu.usuario.nome} />
+          <Avatar nome={eu.user.nome} />
           <span className="conta-barra-eu">
-            <b>{eu.usuario.nome}</b>
+            <b>{eu.user.nome}</b>
             {/* Sair encerra sessão, e encerrar sessão muda estado: vai em POST,
                 nunca num link. */}
             <form
@@ -123,27 +123,27 @@ export function PaginaMinhaConta() {
       <div className="conta-corpo">
         {/* ---------------------------------------------------- a lateral */}
         <aside className="conta-lateral">
-          <Avatar nome={eu.usuario.nome} />
-          <p className="conta-lateral-nome" title={eu.usuario.nome}>
-            {eu.usuario.nome}
+          <Avatar nome={eu.user.nome} />
+          <p className="conta-lateral-nome" title={eu.user.nome}>
+            {eu.user.nome}
           </p>
           <hr />
           <dl className="conta-lateral-info">
             <dt>Nome</dt>
-            <dd title={eu.usuario.nome}>{eu.usuario.nome}</dd>
+            <dd title={eu.user.nome}>{eu.user.nome}</dd>
             <dt>E-mail</dt>
-            <dd title={eu.usuario.email}>{eu.usuario.email}</dd>
+            <dd title={eu.user.email}>{eu.user.email}</dd>
           </dl>
           <hr />
         </aside>
 
         {/* --------------------------------------------------- o conteúdo */}
         <main className="conta-conteudo">
-          <form id="conta-form" action={salvarConta} className="conta-form">
+          <form id="conta-form" action={salvarAccount} className="conta-form">
             <div className="conta-cabecalho">
-              <h1>{primeiraVez ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
+              <h1>{firstVez ? 'Sobre a sua empresa' : 'Minha conta'}</h1>
               <button type="submit" className="conta-botao">
-                {primeiraVez ? 'Salvar e abrir o portal' : 'Salvar alterações'}
+                {firstVez ? 'Salvar e abrir o portal' : 'Salvar alterações'}
               </button>
             </div>
             <hr className="conta-regua" />
@@ -177,7 +177,7 @@ export function PaginaMinhaConta() {
                       required
                       minLength={TAMANHO.nomeMin}
                       maxLength={TAMANHO.nomeMax}
-                      defaultValue={conta.nome}
+                      defaultValue={account.nome}
                     />
                   </label>
                   <p className="conta-recado">{RECADOS.nome}</p>
@@ -186,7 +186,7 @@ export function PaginaMinhaConta() {
                       trocá-lo aqui trocaria de pessoa, não de dado. */}
                   <label className="conta-campo">
                     <span>Seu e-mail</span>
-                    <input type="email" value={eu.usuario.email} readOnly disabled />
+                    <input type="email" value={eu.user.email} readOnly disabled />
                   </label>
 
                   <label className="conta-campo" data-erro={recusado('telefone')}>
@@ -197,7 +197,7 @@ export function PaginaMinhaConta() {
                       required
                       maxLength={TAMANHO.telefoneMax}
                       placeholder="+55 31 99999-0000"
-                      defaultValue={conta.telefone ?? ''}
+                      defaultValue={account.telefone ?? ''}
                     />
                   </label>
                   <p className="conta-recado">{RECADOS.telefone}</p>
@@ -212,21 +212,21 @@ export function PaginaMinhaConta() {
                       maxLength={TAMANHO.siteMax}
                       pattern={PADRAO_DE_SITE}
                       placeholder="empresa.com.br"
-                      defaultValue={conta.site ?? ''}
+                      defaultValue={account.site ?? ''}
                     />
                   </label>
                   <p className="conta-recado">{RECADOS.site}</p>
 
                   <label className="conta-campo" data-erro={recusado('funcionarios')}>
                     <span>Tamanho da empresa</span>
-                    <Selecao name="funcionarios" defaultValue={conta.funcionarios ?? ''} aria-label="Tamanho da empresa">
+                    <Selection name="funcionarios" defaultValue={account.funcionarios ?? ''} aria-label="Tamanho da empresa">
                       <option value="">Selecionar</option>
-                      {conta.faixasDeFuncionarios.map((faixa) => (
+                      {account.faixasDeFuncionarios.map((faixa) => (
                         <option key={faixa} value={faixa}>
                           {faixa} funcionários
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
                   <p className="conta-recado">{RECADOS.funcionarios}</p>
 
@@ -236,20 +236,20 @@ export function PaginaMinhaConta() {
                       name="cidade"
                       type="text"
                       maxLength={TAMANHO.cidadeMax}
-                      defaultValue={conta.cidade ?? ''}
+                      defaultValue={account.city ?? ''}
                     />
                   </label>
 
                   <label className="conta-campo">
                     <span>Estado</span>
-                    <Selecao name="estado" defaultValue={conta.estado ?? ''} aria-label="Estado">
+                    <Selection name="estado" defaultValue={account.state ?? ''} aria-label="Estado">
                       <option value="">Selecionar</option>
                       {ESTADOS.map((uf) => (
                         <option key={uf} value={uf}>
                           {uf}
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
 
                   <label className="conta-campo">
@@ -258,7 +258,7 @@ export function PaginaMinhaConta() {
                       name="pais"
                       type="text"
                       maxLength={TAMANHO.paisMax}
-                      defaultValue={conta.pais ?? 'Brasil'}
+                      defaultValue={account.pais ?? 'Brasil'}
                     />
                   </label>
 
@@ -266,7 +266,7 @@ export function PaginaMinhaConta() {
                     <input
                       type="checkbox"
                       name="optinWhatsapp"
-                      defaultChecked={conta.optinWhatsapp}
+                      defaultChecked={account.optinWhatsapp}
                     />
                     <span>Contato via WhatsApp</span>
                   </label>
@@ -276,13 +276,13 @@ export function PaginaMinhaConta() {
                 <div className="conta-painel conta-painel-preferencias">
                   <label className="conta-campo" data-erro={recusado('idioma')}>
                     <span>Idioma</span>
-                    <Selecao name="idioma" defaultValue={conta.idioma} aria-label="Idioma">
-                      {conta.idiomas.map((codigo) => (
+                    <Selection name="idioma" defaultValue={account.idioma} aria-label="Idioma">
+                      {account.idiomas.map((codigo) => (
                         <option key={codigo} value={codigo}>
                           {ROTULO_DE_IDIOMA[codigo] ?? codigo}
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
                   <p className="conta-recado">{RECADOS.idioma}</p>
 
@@ -291,13 +291,13 @@ export function PaginaMinhaConta() {
                       rótulo da hora. */}
                   <label className="conta-campo" data-erro={recusado('fuso')}>
                     <span>Fuso horário</span>
-                    <Selecao name="fuso" defaultValue={conta.fuso} aria-label="Fuso horário">
-                      {conta.fusos.map((nome) => (
+                    <Selection name="fuso" defaultValue={account.fuso} aria-label="Fuso horário">
+                      {account.fusos.map((nome) => (
                         <option key={nome} value={nome}>
                           {ROTULO_DE_FUSO[nome] ?? nome}
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
                   <p className="conta-recado">{RECADOS.fuso}</p>
                 </div>

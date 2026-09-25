@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
-import { encerrarConversa, transferirConversa } from '@pipe/api/dominio/conversa';
-import { assumirConversa } from '@pipe/api/dominio/assumir';
-import { enviarMensagem } from '@pipe/api/dominio/envio';
+import { closeConversation, transferConversation } from '@pipe/api/dominio/conversa';
+import { assumeConversation } from '@pipe/api/dominio/assumir';
+import { sendMessage } from '@pipe/api/dominio/envio';
 import { noTenant } from './banco.js';
-import type { Sessao } from './rotas.js';
+import type { Session } from './rotas.js';
 
 /**
  * O que o atendente FAZ na tela: assumir, responder, transferir e encerrar.
@@ -18,24 +18,24 @@ import type { Sessao } from './rotas.js';
  */
 
 /** O ator de uma ação vinda da tela: o atendente logado, agindo por si. */
-function ator(sessao: Sessao, exigirAtribuicao: boolean) {
-  return { tenantId: sessao.tenantId, atendenteId: sessao.usuarioId, exigirAtribuicao };
+function ator(session: Session, exigirAssignment: boolean) {
+  return { tenantId: session.tenantId, atendenteId: session.userId, exigirAssignment };
 }
 
-export async function assumir(sessao: Sessao, conversaId: string): Promise<void> {
+export async function assumir(session: Session, conversationId: string): Promise<void> {
   /* Assumir NÃO é transferir para si: transferência encerra a conversa e abre outra
      (é o modelo da plataforma de origem). Ver `dominio/assumir.ts`. */
-  await assumirConversa({ tenantId: sessao.tenantId, atendenteId: sessao.usuarioId }, conversaId);
+  await assumeConversation({ tenantId: session.tenantId, agentId: session.userId }, conversationId);
 }
 
 /** Pega o próximo da fila: o mais antigo entre as filas de quem está pedindo. */
-export async function assumirProximo(sessao: Sessao): Promise<string | null> {
-  const id = await noTenant(sessao.tenantId, async (tx) => {
+export async function assumirProximo(session: Session): Promise<string | null> {
+  const id = await noTenant(session.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       select c.id
         from conversa c
         join fila_atendente fa
-          on fa.fila_id = c.fila_id and fa.usuario_id = ${sessao.usuarioId}::uuid
+          on fa.fila_id = c.fila_id and fa.usuario_id = ${session.userId}::uuid
        where c.estado = 'na_fila'
        order by c.criada_em
        limit 1
@@ -43,7 +43,7 @@ export async function assumirProximo(sessao: Sessao): Promise<string | null> {
     return rows[0]?.id ?? null;
   });
   if (!id) return null;
-  await assumir(sessao, id);
+  await assumir(session, id);
   return id;
 }
 
@@ -52,12 +52,12 @@ export async function assumirProximo(sessao: Sessao): Promise<string | null> {
  * não para uma conversa — é assim que o protocolo dela funciona. Aqui a identidade
  * vira conversa: a aberta daquele telefone.
  */
-export async function conversaDaIdentidade(
-  sessao: Sessao,
-  identidade: string,
+export async function identityConversation(
+  session: Session,
+  identity: string,
 ): Promise<string | null> {
-  const telefone = '+' + String(identidade).split('@')[0]!.replace(/[^0-9]/g, '');
-  return noTenant(sessao.tenantId, async (tx) => {
+  const telefone = '+' + String(identity).split('@')[0]!.replace(/[^0-9]/g, '');
+  return noTenant(session.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       select c.id from conversa c
         join contato ct on ct.id = c.contato_id
@@ -71,34 +71,34 @@ export async function conversaDaIdentidade(
 }
 
 export async function responder(
-  sessao: Sessao,
-  conversaId: string,
+  session: Session,
+  conversationId: string,
   texto: string,
-): Promise<{ mensagemId: string; dentroDaJanela: boolean }> {
-  const enfileirada = await enviarMensagem({
-    tenantId: sessao.tenantId,
-    conversaId,
-    atendenteId: sessao.usuarioId,
+): Promise<{ messageId: string; windowDentro: boolean }> {
+  const enfileirada = await sendMessage({
+    tenantId: session.tenantId,
+    conversationId,
+    atendenteId: session.userId,
     texto,
   });
   /* `dentroDaJanela` sobe junto porque fora da janela de 24h a Meta só entrega
      template: a tela precisa saber disso para avisar quem escreveu. */
-  return { mensagemId: enfileirada.id, dentroDaJanela: enfileirada.dentroDaJanela };
+  return { messageId: enfileirada.id, windowDentro: enfileirada.insideOfWindow };
 }
 
-export async function transferirParaFila(
-  sessao: Sessao,
-  conversaId: string,
-  nomeDaFila: string,
+export async function transferirForQueue(
+  session: Session,
+  conversationId: string,
+  queueName: string,
 ): Promise<void> {
-  const filaId = await noTenant(sessao.tenantId, async (tx) => {
+  const queueId = await noTenant(session.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(
-      sql`select id from fila where nome = ${nomeDaFila} limit 1`,
+      sql`select id from fila where nome = ${queueName} limit 1`,
     );
     return rows[0]?.id ?? null;
   });
-  if (!filaId) throw new Error(`fila "${nomeDaFila}" não existe neste cliente`);
-  await transferirConversa(ator(sessao, false), { conversaId, paraFilaId: filaId });
+  if (!queueId) throw new Error(`fila "${queueName}" não existe neste cliente`);
+  await transferConversation(ator(session, false), { conversationId, forQueueId: queueId });
 }
 
 /**
@@ -111,11 +111,11 @@ export async function transferirParaFila(
  * seria pior do que registrar um motivo genérico.
  */
 export async function encerrar(
-  sessao: Sessao,
-  conversaId: string,
+  session: Session,
+  conversationId: string,
   nomes: string[] = [],
 ): Promise<void> {
-  const etiquetaId = await noTenant(sessao.tenantId, async (tx) => {
+  const etiquetaId = await noTenant(session.tenantId, async (tx) => {
     const nome = nomes[0];
     if (nome) {
       const { rows } = await tx.execute<{ id: string }>(
@@ -123,18 +123,18 @@ export async function encerrar(
       );
       if (rows[0]) return rows[0].id;
     }
-    const { rows: primeira } = await tx.execute<{ id: string }>(
+    const { rows: first } = await tx.execute<{ id: string }>(
       sql`select id from etiqueta where escopo = 'conversa' order by criado_em limit 1`,
     );
-    if (primeira[0]) return primeira[0].id;
+    if (first[0]) return first[0].id;
 
     const { rows: criada } = await tx.execute<{ id: string }>(sql`
       insert into etiqueta (tenant_id, nome, escopo)
-      values (${sessao.tenantId}::uuid, ${nome ?? 'Encerrado pelo atendente'}, 'conversa')
+      values (${session.tenantId}::uuid, ${nome ?? 'Encerrado pelo atendente'}, 'conversa')
       returning id
     `);
     return criada[0]!.id;
   });
 
-  await encerrarConversa(ator(sessao, true), { conversaId, etiquetaId });
+  await closeConversation(ator(session, true), { conversationId, etiquetaId });
 }

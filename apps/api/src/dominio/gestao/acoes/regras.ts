@@ -1,15 +1,15 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
-import { horarioAtendimento, horarioExcecao, horarioFaixa } from '@pipe/db/schema';
-import type { TransacaoPipe, Ator } from '@pipe/db';
-import { ErroPipe } from '../../../erros.js';
-import { exigirPermissao } from '../../../sessao.js';
-import { HORARIO_GERENCIAR, alternarAtivaDaRegraFila, gravarRegraFila } from '../cadastros.js';
+import { scheduleAttendance, scheduleException, horarioFaixa } from '@pipe/db/schema';
+import type { TransactionPipe, Ator } from '@pipe/db';
+import { PipeError } from '../../../erros.js';
+import { exigirPermission } from '../../../sessao.js';
+import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../cadastros.js';
 import { campoValido, operadorValido, type OperadorDeRegra } from '../regra-fila.js';
 import { minutosDoRelogio, relogioValido } from '../formato.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -28,8 +28,8 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
 
 const OK: Resultado = { ok: true };
 
-function falha(erro: string): Resultado {
-  return { ok: false, erro };
+function falha(error: string): Resultado {
+  return { ok: false, error };
 }
 
 /**
@@ -52,7 +52,7 @@ async function comoResultado(fn: () => Promise<Resultado>): Promise<Resultado> {
   try {
     return await fn();
   } catch (erro) {
-    if (erro instanceof ErroPipe) return falha(erro.message);
+    if (erro instanceof PipeError) return falha(erro.message);
     throw erro;
   }
 }
@@ -60,7 +60,7 @@ async function comoResultado(fn: () => Promise<Resultado>): Promise<Resultado> {
 // ------------------------------------------------------------------ horário
 
 export async function salvarHorario(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
@@ -69,12 +69,12 @@ export async function salvarHorario(
 }
 
 async function salvarHorarioInterno(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
+  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const nome = String(dados.get('nome') ?? '').trim();
   const fusoBruto = String(dados.get('fuso') ?? '').trim();
 
@@ -90,13 +90,13 @@ async function salvarHorarioInterno(
     // `horario_atendimento` não tem índice único de nome; a unicidade é regra
     // desta tela. Dois "Comercial" fariam o gestor ligar a fila no errado.
     const [conflito] = await tx
-      .select({ id: horarioAtendimento.id })
-      .from(horarioAtendimento)
-      .where(and(eq(horarioAtendimento.tenantId, tid), eq(horarioAtendimento.nome, nome)))
+      .select({ id: scheduleAttendance.id })
+      .from(scheduleAttendance)
+      .where(and(eq(scheduleAttendance.tenantId, tid), eq(scheduleAttendance.nome, nome)))
       .limit(1);
     if (conflito) return falha(`Já existe um horário chamado "${nome}".`);
 
-    await tx.insert(horarioAtendimento).values({ tenantId: tid, nome, fuso });
+    await tx.insert(scheduleAttendance).values({ tenantId: tid, nome, fuso });
     return OK;
   });
 }
@@ -104,21 +104,21 @@ async function salvarHorarioInterno(
 // -------------------------------------------------------------------- faixa
 
 export async function salvarFaixa(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  dados: Campos,
+  data: Campos,
 ): Promise<Resultado> {
-  return comoResultado(() => salvarFaixaInterna(tx, tid, ator, dados));
+  return comoResultado(() => salvarFaixaInterna(tx, tid, ator, data));
 }
 
 async function salvarFaixaInterna(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
+  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const diaBruto = String(dados.get('diaSemana') ?? '').trim();
   const inicio = String(dados.get('inicio') ?? '').trim();
@@ -138,9 +138,9 @@ async function salvarFaixaInterna(
 
   return consultar(tx, async (tx) => {
     const [horario] = await tx
-      .select({ id: horarioAtendimento.id })
-      .from(horarioAtendimento)
-      .where(and(eq(horarioAtendimento.tenantId, tid), eq(horarioAtendimento.id, horarioId)))
+      .select({ id: scheduleAttendance.id })
+      .from(scheduleAttendance)
+      .where(and(eq(scheduleAttendance.tenantId, tid), eq(scheduleAttendance.id, horarioId)))
       .limit(1);
     if (!horario) return falha('Horário não encontrado.');
 
@@ -167,22 +167,22 @@ async function salvarFaixaInterna(
 
 // ------------------------------------------------------------------ exceção
 
-export async function salvarExcecao(
-  tx: TransacaoPipe,
+export async function saveException(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  return comoResultado(() => salvarExcecaoInterna(tx, tid, ator, dados));
+  return comoResultado(() => saveExceptionInternal(tx, tid, ator, dados));
 }
 
-async function salvarExcecaoInterna(
-  tx: TransacaoPipe,
+async function saveExceptionInternal(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
+  await exigirPermission(tx, ator.id ?? '', SCHEDULE_MANAGE);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const data = String(dados.get('data') ?? '').trim();
   const fechado = dados.get('fechado') !== null;
@@ -213,22 +213,22 @@ async function salvarExcecaoInterna(
 
   return consultar(tx, async (tx) => {
     const [horario] = await tx
-      .select({ id: horarioAtendimento.id })
-      .from(horarioAtendimento)
-      .where(and(eq(horarioAtendimento.tenantId, tid), eq(horarioAtendimento.id, horarioId)))
+      .select({ id: scheduleAttendance.id })
+      .from(scheduleAttendance)
+      .where(and(eq(scheduleAttendance.tenantId, tid), eq(scheduleAttendance.id, horarioId)))
       .limit(1);
     if (!horario) return falha('Horário não encontrado.');
 
     // `horario_excecao_uk` é único de verdade em (horário, data). O `select`
     // existe para a mensagem: erro de constraint chega como 500 sem contexto.
     const [conflito] = await tx
-      .select({ id: horarioExcecao.id })
-      .from(horarioExcecao)
-      .where(and(eq(horarioExcecao.horarioId, horarioId), eq(horarioExcecao.data, data)))
+      .select({ id: scheduleException.id })
+      .from(scheduleException)
+      .where(and(eq(scheduleException.horarioId, horarioId), eq(scheduleException.data, data)))
       .limit(1);
     if (conflito) return falha(`Já existe uma exceção em ${data} para este horário.`);
 
-    await tx.insert(horarioExcecao).values({
+    await tx.insert(scheduleException).values({
       tenantId: tid,
       horarioId,
       data,
@@ -259,60 +259,60 @@ async function salvarExcecaoInterna(
  * As condições chegam como três listas paralelas (`campo[]`, `operador[]`,
  * `valor[]`), que é como o `FormData` devolve campos repetidos.
  */
-export async function salvarRegraFila(
-  tx: TransacaoPipe,
+export async function saveRuleQueue(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
   const nome = String(dados.get('nome') ?? '').trim();
-  const filaDestinoId = String(dados.get('filaDestinoId') ?? '').trim();
+  const queueDestinationId = String(dados.get('filaDestinoId') ?? '').trim();
   const combinador = String(dados.get('combinador') ?? 'e').trim();
-  const ordemBruta = String(dados.get('ordem') ?? '').trim();
+  const orderRaw = String(dados.get('ordem') ?? '').trim();
 
   if (!nome) return falha('Informe o nome da regra.');
-  if (!filaDestinoId) return falha('Escolha a fila de destino.');
+  if (!queueDestinationId) return falha('Escolha a fila de destino.');
   if (combinador !== 'e' && combinador !== 'ou') return falha('Combinador inválido.');
 
-  const ordem = Number(ordemBruta || '0');
-  if (!Number.isInteger(ordem) || ordem < 0 || ordem > 999) {
+  const order = Number(orderRaw || '0');
+  if (!Number.isInteger(order) || order < 0 || order > 999) {
     return falha('A ordem é um inteiro de 0 a 999 — é ela que decide qual regra é avaliada antes.');
   }
 
   const campos = dados.getAll('campo').map((v) => String(v).trim());
   const operadores = dados.getAll('operador').map((v) => String(v).trim());
-  const valores = dados.getAll('valor').map((v) => String(v).trim());
+  const values = dados.getAll('valor').map((v) => String(v).trim());
 
-  const condicoes: { campo: string; operador: OperadorDeRegra; valor: string }[] = [];
+  const conditions: { campo: string; operador: OperadorDeRegra; value: string }[] = [];
   for (let i = 0; i < campos.length; i += 1) {
     const campo = campos[i] ?? '';
     const operador = operadores[i] ?? '';
-    const valor = valores[i] ?? '';
+    const value = values[i] ?? '';
     // Linha em branco é linha que a pessoa não preencheu, não erro: o
     // formulário nasce com uma e ninguém é obrigado a usar as que acrescentou.
-    if (!campo && !valor) continue;
+    if (!campo && !value) continue;
     if (!campoValido(campo)) {
       return falha(
         `"${campo}" não é um campo válido. Use um dos fixos ou um campo extra como contato.atributos.plano.`,
       );
     }
     if (!operadorValido(operador)) return falha('Operador inválido.');
-    if (!valor) return falha(`A condição sobre "${campo}" ficou sem valor.`);
-    condicoes.push({ campo, operador, valor });
+    if (!value) return falha(`A condição sobre "${campo}" ficou sem valor.`);
+    conditions.push({ campo, operador, value });
   }
 
-  if (condicoes.length === 0) {
+  if (conditions.length === 0) {
     return falha('Uma regra sem condição nunca casa. Preencha pelo menos uma.');
   }
 
-  const gravado = await gravarRegraFila(tx, tid, ator, {
+  const gravado = await writeRuleQueue(tx, tid, ator, {
     nome,
-    ordem,
+    order,
     combinador,
-    filaDestinoId,
-    condicoes,
+    queueDestinationId,
+    conditions,
   });
-  if (!gravado.ok) return falha(gravado.erro);
+  if (!gravado.ok) return falha(gravado.error);
   return OK;
 }
 
@@ -323,14 +323,14 @@ export async function salvarRegraFila(
  * Ele existe agora porque a auditoria existe agora: é exatamente a condição que
  * o comentário de `componentes/lista-regras.tsx` registrou.
  */
-export async function alternarRegraFila(
-  tx: TransacaoPipe,
+export async function toggleRuleQueue(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
   const id = String(dados.get('id') ?? '').trim();
   if (!id) return falha('Regra não informada.');
-  const gravacao = await alternarAtivaDaRegraFila(tx, tid, ator, id);
-  return gravacao.ok ? OK : falha(gravacao.erro);
+  const recording = await toggleActiveOfRuleQueue(tx, tid, ator, id);
+  return recording.ok ? OK : falha(recording.error);
 }

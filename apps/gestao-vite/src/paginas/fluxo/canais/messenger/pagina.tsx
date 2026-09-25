@@ -1,14 +1,14 @@
 import { useState } from 'react';
-import type { CanalDoFluxo, CanalDoFluxoNaTela } from '@pipe/contracts';
+import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { Botao } from '@pipe/ui';
-import { ErroDaApi } from '../../../../lib/api';
-import { useLeitura } from '../../../../lib/consulta';
-import { estadoDoCanalNoBot } from '../../../../lib/canal-do-fluxo';
+import { ApiError } from '../../../../lib/api';
+import { useRead } from '../../../../lib/consulta';
+import { channelInBotState } from '../../../../lib/canal-do-fluxo';
 import { ConectarMessengerManual } from '../../../cadastros/canal-conectar-manual';
-import { FalhaDeLeitura, useContato } from '../../contato';
-import { LogoDeCanal } from '../canais';
-import { CascaDoCanal, type AbaDoCanal } from '../casca-do-canal';
-import { AvisoDeOutroCanal, EscolherCanalExistente, ModalDesconectar } from '../conexao';
+import { ReadFalha, useContact } from '../../contato';
+import { ChannelLogo } from '../canais';
+import { ChannelShell, type ChannelAba } from '../casca-do-canal';
+import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
 
 /**
  * O Messenger por dentro do BOT — `…channels/messenger`. A página atual da
@@ -24,44 +24,44 @@ import { AvisoDeOutroCanal, EscolherCanalExistente, ModalDesconectar } from '../
  * escolha de uma Página que a conta já tem.
  */
 
-const ABAS: readonly AbaDoCanal[] = [{ rotulo: 'Visão Geral', segmento: '' }];
+const ABAS: readonly ChannelAba[] = [{ rotulo: 'Visão Geral', segment: '' }];
 
-export function PaginaCanalMessenger() {
-  const { contato } = useContato();
-  const leitura = useLeitura<CanalDoFluxoNaTela>(`/v1/gestao/fluxos/${contato.id}/canal`);
+export function PageChannelMessenger() {
+  const { contact } = useContact();
+  const read = useRead<ChannelOfFlowInScreen>(`/v1/gestao/fluxos/${contact.id}/canal`);
 
-  if (leitura.error && !(leitura.error instanceof ErroDaApi && leitura.error.status === 404)) {
-    return <FalhaDeLeitura erro={leitura.error} />;
+  if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
+    return <ReadFalha error={read.error} />;
   }
-  if (!leitura.data) return null;
-  const situacao = estadoDoCanalNoBot(leitura.data.canal, 'messenger');
+  if (!read.data) return null;
+  const situation = channelInBotState(read.data.channel, 'messenger');
 
   return (
-    <CascaDoCanal tipo="messenger" titulo="Messenger" abas={ABAS} conectado={situacao.estado === 'conectado'}>
-      {situacao.estado === 'conectado' ? (
-        <Conectado fluxoId={contato.id} canal={situacao.canal} />
-      ) : situacao.estado === 'outro_canal' ? (
+    <ChannelShell tipo="messenger" titulo="Messenger" abas={ABAS} conectado={situation.state === 'conectado'}>
+      {situation.state === 'conectado' ? (
+        <Conectado flowId={contact.id} channel={situation.channel} />
+      ) : situation.state === 'outro_canal' ? (
         <div className="cb-linha">
           <div className="cb-icone-coluna">
-            <LogoDeCanal nome="messenger" />
+            <ChannelLogo nome="messenger" />
           </div>
           <div className="cb-coluna">
-            <AvisoDeOutroCanal canal={situacao.canal} rotulo="Messenger" />
+            <OtherChannelNotice channel={situation.channel} rotulo="Messenger" />
           </div>
         </div>
       ) : (
-        <Desconectado fluxoId={contato.id} disponiveis={leitura.data.disponiveis} />
+        <Desconectado flowId={contact.id} disponiveis={read.data.disponiveis} />
       )}
-    </CascaDoCanal>
+    </ChannelShell>
   );
 }
 
-function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo }) {
+function Conectado({ flowId, channel }: { flowId: string; channel: ChannelOfFlow }) {
   const [desconectando, setDesconectando] = useState(false);
   return (
     <div className="cb-linha">
       <div className="cb-icone-coluna">
-        <LogoDeCanal nome="messenger" />
+        <ChannelLogo nome="messenger" />
       </div>
       <div className="cb-coluna">
         <p className="cb-typo-16">
@@ -69,10 +69,10 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
         </p>
         <span className="cb-chip">
           <span className="cb-chip-avatar" aria-hidden="true">
-            <LogoDeCanal nome="messenger" />
+            <ChannelLogo nome="messenger" />
           </span>
-          {canal.nome}
-          {canal.numero ? ` (${canal.numero})` : ''}
+          {channel.nome}
+          {channel.numero ? ` (${channel.numero})` : ''}
         </span>
         <div className="cb-acoes-direita">
           <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
@@ -81,7 +81,7 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
         </div>
         <ModalDesconectar
           aberto={desconectando}
-          fluxoId={fluxoId}
+          flowId={flowId}
           tipo="messenger"
           onFechar={() => setDesconectando(false)}
         />
@@ -90,16 +90,16 @@ function Conectado({ fluxoId, canal }: { fluxoId: string; canal: CanalDoFluxo })
   );
 }
 
-function Desconectado({ fluxoId, disponiveis }: { fluxoId: string; disponiveis: CanalDoFluxo[] }) {
+function Desconectado({ flowId, disponiveis }: { flowId: string; disponiveis: ChannelOfFlow[] }) {
   const [escolhendo, setEscolhendo] = useState(false);
-  const temPaginaLivre = disponiveis.some(
-    (c) => c.tipo === 'messenger' && c.ativo && (c.fluxoId === null || c.fluxoId === fluxoId),
+  const temPageLivre = disponiveis.some(
+    (c) => c.tipo === 'messenger' && c.ativo && (c.flowId === null || c.flowId === flowId),
   );
 
   if (escolhendo) {
     return (
-      <EscolherCanalExistente
-        fluxoId={fluxoId}
+      <EscolherChannelExistente
+        flowId={flowId}
         tipo="messenger"
         disponiveis={disponiveis}
         onVoltar={() => setEscolhendo(false)}
@@ -110,7 +110,7 @@ function Desconectado({ fluxoId, disponiveis }: { fluxoId: string; disponiveis: 
   return (
     <div className="cb-linha">
       <div className="cb-icone-coluna">
-        <LogoDeCanal nome="messenger" />
+        <ChannelLogo nome="messenger" />
       </div>
       <div className="cb-coluna">
         <p className="cb-typo-16">
@@ -123,8 +123,8 @@ function Desconectado({ fluxoId, disponiveis }: { fluxoId: string; disponiveis: 
           utilizá-la.
         </p>
         <div className="cb-acoes-direita">
-          <ConectarMessengerManual fluxoId={fluxoId} rotulo="Conectar-se ao Messenger" variante="primario" />
-          {temPaginaLivre ? (
+          <ConectarMessengerManual flowId={flowId} rotulo="Conectar-se ao Messenger" variante="primario" />
+          {temPageLivre ? (
             <Botao type="button" onClick={() => setEscolhendo(true)}>
               Usar uma Página já conectada
             </Botao>

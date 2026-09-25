@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { enfileirarImportacao } from '../filas.js';
+import { PipeError } from '../erros.js';
+import { enqueueImport } from '../filas.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT): a action `import` de
@@ -20,11 +20,11 @@ import { enfileirarImportacao } from '../filas.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export interface ImportacaoVisivel {
+export interface ImportVisible {
   id: string;
   nome: string | null;
   /** `pronta` (pending), `executando` (processing), `concluida` (completed) ou `falhou` (failed). */
-  estado: string;
+  state: string;
   total: number;
   aceitos: number;
   rejeitados: number;
@@ -34,10 +34,10 @@ export interface ImportacaoVisivel {
   atualizadoEm: Date | null;
 }
 
-type LinhaImportacao = {
-  [coluna: string]: unknown;
+type LineImport = {
+  [column: string]: unknown;
   id: string;
-  arquivo: string | null;
+  file: string | null;
   estado: string;
   total: number;
   aceitos: number;
@@ -47,11 +47,11 @@ type LinhaImportacao = {
   atualizado_em: string | Date | null;
 };
 
-function visivel(linha: LinhaImportacao): ImportacaoVisivel {
+function visivel(linha: LineImport): ImportVisible {
   return {
     id: linha.id,
-    nome: linha.arquivo,
-    estado: linha.estado,
+    nome: linha.file,
+    state: linha.estado,
     total: Number(linha.total),
     aceitos: Number(linha.aceitos),
     rejeitados: Number(linha.rejeitados),
@@ -61,14 +61,14 @@ function visivel(linha: LinhaImportacao): ImportacaoVisivel {
   };
 }
 
-export async function criarImportacao(
+export async function createImport(
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   conteudo: string | undefined,
   nome?: string | undefined,
-): Promise<ImportacaoVisivel> {
+): Promise<ImportVisible> {
   // `errors.contacts.import.failed`, no pt_BR do Chatwoot.
-  if (!conteudo || !conteudo.trim()) throw new ErroPipe(422, 'arquivo_vazio', 'Arquivo vazio');
+  if (!conteudo || !conteudo.trim()) throw new PipeError(422, 'arquivo_vazio', 'Arquivo vazio');
 
   // `set_default_name`: "Contacts - 2026-09-11".
   const nomeFinal = nome?.trim() || `Contatos - ${new Date().toISOString().slice(0, 10)}`;
@@ -87,7 +87,7 @@ export async function criarImportacao(
       values (${novo}::uuid, ${tenantId}::uuid, ${limpo})
     `);
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'criou',
       objetoTipo: 'importacao',
       objetoId: novo,
@@ -98,8 +98,8 @@ export async function criarImportacao(
 
   // `after_create_commit :process_data_import` — depois do commit, nunca dentro:
   // o worker precisa enxergar a linha que acabou de ser gravada.
-  await enfileirarImportacao({ tenantId, importacaoId: id });
-  return lerImportacao(tenantId, id);
+  await enqueueImport({ tenantId, importId: id });
+  return readImport(tenantId, id);
 }
 
 const COLUNAS = sql`
@@ -107,10 +107,10 @@ const COLUNAS = sql`
   (a.falhas_csv is not null) as tem_falhas
 `;
 
-export async function lerImportacao(tenantId: string, id: string): Promise<ImportacaoVisivel> {
-  if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Importação');
+export async function readImport(tenantId: string, id: string): Promise<ImportVisible> {
+  if (!UUID.test(id)) throw PipeError.naoEncontrado('Importação');
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaImportacao>(sql`
+    const { rows } = await tx.execute<LineImport>(sql`
       select ${COLUNAS}
         from importacao i
         left join importacao_arquivo a on a.importacao_id = i.id
@@ -119,13 +119,13 @@ export async function lerImportacao(tenantId: string, id: string): Promise<Impor
     `);
     return rows[0] ?? null;
   });
-  if (!linha) throw ErroPipe.naoEncontrado('Importação');
+  if (!linha) throw PipeError.naoEncontrado('Importação');
   return visivel(linha);
 }
 
-export async function listarImportacoes(tenantId: string, limite = 5): Promise<ImportacaoVisivel[]> {
+export async function listImports(tenantId: string, limite = 5): Promise<ImportVisible[]> {
   return noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaImportacao>(sql`
+    const { rows } = await tx.execute<LineImport>(sql`
       select ${COLUNAS}
         from importacao i
         left join importacao_arquivo a on a.importacao_id = i.id
@@ -139,13 +139,13 @@ export async function listarImportacoes(tenantId: string, limite = 5): Promise<I
 
 /** O CSV das linhas rejeitadas (`failed_records`). 404 quando nada foi rejeitado. */
 export async function lerFalhas(tenantId: string, id: string): Promise<string> {
-  if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Relatório');
+  if (!UUID.test(id)) throw PipeError.naoEncontrado('Relatório');
   const falhas = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ falhas_csv: string | null }>(sql`
       select falhas_csv from importacao_arquivo where importacao_id = ${id}::uuid limit 1
     `);
     return rows[0]?.falhas_csv ?? null;
   });
-  if (!falhas) throw ErroPipe.naoEncontrado('Relatório');
+  if (!falhas) throw PipeError.naoEncontrado('Relatório');
   return falhas;
 }

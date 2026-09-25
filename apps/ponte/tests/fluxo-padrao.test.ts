@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { converterDoEditor, validarFluxo } from '@pipe/core';
-import { ACOES_GLOBAIS_PADRAO, FLUXO_PADRAO } from '../src/fluxo-padrao.js';
+import { converterDoEditor, validateFlow } from '@pipe/core';
+import { ACTIONS_GLOBAL_DEFAULT, FLOW_DEFAULT } from '../src/fluxo-padrao.js';
 
 /**
  * O fluxo padrão é a primeira coisa que o cliente vê no Builder. Se ele não for
@@ -12,27 +12,27 @@ import { ACOES_GLOBAIS_PADRAO, FLUXO_PADRAO } from '../src/fluxo-padrao.js';
 
 describe('fluxo padrão do Builder', () => {
   const compilado = converterDoEditor(
-    { flow: FLUXO_PADRAO as never, globalActions: ACOES_GLOBAIS_PADRAO as never },
+    { flow: FLOW_DEFAULT as never, globalActions: ACTIONS_GLOBAL_DEFAULT as never },
     'fluxo-de-teste',
   );
 
   it('passa na validação do motor — ou seja, dá para publicar sem mexer em nada', () => {
-    expect(() => validarFluxo(compilado)).not.toThrow();
+    expect(() => validateFlow(compilado)).not.toThrow();
   });
 
   it('o bloco inicial espera a mensagem do cliente', () => {
-    const raiz = FLUXO_PADRAO['onboarding'] as { $contentActions: { input?: unknown }[] };
+    const raiz = FLOW_DEFAULT['onboarding'] as { $contentActions: { input?: unknown }[] };
     expect(raiz.$contentActions.some((a) => a.input)).toBe(true);
   });
 
   it('o transbordo usa o prefixo que o motor reconhece', () => {
     // `desk:` é o que faz o motor tratar o bloco como atendimento humano.
-    expect(Object.keys(FLUXO_PADRAO).some((id) => id.startsWith('desk:'))).toBe(true);
+    expect(Object.keys(FLOW_DEFAULT).some((id) => id.startsWith('desk:'))).toBe(true);
   });
 
   it('é mesmo o menor fluxo útil: dois blocos, sem ramificação', () => {
-    expect(Object.keys(FLUXO_PADRAO)).toHaveLength(2);
-    const raiz = FLUXO_PADRAO['onboarding'] as { $conditionOutputs: unknown[] };
+    expect(Object.keys(FLOW_DEFAULT)).toHaveLength(2);
+    const raiz = FLOW_DEFAULT['onboarding'] as { $conditionOutputs: unknown[] };
     expect(raiz.$conditionOutputs).toHaveLength(0);
   });
 });

@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, Botao, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import {
-  caminhoDasPermissoes,
-  salvarPermissoes,
-  type PermissoesDoAtendente,
+  permissionsCaminho,
+  salvarPermissions,
+  type AgentPermissions,
 } from '../../lib/atendentes-gravar';
-import { descricaoDasPermissoes } from '../../lib/atendentes';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from '../operacao/casca';
+import { permissionsDescription } from '../../lib/atendentes';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from '../operacao/casca';
 
 /**
  * `/team/permission` da origem — PÁGINA PRÓPRIA, não modal
@@ -27,19 +27,19 @@ import { baseDoAtendimento } from '../operacao/casca';
  * por pessoa sobre o papel — ver o comentário daquele arquivo para a conta
  * completa.
  */
-export function PaginaPermissoesDeAtendente() {
+export function AgentPagePermissions() {
   const [params] = useSearchParams();
   const navegar = useNavigate();
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
   const ids = (params.get('atendentes') ?? '').split(',').filter(Boolean);
 
-  const caminho = caminhoDasPermissoes(ids);
-  const leitura = useLeitura<PermissoesDoAtendente>(caminho);
+  const caminho = permissionsCaminho(ids);
+  const read = useRead<AgentPermissions>(caminho);
 
   const [editado, setEditado] = useState<Record<string, boolean>>({});
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   if (!caminho) {
     return (
@@ -54,10 +54,10 @@ export function PaginaPermissoesDeAtendente() {
     );
   }
 
-  if (!leitura.data) return null;
-  const { atendentes, permissoes } = leitura.data;
+  if (!read.data) return null;
+  const { agents, permissions } = read.data;
 
-  function valorAtual(codigo: string, ligada: boolean): boolean {
+  function valueCurrent(codigo: string, ligada: boolean): boolean {
     return codigo in editado ? editado[codigo]! : ligada;
   }
 
@@ -65,12 +65,12 @@ export function PaginaPermissoesDeAtendente() {
     setEditado((e) => ({ ...e, [codigo]: !atual }));
   }
 
-  async function salvarAlteracoes() {
+  async function salvarChanges() {
     if (Object.keys(editado).length === 0) return;
     setSalvando(true);
-    setErro(null);
-    const resultado = await salvarPermissoes(
-      atendentes.map((a) => a.id),
+    setError(null);
+    const resultado = await salvarPermissions(
+      agents.map((a) => a.id),
       editado,
     );
     setSalvando(false);
@@ -78,7 +78,7 @@ export function PaginaPermissoesDeAtendente() {
       setEditado({});
       navegar(`${base}/atendentes/gestao`);
     } else {
-      setErro(resultado.erro);
+      setError(resultado.error);
     }
   }
 
@@ -88,10 +88,10 @@ export function PaginaPermissoesDeAtendente() {
         <h2>Permissões</h2>
       </div>
 
-      <p className="sub">{descricaoDasPermissoes(atendentes.map((a) => a.nome))}</p>
+      <p className="sub">{permissionsDescription(agents.map((a) => a.nome))}</p>
 
       <div className="lista-selecionados">
-        {atendentes.map((a) => (
+        {agents.map((a) => (
           <span key={a.id} className="selecionado-chip">
             <Avatar nome={a.nome} /> {a.nome}
           </span>
@@ -111,12 +111,12 @@ export function PaginaPermissoesDeAtendente() {
               </tr>
             </thead>
             <tbody>
-              {permissoes.map((p) => {
-                const ligada = valorAtual(p.codigo, p.ligada);
+              {permissions.map((p) => {
+                const ligada = valueCurrent(p.codigo, p.ligada);
                 const parcial = !(p.codigo in editado) && p.parcial;
                 return (
                   <tr key={p.codigo}>
-                    <td>{p.descricao}</td>
+                    <td>{p.description}</td>
                     <td>
                       <button
                         type="button"
@@ -124,7 +124,7 @@ export function PaginaPermissoesDeAtendente() {
                         role="switch"
                         aria-checked={ligada}
                         data-parcial={parcial ? 'true' : undefined}
-                        aria-label={p.descricao}
+                        aria-label={p.description}
                         title={parcial ? 'Uns têm, outros não' : undefined}
                         onClick={() => alternar(p.codigo, ligada)}
                       >
@@ -139,7 +139,7 @@ export function PaginaPermissoesDeAtendente() {
         </div>
       </div>
 
-      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="button" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={salvando}>
@@ -148,7 +148,7 @@ export function PaginaPermissoesDeAtendente() {
         <Botao
           type="button"
           variante="primario"
-          onClick={() => void salvarAlteracoes()}
+          onClick={() => void salvarChanges()}
           disabled={salvando || Object.keys(editado).length === 0}
         >
           {salvando ? 'Salvando…' : 'Salvar alterações'}

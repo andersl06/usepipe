@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { avaliarExpressao, type Expressao } from '@pipe/core';
-import { regraPrioridade } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
+import { rulePriority } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
 
 /**
  * O motor de `regra_prioridade` — item 2 da tarefa de "fazer funcionar o que só
@@ -32,30 +32,30 @@ import type { TransacaoPipe } from '@pipe/db';
  * legítimo e não deveria exigir uma condição de mentira só para casar sempre.
  */
 
-export interface RegraPrioridadeParaMotor {
+export interface RulePriorityForEngine {
   id: string;
   nivel: string;
-  escopoTipo: string;
-  escopoId: string | null;
-  condicao: Record<string, unknown>;
+  scopeType: string;
+  scopeId: string | null;
+  condition: Record<string, unknown>;
   criadoEm: Date;
 }
 
-export async function carregarRegrasDePrioridadeAtivas(
-  tx: TransacaoPipe,
-): Promise<RegraPrioridadeParaMotor[]> {
+export async function loadRulesOfPriorityActive(
+  tx: TransactionPipe,
+): Promise<RulePriorityForEngine[]> {
   const linhas = await tx
     .select({
-      id: regraPrioridade.id,
-      nivel: regraPrioridade.nivel,
-      escopoTipo: regraPrioridade.escopoTipo,
-      escopoId: regraPrioridade.escopoId,
-      condicao: regraPrioridade.condicao,
-      criadoEm: regraPrioridade.criadoEm,
+      id: rulePriority.id,
+      nivel: rulePriority.nivel,
+      escopoTipo: rulePriority.scopeType,
+      escopoId: rulePriority.scopeId,
+      condicao: rulePriority.condition,
+      criadoEm: rulePriority.criadoEm,
     })
-    .from(regraPrioridade)
-    .where(and(eq(regraPrioridade.ativa, true)))
-    .orderBy(asc(regraPrioridade.criadoEm), asc(regraPrioridade.id));
+    .from(rulePriority)
+    .where(and(eq(rulePriority.ativa, true)))
+    .orderBy(asc(rulePriority.criadoEm), asc(rulePriority.id));
   return linhas.map((l) => ({ ...l, condicao: (l.condicao ?? {}) as Record<string, unknown> }));
 }
 
@@ -64,27 +64,27 @@ export async function carregarRegrasDePrioridadeAtivas(
  * arquivo. Escopo `fila` (0) antes de `tenant` (1); empate desempata pela
  * mais antiga, e um empate residual (mesmo instante) pelo id.
  */
-export function ordenarRegrasDePrioridade(
-  regras: readonly RegraPrioridadeParaMotor[],
-): RegraPrioridadeParaMotor[] {
+export function ordenarRulesOfPriority(
+  regras: readonly RulePriorityForEngine[],
+): RulePriorityForEngine[] {
   return [...regras].sort((a, b) => {
-    const pesoA = a.escopoTipo === 'fila' ? 0 : 1;
-    const pesoB = b.escopoTipo === 'fila' ? 0 : 1;
+    const pesoA = a.scopeType === 'fila' ? 0 : 1;
+    const pesoB = b.scopeType === 'fila' ? 0 : 1;
     if (pesoA !== pesoB) return pesoA - pesoB;
     const diferenca = a.criadoEm.getTime() - b.criadoEm.getTime();
     return diferenca !== 0 ? diferenca : a.id.localeCompare(b.id);
   });
 }
 
-function condicaoVazia(condicao: Record<string, unknown>): boolean {
-  return Object.keys(condicao).length === 0;
+function conditionEmpty(condition: Record<string, unknown>): boolean {
+  return Object.keys(condition).length === 0;
 }
 
 /** O que a conversa recém-chegada oferece à condição — mesmo desenho de `ContextoDaConversa` em `regra-fila.ts`. */
-export interface ContextoDePrioridade {
-  filaId?: string | null;
-  mensagem?: string | null;
-  contato?: {
+export interface ContextOfPriority {
+  queueId?: string | null;
+  message?: string | null;
+  contact?: {
     nome?: string | null;
     email?: string | null;
     telefone?: string | null;
@@ -98,17 +98,17 @@ export interface ContextoDePrioridade {
  * `null` quando nenhuma casa: a conversa mantém `sem_prioridade`, o padrão de
  * `conversa.prioridade` — não muda o comportamento de quem não cadastrou regra.
  */
-export function avaliarPrioridade(
-  regras: readonly RegraPrioridadeParaMotor[],
-  contexto: ContextoDePrioridade,
+export function avaliarPriority(
+  regras: readonly RulePriorityForEngine[],
+  context: ContextOfPriority,
 ): string | null {
-  for (const regra of ordenarRegrasDePrioridade(regras)) {
-    if (regra.escopoTipo === 'fila' && regra.escopoId !== (contexto.filaId ?? null)) continue;
+  for (const regra of ordenarRulesOfPriority(regras)) {
+    if (regra.scopeType === 'fila' && regra.scopeId !== (context.queueId ?? null)) continue;
     if (
-      !condicaoVazia(regra.condicao) &&
+      !conditionEmpty(regra.condition) &&
       !avaliarExpressao(
-        regra.condicao as unknown as Expressao,
-        contexto as Readonly<Record<string, unknown>>,
+        regra.condition as unknown as Expressao,
+        context as Readonly<Record<string, unknown>>,
       )
     ) {
       continue;

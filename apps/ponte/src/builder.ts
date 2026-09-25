@@ -1,12 +1,12 @@
 import { sql } from 'drizzle-orm';
-import { FLUXO_PADRAO } from '@pipe/core';
+import { FLOW_DEFAULT } from '@pipe/core';
 import {
   carregarBuilder,
   publicarRascunho,
   salvarRascunho,
 } from '@pipe/api/dominio/gestao/builder-do-fluxo';
 import { noTenant } from './banco.js';
-import type { Sessao } from './rotas.js';
+import type { Session } from './rotas.js';
 
 /**
  * O Builder salvando e publicando de verdade.
@@ -47,15 +47,15 @@ import type { Sessao } from './rotas.js';
  */
 
 /** O fluxo de reserva, quando `PIPE_PONTE_FLUXO_ID` não aponta para um. */
-const NOME_DO_FLUXO = 'Fluxo do Builder';
+const NAME_OF_FLOW = 'Fluxo do Builder';
 
 /** Uma vez por processo: o fluxo não muda enquanto a ponte roda. */
-let fluxoIdResolvido: string | null = null;
+let flowIdResolved: string | null = null;
 
 /** O id do fluxo que a cópia edita — resolvendo (e criando, se preciso) na primeira chamada. */
-export async function fluxoDaPonte(sessao: Sessao): Promise<string> {
-  if (fluxoIdResolvido) return fluxoIdResolvido;
-  fluxoIdResolvido = await noTenant(sessao.tenantId, async (tx) => {
+export async function bridgeFlow(session: Session): Promise<string> {
+  if (flowIdResolved) return flowIdResolved;
+  flowIdResolved = await noTenant(session.tenantId, async (tx) => {
     const configurado = process.env['PIPE_PONTE_FLUXO_ID'];
     if (configurado) {
       const { rows } = await tx.execute<{ id: string }>(sql`
@@ -65,25 +65,25 @@ export async function fluxoDaPonte(sessao: Sessao): Promise<string> {
       `);
       if (!rows[0]) {
         throw new Error(
-          `ponte: PIPE_PONTE_FLUXO_ID=${configurado} não é um fluxo (não roteador, não arquivado) do tenant ${sessao.tenantId}`,
+          `ponte: PIPE_PONTE_FLUXO_ID=${configurado} não é um fluxo (não roteador, não arquivado) do tenant ${session.tenantId}`,
         );
       }
       return rows[0].id;
     }
     const { rows: existentes } = await tx.execute<{ id: string }>(sql`
       select id from fluxo
-       where nome = ${NOME_DO_FLUXO} and tipo = 'fluxo' and estado <> 'arquivado'
+       where nome = ${NAME_OF_FLOW} and tipo = 'fluxo' and estado <> 'arquivado'
        order by criado_em
        limit 1
     `);
     if (existentes[0]) return existentes[0].id;
     const { rows: criados } = await tx.execute<{ id: string }>(sql`
-      insert into fluxo (tenant_id, nome, tipo) values (${sessao.tenantId}, ${NOME_DO_FLUXO}, 'fluxo')
+      insert into fluxo (tenant_id, nome, tipo) values (${session.tenantId}, ${NAME_OF_FLOW}, 'fluxo')
       returning id
     `);
     return criados[0]!.id;
   });
-  return fluxoIdResolvido;
+  return flowIdResolved;
 }
 
 /**
@@ -91,29 +91,29 @@ export async function fluxoDaPonte(sessao: Sessao): Promise<string> {
  * cliente ainda não desenhou nada (o domínio já devolve o padrão; e um rascunho
  * gravado vazio também abre com o padrão, para a tela nunca abrir em branco).
  */
-export async function carregarRascunho(sessao: Sessao): Promise<Record<string, unknown> | null> {
-  const fluxoId = await fluxoDaPonte(sessao);
-  const builder = await noTenant(sessao.tenantId, (tx) =>
-    carregarBuilder(tx, sessao.tenantId, sessao.usuarioId, fluxoId),
+export async function carregarRascunho(session: Session): Promise<Record<string, unknown> | null> {
+  const flowId = await bridgeFlow(session);
+  const builder = await noTenant(session.tenantId, (tx) =>
+    carregarBuilder(tx, session.tenantId, session.userId, flowId),
   );
-  return Object.keys(builder.desenho.fluxo).length > 0 ? builder.desenho.fluxo : FLUXO_PADRAO;
+  return Object.keys(builder.desenho.flow).length > 0 ? builder.desenho.flow : FLOW_DEFAULT;
 }
 
-export async function carregarGlobais(sessao: Sessao): Promise<Record<string, unknown> | null> {
-  const fluxoId = await fluxoDaPonte(sessao);
-  const builder = await noTenant(sessao.tenantId, (tx) =>
-    carregarBuilder(tx, sessao.tenantId, sessao.usuarioId, fluxoId),
+export async function loadGlobal(session: Session): Promise<Record<string, unknown> | null> {
+  const flowId = await bridgeFlow(session);
+  const builder = await noTenant(session.tenantId, (tx) =>
+    carregarBuilder(tx, session.tenantId, session.userId, flowId),
   );
-  return builder.desenho.globais;
+  return builder.desenho.globals;
 }
 
-export interface ResultadoDaGravacao {
+export interface RecordingResult {
   versaoId: string;
   versao: number;
   publicado: boolean;
   naoSuportado: Record<string, number>;
   /** O fluxo foi gravado, mas o motor recusaria rodar — e por isso não publicou. */
-  erroDeValidacao: string | null;
+  validationError: string | null;
 }
 
 /**
@@ -122,30 +122,30 @@ export interface ResultadoDaGravacao {
  * então o motor passa a executar o fluxo novo. Inválido grava e não publica: a
  * frase do motor volta em `erroDeValidacao`, para a tela mostrar.
  */
-export async function gravarFluxo(
-  sessao: Sessao,
+export async function saveFlow(
+  session: Session,
   mapa: Record<string, unknown>,
-  globais: Record<string, unknown> | null,
+  global: Record<string, unknown> | null,
   publicar: boolean,
-): Promise<ResultadoDaGravacao> {
-  const fluxoId = await fluxoDaPonte(sessao);
-  return noTenant(sessao.tenantId, async (tx) => {
-    const rascunho = await salvarRascunho(tx, sessao.tenantId, sessao.usuarioId, fluxoId, {
+): Promise<RecordingResult> {
+  const flowId = await bridgeFlow(session);
+  return noTenant(session.tenantId, async (tx) => {
+    const rascunho = await salvarRascunho(tx, session.tenantId, session.userId, flowId, {
       fluxo: mapa,
-      globais: globais ?? {},
+      globais: global ?? {},
     });
-    const erroDeValidacao =
+    const validationError =
       rascunho.erros.length > 0 ? rascunho.erros.map((e) => e.mensagem).join(' ') : null;
-    if (!publicar || erroDeValidacao) {
+    if (!publicar || validationError) {
       return {
         versaoId: rascunho.versao.id,
         versao: rascunho.versao.versao,
         publicado: false,
         naoSuportado: rascunho.naoSuportado,
-        erroDeValidacao,
+        validationError,
       };
     }
-    const publicada = await publicarRascunho(tx, sessao.tenantId, sessao.usuarioId, fluxoId);
+    const publicada = await publicarRascunho(tx, session.tenantId, session.userId, flowId);
     return {
       versaoId: publicada.versao.id,
       versao: publicada.versao.versao,

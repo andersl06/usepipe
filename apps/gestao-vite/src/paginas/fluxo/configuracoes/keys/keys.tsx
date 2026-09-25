@@ -1,4 +1,4 @@
-import { useContato } from '../../contato';
+import { useContact } from '../../contato';
 import { TelaDeChaves } from './tela';
 
 /**
@@ -10,7 +10,7 @@ import { TelaDeChaves } from './tela';
  * sempre foi da conta, e a tela virou real emitindo/revogando uma chave por
  * fluxo — `GET/POST/DELETE /v1/gestao/fluxos/:id/chaves`.
  */
-export function PaginaChavesDoBot() {
-  const { contato } = useContato();
-  return <TelaDeChaves fluxoId={contato.id} />;
+export function BotPageKeys() {
+  const { contact } = useContact();
+  return <TelaDeChaves flowId={contact.id} />;
 }

@@ -10,53 +10,53 @@
  */
 
 /** Os três rádios de cada linha: `none` (0), `read` (1), `readWrite` (3). */
-export type NivelNoFluxo = 'nenhum' | 'ler' | 'escrever';
+export type LevelInFlow = 'nenhum' | 'ler' | 'escrever';
 
 /** As quatro paradas do traço "Permissão". */
-export type PapelNoFluxo = 'visualizar' | 'personalizado' | 'editar' | 'admin';
+export type RoleInFlow = 'visualizar' | 'personalizado' | 'editar' | 'admin';
 
 /** Recurso da origem → rádio marcado. Chave ausente é `nenhum`. */
-export type PermissoesNoFluxo = Partial<Record<string, NivelNoFluxo>>;
+export type PermissionsInFlow = Partial<Record<string, LevelInFlow>>;
 
 /** Uma linha do `PermissionsList.html`: a chave da origem e o título pt-BR dela. */
-export interface RecursoDoFluxo {
-  chave: string;
+export interface RecursoOfFlow {
+  key: string;
   titulo: string;
 }
 
 /** Um cartão da lista de Equipe. */
-export interface MembroDoFluxo {
-  usuarioId: string;
+export interface MemberOfFlow {
+  userId: string;
   nome: string;
   email: string;
-  papelNoFluxo: PapelNoFluxo;
-  permissoes: PermissoesNoFluxo;
+  roleInFlow: RoleInFlow;
+  permissions: PermissionsInFlow;
   criadoEm: string;
 }
 
 /** `GET /v1/gestao/fluxos/:id/equipe`. */
-export interface EquipeDoFluxo {
-  membros: MembroDoFluxo[];
+export interface TeamOfFlow {
+  members: MemberOfFlow[];
   /** As linhas do modal de editar, na ordem da origem. */
-  recursos: RecursoDoFluxo[];
+  recursos: RecursoOfFlow[];
   /** Quem está olhando pode adicionar, editar e remover? */
   podeGerir: boolean;
 }
 
 /** `GET /v1/gestao/fluxos/:id/equipe/eu` — o que o menu do contato peneira. */
-export interface MinhasPermissoesNoFluxo {
+export interface MyPermissionsInFlow {
   /** `null` quando a pessoa não é membro deste fluxo (o acesso vem da conta). */
-  papelNoFluxo: PapelNoFluxo | null;
-  permissoes: PermissoesNoFluxo;
+  papelNoFluxo: RoleInFlow | null;
+  permissoes: PermissionsInFlow;
   /** A permissão de conta que hoje edita fluxo — quem a tem enxerga tudo. */
-  editaPelaConta: boolean;
+  editaByAccount: boolean;
 }
 
 /** Corpo do `POST` e do `PATCH` da equipe. */
-export interface PedidoDeMembroDoFluxo {
+export interface RequestOfMemberOfFlow {
   /** Só no `POST`: o e-mail de alguém que já está no contrato. */
   email?: string;
-  papelNoFluxo?: PapelNoFluxo;
+  papelNoFluxo?: RoleInFlow;
   /** Só é lido quando o papel é `personalizado`; nos outros o nível manda. */
-  permissoes?: PermissoesNoFluxo;
+  permissoes?: PermissionsInFlow;
 }

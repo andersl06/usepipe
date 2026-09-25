@@ -15,12 +15,12 @@
 
 export interface FatiaDeClasse {
   nome: string;
-  quantidade: number;
+  quantity: number;
   /** Participação na barra. Divisão de contagens, não é métrica da spec. */
-  fracao: number;
+  fraction: number;
 }
 
-export interface GrupoSatisfacao {
+export interface GroupSatisfaction {
   /** `csat` ou `nps`. */
   tipo: string;
   escalaMin: number;
@@ -46,10 +46,10 @@ export interface ComentarioRecente {
   em: string | null;
 }
 
-export interface RelatorioSatisfacao {
+export interface ReportSatisfaction {
   /** Denominador da taxa de resposta: conversas encerradas no período. */
   encerradas: number;
-  grupos: GrupoSatisfacao[];
+  groups: GroupSatisfaction[];
   comentarios: ComentarioRecente[];
 }
 

@@ -10,8 +10,8 @@ export type CamposCrus = Record<string, string | string[] | undefined>;
 export class Campos {
   constructor(private readonly crus: CamposCrus) {}
 
-  get(chave: string): string | null {
-    const v = this.crus[chave];
+  get(key: string): string | null {
+    const v = this.crus[key];
     if (v === undefined) return null;
     return Array.isArray(v) ? (v[0] ?? null) : v;
   }
@@ -30,5 +30,5 @@ export class Campos {
 /** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */
 export interface Resultado {
   ok: boolean;
-  erro?: string;
+  error?: string;
 }

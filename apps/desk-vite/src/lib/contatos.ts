@@ -5,26 +5,26 @@
  * sempre no fim; "Última interação" agrupa pela data da última mensagem, da
  * mais recente para a mais antiga.
  */
-export interface ContatoDaLista {
+export interface ListaContact {
   id: string;
   nome: string | null;
   telefone: string | null;
   email: string | null;
-  ultimaInteracaoEm: string | null;
+  lastInteractionAt: string | null;
 }
 
-export type OrdemDeContatos = 'alfabetica' | 'ultima-interacao';
+export type ContactsOrder = 'alfabetica' | 'ultima-interacao';
 
-export interface GrupoDeContatos {
+export interface ContactsGroup {
   rotulo: string;
-  contatos: ContatoDaLista[];
+  contacts: ListaContact[];
 }
 
 function letra(nome: string | null): string {
   const n = (nome ?? '').trim();
   if (!n) return '#';
-  const primeira = n.charAt(0).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
-  return /[A-Z]/.test(primeira) ? primeira : '#';
+  const first = n.charAt(0).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase();
+  return /[A-Z]/.test(first) ? first : '#';
 }
 
 function dia(iso: string | null): string {
@@ -36,31 +36,31 @@ function dia(iso: string | null): string {
   });
 }
 
-export function agruparContatos(
-  contatos: readonly ContatoDaLista[],
-  ordem: OrdemDeContatos,
-): GrupoDeContatos[] {
-  const grupos = new Map<string, ContatoDaLista[]>();
-  const ordenados = [...contatos].sort((a, b) => {
-    if (ordem === 'alfabetica') {
+export function agruparContacts(
+  contacts: readonly ListaContact[],
+  order: ContactsOrder,
+): ContactsGroup[] {
+  const groups = new Map<string, ListaContact[]>();
+  const ordenados = [...contacts].sort((a, b) => {
+    if (order === 'alfabetica') {
       const an = (a.nome ?? '').trim();
       const bn = (b.nome ?? '').trim();
       if (!an && bn) return 1;
       if (an && !bn) return -1;
       return an.localeCompare(bn, 'pt-BR', { sensitivity: 'base' });
     }
-    const at = a.ultimaInteracaoEm ? new Date(a.ultimaInteracaoEm).getTime() : 0;
-    const bt = b.ultimaInteracaoEm ? new Date(b.ultimaInteracaoEm).getTime() : 0;
+    const at = a.lastInteractionAt ? new Date(a.lastInteractionAt).getTime() : 0;
+    const bt = b.lastInteractionAt ? new Date(b.lastInteractionAt).getTime() : 0;
     return bt - at;
   });
   for (const c of ordenados) {
-    const chave = ordem === 'alfabetica' ? letra(c.nome) : dia(c.ultimaInteracaoEm);
-    const lista = grupos.get(chave);
+    const key = order === 'alfabetica' ? letra(c.nome) : dia(c.lastInteractionAt);
+    const lista = groups.get(key);
     if (lista) lista.push(c);
-    else grupos.set(chave, [c]);
+    else groups.set(key, [c]);
   }
-  const saida = [...grupos.entries()].map(([rotulo, lista]) => ({ rotulo, contatos: lista }));
-  if (ordem === 'alfabetica') {
+  const saida = [...groups.entries()].map(([rotulo, lista]) => ({ rotulo, contatos: lista }));
+  if (order === 'alfabetica') {
     // O grupo `#` sempre por último, como lá.
     saida.sort((a, b) => (a.rotulo === '#' ? 1 : b.rotulo === '#' ? -1 : 0));
   }

@@ -1,4 +1,4 @@
-import type { SinaisDaImplantacao } from './passos-da-implantacao';
+import type { DeploymentSignals } from './passos-da-implantacao';
 
 /**
  * Os sinais do assistente de implantação, lidos do banco pelo papel da
@@ -9,15 +9,15 @@ import type { SinaisDaImplantacao } from './passos-da-implantacao';
  * pergunta ao banco.
  */
 
-export interface CanalDaImplantacao {
+export interface DeploymentChannel {
   id: string;
   nome: string;
   ativo: boolean;
   numero: string | null;
-  reautorizacaoPendente: boolean;
+  reauthorizationPending: boolean;
 }
 
-export interface Implantacao {
-  sinais: SinaisDaImplantacao;
-  canais: CanalDaImplantacao[];
+export interface Deployment {
+  signals: DeploymentSignals;
+  channels: DeploymentChannel[];
 }

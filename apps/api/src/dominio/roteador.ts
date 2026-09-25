@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
-import type { FluxoPublicado } from './fluxo.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { FlowPublished } from './fluxo.js';
 
 /**
  * O roteador (o `master` da Blip) na entrada: em qual SERVIÇO o contato está.
@@ -30,19 +30,19 @@ import type { FluxoPublicado } from './fluxo.js';
  * - principal fora do ar e nenhuma posição válida → sem bot: a conversa vai para a fila.
  */
 
-type LinhaDeServico = {
+type LineOfService = {
   servico_id: string;
   principal: boolean;
   persistente: boolean;
   expiracao_min: number | null;
-  usa_contexto: boolean;
+  usesContext: boolean;
   versao_id: string | null;
 };
 
-type LinhaDePosicao = {
+type LineOfPosition = {
   servico_id: string;
   expirou: boolean;
-  contexto: Record<string, string>;
+  context: Record<string, string>;
   reiniciar: boolean;
   bloco_inicial: string | null;
 };
@@ -59,12 +59,12 @@ function prazo(s: { principal: boolean; persistente: boolean; expiracao_min: num
  * resolvida: renovada, ou de volta ao principal. Trava a linha da posição até o fim da
  * transação — duas mensagens do mesmo contato não decidem ao mesmo tempo.
  */
-export async function servicoDoRoteador(
-  tx: TransacaoPipe,
-  roteador: { id: string; tenantId: string },
-  contatoId: string,
-): Promise<FluxoPublicado | null> {
-  const { rows: servicos } = await tx.execute<LinhaDeServico>(sql`
+export async function serviceOfRouter(
+  tx: TransactionPipe,
+  router: { id: string; tenantId: string },
+  contactId: string,
+): Promise<FlowPublished | null> {
+  const { rows: servicos } = await tx.execute<LineOfService>(sql`
     select rs.servico_id, rs.principal, rs.persistente, rs.expiracao_min,
            f.usa_contexto_do_roteador as usa_contexto,
            (select v.id from fluxo_versao v
@@ -72,32 +72,32 @@ export async function servicoDoRoteador(
              order by v.versao desc limit 1) as versao_id
       from roteador_servico rs
       join fluxo f on f.id = rs.servico_id
-     where rs.roteador_id = ${roteador.id} and f.estado = 'publicado'
+     where rs.roteador_id = ${router.id} and f.estado = 'publicado'
   `);
-  const { rows: posicoes } = await tx.execute<LinhaDePosicao>(sql`
+  const { rows: positions } = await tx.execute<LineOfPosition>(sql`
     select servico_id, coalesce(expira_em <= now(), false) as expirou, contexto,
            reiniciar, bloco_inicial
       from posicao_no_roteador
-     where roteador_id = ${roteador.id} and contato_id = ${contatoId}
+     where roteador_id = ${router.id} and contato_id = ${contactId}
      for update
   `);
-  const posicao = posicoes[0];
+  const position = positions[0];
   const noAr = servicos.filter((s) => s.versao_id !== null);
   const atual =
-    posicao && !posicao.expirou ? noAr.find((s) => s.servico_id === posicao.servico_id) : undefined;
+    position && !position.expirou ? noAr.find((s) => s.servico_id === position.servico_id) : undefined;
   const escolhido = atual ?? noAr.find((s) => s.principal);
   if (!escolhido) return null;
 
   if (atual) {
     await tx.execute(sql`
       update posicao_no_roteador set expira_em = ${prazo(atual)}
-       where roteador_id = ${roteador.id} and contato_id = ${contatoId}
+       where roteador_id = ${router.id} and contato_id = ${contactId}
     `);
   } else {
     // Primeira interação, ou o redirecionamento acabou: o principal, que não expira.
     await tx.execute(sql`
       insert into posicao_no_roteador (tenant_id, roteador_id, contato_id, servico_id)
-      values (${roteador.tenantId}, ${roteador.id}, ${contatoId}, ${escolhido.servico_id})
+      values (${router.tenantId}, ${router.id}, ${contactId}, ${escolhido.servico_id})
       on conflict (roteador_id, contato_id) do update
         set servico_id = excluded.servico_id, desde = now(), expira_em = null,
             reiniciar = false, bloco_inicial = null
@@ -105,14 +105,14 @@ export async function servicoDoRoteador(
   }
 
   return {
-    fluxoId: escolhido.servico_id,
+    flowId: escolhido.servico_id,
     versaoId: escolhido.versao_id!,
-    roteador: {
-      id: roteador.id,
-      compartilhaContexto: escolhido.usa_contexto,
-      contexto: posicao?.contexto ?? {},
-      reiniciar: atual !== undefined && posicao!.reiniciar,
-      blocoInicial: atual !== undefined ? posicao!.bloco_inicial : null,
+    router: {
+      id: router.id,
+      compartilhaContext: escolhido.usesContext,
+      contexto: position?.context ?? {},
+      reiniciar: atual !== undefined && position!.reiniciar,
+      blockInicial: atual !== undefined ? position!.bloco_inicial : null,
     },
   };
 }
@@ -123,33 +123,33 @@ export async function servicoDoRoteador(
  * falha da ação. `blocoInicial` é o Change-User-State que vem depois — sem ele, o destino
  * começa na raiz. Vale a partir da PRÓXIMA mensagem.
  */
-export async function redirecionarNoRoteador(
-  tx: TransacaoPipe,
+export async function redirecionarInRouter(
+  tx: TransactionPipe,
   pedido: {
     tenantId: string;
-    roteadorId: string;
-    contatoId: string;
-    servico: string;
-    blocoInicial?: string | null;
+    routerId: string;
+    contactId: string;
+    service: string;
+    blockInicial?: string | null;
   },
 ): Promise<void> {
   const { rows } = await tx.execute<{
-    servico_id: string;
+    serviceId: string;
     principal: boolean;
     persistente: boolean;
-    expiracao_min: number | null;
+    expirationMin: number | null;
   }>(sql`
     select servico_id, principal, persistente, expiracao_min from roteador_servico
-     where roteador_id = ${pedido.roteadorId} and nome = ${pedido.servico}
+     where roteador_id = ${pedido.routerId} and nome = ${pedido.service}
   `);
-  const destino = rows[0];
-  if (!destino) throw new Error(`O serviço '${pedido.servico}' não existe neste roteador.`);
+  const destination = rows[0];
+  if (!destination) throw new Error(`O serviço '${pedido.service}' não existe neste roteador.`);
   await tx.execute(sql`
     insert into posicao_no_roteador (
       tenant_id, roteador_id, contato_id, servico_id, expira_em, reiniciar, bloco_inicial
     ) values (
-      ${pedido.tenantId}, ${pedido.roteadorId}, ${pedido.contatoId}, ${destino.servico_id},
-      ${prazo(destino)}, true, ${pedido.blocoInicial ?? null}
+      ${pedido.tenantId}, ${pedido.routerId}, ${pedido.contactId}, ${destination.serviceId},
+      ${prazo(destination)}, true, ${pedido.blockInicial ?? null}
     )
     on conflict (roteador_id, contato_id) do update
       set servico_id = excluded.servico_id, desde = now(), expira_em = excluded.expira_em,

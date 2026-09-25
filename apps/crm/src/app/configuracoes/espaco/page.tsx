@@ -1,5 +1,5 @@
 import { Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import { Formulario } from '../../../componentes/configuracoes/formulario';
 import { lerEspaco } from '../../../lib/configuracoes-dados';
 import { numero } from '../../../lib/formato';
@@ -47,17 +47,17 @@ const PLANOS: Record<string, string> = {
  * texto aqui deixaria qualquer administrador reivindicar `@banco.com.br` e
  * receber, no dia seguinte, quem tentasse entrar com aquele endereço.
  */
-export default async function PaginaEspaco() {
+export default async function PageWorkspace() {
   const espaco = await lerEspaco();
   const fusos = fusosConhecidos(espaco.fuso);
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Espaço de trabalho">
+      <SectionHeader titulo="Espaço de trabalho">
         O nome, a marca e o fuso que o Pipe usa para fechar o dia de todo mundo.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco titulo="Identidade" descricao="Aparece no cabeçalho, nos relatórios e nos e-mails.">
+      <Block titulo="Identidade" description="Aparece no cabeçalho, nos relatórios e nos e-mails.">
         <Formulario acao={acaoSalvarEspaco}>
           <label className="cfg-campo">
             <span>Nome da empresa</span>
@@ -92,11 +92,11 @@ export default async function PaginaEspaco() {
             </span>
           </label>
         </Formulario>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Contrato"
-        descricao="Plano e hospedagem são de contrato: mudam com alguém do outro lado, não por botão."
+        description="Plano e hospedagem são de contrato: mudam com alguém do outro lado, não por botão."
       >
         <dl className="cfg-lista">
           <div>
@@ -112,19 +112,19 @@ export default async function PaginaEspaco() {
           <div>
             <dt>Hospedagem</dt>
             <dd>
-              {espaco.implantacao === 'dedicada' ? 'Instância dedicada' : 'Infraestrutura compartilhada'}
+              {espaco.deployment === 'dedicada' ? 'Instância dedicada' : 'Infraestrutura compartilhada'}
             </dd>
           </div>
           <div>
             <dt>Acessos ativos</dt>
-            <dd className="num">{numero(espaco.membros)}</dd>
+            <dd className="num">{numero(espaco.members)}</dd>
           </div>
         </dl>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Domínios"
-        descricao="Quem entra com um e-mail destes cai neste espaço — e por isso só vale depois de verificado no DNS."
+        description="Quem entra com um e-mail destes cai neste espaço — e por isso só vale depois de verificado no DNS."
       >
         {espaco.dominios.length === 0 ? (
           <p className="sub">
@@ -133,8 +133,8 @@ export default async function PaginaEspaco() {
         ) : (
           <ul className="cfg-dominios">
             {espaco.dominios.map((d) => (
-              <li key={d.dominio}>
-                <span className="mono">{d.dominio}</span>
+              <li key={d.domain}>
+                <span className="mono">{d.domain}</span>
                 <Etiqueta tom={d.verificado ? 'sucesso' : 'alerta'}>
                   {d.verificado ? 'Verificado' : 'Aguardando verificação'}
                 </Etiqueta>
@@ -142,7 +142,7 @@ export default async function PaginaEspaco() {
             ))}
           </ul>
         )}
-      </Bloco>
+      </Block>
     </>
   );
 }

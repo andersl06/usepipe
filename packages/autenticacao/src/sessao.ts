@@ -13,11 +13,11 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /** 8 horas. É o teto honesto de revogação sem SCIM: quem sai da empresa cliente
  *  perde o acesso na próxima revalidação, não no instante do desligamento. */
-export const DURACAO_PADRAO_MS = 8 * 60 * 60 * 1000;
+export const DURATION_DEFAULT_MS = 8 * 60 * 60 * 1000;
 
 export const NOME_DO_COOKIE = 'pipe_sessao';
 
-export interface TokenDeSessao {
+export interface TokenOfSession {
   /** Vai para o cookie. Nunca é gravado. */
   token: string;
   /** Vai para o banco. Nunca sai de lá. */
@@ -25,12 +25,12 @@ export interface TokenDeSessao {
   expiraEm: Date;
 }
 
-export function criarToken(duracaoMs = DURACAO_PADRAO_MS, agora = new Date()): TokenDeSessao {
+export function createToken(durationMs = DURATION_DEFAULT_MS, agora = new Date()): TokenOfSession {
   const token = randomBytes(32).toString('base64url');
   return {
     token,
     hash: hashDoToken(token),
-    expiraEm: new Date(agora.getTime() + duracaoMs),
+    expiraEm: new Date(agora.getTime() + durationMs),
   };
 }
 
@@ -43,14 +43,14 @@ export function hashDoToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
 }
 
-export function tokensIguais(a: string, b: string): boolean {
+export function tokensEqual(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);
   if (bufferA.length !== bufferB.length) return false;
   return timingSafeEqual(bufferA, bufferB);
 }
 
-export interface OpcoesDeCookie {
+export interface OptionsOfCookie {
   /**
    * O domínio-pai, com ponto na frente: `.pipe.com.br`.
    *
@@ -65,7 +65,7 @@ export interface OpcoesDeCookie {
    * Em desenvolvimento fica indefinido: `localhost` não aceita domínio de
    * cookie, e as portas diferentes já são a mesma origem para este fim.
    */
-  dominio?: string | undefined;
+  domain?: string | undefined;
   /** Fora só em `http://localhost`, onde não existe HTTPS para exigir. */
   seguro?: boolean;
 }
@@ -77,25 +77,25 @@ export interface OpcoesDeCookie {
  * sequestro de sessão. `SameSite=Lax` deixa o retorno do Google funcionar (é
  * navegação de topo) e barra envio em requisição de terceiro.
  */
-export function cookieDeSessao(
+export function cookieOfSession(
   token: string,
   expiraEm: Date,
-  opcoes: OpcoesDeCookie = {},
+  options: OptionsOfCookie = {},
 ): string {
-  return montarCookie(token, opcoes, `Expires=${expiraEm.toUTCString()}`);
+  return montarCookie(token, options, `Expires=${expiraEm.toUTCString()}`);
 }
 
 /** O cookie que apaga o cookie. `Max-Age=0` some com ele em qualquer navegador. */
-export function cookieDeSaida(opcoes: OpcoesDeCookie = {}): string {
+export function cookieDeSaida(opcoes: OptionsOfCookie = {}): string {
   return montarCookie('', opcoes, 'Max-Age=0');
 }
 
-function montarCookie(valor: string, opcoes: OpcoesDeCookie, prazo: string): string {
-  const partes = [`${NOME_DO_COOKIE}=${valor}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', prazo];
+function montarCookie(value: string, opcoes: OptionsOfCookie, prazo: string): string {
+  const partes = [`${NOME_DO_COOKIE}=${value}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', prazo];
   // O domínio precisa vir ANTES do Secure? Não — a ordem é livre. Mas ele só
   // entra quando existe: `Domain=localhost` invalida o cookie em vários
   // navegadores, e o sintoma é login que "não faz nada".
-  if (opcoes.dominio) partes.push(`Domain=${opcoes.dominio}`);
+  if (opcoes.domain) partes.push(`Domain=${opcoes.domain}`);
   if (opcoes.seguro ?? true) partes.push('Secure');
   return partes.join('; ');
 }
@@ -120,19 +120,19 @@ export function origemPermitida(origem: string | undefined, permitidas: string[]
   return permitidas.includes(origem.replace(/\/$/, ''));
 }
 
-export interface SessaoAtiva {
+export interface SessionActive {
   id: string;
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   expiraEm: Date;
   origem: string;
 }
 
 /** Uma sessão vale enquanto não expirou e não foi encerrada à mão. */
 export function estaValida(
-  sessao: { expiraEm: Date; encerradaEm: Date | null },
+  session: { expiraEm: Date; encerradaEm: Date | null },
   agora = new Date(),
 ): boolean {
-  if (sessao.encerradaEm) return false;
-  return sessao.expiraEm.getTime() > agora.getTime();
+  if (session.encerradaEm) return false;
+  return session.expiraEm.getTime() > agora.getTime();
 }

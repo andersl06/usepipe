@@ -34,7 +34,7 @@ test('etapa negativa devolve a contagem crua da etapa seguinte', () => {
 test('a coluna mais cheia ocupa a altura, com 30 entre nós', () => {
   const { nos, colunas } = desenharSankey(arestas, 1000, 500);
   assert.equal(colunas, 3);
-  const coluna1 = nos.filter((n) => n.coluna === 1);
+  const coluna1 = nos.filter((n) => n.column === 1);
   const fundo = Math.max(...coluna1.map((n) => n.y + n.altura));
   assert.ok(Math.abs(fundo - 500) < 1e-6);
   assert.equal(nos.find((n) => n.rotulo.startsWith('Saída [1]'))?.tipo, 'saida');

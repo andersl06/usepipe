@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
-import type { ContextoDoCanalWhatsapp, ContextoSemCanal } from './casca';
-import { useLeitura } from '../../../../lib/consulta';
-import { gravarPreferenciasWhatsapp } from '../../../../lib/canais-gravar';
-import { emailsParaTexto, textoParaEmails, type PreferenciasDoCanal } from '../../../../lib/canais';
+import type { ChannelWhatsappContext, ContextWithoutChannel } from './casca';
+import { useRead } from '../../../../lib/consulta';
+import { savePreferencesWhatsapp } from '../../../../lib/canais-gravar';
+import { emailsParaTexto, textoParaEmails, type ChannelPreferences } from '../../../../lib/canais';
 import { Interruptor } from '../../integracoes/interruptor';
 
 /**
@@ -19,54 +19,54 @@ import { Interruptor } from '../../integracoes/interruptor';
  * inventar o comportamento.
  */
 export function AbaAlerta() {
-  const contexto = useOutletContext<ContextoDoCanalWhatsapp | ContextoSemCanal>();
-  const canalId = 'canal' in contexto ? contexto.canal.id : null;
-  const leitura = useLeitura<PreferenciasDoCanal>(
-    canalId ? `/v1/canais/whatsapp/${canalId}/preferencias` : null,
+  const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();
+  const channelId = 'canal' in context ? context.channel.id : null;
+  const read = useRead<ChannelPreferences>(
+    channelId ? `/v1/canais/whatsapp/${channelId}/preferencias` : null,
     { retry: false },
   );
   const [emailsTexto, setEmailsTexto] = useState('');
   const [tocado, setTocado] = useState(false);
   const [gravandoSwitch, setGravandoSwitch] = useState(false);
   const [gravandoEmails, setGravandoEmails] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (leitura.data && !tocado) setEmailsTexto(emailsParaTexto(leitura.data.alertaRecategorizacao.emails));
-  }, [leitura.data, tocado]);
+    if (read.data && !tocado) setEmailsTexto(emailsParaTexto(read.data.alertRecategorization.emails));
+  }, [read.data, tocado]);
 
-  if (canalId && leitura.error) {
-    return <p role="alert" className="cb-typo-16">Não foi possível carregar os alertas: {leitura.error.message}</p>;
+  if (channelId && read.error) {
+    return <p role="alert" className="cb-typo-16">Não foi possível carregar os alertas: {read.error.message}</p>;
   }
-  if (canalId && !leitura.data) return null;
-  const preferencias = leitura.data ?? null;
-  const semCanal = canalId === null;
+  if (channelId && !read.data) return null;
+  const preferences = read.data ?? null;
+  const withoutChannel = channelId === null;
 
-  async function alternar(valor: boolean) {
-    if (!canalId) return;
+  async function alternar(value: boolean) {
+    if (!channelId) return;
     setGravandoSwitch(true);
-    setErro(null);
-    const resultado = await gravarPreferenciasWhatsapp(canalId, {
-      alertaRecategorizacao: { ativo: valor },
+    setError(null);
+    const resultado = await savePreferencesWhatsapp(channelId, {
+      alertRecategorization: { ativo: value },
     });
     setGravandoSwitch(false);
-    if (!resultado.ok) setErro(resultado.erro);
+    if (!resultado.ok) setError(resultado.error);
   }
 
   async function salvarEmails() {
-    if (!canalId) return;
+    if (!channelId) return;
     setGravandoEmails(true);
-    setErro(null);
-    const resultado = await gravarPreferenciasWhatsapp(canalId, {
-      alertaRecategorizacao: { emails: textoParaEmails(emailsTexto) },
+    setError(null);
+    const resultado = await savePreferencesWhatsapp(channelId, {
+      alertRecategorization: { emails: textoParaEmails(emailsTexto) },
     });
     setGravandoEmails(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
     setTocado(false);
-    setEmailsTexto(emailsParaTexto(resultado.valor.alertaRecategorizacao.emails));
+    setEmailsTexto(emailsParaTexto(resultado.value.alertRecategorization.emails));
   }
 
   return (
@@ -74,7 +74,7 @@ export function AbaAlerta() {
       <h3 style={{ marginTop: 0 }}>Configurações de alerta</h3>
       <p className="sub">Defina quais eventos da plataforma podem gerar alertas para sua equipe</p>
 
-      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
       <div className="cw-linha-config">
         <div className="cw-linha-config-texto">
@@ -87,8 +87,8 @@ export function AbaAlerta() {
         </div>
         <Interruptor
           id="cw-alerta-recategorizacao"
-          ligado={preferencias?.alertaRecategorizacao.ativo ?? false}
-          desabilitado={semCanal || gravandoSwitch}
+          ligado={preferences?.alertRecategorization.ativo ?? false}
+          desabilitado={withoutChannel || gravandoSwitch}
           rotulo="Alertas de recategorização de modelos"
           aoMudar={(v) => void alternar(v)}
         />
@@ -103,7 +103,7 @@ export function AbaAlerta() {
             setTocado(true);
           }}
           placeholder="Insira os e-mails separados por vírgula"
-          disabled={semCanal || gravandoEmails}
+          disabled={withoutChannel || gravandoEmails}
         />
       </label>
       <div className="cl-acoes">
@@ -111,7 +111,7 @@ export function AbaAlerta() {
           type="button"
           variante="primario"
           onClick={() => void salvarEmails()}
-          disabled={semCanal || gravandoEmails}
+          disabled={withoutChannel || gravandoEmails}
         >
           {gravandoEmails ? 'Salvando…' : 'Salvar e-mails'}
         </Botao>

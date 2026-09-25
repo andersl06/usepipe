@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 
 /**
  * A tela de erro do CRM inteiro. Cobre todas as rotas filhas, que é o que o
@@ -21,7 +21,7 @@ import { Ilustracao } from '@pipe/ui';
  * texto genérico, e em desenvolvimento ela vai para o console, que é onde se
  * lê rastro de pilha.
  */
-export default function ErroDoCrm({
+export default function CrmError({
   error,
   reset,
 }: {
@@ -35,7 +35,7 @@ export default function ErroDoCrm({
   return (
     <div className="tblwrap">
       <div className="vazio">
-        <Ilustracao nome="erro" />
+        <Illustration nome="erro" />
         <b>Esta tela não carregou.</b>
         <span>
           O CRM lê tudo do banco a cada visita. Quando a consulta não volta, não há tela — e

@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
-import { cadastroDeContaHabilitado, construirConta } from '../dominio/construtor-de-conta.js';
-import { ErroPipe } from '../erros.js';
+import { registrationOfAccountEnabled, buildAccount } from '../dominio/construtor-de-conta.js';
+import { PipeError } from '../erros.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), a action `create` de
@@ -16,27 +16,27 @@ import { ErroPipe } from '../erros.js';
  * há sessão aqui — a pessoa entra depois, pelo Google, com aquele e-mail.
  */
 @Controller('v1/contas')
-export class ControladorContas {
+export class AccountsController {
   @Post()
   @HttpCode(200)
-  async criar(
+  async create(
     @Body() corpo: { account_name?: string; user_full_name?: string; email?: string },
   ): Promise<{ email: string }> {
-    if (!cadastroDeContaHabilitado()) throw new ErroPipe(404, 'nao_encontrado', 'Não encontrado.');
+    if (!registrationOfAccountEnabled()) throw new PipeError(404, 'nao_encontrado', 'Não encontrado.');
 
     // `ensure_account_name`
     if (!corpo.account_name?.trim() && !corpo.user_full_name?.trim()) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'parametros_invalidos',
         'Inválido, por favor, verifique os parâmetros de inscrição e tente novamente',
       );
     }
 
-    const conta = await construirConta({
-      nomeDaConta: corpo.account_name,
-      nomeDoUsuario: corpo.user_full_name,
+    const account = await buildAccount({
+      nameOfAccount: corpo.account_name,
+      nameOfUser: corpo.user_full_name,
       email: corpo.email,
     });
-    return { email: conta.email };
+    return { email: account.email };
   }
 }

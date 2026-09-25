@@ -1,6 +1,6 @@
 import { api } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/acoes';
-import { IMAGEM, type RecadosDoNome } from './regras-de-nome';
+import { IMAGE, type RecadosDoNome } from './regras-de-nome';
 
 /**
  * Criar um contato (fluxo ou roteador): `POST /v1/gestao/fluxos`.
@@ -10,36 +10,36 @@ import { IMAGEM, type RecadosDoNome } from './regras-de-nome';
  * as regras de `regras-de-nome.ts`. Aqui a foto só vira `data:` para
  * atravessar o JSON — e nem vai se já passou do teto.
  */
-export type Resultado = { id: string; erro?: undefined } | { id?: undefined; erro: string };
+export type Resultado = { id: string; error?: undefined } | { id?: undefined; error: string };
 
-export interface OpcoesDaGravacao {
+export interface RecordingOptions {
   tipo: 'fluxo' | 'roteador';
-  recados: RecadosDoNome & { nomeEmUso: string; semPermissao: string };
+  recados: RecadosDoNome & { nomeEmUso: string; withoutPermission: string };
 }
 
-export async function gravarContato(
-  dados: FormData,
-  { tipo, recados }: OpcoesDaGravacao,
+export async function saveContact(
+  data: FormData,
+  { tipo, recados }: RecordingOptions,
 ): Promise<Resultado> {
-  const imagem = await lerImagem(dados.get('imagem'));
+  const image = await readImage(data.get('imagem'));
   try {
     const resultado = await api.post<Resultado>('/v1/gestao/fluxos', {
-      nome: String(dados.get('nome') ?? ''),
+      nome: String(data.get('nome') ?? ''),
       tipo,
-      imagem,
+      image,
       recados,
     });
     if (resultado.id) atualizarLeituras();
     return resultado;
-  } catch (erro) {
-    return { erro: erro instanceof Error ? erro.message : 'Não foi possível criar.' };
+  } catch (error) {
+    return { error: error instanceof Error ? error.message : 'Não foi possível criar.' };
   }
 }
 
-async function lerImagem(campo: FormDataEntryValue | null): Promise<string | null> {
+async function readImage(campo: FormDataEntryValue | null): Promise<string | null> {
   /* Campo vazio chega como um `File` de zero byte, e não como `null`. */
   if (!(campo instanceof File) || campo.size === 0) return null;
-  if (campo.size > IMAGEM.maxBytes) return null;
+  if (campo.size > IMAGE.maxBytes) return null;
   return new Promise((resolver) => {
     const leitor = new FileReader();
     leitor.onload = () => resolver(typeof leitor.result === 'string' ? leitor.result : null);

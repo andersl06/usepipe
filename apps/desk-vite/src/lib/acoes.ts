@@ -4,7 +4,7 @@ import { clienteDeConsultas } from './cliente-de-consultas';
 /** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */
 export interface Resultado {
   ok: boolean;
-  erro?: string;
+  error?: string;
 }
 
 /**
@@ -15,20 +15,20 @@ export interface Resultado {
  * `Resultado` volta, e, dando certo, as leituras em cache são invalidadas.
  */
 export function acaoRemota(nome: string) {
-  return async (_anterior: Resultado, dados: FormData): Promise<Resultado> => {
+  return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
     const campos: Record<string, string | string[]> = {};
-    for (const [chave, valor] of dados.entries()) {
-      const texto = typeof valor === 'string' ? valor : valor.name;
-      const atual = campos[chave];
-      if (atual === undefined) campos[chave] = texto;
+    for (const [key, value] of data.entries()) {
+      const texto = typeof value === 'string' ? value : value.name;
+      const atual = campos[key];
+      if (atual === undefined) campos[key] = texto;
       else if (Array.isArray(atual)) atual.push(texto);
-      else campos[chave] = [atual, texto];
+      else campos[key] = [atual, texto];
     }
     let resultado: Resultado;
     try {
       resultado = await api.post<Resultado>(`/v1/desk/acoes/${nome}`, { campos });
-    } catch (erro) {
-      return { ok: false, erro: erro instanceof Error ? erro.message : 'Não foi possível salvar.' };
+    } catch (error) {
+      return { ok: false, error: error instanceof Error ? error.message : 'Não foi possível salvar.' };
     }
     if (resultado.ok) void clienteDeConsultas.invalidateQueries({ queryKey: ['api'] });
     return resultado;
@@ -40,19 +40,19 @@ export async function executar(
   nome: string,
   campos: Record<string, string | string[]>,
 ): Promise<Resultado> {
-  const dados = new FormData();
-  for (const [chave, valor] of Object.entries(campos)) {
-    for (const v of Array.isArray(valor) ? valor : [valor]) dados.append(chave, v);
+  const data = new FormData();
+  for (const [key, value] of Object.entries(campos)) {
+    for (const v of Array.isArray(value) ? value : [value]) data.append(key, v);
   }
-  return acaoRemota(nome)({ ok: true }, dados);
+  return acaoRemota(nome)({ ok: true }, data);
 }
 
 /* Status do atendente (`apps/api/src/dominio/desk/acoes.ts`) */
 export const definirStatus = acaoRemota('definirStatus');
-export const cairPorInatividade = acaoRemota('cairPorInatividade');
+export const cairByInactivity = acaoRemota('cairPorInatividade');
 /* Nota interna do compositor — é o "Comentário" do painel do contato. */
 export const salvarNotaInterna = acaoRemota('salvarNotaInterna');
-export const transferirEmMassa = acaoRemota('transferirEmMassa');
+export const transferirInBulk = acaoRemota('transferirEmMassa');
 /* A mensagem ativa vai direto por `POST /v1/mensagens-ativas` (ver paginas/mensagem-ativa/page.tsx). */
 
 /** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */

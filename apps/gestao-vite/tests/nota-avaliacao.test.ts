@@ -4,7 +4,7 @@ import {
   TETO_ESCALA,
   TETO_NOTA,
   fatalReprovado,
-  fracaoRespondida,
+  fractionAnswered,
 } from '../src/lib/nota-avaliacao.ts';
 
 /**
@@ -22,29 +22,29 @@ test('os tetos continuam sendo os do formulário: escala 5, nota 10', () => {
 });
 
 test('conforme vale tudo, não conforme vale nada', () => {
-  assert.equal(fracaoRespondida('conforme', 'conforme'), 1);
-  assert.equal(fracaoRespondida('conforme', 'nao_conforme'), 0);
+  assert.equal(fractionAnswered('conforme', 'conforme'), 1);
+  assert.equal(fractionAnswered('conforme', 'nao_conforme'), 0);
 });
 
 test('não se aplica sai do cálculo — não é zero, é ausência', () => {
-  assert.equal(fracaoRespondida('conforme', 'nao_se_aplica'), null);
-  assert.equal(fracaoRespondida('escala', 'nao_se_aplica'), null);
+  assert.equal(fractionAnswered('conforme', 'nao_se_aplica'), null);
+  assert.equal(fractionAnswered('escala', 'nao_se_aplica'), null);
   assert.equal(fatalReprovado('conforme', true, 'nao_se_aplica'), false);
 });
 
 test('escala e nota viram fração pelo próprio teto', () => {
-  assert.equal(fracaoRespondida('escala', '5'), 1);
-  assert.equal(fracaoRespondida('escala', '4'), 0.8);
-  assert.equal(fracaoRespondida('nota', '10'), 1);
-  assert.equal(fracaoRespondida('nota', '7'), 0.7);
+  assert.equal(fractionAnswered('escala', '5'), 1);
+  assert.equal(fractionAnswered('escala', '4'), 0.8);
+  assert.equal(fractionAnswered('nota', '10'), 1);
+  assert.equal(fractionAnswered('nota', '7'), 0.7);
   // Vírgula é o separador decimal que o modelo devolve escrevendo em português.
-  assert.equal(fracaoRespondida('nota', '7,5'), 0.75);
+  assert.equal(fractionAnswered('nota', '7,5'), 0.75);
 });
 
 test('valor fora da escala não vira zero — vira desconhecido', () => {
-  assert.equal(fracaoRespondida('escala', '9'), null);
-  assert.equal(fracaoRespondida('nota', '-1'), null);
-  assert.equal(fracaoRespondida('conforme', 'talvez'), null);
+  assert.equal(fractionAnswered('escala', '9'), null);
+  assert.equal(fractionAnswered('nota', '-1'), null);
+  assert.equal(fractionAnswered('conforme', 'talvez'), null);
 });
 
 test('fatal só reprova com fração conhecida abaixo do máximo', () => {

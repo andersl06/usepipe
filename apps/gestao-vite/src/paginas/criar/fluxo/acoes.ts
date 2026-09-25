@@ -1,4 +1,4 @@
-import { gravarContato } from '../gravar';
+import { saveContact } from '../gravar';
 import { irPara } from '../../../lib/navegacao';
 import { RECADOS } from './regras';
 
@@ -17,17 +17,17 @@ import { RECADOS } from './regras';
  * inventar um contrato novo. Quando ele existir, é aqui que entra a segunda
  * chamada, depois de `resultado.id` sair da `gravarContato`.
  */
-export async function criarFluxo(dados: FormData): Promise<void> {
-  const resultado = await gravarContato(dados, { tipo: 'fluxo', recados: RECADOS });
-  if (resultado.erro) {
-    return voltarComErro(resultado.erro, String(dados.get('nome') ?? ''), dados.get('template'));
+export async function createFlow(data: FormData): Promise<void> {
+  const resultado = await saveContact(data, { tipo: 'fluxo', recados: RECADOS });
+  if (resultado.error) {
+    return voltarWithError(resultado.error, String(data.get('nome') ?? ''), data.get('template'));
   }
   irPara(`/fluxo/${resultado.id}`);
 }
 
-function voltarComErro(motivo: string, nome: string, template: FormDataEntryValue | null): void {
-  const busca = new URLSearchParams({ passo: 'nome', erro: motivo });
-  if (nome) busca.set('nome', nome);
-  if (typeof template === 'string' && template) busca.set('template', template);
-  irPara(`/criar/fluxo?${busca}`);
+function voltarWithError(motivo: string, nome: string, template: FormDataEntryValue | null): void {
+  const search = new URLSearchParams({ passo: 'nome', erro: motivo });
+  if (nome) search.set('nome', nome);
+  if (typeof template === 'string' && template) search.set('template', template);
+  irPara(`/criar/fluxo?${search}`);
 }

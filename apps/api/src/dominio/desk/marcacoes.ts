@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { Campos, Resultado } from '../gestao/acoes/campos.js';
 
 /**
@@ -25,12 +25,12 @@ export const MAX_FIXADAS = 50;
 
 const OK: Resultado = { ok: true };
 
-function falha(erro: string): Resultado {
-  return { ok: false, erro };
+function falha(error: string): Resultado {
+  return { ok: false, error };
 }
 
-function comoBooleano(valor: unknown): boolean | null {
-  const texto = String(valor ?? '').trim().toLowerCase();
+function comoBooleano(value: unknown): boolean | null {
+  const texto = String(value ?? '').trim().toLowerCase();
   // `on` é como o FormData manda a caixa marcada (ver `campos.ts`).
   if (texto === 'true' || texto === '1' || texto === 'sim' || texto === 'on') return true;
   if (texto === 'false' || texto === '0' || texto === 'nao' || texto === 'não') return false;
@@ -40,19 +40,19 @@ function comoBooleano(valor: unknown): boolean | null {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** A conversa existe, está aberta e é do atendente — senão, o motivo. */
-async function conferirConversa(
-  tx: TransacaoPipe,
+async function checkConversation(
+  tx: TransactionPipe,
   atendenteId: string,
-  conversaId: string,
+  conversationId: string,
 ): Promise<string | null> {
-  if (!UUID.test(conversaId)) return 'Conversa não informada.';
-  const { rows } = await tx.execute<{ estado: string; atendente_id: string | null }>(
-    sql`select estado, atendente_id from conversa where id = ${conversaId}::uuid limit 1`,
+  if (!UUID.test(conversationId)) return 'Conversa não informada.';
+  const { rows } = await tx.execute<{ state: string; agentId: string | null }>(
+    sql`select estado, atendente_id from conversa where id = ${conversationId}::uuid limit 1`,
   );
-  const conversa = rows[0];
-  if (!conversa) return 'Conversa não encontrada.';
-  if (conversa.estado === 'encerrada') return 'A conversa já foi encerrada.';
-  if (conversa.atendente_id !== atendenteId) return 'Esta conversa não está com você.';
+  const conversation = rows[0];
+  if (!conversation) return 'Conversa não encontrada.';
+  if (conversation.state === 'encerrada') return 'A conversa já foi encerrada.';
+  if (conversation.agentId !== atendenteId) return 'Esta conversa não está com você.';
   return null;
 }
 
@@ -63,7 +63,7 @@ async function conferirConversa(
  * limpeza — era o que acontecia ao desafixar uma conversa sem outra marca.
  */
 async function tirarMarca(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   atendenteId: string,
   conversaId: string,
   marca: 'fixada_em' | 'nao_lida_em',
@@ -82,7 +82,7 @@ async function tirarMarca(
  * desafixar o que não estava fixado também é no-op.
  */
 export async function fixar(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   atendenteId: string,
   dados: Campos,
@@ -91,7 +91,7 @@ export async function fixar(
   const fixada = comoBooleano(dados.get('fixada'));
   if (fixada === null) return falha('Informe se a conversa deve ficar fixada.');
 
-  const motivo = await conferirConversa(tx, atendenteId, conversaId);
+  const motivo = await checkConversation(tx, atendenteId, conversaId);
   if (motivo) return falha(motivo);
 
   if (fixada) {
@@ -125,27 +125,27 @@ export async function fixar(
  * lembrete manual para voltar depois.
  */
 export async function marcarNaoLida(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
-  atendenteId: string,
-  dados: Campos,
+  agentId: string,
+  data: Campos,
 ): Promise<Resultado & { naoLida?: boolean }> {
-  const conversaId = String(dados.get('conversaId') ?? '');
-  const naoLida = comoBooleano(dados.get('naoLida'));
+  const conversationId = String(data.get('conversaId') ?? '');
+  const naoLida = comoBooleano(data.get('naoLida'));
   if (naoLida === null) return falha('Informe se a conversa deve ficar como não lida.');
 
-  const motivo = await conferirConversa(tx, atendenteId, conversaId);
+  const motivo = await checkConversation(tx, agentId, conversationId);
   if (motivo) return falha(motivo);
 
   if (naoLida) {
     await tx.execute(sql`
       insert into marcacao_conversa (tenant_id, usuario_id, conversa_id, nao_lida_em)
-      values (${tenantId}::uuid, ${atendenteId}::uuid, ${conversaId}::uuid, now())
+      values (${tenantId}::uuid, ${agentId}::uuid, ${conversationId}::uuid, now())
       on conflict (usuario_id, conversa_id)
         do update set nao_lida_em = coalesce(marcacao_conversa.nao_lida_em, excluded.nao_lida_em)
     `);
   } else {
-    await tirarMarca(tx, atendenteId, conversaId, 'nao_lida_em');
+    await tirarMarca(tx, agentId, conversationId, 'nao_lida_em');
   }
   return { ...OK, naoLida };
 }

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { COLUNAS_CSV, celulaCsv, montarCsv } from '../src/lib/csv-historico.ts';
-import type { CartaoHistorico } from '../src/componentes/lista-historico.tsx';
+import type { CardHistory } from '../src/componentes/lista-historico.tsx';
 
 /**
  * O CSV que o gestor exporta do Histórico.
@@ -11,16 +11,16 @@ import type { CartaoHistorico } from '../src/componentes/lista-historico.tsx';
  * tinha ponto e vírgula. Ninguém descobre até alguém somar a coluna errada.
  */
 
-const cartao = (parcial: Partial<CartaoHistorico> = {}): CartaoHistorico => ({
+const card = (parcial: Partial<CardHistory> = {}): CardHistory => ({
   id: 'x',
   ticket: '#1',
   encerrada: '05/09, 19:22',
-  contato: 'Contato',
-  fila: 'Suporte',
-  atendente: 'Ana',
+  contact: 'Contato',
+  queue: 'Suporte',
+  agent: 'Ana',
   espera: '10:05',
-  primeiraResposta: '01:22',
-  atendimento: '45:33',
+  firstResposta: '01:22',
+  attendance: '45:33',
   statusTexto: 'Finalizada',
   statusClasse: 'etiqueta',
   critico: false,
@@ -36,7 +36,7 @@ function linhasDe(csv: string): string[] {
 test('o arquivo começa com BOM', () => {
   /* Sem o BOM, o Excel em português abre o arquivo em latin-1 e todo nome
      acentuado vira lixo — "Conceição" some da planilha inteira. */
-  assert.ok(montarCsv([cartao()]).startsWith('﻿'));
+  assert.ok(montarCsv([card()]).startsWith('﻿'));
 });
 
 test('o cabeçalho traz as dez colunas, na ordem', () => {
@@ -55,7 +55,7 @@ test('ponto e vírgula dentro do campo não abre coluna nova', () => {
   /* O separador é `;` porque é o separador de lista do Excel em português. Sem
      as aspas, "Silva; Souza" empurra todas as colunas seguintes uma casa para a
      direita e o tempo de atendimento aparece na coluna de situação. */
-  const [, linha] = linhasDe(montarCsv([cartao({ contato: 'Silva; Souza' })]));
+  const [, linha] = linhasDe(montarCsv([card({ contact: 'Silva; Souza' })]));
   assert.ok(linha!.includes('"Silva; Souza"'));
   assert.equal(linha!.split('";"').length, COLUNAS_CSV.length);
 });
@@ -70,17 +70,17 @@ test('quebra de linha dentro do campo continua presa em um campo só', () => {
   /* Nome de contato colado do WhatsApp vem com `\n`. Fora das aspas, ele vira
      uma linha nova no arquivo e a exportação passa a ter mais linhas do que
      conversas. */
-  const csv = montarCsv([cartao({ contato: 'Ana\nSouza' })]);
+  const csv = montarCsv([card({ contact: 'Ana\nSouza' })]);
   assert.ok(csv.includes('"Ana\nSouza"'));
   // Só o `\r\n` separa registro; o `\n` solto fica dentro do campo.
   assert.equal(linhasDe(csv).length, 2);
 });
 
 test('as etiquetas viram uma coluna só, separadas por vírgula', () => {
-  const [, linha] = linhasDe(montarCsv([cartao({ etiquetas: ['Elogio', 'Reclamação'] })]));
+  const [, linha] = linhasDe(montarCsv([card({ etiquetas: ['Elogio', 'Reclamação'] })]));
   assert.ok(linha!.endsWith('"Elogio, Reclamação"'));
 });
 
 test('cada conversa é uma linha', () => {
-  assert.equal(linhasDe(montarCsv([cartao(), cartao(), cartao()])).length, 4);
+  assert.equal(linhasDe(montarCsv([card(), card(), card()])).length, 4);
 });

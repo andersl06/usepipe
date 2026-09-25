@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { FilaCadastrada } from '../../lib/cadastros';
-import { alternarFila, excluirFila } from '../../lib/cadastros-gravar';
+import { useRead } from '../../lib/consulta';
+import type { QueueRegistered } from '../../lib/cadastros';
+import { alternarQueue, excluirQueue } from '../../lib/cadastros-gravar';
 import { numero } from '../../lib/formato';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from '../operacao/casca';
-import { FormularioFila } from './atendentes-filas-formulario';
-import { Modal, ModalConfirmacao } from './_modal';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from '../operacao/casca';
+import { FormularioQueue } from './atendentes-filas-formulario';
+import { Modal, ModalConfirmation } from './_modal';
 
 /**
  * Filas de atendimento — a lista.
@@ -39,20 +39,20 @@ import { Modal, ModalConfirmacao } from './_modal';
  */
 
 /** O interruptor + editar/excluir do cartão-linha — o slot `acao` de `lista-regras.tsx`. */
-function AcoesDaFila({
-  fila,
-  onErroAlternar,
+function QueueActions({
+  queue,
+  onErrorAlternar,
   onEditar,
   onExcluir,
 }: {
-  fila: FilaCadastrada;
-  onErroAlternar: (erro: string) => void;
+  queue: QueueRegistered;
+  onErrorAlternar: (error: string) => void;
   onEditar: () => void;
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    const r = await alternarFila(fila.id, fila.ativa);
-    if (!r.ok) onErroAlternar(r.erro);
+    const r = await alternarQueue(queue.id, queue.active);
+    if (!r.ok) onErrorAlternar(r.error);
   };
   return (
     <>
@@ -60,9 +60,9 @@ function AcoesDaFila({
         type="button"
         className="interruptor"
         role="switch"
-        aria-checked={fila.ativa}
-        aria-label={fila.ativa ? `Desativar a fila ${fila.nome}` : `Ativar a fila ${fila.nome}`}
-        title={fila.ativa ? 'Desativar esta fila' : 'Ativar esta fila'}
+        aria-checked={queue.active}
+        aria-label={queue.active ? `Desativar a fila ${queue.nome}` : `Ativar a fila ${queue.nome}`}
+        title={queue.active ? 'Desativar esta fila' : 'Ativar esta fila'}
         onClick={() => void alternar()}
       >
         <span className="interruptor-bolinha" />
@@ -73,47 +73,47 @@ function AcoesDaFila({
   );
 }
 
-export function PaginaFilas() {
+export function PageQueues() {
   const navegar = useNavigate();
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
   const [modalAberto, setModalAberto] = useState(false);
-  const [filaParaExcluir, setFilaParaExcluir] = useState<FilaCadastrada | null>(null);
+  const [queueForExcluir, setQueueForExcluir] = useState<QueueRegistered | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
-  const leitura = useLeitura<{ filas: FilaCadastrada[] }>('/v1/gestao/atendentes/filas');
-  if (!leitura.data) return null;
-  const { filas } = leitura.data;
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
+  const read = useRead<{ queues: QueueRegistered[] }>('/v1/gestao/atendentes/filas');
+  if (!read.data) return null;
+  const { queues } = read.data;
 
   async function excluir() {
-    if (!filaParaExcluir) return;
+    if (!queueForExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
-    const resultado = await excluirFila(filaParaExcluir.id);
+    setErrorExclusao(null);
+    const resultado = await excluirQueue(queueForExcluir.id);
     setExcluindo(false);
-    if (resultado.ok) setFilaParaExcluir(null);
-    else setErroExclusao(resultado.erro);
+    if (resultado.ok) setQueueForExcluir(null);
+    else setErrorExclusao(resultado.error);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Filas de atendimento',
-      vazio: 'Ops! Você ainda não tem nenhuma fila de atendimento.',
-      cartoes: filas.map((f) => ({
+      empty: 'Ops! Você ainda não tem nenhuma fila de atendimento.',
+      cards: queues.map((f) => ({
         id: f.id,
         campos: [
           { rotulo: 'Fila de atendimento', valor: f.nome },
-          { rotulo: 'Atendentes atribuídos', valor: numero(f.atendentes.length), classe: 'num' },
+          { rotulo: 'Atendentes atribuídos', valor: numero(f.agents.length), classe: 'num' },
         ],
-        situacao: f.ativa ? 'Ativa' : 'Desativada',
-        ativa: f.ativa,
+        situacao: f.active ? 'Ativa' : 'Desativada',
+        ativa: f.active,
         acao: (
-          <AcoesDaFila
-            fila={f}
-            onErroAlternar={setErroAlternar}
+          <QueueActions
+            queue={f}
+            onErrorAlternar={setErrorAlternar}
             onEditar={() => navegar(`${base}/atendentes/filas/${f.id}/editar`)}
-            onExcluir={() => setFilaParaExcluir(f)}
+            onExcluir={() => setQueueForExcluir(f)}
           />
         ),
         procura: f.nome.toLowerCase(),
@@ -135,30 +135,30 @@ export function PaginaFilas() {
         </Botao>
       </div>
 
-      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
+      {errorAlternar ? <Etiqueta tom="erro">{errorAlternar}</Etiqueta> : null}
 
       <ListaRegras
-        secoes={secoes}
+        sections={sections}
         placeholder="Buscar fila"
-        ocultarCabecalhoDeSecao
+        sectionOcultarHeader
         paginar
-        tamanhoDePaginaInicial={5}
+        pageInitialTamanho={5}
       />
 
       <Modal aberto={modalAberto} titulo="Criar nova fila" onFechar={() => setModalAberto(false)}>
-        <FormularioFila aoSalvar={() => setModalAberto(false)} />
+        <FormularioQueue aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmacao
-        aberto={filaParaExcluir !== null}
+      <ModalConfirmation
+        aberto={queueForExcluir !== null}
         titulo="Confirmar exclusão"
-        mensagem={<>Excluir a fila "{filaParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
-        erro={erroExclusao}
+        message={<>Excluir a fila "{queueForExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
+        error={errorExclusao}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
-          setFilaParaExcluir(null);
-          setErroExclusao(null);
+          setQueueForExcluir(null);
+          setErrorExclusao(null);
         }}
       />
     </>

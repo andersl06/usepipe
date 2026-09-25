@@ -1,23 +1,23 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
-import { desconectarWhatsApp, lerCanalVisivel, listarCanaisWhatsApp } from '../dominio/canais.js';
-import type { CanalWhatsAppVisivel } from '../dominio/canais.js';
-import { executarCadastroEmbutido, validarParametros } from '../dominio/whatsapp/cadastro-embutido.js';
-import { lerCanalWhatsApp } from '../dominio/whatsapp/canal.js';
+import { desconectarWhatsApp, readChannelVisible, listChannelsWhatsApp } from '../dominio/canais.js';
+import type { ChannelWhatsAppVisible } from '../dominio/canais.js';
+import { executarRegistrationEmbedded, validarParametros } from '../dominio/whatsapp/cadastro-embutido.js';
+import { readChannelWhatsApp } from '../dominio/whatsapp/canal.js';
 import { modoDaConexao, versaoDaApi } from '../dominio/whatsapp/cliente-graph.js';
-import { executarConfiguracaoManual } from '../dominio/whatsapp/configuracao-manual.js';
-import { conferirEstado, emitirEstado } from '../dominio/whatsapp/estado-de-conexao.js';
-import { criarModeloNaMeta, excluirModeloNaMeta, sincronizarModelos } from '../dominio/whatsapp/modelos.js';
-import type { PedidoDeModelo, ResultadoDaSincronizacao } from '../dominio/whatsapp/modelos.js';
-import { gravarPerfilDoCanal, lerPerfilDoCanal } from '../dominio/whatsapp/perfil.js';
-import { gravarPreferencias, lerPreferencias } from '../dominio/whatsapp/preferencias.js';
-import type { PedidoDePreferencias, PreferenciasDoCanal } from '../dominio/whatsapp/preferencias.js';
+import { executarConfigurationManual } from '../dominio/whatsapp/configuracao-manual.js';
+import { checkState, emitirState } from '../dominio/whatsapp/estado-de-conexao.js';
+import { createTemplateInMeta, deleteTemplateInMeta, sincronizarModelos } from '../dominio/whatsapp/modelos.js';
+import type { RequestOfTemplate, ResultOfSynchronization } from '../dominio/whatsapp/modelos.js';
+import { writeProfileOfChannel, readProfileOfChannel } from '../dominio/whatsapp/perfil.js';
+import { writePreferences, readPreferences } from '../dominio/whatsapp/preferencias.js';
+import type { RequestOfPreferences, PreferencesOfChannel } from '../dominio/whatsapp/preferencias.js';
 import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
-import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
-  fluxoIdDoCorpo,
-  ligarAoFluxo,
+  flowIdOfBody,
+  connectToFlow,
   permitidoConectar,
   permitidoReconectar,
 } from './conexao-no-fluxo.js';
@@ -39,14 +39,14 @@ import {
  * (`conexao-no-fluxo.ts`).
  */
 @Controller('v1/canais')
-export class ControladorCanais {
+export class ChannelsController {
   /** O que a tela de Canais mostra: ligado, número, qualidade e limite. */
   @Get('whatsapp')
-  @ComSessao()
-  async listar(@Req() requisicao: RequisicaoComSessao): Promise<{ canais: CanalWhatsAppVisivel[] }> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return { canais: await listarCanaisWhatsApp(sessao.tenantId) };
+  @WithSession()
+  async listar(@Req() requisicao: RequestWithSession): Promise<{ channels: ChannelWhatsAppVisible[] }> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return { channels: await listChannelsWhatsApp(sessao.tenantId) };
   }
 
   /**
@@ -56,12 +56,12 @@ export class ControladorCanais {
    */
   @Post('whatsapp/estado')
   @HttpCode(201)
-  @ComSessao()
-  async iniciar(@Req() requisicao: RequisicaoComSessao): Promise<Record<string, string>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+  @WithSession()
+  async iniciar(@Req() requisicao: RequestWithSession): Promise<Record<string, string>> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
     return {
-      estado: emitirEstado(sessao.tenantId, sessao.usuarioId),
+      estado: emitirState(sessao.tenantId, sessao.userId),
       appId: process.env['WHATSAPP_APP_ID'] ?? '',
       configId: process.env['WHATSAPP_CONFIG_ID'] ?? '',
       versao: versaoDaApi(),
@@ -76,9 +76,9 @@ export class ControladorCanais {
    */
   @Post('whatsapp')
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async conectar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Body()
     corpo: {
       codigo?: string;
@@ -87,33 +87,33 @@ export class ControladorCanais {
       business_id?: string;
       coexistencia?: boolean;
       canal_id?: string;
-      estado?: string;
+      state?: string;
       fluxo_id?: string;
     },
-  ): Promise<CanalWhatsAppVisivel & { mensagem?: string }> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ChannelWhatsAppVisible & { message?: string }> {
+    const sessao = sessionOf(requisicao);
     // Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.
-    const fluxoId = corpo.canal_id ? undefined : fluxoIdDoCorpo(corpo);
-    await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
-    conferirEstado(corpo.estado, sessao.tenantId, sessao.usuarioId);
+    const fluxoId = corpo.canal_id ? undefined : flowIdOfBody(corpo);
+    await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId);
+    checkState(corpo.state, sessao.tenantId, sessao.userId);
     validarParametros({ codigo: corpo.codigo, wabaId: corpo.waba_id });
 
     // `fetch_and_validate_inbox`: o canal a reautorizar tem de ser deste tenant.
-    if (corpo.canal_id) await lerCanalWhatsApp(sessao.tenantId, corpo.canal_id);
+    if (corpo.canal_id) await readChannelWhatsApp(sessao.tenantId, corpo.canal_id);
 
-    const canal = await executarCadastroEmbutido({
+    const channel = await executarRegistrationEmbedded({
       tenantId: sessao.tenantId,
-      usuarioId: sessao.usuarioId,
+      userId: sessao.userId,
       codigo: corpo.codigo,
       wabaId: corpo.waba_id,
       numeroId: corpo.phone_number_id,
       coexistencia: corpo.coexistencia === true,
-      canalId: corpo.canal_id,
+      channelId: corpo.canal_id,
     });
-    if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, canal.id);
+    if (fluxoId) await connectToFlow(sessao.tenantId, sessao.userId, fluxoId, channel.id);
 
-    const visivel = await lerCanalVisivel(sessao.tenantId, canal.id);
-    return corpo.canal_id ? { ...visivel, mensagem: 'Reautorização concluída.' } : visivel;
+    const visivel = await readChannelVisible(sessao.tenantId, channel.id);
+    return corpo.canal_id ? { ...visivel, message: 'Reautorização concluída.' } : visivel;
   }
 
   /**
@@ -124,9 +124,9 @@ export class ControladorCanais {
    */
   @Post('whatsapp/manual')
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async manual(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() request: RequestWithSession,
     @Body()
     corpo: {
       waba_id?: string;
@@ -134,38 +134,38 @@ export class ControladorCanais {
       access_token?: string;
       app_secret?: string;
       nome?: string;
-      fluxo_id?: string;
-      canal_id?: string;
+      flowId?: string;
+      channelId?: string;
     },
   ): Promise<
-    CanalWhatsAppVisivel & { erroDeWebhook: string | null; webhook: { url: string; verifyToken: string } }
+    ChannelWhatsAppVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
   > {
-    const sessao = sessaoDe(requisicao);
+    const session = sessionOf(request);
     /* Reconectar não liga bot nenhum — o canal já tem dono. Mas quem administra
        o bot dono do canal pode reconectá-lo, porque na origem isso se faz na
        página do canal DENTRO do bot. */
-    const doCorpo = fluxoIdDoCorpo(corpo);
-    const fluxoId = corpo.canal_id ? undefined : doCorpo;
-    if (corpo.canal_id) {
-      await lerCanalWhatsApp(sessao.tenantId, corpo.canal_id);
-      await permitidoReconectar(sessao.tenantId, sessao.usuarioId, doCorpo, corpo.canal_id);
+    const doCorpo = flowIdOfBody(corpo);
+    const flowId = corpo.channelId ? undefined : doCorpo;
+    if (corpo.channelId) {
+      await readChannelWhatsApp(session.tenantId, corpo.channelId);
+      await permitidoReconectar(session.tenantId, session.userId, doCorpo, corpo.channelId);
     } else {
-      await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
+      await permitidoConectar(session.tenantId, session.userId, flowId);
     }
-    const feito = await executarConfiguracaoManual({
-      tenantId: sessao.tenantId,
-      usuarioId: sessao.usuarioId,
+    const feito = await executarConfigurationManual({
+      tenantId: session.tenantId,
+      userId: session.userId,
       wabaId: corpo.waba_id?.trim(),
       numeroId: corpo.phone_number_id?.trim(),
       token: corpo.access_token?.trim(),
       appSecret: corpo.app_secret?.trim(),
       nome: corpo.nome,
-      canalId: corpo.canal_id,
+      channelId: corpo.channelId,
     });
-    if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, feito.canal.id);
+    if (flowId) await connectToFlow(session.tenantId, session.userId, flowId, feito.channel.id);
     return {
-      ...(await lerCanalVisivel(sessao.tenantId, feito.canal.id)),
-      erroDeWebhook: feito.erroDeWebhook,
+      ...(await readChannelVisible(session.tenantId, feito.channel.id)),
+      webhookError: feito.webhookError,
       webhook: feito.webhook,
     };
   }
@@ -176,102 +176,102 @@ export class ControladorCanais {
    * análise da Meta. Ver `dominio/whatsapp/perfil.ts`.
    */
   @Get('whatsapp/:id/perfil')
-  @ComSessao()
-  async perfil(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<PerfilVisivel> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return lerPerfilDoCanal(sessao.tenantId, id);
+  @WithSession()
+  async perfil(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<PerfilVisivel> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return readProfileOfChannel(sessao.tenantId, id);
   }
 
   @Patch('whatsapp/:id/perfil')
-  @ComSessao()
+  @WithSession()
   async gravarPerfil(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: PedidoDePerfil,
   ): Promise<PerfilVisivel> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return gravarPerfilDoCanal(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return writeProfileOfChannel(sessao.tenantId, sessao.userId, id, corpo ?? {});
   }
 
   /** Abas "Configurações" e "Configurações de alerta" do canal. Ver `dominio/whatsapp/preferencias.ts`. */
   @Get('whatsapp/:id/preferencias')
-  @ComSessao()
-  async preferencias(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async preferences(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<PreferenciasDoCanal> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return lerPreferencias(sessao.tenantId, id);
+  ): Promise<PreferencesOfChannel> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return readPreferences(sessao.tenantId, id);
   }
 
   @Patch('whatsapp/:id/preferencias')
-  @ComSessao()
-  async gravarPreferencias(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async writePreferences(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: PedidoDePreferencias,
-  ): Promise<PreferenciasDoCanal> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return gravarPreferencias(sessao.tenantId, sessao.usuarioId, id, corpo);
+    @Body() corpo: RequestOfPreferences,
+  ): Promise<PreferencesOfChannel> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return writePreferences(sessao.tenantId, sessao.userId, id, corpo);
   }
 
   /** Traz da Meta todos os modelos da WABA do canal. Ver `dominio/whatsapp/modelos.ts`. */
   @Post('whatsapp/:id/modelos/sincronizar')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async sincronizarModelos(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<ResultadoDaSincronizacao> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return sincronizarModelos(sessao.tenantId, sessao.usuarioId, id);
+  ): Promise<ResultOfSynchronization> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return sincronizarModelos(sessao.tenantId, sessao.userId, id);
   }
 
   /** Cria o modelo na Meta (vai para análise) e grava a cópia `pendente`. */
   @Post('whatsapp/:id/modelos')
   @HttpCode(201)
-  @ComSessao()
-  async criarModelo(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createTemplate(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: PedidoDeModelo,
+    @Body() corpo: RequestOfTemplate,
   ): Promise<{ id: string; statusMeta: string }> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return criarModeloNaMeta(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return createTemplateInMeta(sessao.tenantId, sessao.userId, id, corpo ?? {});
   }
 
   /** Apaga na Meta, pelo nome (todos os idiomas), e aqui. */
   @Delete('whatsapp/:id/modelos/:nome')
-  @ComSessao()
-  async excluirModelo(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async deleteTemplate(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('nome') nome: string,
   ): Promise<{ removidos: number }> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return excluirModeloNaMeta(sessao.tenantId, sessao.usuarioId, id, nome);
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return deleteTemplateInMeta(sessao.tenantId, sessao.userId, id, nome);
   }
 
   /** Desconecta: desmonta o webhook e desliga o canal. Conversa e mensagem ficam. */
   @Delete('whatsapp/:id')
-  @ComSessao()
+  @WithSession()
   async desconectar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<CanalWhatsAppVisivel> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
-    return desconectarWhatsApp(sessao.tenantId, sessao.usuarioId, id);
+  ): Promise<ChannelWhatsAppVisible> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'canal.gerenciar');
+    return desconectarWhatsApp(sessao.tenantId, sessao.userId, id);
   }
 }
 
-function permitido(tenantId: string, usuarioId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermissao(tx, usuarioId, codigo));
+function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
+  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
 }

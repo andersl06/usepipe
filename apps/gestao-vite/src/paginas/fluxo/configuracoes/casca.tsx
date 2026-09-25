@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
-import { CascaDoModulo, useContato } from '../contato';
-import { NavegacaoConfiguracoes } from './navegacao';
+import { ModuloShell, useContact } from '../contato';
+import { NavigationSettings } from './navegacao';
 import './configuracoes.css';
 
 /**
@@ -16,19 +16,19 @@ import './configuracoes.css';
  * centra o miolo em `fx-coluna` (80%); `.cf-casca` desfaz esse recuo para
  * abrir a lateral na borda, sem tocar o casco.
  */
-export function CascaDeConfiguracoes() {
-  const { contato } = useContato();
-  const id = contato.id;
+export function SettingsShell() {
+  const { contact } = useContact();
+  const id = contact.id;
   return (
-    <CascaDoModulo ativo="Configurações">
+    <ModuloShell ativo="Configurações">
       <div className="cf-casca">
-        <NavegacaoConfiguracoes id={id} />
+        <NavigationSettings id={id} />
         <section className="cf-miolo">
           <div className="cf-conteudo">
             <Outlet />
           </div>
         </section>
       </div>
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

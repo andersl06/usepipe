@@ -1,7 +1,7 @@
 import { createDecipheriv, createHash, createPrivateKey, pbkdf2Sync, X509Certificate } from 'node:crypto';
 import type { KeyObject } from 'node:crypto';
 import { createSecureContext } from 'node:tls';
-import { ErroPipe } from '../../erros.js';
+import { PipeError } from '../../erros.js';
 
 /**
  * Leitura do `.pfx` (PKCS#12) no servidor, só com o que o Node traz.
@@ -27,7 +27,7 @@ import { ErroPipe } from '../../erros.js';
  * "unsupported", e a mensagem pede reexportar com AES.
  */
 
-export interface LeituraDoPfx {
+export interface ReadOfPfx {
   /** `notAfter` do certificado que casa com a chave privada. */
   expiraEm: Date;
   validoDesde: Date;
@@ -60,42 +60,42 @@ const TAG = {
   CTX0_PRIMITIVO: 0x80,
 } as const;
 
-class ErroDeAsn1 extends Error {
-  constructor(mensagem: string) {
-    super(mensagem);
+class Asn1Error extends Error {
+  constructor(message: string) {
+    super(message);
     this.name = 'ErroDeAsn1';
   }
 }
 
 /** Lê os elementos DER consecutivos de `dados`, do começo ao fim. */
-function lerTlvs(dados: Buffer): Tlv[] {
+function lerTlvs(data: Buffer): Tlv[] {
   const lidos: Tlv[] = [];
   let pos = 0;
-  while (pos < dados.length) {
-    const tag = dados[pos]!;
-    if ((tag & 0x1f) === 0x1f) throw new ErroDeAsn1('tag longa não é usada em PKCS#12');
-    const primeiro = dados[pos + 1];
-    if (primeiro === undefined) throw new ErroDeAsn1('elemento truncado');
+  while (pos < data.length) {
+    const tag = data[pos]!;
+    if ((tag & 0x1f) === 0x1f) throw new Asn1Error('tag longa não é usada em PKCS#12');
+    const primeiro = data[pos + 1];
+    if (primeiro === undefined) throw new Asn1Error('elemento truncado');
     let inicio = pos + 2;
     let tamanho = primeiro;
     if (primeiro & 0x80) {
       const n = primeiro & 0x7f;
       // `0x80` é tamanho indefinido (BER): nenhum exportador de .pfx usa.
-      if (n === 0 || n > 4 || inicio + n > dados.length) throw new ErroDeAsn1('tamanho inválido');
+      if (n === 0 || n > 4 || inicio + n > data.length) throw new Asn1Error('tamanho inválido');
       tamanho = 0;
-      for (let i = 0; i < n; i++) tamanho = tamanho * 256 + dados[inicio + i]!;
+      for (let i = 0; i < n; i++) tamanho = tamanho * 256 + data[inicio + i]!;
       inicio += n;
     }
     const fim = inicio + tamanho;
-    if (fim > dados.length) throw new ErroDeAsn1('elemento truncado');
-    lidos.push({ tag, conteudo: dados.subarray(inicio, fim), bruto: dados.subarray(pos, fim) });
+    if (fim > data.length) throw new Asn1Error('elemento truncado');
+    lidos.push({ tag, conteudo: data.subarray(inicio, fim), bruto: data.subarray(pos, fim) });
     pos = fim;
   }
   return lidos;
 }
 
 function esperar(tlv: Tlv | undefined, tag: number, oQue: string): Tlv {
-  if (!tlv || tlv.tag !== tag) throw new ErroDeAsn1(`esperava ${oQue}`);
+  if (!tlv || tlv.tag !== tag) throw new Asn1Error(`esperava ${oQue}`);
   return tlv;
 }
 
@@ -107,22 +107,22 @@ function filhos(tlv: Tlv | undefined, tag: number, oQue: string): Tlv[] {
 function oidDe(tlv: Tlv | undefined): string {
   const { conteudo } = esperar(tlv, TAG.OID, 'OID');
   const arcos: number[] = [];
-  let valor = 0;
+  let value = 0;
   for (const byte of conteudo) {
-    valor = valor * 128 + (byte & 0x7f);
+    value = value * 128 + (byte & 0x7f);
     if (byte & 0x80) continue;
     if (arcos.length === 0) {
-      const primeiro = valor < 40 ? 0 : valor < 80 ? 1 : 2;
-      arcos.push(primeiro, valor - primeiro * 40);
+      const first = value < 40 ? 0 : value < 80 ? 1 : 2;
+      arcos.push(first, value - first * 40);
     } else {
-      arcos.push(valor);
+      arcos.push(value);
     }
-    valor = 0;
+    value = 0;
   }
   return arcos.join('.');
 }
 
-function inteiroDe(tlv: Tlv | undefined): number {
+function integerOf(tlv: Tlv | undefined): number {
   const { conteudo } = esperar(tlv, TAG.INTEIRO, 'INTEGER');
   let n = 0;
   for (const byte of conteudo) n = n * 256 + byte;
@@ -158,11 +158,11 @@ const PRF_DO_PBKDF2: Record<string, string> = {
   '1.2.840.113549.2.11': 'sha512',
 };
 
-const CIFRA_DO_PBES2: Record<string, { nome: string; chave: number }> = {
-  '2.16.840.1.101.3.4.1.2': { nome: 'aes-128-cbc', chave: 16 },
-  '2.16.840.1.101.3.4.1.22': { nome: 'aes-192-cbc', chave: 24 },
-  '2.16.840.1.101.3.4.1.42': { nome: 'aes-256-cbc', chave: 32 },
-  '1.2.840.113549.3.7': { nome: 'des-ede3-cbc', chave: 24 },
+const CIFRA_DO_PBES2: Record<string, { nome: string; key: number }> = {
+  '2.16.840.1.101.3.4.1.2': { nome: 'aes-128-cbc', key: 16 },
+  '2.16.840.1.101.3.4.1.22': { nome: 'aes-192-cbc', key: 24 },
+  '2.16.840.1.101.3.4.1.42': { nome: 'aes-256-cbc', key: 32 },
+  '1.2.840.113549.3.7': { nome: 'des-ede3-cbc', key: 24 },
 };
 
 /* ------------------------------------------------------- derivação PKCS#12 */
@@ -194,11 +194,11 @@ function senhaComoBmpString(senha: string): Buffer {
  * repositório: o MAC do arquivo de teste sai daqui, e o `createSecureContext`
  * (OpenSSL) é quem confere — se a derivação estivesse errada, o teste cairia.
  */
-export function derivarChavePkcs12(
+export function derivarKeyPkcs12(
   hash: 'sha1' | 'sha256',
   senha: string,
   sal: Buffer,
-  iteracoes: number,
+  iterations: number,
   id: 1 | 2 | 3,
   tamanho: number,
 ): Buffer {
@@ -214,7 +214,7 @@ export function derivarChavePkcs12(
   const saida: Buffer[] = [];
   for (let i = 0; i < voltas; i++) {
     let A = createHash(hash).update(D).update(I).digest();
-    for (let r = 1; r < iteracoes; r++) A = createHash(hash).update(A).digest();
+    for (let r = 1; r < iterations; r++) A = createHash(hash).update(A).digest();
     saida.push(A);
     if (i === voltas - 1) break;
     // I_j = (I_j + B + 1) mod 2^v, bloco a bloco, big-endian.
@@ -239,7 +239,7 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
   const oid = oidDe(oidTlv);
 
   if (PBE_ANTIGO.has(oid)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'pfx_formato_antigo',
       'O arquivo usa uma cifra antiga (RC2/RC4) que não é mais suportada. Exporte o certificado de novo com AES-256 (no OpenSSL: `openssl pkcs12 -export` sem `-legacy`).',
     );
@@ -248,38 +248,38 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
   if (oid === OID.pbes2) {
     const [kdf, esquema] = filhos(parametros, TAG.SEQUENCIA, 'PBES2-params');
     const [kdfOid, kdfParametros] = filhos(kdf, TAG.SEQUENCIA, 'keyDerivationFunc');
-    if (oidDe(kdfOid) !== OID.pbkdf2) throw new ErroDeAsn1('PBES2 sem PBKDF2');
+    if (oidDe(kdfOid) !== OID.pbkdf2) throw new Asn1Error('PBES2 sem PBKDF2');
     const partes = filhos(kdfParametros, TAG.SEQUENCIA, 'PBKDF2-params');
     const sal = esperar(partes[0], TAG.OCTETOS, 'salt').conteudo;
-    const iteracoes = inteiroDe(partes[1]);
+    const iterations = integerOf(partes[1]);
     // `keyLength` (INTEGER) e `prf` (SEQUENCE) são opcionais, nessa ordem.
     const prfTlv = partes.find((p, i) => i >= 2 && p.tag === TAG.SEQUENCIA);
     const prf = prfTlv ? (PRF_DO_PBKDF2[oidDe(lerTlvs(prfTlv.conteudo)[0])] ?? null) : 'sha1';
-    if (!prf) throw new ErroDeAsn1('PRF do PBKDF2 desconhecida');
+    if (!prf) throw new Asn1Error('PRF do PBKDF2 desconhecida');
 
     const [cifraOid, ivTlv] = filhos(esquema, TAG.SEQUENCIA, 'encryptionScheme');
     const cifra = CIFRA_DO_PBES2[oidDe(cifraOid)];
-    if (!cifra) throw new ErroDeAsn1('cifra do PBES2 desconhecida');
+    if (!cifra) throw new Asn1Error('cifra do PBES2 desconhecida');
     const iv = esperar(ivTlv, TAG.OCTETOS, 'IV').conteudo;
     // No PBES2 a senha entra como os bytes UTF-8, sem o BMPString do PKCS#12
     // (é o que o `PKCS5_PBKDF2_HMAC` do OpenSSL recebe).
-    const chave = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iteracoes, cifra.chave, prf);
-    const decifra = createDecipheriv(cifra.nome, chave, iv);
+    const key = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iterations, cifra.key, prf);
+    const decifra = createDecipheriv(cifra.nome, key, iv);
     return Buffer.concat([decifra.update(cifrado), decifra.final()]);
   }
 
   if (oid === OID.pbeSha1E3DES || oid === OID.pbeSha1E2DES) {
     const partes = filhos(parametros, TAG.SEQUENCIA, 'pkcs-12PbeParams');
     const sal = esperar(partes[0], TAG.OCTETOS, 'salt').conteudo;
-    const iteracoes = inteiroDe(partes[1]);
+    const iteracoes = integerOf(partes[1]);
     const tresChaves = oid === OID.pbeSha1E3DES;
-    const chave = derivarChavePkcs12('sha1', senha, sal, iteracoes, 1, tresChaves ? 24 : 16);
-    const iv = derivarChavePkcs12('sha1', senha, sal, iteracoes, 2, 8);
+    const chave = derivarKeyPkcs12('sha1', senha, sal, iteracoes, 1, tresChaves ? 24 : 16);
+    const iv = derivarKeyPkcs12('sha1', senha, sal, iteracoes, 2, 8);
     const decifra = createDecipheriv(tresChaves ? 'des-ede3-cbc' : 'des-ede-cbc', chave, iv);
     return Buffer.concat([decifra.update(cifrado), decifra.final()]);
   }
 
-  throw new ErroDeAsn1(`cifra ${oid} não suportada`);
+  throw new Asn1Error(`cifra ${oid} não suportada`);
 }
 
 /* --------------------------------------------------------------- o PFX */
@@ -299,28 +299,28 @@ function octetosDentroDeCtx0(tlv: Tlv | undefined): Buffer {
 
 /** O `encryptedContent [0] IMPLICIT OCTET STRING` — primitivo no DER; construído (BER) em raríssimos exportadores. */
 function conteudoCifradoDe(tlv: Tlv | undefined): Buffer {
-  if (!tlv) throw new ErroDeAsn1('encryptedContent ausente');
+  if (!tlv) throw new Asn1Error('encryptedContent ausente');
   if (tlv.tag === TAG.CTX0_PRIMITIVO) return tlv.conteudo;
   if (tlv.tag === TAG.CTX0) {
     return Buffer.concat(lerTlvs(tlv.conteudo).map((p) => esperar(p, TAG.OCTETOS, 'pedaço').conteudo));
   }
-  throw new ErroDeAsn1('encryptedContent com tag inesperada');
+  throw new Asn1Error('encryptedContent com tag inesperada');
 }
 
 /** `SafeContents ::= SEQUENCE OF SafeBag` — o DER inteiro, com o SEQUENCE de fora. */
 function lerSacos(safeContents: Buffer, saida: ConteudoDoPfx): void {
   const [sequencia] = lerTlvs(safeContents);
   for (const saco of filhos(sequencia, TAG.SEQUENCIA, 'SafeContents')) {
-    const [idTlv, valor] = filhos(saco, TAG.SEQUENCIA, 'SafeBag');
+    const [idTlv, value] = filhos(saco, TAG.SEQUENCIA, 'SafeBag');
     const id = oidDe(idTlv);
     if (id === OID.certBag) {
-      const [certBag] = filhos(valor, TAG.CTX0, 'bagValue');
+      const [certBag] = filhos(value, TAG.CTX0, 'bagValue');
       const [tipoTlv, certTlv] = filhos(certBag, TAG.SEQUENCIA, 'CertBag');
       if (oidDe(tipoTlv) !== OID.x509Certificate) continue; // SDSI e outros: não nos servem
       saida.certificados.push(octetosDentroDeCtx0(certTlv));
     } else if (id === OID.pkcs8ShroudedKeyBag || id === OID.keyBag) {
-      const [chave] = filhos(valor, TAG.CTX0, 'bagValue');
-      saida.chaves.push(esperar(chave, TAG.SEQUENCIA, 'PrivateKeyInfo').bruto);
+      const [key] = filhos(value, TAG.CTX0, 'bagValue');
+      saida.chaves.push(esperar(key, TAG.SEQUENCIA, 'PrivateKeyInfo').bruto);
     }
     // Outros sacos (secretBag, safeContentsBag aninhado, CRL): ignorados.
   }
@@ -330,10 +330,10 @@ function lerSacos(safeContents: Buffer, saida: ConteudoDoPfx): void {
 function abrirPfx(pfx: Buffer, senha: string): ConteudoDoPfx {
   const raiz = lerTlvs(pfx);
   const [versao, authSafe] = filhos(raiz[0], TAG.SEQUENCIA, 'PFX');
-  if (inteiroDe(versao) !== 3) throw new ErroDeAsn1('versão do PFX não é 3');
+  if (integerOf(versao) !== 3) throw new Asn1Error('versão do PFX não é 3');
 
   const [tipoTlv, conteudoTlv] = filhos(authSafe, TAG.SEQUENCIA, 'authSafe');
-  if (oidDe(tipoTlv) !== OID.data) throw new ErroDeAsn1('authSafe não é `data` (assinado não é suportado)');
+  if (oidDe(tipoTlv) !== OID.data) throw new Asn1Error('authSafe não é `data` (assinado não é suportado)');
   // `AuthenticatedSafe ::= SEQUENCE OF ContentInfo`, dentro do OCTET STRING.
   const [authenticatedSafe] = lerTlvs(octetosDentroDeCtx0(conteudoTlv));
 
@@ -347,7 +347,7 @@ function abrirPfx(pfx: Buffer, senha: string): ConteudoDoPfx {
       const [encryptedData] = filhos(corpo, TAG.CTX0, '[0]');
       const [, encryptedContentInfo] = filhos(encryptedData, TAG.SEQUENCIA, 'EncryptedData');
       const [, algoritmo, cifrado] = filhos(encryptedContentInfo, TAG.SEQUENCIA, 'EncryptedContentInfo');
-      if (!algoritmo) throw new ErroDeAsn1('EncryptedContentInfo sem algoritmo');
+      if (!algoritmo) throw new Asn1Error('EncryptedContentInfo sem algoritmo');
       lerSacos(decifrarConteudo(algoritmo, conteudoCifradoDe(cifrado), senha), saida);
     }
   }
@@ -374,23 +374,23 @@ function escolherProprio(certificados: X509Certificate[], chave: KeyObject | nul
   return folha ?? certificados[0]!;
 }
 
-function classificarFalhaDoOpenSsl(falha: unknown): ErroPipe {
+function classificarFalhaDoOpenSsl(falha: unknown): PipeError {
   // O Node põe a razão do OpenSSL na mensagem ("mac verify failure") e o
   // código em `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); olhamos os dois.
-  const erro = falha as { message?: string; code?: string } | null;
-  const mensagem = `${erro?.code ?? ''} ${erro?.message ?? ''}`;
-  if (/mac[ _]verify[ _]failure/i.test(mensagem)) {
-    return ErroPipe.requisicao('senha_incorreta', 'A senha do certificado está incorreta.');
+  const error = falha as { message?: string; code?: string } | null;
+  const message = `${error?.code ?? ''} ${error?.message ?? ''}`;
+  if (/mac[ _]verify[ _]failure/i.test(message)) {
+    return PipeError.request('senha_incorreta', 'A senha do certificado está incorreta.');
   }
-  if (/unsupported/i.test(mensagem)) {
-    return ErroPipe.requisicao(
+  if (/unsupported/i.test(message)) {
+    return PipeError.request(
       'pfx_formato_antigo',
       'O arquivo usa uma cifra antiga (RC2/RC4) que não é mais suportada. Exporte o certificado de novo com AES-256 (no OpenSSL: `openssl pkcs12 -export` sem `-legacy`).',
     );
   }
   // Não repassamos a mensagem do OpenSSL: ela descreve a estrutura do arquivo,
   // e o que interessa a quem cadastra é que o arquivo não é um .pfx que sirva.
-  return ErroPipe.requisicao(
+  return PipeError.request(
     'pfx_invalido',
     'O arquivo não é um .pfx válido, ou não tem a chave privada junto do certificado.',
   );
@@ -401,7 +401,7 @@ function classificarFalhaDoOpenSsl(falha: unknown): ErroPipe {
  * `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) — nunca com a senha
  * nem com bytes do arquivo na mensagem.
  */
-export function lerPfx(pfx: Buffer, senha: string): LeituraDoPfx {
+export function lerPfx(pfx: Buffer, senha: string): ReadOfPfx {
   // 1. O OpenSSL julga: MAC com a senha, chave decifrada, chave casando com o certificado.
   try {
     createSecureContext({ pfx, passphrase: senha });
@@ -414,8 +414,8 @@ export function lerPfx(pfx: Buffer, senha: string): LeituraDoPfx {
   try {
     conteudo = abrirPfx(pfx, senha);
   } catch (falha) {
-    if (falha instanceof ErroPipe) throw falha;
-    throw ErroPipe.requisicao(
+    if (falha instanceof PipeError) throw falha;
+    throw PipeError.request(
       'pfx_ilegivel',
       'O arquivo abriu com a senha, mas o certificado dentro dele não pôde ser lido.',
     );
@@ -429,7 +429,7 @@ export function lerPfx(pfx: Buffer, senha: string): LeituraDoPfx {
     }
   }
   if (certificados.length === 0) {
-    throw ErroPipe.requisicao('pfx_ilegivel', 'O arquivo não tem nenhum certificado X.509 legível.');
+    throw PipeError.request('pfx_ilegivel', 'O arquivo não tem nenhum certificado X.509 legível.');
   }
 
   // A chave só serve para apontar qual certificado é o próprio: vive nesta

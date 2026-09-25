@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { cifrar, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe, Ator } from '@pipe/db';
-import { chaveiro } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
+import type { TransactionPipe, Ator } from '@pipe/db';
+import { keyring } from '../../banco.js';
+import { PipeError } from '../../erros.js';
 import { esquecerCertificadosMtls } from '../mtls.js';
 import { lerPfx } from './pfx.js';
 
@@ -63,12 +63,12 @@ export interface PedidoDeCertificado {
   /** A senha do `.pfx`. Cifrada no banco, nunca devolvida. */
   senha: string;
   /** O `.pfx` em base64 — puro ou como data URL (`data:…;base64,…`), que é o que o `FileReader` da tela dá. */
-  arquivo: string;
+  file: string;
 }
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };
 
-const OK: Gravacao = { ok: true };
+const OK: Recording = { ok: true };
 
 /** "O arquivo deve ter no máximo 10MB" — o teto do `yt` da origem, conferido de novo aqui. */
 export const MAX_BYTES_DO_PFX = 10 * 1048576;
@@ -83,25 +83,25 @@ function normalizarHosts(crus: string[] | undefined): string[] {
     const host = (cru ?? '').trim();
     if (!host) continue;
     if (!URL_HTTPS.test(host)) {
-      throw ErroPipe.requisicao('host_invalido', `"${host}" não é uma URL HTTPS válida.`, { host });
+      throw PipeError.request('host_invalido', `"${host}" não é uma URL HTTPS válida.`, { host });
     }
     if (vistos.has(host)) continue;
     vistos.add(host);
     limpos.push(host);
   }
   if (limpos.length === 0) {
-    throw ErroPipe.requisicao('host_obrigatorio', 'Informe ao menos um host para o certificado.');
+    throw PipeError.request('host_obrigatorio', 'Informe ao menos um host para o certificado.');
   }
   return limpos;
 }
 
-function normalizarDescricao(cru: string | undefined): string {
+function normalizeDescription(cru: string | undefined): string {
   const descricao = (cru ?? '').trim();
   if (!descricao) {
-    throw ErroPipe.requisicao('descricao_obrigatoria', 'Informe a descrição do certificado.');
+    throw PipeError.request('descricao_obrigatoria', 'Informe a descrição do certificado.');
   }
   if (descricao.length > 50) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'descricao_longa',
       'A descrição do certificado tem no máximo 50 caracteres.',
     );
@@ -111,35 +111,35 @@ function normalizarDescricao(cru: string | undefined): string {
 
 function normalizarSenha(crua: unknown): string {
   const senha = typeof crua === 'string' ? crua : '';
-  if (!senha) throw ErroPipe.requisicao('senha_obrigatoria', 'Informe a senha do certificado.');
+  if (!senha) throw PipeError.request('senha_obrigatoria', 'Informe a senha do certificado.');
   return senha;
 }
 
 /** Base64 puro ou data URL → bytes. Vazio, ilegível ou maior que o teto: 400. */
-function normalizarArquivo(cru: unknown): Buffer {
+function normalizeFile(cru: unknown): Buffer {
   const texto = typeof cru === 'string' ? cru.trim() : '';
   const base64 = texto.startsWith('data:') ? texto.slice(texto.indexOf(',') + 1) : texto;
   if (!base64 || !/^[A-Za-z0-9+/=\s]+$/.test(base64)) {
-    throw ErroPipe.requisicao('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
+    throw PipeError.request('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
   }
   const bytes = Buffer.from(base64, 'base64');
   if (bytes.byteLength === 0) {
-    throw ErroPipe.requisicao('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
+    throw PipeError.request('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
   }
   if (bytes.byteLength > MAX_BYTES_DO_PFX) {
-    throw ErroPipe.requisicao('arquivo_grande', 'O arquivo deve ter no máximo 10MB.');
+    throw PipeError.request('arquivo_grande', 'O arquivo deve ter no máximo 10MB.');
   }
   return bytes;
 }
 
 type LinhaDeCertificado = {
   id: string;
-  descricao: string;
+  description: string;
   expira_em: string;
   impressao_digital: string;
   emissor: string | null;
   sujeito: string | null;
-  tem_arquivo: boolean;
+  hasFile: boolean;
   expirado: boolean;
   criado_em: string;
 };
@@ -156,7 +156,7 @@ function statusDe(linha: { tem_arquivo: boolean; expirado: boolean }): StatusDoC
  * não depender do fuso do processo ao comparar um `date`.
  */
 export async function listarCertificados(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
 ): Promise<CertificadoMtls[]> {
   // `expira_em` sai como texto `YYYY-MM-DD`: o driver devolveria um `date`
@@ -184,22 +184,22 @@ export async function listarCertificados(
      where certificado_id = any(${idsLiteral}::uuid[])
      order by criado_em asc
   `);
-  const hostsPorCertificado = new Map<string, HostDoCertificado[]>();
+  const hostsByCertificate = new Map<string, HostDoCertificado[]>();
   for (const h of hosts) {
-    const lista = hostsPorCertificado.get(h.certificado_id) ?? [];
+    const lista = hostsByCertificate.get(h.certificado_id) ?? [];
     lista.push({ id: h.id, host: h.host });
-    hostsPorCertificado.set(h.certificado_id, lista);
+    hostsByCertificate.set(h.certificado_id, lista);
   }
 
   return certificados.map((c) => ({
     id: c.id,
-    descricao: c.descricao,
+    descricao: c.description,
     expiraEm: new Date(c.expira_em).toISOString(),
     impressaoDigital: c.impressao_digital,
     emissor: c.emissor,
     sujeito: c.sujeito,
     status: statusDe(c),
-    hosts: hostsPorCertificado.get(c.id) ?? [],
+    hosts: hostsByCertificate.get(c.id) ?? [],
     criadoEm: new Date(c.criado_em).toISOString(),
   }));
 }
@@ -211,29 +211,29 @@ export async function listarCertificados(
  * arquivo que não serve é 400, e nada entra no banco. O que entra, entra
  * cifrado com a chave atual do chaveiro.
  */
-export async function criarCertificado(
-  tx: TransacaoPipe,
+export async function createCertificate(
+  tx: TransactionPipe,
   tenantId: string,
   ator: Ator,
   pedido: PedidoDeCertificado,
 ): Promise<CertificadoMtls> {
-  const descricao = normalizarDescricao(pedido.descricao);
+  const description = normalizeDescription(pedido.descricao);
   const hosts = normalizarHosts(pedido.hosts);
   const senha = normalizarSenha(pedido.senha);
-  const arquivo = normalizarArquivo(pedido.arquivo);
-  const leitura = lerPfx(arquivo, senha);
+  const file = normalizeFile(pedido.file);
+  const read = lerPfx(file, senha);
 
-  const chaves = chaveiro();
-  const arquivoCifrado = cifrar(arquivo.toString('base64'), chaves);
+  const chaves = keyring();
+  const fileEncrypted = cifrar(file.toString('base64'), chaves);
   const senhaCifrada = cifrar(senha, chaves);
-  const expiraEm = leitura.expiraEm.toISOString().slice(0, 10);
+  const expiraEm = read.expiraEm.toISOString().slice(0, 10);
 
   const { rows } = await tx.execute<{ id: string; criado_em: string; expirado: boolean }>(sql`
     insert into certificado_mtls
       (tenant_id, descricao, expira_em, impressao_digital, emissor, sujeito,
        arquivo_cifrado, senha_cifrada, criado_por)
-    values (${tenantId}::uuid, ${descricao}, ${expiraEm}::date, ${leitura.impressaoDigital},
-            ${leitura.emissor}, ${leitura.sujeito}, ${arquivoCifrado}, ${senhaCifrada},
+    values (${tenantId}::uuid, ${description}, ${expiraEm}::date, ${read.impressaoDigital},
+            ${read.emissor}, ${read.sujeito}, ${fileEncrypted}, ${senhaCifrada},
             ${ator.id ?? null})
     returning id, criado_em, (expira_em < current_date) as expirado
   `);
@@ -256,11 +256,11 @@ export async function criarCertificado(
     objetoTipo: 'certificado_mtls',
     objetoId: novo.id,
     depois: {
-      descricao,
-      expiraEm: leitura.expiraEm.toISOString(),
-      impressaoDigital: leitura.impressaoDigital,
-      sujeito: leitura.sujeito,
-      emissor: leitura.emissor,
+      description,
+      expiraEm: read.expiraEm.toISOString(),
+      impressaoDigital: read.impressaoDigital,
+      sujeito: read.sujeito,
+      emissor: read.emissor,
       hosts,
     },
   });
@@ -272,12 +272,12 @@ export async function criarCertificado(
 
   return {
     id: novo.id,
-    descricao,
+    description,
     // A mesma forma da listagem: a data, à meia-noite UTC.
     expiraEm: new Date(expiraEm).toISOString(),
-    impressaoDigital: leitura.impressaoDigital,
-    emissor: leitura.emissor,
-    sujeito: leitura.sujeito,
+    impressaoDigital: read.impressaoDigital,
+    emissor: read.emissor,
+    sujeito: read.sujeito,
     status: novo.expirado ? 'expirado' : 'valido',
     hosts: hostsGravados,
     criadoEm: new Date(novo.criado_em).toISOString(),
@@ -286,18 +286,18 @@ export async function criarCertificado(
 
 /** Exclui o certificado inteiro (e os hosts junto, por `ON DELETE CASCADE`). */
 export async function excluirCertificado(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   ator: Ator,
   certificadoId: string,
-): Promise<Gravacao> {
+): Promise<Recording> {
   const { rows } = await tx.execute<{ id: string; descricao: string }>(sql`
     select id, descricao from certificado_mtls
      where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid
      limit 1
   `);
   const alvo = rows[0];
-  if (!alvo) return { ok: false, erro: 'Este certificado não existe neste contrato.' };
+  if (!alvo) return { ok: false, error: 'Este certificado não existe neste contrato.' };
 
   await tx.execute(
     sql`delete from certificado_mtls where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid`,
@@ -321,12 +321,12 @@ export async function excluirCertificado(
  * certificado sem host nenhum não autentica nada.
  */
 export async function excluirHostDoCertificado(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   ator: Ator,
   certificadoId: string,
   hostId: string,
-): Promise<Gravacao> {
+): Promise<Recording> {
   const { rows } = await tx.execute<{ id: string; host: string }>(sql`
     select h.id, h.host
       from certificado_mtls_host h
@@ -336,7 +336,7 @@ export async function excluirHostDoCertificado(
      limit 1
   `);
   const alvo = rows[0];
-  if (!alvo) return { ok: false, erro: 'Este host não existe neste certificado.' };
+  if (!alvo) return { ok: false, error: 'Este host não existe neste certificado.' };
 
   await tx.execute(sql`delete from certificado_mtls_host where id = ${hostId}::uuid`);
 

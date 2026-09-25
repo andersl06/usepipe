@@ -1,10 +1,10 @@
 import { and, asc, count, eq, gt, isNull, ne } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import { convite, fluxo, papel, tenant, usuario, usuarioPapel } from '@pipe/db/schema';
-import type { TransacaoPipe, Ator } from '@pipe/db';
+import { invitation, flow, role, tenant, user, userRole } from '@pipe/db/schema';
+import type { TransactionPipe, Ator } from '@pipe/db';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -18,7 +18,7 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * A régua da tela é `referencias-blip/pesquisa/blip-painel-do-contrato.md`.
  */
 
-export interface ResumoDoContrato {
+export interface SummaryOfContract {
   id: string;
   nome: string;
   slug: string;
@@ -27,9 +27,9 @@ export interface ResumoDoContrato {
   /** O fuso da conta: é nele que a data de criação é escrita, não no do servidor. */
   fuso: string;
   /** Os "Chatbots" do cartão deles. Aqui é fluxo e roteador, fora os arquivados. */
-  fluxos: number;
+  flows: number;
   /** Os "Membros". Só conta quem ainda tem acesso. */
-  membros: number;
+  members: number;
 }
 
 /**
@@ -42,10 +42,10 @@ export interface ResumoDoContrato {
  * `admin`, porque a lista vem junto da assinatura. Aqui os dois números saem de
  * um `count` do banco e valem para quem abrir a tela.
  */
-export async function carregarResumoDoContrato(
-  tx: TransacaoPipe,
+export async function loadSummaryOfContract(
+  tx: TransactionPipe,
   tid: string,
-): Promise<ResumoDoContrato> {
+): Promise<SummaryOfContract> {
   return consultar(tx, async (tx) => {
     const [linha] = await tx
       .select({
@@ -62,11 +62,11 @@ export async function carregarResumoDoContrato(
 
     /* Uma consulta de cada vez: a transação vive numa conexão só, e duas
        concorrentes nela se atropelam (a mesma nota de `lib/portal.ts`). */
-    const [fluxos] = await tx
+    const [flows] = await tx
       .select({ n: count() })
-      .from(fluxo)
-      .where(ne(fluxo.estado, 'arquivado'));
-    const [membros] = await tx.select({ n: count() }).from(usuario).where(eq(usuario.ativo, true));
+      .from(flow)
+      .where(ne(flow.estado, 'arquivado'));
+    const [members] = await tx.select({ n: count() }).from(user).where(eq(user.ativo, true));
 
     return {
       id: linha?.id ?? tid,
@@ -75,8 +75,8 @@ export async function carregarResumoDoContrato(
       logoUrl: linha?.logoUrl ?? null,
       criadoEm: linha?.criadoEm ?? null,
       fuso: linha?.fuso ?? 'America/Sao_Paulo',
-      fluxos: fluxos?.n ?? 0,
-      membros: membros?.n ?? 0,
+      fluxos: flows?.n ?? 0,
+      membros: members?.n ?? 0,
     };
   });
 }
@@ -86,12 +86,12 @@ export async function carregarResumoDoContrato(
  * `nome` é o `roleId` da origem — `admin`, `member`, `guest` — e é por ele que a
  * tela acha o rótulo, a descrição e o ícone (`PAPEIS_DA_ORIGEM`).
  */
-export interface PapelDaConta {
+export interface RoleOfAccount {
   id: string;
   nome: string;
 }
 
-export interface MembroDoContrato {
+export interface MemberOfContract {
   id: string;
   /**
    * De qual tabela veio a linha. Na origem há uma só (`tenant-user`), e o
@@ -103,8 +103,8 @@ export interface MembroDoContrato {
   nome: string;
   email: string;
   avatarUrl: string | null;
-  papelId: string | null;
-  papelNome: string | null;
+  roleId: string | null;
+  roleName: string | null;
 }
 
 /**
@@ -112,13 +112,13 @@ export interface MembroDoContrato {
  * supervisor, atendente e avaliador são de atendimento e ficam fora, como na
  * origem, onde eles são dados por contato.
  */
-export async function carregarPapeisDaConta(tx: TransacaoPipe): Promise<PapelDaConta[]> {
+export async function loadPapeisOfAccount(tx: TransactionPipe): Promise<RoleOfAccount[]> {
   return consultar(tx, (tx) =>
     tx
-      .select({ id: papel.id, nome: papel.nome })
-      .from(papel)
-      .where(eq(papel.escopo, 'conta'))
-      .orderBy(asc(papel.nome)),
+      .select({ id: role.id, nome: role.nome })
+      .from(role)
+      .where(eq(role.scope, 'conta'))
+      .orderBy(asc(role.nome)),
   );
 }
 
@@ -139,49 +139,49 @@ export async function carregarPapeisDaConta(tx: TransacaoPipe): Promise<PapelDaC
  * trecho antes do `@`, que é o mesmo apanhado da origem quando a busca da conta
  * falha (`decodeURIComponent(userIdentity.split("@")[0])`).
  */
-export async function carregarMembros(tx: TransacaoPipe): Promise<MembroDoContrato[]> {
+export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract[]> {
   return consultar(tx, async (tx) => {
     const linhas = await tx
       .select({
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        avatarUrl: usuario.avatarUrl,
-        papelId: papel.id,
-        papelNome: papel.nome,
+        id: user.id,
+        nome: user.nome,
+        email: user.email,
+        avatarUrl: user.avatarUrl,
+        papelId: role.id,
+        papelNome: role.nome,
       })
-      .from(usuario)
+      .from(user)
       /* Só o papel de CONTA: é UM por pessoa (índice parcial da 0021), então o
          join não multiplica a linha. Os de atendimento não são assunto desta tela. */
       .leftJoin(
-        usuarioPapel,
-        and(eq(usuarioPapel.usuarioId, usuario.id), eq(usuarioPapel.escopo, 'conta')),
+        userRole,
+        and(eq(userRole.userId, user.id), eq(userRole.escopo, 'conta')),
       )
-      .leftJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .where(eq(usuario.ativo, true))
-      .orderBy(asc(usuario.nome));
+      .leftJoin(role, eq(role.id, userRole.papelId))
+      .where(eq(user.ativo, true))
+      .orderBy(asc(user.nome));
 
     /* Defesa barata contra linha repetida, que viraria chave duplicada na lista. */
-    const porPessoa = new Map<string, MembroDoContrato>();
+    const byPerson = new Map<string, MemberOfContract>();
     for (const linha of linhas) {
-      if (porPessoa.has(linha.id)) continue;
-      porPessoa.set(linha.id, { ...linha, tipo: 'usuario' });
+      if (byPerson.has(linha.id)) continue;
+      byPerson.set(linha.id, { ...linha, tipo: 'usuario' });
     }
 
     const pendentes = await tx
       .select({
-        id: convite.id,
-        email: convite.email,
-        papelId: papel.id,
-        papelNome: papel.nome,
+        id: invitation.id,
+        email: invitation.email,
+        papelId: role.id,
+        papelNome: role.nome,
       })
-      .from(convite)
-      .innerJoin(papel, eq(papel.id, convite.papelId))
-      .where(and(isNull(convite.aceitoEm), gt(convite.expiraEm, new Date())))
-      .orderBy(asc(convite.email));
+      .from(invitation)
+      .innerJoin(role, eq(role.id, invitation.papelId))
+      .where(and(isNull(invitation.aceitoEm), gt(invitation.expiraEm, new Date())))
+      .orderBy(asc(invitation.email));
 
     return [
-      ...porPessoa.values(),
+      ...byPerson.values(),
       ...pendentes.map((c) => ({
         ...c,
         tipo: 'convite' as const,
@@ -192,14 +192,14 @@ export async function carregarMembros(tx: TransacaoPipe): Promise<MembroDoContra
   });
 }
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };
 
-const OK: Gravacao = { ok: true };
+const OK: Recording = { ok: true };
 
 /** O nome do papel de conta que a origem chama de `admin` — ver `PAPEIS_DA_ORIGEM`. */
-const PAPEL_ADMIN = 'admin';
+const ROLE_ADMIN = 'admin';
 
-const MENSAGEM_ULTIMO_ADMIN =
+const MESSAGE_LAST_ADMIN =
   'Este é o último administrador do contrato. Dê o papel de Admin a outra pessoa antes.';
 
 /**
@@ -208,14 +208,14 @@ const MENSAGEM_ULTIMO_ADMIN =
  * Conta só quem tem acesso (`usuario.ativo`): um admin desativado não segura
  * ninguém, e é justamente o "ativo = false" que a exclusão já faz.
  */
-async function contarAdministradoresAtivos(tx: TransacaoPipe): Promise<number> {
+async function contarAdministradoresAtivos(tx: TransactionPipe): Promise<number> {
   return consultar(tx, async (tx) => {
     const [linha] = await tx
       .select({ n: count() })
-      .from(usuarioPapel)
-      .innerJoin(papel, and(eq(papel.id, usuarioPapel.papelId), eq(papel.nome, PAPEL_ADMIN)))
-      .innerJoin(usuario, and(eq(usuario.id, usuarioPapel.usuarioId), eq(usuario.ativo, true)))
-      .where(eq(usuarioPapel.escopo, 'conta'));
+      .from(userRole)
+      .innerJoin(role, and(eq(role.id, userRole.papelId), eq(role.nome, ROLE_ADMIN)))
+      .innerJoin(user, and(eq(user.id, userRole.userId), eq(user.ativo, true)))
+      .where(eq(userRole.escopo, 'conta'));
     return linha?.n ?? 0;
   });
 }
@@ -228,55 +228,55 @@ async function contarAdministradoresAtivos(tx: TransacaoPipe): Promise<number> {
  * atendente…) NÃO são tocados — trocar "Admin" por "Pode visualizar" não tira
  * ninguém do atendimento. A auditoria guarda o antes e o depois.
  */
-export async function definirPapelDoMembro(
-  tx: TransacaoPipe,
+export async function defineRoleOfMember(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  usuarioIdAlvo: string,
-  papelId: string,
-): Promise<Gravacao> {
+  userIdTarget: string,
+  roleId: string,
+): Promise<Recording> {
   return consultar(tx, async (tx) => {
     const [alvo] = await tx
-      .select({ id: usuario.id, ativo: usuario.ativo })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioIdAlvo))
+      .select({ id: user.id, ativo: user.ativo })
+      .from(user)
+      .where(eq(user.id, userIdTarget))
       .limit(1);
-    if (!alvo) return { ok: false, erro: 'Esta pessoa não faz parte deste contrato.' };
+    if (!alvo) return { ok: false, error: 'Esta pessoa não faz parte deste contrato.' };
 
     const [novo] = await tx
-      .select({ id: papel.id, nome: papel.nome })
-      .from(papel)
-      .where(and(eq(papel.id, papelId), eq(papel.escopo, 'conta')))
+      .select({ id: role.id, nome: role.nome })
+      .from(role)
+      .where(and(eq(role.id, roleId), eq(role.scope, 'conta')))
       .limit(1);
-    if (!novo) return { ok: false, erro: 'Este papel não existe neste contrato.' };
+    if (!novo) return { ok: false, error: 'Este papel não existe neste contrato.' };
 
-    const daConta = and(
-      eq(usuarioPapel.usuarioId, usuarioIdAlvo),
-      eq(usuarioPapel.escopo, 'conta'),
+    const ofAccount = and(
+      eq(userRole.userId, userIdTarget),
+      eq(userRole.escopo, 'conta'),
     );
     const antigos = await tx
-      .select({ nome: papel.nome })
-      .from(usuarioPapel)
-      .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .where(daConta);
+      .select({ nome: role.nome })
+      .from(userRole)
+      .innerJoin(role, eq(role.id, userRole.papelId))
+      .where(ofAccount);
 
     // Rebaixar o ÚLTIMO admin ativo tiraria a única conta que pode devolver o
     // papel a alguém — o contrato ficaria sem quem administra.
-    const eraAdmin = alvo.ativo && antigos.some((p) => p.nome === PAPEL_ADMIN);
-    if (eraAdmin && novo.nome !== PAPEL_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
-      return { ok: false, erro: MENSAGEM_ULTIMO_ADMIN };
+    const eraAdmin = alvo.ativo && antigos.some((p) => p.nome === ROLE_ADMIN);
+    if (eraAdmin && novo.nome !== ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
+      return { ok: false, error: MESSAGE_LAST_ADMIN };
     }
 
-    await tx.delete(usuarioPapel).where(daConta);
+    await tx.delete(userRole).where(ofAccount);
     await tx
-      .insert(usuarioPapel)
-      .values({ tenantId: tid, usuarioId: usuarioIdAlvo, papelId: novo.id, escopo: 'conta' });
+      .insert(userRole)
+      .values({ tenantId: tid, usuarioId: userIdTarget, papelId: novo.id, escopo: 'conta' });
 
     await registrarAuditoria(tx, tid, {
       ator,
       acao: 'alterou',
       objetoTipo: 'usuario_papel',
-      objetoId: usuarioIdAlvo,
+      objetoId: userIdTarget,
       antes: { papeis: antigos.map((p) => p.nome) },
       depois: { papeis: [novo.nome] },
     });
@@ -296,34 +296,34 @@ export async function definirPapelDoMembro(
  * O papel FICA. Reativar alguém sem papel nenhum daria acesso a uma tela vazia,
  * e quem volta costuma voltar para a mesma função.
  */
-export async function removerMembro(
-  tx: TransacaoPipe,
+export async function removeMember(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   usuarioIdAlvo: string,
-): Promise<Gravacao> {
+): Promise<Recording> {
   return consultar(tx, async (tx) => {
     const [alvo] = await tx
-      .select({ id: usuario.id, nome: usuario.nome, ativo: usuario.ativo })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioIdAlvo))
+      .select({ id: user.id, nome: user.nome, ativo: user.ativo })
+      .from(user)
+      .where(eq(user.id, usuarioIdAlvo))
       .limit(1);
-    if (!alvo) return { ok: false, erro: 'Esta pessoa não faz parte deste contrato.' };
+    if (!alvo) return { ok: false, error: 'Esta pessoa não faz parte deste contrato.' };
     if (!alvo.ativo) return OK;
 
-    const [papelAtual] = await tx
-      .select({ nome: papel.nome })
-      .from(usuarioPapel)
-      .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
-      .where(and(eq(usuarioPapel.usuarioId, usuarioIdAlvo), eq(usuarioPapel.escopo, 'conta')))
+    const [roleAtual] = await tx
+      .select({ nome: role.nome })
+      .from(userRole)
+      .innerJoin(role, eq(role.id, userRole.papelId))
+      .where(and(eq(userRole.userId, usuarioIdAlvo), eq(userRole.escopo, 'conta')))
       .limit(1);
     // Mesma trava de `definirPapelDoMembro`: remover o último admin ativo
     // deixaria o contrato sem ninguém que possa dar o papel a outra pessoa.
-    if (papelAtual?.nome === PAPEL_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
-      return { ok: false, erro: MENSAGEM_ULTIMO_ADMIN };
+    if (roleAtual?.nome === ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
+      return { ok: false, error: MESSAGE_LAST_ADMIN };
     }
 
-    await tx.update(usuario).set({ ativo: false }).where(eq(usuario.id, usuarioIdAlvo));
+    await tx.update(user).set({ ativo: false }).where(eq(user.id, usuarioIdAlvo));
 
     await registrarAuditoria(tx, tid, {
       ator,
@@ -345,38 +345,38 @@ export async function removerMembro(
  * linha vive em `convite`, então é uma função à parte; o efeito é o mesmo, e o
  * papel novo é o que vai valer quando a pessoa entrar.
  */
-export async function definirPapelDoConvite(
-  tx: TransacaoPipe,
+export async function defineRoleOfInvitation(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  conviteId: string,
+  invitationId: string,
   papelId: string,
-): Promise<Gravacao> {
+): Promise<Recording> {
   return consultar(tx, async (tx) => {
     const [alvo] = await tx
-      .select({ id: convite.id, email: convite.email, papelId: convite.papelId })
-      .from(convite)
-      .where(and(eq(convite.id, conviteId), isNull(convite.aceitoEm)))
+      .select({ id: invitation.id, email: invitation.email, papelId: invitation.papelId })
+      .from(invitation)
+      .where(and(eq(invitation.id, invitationId), isNull(invitation.aceitoEm)))
       .limit(1);
-    if (!alvo) return { ok: false, erro: 'Este convite não está mais aberto.' };
+    if (!alvo) return { ok: false, error: 'Este convite não está mais aberto.' };
 
     const [novo] = await tx
-      .select({ id: papel.id, nome: papel.nome })
-      .from(papel)
-      .where(and(eq(papel.id, papelId), eq(papel.escopo, 'conta')))
+      .select({ id: role.id, nome: role.nome })
+      .from(role)
+      .where(and(eq(role.id, papelId), eq(role.scope, 'conta')))
       .limit(1);
-    if (!novo) return { ok: false, erro: 'Este papel não existe neste contrato.' };
+    if (!novo) return { ok: false, error: 'Este papel não existe neste contrato.' };
 
     await tx
-      .update(convite)
+      .update(invitation)
       .set({ papelId: novo.id, atualizadoEm: new Date() })
-      .where(eq(convite.id, conviteId));
+      .where(eq(invitation.id, invitationId));
 
     await registrarAuditoria(tx, tid, {
       ator,
       acao: 'alterou',
       objetoTipo: 'convite',
-      objetoId: conviteId,
+      objetoId: invitationId,
       antes: { papelId: alvo.papelId },
       depois: { papelId: novo.id },
     });
@@ -392,25 +392,25 @@ export async function definirPapelDoConvite(
  * prazo já mata o link — é a mesma jogada de `criarConvite`, que vence o
  * anterior antes de emitir outro.
  */
-export async function cancelarConvite(
-  tx: TransacaoPipe,
+export async function cancelarInvitation(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   conviteId: string,
-): Promise<Gravacao> {
+): Promise<Recording> {
   return consultar(tx, async (tx) => {
     const [alvo] = await tx
-      .select({ id: convite.id, expiraEm: convite.expiraEm })
-      .from(convite)
-      .where(and(eq(convite.id, conviteId), isNull(convite.aceitoEm)))
+      .select({ id: invitation.id, expiraEm: invitation.expiraEm })
+      .from(invitation)
+      .where(and(eq(invitation.id, conviteId), isNull(invitation.aceitoEm)))
       .limit(1);
-    if (!alvo) return { ok: false, erro: 'Este convite não está mais aberto.' };
+    if (!alvo) return { ok: false, error: 'Este convite não está mais aberto.' };
 
     const agora = new Date();
     await tx
-      .update(convite)
+      .update(invitation)
       .set({ expiraEm: agora, atualizadoEm: agora })
-      .where(eq(convite.id, conviteId));
+      .where(eq(invitation.id, conviteId));
 
     await registrarAuditoria(tx, tid, {
       ator,

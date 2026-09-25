@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarExcecao, salvarFaixa, salvarHorario } from '../../lib/acoes';
+import { salvarException, salvarFaixa, salvarHorario } from '../../lib/acoes';
 import { DIAS_DA_SEMANA } from '../../lib/formato';
 import type { HorarioParaEscolher } from '../../lib/cadastros';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
@@ -52,7 +52,7 @@ function FormularioNovoHorario() {
         faz o horário de verão entrar e sair sozinho.
       </p>
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="submit" variante="primario" disabled={enviando}>
@@ -112,7 +112,7 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
         dia; expediente que atravessa a meia-noite são duas faixas, uma em cada dia.
       </p>
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="submit" disabled={enviando}>
@@ -123,9 +123,9 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
   );
 }
 
-function FormularioExcecao({ horarios }: { horarios: readonly HorarioParaEscolher[] }) {
+function FormularioException({ horarios }: { horarios: readonly HorarioParaEscolher[] }) {
   const formRef = useRef<HTMLFormElement>(null);
-  const [resultado, enviar, enviando] = useActionState(salvarExcecao, { ok: true });
+  const [resultado, enviar, enviando] = useActionState(salvarException, { ok: true });
 
   useEffect(() => {
     if (resultado.ok) formRef.current?.reset();
@@ -175,7 +175,7 @@ function FormularioExcecao({ horarios }: { horarios: readonly HorarioParaEscolhe
         </span>
       </label>
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="submit" disabled={enviando}>
@@ -210,7 +210,7 @@ export function FormulariosDeHorario({ horarios }: { horarios: readonly HorarioP
             <p className="sub">
               Feriado, emenda, recesso. A exceção manda sobre a faixa da semana naquele dia.
             </p>
-            <FormularioExcecao horarios={horarios} />
+            <FormularioException horarios={horarios} />
           </section>
         </>
       ) : null}

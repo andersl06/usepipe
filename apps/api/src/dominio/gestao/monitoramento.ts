@@ -1,46 +1,46 @@
 import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, sql } from 'drizzle-orm';
 import {
   cargaPonderada,
-  pesoPrioridade,
+  pesoPriority,
   derivarMarcos,
   segundosEntre,
-  type AtendenteDisponivel,
-  type ContagemEncerramento,
-  type ConversaEventos,
-  type EncerradaPor,
-  type EstadoAtendente,
-  type EventoAtendimento,
+  type AgentDisponivel,
+  type CountClosure,
+  type ConversationEvents,
+  type ClosedBy,
+  type StateAgent,
+  type EventAttendance,
   type Marcos,
   type ResultadoMetrica,
-  type ResultadoTempoDeResposta,
+  type ResponseTimeResult,
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contato,
-  conversa,
-  conversaEtiqueta,
+  contact,
+  conversation,
+  conversationLabel,
   etiqueta,
-  eventoAtendimento,
-  fila,
-  filaAtendente,
+  eventAttendance,
+  queue,
+  queueAgent,
   motivoPausa,
   pausa,
-  statusAtendente,
-  usuario,
+  statusAgent,
+  user,
 } from '@pipe/db/schema';
-import { registrarAuditoria, type TransacaoPipe } from '@pipe/db';
-import { exigirPermissao } from '../../sessao.js';
-import { ErroPipe } from '../../erros.js';
+import { registrarAuditoria, type TransactionPipe } from '@pipe/db';
+import { exigirPermission } from '../../sessao.js';
+import { PipeError } from '../../erros.js';
 import {
-  avaliarSlaDaConversa,
+  avaliarSlaOfConversation,
   carregarRegrasSla,
   type PillSla,
   type RegraSlaCarregada,
 } from './sla.js';
-import { carregarAtendimento, type LinhaDeQuebra } from './atendimento.js';
+import { loadAttendance, type LinhaDeQuebra } from './atendimento.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -63,7 +63,7 @@ function inicioDoHorizonte(agora: Date): Date {
   return new Date(agora.getTime() - HORIZONTE_ABERTAS_DIAS * 24 * 3600 * 1000);
 }
 
-export interface LinhaConversaAberta {
+export interface LineConversationOpen {
   id: string;
   ticket: string;
   contatoNome: string;
@@ -75,11 +75,11 @@ export interface LinhaConversaAberta {
   prioridade: string;
   marcos: Marcos;
   /** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */
-  naFilaSeg: number | null;
-  filaCorrendo: boolean;
-  primeiraRespostaSeg: number | null;
-  primeiraRespostaCorrendo: boolean;
-  atendimentoSeg: number | null;
+  inQueueSeg: number | null;
+  queueRunning: boolean;
+  firstResponseSeg: number | null;
+  firstResponseRunning: boolean;
+  attendanceSeg: number | null;
   emEspera: boolean;
   /** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */
   aguardandoAtendente: boolean;
@@ -87,22 +87,22 @@ export interface LinhaConversaAberta {
   etiquetas: string[];
 }
 
-export interface CartoesTempoReal {
+export interface CardsTimeReal {
   naFila: number;
-  maiorEsperaNaFilaSeg: number | null;
+  largestWaitInQueueSeg: number | null;
   /**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
    * entre duas conversas e entre duzentas pedem reações opostas.
    */
-  aguardandoPrimeiraResposta: number;
-  maiorEsperaPrimeiraRespostaSeg: number | null;
-  emAtendimento: number;
-  atendentesOnline: number;
-  mediaPorAtendente: number | null;
+  aguardandoFirstResponse: number;
+  largestWaitFirstResponseSeg: number | null;
+  inAttendance: number;
+  agentsOnline: number;
+  mediaByAgent: number | null;
 }
 
-export interface CartaoAtendentes {
+export interface CardAgents {
   online: number;
   pausa: number;
   invisivel: number;
@@ -110,36 +110,36 @@ export interface CartaoAtendentes {
   pausasEstouradas: number;
 }
 
-export interface CartoesDeHoje {
+export interface CardsOfToday {
   esperaDoCliente: ResultadoMetrica;
-  atePrimeiraResposta: ResultadoMetrica;
-  tempoDeAtendimento: ResultadoMetrica;
-  tempoDeResposta: ResultadoTempoDeResposta;
-  encerramentos: ContagemEncerramento;
+  untilFirstResponse: ResultadoMetrica;
+  timeOfAttendance: ResultadoMetrica;
+  timeOfResponse: ResponseTimeResult;
+  closures: CountClosure;
 }
 
-export interface CargaAtendente {
+export interface CargaAgent {
   id: string;
   nome: string;
-  estado: EstadoAtendente;
+  state: StateAgent;
   ativas: number;
-  aguardandoAtendente: number;
+  aguardandoAgent: number;
   limite: number;
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
-  tempoMedioRespostaSeg: number | null;
-  tempoMedioAtendimentoSeg: number | null;
+  timeMediumResponseSeg: number | null;
+  timeMediumAttendanceSeg: number | null;
 }
 
-export interface ResumoFila {
+export interface SummaryQueue {
   id: string;
   nome: string;
-  naFila: number;
+  inQueue: number;
   emAtendimento: number;
   maiorEsperaSeg: number | null;
   atendentesOnline: number;
-  tempoMedioNaFilaSeg: number | null;
+  timeMediumInQueueSeg: number | null;
   tempoMedioRespostaSeg: number | null;
   tempoMedioAtendimentoSeg: number | null;
 }
@@ -153,37 +153,37 @@ export interface ResumoEtiqueta {
   tempoMedioAtendimentoSeg: number | null;
 }
 
-export interface Monitoramento {
+export interface Monitoring {
   agora: Date;
   fuso: string;
-  tempoReal: CartoesTempoReal;
-  atendentes: CartaoAtendentes;
-  hoje: CartoesDeHoje;
-  abertas: LinhaConversaAberta[];
-  carga: CargaAtendente[];
-  filas: ResumoFila[];
+  timeReal: CardsTimeReal;
+  agents: CardAgents;
+  hoje: CardsOfToday;
+  abertas: LineConversationOpen[];
+  carga: CargaAgent[];
+  queues: SummaryQueue[];
   etiquetas: ResumoEtiqueta[];
-  ticketsAbertosPorHora: number[];
+  ticketsOpenByHour: number[];
   /** Catálogo para os filtros rápidos. */
-  listaAtendentes: { id: string; nome: string }[];
+  listAgents: { id: string; nome: string }[];
 }
 
-export interface PreviaDaConversaNoMonitoramento {
+export interface PreviaOfConversationInMonitoring {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaNome: string | null;
-  atendenteNome: string | null;
-  itens: { id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direcao?: string; texto: string; autor?: string | null }[];
+  contactName: string;
+  queueName: string | null;
+  agentName: string | null;
+  itens: { id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 }
 
 /** A Gestão lê qualquer ticket do tenant; o Desk só lê o que está atribuído ao próprio atendente. */
-export async function carregarPreviaDaConversa(
-  tx: TransacaoPipe,
-  usuarioId: string,
-  conversaId: string,
-): Promise<PreviaDaConversaNoMonitoramento | null> {
-  await exigirPermissao(tx, usuarioId, 'monitoramento.tempo_real.ver');
+export async function loadPreviaOfConversation(
+  tx: TransactionPipe,
+  userId: string,
+  conversationId: string,
+): Promise<PreviaOfConversationInMonitoring | null> {
+  await exigirPermission(tx, userId, 'monitoramento.tempo_real.ver');
   const { rows } = await tx.execute<{
     id: string; contato_nome: string | null; fila_nome: string | null; atendente_nome: string | null;
   }>(sql`
@@ -192,49 +192,49 @@ export async function carregarPreviaDaConversa(
       join contato ct on ct.id = c.contato_id
       left join fila f on f.id = c.fila_id
       left join usuario u on u.id = c.atendente_id
-     where c.id = ${conversaId}::uuid
+     where c.id = ${conversationId}::uuid
      limit 1
   `);
-  const conversaAberta = rows[0];
-  if (!conversaAberta) return null;
+  const conversationOpen = rows[0];
+  if (!conversationOpen) return null;
   const itens = await tx.execute<{
-    id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direcao: string | null; texto: string; autor: string | null;
+    id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direction: string | null; texto: string; autor: string | null;
   }>(sql`
     select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao,
            coalesce(m.conteudo, '') as texto, u.nome as autor
       from mensagem m left join usuario u on u.id = m.autor_id
-     where m.conversa_id = ${conversaId}::uuid
+     where m.conversa_id = ${conversationId}::uuid
     union all
     select n.id, n.em, 'nota'::text as tipo, null, n.corpo, u.nome
       from nota_interna n left join usuario u on u.id = n.usuario_id
-     where n.conversa_id = ${conversaId}::uuid
+     where n.conversa_id = ${conversationId}::uuid
      order by em
   `);
   return {
-    id: conversaAberta.id,
-    ticket: ticketDe(conversaAberta.id),
-    contatoNome: conversaAberta.contato_nome ?? 'Contato sem nome',
-    filaNome: conversaAberta.fila_nome,
-    atendenteNome: conversaAberta.atendente_nome,
-    itens: itens.rows.map(({ direcao, ...item }) => ({ ...item, ...(direcao ? { direcao } : {}) })),
+    id: conversationOpen.id,
+    ticket: ticketDe(conversationOpen.id),
+    contactName: conversationOpen.contato_nome ?? 'Contato sem nome',
+    queueName: conversationOpen.fila_nome,
+    agentName: conversationOpen.atendente_nome,
+    itens: itens.rows.map(({ direction, ...item }) => ({ ...item, ...(direction ? { direction } : {}) })),
   };
 }
 
 /** Nota interna é a conversa supervisor-atendente que a origem abre pelo balão; não sai ao cliente. */
-export async function falarComAtendenteNoMonitoramento(
-  tx: TransacaoPipe,
+export async function falarWithAgentInMonitoring(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   conversaId: string,
   texto: string,
 ): Promise<void> {
-  await exigirPermissao(tx, usuarioId, 'conversa.nota_interna');
+  await exigirPermission(tx, usuarioId, 'conversa.nota_interna');
   const corpo = texto.trim();
-  if (!corpo) throw ErroPipe.requisicao('nota_vazia', 'Escreva uma mensagem antes de enviar.');
+  if (!corpo) throw PipeError.request('nota_vazia', 'Escreva uma mensagem antes de enviar.');
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from conversa where id = ${conversaId}::uuid limit 1
   `);
-  if (!rows[0]) throw ErroPipe.naoEncontrado('Conversa');
+  if (!rows[0]) throw PipeError.naoEncontrado('Conversa');
   await tx.execute(sql`
     insert into nota_interna (tenant_id, conversa_id, usuario_id, corpo)
     values (${tenantId}, ${conversaId}::uuid, ${usuarioId}::uuid, ${corpo})
@@ -248,21 +248,21 @@ export async function falarComAtendenteNoMonitoramento(
   });
 }
 
-export function metricasPorChave(linhas: readonly LinhaDeQuebra[]) {
+export function metricsByKey(linhas: readonly LinhaDeQuebra[]) {
   return new Map(
     linhas.map((linha) => [
       linha.chave,
       {
-        conversasFinalizadas: linha.conversas,
-        tempoMedioNaFilaSeg: linha.naFila.valor,
-        tempoMedioPrimeiraRespostaSeg: linha.primeiraResposta.valor,
-        tempoMedioAtendimentoSeg: linha.atendimento.valor,
+        conversasFinalizadas: linha.conversations,
+        tempoMedioNaFilaSeg: linha.inQueue.value,
+        tempoMedioPrimeiraRespostaSeg: linha.firstResponse.value,
+        tempoMedioAtendimentoSeg: linha.attendance.value,
       },
     ]),
   );
 }
 
-export function normalizarTicketsPorHora(linhas: readonly { hora: number; total: number }[]): number[] {
+export function normalizeTicketsByHour(linhas: readonly { hora: number; total: number }[]): number[] {
   const horas = Array<number>(24).fill(0);
   for (const linha of linhas) {
     if (Number.isInteger(linha.hora) && linha.hora >= 0 && linha.hora < 24) {
@@ -278,43 +278,43 @@ export function ticketDe(id: string): string {
 }
 
 type LinhaEvento = {
-  conversaId: string;
+  conversationId: string;
   tipo: string;
   em: Date;
-  usuarioId: string | null;
-  filaId: string | null;
-  dados: unknown;
+  userId: string | null;
+  queueId: string | null;
+  data: unknown;
 };
 
 /** Converte as linhas de `evento_atendimento` no formato que o `@pipe/core` consome. */
-function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, ConversaEventos> {
-  const mapa = new Map<string, ConversaEventos & { eventos: EventoAtendimento[] }>();
+function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, ConversationEvents> {
+  const mapa = new Map<string, ConversationEvents & { eventos: EventAttendance[] }>();
   for (const linha of linhas) {
-    const dados = (linha.dados ?? {}) as { encerrada_por?: string };
-    const evento: EventoAtendimento = {
-      conversaId: linha.conversaId,
+    const data = (linha.data ?? {}) as { closedBy?: string };
+    const evento: EventAttendance = {
+      conversationId: linha.conversationId,
       tipo: linha.tipo as TipoEvento,
       em: linha.em,
-      usuarioId: linha.usuarioId,
-      filaId: linha.filaId,
-      encerradaPor: (dados.encerrada_por ?? null) as EncerradaPor | null,
+      userId: linha.userId,
+      queueId: linha.queueId,
+      encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
     };
-    const atual = mapa.get(linha.conversaId);
+    const atual = mapa.get(linha.conversationId);
     if (atual) atual.eventos.push(evento);
-    else mapa.set(linha.conversaId, { conversaId: linha.conversaId, eventos: [evento] });
+    else mapa.set(linha.conversationId, { conversationId: linha.conversationId, eventos: [evento] });
   }
   return mapa;
 }
 
 function marcosVazios(conversaId: string): Marcos {
   return {
-    conversaId,
+    conversationId,
     criadaEm: null,
     atribuidaEm: null,
-    primeiraRespostaEm: null,
+    firstRespostaIn: null,
     encerradaEm: null,
-    encerradaPor: null,
-    atribuicoes: 0,
+    encerradaBy: null,
+    assignments: 0,
   };
 }
 
@@ -325,8 +325,8 @@ function entre(inicio: Date | null, fim: Date | null): number | null {
   return s < 0 ? null : s;
 }
 
-function maiorDe(valores: readonly (number | null)[]): number | null {
-  const validos = valores.filter((v): v is number => v !== null);
+function maiorDe(values: readonly (number | null)[]): number | null {
+  const validos = values.filter((v): v is number => v !== null);
   return validos.length > 0 ? Math.max(...validos) : null;
 }
 
@@ -337,11 +337,11 @@ function maiorDe(valores: readonly (number | null)[]): number | null {
  * correndo e o instante precisa ser o mesmo em todos os cartões, senão a soma
  * dos cartões não fecha com a tabela.
  */
-export interface FiltroMonitoramento {
+export interface MonitoringFilter {
   filaId?: string | undefined;
-  atendenteId?: string | undefined;
-  filaIds?: string[];
-  atendenteIds?: string[];
+  agentId?: string | undefined;
+  queueIds?: string[];
+  agentIds?: string[];
 }
 
 /**
@@ -358,11 +358,11 @@ export interface FiltroMonitoramento {
  * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
  * mais quem atende.
  */
-export function ordenarFilaDeEspera<
-  T extends { prioridade: string; marcos: { criadaEm: Date | null } },
+export function ordenarQueueOfWait<
+  T extends { priority: string; marcos: { criadaEm: Date | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {
-    const diferenca = pesoPrioridade(a.prioridade) - pesoPrioridade(b.prioridade);
+    const diferenca = pesoPriority(a.priority) - pesoPriority(b.priority);
     if (diferenca !== 0) return diferenca;
     /* Sem marco de criação vai para o fim: ela não é "a mais antiga", é a que
        não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */
@@ -372,91 +372,91 @@ export function ordenarFilaDeEspera<
   });
 }
 
-export async function carregarMonitoramento(
-  tx: TransacaoPipe,
-  janela: { inicio: Date; fim: Date },
+export async function loadMonitoring(
+  tx: TransactionPipe,
+  window: { inicio: Date; fim: Date },
   fuso: string,
-  filtro: FiltroMonitoramento = {},
+  filter: MonitoringFilter = {},
   agora = new Date(),
-): Promise<Monitoramento> {
+): Promise<Monitoring> {
   return consultar(tx, async (tx) => {
     const desde = inicioDoHorizonte(agora);
     // Filtro rápido: entra no `where` das duas populações (abertas e encerradas),
     // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
     const recorte = [
-      filtro.filaIds?.length ? inArray(conversa.filaId, filtro.filaIds) : filtro.filaId ? eq(conversa.filaId, filtro.filaId) : undefined,
-      filtro.atendenteIds?.length ? inArray(conversa.atendenteId, filtro.atendenteIds) : filtro.atendenteId ? eq(conversa.atendenteId, filtro.atendenteId) : undefined,
+      filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.filaId ? eq(conversation.filaId, filter.filaId) : undefined,
+      filter.agentIds?.length ? inArray(conversation.agentId, filter.agentIds) : filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     // ---- 1. conversas ainda abertas -------------------------------------
     const abertasCru = await tx
       .select({
-        id: conversa.id,
-        estado: conversa.estado,
-        prioridade: conversa.prioridade,
-        filaId: conversa.filaId,
-        filaNome: fila.nome,
-        atendenteId: conversa.atendenteId,
-        atendenteNome: usuario.nome,
-        contatoNome: contato.nome,
-        emEsperaDesde: conversa.emEsperaDesde,
-        ultimaMensagemDe: conversa.ultimaMensagemDe,
+        id: conversation.id,
+        estado: conversation.state,
+        prioridade: conversation.priority,
+        filaId: conversation.filaId,
+        filaNome: queue.nome,
+        atendenteId: conversation.agentId,
+        atendenteNome: user.nome,
+        contatoNome: contact.nome,
+        emEsperaDesde: conversation.emEsperaDesde,
+        ultimaMensagemDe: conversation.lastMessageOf,
       })
-      .from(conversa)
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .leftJoin(contato, eq(contato.id, conversa.contatoId))
-      .where(and(isNull(conversa.encerradaEm), ...recorte))
-      .orderBy(asc(conversa.criadaEm));
+      .from(conversation)
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(contact, eq(contact.id, conversation.contatoId))
+      .where(and(isNull(conversation.encerradaEm), ...recorte))
+      .orderBy(asc(conversation.criadaEm));
 
     const idsAbertas = abertasCru.map((c) => c.id);
 
     const eventosAbertas =
       idsAbertas.length === 0
-        ? new Map<string, ConversaEventos>()
+        ? new Map<string, ConversationEvents>()
         : agruparEventos(
             await tx
               .select({
-                conversaId: eventoAtendimento.conversaId,
-                tipo: eventoAtendimento.tipo,
-                em: eventoAtendimento.em,
-                usuarioId: eventoAtendimento.usuarioId,
-                filaId: eventoAtendimento.filaId,
-                dados: eventoAtendimento.dados,
+                conversaId: eventAttendance.conversaId,
+                tipo: eventAttendance.tipo,
+                em: eventAttendance.em,
+                usuarioId: eventAttendance.usuarioId,
+                filaId: eventAttendance.queueId,
+                dados: eventAttendance.data,
               })
-              .from(eventoAtendimento)
+              .from(eventAttendance)
               .where(
                 and(
-                  inArray(eventoAtendimento.conversaId, idsAbertas),
-                  gte(eventoAtendimento.em, desde),
+                  inArray(eventAttendance.conversaId, idsAbertas),
+                  gte(eventAttendance.em, desde),
                 ),
               ),
           );
 
-    const etiquetasPorConversa = new Map<string, string[]>();
+    const labelsByConversation = new Map<string, string[]>();
     if (idsAbertas.length > 0) {
       const linhas = await tx
-        .select({ conversaId: conversaEtiqueta.conversaId, nome: etiqueta.nome })
-        .from(conversaEtiqueta)
-        .innerJoin(etiqueta, eq(etiqueta.id, conversaEtiqueta.etiquetaId))
-        .where(inArray(conversaEtiqueta.conversaId, idsAbertas));
+        .select({ conversaId: conversationLabel.conversaId, nome: etiqueta.nome })
+        .from(conversationLabel)
+        .innerJoin(etiqueta, eq(etiqueta.id, conversationLabel.etiquetaId))
+        .where(inArray(conversationLabel.conversaId, idsAbertas));
       for (const l of linhas) {
-        const atual = etiquetasPorConversa.get(l.conversaId);
+        const atual = labelsByConversation.get(l.conversaId);
         if (atual) atual.push(l.nome);
-        else etiquetasPorConversa.set(l.conversaId, [l.nome]);
+        else labelsByConversation.set(l.conversaId, [l.nome]);
       }
     }
 
     const regras: RegraSlaCarregada[] = await carregarRegrasSla(tx);
 
-    const abertas: LinhaConversaAberta[] = abertasCru.map((c) => {
+    const abertas: LineConversationOpen[] = abertasCru.map((c) => {
       const eventos = eventosAbertas.get(c.id);
       const marcos = eventos ? derivarMarcos(eventos) : marcosVazios(c.id);
-      const naFilaSeg = marcos.atribuidaEm
+      const inQueueSeg = marcos.atribuidaEm
         ? entre(marcos.criadaEm, marcos.atribuidaEm)
         : entre(marcos.criadaEm, agora);
-      const primeiraRespostaSeg = marcos.primeiraRespostaEm
-        ? entre(marcos.atribuidaEm, marcos.primeiraRespostaEm)
+      const firstResponseSeg = marcos.firstRespostaIn
+        ? entre(marcos.atribuidaEm, marcos.firstRespostaIn)
         : entre(marcos.atribuidaEm, agora);
       return {
         id: c.id,
@@ -469,30 +469,30 @@ export async function carregarMonitoramento(
         estado: c.estado,
         prioridade: c.prioridade,
         marcos,
-        naFilaSeg,
+        inQueueSeg,
         filaCorrendo: marcos.atribuidaEm === null,
-        primeiraRespostaSeg,
-        primeiraRespostaCorrendo: marcos.primeiraRespostaEm === null && marcos.atribuidaEm !== null,
-        atendimentoSeg: entre(marcos.primeiraRespostaEm, agora),
+        firstResponseSeg,
+        primeiraRespostaCorrendo: marcos.firstRespostaIn === null && marcos.atribuidaEm !== null,
+        atendimentoSeg: entre(marcos.firstRespostaIn, agora),
         emEspera: c.emEsperaDesde !== null,
-        aguardandoAtendente: c.ultimaMensagemDe === 'contato' || marcos.primeiraRespostaEm === null,
-        sla: avaliarSlaDaConversa(regras, marcos, c.filaId, agora),
-        etiquetas: etiquetasPorConversa.get(c.id) ?? [],
+        aguardandoAtendente: c.ultimaMensagemDe === 'contato' || marcos.firstRespostaIn === null,
+        sla: avaliarSlaOfConversation(regras, marcos, c.filaId, agora),
+        etiquetas: labelsByConversation.get(c.id) ?? [],
       };
     });
 
     // ---- 2. status dos atendentes ---------------------------------------
     const status = await tx
       .select({
-        usuarioId: statusAtendente.usuarioId,
-        estado: statusAtendente.estado,
-        nome: usuario.nome,
+        usuarioId: statusAgent.usuarioId,
+        estado: statusAgent.estado,
+        nome: user.nome,
       })
-      .from(statusAtendente)
-      .innerJoin(usuario, eq(usuario.id, statusAtendente.usuarioId))
-      .where(eq(usuario.ativo, true));
+      .from(statusAgent)
+      .innerJoin(user, eq(user.id, statusAgent.usuarioId))
+      .where(eq(user.ativo, true));
 
-    const cartaoAtendentes: CartaoAtendentes = {
+    const cardAgents: CardAgents = {
       online: 0,
       pausa: 0,
       invisivel: 0,
@@ -500,100 +500,100 @@ export async function carregarMonitoramento(
       pausasEstouradas: 0,
     };
     for (const s of status) {
-      if (s.estado === 'online') cartaoAtendentes.online += 1;
-      else if (s.estado === 'pausa') cartaoAtendentes.pausa += 1;
-      else if (s.estado === 'invisivel') cartaoAtendentes.invisivel += 1;
-      else cartaoAtendentes.offline += 1;
+      if (s.estado === 'online') cardAgents.online += 1;
+      else if (s.estado === 'pausa') cardAgents.pausa += 1;
+      else if (s.estado === 'invisivel') cardAgents.invisivel += 1;
+      else cardAgents.offline += 1;
     }
 
     // Pausa aberta que já passou da duração sugerida pelo motivo.
     const pausasAbertas = await tx
-      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.duracaoSugeridaMin })
+      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.durationSuggestedMin })
       .from(pausa)
       .leftJoin(motivoPausa, eq(motivoPausa.id, pausa.motivoId))
       .where(isNull(pausa.encerradaEm));
     for (const p of pausasAbertas) {
       const limite = p.sugeridaMin;
       if (typeof limite !== 'number') continue;
-      if (segundosEntre(p.iniciadaEm, agora) > limite * 60) cartaoAtendentes.pausasEstouradas += 1;
+      if (segundosEntre(p.iniciadaEm, agora) > limite * 60) cardAgents.pausasEstouradas += 1;
     }
 
     // ---- 3. cartões de tempo real ---------------------------------------
-    const naFila = abertas.filter((c) => c.marcos.atribuidaEm === null);
+    const inQueue = abertas.filter((c) => c.marcos.atribuidaEm === null);
     const semResposta = abertas.filter(
-      (c) => c.marcos.atribuidaEm !== null && c.marcos.primeiraRespostaEm === null,
+      (c) => c.marcos.atribuidaEm !== null && c.marcos.firstRespostaIn === null,
     );
-    const emAtendimento = abertas.filter((c) => c.atendenteId !== null);
+    const inAttendance = abertas.filter((c) => c.atendenteId !== null);
 
-    const tempoReal: CartoesTempoReal = {
-      naFila: naFila.length,
-      maiorEsperaNaFilaSeg: maiorDe(naFila.map((c) => c.naFilaSeg)),
-      aguardandoPrimeiraResposta: semResposta.length,
-      maiorEsperaPrimeiraRespostaSeg: maiorDe(semResposta.map((c) => c.primeiraRespostaSeg)),
-      emAtendimento: emAtendimento.length,
-      atendentesOnline: cartaoAtendentes.online,
-      mediaPorAtendente:
-        cartaoAtendentes.online > 0 ? emAtendimento.length / cartaoAtendentes.online : null,
+    const timeReal: CardsTimeReal = {
+      naFila: inQueue.length,
+      largestWaitInQueueSeg: maiorDe(inQueue.map((c) => c.inQueueSeg)),
+      aguardandoFirstResponse: semResposta.length,
+      largestWaitFirstResponseSeg: maiorDe(semResposta.map((c) => c.firstResponseSeg)),
+      inAttendance: inAttendance.length,
+      agentsOnline: cardAgents.online,
+      mediaByAgent:
+        cardAgents.online > 0 ? inAttendance.length / cardAgents.online : null,
     };
 
     // ---- 4. conversas encerradas dentro do período ("hoje") -------------
-    const relatorio = await carregarAtendimento(tx, janela, filtro);
-    const hoje: CartoesDeHoje = {
-      esperaDoCliente: relatorio.geral.esperaTotal,
-      atePrimeiraResposta: relatorio.geral.primeiraResposta,
-      tempoDeAtendimento: relatorio.geral.atendimento,
-      tempoDeResposta: relatorio.geral.resposta,
-      encerramentos: relatorio.geral.encerramentos,
+    const report = await loadAttendance(tx, window, filter);
+    const hoje: CardsOfToday = {
+      esperaDoCliente: report.geral.esperaTotal,
+      untilFirstResponse: report.geral.firstResponse,
+      timeOfAttendance: report.geral.attendance,
+      timeOfResponse: report.geral.resposta,
+      closures: report.geral.closures,
     };
-    const porAtendente = metricasPorChave(relatorio.porAtendente);
-    const porFila = metricasPorChave(relatorio.porFila);
-    const porEtiqueta = metricasPorChave(relatorio.porEtiqueta);
+    const byAgent = metricsByKey(report.byAgent);
+    const byQueue = metricsByKey(report.byQueue);
+    const byLabel = metricsByKey(report.byLabel);
 
     // ---- 5. carga por atendente -----------------------------------------
-    const capacidades = await tx
+    const capacitys = await tx
       .select({
-        usuarioId: filaAtendente.usuarioId,
-        filaId: filaAtendente.filaId,
-        override: filaAtendente.capacidadeOverride,
-        padrao: fila.capacidadePadrao,
+        usuarioId: queueAgent.userId,
+        filaId: queueAgent.queueId,
+        override: queueAgent.capacityOverride,
+        padrao: queue.capacityDefault,
       })
-      .from(filaAtendente)
-      .innerJoin(fila, eq(fila.id, filaAtendente.filaId));
+      .from(queueAgent)
+      .innerJoin(queue, eq(queue.id, queueAgent.queueId));
 
-    const limitePorAtendente = new Map<string, number>();
-    const filasPorAtendente = new Map<string, string[]>();
-    for (const c of capacidades) {
+    const limitByAgent = new Map<string, number>();
+    const queuesByAgent = new Map<string, string[]>();
+    for (const c of capacitys) {
       const limite = c.override ?? c.padrao;
-      limitePorAtendente.set(
+      limitByAgent.set(
         c.usuarioId,
-        Math.max(limitePorAtendente.get(c.usuarioId) ?? 0, limite),
+        Math.max(limitByAgent.get(c.usuarioId) ?? 0, limite),
       );
-      const filas = filasPorAtendente.get(c.usuarioId);
-      if (filas) filas.push(c.filaId);
-      else filasPorAtendente.set(c.usuarioId, [c.filaId]);
+      const queues = queuesByAgent.get(c.usuarioId);
+      if (queues) queues.push(c.filaId);
+      else queuesByAgent.set(c.usuarioId, [c.filaId]);
     }
 
-    const carga: CargaAtendente[] = status
+    const carga: CargaAgent[] = status
       .filter((s) => s.estado !== 'offline')
       .map((s) => {
         const minhas = abertas.filter((c) => c.atendenteId === s.usuarioId);
         const aguardando = minhas.filter((c) => c.aguardandoAtendente).length;
-        const limite = limitePorAtendente.get(s.usuarioId) ?? 5;
-        const medias = porAtendente.get(s.nome);
-        const disponivel: AtendenteDisponivel = {
+        const limite = limitByAgent.get(s.usuarioId) ?? 5;
+        const medias = byAgent.get(s.nome);
+        const disponivel: AgentDisponivel = {
           id: s.usuarioId,
-          estado: s.estado as EstadoAtendente,
-          filas: filasPorAtendente.get(s.usuarioId) ?? [],
+          state: s.estado as StateAgent,
+          queues: queuesByAgent.get(s.usuarioId) ?? [],
           limiteSimultaneo: limite,
           ativas: minhas.length,
-          aguardandoAtendente: aguardando,
-          semPrimeiraResposta: minhas.filter((c) => c.marcos.primeiraRespostaEm === null).length,
-          ultimaAtribuicaoEm: null,
+          aguardandoAgent: aguardando,
+          withoutFirstResposta: minhas.filter((c) => c.marcos.firstRespostaIn === null).length,
+          ultimaAssignmentIn: null,
         };
         return {
           id: s.usuarioId,
           nome: s.nome,
-          estado: disponivel.estado,
+          estado: disponivel.state,
           ativas: minhas.length,
           aguardandoAtendente: aguardando,
           limite,
@@ -602,7 +602,7 @@ export async function carregarMonitoramento(
           cargaMaxima: cargaPonderada({
             ...disponivel,
             ativas: limite,
-            aguardandoAtendente: limite,
+            aguardandoAgent: limite,
           }),
           tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
           tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
@@ -611,31 +611,31 @@ export async function carregarMonitoramento(
       .sort((a, b) => b.carga - a.carga || a.nome.localeCompare(b.nome, 'pt-BR'));
 
     // ---- 6. resumos por fila e por etiqueta ------------------------------
-    const todasFilas = await tx
-      .select({ id: fila.id, nome: fila.nome })
-      .from(fila)
-      .where(eq(fila.ativa, true))
-      .orderBy(asc(fila.ordem));
+    const allQueues = await tx
+      .select({ id: queue.id, nome: queue.nome })
+      .from(queue)
+      .where(eq(queue.ativa, true))
+      .orderBy(asc(queue.order));
 
-    const onlinePorFila = new Map<string, number>();
+    const onlineByQueue = new Map<string, number>();
     const idsOnline = new Set(status.filter((s) => s.estado === 'online').map((s) => s.usuarioId));
-    for (const c of capacidades) {
+    for (const c of capacitys) {
       if (!idsOnline.has(c.usuarioId)) continue;
-      onlinePorFila.set(c.filaId, (onlinePorFila.get(c.filaId) ?? 0) + 1);
+      onlineByQueue.set(c.filaId, (onlineByQueue.get(c.filaId) ?? 0) + 1);
     }
 
-    const filas: ResumoFila[] = todasFilas.map((f) => {
-      const daFila = abertas.filter((c) => c.filaId === f.id);
-      const medias = porFila.get(f.nome);
+    const filas: SummaryQueue[] = allQueues.map((f) => {
+      const ofQueue = abertas.filter((c) => c.filaId === f.id);
+      const medias = byQueue.get(f.nome);
       return {
         id: f.id,
         nome: f.nome,
-        naFila: daFila.filter((c) => c.marcos.atribuidaEm === null).length,
-        emAtendimento: daFila.filter((c) => c.atendenteId !== null).length,
+        naFila: ofQueue.filter((c) => c.marcos.atribuidaEm === null).length,
+        emAtendimento: ofQueue.filter((c) => c.atendenteId !== null).length,
         maiorEsperaSeg: maiorDe(
-          daFila.filter((c) => c.marcos.atribuidaEm === null).map((c) => c.naFilaSeg),
+          ofQueue.filter((c) => c.marcos.atribuidaEm === null).map((c) => c.inQueueSeg),
         ),
-        atendentesOnline: onlinePorFila.get(f.id) ?? 0,
+        atendentesOnline: onlineByQueue.get(f.id) ?? 0,
         tempoMedioNaFilaSeg: medias?.tempoMedioNaFilaSeg ?? null,
         tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
         tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
@@ -647,69 +647,69 @@ export async function carregarMonitoramento(
       .from(etiqueta)
       .orderBy(asc(etiqueta.nome));
 
-    const contagemEtiqueta = new Map<string, number>();
+    const countLabel = new Map<string, number>();
     for (const c of abertas) {
       for (const nome of c.etiquetas) {
-        contagemEtiqueta.set(nome, (contagemEtiqueta.get(nome) ?? 0) + 1);
+        countLabel.set(nome, (countLabel.get(nome) ?? 0) + 1);
       }
     }
     const etiquetas: ResumoEtiqueta[] = todasEtiquetas.map((e) => {
-      const medias = porEtiqueta.get(e.nome);
+      const medias = byLabel.get(e.nome);
       return {
         id: e.id,
         nome: e.nome,
         cor: e.cor,
-        abertas: contagemEtiqueta.get(e.nome) ?? 0,
+        abertas: countLabel.get(e.nome) ?? 0,
         finalizadas: medias?.conversasFinalizadas ?? 0,
         tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
       };
     });
 
-    const horaLocal = sql<number>`extract(hour from ${conversa.criadaEm} at time zone ${fuso})::int`;
-    const porHoraCru = await tx
+    const horaLocal = sql<number>`extract(hour from ${conversation.criadaEm} at time zone ${fuso})::int`;
+    const byHourRaw = await tx
       .select({ hora: horaLocal, total: sql<number>`count(*)::int` })
-      .from(conversa)
-      .where(and(gte(conversa.criadaEm, janela.inicio), lt(conversa.criadaEm, janela.fim), ...recorte))
+      .from(conversation)
+      .where(and(gte(conversation.criadaEm, window.inicio), lt(conversation.criadaEm, window.fim), ...recorte))
       // A expressão usa um parâmetro para o fuso; referenciá-la pela posição
       // mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.
       .groupBy(sql.raw('1'))
       .orderBy(sql.raw('1'));
-    const ticketsAbertosPorHora = normalizarTicketsPorHora(porHoraCru);
+    const ticketsOpenByHour = normalizeTicketsByHour(byHourRaw);
 
-    const listaAtendentes = status
+    const listAgents = status
       .map((s) => ({ id: s.usuarioId, nome: s.nome }))
       .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
 
     return {
       agora,
       fuso,
-      tempoReal,
-      atendentes: cartaoAtendentes,
+      timeReal,
+      atendentes: cardAgents,
       hoje,
       abertas,
       carga,
       filas,
       etiquetas,
-      ticketsAbertosPorHora,
-      listaAtendentes,
+      ticketsOpenByHour,
+      listAgents,
     };
   });
 }
 
 /** Contagem de conversas encerradas no período — usada pelo cabeçalho do histórico. */
-export async function contarEncerradasNoPeriodo(
-  tx: TransacaoPipe,
+export async function contarClosedsInPeriod(
+  tx: TransactionPipe,
   janela: { inicio: Date; fim: Date },
 ): Promise<number> {
   return consultar(tx, async (tx) => {
     const r = await tx
       .select({ total: sql<number>`count(*)::int` })
-      .from(conversa)
+      .from(conversation)
       .where(
         and(
-          isNotNull(conversa.encerradaEm),
-          gte(conversa.encerradaEm, janela.inicio),
-          lt(conversa.encerradaEm, janela.fim),
+          isNotNull(conversation.encerradaEm),
+          gte(conversation.encerradaEm, janela.inicio),
+          lt(conversation.encerradaEm, janela.fim),
         ),
       );
     return r[0]?.total ?? 0;

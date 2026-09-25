@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import type { CanalResolvido } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import type { ChannelResolved } from '../banco.js';
+import { PipeError } from '../erros.js';
 import { registrarEvento } from './eventos.js';
-import { enviarMensagem } from './envio.js';
+import { sendMessage } from './envio.js';
 import { emitir } from '../webhooks-saida.js';
 
 /**
@@ -23,7 +23,7 @@ import { emitir } from '../webhooks-saida.js';
  */
 
 /** `SELECTED_CONTACT_LIST_LIMIT` = 15 (config `ActiveMessageLimitBatchDispatch`). */
-export const MAX_CONTATOS_POR_DISPARO = Number(
+export const MAX_CONTACTS_BY_TRIGGER = Number(
   process.env['PIPE_MENSAGEM_ATIVA_MAX_CONTATOS'] ?? 15,
 );
 
@@ -31,7 +31,7 @@ export const MAX_CONTATOS_POR_DISPARO = Number(
  * `ActiveMessageLimitCount`, quantas ativas o MESMO contato pode receber por dia.
  * Zero desliga o limite — é o padrão deles.
  */
-export const LIMITE_DIARIO_POR_CONTATO = Number(
+export const DAILY_LIMIT_BY_CONTACT = Number(
   process.env['PIPE_MENSAGEM_ATIVA_LIMITE_DIARIO'] ?? 0,
 );
 
@@ -41,7 +41,7 @@ export type MotivoDeRecusa =
   | 'limite_diario'
   | 'contato_duplicado';
 
-export interface DestinoDoDisparo {
+export interface DestinationOfTrigger {
   /** Um dos dois: contato já cadastrado, ou telefone para achar/cadastrar. */
   contatoId?: string | null;
   telefone?: string | null;
@@ -50,7 +50,7 @@ export interface DestinoDoDisparo {
   parametros?: string[] | null;
 }
 
-export interface ResultadoDoDestino {
+export interface ResultOfDestination {
   telefone: string | null;
   contatoId: string | null;
   enviada: boolean;
@@ -62,12 +62,12 @@ export interface ResultadoDoDestino {
 
 export interface PedidoDeDisparo {
   tenantId: string;
-  canalId: string;
+  channelId: string;
   templateId: string;
-  destinos: DestinoDoDisparo[];
+  destinos: DestinationOfTrigger[];
   parametros?: string[];
   /** Quem disparou. A conversa criada nasce com essa pessoa, como no Desk deles. */
-  atendenteId?: string | null;
+  agentId?: string | null;
 }
 
 /**
@@ -93,80 +93,80 @@ function normalizar(bruto: string): string {
   return limpo.startsWith('+') ? limpo : `+${limpo}`;
 }
 
-export async function dispararMensagemAtiva(
-  canal: CanalResolvido,
+export async function dispararMessageActive(
+  canal: ChannelResolved,
   pedido: PedidoDeDisparo,
-): Promise<ResultadoDoDestino[]> {
+): Promise<ResultOfDestination[]> {
   if (pedido.destinos.length === 0) {
-    throw ErroPipe.requisicao('sem_destino', 'Escolha ao menos um contato.');
+    throw PipeError.request('sem_destino', 'Escolha ao menos um contato.');
   }
-  if (pedido.destinos.length > MAX_CONTATOS_POR_DISPARO) {
-    throw ErroPipe.requisicao(
+  if (pedido.destinos.length > MAX_CONTACTS_BY_TRIGGER) {
+    throw PipeError.request(
       'limite_de_contatos',
-      `O limite é de ${MAX_CONTATOS_POR_DISPARO} contatos por disparo.`,
-      { limite: MAX_CONTATOS_POR_DISPARO, enviados: pedido.destinos.length },
+      `O limite é de ${MAX_CONTACTS_BY_TRIGGER} contatos por disparo.`,
+      { limite: MAX_CONTACTS_BY_TRIGGER, enviados: pedido.destinos.length },
     );
   }
 
-  const resultados: ResultadoDoDestino[] = [];
+  const resultados: ResultOfDestination[] = [];
   const jaVistos = new Set<string>();
 
   // Em SÉRIE, e não `Promise.all`: cada destino abre a própria transação, e paralelo
   // na mesma conexão derruba o `set_config('pipe.tenant_id')`. Aqui isso escreveria
   // mensagem no tenant errado — o pior lugar possível.
-  for (const destino of pedido.destinos) {
-    resultados.push(await umDestino(canal, pedido, destino, jaVistos));
+  for (const destination of pedido.destinos) {
+    resultados.push(await aDestination(canal, pedido, destination, jaVistos));
   }
   return resultados;
 }
 
-async function umDestino(
-  canal: CanalResolvido,
+async function aDestination(
+  channel: ChannelResolved,
   pedido: PedidoDeDisparo,
-  destino: DestinoDoDisparo,
+  destino: DestinationOfTrigger,
   jaVistos: Set<string>,
-): Promise<ResultadoDoDestino> {
+): Promise<ResultOfDestination> {
   const telefone = destino.telefone ? normalizar(destino.telefone) : null;
 
   if (telefone && !telefoneValido(telefone)) {
     return { telefone, contatoId: null, enviada: false, motivo: 'numero_invalido' };
   }
 
-  const chave = destino.contatoId ?? telefone ?? '';
-  if (jaVistos.has(chave)) {
+  const key = destino.contatoId ?? telefone ?? '';
+  if (jaVistos.has(key)) {
     return { telefone, contatoId: destino.contatoId ?? null, enviada: false, motivo: 'contato_duplicado' };
   }
-  jaVistos.add(chave);
+  jaVistos.add(key);
 
   // Preparo e recusas numa transação; o envio vai em outra, pela mesma razão de
   // sempre: não segurar conexão enquanto se fala com serviço externo.
   const preparo = await noTenant(pedido.tenantId, async (tx) => {
-    const contatoId = destino.contatoId ?? (await acharOuCriarPorTelefone(tx, canal, telefone!, destino.nome ?? null));
+    const contactId = destino.contatoId ?? (await findOrCreateByPhone(tx, channel, telefone!, destino.nome ?? null));
 
-    const { rows: emAtendimento } = await tx.execute<{ id: string }>(sql`
+    const { rows: inAttendance } = await tx.execute<{ id: string }>(sql`
       select id from conversa
-       where contato_id = ${contatoId}::uuid and estado <> 'encerrada' limit 1
+       where contato_id = ${contactId}::uuid and estado <> 'encerrada' limit 1
     `);
-    if (emAtendimento[0]) {
+    if (inAttendance[0]) {
       // Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —
       // e `enviarMensagem` já manda template fora da janela quando preciso.
-      return { contatoId, recusa: 'ja_em_atendimento' as const };
+      return { contactId, recusa: 'ja_em_atendimento' as const };
     }
 
-    if (LIMITE_DIARIO_POR_CONTATO > 0) {
+    if (DAILY_LIMIT_BY_CONTACT > 0) {
       const { rows: hoje } = await tx.execute<{ n: number }>(sql`
         select count(*)::int as n from mensagem
-         where conversa_id in (select id from conversa where contato_id = ${contatoId}::uuid)
+         where conversa_id in (select id from conversa where contato_id = ${contactId}::uuid)
            and direcao = 'saida' and template_id is not null
            and criada_em >= date_trunc('day', now())
       `);
-      if ((hoje[0]?.n ?? 0) >= LIMITE_DIARIO_POR_CONTATO) {
-        return { contatoId, recusa: 'limite_diario' as const };
+      if ((hoje[0]?.n ?? 0) >= DAILY_LIMIT_BY_CONTACT) {
+        return { contactId, recusa: 'limite_diario' as const };
       }
     }
 
-    const conversaId = await abrirConversaDeDisparo(tx, canal, pedido, contatoId);
-    return { contatoId, conversaId, recusa: null };
+    const conversationId = await openConversationOfTrigger(tx, channel, pedido, contactId);
+    return { contactId, conversationId, recusa: null };
   });
 
   if (preparo.recusa) {
@@ -174,10 +174,10 @@ async function umDestino(
   }
 
   try {
-    const enfileirada = await enviarMensagem({
+    const enfileirada = await sendMessage({
       tenantId: pedido.tenantId,
       conversaId: preparo.conversaId!,
-      atendenteId: pedido.atendenteId ?? null,
+      atendenteId: pedido.agentId ?? null,
       tipo: 'template',
       templateId: pedido.templateId,
       parametros: destino.parametros ?? pedido.parametros ?? [],
@@ -189,24 +189,24 @@ async function umDestino(
       mensagemId: enfileirada.id,
       conversaId: preparo.conversaId!,
     };
-  } catch (erro) {
+  } catch (error) {
     // Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do
     // disparo, não daquele contato. Qualquer outra falha fica no contato.
-    if (erro instanceof ErroPipe && erro.status === 404) throw erro;
-    if (erro instanceof ErroPipe && erro.codigo === 'template_nao_aprovado') throw erro;
+    if (error instanceof PipeError && error.status === 404) throw error;
+    if (error instanceof PipeError && error.codigo === 'template_nao_aprovado') throw error;
     return {
       telefone,
       contatoId: preparo.contatoId,
       enviada: false,
       motivo: 'numero_invalido',
-      detalhe: erro instanceof Error ? erro.message : 'falha no envio',
+      detalhe: error instanceof Error ? error.message : 'falha no envio',
     };
   }
 }
 
-async function acharOuCriarPorTelefone(
-  tx: TransacaoPipe,
-  canal: CanalResolvido,
+async function findOrCreateByPhone(
+  tx: TransactionPipe,
+  canal: ChannelResolved,
   telefone: string,
   nome: string | null,
 ): Promise<string> {
@@ -254,27 +254,27 @@ async function acharOuCriarPorTelefone(
  * cliente, não o nosso disparo. Marcar a janela aqui faria o Desk oferecer texto livre
  * antes de o cliente ter respondido — e a Meta recusaria.
  */
-async function abrirConversaDeDisparo(
-  tx: TransacaoPipe,
-  canal: CanalResolvido,
+async function openConversationOfTrigger(
+  tx: TransactionPipe,
+  canal: ChannelResolved,
   pedido: PedidoDeDisparo,
-  contatoId: string,
+  contactId: string,
 ): Promise<string> {
-  const { rows: inboxes } = await tx.execute<{ id: string; fila_padrao_id: string | null }>(
-    sql`select id, fila_padrao_id from inbox where canal_id = ${pedido.canalId} order by criado_em limit 1`,
+  const { rows: inboxes } = await tx.execute<{ id: string; queueDefaultId: string | null }>(
+    sql`select id, fila_padrao_id from inbox where canal_id = ${pedido.channelId} order by criado_em limit 1`,
   );
   const inbox = inboxes[0];
-  if (!inbox) throw ErroPipe.conflito('canal_sem_inbox', 'O canal não tem inbox configurada.');
+  if (!inbox) throw PipeError.conflito('canal_sem_inbox', 'O canal não tem inbox configurada.');
 
   const agora = new Date();
-  const atendente = pedido.atendenteId ?? null;
-  const estado = atendente ? 'atribuida' : 'na_fila';
+  const agent = pedido.agentId ?? null;
+  const state = agent ? 'atribuida' : 'na_fila';
 
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado,
                           criada_em, atribuida_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contatoId}, ${inbox.fila_padrao_id},
-            ${atendente}, ${estado}, ${agora}, ${atendente ? agora : null})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, ${inbox.queueDefaultId},
+            ${agent}, ${state}, ${agora}, ${agent ? agora : null})
     returning id
   `);
   const conversaId = rows[0]?.id;
@@ -282,39 +282,39 @@ async function abrirConversaDeDisparo(
 
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
-    conversaId,
+    conversationId,
     tipo: 'criada',
     em: agora,
-    usuarioId: atendente,
-    filaId: inbox.fila_padrao_id,
-    dados: { origem: 'mensagem_ativa' },
+    userId: agent,
+    queueId: inbox.queueDefaultId,
+    data: { origem: 'mensagem_ativa' },
   });
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
-    conversaId,
-    tipo: atendente ? 'atribuida' : 'enfileirada',
+    conversationId,
+    tipo: agent ? 'atribuida' : 'enfileirada',
     em: agora,
-    usuarioId: atendente,
-    filaId: inbox.fila_padrao_id,
+    userId: agent,
+    queueId: inbox.queueDefaultId,
   });
   await emitir(tx, canal.tenantId, 'conversa.criada', {
     conversa_id: conversaId,
-    contato_id: contatoId,
-    fila_id: inbox.fila_padrao_id,
+    contato_id: contactId,
+    fila_id: inbox.queueDefaultId,
     origem: 'mensagem_ativa',
   });
   return conversaId;
 }
 
-export interface LinhaDoPainel {
-  mensagemId: string;
-  conversaId: string;
-  contatoId: string;
-  contatoNome: string | null;
+export interface LineOfApplication {
+  messageId: string;
+  conversationId: string;
+  contactId: string;
+  contactName: string | null;
   telefone: string | null;
   templateNome: string | null;
-  estadoEntrega: string | null;
-  erroCodigo: string | null;
+  stateDelivery: string | null;
+  errorCode: string | null;
   criadaEm: string;
 }
 
@@ -325,10 +325,10 @@ export interface LinhaDoPainel {
  * com `template_id`, e uma segunda tabela dizendo a mesma coisa seria uma segunda
  * verdade para divergir.
  */
-export async function painelDeAtivas(
+export async function applicationOfActive(
   tenantId: string,
   horas = 72,
-): Promise<LinhaDoPainel[]> {
+): Promise<LineOfApplication[]> {
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;

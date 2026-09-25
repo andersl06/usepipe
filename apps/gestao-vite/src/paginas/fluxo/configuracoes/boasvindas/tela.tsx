@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { ConfiguracaoDeBoasVindas } from '@pipe/contracts';
-import { BotaoBds, CabecalhoDaPagina, CampoBds, Interruptor, Papel } from '../pecas';
+import type { ConfigurationOfWelcome } from '@pipe/contracts';
+import { BotaoBds, PageHeader, CampoBds, Interruptor, Role } from '../pecas';
 import { salvarBoasVindas } from './gravar';
 
 const TEXTO_BOTAO_MAX = 20;
@@ -24,9 +24,9 @@ const TEXTO_BOTAO_MAX = 20;
  * estava escrito seria pior); LIGAR só revela o formulário — quem ativa
  * ainda precisa escrever a mensagem e o texto do botão e clicar Salvar.
  */
-export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: ConfiguracaoDeBoasVindas }) {
+export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: ConfigurationOfWelcome }) {
   const [ativo, setAtivo] = useState(inicial.ativo);
-  const [mensagem, setMensagem] = useState(inicial.mensagem);
+  const [message, setMessage] = useState(inicial.message);
   const [textoDoBotao, setTextoDoBotao] = useState(inicial.textoBotao);
   const [aviso, setAviso] = useState('');
   const [sucesso, setSucesso] = useState('');
@@ -39,7 +39,7 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
     const resultado = await salvarBoasVindas(id, { ativo: false });
     if (!resultado.ok) {
       setAtivo(true);
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
     }
   }
 
@@ -47,23 +47,23 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
     setAviso('');
     setSucesso('');
     setSalvando(true);
-    const resultado = await salvarBoasVindas(id, { ativo: true, mensagem, textoBotao: textoDoBotao });
+    const resultado = await salvarBoasVindas(id, { ativo: true, message, textoBotao: textoDoBotao });
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
-    setMensagem(resultado.valor.mensagem);
-    setTextoDoBotao(resultado.valor.textoBotao);
+    setMessage(resultado.value.message);
+    setTextoDoBotao(resultado.value.textoBotao);
     setSucesso('Configuração salva com sucesso.');
   }
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         titulo={<h1>Tela de Boas-vindas</h1>}
-        descricao={<p>Defina a Mensagem de Saudação e o botão Começar</p>}
-        acoes={
+        description={<p>Defina a Mensagem de Saudação e o botão Começar</p>}
+        actions={
           <Interruptor
             ligado={ativo}
             aoMudar={(novo) => {
@@ -76,7 +76,7 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
       />
       {ativo ? (
         <div className="cf-container">
-          <Papel className="cf-papel--conexao">
+          <Role className="cf-papel--conexao">
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();
@@ -88,8 +88,8 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
                 id="welcomeMessage"
                 rotulo="Mensagem de saudação"
                 placeholder="Escreva a mensagem que seu contato vê ao começar a conversa"
-                valor={mensagem}
-                aoMudar={setMensagem}
+                value={message}
+                aoMudar={setMessage}
                 linhas={4}
                 obrigatorio
               />
@@ -97,7 +97,7 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
                 <CampoBds
                   id="welcomeButtonText"
                   rotulo="Texto do botão"
-                  valor={textoDoBotao}
+                  value={textoDoBotao}
                   aoMudar={setTextoDoBotao}
                   maxLength={TEXTO_BOTAO_MAX}
                   obrigatorio
@@ -119,7 +119,7 @@ export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: Configu
                 </BotaoBds>
               </div>
             </form>
-          </Papel>
+          </Role>
         </div>
       ) : (
         aviso ? (

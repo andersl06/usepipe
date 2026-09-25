@@ -8,25 +8,25 @@ import { motivoDe } from '../basicas/gravar';
  * cartão "Conectar usando HTTP" viram `webhook_saida`, um por conjunto de
  * eventos.
  */
-export interface ConexaoDoFluxo {
-  fluxoId: string;
+export interface FlowConexao {
+  flowId: string;
   endpoint: string;
-  chavePrefixo: string | null;
-  urlMensagens: string | null;
-  urlNotificacoes: string | null;
+  keyPrefix: string | null;
+  urlMessages: string | null;
+  urlNotifications: string | null;
 }
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export async function salvarConexao(
-  fluxoId: string,
-  pedido: { urlMensagens?: string | null; urlNotificacoes?: string | null },
-): Promise<Resultado<ConexaoDoFluxo>> {
+  flowId: string,
+  pedido: { urlMessages?: string | null; urlNotifications?: string | null },
+): Promise<Resultado<FlowConexao>> {
   try {
-    const valor = await api.put<ConexaoDoFluxo>(`/v1/gestao/fluxos/${fluxoId}/conexao`, pedido);
+    const value = await api.put<FlowConexao>(`/v1/gestao/fluxos/${flowId}/conexao`, pedido);
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível salvar a configuração de conexão.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar a configuração de conexão.') };
   }
 }

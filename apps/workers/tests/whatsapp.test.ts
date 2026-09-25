@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { POLITICA_MIDIA_PADRAO, validarMidia } from '../src/whatsapp/midia.js';
+import { POLICY_MEDIA_DEFAULT, validateMedia } from '../src/whatsapp/midia.js';
 import {
-  ParametroFaltandoErro,
-  montarComponentes,
-  posicaoDeVariavel,
-  posicoesDoCorpo,
+  ParametroMissingError,
+  assembleComponents,
+  positionOfVariable,
+  positionsOfBody,
 } from '../src/whatsapp/template.js';
 import { esperaMs } from '../src/entrega.js';
 
@@ -26,57 +26,57 @@ describe('validação de mídia (regras-blip §1.6)', () => {
 
   for (const caso of casos) {
     it(caso.nome, () => {
-      const falha = validarMidia(caso.midia);
+      const falha = validateMedia(caso.midia);
       expect(falha?.codigo ?? null).toBe(caso.erro);
     });
   }
 
   it('a política é parâmetro, não constante fechada', () => {
     const restrita = {
-      formatos: { ...POLITICA_MIDIA_PADRAO.formatos, imagem: ['image/png'] },
-      tamanhoMaximoBytes: POLITICA_MIDIA_PADRAO.tamanhoMaximoBytes,
+      formatos: { ...POLICY_MEDIA_DEFAULT.formatos, imagem: ['image/png'] },
+      tamanhoMaximoBytes: POLICY_MEDIA_DEFAULT.tamanhoMaximoBytes,
     };
-    expect(validarMidia({ tipo: 'imagem', mime: 'image/jpeg', bytes: 1 }, restrita)?.codigo).toBe(
+    expect(validateMedia({ tipo: 'imagem', mime: 'image/jpeg', bytes: 1 }, restrita)?.codigo).toBe(
       'midia_formato_recusado',
     );
   });
 });
 
 describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4)', () => {
-  const semMidia = {
+  const withoutMedia = {
     nome: 'aviso',
     idioma: 'pt_BR',
     cabecalhoTipo: 'nenhum',
     variaveis: ['nome', 'protocolo'],
   } as const;
 
-  const comMidia = { ...semMidia, cabecalhoTipo: 'imagem' } as const;
+  const withMedia = { ...withoutMedia, cabecalhoTipo: 'imagem' } as const;
 
   it('sem mídia, {{1}} é a posição 1', () => {
-    expect(posicaoDeVariavel(1, 'nenhum')).toBe(1);
-    expect(posicaoDeVariavel(2, 'nenhum')).toBe(2);
-    expect(posicaoDeVariavel(1, 'texto')).toBe(1);
+    expect(positionOfVariable(1, 'nenhum')).toBe(1);
+    expect(positionOfVariable(2, 'nenhum')).toBe(2);
+    expect(positionOfVariable(1, 'texto')).toBe(1);
   });
 
   it('com mídia no cabeçalho, tudo desliza +1', () => {
-    expect(posicaoDeVariavel(1, 'imagem')).toBe(2);
-    expect(posicaoDeVariavel(2, 'video')).toBe(3);
-    expect(posicaoDeVariavel(1, 'documento')).toBe(2);
+    expect(positionOfVariable(1, 'imagem')).toBe(2);
+    expect(positionOfVariable(2, 'video')).toBe(3);
+    expect(positionOfVariable(1, 'documento')).toBe(2);
   });
 
   it('o mapa de posições mostra onde cada variável vai', () => {
-    expect([...posicoesDoCorpo(semMidia)]).toEqual([
+    expect([...positionsOfBody(withoutMedia)]).toEqual([
       [1, 'nome'],
       [2, 'protocolo'],
     ]);
-    expect([...posicoesDoCorpo(comMidia)]).toEqual([
+    expect([...positionsOfBody(withMedia)]).toEqual([
       [2, 'nome'],
       [3, 'protocolo'],
     ]);
   });
 
   it('monta os componentes sem mídia', () => {
-    expect(montarComponentes(semMidia, { '1': 'Ana', '2': 'A-42' })).toEqual([
+    expect(assembleComponents(withoutMedia, { '1': 'Ana', '2': 'A-42' })).toEqual([
       {
         type: 'body',
         parameters: [
@@ -89,7 +89,7 @@ describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4
 
   it('monta os componentes com mídia na posição 1 e o corpo deslocado', () => {
     expect(
-      montarComponentes(comMidia, { '1': 'https://cdn/x.png', '2': 'Ana', '3': 'A-42' }),
+      assembleComponents(withMedia, { '1': 'https://cdn/x.png', '2': 'Ana', '3': 'A-42' }),
     ).toEqual([
       { type: 'header', parameters: [{ type: 'image', image: { link: 'https://cdn/x.png' } }] },
       {
@@ -105,8 +105,8 @@ describe('deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4
   it('numerar como se não houvesse mídia falha alto, e não em silêncio', () => {
     // Este é o erro que a pesquisa descreve: o operador numera 1 e 2, a mídia rouba
     // o 1, e o cliente recebe o protocolo no lugar do nome. Aqui vira exceção.
-    expect(() => montarComponentes(comMidia, { '1': 'Ana', '2': 'A-42' })).toThrow(
-      ParametroFaltandoErro,
+    expect(() => assembleComponents(withMedia, { '1': 'Ana', '2': 'A-42' })).toThrow(
+      ParametroMissingError,
     );
   });
 });

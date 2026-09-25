@@ -15,33 +15,33 @@ export interface PedidoDeRegraSla {
   alvo: string;
   prazoSeg: number;
   alertaSeg?: number | null;
-  escopoTipo?: string;
-  escopoId?: string | null;
-  ativa?: boolean;
+  scopeTipo?: string;
+  scopeId?: string | null;
+  active?: boolean;
 }
 
-export type PedidoDeEdicaoDeRegraSla = Partial<PedidoDeRegraSla>;
+export type RequestOfEditOfRuleSla = Partial<PedidoDeRegraSla>;
 
-export async function criarRegraSla(pedido: PedidoDeRegraSla): Promise<Resultado<{ id: string }>> {
+export async function createRuleSla(pedido: PedidoDeRegraSla): Promise<Resultado<{ id: string }>> {
   try {
     const criada = await api.post<{ id: string }>('/v1/gestao/configuracoes/regras', pedido);
     atualizarLeituras();
-    return { ok: true, valor: criada };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível criar a regra de SLA.') };
+    return { ok: true, value: criada };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível criar a regra de SLA.') };
   }
 }
 
 export async function editarRegraSla(
   id: string,
-  pedido: PedidoDeEdicaoDeRegraSla,
+  pedido: RequestOfEditOfRuleSla,
 ): Promise<Resultado<void>> {
   try {
     await api.patch(`/v1/gestao/configuracoes/regras/${id}`, pedido);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível editar a regra de SLA.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível editar a regra de SLA.') };
   }
 }
 
@@ -49,8 +49,8 @@ export async function excluirRegraSla(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/gestao/configuracoes/regras/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a regra de SLA.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a regra de SLA.') };
   }
 }

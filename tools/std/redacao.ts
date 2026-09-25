@@ -11,18 +11,18 @@ import { pathToFileURL } from 'node:url';
  * própria CHAVE: o que o `jsonb-keys` verifica é justamente o nome dela.
  */
 
-const PADRAO_CHAVE_SEGREDO =
+const DEFAULT_KEY_SECRET =
   /token|secret|segredo|senha|password|chave|key|authorization|cookie|certificado|pfx/i;
 const PADRAO_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /** E.164 e afins: opcional `+`, 8 a 15 dígitos, nada mais (não pega uuid nem id numérico curto). */
 const PADRAO_TELEFONE = /^\+?\d{8,15}$/;
 
-export function redigir(valor: unknown): unknown {
+export function redigir(value: unknown): unknown {
   let proximoEmail = 0;
   let proximoTelefone = 0;
 
-  function andar(v: unknown, chaveSegredo: boolean): unknown {
-    if (chaveSegredo) {
+  function andar(v: unknown, keySecret: boolean): unknown {
+    if (keySecret) {
       // A chave já denuncia segredo: qualquer valor escalar vira REDACTED. Objeto/array
       // sob uma chave assim (ex.: `credenciais: {...}`) também é substituído inteiro.
       if (v === null || v === undefined) return v;
@@ -36,15 +36,15 @@ export function redigir(valor: unknown): unknown {
     if (Array.isArray(v)) return v.map((item) => andar(item, false));
     if (v && typeof v === 'object') {
       const saida: Record<string, unknown> = {};
-      for (const [chave, filho] of Object.entries(v as Record<string, unknown>)) {
-        saida[chave] = andar(filho, PADRAO_CHAVE_SEGREDO.test(chave));
+      for (const [key, filho] of Object.entries(v as Record<string, unknown>)) {
+        saida[key] = andar(filho, DEFAULT_KEY_SECRET.test(key));
       }
       return saida;
     }
     return v;
   }
 
-  return andar(valor, false);
+  return andar(value, false);
 }
 
 /**

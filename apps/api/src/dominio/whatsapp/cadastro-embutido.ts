@@ -1,12 +1,12 @@
-import { ErroPipe } from '../../erros.js';
-import { lerCanalWhatsApp, pedirReautorizacao, texto } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
-import { configurarWebhooksDoCanal } from './configuracao-de-webhook.js';
-import { criarCanal } from './criacao-de-canal.js';
+import { PipeError } from '../../erros.js';
+import { readChannelWhatsApp, pedirReauthorization, texto } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
+import { configureWebhooksOfChannel } from './configuracao-de-webhook.js';
+import { createChannel } from './criacao-de-canal.js';
 import { buscarInfoDoNumero } from './info-do-numero.js';
 import { reautorizar } from './reautorizacao.js';
 import { buscarSaude, numeroPendente } from './saude.js';
-import { trocarCodigo } from './troca-de-token.js';
+import { exchangeCode } from './troca-de-token.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/embedded_signup_service.rb
@@ -26,15 +26,15 @@ import { trocarCodigo } from './troca-de-token.js';
  * (`estado-de-conexao.ts`), e é acréscimo do Pipe — o original não tem.
  */
 
-export interface PedidoDeCadastroEmbutido {
+export interface RequestOfRegistrationEmbedded {
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   codigo?: string | undefined;
   wabaId?: string | undefined;
   numeroId?: string | undefined;
   coexistencia?: boolean | undefined;
   /** O `inbox_id` do original: presente, é reautorização daquele canal. */
-  canalId?: string | undefined;
+  channelId?: string | undefined;
 }
 
 /** `validate_parameters!` do serviço e `validate_embedded_signup_params!` do controlador. */
@@ -43,24 +43,24 @@ export function validarParametros(pedido: { codigo?: string | undefined; wabaId?
   if (!pedido.codigo?.trim()) ausentes.push('code');
   if (!pedido.wabaId?.trim()) ausentes.push('waba_id');
   if (ausentes.length === 0) return;
-  throw ErroPipe.requisicao(
+  throw PipeError.request(
     'parametros_ausentes',
     `Parâmetros obrigatórios ausentes: ${ausentes.join(', ')}`,
   );
 }
 
-export async function executarCadastroEmbutido(
-  pedido: PedidoDeCadastroEmbutido,
-): Promise<CanalWhatsApp> {
+export async function executarRegistrationEmbedded(
+  pedido: RequestOfRegistrationEmbedded,
+): Promise<ChannelWhatsApp> {
   try {
     validarParametros(pedido);
     const wabaId = pedido.wabaId!.trim();
     const coexistencia = pedido.coexistencia === true;
 
-    const token = await trocarCodigo(pedido.codigo);
+    const token = await exchangeCode(pedido.codigo);
 
-    const reautorizando = pedido.canalId
-      ? await lerCanalWhatsApp(pedido.tenantId, pedido.canalId)
+    const reautorizando = pedido.channelId
+      ? await readChannelWhatsApp(pedido.tenantId, pedido.channelId)
       : null;
     const info = await buscarInfoDoNumero(
       wabaId,
@@ -69,27 +69,27 @@ export async function executarCadastroEmbutido(
       reautorizando ? texto(reautorizando.config['numero']) : null,
     );
 
-    const canal = pedido.canalId
+    const channel = pedido.channelId
       ? await reautorizar({
           tenantId: pedido.tenantId,
-          canalId: pedido.canalId,
+          channelId: pedido.channelId,
           numeroId: pedido.numeroId,
           wabaId,
           token,
           info,
         })
-      : await criarCanal({
+      : await createChannel({
           tenantId: pedido.tenantId,
-          usuarioId: pedido.usuarioId,
+          userId: pedido.userId,
           infoDaWaba: { wabaId, nomeDaEmpresa: info.nomeDaEmpresa },
           infoDoNumero: info,
           token,
         });
 
-    const configurado = await configurarWebhooksDoCanal(canal, coexistencia);
-    if (!pedido.canalId && !coexistencia) await conferirSaude(configurado);
+    const configurado = await configureWebhooksOfChannel(channel, coexistencia);
+    if (!pedido.channelId && !coexistencia) await conferirSaude(configurado);
 
-    return lerCanalWhatsApp(pedido.tenantId, canal.id);
+    return readChannelWhatsApp(pedido.tenantId, channel.id);
   } catch (erro) {
     console.error(`[whatsapp] o cadastro embutido falhou: ${(erro as Error).message}`);
     throw erro;
@@ -97,15 +97,15 @@ export async function executarCadastroEmbutido(
 }
 
 /** `check_channel_health_and_prompt_reauth`. Falha da checagem só vai para o log. */
-async function conferirSaude(canal: CanalWhatsApp): Promise<void> {
+async function conferirSaude(channel: ChannelWhatsApp): Promise<void> {
   try {
     const saude = await buscarSaude({
-      tokenAcesso: texto(canal.config['tokenAcesso']),
-      numeroId: texto(canal.config['phoneNumberId']),
-      wabaId: canal.wabaId,
+      tokenAccess: texto(channel.config['tokenAcesso']),
+      numeroId: texto(channel.config['phoneNumberId']),
+      wabaId: channel.wabaId,
     });
-    if (numeroPendente(saude)) await pedirReautorizacao(canal);
-  } catch (erro) {
-    console.error(`[whatsapp] a checagem de saúde do canal ${canal.id} falhou: ${(erro as Error).message}`);
+    if (numeroPendente(saude)) await pedirReauthorization(channel);
+  } catch (error) {
+    console.error(`[whatsapp] a checagem de saúde do canal ${channel.id} falhou: ${(error as Error).message}`);
   }
 }

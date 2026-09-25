@@ -1,16 +1,16 @@
-import { Avatar, Botao, Campo, Etiqueta, Seletor, Tabela, type Coluna } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Avatar, Botao, Campo, Etiqueta, Seletor, Tabela, type Column } from '@pipe/ui';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import { Formulario, FormularioDeLinha } from '../../../componentes/configuracoes/formulario';
 import {
   lerEspaco,
   listarConvitesPendentes,
-  listarMembros,
+  listMembers,
   listarPapeis,
-  usuarioAtual,
+  userCurrent,
 } from '../../../lib/configuracoes-dados';
-import type { ConvitePendente, Membro, ResumoDePapel } from '../../../lib/configuracoes-comum';
+import type { InvitationPendente, Member, RoleSummary } from '../../../lib/configuracoes-comum';
 import { dataHora, desde } from '../../../lib/formato';
-import { acaoAlternarMembro, acaoCancelarConvite, acaoConvidar, acaoDefinirPapel } from '../acoes';
+import { actionAlternarMember, actionCancelarInvitation, acaoConvidar, actionDefinirRole } from '../acoes';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,10 +34,10 @@ export const dynamic = 'force-dynamic';
  * escopo, não papel.
  */
 
-function colunasDaEquipe(euId: string, papeis: ResumoDePapel[], fuso: string): readonly Coluna<Membro>[] {
+function colunasDaEquipe(euId: string, papeis: RoleSummary[], fuso: string): readonly Column<Member>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Pessoa',
       celula: (m) => (
         <span className="cfg-pessoa">
@@ -50,13 +50,13 @@ function colunasDaEquipe(euId: string, papeis: ResumoDePapel[], fuso: string): r
       ),
     },
     {
-      chave: 'papel',
+      key: 'papel',
       rotulo: 'Papel',
       celula: (m) => (
-        <FormularioDeLinha acao={acaoDefinirPapel} campos={{ usuarioId: m.id }}>
+        <FormularioDeLinha acao={actionDefinirRole} campos={{ usuarioId: m.id }}>
           <label>
             <span className="cfg-oculto">Papel de {m.nome}</span>
-            <Seletor name="papelId" defaultValue={m.papelId ?? ''}>
+            <Seletor name="papelId" defaultValue={m.roleId ?? ''}>
               <option value="">Sem papel</option>
               {papeis.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -70,21 +70,21 @@ function colunasDaEquipe(euId: string, papeis: ResumoDePapel[], fuso: string): r
       ),
     },
     {
-      chave: 'acesso',
+      key: 'acesso',
       rotulo: 'Último acesso',
       celula: (m) =>
-        m.ultimoAcessoEm ? (
-          <span title={dataHora(m.ultimoAcessoEm, fuso)}>{desde(m.ultimoAcessoEm, fuso)}</span>
+        m.ultimoAccessIn ? (
+          <span title={dataHora(m.ultimoAccessIn, fuso)}>{desde(m.ultimoAccessIn, fuso)}</span>
         ) : (
           <span className="sub">Nunca entrou</span>
         ),
     },
     {
-      chave: 'estado',
+      key: 'estado',
       rotulo: 'Acesso',
       celula: (m) => (
         <FormularioDeLinha
-          acao={acaoAlternarMembro}
+          acao={actionAlternarMember}
           campos={{ usuarioId: m.id, ativo: m.ativo ? 'nao' : 'sim' }}
         >
           <Etiqueta tom={m.ativo ? 'neutro' : 'alerta'}>{m.ativo ? 'Ativo' : 'Desativado'}</Etiqueta>
@@ -101,25 +101,25 @@ function colunasDaEquipe(euId: string, papeis: ResumoDePapel[], fuso: string): r
   ];
 }
 
-function colunasDeConvites(fuso: string): readonly Coluna<ConvitePendente>[] {
+function colunasDeConvites(fuso: string): readonly Column<InvitationPendente>[] {
   return [
-    { chave: 'email', rotulo: 'E-mail', celula: (c) => <span className="mono">{c.email}</span> },
-    { chave: 'papel', rotulo: 'Papel', celula: (c) => <Etiqueta>{c.papel}</Etiqueta> },
+    { key: 'email', rotulo: 'E-mail', celula: (c) => <span className="mono">{c.email}</span> },
+    { key: 'papel', rotulo: 'Papel', celula: (c) => <Etiqueta>{c.role}</Etiqueta> },
     {
-      chave: 'vence',
+      key: 'vence',
       rotulo: 'Vence',
       celula: (c) => <span title={dataHora(c.expiraEm, fuso)}>{desde(c.expiraEm, fuso)}</span>,
     },
     {
-      chave: 'quem',
+      key: 'quem',
       rotulo: 'Convidado por',
-      celula: (c) => c.convidadoPor ?? <span className="sub">—</span>,
+      celula: (c) => c.convidadoBy ?? <span className="sub">—</span>,
     },
     {
-      chave: 'acao',
+      key: 'acao',
       rotulo: 'Ação',
       celula: (c) => (
-        <FormularioDeLinha acao={acaoCancelarConvite} campos={{ id: c.id }}>
+        <FormularioDeLinha acao={actionCancelarInvitation} campos={{ id: c.id }}>
           <Botao type="submit" variante="perigo">
             Cancelar
           </Botao>
@@ -129,24 +129,24 @@ function colunasDeConvites(fuso: string): readonly Coluna<ConvitePendente>[] {
   ];
 }
 
-export default async function PaginaMembros() {
+export default async function PageMembers() {
   // Em série, nunca em `Promise.all`: cada uma abre a sua transação com o tenant
   // fixado, e paralelizar aqui é o caminho conhecido para perder `pipe.tenant_id`.
-  const eu = await usuarioAtual();
+  const eu = await userCurrent();
   const espaco = await lerEspaco();
-  const membros = await listarMembros();
+  const members = await listMembers();
   const papeis = await listarPapeis();
   const convites = await listarConvitesPendentes();
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Membros">
+      <SectionHeader titulo="Membros">
         Quem tem acesso a este espaço, com que papel, e quem ainda foi só convidado.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco
+      <Block
         titulo="Convidar"
-        descricao="O convite vale sete dias, serve uma vez só e é para este endereço — convidar de novo cancela o anterior."
+        description="O convite vale sete dias, serve uma vez só e é para este endereço — convidar de novo cancela o anterior."
       >
         <Formulario acao={acaoConvidar} rotuloBotao="Convidar" className="cfg-form-linha">
           <label className="cfg-campo">
@@ -174,30 +174,30 @@ export default async function PaginaMembros() {
             </Seletor>
           </label>
         </Formulario>
-      </Bloco>
+      </Block>
 
       {convites.length > 0 ? (
-        <Bloco titulo="Convites pendentes">
+        <Block titulo="Convites pendentes">
           <Tabela
             colunas={colunasDeConvites(espaco.fuso)}
             linhas={convites}
-            chaveDaLinha={(c) => c.id}
+            linhaKey={(c) => c.id}
           />
-        </Bloco>
+        </Block>
       ) : null}
 
-      <Bloco
+      <Block
         titulo="Equipe"
-        descricao="Desativar tira o acesso e mantém a história: o que a pessoa fez continua com o nome dela."
+        description="Desativar tira o acesso e mantém a história: o que a pessoa fez continua com o nome dela."
       >
         <Tabela
           colunas={colunasDaEquipe(eu.id, papeis, espaco.fuso)}
-          linhas={membros}
-          chaveDaLinha={(m) => m.id}
+          linhas={members}
+          linhaKey={(m) => m.id}
           larguraMinima={720}
-          vazio="Ninguém ainda. Convide alguém acima."
+          empty="Ninguém ainda. Convide alguém acima."
         />
-      </Bloco>
+      </Block>
     </>
   );
 }

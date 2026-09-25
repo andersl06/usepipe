@@ -1,8 +1,8 @@
 import Link from '../../componentes/link';
 import { Avatar } from '@pipe/ui';
 import { IconePortal, LogoPortal, type NomeDeIconePortal } from '../../componentes/icones-portal';
-import { baseDoContato } from './contato';
-import { numeroDaHome, pilhaDaEquipe, type Extensao, type Membro, type Metricas } from './itens';
+import { contactBase } from './contato';
+import { numeroDaHome, pilhaDaEquipe, type Extensao, type Member, type Metrics } from './itens';
 
 /**
  * Os cartões da home do contato — as áreas de `.chatbot-home-content`
@@ -61,8 +61,8 @@ function Botao({
  * devolveu duas extensões — a origem desenha esta coluna para o roteador. Aqui
  * não há loja: a lista chega vazia e a coluna some, como lá sem recomendação.
  */
-export function CartaoExtensoes({ extensoes }: { extensoes: readonly Extensao[] }) {
-  if (extensoes.length === 0) return null;
+export function CardExtensions({ extensions }: { extensions: readonly Extensao[] }) {
+  if (extensions.length === 0) return null;
   return (
     <div className="fx-area-extensoes">
       <section className="fx-papel fx-extensoes-papel">
@@ -81,7 +81,7 @@ export function CartaoExtensoes({ extensoes }: { extensoes: readonly Extensao[] 
           </div>
         </div>
         <div className="fx-extensoes-lista">
-          {extensoes.map((x) => (
+          {extensions.map((x) => (
             <div key={x.id} className="fx-extensao-item">
               <div className="fx-extensao">
                 <div className="fx-extensao-topo">
@@ -118,7 +118,7 @@ export function CartaoExtensoes({ extensoes }: { extensoes: readonly Extensao[] 
  * `logo: null` é a vaga do `blip-chat`, que é a marca da Blip e não entra: no
  * lugar vai o símbolo do Pipe, que é a marca do nosso widget de site.
  */
-const LOGOS_DE_CANAL = [
+const LOGOS_OF_CHANNEL = [
   { tipo: 'widget', nome: 'Site', logo: null, sempre: true },
   { tipo: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', sempre: false }, // `activationStatuses['wa']`
   { tipo: 'instagram', nome: 'Instagram', logo: 'instagram', sempre: false },
@@ -126,7 +126,7 @@ const LOGOS_DE_CANAL = [
 ] as const;
 
 /** `ng-if="!showAiCard"` — sem o cartão de IA (flag desligada), é este. */
-export function CartaoCanais({
+export function CardChannels({
   ativos,
   id,
   tipo,
@@ -135,7 +135,7 @@ export function CartaoCanais({
   id: string;
   tipo: string;
 }) {
-  const logos = LOGOS_DE_CANAL.filter((l) => l.sempre || ativos.includes(l.tipo));
+  const logos = LOGOS_OF_CHANNEL.filter((l) => l.sempre || ativos.includes(l.tipo));
   return (
     <div className="fx-area-canais">
       <section className="fx-papel fx-faixa">
@@ -162,7 +162,7 @@ export function CartaoCanais({
             ))}
           </div>
           <div className="fx-faixa-botao">
-            <Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>
+            <Botao href={`${contactBase(tipo, id)}/canais`}>Ver canais</Botao>
           </div>
         </div>
       </section>
@@ -180,7 +180,7 @@ export function CartaoCanais({
  * CONTATO. O RBAC daqui é por conta — falta a tabela que liga pessoa a contato,
  * e até lá a página passa a lista vazia e o botão fica em obra.
  */
-export function CartaoEquipe({ membros }: { membros: readonly Membro[] }) {
+export function CardTeam({ members }: { members: readonly Member[] }) {
   return (
     <div className="fx-area-equipe">
       <section className="fx-papel fx-faixa">
@@ -188,10 +188,10 @@ export function CartaoEquipe({ membros }: { membros: readonly Membro[] }) {
           <h2 className="fx-h4 fx-mb1">Equipe</h2>
         </div>
         <div className="fx-faixa-sub">
-          {membros.length > 1 ? (
+          {members.length > 1 ? (
             <div className="fx-pilha-caixa">
               <div className="fx-pilha">
-                {pilhaDaEquipe(membros).map((m, i) => (
+                {pilhaDaEquipe(members).map((m, i) => (
                   /* `left: 41px × i` e `z-index: 100 − i` saem do controlador
                      `avatarArray`, que os escreve direto no estilo. */
                   <span
@@ -228,26 +228,26 @@ export function CartaoEquipe({ membros }: { membros: readonly Membro[] }) {
  * então os três chegam desabilitados e o "Aplicar alterações" (que só existe com
  * `hasEditPermission`) não entra.
  */
-export function CartaoPreferencias({ fuso, plano }: { fuso: string; plano: string }) {
+export function CardPreferences({ fuso, plano }: { fuso: string; plano: string }) {
   return (
     <div className="fx-area-preferencias">
       <section className="fx-papel fx-preferencias">
         <h2 className="fx-h4">Preferências</h2>
         <div className="fx-campos">
-          <Campo rotulo="Cultura" valor="Português (Brasil)" />
-          <Campo rotulo="Fuso horário" valor={fuso} />
-          <Campo rotulo="Plano" valor={plano} dica />
+          <Campo rotulo="Cultura" value="Português (Brasil)" />
+          <Campo rotulo="Fuso horário" value={fuso} />
+          <Campo rotulo="Plano" value={plano} dica />
         </div>
       </section>
     </div>
   );
 }
 
-function Campo({ rotulo, valor, dica }: { rotulo: string; valor: string; dica?: boolean }) {
+function Campo({ rotulo, value, dica }: { rotulo: string; value: string; dica?: boolean }) {
   return (
     <div className="fx-campo" aria-disabled="true">
       <span className="fx-campo-rotulo">{rotulo}</span>
-      <span className={dica ? 'fx-campo-valor fx-campo-dica' : 'fx-campo-valor'}>{valor}</span>
+      <span className={dica ? 'fx-campo-valor fx-campo-dica' : 'fx-campo-valor'}>{value}</span>
     </div>
   );
 }
@@ -260,8 +260,8 @@ function Campo({ rotulo, valor, dica }: { rotulo: string; valor: string; dica?: 
  * flag `is-hiding-home-metrics` está LIGADA, então a origem também não desenha
  * este cartão para o roteador.
  */
-export function CartaoMetricas({ metricas, base }: { metricas: Metricas | null; base: string }) {
-  if (!metricas || metricas.usuarios === 0) return null;
+export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: string }) {
+  if (!metrics || metrics.users === 0) return null;
   return (
     <div className="fx-area-metricas">
       <section className="fx-papel fx-metricas">
@@ -270,21 +270,21 @@ export function CartaoMetricas({ metricas, base }: { metricas: Metricas | null; 
           icone="comunidade"
           rotulo="Usuários"
           dica="Número de usuários desde a criação do contato"
-          valor={metricas.usuarios}
+          value={metrics.users}
           href={null}
         />
         <Metrica
           icone="mensagem-recebida"
           rotulo="Mensagens recebidas"
           dica="Número de mensagens recebidas pelo contato desde a criação"
-          valor={metricas.recebidas}
+          value={metrics.recebidas}
           href={`${base}/atendimento/relatorios/atendimento`}
         />
         <Metrica
           icone="mensagem-enviada"
           rotulo="Mensagens enviadas"
           dica="Número de mensagens enviadas pelo contato desde a criação"
-          valor={metricas.enviadas}
+          value={metrics.enviadas}
           href={`${base}/atendimento/relatorios/atendimento`}
         />
       </section>
@@ -301,13 +301,13 @@ function Metrica({
   icone,
   rotulo,
   dica,
-  valor,
+  value,
   href,
 }: {
   icone: NomeDeIconePortal;
   rotulo: string;
   dica: string;
-  valor: number;
+  value: number;
   href: string | null;
 }) {
   return (
@@ -320,7 +320,7 @@ function Metrica({
             <IconePortal nome="informacao-cheia" tamanho={16} />
           </span>
         </div>
-        <b className="fx-metrica-valor">{numeroDaHome(valor)}</b>
+        <b className="fx-metrica-valor">{numeroDaHome(value)}</b>
         {href ? (
           <Link className="fx-metrica-link" href={href}>
             Ver mais

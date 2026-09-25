@@ -1,5 +1,5 @@
 import { createHash, createHmac } from 'node:crypto';
-import { ErroPipe } from '../../erros.js';
+import { PipeError } from '../../erros.js';
 import { modoDaConexao, versaoDaApi } from '../whatsapp/cliente-graph.js';
 
 /**
@@ -44,7 +44,7 @@ export function versaoDaApiInstagram(): string {
 }
 
 /** `GET /me?fields=user_id,username,name,profile_picture_url`. */
-export interface ContaInstagram {
+export interface AccountInstagram {
   /** O id "app-scoped" do usuário. */
   id?: string;
   /** O id da conta profissional: é o `entry[].id` e o `recipient.id` do webhook. */
@@ -63,9 +63,9 @@ export interface TokenRenovado {
 
 export abstract class ClienteGraphInstagram {
   abstract readonly nome: 'real' | 'duble';
-  abstract buscarConta(): Promise<ContaInstagram>;
+  abstract fetchAccount(): Promise<AccountInstagram>;
   /** Prova que o App Secret colado é do app que gerou o token (`appsecret_proof`). */
-  abstract conferirSegredoDoApp(segredo: string): Promise<boolean>;
+  abstract checkSecretOfApp(segredo: string): Promise<boolean>;
   abstract assinarWebhook(igUserId: string): Promise<unknown>;
   abstract desassinarWebhook(igUserId: string): Promise<unknown>;
   abstract renovarToken(): Promise<TokenRenovado>;
@@ -93,10 +93,10 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     super();
   }
 
-  private url(caminho: string, consulta: Record<string, string> = {}, versionado = true): string {
-    const prefixo = versionado ? `${URL_BASE_INSTAGRAM}/${versaoDaApiInstagram()}` : URL_BASE_INSTAGRAM;
-    const url = new URL(`${prefixo}/${caminho}`);
-    for (const [chave, valor] of Object.entries(consulta)) url.searchParams.set(chave, valor);
+  private url(caminho: string, query: Record<string, string> = {}, versionado = true): string {
+    const prefix = versionado ? `${URL_BASE_INSTAGRAM}/${versaoDaApiInstagram()}` : URL_BASE_INSTAGRAM;
+    const url = new URL(`${prefix}/${caminho}`);
+    for (const [key, value] of Object.entries(query)) url.searchParams.set(key, value);
     return url.toString();
   }
 
@@ -105,16 +105,16 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     return { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' };
   }
 
-  private async pedir<T>(url: string, init: RequestInit, mensagem: string, ...segredos: string[]): Promise<T> {
-    const ocultos = [this.token, ...segredos];
+  private async pedir<T>(url: string, init: RequestInit, message: string, ...secrets: string[]): Promise<T> {
+    const ocultos = [this.token, ...secrets];
     let resposta: Response;
     try {
       resposta = await this.buscar(url, init);
-    } catch (erro) {
-      throw new ErroPipe(
+    } catch (error) {
+      throw new PipeError(
         502,
         'meta_inacessivel',
-        `${mensagem}: ${esconder(String((erro as Error)?.message ?? erro), ...ocultos)}`,
+        `${message}: ${esconder(String((error as Error)?.message ?? error), ...ocultos)}`,
       );
     }
     const texto = await resposta.text();
@@ -125,17 +125,17 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
       corpo = null;
     }
     if (!resposta.ok) {
-      const erro = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
-      const detalhe = erro?.message ? esconder(erro.message, ...ocultos) : `HTTP ${resposta.status}`;
-      throw new ErroPipe(502, 'meta_recusou', `${mensagem}: ${detalhe}`, {
+      const error = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
+      const detalhe = error?.message ? esconder(error.message, ...ocultos) : `HTTP ${resposta.status}`;
+      throw new PipeError(502, 'meta_recusou', `${message}: ${detalhe}`, {
         http: resposta.status,
-        ...(erro?.code === undefined ? {} : { codigo_meta: erro.code }),
+        ...(error?.code === undefined ? {} : { codigo_meta: error.code }),
       });
     }
     return corpo as T;
   }
 
-  buscarConta(): Promise<ContaInstagram> {
+  fetchAccount(): Promise<AccountInstagram> {
     return this.pedir(
       this.url('me', { fields: 'user_id,username,name,profile_picture_url' }),
       { headers: this.cabecalhos() },
@@ -144,19 +144,19 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
   }
 
   /** Conferir com token real: que o `graph.instagram.com` confere `appsecret_proof` como o Graph do Facebook. */
-  async conferirSegredoDoApp(segredo: string): Promise<boolean> {
-    const prova = createHmac('sha256', segredo).update(this.token).digest('hex');
+  async checkSecretOfApp(secret: string): Promise<boolean> {
+    const prova = createHmac('sha256', secret).update(this.token).digest('hex');
     try {
       await this.pedir(
         this.url('me', { fields: 'user_id', appsecret_proof: prova }),
         { headers: this.cabecalhos() },
         'A conferência do App Secret falhou',
-        segredo,
+        secret,
         prova,
       );
       return true;
     } catch (erro) {
-      if (erro instanceof ErroPipe && erro.codigo === 'meta_recusou') return false;
+      if (erro instanceof PipeError && erro.codigo === 'meta_recusou') return false;
       throw erro;
     }
   }
@@ -206,15 +206,15 @@ export interface ChamadaGraphInstagram {
 export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
   readonly nome = 'duble' as const;
   static readonly chamadas: ChamadaGraphInstagram[] = [];
-  private static renovacoes = 0;
+  private static renewals = 0;
 
   static reiniciar(): void {
     ClienteGraphInstagramDuble.chamadas.length = 0;
-    ClienteGraphInstagramDuble.renovacoes = 0;
+    ClienteGraphInstagramDuble.renewals = 0;
   }
 
   /** Dezessete dígitos estáveis, no formato do id de conta profissional. */
-  static idDaConta(token: string): string {
+  static idOfAccount(token: string): string {
     const hash = createHash('sha256').update(token).digest('hex').slice(0, 14);
     return `178${BigInt(`0x${hash}`).toString().padStart(14, '0').slice(0, 14)}`;
   }
@@ -225,14 +225,14 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
 
   private recusar(mensagem: string): Promise<never> {
     return Promise.reject(
-      new ErroPipe(502, 'meta_recusou', `${mensagem}: Invalid OAuth access token.`, { http: 400, codigo_meta: 190 }),
+      new PipeError(502, 'meta_recusou', `${mensagem}: Invalid OAuth access token.`, { http: 400, codigo_meta: 190 }),
     );
   }
 
-  buscarConta(): Promise<ContaInstagram> {
+  fetchAccount(): Promise<AccountInstagram> {
     ClienteGraphInstagramDuble.chamadas.push({ acao: 'buscar_conta' });
     if (!this.token || this.token.startsWith('invalido')) return this.recusar('A leitura da conta do Instagram falhou');
-    const userId = ClienteGraphInstagramDuble.idDaConta(this.token);
+    const userId = ClienteGraphInstagramDuble.idOfAccount(this.token);
     return Promise.resolve({
       id: `app-${userId}`,
       user_id: userId,
@@ -241,7 +241,7 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
     });
   }
 
-  conferirSegredoDoApp(segredo: string): Promise<boolean> {
+  checkSecretOfApp(segredo: string): Promise<boolean> {
     ClienteGraphInstagramDuble.chamadas.push({ acao: 'conferir_segredo' });
     return Promise.resolve(!segredo.startsWith('bad'));
   }
@@ -261,11 +261,11 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
     if (this.token.startsWith('expirado') || this.token.startsWith('invalido')) {
       return this.recusar('A renovação do token do Instagram falhou');
     }
-    ClienteGraphInstagramDuble.renovacoes += 1;
+    ClienteGraphInstagramDuble.renewals += 1;
     // O token renovado mantém o prefixo do original: a conta do dublê sai do token,
     // mas o canal já guardou o `igUserId` — é ele que vale depois de conectar.
     return Promise.resolve({
-      access_token: `${this.token.split('~')[0]}~r${ClienteGraphInstagramDuble.renovacoes}`,
+      access_token: `${this.token.split('~')[0]}~r${ClienteGraphInstagramDuble.renewals}`,
       token_type: 'bearer',
       expires_in: 60 * 24 * 3600,
     });

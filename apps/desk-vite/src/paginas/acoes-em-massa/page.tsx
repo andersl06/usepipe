@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { FilaDoDesk } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
+import type { QueueOfDesk } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
 import { executar } from '../../lib/acoes';
 import { numeroDoTicket } from '../../lib/canal';
-import { nomeDeExibicao } from '../../lib/ordem';
+import { displayName } from '../../lib/ordem';
 
 /**
  * "Ações em Massa" — `/bulk-ticket`, a transferência em lote da referência
@@ -18,20 +18,20 @@ import { nomeDeExibicao } from '../../lib/ordem';
  * A ação `transferirEmMassa` repete `transferirConversa` por ticket — a
  * mesma regra da referência (transferir encerra e abre outro).
  */
-export function PaginaAcoesEmMassa() {
+export function PageBulkActions() {
   const navegar = useNavigate();
-  const fila = useLeitura<FilaDoDesk>('/v1/desk/fila');
-  const filas = useLeitura<{ filas: { id: string; nome: string }[] }>('/v1/desk/filas');
+  const queue = useRead<QueueOfDesk>('/v1/desk/fila');
+  const queues = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/filas');
   const [marcadas, setMarcadas] = useState<Set<string>>(new Set());
   const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
-  const [filaId, setFilaId] = useState('');
-  const [atendenteId, setAtendenteId] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [queueId, setQueueId] = useState('');
+  const [agentId, setAgentId] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
-  const conversas = fila.data?.conversas ?? [];
-  const todas = conversas.length > 0 && conversas.every((c) => marcadas.has(c.id));
+  const conversations = queue.data?.conversations ?? [];
+  const todas = conversations.length > 0 && conversations.every((c) => marcadas.has(c.id));
 
   function alternar(id: string) {
     const novo = new Set(marcadas);
@@ -42,22 +42,22 @@ export function PaginaAcoesEmMassa() {
 
   async function transferir() {
     setEnviando(true);
-    setErro(null);
+    setError(null);
     setAviso(null);
     const r = (await executar('transferirEmMassa', {
       conversaId: [...marcadas],
-      ...(alvo === 'fila' ? { paraFilaId: filaId } : { paraAtendenteId: atendenteId }),
-    })) as { ok: boolean; erro?: string; transferidas?: number };
+      ...(alvo === 'fila' ? { paraFilaId: queueId } : { paraAtendenteId: agentId }),
+    })) as { ok: boolean; error?: string; transferidas?: number };
     setEnviando(false);
-    if (!r.ok) setErro(r.erro ?? 'Falha ao transferir.');
+    if (!r.ok) setError(r.error ?? 'Falha ao transferir.');
     else {
-      setAviso(`${r.transferidas ?? 0} ticket(s) transferido(s)${r.erro ? ` — ${r.erro}` : ''}.`);
+      setAviso(`${r.transferidas ?? 0} ticket(s) transferido(s)${r.error ? ` — ${r.error}` : ''}.`);
       setMarcadas(new Set());
     }
   }
 
   const podeTransferir =
-    marcadas.size > 0 && (alvo === 'fila' ? Boolean(filaId) : Boolean(atendenteId));
+    marcadas.size > 0 && (alvo === 'fila' ? Boolean(queueId) : Boolean(agentId));
 
   return (
     <div className="dk-massa">
@@ -81,23 +81,23 @@ export function PaginaAcoesEmMassa() {
                 type="checkbox"
                 checked={todas}
                 onChange={() =>
-                  setMarcadas(todas ? new Set() : new Set(conversas.map((c) => c.id)))
+                  setMarcadas(todas ? new Set() : new Set(conversations.map((c) => c.id)))
                 }
               />{' '}
               Selecionar todos
             </label>
             <div className="dk-massa-lista">
-              {conversas.length === 0 ? (
+              {conversations.length === 0 ? (
                 <div className="dk-massa-vazio">Nenhum atendimento aberto para transferir.</div>
               ) : (
-                conversas.map((c) => (
+                conversations.map((c) => (
                   <label key={c.id} className="dk-massa-item">
                     <input
                       type="checkbox"
                       checked={marcadas.has(c.id)}
                       onChange={() => alternar(c.id)}
                     />{' '}
-                    {numeroDoTicket(c.id)} — {nomeDeExibicao(c)}{' '}
+                    {numeroDoTicket(c.id)} — {displayName(c)}{' '}
                     <span className="dk-massa-vazio">({c.filaNome ?? 'Transferência direta'})</span>
                   </label>
                 ))
@@ -129,12 +129,12 @@ export function PaginaAcoesEmMassa() {
             <label className="dk-campo-flutuante">
               <span>Fila</span>
               <select
-                value={filaId}
-                onChange={(e) => setFilaId(e.target.value)}
+                value={queueId}
+                onChange={(e) => setQueueId(e.target.value)}
                 disabled={alvo !== 'fila'}
               >
                 <option value="">Selecionar fila</option>
-                {filas.data?.filas.map((f) => (
+                {queues.data?.queues.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.nome}
                   </option>
@@ -144,19 +144,19 @@ export function PaginaAcoesEmMassa() {
             <label className="dk-campo-flutuante">
               <span>Atendente</span>
               <select
-                value={atendenteId}
-                onChange={(e) => setAtendenteId(e.target.value)}
+                value={agentId}
+                onChange={(e) => setAgentId(e.target.value)}
                 disabled={alvo !== 'atendente'}
               >
                 <option value="">Selecionar atendente</option>
-                {fila.data?.colegas.map((c) => (
+                {queue.data?.colegas.map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.nome}
                   </option>
                 ))}
               </select>
             </label>
-            {erro ? <p className="dk-erro">{erro}</p> : null}
+            {error ? <p className="dk-erro">{error}</p> : null}
             {aviso ? <p>{aviso}</p> : null}
           </div>
         </div>

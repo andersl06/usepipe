@@ -1,4 +1,4 @@
-import type { ContagemEncerramento, ResultadoMetrica, ResultadoTempoDeResposta } from '@pipe/core';
+import type { CountClosure, ResultadoMetrica, ResponseTimeResult } from '@pipe/core';
 
 /**
  * Relatório de atendimento — §2 e §4 da spec de métricas.
@@ -12,25 +12,25 @@ import type { ContagemEncerramento, ResultadoMetrica, ResultadoTempoDeResposta }
  * O cronômetro parou; nenhuma conversa aberta entra em nada disto.
  */
 
-export interface BlocoDeTempos {
-  naFila: ResultadoMetrica;
-  primeiraResposta: ResultadoMetrica;
+export interface TemposBlock {
+  inQueue: ResultadoMetrica;
+  firstResposta: ResultadoMetrica;
   esperaTotal: ResultadoMetrica;
-  resposta: ResultadoTempoDeResposta;
-  atendimento: ResultadoMetrica;
-  encerramentos: ContagemEncerramento;
+  resposta: ResponseTimeResult;
+  attendance: ResultadoMetrica;
+  closures: CountClosure;
   /** Conversas do recorte — o universo de onde saíram os denominadores acima. */
-  conversas: number;
+  conversations: number;
 }
 
-export interface LinhaDeQuebra extends BlocoDeTempos {
-  chave: string;
+export interface LinhaDeQuebra extends TemposBlock {
+  key: string;
 }
 
-export interface RelatorioAtendimento {
-  geral: BlocoDeTempos;
-  porFila: LinhaDeQuebra[];
-  porAtendente: LinhaDeQuebra[];
+export interface ReportAttendance {
+  geral: TemposBlock;
+  byQueue: LinhaDeQuebra[];
+  byAgent: LinhaDeQuebra[];
   /**
    * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
    * rótulo (aqui, etiqueta). Ver `referencias-blip/pesquisa/chatwoot.md`.
@@ -41,13 +41,13 @@ export interface RelatorioAtendimento {
    * de criação da conversa. Aqui as duas populações são a mesma do resto do
    * relatório: conversas ENCERRADAS no período.
    */
-  porInbox: LinhaDeQuebra[];
-  porEtiqueta: LinhaDeQuebra[];
+  byInbox: LinhaDeQuebra[];
+  byTag: LinhaDeQuebra[];
   /** Conversas encerradas no período que não têm nenhuma etiqueta. */
   semEtiqueta: number;
 }
 
-export interface FiltroAtendimento {
-  filaId?: string | undefined;
-  atendenteId?: string | undefined;
+export interface AttendanceFilter {
+  queueId?: string | undefined;
+  agentId?: string | undefined;
 }

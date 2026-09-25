@@ -13,8 +13,8 @@
 
 import type { ReactNode } from 'react';
 
-export type Coluna<L> = {
-  chave: string;
+export type Column<L> = {
+  key: string;
   rotulo: string;
   /** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */
   numerica?: boolean;
@@ -24,21 +24,21 @@ export type Coluna<L> = {
 export function Tabela<L>({
   colunas,
   linhas,
-  chaveDaLinha,
+  linhaKey,
   classeDaLinha,
-  vazio = 'Nada para mostrar aqui.',
+  empty = 'Nada para mostrar aqui.',
   larguraMinima,
 }: {
-  colunas: readonly Coluna<L>[];
+  colunas: readonly Column<L>[];
   linhas: readonly L[];
-  chaveDaLinha: (linha: L) => string;
+  linhaKey: (linha: L) => string;
   /** Severidade vai na linha inteira (`grave`, `critico`), não só no texto. */
   classeDaLinha?: (linha: L) => string | undefined;
-  vazio?: ReactNode;
+  empty?: ReactNode;
   larguraMinima?: number;
 }) {
   if (linhas.length === 0) {
-    return <div className="vazio">{vazio}</div>;
+    return <div className="vazio">{empty}</div>;
   }
 
   return (
@@ -46,17 +46,17 @@ export function Tabela<L>({
       <table style={larguraMinima ? { minWidth: `${larguraMinima}px` } : undefined}>
         <thead>
           <tr>
-            {colunas.map((coluna) => (
-              <th key={coluna.chave}>{coluna.rotulo}</th>
+            {colunas.map((column) => (
+              <th key={column.key}>{column.rotulo}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {linhas.map((linha) => (
-            <tr key={chaveDaLinha(linha)} className={classeDaLinha?.(linha)}>
-              {colunas.map((coluna) => (
-                <td key={coluna.chave} className={coluna.numerica ? 'num' : undefined}>
-                  {coluna.celula(linha)}
+            <tr key={linhaKey(linha)} className={classeDaLinha?.(linha)}>
+              {colunas.map((column) => (
+                <td key={column.key} className={column.numerica ? 'num' : undefined}>
+                  {column.celula(linha)}
                 </td>
               ))}
             </tr>

@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
-import { IconeGestao } from '../../../componentes/icones-gestao';
+import { IconeManagement } from '../../../componentes/icones-gestao';
 import { IconePortal } from '../../../componentes/icones-portal';
 import Link from '../../../componentes/link';
-import { rotaDoCanal, type TipoDeCanalDoBot } from '../../../lib/canal-do-fluxo';
-import { CascaDoModulo, baseDoContato, useContato } from '../contato';
+import { channelRota, type TipoOfChannelOfBot } from '../../../lib/canal-do-fluxo';
+import { ModuloShell, contactBase, useContact } from '../contato';
 import '../integracoes/cabecalho-de-pagina.css';
 import '../integracoes/integracoes.css';
 import './canal-do-bot.css';
@@ -29,36 +29,36 @@ import './canal-do-bot.css';
  * reproduzir a tela.
  */
 
-export interface AbaDoCanal {
+export interface ChannelAba {
   rotulo: string;
   /** Vazio é a aba-índice (a URL da própria página). */
-  segmento: string;
+  segment: string;
   /** Só aparece com o canal conectado — o `ng-show` das abas da origem. */
   exigeConectado?: boolean;
   emBreve?: boolean;
 }
 
-export function CascaDoCanal({
+export function ChannelShell({
   tipo,
   titulo,
   abas,
   conectado,
   children,
 }: {
-  tipo: TipoDeCanalDoBot;
+  tipo: TipoOfChannelOfBot;
   titulo: string;
-  abas: readonly AbaDoCanal[];
+  abas: readonly ChannelAba[];
   conectado: boolean;
   children: ReactNode;
 }) {
-  const { contato } = useContato();
-  const base = baseDoContato(contato.tipo, contato.id);
+  const { contact } = useContact();
+  const base = contactBase(contact.tipo, contact.id);
   const caminho = useLocation().pathname.replace(/\/$/, '');
   /** A URL desta página; o que vier depois dela é a aba. */
-  const raiz = rotaDoCanal(base, tipo);
+  const raiz = channelRota(base, tipo);
 
   return (
-    <CascaDoModulo ativo="Canais">
+    <ModuloShell ativo="Canais">
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-voltar-caixa">
@@ -88,16 +88,16 @@ export function CascaDoCanal({
                         </span>
                       );
                     }
-                    const href = aba.segmento ? `${raiz}/${aba.segmento}` : raiz;
-                    const ativa = aba.segmento ? caminho === href || caminho.startsWith(`${href}/`) : caminho === raiz;
+                    const href = aba.segment ? `${raiz}/${aba.segment}` : raiz;
+                    const active = aba.segment ? caminho === href || caminho.startsWith(`${href}/`) : caminho === raiz;
                     return (
                       <Link
                         key={aba.rotulo}
                         href={href}
                         role="tab"
                         className="ig-aba cb-aba"
-                        aria-selected={ativa}
-                        aria-current={ativa ? 'page' : undefined}
+                        aria-selected={active}
+                        aria-current={active ? 'page' : undefined}
                       >
                         {aba.rotulo}
                       </Link>
@@ -106,7 +106,7 @@ export function CascaDoCanal({
               </nav>
               <span className="cb-doc" aria-disabled="true" title="Documentação: em breve">
                 Documentação
-                <IconeGestao nome="externo" tamanho={16} />
+                <IconeManagement nome="externo" tamanho={16} />
               </span>
             </div>
 
@@ -114,6 +114,6 @@ export function CascaDoCanal({
           </div>
         </section>
       </div>
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

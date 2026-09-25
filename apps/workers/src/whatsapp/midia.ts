@@ -12,18 +12,18 @@
  * então imagem passa sem teto de tamanho, com o formato ainda sendo verificado.
  */
 
-export type TipoMidia = 'imagem' | 'audio' | 'video' | 'documento';
+export type TypeMedia = 'imagem' | 'audio' | 'video' | 'documento';
 
-export interface PoliticaMidia {
+export interface PolicyMedia {
   /** MIME types aceitos por tipo. */
-  formatos: Readonly<Record<TipoMidia, readonly string[]>>;
+  formatos: Readonly<Record<TypeMedia, readonly string[]>>;
   /** Teto em bytes por tipo. Ausente = sem teto documentado. */
-  tamanhoMaximoBytes: Readonly<Partial<Record<TipoMidia, number>>>;
+  tamanhoMaximoBytes: Readonly<Partial<Record<TypeMedia, number>>>;
 }
 
 const MB = 1024 * 1024;
 
-export const POLITICA_MIDIA_PADRAO: PoliticaMidia = {
+export const POLICY_MEDIA_DEFAULT: PolicyMedia = {
   formatos: {
     imagem: [
       'image/gif',
@@ -87,40 +87,40 @@ export const POLITICA_MIDIA_PADRAO: PoliticaMidia = {
   },
 };
 
-export interface Midia {
-  tipo: TipoMidia;
+export interface Media {
+  tipo: TypeMedia;
   mime: string;
   bytes: number;
 }
 
-export interface FalhaMidia {
+export interface FailsMedia {
   codigo: 'midia_formato_recusado' | 'midia_grande_demais';
   texto: string;
 }
 
 /** `null` quando a mídia passa. Nunca lança: quem chama grava a falha na mensagem. */
-export function validarMidia(
-  midia: Midia,
-  politica: PoliticaMidia = POLITICA_MIDIA_PADRAO,
-): FalhaMidia | null {
-  const aceitos = politica.formatos[midia.tipo];
-  const mime = midia.mime.split(';')[0]?.trim().toLowerCase() ?? '';
+export function validateMedia(
+  media: Media,
+  politica: PolicyMedia = POLICY_MEDIA_DEFAULT,
+): FailsMedia | null {
+  const aceitos = politica.formatos[media.tipo];
+  const mime = media.mime.split(';')[0]?.trim().toLowerCase() ?? '';
   if (!aceitos.includes(mime)) {
     return {
       codigo: 'midia_formato_recusado',
       texto:
-        `Formato ${midia.mime} não é aceito para ${midia.tipo}. ` +
+        `Formato ${media.mime} não é aceito para ${media.tipo}. ` +
         `Aceitos: ${aceitos.join(', ')}.`,
     };
   }
 
-  const teto = politica.tamanhoMaximoBytes[midia.tipo];
-  if (teto !== undefined && midia.bytes > teto) {
+  const teto = politica.tamanhoMaximoBytes[media.tipo];
+  if (teto !== undefined && media.bytes > teto) {
     return {
       codigo: 'midia_grande_demais',
       texto:
-        `Arquivo de ${emMegabytes(midia.bytes)} MB passa do limite de ` +
-        `${emMegabytes(teto)} MB para ${midia.tipo}.`,
+        `Arquivo de ${emMegabytes(media.bytes)} MB passa do limite de ` +
+        `${emMegabytes(teto)} MB para ${media.tipo}.`,
     };
   }
 

@@ -1,10 +1,10 @@
-import type { ErroDoBloco } from '@pipe/contracts';
-import type { Bloco, Mapa } from './modelo';
-import { errosDoConteudo } from './conteudo';
-import { errosDaSaida } from './condicoes';
-import { errosDaAcao } from './acoes-do-bloco';
+import type { BlockError } from '@pipe/contracts';
+import type { Block, Mapa } from './modelo';
+import { contentErrors } from './conteudo';
+import { outputErrors } from './condicoes';
+import { actionErrors } from './acoes-do-bloco';
 
-const ERROS_DE_RASCUNHO_DA_SAIDA = new Set([
+const ERRORS_OF_RASCUNHO_OF_OUTPUT = new Set([
   'Definição de saída não preenchida',
   'A condição precisa de valores quando a comparação não é exists nem notExists.',
 ]);
@@ -23,50 +23,50 @@ const ERROS_DE_RASCUNHO_DA_SAIDA = new Set([
 
 export const LIMITE_DO_TITULO = 50;
 
-export function errosDoBloco(bloco: Bloco, mapa: Mapa): string[] {
-  const erros: string[] = [];
-  const anotar = (mensagem: string): void => {
-    if (!erros.includes(mensagem)) erros.push(mensagem);
+export function blockErrors(block: Block, mapa: Mapa): string[] {
+  const errors: string[] = [];
+  const anotar = (message: string): void => {
+    if (!errors.includes(message)) errors.push(message);
   };
-  if (!bloco.$title?.trim()) anotar('Nome do bloco: campo obrigatório.');
-  if ((bloco.$title ?? '').length > LIMITE_DO_TITULO) anotar(`Nome do bloco: no máximo ${LIMITE_DO_TITULO} caracteres.`);
-  for (const e of errosDoConteudo(bloco)) anotar(e);
+  if (!block.$title?.trim()) anotar('Nome do bloco: campo obrigatório.');
+  if ((block.$title ?? '').length > LIMITE_DO_TITULO) anotar(`Nome do bloco: no máximo ${LIMITE_DO_TITULO} caracteres.`);
+  for (const e of contentErrors(block)) anotar(e);
   const existe = (id: string): boolean => id in mapa;
-  for (const saida of bloco.$conditionOutputs ?? []) {
-    for (const e of errosDaSaida(saida, existe)) {
+  for (const saida of block.$conditionOutputs ?? []) {
+    for (const e of outputErrors(saida, existe)) {
       // O Builder mantém o rascunho incompleto no cartão, sem o promover ao alerta do fluxo.
-      if (!ERROS_DE_RASCUNHO_DA_SAIDA.has(e)) anotar(e);
+      if (!ERRORS_OF_RASCUNHO_OF_OUTPUT.has(e)) anotar(e);
     }
   }
-  const padrao = bloco.$defaultOutput?.stateId;
+  const padrao = block.$defaultOutput?.stateId;
   if (padrao && !existe(padrao) && !/^{{.*}}$/.test(padrao)) {
     anotar(`O estado de destino '${padrao}' da saída não existe.`);
   }
-  for (const acao of [...(bloco.$enteringCustomActions ?? []), ...(bloco.$leavingCustomActions ?? [])]) {
-    for (const e of errosDaAcao(acao)) {
+  for (const acao of [...(block.$enteringCustomActions ?? []), ...(block.$leavingCustomActions ?? [])]) {
+    for (const e of actionErrors(acao)) {
       // A extração do Builder marca a URL no cartão ProcessHttp, sem promovê-la ao alerta do fluxo.
       if (acao.type === 'ProcessHttp' && e === 'URL: campo obrigatório.') continue;
       anotar(e);
     }
   }
-  return erros;
+  return errors;
 }
 
 /** Os erros locais de todos os blocos, no mesmo formato dos da `api`. */
-export function errosLocais(mapa: Mapa): ErroDoBloco[] {
-  const lista: ErroDoBloco[] = [];
-  for (const bloco of Object.values(mapa)) {
-    for (const mensagem of errosDoBloco(bloco, mapa)) lista.push({ bloco: bloco.id, mensagem });
+export function errorsLocal(mapa: Mapa): BlockError[] {
+  const lista: BlockError[] = [];
+  for (const block of Object.values(mapa)) {
+    for (const message of blockErrors(block, mapa)) lista.push({ block: block.id, message });
   }
   return lista;
 }
 
 /** Junta listas de erro sem repetir (mesmo bloco, mesma frase). */
-export function juntarErros(...listas: ErroDoBloco[][]): ErroDoBloco[] {
-  const saida: ErroDoBloco[] = [];
+export function juntarErrors(...listas: BlockError[][]): BlockError[] {
+  const saida: BlockError[] = [];
   for (const lista of listas) {
     for (const e of lista) {
-      if (!saida.some((x) => x.bloco === e.bloco && x.mensagem === e.mensagem)) saida.push(e);
+      if (!saida.some((x) => x.block === e.block && x.mensagem === e.mensagem)) saida.push(e);
     }
   }
   return saida;

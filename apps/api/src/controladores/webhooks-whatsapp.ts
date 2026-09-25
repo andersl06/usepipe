@@ -1,12 +1,12 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { resolverCanal, resolverCanalPorIdentificador } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { enfileirarEntrada } from '../filas.js';
+import { resolveChannel, resolveChannelByIdentifier } from '../banco.js';
+import { PipeError } from '../erros.js';
+import { enqueueInbound } from '../filas.js';
 
 /** O corpo cru, guardado pelo `verify` do parser de JSON — a assinatura é sobre ele. */
-export type RequisicaoComCorpoCru = Request & { corpoCru?: Buffer };
+export type RequestWithBodyRaw = Request & { corpoCru?: Buffer };
 
 /**
  * Webhook da Meta.
@@ -21,22 +21,22 @@ export type RequisicaoComCorpoCru = Request & { corpoCru?: Buffer };
  *    a assinatura: os dois são segredo compartilhado.
  */
 @Controller('webhooks/whatsapp')
-export class ControladorWebhookWhatsApp {
+export class WhatsAppWebhookController {
   /** Verificação de inscrição: a Meta chama uma vez, com `hub.challenge`. */
   @Get(':canalId')
   async verificar(
-    @Param('canalId') canalId: string,
+    @Param('canalId') channelId: string,
     @Query('hub.mode') modo: string | undefined,
     @Query('hub.verify_token') token: string | undefined,
     @Query('hub.challenge') desafio: string | undefined,
     @Res() resposta: Response,
   ): Promise<void> {
-    const canal = await resolverCanal(canalId);
-    if (!canal) throw ErroPipe.naoEncontrado('Canal');
+    const canal = await resolveChannel(channelId);
+    if (!canal) throw PipeError.naoEncontrado('Canal');
 
     const esperado = String(canal.config['verifyToken'] ?? process.env['WHATSAPP_VERIFY_TOKEN'] ?? '');
     if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
-      throw new ErroPipe(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
     }
     // A Meta espera o desafio cru, em texto — não JSON.
     resposta.status(200).type('text/plain').send(desafio ?? '');
@@ -46,16 +46,16 @@ export class ControladorWebhookWhatsApp {
   @HttpCode(200)
   async receber(
     @Param('canalId') canalId: string,
-    @Req() requisicao: RequisicaoComCorpoCru,
+    @Req() requisicao: RequestWithBodyRaw,
   ): Promise<{ recebido: true }> {
-    const canal = await resolverCanal(canalId);
-    if (!canal) throw ErroPipe.naoEncontrado('Canal');
-    if (!canal.ativo) throw ErroPipe.conflito('canal_inativo', 'O canal está desativado.');
+    const canal = await resolveChannel(canalId);
+    if (!canal) throw PipeError.naoEncontrado('Canal');
+    if (!canal.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
 
     const segredo = String(canal.config['appSecret'] ?? process.env['WHATSAPP_APP_SECRET'] ?? '');
     if (!segredo) {
       // Sem segredo não há como distinguir a Meta de qualquer um. Recusa fechada.
-      throw new ErroPipe(
+      throw new PipeError(
         403,
         'canal_sem_app_secret',
         'O canal não tem appSecret configurado: sem ele a assinatura não pode ser conferida.',
@@ -64,14 +64,14 @@ export class ControladorWebhookWhatsApp {
 
     const corpo = requisicao.corpoCru;
     if (!corpo) {
-      throw new ErroPipe(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+      throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
     }
     if (!assinaturaConfere(segredo, corpo, requisicao.header('x-hub-signature-256'))) {
-      throw new ErroPipe(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
     }
 
     // Enfileira e responde. Processar aqui dentro é o que faz a Meta reenviar.
-    await enfileirarEntrada(canalId, requisicao.body);
+    await enqueueInbound(canalId, requisicao.body);
     return { recebido: true };
   }
 
@@ -98,7 +98,7 @@ export class ControladorWebhookWhatsApp {
    * passa, e sem ele não chega template rejeitado nem queda de qualidade.
    */
   @Get()
-  async verificarDaConta(
+  async checkOfAccount(
     @Query('hub.mode') modo: string | undefined,
     @Query('hub.verify_token') token: string | undefined,
     @Query('hub.challenge') desafio: string | undefined,
@@ -106,45 +106,45 @@ export class ControladorWebhookWhatsApp {
   ): Promise<void> {
     const esperado = process.env['WHATSAPP_VERIFY_TOKEN'] ?? '';
     if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
-      throw new ErroPipe(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
     }
     resposta.status(200).type('text/plain').send(desafio ?? '');
   }
 
   @Post()
   @HttpCode(200)
-  async receberDaConta(@Req() requisicao: RequisicaoComCorpoCru): Promise<{ recebido: true }> {
-    const segredo = process.env['WHATSAPP_APP_SECRET'] ?? '';
-    if (!segredo) {
-      throw new ErroPipe(
+  async receiveOfAccount(@Req() request: RequestWithBodyRaw): Promise<{ recebido: true }> {
+    const secret = process.env['WHATSAPP_APP_SECRET'] ?? '';
+    if (!secret) {
+      throw new PipeError(
         403,
         'app_sem_secret',
         'WHATSAPP_APP_SECRET não está definida: sem ela a assinatura não pode ser conferida.',
       );
     }
 
-    const corpo = requisicao.corpoCru;
-    if (!corpo) throw new ErroPipe(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
-    if (!assinaturaConfere(segredo, corpo, requisicao.header('x-hub-signature-256'))) {
-      throw new ErroPipe(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+    const corpo = request.corpoCru;
+    if (!corpo) throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+    if (!assinaturaConfere(secret, corpo, request.header('x-hub-signature-256'))) {
+      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
     }
 
-    for (const entrada of identificarEntradas(requisicao.body)) {
-      const canal = await resolverCanalPorIdentificador(entrada.numeroId, entrada.wabaId);
-      if (!canal) {
+    for (const inbound of identificarEntradas(request.body)) {
+      const channel = await resolveChannelByIdentifier(inbound.numeroId, inbound.wabaId);
+      if (!channel) {
         // Sem dono: outro aplicativo, ou canal já removido. Fica no log e morre aqui.
         console.warn(
-          `[webhook] evento de conta sem canal correspondente (waba=${entrada.wabaId ?? '—'}, numero=${entrada.numeroId ?? '—'})`,
+          `[webhook] evento de conta sem canal correspondente (waba=${inbound.wabaId ?? '—'}, numero=${inbound.numeroId ?? '—'})`,
         );
         continue;
       }
-      await enfileirarEntrada(canal.id, entrada.corpo);
+      await enqueueInbound(channel.id, inbound.corpo);
     }
     return { recebido: true };
   }
 }
 
-interface EntradaIdentificada {
+interface InboundIdentified {
   wabaId: string | undefined;
   numeroId: string | undefined;
   corpo: unknown;
@@ -158,7 +158,7 @@ interface EntradaIdentificada {
  * cliente nesta rota. Tratar o lote como um só levaria o evento de um cliente
  * para a fila de outro — é exatamente o vazamento que a rota por canal não tem.
  */
-export function identificarEntradas(corpo: unknown): EntradaIdentificada[] {
+export function identificarEntradas(corpo: unknown): InboundIdentified[] {
   const raiz = corpo as { entry?: unknown[] } | undefined;
   if (!Array.isArray(raiz?.entry)) return [];
 
@@ -179,12 +179,12 @@ export function identificarEntradas(corpo: unknown): EntradaIdentificada[] {
 }
 
 export function assinaturaConfere(
-  segredo: string,
+  secret: string,
   corpo: Buffer,
   cabecalho: string | undefined,
 ): boolean {
   if (!cabecalho?.startsWith('sha256=')) return false;
-  const calculada = createHmac('sha256', segredo).update(corpo).digest('hex');
+  const calculada = createHmac('sha256', secret).update(corpo).digest('hex');
   return igual(cabecalho.slice('sha256='.length), calculada);
 }
 

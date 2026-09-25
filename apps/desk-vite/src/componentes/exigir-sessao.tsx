@@ -1,5 +1,5 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useSessao } from '../contexto/sessao';
+import { useSession } from '../contexto/sessao';
 
 /**
  * O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para
@@ -10,8 +10,8 @@ import { useSessao } from '../contexto/sessao';
  * pergunta não voltou, não desenha nada: mostrar a tela e depois tirá-la é
  * pior que um instante em branco.
  */
-export function ExigirSessao() {
-  const { eu } = useSessao();
+export function ExigirSession() {
+  const { eu } = useSession();
   const { pathname, search } = useLocation();
   if (eu === undefined) {
     return (
@@ -21,8 +21,8 @@ export function ExigirSessao() {
     );
   }
   if (eu === null) {
-    const destino = pathname + search;
-    return <Navigate to={`/entrar?destino=${encodeURIComponent(destino)}`} replace />;
+    const destination = pathname + search;
+    return <Navigate to={`/entrar?destino=${encodeURIComponent(destination)}`} replace />;
   }
   return <Outlet />;
 }

@@ -11,7 +11,7 @@ import { IconePortal } from '../../componentes/icones-portal';
  * Subfluxo são recursos de plano da Blip sem motor por trás aqui.
  */
 
-export function MenuNovoBloco({
+export function MenuNewBlock({
   onPadrao,
   onHumano,
   onFechar,

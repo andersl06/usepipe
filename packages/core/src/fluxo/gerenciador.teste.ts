@@ -7,34 +7,34 @@
  * existe no Pipe); as asserções olham o contexto e o que saiu, e não chamadas de mock.
  */
 import { describe, expect, it } from 'vitest';
-import { criarEntrada } from './contexto.js';
-import type { Contexto, MensagemDeSaida } from './contexto.js';
+import { createInbound } from './contexto.js';
+import type { Context, OutputMessage } from './contexto.js';
 import {
-  ErroDeProcessamentoDeSaida,
-  ErroDoMotor,
+  ProcessingOutputError,
+  MotorError,
   SuspensaoDeProcessHttp,
-  processarEntrada,
+  processarInbound,
 } from './gerenciador.js';
-import type { Acao, Estado, FluxoBlip } from './modelos.js';
+import type { Acao, State, FlowBlip } from './modelos.js';
 
-const FLUXO_ID = 'f1';
-const CHAVE_ESTADO = `stateId@${FLUXO_ID}`;
+const FLOW_ID = 'f1';
+const KEY_STATE = `stateId@${FLOW_ID}`;
 
-function servicosFalsos(falharAtendimento = false) {
-  const enviadas: MensagemDeSaida[] = [];
-  const atendimentos: unknown[] = [];
+function servicosFalsos(falharAttendance = false) {
+  const enviadas: OutputMessage[] = [];
+  const attendances: unknown[] = [];
   const eventos: unknown[] = [];
   return {
     enviadas,
-    atendimentos,
+    attendances,
     eventos,
     servicos: {
-      async enviar(m: MensagemDeSaida) {
+      async enviar(m: OutputMessage) {
         enviadas.push(m);
       },
-      async encaminharParaAtendimento(p: unknown) {
-        if (falharAtendimento) throw new Error('fila fechada');
-        atendimentos.push(p);
+      async encaminharForAttendance(p: unknown) {
+        if (falharAttendance) throw new Error('fila fechada');
+        attendances.push(p);
         return { id: 'atd-1', status: 'Open' };
       },
       async registrarEvento(e: Record<string, unknown>) {
@@ -45,36 +45,36 @@ function servicosFalsos(falharAtendimento = false) {
 }
 
 async function rodar(
-  states: Estado[],
+  states: State[],
   conteudo: unknown,
-  opcoes: {
-    variaveis?: Record<string, string>;
+  options: {
+    variables?: Record<string, string>;
     tipo?: string;
-    falharAtendimento?: boolean;
-    contato?: Record<string, unknown>;
+    falharAttendance?: boolean;
+    contact?: Record<string, unknown>;
   } = {},
 ) {
-  const f = servicosFalsos(opcoes.falharAtendimento);
-  const fluxo: FluxoBlip = { id: FLUXO_ID, states };
-  const variaveis = opcoes.variaveis ?? {};
-  const contexto: Contexto = {
-    usuario: 'user@domain',
-    fluxo,
-    entrada: criarEntrada({ id: 'm1', tipo: opcoes.tipo ?? 'text/plain', conteudo }),
-    variaveis,
-    entradaContexto: new Map(),
-    contato: opcoes.contato ?? null,
-    servicos: f.servicos,
+  const f = servicosFalsos(options.falharAttendance);
+  const flow: FlowBlip = { id: FLOW_ID, states };
+  const variables = options.variables ?? {};
+  const context: Context = {
+    user: 'user@domain',
+    flow,
+    inbound: createInbound({ id: 'm1', tipo: options.tipo ?? 'text/plain', conteudo }),
+    variables,
+    inboundContext: new Map(),
+    contact: options.contact ?? null,
+    services: f.servicos,
   };
-  const rastro = await processarEntrada(contexto);
-  return { ...f, rastro, variaveis, textos: f.enviadas.map((m) => m.conteudo) };
+  const rastro = await processarInbound(context);
+  return { ...f, rastro, variables, textos: f.enviadas.map((m) => m.conteudo) };
 }
 
 const enviar = (conteudo: string): Acao => ({
   type: 'SendMessage',
   settings: { type: 'text/plain', content: conteudo },
 });
-const raiz = (outputs: Estado['outputs'], extra: Partial<Estado> = {}): Estado => ({
+const raiz = (outputs: State['outputs'], extra: Partial<State> = {}): State => ({
   id: 'root',
   root: true,
   input: {},
@@ -85,8 +85,8 @@ const raiz = (outputs: Estado['outputs'], extra: Partial<Estado> = {}): Estado =
 describe('FlowManager.ProcessInputAsync', () => {
   it('suspende antes do ProcessHttp e retoma depois da ação sem repetir a mensagem anterior', async () => {
     const enviados: string[] = [];
-    const fluxo: FluxoBlip = {
-      id: FLUXO_ID,
+    const flow: FlowBlip = {
+      id: FLOW_ID,
       states: [{
         id: 'root',
         root: true,
@@ -98,37 +98,37 @@ describe('FlowManager.ProcessInputAsync', () => {
         outputs: [],
       }],
     };
-    const variaveis: Record<string, string> = { nome: 'Ana' };
+    const variables: Record<string, string> = { nome: 'Ana' };
     const base = {
-      usuario: 'user@domain',
-      fluxo,
-      entrada: criarEntrada({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
-      variaveis,
-      entradaContexto: new Map(),
-      contato: null,
-      servicos: {
-        async enviar(m: MensagemDeSaida) { enviados.push(String(m.conteudo)); },
-        async encaminharParaAtendimento() { return { id: 'atd-1', status: 'Open' }; },
-        async registrarEvento() {},
-        async chamarHttp() { return { status: 200, corpo: '{}' }; },
-        async suspenderHttp(pedido: unknown, cursor: unknown): Promise<never> {
+      user: 'user@domain',
+      flow,
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables,
+      inboundContext: new Map(),
+      contact: null,
+      services: {
+        async send(m: OutputMessage) { enviados.push(String(m.conteudo)); },
+        async encaminharForAttendance() { return { id: 'atd-1', status: 'Open' }; },
+        async registerEvent() {},
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp(pedido: unknown, cursor: unknown): Promise<never> {
           throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
         },
       },
-    } satisfies Contexto;
+    } satisfies Context;
 
-    await expect(processarEntrada(base)).rejects.toMatchObject({ pedido: {
+    await expect(processarInbound(base)).rejects.toMatchObject({ pedido: {
       url: 'https://cliente.test/Ana',
     } });
     expect(enviados).toEqual(['Antes']);
 
-    await processarEntrada({
+    await processarInbound({
       ...base,
-      entradaContexto: new Map(),
-      servicos: {
+      inboundContext: new Map(),
+      services: {
         ...base.servicos,
-        async chamarHttp() { return { status: 200, corpo: '{}' }; },
-        async suspenderHttp() { throw new Error('não deveria suspender de novo'); },
+        async callHttp() { return { status: 200, corpo: '{}' }; },
+        async suspendHttp() { throw new Error('não deveria suspender de novo'); },
       },
     }, {
       retomarProcessHttp: {
@@ -137,7 +137,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       },
     });
     expect(enviados).toEqual(['Antes', 'Depois']);
-    expect(variaveis.status).toBe('200');
+    expect(variables.status).toBe('200');
   });
 
   it('sem condição troca de estado, manda a mensagem e, sem saída, apaga o estado', async () => {
@@ -146,9 +146,9 @@ describe('FlowManager.ProcessInputAsync', () => {
       'Ping!',
     );
     expect(r.textos).toEqual(['Pong!']);
-    expect(r.variaveis[CHAVE_ESTADO]).toBeUndefined();
-    expect(r.variaveis[`previous-stateId@${FLUXO_ID}`]).toBe('ping');
-    expect(r.rastro.estados.map((e) => e.estadoId)).toEqual(['root', 'ping']);
+    expect(r.variaveis[KEY_STATE]).toBeUndefined();
+    expect(r.variaveis[`previous-stateId@${FLOW_ID}`]).toBe('ping');
+    expect(r.rastro.estados.map((e) => e.stateId)).toEqual(['root', 'ping']);
   });
 
   it('troca a variável do texto pelo valor', async () => {
@@ -159,14 +159,14 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Ping!',
       {
-        variaveis: { variableName1: 'OutputVariable value 1' },
+        variables: { variableName1: 'OutputVariable value 1' },
       },
     );
     expect(r.textos).toEqual(['Hello OutputVariable value 1!']);
   });
 
   it('variável com JSON é escapada e trocada sem quebrar as configurações', async () => {
-    const valor = '{"propertyName1":"propertyValue1","propertyName2":2}';
+    const value = '{"propertyName1":"propertyValue1","propertyName2":2}';
     const r = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -174,10 +174,10 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Ping!',
       {
-        variaveis: { variableName1: valor },
+        variables: { variableName1: value },
       },
     );
-    expect(r.textos).toEqual([`Hello ${valor}!`]);
+    expect(r.textos).toEqual([`Hello ${value}!`]);
   });
 
   it('variável que não existe vira vazio', async () => {
@@ -199,14 +199,14 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'x',
       {
-        variaveis: { pedido: '{"cliente":{"nome":"Ana"}}' },
+        variables: { pedido: '{"cliente":{"nome":"Ana"}}' },
       },
     );
     expect(r.textos).toEqual(['Ana']);
   });
 
   it('TrackEvent com fonte de variável inválida quebra o processamento', async () => {
-    const erro = await rodar(
+    const error = await rodar(
       [
         raiz(null, {
           outputActions: [
@@ -216,24 +216,24 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Ping!',
     ).catch((e: unknown) => e);
-    expect(erro).toBeInstanceOf(ErroDoMotor);
-    expect((erro as Error).message).toContain('TrackEvent');
+    expect(error).toBeInstanceOf(MotorError);
+    expect((error as Error).message).toContain('TrackEvent');
   });
 
   it('onze transições sem entrada estouram o limite de 10 (MaxTransitionsByInput)', async () => {
-    const estados: Estado[] = [raiz([{ stateId: 't2' }])];
+    const estados: State[] = [raiz([{ stateId: 't2' }])];
     for (let i = 2; i <= 10; i++)
       estados.push({ id: `t${i}`, outputs: [{ stateId: `t${i + 1}` }] });
     estados.push({ id: 't11' });
-    const erro = await rodar(estados, 'Ping!').catch((e: unknown) => e);
-    expect(erro).toBeInstanceOf(ErroDoMotor);
-    expect((erro as Error).message).toContain('limite de 10 transições');
+    const error = await rodar(estados, 'Ping!').catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(MotorError);
+    expect((error as Error).message).toContain('limite de 10 transições');
   });
 
   it('input.variable grava a entrada no contexto', async () => {
     const r = await rodar([{ id: 'root', root: true, input: { variable: 'MyVariable' } }], 'Ping!');
     expect(r.variaveis['MyVariable']).toBe('Ping!');
-    expect(r.variaveis[CHAVE_ESTADO]).toBeUndefined();
+    expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
   it('estado com bypass não grava input.variable', async () => {
@@ -255,14 +255,14 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Hi!',
       {
-        contato: { name: 'Bob' },
+        contact: { name: 'Bob' },
       },
     );
     expect(r.textos).toEqual(['Hello, Bob']);
   });
 
   it('condição de contexto escolhe a saída', async () => {
-    const estados: Estado[] = [
+    const estados: State[] = [
       raiz(
         [
           {
@@ -284,12 +284,12 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.variaveis['Word']).toBe('Ping!');
   });
 
-  const estadosComCondicaoDeEntrada = (valor: string): Estado[] => [
+  const inboundStatesWithCondition = (value: string): State[] => [
     raiz([{ stateId: 'Start' }]),
     {
       id: 'Start',
       input: { conditions: [{ source: 'context', variable: 'InputIsValid', values: ['true'] }] },
-      inputActions: [{ type: 'SetVariable', settings: { variable: 'InputIsValid', value: valor } }],
+      inputActions: [{ type: 'SetVariable', settings: { variable: 'InputIsValid', value: value } }],
       outputs: [
         {
           stateId: 'Ok',
@@ -308,19 +308,19 @@ describe('FlowManager.ProcessInputAsync', () => {
   ];
 
   it('condição de entrada satisfeita: fica no estado esperando', async () => {
-    const r = await rodar(estadosComCondicaoDeEntrada('true'), 'OK!');
-    expect(r.variaveis[CHAVE_ESTADO]).toBe('Start');
+    const r = await rodar(inboundStatesWithCondition('true'), 'OK!');
+    expect(r.variaveis[KEY_STATE]).toBe('Start');
     expect(r.textos).toEqual([]);
   });
 
   it('condição de entrada não satisfeita: não espera, segue pelas saídas', async () => {
-    const r = await rodar(estadosComCondicaoDeEntrada('false'), 'NOK!');
+    const r = await rodar(inboundStatesWithCondition('false'), 'NOK!');
     expect(r.textos).toEqual(['NOK']);
-    expect(r.variaveis[CHAVE_ESTADO]).toBeUndefined();
+    expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
   it('duas entradas em sequência com o mesmo contexto', async () => {
-    const estados: Estado[] = [
+    const estados: State[] = [
       raiz([
         { stateId: 'marco', conditions: [{ values: ['Marco!'] }] },
         { stateId: 'ping', conditions: [{ values: ['Ping!'] }] },
@@ -328,9 +328,9 @@ describe('FlowManager.ProcessInputAsync', () => {
       { id: 'ping', inputActions: [enviar('Pong!')] },
       { id: 'marco', inputActions: [enviar('Polo!')] },
     ];
-    const variaveis: Record<string, string> = {};
-    const a = await rodar(estados, 'Ping!', { variaveis });
-    const b = await rodar(estados, 'Marco!', { variaveis });
+    const variables: Record<string, string> = {};
+    const a = await rodar(estados, 'Ping!', { variables });
+    const b = await rodar(estados, 'Marco!', { variables });
     expect([...a.textos, ...b.textos]).toEqual(['Pong!', 'Polo!']);
   });
 
@@ -349,34 +349,34 @@ describe('FlowManager.ProcessInputAsync', () => {
       'Ping!',
     );
     expect(r.textos).toEqual(['Pong!']);
-    expect(r.rastro.estados[1]!.acoes[0]).toMatchObject({ tipo: 'SetVariable', esquecida: true });
+    expect(r.rastro.estados[1]!.actions[0]).toMatchObject({ tipo: 'SetVariable', esquecida: true });
   });
 
   it('sem continueOnError a ação que falhou quebra o processamento', async () => {
-    const erro = await rodar(
+    const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
         { id: 'ping', inputActions: [{ type: 'SetVariable', settings: {} }] },
       ],
       'Ping!',
     ).catch((e: unknown) => e);
-    expect((erro as Error).message).toContain("ação 'SetVariable' falhou");
+    expect((error as Error).message).toContain("ação 'SetVariable' falhou");
   });
 
   it('ação sem implementação no Pipe (ExecuteScript) quebra o processamento', async () => {
-    const erro = await rodar(
+    const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
         { id: 'ping', inputActions: [{ type: 'ExecuteScript', settings: {} }] },
       ],
       'x',
     ).catch((e: unknown) => e);
-    expect(erro).toBeInstanceOf(ErroDoMotor);
-    expect((erro as Error).message).toContain("'ExecuteScript' não existe no Pipe");
+    expect(error).toBeInstanceOf(MotorError);
+    expect((error as Error).message).toContain("'ExecuteScript' não existe no Pipe");
   });
 
   it('validação de entrada: fora da regra manda o erro e fica no estado', async () => {
-    const estados: Estado[] = [
+    const estados: State[] = [
       raiz([{ stateId: 'idade' }]),
       {
         id: 'idade',
@@ -386,19 +386,19 @@ describe('FlowManager.ProcessInputAsync', () => {
       },
       { id: 'fim', inputActions: [enviar('Obrigado.')] },
     ];
-    const variaveis: Record<string, string> = {};
-    await rodar(estados, 'oi', { variaveis });
-    const errado = await rodar(estados, 'vinte', { variaveis });
+    const variables: Record<string, string> = {};
+    await rodar(estados, 'oi', { variables });
+    const errado = await rodar(estados, 'vinte', { variables });
     expect(errado.textos).toEqual(['Só números.']);
-    expect(variaveis[CHAVE_ESTADO]).toBe('idade');
-    const certo = await rodar(estados, '20', { variaveis });
+    expect(variables[KEY_STATE]).toBe('idade');
+    const certo = await rodar(estados, '20', { variables });
     expect(certo.textos).toEqual(['Obrigado.']);
-    expect(variaveis['idade']).toBe('20');
+    expect(variables['idade']).toBe('20');
   });
 });
 
 describe('OutputConditions', () => {
-  const pingMarco: Estado[] = [
+  const pingMarco: State[] = [
     raiz([
       { stateId: 'marco', conditions: [{ values: ['Marco!'] }] },
       { stateId: 'ping', conditions: [{ values: ['Ping!'] }] },
@@ -413,9 +413,9 @@ describe('OutputConditions', () => {
   });
 
   it('nenhuma saída casa: apaga o estado e não manda nada', async () => {
-    const r = await rodar(pingMarco, 'XPTO!', { variaveis: { [CHAVE_ESTADO]: 'root' } });
+    const r = await rodar(pingMarco, 'XPTO!', { variables: { [KEY_STATE]: 'root' } });
     expect(r.textos).toEqual([]);
-    expect(r.variaveis[CHAVE_ESTADO]).toBeUndefined();
+    expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
   it('matches sobre variável de contexto', async () => {
@@ -446,7 +446,7 @@ describe('OutputConditions', () => {
     expect(r.textos).toEqual(['Pong!']);
   });
 
-  const estadoPorVariavel: Estado[] = [
+  const stateByVariable: State[] = [
     raiz([
       { stateId: '{{variableWithState}}', conditions: [{ source: 'input', comparison: 'exists' }] },
     ]),
@@ -454,45 +454,45 @@ describe('OutputConditions', () => {
   ];
 
   it('destino {{variável}} vai para o estado que a variável diz', async () => {
-    const r = await rodar(estadoPorVariavel, 'hello', {
-      variaveis: { variableWithState: 'state2' },
+    const r = await rodar(stateByVariable, 'hello', {
+      variables: { variableWithState: 'state2' },
     });
-    expect(r.rastro.estados.map((e) => e.estadoId)).toEqual(['root', 'state2']);
+    expect(r.rastro.estados.map((e) => e.stateId)).toEqual(['root', 'state2']);
   });
 
   it.each([[undefined], [''], ['  '], ['inexistent state']])(
     'destino {{variável}} inválido (%s) é erro',
-    async (valor) => {
-      const variaveis: Record<string, string> =
-        valor === undefined ? {} : { variableWithState: valor };
-      const erro = await rodar(estadoPorVariavel, 'hello', { variaveis }).catch((e: unknown) => e);
-      expect(erro).toBeInstanceOf(ErroDoMotor);
-      expect((erro as ErroDoMotor).cause).toBeInstanceOf(ErroDeProcessamentoDeSaida);
+    async (value) => {
+      const variables: Record<string, string> =
+        value === undefined ? {} : { variableWithState: value };
+      const error = await rodar(stateByVariable, 'hello', { variables }).catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(MotorError);
+      expect((error as MotorError).cause).toBeInstanceOf(ProcessingOutputError);
     },
   );
 });
 
 describe('ActionConditions', () => {
-  const doisEstados = (acoes: Partial<Estado>, onde: 'root' | 'ping'): Estado[] => [
+  const doisEstados = (actions: Partial<State>, onde: 'root' | 'ping'): State[] => [
     raiz(
       [
         { stateId: 'ping', conditions: [{ values: ['Ping!'] }] },
         { stateId: 'pong', conditions: [{ values: ['Pong!'] }] },
       ],
-      onde === 'root' ? acoes : {},
+      onde === 'root' ? actions : {},
     ),
     {
       id: 'ping',
         input: {},
       outputs: [{ stateId: 'pong', conditions: [{ values: ['Pong!'] }] }],
-      ...(onde === 'ping' ? acoes : {}),
+      ...(onde === 'ping' ? actions : {}),
     },
     { id: 'pong', input: {}, outputs: [{ stateId: 'ping', conditions: [{ values: ['Ping!'] }] }] },
   ];
-  const marcar = (nome: string, valor: string): Acao => ({
+  const marcar = (nome: string, value: string): Acao => ({
     type: 'SetVariable',
     settings: { variable: nome, value: 'sim' },
-    conditions: [{ values: [valor] }],
+    conditions: [{ values: [value] }],
   });
 
   it('ação de entrada só roda quando a condição casa', async () => {
@@ -529,7 +529,7 @@ describe('ActionConditions', () => {
 });
 
 describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
-  const deskStates: Estado[] = [
+  const deskStates: State[] = [
     raiz([{ stateId: 'desk:suporte' }]),
     {
       id: 'desk:suporte',
@@ -571,31 +571,31 @@ describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
     const r = await rodar(deskStates, 'quero falar com alguém');
     expect(r.atendimentos).toHaveLength(1);
     expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Success');
-    expect(r.variaveis[CHAVE_ESTADO]).toBe('desk:suporte');
+    expect(r.variaveis[KEY_STATE]).toBe('desk:suporte');
     expect(r.textos).toEqual([]);
   });
 
   it('o ticket encerrado pelo atendente é a entrada que destrava o bloco', async () => {
-    const variaveis: Record<string, string> = {};
-    await rodar(deskStates, 'quero falar com alguém', { variaveis });
+    const variables: Record<string, string> = {};
+    await rodar(deskStates, 'quero falar com alguém', { variables });
     const r = await rodar(
       deskStates,
       { id: 'atd-1', status: 'ClosedAttendant' },
-      { variaveis, tipo: 'application/vnd.iris.ticket+json' },
+      { variables, tipo: 'application/vnd.iris.ticket+json' },
     );
     expect(r.textos).toEqual(['Atendimento encerrado.']);
-    expect(variaveis[CHAVE_ESTADO]).toBe('pos');
+    expect(variables[KEY_STATE]).toBe('pos');
   });
 
   it('encaminhamento que falha vira Error e segue pela saída padrão do atendimento', async () => {
-    const r = await rodar(deskStates, 'quero falar com alguém', { falharAtendimento: true });
+    const r = await rodar(deskStates, 'quero falar com alguém', { falharAttendance: true });
     expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Error');
     expect(r.textos).toEqual(['Sem atendente agora.']);
   });
 });
 
 describe('Redirect (serviço do roteador)', () => {
-  const redirecionar = (address: string): Estado[] => [
+  const redirecionar = (address: string): State[] => [
     raiz([{ stateId: 'vai' }]),
     {
       id: 'vai',
@@ -609,27 +609,27 @@ describe('Redirect (serviço do roteador)', () => {
   it('pede ao roteador o serviço pelo nome, com o contexto junto', async () => {
     const pedidos: unknown[] = [];
     const f = servicosFalsos();
-    const contexto: Contexto = {
-      usuario: 'user@domain',
-      fluxo: { id: FLUXO_ID, states: redirecionar('{{destino}}') },
-      entrada: criarEntrada({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
-      variaveis: { destino: 'suporte' },
-      entradaContexto: new Map(),
-      servicos: {
+    const context: Context = {
+      user: 'user@domain',
+      flow: { id: FLOW_ID, states: redirecionar('{{destino}}') },
+      inbound: createInbound({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variables: { destino: 'suporte' },
+      inboundContext: new Map(),
+      services: {
         ...f.servicos,
-        async redirecionar(p) {
+        async redirect(p) {
           pedidos.push(p);
         },
       },
     };
-    await processarEntrada(contexto);
+    await processarInbound(context);
     expect(pedidos).toEqual([
       { endereco: 'suporte', contexto: { type: 'text/plain', value: 'x' } },
     ]);
   });
 
   it('fora do roteador, o Redirect falha — na Blip vai para o bloco de exceções', async () => {
-    await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(ErroDoMotor);
+    await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(MotorError);
   });
 
   it('sem address, falha antes de redirecionar', async () => {

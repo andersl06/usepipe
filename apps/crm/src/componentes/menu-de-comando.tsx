@@ -89,7 +89,7 @@ export function MenuDeComando() {
   }, [termo, aberto]);
 
   /** Agrupado por objeto, na ordem fixa do rótulo — a mesma da lateral. */
-  const grupos = useMemo(() => {
+  const groups = useMemo(() => {
     const mapa = new Map<TipoDeResultado, Resultado[]>();
     for (const r of resultados) {
       const lista = mapa.get(r.tipo) ?? [];
@@ -131,7 +131,7 @@ export function MenuDeComando() {
 
   if (!aberto) return null;
 
-  let posicao = -1;
+  let position = -1;
 
   return (
     <>
@@ -165,12 +165,12 @@ export function MenuDeComando() {
           ) : resultados.length === 0 ? (
             <p className="c-cmd-dica">Nada encontrado para “{termo.trim()}”.</p>
           ) : (
-            grupos.map(([tipo, itens]) => (
+            groups.map(([tipo, itens]) => (
               <div key={tipo}>
                 <div className="c-cmd-grupo">{ROTULO_DO_TIPO[tipo]}</div>
                 {itens.map((r) => {
-                  posicao += 1;
-                  const atual = posicao;
+                  position += 1;
+                  const atual = position;
                   return (
                     <button
                       key={`${r.tipo}-${r.id}`}

@@ -5,14 +5,14 @@
  */
 import { describe, expect, it } from 'vitest';
 import {
-  avaliarCondicaoBlip,
+  avaliarConditionBlip,
   delegadoBinario,
   delegadoUnario,
-  validarCondicao,
+  validateCondition,
 } from './condicao.js';
-import type { CondicaoBlip } from './condicao.js';
-import { criarEntrada } from './contexto.js';
-import type { Contexto } from './contexto.js';
+import type { ConditionBlip } from './condicao.js';
+import { createInbound } from './contexto.js';
+import type { Context } from './contexto.js';
 
 describe('ConditionComparison', () => {
   const binarios: [string, string, string, boolean][] = [
@@ -39,8 +39,8 @@ describe('ConditionComparison', () => {
     ['approximateTo', 'Value 1', 'Vilue X', true],
     ['approximateTo', 'Value 1', 'Hello world', false],
   ];
-  it.each(binarios)('%s("%s", "%s") = %s', (comparacao, v1, v2, esperado) => {
-    expect(delegadoBinario(comparacao as never)(v1, v2)).toBe(esperado);
+  it.each(binarios)('%s("%s", "%s") = %s', (comparison, v1, v2, esperado) => {
+    expect(delegadoBinario(comparison as never)(v1, v2)).toBe(esperado);
   });
 
   const unarios: [string, string | null, boolean][] = [
@@ -51,50 +51,50 @@ describe('ConditionComparison', () => {
     ['notExists', '', true],
     ['notExists', null, true],
   ];
-  it.each(unarios)('%s(%s) = %s', (comparacao, v, esperado) => {
-    expect(delegadoUnario(comparacao as never)(v)).toBe(esperado);
+  it.each(unarios)('%s(%s) = %s', (comparison, v, esperado) => {
+    expect(delegadoUnario(comparison as never)(v)).toBe(esperado);
   });
 });
 
 describe('Condition.Validate', () => {
   it('condição válida passa', () => {
     expect(() =>
-      validarCondicao({ source: 'context', variable: 'variable', values: ['value'] }),
+      validateCondition({ source: 'context', variable: 'variable', values: ['value'] }),
     ).not.toThrow();
   });
   it('sem valor falha', () => {
-    expect(() => validarCondicao({ source: 'context', variable: 'variable' })).toThrow(
+    expect(() => validateCondition({ source: 'context', variable: 'variable' })).toThrow(
       'A condição precisa de valores quando a comparação não é exists nem notExists.',
     );
   });
   it('fonte contexto sem variável falha', () => {
-    expect(() => validarCondicao({ source: 'context', values: ['value'] })).toThrow(
+    expect(() => validateCondition({ source: 'context', values: ['value'] })).toThrow(
       'O nome da variável é obrigatório quando a fonte da comparação é o contexto.',
     );
   });
   it('fonte entidade sem entidade falha', () => {
-    expect(() => validarCondicao({ source: 'entity', values: ['value'] })).toThrow(
+    expect(() => validateCondition({ source: 'entity', values: ['value'] })).toThrow(
       'O nome da entidade é obrigatório quando a fonte da comparação é entidade.',
     );
   });
 });
 
 describe('Condition.EvaluateConditionAsync', () => {
-  const contexto = (texto: string): Contexto => ({
-    usuario: 'u',
-    fluxo: { id: 'f', states: [] },
-    entrada: criarEntrada({ id: 'm', tipo: 'text/plain', conteudo: texto }),
-    variaveis: {},
-    entradaContexto: new Map(),
-    servicos: {
-      enviar: async () => {},
-      encaminharParaAtendimento: async () => ({ id: 'x' }),
-      registrarEvento: async () => {},
+  const context = (texto: string): Context => ({
+    user: 'u',
+    flow: { id: 'f', states: [] },
+    inbound: createInbound({ id: 'm', tipo: 'text/plain', conteudo: texto }),
+    variables: {},
+    inboundContext: new Map(),
+    services: {
+      send: async () => {},
+      encaminharForAttendance: async () => ({ id: 'x' }),
+      registerEvent: async () => {},
     },
   });
-  const avaliar = (c: CondicaoBlip, texto: string) => {
-    const ctx = contexto(texto);
-    return avaliarCondicaoBlip(c, ctx.entrada, ctx);
+  const avaliar = (c: ConditionBlip, texto: string) => {
+    const ctx = context(texto);
+    return avaliarConditionBlip(c, ctx.inbound, ctx);
   };
 
   it('sem fonte é a entrada, sem comparação é equals, e com vários valores basta um (or)', async () => {

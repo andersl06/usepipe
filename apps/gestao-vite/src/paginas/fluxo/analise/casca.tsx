@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router-dom';
-import { BarrasDoContato, baseDoContato, useContato } from '../contato';
-import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, abasDaAnalise } from './abas';
-import { VistaDaAnalise } from './vista';
+import { ContactBarras, contactBase, useContact } from '../contato';
+import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, analyticsAbas } from './abas';
+import { AnalyticsVista } from './vista';
 import './analise.css';
 
 /**
@@ -17,23 +17,23 @@ import './analise.css';
  * O `analytics-redirect-modal` do template NÃO entra: ele só abre com
  * `isShowAnalyticsSuite`, e a flag está `false` para este contrato.
  */
-export function CascaDaAnalise() {
-  const { contato } = useContato();
-  const id = contato.id;
+export function AnalyticsShell() {
+  const { contact } = useContact();
+  const id = contact.id;
 
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Análise" />
+      <ContactBarras ativo="Análise" />
 
       {/* `#main-content-area.main-detail-content.pa0`: sem recuo — quem recua
           é cada aba, com o `.container` dela. */}
       <main className="an-miolo">
-        <VistaDaAnalise
-          base={`${baseDoContato(contato.tipo, id)}/analise`}
-          abas={abasDaAnalise(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
+        <AnalyticsVista
+          base={`${contactBase(contact.tipo, id)}/analise`}
+          abas={analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
         >
           <Outlet />
-        </VistaDaAnalise>
+        </AnalyticsVista>
       </main>
     </div>
   );

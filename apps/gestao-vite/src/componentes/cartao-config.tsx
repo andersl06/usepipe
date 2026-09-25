@@ -22,30 +22,30 @@ import { envioQuePreserva } from './envio-de-formulario';
  * o evento de qualquer campo até o `<form>`.
  */
 
-export interface ResultadoDeCartao {
+export interface CardResult {
   ok: boolean;
-  erro?: string;
+  error?: string;
 }
 
-export interface InterruptorDaSecao {
+export interface SectionInterruptor {
   /** Nome do campo enviado. Só vai no `FormData` quando ligado, como caixa de marcar. */
   name: string;
   rotulo: string;
   ligado: boolean;
 }
 
-export function CartaoConfig({
+export function CardConfig({
   titulo,
-  explicacao,
+  explanation,
   acao,
   interruptor,
   children,
   rodape,
 }: {
   titulo: string;
-  explicacao: ReactNode;
-  acao: (anterior: ResultadoDeCartao, dados: FormData) => Promise<ResultadoDeCartao>;
-  interruptor?: InterruptorDaSecao;
+  explanation: ReactNode;
+  acao: (anterior: CardResult, data: FormData) => Promise<CardResult>;
+  interruptor?: SectionInterruptor;
   children: ReactNode;
   /** Texto à esquerda do Salvar: o que este cartão decide, em uma linha. */
   rodape?: ReactNode;
@@ -71,7 +71,7 @@ export function CartaoConfig({
       <header>
         <div>
           <h3 id={idTitulo}>{titulo}</h3>
-          <p>{explicacao}</p>
+          <p>{explanation}</p>
         </div>
 
         {interruptor ? (
@@ -101,7 +101,7 @@ export function CartaoConfig({
 
       <div className="cartao-config-corpo">{children}</div>
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <footer>
         {rodape ? <span className="sub">{rodape}</span> : null}

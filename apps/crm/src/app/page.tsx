@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Etiqueta } from '@pipe/ui';
-import { fusoDoTenant, janelaDoMes } from '../lib/banco';
-import { carregarIndicadores, leadsPorFase, leadsPorOrigem } from '../lib/painel';
+import { fusoDoTenant, mesWindow } from '../lib/banco';
+import { carregarIndicadores, leadsByFase, leadsByOrigem } from '../lib/painel';
 import { carregarFunil } from '../lib/funil';
-import { dinheiro, dinheiroCurto, numero, percentual } from '../lib/formato';
+import { money, moneyCurto, numero, percentual } from '../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,7 +14,7 @@ export const dynamic = 'force-dynamic';
  * alguém resolva clicando, e pintar de vermelho o que a pessoa não pode
  * consertar é o que gasta a cor antes da hora.
  */
-function Variacao({ atual, anterior }: { atual: number; anterior: number }) {
+function Variation({ atual, anterior }: { atual: number; anterior: number }) {
   if (anterior === 0) return null;
   const delta = (atual - anterior) / anterior;
   return (
@@ -25,14 +25,14 @@ function Variacao({ atual, anterior }: { atual: number; anterior: number }) {
   );
 }
 
-export default async function PaginaPainel() {
+export default async function PagePanel() {
   const fuso = await fusoDoTenant();
-  const mes = await janelaDoMes(fuso);
-  const mesAnterior = await janelaDoMes(fuso, 1);
+  const mes = await mesWindow(fuso);
+  const mesAnterior = await mesWindow(fuso, 1);
   const ind = await carregarIndicadores(mes, mesAnterior);
   const funil = await carregarFunil();
-  const origens = await leadsPorOrigem(mes);
-  const fases = await leadsPorFase();
+  const origens = await leadsByOrigem(mes);
+  const fases = await leadsByFase();
 
   const nomeDoMes = mes.inicio.toLocaleDateString('pt-BR', {
     timeZone: fuso,
@@ -41,7 +41,7 @@ export default async function PaginaPainel() {
   });
   const taxa = ind.leadsNoMes > 0 ? ind.qualificadosNoMes / ind.leadsNoMes : null;
   const maiorOrigem = origens.reduce((m, o) => Math.max(m, o.n), 0);
-  const maiorColuna = funil.colunas.reduce((m, c) => Math.max(m, c.total), 0);
+  const maiorColumn = funil.colunas.reduce((m, c) => Math.max(m, c.total), 0);
 
   return (
     <>
@@ -59,7 +59,7 @@ export default async function PaginaPainel() {
         <div>
           <b>{numero(ind.leadsNoMes)}</b>
           <span>
-            leads no mês <Variacao atual={ind.leadsNoMes} anterior={ind.leadsNoMesAnterior} />
+            leads no mês <Variation atual={ind.leadsNoMes} anterior={ind.leadsNoMesAnterior} />
           </span>
         </div>
         <div>
@@ -69,21 +69,21 @@ export default async function PaginaPainel() {
           </span>
         </div>
         <div>
-          <b>{numero(ind.oportunidadesAbertas)}</b>
+          <b>{numero(ind.opportunitiesAbertas)}</b>
           <span>
             oportunidades abertas
             {ind.diasMediosAbertas === null ? '' : ` · ${numero(ind.diasMediosAbertas)} dias em média`}
           </span>
         </div>
         <div>
-          <b>{dinheiroCurto(ind.emNegociacao)}</b>
-          <span>em negociação · {dinheiroCurto(ind.valorPonderado)} ponderado</span>
+          <b>{moneyCurto(ind.inNegotiation)}</b>
+          <span>em negociação · {moneyCurto(ind.valuePonderado)} ponderado</span>
         </div>
         <div>
-          <b>{dinheiroCurto(ind.fechadoNoMes)}</b>
+          <b>{moneyCurto(ind.fechadoNoMes)}</b>
           <span>
             fechado no mês{' '}
-            <Variacao atual={ind.fechadoNoMes} anterior={ind.fechadoNoMesAnterior} />
+            <Variation atual={ind.fechadoNoMes} anterior={ind.fechadoNoMesAnterior} />
           </span>
         </div>
       </div>
@@ -93,7 +93,7 @@ export default async function PaginaPainel() {
         <header>
           <h3>Funil de oportunidades</h3>
           <span className="sub">
-            {numero(funil.quantidadeGeral)} abertas · {dinheiro(funil.totalGeral)}
+            {numero(funil.quantityGeneral)} abertas · {money(funil.totalGeral)}
           </span>
           <Link href="/oportunidades" className="btn" style={{ marginLeft: 'auto' }}>
             Abrir o quadro
@@ -107,18 +107,18 @@ export default async function PaginaPainel() {
                 <span
                   className="fill"
                   style={{
-                    width: `${maiorColuna > 0 ? Math.round((c.total / maiorColuna) * 100) : 0}%`,
+                    width: `${maiorColumn > 0 ? Math.round((c.total / maiorColumn) * 100) : 0}%`,
                   }}
                 />
               </span>
-              <span className="valor">{dinheiro(c.total)}</span>
-              <span className="qtd">{numero(c.quantidade)}</span>
+              <span className="valor">{money(c.total)}</span>
+              <span className="qtd">{numero(c.quantity)}</span>
             </div>
           ))}
         </div>
         <footer>
-          Ponderado pela probabilidade da fase: {dinheiro(funil.ponderadoGeral)}. Perdido no mês:{' '}
-          {dinheiro(ind.perdidoNoMes)}.
+          Ponderado pela probabilidade da fase: {money(funil.ponderadoGeral)}. Perdido no mês:{' '}
+          {money(ind.perdidoNoMes)}.
         </footer>
       </div>
 

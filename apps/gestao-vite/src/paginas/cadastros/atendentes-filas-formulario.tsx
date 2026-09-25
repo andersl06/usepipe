@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
-import { salvarFila } from '../../lib/acoes';
+import { salvarQueue } from '../../lib/acoes';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
@@ -28,7 +28,7 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
  * acento (`nomeDeFilaConferido` só exige não-vazio), então ela é orientação e
  * não promessa de validação — está dita assim de propósito.
  */
-export function FormularioFila({
+export function FormularioQueue({
   aoSalvar,
 }: {
   /** Fecha o modal quando o salvamento dá certo. */
@@ -38,13 +38,13 @@ export function FormularioFila({
   /* Controlado só para o "Salvar" nascer desabilitado, como o `save-button`
      da origem — não para guardar o valor, que o `FormData` já leva. */
   const [nome, setNome] = useState('');
-  const [resultado, enviar, enviando] = useActionState(salvarFila, { ok: true });
+  const [resultado, enviar, enviando] = useActionState(salvarQueue, { ok: true });
   /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`: o
      valor inicial do `useActionState` não é uma confirmação de envio. */
-  const estadoInicial = useRef(resultado);
+  const stateInitial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado === estadoInicial.current) return;
+    if (resultado === stateInitial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
       setNome('');
@@ -74,7 +74,7 @@ export function FormularioFila({
       <input type="hidden" name="ordem" value={0} />
       <input type="hidden" name="ativa" value="on" />
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="button" onClick={aoSalvar} disabled={enviando}>

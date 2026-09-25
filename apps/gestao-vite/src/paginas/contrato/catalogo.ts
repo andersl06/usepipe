@@ -39,7 +39,7 @@ import type { NomeDeIconePortal } from '../../componentes/icones-portal';
  */
 
 /** Os grupos que sobraram, com o título e o tooltip da origem. */
-export const GRUPOS = [
+export const GROUPS = [
   {
     id: 'configuracoes',
     titulo: 'Configurações gerais',
@@ -52,19 +52,19 @@ export const GRUPOS = [
   },
 ] as const;
 
-export type IdDeGrupo = (typeof GRUPOS)[number]['id'];
+export type IdDeGrupo = (typeof GROUPS)[number]['id'];
 
 /** Os dois verbos da matriz deles: `read` e `write`. */
 export type Conferencia = 'ler' | 'escrever';
 
-export interface CartaoDoContrato {
+export interface ContractCard {
   id: string;
   grupo: IdDeGrupo;
   titulo: string;
-  descricao: string;
+  description: string;
   icone: NomeDeIconePortal;
   /** A chave da matriz, sem o verbo. O `accessPermission` deles. */
-  chave: string;
+  key: string;
   conferencia: Conferencia;
   rota: string;
   /**
@@ -76,15 +76,15 @@ export interface CartaoDoContrato {
   flagNaOrigem?: string;
 }
 
-export const CATALOGO: readonly CartaoDoContrato[] = [
+export const CATALOGO: readonly ContractCard[] = [
   {
     id: 'membros',
     grupo: 'configuracoes',
     titulo: 'Membros',
-    descricao: 'Adicione e exclua membros do contrato',
+    description: 'Adicione e exclua membros do contrato',
     /* `avatar-user`, como no `Oc` do `main.e8593b01.chunk.js`. */
     icone: 'avatar',
-    chave: 'conta.membros',
+    key: 'conta.membros',
     conferencia: 'ler',
     rota: '/contrato/membros',
     pronto: true,
@@ -93,10 +93,10 @@ export const CATALOGO: readonly CartaoDoContrato[] = [
     id: 'certificados',
     grupo: 'configuracoes',
     titulo: 'Certificados de autenticação',
-    descricao: 'Gerencie seus certificados mTLS',
+    description: 'Gerencie seus certificados mTLS',
     /* `lock`, como no `Oc` do `main.e8593b01.chunk.js` do painel deles. */
     icone: 'cadeado',
-    chave: 'conta.membros',
+    key: 'conta.membros',
     conferencia: 'ler',
     rota: '/contrato/certificados',
     pronto: true,
@@ -106,10 +106,10 @@ export const CATALOGO: readonly CartaoDoContrato[] = [
     id: 'grupos-de-acesso',
     grupo: 'configuracoes',
     titulo: 'Grupos de acesso',
-    descricao: 'Adicione, edite e remova grupos de acesso ao contrato',
+    description: 'Adicione, edite e remova grupos de acesso ao contrato',
     /* `team` na origem, e o nosso `comunidade` É o `team` deles. */
     icone: 'comunidade',
-    chave: 'conta.grupos_acesso',
+    key: 'conta.grupos_acesso',
     conferencia: 'ler',
     rota: '/contrato/grupos-de-acesso',
     pronto: false,
@@ -121,11 +121,11 @@ export const CATALOGO: readonly CartaoDoContrato[] = [
     /* "Blip Calls" na origem. O nome da plataforma deles sai da nossa tela — a
        régua é copiar a disposição e a regra, nunca a marca. */
     titulo: 'Chamadas',
-    descricao: 'Gerencie os bots que terão acesso ao recurso de ligações',
+    description: 'Gerencie os bots que terão acesso ao recurso de ligações',
     /* `robot`, como no `yc` do `main.e8593b01.chunk.js` — e não o `blip-chat`
        (`bot`), que é o ícone do cartão de contato do portal. */
     icone: 'robo',
-    chave: 'conta.membros',
+    key: 'conta.membros',
     /* O único cartão que pede ESCRITA, como na origem (conferência `e`). */
     conferencia: 'escrever',
     rota: '/contrato/chamadas',
@@ -135,11 +135,11 @@ export const CATALOGO: readonly CartaoDoContrato[] = [
 ];
 
 /** O código de permissão que o cartão exige: chave + verbo. */
-export function permissaoExigida(cartao: CartaoDoContrato): string {
-  return `${cartao.chave}.${cartao.conferencia}`;
+export function permissionRequired(card: ContractCard): string {
+  return `${card.key}.${card.conferencia}`;
 }
 
-export interface OpcoesDeFiltro {
+export interface FilterOptions {
   /**
    * Modo demonstração (`?demo=1`): devolve o catálogo INTEIRO, para quem ainda
    * não tem papel nem plano entender a tela antes de ela existir de verdade.
@@ -148,7 +148,7 @@ export interface OpcoesDeFiltro {
    * `acoes.ts` conferem a permissão de verdade em `Eu.permissoes`, sempre, e não
    * leem esta opção nem a URL. Ver o comentário no topo daquele arquivo.
    */
-  demonstracao?: boolean;
+  demo?: boolean;
 }
 
 /**
@@ -158,16 +158,16 @@ export interface OpcoesDeFiltro {
  * cartões, sem tocar em sessão, banco nem URL. É o funil deles reduzido ao que
  * sobra sem flag e sem assinatura: um `hasPermission` por cartão.
  */
-export function cartoesVisiveis(
-  permissoes: readonly string[],
-  opcoes: OpcoesDeFiltro = {},
-): CartaoDoContrato[] {
-  if (opcoes.demonstracao) return [...CATALOGO];
-  return CATALOGO.filter((cartao) => permissoes.includes(permissaoExigida(cartao)));
+export function cardsVisiveis(
+  permissions: readonly string[],
+  options: FilterOptions = {},
+): ContractCard[] {
+  if (options.demo) return [...CATALOGO];
+  return CATALOGO.filter((card) => permissions.includes(permissionRequired(card)));
 }
 
 /** Os `roleId` da origem, que no banco são o nome dos três papéis de conta (0021). */
-export type PapelDeConta = 'guest' | 'member' | 'admin';
+export type AccountRole = 'guest' | 'member' | 'admin';
 
 /**
  * Os três papéis da tela de membros deles, pelo `roleId`: rótulo, descrição
@@ -182,31 +182,31 @@ export type PapelDeConta = 'guest' | 'member' | 'admin';
  */
 export const PAPEIS_DA_ORIGEM: Readonly<
   Record<
-    PapelDeConta,
-    { rotulo: string; descricao: string; icone: NomeDeIconePortal; classe: string }
+    AccountRole,
+    { rotulo: string; description: string; icone: NomeDeIconePortal; classe: string }
   >
 > = {
   guest: {
     rotulo: 'Pode visualizar',
-    descricao: 'Apenas visualiza informações do contrato.',
+    description: 'Apenas visualiza informações do contrato.',
     icone: 'olho',
     classe: 'mb-faixa--ver',
   },
   member: {
     rotulo: 'Pode editar',
-    descricao: 'Cria e edita chatbots, mas não gerencia os membros do contrato.',
+    description: 'Cria e edita chatbots, mas não gerencia os membros do contrato.',
     icone: 'editar',
     classe: 'mb-faixa--editar',
   },
   admin: {
     rotulo: 'Admin',
-    descricao: 'Edita todos os dados do contrato, gerencia membros, cria e edita chatbots.',
+    description: 'Edita todos os dados do contrato, gerencia membros, cria e edita chatbots.',
     icone: 'avatar',
     classe: 'mb-faixa--admin',
   },
 };
 
-export function ehPapelDeConta(nome: string | null | undefined): nome is PapelDeConta {
+export function accountEhRole(nome: string | null | undefined): nome is AccountRole {
   return nome != null && Object.hasOwn(PAPEIS_DA_ORIGEM, nome);
 }
 
@@ -216,17 +216,17 @@ export function ehPapelDeConta(nome: string | null | undefined): nome is PapelDe
  * Grupo sem nenhum cartão NÃO entra: na origem, seção vazia não rende cabeçalho
  * nem grade — o `guest` não vê um título de "Configurações gerais" sobre o nada.
  */
-export function porGrupo(
-  cartoes: readonly CartaoDoContrato[],
-): { grupo: (typeof GRUPOS)[number]; cartoes: CartaoDoContrato[] }[] {
-  return GRUPOS.map((grupo) => ({
+export function byGroup(
+  cards: readonly ContractCard[],
+): { grupo: (typeof GROUPS)[number]; cards: ContractCard[] }[] {
+  return GROUPS.map((grupo) => ({
     grupo,
-    cartoes: cartoes.filter((c) => c.grupo === grupo.id),
-  })).filter((secao) => secao.cartoes.length > 0);
+    cards: cards.filter((c) => c.grupo === grupo.id),
+  })).filter((section) => section.cards.length > 0);
 }
 
 /** Uma linha marcada na tela de Membros: de qual tabela veio e qual é o id. */
-export interface AlvoDeMembro {
+export interface MemberAlvo {
   tipo: 'usuario' | 'convite';
   id: string;
 }
@@ -240,9 +240,9 @@ export interface AlvoDeMembro {
  * dois prefixos conhecidos é descartado aqui, antes de virar consulta: o que
  * sobra é usado para escolher QUAL função de escrita chamar.
  */
-export function lerAlvosDeMembro(valores: readonly string[]): AlvoDeMembro[] {
-  const lidos: AlvoDeMembro[] = [];
-  for (const cru of valores) {
+export function readMemberTargets(values: readonly string[]): MemberAlvo[] {
+  const lidos: MemberAlvo[] = [];
+  for (const cru of values) {
     const corte = cru.indexOf(':');
     if (corte < 0) continue;
     const tipo = cru.slice(0, corte);

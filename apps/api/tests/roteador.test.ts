@@ -10,16 +10,16 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
-const { importarFluxoDaBlip } = await import('../src/dominio/fluxo.js');
-const { redirecionarNoRoteador } = await import('../src/dominio/roteador.js');
-const { encerrarConversa } = await import('../src/dominio/conversa.js');
-const { assinar, montarCenario, payloadDeMensagem } = await import('./ajuda.js');
+const { importFlowOfBlip } = await import('../src/dominio/fluxo.js');
+const { redirecionarInRouter } = await import('../src/dominio/roteador.js');
+const { closeConversation } = await import('../src/dominio/conversa.js');
+const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * O roteador (o `master` da Blip): os serviços dele pela tela
@@ -33,24 +33,24 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-let sessaoEditor: string;
-let sessaoSemPoder: string;
-let sessaoDoOutroTenant: string;
+let sessionEditor: string;
+let sessionWithoutPoder: string;
+let sessionOfOtherTenant: string;
 
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissions.length === 0) return userId;
   const { rows: papeis } = await cenario.dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
       values (${cenario.tenantId}, ${papeis[0]!.id}, ${codigo})
@@ -58,16 +58,16 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${userId}, ${papeis[0]!.id})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -77,16 +77,16 @@ function comCookie(token: string): Record<string, string> {
 }
 
 /** Um contato (fluxo ou roteador) direto no banco. */
-async function novoFluxo(
+async function newFlow(
   cenario: Cenario,
   tipo: 'fluxo' | 'roteador',
-  extra: { estado?: string; canalId?: string } = {},
+  extra: { estado?: string; channelId?: string } = {},
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
     values (
       ${cenario.tenantId}, ${`${tipo} ${randomUUID().slice(0, 8)}`}, ${tipo},
-      ${extra.estado ?? 'rascunho'}, ${extra.canalId ?? null}
+      ${extra.estado ?? 'rascunho'}, ${extra.channelId ?? null}
     )
     returning id
   `);
@@ -94,14 +94,14 @@ async function novoFluxo(
 }
 
 async function chamar(
-  sessao: string,
+  session: string,
   metodo: string,
   caminho: string,
   corpo?: unknown,
 ): Promise<{ status: number; corpo: Record<string, unknown> }> {
   const resposta = await fetch(`${api.url}/v1/gestao/fluxos/${caminho}`, {
     method: metodo,
-    headers: comCookie(sessao),
+    headers: comCookie(session),
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
   });
   const texto = await resposta.text();
@@ -114,10 +114,10 @@ const codigo = (r: { corpo: Record<string, unknown> }) =>
 beforeAll(async () => {
   a = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
-  sessaoEditor = await abrirSessao(a, await pessoaCom(a, ['automacao.fluxo.editar']));
-  sessaoSemPoder = await abrirSessao(a, await pessoaCom(a, []));
-  sessaoDoOutroTenant = await abrirSessao(b, await pessoaCom(b, ['automacao.fluxo.editar']));
+  api = await upApi(0);
+  sessionEditor = await openSession(a, await pessoaCom(a, ['automacao.fluxo.editar']));
+  sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
+  sessionOfOtherTenant = await openSession(b, await pessoaCom(b, ['automacao.fluxo.editar']));
 }, 180_000);
 
 afterAll(async () => {
@@ -130,19 +130,19 @@ afterAll(async () => {
 
 describe('/v1/gestao/fluxos/:id/servicos', () => {
   it('cadastra o principal e os filhos, e o GET preenche `filhos`', async () => {
-    const roteador = await novoFluxo(a, 'roteador');
-    const principal = await novoFluxo(a, 'fluxo', { estado: 'publicado' });
-    const suporte = await novoFluxo(a, 'fluxo');
+    const router = await newFlow(a, 'roteador');
+    const principal = await newFlow(a, 'fluxo', { estado: 'publicado' });
+    const suporte = await newFlow(a, 'fluxo');
 
-    const vazio = await chamar(sessaoEditor, 'GET', `${roteador}/servicos`);
-    expect(vazio.status).toBe(200);
-    expect(vazio.corpo).toMatchObject({ principal: null, filhos: [] });
-    expect((vazio.corpo['roteador'] as { id: string }).id).toBe(roteador);
-    const busca = vazio.corpo['busca'] as { id: string; tipo: string }[];
-    expect(busca.some((f) => f.id === suporte)).toBe(true);
-    expect(busca.every((f) => f.tipo === 'fluxo')).toBe(true);
+    const empty = await chamar(sessionEditor, 'GET', `${router}/servicos`);
+    expect(empty.status).toBe(200);
+    expect(empty.corpo).toMatchObject({ principal: null, filhos: [] });
+    expect((empty.corpo['roteador'] as { id: string }).id).toBe(router);
+    const search = empty.corpo['busca'] as { id: string; tipo: string }[];
+    expect(search.some((f) => f.id === suporte)).toBe(true);
+    expect(search.every((f) => f.tipo === 'fluxo')).toBe(true);
 
-    const p = await chamar(sessaoEditor, 'POST', `${roteador}/servicos`, {
+    const p = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
       nome: 'Principal',
       chatbotId: principal,
       principal: true,
@@ -159,7 +159,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
       chatbot: { id: principal, estado: 'publicado' },
     });
 
-    const s = await chamar(sessaoEditor, 'POST', `${roteador}/servicos`, {
+    const s = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
       nome: 'Suporte',
       chatbotId: suporte,
       principal: false,
@@ -169,7 +169,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(s.status).toBe(201);
     expect(s.corpo).toMatchObject({ principal: false, persistente: false, expiracaoMin: 30 });
 
-    const lido = await chamar(sessaoEditor, 'GET', `${roteador}/servicos`);
+    const lido = await chamar(sessionEditor, 'GET', `${router}/servicos`);
     expect((lido.corpo['principal'] as { id: string }).id).toBe(p.corpo['id']);
     expect((lido.corpo['filhos'] as { id: string; nome: string }[]).map((f) => f.nome)).toEqual([
       'Suporte',
@@ -183,15 +183,15 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
   });
 
   it('recusa o que o formulário recusa: segundo principal, nome e chatbot repetidos, sem expiração, chatbot que não é fluxo', async () => {
-    const roteador = await novoFluxo(a, 'roteador');
-    const f1 = await novoFluxo(a, 'fluxo');
-    const f2 = await novoFluxo(a, 'fluxo');
-    const f3 = await novoFluxo(a, 'fluxo');
-    const outroRoteador = await novoFluxo(a, 'roteador');
-    const arquivado = await novoFluxo(a, 'fluxo', { estado: 'arquivado' });
-    const doOutroTenant = await novoFluxo(b, 'fluxo');
+    const roteador = await newFlow(a, 'roteador');
+    const f1 = await newFlow(a, 'fluxo');
+    const f2 = await newFlow(a, 'fluxo');
+    const f3 = await newFlow(a, 'fluxo');
+    const otherRouter = await newFlow(a, 'roteador');
+    const archived = await newFlow(a, 'fluxo', { estado: 'arquivado' });
+    const doOutroTenant = await newFlow(b, 'fluxo');
     const post = (corpo: Record<string, unknown>) =>
-      chamar(sessaoEditor, 'POST', `${roteador}/servicos`, {
+      chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
         principal: false,
         persistente: false,
         expiracaoMin: 5,
@@ -212,14 +212,14 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(mesmoChatbot.status).toBe(409);
     expect(codigo(mesmoChatbot)).toBe('servico_chatbot_em_uso');
 
-    const semExpiracao = await post({ nome: 'Três', chatbotId: f3, expiracaoMin: null });
-    expect(semExpiracao.status).toBe(400);
-    expect(codigo(semExpiracao)).toBe('servico_expiracao');
+    const withoutExpiration = await post({ nome: 'Três', chatbotId: f3, expiracaoMin: null });
+    expect(withoutExpiration.status).toBe(400);
+    expect(codigo(withoutExpiration)).toBe('servico_expiracao');
 
     const semNome = await post({ nome: '   ', chatbotId: f3 });
     expect(codigo(semNome)).toBe('servico_nome');
 
-    for (const chatbotId of [outroRoteador, arquivado, doOutroTenant, roteador]) {
+    for (const chatbotId of [otherRouter, archived, doOutroTenant, roteador]) {
       const r = await post({ nome: `X ${randomUUID().slice(0, 4)}`, chatbotId });
       expect(r.status).toBe(400);
       expect(codigo(r)).toBe('servico_chatbot');
@@ -237,18 +237,18 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
   });
 
   it('só roteador tem serviços, e só quem edita fluxo mexe neles', async () => {
-    const fluxo = await novoFluxo(a, 'fluxo');
-    const outro = await novoFluxo(a, 'fluxo');
-    const naoRoteador = await chamar(sessaoEditor, 'POST', `${fluxo}/servicos`, {
+    const flow = await newFlow(a, 'fluxo');
+    const outro = await newFlow(a, 'fluxo');
+    const notRouter = await chamar(sessionEditor, 'POST', `${flow}/servicos`, {
       nome: 'S',
       chatbotId: outro,
       principal: true,
     });
-    expect(naoRoteador.status).toBe(400);
-    expect(codigo(naoRoteador)).toBe('nao_e_roteador');
+    expect(notRouter.status).toBe(400);
+    expect(codigo(notRouter)).toBe('nao_e_roteador');
 
-    const roteador = await novoFluxo(a, 'roteador');
-    const semPoder = await chamar(sessaoSemPoder, 'POST', `${roteador}/servicos`, {
+    const roteador = await newFlow(a, 'roteador');
+    const semPoder = await chamar(sessionWithoutPoder, 'POST', `${roteador}/servicos`, {
       nome: 'S',
       chatbotId: outro,
       principal: true,
@@ -257,10 +257,10 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
   });
 
   it('PATCH muda só o que veio e passa pelas mesmas regras; DELETE tira o serviço', async () => {
-    const roteador = await novoFluxo(a, 'roteador');
-    const f1 = await novoFluxo(a, 'fluxo');
-    const f2 = await novoFluxo(a, 'fluxo');
-    const criado = await chamar(sessaoEditor, 'POST', `${roteador}/servicos`, {
+    const roteador = await newFlow(a, 'roteador');
+    const f1 = await newFlow(a, 'fluxo');
+    const f2 = await newFlow(a, 'fluxo');
+    const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
       nome: 'Vendas',
       chatbotId: f1,
       principal: false,
@@ -269,13 +269,13 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     });
     const id = criado.corpo['id'] as string;
 
-    const mais = await chamar(sessaoEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const mais = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
       expiracaoMin: 45,
     });
     expect(mais.status).toBe(200);
     expect(mais.corpo).toMatchObject({ nome: 'Vendas', expiracaoMin: 45 });
 
-    const persistente = await chamar(sessaoEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const persistente = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
       persistente: true,
       chatbotId: f2,
     });
@@ -285,7 +285,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
       chatbot: { id: f2 },
     });
 
-    const invalido = await chamar(sessaoEditor, 'PATCH', `${roteador}/servicos/${id}`, {
+    const invalido = await chamar(sessionEditor, 'PATCH', `${roteador}/servicos/${id}`, {
       persistente: false,
     });
     expect(invalido.status).toBe(400);
@@ -301,28 +301,28 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(log.map((l) => l.acao)).toEqual(['criou', 'alterou', 'alterou']);
     expect(log[1]!.depois).toEqual({ expiracaoMin: 45 });
 
-    const apagado = await chamar(sessaoEditor, 'DELETE', `${roteador}/servicos/${id}`);
+    const apagado = await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`);
     expect(apagado.status).toBe(204);
-    const depois = await chamar(sessaoEditor, 'GET', `${roteador}/servicos`);
+    const depois = await chamar(sessionEditor, 'GET', `${roteador}/servicos`);
     expect(depois.corpo['filhos']).toEqual([]);
-    expect((await chamar(sessaoEditor, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(404);
+    expect((await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(404);
   });
 
   it('o tenant vem da sessão: o roteador de outra conta é 404 em todos os gestos', async () => {
-    const roteador = await novoFluxo(a, 'roteador');
-    const f1 = await novoFluxo(a, 'fluxo');
-    const criado = await chamar(sessaoEditor, 'POST', `${roteador}/servicos`, {
+    const roteador = await newFlow(a, 'roteador');
+    const f1 = await newFlow(a, 'fluxo');
+    const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
       nome: 'Principal',
       chatbotId: f1,
       principal: true,
     });
     const id = criado.corpo['id'] as string;
-    const deB = await novoFluxo(b, 'fluxo');
+    const deB = await newFlow(b, 'fluxo');
 
-    expect((await chamar(sessaoDoOutroTenant, 'GET', `${roteador}/servicos`)).status).toBe(404);
+    expect((await chamar(sessionOfOtherTenant, 'GET', `${roteador}/servicos`)).status).toBe(404);
     expect(
       (
-        await chamar(sessaoDoOutroTenant, 'POST', `${roteador}/servicos`, {
+        await chamar(sessionOfOtherTenant, 'POST', `${roteador}/servicos`, {
           nome: 'Intruso',
           chatbotId: deB,
           principal: false,
@@ -331,10 +331,10 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
       ).status,
     ).toBe(404);
     expect(
-      (await chamar(sessaoDoOutroTenant, 'PATCH', `${roteador}/servicos/${id}`, { nome: 'X' }))
+      (await chamar(sessionOfOtherTenant, 'PATCH', `${roteador}/servicos/${id}`, { nome: 'X' }))
         .status,
     ).toBe(404);
-    expect((await chamar(sessaoDoOutroTenant, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(
+    expect((await chamar(sessionOfOtherTenant, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(
       404,
     );
     const { rows } = await a.dono.execute<{ nome: string }>(
@@ -346,12 +346,12 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
 
 /* ---------------------------------------------------------- A conversa */
 
-const igual = (valor: string) => [{ source: 'input', comparison: 'equals', values: [valor] }];
+const igual = (value: string) => [{ source: 'input', comparison: 'equals', values: [value] }];
 const enviar = (texto: string) => ({
   type: 'SendMessage',
   settings: { type: 'text/plain', content: texto },
 });
-const redirecionar = (servico: string) => ({ type: 'Redirect', settings: { address: servico } });
+const redirecionar = (service: string) => ({ type: 'Redirect', settings: { address: service } });
 
 const SAIDAS_DO_MENU = [
   { order: 0, stateId: 'ir-suporte', conditions: igual('suporte') },
@@ -453,40 +453,40 @@ const VENDAS = {
 };
 
 describe('a conversa passando pelo roteador', () => {
-  let roteadorId: string;
+  let routerId: string;
   let principalId: string;
   let suporteId: string;
   let vendasId: string;
 
-  async function publicarServico(nome: string, json: unknown): Promise<string> {
+  async function publishService(nome: string, json: unknown): Promise<string> {
     const r = await noTenant(a.tenantId, (tx) =>
-      importarFluxoDaBlip(tx, { tenantId: a.tenantId, nome, canalId: null, json, publicar: true }),
+      importFlowOfBlip(tx, { tenantId: a.tenantId, nome, channelId: null, json, publicar: true }),
     );
-    expect(r.erroDeValidacao).toBeNull();
+    expect(r.errorOfValidation).toBeNull();
     return r.fluxoId;
   }
 
   beforeAll(async () => {
-    principalId = await publicarServico('Serviço principal', PRINCIPAL);
-    suporteId = await publicarServico('Serviço suporte', SUPORTE);
-    vendasId = await publicarServico('Serviço vendas', VENDAS);
+    principalId = await publishService('Serviço principal', PRINCIPAL);
+    suporteId = await publishService('Serviço suporte', SUPORTE);
+    vendasId = await publishService('Serviço vendas', VENDAS);
     await a.dono.execute(sql`
       update fluxo set usa_contexto_do_roteador = true
        where id in (${principalId}::uuid, ${vendasId}::uuid)
     `);
-    roteadorId = await novoFluxo(a, 'roteador', { estado: 'publicado', canalId: a.canalId });
+    routerId = await newFlow(a, 'roteador', { estado: 'publicado', channelId: a.channelId });
     await a.dono.execute(sql`
       insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
       values
-        (${a.tenantId}, ${roteadorId}, ${principalId}, 'Principal', true, false, null),
-        (${a.tenantId}, ${roteadorId}, ${suporteId}, 'Suporte', false, false, 30),
-        (${a.tenantId}, ${roteadorId}, ${vendasId}, 'Vendas', false, true, null)
+        (${a.tenantId}, ${routerId}, ${principalId}, 'Principal', true, false, null),
+        (${a.tenantId}, ${routerId}, ${suporteId}, 'Suporte', false, false, 30),
+        (${a.tenantId}, ${routerId}, ${vendasId}, 'Vendas', false, true, null)
     `);
   }, 60_000);
 
   async function falar(de: string, texto: string): Promise<void> {
-    const corpo = JSON.stringify(payloadDeMensagem(de, texto));
-    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${a.canalId}`, {
+    const corpo = JSON.stringify(payloadOfMessage(de, texto));
+    const resposta = await fetch(`${api.url}/webhooks/whatsapp/${a.channelId}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
       body: corpo,
@@ -494,10 +494,10 @@ describe('a conversa passando pelo roteador', () => {
     expect(resposta.status).toBe(200);
   }
 
-  type Conversa = { id: string; fila_id: string | null; atendente_id: string | null };
+  type Conversation = { id: string; queueId: string | null; agentId: string | null };
 
-  async function conversaAberta(telefone: string): Promise<Conversa> {
-    const { rows } = await a.dono.execute<Conversa>(sql`
+  async function conversationOpen(telefone: string): Promise<Conversation> {
+    const { rows } = await a.dono.execute<Conversation>(sql`
       select c.id, c.fila_id, c.atendente_id
         from conversa c join contato ct on ct.id = c.contato_id
        where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
@@ -521,18 +521,18 @@ describe('a conversa passando pelo roteador', () => {
     return rows[0]?.conteudo;
   }
 
-  type Posicao = {
-    servico_id: string;
+  type Position = {
+    serviceId: string;
     expira_em: Date | null;
-    contexto: Record<string, string>;
-    contato_id: string;
+    context: Record<string, string>;
+    contactId: string;
   };
 
-  async function posicao(telefone: string): Promise<Posicao> {
-    const { rows } = await a.dono.execute<Posicao>(sql`
+  async function position(telefone: string): Promise<Position> {
+    const { rows } = await a.dono.execute<Position>(sql`
       select p.servico_id, p.expira_em, p.contexto, p.contato_id
         from posicao_no_roteador p join contato ct on ct.id = p.contato_id
-       where p.roteador_id = ${roteadorId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
+       where p.roteador_id = ${routerId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
     `);
     expect(rows[0]).toBeDefined();
     return rows[0]!;
@@ -542,10 +542,10 @@ describe('a conversa passando pelo roteador', () => {
     const ANA = '5511922220001';
     await falar(ANA, 'oi');
     expect(await ultimaDoBot(ANA)).toBe('Principal: menu');
-    const p = await posicao(ANA);
-    expect(p.servico_id).toBe(principalId);
+    const p = await position(ANA);
+    expect(p.serviceId).toBe(principalId);
     expect(p.expira_em).toBeNull();
-    expect((await conversaAberta(ANA)).fila_id).toBeNull();
+    expect((await conversationOpen(ANA)).queueId).toBeNull();
   });
 
   it('o Redirect muda de serviço, a mensagem seguinte cai lá e a outra continua no bloco guardado', async () => {
@@ -553,8 +553,8 @@ describe('a conversa passando pelo roteador', () => {
     await falar(BIA, 'oi');
     await falar(BIA, 'suporte');
     expect(await ultimaDoBot(BIA)).toBe('Indo para o suporte');
-    const p = await posicao(BIA);
-    expect(p.servico_id).toBe(suporteId);
+    const p = await position(BIA);
+    expect(p.serviceId).toBe(suporteId);
     const minutos = (new Date(p.expira_em!).getTime() - Date.now()) / 60_000;
     expect(minutos).toBeGreaterThan(25);
     expect(minutos).toBeLessThanOrEqual(31);
@@ -568,13 +568,13 @@ describe('a conversa passando pelo roteador', () => {
     expect(await ultimaDoBot(BIA)).toBe('Suporte: anotado tela azul');
 
     // A mesma conversa: a execução do principal terminou, a do suporte é a viva.
-    const conversa = await conversaAberta(BIA);
-    const { rows } = await a.dono.execute<{ fluxo_id: string; estado: string }>(sql`
+    const conversation = await conversationOpen(BIA);
+    const { rows } = await a.dono.execute<{ flowId: string; state: string }>(sql`
       select v.fluxo_id, e.estado from execucao_fluxo e
         join fluxo_versao v on v.id = e.fluxo_versao_id
-       where e.conversa_id = ${conversa.id}::uuid order by e.iniciada_em
+       where e.conversa_id = ${conversation.id}::uuid order by e.iniciada_em
     `);
-    expect(rows.map((r) => [r.fluxo_id, r.estado])).toEqual([
+    expect(rows.map((r) => [r.flowId, r.state])).toEqual([
       [principalId, 'concluida'],
       [suporteId, 'aguardando'],
     ]);
@@ -587,16 +587,16 @@ describe('a conversa passando pelo roteador', () => {
     await falar(CAIO, 'meu pc');
     expect(await ultimaDoBot(CAIO)).toBe('Suporte: qual o problema? []');
 
-    const { contato_id } = await posicao(CAIO);
+    const { contactId } = await position(CAIO);
     await a.dono.execute(sql`
       update posicao_no_roteador set expira_em = now() - interval '1 minute'
-       where roteador_id = ${roteadorId}::uuid and contato_id = ${contato_id}::uuid
+       where roteador_id = ${routerId}::uuid and contato_id = ${contactId}::uuid
     `);
     await falar(CAIO, 'oi de novo');
     // O principal segue do bloco em que tinha ficado (`ir-suporte`), que leva ao menu.
     expect(await ultimaDoBot(CAIO)).toBe('Principal: menu');
-    const p = await posicao(CAIO);
-    expect(p.servico_id).toBe(principalId);
+    const p = await position(CAIO);
+    expect(p.serviceId).toBe(principalId);
     expect(p.expira_em).toBeNull();
   });
 
@@ -604,34 +604,34 @@ describe('a conversa passando pelo roteador', () => {
     const DAVI = '5511922220004';
     await falar(DAVI, 'primeira coisa');
     await falar(DAVI, 'vendas');
-    const p = await posicao(DAVI);
-    expect(p.servico_id).toBe(vendasId);
+    const p = await position(DAVI);
+    expect(p.serviceId).toBe(vendasId);
     expect(p.expira_em).toBeNull();
     // O principal liga o contexto do roteador: o que ele guardou está no par.
-    expect(p.contexto['primeira']).toBe('primeira coisa');
+    expect(p.context['primeira']).toBe('primeira coisa');
 
     await a.dono.execute(sql`
       update posicao_no_roteador set desde = now() - interval '30 days'
-       where roteador_id = ${roteadorId}::uuid and contato_id = ${p.contato_id}::uuid
+       where roteador_id = ${routerId}::uuid and contato_id = ${p.contactId}::uuid
     `);
     await falar(DAVI, 'quero comprar');
     expect(await ultimaDoBot(DAVI)).toBe('Vendas: [primeira coisa]');
     await falar(DAVI, 'e agora?');
     expect(await ultimaDoBot(DAVI)).toBe('Vendas: [primeira coisa]');
-    expect((await posicao(DAVI)).servico_id).toBe(vendasId);
+    expect((await position(DAVI)).serviceId).toBe(vendasId);
   });
 
   it('bloco explícito depois do Master-State: o destino não exibe o conteúdo, só avalia as saídas', async () => {
     const EVA = '5511922220005';
     await falar(EVA, 'oi');
-    const { contato_id } = await posicao(EVA);
+    const { contactId } = await position(EVA);
     await noTenant(a.tenantId, (tx) =>
-      redirecionarNoRoteador(tx, {
+      redirecionarInRouter(tx, {
         tenantId: a.tenantId,
-        roteadorId,
-        contatoId: contato_id,
-        servico: 'Suporte',
-        blocoInicial: 'resposta',
+        routerId,
+        contactId: contactId,
+        service: 'Suporte',
+        blockInicial: 'resposta',
       }),
     );
     // Na raiz, "voltar" iria para `pergunta`; em `resposta`, vai para `volta`.
@@ -639,11 +639,11 @@ describe('a conversa passando pelo roteador', () => {
     expect(await ultimaDoBot(EVA)).toBe('Suporte: voltando');
     const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
       select m.conteudo from mensagem m join conversa c on c.id = m.conversa_id
-       where c.contato_id = ${contato_id}::uuid and m.autor_tipo = 'bot'
+       where c.contato_id = ${contactId}::uuid and m.autor_tipo = 'bot'
     `);
     expect(rows.map((r) => r.conteudo)).not.toContain('Suporte: anotado ');
     // O `volta` redirecionou para o principal pelo nome do serviço.
-    expect((await posicao(EVA)).servico_id).toBe(principalId);
+    expect((await position(EVA)).serviceId).toBe(principalId);
   });
 
   it('encerrado o atendimento humano, a volta é ao serviço em que ele estava — não ao principal', async () => {
@@ -652,29 +652,29 @@ describe('a conversa passando pelo roteador', () => {
     await falar(FABIO, 'suporte');
     await falar(FABIO, 'meu pc');
     await falar(FABIO, 'humano');
-    const conversa = await conversaAberta(FABIO);
-    expect(conversa.fila_id).toBe(a.filaId);
-    expect(conversa.atendente_id).toBe(a.atendenteId);
+    const conversa = await conversationOpen(FABIO);
+    expect(conversa.queueId).toBe(a.queueId);
+    expect(conversa.agentId).toBe(a.agentId);
 
     // O cliente fala com o atendente: é interação, e renova o prazo do serviço.
     await falar(FABIO, 'alô?');
-    expect((await posicao(FABIO)).servico_id).toBe(suporteId);
+    expect((await position(FABIO)).serviceId).toBe(suporteId);
 
     const { rows: etiquetas } = await a.dono.execute<{ id: string }>(sql`
       insert into etiqueta (tenant_id, nome)
       values (${a.tenantId}::uuid, ${`Resolvido ${randomUUID().slice(0, 6)}`})
       returning id
     `);
-    await encerrarConversa(
-      { tenantId: a.tenantId, atendenteId: a.atendenteId, exigirAtribuicao: true },
+    await closeConversation(
+      { tenantId: a.tenantId, agentId: a.agentId, exigirAssignment: true },
       { conversaId: conversa.id, etiquetaId: etiquetas[0]!.id },
     );
 
     await falar(FABIO, 'voltei');
-    const nova = await conversaAberta(FABIO);
+    const nova = await conversationOpen(FABIO);
     expect(nova.id).not.toBe(conversa.id);
-    expect(nova.fila_id).toBeNull();
+    expect(nova.queueId).toBeNull();
     expect(await ultimaDoBot(FABIO)).toBe('Suporte: atendimento encerrado');
-    expect((await posicao(FABIO)).servico_id).toBe(suporteId);
+    expect((await position(FABIO)).serviceId).toBe(suporteId);
   });
 });

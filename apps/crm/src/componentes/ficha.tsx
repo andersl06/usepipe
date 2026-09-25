@@ -35,7 +35,7 @@ export function Campo({ k, v }: { k: string; v: ReactNode }) {
  * contar para o leitor de tela. Escrever isso em React seria trocar zero linha
  * por trinta e perder o comportamento de busca na página.
  */
-export function Secao({
+export function Section({
   titulo,
   aberta = true,
   children,
@@ -56,7 +56,7 @@ export function Secao({
 
 export interface CampoPrincipal {
   rotulo: string;
-  valor: ReactNode;
+  value: ReactNode;
   /** A segunda linha, em tom menor: "há 12 dias", o nome da campanha, a faixa. */
   nota?: ReactNode;
   /** Número em monoespaçada tabular. Para valor e contagem, não para texto. */
@@ -74,7 +74,7 @@ export function Destaque({
   nome,
   etiquetas,
   nota,
-  principais,
+  main,
 }: {
   trilha: { href: string; rotulo: string };
   nome: string;
@@ -82,7 +82,7 @@ export function Destaque({
   etiquetas?: ReactNode;
   /** O carimbo discreto do fim da linha: "criado há 3 dias". */
   nota?: ReactNode;
-  principais: readonly CampoPrincipal[];
+  main: readonly CampoPrincipal[];
 }) {
   return (
     <div className="destaque">
@@ -100,11 +100,11 @@ export function Destaque({
       </div>
 
       <dl className="principais">
-        {principais.map((c) => (
+        {main.map((c) => (
           <div key={c.rotulo}>
             <dt>{c.rotulo}</dt>
             <dd className={c.numerico ? 'n' : undefined}>
-              {c.valor}
+              {c.value}
               {c.nota ? <em>{c.nota}</em> : null}
             </dd>
           </div>
@@ -115,10 +115,10 @@ export function Destaque({
 }
 
 export interface AbaDaFicha {
-  chave: string;
+  key: string;
   rotulo: string;
   /** `null` esconde a contagem. Zero é contagem, e zero é informação. */
-  contagem?: number | null;
+  count?: number | null;
 }
 
 /**
@@ -143,15 +143,15 @@ export function AbasDaFicha({
     <div className="tabs" role="tablist">
       {abas.map((a) => (
         <Link
-          key={a.chave}
-          href={`${base}?aba=${a.chave}`}
+          key={a.key}
+          href={`${base}?aba=${a.key}`}
           role="tab"
-          aria-current={a.chave === aba ? 'true' : undefined}
+          aria-current={a.key === aba ? 'true' : undefined}
           scroll={false}
         >
           {a.rotulo}
-          {a.contagem === null || a.contagem === undefined ? null : (
-            <span className="qt">{formatar(a.contagem)}</span>
+          {a.count === null || a.count === undefined ? null : (
+            <span className="qt">{formatar(a.count)}</span>
           )}
         </Link>
       ))}
@@ -166,20 +166,20 @@ export function AbasDaFicha({
  * os 304 campos customizados do Lead do Salesforce de hoje. Como a forma é a
  * mesma nas três, a seção também é.
  */
-export function SecaoAtributos({
+export function SectionAtributos({
   atributos,
   titulo = 'Atributos',
-  vazio = 'Nenhum atributo personalizado.',
+  empty = 'Nenhum atributo personalizado.',
 }: {
   atributos: Record<string, unknown>;
   titulo?: string;
-  vazio?: string;
+  empty?: string;
 }) {
   const pares = Object.entries(atributos);
   return (
-    <Secao titulo={titulo} aberta={pares.length > 0}>
+    <Section titulo={titulo} aberta={pares.length > 0}>
       {pares.length === 0 ? (
-        <div className="vazio">{vazio}</div>
+        <div className="vazio">{empty}</div>
       ) : (
         <div className="campos">
           {pares.map(([k, v]) => (
@@ -187,6 +187,6 @@ export function SecaoAtributos({
           ))}
         </div>
       )}
-    </Secao>
+    </Section>
   );
 }

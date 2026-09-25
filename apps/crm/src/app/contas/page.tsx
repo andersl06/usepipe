@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Campo, Etiqueta, EstadoVazio, Tabela, type Coluna } from '@pipe/ui';
-import { listarContas, LIMITE_LISTA, type LinhaConta } from '../../lib/contas';
-import { dinheiroCurto, documento, numero } from '../../lib/formato';
+import { Campo, Etiqueta, EmptyState, Tabela, type Column } from '@pipe/ui';
+import { listAccounts, LIMITE_LISTA, type LinhaAccount } from '../../lib/contas';
+import { moneyCurto, document, numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,43 +12,43 @@ export const dynamic = 'force-dynamic';
  * Nenhuma cor. Uma conta não tem estado que exija ação — o que exige ação está
  * dentro dela, nas oportunidades e nos leads, e é para lá que a linha leva.
  */
-const COLUNAS: readonly Coluna<LinhaConta>[] = [
+const COLUNAS: readonly Column<LinhaAccount>[] = [
   {
-    chave: 'nome',
+    key: 'nome',
     rotulo: 'Conta',
     celula: (c) => <Link href={`/contas/${c.id}`}>{c.nome}</Link>,
   },
-  { chave: 'documento', rotulo: 'CNPJ', numerica: true, celula: (c) => documento(c.documento) },
+  { key: 'documento', rotulo: 'CNPJ', numerica: true, celula: (c) => document(c.document) },
   {
-    chave: 'dominio',
+    key: 'dominio',
     rotulo: 'Domínio',
-    celula: (c) => (c.dominio ? <Etiqueta>{c.dominio}</Etiqueta> : '—'),
+    celula: (c) => (c.domain ? <Etiqueta>{c.domain}</Etiqueta> : '—'),
   },
-  { chave: 'proprietario', rotulo: 'Proprietário', celula: (c) => c.proprietario ?? '—' },
-  { chave: 'contatos', rotulo: 'Contatos', numerica: true, celula: (c) => numero(c.contatos) },
-  { chave: 'leads', rotulo: 'Leads', numerica: true, celula: (c) => numero(c.leads) },
+  { key: 'proprietario', rotulo: 'Proprietário', celula: (c) => c.proprietario ?? '—' },
+  { key: 'contatos', rotulo: 'Contatos', numerica: true, celula: (c) => numero(c.contacts) },
+  { key: 'leads', rotulo: 'Leads', numerica: true, celula: (c) => numero(c.leads) },
   {
-    chave: 'oportunidades',
+    key: 'oportunidades',
     rotulo: 'Oportunidades',
     numerica: true,
-    celula: (c) => numero(c.oportunidades),
+    celula: (c) => numero(c.opportunities),
   },
   {
-    chave: 'valor',
+    key: 'valor',
     rotulo: 'Em negociação',
     numerica: true,
-    celula: (c) => (c.oportunidades === 0 ? '—' : dinheiroCurto(c.valorAberto)),
+    celula: (c) => (c.opportunities === 0 ? '—' : moneyCurto(c.valueAberto)),
   },
 ];
 
-export default async function PaginaContas({
+export default async function PageAccounts({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const busca = q ?? '';
-  const contas = await listarContas(busca);
+  const search = q ?? '';
+  const accounts = await listAccounts(search);
 
   return (
     <>
@@ -64,7 +64,7 @@ export default async function PaginaContas({
           <Campo
             type="search"
             name="q"
-            defaultValue={busca}
+            defaultValue={search}
             placeholder="Buscar por nome, CNPJ ou domínio"
             aria-label="Buscar conta"
           />
@@ -72,24 +72,24 @@ export default async function PaginaContas({
             Aplicar
           </button>
           <span className="sub" style={{ marginLeft: 'auto' }}>
-            {numero(contas.length)} contas
-            {contas.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
+            {numero(accounts.length)} contas
+            {accounts.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
           </span>
         </form>
 
-        {contas.length === 0 ? (
-          <EstadoVazio
-            titulo={busca ? 'Nenhuma conta com esse termo.' : 'Nenhuma conta cadastrada.'}
-            ilustracao={busca ? 'busca' : 'vazio'}
+        {accounts.length === 0 ? (
+          <EmptyState
+            titulo={search ? 'Nenhuma conta com esse termo.' : 'Nenhuma conta cadastrada.'}
+            illustration={search ? 'busca' : 'vazio'}
           >
-            {busca ? null : (
+            {search ? null : (
               <span>
                 Rode <code>pnpm --filter @pipe/crm seed:crm</code> para semear o tenant demo.
               </span>
             )}
-          </EstadoVazio>
+          </EmptyState>
         ) : (
-          <Tabela colunas={COLUNAS} linhas={contas} chaveDaLinha={(c) => c.id} />
+          <Tabela colunas={COLUNAS} linhas={accounts} linhaKey={(c) => c.id} />
         )}
       </div>
     </>

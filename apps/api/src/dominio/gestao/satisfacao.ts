@@ -1,11 +1,11 @@
 import { and, count, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import { compararIdentificador, mediaPonderadaDePares, taxaDeResposta } from '@pipe/core';
-import { conversa, pesquisa, respostaPesquisa } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { Janela } from './janela.js';
+import { conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
+import type { Window } from './janela.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -25,12 +25,12 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
 
 export interface FatiaDeClasse {
   nome: string;
-  quantidade: number;
+  quantity: number;
   /** Participação na barra. Divisão de contagens, não é métrica da spec. */
-  fracao: number;
+  fraction: number;
 }
 
-export interface GrupoSatisfacao {
+export interface GroupSatisfaction {
   /** `csat` ou `nps`. */
   tipo: string;
   escalaMin: number;
@@ -56,10 +56,10 @@ export interface ComentarioRecente {
   em: Date | null;
 }
 
-export interface RelatorioSatisfacao {
+export interface ReportSatisfaction {
   /** Denominador da taxa de resposta: conversas encerradas no período. */
   encerradas: number;
-  grupos: GrupoSatisfacao[];
+  groups: GroupSatisfaction[];
   comentarios: ComentarioRecente[];
 }
 
@@ -74,30 +74,30 @@ export const LIMITE_COMENTARIOS = 20;
  * no NPS. A tela mostra o que veio do banco e não reclassifica nota nenhuma —
  * classificar aqui seria inventar uma segunda definição das faixas.
  */
-const ORDEM_CLASSE = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
+const ORDER_CLASSE = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
 
 function ordenarClasses(a: FatiaDeClasse, b: FatiaDeClasse): number {
-  const ia = ORDEM_CLASSE.indexOf(a.nome);
-  const ib = ORDEM_CLASSE.indexOf(b.nome);
-  if (ia !== ib) return (ia < 0 ? ORDEM_CLASSE.length : ia) - (ib < 0 ? ORDEM_CLASSE.length : ib);
+  const ia = ORDER_CLASSE.indexOf(a.nome);
+  const ib = ORDER_CLASSE.indexOf(b.nome);
+  if (ia !== ib) return (ia < 0 ? ORDER_CLASSE.length : ia) - (ib < 0 ? ORDER_CLASSE.length : ib);
   return a.nome < b.nome ? -1 : 1;
 }
 
-export async function carregarSatisfacao(
-  tx: TransacaoPipe,
-  janela: Janela,
-): Promise<RelatorioSatisfacao> {
+export async function loadSatisfaction(
+  tx: TransactionPipe,
+  window: Window,
+): Promise<ReportSatisfaction> {
   return consultar(tx, async (tx) => {
-    const encerradaNoPeriodo = and(
-      isNotNull(conversa.encerradaEm),
-      gte(conversa.encerradaEm, janela.inicio),
-      lt(conversa.encerradaEm, janela.fim),
+    const closedInPeriod = and(
+      isNotNull(conversation.encerradaEm),
+      gte(conversation.encerradaEm, window.inicio),
+      lt(conversation.encerradaEm, window.fim),
     );
 
     // Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o
     // `pipe.tenant_id` em silêncio.
-    const [contagem] = await tx.select({ total: count() }).from(conversa).where(encerradaNoPeriodo);
-    const encerradas = contagem?.total ?? 0;
+    const [count] = await tx.select({ total: count() }).from(conversation).where(closedInPeriod);
+    const encerradas = count?.total ?? 0;
 
     const linhas = await tx
       .select({
@@ -112,9 +112,9 @@ export async function carregarSatisfacao(
         respondidaEm: respostaPesquisa.respondidaEm,
       })
       .from(respostaPesquisa)
-      .innerJoin(conversa, eq(conversa.id, respostaPesquisa.conversaId))
+      .innerJoin(conversation, eq(conversation.id, respostaPesquisa.conversaId))
       .innerJoin(pesquisa, eq(pesquisa.id, respostaPesquisa.pesquisaId))
-      .where(encerradaNoPeriodo);
+      .where(closedInPeriod);
 
     type Acumulador = {
       tipo: string;
@@ -123,15 +123,15 @@ export async function carregarSatisfacao(
       enviadas: number;
       respostas: number;
       /** Um par por pesquisa: a média do grupo é soma ÷ soma, nunca média de médias. */
-      pares: Map<string, { soma: number; contagem: number }>;
+      pares: Map<string, { soma: number; count: number }>;
       classes: Map<string, number>;
     };
 
-    const grupos = new Map<string, Acumulador>();
+    const groups = new Map<string, Acumulador>();
     for (const l of linhas) {
-      const chave = `${l.tipo}|${l.escalaMin}|${l.escalaMax}`;
+      const key = `${l.tipo}|${l.escalaMin}|${l.escalaMax}`;
       const g =
-        grupos.get(chave) ??
+        groups.get(key) ??
         ({
           tipo: l.tipo,
           escalaMin: l.escalaMin,
@@ -151,7 +151,7 @@ export async function carregarSatisfacao(
         const classe = l.classe ?? 'sem classe';
         g.classes.set(classe, (g.classes.get(classe) ?? 0) + 1);
       }
-      grupos.set(chave, g);
+      groups.set(key, g);
     }
 
     const comentarios: ComentarioRecente[] = linhas
@@ -172,7 +172,7 @@ export async function carregarSatisfacao(
     return {
       encerradas,
       comentarios,
-      grupos: [...grupos.values()]
+      grupos: [...groups.values()]
         .map((g) => ({
           tipo: g.tipo,
           escalaMin: g.escalaMin,
@@ -182,10 +182,10 @@ export async function carregarSatisfacao(
           enviadas: g.enviadas,
           taxa: taxaDeResposta(g.respostas, encerradas),
           classes: [...g.classes.entries()]
-            .map(([nome, quantidade]) => ({
+            .map(([nome, quantity]) => ({
               nome,
-              quantidade,
-              fracao: g.respostas > 0 ? quantidade / g.respostas : 0,
+              quantity,
+              fracao: g.respostas > 0 ? quantity / g.respostas : 0,
             }))
             .sort(ordenarClasses),
         }))

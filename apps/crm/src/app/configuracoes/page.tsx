@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { GRUPOS } from '../../componentes/configuracoes/cabecalho';
+import { GROUPS } from '../../componentes/configuracoes/cabecalho';
 
 /**
  * O índice das configurações.
@@ -11,7 +11,7 @@ import { GRUPOS } from '../../componentes/configuracoes/cabecalho';
  * consegue dizer, e é a diferença entre a pessoa procurar "onde muda o fuso" no
  * menu inteiro e ler "fuso horário" na descrição do espaço de trabalho.
  */
-export default function PaginaConfiguracoes() {
+export default function PageSettings() {
   return (
     <>
       <div className="cfg-cabecalho">
@@ -21,17 +21,17 @@ export default function PaginaConfiguracoes() {
         </p>
       </div>
 
-      {GRUPOS.map((grupo) => (
+      {GROUPS.map((grupo) => (
         <section className="cfg-grupo" key={grupo.rotulo} aria-labelledby={`g-${grupo.rotulo}`}>
           <h3 className="lbl" id={`g-${grupo.rotulo}`}>
             {grupo.rotulo}
           </h3>
           <ul className="cfg-indice">
-            {grupo.secoes.map((secao) => (
-              <li key={secao.href}>
-                <Link href={secao.href}>
-                  <b>{secao.rotulo}</b>
-                  <span className="sub">{secao.descricao}</span>
+            {grupo.sections.map((section) => (
+              <li key={section.href}>
+                <Link href={section.href}>
+                  <b>{section.rotulo}</b>
+                  <span className="sub">{section.description}</span>
                 </Link>
               </li>
             ))}

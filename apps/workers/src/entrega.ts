@@ -1,19 +1,19 @@
 import { sql } from 'drizzle-orm';
-import { transicaoEntregaPermitida } from '@pipe/core';
-import { chaveiroDoAmbiente, decifrarConfig, estaCifrado } from '@pipe/db';
-import type { EstadoEntrega } from '@pipe/core';
-import { bancoDono, noTenant } from './banco.js';
+import { transitionDeliveryAllowed } from '@pipe/core';
+import { keyringOfAmbiente, decifrarConfig, estaCifrado } from '@pipe/db';
+import type { StateDelivery } from '@pipe/core';
+import { databaseOwner, noTenant } from './banco.js';
 import { clienteInstagram } from './instagram.js';
 import type { PedidoInstagram } from './instagram.js';
 import { clienteMessenger } from './messenger.js';
 import type { PedidoMessenger } from './messenger.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
-import { ErroWhatsApp } from './whatsapp/cliente.js';
-import type { Conteudo, CredenciaisCanal, PedidoEnvio } from './whatsapp/cliente.js';
-import { conteudoDaPergunta, preferenciasInterativasDe } from './whatsapp/interativo.js';
-import type { PerguntaDoFluxo } from './whatsapp/interativo.js';
-import { validarMidia } from './whatsapp/midia.js';
-import type { TipoMidia } from './whatsapp/midia.js';
+import { WhatsAppError } from './whatsapp/cliente.js';
+import type { Conteudo, CredentialsChannel, PedidoEnvio } from './whatsapp/cliente.js';
+import { conteudoDaPergunta, preferencesInteractiveOf } from './whatsapp/interativo.js';
+import type { PerguntaOfFlow } from './whatsapp/interativo.js';
+import { validateMedia } from './whatsapp/midia.js';
+import type { TypeMedia } from './whatsapp/midia.js';
 import type { CabecalhoTemplate } from './whatsapp/template.js';
 
 /**
@@ -48,31 +48,31 @@ type Reivindicada = {
 type LinhaDeEnvio = {
   tipo: string;
   conteudo: string | null;
-  dados: Record<string, unknown> | null;
+  data: Record<string, unknown> | null;
   template_id: string | null;
   telefone_e164: string | null;
   identificador: string | null;
-  canal_config: Record<string, unknown> | null;
-  canal_tipo: string;
+  channelConfig: Record<string, unknown> | null;
+  channelType: string;
   template_nome: string | null;
   template_idioma: string | null;
   template_cabecalho: string | null;
-  template_variaveis: unknown;
+  templateVariables: unknown;
   template_status: string | null;
-  anexo_mime: string | null;
-  anexo_bytes: number | null;
-  anexo_chave: string | null;
-  anexo_nome: string | null;
+  attachmentMime: string | null;
+  attachmentBytes: number | null;
+  attachmentKey: string | null;
+  attachmentName: string | null;
 };
 
-export interface ResultadoEntrega {
-  mensagemId: string;
-  estado: EstadoEntrega;
-  erroCodigo?: string;
-  erroTexto?: string;
+export interface ResultDelivery {
+  messageId: string;
+  state: StateDelivery;
+  errorCode?: string;
+  errorText?: string;
 }
 
-export interface OpcoesEntrega {
+export interface OptionsDelivery {
   /** Quantas linhas reivindicar por rodada. */
   lote?: number;
   /**
@@ -82,7 +82,7 @@ export interface OpcoesEntrega {
   parametros?: Map<string, Record<string, string>>;
 }
 
-const TIPOS_DE_MIDIA: Readonly<Record<string, TipoMidia>> = {
+const TYPES_OF_MEDIA: Readonly<Record<string, TypeMedia>> = {
   imagem: 'imagem',
   audio: 'audio',
   video: 'video',
@@ -93,12 +93,12 @@ const TIPOS_DE_MIDIA: Readonly<Record<string, TipoMidia>> = {
  * Uma rodada da fila de entrega. Devolve o que aconteceu com cada mensagem — é o que
  * o teste de ponta a ponta inspeciona e o que o log de produção registra.
  */
-export async function processarOutbox(opcoes: OpcoesEntrega = {}): Promise<ResultadoEntrega[]> {
-  const lote = opcoes.lote ?? 20;
+export async function processarOutbox(options: OptionsDelivery = {}): Promise<ResultDelivery[]> {
+  const lote = options.lote ?? 20;
 
   // Reivindicação atômica: `skip locked` deixa dois workers dividirem a fila sem que
   // os dois peguem a mesma linha. Roda com o papel dono porque varre todos os tenants.
-  const { rows: reivindicadas } = await bancoDono().execute<Reivindicada>(sql`
+  const { rows: reivindicadas } = await databaseOwner().execute<Reivindicada>(sql`
     update outbox_mensagem
        set estado = 'enviando', atualizado_em = now()
      where id in (
@@ -112,10 +112,10 @@ export async function processarOutbox(opcoes: OpcoesEntrega = {}): Promise<Resul
     returning id, tenant_id, mensagem_id, tentativas
   `);
 
-  const resultados: ResultadoEntrega[] = [];
+  const resultados: ResultDelivery[] = [];
   // Em série de propósito: cada item abre a própria transação com tenant fixado.
   for (const linha of reivindicadas) {
-    resultados.push(await entregarUma(linha, opcoes.parametros?.get(linha.mensagem_id)));
+    resultados.push(await entregarUma(linha, options.parametros?.get(linha.mensagem_id)));
   }
   return resultados;
 }
@@ -123,8 +123,8 @@ export async function processarOutbox(opcoes: OpcoesEntrega = {}): Promise<Resul
 async function entregarUma(
   linha: Reivindicada,
   parametros: Record<string, string> | undefined,
-): Promise<ResultadoEntrega> {
-  const dados = await noTenant(linha.tenant_id, async (tx) => {
+): Promise<ResultDelivery> {
+  const data = await noTenant(linha.tenant_id, async (tx) => {
     await tx.execute(sql`
       update mensagem set estado_entrega = 'enviando'
        where id = ${linha.mensagem_id} and estado_entrega in ('pendente', 'enviando')
@@ -153,13 +153,13 @@ async function entregarUma(
     return rows[0] ?? null;
   });
 
-  if (!dados) {
+  if (!data) {
     return gravarFalha(linha, 'mensagem_sumiu', 'A mensagem não existe mais no banco.');
   }
 
-  const preparado = dados.canal_tipo === 'instagram' ? prepararEnvioInstagram(dados) : dados.canal_tipo === 'messenger' ? prepararEnvioMessenger(dados) : prepararEnvio(dados, parametros);
+  const preparado = data.channelType === 'instagram' ? prepararEnvioInstagram(data) : data.channelType === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);
   if ('erro' in preparado) {
-    return gravarFalha(linha, preparado.erro.codigo, preparado.erro.texto);
+    return gravarFalha(linha, preparado.error.codigo, preparado.error.texto);
   }
 
   try {
@@ -182,12 +182,12 @@ async function entregarUma(
          where id = ${linha.id}
       `);
     });
-    return { mensagemId: linha.mensagem_id, estado: 'enviada' };
-  } catch (erro) {
+    return { messageId: linha.mensagem_id, state: 'enviada' };
+  } catch (error) {
     const falha =
-      erro instanceof ErroWhatsApp
-        ? erro
-        : new ErroWhatsApp('desconhecido', (erro as Error).message, false);
+      error instanceof WhatsAppError
+        ? error
+        : new WhatsAppError('desconhecido', (error as Error).message, false);
     const tentativas = linha.tentativas + 1;
     if (falha.permanente || tentativas >= MAX_TENTATIVAS) {
       const texto = falha.permanente
@@ -199,7 +199,7 @@ async function entregarUma(
   }
 }
 
-type Preparado = { pedido: PedidoEnvio } | { erro: { codigo: string; texto: string } };
+type Preparado = { pedido: PedidoEnvio } | { error: { codigo: string; texto: string } };
 
 /**
  * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
@@ -220,20 +220,20 @@ function prepararEnvioInstagram(
   // ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.
   let config: Record<string, unknown>;
   try {
-    config = decifrarConfig(linha.canal_config ?? {}, chaveiroDoAmbiente());
+    config = decifrarConfig(linha.channelConfig ?? {}, keyringOfAmbiente());
   } catch (erro) {
     return { erro: { codigo: 'canal_sem_credencial', texto: `O token do canal não decifrou: ${(erro as Error).message}` } };
   }
   const igUserId = config['igUserId'];
-  const tokenAcesso = config['tokenAcesso'];
-  if (typeof igUserId !== 'string' || typeof tokenAcesso !== 'string' || !igUserId || !tokenAcesso) {
+  const tokenAccess = config['tokenAcesso'];
+  if (typeof igUserId !== 'string' || typeof tokenAccess !== 'string' || !igUserId || !tokenAccess) {
     return {
       erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem igUserId e tokenAcesso em canal.config.' },
     };
   }
-  const credenciais = {
+  const credentials = {
     igUserId,
-    tokenAcesso,
+    tokenAccess,
     apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined,
   };
 
@@ -247,18 +247,18 @@ function prepararEnvioInstagram(
     instagram: {
       para: linha.identificador,
       conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda },
-      credenciais,
+      credentials,
     },
   };
 }
 
 function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { erro: { codigo: string; texto: string } } {
   if (!linha.identificador) return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem PSID neste canal.' } };
-  let config: Record<string, unknown>; try { config = decifrarConfig(linha.canal_config ?? {}, chaveiroDoAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
+  let config: Record<string, unknown>; try { config = decifrarConfig(linha.channelConfig ?? {}, keyringOfAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
   if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
   const conteudo = montarConteudo(linha, undefined); if ('erro' in conteudo) return conteudo; const c = conteudo.conteudo;
   if (c.tipo === 'template' || c.tipo === 'interativo') return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Messenger não envia template.' } };
-  return { messenger: { para: linha.identificador, conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda }, credenciais: { tokenAcesso: config['tokenAcesso'], apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined } } };
+  return { messenger: { para: linha.identificador, conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda }, credentials: { tokenAccess: config['tokenAcesso'], apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined } } };
 }
 
 /**
@@ -274,13 +274,13 @@ function prepararEnvio(
 ): Preparado {
   const para = destinatario(linha);
   if (!para) {
-    return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem telefone no canal.' } };
+    return { error: { codigo: 'sem_destinatario', texto: 'O contato não tem telefone no canal.' } };
   }
 
-  const credenciais = credenciaisDo(linha.canal_config);
+  const credenciais = credentialsOf(linha.channelConfig);
   if (!credenciais) {
     return {
-      erro: {
+      error: {
         codigo: 'canal_sem_credencial',
         texto: 'O canal não tem phoneNumberId e tokenAcesso em canal.config.',
       },
@@ -289,7 +289,7 @@ function prepararEnvio(
 
   const conteudo = montarConteudo(linha, parametros);
   if ('erro' in conteudo) return conteudo;
-  return { pedido: { para, conteudo: conteudo.conteudo, credenciais } };
+  return { pedido: { para, conteudo: conteudo.conteudo, credentials } };
 }
 
 function montarConteudo(
@@ -302,31 +302,31 @@ function montarConteudo(
       return { erro: { codigo: 'texto_vazio', texto: 'Mensagem de texto sem conteúdo.' } };
     }
     // Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.
-    const pergunta = linha.dados?.['pergunta'] as PerguntaDoFluxo | undefined;
+    const pergunta = linha.data?.['pergunta'] as PerguntaOfFlow | undefined;
     // Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.
-    const interativo = pergunta && linha.canal_tipo === 'whatsapp_cloud'
-      ? conteudoDaPergunta(pergunta, preferenciasInterativasDe(linha.canal_config))
+    const interativo = pergunta && linha.channelType === 'whatsapp_cloud'
+      ? conteudoDaPergunta(pergunta, preferencesInteractiveOf(linha.channelConfig))
       : null;
     return { conteudo: interativo ?? { tipo: 'texto', texto } };
   }
 
-  const tipoMidia = TIPOS_DE_MIDIA[linha.tipo];
-  if (tipoMidia) {
-    if (!linha.anexo_mime || linha.anexo_bytes === null || !linha.anexo_chave) {
+  const typeMedia = TYPES_OF_MEDIA[linha.tipo];
+  if (typeMedia) {
+    if (!linha.attachmentMime || linha.attachmentBytes === null || !linha.attachmentKey) {
       return { erro: { codigo: 'anexo_ausente', texto: `Mensagem de ${linha.tipo} sem anexo.` } };
     }
-    const falha = validarMidia({
-      tipo: tipoMidia,
-      mime: linha.anexo_mime,
-      bytes: linha.anexo_bytes,
+    const falha = validateMedia({
+      tipo: typeMedia,
+      mime: linha.attachmentMime,
+      bytes: linha.attachmentBytes,
     });
     if (falha) return { erro: { codigo: falha.codigo, texto: falha.texto } };
     return {
       conteudo: {
-        tipo: tipoMidia,
-        link: urlDaMidia(linha.anexo_chave),
+        tipo: typeMedia,
+        link: urlOfMedia(linha.attachmentKey),
         legenda: linha.conteudo ?? undefined,
-        nomeArquivo: linha.anexo_nome ?? undefined,
+        nameFile: linha.attachmentName ?? undefined,
       },
     };
   }
@@ -348,17 +348,17 @@ function montarConteudo(
         },
       };
     }
-    const variaveis = lerVariaveis(linha.template_variaveis);
-    const valores = parametros ?? {};
+    const variables = readVariables(linha.templateVariables);
+    const values = parametros ?? {};
     const cabecalho = (linha.template_cabecalho ?? 'nenhum') as CabecalhoTemplate;
     // Sem coluna jsonb em `mensagem`, os valores só existem no job da fila. Se o job
     // se perdeu, falha alto em vez de mandar o template com o parâmetro trocado.
-    if (variaveis.length > 0 && Object.keys(valores).length === 0) {
+    if (variables.length > 0 && Object.keys(values).length === 0) {
       return {
         erro: {
           codigo: 'parametros_perdidos',
           texto:
-            `O template "${linha.template_nome}" tem ${variaveis.length} variável(is) e os ` +
+            `O template "${linha.template_nome}" tem ${variables.length} variável(is) e os ` +
             'valores não sobreviveram à fila. Reenvie a partir da conversa.',
         },
       };
@@ -370,9 +370,9 @@ function montarConteudo(
           nome: linha.template_nome,
           idioma: linha.template_idioma,
           cabecalhoTipo: cabecalho,
-          variaveis,
+          variables,
         },
-        valores,
+        values,
       },
     };
   }
@@ -385,9 +385,9 @@ function montarConteudo(
   };
 }
 
-function lerVariaveis(valor: unknown): string[] {
-  if (!Array.isArray(valor)) return [];
-  return valor.map((v) => String(v));
+function readVariables(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.map((v) => String(v));
 }
 
 /** A identidade do canal manda; telefone é o fallback de quem nunca escreveu. */
@@ -397,13 +397,13 @@ function destinatario(linha: LinhaDeEnvio): string | null {
   return bruto.replace(/^\+/, '');
 }
 
-export function credenciaisDo(cru: Record<string, unknown> | null): CredenciaisCanal | null {
+export function credentialsOf(cru: Record<string, unknown> | null): CredentialsChannel | null {
   // O `config` vem do banco com o token CIFRADO (`cifrarConfig` na criação do canal).
   // Sem decifrar, o `Bearer` sairia com o `pipev1…` e a Meta recusaria todo envio —
   // o dublê não percebe. O chaveiro só é exigido quando há o que decifrar.
   const config =
     cru && Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v))
-      ? decifrarConfig(cru, chaveiroDoAmbiente())
+      ? decifrarConfig(cru, keyringOfAmbiente())
       : cru;
   const phoneNumberId =
     (config?.['phoneNumberId'] as string | undefined) ?? process.env['WHATSAPP_PHONE_NUMBER_ID'];
@@ -412,19 +412,19 @@ export function credenciaisDo(cru: Record<string, unknown> | null): CredenciaisC
   if (!phoneNumberId || !tokenAcesso) return null;
   return {
     phoneNumberId,
-    tokenAcesso,
+    tokenAccess,
     apiVersao: (config?.['apiVersao'] as string | undefined) ?? process.env['WHATSAPP_API_VERSAO'],
   };
 }
 
 /** `anexo.chave_storage` é chave no storage de objetos; a base pública é configuração. */
-function urlDaMidia(chave: string): string {
-  if (/^https?:\/\//i.test(chave)) return chave;
+function urlOfMedia(key: string): string {
+  if (/^https?:\/\//i.test(key)) return key;
   const base = (process.env['PIPE_STORAGE_URL_BASE'] ?? 'http://localhost:9000/pipe').replace(
     /\/$/,
     '',
   );
-  return `${base}/${chave.replace(/^\//, '')}`;
+  return `${base}/${key.replace(/^\//, '')}`;
 }
 
 async function gravarFalha(
@@ -432,7 +432,7 @@ async function gravarFalha(
   codigo: string,
   texto: string,
   tentativas = linha.tentativas + 1,
-): Promise<ResultadoEntrega> {
+): Promise<ResultDelivery> {
   await noTenant(linha.tenant_id, async (tx) => {
     await tx.execute(sql`
       update mensagem
@@ -447,14 +447,14 @@ async function gravarFalha(
        where id = ${linha.id}
     `);
   });
-  return { mensagemId: linha.mensagem_id, estado: 'falhou', erroCodigo: codigo, erroTexto: texto };
+  return { messageId: linha.mensagem_id, state: 'falhou', errorCode: codigo, errorText: texto };
 }
 
 async function reagendar(
   linha: Reivindicada,
   tentativas: number,
-  falha: ErroWhatsApp,
-): Promise<ResultadoEntrega> {
+  falha: WhatsAppError,
+): Promise<ResultDelivery> {
   const espera = esperaMs(tentativas);
   await noTenant(linha.tenant_id, async (tx) => {
     // A mensagem volta a `pendente`: para o atendente ela ainda está a caminho.
@@ -470,12 +470,12 @@ async function reagendar(
        where id = ${linha.id}
     `);
   });
-  return { mensagemId: linha.mensagem_id, estado: 'pendente', erroCodigo: falha.codigo };
+  return { messageId: linha.mensagem_id, state: 'pendente', errorCode: falha.codigo };
 }
 
 /** Guarda contra status fora de ordem vindo de webhook. */
-export function podeAvancar(de: EstadoEntrega | null, para: EstadoEntrega): boolean {
+export function podeAvancar(de: StateDelivery | null, para: StateDelivery): boolean {
   if (de === null) return true;
   if (de === para) return false;
-  return transicaoEntregaPermitida(de, para);
+  return transitionDeliveryAllowed(de, para);
 }

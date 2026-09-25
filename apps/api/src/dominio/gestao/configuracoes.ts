@@ -1,21 +1,21 @@
 import { and, asc, count, desc, eq, inArray, isNull, notInArray } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import {
-  canal,
-  conversa,
-  conversaEtiqueta,
+  channel,
+  conversation,
+  conversationLabel,
   etiqueta,
-  fila,
+  queue,
   inbox,
   pesquisa,
   regraSla,
   tenant,
 } from '@pipe/db/schema';
-import type { TransacaoPipe, Ator } from '@pipe/db';
-import { exigirPermissao } from '../../sessao.js';
+import type { TransactionPipe, Ator } from '@pipe/db';
+import { exigirPermission } from '../../sessao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -24,7 +24,7 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * encerramento) são exatamente isso: nenhuma tinha permissão nenhuma antes
  * da tarefa de cadastros do Atendimento (item 7).
  */
-export const CONFIGURACOES_GERAIS_GERENCIAR = 'tenant.configurar';
+export const SETTINGS_GENERAL_MANAGE = 'tenant.configurar';
 
 /**
  * O que está configurado no tenant: o retrato, e o que o muda.
@@ -46,51 +46,51 @@ export interface RegraSlaConfigurada {
   alvo: string;
   prazoSeg: number;
   alertaSeg: number | null;
-  escopoTipo: string;
-  escopoNome: string | null;
+  scopeType: string;
+  scopeName: string | null;
   ativa: boolean;
 }
 
-export interface FilaConfigurada {
+export interface QueueConfigured {
   id: string;
   nome: string;
-  capacidadePadrao: number;
-  ordem: number;
+  capacityDefault: number;
+  order: number;
   temHorario: boolean;
   ativa: boolean;
 }
 
 /** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */
 export const ROTULO_ALVO: Record<string, string> = {
-  primeira_resposta: 'Primeira resposta',
+  firstResponse: 'Primeira resposta',
   resposta: 'Tempo de resposta',
-  resolucao: 'Encerramento',
-  espera_fila: 'Espera na fila',
+  resolution: 'Encerramento',
+  waitQueue: 'Espera na fila',
 };
 
-export const ROTULO_ESCOPO: Record<string, string> = {
+export const LABEL_SCOPE: Record<string, string> = {
   tenant: 'Toda a operação',
-  fila: 'Fila',
+  queue: 'Fila',
 };
 
-export async function carregarRegras(tx: TransacaoPipe): Promise<{
-  filas: FilaConfigurada[];
+export async function carregarRegras(tx: TransactionPipe): Promise<{
+  queues: QueueConfigured[];
   regras: RegraSlaConfigurada[];
 }> {
   return consultar(tx, async (tx) => {
-    const filas = await tx
+    const queues = await tx
       .select({
-        id: fila.id,
-        nome: fila.nome,
-        capacidadePadrao: fila.capacidadePadrao,
-        ordem: fila.ordem,
-        horarioId: fila.horarioId,
-        ativa: fila.ativa,
+        id: queue.id,
+        nome: queue.nome,
+        capacidadePadrao: queue.capacityDefault,
+        ordem: queue.order,
+        horarioId: queue.horarioId,
+        ativa: queue.ativa,
       })
-      .from(fila)
-      .orderBy(asc(fila.ordem), asc(fila.nome));
+      .from(queue)
+      .orderBy(asc(queue.order), asc(queue.nome));
 
-    const nomeDaFila = new Map(filas.map((f) => [f.id, f.nome]));
+    const nameOfQueue = new Map(queues.map((f) => [f.id, f.nome]));
 
     const regras = await tx
       .select({
@@ -100,17 +100,17 @@ export async function carregarRegras(tx: TransacaoPipe): Promise<{
         prazoSeg: regraSla.prazoSeg,
         alertaSeg: regraSla.alertaSeg,
         escopoTipo: regraSla.escopoTipo,
-        escopoId: regraSla.escopoId,
+        scopeId: regraSla.escopoId,
         ativa: regraSla.ativa,
       })
       .from(regraSla)
       .orderBy(asc(regraSla.nome));
 
     return {
-      filas: filas.map(({ horarioId, ...resto }) => ({ ...resto, temHorario: horarioId !== null })),
-      regras: regras.map(({ escopoId, ...resto }) => ({
+      filas: queues.map(({ horarioId, ...resto }) => ({ ...resto, temHorario: horarioId !== null })),
+      regras: regras.map(({ scopeId, ...resto }) => ({
         ...resto,
-        escopoNome: escopoId ? (nomeDaFila.get(escopoId) ?? 'fila removida') : null,
+        escopoNome: scopeId ? (nameOfQueue.get(scopeId) ?? 'fila removida') : null,
       })),
     };
   });
@@ -127,21 +127,21 @@ export async function carregarRegras(tx: TransacaoPipe): Promise<{
 export interface EtiquetaConfigurada {
   id: string;
   nome: string;
-  escopo: string;
-  obrigatoriaNoEncerramento: boolean;
+  scope: string;
+  requiredInClosure: boolean;
   usos: number;
 }
 
-export interface CanalConfigurado {
+export interface ChannelConfigured {
   id: string;
   nome: string;
   tipo: string;
   ativo: boolean;
 }
 
-export async function carregarDados(tx: TransacaoPipe): Promise<{
+export async function loadData(tx: TransactionPipe): Promise<{
   etiquetas: EtiquetaConfigurada[];
-  canais: CanalConfigurado[];
+  channels: ChannelConfigured[];
 }> {
   return consultar(tx, async (tx) => {
     const etiquetas = await tx
@@ -149,20 +149,20 @@ export async function carregarDados(tx: TransacaoPipe): Promise<{
         id: etiqueta.id,
         nome: etiqueta.nome,
         escopo: etiqueta.escopo,
-        obrigatoriaNoEncerramento: etiqueta.obrigatoriaNoEncerramento,
-        usos: count(conversaEtiqueta.conversaId),
+        obrigatoriaNoEncerramento: etiqueta.requiredInClosure,
+        usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
-      .leftJoin(conversaEtiqueta, eq(conversaEtiqueta.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.obrigatoriaNoEncerramento)
+      .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.requiredInClosure)
       .orderBy(asc(etiqueta.nome));
 
-    const canais = await tx
-      .select({ id: canal.id, nome: canal.nome, tipo: canal.tipo, ativo: canal.ativo })
-      .from(canal)
-      .orderBy(asc(canal.nome));
+    const channels = await tx
+      .select({ id: channel.id, nome: channel.nome, tipo: channel.tipo, ativo: channel.ativo })
+      .from(channel)
+      .orderBy(asc(channel.nome));
 
-    return { etiquetas, canais };
+    return { etiquetas, channels };
   });
 }
 
@@ -178,46 +178,46 @@ export async function carregarDados(tx: TransacaoPipe): Promise<{
  * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
  * ao olhar um canal é se ele está entregando agora.
  */
-export interface CaixaDoCanal {
+export interface CaixaOfChannel {
   id: string;
   nome: string;
-  filaPadrao: string | null;
+  queueDefault: string | null;
   abertas: number;
 }
 
-export interface CanalDetalhado extends CanalConfigurado {
+export interface ChannelDetailed extends ChannelConfigured {
   criadoEm: Date;
-  caixas: CaixaDoCanal[];
+  caixas: CaixaOfChannel[];
 }
 
-export async function carregarCanais(tx: TransacaoPipe): Promise<CanalDetalhado[]> {
+export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed[]> {
   return consultar(tx, async (tx) => {
     const canais = await tx
       .select({
-        id: canal.id,
-        nome: canal.nome,
-        tipo: canal.tipo,
-        ativo: canal.ativo,
-        criadoEm: canal.criadoEm,
+        id: channel.id,
+        nome: channel.nome,
+        tipo: channel.tipo,
+        ativo: channel.ativo,
+        criadoEm: channel.criadoEm,
       })
-      .from(canal)
-      .orderBy(asc(canal.nome));
+      .from(channel)
+      .orderBy(asc(channel.nome));
 
     /* Uma consulta para todas as caixas, agrupada em memória depois. Não é
        Promise.all dentro da transação de propósito: consulta paralela na mesma
        conexão perde a variável de sessão do RLS. */
     const caixas = await tx
       .select({
-        canalId: inbox.canalId,
+        canalId: inbox.channelId,
         id: inbox.id,
         nome: inbox.nome,
-        filaPadrao: fila.nome,
-        abertas: count(conversa.id),
+        filaPadrao: queue.nome,
+        abertas: count(conversation.id),
       })
       .from(inbox)
-      .leftJoin(fila, eq(fila.id, inbox.filaPadraoId))
-      .leftJoin(conversa, and(eq(conversa.inboxId, inbox.id), isNull(conversa.encerradaEm)))
-      .groupBy(inbox.canalId, inbox.id, inbox.nome, fila.nome)
+      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
+      .leftJoin(conversation, and(eq(conversation.inboxId, inbox.id), isNull(conversation.encerradaEm)))
+      .groupBy(inbox.channelId, inbox.id, inbox.nome, queue.nome)
       .orderBy(asc(inbox.nome));
 
     return canais.map((c) => ({
@@ -236,7 +236,7 @@ export async function carregarCanais(tx: TransacaoPipe): Promise<CanalDetalhado[
    (`blip-telas-cadastro.md` §3): "em Configurações gerais não há um botão
    Salvar da tela". */
 
-export interface IdentidadeDoTenant {
+export interface IdentityOfTenant {
   nome: string;
   fuso: string;
   idioma: string;
@@ -250,26 +250,26 @@ export interface PesquisaConfigurada {
   escalaMax: number;
   pergunta: string;
   disparo: string;
-  ativa: boolean;
+  active: boolean;
 }
 
-export interface EtiquetaDeEncerramento {
+export interface LabelOfClosure {
   id: string;
   nome: string;
   obrigatoria: boolean;
   usos: number;
 }
 
-export interface ConfiguracoesGerais {
-  identidade: IdentidadeDoTenant;
+export interface SettingsGeneral {
+  identity: IdentityOfTenant;
   /** A pesquisa ativa do tenant, ou `null` quando ninguém configurou nenhuma. */
   pesquisa: PesquisaConfigurada | null;
   /** Quantas pesquisas existem além dessa — a §6 exige uma escala por pesquisa. */
   outrasPesquisas: number;
-  etiquetas: EtiquetaDeEncerramento[];
+  etiquetas: LabelOfClosure[];
 }
 
-export async function carregarGerais(tx: TransacaoPipe): Promise<ConfiguracoesGerais> {
+export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral> {
   return consultar(tx, async (tx) => {
     const [dono] = await tx
       .select({
@@ -302,15 +302,15 @@ export async function carregarGerais(tx: TransacaoPipe): Promise<ConfiguracoesGe
       .select({
         id: etiqueta.id,
         nome: etiqueta.nome,
-        obrigatoria: etiqueta.obrigatoriaNoEncerramento,
-        usos: count(conversaEtiqueta.conversaId),
+        obrigatoria: etiqueta.requiredInClosure,
+        usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
-      .leftJoin(conversaEtiqueta, eq(conversaEtiqueta.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.obrigatoriaNoEncerramento)
+      .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.requiredInClosure)
       .orderBy(asc(etiqueta.nome));
 
-    const primeira = pesquisas[0];
+    const first = pesquisas[0];
 
     return {
       identidade: {
@@ -319,15 +319,15 @@ export async function carregarGerais(tx: TransacaoPipe): Promise<ConfiguracoesGe
         idioma: dono?.idioma ?? 'pt-BR',
         plano: dono?.plano ?? 'essencial',
       },
-      pesquisa: primeira
+      pesquisa: first
         ? {
-            id: primeira.id,
-            tipo: primeira.tipo,
-            escalaMin: primeira.escalaMin,
-            escalaMax: primeira.escalaMax,
-            pergunta: primeira.pergunta,
-            disparo: primeira.disparo,
-            ativa: primeira.ativa,
+            id: first.id,
+            tipo: first.tipo,
+            escalaMin: first.escalaMin,
+            escalaMax: first.escalaMax,
+            pergunta: first.pergunta,
+            disparo: first.disparo,
+            ativa: first.ativa,
           }
         : null,
       outrasPesquisas: Math.max(0, pesquisas.length - 1),
@@ -345,24 +345,24 @@ export async function carregarGerais(tx: TransacaoPipe): Promise<ConfiguracoesGe
    `diferenca` guarda só o que mudou: quem lê o log quer saber que o fuso foi de
    São Paulo para Manaus, não reler as colunas que continuaram iguais. */
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };
 
 /* `type` e não `interface`: só o alias ganha índice implícito, e é isso que
    deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */
-export type IdentidadeParaGravar = {
+export type IdentityForWrite = {
   nome: string;
   fuso: string;
   idioma: string;
 };
 
-export async function gravarIdentidade(
-  tx: TransacaoPipe,
+export async function writeIdentity(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  entrada: IdentidadeParaGravar,
-): Promise<Gravacao> {
+  inbound: IdentityForWrite,
+): Promise<Recording> {
   if (ator.tipo === 'usuario' && ator.id) {
-    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
     const [antes] = await tx
@@ -372,9 +372,9 @@ export async function gravarIdentidade(
       .limit(1);
     if (!antes) return { ok: false, erro: 'Tenant não encontrado.' };
 
-    await tx.update(tenant).set(entrada).where(eq(tenant.id, tid));
+    await tx.update(tenant).set(inbound).where(eq(tenant.id, tid));
 
-    const mudou = diferenca(antes, entrada);
+    const mudou = diferenca(antes, inbound);
     await registrarAuditoria(tx, tid, {
       ator: ator,
       acao: 'alterou',
@@ -400,21 +400,21 @@ export interface PesquisaParaGravar {
 }
 
 export async function gravarPesquisa(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   entrada: PesquisaParaGravar,
-): Promise<Gravacao> {
+): Promise<Recording> {
   if (ator.tipo === 'usuario' && ator.id) {
-    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
-  const { id, ...valores } = entrada;
+  const { id, ...values } = entrada;
 
   return consultar(tx, async (tx) => {
     if (!id) {
       const [criada] = await tx
         .insert(pesquisa)
-        .values({ tenantId: tid, ...valores })
+        .values({ tenantId: tid, ...values })
         .returning({ id: pesquisa.id });
       if (!criada) return { ok: false, erro: 'Não consegui gravar a pesquisa.' };
 
@@ -423,7 +423,7 @@ export async function gravarPesquisa(
         acao: 'criou',
         objetoTipo: 'pesquisa',
         objetoId: criada.id,
-        depois: valores,
+        depois: values,
       });
       return { ok: true };
     }
@@ -442,9 +442,9 @@ export async function gravarPesquisa(
       .limit(1);
     if (!antes) return { ok: false, erro: 'Pesquisa não encontrada.' };
 
-    await tx.update(pesquisa).set(valores).where(eq(pesquisa.id, id));
+    await tx.update(pesquisa).set(values).where(eq(pesquisa.id, id));
 
-    const mudou = diferenca(antes, valores);
+    const mudou = diferenca(antes, values);
     await registrarAuditoria(tx, tid, {
       ator: ator,
       acao: 'alterou',
@@ -465,20 +465,20 @@ export async function gravarPesquisa(
  * deixa de ser. Mandar só as marcadas e nunca desmarcar nada faria a exigência
  * crescer para sempre — e ninguém consegue desfazer pela tela.
  */
-export async function gravarEtiquetasDeEncerramento(
-  tx: TransacaoPipe,
+export async function writeLabelsOfClosure(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   escolhidas: readonly string[],
-): Promise<Gravacao> {
+): Promise<Recording> {
   if (ator.tipo === 'usuario' && ator.id) {
-    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+    await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
     const antes = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
 
     if (escolhidas.length > 0) {
       const validas = await tx
@@ -508,7 +508,7 @@ export async function gravarEtiquetasDeEncerramento(
     const depois = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
 
     await registrarAuditoria(tx, tid, {
       ator: ator,

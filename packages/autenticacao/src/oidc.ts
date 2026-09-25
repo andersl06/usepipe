@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { PROVEDORES_SSO } from '@pipe/db/schema';
-import { LoginErro } from './google.js';
+import { LoginError } from './google.js';
 import type { DesafioDeLogin, PessoaExterna } from './google.js';
 
 /**
@@ -37,9 +37,9 @@ export interface ConfigOidc {
   /** O `issuer`, sem `/.well-known/...`. É ele que a descoberta tem de confirmar. */
   emissor: string;
   clienteId: string;
-  clienteSegredo: string;
+  customerSecret: string;
   /** Precisa bater EXATAMENTE com o cadastrado no IdP. */
-  urlDeRetorno: string;
+  urlOfCallback: string;
   /**
    * Os `tid` aceitos, para app multi-tenant no Entra.
    *
@@ -52,12 +52,12 @@ export interface ConfigOidc {
 
 export interface DescobertaOidc {
   emissor: string;
-  autorizacao: string;
+  authorization: string;
   token: string;
   jwks: string;
 }
 
-interface DocumentoDeDescoberta {
+interface DocumentOfDiscovery {
   issuer?: unknown;
   authorization_endpoint?: unknown;
   token_endpoint?: unknown;
@@ -81,46 +81,46 @@ export async function descobrir(
 ): Promise<DescobertaOidc> {
   const base = emissor.replace(/\/$/, '');
   if (!base.startsWith('https://')) {
-    throw new LoginErro('emissor_inseguro', 'O emissor precisa ser https.');
+    throw new LoginError('emissor_inseguro', 'O emissor precisa ser https.');
   }
 
-  let documento: DocumentoDeDescoberta;
+  let document: DocumentOfDiscovery;
   try {
     const resposta = await buscar(`${base}/.well-known/openid-configuration`);
     if (!resposta.ok) {
-      throw new LoginErro('descoberta_falhou', `A descoberta falhou (${resposta.status}).`);
+      throw new LoginError('descoberta_falhou', `A descoberta falhou (${resposta.status}).`);
     }
-    documento = (await resposta.json()) as DocumentoDeDescoberta;
-  } catch (erro) {
-    if (erro instanceof LoginErro) throw erro;
-    throw new LoginErro('descoberta_falhou', `Não consegui ler a configuração de ${base}.`);
+    document = (await resposta.json()) as DocumentOfDiscovery;
+  } catch (error) {
+    if (error instanceof LoginError) throw error;
+    throw new LoginError('descoberta_falhou', `Não consegui ler a configuração de ${base}.`);
   }
 
-  const { issuer, authorization_endpoint, token_endpoint, jwks_uri } = documento;
+  const { issuer, authorization_endpoint, token_endpoint, jwks_uri } = document;
   if (
     typeof issuer !== 'string' ||
     typeof authorization_endpoint !== 'string' ||
     typeof token_endpoint !== 'string' ||
     typeof jwks_uri !== 'string'
   ) {
-    throw new LoginErro('descoberta_incompleta', 'A configuração veio sem os endpoints do OIDC.');
+    throw new LoginError('descoberta_incompleta', 'A configuração veio sem os endpoints do OIDC.');
   }
 
   if (issuer.replace(/\/$/, '') !== base) {
-    throw new LoginErro(
+    throw new LoginError(
       'emissor_divergente',
       `A configuração de ${base} se declara emissora de "${issuer}".`,
     );
   }
 
-  return { emissor: issuer, autorizacao: authorization_endpoint, token: token_endpoint, jwks: jwks_uri };
+  return { emissor: issuer, authorization: authorization_endpoint, token: token_endpoint, jwks: jwks_uri };
 }
 
 /**
  * A ida ao IdP. Mesmo desafio do Google — `criarDesafio` serve aos dois, e é de
  * propósito: `state`, `nonce` e o verificador PKCE não têm nada de específico.
  */
-export function urlDeAutorizacaoOidc(
+export function urlOfAuthorizationOidc(
   config: ConfigOidc,
   descoberta: DescobertaOidc,
   desafio: DesafioDeLogin,
@@ -128,7 +128,7 @@ export function urlDeAutorizacaoOidc(
   const desafioPkce = createHash('sha256').update(desafio.verificadorPkce).digest('base64url');
   const parametros = new URLSearchParams({
     client_id: config.clienteId,
-    redirect_uri: config.urlDeRetorno,
+    redirect_uri: config.urlOfCallback,
     response_type: 'code',
     scope: 'openid email profile',
     state: desafio.state,
@@ -136,7 +136,7 @@ export function urlDeAutorizacaoOidc(
     code_challenge: desafioPkce,
     code_challenge_method: 'S256',
   });
-  return `${descoberta.autorizacao}?${parametros.toString()}`;
+  return `${descoberta.authorization}?${parametros.toString()}`;
 }
 
 /**
@@ -144,19 +144,19 @@ export function urlDeAutorizacaoOidc(
  * chave por dentro — criar um por login refaria a busca a cada entrada e faria a
  * rotação de certificado do cliente virar um pico de requisições no IdP dele.
  */
-const jwksPorEmissor = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
+const jwksByIssuer = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
 function chavesDe(descoberta: DescobertaOidc): ReturnType<typeof createRemoteJWKSet> {
-  let chaves = jwksPorEmissor.get(descoberta.jwks);
+  let chaves = jwksByIssuer.get(descoberta.jwks);
   if (!chaves) {
     chaves = createRemoteJWKSet(new URL(descoberta.jwks));
-    jwksPorEmissor.set(descoberta.jwks, chaves);
+    jwksByIssuer.set(descoberta.jwks, chaves);
   }
   return chaves;
 }
 
 /** Troca o código pelo `id_token` e o verifica. `buscar` e `chaves` são injetáveis para o teste. */
-export async function trocarCodigoOidc(
+export async function exchangeCodeOidc(
   config: ConfigOidc,
   descoberta: DescobertaOidc,
   desafio: DesafioDeLogin,
@@ -165,11 +165,11 @@ export async function trocarCodigoOidc(
   chaves?: Parameters<typeof jwtVerify>[1],
 ): Promise<PessoaExterna> {
   if (parametros.error) {
-    throw new LoginErro('provedor_recusou', `O provedor recusou: ${parametros.error}`);
+    throw new LoginError('provedor_recusou', `O provedor recusou: ${parametros.error}`);
   }
-  if (!parametros.code) throw new LoginErro('sem_codigo', 'A volta do provedor veio sem código.');
+  if (!parametros.code) throw new LoginError('sem_codigo', 'A volta do provedor veio sem código.');
   if (!parametros.state || parametros.state !== desafio.state) {
-    throw new LoginErro('state_invalido', 'O `state` não confere: tentativa de login forjada.');
+    throw new LoginError('state_invalido', 'O `state` não confere: tentativa de login forjada.');
   }
 
   const resposta = await buscar(descoberta.token, {
@@ -178,18 +178,18 @@ export async function trocarCodigoOidc(
     body: new URLSearchParams({
       code: parametros.code,
       client_id: config.clienteId,
-      client_secret: config.clienteSegredo,
-      redirect_uri: config.urlDeRetorno,
+      client_secret: config.customerSecret,
+      redirect_uri: config.urlOfCallback,
       grant_type: 'authorization_code',
       code_verifier: desafio.verificadorPkce,
     }),
   });
 
   if (!resposta.ok) {
-    throw new LoginErro('troca_falhou', `A troca do código falhou (${resposta.status}).`);
+    throw new LoginError('troca_falhou', `A troca do código falhou (${resposta.status}).`);
   }
   const corpo = (await resposta.json()) as { id_token?: string };
-  if (!corpo.id_token) throw new LoginErro('sem_id_token', 'A resposta veio sem `id_token`.');
+  if (!corpo.id_token) throw new LoginError('sem_id_token', 'A resposta veio sem `id_token`.');
 
   return verificarIdTokenOidc(corpo.id_token, config, descoberta, desafio.nonce, chaves);
 }
@@ -209,13 +209,13 @@ export async function verificarIdTokenOidc(
   });
 
   if (payload['nonce'] !== nonce) {
-    throw new LoginErro('nonce_invalido', 'O `nonce` não confere: token reaproveitado.');
+    throw new LoginError('nonce_invalido', 'O `nonce` não confere: token reaproveitado.');
   }
 
   // Com `aud` de vários valores, quem manda é o `azp`: sem esta conferência, um
   // token emitido para outro cliente que nos liste junto passaria.
   if (Array.isArray(payload.aud) && payload['azp'] !== config.clienteId) {
-    throw new LoginErro('azp_invalido', 'O token foi emitido para outro aplicativo.');
+    throw new LoginError('azp_invalido', 'O token foi emitido para outro aplicativo.');
   }
 
   if (config.provedor === 'entra') conferirTenantDoEntra(config, payload);
@@ -223,7 +223,7 @@ export async function verificarIdTokenOidc(
   const sujeito = sujeitoDoToken(config.provedor, payload);
   const email = typeof payload['email'] === 'string' ? payload['email'].toLowerCase() : '';
   if (!sujeito || !email) {
-    throw new LoginErro('token_incompleto', 'O `id_token` veio sem sujeito ou sem `email`.');
+    throw new LoginError('token_incompleto', 'O `id_token` veio sem sujeito ou sem `email`.');
   }
 
   return {
@@ -252,7 +252,7 @@ function conferirTenantDoEntra(config: ConfigOidc, payload: Record<string, unkno
   if (tids.length === 0) return;
   const tid = payload['tid'];
   if (typeof tid !== 'string' || !tids.includes(tid)) {
-    throw new LoginErro(
+    throw new LoginError(
       'tenant_do_idp_invalido',
       'O token veio de outro diretório da Microsoft, não do diretório desta conta.',
     );

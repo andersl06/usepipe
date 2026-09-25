@@ -67,7 +67,7 @@ export function EsqueletoDeCampos({ linhas = 6 }: { linhas?: number }) {
  * `aria-hidden` — uma tabela de barras vazias lida em voz alta é ruído — então
  * alguém precisa dizer que a tela está trabalhando.
  */
-export function AvisoDeCarregamento({ children }: { children: React.ReactNode }) {
+export function LoadingNotice({ children }: { children: React.ReactNode }) {
   return (
     <span role="status" aria-live="polite" className="sr">
       {children}

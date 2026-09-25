@@ -1,12 +1,12 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { fluxo } from '@pipe/db/schema';
-import type { ConfiguracaoDeBoasVindas, ConfiguracaoDeMenuPersistente } from '@pipe/contracts';
-import { ErroPipe } from '../../erros.js';
-import { carregarContato } from '../gestao-fluxo.js';
-import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
-import { aplicarPerfilMessenger, lerCanalMessenger } from '../messenger/canal.js';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { flow } from '@pipe/db/schema';
+import type { ConfigurationOfWelcome, ConfigurationOfMenuPersistent } from '@pipe/contracts';
+import { PipeError } from '../../erros.js';
+import { loadContact } from '../gestao-fluxo.js';
+import { exigirPermissionInFlow } from './equipe-do-fluxo.js';
+import { aplicarPerfilMessenger, readChannelMessenger } from '../messenger/canal.js';
 
 /**
  * "Tela de Boas-vindas" e "Menu Persistente" — os itens 2 e 3 de
@@ -28,64 +28,64 @@ import { aplicarPerfilMessenger, lerCanalMessenger } from '../messenger/canal.js
 export const TEXTO_BOTAO_MAX = 20;
 export const MAXIMO_DE_ITENS_MENU = 3;
 
-interface ConfiguracaoArmazenada {
-  boasVindas?: Partial<ConfiguracaoDeBoasVindas>;
+interface ConfigurationStored {
+  boasVindas?: Partial<ConfigurationOfWelcome>;
   menuPersistente?: { itens?: unknown };
 }
 
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 /** O fluxo vivo desta conta, com a configuração bruta — ou 404. */
-async function fluxoVivo(
-  tx: TransacaoPipe,
+async function flowVivo(
+  tx: TransactionPipe,
   tid: string,
   id: string,
-): Promise<{ configuracao: ConfiguracaoArmazenada }> {
+): Promise<{ configuration: ConfigurationStored }> {
   const [atual] = await tx
-    .select({ configuracao: fluxo.configuracao })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id), ne(fluxo.estado, 'arquivado')))
+    .select({ configuration: flow.configuration })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, id), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
-  return { configuracao: (atual.configuracao ?? {}) as ConfiguracaoArmazenada };
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
+  return { configuration: (atual.configuration ?? {}) as ConfigurationStored };
 }
 
-async function gravarConfiguracao(
-  tx: TransacaoPipe,
+async function writeConfiguration(
+  tx: TransactionPipe,
   tid: string,
   id: string,
-  configuracao: ConfiguracaoArmazenada,
+  configuracao: ConfigurationStored,
 ): Promise<void> {
   await tx
-    .update(fluxo)
+    .update(flow)
     .set({ configuracao, atualizadoEm: new Date() })
-    .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id)));
+    .where(and(eq(flow.tenantId, tid), eq(flow.id, id)));
 }
 
 /* ------------------------------------------------------- Boas-vindas */
 
-function boasVindasDe(configuracao: ConfiguracaoArmazenada): ConfiguracaoDeBoasVindas {
+function boasVindasDe(configuracao: ConfigurationStored): ConfigurationOfWelcome {
   const bv = configuracao.boasVindas ?? {};
   return {
     ativo: bv.ativo === true,
-    mensagem: typeof bv.mensagem === 'string' ? bv.mensagem : '',
+    message: typeof bv.message === 'string' ? bv.message : '',
     textoBotao: typeof bv.textoBotao === 'string' ? bv.textoBotao : 'Começar',
   };
 }
 
 export async function carregarBoasVindas(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   id: string,
-): Promise<ConfiguracaoDeBoasVindas> {
-  const { configuracao } = await fluxoVivo(tx, tid, id);
-  return boasVindasDe(configuracao);
+): Promise<ConfigurationOfWelcome> {
+  const { configuration } = await flowVivo(tx, tid, id);
+  return boasVindasDe(configuration);
 }
 
 export interface PedidoDeBoasVindas {
   ativo: boolean;
   /** Só exigidos (e só lidos) quando `ativo` é `true`. */
-  mensagem?: string;
+  message?: string;
   textoBotao?: string;
 }
 
@@ -98,57 +98,57 @@ export interface PedidoDeBoasVindas {
  * sendo a fonte de leitura da tela.
  */
 export async function salvarBoasVindas(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
-  usuarioId: string,
+  userId: string,
   id: string,
   pedido: PedidoDeBoasVindas,
-): Promise<ConfiguracaoDeBoasVindas> {
-  const { configuracao } = await fluxoVivo(tx, tid, id);
+): Promise<ConfigurationOfWelcome> {
+  const { configuration } = await flowVivo(tx, tid, id);
   /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
      quem tem a permissão NESTE contato também salva, sem tirar de quem já
      salvava pela conta (migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, userId, id, 'basicConfigurations.escrever');
 
-  const antes = boasVindasDe(configuracao);
-  let depois: ConfiguracaoDeBoasVindas;
+  const antes = boasVindasDe(configuration);
+  let depois: ConfigurationOfWelcome;
   if (pedido.ativo) {
-    const mensagem = typeof pedido.mensagem === 'string' ? pedido.mensagem.trim() : '';
+    const message = typeof pedido.message === 'string' ? pedido.message.trim() : '';
     const textoBotao = typeof pedido.textoBotao === 'string' ? pedido.textoBotao.trim() : '';
-    if (!mensagem) {
-      throw ErroPipe.requisicao('boas_vindas_mensagem', 'Escreva a mensagem de saudação.');
+    if (!message) {
+      throw PipeError.request('boas_vindas_mensagem', 'Escreva a mensagem de saudação.');
     }
     if (!textoBotao) {
-      throw ErroPipe.requisicao('boas_vindas_botao', 'Escreva o texto do botão.');
+      throw PipeError.request('boas_vindas_botao', 'Escreva o texto do botão.');
     }
     if (textoBotao.length > TEXTO_BOTAO_MAX) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'boas_vindas_botao',
         `O texto do botão pode ter até ${TEXTO_BOTAO_MAX} caracteres.`,
       );
     }
-    depois = { ativo: true, mensagem, textoBotao };
+    depois = { ativo: true, message, textoBotao };
   } else {
     depois = { ...antes, ativo: false };
   }
 
   const mudanca = diferenca({ ...antes }, { ...depois });
   if (Object.keys(mudanca.depois).length > 0) {
-    await gravarConfiguracao(tx, tid, id, { ...configuracao, boasVindas: depois });
+    await writeConfiguration(tx, tid, id, { ...configuration, boasVindas: depois });
     await registrarAuditoria(tx, tid, {
-      ator: ator(usuarioId),
+      ator: ator(userId),
       acao: 'alterou',
       objetoTipo: 'fluxo_boas_vindas',
       objetoId: id,
       antes: mudanca.antes,
       depois: mudanca.depois,
     });
-    const contatoMessenger = await carregarContato(tx, tid, id);
-    if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
-      const canal = await lerCanalMessenger(tid, contatoMessenger.canalId);
+    const contactMessenger = await loadContact(tx, tid, id);
+    if (contactMessenger?.canalTipo === 'messenger' && contactMessenger.canalAtivo && contactMessenger.canalId) {
+      const channel = await readChannelMessenger(tid, contactMessenger.canalId);
       // conferir com token real: get_started e greeting aceitam esta combinação no token da Página.
-      await aplicarPerfilMessenger(canal, depois.ativo
-        ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.mensagem }] }
+      await aplicarPerfilMessenger(channel, depois.ativo
+        ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.message }] }
         : { get_started: null, greeting: [] });
     }
   }
@@ -157,7 +157,7 @@ export async function salvarBoasVindas(
 
 /* --------------------------------------------------- Menu Persistente */
 
-function itensDe(configuracao: ConfiguracaoArmazenada): { texto: string; link: string }[] {
+function itensDe(configuracao: ConfigurationStored): { texto: string; link: string }[] {
   const brutos = configuracao.menuPersistente?.itens;
   if (!Array.isArray(brutos)) return [];
   return brutos.slice(0, MAXIMO_DE_ITENS_MENU).map((item) => {
@@ -170,20 +170,20 @@ function itensDe(configuracao: ConfiguracaoArmazenada): { texto: string; link: s
 }
 
 /** Preenchida = ativa, com mensagem e texto do botão — a trava que o menu persistente pede. */
-function boasVindasPreenchidaEm(configuracao: ConfiguracaoArmazenada): boolean {
+function boasVindasPreenchidaEm(configuracao: ConfigurationStored): boolean {
   const bv = boasVindasDe(configuracao);
-  return bv.ativo && bv.mensagem.trim().length > 0 && bv.textoBotao.trim().length > 0;
+  return bv.ativo && bv.message.trim().length > 0 && bv.textoBotao.trim().length > 0;
 }
 
 export async function carregarMenuPersistente(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   id: string,
-): Promise<ConfiguracaoDeMenuPersistente> {
-  const { configuracao } = await fluxoVivo(tx, tid, id);
+): Promise<ConfigurationOfMenuPersistent> {
+  const { configuration } = await flowVivo(tx, tid, id);
   return {
-    itens: itensDe(configuracao),
-    boasVindasPreenchida: boasVindasPreenchidaEm(configuracao),
+    itens: itensDe(configuration),
+    boasVindasPreenchida: boasVindasPreenchidaEm(configuration),
   };
 }
 
@@ -198,27 +198,27 @@ export interface ItemDoPedido {
  * como ser reproduzido de verdade" — agora tem, porque Boas-vindas grava).
  */
 export async function salvarMenuPersistente(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
   pedido: ItemDoPedido[],
-): Promise<ConfiguracaoDeMenuPersistente> {
-  const { configuracao } = await fluxoVivo(tx, tid, id);
+): Promise<ConfigurationOfMenuPersistent> {
+  const { configuration } = await flowVivo(tx, tid, id);
   /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
      quem tem a permissão NESTE contato também salva, sem tirar de quem já
      salvava pela conta (migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
-  const contato = await carregarContato(tx, tid, id);
-  if (contato?.canalTipo !== 'messenger' || contato.canalAtivo !== true) {
-    throw ErroPipe.requisicao(
+  const contact = await loadContact(tx, tid, id);
+  if (contact?.canalTipo !== 'messenger' || contact.canalAtivo !== true) {
+    throw PipeError.request(
       'menu_persistente_canal',
       'Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook Messenger.',
     );
   }
-  if (!boasVindasPreenchidaEm(configuracao)) {
-    throw ErroPipe.requisicao(
+  if (!boasVindasPreenchidaEm(configuration)) {
+    throw PipeError.request(
       'menu_persistente_boas_vindas',
       'Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas.',
     );
@@ -232,7 +232,7 @@ export async function salvarMenuPersistente(
     }));
   for (const item of itens) {
     if (Boolean(item.texto) !== Boolean(item.link)) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'menu_persistente_item',
         'Preencha o texto e o link do item, ou deixe os dois vazios.',
       );
@@ -240,15 +240,15 @@ export async function salvarMenuPersistente(
   }
   const preenchidos = itens.filter((item) => item.texto && item.link);
 
-  const antes = { itens: itensDe(configuracao) };
+  const antes = { itens: itensDe(configuration) };
   const depois = { itens: preenchidos };
   const mudanca = diferenca(
     { itens: JSON.stringify(antes.itens) },
     { itens: JSON.stringify(depois.itens) },
   );
   if (Object.keys(mudanca.depois).length > 0) {
-    await gravarConfiguracao(tx, tid, id, {
-      ...configuracao,
+    await writeConfiguration(tx, tid, id, {
+      ...configuration,
       menuPersistente: { itens: preenchidos },
     });
     await registrarAuditoria(tx, tid, {
@@ -260,9 +260,9 @@ export async function salvarMenuPersistente(
       depois,
     });
   }
-  const contatoMessenger = await carregarContato(tx, tid, id);
+  const contatoMessenger = await loadContact(tx, tid, id);
   if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
-    const canal = await lerCanalMessenger(tid, contatoMessenger.canalId);
+    const canal = await readChannelMessenger(tid, contatoMessenger.canalId);
     // conferir com token real: a Página aceita persistent_menu neste formato.
     await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', composer_input_disabled: false, call_to_actions: preenchidos.map((item) => ({ type: 'web_url', title: item.texto, url: item.link })) }] });
   }

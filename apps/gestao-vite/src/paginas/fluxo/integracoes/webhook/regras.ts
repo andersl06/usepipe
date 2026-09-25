@@ -22,14 +22,14 @@ export function adicionarUrl(urls: readonly string[]): string[] {
 }
 
 export function removerUrl(urls: readonly string[], indice: number): string[] {
-  return urls.filter((_, posicao) => posicao !== indice);
+  return urls.filter((_, position) => position !== indice);
 }
 
 export function urlValida(url: string, urls: readonly string[]): boolean {
   const tamanhoOk = url.length <= 512;
-  const formatoOk = URL_HTTPS.test(url);
+  const formatOk = URL_HTTPS.test(url);
   const unica = urls.filter((outra) => outra === url).length === 1;
-  return tamanhoOk && formatoOk && unica;
+  return tamanhoOk && formatOk && unica;
 }
 
 /** `validateUrls()` no carregamento: linha vazia conta como válida até ser tocada. */

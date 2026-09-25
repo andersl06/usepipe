@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { RecusaDeEntrada } from '@pipe/contracts';
-import { caminhoInterno, descobrirEntrada, urlDeEntradaComGoogle, urlNaApi } from '../lib/entrada';
+import type { RefusesOfInbound } from '@pipe/contracts';
+import { caminhoInterno, descobrirInbound, inboundWithGoogleUrl, urlNaApi } from '../lib/entrada';
 import { FundoPipe } from './fundo-pipe';
 
 /**
@@ -18,7 +18,7 @@ import { FundoPipe } from './fundo-pipe';
  *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
  *    lugar diferente.
  */
-const RECUSAS: Record<RecusaDeEntrada, { titulo: string; saida: string }> = {
+const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
   dominio_publico: {
     titulo: 'Este e-mail é pessoal, e ele não diz de que empresa você é',
     saida:
@@ -72,18 +72,18 @@ const AVISOS: Record<string, { titulo: string; saida: string }> = {
   },
 };
 
-function ehRecusa(codigo: string | null): codigo is RecusaDeEntrada {
+function ehRecusa(codigo: string | null): codigo is RefusesOfInbound {
   return codigo !== null && codigo in RECUSAS;
 }
 
-export function PaginaEntrar() {
+export function PageLogin() {
   const [parametros, setParametros] = useSearchParams();
-  const destino = caminhoInterno(parametros.get('destino'));
+  const destination = caminhoInterno(parametros.get('destino'));
   const [email, setEmail] = useState(parametros.get('email') ?? '');
   const [enviando, setEnviando] = useState(false);
 
-  const erro = parametros.get('erro');
-  const recusa = ehRecusa(erro) ? RECUSAS[erro] : null;
+  const error = parametros.get('erro');
+  const recusa = ehRecusa(error) ? RECUSAS[error] : null;
   const aviso = recusa ? null : (AVISOS[parametros.get('metodo') ?? ''] ?? null);
   const alerta = recusa ?? aviso;
 
@@ -91,14 +91,14 @@ export function PaginaEntrar() {
   async function continuar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setEnviando(true);
-    const entrada = await descobrirEntrada(email.trim());
-    if (entrada.metodo === 'sso' && entrada.irPara) {
-      window.location.assign(urlNaApi(entrada.irPara, destino));
+    const inbound = await descobrirInbound(email.trim());
+    if (inbound.metodo === 'sso' && inbound.irPara) {
+      window.location.assign(urlNaApi(inbound.irPara, destination));
       return;
     }
     // Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.
-    const volta = new URLSearchParams({ metodo: entrada.metodo, email: email.trim() });
-    if (destino !== '/') volta.set('destino', destino);
+    const volta = new URLSearchParams({ metodo: inbound.metodo, email: email.trim() });
+    if (destination !== '/') volta.set('destino', destination);
     setParametros(volta, { replace: true });
     setEnviando(false);
   }
@@ -127,7 +127,7 @@ export function PaginaEntrar() {
           ) : null}
 
           {/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */}
-          <a className="entrar-google" href={urlDeEntradaComGoogle({ destino })}>
+          <a className="entrar-google" href={inboundWithGoogleUrl({ destination })}>
             <LogoGoogle />
             <span>Entrar com Google</span>
           </a>

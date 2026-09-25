@@ -8,13 +8,13 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { telefoneValido, MAX_CONTATOS_POR_DISPARO } = await import('../src/dominio/mensagem-ativa.js');
+const { telefoneValido, MAX_CONTACTS_BY_TRIGGER } = await import('../src/dominio/mensagem-ativa.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Mensagem ativa: disparo de template para uma lista.
@@ -32,19 +32,19 @@ let templateId: string;
 
 beforeAll(async () => {
   cenario = await montarCenario(`ativa-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
 
-  const novo = criarToken();
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookie = novo.token;
 
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo,
                                    status_meta, cabecalho_tipo)
-    values (${cenario.tenantId}, ${cenario.canalId}, 'boas_vindas', 'pt_BR', 'utilidade',
+    values (${cenario.tenantId}, ${cenario.channelId}, 'boas_vindas', 'pt_BR', 'utilidade',
             'Olá {{1}}, tudo bem?', 'aprovado', 'nenhum')
     returning id
   `);
@@ -60,7 +60,7 @@ function disparar(corpo: Record<string, unknown>): Promise<Response> {
   return fetch(`${api.url}/v1/mensagens-ativas`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
-    body: JSON.stringify({ canal_id: cenario.canalId, template_id: templateId, ...corpo }),
+    body: JSON.stringify({ canal_id: cenario.channelId, template_id: templateId, ...corpo }),
   });
 }
 
@@ -99,50 +99,50 @@ describe('disparo', () => {
     const corpo = (await resposta.json()) as {
       enviadas: number;
       recusadas: number;
-      data: { telefone: string; enviada: boolean; mensagem_id: string | null }[];
+      data: { telefone: string; enviada: boolean; messageId: string | null }[];
     };
     expect(corpo.enviadas).toBe(2);
     expect(corpo.recusadas).toBe(0);
-    expect(corpo.data.every((d) => d.mensagem_id !== null)).toBe(true);
+    expect(corpo.data.every((d) => d.messageId !== null)).toBe(true);
   });
 
   it('a mensagem entra no OUTBOX, como qualquer envio', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { mensagem_id: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ estado: string }>(
+    const { rows } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${data[0]!.mensagem_id}::uuid`,
     );
-    expect(rows[0]?.estado).toBe('pendente');
+    expect(rows[0]?.state).toBe('pendente');
   });
 
   it('cria a conversa já atribuída a quem disparou, com evento de origem', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
-    const { data } = (await r.json()) as { data: { conversa_id: string }[] };
+    const { data } = (await r.json()) as { data: { conversationId: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ atendente_id: string; estado: string }>(
-      sql`select atendente_id, estado from conversa where id = ${data[0]!.conversa_id}::uuid`,
+    const { rows } = await cenario.dono.execute<{ agentId: string; estado: string }>(
+      sql`select atendente_id, estado from conversa where id = ${data[0]!.conversationId}::uuid`,
     );
-    expect(rows[0]!.atendente_id).toBe(cenario.atendenteId);
+    expect(rows[0]!.agentId).toBe(cenario.agentId);
     // Nasce `atribuida` e o próprio disparo já a leva a `em_atendimento` — o template
     // É a primeira mensagem do atendente.
     expect(rows[0]!.estado).toBe('em_atendimento');
 
-    const { rows: ev } = await cenario.dono.execute<{ dados: Record<string, string> }>(sql`
+    const { rows: ev } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
       select dados from evento_atendimento
-       where conversa_id = ${data[0]!.conversa_id}::uuid and tipo = 'criada' limit 1
+       where conversa_id = ${data[0]!.conversationId}::uuid and tipo = 'criada' limit 1
     `);
-    expect(ev[0]?.dados['origem']).toBe('mensagem_ativa');
+    expect(ev[0]?.data['origem']).toBe('mensagem_ativa');
   });
 
   it('NÃO marca a janela de 24h — quem abre é a resposta do cliente', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ janela_expira_em: Date | null }>(
+    const { rows } = await cenario.dono.execute<{ windowExpiresAt: Date | null }>(
       sql`select janela_expira_em from conversa where id = ${data[0]!.conversa_id}::uuid`,
     );
-    expect(rows[0]!.janela_expira_em).toBeNull();
+    expect(rows[0]!.windowExpiresAt).toBeNull();
   });
 
   it('NÃO conta como primeira resposta — senão o TMR ganharia zeros de graça', async () => {
@@ -152,10 +152,10 @@ describe('disparo', () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ primeira_resposta_em: Date | null }>(
+    const { rows } = await cenario.dono.execute<{ firstResponseAt: Date | null }>(
       sql`select primeira_resposta_em from conversa where id = ${data[0]!.conversa_id}::uuid`,
     );
-    expect(rows[0]!.primeira_resposta_em).toBeNull();
+    expect(rows[0]!.firstResponseAt).toBeNull();
 
     const { rows: ev } = await cenario.dono.execute<{ n: number }>(sql`
       select count(*)::int as n from evento_atendimento
@@ -166,18 +166,18 @@ describe('disparo', () => {
 
   it('reaproveita o contato existente em vez de duplicar', async () => {
     const telefone = telefoneNovo();
-    const primeiro = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
-    const { data: d1 } = (await primeiro.json()) as { data: { contato_id: string }[] };
+    const first = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
+    const { data: d1 } = (await first.json()) as { data: { contactId: string }[] };
 
     // Encerra para não cair na recusa de "já em atendimento".
     await cenario.dono.execute(
-      sql`update conversa set estado = 'encerrada', encerrada_em = now() where contato_id = ${d1[0]!.contato_id}::uuid`,
+      sql`update conversa set estado = 'encerrada', encerrada_em = now() where contato_id = ${d1[0]!.contactId}::uuid`,
     );
 
     const segundo = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
     const { data: d2 } = (await segundo.json()) as { data: { contato_id: string }[] };
 
-    expect(d2[0]!.contato_id).toBe(d1[0]!.contato_id);
+    expect(d2[0]!.contato_id).toBe(d1[0]!.contactId);
   });
 
   it('aceita parâmetros POR contato', async () => {
@@ -244,12 +244,12 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
   });
 
   it('recusa o lote acima do teto de 15', async () => {
-    const contatos = Array.from({ length: MAX_CONTATOS_POR_DISPARO + 1 }, () => ({
+    const contacts = Array.from({ length: MAX_CONTACTS_BY_TRIGGER + 1 }, () => ({
       telefone: telefoneNovo(),
     }));
-    const resposta = await disparar({ contatos, parametros: ['x'] });
+    const resposta = await disparar({ contacts, parametros: ['x'] });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { error: { codigo: string } }).error.codigo).toBe(
       'limite_de_contatos',
     );
   });
@@ -259,7 +259,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     const semTemplate = await fetch(`${api.url}/v1/mensagens-ativas`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
-      body: JSON.stringify({ canal_id: cenario.canalId, contatos: [{ telefone: telefoneNovo() }] }),
+      body: JSON.stringify({ canal_id: cenario.channelId, contatos: [{ telefone: telefoneNovo() }] }),
     });
     expect(semTemplate.status).toBe(400);
   });
@@ -268,7 +268,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo,
                                      status_meta, cabecalho_tipo)
-      values (${cenario.tenantId}, ${cenario.canalId}, 'reprovado', 'pt_BR', 'marketing',
+      values (${cenario.tenantId}, ${cenario.channelId}, 'reprovado', 'pt_BR', 'marketing',
               'oi', 'rejeitado', 'nenhum')
       returning id
     `);
@@ -276,7 +276,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
       body: JSON.stringify({
-        canal_id: cenario.canalId,
+        canal_id: cenario.channelId,
         template_id: rows[0]!.id,
         contatos: [{ telefone: telefoneNovo() }],
       }),
@@ -291,7 +291,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
         method: 'POST',
         headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
         body: JSON.stringify({
-          canal_id: outro.canalId,
+          canal_id: outro.channelId,
           template_id: templateId,
           contatos: [{ telefone: telefoneNovo() }],
         }),
@@ -314,12 +314,12 @@ describe('painel das últimas 72 horas', () => {
 
     expect(resposta.status).toBe(200);
     const corpo = (await resposta.json()) as {
-      janela_horas: number;
-      data: { telefone: string; estado_entrega: string; template_nome: string }[];
+      windowHours: number;
+      data: { telefone: string; stateDelivery: string; template_nome: string }[];
     };
-    expect(corpo.janela_horas).toBe(72);
+    expect(corpo.windowHours).toBe(72);
     const linha = corpo.data.find((d) => d.telefone === telefone);
-    expect(linha?.estado_entrega).toBe('pendente');
+    expect(linha?.stateDelivery).toBe('pendente');
     expect(linha?.template_nome).toBe('boas_vindas');
   });
 
@@ -327,7 +327,7 @@ describe('painel das últimas 72 horas', () => {
     const resposta = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
       headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
     });
-    const corpo = (await resposta.json()) as { max_contatos_por_disparo: number };
-    expect(corpo.max_contatos_por_disparo).toBe(15);
+    const corpo = (await resposta.json()) as { maxContactsByTrigger: number };
+    expect(corpo.maxContactsByTrigger).toBe(15);
   });
 });

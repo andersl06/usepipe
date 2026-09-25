@@ -2,31 +2,31 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
 import Link from '../../componentes/link';
-import { IconeGestao } from '../../componentes/icones-gestao';
-import { CampoDoPainel, CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
-import { Selecao } from '../../componentes/selecao';
+import { IconeManagement } from '../../componentes/icones-gestao';
+import { PanelField, FieldPeriod, PanelFilters } from '../../componentes/painel-filtros';
+import { Selection } from '../../componentes/selecao';
 import { Dica, Metrica } from '../../componentes/metrica';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import type { Catalogos } from '../../lib/historico';
-import { type RelatorioAtendimento, type LinhaDeQuebra } from '../../lib/atendimento';
-import { dataOuNada, denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
-import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
-import { baseDoContato, useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import { type ReportAttendance, type LinhaDeQuebra } from '../../lib/atendimento';
+import { dataOuNada, denominador, duration, numero, uuidOuNada } from '../../lib/formato';
+import { periodCurrent, periodRotulo } from '../../lib/periodos';
+import { contactBase, useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 
-interface RespostaDoRelatorioDeAtendimento {
+interface RespostaOfReportOfAttendance {
   fuso: string;
   de: string;
   ate: string;
   catalogos: Catalogos;
-  relatorio: RelatorioAtendimento;
+  report: ReportAttendance;
 }
 
-interface Busca {
+interface Search {
   de?: string;
   ate?: string;
-  fila?: string;
-  atendente?: string;
+  queue?: string;
+  agent?: string;
   /** Aba do detalhamento por Atendentes/Filas/Tags — só client-side, não vai à API. */
   aba?: string;
 }
@@ -36,15 +36,15 @@ interface Busca {
  * Filas|Tags"` em `desk-relatorio-atendimento__pagina.html`. A aba mora na
  * querystring, como todo filtro desta tela.
  */
-const ABAS_DETALHAMENTO = [
+const ABAS_BREAKDOWN = [
   { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
   { chave: 'filas', rotulo: 'Filas', eixo: 'Fila' },
   { chave: 'tags', rotulo: 'Tags', eixo: 'Tag' },
 ] as const;
-type AbaDetalhamento = (typeof ABAS_DETALHAMENTO)[number]['chave'];
+type AbaBreakdown = (typeof ABAS_BREAKDOWN)[number]['chave'];
 
-function abaValida(v: string | undefined): AbaDetalhamento {
-  return ABAS_DETALHAMENTO.some((a) => a.chave === v) ? (v as AbaDetalhamento) : 'atendentes';
+function abaValida(v: string | undefined): AbaBreakdown {
+  return ABAS_BREAKDOWN.some((a) => a.chave === v) ? (v as AbaBreakdown) : 'atendentes';
 }
 
 /**
@@ -69,12 +69,12 @@ const COLUNAS = [
 
 function linhaEmCelulas(l: LinhaDeQuebra): string[] {
   return [
-    l.chave,
-    numero(l.encerramentos.finalizada),
-    duracao(l.primeiraResposta.valor),
-    duracao(l.naFila.valor),
-    duracao(l.resposta.valor),
-    duracao(l.atendimento.valor),
+    l.key,
+    numero(l.closures.finalizada),
+    duration(l.firstResposta.value),
+    duration(l.inQueue.value),
+    duration(l.resposta.value),
+    duration(l.attendance.value),
     '—',
   ];
 }
@@ -107,7 +107,7 @@ function BotaoBaixar({ aoClicar, desabilitado }: { aoClicar: () => void; desabil
       disabled={desabilitado}
       onClick={aoClicar}
     >
-      <IconeGestao nome="baixar" tamanho={24} />
+      <IconeManagement nome="baixar" tamanho={24} />
     </button>
   );
 }
@@ -127,20 +127,20 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
         </thead>
         <tbody>
           {linhas.map((l) => (
-            <tr key={l.chave}>
-              <td className="who">{l.chave}</td>
-              <td className="num">{numero(l.encerramentos.finalizada)}</td>
-              <td className="num" title={denominador(l.primeiraResposta, 'sem 1ª resposta')}>
-                {duracao(l.primeiraResposta.valor)}
+            <tr key={l.key}>
+              <td className="who">{l.key}</td>
+              <td className="num">{numero(l.closures.finalizada)}</td>
+              <td className="num" title={denominador(l.firstResposta, 'sem 1ª resposta')}>
+                {duration(l.firstResposta.value)}
               </td>
-              <td className="num" title={denominador(l.naFila, 'sem atribuição')}>
-                {duracao(l.naFila.valor)}
+              <td className="num" title={denominador(l.inQueue, 'sem atribuição')}>
+                {duration(l.inQueue.value)}
               </td>
               <td className="num" title={denominador(l.resposta, 'sem troca completa')}>
-                {duracao(l.resposta.valor)}
+                {duration(l.resposta.value)}
               </td>
-              <td className="num" title={denominador(l.atendimento, 'nunca respondidas')}>
-                {duracao(l.atendimento.valor)}
+              <td className="num" title={denominador(l.attendance, 'nunca respondidas')}>
+                {duration(l.attendance.value)}
               </td>
               <td className="num">—</td>
             </tr>
@@ -177,58 +177,58 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
  * fórmula da spec de métricas e a contagem descartada continuam no balão do
  * ícone de informação e no `title` da célula.
  */
-export function PaginaAtendimento() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const gerenciador = `${baseDoContato(contato.tipo, contato.id)}/analise/gerenciador-de-relatorios`;
-  const [busca] = useSearchParams();
-  const crus = Object.fromEntries(busca.entries()) as Busca;
+export function PageAttendance() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const manager = `${contactBase(contact.tipo, contact.id)}/analise/gerenciador-de-relatorios`;
+  const [search] = useSearchParams();
+  const crus = Object.fromEntries(search.entries()) as Search;
   /* Conferido na entrada: id torto e data torta viram "sem filtro". Sem isso,
      um link colado com `?fila=abc` derruba o relatório inteiro em 500. */
-  const params: Busca = {
-    fila: uuidOuNada(crus.fila),
-    atendente: uuidOuNada(crus.atendente),
+  const params: Search = {
+    queue: uuidOuNada(crus.queue),
+    agent: uuidOuNada(crus.agent),
     de: dataOuNada(crus.de),
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const chave of ['fila', 'atendente', 'de', 'ate'] as const) {
-    if (params[chave]) q.set(chave, params[chave] as string);
+  for (const key of ['fila', 'atendente', 'de', 'ate'] as const) {
+    if (params[key]) q.set(key, params[key] as string);
   }
-  const leitura = useLeitura<RespostaDoRelatorioDeAtendimento>(
+  const read = useRead<RespostaOfReportOfAttendance>(
     `/v1/gestao/relatorios/atendimento?${q}`,
   );
-  const [painelAberto, setPainelAberto] = useState(false);
-  if (!leitura.data) return null;
-  const { fuso, de, ate, catalogos, relatorio } = leitura.data;
-  const geral = relatorio.geral;
-  const enc = geral.encerramentos;
+  const [panelAberto, setPanelAberto] = useState(false);
+  if (!read.data) return null;
+  const { fuso, de, ate, catalogos, report } = read.data;
+  const geral = report.geral;
+  const enc = geral.closures;
 
-  const nomeDaFila = catalogos.filas.find((f) => f.id === params.fila)?.nome;
-  const nomeDoAtendente = catalogos.atendentes.find((a) => a.id === params.atendente)?.nome;
-  const temFiltro = Boolean(params.fila || params.atendente);
+  const queueName = catalogos.queues.find((f) => f.id === params.queue)?.nome;
+  const agentName = catalogos.agents.find((a) => a.id === params.agent)?.nome;
+  const temFilter = Boolean(params.queue || params.agent);
 
   const aba = abaValida(crus.aba);
-  const hrefAba = (chave: AbaDetalhamento) => {
+  const hrefAba = (key: AbaBreakdown) => {
     const p = new URLSearchParams(q);
-    p.set('aba', chave);
+    p.set('aba', key);
     return `${base}/relatorios/atendimento?${p}`;
   };
-  const linhasDaAba: Record<AbaDetalhamento, LinhaDeQuebra[]> = {
-    atendentes: relatorio.porAtendente,
-    filas: relatorio.porFila,
-    tags: relatorio.porEtiqueta,
+  const linhasDaAba: Record<AbaBreakdown, LinhaDeQuebra[]> = {
+    atendentes: report.byAgent,
+    filas: report.byQueue,
+    tags: report.byTag,
   };
-  const abaAtual = ABAS_DETALHAMENTO.find((a) => a.chave === aba) ?? ABAS_DETALHAMENTO[0];
+  const abaAtual = ABAS_BREAKDOWN.find((a) => a.chave === aba) ?? ABAS_BREAKDOWN[0];
 
   return (
     <>
       <div className="board-head">
         <h2>Relatório de atendimento</h2>
         <div className="filters">
-          <Link href={gerenciador} className="btn">
+          <Link href={manager} className="btn">
             Gerenciador de Relatórios
-            <IconeGestao nome="baixo" tamanho={20} style={{ transform: 'rotate(-90deg)' }} />
+            <IconeManagement nome="baixo" tamanho={20} style={{ transform: 'rotate(-90deg)' }} />
           </Link>
         </div>
       </div>
@@ -237,65 +237,65 @@ export function PaginaAtendimento() {
         <span className="lbl">Filtros rápidos:</span>
         <button
           type="button"
-          className={params.atendente ? 'pilula ativa' : 'pilula'}
-          onClick={() => setPainelAberto(true)}
+          className={params.agent ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Atendentes</span>
-          {nomeDoAtendente ? <span className="pilula-valor">{nomeDoAtendente}</span> : null}
+          {agentName ? <span className="pilula-valor">{agentName}</span> : null}
         </button>
         <button
           type="button"
-          className={params.fila ? 'pilula ativa' : 'pilula'}
-          onClick={() => setPainelAberto(true)}
+          className={params.queue ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPanelAberto(true)}
         >
           <span className="pilula-rotulo">Filas</span>
-          {nomeDaFila ? <span className="pilula-valor">{nomeDaFila}</span> : null}
+          {queueName ? <span className="pilula-valor">{queueName}</span> : null}
         </button>
         <div className="faixa-fim">
           <button
             type="button"
             className="btn fantasma rel-periodo"
             title={`${de} → ${ate}`}
-            onClick={() => setPainelAberto(true)}
+            onClick={() => setPanelAberto(true)}
           >
-            {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
+            {periodRotulo(periodCurrent(de, ate, fuso))}
           </button>
-          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+          <button type="button" className="btn" onClick={() => setPanelAberto(true)}>
             <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
         </div>
       </div>
 
-      <PainelFiltros
-        aberto={painelAberto}
-        aoFechar={() => setPainelAberto(false)}
+      <PanelFilters
+        aberto={panelAberto}
+        aoFechar={() => setPanelAberto(false)}
         acao={`${base}/relatorios/atendimento`}
-        limpar={temFiltro ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
+        limpar={temFilter ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
-        <CampoPeriodo de={de} ate={ate} fuso={fuso} />
-        <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <Selecao name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+        <FieldPeriod de={de} ate={ate} fuso={fuso} />
+        <PanelField rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+          <Selection name="atendente" defaultValue={params.agent ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>
-            {catalogos.atendentes.map((a) => (
+            {catalogos.agents.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.nome}
               </option>
             ))}
-          </Selecao>
-        </CampoDoPainel>
-        <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <Selecao name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+          </Selection>
+        </PanelField>
+        <PanelField rotulo="Filas" apoio="Selecione uma ou mais filas">
+          <Selection name="fila" defaultValue={params.queue ?? ''} aria-label="Filas">
             <option value="">Selecione as filas</option>
-            {catalogos.filas.map((f) => (
+            {catalogos.queues.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nome}
               </option>
             ))}
-          </Selecao>
-        </CampoDoPainel>
-      </PainelFiltros>
+          </Selection>
+        </PanelField>
+      </PanelFilters>
 
       {/* ------------------------------------------------------------ bloco 1
           "Indicadores de SLA": gráfico de área deles. SLA agregado por
@@ -326,13 +326,13 @@ export function PaginaAtendimento() {
           </div>
           <div className="metrics">
             <Metrica
-              valor="—"
+              value="—"
               rotulo="Tempo máximo de espera na fila"
               dica="Maior tempo que um ticket ficou aguardando na fila"
               formula="Ainda calculamos só a média do período, não o pico."
             />
             <Metrica
-              valor="—"
+              value="—"
               rotulo="Tempo máximo até 1ª resposta"
               dica="Maior tempo que um ticket ficou sem a primeira resposta"
               formula="Ainda calculamos só a média do período, não o pico."
@@ -346,35 +346,35 @@ export function PaginaAtendimento() {
           </div>
           <div className="metrics">
             <Metrica
-              valor="—"
+              value="—"
               rotulo="Abertos"
               dica="Tickets abertos no período"
               formula="Conversa aberta não entra nesta consulta — o retrato ao vivo é o de Monitoramento."
             />
             <Metrica
               tom="erro"
-              valor={numero(enc.perdida)}
+              value={numero(enc.perdida)}
               rotulo="Perdidos"
               dica="Tickets perdidos (fechados pelo cliente antes de serem atribuídos a atendente)"
               formula="Perdido saiu ANTES da atribuição, e é capacidade ou fila."
             />
             <Metrica
               tom="erro"
-              valor={numero(enc.abandonada)}
+              value={numero(enc.abandonada)}
               rotulo="Abandonados"
               dica="Tickets retirados (cancelados pelo cliente após atribuição)"
               formula="Abandonado saiu DEPOIS da atribuição, e é atendimento."
             />
             <Metrica
-              valor={numero(enc.finalizada)}
+              value={numero(enc.finalizada)}
               rotulo="Finalizados"
               dica="Tickets finalizados ou transferidos por gestor/atendente"
             />
             <Metrica
-              valor={numero(enc.fechada)}
+              value={numero(enc.fechada)}
               rotulo="Fechados"
               dica="Total de tickets fechados (soma de perdido + retirado + finalizado)"
-              denominador={`${numero(geral.conversas)} conversas no recorte.`}
+              denominador={`${numero(geral.conversations)} conversas no recorte.`}
             />
           </div>
         </section>
@@ -389,37 +389,37 @@ export function PaginaAtendimento() {
         </div>
         <div className="metrics">
           <Metrica
-            valor={duracao(geral.naFila.valor)}
+            value={duration(geral.inQueue.value)}
             rotulo="Tempo médio de espera na fila"
             dica="Tempo médio que os tickets ficaram aguardando na fila"
-            denominador={denominador(geral.naFila, 'sem atribuição')}
+            denominador={denominador(geral.inQueue, 'sem atribuição')}
           />
           <Metrica
-            valor={duracao(geral.primeiraResposta.valor)}
+            value={duration(geral.firstResposta.value)}
             rotulo="Tempo médio até 1ª resposta"
             dica="Tempo médio até a primeira resposta do atendente"
             formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
-            denominador={denominador(geral.primeiraResposta, 'sem 1ª resposta')}
+            denominador={denominador(geral.firstResposta, 'sem 1ª resposta')}
           />
           <Metrica
-            valor={duracao(geral.esperaTotal.valor)}
+            value={duration(geral.esperaTotal.value)}
             rotulo="Tempo médio de espera total"
             dica="Tempo médio de espera do cliente, da abertura à primeira resposta"
             denominador={denominador(geral.esperaTotal, 'sem início ou fim')}
           />
           <Metrica
-            valor={duracao(geral.resposta.valor)}
+            value={duration(geral.resposta.value)}
             rotulo="Tempo médio de resposta"
             dica="Tempo médio entre a mensagem do cliente e a resposta do atendente"
-            formula={`Média de INTERVALOS: ${numero(geral.resposta.populacao)} trocas em ${numero(geral.resposta.conversasConsideradas)} conversas.`}
+            formula={`Média de INTERVALOS: ${numero(geral.resposta.population)} trocas em ${numero(geral.resposta.conversationsConsideradas)} conversas.`}
             denominador={denominador(geral.resposta, 'sem troca completa')}
           />
           <Metrica
-            valor={duracao(geral.atendimento.valor)}
+            value={duration(geral.attendance.value)}
             rotulo="Tempo médio de atendimento"
             dica="Tempo médio de duração dos atendimentos"
             formula="Encerramento menos 1ª resposta — a mesma fórmula da Blip, para ser comparável; descarta a conversa que nunca foi respondida."
-            denominador={denominador(geral.atendimento, 'nunca respondidas')}
+            denominador={denominador(geral.attendance, 'nunca respondidas')}
           />
         </div>
       </section>
@@ -450,7 +450,7 @@ export function PaginaAtendimento() {
       <section className="tblwrap">
         <div className="rel-aba-cabecalho">
           <div className="tabs" role="tablist">
-            {ABAS_DETALHAMENTO.map((a) => (
+            {ABAS_BREAKDOWN.map((a) => (
               <Link
                 key={a.chave}
                 href={hrefAba(a.chave)}
@@ -467,7 +467,7 @@ export function PaginaAtendimento() {
         </div>
         <TabelaDeQuebra eixo={abaAtual.eixo} linhas={linhasDaAba[aba]} />
         <p className="rel-nota">
-          <IconeGestao nome="informacao" tamanho={16} />
+          <IconeManagement nome="informacao" tamanho={16} />
           Os filtros de Canais, Atendentes, Filas e Tags não se aplicam à tabela abaixo.
         </p>
       </section>

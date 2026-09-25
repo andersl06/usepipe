@@ -9,16 +9,16 @@ import { readFile } from 'node:fs/promises';
 
 import { z } from 'zod';
 
-import { ErroFormatoIa } from '../cliente/erros.js';
+import { FormatIaError } from '../cliente/erros.js';
 import type { CasoReferencia } from './bancada.js';
 
-const EsquemaAnexo = z.object({
+const EsquemaAttachment = z.object({
   nomeArquivo: z.string().nullish(),
   duracaoSeg: z.number().nullish(),
   transcricao: z.string().nullish(),
 });
 
-const EsquemaMensagem = z.object({
+const EsquemaMessage = z.object({
   id: z.string(),
   criadaEm: z.string(),
   direcao: z.enum(['entrada', 'saida', 'interna']),
@@ -26,7 +26,7 @@ const EsquemaMensagem = z.object({
   autorNome: z.string().nullish(),
   tipo: z.enum(['texto', 'imagem', 'audio', 'video', 'documento', 'localizacao', 'template']),
   conteudo: z.string().nullish(),
-  anexo: EsquemaAnexo.nullish(),
+  anexo: EsquemaAttachment.nullish(),
 });
 
 const EsquemaCriterio = z.object({
@@ -58,7 +58,7 @@ const EsquemaCaso = z.object({
   id: z.string(),
   descricao: z.string().optional(),
   contexto: z.string().nullish(),
-  mensagens: z.array(EsquemaMensagem).min(1),
+  mensagens: z.array(EsquemaMessage).min(1),
   formulario: EsquemaFormulario,
   gabarito: z.array(z.object({ criterioId: z.string(), valor: z.string() })).min(1),
 });
@@ -72,7 +72,7 @@ const EsquemaConjunto = z.object({
 export function carregarConjunto(bruto: unknown): CasoReferencia[] {
   const lido = EsquemaConjunto.safeParse(bruto);
   if (!lido.success) {
-    throw new ErroFormatoIa(`Conjunto de referência inválido: ${lido.error.message}`, bruto);
+    throw new FormatIaError(`Conjunto de referência inválido: ${lido.error.message}`, bruto);
   }
 
   return lido.data.casos.map((caso) => {
@@ -81,14 +81,14 @@ export function carregarConjunto(bruto: unknown): CasoReferencia[] {
     );
     for (const item of caso.gabarito) {
       if (!idsDoFormulario.has(item.criterioId)) {
-        throw new ErroFormatoIa(
+        throw new FormatIaError(
           `Caso "${caso.id}": o gabarito cita o critério "${item.criterioId}", que não existe no formulário.`,
           caso.gabarito,
         );
       }
     }
     if (caso.gabarito.length !== idsDoFormulario.size) {
-      throw new ErroFormatoIa(
+      throw new FormatIaError(
         `Caso "${caso.id}": o gabarito tem ${caso.gabarito.length} respostas para ${idsDoFormulario.size} critérios. Gabarito incompleto não mede nada.`,
         caso.gabarito,
       );
@@ -96,7 +96,7 @@ export function carregarConjunto(bruto: unknown): CasoReferencia[] {
 
     return {
       ...caso,
-      mensagens: caso.mensagens.map((m) => ({ ...m, criadaEm: new Date(m.criadaEm) })),
+      messages: caso.mensagens.map((m) => ({ ...m, criadaEm: new Date(m.criadaEm) })),
     } as CasoReferencia;
   });
 }

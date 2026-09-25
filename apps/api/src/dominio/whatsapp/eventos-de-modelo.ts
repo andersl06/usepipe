@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../../banco.js';
-import type { CanalResolvido } from '../../banco.js';
+import type { ChannelResolved } from '../../banco.js';
 import { emitir } from '../../webhooks-saida.js';
 import { enviarEmailSemDerrubar } from '../email.js';
-import { preferenciasDe } from './preferencias.js';
+import { preferencesOf } from './preferencias.js';
 
 /**
  * O que a Meta avisa sobre os modelos da WABA pelo webhook, sem ninguém sincronizar:
@@ -47,7 +47,7 @@ const ROTULO_CATEGORIA: Readonly<Record<string, string>> = {
   autenticacao: 'Autenticação',
 };
 
-interface ValorDeModelo {
+interface ValueOfTemplate {
   event?: string;
   message_template_name?: string;
   message_template_language?: string;
@@ -56,9 +56,9 @@ interface ValorDeModelo {
   new_category?: string;
 }
 
-type Mudanca = { field?: string; value?: ValorDeModelo };
+type Mudanca = { field?: string; value?: ValueOfTemplate };
 
-export function mudancasDeModelo(payload: unknown): Mudanca[] {
+export function mudancasOfTemplate(payload: unknown): Mudanca[] {
   const corpo = payload as { entry?: { changes?: Mudanca[] }[] } | null;
   return (corpo?.entry ?? [])
     .flatMap((e) => e.changes ?? [])
@@ -71,7 +71,7 @@ export function mudancasDeModelo(payload: unknown): Mudanca[] {
  * `canal.gerenciar` no tenant — a permissão de quem conecta e configura o canal,
  * e portanto de quem decide o que fazer com um modelo que mudou de preço.
  */
-async function emailsDeQuemGerenciaCanal(tx: TransacaoPipe): Promise<string[]> {
+async function emailsOfWhoGerenciaChannel(tx: TransactionPipe): Promise<string[]> {
   const { rows } = await tx.execute<{ email: string }>(sql`
     select distinct u.email
       from usuario u
@@ -83,7 +83,7 @@ async function emailsDeQuemGerenciaCanal(tx: TransacaoPipe): Promise<string[]> {
   return rows.map((r) => r.email);
 }
 
-export interface AlertaDeRecategorizacao {
+export interface AlertOfRecategorization {
   templateId: string;
   nome: string;
   idioma: string;
@@ -93,7 +93,7 @@ export interface AlertaDeRecategorizacao {
 }
 
 /** O e-mail do alerta. Texto puro, com o que muda e onde olhar. */
-export function emailDeRecategorizacao(alerta: AlertaDeRecategorizacao, canalNome: string): {
+export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNome: string): {
   para: string[];
   assunto: string;
   texto: string;
@@ -114,9 +114,9 @@ export function emailDeRecategorizacao(alerta: AlertaDeRecategorizacao, canalNom
 }
 
 /** Devolve quantos modelos mudaram. Modelo que o Pipe não conhece é ignorado — sincronizar traz. */
-export async function aplicarEventosDeModelo(canal: CanalResolvido, payload: unknown): Promise<number> {
+export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload: unknown): Promise<number> {
   let aplicados = 0;
-  for (const { field, value } of mudancasDeModelo(payload)) {
+  for (const { field, value } of mudancasOfTemplate(payload)) {
     const nome = value?.message_template_name;
     const idioma = value?.message_template_language;
     if (!nome || !idioma) continue;
@@ -124,14 +124,14 @@ export async function aplicarEventosDeModelo(canal: CanalResolvido, payload: unk
     if (field === 'message_template_status_update') {
       const status = STATUS[value?.event ?? ''];
       if (!status) continue;
-      aplicados += await noTenant(canal.tenantId, async (tx) => {
+      aplicados += await noTenant(channel.tenantId, async (tx) => {
         const { rows } = await tx.execute<{ id: string }>(sql`
           update template_mensagem set status_meta = ${status}, atualizado_em = now()
-           where canal_id = ${canal.id}::uuid and nome = ${nome} and idioma = ${idioma}
+           where canal_id = ${channel.id}::uuid and nome = ${nome} and idioma = ${idioma}
           returning id
         `);
         for (const { id } of rows) {
-          await registrarAuditoria(tx, canal.tenantId, {
+          await registrarAuditoria(tx, channel.tenantId, {
             ator: { tipo: 'sistema' },
             acao: 'alterou',
             objetoTipo: 'template_mensagem',
@@ -146,25 +146,25 @@ export async function aplicarEventosDeModelo(canal: CanalResolvido, payload: unk
 
     const nova = CATEGORIA[value?.new_category ?? ''];
     if (!nova) continue;
-    const alerta = preferenciasDe(canal).alertaRecategorizacao;
-    const { mudados, alertas, canalNome } = await noTenant(canal.tenantId, async (tx) => {
+    const alerta = preferencesOf(channel).alertRecategorization;
+    const { mudados, alertas, channelName } = await noTenant(channel.tenantId, async (tx) => {
       const { rows } = await tx.execute<{ id: string }>(sql`
         update template_mensagem set categoria = ${nova}, atualizado_em = now()
-         where canal_id = ${canal.id}::uuid and nome = ${nome} and idioma = ${idioma}
+         where canal_id = ${channel.id}::uuid and nome = ${nome} and idioma = ${idioma}
         returning id
       `);
-      const alertas: AlertaDeRecategorizacao[] = [];
+      const alertas: AlertOfRecategorization[] = [];
       // Vazio = todos os administradores, como diz a tela da origem. Resolvido
       // uma vez por evento, e só se houver o que avisar.
       const emails =
         rows.length > 0 && alerta.ativo
           ? alerta.emails.length > 0
             ? alerta.emails
-            : await emailsDeQuemGerenciaCanal(tx)
+            : await emailsOfWhoGerenciaChannel(tx)
           : [];
       for (const { id } of rows) {
         const anterior = CATEGORIA[value?.previous_category ?? ''] ?? null;
-        await registrarAuditoria(tx, canal.tenantId, {
+        await registrarAuditoria(tx, channel.tenantId, {
           ator: { tipo: 'sistema' },
           acao: 'alterou',
           objetoTipo: 'template_mensagem',
@@ -173,7 +173,7 @@ export async function aplicarEventosDeModelo(canal: CanalResolvido, payload: unk
           depois: { categoria: nova },
         });
         if (alerta.ativo) {
-          await emitir(tx, canal.tenantId, 'modelo.recategorizado', {
+          await emitir(tx, channel.tenantId, 'modelo.recategorizado', {
             template_id: id,
             nome,
             idioma,
@@ -192,16 +192,16 @@ export async function aplicarEventosDeModelo(canal: CanalResolvido, payload: unk
           });
         }
       }
-      const { rows: canais } = await tx.execute<{ nome: string }>(
-        sql`select nome from canal where id = ${canal.id}::uuid limit 1`,
+      const { rows: channels } = await tx.execute<{ nome: string }>(
+        sql`select nome from canal where id = ${channel.id}::uuid limit 1`,
       );
-      return { mudados: rows.length, alertas, canalNome: canais[0]?.nome ?? 'WhatsApp' };
+      return { mudados: rows.length, alertas, channelName: channels[0]?.nome ?? 'WhatsApp' };
     });
     aplicados += mudados;
     // Depois do commit, e sem derrubar: o modelo já mudou e o webhook já saiu.
     for (const a of alertas) {
       await enviarEmailSemDerrubar(
-        emailDeRecategorizacao(a, canalNome),
+        emailOfRecategorization(a, channelName),
         `modelo-recategorizado ${a.templateId}`,
       );
     }

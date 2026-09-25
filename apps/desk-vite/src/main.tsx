@@ -4,7 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { clienteDeConsultas } from './lib/cliente-de-consultas';
 import { App } from './App';
-import { ProvedorDeSessao } from './contexto/sessao';
+import { SessionProvider } from './contexto/sessao';
 // A ordem importa: o token e a base do design system entram antes da folha do
 // aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
 import '@pipe/ui/estilos.css';
@@ -14,9 +14,9 @@ createRoot(document.getElementById('raiz')!).render(
   <StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <QueryClientProvider client={clienteDeConsultas}>
-        <ProvedorDeSessao>
+        <SessionProvider>
           <App />
-        </ProvedorDeSessao>
+        </SessionProvider>
       </QueryClientProvider>
     </BrowserRouter>
   </StrictMode>,

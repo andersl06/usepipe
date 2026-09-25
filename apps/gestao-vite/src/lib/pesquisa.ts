@@ -23,7 +23,7 @@ export interface EscalaDePesquisa {
   faixas: string;
 }
 
-export const ESCALA_POR_TIPO: Record<TipoDePesquisa, EscalaDePesquisa> = {
+export const ESCALA_BY_TIPO: Record<TipoDePesquisa, EscalaDePesquisa> = {
   csat: { min: 1, max: 5, faixas: 'detrator 1–2 · neutro 3 · promotor 4–5' },
   nps: { min: 0, max: 10, faixas: 'detrator 0–6 · neutro 7–8 · promotor 9–10' },
 };
@@ -42,8 +42,8 @@ export const DISPAROS_DE_PESQUISA = ['encerramento', 'primeira_resposta', 'manua
 export type DisparoDePesquisa = (typeof DISPAROS_DE_PESQUISA)[number];
 
 export const ROTULO_DISPARO: Record<DisparoDePesquisa, string> = {
-  encerramento: 'Ao encerrar a conversa',
-  primeira_resposta: 'Depois da primeira resposta',
+  closure: 'Ao encerrar a conversa',
+  firstResponse: 'Depois da primeira resposta',
   manual: 'Só quando o atendente pedir',
 };
 
@@ -60,7 +60,7 @@ export function disparoValido(bruto: string): bruto is DisparoDePesquisa {
  * significar. Duas funções, dois momentos, e nenhuma reclassifica o passado.
  */
 export function classeDaNota(tipo: TipoDePesquisa, nota: number): string | null {
-  const escala = ESCALA_POR_TIPO[tipo];
+  const escala = ESCALA_BY_TIPO[tipo];
   if (!Number.isFinite(nota) || nota < escala.min || nota > escala.max) return null;
   if (tipo === 'csat') return nota <= 2 ? 'detrator' : nota === 3 ? 'neutro' : 'promotor';
   return nota <= 6 ? 'detrator' : nota <= 8 ? 'neutro' : 'promotor';

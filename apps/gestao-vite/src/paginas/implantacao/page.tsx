@@ -2,14 +2,14 @@ import { Etiqueta } from '@pipe/ui';
 import type { TomDeEtiqueta } from '@pipe/ui';
 import { BarraDoPortal } from '../../componentes/barra-do-portal';
 import { useEu } from '../../contexto/sessao';
-import { useCascaDoPortal } from '../../lib/casca';
-import { useLeitura } from '../../lib/consulta';
-import type { Implantacao } from '../../lib/implantacao';
+import { portalUseShell } from '../../lib/casca';
+import { useRead } from '../../lib/consulta';
+import type { Deployment } from '../../lib/implantacao';
 import { montarPassos } from '../../lib/passos-da-implantacao';
-import type { EstadoDoPasso } from '../../lib/passos-da-implantacao';
+import type { PassoState } from '../../lib/passos-da-implantacao';
 import { numero } from '../../lib/formato';
 import { ConectarWhatsApp } from '../../componentes/cadastro-embutido-whatsapp';
-import { FormularioConvite, FormularioImportacao, FormularioManual } from './formularios';
+import { FormularioInvitation, FormularioImport, FormularioManual } from './formularios';
 
 /**
  * Implantação — do contrato à primeira conversa atendida, sem implantação manual.
@@ -38,43 +38,43 @@ import { FormularioConvite, FormularioImportacao, FormularioManual } from './for
 const URL_DESK =
   (import.meta.env['VITE_PIPE_DESK_URL'] as string | undefined) ?? 'http://localhost:3200';
 
-const ROTULO: Record<EstadoDoPasso, string> = {
+const ROTULO: Record<PassoState, string> = {
   feito: 'Feito',
   andamento: 'Em andamento',
   pendente: 'Pendente',
 };
 
-const TOM: Record<EstadoDoPasso, TomDeEtiqueta> = {
+const TOM: Record<PassoState, TomDeEtiqueta> = {
   feito: 'sucesso',
   andamento: 'info',
   pendente: 'alerta',
 };
 
-export function PaginaImplantacao() {
+export function PageDeployment() {
   const eu = useEu();
-  const casca = useCascaDoPortal();
-  const leitura = useLeitura<Implantacao>('/v1/gestao/implantacao');
-  if (!leitura.data) {
+  const shell = portalUseShell();
+  const read = useRead<Deployment>('/v1/gestao/implantacao');
+  if (!read.data) {
     return (
       <div className="pt-app">
-        <BarraDoPortal dados={casca} />
+        <BarraDoPortal data={shell} />
       </div>
     );
   }
-  const { sinais, canais } = leitura.data;
-  const passos = montarPassos(sinais, URL_DESK);
-  const feitos = passos.filter((p) => p.estado === 'feito').length;
-  const primeiroNome = eu.usuario.nome.split(' ')[0] ?? eu.usuario.nome;
-  const ultima = sinais.ultimaImportacao;
+  const { signals, channels } = read.data;
+  const passos = montarPassos(signals, URL_DESK);
+  const feitos = passos.filter((p) => p.state === 'feito').length;
+  const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
+  const ultima = signals.ultimaImport;
 
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={casca} />
+      <BarraDoPortal data={shell} />
       <main className="p-conteudo">
         <div className="board-head">
           <h2>Implantação</h2>
           <span className="sub">
-            Olá, {primeiroNome}. {numero(feitos)} de {numero(passos.length)} passos concluídos para
+            Olá, {firstName}. {numero(feitos)} de {numero(passos.length)} passos concluídos para
             chegar na primeira conversa atendida.
           </span>
         </div>
@@ -92,15 +92,15 @@ export function PaginaImplantacao() {
                   <span className="v">{passo.titulo}</span>
                 </div>
                 <div className="cl-campo">
-                  <span className="r">{passo.estado === 'feito' ? 'Situação' : 'O que falta'}</span>
+                  <span className="r">{passo.state === 'feito' ? 'Situação' : 'O que falta'}</span>
                   <span className="v" title={passo.resumo}>
                     {passo.resumo}
                   </span>
                 </div>
               </div>
               <div className="cl-acoes">
-                <Etiqueta tom={TOM[passo.estado]}>{ROTULO[passo.estado]}</Etiqueta>
-                {passo.acao && passo.estado !== 'feito' ? (
+                <Etiqueta tom={TOM[passo.state]}>{ROTULO[passo.state]}</Etiqueta>
+                {passo.acao && passo.state !== 'feito' ? (
                   <a
                     className="btn"
                     href={passo.acao.href}
@@ -122,10 +122,10 @@ export function PaginaImplantacao() {
             webhook — ninguém copia URL nem token.
           </p>
 
-          {canais.length === 0 ? null : (
+          {channels.length === 0 ? null : (
             <div className="lista-cartoes">
-              {canais.map((c) => {
-                const precisaReconectar = !c.ativo || c.reautorizacaoPendente;
+              {channels.map((c) => {
+                const precisaReconectar = !c.ativo || c.reauthorizationPending;
                 return (
                   <article key={c.id} className="cartao-lista">
                     <span />
@@ -143,12 +143,12 @@ export function PaginaImplantacao() {
                       <Etiqueta tom={precisaReconectar ? 'alerta' : 'sucesso'}>
                         {!c.ativo
                           ? 'Desligado'
-                          : c.reautorizacaoPendente
+                          : c.reauthorizationPending
                             ? 'Reautorizar'
                             : 'Conectado'}
                       </Etiqueta>
                       {precisaReconectar && c.numero ? (
-                        <ConectarWhatsApp canalId={c.id} rotulo="Reconectar" variante="padrao" />
+                        <ConectarWhatsApp channelId={c.id} rotulo="Reconectar" variante="padrao" />
                       ) : null}
                     </div>
                   </article>
@@ -158,7 +158,7 @@ export function PaginaImplantacao() {
           )}
 
           <ConectarWhatsApp
-            rotulo={canais.length === 0 ? 'Conectar WhatsApp' : 'Conectar outro número'}
+            rotulo={channels.length === 0 ? 'Conectar WhatsApp' : 'Conectar outro número'}
           />
           <FormularioManual />
         </section>
@@ -167,10 +167,10 @@ export function PaginaImplantacao() {
           <h3>Equipe</h3>
           <p className="sub">
             Quem ainda não tem domínio verificado entra por convite: o link cria o acesso com o
-            papel escolhido e liga a conta do Google na primeira entrada. {numero(sinais.membros)}{' '}
-            pessoa(s) com acesso e {numero(sinais.convites)} convite(s) criado(s).
+            papel escolhido e liga a conta do Google na primeira entrada. {numero(signals.members)}{' '}
+            pessoa(s) com acesso e {numero(signals.convites)} convite(s) criado(s).
           </p>
-          <FormularioConvite />
+          <FormularioInvitation />
         </section>
 
         <section className="card" id="contatos">
@@ -182,7 +182,7 @@ export function PaginaImplantacao() {
           </p>
           {ultima ? (
             <p className="note">
-              Última importação: <b>{ROTULO_IMPORTACAO[ultima.estado] ?? ultima.estado}</b>,{' '}
+              Última importação: <b>{ROTULO_IMPORT[ultima.state] ?? ultima.state}</b>,{' '}
               {numero(ultima.aceitos)} aceito(s) e {numero(ultima.rejeitados)} rejeitado(s).{' '}
               {ultima.temFalhas ? (
                 <a href={`/v1/contatos/importacoes/${ultima.id}/falhas`}>
@@ -191,14 +191,14 @@ export function PaginaImplantacao() {
               ) : null}
             </p>
           ) : null}
-          <FormularioImportacao />
+          <FormularioImport />
         </section>
       </main>
     </div>
   );
 }
 
-const ROTULO_IMPORTACAO: Record<string, string> = {
+const ROTULO_IMPORT: Record<string, string> = {
   pronta: 'na fila',
   executando: 'em andamento',
   concluida: 'concluída',

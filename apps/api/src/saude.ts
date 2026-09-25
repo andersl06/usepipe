@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sql } from 'drizzle-orm';
 import { PASTA_MIGRATIONS } from '@pipe/db';
-import { bancoApp, bancoDono } from './banco.js';
+import { databaseApp, databaseOwner } from './banco.js';
 import { pingRedis } from './filas.js';
 
 /**
@@ -14,7 +14,7 @@ import { pingRedis } from './filas.js';
  * não atende. Por isso toda sonda tem tempo-limite curto e um veredito, sempre.
  */
 
-export const TEMPO_LIMITE_MS = Number(process.env['PIPE_SAUDE_TIMEOUT_MS'] ?? 2_000);
+export const TIME_LIMIT_MS = Number(process.env['PIPE_SAUDE_TIMEOUT_MS'] ?? 2_000);
 
 /** A imagem carimba `PIPE_VERSAO` no build; fora dela, vale a versão do pacote. */
 export const VERSAO = process.env['PIPE_VERSAO'] ?? '0.1.0';
@@ -24,7 +24,7 @@ export type Veredito = 'ok' | 'falha';
 export interface Saude {
   ok: boolean;
   versao: string;
-  banco: Veredito;
+  database: Veredito;
   redis: Veredito;
 }
 
@@ -43,7 +43,7 @@ async function sondar(trabalho: () => Promise<unknown>): Promise<Veredito> {
     await Promise.race([
       emCurso,
       new Promise((_, recusar) => {
-        despertador = setTimeout(() => recusar(new Error('tempo-limite')), TEMPO_LIMITE_MS);
+        despertador = setTimeout(() => recusar(new Error('tempo-limite')), TIME_LIMIT_MS);
       }),
     ]);
     return 'ok';
@@ -57,14 +57,14 @@ async function sondar(trabalho: () => Promise<unknown>): Promise<Veredito> {
 export async function verificarSaude(): Promise<Saude> {
   // O pool sondado é o `app`: é por ele que passa todo o tráfego de negócio. O pool
   // dono atende duas resoluções e não representa a saúde de quem serve o cliente.
-  const [banco, redis] = await Promise.all([
-    sondar(() => bancoApp().execute(sql`select 1`)),
+  const [database, redis] = await Promise.all([
+    sondar(() => databaseApp().execute(sql`select 1`)),
     sondar(() => pingRedis()),
   ]);
 
   // `ok` segue o banco, e só ele. Sem Redis a API ainda recebe webhook e responde
   // leitura; sem banco ela não faz nada — e é essa a diferença entre 503 e 200.
-  return { ok: banco === 'ok', versao: VERSAO, banco, redis };
+  return { ok: database === 'ok', versao: VERSAO, database, redis };
 }
 
 /**
@@ -80,7 +80,7 @@ export async function migrationsPendentes(): Promise<number | null> {
     const diario = JSON.parse(cru) as { entries?: unknown[] };
     const noRepositorio = diario.entries?.length ?? 0;
 
-    const { rows } = await bancoDono().execute<{ total: string }>(
+    const { rows } = await databaseOwner().execute<{ total: string }>(
       sql`select count(*)::text as total from drizzle.__drizzle_migrations`,
     );
     const aplicadas = Number(rows[0]?.total ?? 0);

@@ -14,43 +14,43 @@ import { segundosEntre } from '../comum/tempo.js';
 import {
   derivarMarcos,
   intervalosDeResposta,
-  type ConversaEventos,
+  type ConversationEvents,
   type Marcos,
 } from './eventos.js';
 
 /** Tempo de resposta expõe também quantas conversas sustentaram os intervalos. */
-export interface ResultadoTempoDeResposta extends ResultadoMetrica {
+export interface ResponseTimeResult extends ResultadoMetrica {
   /** Conversas com pelo menos uma troca completa — a população da spec §2. */
-  conversasConsideradas: number;
+  conversationsConsideradas: number;
 }
 
 function acumular(
-  conversas: readonly ConversaEventos[],
+  conversations: readonly ConversationEvents[],
   medir: (marcos: Marcos) => number | null,
 ): ResultadoMetrica {
   let soma = 0;
-  let populacao = 0;
+  let population = 0;
   let excluidas = 0;
 
-  for (const conversa of conversas) {
-    const medida = medir(derivarMarcos(conversa));
+  for (const conversation of conversations) {
+    const medida = medir(derivarMarcos(conversation));
     if (medida === null || Number.isNaN(medida) || medida < 0) {
       excluidas += 1;
       continue;
     }
     soma += medida;
-    populacao += 1;
+    population += 1;
   }
 
-  return resultado(soma, populacao, excluidas);
+  return resultado(soma, population, excluidas);
 }
 
 /**
  * Tempo na fila = `atribuida_em − criada_em`.
  * População: conversas que chegaram a ser atribuídas.
  */
-export function tempoNaFila(conversas: readonly ConversaEventos[]): ResultadoMetrica {
-  return acumular(conversas, (m) =>
+export function timeInQueue(conversations: readonly ConversationEvents[]): ResultadoMetrica {
+  return acumular(conversations, (m) =>
     m.criadaEm && m.atribuidaEm ? segundosEntre(m.criadaEm, m.atribuidaEm) : null,
   );
 }
@@ -63,9 +63,9 @@ export function tempoNaFila(conversas: readonly ConversaEventos[]): ResultadoMet
  * nesta fórmula e conta como excluída — o número fica ao lado da média,
  * conforme a divergência declarada em §2.
  */
-export function tempoAtePrimeiraResposta(conversas: readonly ConversaEventos[]): ResultadoMetrica {
-  return acumular(conversas, (m) =>
-    m.atribuidaEm && m.primeiraRespostaEm ? segundosEntre(m.atribuidaEm, m.primeiraRespostaEm) : null,
+export function timeAteFirstResposta(conversations: readonly ConversationEvents[]): ResultadoMetrica {
+  return acumular(conversations, (m) =>
+    m.atribuidaEm && m.firstRespostaIn ? segundosEntre(m.atribuidaEm, m.firstRespostaIn) : null,
   );
 }
 
@@ -77,12 +77,12 @@ export function tempoAtePrimeiraResposta(conversas: readonly ConversaEventos[]):
  *
  * Conversa ainda aberta e sem resposta não tem fim de espera e fica de fora.
  */
-export function tempoTotalDeEsperaDoCliente(
-  conversas: readonly ConversaEventos[],
+export function timeTotalOfEsperaOfCliente(
+  conversations: readonly ConversationEvents[],
 ): ResultadoMetrica {
-  return acumular(conversas, (m) => {
+  return acumular(conversations, (m) => {
     if (!m.criadaEm) return null;
-    if (m.primeiraRespostaEm) return segundosEntre(m.criadaEm, m.primeiraRespostaEm);
+    if (m.firstRespostaIn) return segundosEntre(m.criadaEm, m.firstRespostaIn);
     if (m.encerradaEm) return segundosEntre(m.criadaEm, m.encerradaEm);
     return null;
   });
@@ -98,26 +98,26 @@ export function tempoTotalDeEsperaDoCliente(
  * é a quantidade de intervalos, e a contagem de conversas viaja em
  * `conversasConsideradas`. `excluidas` conta conversas sem troca completa.
  */
-export function tempoDeResposta(conversas: readonly ConversaEventos[]): ResultadoTempoDeResposta {
+export function respostaTime(conversations: readonly ConversationEvents[]): ResponseTimeResult {
   let soma = 0;
   let intervalos = 0;
-  let conversasConsideradas = 0;
+  let conversationsConsidered = 0;
   let excluidas = 0;
 
-  for (const conversa of conversas) {
-    const medidas = intervalosDeResposta(conversa).filter((s) => s >= 0);
+  for (const conversation of conversations) {
+    const medidas = intervalosDeResposta(conversation).filter((s) => s >= 0);
     if (medidas.length === 0) {
       excluidas += 1;
       continue;
     }
-    conversasConsideradas += 1;
+    conversationsConsidered += 1;
     for (const medida of medidas) {
       soma += medida;
       intervalos += 1;
     }
   }
 
-  return { ...resultado(soma, intervalos, excluidas), conversasConsideradas };
+  return { ...resultado(soma, intervalos, excluidas), conversationsConsidered };
 }
 
 /**
@@ -128,8 +128,8 @@ export function tempoDeResposta(conversas: readonly ConversaEventos[]): Resultad
  * Aqui a fórmula é a mesma para ser comparável, mas `excluidas` sai junto e é
  * obrigatória na tela.
  */
-export function tempoDeAtendimento(conversas: readonly ConversaEventos[]): ResultadoMetrica {
-  return acumular(conversas, (m) =>
-    m.primeiraRespostaEm && m.encerradaEm ? segundosEntre(m.primeiraRespostaEm, m.encerradaEm) : null,
+export function attendanceTime(conversations: readonly ConversationEvents[]): ResultadoMetrica {
+  return acumular(conversations, (m) =>
+    m.firstRespostaIn && m.encerradaEm ? segundosEntre(m.firstRespostaIn, m.encerradaEm) : null,
   );
 }

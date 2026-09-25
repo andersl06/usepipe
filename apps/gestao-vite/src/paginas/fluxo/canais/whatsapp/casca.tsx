@@ -1,11 +1,11 @@
 import { Outlet, useOutletContext } from 'react-router-dom';
-import type { CanalDoFluxo, CanalDoFluxoNaTela } from '@pipe/contracts';
-import { useLeitura } from '../../../../lib/consulta';
-import { ErroDaApi } from '../../../../lib/api';
-import type { CanalWhatsAppVisivel } from '../../../../lib/canais';
-import { estadoDoCanalNoBot, type EstadoDoCanalNoBot } from '../../../../lib/canal-do-fluxo';
-import { FalhaDeLeitura, useContato } from '../../contato';
-import { CascaDoCanal, type AbaDoCanal } from '../casca-do-canal';
+import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
+import { useRead } from '../../../../lib/consulta';
+import { ApiError } from '../../../../lib/api';
+import type { ChannelWhatsAppVisivel } from '../../../../lib/canais';
+import { channelInBotState, type ChannelInBotState } from '../../../../lib/canal-do-fluxo';
+import { ReadFalha, useContact } from '../../contato';
+import { ChannelShell, type ChannelAba } from '../casca-do-canal';
 import './canal-whatsapp.css';
 
 /**
@@ -28,59 +28,59 @@ import './canal-whatsapp.css';
  * desenha com o que o bot sabe e as outras abas dizem o que houve).
  */
 
-export interface ContextoDoCanalWhatsapp {
-  fluxoId: string;
-  canal: CanalDoFluxo;
+export interface ChannelWhatsappContext {
+  flowId: string;
+  channel: ChannelOfFlow;
   /** O canal como `/v1/canais/whatsapp` o vê (estado na Meta, qualidade…); nulo se a leitura não veio. */
-  saude: CanalWhatsAppVisivel | null;
+  saude: ChannelWhatsAppVisivel | null;
 }
 
-export function useCanalWhatsapp(): ContextoDoCanalWhatsapp {
-  return useOutletContext<ContextoDoCanalWhatsapp>();
+export function useChannelWhatsapp(): ChannelWhatsappContext {
+  return useOutletContext<ChannelWhatsappContext>();
 }
 
-const ABAS: readonly AbaDoCanal[] = [
-  { rotulo: 'Visão Geral', segmento: '' },
-  { rotulo: 'Perfil da empresa', segmento: 'perfil', exigeConectado: true },
-  { rotulo: 'Configurações', segmento: 'configuracoes', exigeConectado: true },
-  { rotulo: 'Configurações de alerta', segmento: 'alerta' },
-  { rotulo: 'Ambiente de testes', segmento: 'testes', emBreve: true },
+const ABAS: readonly ChannelAba[] = [
+  { rotulo: 'Visão Geral', segment: '' },
+  { rotulo: 'Perfil da empresa', segment: 'perfil', exigeConectado: true },
+  { rotulo: 'Configurações', segment: 'configuracoes', exigeConectado: true },
+  { rotulo: 'Configurações de alerta', segment: 'alerta' },
+  { rotulo: 'Ambiente de testes', segment: 'testes', emBreve: true },
 ];
 
 /** O que a Visão Geral recebe quando NÃO há canal: a tela decide o passo. */
-export interface ContextoSemCanal {
-  fluxoId: string;
-  situacao: EstadoDoCanalNoBot;
-  disponiveis: CanalDoFluxo[];
+export interface ContextWithoutChannel {
+  flowId: string;
+  situation: ChannelInBotState;
+  disponiveis: ChannelOfFlow[];
 }
 
-export function CascaCanalWhatsapp() {
-  const { contato } = useContato();
-  const leitura = useLeitura<CanalDoFluxoNaTela>(`/v1/gestao/fluxos/${contato.id}/canal`);
-  const situacao = leitura.data ? estadoDoCanalNoBot(leitura.data.canal, 'whatsapp_cloud') : null;
-  const conectado = situacao?.estado === 'conectado';
+export function ShellChannelWhatsapp() {
+  const { contact } = useContact();
+  const read = useRead<ChannelOfFlowInScreen>(`/v1/gestao/fluxos/${contact.id}/canal`);
+  const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
+  const conectado = situation?.state === 'conectado';
   /* A saúde só interessa conectado; 403 (sem `canal.gerenciar`) não é falha da página. */
-  const saudes = useLeitura<{ canais: CanalWhatsAppVisivel[] }>(conectado ? '/v1/canais/whatsapp' : null, {
+  const saudes = useRead<{ channels: ChannelWhatsAppVisivel[] }>(conectado ? '/v1/canais/whatsapp' : null, {
     retry: false,
   });
 
-  if (leitura.error && !(leitura.error instanceof ErroDaApi && leitura.error.status === 404)) {
-    return <FalhaDeLeitura erro={leitura.error} />;
+  if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
+    return <ReadFalha error={read.error} />;
   }
-  if (!leitura.data || !situacao) return null;
+  if (!read.data || !situation) return null;
 
-  const contexto: ContextoDoCanalWhatsapp | ContextoSemCanal =
-    situacao.estado === 'conectado'
+  const context: ChannelWhatsappContext | ContextWithoutChannel =
+    situation.state === 'conectado'
       ? {
-          fluxoId: contato.id,
-          canal: situacao.canal,
-          saude: saudes.data?.canais.find((c) => c.id === situacao.canal.id) ?? null,
+          flowId: contact.id,
+          channel: situation.channel,
+          saude: saudes.data?.channels.find((c) => c.id === situation.channel.id) ?? null,
         }
-      : { fluxoId: contato.id, situacao, disponiveis: leitura.data.disponiveis };
+      : { flowId: contact.id, situation, disponiveis: read.data.disponiveis };
 
   return (
-    <CascaDoCanal tipo="whatsapp_cloud" titulo="WhatsApp" abas={ABAS} conectado={conectado}>
-      <Outlet context={contexto} />
-    </CascaDoCanal>
+    <ChannelShell tipo="whatsapp_cloud" titulo="WhatsApp" abas={ABAS} conectado={conectado}>
+      <Outlet context={context} />
+    </ChannelShell>
   );
 }

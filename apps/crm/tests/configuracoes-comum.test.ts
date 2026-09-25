@@ -3,10 +3,10 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
 import {
-  CATALOGO_DE_ESCOPOS,
+  CATALOGO_OF_SCOPES,
   CATALOGO_DE_EVENTOS,
   ehUuid,
-  escoposValidos,
+  scopesValid,
   eventosValidos,
   fusoValido,
   normalizar,
@@ -109,10 +109,10 @@ test('tipo de campo vem do catálogo, não da requisição', () => {
 });
 
 test('escopo e evento desconhecidos são descartados, não recusados em bloco', () => {
-  assert.deepEqual(escoposValidos(['conversas:ler', 'inventado', 'conversas:ler']), [
+  assert.deepEqual(scopesValid(['conversas:ler', 'inventado', 'conversas:ler']), [
     'conversas:ler',
   ]);
-  assert.deepEqual(escoposValidos([]), []);
+  assert.deepEqual(scopesValid([]), []);
   assert.deepEqual(eventosValidos(['conversa.criada', 'nada.disso']), ['conversa.criada']);
 });
 
@@ -136,23 +136,23 @@ test('fuso é validado contra o banco de fusos do runtime', () => {
  * Lê o arquivo como TEXTO em vez de importar de propósito — importar criaria a
  * dependência que a cópia existe para evitar.
  */
-function listaNoArquivo(caminho: string, constante: string): string[] {
+function listaInFile(caminho: string, constante: string): string[] {
   const fonte = readFileSync(join(import.meta.dirname, '..', '..', '..', caminho), 'utf8');
-  const bloco = new RegExp(`${constante}\\s*=\\s*\\[([^\\]]*)\\]`).exec(fonte);
-  assert.ok(bloco, `não achei ${constante} em ${caminho}`);
-  return [...bloco[1]!.matchAll(/'([^']+)'/g)].map((m) => m[1]!);
+  const block = new RegExp(`${constante}\\s*=\\s*\\[([^\\]]*)\\]`).exec(fonte);
+  assert.ok(block, `não achei ${constante} em ${caminho}`);
+  return [...block[1]!.matchAll(/'([^']+)'/g)].map((m) => m[1]!);
 }
 
 test('o catálogo de escopos não divergiu de apps/api', () => {
   assert.deepEqual(
-    CATALOGO_DE_ESCOPOS.map((e) => e.codigo),
-    listaNoArquivo('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),
+    CATALOGO_OF_SCOPES.map((e) => e.codigo),
+    listaInFile('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),
   );
 });
 
 test('o catálogo de eventos não divergiu de apps/api', () => {
   assert.deepEqual(
     [...CATALOGO_DE_EVENTOS],
-    listaNoArquivo('apps/api/src/webhooks-saida.ts', 'EVENTOS'),
+    listaInFile('apps/api/src/webhooks-saida.ts', 'EVENTOS'),
   );
 });

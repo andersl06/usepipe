@@ -1,7 +1,7 @@
 import Link from '../../../componentes/link';
 import { useSearchParams } from 'react-router-dom';
-import { useLeitura } from '../../../lib/consulta';
-import type { ContaNaLista } from '../../../lib/casca';
+import { useRead } from '../../../lib/consulta';
+import type { AccountInLista } from '../../../lib/casca';
 import '../../bem-vindo/boas-vindas.css';
 
 /**
@@ -15,12 +15,12 @@ import '../../bem-vindo/boas-vindas.css';
  * "essa conta existe, mas não é sua" conta a qualquer curioso que empresa usa o
  * Pipe — é a mesma simetria que a descoberta por e-mail já mantém na entrada.
  */
-export function PaginaSemAcesso() {
-  const [busca] = useSearchParams();
-  const slug = (busca.get('para') ?? '').trim().toLowerCase();
-  const leitura = useLeitura<ContaNaLista[]>('/v1/contas/minhas');
-  const contas = leitura.data ?? [];
-  const emVigor = contas.find((c) => c.emVigor);
+export function PageNoAccess() {
+  const [search] = useSearchParams();
+  const slug = (search.get('para') ?? '').trim().toLowerCase();
+  const read = useRead<AccountInLista[]>('/v1/contas/minhas');
+  const accounts = read.data ?? [];
+  const emVigor = accounts.find((c) => c.emVigor);
 
   return (
     <main className="entrada-passo">

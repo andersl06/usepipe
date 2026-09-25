@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CHAVES_DE_PREFERENCIA, lerPreferencias, type Preferencias } from '../../lib/preferencias';
+import { CHAVES_DE_PREFERENCIA, readPreferences, type Preferences } from '../../lib/preferencias';
 
 /**
  * "Preferências" — `/preferences`. A cópia em `~/desk-clone` não renderiza o
@@ -15,35 +15,35 @@ import { CHAVES_DE_PREFERENCIA, lerPreferencias, type Preferencias } from '../..
  * As cinco preferências vivem no navegador, uma chave por preferência: são
  * da MÁQUINA em que a pessoa está, não da pessoa (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).
  */
-const SECOES: {
+const SECTIONS: {
   titulo: string;
-  itens: { chave: keyof Preferencias; rotulo: string; dica: string }[];
+  itens: { key: keyof Preferences; rotulo: string; dica: string }[];
 }[] = [
   {
     titulo: 'Notificações',
     itens: [
       {
-        chave: 'notificacoesDoNavegador',
+        key: 'notificacoesDoNavegador',
         rotulo: 'Notificações no navegador',
         dica: 'Permite que o navegador de internet utilizado no Desk envie notificações',
       },
       {
-        chave: 'alertaDeTicketNaFila',
+        key: 'alertaDeTicketNaFila',
         rotulo: 'Alertas sonoros para novos tickets na fila',
         dica: 'Receba alertas sonoros quando novos tickets entrarem na fila de atendimento',
       },
       {
-        chave: 'alertaDeTicketAtribuido',
+        key: 'alertaDeTicketAtribuido',
         rotulo: 'Alertas sonoros para novos tickets atribuídos',
         dica: 'Receba alertas sonoros quando novos tickets forem atribuídos a você',
       },
       {
-        chave: 'alertaDeMensagem',
+        key: 'alertaDeMensagem',
         rotulo: 'Alertas sonoros para novas mensagens',
         dica: 'Receba alertas sonoros quando novas mensagens forem recebidas',
       },
       {
-        chave: 'alertaComAbaAtiva',
+        key: 'alertaComAbaAtiva',
         rotulo: 'Alertas sonoros na aba ativa do navegador',
         dica: 'Receba alertas sonoros enquanto a aba do navegador estiver ativa',
       },
@@ -53,7 +53,7 @@ const SECOES: {
     titulo: 'Sessão',
     itens: [
       {
-        chave: 'continuarOnline',
+        key: 'continuarOnline',
         rotulo: 'Continuar online ao fechar o Pipe Desk',
         dica: 'Mantém o seu status ao fechar a janela; desliga a queda por inatividade',
       },
@@ -63,7 +63,7 @@ const SECOES: {
     titulo: 'Barra de tickets',
     itens: [
       {
-        chave: 'ordemDeAbertura',
+        key: 'ordemDeAbertura',
         rotulo: 'Ver mensagens por ordem de abertura do ticket',
         dica: 'Desligado, as novas mensagens ficam no topo',
       },
@@ -73,7 +73,7 @@ const SECOES: {
     titulo: 'Corretor ortográfico',
     itens: [
       {
-        chave: 'corretorOrtografico',
+        key: 'corretorOrtografico',
         rotulo: 'Corretor ortográfico',
         dica: 'O corretor ortográfico pode levar alguns instantes para carregar, variando conforme o desempenho do seu computador',
       },
@@ -81,13 +81,13 @@ const SECOES: {
   },
 ];
 
-export function PaginaPreferencias() {
-  const [prefs, setPrefs] = useState<Preferencias>(() => lerPreferencias());
+export function PagePreferences() {
+  const [prefs, setPrefs] = useState<Preferences>(() => readPreferences());
 
   useEffect(() => {
     try {
-      for (const chave of CHAVES_DE_PREFERENCIA)
-        localStorage.setItem(`desk.pref.${chave}`, prefs[chave] ? '1' : '0');
+      for (const key of CHAVES_DE_PREFERENCIA)
+        localStorage.setItem(`desk.pref.${key}`, prefs[key] ? '1' : '0');
     } catch {
       /* sem armazenamento (janela privada): a preferência vale só nesta aba */
     }
@@ -96,11 +96,11 @@ export function PaginaPreferencias() {
   return (
     <div className="dk-prefs">
       <h2>Preferências</h2>
-      {SECOES.map((s) => (
+      {SECTIONS.map((s) => (
         <section key={s.titulo} className="dk-prefs-secao">
           <h3>{s.titulo}</h3>
           {s.itens.map((item) => (
-            <label key={item.chave} className="dk-prefs-item">
+            <label key={item.key} className="dk-prefs-item">
               <span>
                 <b>{item.rotulo}</b>
                 <small>{item.dica}</small>
@@ -108,8 +108,8 @@ export function PaginaPreferencias() {
               <input
                 type="checkbox"
                 role="switch"
-                checked={prefs[item.chave]}
-                onChange={(e) => setPrefs({ ...prefs, [item.chave]: e.target.checked })}
+                checked={prefs[item.key]}
+                onChange={(e) => setPrefs({ ...prefs, [item.key]: e.target.checked })}
               />
             </label>
           ))}

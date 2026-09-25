@@ -14,51 +14,51 @@
 
 import { z } from 'zod';
 
-import type { ChamadaEstruturada, Esforco } from '../cliente/cliente.js';
+import type { ChamadaEstruturada, Effort } from '../cliente/cliente.js';
 import { chamadaPadrao } from '../cliente/cliente.js';
-import { ErroFormatoIa } from '../cliente/erros.js';
+import { FormatIaError } from '../cliente/erros.js';
 import type { Consumo } from '../consumo/index.js';
-import type { OpcaoTaxonomia, Taxonomia } from '../prompts/classificacao.js';
-import { PROMPT_CLASSIFICACAO, chaveDaOpcao, prepararOpcoes } from '../prompts/classificacao.js';
+import type { OptionTaxonomia, Taxonomia } from '../prompts/classificacao.js';
+import { PROMPT_CLASSIFICATION, optionKey, prepararOptions } from '../prompts/classificacao.js';
 import { identificador } from '../prompts/tipos.js';
-import type { Transcricao } from '../transcricao/transcricao.js';
+import type { Transcription } from '../transcricao/transcricao.js';
 
-export const SENTIMENTOS = ['positivo', 'neutro', 'negativo'] as const;
-export type Sentimento = (typeof SENTIMENTOS)[number];
+export const SENTIMENTS = ['positivo', 'neutro', 'negativo'] as const;
+export type Sentiment = (typeof SENTIMENTS)[number];
 
 /**
  * `desfecho` vem primeiro de propósito: o modelo escreve o que aconteceu antes de
  * escolher o rótulo. Foram +4,3pp de acurácia no case-sync.
  */
-const EsquemaClassificacao = z.object({
+const EsquemaClassification = z.object({
   desfecho: z.string().min(1),
   categoria: z.string().min(1),
   subcategoria: z.string().nullable(),
   intencao: z.string().nullable(),
-  sentimento: z.enum(SENTIMENTOS),
+  sentimento: z.enum(SENTIMENTS),
   confianca: z.number().min(0).max(1),
 });
 
-export interface OpcoesClassificacao {
-  transcricao: Transcricao;
+export interface OptionsClassification {
+  transcription: Transcription;
   taxonomia: Taxonomia;
-  maxOpcoes?: number;
-  contexto?: string | null;
-  modelo?: string;
-  esforco?: Esforco;
+  maxOptions?: number;
+  context?: string | null;
+  template?: string;
+  effort?: Effort;
   chamar?: ChamadaEstruturada;
 }
 
-export interface ResultadoClassificacao {
+export interface ResultClassification {
   /** Uma frase do que o cliente pediu e do que o atendente fez. */
   desfecho: string;
   categoria: string;
   subcategoria: string | null;
-  intencao: string | null;
-  sentimento: Sentimento;
+  intent: string | null;
+  sentiment: Sentiment;
   confianca: number;
   consumo: Consumo;
-  modelo: string;
+  template: string;
   prompt: string;
 }
 
@@ -78,60 +78,60 @@ export function normalizarRotulo(texto: string): string {
 }
 
 /** Acha na taxonomia a opção que o modelo escolheu, ou `undefined`. */
-export function casarOpcao(
-  opcoes: readonly OpcaoTaxonomia[],
+export function matchOption(
+  options: readonly OptionTaxonomia[],
   categoria: string,
   subcategoria: string | null,
-): OpcaoTaxonomia | undefined {
+): OptionTaxonomia | undefined {
   const alvo = normalizarRotulo(
     subcategoria?.trim() ? `${categoria} > ${subcategoria}` : categoria,
   );
-  return opcoes.find((o) => normalizarRotulo(chaveDaOpcao(o)) === alvo);
+  return options.find((o) => normalizarRotulo(optionKey(o)) === alvo);
 }
 
-export async function classificarConversa(
-  opcoes: OpcoesClassificacao,
-): Promise<ResultadoClassificacao> {
-  const chamar = opcoes.chamar ?? chamadaPadrao;
-  const apresentadas = prepararOpcoes(opcoes.taxonomia, opcoes.maxOpcoes);
-  const texto = PROMPT_CLASSIFICACAO.montar({
-    transcricao: opcoes.transcricao.texto,
-    truncada: opcoes.transcricao.truncada,
-    mensagensOmitidas: opcoes.transcricao.mensagensOmitidas,
-    taxonomia: opcoes.taxonomia,
-    maxOpcoes: opcoes.maxOpcoes,
-    contexto: opcoes.contexto,
+export async function classificarConversation(
+  options: OptionsClassification,
+): Promise<ResultClassification> {
+  const chamar = options.chamar ?? chamadaPadrao;
+  const apresentadas = prepararOptions(options.taxonomia, options.maxOptions);
+  const texto = PROMPT_CLASSIFICATION.montar({
+    transcription: options.transcription.texto,
+    truncada: options.transcription.truncada,
+    messagesOmitidas: options.transcription.messagesOmitidas,
+    taxonomia: options.taxonomia,
+    maxOptions: options.maxOptions,
+    context: options.context,
   });
 
-  const { dados, consumo, modelo } = await chamar({
+  const { data, consumo, template } = await chamar({
     sistema: texto.sistema,
-    usuario: texto.usuario,
-    esquema: EsquemaClassificacao,
-    funcionalidade: 'classificacao',
-    modelo: opcoes.modelo,
-    esforco: opcoes.esforco,
+    user: texto.user,
+    esquema: EsquemaClassification,
+    feature: 'classificacao',
+    template: options.template,
+    effort: options.effort,
     maxTokens: 2_000,
   });
 
-  const escolhida = casarOpcao(apresentadas, dados.categoria, dados.subcategoria);
+  const escolhida = matchOption(apresentadas, data.categoria, data.subcategoria);
   if (!escolhida) {
-    throw new ErroFormatoIa(
-      `"${chaveDaOpcao({ categoria: dados.categoria, subcategoria: dados.subcategoria })}" não está entre as ${apresentadas.length} opções apresentadas.`,
-      dados,
+    throw new FormatIaError(
+      `"${optionKey({ categoria: data.categoria, subcategoria: data.subcategoria })}" não está entre as ${apresentadas.length} opções apresentadas.`,
+      data,
     );
   }
 
   return {
-    desfecho: dados.desfecho.trim(),
+    desfecho: data.desfecho.trim(),
     // O rótulo gravado é o **da taxonomia**, não o que o modelo digitou: é ele que
     // vai casar com o filtro da tela e com a agregação de `insight`.
     categoria: escolhida.categoria,
     subcategoria: escolhida.subcategoria?.trim() || null,
-    intencao: dados.intencao?.trim() || null,
-    sentimento: dados.sentimento,
-    confianca: dados.confianca,
+    intent: data.intencao?.trim() || null,
+    sentiment: data.sentimento,
+    confianca: data.confianca,
     consumo,
-    modelo,
-    prompt: identificador(PROMPT_CLASSIFICACAO),
+    template,
+    prompt: identificador(PROMPT_CLASSIFICATION),
   };
 }

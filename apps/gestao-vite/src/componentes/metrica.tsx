@@ -1,4 +1,4 @@
-import { IconeGestao } from './icones-gestao';
+import { IconeManagement } from './icones-gestao';
 
 /**
  * Métrica de cartão — a coluna deles, lida em `referencias-blip/portal/dom/
@@ -17,7 +17,7 @@ import { IconeGestao } from './icones-gestao';
  * linha sob o rótulo, e a régua desta rodada é a forma deles.
  */
 export function Metrica({
-  valor,
+  value,
   rotulo,
   dica,
   formula,
@@ -25,7 +25,7 @@ export function Metrica({
   destaque = false,
   tom,
 }: {
-  valor: string;
+  value: string;
   rotulo: string;
   /** O `tooltip-text` deles, palavra por palavra. */
   dica: string;
@@ -43,7 +43,7 @@ export function Metrica({
     .join(' ');
   return (
     <div className={classe}>
-      <span className="v">{valor}</span>
+      <span className="v">{value}</span>
       <span className="k">
         <span>{rotulo}</span>
         <Dica texto={dica} formula={formula} denominador={denominador} rotulo={rotulo} />
@@ -66,7 +66,7 @@ export function Dica({
   return (
     <details className="dica">
       <summary aria-label={`Sobre "${rotulo}"`} title={texto}>
-        <IconeGestao nome="informacao" tamanho={16} />
+        <IconeManagement nome="informacao" tamanho={16} />
       </summary>
       <div className="dica-balao" role="note">
         {texto}

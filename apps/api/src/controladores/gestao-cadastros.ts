@@ -10,11 +10,11 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import type { Ator, TransacaoPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import { fusoDoTenant } from '../dominio/gestao/janela.js';
 import { uuidOuNada } from '../dominio/gestao/formato.js';
 import * as cadastros from '../dominio/gestao/cadastros.js';
@@ -35,9 +35,9 @@ import { Campos, type CamposCrus, type Resultado } from '../dominio/gestao/acoes
  * ao banco — mesma regra de `gestao-fluxo.ts` (URL é texto de fora, e o
  * Postgres recusa uuid malformado com 500, não 404).
  */
-function idOu404(valor: string, oQue: string): string {
-  if (!uuidOuNada(valor)) throw ErroPipe.naoEncontrado(oQue);
-  return valor;
+function idOu404(value: string, oQue: string): string {
+  if (!uuidOuNada(value)) throw PipeError.naoEncontrado(oQue);
+  return value;
 }
 
 /**
@@ -53,38 +53,38 @@ function idOu404(valor: string, oQue: string): string {
  * A lista de ações é FECHADA: só o que está no mapa abaixo pode ser chamado
  * pelo nome. Nome fora do mapa é 404, não `eval`.
  */
-type Acao = (tx: TransacaoPipe, tid: string, ator: Ator, dados: Campos) => Promise<Resultado>;
+type Acao = (tx: TransactionPipe, tid: string, ator: Ator, data: Campos) => Promise<Resultado>;
 
-const ACOES: Record<string, Acao> = {
+const ACTIONS: Record<string, Acao> = {
   salvarHorario: acoesRegras.salvarHorario,
   salvarFaixa: acoesRegras.salvarFaixa,
-  salvarExcecao: acoesRegras.salvarExcecao,
-  salvarRegraFila: acoesRegras.salvarRegraFila,
-  alternarRegraFila: acoesRegras.alternarRegraFila,
-  salvarFila: acoesAtendentes.salvarFila,
+  salvarExcecao: acoesRegras.saveException,
+  salvarRegraFila: acoesRegras.saveRuleQueue,
+  alternarRegraFila: acoesRegras.toggleRuleQueue,
+  salvarFila: acoesAtendentes.saveQueue,
   salvarMotivoPausa: acoesAtendentes.salvarMotivoPausa,
   salvarRespostaPronta: acoesComunicacao.salvarRespostaPronta,
-  salvarModelo: acoesComunicacao.salvarModelo,
-  salvarIdentidade: acoesConfiguracoes.salvarIdentidade,
+  salvarModelo: acoesComunicacao.saveTemplate,
+  salvarIdentidade: acoesConfiguracoes.saveIdentity,
   salvarPesquisa: acoesConfiguracoes.salvarPesquisa,
-  salvarEtiquetasDeEncerramento: acoesConfiguracoes.salvarEtiquetasDeEncerramento,
+  salvarEtiquetasDeEncerramento: acoesConfiguracoes.saveLabelsOfClosure,
 };
 
 @Controller('v1/gestao')
-export class ControladorGestaoCadastros {
+export class ManagementRegistrationsController {
   /* ------------------------------------------------------------ leituras */
 
   @Get('regras/atendimento')
-  @ComSessao()
-  regrasDeAtendimento(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => cadastros.carregarRegrasDeFila(tx));
+  @WithSession()
+  rulesOfAttendance(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => cadastros.loadRulesOfQueue(tx));
   }
 
   @Get('regras/horarios')
-  @ComSessao()
-  horarios(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  horarios(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => ({
       fuso: await fusoDoTenant(tx),
       ...(await cadastros.carregarHorarios(tx)),
@@ -92,136 +92,136 @@ export class ControladorGestaoCadastros {
   }
 
   @Get('atendentes/gestao')
-  @ComSessao()
-  atendentes(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => cadastros.carregarAtendentes(tx));
+  @WithSession()
+  agents(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => cadastros.loadAgents(tx));
   }
 
   @Get('atendentes/filas')
-  @ComSessao()
-  filas(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => cadastros.carregarFilas(tx));
+  @WithSession()
+  queues(@Req() request: RequestWithSession) {
+    const session = sessionOf(request);
+    return noTenant(session.tenantId, (tx) => cadastros.loadQueues(tx));
   }
 
   @Get('atendentes/pausas')
-  @ComSessao()
-  pausas(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  pausas(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => cadastros.carregarPausas(tx));
   }
 
   @Get('comunicacao/modelos')
-  @ComSessao()
-  modelos(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  modelos(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     /* Em série: as duas consultas dividem a mesma conexão. */
     return noTenant(sessao.tenantId, async (tx) => ({
       modelos: await comunicacao.carregarModelos(tx),
-      canais: await comunicacao.carregarCanaisWhatsapp(tx),
+      canais: await comunicacao.loadChannelsWhatsapp(tx),
     }));
   }
 
   @Get('comunicacao/respostas-prontas')
-  @ComSessao()
-  respostasProntas(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  respostasProntas(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => comunicacao.carregarRespostasProntas(tx));
   }
 
   @Get('canais')
-  @ComSessao()
-  canais(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => configuracoes.carregarCanais(tx));
+  @WithSession()
+  channels(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => configuracoes.loadChannels(tx));
   }
 
   @Get('configuracoes/regras')
-  @ComSessao()
-  regrasDeSla(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  regrasDeSla(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.carregarRegras(tx));
   }
 
   @Get('configuracoes/dados')
-  @ComSessao()
-  dados(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => configuracoes.carregarDados(tx));
+  @WithSession()
+  data(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => configuracoes.loadData(tx));
   }
 
   @Get('configuracoes/gerais')
-  @ComSessao()
-  gerais(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => configuracoes.carregarGerais(tx));
+  @WithSession()
+  general(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => configuracoes.loadGeneral(tx));
   }
 
   @Get('regras/prioridade')
-  @ComSessao()
-  regrasDePrioridade(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => regrasPrioridade.carregarRegrasDePrioridade(tx));
+  @WithSession()
+  rulesOfPriority(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => regrasPrioridade.loadRulesOfPriority(tx));
   }
 
   /* -------------------------------------------------------- filas (item 1) */
 
   @Post('atendentes/filas')
-  @ComSessao()
-  async criarFila(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: cadastros.PedidoDeFila,
+  @WithSession()
+  async createQueue(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: cadastros.RequestOfQueue,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.criarFila(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      cadastros.createQueue(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('atendentes/filas/:id')
-  @ComSessao()
-  async editarFila(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async editarQueue(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.PedidoDeEdicaoDeFila,
-  ): Promise<cadastros.FilaGravada> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: cadastros.RequestOfEditOfQueue,
+  ): Promise<cadastros.QueueWritten> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarFila(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      cadastros.editarQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('atendentes/filas/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirFila(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async deleteQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.excluirFila(tx, sessao.tenantId, sessao.usuarioId, id),
+      cadastros.deleteQueue(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Post('atendentes/filas/:id/atendentes')
-  @ComSessao()
-  async vincularAtendente(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async vincularAgent(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: { usuarioId?: string; capacidadeOverride?: number | null },
+    @Body() corpo: { userId?: string; capacityOverride?: number | null },
   ): Promise<{ ok: true }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
-    const atendenteId = idOu404(String(corpo?.usuarioId ?? ''), 'atendente');
+    const agentId = idOu404(String(corpo?.userId ?? ''), 'atendente');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.vincularAtendenteNaFila(
+      cadastros.vincularAgentInQueue(
         tx,
         sessao.tenantId,
-        sessao.usuarioId,
+        sessao.userId,
         id,
-        atendenteId,
-        corpo?.capacidadeOverride ?? null,
+        agentId,
+        corpo?.capacityOverride ?? null,
       ),
     );
     return { ok: true };
@@ -229,225 +229,225 @@ export class ControladorGestaoCadastros {
 
   @Delete('atendentes/filas/:id/atendentes/:atendenteId')
   @HttpCode(204)
-  @ComSessao()
-  async desvincularAtendente(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async unlinkAgent(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Param('atendenteId') atendenteId: string,
+    @Param('atendenteId') agentId: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'fila');
-    idOu404(atendenteId, 'atendente');
+    idOu404(agentId, 'atendente');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.desvincularAtendenteDaFila(tx, sessao.tenantId, sessao.usuarioId, id, atendenteId),
+      cadastros.unlinkAgentOfQueue(tx, sessao.tenantId, sessao.userId, id, agentId),
     );
   }
 
   /* ------------------------------------------- regras de atendimento (item 1) */
 
   @Patch('regras/atendimento/:id')
-  @ComSessao()
-  async editarRegraFila(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async editarRuleQueue(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.PedidoDeEdicaoDeRegraFila,
-  ): Promise<cadastros.RegraFilaGravada> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: cadastros.RequestOfEditOfRuleQueue,
+  ): Promise<cadastros.RuleQueueWritten> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarRegraFila(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      cadastros.editarRuleQueue(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('regras/atendimento/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirRegraFila(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async deleteRuleQueue(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.excluirRegraFila(tx, sessao.tenantId, sessao.usuarioId, id),
+      cadastros.deleteRuleQueue(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /* ------------------------------------------------------- horários (item 3) */
 
   @Patch('regras/horarios/faixas/:id')
-  @ComSessao()
+  @WithSession()
   async editarFaixaHorario(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.PedidoDeEdicaoDeFaixa,
+    @Body() corpo: cadastros.RequestOfEditOfRange,
   ): Promise<cadastros.FaixaGravada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'faixa de horário');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarFaixaHorario(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      cadastros.editarFaixaHorario(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('regras/horarios/faixas/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirFaixaHorario(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async excluirFaixaHorario(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'faixa de horário');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.excluirFaixaHorario(tx, sessao.tenantId, sessao.usuarioId, id),
+      cadastros.excluirFaixaHorario(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Patch('regras/horarios/excecoes/:id')
-  @ComSessao()
-  async editarExcecaoHorario(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async editarExceptionSchedule(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.PedidoDeEdicaoDeExcecao,
-  ): Promise<cadastros.ExcecaoGravada> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: cadastros.RequestOfEditOfException,
+  ): Promise<cadastros.ExceptionWritten> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'exceção de horário');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarExcecaoHorario(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      cadastros.editarExceptionSchedule(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('regras/horarios/excecoes/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirExcecaoHorario(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async deleteExceptionSchedule(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'exceção de horário');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.excluirExcecaoHorario(tx, sessao.tenantId, sessao.usuarioId, id),
+      cadastros.deleteExceptionSchedule(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /* ------------------------------------------------------------ SLA (item 2) */
 
   @Post('configuracoes/regras')
-  @ComSessao()
-  async criarRegraSla(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createRuleSla(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: regrasSla.PedidoDeRegraSla,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      regrasSla.criarRegraSla(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      regrasSla.createRuleSla(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('configuracoes/regras/:id')
-  @ComSessao()
+  @WithSession()
   async editarRegraSla(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: regrasSla.PedidoDeEdicaoDeRegraSla,
+    @Body() corpo: regrasSla.RequestOfEditOfRuleSla,
   ): Promise<regrasSla.RegraSlaGravada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de SLA');
     return noTenant(sessao.tenantId, (tx) =>
-      regrasSla.editarRegraSla(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      regrasSla.editarRegraSla(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('configuracoes/regras/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirRegraSla(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async excluirRegraSla(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de SLA');
     await noTenant(sessao.tenantId, (tx) =>
-      regrasSla.excluirRegraSla(tx, sessao.tenantId, sessao.usuarioId, id),
+      regrasSla.excluirRegraSla(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /* ------------------------------------------------------ palavras proibidas */
 
   @Get('configuracoes/palavras-proibidas')
-  @ComSessao()
-  listarPalavrasProibidas(@Req() requisicao: RequisicaoComSessao) {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  listarPalavrasProibidas(@Req() requisicao: RequestWithSession) {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
       palavrasProibidas.carregarPalavrasProibidas(tx, sessao.tenantId),
     );
   }
 
   @Post('configuracoes/palavras-proibidas')
-  @ComSessao()
-  async criarPalavraProibida(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createWordForbidden(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: palavrasProibidas.PedidoDePalavraProibida,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      palavrasProibidas.criarPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      palavrasProibidas.createWordForbidden(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('configuracoes/palavras-proibidas/:id')
-  @ComSessao()
+  @WithSession()
   async editarPalavraProibida(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: palavrasProibidas.PedidoDeEdicaoDePalavraProibida,
+    @Body() corpo: palavrasProibidas.RequestOfEditOfWordForbidden,
   ): Promise<palavrasProibidas.PalavraProibidaListada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'palavra proibida');
     return noTenant(sessao.tenantId, (tx) =>
-      palavrasProibidas.editarPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      palavrasProibidas.editarPalavraProibida(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('configuracoes/palavras-proibidas/:id')
   @HttpCode(204)
-  @ComSessao()
+  @WithSession()
   async excluirPalavraProibida(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'palavra proibida');
     await noTenant(sessao.tenantId, (tx) =>
-      palavrasProibidas.excluirPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, id),
+      palavrasProibidas.excluirPalavraProibida(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /* ------------------------------------------------------- prioridade (item 4) */
 
   @Post('regras/prioridade')
-  @ComSessao()
-  async criarRegraPrioridade(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: regrasPrioridade.PedidoDeRegraPrioridade,
+  @WithSession()
+  async createRulePriority(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: regrasPrioridade.RequestOfRulePriority,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.criarRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      regrasPrioridade.createRulePriority(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('regras/prioridade/:id')
-  @ComSessao()
-  async editarRegraPrioridade(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async editarRulePriority(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: regrasPrioridade.PedidoDeEdicaoDeRegraPrioridade,
-  ): Promise<regrasPrioridade.RegraPrioridadeGravada> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: regrasPrioridade.RequestOfEditOfRulePriority,
+  ): Promise<regrasPrioridade.RulePriorityWritten> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de prioridade');
     return noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.editarRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      regrasPrioridade.editarRulePriority(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('regras/prioridade/:id')
   @HttpCode(204)
-  @ComSessao()
-  async excluirRegraPrioridade(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async deleteRulePriority(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<void> {
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'regra de prioridade');
     await noTenant(sessao.tenantId, (tx) =>
-      regrasPrioridade.excluirRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, id),
+      regrasPrioridade.deleteRulePriority(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
@@ -459,116 +459,116 @@ export class ControladorGestaoCadastros {
      a página atende vários de uma vez. */
 
   @Get('atendentes/permissoes')
-  @ComSessao()
-  permissoesDoAtendente(
-    @Req() requisicao: RequisicaoComSessao,
-    @Query('atendentes') atendentes = '',
-  ): Promise<permissoesDoAtendente.PermissoesDoAtendente> {
-    const sessao = sessaoDe(requisicao);
-    const ids = atendentes
+  @WithSession()
+  permissionsOfAgent(
+    @Req() requisicao: RequestWithSession,
+    @Query('atendentes') agents = '',
+  ): Promise<permissoesDoAtendente.PermissionsOfAgent> {
+    const sessao = sessionOf(requisicao);
+    const ids = agents
       .split(',')
       .map((i) => i.trim())
       .filter(Boolean)
       .map((i) => idOu404(i, 'atendente'));
     return noTenant(sessao.tenantId, (tx) =>
-      permissoesDoAtendente.carregarPermissoesDoAtendente(tx, ids),
+      permissoesDoAtendente.loadPermissionsOfAgent(tx, ids),
     );
   }
 
   @Patch('atendentes/permissoes')
-  @ComSessao()
-  async salvarPermissoesDoAtendente(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: permissoesDoAtendente.PedidoDePermissoes,
+  @WithSession()
+  async savePermissionsOfAgent(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: permissoesDoAtendente.RequestOfPermissions,
   ): Promise<{ ok: true }> {
-    const sessao = sessaoDe(requisicao);
-    for (const id of corpo?.usuarioIds ?? []) idOu404(id, 'atendente');
+    const sessao = sessionOf(requisicao);
+    for (const id of corpo?.userIds ?? []) idOu404(id, 'atendente');
     return noTenant(sessao.tenantId, (tx) =>
-      permissoesDoAtendente.gravarPermissoesDoAtendente(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      permissoesDoAtendente.writePermissionsOfAgent(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   /* ------------------------------------------------ respostas prontas (item 2) */
 
   @Post('comunicacao/respostas-prontas')
-  @ComSessao()
-  async criarRespostaPronta(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createResponseReady(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: comunicacao.PedidoDeRespostaPronta,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      comunicacao.criarRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      comunicacao.createResponseReady(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('comunicacao/respostas-prontas/:id')
-  @ComSessao()
+  @WithSession()
   async editarRespostaPronta(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: comunicacao.PedidoDeEdicaoDeRespostaPronta,
+    @Body() corpo: comunicacao.RequestOfEditOfResponseReady,
   ): Promise<comunicacao.RespostaProntaListada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'resposta pronta');
     return noTenant(sessao.tenantId, (tx) =>
-      comunicacao.editarRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      comunicacao.editarRespostaPronta(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('comunicacao/respostas-prontas/:id')
   @HttpCode(204)
-  @ComSessao()
+  @WithSession()
   async excluirRespostaPronta(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'resposta pronta');
     await noTenant(sessao.tenantId, (tx) =>
-      comunicacao.excluirRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, id),
+      comunicacao.excluirRespostaPronta(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /* -------------------------------------------------------- pausas (item 3) */
 
   @Post('atendentes/pausas')
-  @ComSessao()
-  async criarMotivoPausa(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async createReasonPause(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: cadastros.PedidoDeMotivoPausa,
   ): Promise<{ id: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.criarMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, corpo),
+      cadastros.createReasonPause(tx, sessao.tenantId, sessao.userId, corpo),
     );
   }
 
   @Patch('atendentes/pausas/:id')
-  @ComSessao()
+  @WithSession()
   async editarMotivoPausa(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: cadastros.PedidoDeEdicaoDeMotivoPausa,
+    @Body() corpo: cadastros.RequestOfEditOfReasonPause,
   ): Promise<cadastros.MotivoPausaGravado> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'motivo de pausa');
     return noTenant(sessao.tenantId, (tx) =>
-      cadastros.editarMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      cadastros.editarMotivoPausa(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Delete('atendentes/pausas/:id')
   @HttpCode(204)
-  @ComSessao()
+  @WithSession()
   async excluirMotivoPausa(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     idOu404(id, 'motivo de pausa');
     await noTenant(sessao.tenantId, (tx) =>
-      cadastros.excluirMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, id),
+      cadastros.excluirMotivoPausa(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
@@ -577,16 +577,16 @@ export class ControladorGestaoCadastros {
   /** Um formulário da Gestão: `{ campos }` entra, `Resultado` sai. */
   @Post('acoes/:acao')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async acao(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('acao') nome: string,
     @Body() corpo: { campos?: CamposCrus },
   ): Promise<Resultado> {
-    const sessao = sessaoDe(requisicao);
-    const acao = Object.hasOwn(ACOES, nome) ? ACOES[nome] : undefined;
-    if (!acao) throw ErroPipe.naoEncontrado('ação');
-    const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+    const sessao = sessionOf(requisicao);
+    const acao = Object.hasOwn(ACTIONS, nome) ? ACTIONS[nome] : undefined;
+    if (!acao) throw PipeError.naoEncontrado('ação');
+    const ator: Ator = { tipo: 'usuario', id: sessao.userId };
     const campos = new Campos(corpo?.campos ?? {});
     return noTenant(sessao.tenantId, (tx) => acao(tx, sessao.tenantId, ator, campos));
   }

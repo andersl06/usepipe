@@ -1,4 +1,4 @@
-import { api, ErroDaApi } from '../../../../lib/api';
+import { api, ApiError } from '../../../../lib/api';
 import { atualizarLeituras } from '../../../../lib/acoes';
 
 /**
@@ -8,19 +8,19 @@ import { atualizarLeituras } from '../../../../lib/acoes';
  * para o `aviso` da tela.
  */
 
-export interface DestinoDoDisparo {
-  contato_id?: string;
+export interface DisparoDestination {
+  contactId?: string;
   telefone?: string;
   nome?: string;
   parametros?: string[];
 }
 
-export interface ResultadoPorContato {
+export interface ResultByContact {
   telefone: string | null;
-  contato_id: string | null;
+  contactId: string | null;
   enviada: boolean;
-  mensagem_id: string | null;
-  conversa_id: string | null;
+  messageId: string | null;
+  conversationId: string | null;
   motivo: string | null;
   detalhe: string | null;
 }
@@ -28,37 +28,37 @@ export interface ResultadoPorContato {
 export interface RespostaDoDisparo {
   enviadas: number;
   recusadas: number;
-  data: ResultadoPorContato[];
+  data: ResultByContact[];
 }
 
 export interface LimitesDeDisparo {
-  max_contatos_por_disparo: number;
-  limite_diario_por_contato: number;
+  maxContactsByTrigger: number;
+  dailyLimitByContact: number;
 }
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
-export async function dispararMensagensAtivas(pedido: {
-  canal_id: string;
+export async function dispararActiveMessages(pedido: {
+  channelId: string;
   template_id: string;
-  contatos: DestinoDoDisparo[];
+  contacts: DisparoDestination[];
   parametros?: string[];
 }): Promise<Resultado<RespostaDoDisparo>> {
   try {
-    const valor = await api.post<RespostaDoDisparo>('/v1/mensagens-ativas', pedido);
+    const value = await api.post<RespostaDoDisparo>('/v1/mensagens-ativas', pedido);
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível enviar a mensagem ativa.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível enviar a mensagem ativa.') };
   }
 }
 
 /** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
-export function motivoDe(erro: unknown, padrao: string): string {
-  if (erro instanceof ErroDaApi) {
-    const corpo = erro.corpo as { erro?: { mensagem?: unknown } } | null;
-    const mensagem = corpo?.erro?.mensagem;
-    if (typeof mensagem === 'string' && mensagem) return mensagem;
+export function motivoDe(error: unknown, padrao: string): string {
+  if (error instanceof ApiError) {
+    const corpo = error.corpo as { error?: { message?: unknown } } | null;
+    const message = corpo?.error?.message;
+    if (typeof message === 'string' && message) return message;
   }
   return padrao;
 }

@@ -1,28 +1,28 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ErroDoBloco } from '@pipe/contracts';
+import type { BlockError } from '@pipe/contracts';
 import { Etiqueta } from '@pipe/ui';
-import { ModalConfirmacao } from '../cadastros/_modal';
+import { ModalConfirmation } from '../cadastros/_modal';
 import { Canvas } from './canvas';
-import type { EstadoDoEditor, GestoDoEditor } from './estado';
-import { MenuNovoBloco } from './menu-novo-bloco';
-import type { Posicao } from './modelo';
+import type { EditorState, GestoDoEditor } from './estado';
+import { MenuNewBlock } from './menu-novo-bloco';
+import type { Position } from './modelo';
 import {
-  MENSAGENS,
-  adicionarBloco,
-  colarBloco,
+  MESSAGES,
+  addBlock,
+  colarBlock,
   desligar,
-  duplicarBloco,
-  excluirBloco,
+  duplicarBlock,
+  excluirBlock,
   ligar,
-  moverBloco,
-  novoBloco,
-  novoBlocoDeAtendimento,
+  moverBlock,
+  newBlock,
+  attendanceNewBlock,
   podeExcluir,
-  substituirBloco,
+  substituirBlock,
 } from './modelo';
-import { PainelDoBloco } from './painel';
-import { posicaoNoCentro } from './setas';
-import { errosLocais, juntarErros } from './validacao';
+import { BlockPanel } from './painel';
+import { positionInCentro } from './setas';
+import { errorsLocal, juntarErrors } from './validacao';
 import './editor.css';
 import './painel-bloco.css';
 
@@ -41,32 +41,32 @@ import './painel-bloco.css';
  */
 
 export function Editor({
-  estado,
+  state,
   despachar,
-  errosDaApi,
-  errosDoMotor,
+  apiErrors,
+  motorErrors,
   zoom,
   onZoom,
-  novoBlocoAberto,
-  onFecharNovoBloco,
-  painelExternoAberto,
+  novoBlockAberto,
+  onFecharNovoBlock,
+  panelExternoAberto,
   pesquisa,
 }: {
-  estado: EstadoDoEditor;
+  state: EditorState;
   despachar: (gesto: GestoDoEditor) => void;
-  errosDaApi: ErroDoBloco[];
-  errosDoMotor: ErroDoBloco[];
+  apiErrors: BlockError[];
+  motorErrors: BlockError[];
   zoom: number;
-  onZoom: (valor: number) => void;
-  novoBlocoAberto: boolean;
-  onFecharNovoBloco: () => void;
-  painelExternoAberto: boolean;
+  onZoom: (value: number) => void;
+  novoBlockAberto: boolean;
+  onFecharNovoBlock: () => void;
+  panelExternoAberto: boolean;
   pesquisa: string;
 }) {
-  const { mapa } = estado;
+  const { mapa } = state;
   const [selecionado, setSelecionado] = useState<string | null>(null);
   const [editando, setEditando] = useState<string | null>(null);
-  const [deslocamento, setDeslocamento] = useState<Posicao>({ top: 0, left: 0 });
+  const [offset, setOffset] = useState<Position>({ top: 0, left: 0 });
   const [excluindo, setExcluindo] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const area = useRef<HTMLDivElement>(null);
@@ -74,8 +74,8 @@ export function Editor({
   /* Os painéis de Configuração e Filas ocupam o mesmo lado que o painel do
      bloco; abrir um deles fecha o editor de bloco para não sobrepor conteúdo. */
   useEffect(() => {
-    if (painelExternoAberto) setEditando(null);
-  }, [painelExternoAberto]);
+    if (panelExternoAberto) setEditando(null);
+  }, [panelExternoAberto]);
 
   /* O aviso some sozinho, como o toast do editor. */
   useEffect(() => {
@@ -103,49 +103,49 @@ export function Editor({
     return () => window.removeEventListener('keydown', aoTeclar);
   }, [despachar]);
 
-  const erros = juntarErros(errosLocais(mapa), errosDaApi, errosDoMotor);
-  const errosPorBloco: Record<string, string[]> = {};
-  for (const e of erros) {
-    if (!e.bloco) continue;
-    (errosPorBloco[e.bloco] ??= []).push(e.mensagem);
+  const errors = juntarErrors(errorsLocal(mapa), apiErrors, motorErrors);
+  const errorsByBlock: Record<string, string[]> = {};
+  for (const e of errors) {
+    if (!e.block) continue;
+    (errorsByBlock[e.block] ??= []).push(e.mensagem);
   }
 
   const aplicar = (novo: typeof mapa): void => despachar({ tipo: 'aplicar', mapa: novo });
 
-  function posicaoParaNovo(): Posicao {
+  function positionForNew(): Position {
     const caixa = area.current?.getBoundingClientRect();
-    return posicaoNoCentro(
+    return positionInCentro(
       { largura: caixa?.width ?? 800, altura: caixa?.height ?? 600 },
-      deslocamento,
+      offset,
       zoom / 100,
     );
   }
 
-  function criarPadrao(): void {
-    const bloco = novoBloco(mapa, posicaoParaNovo());
-    aplicar(adicionarBloco(mapa, bloco));
-    onFecharNovoBloco();
-    setSelecionado(bloco.id);
-    setEditando(bloco.id);
+  function createDefault(): void {
+    const block = newBlock(mapa, positionForNew());
+    aplicar(addBlock(mapa, block));
+    onFecharNovoBlock();
+    setSelecionado(block.id);
+    setEditando(block.id);
   }
 
-  function criarHumano(): void {
-    const bloco = novoBlocoDeAtendimento(mapa, posicaoParaNovo());
-    aplicar(adicionarBloco(mapa, bloco));
-    onFecharNovoBloco();
-    setSelecionado(bloco.id);
-    setEditando(bloco.id);
+  function createHumano(): void {
+    const block = attendanceNewBlock(mapa, positionForNew());
+    aplicar(addBlock(mapa, block));
+    onFecharNovoBlock();
+    setSelecionado(block.id);
+    setEditando(block.id);
   }
 
   function ligarBlocos(de: string, para: string): void {
     const r = ligar(mapa, de, para);
     if (r.ok) aplicar(r.mapa);
-    else setAviso(r.erro);
+    else setAviso(r.error);
   }
 
   function pedirExclusao(id: string): void {
     if (!podeExcluir(mapa, id)) {
-      setAviso(MENSAGENS.naoExclui);
+      setAviso(MESSAGES.naoExclui);
       return;
     }
     setExcluindo(id);
@@ -158,44 +158,44 @@ export function Editor({
     );
   }
 
-  const blocoAberto = editando ? mapa[editando] : undefined;
+  const blockAberto = editando ? mapa[editando] : undefined;
 
   return (
     <div ref={area} className="bl-editor">
       <Canvas
         mapa={mapa}
-        errosPorBloco={errosPorBloco}
+        errorsByBlock={errorsByBlock}
         selecionado={selecionado}
         editando={editando}
         zoom={zoom}
-        deslocamento={deslocamento}
-        onDeslocar={setDeslocamento}
+        offset={offset}
+        onDeslocar={setOffset}
         onZoom={onZoom}
         onSelecionar={setSelecionado}
         onAbrir={setEditando}
-        onMover={(id, posicao) => despachar({ tipo: 'mover', mapa: moverBloco(mapa, id, posicao) })}
+        onMover={(id, position) => despachar({ tipo: 'mover', mapa: moverBlock(mapa, id, position) })}
         onSoltar={() => despachar({ tipo: 'soltar' })}
         onLigar={ligarBlocos}
         onDesligar={(de, para) => aplicar(desligar(mapa, de, para))}
-        onDuplicar={(id) => aplicar(duplicarBloco(mapa, id))}
+        onDuplicar={(id) => aplicar(duplicarBlock(mapa, id))}
         onCopiarId={copiarId}
-        onColar={(bloco, posicao) => aplicar(colarBloco(mapa, bloco, posicao))}
+        onColar={(block, position) => aplicar(colarBlock(mapa, block, position))}
         onExcluir={pedirExclusao}
         onAviso={setAviso}
         pesquisa={pesquisa}
       />
 
-      {novoBlocoAberto ? (
-        <MenuNovoBloco onPadrao={criarPadrao} onHumano={criarHumano} onFechar={onFecharNovoBloco} />
+      {novoBlockAberto ? (
+        <MenuNewBlock onPadrao={createDefault} onHumano={createHumano} onFechar={onFecharNovoBlock} />
       ) : null}
 
-      {blocoAberto ? (
-        <PainelDoBloco
-          key={blocoAberto.id}
-          bloco={blocoAberto}
+      {blockAberto ? (
+        <BlockPanel
+          key={blockAberto.id}
+          block={blockAberto}
           mapa={mapa}
-          erros={errosPorBloco[blocoAberto.id] ?? []}
-          onMudar={(bloco) => aplicar(substituirBloco(mapa, bloco))}
+          errors={errorsByBlock[blockAberto.id] ?? []}
+          onMudar={(block) => aplicar(substituirBlock(mapa, block))}
           onFechar={() => setEditando(null)}
           onAviso={setAviso}
         />
@@ -207,10 +207,10 @@ export function Editor({
         </div>
       ) : null}
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={excluindo !== null}
         titulo="Excluir bloco"
-        mensagem={
+        message={
           excluindo ? (
             <>
               Excluir o bloco <b>{mapa[excluindo]?.$title ?? excluindo}</b>? As condições de saída de
@@ -219,7 +219,7 @@ export function Editor({
           ) : null
         }
         onConfirmar={() => {
-          if (excluindo) aplicar(excluirBloco(mapa, excluindo));
+          if (excluindo) aplicar(excluirBlock(mapa, excluindo));
           setExcluindo(null);
         }}
         onCancelar={() => setExcluindo(null)}

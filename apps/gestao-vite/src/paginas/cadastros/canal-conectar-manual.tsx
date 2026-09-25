@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Botao, Campo, Etiqueta, type VarianteDeBotao } from '@pipe/ui';
-import type { CanalInstagramVisivel, CanalWhatsAppVisivel } from '../../lib/canais';
-import type { CanalMessengerVisivel } from '../../lib/canais';
+import type { ChannelInstagramVisivel, ChannelWhatsAppVisivel } from '../../lib/canais';
+import type { ChannelMessengerVisivel } from '../../lib/canais';
 import {
   conectarInstagramManual,
   conectarMessengerManual,
   conectarWhatsappManual,
-  type CanalConectado,
+  type ChannelConnected,
 } from '../../lib/canais-gravar';
 import { Modal } from './_modal';
 
@@ -24,7 +24,7 @@ import { Modal } from './_modal';
  * corrigido: a tarefa pede só consumir).
  */
 
-const coluna = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
+const column = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
 const rotulo = { display: 'flex', flexDirection: 'column' as const, gap: '4px' };
 
 function CampoComRotulo({
@@ -34,7 +34,7 @@ function CampoComRotulo({
   obrigatorio = true,
   desabilitado,
   tipo = 'text',
-  valorInicial,
+  valueInitial,
 }: {
   nome: string;
   rotuloTexto: string;
@@ -43,7 +43,7 @@ function CampoComRotulo({
   desabilitado?: boolean;
   tipo?: string;
   /** Na reconexão, WABA e número já são conhecidos: vêm preenchidos. */
-  valorInicial?: string | undefined;
+  valueInitial?: string | undefined;
 }) {
   return (
     <label style={rotulo}>
@@ -53,7 +53,7 @@ function CampoComRotulo({
         type={tipo}
         required={obrigatorio}
         disabled={desabilitado}
-        defaultValue={valorInicial}
+        defaultValue={valueInitial}
         autoComplete="off"
       />
       {ajuda ? <span className="sub">{ajuda}</span> : null}
@@ -68,43 +68,43 @@ function CampoComRotulo({
  * e a variante da tela que o hospeda.
  */
 interface PropsDeConexaoManual<T> {
-  fluxoId?: string;
+  flowId?: string;
   /**
    * RECONECTAR este canal em vez de criar outro. O token do cliente expira, e na
    * origem a saída é refazer a conexão no mesmo canal — não há desconectar no
    * WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
    */
-  canalId?: string;
+  channelId?: string;
   /** Preenche o formulário com o que já se sabe do canal. */
-  valores?: { wabaId?: string; numeroId?: string };
+  values?: { wabaId?: string; numeroId?: string };
   rotulo?: string;
   variante?: VarianteDeBotao;
-  onConectado?: (canal: T) => void;
+  onConectado?: (channel: T) => void;
 }
 
-export function ConectarMessengerManual({ fluxoId, rotulo = 'Conectar manualmente', variante = 'padrao', onConectado }: PropsDeConexaoManual<CanalMessengerVisivel>) {
-  const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [erro, setErro] = useState<string | null>(null); const [sucesso, setSucesso] = useState<CanalConectado<CanalMessengerVisivel> | null>(null);
-  function fechar() { setAberto(false); setErro(null); if (sucesso) onConectado?.(sucesso.canal); setSucesso(null); }
-  async function enviar(evento: FormEvent<HTMLFormElement>) { evento.preventDefault(); setEnviando(true); const d = new FormData(evento.currentTarget); const r = await conectarMessengerManual({ token: String(d.get('token') ?? '').trim(), appSecret: String(d.get('appSecret') ?? '').trim(), nome: String(d.get('nome') ?? '').trim() || undefined, ...(fluxoId ? { fluxoId } : {}) }); setEnviando(false); if (!r.ok) { setErro(r.erro); return; } setSucesso(r.valor); }
-  return <><Botao type="button" variante={variante} onClick={() => setAberto(true)}>{rotulo}</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} erroDeWebhook={sucesso.erroDeWebhook} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={coluna}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}<div className="cl-acoes"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
+export function ConectarMessengerManual({ flowId, rotulo = 'Conectar manualmente', variante = 'padrao', onConectado }: PropsDeConexaoManual<ChannelMessengerVisivel>) {
+  const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [error, setError] = useState<string | null>(null); const [sucesso, setSucesso] = useState<ChannelConnected<ChannelMessengerVisivel> | null>(null);
+  function fechar() { setAberto(false); setError(null); if (sucesso) onConectado?.(sucesso.channel); setSucesso(null); }
+  async function enviar(evento: FormEvent<HTMLFormElement>) { evento.preventDefault(); setEnviando(true); const d = new FormData(evento.currentTarget); const r = await conectarMessengerManual({ token: String(d.get('token') ?? '').trim(), appSecret: String(d.get('appSecret') ?? '').trim(), nome: String(d.get('nome') ?? '').trim() || undefined, ...(flowId ? { flowId } : {}) }); setEnviando(false); if (!r.ok) { setError(r.error); return; } setSucesso(r.value); }
+  return <><Botao type="button" variante={variante} onClick={() => setAberto(true)}>{rotulo}</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} webhookError={sucesso.webhookError} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={column}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}<div className="cl-acoes"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
 }
 
 /** O que sobra na tela depois de conectar: o cliente TEM de colar isto no app dele. */
 function WebhookPronto({
   webhook,
-  erroDeWebhook,
+  webhookError,
   onFechar,
 }: {
   webhook: { url: string; verifyToken: string };
-  erroDeWebhook: string | null;
+  webhookError: string | null;
   onFechar: () => void;
 }) {
   return (
-    <div style={coluna}>
+    <div style={column}>
       <Etiqueta tom="sucesso">Canal conectado.</Etiqueta>
-      {erroDeWebhook ? (
+      {webhookError ? (
         <Etiqueta tom="alerta">
-          A assinatura automática do webhook falhou ({erroDeWebhook}). Cole os dados abaixo no painel
+          A assinatura automática do webhook falhou ({webhookError}). Cole os dados abaixo no painel
           do aplicativo mesmo assim.
         </Etiqueta>
       ) : null}
@@ -129,45 +129,45 @@ function WebhookPronto({
 }
 
 export function ConectarWhatsappManual({
-  fluxoId,
-  canalId,
-  valores,
+  flowId,
+  channelId,
+  values,
   rotulo = 'Conectar manualmente',
   variante = 'padrao',
   onConectado,
-}: PropsDeConexaoManual<CanalWhatsAppVisivel>) {
+}: PropsDeConexaoManual<ChannelWhatsAppVisivel>) {
   const [aberto, setAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<CanalConectado<CanalWhatsAppVisivel> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelWhatsAppVisivel> | null>(null);
 
   function fechar() {
     setAberto(false);
-    setErro(null);
-    if (sucesso) onConectado?.(sucesso.canal);
+    setError(null);
+    if (sucesso) onConectado?.(sucesso.channel);
     setSucesso(null);
   }
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setEnviando(true);
-    setErro(null);
-    const dados = new FormData(evento.currentTarget);
+    setError(null);
+    const data = new FormData(evento.currentTarget);
     const resultado = await conectarWhatsappManual({
-      wabaId: String(dados.get('wabaId') ?? '').trim(),
-      numeroId: String(dados.get('numeroId') ?? '').trim(),
-      token: String(dados.get('token') ?? '').trim(),
-      appSecret: String(dados.get('appSecret') ?? '').trim(),
-      nome: String(dados.get('nome') ?? '').trim() || undefined,
-      ...(fluxoId ? { fluxoId } : {}),
-      ...(canalId ? { canalId } : {}),
+      wabaId: String(data.get('wabaId') ?? '').trim(),
+      numeroId: String(data.get('numeroId') ?? '').trim(),
+      token: String(data.get('token') ?? '').trim(),
+      appSecret: String(data.get('appSecret') ?? '').trim(),
+      nome: String(data.get('nome') ?? '').trim() || undefined,
+      ...(flowId ? { flowId } : {}),
+      ...(channelId ? { channelId } : {}),
     });
     setEnviando(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
-    setSucesso(resultado.valor);
+    setSucesso(resultado.value);
   }
 
   return (
@@ -177,17 +177,17 @@ export function ConectarWhatsappManual({
       </Botao>
       <Modal
         aberto={aberto}
-        titulo={canalId ? 'Reconectar WhatsApp' : 'Conectar WhatsApp manualmente'}
+        titulo={channelId ? 'Reconectar WhatsApp' : 'Conectar WhatsApp manualmente'}
         onFechar={fechar}
       >
         {sucesso ? (
           <WebhookPronto
             webhook={sucesso.webhook}
-            erroDeWebhook={sucesso.erroDeWebhook}
+            webhookError={sucesso.webhookError}
             onFechar={fechar}
           />
         ) : (
-          <form onSubmit={(e) => void enviar(e)} style={coluna}>
+          <form onSubmit={(e) => void enviar(e)} style={column}>
             <p className="sub">
               Onde encontrar cada dado no painel da Meta (business.facebook.com):
             </p>
@@ -212,11 +212,11 @@ export function ConectarWhatsappManual({
               </li>
             </ol>
 
-            <CampoComRotulo nome="wabaId" rotuloTexto="WABA ID" valorInicial={valores?.wabaId} />
+            <CampoComRotulo nome="wabaId" rotuloTexto="WABA ID" valueInitial={values?.wabaId} />
             <CampoComRotulo
               nome="numeroId"
               rotuloTexto="Phone Number ID"
-              valorInicial={valores?.numeroId}
+              valueInitial={values?.numeroId}
             />
             <CampoComRotulo nome="token" rotuloTexto="Token de acesso (usuário de sistema)" />
             <CampoComRotulo
@@ -226,14 +226,14 @@ export function ConectarWhatsappManual({
             />
             <CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />
 
-            {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+            {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
             <div className="cl-acoes">
               <Botao type="button" onClick={fechar} disabled={enviando}>
                 Cancelar
               </Botao>
               <Botao type="submit" variante="primario" disabled={enviando}>
-                {enviando ? 'Conectando…' : canalId ? 'Reconectar' : 'Conectar'}
+                {enviando ? 'Conectando…' : channelId ? 'Reconectar' : 'Conectar'}
               </Botao>
             </div>
           </form>
@@ -244,40 +244,40 @@ export function ConectarWhatsappManual({
 }
 
 export function ConectarInstagramManual({
-  fluxoId,
+  flowId,
   rotulo = 'Conectar manualmente',
   variante = 'padrao',
   onConectado,
-}: PropsDeConexaoManual<CanalInstagramVisivel>) {
+}: PropsDeConexaoManual<ChannelInstagramVisivel>) {
   const [aberto, setAberto] = useState(false);
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const [sucesso, setSucesso] = useState<CanalConectado<CanalInstagramVisivel> | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sucesso, setSucesso] = useState<ChannelConnected<ChannelInstagramVisivel> | null>(null);
 
   function fechar() {
     setAberto(false);
-    setErro(null);
-    if (sucesso) onConectado?.(sucesso.canal);
+    setError(null);
+    if (sucesso) onConectado?.(sucesso.channel);
     setSucesso(null);
   }
 
   async function enviar(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
     setEnviando(true);
-    setErro(null);
-    const dados = new FormData(evento.currentTarget);
+    setError(null);
+    const data = new FormData(evento.currentTarget);
     const resultado = await conectarInstagramManual({
-      token: String(dados.get('token') ?? '').trim(),
-      appSecret: String(dados.get('appSecret') ?? '').trim(),
-      nome: String(dados.get('nome') ?? '').trim() || undefined,
-      ...(fluxoId ? { fluxoId } : {}),
+      token: String(data.get('token') ?? '').trim(),
+      appSecret: String(data.get('appSecret') ?? '').trim(),
+      nome: String(data.get('nome') ?? '').trim() || undefined,
+      ...(flowId ? { flowId } : {}),
     });
     setEnviando(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
-    setSucesso(resultado.valor);
+    setSucesso(resultado.value);
   }
 
   return (
@@ -289,11 +289,11 @@ export function ConectarInstagramManual({
         {sucesso ? (
           <WebhookPronto
             webhook={sucesso.webhook}
-            erroDeWebhook={sucesso.erroDeWebhook}
+            webhookError={sucesso.webhookError}
             onFechar={fechar}
           />
         ) : (
-          <form onSubmit={(e) => void enviar(e)} style={coluna}>
+          <form onSubmit={(e) => void enviar(e)} style={column}>
             <p className="sub">
               Sem aplicativo aprovado na Meta: crie o app do tipo "Instagram API with Instagram Login",
               gere o token de longa duração da conta profissional e cole os dois valores abaixo.
@@ -306,7 +306,7 @@ export function ConectarInstagramManual({
             />
             <CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />
 
-            {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+            {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
             <div className="cl-acoes">
               <Botao type="button" onClick={fechar} disabled={enviando}>

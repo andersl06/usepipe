@@ -1,7 +1,7 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
-import { conectarManual, convidar, importarContatos } from './acoes';
+import { conectarManual, convidar, importContacts } from './acoes';
 import type { ResultadoDaAcao } from './acoes';
 
 /**
@@ -13,13 +13,13 @@ import type { ResultadoDaAcao } from './acoes';
 const INICIAL: ResultadoDaAcao = { ok: true };
 
 function Resultado({ resultado }: { resultado: ResultadoDaAcao }) {
-  if (resultado.erro) return <Etiqueta tom="erro">{resultado.erro}</Etiqueta>;
-  if (resultado.mensagem) return <Etiqueta tom="sucesso">{resultado.mensagem}</Etiqueta>;
+  if (resultado.error) return <Etiqueta tom="erro">{resultado.error}</Etiqueta>;
+  if (resultado.message) return <Etiqueta tom="sucesso">{resultado.message}</Etiqueta>;
   return null;
 }
 
 /** Reaproveita o convite que já existe (`POST /v1/convites`). */
-export function FormularioConvite() {
+export function FormularioInvitation() {
   const formulario = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(convidar, INICIAL);
 
@@ -72,12 +72,12 @@ export function FormularioConvite() {
   );
 }
 
-export function FormularioImportacao() {
+export function FormularioImport() {
   const formulario = useRef<HTMLFormElement>(null);
-  const [resultado, enviar, enviando] = useActionState(importarContatos, INICIAL);
+  const [resultado, enviar, enviando] = useActionState(importContacts, INICIAL);
 
   useEffect(() => {
-    if (resultado.ok && resultado.mensagem) formulario.current?.reset();
+    if (resultado.ok && resultado.message) formulario.current?.reset();
   }, [resultado]);
 
   return (
@@ -102,7 +102,7 @@ export function FormularioManual() {
   const [resultado, enviar, enviando] = useActionState(conectarManual, INICIAL);
 
   useEffect(() => {
-    if (resultado.ok && resultado.mensagem) formulario.current?.reset();
+    if (resultado.ok && resultado.message) formulario.current?.reset();
   }, [resultado]);
 
   return (

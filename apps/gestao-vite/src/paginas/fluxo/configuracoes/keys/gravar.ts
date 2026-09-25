@@ -9,11 +9,11 @@ import { motivoDe } from '../basicas/gravar';
  * usa "excluir" porque é a palavra da origem (`deleteKey`), mas o gesto por
  * baixo é revogação.
  */
-export interface ChaveListada {
+export interface KeyListed {
   id: string;
   nome: string;
-  prefixo: string;
-  escopos: string[];
+  prefix: string;
+  scopes: string[];
   criadaEm: string;
   ultimoUsoEm: string | null;
   revogadaEm: string | null;
@@ -21,28 +21,28 @@ export interface ChaveListada {
 }
 
 /** Só existe na resposta da criação — depois disso, nunca mais volta em claro. */
-export interface ChaveCriada extends ChaveListada {
+export interface KeyCreated extends KeyListed {
   token: string;
 }
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
-export async function criarChave(fluxoId: string, nome: string): Promise<Resultado<ChaveCriada>> {
+export async function createKey(flowId: string, nome: string): Promise<Resultado<KeyCreated>> {
   try {
-    const valor = await api.post<ChaveCriada>(`/v1/gestao/fluxos/${fluxoId}/chaves`, { nome });
+    const value = await api.post<KeyCreated>(`/v1/gestao/fluxos/${flowId}/chaves`, { nome });
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível criar a chave.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível criar a chave.') };
   }
 }
 
-export async function revogarChave(fluxoId: string, chaveId: string): Promise<Resultado<void>> {
+export async function revogarKey(flowId: string, keyId: string): Promise<Resultado<void>> {
   try {
-    await api.delete<void>(`/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId}`);
+    await api.delete<void>(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a chave.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a chave.') };
   }
 }

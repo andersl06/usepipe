@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { cifrar, decifrar } from '@pipe/db';
-import { chaveiro } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
+import { keyring } from '../../banco.js';
+import { PipeError } from '../../erros.js';
 
 /**
  * O `state` do cadastro embutido. **Acréscimo do Pipe, não é porte.**
@@ -23,41 +23,41 @@ import { ErroPipe } from '../../erros.js';
  * Se virar requisito, é uma tabela de `state` queimado.
  */
 
-const VALIDADE_MS = 10 * 60 * 1000;
+const VALIDITY_MS = 10 * 60 * 1000;
 
-interface ConteudoDoEstado {
+interface ContentOfState {
   t: string;
   u: string;
   e: number;
   n: string;
 }
 
-export function emitirEstado(tenantId: string, usuarioId: string, agora = Date.now()): string {
-  const conteudo: ConteudoDoEstado = {
+export function emitirState(tenantId: string, userId: string, agora = Date.now()): string {
+  const conteudo: ContentOfState = {
     t: tenantId,
-    u: usuarioId,
-    e: agora + VALIDADE_MS,
+    u: userId,
+    e: agora + VALIDITY_MS,
     n: randomBytes(8).toString('hex'),
   };
-  return cifrar(JSON.stringify(conteudo), chaveiro());
+  return cifrar(JSON.stringify(conteudo), keyring());
 }
 
-export function conferirEstado(
-  estado: string | undefined,
+export function checkState(
+  state: string | undefined,
   tenantId: string,
   usuarioId: string,
   agora = Date.now(),
 ): void {
-  let conteudo: ConteudoDoEstado | null = null;
+  let conteudo: ContentOfState | null = null;
   try {
-    conteudo = estado ? (JSON.parse(decifrar(estado, chaveiro())) as ConteudoDoEstado) : null;
+    conteudo = state ? (JSON.parse(decifrar(state, keyring())) as ContentOfState) : null;
   } catch {
     conteudo = null;
   }
   // Ausente, forjado, de outra sessão ou vencido dão a MESMA resposta: dizer qual
   // metade falhou é ensinar a quem tenta.
   if (!conteudo || conteudo.t !== tenantId || conteudo.u !== usuarioId || !(conteudo.e > agora)) {
-    throw new ErroPipe(
+    throw new PipeError(
       403,
       'estado_invalido',
       'A conexão com a Meta não partiu desta sessão, ou demorou demais. Abra o cadastro de novo.',

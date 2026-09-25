@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import type { ConfiguracaoDeMenuPersistente } from '@pipe/contracts';
-import { BotaoBds, BotaoDeIcone, CabecalhoDaPagina, CampoBds, Papel } from '../pecas';
+import type { ConfigurationOfMenuPersistent } from '@pipe/contracts';
+import { BotaoBds, BotaoDeIcone, PageHeader, CampoBds, Role } from '../pecas';
 import { salvarMenuPersistente } from './gravar';
 
 /** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Rodada 2, captura 6). */
@@ -12,13 +12,13 @@ interface ItemDoMenu {
   aberto: boolean;
 }
 
-function itemVazio(): ItemDoMenu {
+function itemEmpty(): ItemDoMenu {
   return { texto: '', link: '', aberto: false };
 }
 
-function itensIniciais(inicial: ConfiguracaoDeMenuPersistente): ItemDoMenu[] {
+function itensInitials(inicial: ConfigurationOfMenuPersistent): ItemDoMenu[] {
   const preenchidos = inicial.itens.map((item) => ({ ...item, aberto: true }));
-  const vazios = Array.from({ length: MAXIMO_DE_ITENS - preenchidos.length }, itemVazio);
+  const vazios = Array.from({ length: MAXIMO_DE_ITENS - preenchidos.length }, itemEmpty);
   return [...preenchidos, ...vazios];
 }
 
@@ -37,21 +37,21 @@ function itensIniciais(inicial: ConfiguracaoDeMenuPersistente): ItemDoMenu[] {
  */
 export function TelaDeMenuPersistente({
   id,
-  canalCompativel,
+  channelCompativel,
   inicial,
 }: {
   id: string;
-  canalCompativel: boolean;
-  inicial: ConfiguracaoDeMenuPersistente;
+  channelCompativel: boolean;
+  inicial: ConfigurationOfMenuPersistent;
 }) {
-  const [itens, setItens] = useState<ItemDoMenu[]>(() => itensIniciais(inicial));
+  const [itens, setItens] = useState<ItemDoMenu[]>(() => itensInitials(inicial));
   const [aviso, setAviso] = useState('');
   const [sucesso, setSucesso] = useState('');
   const [salvando, setSalvando] = useState(false);
-  const podeSalvar = canalCompativel && inicial.boasVindasPreenchida;
+  const podeSalvar = channelCompativel && inicial.boasVindasPreenchida;
 
-  function mudarCampo(indice: number, campo: 'texto' | 'link', valor: string) {
-    setItens((atual) => atual.map((item, i) => (i === indice ? { ...item, [campo]: valor } : item)));
+  function mudarCampo(indice: number, campo: 'texto' | 'link', value: string) {
+    setItens((atual) => atual.map((item, i) => (i === indice ? { ...item, [campo]: value } : item)));
   }
 
   function alternarAberto(indice: number) {
@@ -70,7 +70,7 @@ export function TelaDeMenuPersistente({
     );
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     setSucesso('Configuração salva com sucesso.');
@@ -78,16 +78,16 @@ export function TelaDeMenuPersistente({
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         titulo={<h1>Menu Persistente</h1>}
-        acoes={
+        actions={
           <BotaoBds variante="bot" disabled={!podeSalvar || salvando} onClick={() => void salvar()}>
             Salvar
           </BotaoBds>
         }
       />
       <div className="cf-container cf-menu-persistente">
-        {!canalCompativel ? (
+        {!channelCompativel ? (
           <p className="cf-faixa-alerta" role="status">
             Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook
             Messenger
@@ -99,7 +99,7 @@ export function TelaDeMenuPersistente({
           que poderão ser utilizadas em qualquer momento do fluxo. Você poderá adicionar até{' '}
           {MAXIMO_DE_ITENS} itens que disparam um comando.
         </p>
-        {canalCompativel && !inicial.boasVindasPreenchida ? (
+        {channelCompativel && !inicial.boasVindasPreenchida ? (
           <p className="cf-menu-aviso-boasvindas">
             Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas no
             menu lateral.
@@ -107,7 +107,7 @@ export function TelaDeMenuPersistente({
         ) : null}
 
         {itens.map((item, indice) => (
-          <Papel key={indice} className="cf-menu-item">
+          <Role key={indice} className="cf-menu-item">
             <div className="cf-menu-item-topo">
               <span>Item {indice + 1}</span>
               <BotaoDeIcone
@@ -121,19 +121,19 @@ export function TelaDeMenuPersistente({
               <div className="cf-menu-item-corpo">
                 <CampoBds
                   rotulo="Texto"
-                  valor={item.texto}
-                  aoMudar={(valor) => mudarCampo(indice, 'texto', valor)}
+                  value={item.texto}
+                  aoMudar={(value) => mudarCampo(indice, 'texto', value)}
                 />
                 <div className="cf-mt4">
                   <CampoBds
                     rotulo="Link"
-                    valor={item.link}
-                    aoMudar={(valor) => mudarCampo(indice, 'link', valor)}
+                    value={item.link}
+                    aoMudar={(value) => mudarCampo(indice, 'link', value)}
                   />
                 </div>
               </div>
             ) : null}
-          </Papel>
+          </Role>
         ))}
 
         {aviso ? (

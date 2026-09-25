@@ -3,11 +3,11 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
-import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/autenticacao';
-import type { SessaoAtiva } from '@pipe/autenticacao';
-import type { TransacaoPipe } from '@pipe/db';
-import { bancoDono } from './banco.js';
-import { ErroPipe } from './erros.js';
+import { NOME_DO_COOKIE, hashDoToken, resolveSession } from '@pipe/autenticacao';
+import type { SessionActive } from '@pipe/autenticacao';
+import type { TransactionPipe } from '@pipe/db';
+import { databaseOwner } from './banco.js';
+import { PipeError } from './erros.js';
 
 /**
  * Autenticação por SESSÃO, para as telas — irmã da autenticação por chave de API de
@@ -23,10 +23,10 @@ import { ErroPipe } from './erros.js';
  * uma dependência a menos na imagem.
  */
 
-export const CHAVE_SESSAO = 'pipe:sessao';
+export const KEY_SESSION = 'pipe:sessao';
 
 /** Marca a rota como exigindo sessão de navegador. */
-export const ComSessao = () => SetMetadata(CHAVE_SESSAO, true);
+export const WithSession = () => SetMetadata(KEY_SESSION, true);
 
 /**
  * Marca a rota como aceitando **chave de API OU sessão** — não as duas juntas.
@@ -46,26 +46,26 @@ export const ComSessao = () => SetMetadata(CHAVE_SESSAO, true);
  * O decorador composto vive em `autenticacao.ts`, junto de `@Escopos`; aqui fica só a
  * chave, para os dois guardas a enxergarem sem ciclo de import.
  */
-export const CHAVE_QUALQUER_CREDENCIAL = 'pipe:qualquer-credencial';
+export const KEY_ANY_CREDENTIAL = 'pipe:qualquer-credencial';
 
 /** Há `Authorization: Bearer` na requisição? É o que desempata as duas credenciais. */
-export function temBearer(requisicao: Request): boolean {
-  return /^Bearer\s+\S/i.test(requisicao.header('authorization') ?? '');
+export function temBearer(request: Request): boolean {
+  return /^Bearer\s+\S/i.test(request.header('authorization') ?? '');
 }
 
-export type RequisicaoComSessao = Request & { sessao?: SessaoAtiva };
+export type RequestWithSession = Request & { session?: SessionActive };
 
-export function sessaoDe(requisicao: RequisicaoComSessao): SessaoAtiva {
-  if (!requisicao.sessao) throw recusa();
-  return requisicao.sessao;
+export function sessionOf(requisicao: RequestWithSession): SessionActive {
+  if (!requisicao.session) throw recusa();
+  return requisicao.session;
 }
 
 /**
  * Token ausente, token inexistente, sessão expirada e sessão encerrada dão a MESMA
  * resposta. Distinguir seria contar a quem tenta qual metade do palpite acertou.
  */
-function recusa(): ErroPipe {
-  return ErroPipe.naoAutorizado('Sessão ausente ou expirada.');
+function recusa(): PipeError {
+  return PipeError.naoAutorizado('Sessão ausente ou expirada.');
 }
 
 export function lerCookie(cabecalho: string | undefined, nome: string): string | undefined {
@@ -93,7 +93,7 @@ export function lerCookies(cabecalho: string | undefined, nome: string): string[
   return achados;
 }
 
-export function tokenDaSessao(requisicao: Request): string | undefined {
+export function tokenOfSession(requisicao: Request): string | undefined {
   return lerCookie(requisicao.header('cookie'), NOME_DO_COOKIE);
 }
 
@@ -114,56 +114,56 @@ export function tokenDaSessao(requisicao: Request): string | undefined {
  * desligada na mão, na tela "Permissões" do atendente; sem linha, manda o
  * papel. O `coalesce` faz as duas leituras numa consulta só.
  */
-export async function exigirPermissao(
-  tx: TransacaoPipe,
-  usuarioId: string,
+export async function exigirPermission(
+  tx: TransactionPipe,
+  userId: string,
   codigo: string,
 ): Promise<void> {
   const { rows } = await tx.execute<{ tem: boolean }>(sql`
     select coalesce(
       (select uperm.concedida
          from usuario_permissao uperm
-        where uperm.usuario_id = ${usuarioId}::uuid
+        where uperm.usuario_id = ${userId}::uuid
           and uperm.permissao_codigo = ${codigo}),
       exists (
         select 1
           from usuario_papel up
           join papel_permissao pp on pp.papel_id = up.papel_id
-         where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${codigo}
+         where up.usuario_id = ${userId}::uuid and pp.permissao_codigo = ${codigo}
       )
     ) as tem
   `);
-  if (!rows[0]?.tem) throw ErroPipe.semPermissao(codigo);
+  if (!rows[0]?.tem) throw PipeError.withoutPermission(codigo);
 }
 
-export class GuardaSessao implements CanActivate {
+export class SessionGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  async canActivate(contexto: ExecutionContext): Promise<boolean> {
-    const exige = this.reflector.getAllAndOverride<boolean | undefined>(CHAVE_SESSAO, [
-      contexto.getHandler(),
-      contexto.getClass(),
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const exige = this.reflector.getAllAndOverride<boolean | undefined>(KEY_SESSION, [
+      context.getHandler(),
+      context.getClass(),
     ]);
     if (!exige) return true;
 
-    const requisicao = contexto.switchToHttp().getRequest<RequisicaoComSessao>();
+    const request = context.switchToHttp().getRequest<RequestWithSession>();
 
     // Rota que aceita as duas credenciais e recebeu Bearer: quem confere é o guarda
     // da chave. Ver `CHAVE_QUALQUER_CREDENCIAL`.
     const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
-      CHAVE_QUALQUER_CREDENCIAL,
-      [contexto.getHandler(), contexto.getClass()],
+      KEY_ANY_CREDENTIAL,
+      [context.getHandler(), context.getClass()],
     );
-    if (qualquer && temBearer(requisicao)) return true;
+    if (qualquer && temBearer(request)) return true;
 
-    const token = tokenDaSessao(requisicao);
+    const token = tokenOfSession(request);
     if (!token) throw recusa();
 
     // Pelo HASH, com índice único: o token em claro nunca chega ao banco.
-    const sessao = await resolverSessao(bancoDono(), hashDoToken(token));
-    if (!sessao) throw recusa();
+    const session = await resolveSession(databaseOwner(), hashDoToken(token));
+    if (!session) throw recusa();
 
-    requisicao.sessao = sessao;
+    request.session = session;
     return true;
   }
 }

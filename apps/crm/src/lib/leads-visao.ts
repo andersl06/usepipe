@@ -13,12 +13,12 @@
  */
 
 /** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */
-export const ROTULO_ATIVIDADE: Record<string, string> = {
+export const ROTULO_ACTIVITY: Record<string, string> = {
   nota: 'Nota',
-  ligacao: 'Ligação',
+  connection: 'Ligação',
   reuniao: 'Reunião',
   email: 'E-mail',
-  conversa: 'Conversa',
+  conversation: 'Conversa',
   tarefa: 'Tarefa',
   mudanca_fase: 'Mudança de fase',
 };
@@ -26,7 +26,7 @@ export const ROTULO_ATIVIDADE: Record<string, string> = {
 /** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */
 export const ROTULO_STATUS: Record<string, string> = {
   novo: 'Novo',
-  em_contato: 'Em contato',
+  inContact: 'Em contato',
   qualificado: 'Qualificado',
   convertido: 'Convertido',
   desqualificado: 'Desqualificado',
@@ -43,8 +43,8 @@ export const ABAS = [
 
 export type Aba = (typeof ABAS)[number]['chave'];
 
-export function abaValida(valor: string | undefined): Aba {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'todos') as Aba;
+export function abaValida(value: string | undefined): Aba {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'todos') as Aba;
 }
 
 /** A listagem é tela de trabalho, não de exportação. */
@@ -56,20 +56,20 @@ export interface LinhaLead {
   origem: string | null;
   score: number | null;
   faixa: string | null;
-  fila: string | null;
+  queue: string | null;
   proprietario: string | null;
   /** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */
   proprietarioId: string | null;
   status: string;
   fase: string | null;
   diasNaFase: number | null;
-  ultimaAtividade: Date | null;
-  ultimaAtividadeTipo: string | null;
+  ultimaActivity: Date | null;
+  ultimaActivityTipo: string | null;
 }
 
 export interface Proprietario {
   id: string;
-  nome: string;
+  name: string;
 }
 
 /**
@@ -77,7 +77,7 @@ export interface Proprietario {
  * menu: "por proprietário" e "origem e campanha" são a mesma lista, dobrada por
  * uma coluna. Relatório que é recorte de lista mora na lista.
  */
-export const AGRUPAMENTOS = [
+export const GROUPINGS = [
   { chave: 'nenhum', rotulo: 'Sem agrupamento' },
   { chave: 'proprietario', rotulo: 'Proprietário' },
   { chave: 'origem', rotulo: 'Origem' },
@@ -85,10 +85,10 @@ export const AGRUPAMENTOS = [
   { chave: 'faixa', rotulo: 'Faixa de score' },
 ] as const;
 
-export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
+export type Grouping = (typeof GROUPINGS)[number]['chave'];
 
-export function agrupamentoValido(valor: string | undefined): Agrupamento {
-  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+export function groupingValid(value: string | undefined): Grouping {
+  return (GROUPINGS.find((a) => a.chave === value)?.chave ?? 'nenhum') as Grouping;
 }
 
 /**
@@ -99,8 +99,8 @@ export function agrupamentoValido(valor: string | undefined): Agrupamento {
  * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
  * propósito, e é o que mantém as duas listas casadas sem uma tabela de-para.
  */
-export function colunaDoAgrupamento(por: Agrupamento): string | null {
-  return por === 'nenhum' ? null : por;
+export function groupingColumn(by: Grouping): string | null {
+  return by === 'nenhum' ? null : by;
 }
 
 export interface Grupo {
@@ -109,23 +109,23 @@ export interface Grupo {
 }
 
 /** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */
-export function agrupar(linhas: LinhaLead[], por: Agrupamento): Grupo[] {
-  if (por === 'nenhum') return [{ titulo: '', linhas }];
-  const chaveDe = (l: LinhaLead) =>
-    por === 'proprietario'
+export function agrupar(linhas: LinhaLead[], by: Grouping): Grupo[] {
+  if (by === 'nenhum') return [{ titulo: '', linhas }];
+  const keyOf = (l: LinhaLead) =>
+    by === 'proprietario'
       ? (l.proprietario ?? 'Sem proprietário')
-      : por === 'origem'
+      : by === 'origem'
         ? (l.origem ?? 'Sem origem')
-        : por === 'fase'
+        : by === 'fase'
           ? (l.fase ?? 'Sem fase')
           : (l.faixa ?? 'Sem score');
 
   const mapa = new Map<string, LinhaLead[]>();
   for (const l of linhas) {
-    const chave = chaveDe(l);
-    const atual = mapa.get(chave);
+    const key = keyOf(l);
+    const atual = mapa.get(key);
     if (atual) atual.push(l);
-    else mapa.set(chave, [l]);
+    else mapa.set(key, [l]);
   }
   return [...mapa.entries()]
     .map(([titulo, dela]) => ({ titulo, linhas: dela }))
@@ -159,19 +159,19 @@ export const ORDENAVEIS = [
   'dias',
 ] as const;
 
-export type Ordem = (typeof ORDENAVEIS)[number] | 'nenhuma';
-export type Direcao = 'asc' | 'desc';
+export type Order = (typeof ORDENAVEIS)[number] | 'nenhuma';
+export type Direction = 'asc' | 'desc';
 
-export function ordemValida(valor: string | undefined): Ordem {
-  return ORDENAVEIS.find((o) => o === valor) ?? 'nenhuma';
+export function orderValid(value: string | undefined): Order {
+  return ORDENAVEIS.find((o) => o === value) ?? 'nenhuma';
 }
 
-export function direcaoValida(valor: string | undefined): Direcao {
-  return valor === 'asc' ? 'asc' : 'desc';
+export function directionValid(value: string | undefined): Direction {
+  return value === 'asc' ? 'asc' : 'desc';
 }
 
-export function colunaOrdenavel(chave: string): boolean {
-  return ORDENAVEIS.some((o) => o === chave);
+export function columnOrdenavel(key: string): boolean {
+  return ORDENAVEIS.some((o) => o === key);
 }
 
 /* --------------------------------------------------------- filtro por coluna
@@ -189,16 +189,16 @@ export function colunaOrdenavel(chave: string): boolean {
  * Coluna que não filtra simplesmente não aparece no menu.
  */
 export const FILTRAVEIS = [
-  { chave: 'origem', rotulo: 'Origem' },
-  { chave: 'faixa', rotulo: 'Faixa de score' },
-  { chave: 'fase', rotulo: 'Fase' },
-  { chave: 'proprietario', rotulo: 'Proprietário' },
+  { key: 'origem', rotulo: 'Origem' },
+  { key: 'faixa', rotulo: 'Faixa de score' },
+  { key: 'fase', rotulo: 'Fase' },
+  { key: 'proprietario', rotulo: 'Proprietário' },
 ] as const;
 
-export type ChaveDeFiltro = (typeof FILTRAVEIS)[number]['chave'];
+export type FilterKey = (typeof FILTRAVEIS)[number]['key'];
 
 /** Coluna filtrada → valor exigido. `SEM_VALOR` pede as linhas em branco. */
-export type Filtros = Partial<Record<ChaveDeFiltro, string>>;
+export type SFilter = Partial<Record<FilterKey, string>>;
 
 /**
  * O valor que representa "em branco".
@@ -207,40 +207,40 @@ export type Filtros = Partial<Record<ChaveDeFiltro, string>>;
  * string vazia na URL some no caminho — `?f.proprietario=` volta como `''` em
  * alguns navegadores e como ausente em outros. Uma palavra explícita não some.
  */
-export const SEM_VALOR = '—';
+export const WITHOUT_VALUE = '—';
 
-export function filtroValido(chave: string): chave is ChaveDeFiltro {
-  return FILTRAVEIS.some((f) => f.chave === chave);
+export function filterValid(key: string): key is FilterKey {
+  return FILTRAVEIS.some((f) => f.key === key);
 }
 
 /** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */
-export function lerFiltros(params: Record<string, string | string[] | undefined>): Filtros {
-  const saida: Filtros = {};
-  for (const [chave, valor] of Object.entries(params)) {
-    if (!chave.startsWith('f.')) continue;
-    const coluna = chave.slice(2);
+export function readFilters(params: Record<string, string | string[] | undefined>): SFilter {
+  const saida: SFilter = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (!key.startsWith('f.')) continue;
+    const column = key.slice(2);
     // Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de
     // um valor só e dois valores para a mesma coluna é URL adulterada.
-    const texto = Array.isArray(valor) ? valor[0] : valor;
-    if (filtroValido(coluna) && texto !== undefined && texto !== '') saida[coluna] = texto;
+    const texto = Array.isArray(value) ? value[0] : value;
+    if (filterValid(column) && texto !== undefined && texto !== '') saida[column] = texto;
   }
   return saida;
 }
 
 /** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */
-export function escreverFiltros(p: URLSearchParams, filtros: Filtros): URLSearchParams {
-  for (const { chave } of FILTRAVEIS) {
-    const valor = filtros[chave];
-    if (valor === undefined) p.delete(`f.${chave}`);
-    else p.set(`f.${chave}`, valor);
+export function escreverFilters(p: URLSearchParams, filters: SFilter): URLSearchParams {
+  for (const { key } of FILTRAVEIS) {
+    const value = filters[key];
+    if (value === undefined) p.delete(`f.${key}`);
+    else p.set(`f.${key}`, value);
   }
   return p;
 }
 
 /** O texto do chip: "Origem: Anúncio Meta", ou "Origem: sem origem". */
-export function rotuloDoFiltro(chave: ChaveDeFiltro, valor: string): string {
-  const rotulo = FILTRAVEIS.find((f) => f.chave === chave)?.rotulo ?? chave;
-  return `${rotulo}: ${valor === SEM_VALOR ? 'em branco' : valor}`;
+export function filterRotulo(key: FilterKey, value: string): string {
+  const rotulo = FILTRAVEIS.find((f) => f.key === key)?.rotulo ?? key;
+  return `${rotulo}: ${value === WITHOUT_VALUE ? 'em branco' : value}`;
 }
 
 /**
@@ -250,6 +250,6 @@ export function rotuloDoFiltro(chave: ChaveDeFiltro, valor: string): string {
  * Clicar em "Proprietário" e receber a lista do Z ao A é a coisa que faz a
  * pessoa clicar duas vezes em toda coluna nova.
  */
-export function direcaoInicial(chave: string): Direcao {
-  return chave === 'score' || chave === 'dias' ? 'desc' : 'asc';
+export function directionInitial(key: string): Direction {
+  return key === 'score' || key === 'dias' ? 'desc' : 'asc';
 }

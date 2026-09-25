@@ -4,10 +4,10 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
-import { bancoDono } from './banco.js';
-import { ErroPipe } from './erros.js';
-import { CHAVE_QUALQUER_CREDENCIAL, CHAVE_SESSAO, temBearer } from './sessao.js';
-import type { RequisicaoComSessao } from './sessao.js';
+import { databaseOwner } from './banco.js';
+import { PipeError } from './erros.js';
+import { KEY_ANY_CREDENTIAL, KEY_SESSION, temBearer } from './sessao.js';
+import type { RequestWithSession } from './sessao.js';
 
 /**
  * Autenticação por `chave_api`, no formato recomendado em `apis.md` §5.2:
@@ -20,7 +20,7 @@ import type { RequisicaoComSessao } from './sessao.js';
  * chave pelo prefixo é a única consulta que roda antes de haver tenant em vigor.
  */
 
-export const CATALOGO_ESCOPOS = [
+export const CATALOG_SCOPES = [
   'conversas:ler',
   'conversas:escrever',
   'mensagens:ler',
@@ -32,27 +32,27 @@ export const CATALOGO_ESCOPOS = [
   'webhooks:escrever',
 ] as const;
 
-export type Escopo = (typeof CATALOGO_ESCOPOS)[number];
+export type Scope = (typeof CATALOG_SCOPES)[number];
 
-export interface ContextoDaChave {
+export interface ContextOfKey {
   tenantId: string;
-  chaveId: string;
+  keyId: string;
   escopos: string[];
   /**
    * O fluxo dono da chave (`chave_api.fluxo_id`, migração 0032), ou `null` na
    * chave de CONTA. É a cerca que `conferirFluxoDaChave` aplica: chave de fluxo
    * só age no fluxo dela.
    */
-  fluxoId: string | null;
+  flowId: string | null;
 }
 
 /** A requisição autenticada carrega o contexto; o controlador nunca lê header. */
-export type RequisicaoAutenticada = Request & { contexto?: ContextoDaChave };
+export type RequestAuthenticated = Request & { context?: ContextOfKey };
 
-export const CHAVE_ESCOPOS = 'pipe:escopos';
+export const KEY_SCOPES = 'pipe:escopos';
 
 /** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */
-export const Escopos = (...escopos: Escopo[]) => SetMetadata(CHAVE_ESCOPOS, escopos);
+export const Scopes = (...scopes: Scope[]) => SetMetadata(KEY_SCOPES, scopes);
 
 /**
  * A rota serve aos dois clientes: integração por chave de API **ou** gente logada no
@@ -62,11 +62,11 @@ export const Escopos = (...escopos: Escopo[]) => SetMetadata(CHAVE_ESCOPOS, esco
  * duplicá-la numa rota `/v1/desk/...` seria duas implementações da regra de janela de
  * 24 horas, de outbox e de evento — ou seja, duas para divergir.
  */
-export const ChaveOuSessao = (...escopos: Escopo[]) =>
+export const KeyOrSession = (...escopos: Scope[]) =>
   applyDecorators(
-    SetMetadata(CHAVE_ESCOPOS, escopos),
-    SetMetadata(CHAVE_SESSAO, true),
-    SetMetadata(CHAVE_QUALQUER_CREDENCIAL, true),
+    SetMetadata(KEY_SCOPES, escopos),
+    SetMetadata(KEY_SESSION, true),
+    SetMetadata(KEY_ANY_CREDENTIAL, true),
   );
 
 /**
@@ -78,36 +78,36 @@ export const ChaveOuSessao = (...escopos: Escopo[]) =>
  */
 export interface Ator {
   tenantId: string;
-  usuarioId: string | null;
+  userId: string | null;
   /** `true` quando veio de navegador. É o que liga as regras de atendente. */
-  viaSessao: boolean;
+  viaSession: boolean;
 }
 
-export function atorDe(requisicao: RequisicaoAutenticada & RequisicaoComSessao): Ator {
-  if (requisicao.contexto) {
-    return { tenantId: requisicao.contexto.tenantId, usuarioId: null, viaSessao: false };
+export function atorDe(requisicao: RequestAuthenticated & RequestWithSession): Ator {
+  if (requisicao.context) {
+    return { tenantId: requisicao.context.tenantId, userId: null, viaSession: false };
   }
-  if (requisicao.sessao) {
+  if (requisicao.session) {
     return {
-      tenantId: requisicao.sessao.tenantId,
-      usuarioId: requisicao.sessao.usuarioId,
-      viaSessao: true,
+      tenantId: requisicao.session.tenantId,
+      userId: requisicao.session.userId,
+      viaSession: true,
     };
   }
-  throw ErroPipe.naoAutorizado();
+  throw PipeError.naoAutorizado();
 }
 
-export function contextoDe(requisicao: RequisicaoAutenticada): ContextoDaChave {
-  if (!requisicao.contexto) throw ErroPipe.naoAutorizado();
-  return requisicao.contexto;
+export function contextOf(request: RequestAuthenticated): ContextOfKey {
+  if (!request.context) throw PipeError.naoAutorizado();
+  return request.context;
 }
 
-type LinhaChave = {
+type LineKey = {
   id: string;
   tenant_id: string;
   fluxo_id: string | null;
   hash: string;
-  escopos: string[] | null;
+  scopes: string[] | null;
   expirada: boolean;
   revogada: boolean;
 };
@@ -120,7 +120,7 @@ type LinhaChave = {
  * segmento é o fluxo. Ler a URL casaria `/v1/conversas/<uuid>` por acidente se
  * alguém um dia nomeasse uma conversa com o id de um fluxo.
  */
-export function fluxoDaRota(requisicao: Request): string | null {
+export function flowOfRoute(requisicao: Request): string | null {
   const parametros = (requisicao.params ?? {}) as Record<string, string | undefined>;
   if (parametros['fluxoId']) return parametros['fluxoId'];
   const padrao = (requisicao.route as { path?: string } | undefined)?.path ?? '';
@@ -145,112 +145,112 @@ export function fluxoDaRota(requisicao: Request): string | null {
  *   linha, aqui, e nenhuma rota de hoje aceita chave E é por fluxo — quando
  *   uma for aberta a chave, a regra de cima já vale sem mexer em nada.
  */
-export function conferirFluxoDaChave(
-  chave: Pick<ContextoDaChave, 'fluxoId'>,
-  fluxoNaRota: string | null,
+export function checkFlowOfKey(
+  key: Pick<ContextOfKey, 'fluxoId'>,
+  flowInRoute: string | null,
 ): void {
-  if (!chave.fluxoId) return;
-  if (fluxoNaRota === null) {
-    throw new ErroPipe(
+  if (!key.flowId) return;
+  if (flowInRoute === null) {
+    throw new PipeError(
       403,
       'chave_de_fluxo',
       'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/gestao/fluxos/:id/…).',
-      { fluxoId: chave.fluxoId },
+      { fluxoId: key.flowId },
     );
   }
-  if (fluxoNaRota.toLowerCase() !== chave.fluxoId.toLowerCase()) {
-    throw new ErroPipe(
+  if (flowInRoute.toLowerCase() !== key.flowId.toLowerCase()) {
+    throw new PipeError(
       403,
       'chave_de_outro_fluxo',
       'Esta chave pertence a outro fluxo e não pode agir neste.',
-      { fluxoId: chave.fluxoId },
+      { fluxoId: key.flowId },
     );
   }
 }
 
-export class GuardaChaveApi implements CanActivate {
+export class ApiKeyGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
 
-  async canActivate(contexto: ExecutionContext): Promise<boolean> {
-    const exigidos = this.reflector.getAllAndOverride<Escopo[] | undefined>(CHAVE_ESCOPOS, [
-      contexto.getHandler(),
-      contexto.getClass(),
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const exigidos = this.reflector.getAllAndOverride<Scope[] | undefined>(KEY_SCOPES, [
+      context.getHandler(),
+      context.getClass(),
     ]);
     // Rota sem `@Escopos` é pública de propósito: o webhook da Meta se autentica
     // pela assinatura `X-Hub-Signature-256`, não por chave nossa.
     if (!exigidos || exigidos.length === 0) return true;
 
-    const requisicao = contexto.switchToHttp().getRequest<RequisicaoAutenticada>();
+    const request = context.switchToHttp().getRequest<RequestAuthenticated>();
 
     // Rota que aceita as duas credenciais e NÃO recebeu Bearer: quem confere é o
     // guarda da sessão. Ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
     const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
-      CHAVE_QUALQUER_CREDENCIAL,
-      [contexto.getHandler(), contexto.getClass()],
+      KEY_ANY_CREDENTIAL,
+      [context.getHandler(), context.getClass()],
     );
-    if (qualquer && !temBearer(requisicao)) return true;
+    if (qualquer && !temBearer(request)) return true;
 
-    const chave = await autenticar(requisicao.header('authorization'));
-    requisicao.contexto = chave;
+    const key = await autenticar(request.header('authorization'));
+    request.context = key;
 
     const permitido = exigidos.every(
-      (escopo) => chave.escopos.includes('*') || chave.escopos.includes(escopo),
+      (scope) => key.escopos.includes('*') || key.escopos.includes(scope),
     );
     if (!permitido) {
       const faltando = exigidos.find(
-        (escopo) => !chave.escopos.includes('*') && !chave.escopos.includes(escopo),
+        (escopo) => !key.escopos.includes('*') && !key.escopos.includes(escopo),
       );
-      throw ErroPipe.semEscopo(faltando ?? exigidos[0] ?? 'desconhecido');
+      throw PipeError.withoutScope(faltando ?? exigidos[0] ?? 'desconhecido');
     }
 
     // Depois do escopo: "o que" a chave pode fazer é conferido antes de "onde".
     // O guarda roda já dentro da rota casada, então `params` e `route.path` existem.
-    conferirFluxoDaChave(chave, fluxoDaRota(requisicao));
+    checkFlowOfKey(key, flowOfRoute(request));
     return true;
   }
 }
 
-export async function autenticar(cabecalho: string | undefined): Promise<ContextoDaChave> {
+export async function autenticar(cabecalho: string | undefined): Promise<ContextOfKey> {
   const token = (cabecalho ?? '').replace(/^Bearer\s+/i, '').trim();
   const partes = token.split('_');
   if (partes.length !== 3 || partes[0] !== 'pipe' || !partes[1] || !partes[2]) {
-    throw ErroPipe.naoAutorizado();
+    throw PipeError.naoAutorizado();
   }
-  const [, prefixo, segredo] = partes;
+  const [, prefix, secret] = partes;
 
-  const { rows } = await bancoDono().execute<LinhaChave>(sql`
+  const { rows } = await databaseOwner().execute<LineKey>(sql`
     select id, tenant_id, fluxo_id, hash, escopos,
            (expira_em is not null and expira_em <= now()) as expirada,
            (revogada_em is not null) as revogada
       from chave_api
-     where prefixo = ${prefixo}
+     where prefixo = ${prefix}
      limit 1
   `);
   const linha = rows[0];
-  if (!linha) throw ErroPipe.naoAutorizado();
-  if (!igualEmTempoConstante(hashDoSegredo(segredo), linha.hash)) throw ErroPipe.naoAutorizado();
-  if (linha.revogada) throw ErroPipe.naoAutorizado('Chave revogada.');
-  if (linha.expirada) throw ErroPipe.naoAutorizado('Chave expirada.');
+  if (!linha) throw PipeError.naoAutorizado();
+  if (!equalInTimeConstante(hashOfSecret(secret), linha.hash)) throw PipeError.naoAutorizado();
+  if (linha.revogada) throw PipeError.naoAutorizado('Chave revogada.');
+  if (linha.expirada) throw PipeError.naoAutorizado('Chave expirada.');
 
   // Marcar o uso não pode derrubar a requisição: é dado de auditoria, não de rota.
-  void bancoDono()
+  void databaseOwner()
     .execute(sql`update chave_api set ultimo_uso_em = now() where id = ${linha.id}`)
     .catch(() => undefined);
 
   return {
     tenantId: linha.tenant_id,
-    chaveId: linha.id,
-    escopos: linha.escopos ?? [],
-    fluxoId: linha.fluxo_id,
+    keyId: linha.id,
+    escopos: linha.scopes ?? [],
+    flowId: linha.fluxo_id,
   };
 }
 
-export function hashDoSegredo(segredo: string): string {
+export function hashOfSecret(segredo: string): string {
   return createHash('sha256').update(segredo).digest('hex');
 }
 
 /** Comparação sem vazar, pelo tempo de resposta, quantos caracteres bateram. */
-function igualEmTempoConstante(a: string, b: string): boolean {
+function equalInTimeConstante(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);
   if (bufferA.length !== bufferB.length) return false;

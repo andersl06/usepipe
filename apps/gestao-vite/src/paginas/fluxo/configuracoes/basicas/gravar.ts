@@ -1,6 +1,6 @@
-import { api, ErroDaApi } from '../../../../lib/api';
+import { api, ApiError } from '../../../../lib/api';
 import { atualizarLeituras } from '../../../../lib/acoes';
-import { IMAGEM } from '../../../criar/regras-de-nome';
+import { IMAGE } from '../../../criar/regras-de-nome';
 
 /**
  * As duas escritas de "Editar Fluxo": `PATCH /v1/gestao/fluxos/:id` (o
@@ -11,77 +11,77 @@ import { IMAGEM } from '../../../criar/regras-de-nome';
  */
 
 /** O que o PATCH devolve (`FluxoGravado` na `api`). */
-export interface FluxoGravado {
+export interface FlowSaved {
   id: string;
   nome: string;
-  descricao: string | null;
-  imagemUrl: string | null;
+  description: string | null;
+  imageUrl: string | null;
   shortName: string | null;
 }
 
-export interface EdicaoBasica {
+export interface EditBasic {
   nome: string;
-  descricao: string;
+  description: string;
   /** `File` novo troca a foto; `null` tira; `undefined` deixa como está. */
-  imagem: File | null | undefined;
+  image: File | null | undefined;
 }
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export async function salvarBasicas(
   id: string,
-  edicao: EdicaoBasica,
-): Promise<Resultado<FluxoGravado>> {
-  const imagem = edicao.imagem === undefined ? undefined : await lerImagem(edicao.imagem);
-  if (edicao.imagem instanceof File && imagem === null) {
-    const tipos = IMAGEM.aceitos.join(', ');
-    const teto = Math.round(IMAGEM.maxBytes / 1024);
-    return { ok: false, erro: `A imagem precisa ser ${tipos} e ter até ${teto} KB.` };
+  edit: EditBasic,
+): Promise<Resultado<FlowSaved>> {
+  const image = edit.image === undefined ? undefined : await readImage(edit.image);
+  if (edit.image instanceof File && image === null) {
+    const tipos = IMAGE.aceitos.join(', ');
+    const teto = Math.round(IMAGE.maxBytes / 1024);
+    return { ok: false, error: `A imagem precisa ser ${tipos} e ter até ${teto} KB.` };
   }
   try {
-    const valor = await api.patch<FluxoGravado>(`/v1/gestao/fluxos/${id}`, {
-      nome: edicao.nome,
-      descricao: edicao.descricao,
-      ...(imagem === undefined ? {} : { imagem }),
+    const value = await api.patch<FlowSaved>(`/v1/gestao/fluxos/${id}`, {
+      nome: edit.nome,
+      descricao: edit.description,
+      ...(image === undefined ? {} : { image }),
     });
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
+    return { ok: true, value };
+  } catch (error) {
     /* `onAdvancedConfigurationError` deles, para quando a `api` não disse o motivo. */
-    return { ok: false, erro: motivoDe(erro, 'Ocorreu um erro ao salvar a configuração') };
+    return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao salvar a configuração') };
   }
 }
 
-export async function excluirFluxo(id: string): Promise<Resultado<void>> {
+export async function excluirFlow(id: string): Promise<Resultado<void>> {
   try {
     await api.delete<void>(`/v1/gestao/fluxos/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
+    return { ok: true, value: undefined };
+  } catch (error) {
     /* `deleteErrorMessage` deles. */
-    return { ok: false, erro: motivoDe(erro, 'Ocorreu um erro ao tentar excluir o fluxo') };
+    return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao tentar excluir o fluxo') };
   }
 }
 
 /** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
-export function motivoDe(erro: unknown, padrao: string): string {
-  if (erro instanceof ErroDaApi) {
-    const corpo = erro.corpo as { erro?: { mensagem?: unknown } } | null;
-    const mensagem = corpo?.erro?.mensagem;
-    if (typeof mensagem === 'string' && mensagem) return mensagem;
+export function motivoDe(error: unknown, padrao: string): string {
+  if (error instanceof ApiError) {
+    const corpo = error.corpo as { error?: { message?: unknown } } | null;
+    const message = corpo?.error?.message;
+    if (typeof message === 'string' && message) return message;
   }
   return padrao;
 }
 
 /** O arquivo em `data:`. `null` quando não é arquivo, está vazio ou passou do teto. */
-function lerImagem(arquivo: File | null): Promise<string | null> {
-  if (!(arquivo instanceof File) || arquivo.size === 0 || arquivo.size > IMAGEM.maxBytes) {
+function readImage(file: File | null): Promise<string | null> {
+  if (!(file instanceof File) || file.size === 0 || file.size > IMAGE.maxBytes) {
     return Promise.resolve(null);
   }
   return new Promise((resolver) => {
     const leitor = new FileReader();
     leitor.onload = () => resolver(typeof leitor.result === 'string' ? leitor.result : null);
     leitor.onerror = () => resolver(null);
-    leitor.readAsDataURL(arquivo);
+    leitor.readAsDataURL(file);
   });
 }

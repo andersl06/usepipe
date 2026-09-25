@@ -3,19 +3,19 @@ import { IconePortal, type NomeDeIconePortal } from '../../../../componentes/ico
 import {
   PERIODOS_DE_CALENDARIO,
   PERIODOS_FIXOS,
-  ROTULO_DO_PERIODO,
-  comparacao,
+  ROTULO_OF_PERIOD,
+  comparison,
   diaCurto,
   escalaDoEixo,
   formatar,
   rotuloDoIntervalo,
-  variacao,
-  type DadosDoDashboard,
+  variation,
+  type DashboardData,
   type Intervalo,
-  type Periodo,
+  type Period,
 } from '@pipe/core/analise';
-import { baseDoContato } from '../../contato';
-import { PeriodoPersonalizado } from './periodo-personalizado';
+import { contactBase } from '../../contato';
+import { PeriodCustom } from './periodo-personalizado';
 
 /**
  * O miolo do Dashboard — o `iN` do `portal-fragment-analytics`
@@ -37,18 +37,18 @@ import { PeriodoPersonalizado } from './periodo-personalizado';
 
 export interface PropsDoDashboard {
   id: string;
-  periodo: Periodo;
+  period: Period;
   intervalo: Intervalo;
   hoje: string;
-  dados: DadosDoDashboard;
+  data: DashboardData;
   /** A barra lateral aberta (`isDisplayingContactsSidebar`), com a lista já lida. */
   lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
 }
 
 /** O que a URL carrega entre um clique e outro: o período. */
-function consulta(p: PropsDoDashboard, extra: Record<string, string> = {}): string {
-  const q = new URLSearchParams({ periodo: p.periodo });
-  if (p.periodo === 'custom') {
+function query(p: PropsDoDashboard, extra: Record<string, string> = {}): string {
+  const q = new URLSearchParams({ periodo: p.period });
+  if (p.period === 'custom') {
     q.set('de', p.intervalo.inicio);
     q.set('ate', p.intervalo.fim);
   }
@@ -57,12 +57,12 @@ function consulta(p: PropsDoDashboard, extra: Record<string, string> = {}): stri
 }
 
 export function TelaDoDashboard(p: PropsDoDashboard) {
-  const { dica, foraDoAlcance } = comparacao(p.intervalo, p.hoje);
-  const cmp: Comparacao = { dica, fora: foraDoAlcance };
+  const { dica, foraDoAlcance } = comparison(p.intervalo, p.hoje);
+  const cmp: Comparison = { dica, fora: foraDoAlcance };
   return (
     /* `eN` + `.dashboard-container`: largura cheia e 55px em cima. */
     <div className="da-raiz">
-      <FiltroDoPeriodo {...p} />
+      <PeriodFilter {...p} />
 
       {/* `tN`: min 1024, max 1377, 85% da largura, 30px em cima e embaixo. */}
       <div className="da-miolo">
@@ -74,27 +74,27 @@ export function TelaDoDashboard(p: PropsDoDashboard) {
           </div>
           <div className="da-botoes">
             {/* `Le icon="refresh" variant="secondary"`: refaz o pedido com o mesmo filtro. */}
-            <a className="da-botao da-botao--secundario" href={consulta(p)}>
+            <a className="da-botao da-botao--secundario" href={query(p)}>
               <IconePortal nome="atualizar" tamanho={24} />
               Atualizar
             </a>
           </div>
         </div>
 
-        <SecaoContatos {...p} cmp={cmp} />
-        <SecaoRecorrencia {...p} cmp={cmp} />
-        <SecaoMensagens {...p} cmp={cmp} />
-        <SecaoCanais {...p} cmp={cmp} />
-        <SecaoFluxo {...p} cmp={cmp} />
-        <SecaoBlocos {...p} />
+        <SectionContacts {...p} cmp={cmp} />
+        <SectionRecorrencia {...p} cmp={cmp} />
+        <SectionMessages {...p} cmp={cmp} />
+        <SectionChannels {...p} cmp={cmp} />
+        <SectionFlow {...p} cmp={cmp} />
+        <SectionBlocks {...p} />
       </div>
 
-      {p.lista ? <BarraDeContatos {...p} lista={p.lista} /> : null}
+      {p.lista ? <ContactsBarra {...p} lista={p.lista} /> : null}
     </div>
   );
 }
 
-interface Comparacao {
+interface Comparison {
   dica: string;
   fora: boolean;
 }
@@ -107,15 +107,15 @@ interface Comparacao {
  * outros `outline`; tamanho `tall` (40px). A segunda fileira é da flag
  * `is-displaying-dashboard-fixed-period-chips`.
  */
-function FiltroDoPeriodo(p: PropsDoDashboard) {
-  const chip = (nome: keyof typeof ROTULO_DO_PERIODO) => (
+function PeriodFilter(p: PropsDoDashboard) {
+  const chip = (nome: keyof typeof ROTULO_OF_PERIOD) => (
     <a
       key={nome}
       href={`?periodo=${nome}`}
-      className={p.periodo === nome ? 'da-chip da-chip--ativo' : 'da-chip'}
-      aria-current={p.periodo === nome ? 'true' : undefined}
+      className={p.period === nome ? 'da-chip da-chip--ativo' : 'da-chip'}
+      aria-current={p.period === nome ? 'true' : undefined}
     >
-      <span className="da-chip-texto">{ROTULO_DO_PERIODO[nome]}</span>
+      <span className="da-chip-texto">{ROTULO_OF_PERIOD[nome]}</span>
     </a>
   );
   return (
@@ -125,7 +125,7 @@ function FiltroDoPeriodo(p: PropsDoDashboard) {
         <div className="da-filtro-rotulo">
           <span className="da-t20 da-negrito">Selecione o período</span>
           <Dica
-            posicao="bottom-center"
+            position="bottom-center"
             texto="A análise será referente ao período selecionado e a comparação será feita com base no mesmo período anterior (ex: semana atual e semana anterior)."
           >
             <IconePortal nome="informacao-cheia" tamanho={24} />
@@ -136,10 +136,10 @@ function FiltroDoPeriodo(p: PropsDoDashboard) {
           <div className="da-filtro-fileira">{PERIODOS_FIXOS.map(chip)}</div>
           <div className="da-filtro-fileira">{PERIODOS_DE_CALENDARIO.map(chip)}</div>
         </div>
-        <PeriodoPersonalizado
+        <PeriodCustom
           hoje={p.hoje}
-          de={p.periodo === 'custom' ? p.intervalo.inicio : ''}
-          ate={p.periodo === 'custom' ? p.intervalo.fim : ''}
+          de={p.period === 'custom' ? p.intervalo.inicio : ''}
+          ate={p.period === 'custom' ? p.intervalo.fim : ''}
         />
       </div>
     </div>
@@ -148,22 +148,22 @@ function FiltroDoPeriodo(p: PropsDoDashboard) {
 
 /* ============================================================ as peças */
 
-type Posicao = 'bottom-center' | 'left-center' | 'left-bottom' | 'top-right';
+type Position = 'bottom-center' | 'left-center' | 'left-bottom' | 'top-right';
 
 /** `bds-tooltip`: balão escuro de raio 8 e recheio 8, texto fs-12, seta de 6px. */
 function Dica({
   texto,
-  posicao,
+  position,
   children,
 }: {
   texto: string;
-  posicao: Posicao;
+  position: Position;
   children: ReactNode;
 }) {
   return (
     <span className="da-dica">
       {children}
-      <span className={`da-dica-balao da-dica-balao--${posicao}`} role="tooltip">
+      <span className={`da-dica-balao da-dica-balao--${position}`} role="tooltip">
         <span className="da-t12">{texto}</span>
       </span>
     </span>
@@ -175,17 +175,17 @@ function Dica({
  * número ("-") não tem seta. `semDica` é o `hideTooltip` da tabela de canais.
  */
 function Indicador({
-  valor,
+  value,
   variante,
   cmp,
   semDica = false,
 }: {
-  valor: number | undefined;
+  value: number | undefined;
   variante: 'claro' | 'escuro' | 'transparente';
-  cmp: Comparacao;
+  cmp: Comparison;
   semDica?: boolean;
 }) {
-  const texto = cmp.fora ? '-' : formatar(valor, { percentual: true, casas: 0, sinal: true });
+  const texto = cmp.fora ? '-' : formatar(value, { percentual: true, casas: 0, sinal: true });
   const corpo = (
     <span className={`da-var da-var--${variante}`}>
       {texto !== '-' ? (
@@ -197,14 +197,14 @@ function Indicador({
   return semDica ? (
     corpo
   ) : (
-    <Dica texto={cmp.dica} posicao="bottom-center">
+    <Dica texto={cmp.dica} position="bottom-center">
       {corpo}
     </Dica>
   );
 }
 
 /** `kE`: título fs-24 bold (com a margem de 22px do typo) e a dica `info` sólida. */
-function TituloDaSecao({
+function SectionTitulo({
   children,
   dica,
   semMargem = false,
@@ -219,7 +219,7 @@ function TituloDaSecao({
         {children}
       </h2>
       {dica ? (
-        <Dica texto={dica} posicao="bottom-center">
+        <Dica texto={dica} position="bottom-center">
           <IconePortal nome="informacao-cheia" tamanho={24} className="da-titulo-info" />
         </Dica>
       ) : null}
@@ -236,7 +236,7 @@ function TituloDaSecao({
 function BotaoCsv({ travado, dica }: { travado: boolean; dica: string }) {
   return (
     <div className="da-csv">
-      <Dica texto={dica} posicao="left-center">
+      <Dica texto={dica} position="left-center">
         <button
           type="button"
           className="da-botao da-botao--secundario da-botao--so-icone"
@@ -251,7 +251,7 @@ function BotaoCsv({ travado, dica }: { travado: boolean; dica: string }) {
 }
 
 /** `mE`: o vazio da seção — ícone de 80, título fs-16 bold, texto fs-14 semi-bold. */
-function SemDados({
+function WithoutData({
   icone,
   titulo,
   texto,
@@ -269,12 +269,12 @@ function SemDados({
   );
 }
 
-const SEM_CONVERSAS = {
+const WITHOUT_CONVERSATIONS = {
   titulo: 'Inicie conversas para acompanhar a performance do seu chatbot!',
   texto:
     'Assim que o chatbot começar a trocar algumas mensagens com seus contatos, todos os dados que você precisa para evoluir seu contato inteligente aparecerão aqui no Dashboard.',
 };
-const SEM_INFORMACAO = 'Não há informações para baixar.';
+const WITHOUT_INFORMATION = 'Não há informações para baixar.';
 
 /* =========================================================== gráficos */
 
@@ -296,9 +296,9 @@ function GraficoDeLinhas({
 }: {
   titulo?: string;
   rotulos: string[];
-  series: { rotulo: string; cor: string; valores: number[] }[];
+  series: { rotulo: string; cor: string; values: number[] }[];
 }) {
-  const tiques = escala(Math.max(0, ...series.flatMap((s) => s.valores)));
+  const tiques = escala(Math.max(0, ...series.flatMap((s) => s.values)));
   const topo = tiques[tiques.length - 1] ?? 1;
   const x = (i: number) => (rotulos.length > 1 ? (i / (rotulos.length - 1)) * 100 : 50);
   const pulo = Math.ceil(rotulos.length / 8);
@@ -319,7 +319,7 @@ function GraficoDeLinhas({
               <polyline
                 key={s.rotulo}
                 className={s.cor}
-                points={s.valores.map((v, i) => `${x(i)},${100 - (v / topo) * 100}`).join(' ')}
+                points={s.values.map((v, i) => `${x(i)},${100 - (v / topo) * 100}`).join(' ')}
                 vectorEffect="non-scaling-stroke"
               />
             ))}
@@ -358,14 +358,14 @@ function Legenda({ itens }: { itens: { rotulo: string; cor: string }[] }) {
  * (`Math.round(100 * v)`) em 24px à direita da ponta, e a folga direita que
  * cresce de 50 a 80px com o maior valor (`PT`).
  */
-function BarrasDeParticipacao({
+function ParticipationBarras({
   barras,
 }: {
-  barras: { rotulo: string; cor: string; fracao: number }[];
+  barras: { rotulo: string; cor: string; fraction: number }[];
 }) {
-  const tiques = escala(Math.max(0, ...barras.map((b) => b.fracao)));
+  const tiques = escala(Math.max(0, ...barras.map((b) => b.fraction)));
   const topo = tiques[tiques.length - 1] ?? 1;
-  const maior = Math.max(...barras.map((b) => b.fracao));
+  const maior = Math.max(...barras.map((b) => b.fraction));
   const folga = maior < 0.5 ? 50 : maior > 1 ? 80 : ((maior - 0.5) / 0.5) * 30 + 50;
   return (
     <div className="da-barras">
@@ -374,9 +374,9 @@ function BarrasDeParticipacao({
           <div key={b.rotulo} className="da-barras-linha">
             <span
               className={`da-barra ${b.cor}`}
-              style={{ width: `${(b.fracao / topo) * 100}%` }}
+              style={{ width: `${(b.fraction / topo) * 100}%` }}
             />
-            <span className="da-barra-valor">{` ${Math.round(100 * b.fracao)}%`}</span>
+            <span className="da-barra-valor">{` ${Math.round(100 * b.fraction)}%`}</span>
           </div>
         ))}
       </div>
@@ -393,23 +393,23 @@ function BarrasDeParticipacao({
  * `active-identity-quantity`), e as taxas saem deles: interação = com
  * interação ÷ total; rejeição = 1 − interação.
  */
-function SecaoContatos(p: PropsDoDashboard & { cmp: Comparacao }) {
-  const { contatos } = p.dados;
-  const total = contatos.total.atual;
-  const com = Math.min(Math.max(contatos.comInteracao.atual, 0), total);
-  const comAntes = Math.min(Math.max(contatos.comInteracao.anterior, 0), contatos.total.anterior);
+function SectionContacts(p: PropsDoDashboard & { cmp: Comparison }) {
+  const { contacts } = p.data;
+  const total = contacts.total.atual;
+  const com = Math.min(Math.max(contacts.withInteraction.atual, 0), total);
+  const comAntes = Math.min(Math.max(contacts.withInteraction.anterior, 0), contacts.total.anterior);
   const semResposta = total - com;
-  const semRespostaAntes = contatos.total.anterior - comAntes;
-  const interacao = total ? com / total : undefined;
-  const rejeicao = interacao !== undefined ? 1 - interacao : undefined;
+  const semRespostaAntes = contacts.total.anterior - comAntes;
+  const interaction = total ? com / total : undefined;
+  const rejection = interaction !== undefined ? 1 - interaction : undefined;
 
   return (
     <section className="da-papel da-contatos">
       <div className="da-secao-cabeca">
         <div className="da-secao-titulos">
-          <TituloDaSecao dica="Contatos são todas as pessoas que receberam e/ou enviaram mensagens para o seu chatbot.">
+          <SectionTitulo dica="Contatos são todas as pessoas que receberam e/ou enviaram mensagens para o seu chatbot.">
             Contatos
-          </TituloDaSecao>
+          </SectionTitulo>
           <p className="da-t16">
             Acompanhe as métricas relativas aos contatos que conversaram com o seu chatbot.
           </p>
@@ -426,63 +426,63 @@ function SecaoContatos(p: PropsDoDashboard & { cmp: Comparacao }) {
             <span className="da-linha">
               <span className="da-t24 da-extra">{formatar(total, { padrao: '0' })}</span>
               <Indicador
-                valor={variacao(total, contatos.total.anterior)}
+                value={variation(total, contacts.total.anterior)}
                 variante="claro"
                 cmp={p.cmp}
               />
             </span>
           </div>
-          <CartaoClaro
+          <CardClaro
             titulo="Contatos que não responderam"
             dica="É a quantidade de contatos únicos que não responderam a nenhuma mensagem enviada pelo chatbot e não iniciaram nenhuma conversa no período selecionado."
-            valor={semResposta}
-            variacao={variacao(semResposta, semRespostaAntes)}
+            value={semResposta}
+            variation={variation(semResposta, semRespostaAntes)}
             cmp={p.cmp}
           />
-          <CartaoClaro
+          <CardClaro
             titulo="Contatos com interação"
             dica="É a quantidade de contatos únicos que realizaram alguma interação com seu chatbot no período selecionado, seja iniciando uma conversa ou respondendo a uma mensagem enviada."
-            valor={com}
-            variacao={variacao(com, comAntes)}
+            value={com}
+            variation={variation(com, comAntes)}
             cmp={p.cmp}
           />
         </div>
 
         <div className="da-coluna" style={{ width: '45%' }}>
           <GraficoDeLinhas
-            rotulos={contatos.porDia.map((d) => diaCurto(d.dia))}
+            rotulos={contacts.byDia.map((d) => diaCurto(d.dia))}
             series={[
               {
                 rotulo: 'Contatos com interação',
                 cor: 'da-cor-oceano',
-                valores: contatos.porDia.map((d) => d.comInteracao),
+                values: contacts.byDia.map((d) => d.withInteraction),
               },
               {
                 rotulo: 'Contatos que não responderam',
                 cor: 'da-cor-cinza',
-                valores: contatos.porDia.map((d) => d.total - d.comInteracao),
+                values: contacts.byDia.map((d) => d.total - d.withInteraction),
               },
             ]}
           />
         </div>
 
         <div className="da-coluna" style={{ width: '25%' }}>
-          <CartaoListrado
+          <CardStriped
             p={p}
             titulo="Taxa de rejeição"
             dica="É a porcentagem de contatos que não responderam às mensagens do seu chatbot no período selecionado."
-            valor={formatar(rejeicao, { percentual: true, padrao: '0%' })}
+            value={formatar(rejection, { percentual: true, padrao: '0%' })}
             cor="da-borda-apagada"
-            contatos={semResposta}
+            contacts={semResposta}
             lista="rejeicao"
           />
-          <CartaoListrado
+          <CardStriped
             p={p}
             titulo="Taxa de interação"
             dica="É a porcentagem de contatos que responderam a alguma mensagem do seu chatbot ou que iniciaram uma conversa com ele no período selecionado."
-            valor={formatar(interacao, { percentual: true, padrao: '0%' })}
+            value={formatar(interaction, { percentual: true, padrao: '0%' })}
             cor="da-borda-oceano"
-            contatos={com}
+            contacts={com}
             lista="interacao"
           />
         </div>
@@ -492,22 +492,22 @@ function SecaoContatos(p: PropsDoDashboard & { cmp: Comparacao }) {
 }
 
 /** `c_`: número fs-24 extra-bold com o indicador escuro e a dica; rótulo fs-12 embaixo. */
-function CartaoClaro(props: {
+function CardClaro(props: {
   titulo: string;
   dica: string;
-  valor: number;
-  variacao: number | undefined;
-  cmp: Comparacao;
+  value: number;
+  variation: number | undefined;
+  cmp: Comparison;
 }) {
   return (
     <div className="da-papel da-cartao-claro">
       <div className="da-cartao-claro-topo">
         <div />
         <span className="da-linha">
-          <span className="da-t24 da-extra">{formatar(props.valor, { padrao: '0' })}</span>
-          <Indicador valor={props.variacao} variante="escuro" cmp={props.cmp} />
+          <span className="da-t24 da-extra">{formatar(props.value, { padrao: '0' })}</span>
+          <Indicador value={props.variation} variante="escuro" cmp={props.cmp} />
         </span>
-        <Dica texto={props.dica} posicao="bottom-center">
+        <Dica texto={props.dica} position="bottom-center">
           <IconePortal nome="informacao-cheia" tamanho={16} />
         </Dica>
       </div>
@@ -521,18 +521,18 @@ function CartaoClaro(props: {
  * `is-displaying-list-contacts-button`, o `external-file` abre a barra lateral
  * — travado (`not-allowed`) quando não há contato.
  */
-function CartaoListrado(props: {
+function CardStriped(props: {
   p?: PropsDoDashboard;
   titulo: string;
   dica: string;
-  valor: string;
+  value: string;
   cor: string;
-  contatos?: number;
+  contacts?: number;
   lista?: 'interacao' | 'rejeicao';
-  variacao?: { valor: number | undefined; cmp: Comparacao };
+  variation?: { value: number | undefined; cmp: Comparison };
   sombra?: boolean;
 }) {
-  const vazio = !props.contatos;
+  const empty = !props.contacts;
   return (
     <div className={props.sombra ? 'da-listrado da-listrado--sombra' : 'da-listrado'}>
       <div className={`da-listrado-conteudo ${props.cor}`}>
@@ -540,17 +540,17 @@ function CartaoListrado(props: {
           <span className="da-t12 da-negrito">{props.titulo}</span>
           {props.lista && props.p ? (
             <Dica
-              posicao="bottom-center"
-              texto={vazio ? 'Não há contatos para serem visualizados' : 'Visualizar contatos'}
+              position="bottom-center"
+              texto={empty ? 'Não há contatos para serem visualizados' : 'Visualizar contatos'}
             >
-              {vazio ? (
+              {empty ? (
                 <span className="da-abrir da-abrir--travado" aria-disabled="true">
                   <IconePortal nome="abrir-arquivo" tamanho={20} />
                 </span>
               ) : (
                 <a
                   className="da-abrir"
-                  href={consulta(props.p, { contatos: props.lista })}
+                  href={query(props.p, { contacts: props.lista })}
                   aria-label="Visualizar contatos"
                 >
                   <IconePortal nome="abrir-arquivo" tamanho={20} />
@@ -560,14 +560,14 @@ function CartaoListrado(props: {
           ) : null}
         </div>
         <span className="da-linha">
-          <span className="da-t24 da-extra da-mr8">{props.valor}</span>
-          {props.variacao ? (
-            <Indicador valor={props.variacao.valor} variante="claro" cmp={props.variacao.cmp} />
+          <span className="da-t24 da-extra da-mr8">{props.value}</span>
+          {props.variation ? (
+            <Indicador value={props.variation.value} variante="claro" cmp={props.variation.cmp} />
           ) : null}
         </span>
       </div>
       <span className="da-listrado-dica">
-        <Dica texto={props.dica} posicao="left-bottom">
+        <Dica texto={props.dica} position="left-bottom">
           <IconePortal nome="informacao-cheia" tamanho={16} />
         </Dica>
       </span>
@@ -578,25 +578,25 @@ function CartaoListrado(props: {
 /* ========================================================= Recorrência */
 
 /** `BR`: dois `DR` à esquerda e a tabela `DT` dos mais recorrentes à direita. */
-function SecaoRecorrencia(p: PropsDoDashboard & { cmp: Comparacao }) {
-  const { recorrencia, contatos } = p.dados;
-  const taxa = contatos.total.atual ? recorrencia.contatos.atual / contatos.total.atual : undefined;
-  const tudoZero = recorrencia.contatos.atual === 0 && recorrencia.maisRecorrentes.length === 0;
+function SectionRecorrencia(p: PropsDoDashboard & { cmp: Comparison }) {
+  const { recorrencia, contacts } = p.data;
+  const taxa = contacts.total.atual ? recorrencia.contacts.atual / contacts.total.atual : undefined;
+  const tudoZero = recorrencia.contacts.atual === 0 && recorrencia.maisRecorrentes.length === 0;
   return (
     <div className="da-recorrencia">
       <div className="da-meia">
-        <CartaoAzul
+        <CardAzul
           titulo="Taxa de recorrência"
           texto="Taxa de contatos únicos que interagiram com seu chatbot 2 ou mais vezes em intervalos de 24h"
-          valor={formatar(taxa, { percentual: true, padrao: '0%' })}
+          value={formatar(taxa, { percentual: true, padrao: '0%' })}
         />
-        <CartaoAzul
+        <CardAzul
           titulo="Contatos únicos recorrentes"
           texto="Total de contatos únicos que interagiram com seu chatbot 2 ou mais vezes em intervalos de 24h"
-          valor={formatar(recorrencia.contatos.atual)}
+          value={formatar(recorrencia.contacts.atual)}
           indicador={
             <Indicador
-              valor={variacao(recorrencia.contatos.atual, recorrencia.contatos.anterior)}
+              value={variation(recorrencia.contacts.atual, recorrencia.contacts.anterior)}
               variante="claro"
               cmp={p.cmp}
             />
@@ -607,14 +607,14 @@ function SecaoRecorrencia(p: PropsDoDashboard & { cmp: Comparacao }) {
         <Ranking
           titulo="Contatos com mais recorrência"
           dica="Recorrência é a quantidade de dias dentro do período selecionado que cada contato conversou com o chatbot."
-          descricao="Saiba quem são os contatos que mais vezes interagiram com seu chatbot no período selecionado"
+          description="Saiba quem são os contatos que mais vezes interagiram com seu chatbot no período selecionado"
           csv={{
             travado: tudoZero,
             dica: tudoZero
-              ? SEM_INFORMACAO
+              ? WITHOUT_INFORMATION
               : 'Baixar os contatos mais recorrentes do período selecionado. Limite de até 1000 contatos.',
           }}
-          vazio={{ icone: 'relogio', ...SEM_CONVERSAS }}
+          empty={{ icone: 'relogio', ...WITHOUT_CONVERSATIONS }}
           colunas={[
             { cabeca: 'Nome', negrito: true },
             { cabeca: 'Recorrência', largura: '120px', centro: true, negrito: true },
@@ -633,20 +633,20 @@ function SecaoRecorrencia(p: PropsDoDashboard & { cmp: Comparacao }) {
 }
 
 /** `DR`: papel surface-3, título sem margem, descrição fs-16 e o número fs-24. */
-function CartaoAzul(props: {
+function CardAzul(props: {
   titulo: string;
   texto: string;
-  valor: string;
+  value: string;
   indicador?: ReactNode;
 }) {
   return (
     <div className="da-papel da-cartao-azul">
-      <TituloDaSecao semMargem>{props.titulo}</TituloDaSecao>
+      <SectionTitulo semMargem>{props.titulo}</SectionTitulo>
       <div className="da-cartao-azul-corpo">
         <p className="da-t16">{props.texto}</p>
         <div className="da-cartao-azul-valor">
           <span className="da-linha">
-            <span className="da-t24 da-extra da-mr5">{props.valor}</span>
+            <span className="da-t24 da-extra da-mr5">{props.value}</span>
             {props.indicador}
           </span>
         </div>
@@ -665,9 +665,9 @@ function CartaoAzul(props: {
 function Ranking(props: {
   titulo: string;
   dica: string;
-  descricao: ReactNode;
+  description: ReactNode;
   csv?: { travado: boolean; dica: string };
-  vazio: { icone: NomeDeIconePortal; titulo: string; texto: string };
+  empty: { icone: NomeDeIconePortal; titulo: string; texto: string };
   colunas: { cabeca: string; largura?: string; centro?: boolean; negrito?: boolean }[];
   linhas: ReactNode[][];
   altura?: string;
@@ -677,8 +677,8 @@ function Ranking(props: {
     <div className="da-papel da-ranking">
       <div className="da-ranking-cabeca">
         <div className="da-ranking-titulos">
-          <TituloDaSecao dica={props.dica}>{props.titulo}</TituloDaSecao>
-          <p className="da-t16">{props.descricao}</p>
+          <SectionTitulo dica={props.dica}>{props.titulo}</SectionTitulo>
+          <p className="da-t16">{props.description}</p>
         </div>
         {props.csv ? <BotaoCsv {...props.csv} /> : null}
       </div>
@@ -731,7 +731,7 @@ function Ranking(props: {
         </table>
       ) : (
         <div className="da-ranking-vazio">
-          <SemDados {...props.vazio} />
+          <WithoutData {...props.empty} />
         </div>
       )}
     </div>
@@ -741,17 +741,17 @@ function Ranking(props: {
 /* =========================================================== Mensagens */
 
 /** `xR`: barras de participação 20% · cartões 25% · linhas 30% · médias 25%. */
-function SecaoMensagens(p: PropsDoDashboard & { cmp: Comparacao }) {
-  const { mensagens, contatos } = p.dados;
-  const enviadas = mensagens.enviadas.atual;
-  const recebidas = mensagens.recebidas.atual;
+function SectionMessages(p: PropsDoDashboard & { cmp: Comparison }) {
+  const { messages, contacts } = p.data;
+  const enviadas = messages.enviadas.atual;
+  const recebidas = messages.recebidas.atual;
   const total = enviadas + recebidas;
-  const totalAntes = mensagens.enviadas.anterior + mensagens.recebidas.anterior;
+  const totalAntes = messages.enviadas.anterior + messages.recebidas.anterior;
   /* `AS()`: fração da parte no total, zero quando não há total. */
   const parte = (v: number) => (v === 0 ? 0 : v / total);
   const media = (v: number, c: number) => (c ? v / c : 0);
-  const mediaRec = media(recebidas, contatos.comInteracao.atual);
-  const mediaEnv = media(enviadas, contatos.comInteracao.atual);
+  const mediaRec = media(recebidas, contacts.withInteraction.atual);
+  const mediaEnv = media(enviadas, contacts.withInteraction.atual);
   const tudoZero = total === 0;
 
   return (
@@ -759,9 +759,9 @@ function SecaoMensagens(p: PropsDoDashboard & { cmp: Comparacao }) {
       <div className="da-secao-cabeca">
         <div className="da-secao-titulos">
           <div style={{ width: '80%' }}>
-            <TituloDaSecao dica="Mensagens são todos os conteúdos trocados entre o chatbot e seus contatos.">
+            <SectionTitulo dica="Mensagens são todos os conteúdos trocados entre o chatbot e seus contatos.">
               Mensagens
-            </TituloDaSecao>
+            </SectionTitulo>
           </div>
           <p className="da-t16 da-apagado">
             Métricas sobre as mensagens recebidas e enviadas pelo seu chatbot
@@ -769,84 +769,84 @@ function SecaoMensagens(p: PropsDoDashboard & { cmp: Comparacao }) {
         </div>
         <BotaoCsv
           travado={tudoZero}
-          dica={tudoZero ? SEM_INFORMACAO : 'Baixar dados de Mensagens em csv.'}
+          dica={tudoZero ? WITHOUT_INFORMATION : 'Baixar dados de Mensagens em csv.'}
         />
       </div>
 
       <div className="da-mensagens-corpo">
         <div className="da-mensagens-coluna" style={{ width: '20%' }}>
-          <BarrasDeParticipacao
+          <ParticipationBarras
             barras={[
-              { rotulo: 'Enviadas', cor: 'da-cor-oceano', fracao: parte(enviadas) },
-              { rotulo: 'Recebidas', cor: 'da-cor-azul', fracao: parte(recebidas) },
+              { rotulo: 'Enviadas', cor: 'da-cor-oceano', fraction: parte(enviadas) },
+              { rotulo: 'Recebidas', cor: 'da-cor-azul', fraction: parte(recebidas) },
             ]}
           />
         </div>
         <div className="da-mensagens-coluna" style={{ width: '25%' }}>
-          <CartaoListrado
+          <CardStriped
             titulo="Total de mensagens trafegadas"
             dica="Soma das mensagens enviadas e recebidas pelo chatbot."
-            valor={formatar(total)}
+            value={formatar(total)}
             cor="da-borda-marca"
             sombra
-            variacao={{ valor: variacao(total, totalAntes), cmp: p.cmp }}
+            variation={{ value: variation(total, totalAntes), cmp: p.cmp }}
           />
-          <MetricaDeMensagem
+          <MessageMetric
             tipo="enviada"
             titulo="Mensagens enviadas"
-            valor={enviadas}
-            variacao={variacao(enviadas, mensagens.enviadas.anterior)}
+            value={enviadas}
+            variation={variation(enviadas, messages.enviadas.anterior)}
             cmp={p.cmp}
           />
-          <MetricaDeMensagem
+          <MessageMetric
             tipo="recebida"
             titulo="Mensagens recebidas"
-            valor={recebidas}
-            variacao={variacao(recebidas, mensagens.recebidas.anterior)}
+            value={recebidas}
+            variation={variation(recebidas, messages.recebidas.anterior)}
             cmp={p.cmp}
           />
         </div>
         <div className="da-mensagens-coluna" style={{ width: '30%' }}>
           <GraficoDeLinhas
             titulo="Volume de mensagens no período"
-            rotulos={mensagens.porDia.map((d) => diaCurto(d.dia))}
+            rotulos={messages.byDia.map((d) => diaCurto(d.dia))}
             series={[
               {
                 rotulo: 'Mensagens enviadas',
                 cor: 'da-cor-oceano',
-                valores: mensagens.porDia.map((d) => d.enviadas),
+                values: messages.byDia.map((d) => d.enviadas),
               },
               {
                 rotulo: 'Mensagens recebidas',
                 cor: 'da-cor-azul',
-                valores: mensagens.porDia.map((d) => d.recebidas),
+                values: messages.byDia.map((d) => d.recebidas),
               },
             ]}
           />
         </div>
         <div className="da-mensagens-coluna" style={{ width: '25%' }}>
-          <CartaoListrado
+          <CardStriped
             titulo="Média de mensagens recebidas"
             dica="Média de mensagens que seu chatbot recebeu de cada contato que interagiu com ele."
-            valor={formatar(mediaRec)}
+            value={formatar(mediaRec)}
             cor="da-borda-marca"
-            variacao={{
-              valor: variacao(
+            variation={{
+              value: variation(
                 mediaRec,
-                media(mensagens.recebidas.anterior, contatos.comInteracao.anterior),
+                media(messages.recebidas.anterior, contacts.withInteraction.anterior),
               ),
               cmp: p.cmp,
             }}
           />
-          <CartaoListrado
+          <CardStriped
             titulo="Média de mensagens enviadas"
             dica="Média de mensagens que seu chatbot enviou para cada contato que interagiu com ele."
-            valor={formatar(mediaEnv)}
+            value={formatar(mediaEnv)}
             cor="da-borda-oceano"
-            variacao={{
-              valor: variacao(
+            variation={{
+              value: variation(
                 mediaEnv,
-                media(mensagens.enviadas.anterior, contatos.comInteracao.anterior),
+                media(messages.enviadas.anterior, contacts.withInteraction.anterior),
               ),
               cmp: p.cmp,
             }}
@@ -858,12 +858,12 @@ function SecaoMensagens(p: PropsDoDashboard & { cmp: Comparacao }) {
 }
 
 /** `iR`: o círculo de 32px com `message-sent`/`message-received`, rótulo fs-12 e número fs-20. */
-function MetricaDeMensagem(props: {
+function MessageMetric(props: {
   tipo: 'enviada' | 'recebida';
   titulo: string;
-  valor: number;
-  variacao: number | undefined;
-  cmp: Comparacao;
+  value: number;
+  variation: number | undefined;
+  cmp: Comparison;
 }) {
   return (
     <div className="da-metrica">
@@ -882,8 +882,8 @@ function MetricaDeMensagem(props: {
       <div className="da-metrica-textos">
         <span className="da-t12 da-negrito da-mr5">{props.titulo}</span>
         <span className="da-metrica-valor">
-          <span className="da-t20 da-extra da-mr8">{formatar(props.valor)}</span>
-          <Indicador valor={props.variacao} variante="escuro" cmp={props.cmp} />
+          <span className="da-t20 da-extra da-mr8">{formatar(props.value)}</span>
+          <Indicador value={props.variation} variante="escuro" cmp={props.cmp} />
         </span>
       </div>
     </div>
@@ -899,48 +899,48 @@ function MetricaDeMensagem(props: {
  * "Mensagens ativas enviadas" é "-": o bot do Pipe não manda mensagem ativa
  * (ver `carregarMensagensAtivas`).
  */
-function SecaoCanais(p: PropsDoDashboard & { cmp: Comparacao }) {
-  const { contatos, recorrencia, canal } = p.dados;
-  const total = contatos.total.atual;
-  const com = contatos.comInteracao.atual;
-  const comAntes = contatos.comInteracao.anterior;
+function SectionChannels(p: PropsDoDashboard & { cmp: Comparison }) {
+  const { contacts, recorrencia, channel } = p.data;
+  const total = contacts.total.atual;
+  const com = contacts.withInteraction.atual;
+  const comAntes = contacts.withInteraction.anterior;
   const taxa = (a: number, b: number) => (b ? a / b : undefined);
   const celulas = [
-    { chave: 'Contatos com interação', valor: formatar(com), var: variacao(com, comAntes) },
+    { chave: 'Contatos com interação', value: formatar(com), var: variation(com, comAntes) },
     {
       chave: 'Taxa de interação',
       valor: formatar(taxa(com, total), { percentual: true, padrao: '0%' }),
-      var: variacao(taxa(com, total), taxa(comAntes, contatos.total.anterior)),
+      var: variation(taxa(com, total), taxa(comAntes, contacts.total.anterior)),
     },
     {
       chave: 'Contatos que não responderam',
       valor: formatar(total - com),
-      var: variacao(total - com, contatos.total.anterior - comAntes),
+      var: variation(total - com, contacts.total.anterior - comAntes),
     },
     {
       chave: 'Taxa de rejeição',
       valor: formatar(total ? 1 - com / total : undefined, { percentual: true, padrao: '0%' }),
-      var: variacao(
+      var: variation(
         total ? 1 - com / total : undefined,
-        contatos.total.anterior ? 1 - comAntes / contatos.total.anterior : undefined,
+        contacts.total.anterior ? 1 - comAntes / contacts.total.anterior : undefined,
       ),
     },
     { chave: 'Mensagens ativas enviadas', valor: '-', var: undefined },
     {
       chave: 'Taxa de recorrência',
-      valor: formatar(taxa(recorrencia.contatos.atual, total), { percentual: true, padrao: '0%' }),
-      var: variacao(recorrencia.contatos.atual, recorrencia.contatos.anterior),
+      valor: formatar(taxa(recorrencia.contacts.atual, total), { percentual: true, padrao: '0%' }),
+      var: variation(recorrencia.contacts.atual, recorrencia.contacts.anterior),
     },
   ];
-  const linhas = total > 0 ? [canal ?? '-', 'Totais'] : [];
+  const linhas = total > 0 ? [channel ?? '-', 'Totais'] : [];
 
   return (
     <section className="da-papel da-canais">
       <div className="da-secao-cabeca">
         <div className="da-canais-titulos">
-          <TituloDaSecao dica="Canais de conversa nos quais o seu chatbot está conectado.">
+          <SectionTitulo dica="Canais de conversa nos quais o seu chatbot está conectado.">
             Canais
-          </TituloDaSecao>
+          </SectionTitulo>
           <p className="da-t16 da-mr5">
             Um zoom na sua performance em cada canal de conversa no periodo selecionado
           </p>
@@ -963,8 +963,8 @@ function SecaoCanais(p: PropsDoDashboard & { cmp: Comparacao }) {
                   <td>{nome}</td>
                   {celulas.map((c) => (
                     <td key={c.chave}>
-                      {c.valor}
-                      <Indicador valor={c.var} variante="transparente" cmp={p.cmp} semDica />
+                      {c.value}
+                      <Indicador value={c.var} variante="transparente" cmp={p.cmp} semDica />
                     </td>
                   ))}
                 </tr>
@@ -972,7 +972,7 @@ function SecaoCanais(p: PropsDoDashboard & { cmp: Comparacao }) {
             </tbody>
           </table>
         ) : (
-          <SemDados icone="relogio" {...SEM_CONVERSAS} />
+          <WithoutData icone="relogio" {...WITHOUT_CONVERSATIONS} />
         )}
       </div>
     </section>
@@ -987,77 +987,77 @@ function SecaoCanais(p: PropsDoDashboard & { cmp: Comparacao }) {
  * sendo processados". Botão de CSV desligado pela flag
  * `is-displaying-dashboard-csv-download-conversional-flow-button`.
  */
-function SecaoFluxo(p: PropsDoDashboard & { cmp: Comparacao }) {
-  const { fluxo } = p.dados;
-  const total = fluxo.total.atual;
-  const retidos = total - fluxo.transbordo.atual;
-  const retidosAntes = fluxo.total.anterior - fluxo.transbordo.anterior;
-  const tudoZero = total === 0 && fluxo.transbordo.atual === 0;
+function SectionFlow(p: PropsDoDashboard & { cmp: Comparison }) {
+  const { flow } = p.data;
+  const total = flow.total.atual;
+  const retidos = total - flow.transbordo.atual;
+  const retidosAntes = flow.total.anterior - flow.transbordo.anterior;
+  const tudoZero = total === 0 && flow.transbordo.atual === 0;
   return (
     <section className="da-papel da-fluxo">
       <div className="da-secao-cabeca">
         <div className="da-canais-titulos">
-          <TituloDaSecao dica="Fluxo conversacional é a jornada pela qual seus contatos passam durante as conversas com seu chatbot.">
+          <SectionTitulo dica="Fluxo conversacional é a jornada pela qual seus contatos passam durante as conversas com seu chatbot.">
             Fluxo Conversacional
-          </TituloDaSecao>
+          </SectionTitulo>
           <p className="da-t16 da-mr5">
             Indicadores sobre a performance do seu fluxo de conversas.
           </p>
         </div>
       </div>
       {tudoZero ? (
-        <SemDados
+        <WithoutData
           icone="relogio"
           titulo="Os dados do seu fluxo conversacional estão sendo processados..."
           texto="Por favor, aguarde até 24 horas. Fluxos conversacionais maiores podem ter um tempo de processamento maior."
         />
       ) : (
         <div className="da-fluxo-corpo">
-          <CartaoDeColunas
+          <ColumnsCard
             titulo="Contatos em transbordo"
             cor="da-borda-rosa"
             dica="Contatos em transbordo são aqueles que foram transferidos para atendimento humano, ou seja, que saíram do fluxo do chatbot."
             cmp={p.cmp}
-            valores={[
+            values={[
               {
                 texto: 'Taxa de transbordo',
-                valor: formatar(total ? fluxo.transbordo.atual / total : undefined, {
+                value: formatar(total ? flow.transbordo.atual / total : undefined, {
                   percentual: true,
                 }),
               },
               {
                 texto: 'Total de contatos em transbordo',
-                valor: formatar(fluxo.transbordo.atual),
-                variacao: variacao(fluxo.transbordo.atual, fluxo.transbordo.anterior),
+                value: formatar(flow.transbordo.atual),
+                variation: variation(flow.transbordo.atual, flow.transbordo.anterior),
               },
             ]}
           />
-          <CartaoDeColunas
+          <ColumnsCard
             titulo="Contatos em retenção"
             cor="da-borda-amarela"
             dica="Contatos em retenção são aqueles que permaneceram no fluxo do chatbot e não precisaram ser transferidos para atendimento humano."
             cmp={p.cmp}
-            valores={[
+            values={[
               {
                 texto: 'Taxa de retenção de contatos no fluxo',
-                valor: formatar(total ? retidos / total : undefined, { percentual: true }),
+                value: formatar(total ? retidos / total : undefined, { percentual: true }),
               },
               {
                 texto: 'Total de retenção de contatos no fluxo',
-                valor: formatar(retidos),
-                variacao: variacao(retidos, retidosAntes),
+                value: formatar(retidos),
+                variation: variation(retidos, retidosAntes),
               },
             ]}
           />
-          <CartaoDeColunas
+          <ColumnsCard
             titulo="Contatos em exceção"
             cor="da-borda-azul"
             dica="São os contatos que enviaram mensagens que não foram compreendidas pelo chatbot e, portanto, caíram em exceção."
             cmp={p.cmp}
-            valores={[
-              { texto: 'Taxa de contatos em exceção', valor: '-' },
+            values={[
+              { texto: 'Taxa de contatos em exceção', value: '-' },
               /* Sem `variacao`: o `Vw` só desenha o indicador quando ela existe. */
-              { texto: 'Total de contatos em exceção', valor: '-' },
+              { texto: 'Total de contatos em exceção', value: '-' },
             ]}
           />
         </div>
@@ -1067,29 +1067,29 @@ function SecaoFluxo(p: PropsDoDashboard & { cmp: Comparacao }) {
 }
 
 /** `Vw`: 139px de altura, fio de 2px na cor da métrica, valores lado a lado. */
-function CartaoDeColunas(props: {
+function ColumnsCard(props: {
   titulo: string;
   cor: string;
   dica: string;
-  cmp: Comparacao;
-  valores: { texto: string; valor: string; variacao?: number }[];
+  cmp: Comparison;
+  values: { texto: string; value: string; variation?: number }[];
 }) {
   return (
     <div className="da-colunas">
       <div className={`da-colunas-fio ${props.cor}`}>
         <div className="da-colunas-cabeca">
           <span className="da-t12 da-negrito da-mr8">{props.titulo}</span>
-          <Dica texto={props.dica} posicao="bottom-center">
+          <Dica texto={props.dica} position="bottom-center">
             <IconePortal nome="informacao-cheia" tamanho={16} />
           </Dica>
         </div>
         <div className="da-colunas-valores">
-          {props.valores.map((v) => (
+          {props.values.map((v) => (
             <div key={v.texto} className="da-colunas-valor">
               <span className="da-linha">
-                <span className="da-t24 da-extra da-mr8">{v.valor}</span>
+                <span className="da-t24 da-extra da-mr8">{v.value}</span>
                 {'variacao' in v ? (
-                  <Indicador valor={v.variacao} variante="claro" cmp={props.cmp} />
+                  <Indicador value={v.variation} variante="claro" cmp={props.cmp} />
                 ) : null}
               </span>
               <p className="da-t10">{v.texto}</p>
@@ -1109,18 +1109,18 @@ function CartaoDeColunas(props: {
  * blocos" — a URL da origem é `/analytics/dataDictionary?path=dashboard:listOfBlocks`.
  * No roteador o nome do bloco é texto; no fluxo, link para o Builder.
  */
-function SecaoBlocos(p: PropsDoDashboard) {
-  const dicionario = `${baseDoContato(p.dados.roteador ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
-  const descricao = (fluxo: string, roteador: string, fim: string) => (
+function SectionBlocks(p: PropsDoDashboard) {
+  const dictionary = `${contactBase(p.data.router ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
+  const description = (flow: string, router: string, fim: string) => (
     <>
-      {p.dados.roteador ? roteador : fluxo}{' '}
-      <a className="da-link" href={dicionario} target="_blank" rel="noreferrer">
+      {p.data.router ? router : flow}{' '}
+      <a className="da-link" href={dictionary} target="_blank" rel="noreferrer">
         Clique aqui
       </a>{' '}
       {fim}
     </>
   );
-  const vazio = {
+  const empty = {
     icone: 'nao-gostei' as const,
     titulo: 'Não há dados disponíveis para este período.',
     texto: 'Eles aparecerão aqui assim que o chatbot registrar dados dos últimos 7 dias.',
@@ -1130,7 +1130,7 @@ function SecaoBlocos(p: PropsDoDashboard) {
     { cabeca: 'Total de eventos', largura: '120px', centro: true },
   ];
   const nome = (n: string) =>
-    p.dados.roteador ? (
+    p.data.router ? (
       n
     ) : (
       <a className="da-link" href="/builder" target="_blank" rel="noreferrer">
@@ -1142,27 +1142,27 @@ function SecaoBlocos(p: PropsDoDashboard) {
       <Ranking
         titulo="Blocos com mais exceção"
         dica="Exceções ocorrem quando o fluxo conversacional esperado é interrompido. Em cada bloco do seu chatbot, é possível configurar as condições da saída para o bloco de exceções."
-        descricao={descricao(
+        description={description(
           'Esses são os blocos que mais tiveram contatos direcionados ao bloco de exceções. Clique em cada um deles para vê-los no Builder.',
           'Esses são os blocos que mais tiveram contatos direcionados ao bloco de exceções dos chatbots conectados a este router.',
           'para entender como analisar as mensagens que ocasionaram essas exceções.',
         )}
-        vazio={vazio}
+        empty={empty}
         colunas={colunas}
-        linhas={p.dados.blocosExcecao.map((b) => [nome(b.nome), formatar(b.total)])}
+        linhas={p.data.blocksException.map((b) => [nome(b.nome), formatar(b.total)])}
         altura="288px"
       />
       <Ranking
         titulo="Blocos com mais transbordo"
         dica="Transbordo é a ação de redirecionar contatos do atendimento automatizado para o atendimento humano. Nesta lista, você confere o número de vezes (eventos) que os contatos foram transbordados."
-        descricao={descricao(
+        description={description(
           'Esses são os blocos que mais tiveram contatos direcionados para atendimento humano. Clique em cada um deles para vê-los no Builder.',
           'Esses são os blocos dos subbots que mais tiveram contatos direcionados para atendimento humano.',
           'para ler mais dicas e insights sobre transbordo.',
         )}
-        vazio={vazio}
+        empty={empty}
         colunas={colunas}
-        linhas={p.dados.blocosTransbordo.map((b) => [nome(b.nome), formatar(b.total)])}
+        linhas={p.data.blocosTransbordo.map((b) => [nome(b.nome), formatar(b.total)])}
         altura="288px"
       />
     </div>
@@ -1180,13 +1180,13 @@ function SecaoBlocos(p: PropsDoDashboard) {
  * ponytail: lá o `top` do véu é medido por JavaScript abaixo da barra do
  * portal; aqui ele cobre a tela desde o topo.
  */
-function BarraDeContatos(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard['lista']> }) {
-  const { contatos } = p.dados;
-  const total = contatos.total.atual;
-  const com = contatos.comInteracao.atual;
-  const interacao = p.lista.tipo === 'interacao';
-  const taxa = total ? (interacao ? com / total : 1 - com / total) : undefined;
-  const fechar = consulta(p);
+function ContactsBarra(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashboard['lista']> }) {
+  const { contacts } = p.data;
+  const total = contacts.total.atual;
+  const com = contacts.withInteraction.atual;
+  const interaction = p.lista.tipo === 'interacao';
+  const taxa = total ? (interaction ? com / total : 1 - com / total) : undefined;
+  const fechar = query(p);
   return (
     <div className="da-veu">
       <a className="da-veu-fundo" href={fechar} aria-label="Fechar" />
@@ -1202,15 +1202,15 @@ function BarraDeContatos(p: PropsDoDashboard & { lista: NonNullable<PropsDoDashb
             <div className="da-lateral-sub-titulo">
               <IconePortal nome="canais" tamanho={24} />
               <span className="da-t16 da-negrito">
-                {interacao ? 'Taxa de interação' : 'Taxa de rejeição'}
+                {interaction ? 'Taxa de interação' : 'Taxa de rejeição'}
               </span>
             </div>
             <span className="da-t14 da-lateral-sub-dado">
-              {`${formatar(taxa, { percentual: true, padrao: '0%' })} (${interacao ? com : total - com} contatos)`}
+              {`${formatar(taxa, { percentual: true, padrao: '0%' })} (${interaction ? com : total - com} contatos)`}
             </span>
           </div>
           <div className="da-lateral-sub-coluna">
-            <Dica texto="Limitado aos 1000 contatos mais recentes" posicao="left-center">
+            <Dica texto="Limitado aos 1000 contatos mais recentes" position="left-center">
               <button type="button" className="da-botao da-botao--curto da-botao--terciario">
                 <IconePortal nome="baixar" tamanho={24} />
                 Exportar lista

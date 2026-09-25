@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { criarEntrada } from './contexto.js';
-import type { Contexto, MensagemDeSaida } from './contexto.js';
+import { createInbound } from './contexto.js';
+import type { Context, OutputMessage } from './contexto.js';
 import {
   converterDoEditor,
   ehExportDoEditor,
-  lerFluxoDaBlip,
-  relatorioDaImportacao,
+  blipReadFlow,
+  importReport,
 } from './editor.js';
 import type { ExportDoEditor } from './editor.js';
-import { processarEntrada } from './gerenciador.js';
-import { validarFluxo } from './modelos.js';
-import type { FluxoBlip } from './modelos.js';
+import { processarInbound } from './gerenciador.js';
+import { validateFlow } from './modelos.js';
+import type { FlowBlip } from './modelos.js';
 import fixture from './fixtures/editor-sintetico.json' with { type: 'json' };
 
 /** Fixture sintética, no formato do editor do Builder — nada de fluxo de cliente. */
@@ -18,30 +18,30 @@ const exportado = fixture as unknown as ExportDoEditor;
 const copia = (): ExportDoEditor => JSON.parse(JSON.stringify(exportado)) as ExportDoEditor;
 
 describe('importador do export do editor da Blip', () => {
-  const fluxo = converterDoEditor(exportado, 'f1');
-  const estado = (id: string) => fluxo.states.find((s) => s.id === id)!;
+  const flow = converterDoEditor(exportado, 'f1');
+  const state = (id: string) => flow.states.find((s) => s.id === id)!;
 
   it('reconhece o export do editor e o fluxo publicado', () => {
     expect(ehExportDoEditor(exportado)).toBe(true);
-    expect(ehExportDoEditor({ settings: { flow: fluxo } })).toBe(false);
+    expect(ehExportDoEditor({ settings: { flow: flow } })).toBe(false);
   });
 
   it('converte para o formato publicado, e o resultado passa na validação do motor', () => {
-    expect(fluxo.states).toHaveLength(7);
-    expect(() => validarFluxo(fluxo)).not.toThrow();
+    expect(flow.states).toHaveLength(7);
+    expect(() => validateFlow(flow)).not.toThrow();
   });
 
   it('ação de entrada vem antes do conteúdo, e o input vira `input`', () => {
-    expect(estado('boas-vindas').inputActions!.map((a) => a.type)).toEqual([
+    expect(state('boas-vindas').inputActions!.map((a) => a.type)).toEqual([
       'TrackEvent',
       'SendMessage',
       'SendMessage',
     ]);
-    expect(estado('boas-vindas').input).toEqual({ bypass: false, variable: 'nome' });
+    expect(state('boas-vindas').input).toEqual({ bypass: false, variable: 'nome' });
   });
 
   it('saídas com condição em ordem e a saída padrão por último, sem condição', () => {
-    expect(estado('menu').outputs).toEqual([
+    expect(state('menu').outputs).toEqual([
       {
         order: 0,
         stateId: 'financeiro',
@@ -68,22 +68,22 @@ describe('importador do export do editor da Blip', () => {
     const saidas = convertido.states.find((s) => s.id === 'desk:suporte')!.outputs!;
     expect(saidas.map((s) => s.stateId)).toEqual(['pos-atendimento', 'nao-entendi', 'onboarding']);
     expect(saidas.map((s) => s.order)).toEqual([0, 1, 2]);
-    expect(() => validarFluxo(convertido)).not.toThrow();
+    expect(() => validateFlow(convertido)).not.toThrow();
   });
 
   it('as chaves do editor ($invalid, $cardContent, $connId…) não passam, e $title vira name', () => {
-    const texto = JSON.stringify(fluxo);
-    for (const chave of [
+    const texto = JSON.stringify(flow);
+    for (const key of [
       '$invalid',
       '$cardContent',
       '$connId',
       '$typeOfContent',
       'typeOfStateId',
     ]) {
-      expect(texto).not.toContain(chave);
+      expect(texto).not.toContain(key);
     }
-    expect(estado('menu')['name']).toBe('Menu');
-    expect(estado('menu').outputActions![0]).toMatchObject({
+    expect(state('menu')['name']).toBe('Menu');
+    expect(state('menu').outputActions![0]).toMatchObject({
       id: 's1',
       $title: 'Guarda a opção',
       type: 'SetVariable',
@@ -91,14 +91,14 @@ describe('importador do export do editor da Blip', () => {
   });
 
   it('o publicado é lido como está (identidade), só com o id de quem importa', () => {
-    const publicado: FluxoBlip = { id: 'outro', states: fluxo.states };
-    expect(lerFluxoDaBlip({ settings: { flow: publicado } }, 'meu').states).toBe(fluxo.states);
-    expect(lerFluxoDaBlip(publicado, 'meu').id).toBe('meu');
-    expect(() => lerFluxoDaBlip({ nada: 1 }, 'x')).toThrow('não é um fluxo da Blip');
+    const publicado: FlowBlip = { id: 'outro', states: flow.states };
+    expect(blipReadFlow({ settings: { flow: publicado } }, 'meu').states).toBe(flow.states);
+    expect(blipReadFlow(publicado, 'meu').id).toBe('meu');
+    expect(() => blipReadFlow({ nada: 1 }, 'x')).toThrow('não é um fluxo da Blip');
   });
 
   it('relatório: o fluxo sintético não tem nada fora do suporte', () => {
-    const r = relatorioDaImportacao(fluxo);
+    const r = importReport(flow);
     expect(r.estados).toBe(7);
     expect(r.saidas).toBe(11);
     expect(r.naoSuportado).toEqual({});
@@ -106,7 +106,7 @@ describe('importador do export do editor da Blip', () => {
       'conteudo:application/vnd.lime.chatstate+json': 1,
       'acao:LeavingFromDesk': 1,
     });
-    expect(r.acoes['SendMessage']).toBe(6);
+    expect(r.actions['SendMessage']).toBe(6);
   });
 
   it('relatório: lista por tipo o que o Pipe não executa, sem descartar nada', () => {
@@ -128,7 +128,7 @@ describe('importador do export do editor da Blip', () => {
       action: { type: 'SendRawMessage', settings: { type: 'application/json', rawContent: '{}' } },
     });
     const convertido = converterDoEditor(e, 'f1');
-    expect(relatorioDaImportacao(convertido).naoSuportado).toEqual({
+    expect(importReport(convertido).naoSuportado).toEqual({
       'acao:ExecuteScript': 1,
       'conteudo:application/json': 1,
       'entrada:expiracao': 1,
@@ -149,39 +149,39 @@ describe('importador do export do editor da Blip', () => {
 });
 
 describe('o fluxo importado rodando no motor', () => {
-  const fluxo = converterDoEditor(exportado, 'f1');
-  const variaveis: Record<string, string> = {};
-  const enviadas: MensagemDeSaida[] = [];
-  const atendimentos: unknown[] = [];
+  const flow = converterDoEditor(exportado, 'f1');
+  const variables: Record<string, string> = {};
+  const enviadas: OutputMessage[] = [];
+  const attendances: unknown[] = [];
 
-  const entrar = async (conteudo: unknown, tipo = 'text/plain') => {
+  const login = async (conteudo: unknown, tipo = 'text/plain') => {
     enviadas.length = 0;
-    const contexto: Contexto = {
-      usuario: 'contato-1',
-      fluxo,
-      entrada: criarEntrada({ id: String(Math.random()), tipo, conteudo }),
-      variaveis,
-      entradaContexto: new Map(),
-      servicos: {
-        enviar: async (m) => void enviadas.push(m),
-        encaminharParaAtendimento: async (p) => (atendimentos.push(p), { id: 'conversa-1' }),
-        registrarEvento: async () => {},
+    const context: Context = {
+      user: 'contato-1',
+      flow,
+      inbound: createInbound({ id: String(Math.random()), tipo, conteudo }),
+      variables,
+      inboundContext: new Map(),
+      services: {
+        send: async (m) => void enviadas.push(m),
+        encaminharForAttendance: async (p) => (attendances.push(p), { id: 'conversa-1' }),
+        registerEvent: async () => {},
       },
     };
-    await processarEntrada(contexto);
+    await processarInbound(context);
     return enviadas
       .filter((m) => m.tipo !== 'application/vnd.lime.chatstate+json')
       .map((m) => m.conteudo);
   };
 
   it('oi → pergunta o nome; nome → menu com a variável; 2 → atendimento com o contexto guardado', async () => {
-    expect(await entrar('oi')).toEqual(['Olá! Qual é o seu nome?']);
-    const menu = await entrar('Ana');
+    expect(await login('oi')).toEqual(['Olá! Qual é o seu nome?']);
+    const menu = await login('Ana');
     expect(menu).toHaveLength(1);
     expect((menu[0] as { text: string }).text).toBe('Prazer, Ana. Como posso ajudar?');
-    expect(await entrar('2')).toEqual([]);
-    expect(atendimentos).toHaveLength(1);
-    expect(variaveis).toMatchObject({
+    expect(await login('2')).toEqual([]);
+    expect(attendances).toHaveLength(1);
+    expect(variables).toMatchObject({
       nome: 'Ana',
       opcao: '2',
       desk_forwardToDeskState_status: 'Success',
@@ -191,20 +191,20 @@ describe('o fluxo importado rodando no motor', () => {
 
   it('o fim do atendimento destrava o bloco e segue para o bloco configurado', async () => {
     expect(
-      await entrar(
+      await login(
         { id: 'conversa-1', status: 'ClosedAttendant' },
         'application/vnd.iris.ticket+json',
       ),
     ).toEqual(['Seu atendimento foi encerrado. Posso ajudar em algo mais?']);
-    expect(variaveis['stateId@f1']).toBe('pos-atendimento');
+    expect(variables['stateId@f1']).toBe('pos-atendimento');
   });
 
   it('resposta fora do menu cai no "não entendi" e volta ao menu', async () => {
-    const saida = await entrar('qualquer coisa');
+    const saida = await login('qualquer coisa');
     // pos-atendimento → menu (saída padrão) manda o menu e espera.
     expect((saida[0] as { text: string }).text).toContain('Como posso ajudar?');
-    const errado = await entrar('3');
+    const errado = await login('3');
     expect(errado[0]).toBe('Não entendi. Responda 1 ou 2.');
-    expect(variaveis['stateId@f1']).toBe('menu');
+    expect(variables['stateId@f1']).toBe('menu');
   });
 });

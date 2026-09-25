@@ -1,10 +1,10 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
-import type { ConviteVisivel } from '@pipe/contracts';
+import type { InvitationVisible } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
-import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
-import { aceitarConvite, criarConvite, lerConvite, reenviarConvite } from '../dominio/convites.js';
-import { registrarDominio, verificarDominio } from '../dominio/dominios.js';
+import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
+import { aceitarInvitation, createInvitation, readInvitation, resendInvitation } from '../dominio/convites.js';
+import { logDomain, checkDomain } from '../dominio/dominios.js';
 
 /**
  * As duas portas por onde gente nova entra num tenant: o convite e o domínio
@@ -21,31 +21,31 @@ import { registrarDominio, verificarDominio } from '../dominio/dominios.js';
  */
 
 @Controller('v1/convites')
-export class ControladorConvites {
+export class InvitationsController {
   /** Convida alguém. Devolve o link com o token — que não volta a aparecer. */
   @Post()
   @HttpCode(201)
-  @ComSessao()
-  async criar(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: { email?: string; papel?: string },
+  @WithSession()
+  async create(
+    @Req() requisicao: RequestWithSession,
+    @Body() corpo: { email?: string; role?: string },
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     // O "gerencia membros" do `admin` — a mesma permissão que a tela de Membros confere.
-    await permitido(sessao.tenantId, sessao.usuarioId, 'conta.membros.escrever');
+    await permitido(sessao.tenantId, sessao.userId, 'conta.membros.escrever');
 
-    const convite = await criarConvite(sessao.tenantId, {
+    const invitation = await createInvitation(sessao.tenantId, {
       email: corpo.email,
-      papel: corpo.papel,
-      criadoPor: sessao.usuarioId,
+      papel: corpo.role,
+      criadoPor: sessao.userId,
     });
 
     return {
-      id: convite.id,
-      email: convite.email,
-      papel: convite.papel,
-      url: convite.url,
-      expiraEm: convite.expiraEm.toISOString(),
+      id: invitation.id,
+      email: invitation.email,
+      papel: invitation.papel,
+      url: invitation.url,
+      expiraEm: invitation.expiraEm.toISOString(),
     };
   }
 
@@ -56,15 +56,15 @@ export class ControladorConvites {
    */
   @Post(':id/reenviar')
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async reenviar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'conta.membros.escrever');
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'conta.membros.escrever');
 
-    const convite = await reenviarConvite(sessao.tenantId, id, sessao.usuarioId);
+    const convite = await resendInvitation(sessao.tenantId, id, sessao.userId);
     return {
       id: convite.id,
       email: convite.email,
@@ -80,11 +80,11 @@ export class ControladorConvites {
    * não é assunto de quem ainda está do lado de fora.
    */
   @Get(':token')
-  async ver(@Param('token') token: string): Promise<ConviteVisivel> {
-    const convite = await lerConvite(token);
+  async ver(@Param('token') token: string): Promise<InvitationVisible> {
+    const convite = await readInvitation(token);
     return {
       email: convite.email,
-      papel: convite.papel,
+      role: convite.papel,
       tenant: convite.tenant,
       expiraEm: convite.expiraEm.toISOString(),
     };
@@ -100,9 +100,9 @@ export class ControladorConvites {
   @Post(':token/aceitar')
   @HttpCode(200)
   async aceitar(@Param('token') token: string): Promise<Record<string, unknown>> {
-    const aceito = await aceitarConvite(token);
+    const aceito = await aceitarInvitation(token);
     return {
-      usuarioId: aceito.usuarioId,
+      usuarioId: aceito.userId,
       email: aceito.email,
       papel: aceito.papel,
       tenant: aceito.tenant,
@@ -112,19 +112,19 @@ export class ControladorConvites {
 }
 
 @Controller('v1/dominios')
-export class ControladorDominios {
+export class DomainsController {
   /** Registra o domínio e diz qual TXT publicar. Verificar é o passo seguinte. */
   @Post()
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async registrar(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: { dominio?: string },
+    @Req() request: RequestWithSession,
+    @Body() corpo: { domain?: string },
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
+    const session = sessionOf(request);
+    await permitido(session.tenantId, session.userId, 'tenant.configurar');
 
-    const registrado = await registrarDominio(sessao.tenantId, corpo.dominio);
+    const registrado = await logDomain(session.tenantId, corpo.domain);
     return {
       id: registrado.id,
       dominio: registrado.dominio,
@@ -136,18 +136,18 @@ export class ControladorDominios {
   /** Confere o TXT no DNS. Sai 400 enquanto não achar — publicar e propagar demora. */
   @Post(':id/verificar')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async verificar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<Record<string, unknown>> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'tenant.configurar');
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId, 'tenant.configurar');
 
-    const verificado = await verificarDominio(sessao.tenantId, id);
+    const verificado = await checkDomain(sessao.tenantId, id);
     return {
       id: verificado.id,
-      dominio: verificado.dominio,
+      dominio: verificado.domain,
       verificadoEm: verificado.verificadoEm.toISOString(),
     };
   }
@@ -161,6 +161,6 @@ export class ControladorDominios {
  * controlador sem saber de transação — e a alternativa, empurrar o `usuarioId`
  * para dentro de cada função de domínio, espalharia a regra de acesso por elas.
  */
-function permitido(tenantId: string, usuarioId: string, codigo: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermissao(tx, usuarioId, codigo));
+function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
+  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
 }

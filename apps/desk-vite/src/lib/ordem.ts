@@ -1,5 +1,5 @@
-import type { ConversaDaLista, TipoCanalBanco } from '@pipe/contracts';
-import { canalTemJanela, janelaAberta as janelaAbertaDoCore } from '@pipe/core';
+import type { ConversationOfList, TypeChannelDatabase } from '@pipe/contracts';
+import { channelTemWindow, windowAberta as janelaAbertaDoCore } from '@pipe/core';
 
 /**
  * As regras puras da coluna de atendimentos: as fichas de filtro, a busca, a
@@ -12,21 +12,21 @@ import { canalTemJanela, janelaAberta as janelaAbertaDoCore } from '@pipe/core';
  * 'lastMessageDate'` de `/agents/preferences` (`docs/desk-store.md`).
  */
 
-export type Filtro = 'todos' | 'nao-lidos' | 'em-espera' | 'inativos';
+export type Filter = 'todos' | 'nao-lidos' | 'em-espera' | 'inativos';
 
 /** Rótulo de cada ficha, com a contagem entre parênteses como lá ("Todos (3)"). */
-export const ROTULOS_DE_FILTRO: Record<Filtro, string> = {
+export const ROTULOS_OF_FILTER: Record<Filter, string> = {
   todos: 'Todos',
   'nao-lidos': 'Não lidos',
   'em-espera': 'Em espera',
   inativos: 'Inativos',
 };
 
-export const FILTROS: readonly Filtro[] = ['todos', 'nao-lidos', 'em-espera', 'inativos'];
+export const FILTERS: readonly Filter[] = ['todos', 'nao-lidos', 'em-espera', 'inativos'];
 
 /** Milissegundos de uma hora; a janela livre do WhatsApp é de 24 delas. */
 const HORA_MS = 3_600_000;
-const JANELA_HORAS = 24;
+const WINDOW_HORAS = 24;
 
 /**
  * "Não lida" no nosso domínio: a última palavra foi do contato, OU o atendente
@@ -34,16 +34,16 @@ const JANELA_HORAS = 24;
  * guardamos a CONTAGEM de não lidas (só quem falou por último), então a ficha e
  * o negrito do cartão saem daqui.
  */
-export function naoLida(c: ConversaDaLista): boolean {
-  return c.ultimaMensagemDe === 'contato' || c.naoLidaEm !== null;
+export function naoLida(c: ConversationOfList): boolean {
+  return c.lastMessageFrom === 'contato' || c.naoLidaEm !== null;
 }
 
 /** Fixada pelo atendente no topo da lista (`PIN` da origem). */
-export function fixada(c: ConversaDaLista): boolean {
+export function fixada(c: ConversationOfList): boolean {
   return c.fixadaEm !== null;
 }
 
-export function emEspera(c: ConversaDaLista): boolean {
+export function emEspera(c: ConversationOfList): boolean {
   return c.estado === 'em_espera';
 }
 
@@ -52,8 +52,8 @@ export function emEspera(c: ConversaDaLista): boolean {
  * atendente só volta a falar por template. É o mais próximo do `inactive` da
  * referência que o nosso domínio distingue.
  */
-export function inativa(c: ConversaDaLista, agora: Date): boolean {
-  return !janelaAberta(c.janelaExpiraEm, c.canalTipo, agora);
+export function inativa(c: ConversationOfList, agora: Date): boolean {
+  return !windowAberta(c.janelaExpiraEm, c.canalTipo, agora);
 }
 
 /**
@@ -62,51 +62,51 @@ export function inativa(c: ConversaDaLista, agora: Date): boolean {
  * sempre aberto; WhatsApp sem `janelaExpiraEm` (o contato nunca falou) está
  * fechado. Instagram segue o WhatsApp.
  */
-export function janelaAberta(
-  janelaExpiraEm: string | null,
-  canalTipo: TipoCanalBanco,
+export function windowAberta(
+  windowExpiraIn: string | null,
+  channelTipo: TypeChannelDatabase,
   agora: Date,
 ): boolean {
-  const canal = canalTipo === 'instagram' ? 'whatsapp_cloud' : canalTipo;
-  if (!canalTemJanela(canal)) return true;
-  return janelaAbertaDoCore(janelaExpiraEm ? new Date(janelaExpiraEm) : null, agora);
+  const channel = channelTipo === 'instagram' ? 'whatsapp_cloud' : channelTipo;
+  if (!channelTemWindow(channel)) return true;
+  return janelaAbertaDoCore(windowExpiraIn ? new Date(windowExpiraIn) : null, agora);
 }
 
 /** Quanto falta da janela, em horas cheias (para o aviso); `null` se já fechou ou não há janela. */
-export function horasRestantes(janelaExpiraEm: string | null, agora: Date): number | null {
-  if (!janelaExpiraEm) return null;
-  const restante = new Date(janelaExpiraEm).getTime() - agora.getTime();
+export function horasRestantes(windowExpiraIn: string | null, agora: Date): number | null {
+  if (!windowExpiraIn) return null;
+  const restante = new Date(windowExpiraIn).getTime() - agora.getTime();
   if (restante <= 0) return null;
-  return Math.min(JANELA_HORAS, Math.ceil(restante / HORA_MS));
+  return Math.min(WINDOW_HORAS, Math.ceil(restante / HORA_MS));
 }
 
-export function aplicarFiltro(
-  conversas: readonly ConversaDaLista[],
-  filtro: Filtro,
+export function aplicarFilter(
+  conversations: readonly ConversationOfList[],
+  filter: Filter,
   agora: Date,
-): ConversaDaLista[] {
-  switch (filtro) {
+): ConversationOfList[] {
+  switch (filter) {
     case 'nao-lidos':
-      return conversas.filter(naoLida);
+      return conversations.filter(naoLida);
     case 'em-espera':
-      return conversas.filter(emEspera);
+      return conversations.filter(emEspera);
     case 'inativos':
-      return conversas.filter((c) => inativa(c, agora));
+      return conversations.filter((c) => inativa(c, agora));
     default:
-      return [...conversas];
+      return [...conversations];
   }
 }
 
 /** A contagem de cada ficha, sobre a lista INTEIRA (a ficha diz quantos há, não quantos aparecem). */
 export function contagens(
-  conversas: readonly ConversaDaLista[],
+  conversations: readonly ConversationOfList[],
   agora: Date,
-): Record<Filtro, number> {
+): Record<Filter, number> {
   return {
-    todos: conversas.length,
-    'nao-lidos': conversas.filter(naoLida).length,
-    'em-espera': conversas.filter(emEspera).length,
-    inativos: conversas.filter((c) => inativa(c, agora)).length,
+    todos: conversations.length,
+    'nao-lidos': conversations.filter(naoLida).length,
+    'em-espera': conversations.filter(emEspera).length,
+    inativos: conversations.filter((c) => inativa(c, agora)).length,
   };
 }
 
@@ -120,12 +120,12 @@ function digitos(texto: string): string {
  * referência). Nome sem acento e sem caixa; telefone por dígitos, para
  * `(31) 99471` achar `+5531994714471`.
  */
-export function buscar(conversas: readonly ConversaDaLista[], termo: string): ConversaDaLista[] {
+export function buscar(conversations: readonly ConversationOfList[], termo: string): ConversationOfList[] {
   const t = termo.trim();
-  if (!t) return [...conversas];
+  if (!t) return [...conversations];
   const nome = semAcento(t).toLowerCase();
   const tel = digitos(t);
-  return conversas.filter((c) => {
+  return conversations.filter((c) => {
     const n = semAcento(c.contatoNome ?? '').toLowerCase();
     if (nome && n.includes(nome)) return true;
     if (tel.length >= 2 && (c.contatoTelefone ?? '').replace(/\D/g, '').includes(tel)) return true;
@@ -137,7 +137,7 @@ function semAcento(texto: string): string {
   return texto.normalize('NFD').replace(/[̀-ͯ]/g, '');
 }
 
-export type Ordem = 'ultima-mensagem' | 'abertura';
+export type Order = 'ultima-mensagem' | 'abertura';
 
 /**
  * A ordem da lista. `ultima-mensagem` ("Ver novas mensagens no topo") é o
@@ -148,11 +148,11 @@ export type Ordem = 'ultima-mensagem' | 'abertura';
  * recente por cima) — é o `pinnedTickets` / `notPinnedTickets` da lista da
  * origem (`blip-desk-regras-tecnicas.md` §6.2: "mantém fixados no topo").
  */
-export function ordenar(conversas: readonly ConversaDaLista[], ordem: Ordem): ConversaDaLista[] {
-  const instante = (c: ConversaDaLista) =>
-    new Date(ordem === 'abertura' ? c.criadaEm : (c.ultimaMensagemEm ?? c.criadaEm)).getTime();
-  const fixadaEm = (c: ConversaDaLista) => (c.fixadaEm ? new Date(c.fixadaEm).getTime() : null);
-  return [...conversas].sort((a, b) => {
+export function ordenar(conversations: readonly ConversationOfList[], order: Order): ConversationOfList[] {
+  const instante = (c: ConversationOfList) =>
+    new Date(order === 'abertura' ? c.criadaEm : (c.ultimaMensagemEm ?? c.criadaEm)).getTime();
+  const fixadaEm = (c: ConversationOfList) => (c.fixadaEm ? new Date(c.fixadaEm).getTime() : null);
+  return [...conversations].sort((a, b) => {
     const fa = fixadaEm(a);
     const fb = fixadaEm(b);
     if (fa !== null || fb !== null) {
@@ -160,7 +160,7 @@ export function ordenar(conversas: readonly ConversaDaLista[], ordem: Ordem): Co
       if (fb === null) return -1;
       if (fa !== fb) return fb - fa;
     }
-    const d = ordem === 'abertura' ? instante(a) - instante(b) : instante(b) - instante(a);
+    const d = order === 'abertura' ? instante(a) - instante(b) : instante(b) - instante(a);
     return d !== 0 ? d : a.id.localeCompare(b.id);
   });
 }
@@ -170,16 +170,16 @@ export function ordenar(conversas: readonly ConversaDaLista[], ordem: Ordem): Co
  * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
  * houver antes do `@`. Nunca fica em branco.
  */
-export function nomeDeExibicao(c: {
-  contatoNome: string | null;
-  contatoTelefone: string | null;
-  contatoEmail?: string | null;
-  contatoId?: string;
+export function displayName(c: {
+  contactName: string | null;
+  contactTelefone: string | null;
+  contactEmail?: string | null;
+  contactId?: string;
 }): string {
-  if (c.contatoNome?.trim()) return c.contatoNome.trim();
-  if (c.contatoTelefone?.trim()) return telefoneInternacional(c.contatoTelefone);
-  if (c.contatoEmail?.trim()) return c.contatoEmail.trim();
-  return (c.contatoId ?? '').split('@')[0] ?? '';
+  if (c.contactName?.trim()) return c.contactName.trim();
+  if (c.contactTelefone?.trim()) return telefoneInternacional(c.contactTelefone);
+  if (c.contactEmail?.trim()) return c.contactEmail.trim();
+  return (c.contactId ?? '').split('@')[0] ?? '';
 }
 
 /** `+5531994714471` → `+55 31 99471-4471`; o que não for BR de 13 dígitos volta como veio. */

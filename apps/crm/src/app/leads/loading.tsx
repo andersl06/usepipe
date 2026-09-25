@@ -1,4 +1,4 @@
-import { AvisoDeCarregamento, EsqueletoDeTabela } from '../../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeTabela } from '../../componentes/esqueleto';
 
 /**
  * O que aparece enquanto a lista carrega. O cabeçalho da página é o mesmo da
@@ -18,7 +18,7 @@ export default function CarregandoLeads() {
       </div>
 
       <div className="tblwrap">
-        <AvisoDeCarregamento>Carregando a lista de leads.</AvisoDeCarregamento>
+        <LoadingNotice>Carregando a lista de leads.</LoadingNotice>
         <EsqueletoDeTabela colunas={9} linhas={10} />
       </div>
     </>

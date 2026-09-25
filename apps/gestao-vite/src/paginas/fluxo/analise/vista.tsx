@@ -10,7 +10,7 @@ import type { Aba } from './abas';
  * `tabData[aba].active` que `initilizeTabs()` tira de `$state.current.url`;
  * aqui é o caminho. O layout não enxerga o caminho, por isso a peça é esta.
  */
-export function VistaDaAnalise({
+export function AnalyticsVista({
   base,
   abas,
   children,
@@ -22,8 +22,8 @@ export function VistaDaAnalise({
   const caminho = useLocation().pathname;
   const aberta = abas.find(
     (a) =>
-      a.segmento &&
-      (caminho === `${base}/${a.segmento}` || caminho.startsWith(`${base}/${a.segmento}/`)),
+      a.segment &&
+      (caminho === `${base}/${a.segment}` || caminho.startsWith(`${base}/${a.segment}/`)),
   );
 
   return (
@@ -35,18 +35,18 @@ export function VistaDaAnalise({
         <div className="an-abas-seta" />
         <div className="an-abas-cabeca">
           {abas.map((aba) =>
-            aba.segmento ? (
+            aba.segment ? (
               <Link
-                key={aba.chave}
+                key={aba.key}
                 hidden={!aba.visivel}
-                href={`${base}/${aba.segmento}`}
+                href={`${base}/${aba.segment}`}
                 className={aba === aberta ? 'an-aba an-aba--ativa' : 'an-aba'}
                 aria-current={aba === aberta ? 'page' : undefined}
               >
                 <span className="an-aba-texto">{aba.rotulo}</span>
               </Link>
             ) : (
-              <span key={aba.chave} hidden={!aba.visivel} className="an-aba an-aba--obra">
+              <span key={aba.key} hidden={!aba.visivel} className="an-aba an-aba--obra">
                 <span className="an-aba-texto">{aba.rotulo}</span>
                 <span className="pt-obra-selo">em breve</span>
               </span>
@@ -59,7 +59,7 @@ export function VistaDaAnalise({
       {/* `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` —
           o Dashboard é o único painel sem o recuo que desvia da fileira fixa. */}
       <div
-        className={aberta?.chave === 'dashboard' ? 'an-painel an-painel--dashboard' : 'an-painel'}
+        className={aberta?.key === 'dashboard' ? 'an-painel an-painel--dashboard' : 'an-painel'}
       >
         {children}
       </div>

@@ -1,6 +1,6 @@
 import Link from '../../../componentes/link';
 import { useLocation } from 'react-router-dom';
-import { baseDoContato, useContato } from '../contato';
+import { contactBase, useContact } from '../contato';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
 
 /**
@@ -23,45 +23,45 @@ import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones
 const ITENS: {
   icone: NomeDeIconePortal;
   titulo: string;
-  descricao: string;
+  description: string;
   rota: string | null;
 }[] = [
   {
     icone: 'config-basicas',
     titulo: 'Configurações básicas',
-    descricao: 'Defina nome, descrição e a imagem de seu fluxo',
+    description: 'Defina nome, descrição e a imagem de seu fluxo',
     rota: 'basicas',
   },
   {
     icone: 'boas-vindas',
     titulo: 'Tela de Boas-vindas',
-    descricao: 'Defina a Mensagem de Saudação e o botão Começar',
+    description: 'Defina a Mensagem de Saudação e o botão Começar',
     rota: 'boasvindas',
   },
   {
     icone: 'menu-persistente',
     titulo: 'Menu Persistente',
-    descricao: 'Configure o menu persistente de seu fluxo',
+    description: 'Configure o menu persistente de seu fluxo',
     rota: 'menu-persistente',
   },
   {
     icone: 'loja',
     titulo: 'Informações de conexão',
-    descricao: 'Obtenha e defina as configurações de conexão do seu fluxo',
+    description: 'Obtenha e defina as configurações de conexão do seu fluxo',
     rota: 'api',
   },
   {
     icone: 'chaves',
     titulo: 'Chaves de acesso',
-    descricao: 'Gerencie as chaves de acesso para conexão com seu fluxo',
+    description: 'Gerencie as chaves de acesso para conexão com seu fluxo',
     rota: 'keys',
   },
 ];
 
-export function NavegacaoConfiguracoes({ id }: { id: string }) {
+export function NavigationSettings({ id }: { id: string }) {
   const caminho = useLocation().pathname;
   /* O prefixo sai do tipo do contato: roteador e fluxo têm árvores separadas. */
-  const base = baseDoContato(useContato().contato.tipo, id);
+  const base = contactBase(useContact().contact.tipo, id);
   return (
     <aside className="cf-lateral">
       <nav className="cf-arvore" aria-label="Configurações do fluxo">
@@ -73,7 +73,7 @@ export function NavegacaoConfiguracoes({ id }: { id: string }) {
               <IconePortal nome={item.icone} tamanho={24} className="cf-arvore-icone" />
               <span className="cf-arvore-texto">
                 <span className="cf-arvore-titulo">{item.titulo}</span>
-                <span className="cf-arvore-descricao">{item.descricao}</span>
+                <span className="cf-arvore-descricao">{item.description}</span>
               </span>
             </>
           );

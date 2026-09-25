@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import type { RespostaProntaListada } from '../../lib/comunicacao';
 import { alternarRespostaPronta, excluirRespostaPronta } from '../../lib/comunicacao-gravar';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
 import { FormularioRespostaPronta } from './comunicacao-respostas-formulario';
-import { Modal, ModalConfirmacao } from './_modal';
+import { Modal, ModalConfirmation } from './_modal';
 
 /** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */
-function AcoesDaResposta({
+function RespostaActions({
   resposta,
-  onErroAlternar,
+  onErrorAlternar,
   onExcluir,
 }: {
   resposta: RespostaProntaListada;
-  onErroAlternar: (erro: string) => void;
+  onErrorAlternar: (error: string) => void;
   onExcluir: () => void;
 }) {
   const alternar = async () => {
-    const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
-    if (!r.ok) onErroAlternar(r.erro);
+    const r = await alternarRespostaPronta(resposta.id, resposta.active);
+    if (!r.ok) onErrorAlternar(r.error);
   };
   return (
     <>
@@ -27,11 +27,11 @@ function AcoesDaResposta({
         type="button"
         className="interruptor"
         role="switch"
-        aria-checked={resposta.ativa}
+        aria-checked={resposta.active}
         aria-label={
-          resposta.ativa ? `Desativar a resposta ${resposta.titulo}` : `Ativar a resposta ${resposta.titulo}`
+          resposta.active ? `Desativar a resposta ${resposta.titulo}` : `Ativar a resposta ${resposta.titulo}`
         }
-        title={resposta.ativa ? 'Desativar esta resposta' : 'Ativar esta resposta'}
+        title={resposta.active ? 'Desativar esta resposta' : 'Ativar esta resposta'}
         onClick={() => void alternar()}
       >
         <span className="interruptor-bolinha" />
@@ -60,36 +60,36 @@ function AcoesDaResposta({
  * Regras — o cartão já resolve busca, agrupamento e estado vazio sem
  * reescrever nada disso aqui.
  */
-export function PaginaRespostasProntas() {
+export function PageCannedResponses() {
   const [modalAberto, setModalAberto] = useState(false);
   const [respostaParaExcluir, setRespostaParaExcluir] = useState<RespostaProntaListada | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
-  const leitura = useLeitura<RespostaProntaListada[]>('/v1/gestao/comunicacao/respostas-prontas');
-  if (!leitura.data) return null;
-  const respostas = leitura.data;
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
+  const read = useRead<RespostaProntaListada[]>('/v1/gestao/comunicacao/respostas-prontas');
+  if (!read.data) return null;
+  const respostas = read.data;
 
   async function excluir() {
     if (!respostaParaExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
+    setErrorExclusao(null);
     const resultado = await excluirRespostaPronta(respostaParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRespostaParaExcluir(null);
-    else setErroExclusao(resultado.erro);
+    else setErrorExclusao(resultado.error);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Respostas prontas',
       /* Texto literal do estado vazio deles — `FICHA-replies.md` §6, a única
          parte do material que não é sujeita ao desalinhamento de categorias
          descrito acima: o texto não fala de categoria nem de #, então copia
          sem ressalva. */
-      vazio: 'Você ainda não criou respostas prontas',
-      vazioDescricao: 'Crie respostas para agilizar seus atendimentos',
-      cartoes: respostas.map((r) => ({
+      empty: 'Você ainda não criou respostas prontas',
+      emptyDescription: 'Crie respostas para agilizar seus atendimentos',
+      cards: respostas.map((r) => ({
         id: r.id,
         campos: [
           { rotulo: 'Atalho', valor: `#${r.atalho}` },
@@ -97,12 +97,12 @@ export function PaginaRespostasProntas() {
           { rotulo: 'Fila / canal', valor: r.categoria ?? '—' },
           { rotulo: 'Corpo', valor: r.corpo },
         ],
-        situacao: r.ativa ? 'Ativa' : 'Desativada',
-        ativa: r.ativa,
+        situacao: r.active ? 'Ativa' : 'Desativada',
+        ativa: r.active,
         acao: (
-          <AcoesDaResposta
+          <RespostaActions
             resposta={r}
-            onErroAlternar={setErroAlternar}
+            onErrorAlternar={setErrorAlternar}
             onExcluir={() => setRespostaParaExcluir(r)}
           />
         ),
@@ -125,9 +125,9 @@ export function PaginaRespostasProntas() {
         </Botao>
       </div>
 
-      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
+      {errorAlternar ? <Etiqueta tom="erro">{errorAlternar}</Etiqueta> : null}
 
-      <ListaRegras secoes={secoes} placeholder="Buscar por título ou por atalho" ocultarCabecalhoDeSecao />
+      <ListaRegras sections={sections} placeholder="Buscar por título ou por atalho" sectionOcultarHeader />
 
       <Modal
         aberto={modalAberto}
@@ -137,18 +137,18 @@ export function PaginaRespostasProntas() {
         <FormularioRespostaPronta aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={respostaParaExcluir !== null}
         titulo="Excluir resposta"
-        mensagem={
+        message={
           <>Excluir a resposta "{respostaParaExcluir?.titulo}"? Esta ação não pode ser desfeita.</>
         }
-        erro={erroExclusao}
+        error={errorExclusao}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setRespostaParaExcluir(null);
-          setErroExclusao(null);
+          setErrorExclusao(null);
         }}
       />
     </>

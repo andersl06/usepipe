@@ -3,10 +3,10 @@ import { test } from 'node:test';
 import {
   campoValido,
   descreverRegra,
-  filaDeDestino,
+  destinationQueue,
   ordenarRegras,
   regrasInalcancaveis,
-  type RegraDeFila,
+  type QueueRule,
 } from '../src/lib/regra-fila.ts';
 
 /**
@@ -19,39 +19,39 @@ import {
  * `@pipe/core` e já têm teste lá.
  */
 
-const regra = (parcial: Partial<RegraDeFila> = {}): RegraDeFila => ({
+const regra = (parcial: Partial<QueueRule> = {}): QueueRule => ({
   id: 'r1',
   nome: 'Regra 1',
-  ordem: 0,
+  order: 0,
   combinador: 'e',
-  filaDestinoId: 'f1',
-  filaDestinoNome: 'Suporte',
-  ativa: true,
-  condicoes: [{ campo: 'mensagem', operador: 'contem', valor: 'boleto' }],
+  queueDestinationId: 'f1',
+  queueDestinationName: 'Suporte',
+  active: true,
+  conditions: [{ campo: 'mensagem', operador: 'contem', value: 'boleto' }],
   ...parcial,
 });
 
-const contexto = {
+const context = {
   mensagem: 'Preciso da segunda via do BOLETO',
   contato: { nome: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
 };
 
 test('a primeira regra que casa vence, e a ordem é a da tela', () => {
-  const casou = filaDeDestino(
+  const casou = destinationQueue(
     [
-      regra({ id: 'b', ordem: 2, filaDestinoId: 'f-financeiro', filaDestinoNome: 'Financeiro' }),
-      regra({ id: 'a', ordem: 1, filaDestinoId: 'f-cobranca', filaDestinoNome: 'Cobrança' }),
+      regra({ id: 'b', order: 2, queueDestinationId: 'f-financeiro', queueDestinationName: 'Financeiro' }),
+      regra({ id: 'a', order: 1, queueDestinationId: 'f-cobranca', queueDestinationName: 'Cobrança' }),
     ],
-    contexto,
+    context,
   );
-  assert.equal(casou?.filaDestinoNome, 'Cobrança');
+  assert.equal(casou?.queueDestinationName, 'Cobrança');
 });
 
 test('empate de ordem desempata por identificador, e não pela ordem do banco', () => {
   const ordenadas = ordenarRegras([
-    regra({ id: 'zz', ordem: 0 }),
-    regra({ id: 'aa', ordem: 0 }),
-    regra({ id: 'mm', ordem: 0 }),
+    regra({ id: 'zz', order: 0 }),
+    regra({ id: 'aa', order: 0 }),
+    regra({ id: 'mm', order: 0 }),
   ]);
   assert.deepEqual(
     ordenadas.map((r) => r.id),
@@ -60,66 +60,66 @@ test('empate de ordem desempata por identificador, e não pela ordem do banco', 
 });
 
 test('nenhuma regra casada devolve nulo — a conversa segue para a fila padrão', () => {
-  assert.equal(filaDeDestino([regra()], { mensagem: 'quero cancelar' }), null);
+  assert.equal(destinationQueue([regra()], { message: 'quero cancelar' }), null);
 });
 
 test('regra desativada não é avaliada, mesmo casando', () => {
-  assert.equal(filaDeDestino([regra({ ativa: false })], contexto), null);
+  assert.equal(destinationQueue([regra({ active: false })], context), null);
 });
 
 test('combinador E exige todas as condições', () => {
   const todas = regra({
     combinador: 'e',
-    condicoes: [
-      { campo: 'mensagem', operador: 'contem', valor: 'boleto' },
-      { campo: 'contato.email', operador: 'contem', valor: '@empresa' },
+    conditions: [
+      { campo: 'mensagem', operador: 'contem', value: 'boleto' },
+      { campo: 'contato.email', operador: 'contem', value: '@empresa' },
     ],
   });
-  assert.ok(filaDeDestino([todas], contexto));
+  assert.ok(destinationQueue([todas], context));
 
   const uma = regra({
     combinador: 'e',
-    condicoes: [
-      { campo: 'mensagem', operador: 'contem', valor: 'boleto' },
-      { campo: 'contato.email', operador: 'contem', valor: '@gmail' },
+    conditions: [
+      { campo: 'mensagem', operador: 'contem', value: 'boleto' },
+      { campo: 'contato.email', operador: 'contem', value: '@gmail' },
     ],
   });
-  assert.equal(filaDeDestino([uma], contexto), null);
+  assert.equal(destinationQueue([uma], context), null);
 });
 
 test('combinador OU basta uma condição', () => {
   const ou = regra({
     combinador: 'ou',
-    condicoes: [
-      { campo: 'mensagem', operador: 'contem', valor: 'cancelamento' },
-      { campo: 'contato.email', operador: 'contem', valor: '@empresa' },
+    conditions: [
+      { campo: 'mensagem', operador: 'contem', value: 'cancelamento' },
+      { campo: 'contato.email', operador: 'contem', value: '@empresa' },
     ],
   });
-  assert.ok(filaDeDestino([ou], contexto));
+  assert.ok(destinationQueue([ou], context));
 });
 
 test('campo extra do contato é lido pelo caminho com ponto', () => {
   const extra = regra({
-    condicoes: [{ campo: 'contato.atributos.plano', operador: 'igual', valor: 'Ouro' }],
+    conditions: [{ campo: 'contato.atributos.plano', operador: 'igual', value: 'Ouro' }],
   });
   // Caixa e acento não contam: a normalização é a do `@pipe/core`.
-  assert.ok(filaDeDestino([extra], contexto));
+  assert.ok(destinationQueue([extra], context));
 });
 
 test('regra ativa sem condição nunca casa, e é apontada como inalcançável', () => {
-  const vazia = regra({ condicoes: [] });
-  assert.equal(filaDeDestino([vazia], contexto), null);
+  const vazia = regra({ conditions: [] });
+  assert.equal(destinationQueue([vazia], context), null);
   assert.deepEqual(regrasInalcancaveis([vazia]), ['r1']);
 });
 
 test('regra idêntica abaixo de outra é inalcançável — a de cima vence sempre', () => {
   const mortas = regrasInalcancaveis([
-    regra({ id: 'topo', ordem: 1 }),
-    regra({ id: 'sombra', ordem: 2 }),
+    regra({ id: 'topo', order: 1 }),
+    regra({ id: 'sombra', order: 2 }),
     regra({
       id: 'outra',
-      ordem: 3,
-      condicoes: [{ campo: 'mensagem', operador: 'contem', valor: 'nota' }],
+      order: 3,
+      conditions: [{ campo: 'mensagem', operador: 'contem', value: 'nota' }],
     }),
   ]);
   assert.deepEqual(mortas, ['sombra']);
@@ -137,9 +137,9 @@ test('a regra sai por extenso com o combinador visível', () => {
     descreverRegra(
       regra({
         combinador: 'ou',
-        condicoes: [
-          { campo: 'mensagem', operador: 'contem', valor: 'boleto' },
-          { campo: 'contato.atributos.plano', operador: 'igual', valor: 'ouro' },
+        conditions: [
+          { campo: 'mensagem', operador: 'contem', value: 'boleto' },
+          { campo: 'contato.atributos.plano', operador: 'igual', value: 'ouro' },
         ],
       }),
     ),

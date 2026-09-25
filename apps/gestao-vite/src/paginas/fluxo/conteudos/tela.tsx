@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
-import { Selecao } from '../../../componentes/selecao';
-import type { ModeloListado } from '@pipe/contracts';
-import { criarModeloNoCanal } from '../../../lib/canais-gravar';
+import { Selection } from '../../../componentes/selecao';
+import type { TemplateListed } from '@pipe/contracts';
+import { createTemplateInChannel } from '../../../lib/canais-gravar';
 import {
   CATEGORIAS,
   blocosDoMenu,
-  erroDoNome,
-  estadoDaLista,
+  nameError,
+  listaState,
   idiomasRepetidos,
-  modeloValido,
-  mostrarEscolhaDeBloco,
+  templateValid,
+  blockMostrarEscolha,
   mostrarVoltar,
   type Categoria,
   type TipoDeConteudo,
-  type Traducao,
+  type Translation,
 } from './regras';
 
 /**
@@ -24,7 +24,7 @@ import {
  * Duplicada de propósito, como em `comunicacao-modelos-formulario.tsx`: a
  * tela de cliente não precisa importar módulo do servidor.
  */
-function variaveisDoTexto(texto: string): string[] {
+function textVariables(texto: string): string[] {
   const vistas: string[] = [];
   for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
     if (!vistas.includes(achado[1]!)) vistas.push(achado[1]!);
@@ -45,9 +45,9 @@ const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal;
 
 /* `messageTemplate.categories.*` para as três da `fillTemplateCategories`. */
 const ROTULO_CATEGORIA: Record<Categoria, string> = {
-  autenticacao: 'Autenticação',
+  authentication: 'Autenticação',
   marketing: 'Marketing',
-  utilidade: 'Utilidade',
+  utility: 'Utilidade',
 };
 
 /* `messageTemplateLanguages.*` — o recorte que o Pipe já usa em `/comunicacao/modelos`. */
@@ -74,7 +74,7 @@ const COR_DO_STATUS: Record<string, string> = {
 };
 
 /* `attachment.<tipo>.link` e `.compatibility`. */
-const ANEXO: Record<'imagem' | 'documento' | 'video', { link: string; compat: string }> = {
+const ATTACHMENT: Record<'imagem' | 'documento' | 'video', { link: string; compat: string }> = {
   imagem: { link: 'Link da imagem', compat: 'Compatível com JPG, JPEG ou PNG' },
   documento: { link: 'Link do documento', compat: 'Formato PDF' },
   video: { link: 'Link do vídeo', compat: 'Compatível com MP4 até 16MB' },
@@ -149,23 +149,23 @@ function LateralDeConteudos() {
   );
 }
 
-interface TraducaoEmEdicao extends Traducao {
+interface TranslationInEdit extends Translation {
   link: string;
   rodape: string;
-  botoes: string[];
+  buttons: string[];
   editando: boolean;
   rascunho: string;
   /** Um exemplo por variável do corpo — a Meta exige para aprovar (`{{1}}` → exemplos['1']). */
   exemplos: Record<string, string>;
 }
 
-function novaTraducao(idioma = 'pt_BR'): TraducaoEmEdicao {
+function newTranslation(idioma = 'pt_BR'): TranslationInEdit {
   return {
     idioma,
     texto: '',
     link: '',
     rodape: '',
-    botoes: [],
+    buttons: [],
     editando: false,
     rascunho: '',
     exemplos: {},
@@ -175,14 +175,14 @@ function novaTraducao(idioma = 'pt_BR'): TraducaoEmEdicao {
 export function TelaDeConteudos({
   modelos,
   temWhatsapp,
-  canalId,
+  channelId,
 }: {
-  modelos: ModeloListado[];
+  modelos: TemplateListed[];
   temWhatsapp: boolean;
-  canalId: string | null;
+  channelId: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
-  const estado = estadoDaLista(temWhatsapp, modelos.length);
+  const state = listaState(temWhatsapp, modelos.length);
 
   return (
     <div className="ct-casca">
@@ -233,7 +233,7 @@ export function TelaDeConteudos({
         </header>
 
         <div className="ct-container" id="message-template__main-content-area">
-          {estado === 'indisponivel' ? (
+          {state === 'indisponivel' ? (
             <section className="ct-indisponivel">
               <div>
                 <BalaoIndisponivel />
@@ -251,7 +251,7 @@ export function TelaDeConteudos({
             </section>
           ) : null}
 
-          {estado === 'vazio' ? (
+          {state === 'vazio' ? (
             <div id="message-templates-no-results" className="ct-sem-resultado">
               <span className="ct-sem-resultado-1">
                 Você ainda não adicionou modelos de mensagens
@@ -262,20 +262,20 @@ export function TelaDeConteudos({
             </div>
           ) : null}
 
-          {estado === 'lista' ? (
+          {state === 'lista' ? (
             <section className="ct-papel">
               <div id="message-templates-infinite-scroll">
-                {modelos.map((modelo, indice) => (
-                  <div key={modelo.id} id={`message-template-${indice}-card`} className="ct-item">
+                {modelos.map((template, indice) => (
+                  <div key={template.id} id={`message-template-${indice}-card`} className="ct-item">
                     <div className="ct-item-linha">
                       <div className="ct-item-w40">
                         <span className="ct-item-rotulo">Nome do modelo</span>
-                        <span className="ct-item-nome">{modelo.nome}</span>
+                        <span className="ct-item-nome">{template.nome}</span>
                       </div>
                       <div className="ct-item-w15">
                         <span className="ct-item-rotulo">Categoria</span>
                         <span>
-                          {ROTULO_CATEGORIA[modelo.categoria as Categoria] ?? modelo.categoria}
+                          {ROTULO_CATEGORIA[template.categoria as Categoria] ?? template.categoria}
                         </span>
                       </div>
                       <div className="ct-item-w15">
@@ -285,16 +285,16 @@ export function TelaDeConteudos({
                       <div className="ct-item-w15">
                         <span className="ct-item-rotulo">Idioma</span>
                         <span>
-                          {IDIOMAS.find(([codigo]) => codigo === modelo.idioma)?.[1] ??
-                            modelo.idioma}
+                          {IDIOMAS.find(([codigo]) => codigo === template.idioma)?.[1] ??
+                            template.idioma}
                         </span>
                       </div>
                       <div className="ct-item-w15">
                         <span className="ct-item-rotulo">Status</span>
                         <span
-                          className={`ct-status ct-status--${COR_DO_STATUS[modelo.statusMeta] ?? 'info'}`}
+                          className={`ct-status ct-status--${COR_DO_STATUS[template.statusMeta] ?? 'info'}`}
                         >
-                          {ROTULO_STATUS[modelo.statusMeta] ?? modelo.statusMeta}
+                          {ROTULO_STATUS[template.statusMeta] ?? template.statusMeta}
                         </span>
                       </div>
                     </div>
@@ -307,9 +307,9 @@ export function TelaDeConteudos({
         </div>
 
         {aberto ? (
-          <SidebarDeNovoModelo
-            canalId={canalId}
-            existentes={modelos.map((modelo) => modelo.nome)}
+          <NewTemplateSidebar
+            channelId={channelId}
+            existentes={modelos.map((template) => template.nome)}
             aoFechar={() => setAberto(false)}
           />
         ) : null}
@@ -333,12 +333,12 @@ export function TelaDeConteudos({
  * registrado lá) e Autenticação tem componentes próprios da Meta, não texto
  * livre — os dois casos ficam com o aviso explicando, sem tentar enviar.
  */
-function SidebarDeNovoModelo({
-  canalId,
+function NewTemplateSidebar({
+  channelId,
   existentes,
   aoFechar,
 }: {
-  canalId: string | null;
+  channelId: string | null;
   existentes: string[];
   aoFechar: () => void;
 }) {
@@ -346,22 +346,22 @@ function SidebarDeNovoModelo({
   const [nomeTocado, setNomeTocado] = useState(false);
   const [categoria, setCategoria] = useState<Categoria | ''>('');
   const [tipo, setTipo] = useState<TipoDeConteudo | 'default'>('default');
-  const [traducoes, setTraducoes] = useState<TraducaoEmEdicao[]>([novaTraducao()]);
+  const [translations, setTranslations] = useState<TranslationInEdit[]>([newTranslation()]);
   const [aviso, setAviso] = useState('');
   const [enviando, setEnviando] = useState(false);
 
-  const erroNome = nomeTocado ? erroDoNome(nome, existentes) : null;
-  const repetidos = idiomasRepetidos(traducoes);
-  const valido = modeloValido({ nome, categoria, tipo, traducoes, existentes });
-  const autenticacao = categoria === 'autenticacao';
+  const errorName = nomeTocado ? nameError(nome, existentes) : null;
+  const repetidos = idiomasRepetidos(translations);
+  const valido = templateValid({ nome, categoria, tipo, translations, existentes });
+  const authentication = categoria === 'autenticacao';
 
-  function mudarTraducao(indice: number, mudanca: Partial<TraducaoEmEdicao>) {
-    setTraducoes((lista) => lista.map((t, i) => (i === indice ? { ...t, ...mudanca } : t)));
+  function mudarTranslation(indice: number, mudanca: Partial<TranslationInEdit>) {
+    setTranslations((lista) => lista.map((t, i) => (i === indice ? { ...t, ...mudanca } : t)));
   }
 
-  async function enviarParaAvaliacao() {
-    if (!canalId) return setAviso('Este fluxo não tem canal de WhatsApp conectado.');
-    if (autenticacao) {
+  async function enviarForEvaluation() {
+    if (!channelId) return setAviso('Este fluxo não tem canal de WhatsApp conectado.');
+    if (authentication) {
       return setAviso(
         'Autenticação tem componentes próprios da Meta (código e botão de copiar) — não é texto livre. Ainda não dá para enviar esta categoria por aqui.',
       );
@@ -371,8 +371,8 @@ function SidebarDeNovoModelo({
         'Por aqui só dá para enviar modelo de Texto — cabeçalho de imagem, documento ou vídeo pede o upload do arquivo de exemplo na Meta, que esta tela ainda não faz.',
       );
     }
-    for (const t of traducoes) {
-      const faltando = variaveisDoTexto(t.texto).filter((v) => !t.exemplos[v]?.trim());
+    for (const t of translations) {
+      const faltando = textVariables(t.texto).filter((v) => !t.exemplos[v]?.trim());
       if (faltando.length) {
         return setAviso(`Dê um exemplo para cada variável do texto (idioma "${t.idioma}").`);
       }
@@ -380,17 +380,17 @@ function SidebarDeNovoModelo({
     setEnviando(true);
     setAviso('');
     try {
-      for (const t of traducoes) {
-        const variaveis = variaveisDoTexto(t.texto);
-        const resultado = await criarModeloNoCanal(canalId, {
+      for (const t of translations) {
+        const variables = textVariables(t.texto);
+        const resultado = await createTemplateInChannel(channelId, {
           nome,
           idioma: t.idioma,
           categoria: categoria as 'marketing' | 'utilidade',
           corpo: t.texto,
-          exemplos: variaveis.map((v) => t.exemplos[v]!.trim()),
+          exemplos: variables.map((v) => t.exemplos[v]!.trim()),
         });
         if (!resultado.ok) {
-          setAviso(`Idioma "${t.idioma}": ${resultado.erro}`);
+          setAviso(`Idioma "${t.idioma}": ${resultado.error}`);
           return;
         }
       }
@@ -436,7 +436,7 @@ function SidebarDeNovoModelo({
           </p>
 
           <div className="ct-mb3">
-            <label className={erroNome ? 'ct-campo ct-campo--invalido' : 'ct-campo'}>
+            <label className={errorName ? 'ct-campo ct-campo--invalido' : 'ct-campo'}>
               <span className="ct-campo-rotulo">Nome do modelo</span>
               <input
                 type="text"
@@ -448,20 +448,20 @@ function SidebarDeNovoModelo({
                 }}
               />
             </label>
-            {erroNome === 'invalido' ? (
+            {errorName === 'invalido' ? (
               <p className="ct-erro">
                 Use letras minúsculas, números ou underlines, começando com uma letra
               </p>
             ) : null}
-            {erroNome === 'usado' ? (
+            {errorName === 'usado' ? (
               <p className="ct-erro">Já existe um modelo de mensagem com este nome</p>
             ) : null}
-            {erroNome === 'comprido' ? <p className="ct-erro">Máximo de 512 caracteres</p> : null}
+            {errorName === 'comprido' ? <p className="ct-erro">Máximo de 512 caracteres</p> : null}
           </div>
 
           <label className="ct-campo ct-mb3">
             <span className="ct-campo-rotulo">Categoria</span>
-            <Selecao
+            <Selection
               value={categoria}
               onChange={(evento) => {
                 setCategoria(evento.target.value as Categoria | '');
@@ -474,23 +474,23 @@ function SidebarDeNovoModelo({
                   {ROTULO_CATEGORIA[c]}
                 </option>
               ))}
-            </Selecao>
+            </Selection>
           </label>
 
-          {traducoes.map((traducao, indice) => (
+          {translations.map((translation, indice) => (
             <div className="ct-traducao" key={indice}>
               <div className="ct-inline">
                 <label
                   className={
-                    repetidos.includes(traducao.idioma)
+                    repetidos.includes(translation.idioma)
                       ? 'ct-campo ct-campo--invalido ct-campo--cheio'
                       : 'ct-campo ct-campo--cheio'
                   }
                 >
                   <span className="ct-campo-rotulo">Idioma</span>
-                  <Selecao
-                    value={traducao.idioma}
-                    onChange={(evento) => mudarTraducao(indice, { idioma: evento.target.value })}
+                  <Selection
+                    value={translation.idioma}
+                    onChange={(evento) => mudarTranslation(indice, { idioma: evento.target.value })}
                   >
                     <option value="">Selecione</option>
                     {IDIOMAS.map(([codigo, rotulo]) => (
@@ -498,28 +498,28 @@ function SidebarDeNovoModelo({
                         {rotulo}
                       </option>
                     ))}
-                  </Selecao>
+                  </Selection>
                 </label>
-                {traducoes.length > 1 ? (
+                {translations.length > 1 ? (
                   <button
                     type="button"
                     className="ct-lixeira"
                     title="Excluir idioma"
                     aria-label="Excluir idioma"
-                    onClick={() => setTraducoes((lista) => lista.filter((_, i) => i !== indice))}
+                    onClick={() => setTranslations((lista) => lista.filter((_, i) => i !== indice))}
                   >
                     <IconePortal nome="lixeira" tamanho={20} />
                   </button>
                 ) : null}
               </div>
-              {repetidos.includes(traducao.idioma) ? (
+              {repetidos.includes(translation.idioma) ? (
                 <p className="ct-erro ct-erro--14">
                   Este idioma está sendo usado em outra tradução
                 </p>
               ) : null}
 
               <div className="ct-coluna">
-                {indice === 0 && mostrarVoltar(tipo, categoria, traducoes.length) ? (
+                {indice === 0 && mostrarVoltar(tipo, categoria, translations.length) ? (
                   <button
                     type="button"
                     className="ct-voltar"
@@ -532,12 +532,12 @@ function SidebarDeNovoModelo({
                   </button>
                 ) : null}
 
-                {indice === 0 && mostrarEscolhaDeBloco(tipo, categoria) ? (
+                {indice === 0 && blockMostrarEscolha(tipo, categoria) ? (
                   <div className="ct-menu-papel">
                     <span className="ct-menu-dica">Escolha um bloco para adicionar</span>
                     {blocosDoMenu(categoria).map((linha, l) => (
                       <div className="ct-menu-lista" key={l}>
-                        {linha.map((bloco, b) => (
+                        {linha.map((block, b) => (
                           <button
                             type="button"
                             className={
@@ -545,15 +545,15 @@ function SidebarDeNovoModelo({
                                 ? 'ct-menu-item ct-menu-item--meio'
                                 : 'ct-menu-item'
                             }
-                            key={bloco}
-                            onClick={() => setTipo(bloco)}
+                            key={block}
+                            onClick={() => setTipo(block)}
                           >
                             <IconePortal
-                              nome={BLOCOS[bloco].icone}
+                              nome={BLOCOS[block].icone}
                               tamanho={24}
-                              className={`ct-bloco-icone ${BLOCOS[bloco].classe}`}
+                              className={`ct-bloco-icone ${BLOCOS[block].classe}`}
                             />
-                            <span>{BLOCOS[bloco].rotulo}</span>
+                            <span>{BLOCOS[block].rotulo}</span>
                           </button>
                         ))}
                       </div>
@@ -561,7 +561,7 @@ function SidebarDeNovoModelo({
                   </div>
                 ) : null}
 
-                {autenticacao ? (
+                {authentication ? (
                   <section className="ct-cartao ct-cartao--previa">
                     <span className="ct-cartao-texto">
                       Seu código de verificação é {'{{1}}'}. Para sua segurança, não o compartilhe.
@@ -575,30 +575,30 @@ function SidebarDeNovoModelo({
                   </section>
                 ) : null}
 
-                {!autenticacao && tipo === 'texto' ? (
-                  <CartaoDeTexto
-                    traducao={traducao}
-                    aoMudar={(mudanca) => mudarTraducao(indice, mudanca)}
+                {!authentication && tipo === 'texto' ? (
+                  <TextCard
+                    translation={translation}
+                    aoMudar={(mudanca) => mudarTranslation(indice, mudanca)}
                   />
                 ) : null}
 
-                {!autenticacao &&
+                {!authentication &&
                 (tipo === 'imagem' || tipo === 'documento' || tipo === 'video') ? (
-                  <CartaoDeAnexo
+                  <AttachmentCard
                     tipo={tipo}
-                    traducao={traducao}
-                    somenteTraducao={indice > 0}
-                    aoMudar={(mudanca) => mudarTraducao(indice, mudanca)}
+                    translation={translation}
+                    somenteTranslation={indice > 0}
+                    aoMudar={(mudanca) => mudarTranslation(indice, mudanca)}
                   />
                 ) : null}
               </div>
 
-              {traducao.idioma === 'pt_BR' && !autenticacao ? (
+              {translation.idioma === 'pt_BR' && !authentication ? (
                 <div className="ct-avaliar">
                   <button
                     type="button"
                     className="ct-botao-texto"
-                    disabled={!traducao.texto}
+                    disabled={!translation.texto}
                     onClick={() =>
                       setAviso('A avaliação de mensagem com IA ainda não está disponível.')
                     }
@@ -608,7 +608,7 @@ function SidebarDeNovoModelo({
                   </button>
                 </div>
               ) : null}
-              {indice < traducoes.length - 1 ? <hr className="ct-divisor" /> : null}
+              {indice < translations.length - 1 ? <hr className="ct-divisor" /> : null}
             </div>
           ))}
 
@@ -620,7 +620,7 @@ function SidebarDeNovoModelo({
                 : 'ct-adicionar-traducao'
             }
             disabled={!valido}
-            onClick={() => setTraducoes((lista) => [...lista, novaTraducao('')])}
+            onClick={() => setTranslations((lista) => [...lista, newTranslation('')])}
           >
             <IconePortal nome="mais" tamanho={24} />
             <span>Adicionar tradução</span>
@@ -637,7 +637,7 @@ function SidebarDeNovoModelo({
             type="button"
             className={valido ? 'ct-enviar ct-enviar--ativo' : 'ct-enviar'}
             disabled={!valido || enviando}
-            onClick={() => void enviarParaAvaliacao()}
+            onClick={() => void enviarForEvaluation()}
           >
             {enviando ? 'Enviando…' : 'Enviar para avaliação'}
           </button>
@@ -654,35 +654,35 @@ function SidebarDeNovoModelo({
  * confirmar/fechar no canto. Os ícones de negrito/itálico/tachado são da
  * fonte `blip-toolkit` e não existem aqui (só o "+ variável").
  */
-function CartaoDeTexto({
-  traducao,
+function TextCard({
+  translation,
   aoMudar,
 }: {
-  traducao: TraducaoEmEdicao;
-  aoMudar: (mudanca: Partial<TraducaoEmEdicao>) => void;
+  translation: TranslationInEdit;
+  aoMudar: (mudanca: Partial<TranslationInEdit>) => void;
 }) {
-  if (!traducao.editando) {
+  if (!translation.editando) {
     return (
       <section
-        className={traducao.texto ? 'ct-cartao ct-cartao--previa' : 'ct-cartao'}
-        onDoubleClick={() => aoMudar({ editando: true, rascunho: traducao.texto })}
+        className={translation.texto ? 'ct-cartao ct-cartao--previa' : 'ct-cartao'}
+        onDoubleClick={() => aoMudar({ editando: true, rascunho: translation.texto })}
       >
         <button
           type="button"
           className="ct-cartao-botao ct-cartao-editar"
           aria-label="Editar"
-          onClick={() => aoMudar({ editando: true, rascunho: traducao.texto })}
+          onClick={() => aoMudar({ editando: true, rascunho: translation.texto })}
         >
           <IconePortal nome="editar" tamanho={16} />
         </button>
-        {traducao.texto ? (
-          <span className="ct-cartao-texto">{traducao.texto}</span>
+        {translation.texto ? (
+          <span className="ct-cartao-texto">{translation.texto}</span>
         ) : (
           <span className="ct-cartao-placeholder">Insira aqui o conteúdo da mensagem</span>
         )}
-        {traducao.botoes.length ? (
+        {translation.buttons.length ? (
           <div className="ct-cartao-botoes">
-            {traducao.botoes.map((botao, i) => (
+            {translation.buttons.map((botao, i) => (
               <div className="ct-cartao-resposta" key={i}>
                 <span>{botao}</span>
               </div>
@@ -706,7 +706,7 @@ function CartaoDeTexto({
         type="button"
         className="ct-cartao-botao ct-cartao-confirmar"
         aria-label="Confirmar"
-        onClick={() => aoMudar({ editando: false, texto: traducao.rascunho.trim() })}
+        onClick={() => aoMudar({ editando: false, texto: translation.rascunho.trim() })}
       >
         <IconePortal nome="cheque" tamanho={16} />
       </button>
@@ -714,7 +714,7 @@ function CartaoDeTexto({
         className="ct-cartao-area"
         rows={3}
         maxLength={1024}
-        value={traducao.rascunho}
+        value={translation.rascunho}
         onChange={(evento) => aoMudar({ rascunho: evento.target.value })}
       />
       <div className="ct-cartao-formatacao">
@@ -723,7 +723,7 @@ function CartaoDeTexto({
           className="ct-cartao-variavel"
           onClick={() =>
             aoMudar({
-              rascunho: `${traducao.rascunho}{{${(traducao.rascunho.match(/\{\{\d+\}\}/g)?.length ?? 0) + 1}}}`,
+              rascunho: `${translation.rascunho}{{${(translation.rascunho.match(/\{\{\d+\}\}/g)?.length ?? 0) + 1}}}`,
             })
           }
         >
@@ -731,8 +731,8 @@ function CartaoDeTexto({
           variável
         </button>
       </div>
-      <ExemplosDeVariavel traducao={traducao} aoMudar={aoMudar} />
-      <BotoesDoModelo botoes={traducao.botoes} aoMudar={(botoes) => aoMudar({ botoes })} />
+      <VariableExemplos translation={translation} aoMudar={aoMudar} />
+      <TemplateButtons buttons={translation.buttons} aoMudar={(buttons) => aoMudar({ buttons })} />
     </section>
   );
 }
@@ -743,26 +743,26 @@ function CartaoDeTexto({
  * `saveMessageTemplate`, sem componente próprio); aqui é o mínimo para
  * `POST /v1/canais/whatsapp/:id/modelos` aceitar o "Enviar para avaliação".
  */
-function ExemplosDeVariavel({
-  traducao,
+function VariableExemplos({
+  translation,
   aoMudar,
 }: {
-  traducao: TraducaoEmEdicao;
-  aoMudar: (mudanca: Partial<TraducaoEmEdicao>) => void;
+  translation: TranslationInEdit;
+  aoMudar: (mudanca: Partial<TranslationInEdit>) => void;
 }) {
-  const variaveis = variaveisDoTexto(traducao.rascunho);
-  if (variaveis.length === 0) return null;
+  const variables = textVariables(translation.rascunho);
+  if (variables.length === 0) return null;
   return (
     <div className="ct-exemplos">
       <span className="ct-campo-rotulo">Um exemplo por variável, para a Meta aprovar</span>
-      {variaveis.map((v) => (
+      {variables.map((v) => (
         <label className="ct-campo" key={v}>
           <span className="ct-campo-rotulo">{`Exemplo de {{${v}}}`}</span>
           <input
             type="text"
-            value={traducao.exemplos[v] ?? ''}
+            value={translation.exemplos[v] ?? ''}
             onChange={(evento) =>
-              aoMudar({ exemplos: { ...traducao.exemplos, [v]: evento.target.value } })
+              aoMudar({ exemplos: { ...translation.exemplos, [v]: evento.target.value } })
             }
           />
         </label>
@@ -779,15 +779,15 @@ function ExemplosDeVariavel({
  * ponytail: os botões de ação (telefone, link, dados do contato) ficam só na
  * escolha; o Pipe ainda não modela botões no `template_mensagem`.
  */
-function BotoesDoModelo({
-  botoes,
+function TemplateButtons({
+  buttons,
   aoMudar,
 }: {
-  botoes: string[];
-  aoMudar: (botoes: string[]) => void;
+  buttons: string[];
+  aoMudar: (buttons: string[]) => void;
 }) {
   const [modo, setModo] = useState<'default' | 'quick_reply' | 'call_to_action'>(
-    botoes.length ? 'quick_reply' : 'default',
+    buttons.length ? 'quick_reply' : 'default',
   );
   if (modo === 'default') {
     return (
@@ -804,7 +804,7 @@ function BotoesDoModelo({
           className="ct-menu-botoes-item ct-menu-item--meio"
           onClick={() => {
             setModo('quick_reply');
-            aoMudar(botoes.length ? botoes : ['']);
+            aoMudar(buttons.length ? buttons : ['']);
           }}
         >
           <span>Respostas rápidas</span>
@@ -817,11 +817,11 @@ function BotoesDoModelo({
       <div className="ct-botoes-edicao">
         <label className="ct-campo ct-campo--cheio">
           <span className="ct-campo-rotulo">Tipo</span>
-          <Selecao defaultValue="url" aria-label="Tipo">
+          <Selection defaultValue="url" aria-label="Tipo">
             <option value="url">Link do website</option>
             <option value="phone_number">Número de telefone</option>
             <option value="request_contact_info">Solicitar informação de contato</option>
-          </Selecao>
+          </Selection>
         </label>
         <input className="ct-cartao-entrada" placeholder="Texto do botão" />
         <input className="ct-cartao-entrada" placeholder="https://exemplo.com" />
@@ -830,7 +830,7 @@ function BotoesDoModelo({
   }
   return (
     <div className="ct-botoes-edicao">
-      {botoes.map((botao, i) => (
+      {buttons.map((botao, i) => (
         <div className="ct-botoes-linha" key={i}>
           <input
             className={
@@ -841,18 +841,18 @@ function BotoesDoModelo({
             placeholder="Texto do botão"
             value={botao}
             onChange={(evento) =>
-              aoMudar(botoes.map((b, j) => (j === i ? evento.target.value : b)))
+              aoMudar(buttons.map((b, j) => (j === i ? evento.target.value : b)))
             }
           />
           {botao.length > 20 ? <span className="ct-erro">Máximo de 20 caracteres</span> : null}
         </div>
       ))}
-      {botoes.length < 3 ? (
+      {buttons.length < 3 ? (
         <button
           type="button"
           className="ct-botao-tracejado"
-          disabled={botoes.some((b) => !b.trim())}
-          onClick={() => aoMudar([...botoes, ''])}
+          disabled={buttons.some((b) => !b.trim())}
+          onClick={() => aoMudar([...buttons, ''])}
         >
           <IconePortal nome="mais" tamanho={20} />
           <span>Adicionar outro botão</span>
@@ -869,22 +869,22 @@ function BotoesDoModelo({
  * compatibilidade), o texto e o rodapé (`attachment.footer`, 60 caracteres).
  * `is-translation`: a tradução herda o anexo e não muda o link.
  */
-function CartaoDeAnexo({
+function AttachmentCard({
   tipo,
-  traducao,
-  somenteTraducao,
+  translation,
+  somenteTranslation,
   aoMudar,
 }: {
   tipo: 'imagem' | 'documento' | 'video';
-  traducao: TraducaoEmEdicao;
-  somenteTraducao: boolean;
-  aoMudar: (mudanca: Partial<TraducaoEmEdicao>) => void;
+  translation: TranslationInEdit;
+  somenteTranslation: boolean;
+  aoMudar: (mudanca: Partial<TranslationInEdit>) => void;
 }) {
-  if (!traducao.editando) {
+  if (!translation.editando) {
     return (
       <section
         className="ct-cartao ct-cartao--anexo ct-cartao--anexo-inativo"
-        onClick={() => aoMudar({ editando: true, rascunho: traducao.texto })}
+        onClick={() => aoMudar({ editando: true, rascunho: translation.texto })}
         role="button"
         tabIndex={0}
       >
@@ -893,10 +893,10 @@ function CartaoDeAnexo({
             <IconePortal nome={BLOCOS[tipo].icone} tamanho={40} className={BLOCOS[tipo].classe} />
           </div>
           <div className="ct-anexo-titulo">
-            {traducao.texto ? (
+            {translation.texto ? (
               <>
-                <p className="ct-cartao-texto">{traducao.texto}</p>
-                <p className="ct-cartao-rodape">{traducao.rodape}</p>
+                <p className="ct-cartao-texto">{translation.texto}</p>
+                <p className="ct-cartao-rodape">{translation.rodape}</p>
               </>
             ) : (
               <span>
@@ -923,24 +923,24 @@ function CartaoDeAnexo({
           type="button"
           className="ct-cartao-botao ct-cartao-confirmar"
           aria-label="Confirmar"
-          onClick={() => aoMudar({ editando: false, texto: traducao.rascunho.trim() })}
+          onClick={() => aoMudar({ editando: false, texto: translation.rascunho.trim() })}
         >
           <IconePortal nome="cheque" tamanho={16} />
         </button>
       </div>
       <input
         className="ct-cartao-entrada"
-        placeholder={ANEXO[tipo].link}
-        value={traducao.link}
-        disabled={somenteTraducao}
+        placeholder={ATTACHMENT[tipo].link}
+        value={translation.link}
+        disabled={somenteTranslation}
         onChange={(evento) => aoMudar({ link: evento.target.value })}
       />
-      <span className="ct-compat">{ANEXO[tipo].compat}</span>
+      <span className="ct-compat">{ATTACHMENT[tipo].compat}</span>
       <textarea
         className="ct-cartao-area"
         rows={3}
         maxLength={1024}
-        value={traducao.rascunho}
+        value={translation.rascunho}
         onChange={(evento) => aoMudar({ rascunho: evento.target.value })}
       />
       <div className="ct-cartao-formatacao ct-mb3">
@@ -949,7 +949,7 @@ function CartaoDeAnexo({
           className="ct-cartao-variavel"
           onClick={() =>
             aoMudar({
-              rascunho: `${traducao.rascunho}{{${(traducao.rascunho.match(/\{\{\d+\}\}/g)?.length ?? 0) + 1}}}`,
+              rascunho: `${translation.rascunho}{{${(translation.rascunho.match(/\{\{\d+\}\}/g)?.length ?? 0) + 1}}}`,
             })
           }
         >
@@ -961,10 +961,10 @@ function CartaoDeAnexo({
         className="ct-cartao-entrada"
         placeholder="Rodapé"
         maxLength={60}
-        value={traducao.rodape}
+        value={translation.rodape}
         onChange={(evento) => aoMudar({ rodape: evento.target.value })}
       />
-      <BotoesDoModelo botoes={traducao.botoes} aoMudar={(botoes) => aoMudar({ botoes })} />
+      <TemplateButtons buttons={translation.buttons} aoMudar={(buttons) => aoMudar({ buttons })} />
     </section>
   );
 }

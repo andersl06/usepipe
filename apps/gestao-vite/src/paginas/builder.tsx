@@ -1,22 +1,22 @@
 import { useState, type ReactNode } from 'react';
-import type { BuilderDoFluxo, ErroDoBloco } from '@pipe/contracts';
+import type { BuilderOfFlow, BlockError } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
-import { IconeGestao } from '../componentes/icones-gestao';
+import { IconeManagement } from '../componentes/icones-gestao';
 import { IconePortal } from '../componentes/icones-portal';
 import { useEu } from '../contexto/sessao';
-import { ErroDaApi } from '../lib/api';
-import { useLeitura } from '../lib/consulta';
+import { ApiError } from '../lib/api';
+import { useRead } from '../lib/consulta';
 import { Modal } from './cadastros/_modal';
-import { BarrasDoContato, useContato } from './fluxo/contato';
-import { publicarFluxo } from './builder-gravar';
+import { ContactBarras, useContact } from './fluxo/contato';
+import { publishFlow } from './builder-gravar';
 import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/estado';
-import { PainelDeConfiguracao } from './builder/painel-configuracao';
-import { PainelDeFilas } from './builder/painel-filas';
-import { PainelDeVariaveis } from './builder/painel-variaveis';
+import { ConfigurationPanel } from './builder/painel-configuracao';
+import { QueuesPanel } from './builder/painel-filas';
+import { VariablesPanel } from './builder/painel-variaveis';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { useEditorDoBuilder } from './builder/use-editor';
-import { errosLocais, juntarErros } from './builder/validacao';
+import { errorsLocal, juntarErrors } from './builder/validacao';
 import './builder.css';
 
 /**
@@ -98,21 +98,21 @@ const ROTULO_DA_ORIGEM = {
   padrao: 'Fluxo padrão',
 } as const;
 
-export function PaginaBuilder() {
-  const { contato } = useContato();
+export function PageBuilder() {
+  const { contact } = useContact();
   const eu = useEu();
-  const caminho = `/v1/gestao/fluxos/${contato.id}/builder`;
-  const leitura = useLeitura<BuilderDoFluxo>(caminho);
-  const dados = leitura.data ?? null;
+  const caminho = `/v1/gestao/fluxos/${contact.id}/builder`;
+  const read = useRead<BuilderOfFlow>(caminho);
+  const data = read.data ?? null;
 
-  const editor = useEditorDoBuilder(contato.id, dados);
-  const { estado, despachar, gravacao } = editor;
+  const editor = useEditorDoBuilder(contact.id, data);
+  const { state, despachar, recording } = editor;
 
   const [avisoAberto, setAvisoAberto] = useState(true);
-  const [novoBlocoAberto, setNovoBlocoAberto] = useState(false);
-  const [variaveisAberto, setVariaveisAberto] = useState(false);
+  const [novoBlockAberto, setNovoBlockAberto] = useState(false);
+  const [variablesAberto, setVariablesAberto] = useState(false);
   const [configAberto, setConfigAberto] = useState(false);
-  const [filasAberto, setFilasAberto] = useState(false);
+  const [queuesAberto, setQueuesAberto] = useState(false);
   const [pesquisaAberta, setPesquisaAberta] = useState(false);
   const [pesquisa, setPesquisa] = useState('');
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
@@ -120,78 +120,78 @@ export function PaginaBuilder() {
 
   const [publicarAberto, setPublicarAberto] = useState(false);
   const [publicando, setPublicando] = useState(false);
-  const [erroDePublicacao, setErroDePublicacao] = useState<string | null>(null);
+  const [publicationError, publicationSetError] = useState<string | null>(null);
   /** Os erros que o 409 de publicar trouxe — além dos que a gravação já conhece. */
-  const [errosDoMotor, setErrosDoMotor] = useState<ErroDoBloco[]>([]);
+  const [motorErrors, motorSetErrors] = useState<BlockError[]>([]);
 
-  const podePublicar = eu.permissoes.includes('automacao.fluxo.publicar');
+  const podePublicar = eu.permissions.includes('automacao.fluxo.publicar');
 
-  const erros = juntarErros(errosLocais(estado.mapa), editor.errosDaApi, errosDoMotor);
+  const errors = juntarErrors(errorsLocal(state.mapa), editor.apiErrors, motorErrors);
   const tituloDe = (id: string | null): string =>
-    id === null ? 'Fluxo' : (estado.mapa[id]?.$title ?? id);
+    id === null ? 'Fluxo' : (state.mapa[id]?.$title ?? id);
 
   /* A frase da `api` quando ela recusou a leitura: 409 do roteador, 403 sem
      permissão. Não é "não encontrado" — a rota-pai já cuidou do 404. */
-  const recusaDaLeitura =
-    leitura.error instanceof ErroDaApi
-      ? ((leitura.error.corpo as { erro?: { mensagem?: string } } | null)?.erro?.mensagem ??
-        leitura.error.message)
-      : leitura.error?.message;
+  const readRecusa =
+    read.error instanceof ApiError
+      ? ((read.error.corpo as { error?: { message?: string } } | null)?.error?.message ??
+        read.error.message)
+      : read.error?.message;
 
   function abrirPublicar(): void {
-    setErroDePublicacao(null);
+    publicationSetError(null);
     setPublicarAberto(true);
   }
 
   async function publicar(): Promise<void> {
-    if (!dados || publicando) return;
+    if (!data || publicando) return;
     setPublicando(true);
-    setErroDePublicacao(null);
+    publicationSetError(null);
     /* O que se publica é o que está na tela: se ainda não foi gravado (mudança
        recente, ou o fluxo padrão de contato novo), grava primeiro — os dois
        passos que a cópia da Blip dá em sequência ao clicar em publicar. */
-    if (estado.sujo || dados.origem !== 'rascunho') {
+    if (state.sujo || data.origem !== 'rascunho') {
       const gravou = await editor.salvarAgora();
       if (!gravou) {
         setPublicando(false);
-        setErroDePublicacao('Não foi possível salvar o rascunho antes de publicar.');
+        publicationSetError('Não foi possível salvar o rascunho antes de publicar.');
         return;
       }
     }
-    const r = await publicarFluxo(contato.id);
+    const r = await publishFlow(contact.id);
     setPublicando(false);
     if (!r.ok) {
-      setErroDePublicacao(r.erro);
-      setErrosDoMotor(r.erros);
+      publicationSetError(r.error);
+      motorSetErrors(r.errors);
       return;
     }
-    setErrosDoMotor([]);
+    motorSetErrors([]);
     setPublicarAberto(false);
     setRecado({
       tom: 'sucesso',
-      texto: r.valor.arquivada
-        ? `Versão ${r.valor.versao.versao} publicada; a ${r.valor.arquivada.versao} saiu do ar.`
-        : `Versão ${r.valor.versao.versao} publicada.`,
+      texto: r.value.arquivada
+        ? `Versão ${r.value.versao.versao} publicada; a ${r.value.arquivada.versao} saiu do ar.`
+        : `Versão ${r.value.versao.versao} publicada.`,
     });
   }
 
-  const nadaParaPublicar = dados?.origem === 'publicada' && !estado.sujo;
+  const nadaParaPublicar = data?.origem === 'publicada' && !state.sujo;
   /** O tooltip do botão de publicar enquanto ele está desligado. */
   function motivoDoPublicar(): string {
     if (!podePublicar) return 'você não tem a permissão de publicar fluxo';
-    if (nadaParaPublicar) return `nada para publicar: a versão ${dados?.versao?.versao ?? ''} já está no ar`;
-    return recusaDaLeitura ?? 'carregando';
+    if (nadaParaPublicar) return `nada para publicar: a versão ${data?.versao?.versao ?? ''} já está no ar`;
+    return readRecusa ?? 'carregando';
   }
 
   /** O "Salvo" do rodapé, com o que está por trás. */
-  function statusDaGravacao(): { icone: 'circuloOk' | 'atualizar' | 'alerta'; texto: string } {
-    switch (gravacao.estado) {
+  function recordingStatus(): { icone: 'circuloOk' | 'atualizar' | 'alerta'; texto: string } {
+    switch (recording.state) {
       case 'salvando':
         return { icone: 'atualizar', texto: 'Salvando…' };
       case 'pendente':
         return { icone: 'atualizar', texto: 'Alterações não salvas' };
       case 'erro':
-        return { icone: 'alerta', texto: gravacao.erro };
+        return { icone: 'alerta', texto: recording.error };
       case 'salvo':
         return { icone: 'circuloOk', texto: 'Salvo' };
     }
@@ -204,12 +204,12 @@ export function PaginaBuilder() {
     else void tela.requestFullscreen?.();
   }
 
-  const status = statusDaGravacao();
-  const blocos = Object.keys(estado.mapa).length;
+  const status = recordingStatus();
+  const blocos = Object.keys(state.mapa).length;
 
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Builder" />
+      <ContactBarras ativo="Builder" />
       <div className="bl-tela">
         {avisoAberto ? (
           <div className="bl-aviso bl-aviso--sistema">
@@ -240,30 +240,30 @@ export function PaginaBuilder() {
           </div>
         ) : null}
 
-        {erros.length > 0 ? (
+        {errors.length > 0 ? (
           <div className="bl-aviso bl-aviso--erro" role="alert">
             <div className="bl-aviso-texto">
               <span>
-                <Icone nome="alerta" tamanho={16} /> O motor recusaria este fluxo — {erros.length}{' '}
-                {erros.length === 1 ? 'erro' : 'erros'} a corrigir antes de publicar:
+                <Icone nome="alerta" tamanho={16} /> O motor recusaria este fluxo — {errors.length}{' '}
+                {errors.length === 1 ? 'erro' : 'erros'} a corrigir antes de publicar:
               </span>
               <ul className="bl-erros">
-                {erros.slice(0, 6).map((e) => (
-                  <li key={`${e.bloco ?? ''}:${e.mensagem}`}>
-                    <b>{tituloDe(e.bloco)}</b>: {e.mensagem}
+                {errors.slice(0, 6).map((e) => (
+                  <li key={`${e.block ?? ''}:${e.mensagem}`}>
+                    <b>{tituloDe(e.block)}</b>: {e.mensagem}
                   </li>
                 ))}
-                {erros.length > 6 ? <li>… e mais {erros.length - 6}.</li> : null}
+                {errors.length > 6 ? <li>… e mais {errors.length - 6}.</li> : null}
               </ul>
             </div>
           </div>
         ) : null}
 
         <div className="bl-corpo">
-          {recusaDaLeitura ? (
+          {readRecusa ? (
             <div className="bl-vazio">
               <Icone nome="alerta" tamanho={40} />
-              <p>{recusaDaLeitura}</p>
+              <p>{readRecusa}</p>
             </div>
           ) : !editor.carregado ? (
             <div className="bl-vazio">
@@ -271,41 +271,41 @@ export function PaginaBuilder() {
             </div>
           ) : (
             <Editor
-              estado={estado}
+              state={state}
               despachar={despachar}
-              errosDaApi={editor.errosDaApi}
-              errosDoMotor={errosDoMotor}
+              apiErrors={editor.apiErrors}
+              motorErrors={motorErrors}
               zoom={zoom}
               onZoom={setZoom}
-              novoBlocoAberto={novoBlocoAberto}
-              onFecharNovoBloco={() => setNovoBlocoAberto(false)}
-              painelExternoAberto={configAberto || filasAberto}
+              novoBlockAberto={novoBlockAberto}
+              onFecharNovoBlock={() => setNovoBlockAberto(false)}
+              panelExternoAberto={configAberto || queuesAberto}
               pesquisa={pesquisa}
             />
           )}
 
-          {variaveisAberto && editor.carregado ? (
-            <PainelDeVariaveis
-              mapa={estado.mapa}
-              globais={estado.globais}
-              onFechar={() => setVariaveisAberto(false)}
+          {variablesAberto && editor.carregado ? (
+            <VariablesPanel
+              mapa={state.mapa}
+              global={state.global}
+              onFechar={() => setVariablesAberto(false)}
               onAviso={(texto) => setRecado({ tom: 'sucesso', texto })}
             />
           ) : null}
 
           {configAberto && editor.carregado ? (
-            <PainelDeConfiguracao
-              nomeDoFluxo={contato.nome}
-              mapa={estado.mapa}
-              globais={estado.globais}
-              onMudarGlobais={(globais) => despachar({ tipo: 'aplicarGlobais', globais })}
-              onImportar={(mapa, globais) => {
+            <ConfigurationPanel
+              flowName={contact.nome}
+              mapa={state.mapa}
+              global={state.global}
+              onMudarGlobal={(global) => despachar({ tipo: 'aplicarGlobais', global })}
+              onImport={(mapa, global) => {
                 // `aplicar`, não `carregar`: precisa marcar sujo pra gravar
                 // sozinho (como qualquer outra mudança) e entrar no
                 // desfazer — `carregar` é só pra sincronizar com o servidor,
                 // e deixaria o fluxo importado só na tela, nunca salvo.
                 despachar({ tipo: 'aplicar', mapa });
-                despachar({ tipo: 'aplicarGlobais', globais });
+                despachar({ tipo: 'aplicarGlobais', global });
                 setConfigAberto(false);
                 setRecado({ tom: 'sucesso', texto: 'Fluxo importado.' });
               }}
@@ -313,11 +313,11 @@ export function PaginaBuilder() {
             />
           ) : null}
 
-          {filasAberto ? (
-            <PainelDeFilas
-              tipoDoContato={contato.tipo}
-              contatoId={contato.id}
-              onFechar={() => setFilasAberto(false)}
+          {queuesAberto ? (
+            <QueuesPanel
+              contactTipo={contact.tipo}
+              contactId={contact.id}
+              onFechar={() => setQueuesAberto(false)}
             />
           ) : null}
 
@@ -332,9 +332,9 @@ export function PaginaBuilder() {
             <BotaoDaBarra
               rotulo="Adicionar bloco"
               desabilitado={!editor.carregado}
-              motivo={recusaDaLeitura ?? 'carregando'}
-              ativo={novoBlocoAberto}
-              onClick={() => setNovoBlocoAberto((v) => !v)}
+              motivo={readRecusa ?? 'carregando'}
+              ativo={novoBlockAberto}
+              onClick={() => setNovoBlockAberto((v) => !v)}
             >
               <Icone nome="mais" tamanho={24} />
             </BotaoDaBarra>
@@ -343,7 +343,7 @@ export function PaginaBuilder() {
             </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Publicar fluxo"
-              desabilitado={!dados || !podePublicar || nadaParaPublicar}
+              desabilitado={!data || !podePublicar || nadaParaPublicar}
               motivo={motivoDoPublicar()}
               onClick={abrirPublicar}
             >
@@ -352,7 +352,7 @@ export function PaginaBuilder() {
             <BotaoDaBarra
               rotulo="Configuração"
               desabilitado={!editor.carregado}
-              motivo={recusaDaLeitura ?? 'carregando'}
+              motivo={readRecusa ?? 'carregando'}
               ativo={configAberto}
               onClick={() => setConfigAberto((v) => !v)}
             >
@@ -361,17 +361,17 @@ export function PaginaBuilder() {
             <BotaoDaBarra
               rotulo="Biblioteca de variáveis"
               desabilitado={!editor.carregado}
-              motivo={recusaDaLeitura ?? 'carregando'}
-              ativo={variaveisAberto}
-              onClick={() => setVariaveisAberto((v) => !v)}
+              motivo={readRecusa ?? 'carregando'}
+              ativo={variablesAberto}
+              onClick={() => setVariablesAberto((v) => !v)}
             >
-              <IconeGestao nome="biblioteca" tamanho={24} />
+              <IconeManagement nome="biblioteca" tamanho={24} />
             </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Pesquisar"
               classe="bl-pesquisar"
               desabilitado={!editor.carregado}
-              motivo={recusaDaLeitura ?? 'carregando'}
+              motivo={readRecusa ?? 'carregando'}
               ativo={pesquisaAberta}
               onClick={() => setPesquisaAberta((aberta) => !aberta)}
             >
@@ -380,9 +380,9 @@ export function PaginaBuilder() {
             <BotaoDaBarra
               rotulo="Gerenciamento de Filas"
               desabilitado={!editor.carregado}
-              motivo={recusaDaLeitura ?? 'carregando'}
-              ativo={filasAberto}
-              onClick={() => setFilasAberto((v) => !v)}
+              motivo={readRecusa ?? 'carregando'}
+              ativo={queuesAberto}
+              onClick={() => setQueuesAberto((v) => !v)}
             >
               <IconePortal nome="suporte" tamanho={24} />
             </BotaoDaBarra>
@@ -407,25 +407,25 @@ export function PaginaBuilder() {
               Tela Cheia) entre margens de 10px; o "100%" e o controle deslizante
               de 100px (20% a 100%). */}
           <div className="bl-rodape">
-            <div className={`bl-status${gravacao.estado === 'erro' ? ' bl-status--erro' : ''}`}>
-              {dados ? (
+            <div className={`bl-status${recording.state === 'erro' ? ' bl-status--erro' : ''}`}>
+              {data ? (
                 <>
-                  <IconeGestao
+                  <IconeManagement
                     nome={status.icone === 'alerta' ? 'informacao' : status.icone}
                     tamanho={24}
-                    className={gravacao.estado === 'salvando' ? 'bl-girando' : undefined}
+                    className={recording.state === 'salvando' ? 'bl-girando' : undefined}
                   />
-                  <span title={`${ROTULO_DA_ORIGEM[dados.origem]}${dados.versao ? ` v${dados.versao.versao}` : ''}${dados.publicada && dados.origem !== 'publicada' ? ` · no ar: v${dados.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>
+                  <span title={`${ROTULO_DA_ORIGEM[data.origem]}${data.versao ? ` v${data.versao.versao}` : ''}${data.publicada && data.origem !== 'publicada' ? ` · no ar: v${data.publicada.versao}` : ''} · ${blocos} ${blocos === 1 ? 'bloco' : 'blocos'}`}>
                     {status.texto}
                   </span>
-                  {gravacao.estado === 'erro' ? (
+                  {recording.state === 'erro' ? (
                     <Botao type="button" onClick={() => void editor.salvarAgora()}>
                       Tentar de novo
                     </Botao>
                   ) : null}
                 </>
               ) : (
-                <span>{recusaDaLeitura ? 'Indisponível' : 'Carregando…'}</span>
+                <span>{readRecusa ? 'Indisponível' : 'Carregando…'}</span>
               )}
             </div>
             {recado ? (
@@ -438,22 +438,22 @@ export function PaginaBuilder() {
               <button
                 type="button"
                 className="bl-icone-botao bl-icone-botao--vivo"
-                disabled={!podeDesfazer(estado)}
+                disabled={!podeDesfazer(state)}
                 title="Desfazer (Ctrl+z)"
                 aria-label="Desfazer (Ctrl+z)"
                 onClick={() => despachar({ tipo: 'desfazer' })}
               >
-                <IconeGestao nome="desfazer" tamanho={24} />
+                <IconeManagement nome="desfazer" tamanho={24} />
               </button>
               <button
                 type="button"
                 className="bl-icone-botao bl-icone-botao--vivo"
-                disabled={!podeRefazer(estado)}
+                disabled={!podeRefazer(state)}
                 title="Refazer (Ctrl+Shift+z)"
                 aria-label="Refazer (Ctrl+Shift+z)"
                 onClick={() => despachar({ tipo: 'refazer' })}
               >
-                <IconeGestao nome="refazer" tamanho={24} />
+                <IconeManagement nome="refazer" tamanho={24} />
               </button>
               <button
                 type="button"
@@ -462,7 +462,7 @@ export function PaginaBuilder() {
                 aria-label="Tela Cheia (Alt+Enter)"
                 onClick={telaCheia}
               >
-                <IconeGestao nome="telaCheia" tamanho={24} />
+                <IconeManagement nome="telaCheia" tamanho={24} />
               </button>
             </div>
 
@@ -499,39 +499,39 @@ export function PaginaBuilder() {
       {/* Publicar: o `bds-modal` de confirmação, com a lista do motor quando
           ele recusa — nunca `window.confirm`. */}
       <Modal aberto={publicarAberto} titulo="Publicar fluxo" onFechar={() => setPublicarAberto(false)}>
-        {dados ? (
+        {data ? (
           <>
             <p className="sub">
-              {dados.origem === 'padrao'
+              {data.origem === 'padrao'
                 ? 'O desenho será salvo como rascunho e publicado como versão 1. '
-                : estado.sujo
+                : state.sujo
                   ? 'O que está na tela é gravado no rascunho e vira a versão publicada. '
-                  : `O rascunho v${dados.versao?.versao ?? ''} vira a versão publicada. `}
-              {dados.publicada
-                ? `A versão ${dados.publicada.versao}, que está no ar, é arquivada — as conversas que já estavam com o robô continuam nela até a próxima mensagem.`
+                  : `O rascunho v${data.versao?.versao ?? ''} vira a versão publicada. `}
+              {data.publicada
+                ? `A versão ${data.publicada.versao}, que está no ar, é arquivada — as conversas que já estavam com o robô continuam nela até a próxima mensagem.`
                 : 'A partir daí, o canal ligado a este fluxo passa a responder com ele.'}
             </p>
-            {erros.length > 0 ? (
+            {errors.length > 0 ? (
               <>
                 <Etiqueta tom="erro">
                   O motor recusaria este fluxo. Corrija antes de publicar:
                 </Etiqueta>
                 <ul className="bl-erros bl-erros--modal">
-                  {erros.map((e) => (
-                    <li key={`${e.bloco ?? ''}:${e.mensagem}`}>
-                      <b>{tituloDe(e.bloco)}</b>: {e.mensagem}
+                  {errors.map((e) => (
+                    <li key={`${e.block ?? ''}:${e.mensagem}`}>
+                      <b>{tituloDe(e.block)}</b>: {e.mensagem}
                     </li>
                   ))}
                 </ul>
               </>
             ) : null}
-            {Object.keys(dados.naoSuportado).length > 0 ? (
+            {Object.keys(data.naoSuportado).length > 0 ? (
               <p className="sub">
                 Ações que o motor do Pipe ainda não executa (a conversa cai na fila quando chegar
-                nelas): {Object.keys(dados.naoSuportado).join(', ')}.
+                nelas): {Object.keys(data.naoSuportado).join(', ')}.
               </p>
             ) : null}
-            {erroDePublicacao ? <Etiqueta tom="erro">{erroDePublicacao}</Etiqueta> : null}
+            {publicationError ? <Etiqueta tom="erro">{publicationError}</Etiqueta> : null}
             <div className="cl-acoes">
               <Botao type="button" onClick={() => setPublicarAberto(false)} disabled={publicando}>
                 Cancelar
@@ -540,7 +540,7 @@ export function PaginaBuilder() {
                 type="button"
                 variante="primario"
                 onClick={() => void publicar()}
-                disabled={publicando || erros.length > 0}
+                disabled={publicando || errors.length > 0}
               >
                 {publicando ? 'Publicando…' : 'Publicar'}
               </Botao>

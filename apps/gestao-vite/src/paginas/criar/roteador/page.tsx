@@ -1,10 +1,10 @@
 import Link from '../../../componentes/link';
-import { IconeGestao } from '../../../componentes/icones-gestao';
+import { IconeManagement } from '../../../componentes/icones-gestao';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { useCascaDoPortal } from '../../../lib/casca';
-import { CascoDeCriacao, PassoDoNome } from '../casco';
-import { criarRoteador } from './acoes';
+import { portalUseShell } from '../../../lib/casca';
+import { CreationCasco, PassoDoNome } from '../casco';
+import { createRouter } from './acoes';
 import { RECADOS, ROTULOS } from './regras';
 import '../criar.css';
 import './criar-roteador.css';
@@ -46,35 +46,35 @@ import './criar-roteador.css';
    `createApplication.router.learnMoreUrl`, um artigo do help deles. */
 const URL_SABER_MAIS = (import.meta.env['VITE_PIPE_AJUDA_ROTEADOR_URL'] as string | undefined) ?? '';
 
-export function PaginaCriarRoteador() {
-  const casca = useCascaDoPortal();
-  const [busca] = useSearchParams();
+export function PageCreateRouter() {
+  const shell = portalUseShell();
+  const [search] = useSearchParams();
   const parametros = {
-    passo: busca.get('passo') ?? undefined,
-    erro: busca.get('erro') ?? undefined,
-    nome: busca.get('nome') ?? undefined,
+    passo: search.get('passo') ?? undefined,
+    erro: search.get('erro') ?? undefined,
+    nome: search.get('nome') ?? undefined,
   };
 
   /* `canCreateChatbot` deles é conferido no `$onInit` do controlador, ANTES de
      desenhar qualquer passo: quem não pode cai em `$state.go(getReturnState())`,
      que é a lista de contatos. Aqui, `/portal`. */
-  if (!casca.podeCriar) return <Navigate to="/portal" replace />;
+  if (!shell.canCreate) return <Navigate to="/portal" replace />;
 
   return (
-    <CascoDeCriacao>
+    <CreationCasco>
       {parametros.passo === 'nome' ? (
         <PassoDoNome
-          acao={criarRoteador}
+          acao={createRouter}
           voltarPara="/criar/roteador"
           rotulos={ROTULOS}
-          tituloDoErro={RECADOS.titulo}
-          erro={parametros.erro}
+          errorTitulo={RECADOS.titulo}
+          error={parametros.erro}
           nome={parametros.nome}
         />
       ) : (
-        <PassoDoConvite />
+        <InvitationPasso />
       )}
-    </CascoDeCriacao>
+    </CreationCasco>
   );
 }
 
@@ -91,7 +91,7 @@ export function PaginaCriarRoteador() {
  * esquerda (40% da largura, no máximo 18.75rem) e o texto à direita (no máximo
  * 27.5rem). O botão fecha a coluna da direita — não é centrado na tela.
  */
-function PassoDoConvite() {
+function InvitationPasso() {
   return (
     <div className="cr-forma">
       {/* `.tagline-title-container`: coluna, vão de 1rem, centrada. O
@@ -121,7 +121,7 @@ function PassoDoConvite() {
               {/* `bds-icon name="external-file"` na origem. `icones-portal.tsx`
                   não tem esse desenho; `externo` do `icones-gestao.tsx` é o
                   mesmo gesto — a folha com a seta que sai. */}
-              <IconeGestao nome="externo" tamanho={16} />
+              <IconeManagement nome="externo" tamanho={16} />
               {ROTULOS.saberMais}
             </a>
           ) : null}

@@ -1,21 +1,21 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Etiqueta, Tabela, type Coluna } from '@pipe/ui';
+import { Etiqueta, Tabela, type Column } from '@pipe/ui';
 import {
   AbasDaFicha,
   Campo,
   Destaque,
-  Secao,
-  SecaoAtributos,
+  Section,
+  SectionAtributos,
 } from '../../../componentes/ficha';
 import { fusoDoTenant } from '../../../lib/banco';
 import {
-  carregarConta,
-  type ContatoDaConta,
-  type FichaConta,
-  type OportunidadeDaConta,
+  loadAccount,
+  type AccountContact,
+  type FichaAccount,
+  type AccountOpportunity,
 } from '../../../lib/contas';
-import { data, desde, dinheiro, documento, numero } from '../../../lib/formato';
+import { data, desde, money, document, numero } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,29 +39,29 @@ const ABAS = [
   { chave: 'contatos', rotulo: 'Contatos' },
 ] as const;
 
-type AbaConta = (typeof ABAS)[number]['chave'];
+type AbaAccount = (typeof ABAS)[number]['chave'];
 
-function abaValida(valor: string | undefined): AbaConta {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'oportunidades') as AbaConta;
+function abaValida(value: string | undefined): AbaAccount {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'oportunidades') as AbaAccount;
 }
 
-const COLUNAS_CONTATO: readonly Coluna<ContatoDaConta>[] = [
+const COLUMNS_CONTACT: readonly Column<AccountContact>[] = [
   {
-    chave: 'nome',
+    key: 'nome',
     rotulo: 'Contato',
     celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,
   },
-  { chave: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
-  { chave: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },
+  { key: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
+  { key: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },
   {
-    chave: 'score',
+    key: 'score',
     rotulo: 'Score',
     numerica: true,
     celula: (c) => (c.score === null ? '—' : numero(c.score)),
   },
-  { chave: 'faixa', rotulo: 'Faixa', celula: (c) => (c.faixa ? <Etiqueta>{c.faixa}</Etiqueta> : '—') },
+  { key: 'faixa', rotulo: 'Faixa', celula: (c) => (c.faixa ? <Etiqueta>{c.faixa}</Etiqueta> : '—') },
   {
-    chave: 'lead',
+    key: 'lead',
     rotulo: 'Lead',
     celula: (c) => (c.leadId ? <Link href={`/leads/${c.leadId}`}>abrir</Link> : '—'),
   },
@@ -72,34 +72,34 @@ const COLUNAS_CONTATO: readonly Coluna<ContatoDaConta>[] = [
  * que responde "já compraram alguma vez". A única cor da tela é o fechamento
  * vencido de uma oportunidade que continua aberta — o resto é categoria.
  */
-function colunasOportunidade(hoje: Date, fuso: string): readonly Coluna<OportunidadeDaConta>[] {
+function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOpportunity>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Oportunidade',
       celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,
     },
-    { chave: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
-    { chave: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => dinheiro(o.valor) },
+    { key: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
+    { key: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => money(o.value) },
     {
-      chave: 'probabilidade',
+      key: 'probabilidade',
       rotulo: 'Probabilidade',
       numerica: true,
-      celula: (o) => (o.probabilidade === null ? '—' : `${o.probabilidade}%`),
+      celula: (o) => (o.probability === null ? '—' : `${o.probability}%`),
     },
-    { chave: 'dono', rotulo: 'Proprietário', celula: (o) => o.proprietario ?? '—' },
+    { key: 'dono', rotulo: 'Proprietário', celula: (o) => o.proprietario ?? '—' },
     {
-      chave: 'situacao',
+      key: 'situacao',
       rotulo: 'Situação',
       celula: (o) => {
         if (o.fechadaEm) {
           return <Etiqueta>{o.ganha ? 'Ganha' : 'Perdida'} em {data(o.fechadaEm, fuso)}</Etiqueta>;
         }
-        if (o.fechamentoPrevisto && o.fechamentoPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>;
+        if (o.closingPrevisto && o.closingPrevisto < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
-        return o.fechamentoPrevisto ? (
-          <Etiqueta>fecha em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>
+        return o.closingPrevisto ? (
+          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -108,8 +108,8 @@ function colunasOportunidade(hoje: Date, fuso: string): readonly Coluna<Oportuni
   ];
 }
 
-function DestaqueDaConta({ ficha, fuso }: { ficha: FichaConta; fuso: string }) {
-  const abertas = ficha.oportunidades.filter((o) => o.fechadaEm === null).length;
+function AccountDestaque({ ficha, fuso }: { ficha: FichaAccount; fuso: string }) {
+  const abertas = ficha.opportunities.filter((o) => o.fechadaEm === null).length;
 
   return (
     <Destaque
@@ -118,24 +118,24 @@ function DestaqueDaConta({ ficha, fuso }: { ficha: FichaConta; fuso: string }) {
       nota={ficha.criadoEm ? `aberta ${desde(ficha.criadoEm, fuso)}` : undefined}
       // Domínio é categoria, e categoria é neutra. A conta não tem estado
       // terminal nem prazo, então nenhuma etiqueta dela recebe cor.
-      etiquetas={ficha.dominio ? <Etiqueta>{ficha.dominio}</Etiqueta> : null}
-      principais={[
-        { rotulo: 'Proprietário', valor: ficha.proprietario ?? 'sem proprietário' },
-        { rotulo: 'Contatos', numerico: true, valor: numero(ficha.contatos.length) },
+      etiquetas={ficha.domain ? <Etiqueta>{ficha.domain}</Etiqueta> : null}
+      main={[
+        { rotulo: 'Proprietário', value: ficha.proprietario ?? 'sem proprietário' },
+        { rotulo: 'Contatos', numerico: true, value: numero(ficha.contacts.length) },
         {
           rotulo: 'Oportunidades',
           numerico: true,
-          valor: numero(abertas),
-          nota: abertas === ficha.oportunidades.length ? null : `de ${ficha.oportunidades.length}`,
+          value: numero(abertas),
+          nota: abertas === ficha.opportunities.length ? null : `de ${ficha.opportunities.length}`,
         },
-        { rotulo: 'Em negociação', numerico: true, valor: dinheiro(ficha.valorAberto) },
-        { rotulo: 'Já fechado', numerico: true, valor: dinheiro(ficha.valorGanho) },
+        { rotulo: 'Em negociação', numerico: true, value: money(ficha.valueAberto) },
+        { rotulo: 'Já fechado', numerico: true, value: money(ficha.valueGanho) },
       ]}
     />
   );
 }
 
-export default async function PaginaConta({
+export default async function PageAccount({
   params,
   searchParams,
 }: {
@@ -146,7 +146,7 @@ export default async function PaginaConta({
   const { aba: abaCrua } = await searchParams;
   const aba = abaValida(abaCrua);
 
-  const ficha = await carregarConta(id);
+  const ficha = await loadAccount(id);
   if (!ficha) notFound();
 
   const fuso = await fusoDoTenant();
@@ -154,19 +154,19 @@ export default async function PaginaConta({
 
   return (
     <>
-      <DestaqueDaConta ficha={ficha} fuso={fuso} />
+      <AccountDestaque ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
         <aside className="coluna">
           <div className="tblwrap">
-            <Secao titulo="Dados">
+            <Section titulo="Dados">
               <div className="campos">
-                <Campo k="Documento" v={documento(ficha.documento)} />
-                <Campo k="Domínio" v={ficha.dominio ?? '—'} />
+                <Campo k="Documento" v={document(ficha.document)} />
+                <Campo k="Domínio" v={ficha.domain ?? '—'} />
                 <Campo k="Proprietário" v={ficha.proprietario ?? 'sem proprietário'} />
                 <Campo k="Aberta em" v={data(ficha.criadoEm, fuso)} />
               </div>
-            </Secao>
+            </Section>
           </div>
 
           {/*
@@ -175,12 +175,12 @@ export default async function PaginaConta({
             quem assina do outro lado não pode exigir uma troca de aba.
           */}
           <div className="tblwrap">
-            <Secao titulo="Quem falar" aberta={ficha.contatos.length > 0}>
-              {ficha.contatos.length === 0 ? (
+            <Section titulo="Quem falar" aberta={ficha.contacts.length > 0}>
+              {ficha.contacts.length === 0 ? (
                 <div className="vazio">Nenhum contato ligado a esta conta.</div>
               ) : (
                 <div className="campos">
-                  {ficha.contatos.map((c) => (
+                  {ficha.contacts.map((c) => (
                     <Campo
                       key={c.id}
                       k={c.faixa ?? 'contato'}
@@ -189,11 +189,11 @@ export default async function PaginaConta({
                   ))}
                 </div>
               )}
-            </Secao>
+            </Section>
           </div>
 
           <div className="tblwrap">
-            <SecaoAtributos atributos={ficha.atributos} />
+            <SectionAtributos atributos={ficha.atributos} />
           </div>
         </aside>
 
@@ -203,8 +203,8 @@ export default async function PaginaConta({
               base={`/contas/${ficha.id}`}
               aba={aba}
               abas={[
-                { ...ABAS[0], contagem: ficha.oportunidades.length },
-                { ...ABAS[1], contagem: ficha.contatos.length },
+                { ...ABAS[0], count: ficha.opportunities.length },
+                { ...ABAS[1], count: ficha.contacts.length },
               ]}
               formatar={numero}
             />
@@ -212,10 +212,10 @@ export default async function PaginaConta({
             {aba === 'oportunidades' ? (
               <>
                 <Tabela
-                  colunas={colunasOportunidade(hoje, fuso)}
-                  linhas={ficha.oportunidades}
-                  chaveDaLinha={(o) => o.id}
-                  vazio="Nenhuma oportunidade nesta conta."
+                  colunas={columnsOpportunity(hoje, fuso)}
+                  linhas={ficha.opportunities}
+                  linhaKey={(o) => o.id}
+                  empty="Nenhuma oportunidade nesta conta."
                 />
                 <div className="mensagem">
                   A oportunidade fechada continua na lista: é ela que responde se esta conta já
@@ -226,10 +226,10 @@ export default async function PaginaConta({
 
             {aba === 'contatos' ? (
               <Tabela
-                colunas={COLUNAS_CONTATO}
-                linhas={ficha.contatos}
-                chaveDaLinha={(c) => c.id}
-                vazio="Nenhum contato ligado a esta conta."
+                colunas={COLUMNS_CONTACT}
+                linhas={ficha.contacts}
+                linhaKey={(c) => c.id}
+                empty="Nenhum contato ligado a esta conta."
               />
             ) : null}
           </div>

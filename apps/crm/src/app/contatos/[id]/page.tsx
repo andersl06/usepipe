@@ -5,13 +5,13 @@ import {
   AbasDaFicha,
   Campo,
   Destaque,
-  Secao,
-  SecaoAtributos,
+  Section,
+  SectionAtributos,
 } from '../../../componentes/ficha';
 import { fusoDoTenant } from '../../../lib/banco';
-import { carregarContato, type FichaContato } from '../../../lib/contatos';
+import { loadContact, type FichaContact } from '../../../lib/contatos';
 import { ROTULO_STATUS } from '../../../lib/leads';
-import { data, dataHora, desde, documento, numero } from '../../../lib/formato';
+import { data, dataHora, desde, document, numero } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +25,7 @@ export const dynamic = 'force-dynamic';
  * com ela — conversa de um lado, intenção de compra do outro.
  */
 
-const ROTULO_ESTADO: Record<string, string> = {
+const ROTULO_STATE: Record<string, string> = {
   na_fila: 'Na fila',
   atribuida: 'Atribuída',
   em_atendimento: 'Em atendimento',
@@ -38,13 +38,13 @@ const ABAS = [
   { chave: 'lead', rotulo: 'Lead' },
 ] as const;
 
-type AbaContato = (typeof ABAS)[number]['chave'];
+type AbaContact = (typeof ABAS)[number]['chave'];
 
-function abaValida(valor: string | undefined): AbaContato {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'conversas') as AbaContato;
+function abaValida(value: string | undefined): AbaContact {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'conversas') as AbaContact;
 }
 
-function DestaqueDoContato({ ficha, fuso }: { ficha: FichaContato; fuso: string }) {
+function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string }) {
   const desqualificado = ficha.leadStatus === 'desqualificado';
 
   return (
@@ -61,11 +61,11 @@ function DestaqueDoContato({ ficha, fuso }: { ficha: FichaContato; fuso: string 
           <Etiqueta>{ROTULO_STATUS[ficha.leadStatus ?? ''] ?? ficha.leadStatus}</Etiqueta>
         )
       }
-      principais={[
+      main={[
         {
           rotulo: 'Conta',
-          valor: ficha.contaId ? (
-            <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+          value: ficha.accountId ? (
+            <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
           ) : (
             'sem conta'
           ),
@@ -73,18 +73,18 @@ function DestaqueDoContato({ ficha, fuso }: { ficha: FichaContato; fuso: string 
         {
           rotulo: 'Score',
           numerico: true,
-          valor: ficha.score === null ? '—' : numero(ficha.score),
+          value: ficha.score === null ? '—' : numero(ficha.score),
           nota: ficha.faixa,
         },
-        { rotulo: 'Fase', valor: ficha.leadFase ?? (ficha.leadId ? '—' : 'ainda não é lead') },
-        { rotulo: 'Origem', valor: ficha.origem ?? '—' },
-        { rotulo: 'Conversas', numerico: true, valor: numero(ficha.conversas.length) },
+        { rotulo: 'Fase', value: ficha.leadFase ?? (ficha.leadId ? '—' : 'ainda não é lead') },
+        { rotulo: 'Origem', value: ficha.origem ?? '—' },
+        { rotulo: 'Conversas', numerico: true, value: numero(ficha.conversations.length) },
       ]}
     />
   );
 }
 
-export default async function PaginaContato({
+export default async function PageContact({
   params,
   searchParams,
 }: {
@@ -95,7 +95,7 @@ export default async function PaginaContato({
   const { aba: abaCrua } = await searchParams;
   const aba = abaValida(abaCrua);
 
-  const ficha = await carregarContato(id);
+  const ficha = await loadContact(id);
   if (!ficha) notFound();
 
   const fuso = await fusoDoTenant();
@@ -103,21 +103,21 @@ export default async function PaginaContato({
 
   return (
     <>
-      <DestaqueDoContato ficha={ficha} fuso={fuso} />
+      <ContactDestaque ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
         <aside className="coluna">
           <div className="tblwrap">
-            <Secao titulo="Dados">
+            <Section titulo="Dados">
               <div className="campos">
                 <Campo k="E-mail" v={ficha.email ?? '—'} />
                 <Campo k="Telefone" v={ficha.telefone ?? '—'} />
-                <Campo k="Documento" v={documento(ficha.documento)} />
+                <Campo k="Documento" v={document(ficha.document)} />
                 <Campo
                   k="Conta"
                   v={
-                    ficha.contaId ? (
-                      <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+                    ficha.accountId ? (
+                      <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
                     ) : (
                       '—'
                     )
@@ -125,11 +125,11 @@ export default async function PaginaContato({
                 />
                 <Campo k="Criado em" v={data(ficha.criadoEm, fuso)} />
               </div>
-            </Secao>
+            </Section>
           </div>
 
           <div className="tblwrap">
-            <SecaoAtributos atributos={ficha.atributos} />
+            <SectionAtributos atributos={ficha.atributos} />
           </div>
         </aside>
 
@@ -139,8 +139,8 @@ export default async function PaginaContato({
               base={`/contatos/${ficha.id}`}
               aba={aba}
               abas={[
-                { ...ABAS[0], contagem: ficha.conversas.length },
-                { ...ABAS[1], contagem: ficha.leadId ? 1 : 0 },
+                { ...ABAS[0], count: ficha.conversations.length },
+                { ...ABAS[1], count: ficha.leadId ? 1 : 0 },
               ]}
               formatar={numero}
             />
@@ -150,21 +150,21 @@ export default async function PaginaContato({
               a pessoa vê o que já foi atendido sem precisar do Desk.
             */}
             {aba === 'conversas' ? (
-              ficha.conversas.length === 0 ? (
+              ficha.conversations.length === 0 ? (
                 <div className="vazio">Esta pessoa nunca conversou com o atendimento.</div>
               ) : (
                 <ul className="tempo">
-                  {ficha.conversas.map((c) => (
+                  {ficha.conversations.map((c) => (
                     <li key={c.id}>
                       <span className="quando">{dataHora(c.criadaEm, fuso)}</span>
                       <span>
                         <span className="t">
-                          {c.categoria ?? ROTULO_ESTADO[c.estado] ?? c.estado}
+                          {c.categoria ?? ROTULO_STATE[c.state] ?? c.state}
                         </span>
-                        {c.fila ? <span className="quem"> · {c.fila}</span> : null}
-                        {c.atendente ? <span className="quem"> · {c.atendente}</span> : null}
+                        {c.queue ? <span className="quem"> · {c.queue}</span> : null}
+                        {c.agent ? <span className="quem"> · {c.agent}</span> : null}
                         {c.encerradaEm ? null : (
-                          <span className="quem"> · {ROTULO_ESTADO[c.estado] ?? c.estado}</span>
+                          <span className="quem"> · {ROTULO_STATE[c.state] ?? c.state}</span>
                         )}
                       </span>
                       {c.resumo ? <div className="resumo">{c.resumo}</div> : null}

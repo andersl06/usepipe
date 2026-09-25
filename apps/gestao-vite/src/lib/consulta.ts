@@ -8,14 +8,14 @@ import { api } from './api';
  * trás de um nome só. A chave é o caminho: duas telas que pedem a mesma coisa
  * dividem o cache, e invalidar é invalidar o caminho.
  */
-export function useLeitura<T>(
+export function useRead<T>(
   caminho: string | null,
-  opcoes: Omit<UseQueryOptions<T, Error>, 'queryKey' | 'queryFn'> = {},
+  options: Omit<UseQueryOptions<T, Error>, 'queryKey' | 'queryFn'> = {},
 ) {
   return useQuery<T, Error>({
     queryKey: ['api', caminho],
     queryFn: () => api.get<T>(caminho as string),
-    enabled: caminho !== null && (opcoes.enabled ?? true),
-    ...opcoes,
+    enabled: caminho !== null && (options.enabled ?? true),
+    ...options,
   });
 }

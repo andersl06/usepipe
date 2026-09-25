@@ -2,23 +2,23 @@ import { useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { Etiqueta, Icone } from '@pipe/ui';
 import { IconePortal } from '../../componentes/icones-portal';
-import { ModalConfirmacao } from '../cadastros/_modal';
+import { ModalConfirmation } from '../cadastros/_modal';
 import type { AcaoDoEditor, Mapa } from './modelo';
-import { CATALOGO_DE_ACOES, ROTULOS_DAS_ACOES, novaAcao } from './acoes-do-bloco';
-import type { ListaDeAcoes } from './acoes-do-bloco';
+import { CATALOGO_OF_ACTIONS, ROTULOS_OF_ACTIONS, novaAcao } from './acoes-do-bloco';
+import type { ActionsLista } from './acoes-do-bloco';
 import {
   adicionarAcaoGlobal,
-  listaDeAcoesGlobais,
+  actionsGlobalLista,
   moverAcaoGlobal,
   removerAcaoGlobal,
   substituirAcaoGlobal,
 } from './acoes-globais';
-import { CartaoDeAcao } from './painel-acoes';
+import { ActionCard } from './painel-acoes';
 import {
-  MENSAGENS_DE_IMPORTACAO,
-  nomeDoArquivoDeExportacao,
-  textoDeExportacao,
-  validarImportacao,
+  MESSAGES_OF_IMPORT,
+  nameOfFileOfExport,
+  exportText,
+  validateImport,
 } from './importar-exportar';
 
 /**
@@ -40,25 +40,25 @@ import {
 
 type Aba = 'acoes' | 'versoes';
 
-export function PainelDeConfiguracao({
-  nomeDoFluxo,
+export function ConfigurationPanel({
+  flowName,
   mapa,
-  globais,
-  onMudarGlobais,
-  onImportar,
+  global,
+  onMudarGlobal,
+  onImport,
   onFechar,
 }: {
-  nomeDoFluxo: string;
+  flowName: string;
   mapa: Mapa;
-  globais: Record<string, unknown>;
-  onMudarGlobais: (globais: Record<string, unknown>) => void;
-  onImportar: (mapa: Mapa, globais: Record<string, unknown>) => void;
+  global: Record<string, unknown>;
+  onMudarGlobal: (global: Record<string, unknown>) => void;
+  onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
   onFechar: () => void;
 }) {
   const [aba, setAba] = useState<Aba>('acoes');
-  const abas: { chave: Aba; rotulo: string }[] = [
-    { chave: 'acoes', rotulo: 'Ações Globais' },
-    { chave: 'versoes', rotulo: 'Versões' },
+  const abas: { key: Aba; rotulo: string }[] = [
+    { key: 'acoes', rotulo: 'Ações Globais' },
+    { key: 'versoes', rotulo: 'Versões' },
   ];
   return (
     <aside className="bl-painel bl-painel--configuracao" aria-label="Configuração">
@@ -72,104 +72,104 @@ export function PainelDeConfiguracao({
       <div className="bl-abas" role="tablist">
         {abas.map((a) => (
           <button
-            key={a.chave}
+            key={a.key}
             type="button"
             role="tab"
-            aria-selected={aba === a.chave}
-            className={aba === a.chave ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
-            onClick={() => setAba(a.chave)}
+            aria-selected={aba === a.key}
+            className={aba === a.key ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
+            onClick={() => setAba(a.key)}
           >
             {a.rotulo}
           </button>
         ))}
       </div>
       <div className="bl-painel-corpo">
-        {aba === 'acoes' ? <AbaDeAcoesGlobais globais={globais} onMudar={onMudarGlobais} /> : null}
+        {aba === 'acoes' ? <ActionsGlobalAba global={global} onMudar={onMudarGlobal} /> : null}
         {aba === 'versoes' ? (
-          <AbaDeVersoes nomeDoFluxo={nomeDoFluxo} mapa={mapa} globais={globais} onImportar={onImportar} />
+          <VersionsAba flowName={flowName} mapa={mapa} global={global} onImport={onImport} />
         ) : null}
       </div>
     </aside>
   );
 }
 
-function AbaDeAcoesGlobais({
-  globais,
+function ActionsGlobalAba({
+  global,
   onMudar,
 }: {
-  globais: Record<string, unknown>;
-  onMudar: (globais: Record<string, unknown>) => void;
+  global: Record<string, unknown>;
+  onMudar: (global: Record<string, unknown>) => void;
 }) {
   return (
     <div className="bl-aba-corpo">
-      <ListaDeAcoesGlobais
+      <ActionsGlobalLista
         lista="$enteringCustomActions"
-        titulo={ROTULOS_DAS_ACOES.entrada}
-        descricao={ROTULOS_DAS_ACOES.entradaDescricao}
-        rotuloAdicionar={ROTULOS_DAS_ACOES.adicionarEntrada}
-        globais={globais}
+        titulo={ROTULOS_OF_ACTIONS.entrada}
+        description={ROTULOS_OF_ACTIONS.entradaDescricao}
+        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarEntrada}
+        global={global}
         onMudar={onMudar}
       />
-      <ListaDeAcoesGlobais
+      <ActionsGlobalLista
         lista="$leavingCustomActions"
-        titulo={ROTULOS_DAS_ACOES.saida}
-        descricao={ROTULOS_DAS_ACOES.saidaDescricao}
-        rotuloAdicionar={ROTULOS_DAS_ACOES.adicionarSaida}
-        globais={globais}
+        titulo={ROTULOS_OF_ACTIONS.saida}
+        description={ROTULOS_OF_ACTIONS.saidaDescricao}
+        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarSaida}
+        global={global}
         onMudar={onMudar}
       />
     </div>
   );
 }
 
-function ListaDeAcoesGlobais({
+function ActionsGlobalLista({
   lista,
   titulo,
-  descricao,
+  description,
   rotuloAdicionar,
-  globais,
+  global,
   onMudar,
 }: {
-  lista: ListaDeAcoes;
+  lista: ActionsLista;
   titulo: string;
-  descricao: string;
+  description: string;
   rotuloAdicionar: string;
-  globais: Record<string, unknown>;
-  onMudar: (globais: Record<string, unknown>) => void;
+  global: Record<string, unknown>;
+  onMudar: (global: Record<string, unknown>) => void;
 }) {
-  const acoes = listaDeAcoesGlobais(globais, lista);
+  const actions = actionsGlobalLista(global, lista);
   const [menuAberto, setMenuAberto] = useState(false);
   const [aberta, setAberta] = useState<number | null>(null);
 
   function adicionar(tipo: string): void {
-    const r = adicionarAcaoGlobal(globais, lista, novaAcao(tipo));
+    const r = adicionarAcaoGlobal(global, lista, novaAcao(tipo));
     setMenuAberto(false);
     if (!r.ok) return;
-    onMudar(r.globais);
-    setAberta(acoes.length);
+    onMudar(r.global);
+    setAberta(actions.length);
   }
 
-  const grupos = ['Executar', 'Manipular'] as const;
+  const groups = ['Executar', 'Manipular'] as const;
 
   return (
     <section className="bl-secao">
       <h4 className="bl-secao-titulo">{titulo}</h4>
-      <p className="sub">{descricao}</p>
+      <p className="sub">{description}</p>
 
-      {acoes.map((acao: AcaoDoEditor, i) => (
-        <CartaoDeAcao
+      {actions.map((acao: AcaoDoEditor, i) => (
+        <ActionCard
           key={acao.$id ?? i}
           acao={acao}
           aberta={aberta === i}
-          primeira={i === 0}
-          ultima={i === acoes.length - 1}
+          first={i === 0}
+          ultima={i === actions.length - 1}
           onAbrir={() => setAberta(aberta === i ? null : i)}
-          onMudar={(nova) => onMudar(substituirAcaoGlobal(globais, lista, i, nova))}
-          onSubir={() => onMudar(moverAcaoGlobal(globais, lista, i, i - 1))}
-          onDescer={() => onMudar(moverAcaoGlobal(globais, lista, i, i + 1))}
+          onMudar={(nova) => onMudar(substituirAcaoGlobal(global, lista, i, nova))}
+          onStart={() => onMudar(moverAcaoGlobal(global, lista, i, i - 1))}
+          onLower={() => onMudar(moverAcaoGlobal(global, lista, i, i + 1))}
           onRemover={() => {
             setAberta(null);
-            onMudar(removerAcaoGlobal(globais, lista, i));
+            onMudar(removerAcaoGlobal(global, lista, i));
           }}
         />
       ))}
@@ -181,15 +181,15 @@ function ListaDeAcoesGlobais({
         {menuAberto ? (
           <div className="bl-menu-acoes" role="menu">
             <header>
-              <b>{ROTULOS_DAS_ACOES.menu}</b>
+              <b>{ROTULOS_OF_ACTIONS.menu}</b>
               <button type="button" className="iconbtn" aria-label="Fechar" onClick={() => setMenuAberto(false)}>
                 <Icone nome="x" tamanho={16} />
               </button>
             </header>
-            {grupos.map((grupo) => (
+            {groups.map((grupo) => (
               <div key={grupo} className="bl-menu-acoes-grupo">
                 <span className="sub">{grupo}</span>
-                {CATALOGO_DE_ACOES.filter((t) => t.grupo === grupo).map((t) => (
+                {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
                   <button key={t.tipo} type="button" role="menuitem" onClick={() => adicionar(t.tipo)}>
                     {t.rotulo}
                   </button>
@@ -203,47 +203,47 @@ function ListaDeAcoesGlobais({
   );
 }
 
-function AbaDeVersoes({
-  nomeDoFluxo,
+function VersionsAba({
+  flowName,
   mapa,
-  globais,
-  onImportar,
+  global,
+  onImport,
 }: {
-  nomeDoFluxo: string;
+  flowName: string;
   mapa: Mapa;
-  globais: Record<string, unknown>;
-  onImportar: (mapa: Mapa, globais: Record<string, unknown>) => void;
+  global: Record<string, unknown>;
+  onImport: (mapa: Mapa, global: Record<string, unknown>) => void;
 }) {
-  const arquivo = useRef<HTMLInputElement>(null);
-  const [pendente, setPendente] = useState<{ mapa: Mapa; globais: Record<string, unknown> } | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+  const file = useRef<HTMLInputElement>(null);
+  const [pendente, setPendente] = useState<{ mapa: Mapa; global: Record<string, unknown> } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   function exportar(): void {
-    const conteudo = textoDeExportacao(mapa, globais);
+    const conteudo = exportText(mapa, global);
     const blob = new Blob([conteudo], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = nomeDoArquivoDeExportacao(nomeDoFluxo);
+    a.download = nameOfFileOfExport(flowName);
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  function aoEscolherArquivo(e: ChangeEvent<HTMLInputElement>): void {
+  function toEscolherFile(e: ChangeEvent<HTMLInputElement>): void {
     const arq = e.target.files?.[0];
     e.target.value = '';
     if (!arq) return;
-    setErro(null);
+    setError(null);
     const leitor = new FileReader();
     leitor.onload = () => {
-      const r = validarImportacao(String(leitor.result ?? ''));
+      const r = validateImport(String(leitor.result ?? ''));
       if (!r.ok) {
-        setErro(r.erro);
+        setError(r.error);
         return;
       }
-      setPendente({ mapa: r.mapa, globais: r.globais });
+      setPendente({ mapa: r.mapa, global: r.global });
     };
-    leitor.onerror = () => setErro(MENSAGENS_DE_IMPORTACAO.arquivoInvalido);
+    leitor.onerror = () => setError(MESSAGES_OF_IMPORT.arquivoInvalido);
     leitor.readAsText(arq);
   }
 
@@ -251,11 +251,11 @@ function AbaDeVersoes({
     <div className="bl-aba-corpo">
       <ul className="bl-versoes-acoes">
         <li>
-          <button type="button" className="bl-versoes-item" onClick={() => arquivo.current?.click()}>
+          <button type="button" className="bl-versoes-item" onClick={() => file.current?.click()}>
             <IconePortal nome="enviar-arquivo" tamanho={18} />
             <span>Importar fluxo</span>
           </button>
-          <input ref={arquivo} type="file" accept=".json" className="bl-oculto" onChange={aoEscolherArquivo} />
+          <input ref={file} type="file" accept=".json" className="bl-oculto" onChange={toEscolherFile} />
         </li>
         <li>
           <button type="button" className="bl-versoes-item" onClick={exportar}>
@@ -267,15 +267,15 @@ function AbaDeVersoes({
       <p className="bl-ajuda">
         Baixa o fluxo e as ações globais num arquivo .json; importar substitui o rascunho atual.
       </p>
-      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={pendente !== null}
         titulo="Importar fluxo"
-        mensagem={MENSAGENS_DE_IMPORTACAO.disclaimer}
+        message={MESSAGES_OF_IMPORT.disclaimer}
         rotuloConfirmar="Importar"
         onConfirmar={() => {
-          if (pendente) onImportar(pendente.mapa, pendente.globais);
+          if (pendente) onImport(pendente.mapa, pendente.global);
           setPendente(null);
         }}
         onCancelar={() => setPendente(null)}

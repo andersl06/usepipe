@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Avatar, Botao, Campo, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { AtendenteCadastrado, FilaCadastrada } from '../../lib/cadastros';
-import { aplicarNaSelecao } from '../../lib/atendentes-gravar';
-import { tituloDaEdicao } from '../../lib/atendentes';
-import { Selecao } from '../../componentes/selecao';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from '../operacao/casca';
+import { useRead } from '../../lib/consulta';
+import type { AgentRegistered, QueueRegistered } from '../../lib/cadastros';
+import { aplicarInSelection } from '../../lib/atendentes-gravar';
+import { editTitulo } from '../../lib/atendentes';
+import { Selection } from '../../componentes/selecao';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from '../operacao/casca';
 
 /**
  * `/team/create` e `/team/edit` da origem — as DUAS páginas próprias que
@@ -27,11 +27,11 @@ import { baseDoAtendimento } from '../operacao/casca';
  * participação nela (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), não de
  * um cadastro de atendente à parte. "Equipe"/`teamsPlaceholder` ficou fora.
  */
-export function PaginaEdicaoDeAtendente({ modo }: { modo: 'editar' | 'adicionar' }) {
+export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
   const [params] = useSearchParams();
   const navegar = useNavigate();
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
   const ids = (params.get('atendentes') ?? '').split(',').filter(Boolean);
 
   if (modo === 'adicionar') {
@@ -54,21 +54,21 @@ export function PaginaEdicaoDeAtendente({ modo }: { modo: 'editar' | 'adicionar'
     );
   }
 
-  return <EdicaoEmLote ids={ids} base={base} />;
+  return <EditInLote ids={ids} base={base} />;
 }
 
-function EdicaoEmLote({ ids, base }: { ids: readonly string[]; base: string }) {
+function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
   const navegar = useNavigate();
-  const leituraAtendentes = useLeitura<AtendenteCadastrado[]>('/v1/gestao/atendentes/gestao');
-  const leituraFilas = useLeitura<{ filas: FilaCadastrada[] }>('/v1/gestao/atendentes/filas');
+  const readAgents = useRead<AgentRegistered[]>('/v1/gestao/atendentes/gestao');
+  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/gestao/atendentes/filas');
 
-  const [filaId, setFilaId] = useState('');
-  const [capacidade, setCapacidade] = useState('');
+  const [queueId, setQueueId] = useState('');
+  const [capacity, setCapacity] = useState('');
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (!leituraAtendentes.data || !leituraFilas.data) return null;
-  const selecionados = leituraAtendentes.data.filter((a) => ids.includes(a.id));
+  if (!readAgents.data || !readQueues.data) return null;
+  const selecionados = readAgents.data.filter((a) => ids.includes(a.id));
 
   if (selecionados.length === 0) {
     return (
@@ -85,19 +85,19 @@ function EdicaoEmLote({ ids, base }: { ids: readonly string[]; base: string }) {
 
   async function salvar(evento: FormEvent) {
     evento.preventDefault();
-    if (!filaId) return;
+    if (!queueId) return;
     setEnviando(true);
-    setErro(null);
-    const resultado = await aplicarNaSelecao(ids, filaId, capacidade.trim() ? Number(capacidade) : null);
+    setError(null);
+    const resultado = await aplicarInSelection(ids, queueId, capacity.trim() ? Number(capacity) : null);
     setEnviando(false);
     if (resultado.ok) navegar(`${base}/atendentes/gestao`);
-    else setErro(resultado.erro);
+    else setError(resultado.error);
   }
 
   return (
     <>
       <div className="board-head">
-        <h2>{tituloDaEdicao(selecionados.length)}</h2>
+        <h2>{editTitulo(selecionados.length)}</h2>
       </div>
 
       <p className="sub">
@@ -116,14 +116,14 @@ function EdicaoEmLote({ ids, base }: { ids: readonly string[]; base: string }) {
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Fila</span>
-            <Selecao value={filaId} onChange={(e) => setFilaId(e.target.value)} aria-label="Fila" required>
+            <Selection value={queueId} onChange={(e) => setQueueId(e.target.value)} aria-label="Fila" required>
               <option value="">Escolha uma fila</option>
-              {leituraFilas.data.filas.map((f) => (
+              {readQueues.data.queues.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.nome}
                 </option>
               ))}
-            </Selecao>
+            </Selection>
           </label>
 
           <label className="form-campo" style={{ flexBasis: '220px' }}>
@@ -133,20 +133,20 @@ function EdicaoEmLote({ ids, base }: { ids: readonly string[]; base: string }) {
               min={1}
               max={200}
               placeholder="Padrão da fila"
-              value={capacidade}
-              onChange={(e) => setCapacidade(e.target.value)}
+              value={capacity}
+              onChange={(e) => setCapacity(e.target.value)}
               disabled={enviando}
             />
           </label>
         </div>
 
-        {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+        {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
         <div className="cl-acoes">
           <Botao type="button" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={enviando}>
             Cancelar
           </Botao>
-          <Botao type="submit" variante="primario" disabled={enviando || !filaId}>
+          <Botao type="submit" variante="primario" disabled={enviando || !queueId}>
             {enviando ? 'Salvando…' : 'Salvar'}
           </Botao>
         </div>

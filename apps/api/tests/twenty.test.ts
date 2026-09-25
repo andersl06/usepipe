@@ -8,17 +8,17 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, chaveiroDoAmbiente } = await import('@pipe/db');
+const { cifrar, keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente } = await import('@pipe/db');
 const {
-  TwentyErro,
+  TwentyError,
   chamar,
   configDoTenant,
-  espelharContato,
+  espelharContact,
   linkDaPessoa,
   partirNome,
   partirTelefone,
 } = await import('../src/dominio/twenty.js');
-const { sincronizarContato } = await import('../src/dominio/espelho-crm.js');
+const { syncContact } = await import('../src/dominio/espelho-crm.js');
 const { noTenant } = await import('../src/banco.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -90,8 +90,8 @@ describe('classificação de falha do CRM', () => {
     for (const status of [401, 403]) {
       const buscar = (async () => new Response('', { status })) as unknown as typeof fetch;
       const erro = await chamar(CONFIG, '/graphql', '{ ok }', {}, buscar).catch((e: unknown) => e);
-      expect(erro).toBeInstanceOf(TwentyErro);
-      expect((erro as InstanceType<typeof TwentyErro>).permanente).toBe(true);
+      expect(erro).toBeInstanceOf(TwentyError);
+      expect((erro as InstanceType<typeof TwentyError>).permanente).toBe(true);
     }
   });
 
@@ -99,8 +99,8 @@ describe('classificação de falha do CRM', () => {
     const buscar = (async () => {
       throw new Error('ECONNREFUSED');
     }) as unknown as typeof fetch;
-    const erro = await chamar(CONFIG, '/graphql', '{ ok }', {}, buscar).catch((e: unknown) => e);
-    expect((erro as InstanceType<typeof TwentyErro>).permanente).toBe(false);
+    const error = await chamar(CONFIG, '/graphql', '{ ok }', {}, buscar).catch((e: unknown) => e);
+    expect((error as InstanceType<typeof TwentyError>).permanente).toBe(false);
   });
 
   it('nunca deixa a chave de API vazar na mensagem de erro', async () => {
@@ -111,7 +111,7 @@ describe('classificação de falha do CRM', () => {
 });
 
 describe('espelho do contato, e a defesa contra duplicata', () => {
-  const contato = {
+  const contact = {
     id: '11111111-1111-4111-8111-111111111111',
     nome: 'Maria Souza',
     email: 'maria@exemplo.com.br',
@@ -122,11 +122,11 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
 
   it('procura pelo pipeContatoId antes de criar, e adota o órfão que achar', async () => {
     const { buscar, chamadas } = fetchFalso([
-      { data: { people: { edges: [{ node: { id: 'orfao-1', pipeContatoId: contato.id } }] } } },
-      { data: { updatePerson: { id: 'orfao-1', pipeContatoId: contato.id } } },
+      { data: { people: { edges: [{ node: { id: 'orfao-1', pipeContatoId: contact.id } }] } } },
+      { data: { updatePerson: { id: 'orfao-1', pipeContatoId: contact.id } } },
     ]);
 
-    const id = await espelharContato(CONFIG, contato, buscar);
+    const id = await espelharContact(CONFIG, contact, buscar);
 
     expect(id).toBe('orfao-1');
     // Achou pelo pipeContatoId e ATUALIZOU. Se criasse, viraria duplicata.
@@ -136,10 +136,10 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
   it('cria quando não existe espelho nenhum', async () => {
     const { buscar, chamadas } = fetchFalso([
       { data: { people: { edges: [] } } },
-      { data: { createPerson: { id: 'nova-1', pipeContatoId: contato.id } } },
+      { data: { createPerson: { id: 'nova-1', pipeContatoId: contact.id } } },
     ]);
 
-    const id = await espelharContato(CONFIG, contato, buscar);
+    const id = await espelharContact(CONFIG, contact, buscar);
 
     expect(id).toBe('nova-1');
     expect(String(chamadas[1]?.corpo['query'])).toContain('createPerson');
@@ -152,10 +152,10 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
       { data: { createPerson: { id: 'x', pipeContatoId: 'de-outro-cliente' } } },
     ]);
 
-    const erro = await espelharContato(CONFIG, contato, buscar).catch((e: unknown) => e);
+    const erro = await espelharContact(CONFIG, contact, buscar).catch((e: unknown) => e);
 
-    expect(erro).toBeInstanceOf(TwentyErro);
-    expect((erro as InstanceType<typeof TwentyErro>).permanente).toBe(true);
+    expect(erro).toBeInstanceOf(TwentyError);
+    expect((erro as InstanceType<typeof TwentyError>).permanente).toBe(true);
     expect(String((erro as Error).message)).toContain('outro cliente');
   });
 });
@@ -171,9 +171,9 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     await cenario.encerrar();
   });
 
-  async function definir(url: string | null, chave: string | null): Promise<void> {
+  async function definir(url: string | null, key: string | null): Promise<void> {
     await cenario.dono.execute(sql`
-      update tenant set twenty_url = ${url}, twenty_chave = ${chave} where id = ${cenario.tenantId}
+      update tenant set twenty_url = ${url}, twenty_chave = ${key} where id = ${cenario.tenantId}
     `);
   }
 
@@ -194,41 +194,41 @@ describe('configuração do CRM por tenant — falha fechada', () => {
   });
 
   it('decifra a chave, e ela não fica em texto puro no banco', async () => {
-    const cifrada = cifrar('chave-secreta-do-crm', chaveiroDoAmbiente());
+    const cifrada = cifrar('chave-secreta-do-crm', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente());
     await definir('https://crm.cliente.teste/', cifrada);
 
-    const { rows } = await cenario.dono.execute<{ twenty_chave: string }>(
+    const { rows } = await cenario.dono.execute<{ twentyKey: string }>(
       sql`select twenty_chave from tenant where id = ${cenario.tenantId}`,
     );
-    expect(rows[0]?.twenty_chave).not.toContain('chave-secreta-do-crm');
+    expect(rows[0]?.twentyKey).not.toContain('chave-secreta-do-crm');
 
     const config = await noTenant(cenario.tenantId, (tx) =>
       configDoTenant(tx, cenario.tenantId),
     );
-    expect(config?.chave).toBe('chave-secreta-do-crm');
+    expect(config?.key).toBe('chave-secreta-do-crm');
     // Barra final removida: senão o link viraria `…//object/person/…`.
     expect(config?.url).toBe('https://crm.cliente.teste');
   });
 
   it('tenant sem CRM não espelha, e não é erro', async () => {
     await definir(null, null);
-    const contatoId = await semearContato(cenario);
+    const contactId = await seedContact(cenario);
 
-    const r = await sincronizarContato(cenario.tenantId, contatoId, naoChame);
+    const r = await syncContact(cenario.tenantId, contactId, naoChame);
 
-    expect(r.estado).toBe('sem_espelho');
+    expect(r.state).toBe('sem_espelho');
   });
 
   it('grava o id devolvido pelo CRM no contato', async () => {
-    await definir('https://crm.cliente.teste', cifrar('k', chaveiroDoAmbiente()));
-    const contatoId = await semearContato(cenario);
+    await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente()));
+    const contatoId = await seedContact(cenario);
 
     const { buscar } = fetchFalso([
       { data: { people: { edges: [] } } },
       { data: { createPerson: { id: 'pessoa-nova', pipeContatoId: contatoId } } },
     ]);
 
-    const r = await sincronizarContato(cenario.tenantId, contatoId, buscar);
+    const r = await syncContact(cenario.tenantId, contatoId, buscar);
 
     expect(r).toEqual({ estado: 'espelhado', pessoaId: 'pessoa-nova' });
     const { rows } = await cenario.dono.execute<{ twenty_pessoa_id: string | null }>(
@@ -238,13 +238,13 @@ describe('configuração do CRM por tenant — falha fechada', () => {
   });
 
   it('contato de outro tenant não vira escrita no CRM', async () => {
-    await definir('https://crm.cliente.teste', cifrar('k', chaveiroDoAmbiente()));
+    await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente()));
 
     // Um id que não existe neste tenant tem o mesmo destino de um de outro cliente:
     // a RLS não devolve linha, e o espelho não acontece.
-    const r = await sincronizarContato(cenario.tenantId, randomUUID(), naoChame);
+    const r = await syncContact(cenario.tenantId, randomUUID(), naoChame);
 
-    expect(r.estado).toBe('sem_espelho');
+    expect(r.state).toBe('sem_espelho');
   });
 });
 
@@ -253,7 +253,7 @@ const naoChame = (async () => {
   throw new Error('não deveria ter chamado o CRM');
 }) as unknown as typeof fetch;
 
-async function semearContato(cenario: Cenario): Promise<string> {
+async function seedContact(cenario: Cenario): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${cenario.tenantId}, 'Contato de teste', '+5511999990000')

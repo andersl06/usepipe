@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, sep } from 'node:path';
-import type { Armazenamento, ObjetoGuardado, ObjetoLido } from './porta.js';
+import type { Storage, ObjetoGuardado, ObjetoLido } from './porta.js';
 
 /**
  * Backend em disco, dentro de um volume.
@@ -14,7 +14,7 @@ import type { Armazenamento, ObjetoGuardado, ObjetoLido } from './porta.js';
  * publicada por nginx seria o "objeto público adivinhável por id" que o requisito
  * proíbe.
  */
-export class ArmazenamentoEmDisco implements Armazenamento {
+export class StorageInDisk implements Storage {
   private readonly raiz: string;
 
   constructor(raiz = process.env['PIPE_STORAGE_DIR'] ?? './.dados/storage') {
@@ -28,29 +28,29 @@ export class ArmazenamentoEmDisco implements Armazenamento {
    * normalizar é como `../` passa. Aqui o caminho já está absoluto e normalizado
    * quando a pergunta é feita.
    */
-  private caminho(chave: string): string {
-    const alvo = resolve(join(this.raiz, chave));
+  private caminho(key: string): string {
+    const alvo = resolve(join(this.raiz, key));
     if (alvo !== this.raiz && !alvo.startsWith(this.raiz + sep)) {
       throw new Error('chave fora da raiz do storage');
     }
     return alvo;
   }
 
-  async guardar(chave: string, dados: Uint8Array): Promise<ObjetoGuardado> {
+  async guardar(chave: string, data: Uint8Array): Promise<ObjetoGuardado> {
     const alvo = this.caminho(chave);
     await mkdir(dirname(alvo), { recursive: true });
-    await writeFile(alvo, dados);
-    return { chave, bytes: dados.byteLength };
+    await writeFile(alvo, data);
+    return { key, bytes: data.byteLength };
   }
 
   async ler(chave: string): Promise<ObjetoLido | null> {
     try {
-      const dados = await readFile(this.caminho(chave));
-      return { dados, bytes: dados.byteLength };
-    } catch (erro) {
+      const data = await readFile(this.caminho(chave));
+      return { data, bytes: data.byteLength };
+    } catch (error) {
       // Arquivo que não existe é ausência, não falha: quem chama devolve 404.
-      if ((erro as NodeJS.ErrnoException).code === 'ENOENT') return null;
-      throw erro;
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
+      throw error;
     }
   }
 

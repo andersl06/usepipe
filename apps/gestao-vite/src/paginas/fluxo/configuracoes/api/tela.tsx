@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { BotaoBds, CabecalhoDaPagina, CampoBds, CampoCopiavel, Interruptor, Papel } from '../pecas';
-import { useLeitura } from '../../../../lib/consulta';
-import { salvarConexao, type ConexaoDoFluxo } from './gravar';
+import { BotaoBds, PageHeader, CampoBds, CampoCopiavel, Interruptor, Role } from '../pecas';
+import { useRead } from '../../../../lib/consulta';
+import { salvarConexao, type FlowConexao } from './gravar';
 
 /**
  * O miolo de `/configurations/apikey`, cartão por cartão como no template
@@ -28,15 +28,15 @@ import { salvarConexao, type ConexaoDoFluxo } from './gravar';
  * antes. OAuth 2.0 do cartão HTTP também: campo visual, sem gravação (a
  * origem também não resolve `isCheckedOAuth` no mock).
  */
-export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
-  const caminho = `/v1/gestao/fluxos/${fluxoId}/conexao`;
-  const { data, isLoading } = useLeitura<ConexaoDoFluxo>(caminho);
+export function TelaDeConexao({ flowId }: { flowId: string }) {
+  const caminho = `/v1/gestao/fluxos/${flowId}/conexao`;
+  const { data, isLoading } = useRead<FlowConexao>(caminho);
 
   const [modo, setModo] = useState<'builder' | 'sdk' | 'http'>('builder');
   const [oauth, setOauth] = useState(false);
-  const [urlMensagens, setUrlMensagens] = useState('');
-  const [urlNotificacoes, setUrlNotificacoes] = useState('');
-  const [urlAutorizacao, setUrlAutorizacao] = useState('');
+  const [urlMessages, setUrlMessages] = useState('');
+  const [urlNotifications, setUrlNotifications] = useState('');
+  const [urlAuthorization, setUrlAuthorization] = useState('');
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [aviso, setAviso] = useState('');
@@ -47,21 +47,21 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
      não sobrescrever o que ela está digitando quando a leitura revalida. */
   useEffect(() => {
     if (!data || sujo) return;
-    setUrlMensagens(data.urlMensagens ?? '');
-    setUrlNotificacoes(data.urlNotificacoes ?? '');
-    setModo(data.urlMensagens || data.urlNotificacoes ? 'http' : 'builder');
+    setUrlMessages(data.urlMessages ?? '');
+    setUrlNotifications(data.urlNotifications ?? '');
+    setModo(data.urlMessages || data.urlNotifications ? 'http' : 'builder');
   }, [data, sujo]);
 
   async function salvar() {
     setSalvando(true);
     setAviso('');
-    const resultado = await salvarConexao(fluxoId, {
-      urlMensagens: urlMensagens.trim() === '' ? null : urlMensagens.trim(),
-      urlNotificacoes: urlNotificacoes.trim() === '' ? null : urlNotificacoes.trim(),
+    const resultado = await salvarConexao(flowId, {
+      urlMessages: urlMessages.trim() === '' ? null : urlMessages.trim(),
+      urlNotifications: urlNotifications.trim() === '' ? null : urlNotifications.trim(),
     });
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     setSujo(false);
@@ -70,9 +70,9 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         titulo={<h1>Informações de conexão</h1>}
-        descricao={
+        description={
           <p>
             Defina as configurações de envio e recebimento de mensagens e notificações do seu
             chatbot
@@ -80,7 +80,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
         }
       />
       <div className="cf-container">
-        <Papel className="cf-papel--conexao">
+        <Role className="cf-papel--conexao">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>Conectar usando o builder</h1>
@@ -93,9 +93,9 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
               rotulo="Conectar usando o builder"
             />
           </div>
-        </Papel>
+        </Role>
 
-        <Papel className="cf-papel--conexao">
+        <Role className="cf-papel--conexao">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>
@@ -113,28 +113,28 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
           {modo === 'sdk' ? (
             <div className="cf-duas-colunas">
               <div className="cf-coluna-metade">
-                <CampoCopiavel rotulo="Endpoint WS" valor="" />
+                <CampoCopiavel rotulo="Endpoint WS" value="" />
                 <div className="cf-mt4">
-                  <CampoCopiavel rotulo="Endpoint TCP" valor="" />
+                  <CampoCopiavel rotulo="Endpoint TCP" value="" />
                 </div>
               </div>
               <div className="cf-coluna-metade">
-                <CampoCopiavel rotulo="Identificador" valor={fluxoId} />
+                <CampoCopiavel rotulo="Identificador" value={flowId} />
                 <div className="cf-mt4">
-                  <CampoCopiavel rotulo="Endpoint HTTP" valor={data?.endpoint ?? ''} />
+                  <CampoCopiavel rotulo="Endpoint HTTP" value={data?.endpoint ?? ''} />
                 </div>
                 <div className="cf-mt4">
                   <CampoCopiavel
                     rotulo="Chave de autorização"
-                    valor={data?.chavePrefixo ? `${data.chavePrefixo}…` : 'Nenhuma chave emitida'}
+                    value={data?.keyPrefix ? `${data.keyPrefix}…` : 'Nenhuma chave emitida'}
                   />
                 </div>
               </div>
             </div>
           ) : null}
-        </Papel>
+        </Role>
 
-        <Papel className="cf-papel--conexao">
+        <Role className="cf-papel--conexao">
           <div className="cf-conexao-topo">
             <div className="cf-conexao-texto">
               <h1>
@@ -167,9 +167,9 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                     id="urlReceiveMessages"
                     rotulo="Url para receber mensagens"
                     tipo="url"
-                    valor={urlMensagens}
-                    aoMudar={(valor) => {
-                      setUrlMensagens(valor);
+                    value={urlMessages}
+                    aoMudar={(value) => {
+                      setUrlMessages(value);
                       setSujo(true);
                     }}
                     desabilitado={isLoading || salvando}
@@ -182,9 +182,9 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                     id="urlReceiveNotifications"
                     rotulo="Url para receber notificações"
                     tipo="url"
-                    valor={urlNotificacoes}
-                    aoMudar={(valor) => {
-                      setUrlNotificacoes(valor);
+                    value={urlNotifications}
+                    aoMudar={(value) => {
+                      setUrlNotifications(value);
                       setSujo(true);
                     }}
                     desabilitado={isLoading || salvando}
@@ -192,7 +192,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                 </div>
               </div>
 
-              <Papel className="cf-papel--oauth">
+              <Role className="cf-papel--oauth">
                 <div className="cf-oauth">
                   <div className="cf-oauth-topo">
                     <div className="cf-oauth-titulo">
@@ -218,15 +218,15 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                           <CampoBds
                             id="oAuthAuthorizationServerUri"
                             rotulo="URL de autorização"
-                            valor={urlAutorizacao}
-                            aoMudar={setUrlAutorizacao}
+                            value={urlAuthorization}
+                            aoMudar={setUrlAuthorization}
                           />
                         </div>
                         <div className="cf-w-10" />
                         <div className="cf-w-40">
                           <CampoBds
                             rotulo="Grant Type (Tipo de autentificação)"
-                            valor="client_credentials"
+                            value="client_credentials"
                             desabilitado
                           />
                         </div>
@@ -236,7 +236,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                           <CampoBds
                             id="oAuthClientId"
                             rotulo="Client ID"
-                            valor={clientId}
+                            value={clientId}
                             aoMudar={setClientId}
                           />
                         </div>
@@ -245,7 +245,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                           <CampoBds
                             id="oAuthClientSecret"
                             rotulo="Client Secret"
-                            valor={clientSecret}
+                            value={clientSecret}
                             aoMudar={setClientSecret}
                             senha
                           />
@@ -256,7 +256,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                           variante="secondary"
                           name="clearOAuth"
                           onClick={() => {
-                            setUrlAutorizacao('');
+                            setUrlAuthorization('');
                             setClientId('');
                             setClientSecret('');
                           }}
@@ -267,7 +267,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                     </div>
                   ) : null}
                 </div>
-              </Papel>
+              </Role>
 
               {aviso ? (
                 <p className="cf-aviso" role={aviso === 'Configuração salva.' ? 'status' : 'alert'}>
@@ -278,29 +278,29 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                 <BotaoBds
                   variante="bot"
                   type="submit"
-                  disabled={salvando || isLoading || !sujo || !urlMensagens.trim()}
+                  disabled={salvando || isLoading || !sujo || !urlMessages.trim()}
                 >
                   {salvando ? 'Salvando…' : 'Salvar'}
                 </BotaoBds>
               </div>
             </form>
           ) : null}
-        </Papel>
+        </Role>
 
-        <Papel className="cf-papel--conexao">
+        <Role className="cf-papel--conexao">
           <h1 className="cf-titulo-cartao">Endpoints HTTP</h1>
           <div className="cf-duas-colunas">
             <div className="cf-coluna-metade">
-              <CampoCopiavel rotulo="Url para enviar mensagens" valor="" />
+              <CampoCopiavel rotulo="Url para enviar mensagens" value="" />
               <div className="cf-mt4">
-                <CampoCopiavel rotulo="Url para enviar notificações" valor="" />
+                <CampoCopiavel rotulo="Url para enviar notificações" value="" />
               </div>
             </div>
             <div className="cf-coluna-metade">
-              <CampoCopiavel rotulo="Url para enviar comandos" valor="" />
+              <CampoCopiavel rotulo="Url para enviar comandos" value="" />
             </div>
           </div>
-        </Papel>
+        </Role>
       </div>
     </>
   );

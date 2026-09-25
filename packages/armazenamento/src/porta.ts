@@ -25,17 +25,17 @@ import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 export interface ObjetoGuardado {
   /** A chave dentro do bucket. Opaca para quem chama. */
-  chave: string;
+  key: string;
   bytes: number;
 }
 
 export interface ObjetoLido {
-  dados: Uint8Array;
+  data: Uint8Array;
   bytes: number;
 }
 
-export interface Armazenamento {
-  guardar(chave: string, dados: Uint8Array): Promise<ObjetoGuardado>;
+export interface Storage {
+  guardar(key: string, data: Uint8Array): Promise<ObjetoGuardado>;
   ler(chave: string): Promise<ObjetoLido | null>;
   remover(chave: string): Promise<void>;
 }
@@ -48,7 +48,7 @@ export interface Armazenamento {
  * está desenhada. O `uuid` no fim é o que impede adivinhar o objeto do vizinho mesmo
  * que alguém descubra o `tenant_id`.
  */
-export function chaveDeAnexo(tenantId: string, nomeOriginal: string | null): string {
+export function keyOfAttachment(tenantId: string, nomeOriginal: string | null): string {
   const agora = new Date();
   const ano = agora.getUTCFullYear();
   const mes = String(agora.getUTCMonth() + 1).padStart(2, '0');
@@ -72,7 +72,7 @@ function extensaoDe(nome: string | null): string {
  * A defesa contra `../` e contra id de outro cliente na URL. Vale mesmo com o link
  * assinado: assinatura prova que o link saiu de nós, não que ele é do tenant certo.
  */
-export function chaveDoTenant(chave: string, tenantId: string): boolean {
+export function keyOfTenant(chave: string, tenantId: string): boolean {
   if (chave.includes('..') || chave.startsWith('/') || chave.includes('\\')) return false;
   return chave.startsWith(`${tenantId}/`);
 }
@@ -89,8 +89,8 @@ export interface LinkAssinado {
  * Meta. Quem tem o link tem o arquivo até vencer — por isso a validade é curta e igual
  * à da Blip: 15 minutos.
  */
-export function assinar(anexoId: string, expiraEm: number, segredo: string): string {
-  return createHmac('sha256', segredo).update(`${anexoId}.${expiraEm}`).digest('hex');
+export function assinar(attachmentId: string, expiraEm: number, segredo: string): string {
+  return createHmac('sha256', segredo).update(`${attachmentId}.${expiraEm}`).digest('hex');
 }
 
 /** Confere a assinatura e a validade. Comparação em tempo constante. */
@@ -98,11 +98,11 @@ export function assinaturaValida(
   anexoId: string,
   expiraEm: number,
   assinatura: string,
-  segredo: string,
+  secret: string,
   agora = Date.now(),
 ): boolean {
   if (!Number.isFinite(expiraEm) || expiraEm <= agora) return false;
-  const esperada = Buffer.from(assinar(anexoId, expiraEm, segredo));
+  const esperada = Buffer.from(assinar(anexoId, expiraEm, secret));
   const recebida = Buffer.from(assinatura);
   if (esperada.length !== recebida.length) return false;
   return timingSafeEqual(esperada, recebida);

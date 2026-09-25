@@ -1,24 +1,24 @@
-import { Botao, Campo, Etiqueta, Tabela, type Coluna } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Botao, Campo, Etiqueta, Tabela, type Column } from '@pipe/ui';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import {
-  BotaoDeConfirmacao,
+  ConfirmationButton,
   Formulario,
   FormularioDeLinha,
 } from '../../../componentes/configuracoes/formulario';
 import { lerEspaco, listarChaves, listarWebhooks } from '../../../lib/configuracoes-dados';
 import {
-  CATALOGO_DE_ESCOPOS,
+  CATALOGO_OF_SCOPES,
   CATALOGO_DE_EVENTOS,
-  type ChaveDeApi,
+  type ApiKey,
   type WebhookDeSaida,
 } from '../../../lib/configuracoes-comum';
 import { data, dataHora, numero } from '../../../lib/formato';
 import {
   acaoAlternarWebhook,
-  acaoCriarChave,
-  acaoCriarWebhook,
+  actionCreateKey,
+  actionCreateWebhook,
   acaoExcluirWebhook,
-  acaoRevogarChave,
+  actionRevogarKey,
 } from '../acoes';
 
 export const dynamic = 'force-dynamic';
@@ -49,26 +49,26 @@ export const dynamic = 'force-dynamic';
  *   (`sha256=HMAC(segredo, "<timestamp>.<corpo>")`), que é o que fecha o replay.
  */
 
-function colunasDeChaves(fuso: string): readonly Coluna<ChaveDeApi>[] {
+function colunasDeChaves(fuso: string): readonly Column<ApiKey>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Chave',
       celula: (c) => (
         <span>
           <b>{c.nome}</b>
-          <span className="sub mono">pipe_{c.prefixo}_…</span>
+          <span className="sub mono">pipe_{c.prefix}_…</span>
         </span>
       ),
     },
     {
-      chave: 'escopos',
+      key: 'escopos',
       rotulo: 'Pode',
       celula: (c) =>
-        c.escopos.length === 0 ? (
+        c.scopes.length === 0 ? (
           <span className="sub">nenhum escopo</span>
         ) : (
-          c.escopos.map((e) => (
+          c.scopes.map((e) => (
             <Etiqueta key={e} titulo={e}>
               {e}
             </Etiqueta>
@@ -76,21 +76,21 @@ function colunasDeChaves(fuso: string): readonly Coluna<ChaveDeApi>[] {
         ),
     },
     {
-      chave: 'uso',
+      key: 'uso',
       rotulo: 'Último uso',
       celula: (c) =>
         c.ultimoUsoEm ? dataHora(c.ultimoUsoEm, fuso) : <span className="sub">Nunca usada</span>,
     },
     {
-      chave: 'estado',
+      key: 'estado',
       rotulo: 'Estado',
       celula: (c) =>
         c.revogadaEm ? (
           <Etiqueta tom="erro">Revogada em {data(c.revogadaEm, fuso)}</Etiqueta>
         ) : (
-          <FormularioDeLinha acao={acaoRevogarChave} campos={{ id: c.id }}>
+          <FormularioDeLinha acao={actionRevogarKey} campos={{ id: c.id }}>
             <Etiqueta tom="sucesso">Ativa</Etiqueta>
-            <BotaoDeConfirmacao
+            <ConfirmationButton
               rotulo="Revogar"
               pergunta={`Revogar "${c.nome}"? Quem usa esta chave para de conseguir na hora.`}
               rotuloConfirmar="Revogar mesmo"
@@ -101,10 +101,10 @@ function colunasDeChaves(fuso: string): readonly Coluna<ChaveDeApi>[] {
   ];
 }
 
-function colunasDeWebhooks(fuso: string): readonly Coluna<WebhookDeSaida>[] {
+function colunasDeWebhooks(fuso: string): readonly Column<WebhookDeSaida>[] {
   return [
     {
-      chave: 'url',
+      key: 'url',
       rotulo: 'Endereço',
       celula: (w) => (
         <span>
@@ -116,7 +116,7 @@ function colunasDeWebhooks(fuso: string): readonly Coluna<WebhookDeSaida>[] {
       ),
     },
     {
-      chave: 'entregas',
+      key: 'entregas',
       rotulo: 'Entregas',
       celula: (w) => (
         <span className="cfg-entregas">
@@ -133,12 +133,12 @@ function colunasDeWebhooks(fuso: string): readonly Coluna<WebhookDeSaida>[] {
       ),
     },
     {
-      chave: 'desde',
+      key: 'desde',
       rotulo: 'Criado',
       celula: (w) => (w.criadoEm ? data(w.criadoEm, fuso) : '—'),
     },
     {
-      chave: 'acao',
+      key: 'acao',
       rotulo: 'Ação',
       celula: (w) => (
         <span className="cfg-entregas">
@@ -152,7 +152,7 @@ function colunasDeWebhooks(fuso: string): readonly Coluna<WebhookDeSaida>[] {
             <Botao type="submit">{w.ativo ? 'Desligar' : 'Ligar'}</Botao>
           </FormularioDeLinha>
           <FormularioDeLinha acao={acaoExcluirWebhook} campos={{ id: w.id }}>
-            <BotaoDeConfirmacao
+            <ConfirmationButton
               rotulo="Excluir"
               pergunta="Excluir apaga o segredo junto: o outro lado precisará de um novo."
             />
@@ -163,72 +163,72 @@ function colunasDeWebhooks(fuso: string): readonly Coluna<WebhookDeSaida>[] {
   ];
 }
 
-export default async function PaginaApi() {
+export default async function PageApi() {
   const espaco = await lerEspaco();
   const chaves = await listarChaves();
   const webhooks = await listarWebhooks();
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Chaves e webhooks">
+      <SectionHeader titulo="Chaves e webhooks">
         A chave abre a API REST de fora para dentro; o webhook empurra evento de dentro para fora.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco
+      <Block
         titulo="Chaves de API"
-        descricao="O cabeçalho é Authorization: Bearer. A chave é opaca e some da tela assim que você sai."
+        description="O cabeçalho é Authorization: Bearer. A chave é opaca e some da tela assim que você sai."
       >
         <Tabela
           colunas={colunasDeChaves(espaco.fuso)}
           linhas={chaves}
-          chaveDaLinha={(c) => c.id}
+          linhaKey={(c) => c.id}
           larguraMinima={760}
-          vazio="Nenhuma chave emitida."
+          empty="Nenhuma chave emitida."
         />
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Emitir chave"
-        descricao="Escolha só o que a integração precisa. Escopo a mais é permissão que ninguém revisa depois."
+        description="Escolha só o que a integração precisa. Escopo a mais é permissão que ninguém revisa depois."
       >
-        <Formulario acao={acaoCriarChave} rotuloBotao="Emitir chave">
+        <Formulario acao={actionCreateKey} rotuloBotao="Emitir chave">
           <label className="cfg-campo">
             <span>Para que serve</span>
             <Campo name="nome" required maxLength={120} placeholder="Integração do site" />
           </label>
           <fieldset className="cfg-permissoes">
             <legend>Escopos</legend>
-            {CATALOGO_DE_ESCOPOS.map((escopo) => (
-              <label key={escopo.codigo}>
-                <input type="checkbox" name="escopo" value={escopo.codigo} />
+            {CATALOGO_OF_SCOPES.map((scope) => (
+              <label key={scope.codigo}>
+                <input type="checkbox" name="escopo" value={scope.codigo} />
                 <span>
-                  <b>{escopo.rotulo}</b>
-                  <span className="sub mono">{escopo.codigo}</span>
+                  <b>{scope.rotulo}</b>
+                  <span className="sub mono">{scope.codigo}</span>
                 </span>
               </label>
             ))}
           </fieldset>
         </Formulario>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Webhooks de saída"
-        descricao="Cada evento vira um POST assinado. Falha é registrada e reenviada; não some em silêncio."
+        description="Cada evento vira um POST assinado. Falha é registrada e reenviada; não some em silêncio."
       >
         <Tabela
           colunas={colunasDeWebhooks(espaco.fuso)}
           linhas={webhooks}
-          chaveDaLinha={(w) => w.id}
+          linhaKey={(w) => w.id}
           larguraMinima={820}
-          vazio="Nenhum webhook cadastrado."
+          empty="Nenhum webhook cadastrado."
         />
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Novo webhook"
-        descricao="Só https: a assinatura protege contra adulteração, não contra leitura no caminho."
+        description="Só https: a assinatura protege contra adulteração, não contra leitura no caminho."
       >
-        <Formulario acao={acaoCriarWebhook} rotuloBotao="Criar webhook">
+        <Formulario acao={actionCreateWebhook} rotuloBotao="Criar webhook">
           <label className="cfg-campo">
             <span>Endereço</span>
             <Campo
@@ -253,7 +253,7 @@ export default async function PaginaApi() {
             ))}
           </fieldset>
         </Formulario>
-      </Bloco>
+      </Block>
     </>
   );
 }

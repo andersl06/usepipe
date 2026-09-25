@@ -1,18 +1,18 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Put, Req } from '@nestjs/common';
 import type {
-  BuilderDoFluxo,
+  BuilderOfFlow,
   RascunhoGravado,
-  VersaoDoFluxo,
+  VersionOfFlow,
   VersaoPublicada,
 } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
   carregarBuilder,
-  listarVersoes,
+  listVersions,
   publicarRascunho,
-  restaurarVersao,
+  restoreVersion,
   salvarRascunho,
 } from '../dominio/gestao/builder-do-fluxo.js';
 import { uuidOu404 } from './gestao-fluxo.js';
@@ -34,75 +34,75 @@ import { uuidOu404 } from './gestao-fluxo.js';
  * sessão, nunca da URL; `id` fora do padrão de uuid é 404 antes do banco.
  */
 @Controller('v1/gestao/fluxos')
-export class ControladorGestaoBuilder {
+export class ManagementBuilderController {
   @Get(':id/builder')
-  @ComSessao()
+  @WithSession()
   async carregar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() request: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<BuilderDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<BuilderOfFlow> {
+    const sessao = sessionOf(request);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      carregarBuilder(tx, sessao.tenantId, sessao.usuarioId, id),
+      carregarBuilder(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Put(':id/builder')
-  @ComSessao()
+  @WithSession()
   async salvar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: unknown,
   ): Promise<RascunhoGravado> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      salvarRascunho(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+      salvarRascunho(tx, sessao.tenantId, sessao.userId, id, corpo),
     );
   }
 
   @Post(':id/builder/publicar')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async publicar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<VersaoPublicada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      publicarRascunho(tx, sessao.tenantId, sessao.usuarioId, id),
+      publicarRascunho(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Get(':id/builder/versoes')
-  @ComSessao()
-  async versoes(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async versions(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<VersaoDoFluxo[]> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<VersionOfFlow[]> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      listarVersoes(tx, sessao.tenantId, sessao.usuarioId, id),
+      listVersions(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Post(':id/builder/versoes/:versao/restaurar')
   @HttpCode(200)
-  @ComSessao()
-  async restaurar(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async restore(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('versao') versao: string,
   ): Promise<RascunhoGravado> {
-    const sessao = sessaoDe(requisicao);
+    const session = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     // Número fora do padrão vira NaN, e NaN é "versão não encontrada" no domínio.
     const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
-    return noTenant(sessao.tenantId, (tx) =>
-      restaurarVersao(tx, sessao.tenantId, sessao.usuarioId, id, numero),
+    return noTenant(session.tenantId, (tx) =>
+      restoreVersion(tx, session.tenantId, session.userId, id, numero),
     );
   }
 }

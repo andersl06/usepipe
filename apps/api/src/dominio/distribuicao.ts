@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { escolherAtendente } from '@pipe/core';
-import type { AtendenteDisponivel, EscolhaDistribuicao, EstadoAtendente } from '@pipe/core';
-import type { TransacaoPipe } from '@pipe/db';
+import { escolherAgent } from '@pipe/core';
+import type { AgentDisponivel, EscolhaDistribution, StateAgent } from '@pipe/core';
+import type { TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 
@@ -14,21 +14,21 @@ import { registrarEvento } from './eventos.js';
  * tabela de casos, e a `api` não vira um segundo lugar onde a regra mora.
  */
 
-type LinhaAtendente = {
+type LineAgent = {
   id: string;
-  estado: EstadoAtendente;
+  state: StateAgent;
   limite: number;
   ativas: string;
-  aguardando_atendente: string;
-  sem_primeira_resposta: string;
-  ultima_atribuicao_em: Date | string | null;
+  aguardandoAgent: string;
+  withoutFirstResponse: string;
+  lastAssignmentAt: Date | string | null;
 };
 
-export async function candidatosDaFila(
-  tx: TransacaoPipe,
+export async function candidatosOfQueue(
+  tx: TransactionPipe,
   filaId: string,
-): Promise<AtendenteDisponivel[]> {
-  const { rows } = await tx.execute<LinhaAtendente>(sql`
+): Promise<AgentDisponivel[]> {
+  const { rows } = await tx.execute<LineAgent>(sql`
     select u.id,
            coalesce(s.estado, 'offline') as estado,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as limite,
@@ -52,18 +52,18 @@ export async function candidatosDaFila(
 
   return rows.map((linha) => ({
     id: linha.id,
-    estado: linha.estado,
+    estado: linha.state,
     filas: [filaId],
     limiteSimultaneo: Number(linha.limite),
     ativas: Number(linha.ativas),
-    aguardandoAtendente: Number(linha.aguardando_atendente),
-    semPrimeiraResposta: Number(linha.sem_primeira_resposta),
+    aguardandoAtendente: Number(linha.aguardandoAgent),
+    semPrimeiraResposta: Number(linha.withoutFirstResponse),
     ultimaAtribuicaoEm:
-      linha.ultima_atribuicao_em === null
+      linha.lastAssignmentAt === null
         ? null
-        : linha.ultima_atribuicao_em instanceof Date
-          ? linha.ultima_atribuicao_em
-          : new Date(linha.ultima_atribuicao_em),
+        : linha.lastAssignmentAt instanceof Date
+          ? linha.lastAssignmentAt
+          : new Date(linha.lastAssignmentAt),
   }));
 }
 
@@ -77,11 +77,11 @@ export async function candidatosDaFila(
  * `ativas` é o total do atendente, e não por fila: o limite é de quantas conversas
  * a pessoa segura ao mesmo tempo, e a fila só decide qual limite vale.
  */
-export async function filasDoAtendente(
-  tx: TransacaoPipe,
-  atendenteId: string,
-): Promise<AtendenteDisponivel[]> {
-  const { rows } = await tx.execute<LinhaAtendente & { fila_id: string }>(sql`
+export async function queuesOfAgent(
+  tx: TransactionPipe,
+  agentId: string,
+): Promise<AgentDisponivel[]> {
+  const { rows } = await tx.execute<LineAgent & { queueId: string }>(sql`
     select u.id, fa.fila_id,
            coalesce(s.estado, 'offline') as estado,
            coalesce(fa.capacidade_override, f.capacidade_padrao) as limite,
@@ -100,40 +100,40 @@ export async function filasDoAtendente(
       join usuario u on u.id = fa.usuario_id and u.ativo
       join fila f on f.id = fa.fila_id
       left join status_atendente s on s.usuario_id = u.id
-     where fa.usuario_id = ${atendenteId}::uuid
+     where fa.usuario_id = ${agentId}::uuid
   `);
 
   return rows.map((linha) => ({
     id: linha.id,
-    estado: linha.estado,
-    filas: [linha.fila_id],
+    estado: linha.state,
+    filas: [linha.queueId],
     limiteSimultaneo: Number(linha.limite),
     ativas: Number(linha.ativas),
-    aguardandoAtendente: Number(linha.aguardando_atendente),
-    semPrimeiraResposta: Number(linha.sem_primeira_resposta),
+    aguardandoAtendente: Number(linha.aguardandoAgent),
+    semPrimeiraResposta: Number(linha.withoutFirstResponse),
     ultimaAtribuicaoEm:
-      linha.ultima_atribuicao_em === null
+      linha.lastAssignmentAt === null
         ? null
-        : linha.ultima_atribuicao_em instanceof Date
-          ? linha.ultima_atribuicao_em
-          : new Date(linha.ultima_atribuicao_em),
+        : linha.lastAssignmentAt instanceof Date
+          ? linha.lastAssignmentAt
+          : new Date(linha.lastAssignmentAt),
   }));
 }
 
 /** Teto de conversas sem 1ª resposta, por tenant. Ausente desliga o segundo teto. */
-export function tetoSemPrimeiraResposta(): number | null {
+export function tetoWithoutFirstResponse(): number | null {
   const bruto = process.env['PIPE_TETO_SEM_PRIMEIRA_RESPOSTA'];
   return bruto ? Number(bruto) : null;
 }
 
-export async function escolherParaFila(
-  tx: TransacaoPipe,
-  filaId: string,
-): Promise<EscolhaDistribuicao> {
-  const candidatos = await candidatosDaFila(tx, filaId);
-  return escolherAtendente(candidatos, {
-    filaId,
-    tetoSemPrimeiraResposta: tetoSemPrimeiraResposta(),
+export async function escolherForQueue(
+  tx: TransactionPipe,
+  queueId: string,
+): Promise<EscolhaDistribution> {
+  const candidatos = await candidatosOfQueue(tx, queueId);
+  return escolherAgent(candidatos, {
+    queueId,
+    tetoWithoutFirstResposta: tetoWithoutFirstResponse(),
   });
 }
 
@@ -143,38 +143,38 @@ export async function escolherParaFila(
  * Morava em `entrada.ts`; mudou para cá porque agora são dois a chamar — a entrada e o
  * bot, quando transfere.
  */
-export async function distribuirConversa(
-  tx: TransacaoPipe,
+export async function distribuirConversation(
+  tx: TransactionPipe,
   tenantId: string,
-  conversaId: string,
+  conversationId: string,
   filaId: string,
   em: Date,
 ): Promise<void> {
-  const escolha = await escolherParaFila(tx, filaId);
+  const escolha = await escolherForQueue(tx, filaId);
   if (!escolha.escolhido) return;
 
-  const atendenteId = escolha.escolhido.id;
+  const agentId = escolha.escolhido.id;
   await tx.execute(sql`
     update conversa
-       set atendente_id = ${atendenteId}, estado = 'atribuida', atribuida_em = ${em},
+       set atendente_id = ${agentId}, estado = 'atribuida', atribuida_em = ${em},
            atualizado_em = now()
-     where id = ${conversaId} and estado = 'na_fila'
+     where id = ${conversationId} and estado = 'na_fila'
   `);
   await tx.execute(sql`
     insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, em)
-    values (${tenantId}, ${conversaId}, ${atendenteId}, ${filaId}, 'distribuicao_por_carga', ${em})
+    values (${tenantId}, ${conversationId}, ${agentId}, ${filaId}, 'distribuicao_por_carga', ${em})
   `);
   await registrarEvento(tx, {
     tenantId,
-    conversaId,
+    conversationId,
     tipo: 'atribuida',
     em,
-    usuarioId: atendenteId,
-    filaId,
+    userId: agentId,
+    queueId,
   });
   await emitir(tx, tenantId, 'conversa.atribuida', {
-    conversa_id: conversaId,
-    atendente_id: atendenteId,
+    conversa_id: conversationId,
+    atendente_id: agentId,
     fila_id: filaId,
   });
 }

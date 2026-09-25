@@ -1,6 +1,6 @@
 import { useEu } from '../../../../contexto/sessao';
-import { useContato } from '../../contato';
-import { TelaDeConfiguracoesBasicas } from './tela';
+import { useContact } from '../../contato';
+import { SettingsBasicTela } from './tela';
 
 /**
  * `/configurations/basic` — estado `auth.application.detail.configurations.basic`
@@ -14,18 +14,18 @@ import { TelaDeConfiguracoesBasicas } from './tela';
  * permissão `automacao.fluxo.excluir`, que só o admin tem — a `api` confere de
  * novo no `DELETE`, porque botão desligado não é porta trancada.
  */
-export function PaginaDeConfiguracoesBasicas() {
-  const { contato } = useContato();
+export function SettingsBasicPage() {
+  const { contact } = useContact();
   const eu = useEu();
   return (
-    <TelaDeConfiguracoesBasicas
-      key={contato.id}
-      id={contato.id}
-      nome={contato.nome}
-      descricao={contato.descricao ?? ''}
-      imagemUrl={contato.imagemUrl}
-      shortName={contato.shortName}
-      podeExcluir={eu.permissoes.includes('automacao.fluxo.excluir')}
+    <SettingsBasicTela
+      key={contact.id}
+      id={contact.id}
+      nome={contact.nome}
+      description={contact.description ?? ''}
+      imageUrl={contact.imageUrl}
+      shortName={contact.shortName}
+      podeExcluir={eu.permissions.includes('automacao.fluxo.excluir')}
     />
   );
 }

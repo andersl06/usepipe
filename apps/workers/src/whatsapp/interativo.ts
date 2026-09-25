@@ -23,45 +23,45 @@ const CORPO_MAX = 1024;
 /** Texto do botão que abre a lista. A Meta exige um, até 20 caracteres. */
 export const ROTULO_DA_LISTA = 'Ver opções';
 
-export interface PreferenciasInterativas {
+export interface PreferencesInteractive {
   quickReply: boolean;
   menu: boolean;
 }
 
 /** O que o fluxo guarda em `mensagem.dados.pergunta`. */
-export interface PerguntaDoFluxo {
+export interface PerguntaOfFlow {
   texto: string;
   opcoes: string[];
 }
 
-export function formatoDaPergunta(
-  opcoes: number,
-  preferencias: PreferenciasInterativas,
+export function formatOfPergunta(
+  options: number,
+  preferences: PreferencesInteractive,
 ): 'botoes' | 'lista' | 'texto' {
-  if (opcoes < 1) return 'texto';
-  if (preferencias.quickReply && opcoes <= LIMITE_QUICK_REPLY) return 'botoes';
-  if (preferencias.menu && opcoes <= LIMITE_MENU) return 'lista';
+  if (options < 1) return 'texto';
+  if (preferences.quickReply && options <= LIMITE_QUICK_REPLY) return 'botoes';
+  if (preferences.menu && options <= LIMITE_MENU) return 'lista';
   return 'texto';
 }
 
 /** Os dois interruptores nascem ligados, que é o estado observado na origem. */
-export function preferenciasInterativasDe(config: Record<string, unknown> | null): PreferenciasInterativas {
-  const guardado = (config?.['preferencias'] ?? {}) as Partial<PreferenciasInterativas>;
+export function preferencesInteractiveOf(config: Record<string, unknown> | null): PreferencesInteractive {
+  const guardado = (config?.['preferencias'] ?? {}) as Partial<PreferencesInteractive>;
   return { quickReply: guardado.quickReply ?? true, menu: guardado.menu ?? true };
 }
 
 /** `null` = sai como texto (formato desligado, opção longa demais, corpo vazio ou grande). */
 export function conteudoDaPergunta(
-  pergunta: PerguntaDoFluxo,
-  preferencias: PreferenciasInterativas,
+  pergunta: PerguntaOfFlow,
+  preferencias: PreferencesInteractive,
 ): Conteudo | null {
-  const formato = formatoDaPergunta(pergunta.opcoes.length, preferencias);
-  if (formato === 'texto') return null;
+  const format = formatOfPergunta(pergunta.opcoes.length, preferencias);
+  if (format === 'texto') return null;
   const texto = pergunta.texto.trim();
   if (!texto || texto.length > CORPO_MAX) return null;
-  const limite = formato === 'botoes' ? TITULO_BOTAO_MAX : TITULO_LINHA_MAX;
+  const limite = format === 'botoes' ? TITULO_BOTAO_MAX : TITULO_LINHA_MAX;
   if (pergunta.opcoes.some((o) => !o.trim() || o.length > limite)) return null;
   // A Meta recusa títulos repetidos, e a resposta seria ambígua para o fluxo.
   if (new Set(pergunta.opcoes).size !== pergunta.opcoes.length) return null;
-  return { tipo: 'interativo', formato, texto, opcoes: pergunta.opcoes };
+  return { tipo: 'interativo', format, texto, options: pergunta.opcoes };
 }

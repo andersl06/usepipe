@@ -11,13 +11,13 @@
 
 export interface TextoPrompt {
   sistema: string;
-  usuario: string;
+  user: string;
 }
 
 export interface Prompt<E> {
   nome: string;
   versao: string;
-  montar(entrada: E): TextoPrompt;
+  montar(inbound: E): TextoPrompt;
 }
 
 /** Identificador que vai para o registro: `resumo-encerramento@v1`. */

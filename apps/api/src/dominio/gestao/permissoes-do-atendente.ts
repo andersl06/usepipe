@@ -1,15 +1,15 @@
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import {
-  papelPermissao,
-  permissao,
-  usuario,
-  usuarioPapel,
-  usuarioPermissao,
+  rolePermission,
+  permission,
+  user,
+  userRole,
+  userPermission,
 } from '@pipe/db/schema';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
 
 /**
  * A página "Permissões" do atendente — `attendance.desk.team.permission` da
@@ -46,7 +46,7 @@ import { exigirPermissao } from '../../sessao.js';
  */
 
 /** "Criar, editar e desativar usuário" — quem manda na permissão dos outros. */
-export const USUARIO_GERENCIAR = 'usuario.gerenciar';
+export const USER_MANAGE = 'usuario.gerenciar';
 
 /**
  * Só as capacidades DO ATENDENTE entram na página. A origem lista dez, todas do
@@ -56,7 +56,7 @@ export const USUARIO_GERENCIAR = 'usuario.gerenciar';
  * exceção, sem passar pelo papel. O que é de conversa e de contato é o que o
  * atendente faz no Desk; o resto continua sendo do papel.
  */
-export const EH_DO_ATENDENTE = /^(conversa|contato)./;
+export const EH_OF_AGENT = /^(conversa|contato)./;
 
 /** Os rótulos literais da origem onde a capacidade é a mesma. */
 const ROTULO_DA_ORIGEM: Record<string, string> = {
@@ -64,12 +64,12 @@ const ROTULO_DA_ORIGEM: Record<string, string> = {
   "contato.editar": "Editar dados do contato",
 };
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (userId: string): Ator => ({ tipo: 'usuario', id: userId });
 
-export interface LinhaDePermissao {
+export interface LineOfPermission {
   codigo: string;
   grupo: string;
-  descricao: string;
+  description: string;
   /** O que a união dos papéis dá, antes de qualquer exceção. */
   dosPapeis: boolean;
   /** `null` = sem exceção, manda o papel. */
@@ -80,32 +80,32 @@ export interface LinhaDePermissao {
   parcial: boolean;
 }
 
-export interface AtendenteDasPermissoes {
+export interface AgentOfPermissions {
   id: string;
   nome: string;
   email: string;
 }
 
-export interface PermissoesDoAtendente {
-  atendentes: AtendenteDasPermissoes[];
-  permissoes: LinhaDePermissao[];
+export interface PermissionsOfAgent {
+  agents: AgentOfPermissions[];
+  permissoes: LineOfPermission[];
 }
 
 /** Ids repetidos, vazios ou fora do tenant não passam: a tela manda o que marcou. */
-async function atendentesVivos(
-  tx: TransacaoPipe,
+async function agentsVivos(
+  tx: TransactionPipe,
   ids: readonly string[],
-): Promise<AtendenteDasPermissoes[]> {
+): Promise<AgentOfPermissions[]> {
   const unicos = [...new Set(ids.filter((i) => i))];
   if (unicos.length === 0) {
-    throw ErroPipe.requisicao('atendente_obrigatorio', 'Escolha ao menos um atendente.');
+    throw PipeError.request('atendente_obrigatorio', 'Escolha ao menos um atendente.');
   }
   const pessoas = await tx
-    .select({ id: usuario.id, nome: usuario.nome, email: usuario.email })
-    .from(usuario)
-    .where(inArray(usuario.id, unicos))
-    .orderBy(asc(usuario.nome));
-  if (pessoas.length !== unicos.length) throw ErroPipe.naoEncontrado('atendente');
+    .select({ id: user.id, nome: user.nome, email: user.email })
+    .from(user)
+    .where(inArray(user.id, unicos))
+    .orderBy(asc(user.nome));
+  if (pessoas.length !== unicos.length) throw PipeError.naoEncontrado('atendente');
   return pessoas;
 }
 
@@ -115,45 +115,45 @@ async function atendentesVivos(
  * Em SÉRIE, nunca em `Promise.all`: consulta paralela na mesma conexão apaga o
  * `set_config('pipe.tenant_id')` da transação e a RLS para de filtrar.
  */
-export async function carregarPermissoesDoAtendente(
-  tx: TransacaoPipe,
+export async function loadPermissionsOfAgent(
+  tx: TransactionPipe,
   ids: readonly string[],
-): Promise<PermissoesDoAtendente> {
-  const atendentes = await atendentesVivos(tx, ids);
-  const alvos = atendentes.map((a) => a.id);
+): Promise<PermissionsOfAgent> {
+  const agents = await agentsVivos(tx, ids);
+  const alvos = agents.map((a) => a.id);
 
   const catalogo = await tx
-    .select({ codigo: permissao.codigo, grupo: permissao.grupo, descricao: permissao.descricao })
-    .from(permissao)
-    .orderBy(asc(permissao.grupo), asc(permissao.codigo));
+    .select({ codigo: permission.codigo, grupo: permission.grupo, descricao: permission.descricao })
+    .from(permission)
+    .orderBy(asc(permission.grupo), asc(permission.codigo));
 
   /* Uma linha por (pessoa, permissão) que o PAPEL dá. `selectDistinct` porque
      dois papéis repetem permissão o tempo todo. */
   const dosPapeis = await tx
     .selectDistinct({
-      usuarioId: usuarioPapel.usuarioId,
-      codigo: papelPermissao.permissaoCodigo,
+      usuarioId: userRole.userId,
+      codigo: rolePermission.permissionCode,
     })
-    .from(usuarioPapel)
-    .innerJoin(papelPermissao, eq(papelPermissao.papelId, usuarioPapel.papelId))
-    .where(inArray(usuarioPapel.usuarioId, alvos));
+    .from(userRole)
+    .innerJoin(rolePermission, eq(rolePermission.roleId, userRole.papelId))
+    .where(inArray(userRole.userId, alvos));
 
-  const excecoes = await tx
+  const exceptions = await tx
     .select({
-      usuarioId: usuarioPermissao.usuarioId,
-      codigo: usuarioPermissao.permissaoCodigo,
-      concedida: usuarioPermissao.concedida,
+      usuarioId: userPermission.usuarioId,
+      codigo: userPermission.permissaoCodigo,
+      concedida: userPermission.concedida,
     })
-    .from(usuarioPermissao)
-    .where(inArray(usuarioPermissao.usuarioId, alvos));
+    .from(userPermission)
+    .where(inArray(userPermission.usuarioId, alvos));
 
-  const doPapel = new Set(dosPapeis.map((l) => `${l.usuarioId}\u0000${l.codigo}`));
-  const override = new Map(excecoes.map((e) => [`${e.usuarioId}\u0000${e.codigo}`, e.concedida]));
+  const ofRole = new Set(dosPapeis.map((l) => `${l.usuarioId}\u0000${l.codigo}`));
+  const override = new Map(exceptions.map((e) => [`${e.usuarioId}\u0000${e.codigo}`, e.concedida]));
 
-  const permissoes = catalogo.filter((c) => EH_DO_ATENDENTE.test(c.codigo)).map((c) => {
+  const permissions = catalogo.filter((c) => EH_OF_AGENT.test(c.codigo)).map((c) => {
     const efetivas = alvos.map((alvo) => {
-      const chave = `${alvo}\u0000${c.codigo}`;
-      return override.get(chave) ?? doPapel.has(chave);
+      const key = `${alvo}\u0000${c.codigo}`;
+      return override.get(key) ?? ofRole.has(key);
     });
     const todos = efetivas.every((v) => v);
     const nenhum = efetivas.every((v) => !v);
@@ -161,55 +161,55 @@ export async function carregarPermissoesDoAtendente(
        que a tela precisa é só `ligada`/`parcial`, e os dois campos viram o
        retrato do PRIMEIRO — é o que a coluna "Status" desenha ao lado do
        nome quando a seleção é de um. */
-    const primeiro = `${alvos[0]}\u0000${c.codigo}`;
+    const first = `${alvos[0]}\u0000${c.codigo}`;
     return {
       codigo: c.codigo,
       grupo: c.grupo,
       descricao: ROTULO_DA_ORIGEM[c.codigo] ?? c.descricao,
-      dosPapeis: doPapel.has(primeiro),
-      override: override.get(primeiro) ?? null,
+      dosPapeis: ofRole.has(first),
+      override: override.get(first) ?? null,
       ligada: todos,
       parcial: !todos && !nenhum,
     };
   });
 
-  return { atendentes, permissoes };
+  return { agents, permissions };
 }
 
-export interface PedidoDePermissoes {
-  usuarioIds: string[];
+export interface RequestOfPermissions {
+  userIds: string[];
   /** Só o que a tela MEXEU: código → ligado/desligado. O resto fica como está. */
-  permissoes: Record<string, boolean>;
+  permissions: Record<string, boolean>;
 }
 
 /**
  * "Salvar alterações": para cada (pessoa, código) pedido, grava o override —
  * ou o APAGA, quando a escolha já é o que o papel dá.
  */
-export async function gravarPermissoesDoAtendente(
-  tx: TransacaoPipe,
+export async function writePermissionsOfAgent(
+  tx: TransactionPipe,
   tid: string,
   autorId: string,
-  pedido: PedidoDePermissoes,
+  pedido: RequestOfPermissions,
 ): Promise<{ ok: true }> {
-  await exigirPermissao(tx, autorId, USUARIO_GERENCIAR);
+  await exigirPermission(tx, autorId, USER_MANAGE);
 
-  const atendentes = await atendentesVivos(tx, pedido.usuarioIds ?? []);
-  const escolhas = Object.entries(pedido.permissoes ?? {});
+  const atendentes = await agentsVivos(tx, pedido.userIds ?? []);
+  const escolhas = Object.entries(pedido.permissions ?? {});
   if (escolhas.length === 0) return { ok: true };
 
   const codigos = escolhas.map(([codigo]) => codigo);
   const conhecidas = await tx
-    .select({ codigo: permissao.codigo })
-    .from(permissao)
-    .where(inArray(permissao.codigo, codigos));
+    .select({ codigo: permission.codigo })
+    .from(permission)
+    .where(inArray(permission.codigo, codigos));
   const valida = new Set(conhecidas.map((c) => c.codigo));
   for (const codigo of codigos) {
-    if (!EH_DO_ATENDENTE.test(codigo)) {
-      throw ErroPipe.requisicao("permissao_fora_do_atendente", `"${codigo}" não se concede por atendente: vem do papel.`);
+    if (!EH_OF_AGENT.test(codigo)) {
+      throw PipeError.request("permissao_fora_do_atendente", `"${codigo}" não se concede por atendente: vem do papel.`);
     }
     if (!valida.has(codigo)) {
-      throw ErroPipe.requisicao('permissao_desconhecida', `"${codigo}" não é uma permissão do Pipe.`);
+      throw PipeError.request('permissao_desconhecida', `"${codigo}" não é uma permissão do Pipe.`);
     }
   }
 
@@ -228,12 +228,12 @@ export async function gravarPermissoesDoAtendente(
       const doPapel = rows[0]?.tem ?? false;
 
       const [atual] = await tx
-        .select({ concedida: usuarioPermissao.concedida })
-        .from(usuarioPermissao)
+        .select({ concedida: userPermission.concedida })
+        .from(userPermission)
         .where(
           and(
-            eq(usuarioPermissao.usuarioId, pessoa.id),
-            eq(usuarioPermissao.permissaoCodigo, codigo),
+            eq(userPermission.usuarioId, pessoa.id),
+            eq(userPermission.permissaoCodigo, codigo),
           ),
         )
         .limit(1);
@@ -243,16 +243,16 @@ export async function gravarPermissoesDoAtendente(
         /* Voltou a coincidir com o papel: a exceção deixa de existir. */
         if (atual !== undefined) {
           await tx
-            .delete(usuarioPermissao)
+            .delete(userPermission)
             .where(
               and(
-                eq(usuarioPermissao.usuarioId, pessoa.id),
-                eq(usuarioPermissao.permissaoCodigo, codigo),
+                eq(userPermission.usuarioId, pessoa.id),
+                eq(userPermission.permissaoCodigo, codigo),
               ),
             );
         }
       } else if (atual === undefined) {
-        await tx.insert(usuarioPermissao).values({
+        await tx.insert(userPermission).values({
           tenantId: tid,
           usuarioId: pessoa.id,
           permissaoCodigo: codigo,
@@ -260,12 +260,12 @@ export async function gravarPermissoesDoAtendente(
         });
       } else if (atual.concedida !== ligada) {
         await tx
-          .update(usuarioPermissao)
+          .update(userPermission)
           .set({ concedida: ligada, atualizadoEm: new Date() })
           .where(
             and(
-              eq(usuarioPermissao.usuarioId, pessoa.id),
-              eq(usuarioPermissao.permissaoCodigo, codigo),
+              eq(userPermission.usuarioId, pessoa.id),
+              eq(userPermission.permissaoCodigo, codigo),
             ),
           );
       }

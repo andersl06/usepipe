@@ -1,25 +1,25 @@
 import { useState } from 'react';
 import type { KeyboardEvent as KeyboardEventDeReact } from 'react';
-import type { CondicaoBlip } from '@pipe/core';
+import type { ConditionBlip } from '@pipe/core';
 import { ehUnaria } from '@pipe/core';
 import { Campo, Etiqueta } from '@pipe/ui';
-import { IconeGestao } from '../../componentes/icones-gestao';
-import { Selecao } from '../../componentes/selecao';
+import { IconeManagement } from '../../componentes/icones-gestao';
+import { Selection } from '../../componentes/selecao';
 import {
-  COMPARACOES_DA_TELA,
+  COMPARISONS_OF_TELA,
   FONTES_DA_TELA,
   OPERADORES_DA_TELA,
   ROTULOS_DAS_SAIDAS,
   ROTULO_DA_FONTE,
-  adicionarValor,
-  comComparacao,
+  addValue,
+  withComparison,
   comFonte,
-  comparacaoDe,
-  erroDaCondicao,
+  comparisonOf,
+  conditionError,
   fonteDe,
   fonteSemSuporte,
-  novaCondicao,
-  removerValor,
+  newCondition,
+  removerValue,
 } from './condicoes';
 
 /**
@@ -30,26 +30,26 @@ import {
  * vírgula acrescenta um; entre eles vale o operador OU/E.
  */
 
-export function EditorDeCondicoes({
-  condicoes,
+export function ConditionsEditor({
+  conditions,
   onMudar,
   rotuloAdicionar,
 }: {
-  condicoes: CondicaoBlip[];
-  onMudar: (condicoes: CondicaoBlip[]) => void;
+  conditions: ConditionBlip[];
+  onMudar: (conditions: ConditionBlip[]) => void;
   rotuloAdicionar: string;
 }) {
-  const trocar = (indice: number, c: CondicaoBlip): void =>
-    onMudar(condicoes.map((x, i) => (i === indice ? c : x)));
-  const remover = (indice: number): void => onMudar(condicoes.filter((_, i) => i !== indice));
+  const switch = (indice: number, c: ConditionBlip): void =>
+    onMudar(conditions.map((x, i) => (i === indice ? c : x)));
+  const remover = (indice: number): void => onMudar(conditions.filter((_, i) => i !== indice));
   return (
     <div className="bl-condicoes">
-      {condicoes.map((c, i) => (
-        <LinhaDeCondicao
+      {conditions.map((c, i) => (
+        <ConditionLinha
           key={i}
-          condicao={c}
-          primeira={i === 0}
-          onMudar={(nova) => trocar(i, nova)}
+          condition={c}
+          first={i === 0}
+          onMudar={(nova) => switch(i, nova)}
           onRemover={() => remover(i)}
         />
       ))}
@@ -58,7 +58,7 @@ export function EditorDeCondicoes({
         className="bl-adicionar-condicao"
         aria-label={rotuloAdicionar}
         title={rotuloAdicionar}
-        onClick={() => onMudar([...condicoes, novaCondicao()])}
+        onClick={() => onMudar([...conditions, newCondition()])}
       >
         +
       </button>
@@ -66,105 +66,105 @@ export function EditorDeCondicoes({
   );
 }
 
-function LinhaDeCondicao({
-  condicao,
-  primeira,
+function ConditionLinha({
+  condition,
+  first,
   onMudar,
   onRemover,
 }: {
-  condicao: CondicaoBlip;
-  primeira: boolean;
-  onMudar: (c: CondicaoBlip) => void;
+  condition: ConditionBlip;
+  first: boolean;
+  onMudar: (c: ConditionBlip) => void;
   onRemover: () => void;
 }) {
   const [digitando, setDigitando] = useState('');
-  const fonte = fonteDe(condicao);
-  const comparacao = comparacaoDe(condicao);
-  const unaria = ehUnaria(comparacao);
-  const valores = condicao.values ?? [];
-  const erro = erroDaCondicao(condicao);
-  const semSuporte = fonteSemSuporte(condicao);
+  const fonte = fonteDe(condition);
+  const comparison = comparisonOf(condition);
+  const unaria = ehUnaria(comparison);
+  const values = condition.values ?? [];
+  const error = conditionError(condition);
+  const semSuporte = fonteSemSuporte(condition);
 
-  function confirmarValor(): void {
+  function confirmValue(): void {
     if (!digitando.trim()) return;
-    onMudar(adicionarValor(condicao, digitando));
+    onMudar(addValue(condition, digitando));
     setDigitando('');
   }
 
   function aoTeclar(e: KeyboardEventDeReact<HTMLInputElement>): void {
     if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault();
-      confirmarValor();
-    } else if (e.key === 'Backspace' && !digitando && valores.length > 0) {
-      onMudar(removerValor(condicao, valores.length - 1));
+      confirmValue();
+    } else if (e.key === 'Backspace' && !digitando && values.length > 0) {
+      onMudar(removerValue(condition, values.length - 1));
     }
   }
 
   return (
-    <div className={`bl-condicao${erro ? ' bl-condicao--erro' : ''}`}>
+    <div className={`bl-condicao${error ? ' bl-condicao--erro' : ''}`}>
       <div className="bl-condicao-linha bl-condicao-campos">
-        <span className="bl-condicao-se">{primeira ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
+        <span className="bl-condicao-se">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (
           <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (
-          <Selecao
+          <Selection
             aria-label="Fonte"
             value={fonte}
-            onChange={(e) => onMudar(comFonte(condicao, e.target.value))}
+            onChange={(e) => onMudar(comFonte(condition, e.target.value))}
           >
             {FONTES_DA_TELA.map((f) => (
               <option key={f.valor} value={f.valor}>
                 {f.rotulo}
               </option>
             ))}
-          </Selecao>
+          </Selection>
         )}
         {fonte === 'context' ? (
           <Campo
             aria-label={ROTULOS_DAS_SAIDAS.nomeDaVariavel}
             placeholder={ROTULOS_DAS_SAIDAS.nomeDaVariavel}
-            value={condicao.variable ?? ''}
-            onChange={(e) => onMudar({ ...condicao, variable: e.target.value })}
+            value={condition.variable ?? ''}
+            onChange={(e) => onMudar({ ...condition, variable: e.target.value })}
           />
         ) : null}
-        <Selecao
+        <Selection
           aria-label="Comparação"
-          value={comparacao}
-          onChange={(e) => onMudar(comComparacao(condicao, e.target.value as typeof comparacao))}
+          value={comparison}
+          onChange={(e) => onMudar(withComparison(condition, e.target.value as typeof comparison))}
         >
-          {COMPARACOES_DA_TELA.map((c) => (
+          {COMPARISONS_OF_TELA.map((c) => (
             <option key={c.valor} value={c.valor}>
               {c.rotulo}
             </option>
           ))}
-        </Selecao>
+        </Selection>
         <button type="button" className="iconbtn bl-remover" title="Excluir condição" aria-label="Excluir condição" onClick={onRemover}>
-          <IconeGestao nome="lixeira" tamanho={18} />
+          <IconeManagement nome="lixeira" tamanho={18} />
         </button>
       </div>
       {!unaria ? (
         <div className="bl-condicao-valores">
-          {valores.length > 1 ? (
-            <Selecao
+          {values.length > 1 ? (
+            <Selection
               aria-label="Operador"
               className="bl-condicao-operador"
-              value={(condicao.operator ?? 'or').toLowerCase()}
-              onChange={(e) => onMudar({ ...condicao, operator: e.target.value })}
+              value={(condition.operator ?? 'or').toLowerCase()}
+              onChange={(e) => onMudar({ ...condition, operator: e.target.value })}
             >
               {OPERADORES_DA_TELA.map((o) => (
                 <option key={o.valor} value={o.valor}>
                   {o.rotulo}
                 </option>
               ))}
-            </Selecao>
+            </Selection>
           ) : null}
           <div className="bl-valores" onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}>
-            {valores.map((v, i) => (
+            {values.map((v, i) => (
               <span key={`${v}-${i}`} className="bl-valor">
                 {v}
-                <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removerValor(condicao, i))}>
+                <button type="button" aria-label={`Remover ${v}`} onClick={() => onMudar(removerValue(condition, i))}>
                   ×
                 </button>
               </span>
@@ -172,16 +172,16 @@ function LinhaDeCondicao({
             <input
               className="bl-valores-campo"
               aria-label={ROTULOS_DAS_SAIDAS.valores}
-              placeholder={valores.length === 0 ? ROTULOS_DAS_SAIDAS.valores : ''}
+              placeholder={values.length === 0 ? ROTULOS_DAS_SAIDAS.valores : ''}
               value={digitando}
               onChange={(e) => setDigitando(e.target.value)}
               onKeyDown={aoTeclar}
-              onBlur={confirmarValor}
+              onBlur={confirmValue}
             />
           </div>
         </div>
       ) : null}
-      {erro ? <p className="bl-erro-do-campo">{erro}</p> : null}
+      {error ? <p className="bl-erro-do-campo">{error}</p> : null}
     </div>
   );
 }

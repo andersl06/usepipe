@@ -8,44 +8,44 @@
  * Vivem no navegador (`localStorage`, `desk.pref.<chave>`): são da máquina,
  * não da pessoa. Quem lê é `lerPreferencias`, sempre com o padrão por baixo.
  */
-export interface Preferencias {
-  notificacoesDoNavegador: boolean;
-  alertaDeTicketNaFila: boolean;
+export interface Preferences {
+  navegadorNotifications: boolean;
+  ticketInQueueAlerta: boolean;
   alertaDeTicketAtribuido: boolean;
-  alertaDeMensagem: boolean;
-  alertaComAbaAtiva: boolean;
+  messageAlerta: boolean;
+  alertaWithAbaActive: boolean;
   continuarOnline: boolean;
-  ordemDeAbertura: boolean;
+  aberturaOrder: boolean;
   corretorOrtografico: boolean;
 }
 
-export const PADRAO: Preferencias = {
-  notificacoesDoNavegador: true,
-  alertaDeTicketNaFila: true,
+export const PADRAO: Preferences = {
+  navegadorNotifications: true,
+  ticketInQueueAlerta: true,
   alertaDeTicketAtribuido: true,
-  alertaDeMensagem: true,
-  alertaComAbaAtiva: true,
+  messageAlerta: true,
+  alertaWithAbaActive: true,
   continuarOnline: false,
-  ordemDeAbertura: false,
+  aberturaOrder: false,
   corretorOrtografico: true,
 };
 
-export const CHAVES_DE_PREFERENCIA = Object.keys(PADRAO) as (keyof Preferencias)[];
+export const CHAVES_DE_PREFERENCIA = Object.keys(PADRAO) as (keyof Preferences)[];
 
-export function lerPreferencias(
-  ler: (chave: string) => string | null = (chave) => {
+export function readPreferences(
+  ler: (key: string) => string | null = (chave) => {
     try {
       return localStorage.getItem(chave);
     } catch {
       return null;
     }
   },
-): Preferencias {
+): Preferences {
   const saida = { ...PADRAO };
-  for (const chave of CHAVES_DE_PREFERENCIA) {
-    const v = ler(`desk.pref.${chave}`);
-    if (v === '1') saida[chave] = true;
-    else if (v === '0') saida[chave] = false;
+  for (const key of CHAVES_DE_PREFERENCIA) {
+    const v = ler(`desk.pref.${key}`);
+    if (v === '1') saida[key] = true;
+    else if (v === '0') saida[key] = false;
   }
   return saida;
 }

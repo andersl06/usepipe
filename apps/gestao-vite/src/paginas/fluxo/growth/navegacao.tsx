@@ -1,6 +1,6 @@
 import Link from '../../../componentes/link';
 import { useLocation } from 'react-router-dom';
-import { baseDoContato, useContato } from '../contato';
+import { contactBase, useContact } from '../contato';
 
 /**
  * A lateral do Growth — `<aside class="detail-aside fl"><nav class="sidenav">
@@ -24,35 +24,35 @@ import { baseDoContato, useContato } from '../contato';
  * Click-to-WhatsApp da Meta). Entra no fim da lista, sem badge, com texto
  * nosso — não há frase da Blip para copiar aqui.
  */
-const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: string | null }[] = [
-  { titulo: 'Mensagens ativas', descricao: null, rota: 'mensagens-ativas' },
+const ITENS: { titulo: string; description: string | null; beta?: true; rota: string | null }[] = [
+  { titulo: 'Mensagens ativas', description: null, rota: 'mensagens-ativas' },
   {
     titulo: 'Click Tracker',
-    descricao: 'Confira os dados das campanhas de Click to WhatsApp',
+    description: 'Confira os dados das campanhas de Click to WhatsApp',
     rota: 'clicktracker',
   },
   {
     titulo: 'Anúncios',
-    descricao: 'Crie e publique anúncios que se conectam ao seu chatbot',
+    description: 'Crie e publique anúncios que se conectam ao seu chatbot',
     beta: true,
     rota: 'anuncios',
   },
   {
     titulo: 'Relatório de Pagamentos',
-    descricao: 'Visualize e analise os pagamentos realizados',
+    description: 'Visualize e analise os pagamentos realizados',
     rota: 'pagamentos',
   },
   {
     titulo: 'Links rastreados',
-    descricao: 'Crie links curtos e acompanhe os cliques das suas campanhas',
+    description: 'Crie links curtos e acompanhe os cliques das suas campanhas',
     rota: 'links-rastreados',
   },
 ];
 
-export function NavegacaoGrowth({ id }: { id: string }) {
+export function NavigationGrowth({ id }: { id: string }) {
   const caminho = useLocation().pathname;
-  const { contato } = useContato();
-  const base = baseDoContato(contato.tipo, id);
+  const { contact } = useContact();
+  const base = contactBase(contact.tipo, id);
   return (
     <aside className="gr-lateral">
       <nav className="gr-sidenav" aria-label="Seções do Growth">
@@ -67,8 +67,8 @@ export function NavegacaoGrowth({ id }: { id: string }) {
                   {item.beta ? <span className="gr-sidenav-beta">Beta</span> : null}
                   {href ? null : <span className="pt-obra-selo">em breve</span>}
                 </span>
-                {item.descricao ? (
-                  <span className="gr-sidenav-subtitulo">{item.descricao}</span>
+                {item.description ? (
+                  <span className="gr-sidenav-subtitulo">{item.description}</span>
                 ) : null}
               </>
             );

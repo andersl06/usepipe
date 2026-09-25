@@ -1,8 +1,8 @@
 import { useSearchParams } from 'react-router-dom';
 import type { ArestaDaJornada } from '@pipe/core/analise';
-import { useLeitura } from '../../../../lib/consulta';
-import { useContato } from '../../contato';
-import { JornadaDosContatos } from './jornada';
+import { useRead } from '../../../../lib/consulta';
+import { useContact } from '../../contato';
+import { ContactsJourney } from './jornada';
 import './jornada.css';
 
 /**
@@ -20,30 +20,30 @@ interface RespostaDaJornada {
   ate: string;
   min: string;
   max: string;
-  roteador: boolean;
+  router: boolean;
 }
 
-export function PaginaDaJornada() {
-  const { contato } = useContato();
-  const [busca] = useSearchParams();
+export function JourneyPage() {
+  const { contact } = useContact();
+  const [search] = useSearchParams();
   const q = new URLSearchParams();
-  for (const chave of ['de', 'ate']) {
-    const v = busca.get(chave);
-    if (v) q.set(chave, v);
+  for (const key of ['de', 'ate']) {
+    const v = search.get(key);
+    if (v) q.set(key, v);
   }
-  const leitura = useLeitura<RespostaDaJornada>(
-    `/v1/gestao/fluxos/${contato.id}/analise/jornada?${q.toString()}`,
+  const read = useRead<RespostaDaJornada>(
+    `/v1/gestao/fluxos/${contact.id}/analise/jornada?${q.toString()}`,
   );
-  if (!leitura.data) return null;
-  const { arestas, de, ate, min, max, roteador } = leitura.data;
+  if (!read.data) return null;
+  const { arestas, de, ate, min, max, router } = read.data;
   return (
-    <JornadaDosContatos
+    <ContactsJourney
       arestas={arestas}
       de={de}
       ate={ate}
       min={min}
       max={max}
-      roteador={roteador}
+      router={router}
     />
   );
 }

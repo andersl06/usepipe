@@ -1,23 +1,23 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { ItemDaConversa } from '@pipe/contracts';
-import { agrupar, sinalDeEntrega, type Mensagem } from '../src/lib/grupos';
+import type { ItemOfConversation } from '@pipe/contracts';
+import { agrupar, deliverySignal, type Message } from '../src/lib/grupos';
 
 function msg(
   id: string,
-  direcao: 'entrada' | 'saida',
-  estadoEntrega: string | null = 'entregue',
-): Mensagem {
+  direction: 'entrada' | 'saida',
+  stateDelivery: string | null = 'entregue',
+): Message {
   return {
     genero: 'mensagem',
     id,
     criadaEm: '2026-09-17T10:00:00Z',
-    direcao,
+    direction,
     tipo: 'texto',
     conteudo: id,
-    estadoEntrega,
-    erroCodigo: null,
-    erroTexto: null,
+    stateDelivery,
+    errorCode: null,
+    errorText: null,
     lidaEm: null,
     entregueEm: null,
     deRespostaPronta: false,
@@ -26,14 +26,14 @@ function msg(
 }
 
 test('mensagens seguidas do mesmo lado formam um grupo; a nota quebra', () => {
-  const nota: ItemDaConversa = {
+  const nota: ItemOfConversation = {
     genero: 'nota',
     id: 'n',
     criadaEm: '2026-09-17T10:00:00Z',
     corpo: 'x',
     autor: null,
   };
-  const grupos = agrupar([
+  const groups = agrupar([
     msg('1', 'entrada'),
     msg('2', 'entrada'),
     msg('3', 'saida'),
@@ -41,15 +41,15 @@ test('mensagens seguidas do mesmo lado formam um grupo; a nota quebra', () => {
     msg('4', 'saida'),
   ]);
   assert.deepEqual(
-    grupos.map((g) => (g.genero === 'nota' ? 'nota' : `${g.direcao}:${g.mensagens.length}`)),
+    groups.map((g) => (g.genero === 'nota' ? 'nota' : `${g.direction}:${g.messages.length}`)),
     ['entrada:2', 'saida:1', 'nota', 'saida:1'],
   );
 });
 
 test('o sinal de entrega é o do último balão', () => {
-  assert.equal(sinalDeEntrega([msg('1', 'saida', 'lida'), msg('2', 'saida', 'enviada')]), 'check');
-  assert.equal(sinalDeEntrega([msg('1', 'saida', 'lida')]), 'lida');
-  assert.equal(sinalDeEntrega([msg('1', 'saida', 'pendente')]), 'relogio');
-  assert.equal(sinalDeEntrega([msg('1', 'saida', 'falhou')]), 'erro');
-  assert.equal(sinalDeEntrega([]), null);
+  assert.equal(deliverySignal([msg('1', 'saida', 'lida'), msg('2', 'saida', 'enviada')]), 'check');
+  assert.equal(deliverySignal([msg('1', 'saida', 'lida')]), 'lida');
+  assert.equal(deliverySignal([msg('1', 'saida', 'pendente')]), 'relogio');
+  assert.equal(deliverySignal([msg('1', 'saida', 'falhou')]), 'erro');
+  assert.equal(deliverySignal([]), null);
 });

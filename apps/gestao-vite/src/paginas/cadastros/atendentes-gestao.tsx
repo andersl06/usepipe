@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Botao, BotaoDeIcone, Icone } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { AtendenteCadastrado } from '../../lib/cadastros';
-import { tirarDeTodasAsFilas } from '../../lib/atendentes-gravar';
-import { filasDosAtendentes, filasNoCartao, filtrarAtendentes } from '../../lib/atendentes';
+import { useRead } from '../../lib/consulta';
+import type { AgentRegistered } from '../../lib/cadastros';
+import { removeFromAllQueues } from '../../lib/atendentes-gravar';
+import { agentsQueues, queuesInCard, filterAgents } from '../../lib/atendentes';
 import { numero } from '../../lib/formato';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from '../operacao/casca';
-import { ModalConfirmacao } from './_modal';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from '../operacao/casca';
+import { ModalConfirmation } from './_modal';
 
 /**
  * Gestão de atendentes — a lista.
@@ -35,26 +35,26 @@ import { ModalConfirmacao } from './_modal';
  * "equipe de atendimento" como cadastro à parte; quem recebe conversa é quem
  * está em fila).
  */
-export function PaginaGestaoDeAtendentes() {
+export function AgentsPageManagement() {
   const navegar = useNavigate();
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
 
-  const [filasAplicadas, setFilasAplicadas] = useState<string[]>([]);
+  const [queuesAplicadas, setQueuesAplicadas] = useState<string[]>([]);
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set());
-  const [paraExcluir, setParaExcluir] = useState<AtendenteCadastrado | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<AgentRegistered | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
 
-  const leitura = useLeitura<AtendenteCadastrado[]>('/v1/gestao/atendentes/gestao');
-  if (!leitura.data) return null;
-  const atendentes = leitura.data;
+  const read = useRead<AgentRegistered[]>('/v1/gestao/atendentes/gestao');
+  if (!read.data) return null;
+  const agents = read.data;
 
-  const filasDisponiveis = filasDosAtendentes(atendentes);
-  const filtrados = filtrarAtendentes(atendentes, { busca: '', filas: filasAplicadas });
+  const queuesDisponiveis = agentsQueues(agents);
+  const filtrados = filterAgents(agents, { search: '', queues: queuesAplicadas });
   const todosMarcados = filtrados.length > 0 && filtrados.every((a) => selecionados.has(a.id));
 
-  function alternarSelecao(id: string) {
+  function alternarSelection(id: string) {
     setSelecionados((atual) => {
       const novo = new Set(atual);
       if (novo.has(id)) novo.delete(id);
@@ -72,36 +72,36 @@ export function PaginaGestaoDeAtendentes() {
     });
   }
 
-  function irParaEdicao(ids: readonly string[]) {
+  function irForEdit(ids: readonly string[]) {
     navegar(`${base}/atendentes/gestao/editar?atendentes=${ids.join(',')}`);
   }
 
-  function irParaPermissoes(ids: readonly string[]) {
+  function irForPermissions(ids: readonly string[]) {
     navegar(`${base}/atendentes/gestao/permissoes?atendentes=${ids.join(',')}`);
   }
 
   async function excluir() {
     if (!paraExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
-    const resultado = await tirarDeTodasAsFilas(paraExcluir.id, paraExcluir.filas);
+    setErrorExclusao(null);
+    const resultado = await removeFromAllQueues(paraExcluir.id, paraExcluir.queues);
     setExcluindo(false);
     if (resultado.ok) setParaExcluir(null);
-    else setErroExclusao(resultado.erro);
+    else setErrorExclusao(resultado.error);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Gestão de atendentes',
-      vazio: 'Nenhum atendente cadastrado.',
-      cartoes: filtrados.map((a) => ({
+      empty: 'Nenhum atendente cadastrado.',
+      cards: filtrados.map((a) => ({
         id: a.id,
         esquerda: (
           <span className="cl-selecao">
             <input
               type="checkbox"
               checked={selecionados.has(a.id)}
-              onChange={() => alternarSelecao(a.id)}
+              onChange={() => alternarSelection(a.id)}
               aria-label={`Selecionar ${a.nome}`}
             />
             <Avatar nome={a.nome} />
@@ -110,7 +110,7 @@ export function PaginaGestaoDeAtendentes() {
         campos: [
           { rotulo: 'Atendente', valor: a.nome },
           { rotulo: 'E-mail', valor: a.email },
-          { rotulo: 'Filas', valor: filasNoCartao(a.filas) },
+          { rotulo: 'Filas', valor: queuesInCard(a.queues) },
           {
             rotulo: 'Tickets simultâneos',
             valor: a.limiteSimultaneo === null ? '—' : numero(a.limiteSimultaneo),
@@ -124,11 +124,11 @@ export function PaginaGestaoDeAtendentes() {
         ativa: a.ativo,
         acao: (
           <>
-            <BotaoDeIcone nome="lapis" rotulo={`Editar ${a.nome}`} onClick={() => irParaEdicao([a.id])} />
+            <BotaoDeIcone nome="lapis" rotulo={`Editar ${a.nome}`} onClick={() => irForEdit([a.id])} />
             <BotaoDeIcone
               nome="chave"
               rotulo={`Permissões de ${a.nome}`}
-              onClick={() => irParaPermissoes([a.id])}
+              onClick={() => irForPermissions([a.id])}
             />
             <BotaoDeIcone nome="x" rotulo={`Excluir ${a.nome}`} onClick={() => setParaExcluir(a)} />
           </>
@@ -162,42 +162,42 @@ export function PaginaGestaoDeAtendentes() {
             <span className="sub">
               {numero(selecionados.size)} selecionado{selecionados.size === 1 ? '' : 's'}
             </span>
-            <Botao onClick={() => irParaEdicao([...selecionados])}>Editar</Botao>
-            <Botao onClick={() => irParaPermissoes([...selecionados])}>Permissões</Botao>
+            <Botao onClick={() => irForEdit([...selecionados])}>Editar</Botao>
+            <Botao onClick={() => irForPermissions([...selecionados])}>Permissões</Botao>
           </div>
         ) : null}
       </div>
 
-      {erroExclusao ? (
+      {errorExclusao ? (
         <p className="sub" style={{ color: 'var(--p-erro-conteudo)' }}>
-          {erroExclusao}
+          {errorExclusao}
         </p>
       ) : null}
 
       <ListaRegras
-        secoes={secoes}
+        sections={sections}
         placeholder="Buscar por nome ou e-mail"
-        ocultarCabecalhoDeSecao
+        sectionOcultarHeader
         paginar
-        tamanhoDePaginaInicial={5}
-        filtros={<FiltroDeFilas opcoes={filasDisponiveis} aplicado={filasAplicadas} onAplicar={setFilasAplicadas} />}
+        pageInitialTamanho={5}
+        filters={<QueuesFilter options={queuesDisponiveis} aplicado={queuesAplicadas} onAplicar={setQueuesAplicadas} />}
       />
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={paraExcluir !== null}
         titulo="Excluir atendente"
-        mensagem={
+        message={
           <>
             Tirar "{paraExcluir?.nome}" de todas as filas? A pessoa deixa de receber conversa e continua com a
             conta.
           </>
         }
-        erro={erroExclusao}
+        error={errorExclusao}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setParaExcluir(null);
-          setErroExclusao(null);
+          setErrorExclusao(null);
         }}
       />
     </>
@@ -210,14 +210,14 @@ export function PaginaGestaoDeAtendentes() {
  * "Limpar seleção", "Cancelar", "Aplicar"). A escolha só vale para a lista
  * depois de "Aplicar" — cancelar ou fechar sem aplicar não muda nada.
  */
-function FiltroDeFilas({
-  opcoes,
+function QueuesFilter({
+  options,
   aplicado,
   onAplicar,
 }: {
-  opcoes: readonly string[];
+  options: readonly string[];
   aplicado: readonly string[];
-  onAplicar: (filas: string[]) => void;
+  onAplicar: (queues: string[]) => void;
 }) {
   const [aberto, setAberto] = useState(false);
   const [staged, setStaged] = useState<string[]>([...aplicado]);
@@ -244,10 +244,10 @@ function FiltroDeFilas({
             </button>
           </div>
 
-          {opcoes.length === 0 ? (
+          {options.length === 0 ? (
             <p className="sub">Nenhuma fila cadastrada.</p>
           ) : (
-            opcoes.map((nome) => (
+            options.map((nome) => (
               <label key={nome} className="filtro-filas-item">
                 <input
                   type="checkbox"

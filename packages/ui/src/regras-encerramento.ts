@@ -1,17 +1,17 @@
-export interface EtiquetaDeEncerramento {
+export interface ClosureTag {
   id: string;
   nome: string;
   cor?: string | null;
-  obrigatoriaNoEncerramento: boolean;
+  obrigatoriaInClosure: boolean;
 }
 
 /** A Blip bloqueia a confirmação enquanto faltar qualquer tag obrigatória. */
-export function encerramentoPodeConfirmar(
-  etiquetas: readonly EtiquetaDeEncerramento[],
+export function closureCanConfirm(
+  etiquetas: readonly ClosureTag[],
   selecionadas: readonly string[],
   enviando: boolean,
 ): boolean {
   return !enviando && etiquetas.every((etiqueta) =>
-    !etiqueta.obrigatoriaNoEncerramento || selecionadas.includes(etiqueta.id),
+    !etiqueta.obrigatoriaInClosure || selecionadas.includes(etiqueta.id),
   );
 }

@@ -1,17 +1,17 @@
 import { and, asc, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import {
-  calcularEsforcoConversa,
-  calcularTempoEmSessao,
-  ocupacao,
-  type EsforcoConversa,
-  type MensagemEsforco,
+  calcularEffortConversation,
+  calcularTimeInSession,
+  occupancy,
+  type EffortConversation,
+  type MessageEffort,
 } from '@pipe/core';
-import { anexo, conversa, mensagem, usuario } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { Janela } from './janela.js';
+import { attachment, conversation, message, user } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
+import type { Window } from './janela.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -23,15 +23,15 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * matéria-prima e se soma o que o core devolveu.
  */
 
-export interface EsforcoDoAtendente {
+export interface EffortOfAgent {
   id: string;
   nome: string;
   tickets: number;
-  esforcoSeg: number;
+  effortSeg: number;
   /** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */
-  esforcoPorTicketSeg: number | null;
-  sessaoSeg: number;
-  ocupacao: number | null;
+  effortByTicketSeg: number | null;
+  sessionSeg: number;
+  occupancy: number | null;
   charsEscritos: number;
   charsLidos: number;
   audioOuvidoSeg: number;
@@ -39,135 +39,135 @@ export interface EsforcoDoAtendente {
   /** Texto que o atendente **não** digitou: resposta pronta e template. */
   charsDeRespostaPronta: number;
   /** O que esse texto acrescentaria ao esforço se fosse contado como digitação. */
-  esforcoRespostaProntaSeg: number;
+  effortResponseReadySeg: number;
   audiosSemMetadado: number;
 }
 
-export interface RelatorioEsforco {
-  janela: Janela;
-  atendentes: EsforcoDoAtendente[];
-  conversasConsideradas: number;
+export interface ReportEffort {
+  window: Window;
+  agents: EffortOfAgent[];
+  conversationsConsideradas: number;
   /** Conversas encerradas no período que não geraram esforço de nenhum atendente. */
-  conversasSemAtendente: number;
+  conversationsWithoutAgent: number;
 }
 
-export async function carregarEsforco(
-  tx: TransacaoPipe,
-  janela: Janela,
-): Promise<RelatorioEsforco> {
+export async function loadEffort(
+  tx: TransactionPipe,
+  window: Window,
+): Promise<ReportEffort> {
   return consultar(tx, async (tx) => {
     // Mensagens das conversas encerradas dentro do período, com o áudio junto:
     // sem a duração do anexo a régua não tem o que ouvir nem o que falar.
     const linhas = await tx
       .select({
-        conversaId: mensagem.conversaId,
-        em: mensagem.criadaEm,
-        autor: mensagem.autorTipo,
-        direcao: mensagem.direcao,
-        tipo: mensagem.tipo,
-        conteudo: mensagem.conteudo,
-        usuarioId: mensagem.autorId,
-        respostaProntaId: mensagem.respostaProntaId,
-        templateId: mensagem.templateId,
-        duracaoSeg: anexo.duracaoSeg,
-        bytes: anexo.bytes,
-        atendenteId: conversa.atendenteId,
+        conversaId: message.conversationId,
+        em: message.criadaEm,
+        autor: message.autorTipo,
+        direcao: message.direction,
+        tipo: message.tipo,
+        conteudo: message.conteudo,
+        usuarioId: message.autorId,
+        respostaProntaId: message.respostaProntaId,
+        templateId: message.templateId,
+        duracaoSeg: attachment.durationSeg,
+        bytes: attachment.bytes,
+        atendenteId: conversation.agentId,
       })
-      .from(mensagem)
-      .innerJoin(conversa, eq(conversa.id, mensagem.conversaId))
-      .leftJoin(anexo, eq(anexo.id, mensagem.anexoId))
+      .from(message)
+      .innerJoin(conversation, eq(conversation.id, message.conversationId))
+      .leftJoin(attachment, eq(attachment.id, message.attachmentId))
       .where(
         and(
-          isNotNull(conversa.encerradaEm),
-          gte(conversa.encerradaEm, janela.inicio),
-          lt(conversa.encerradaEm, janela.fim),
+          isNotNull(conversation.encerradaEm),
+          gte(conversation.encerradaEm, window.inicio),
+          lt(conversation.encerradaEm, window.fim),
         ),
       )
-      .orderBy(asc(mensagem.criadaEm));
+      .orderBy(asc(message.criadaEm));
 
-    const porConversa = new Map<string, { atendenteId: string | null; msgs: MensagemEsforco[] }>();
+    const byConversation = new Map<string, { agentId: string | null; msgs: MessageEffort[] }>();
     // Instantes das mensagens de saída de cada atendente — base do tempo em sessão.
-    const instantesPorAtendente = new Map<string, Date[]>();
+    const instantesByAgent = new Map<string, Date[]>();
 
     for (const l of linhas) {
-      const grupo = porConversa.get(l.conversaId) ?? { atendenteId: l.atendenteId, msgs: [] };
+      const grupo = byConversation.get(l.conversaId) ?? { agentId: l.atendenteId, msgs: [] };
       grupo.msgs.push({
-        conversaId: l.conversaId,
+        conversationId: l.conversaId,
         em: l.em,
-        autor: l.autor as MensagemEsforco['autor'],
-        direcao: l.direcao as MensagemEsforco['direcao'],
-        tipo: l.tipo as MensagemEsforco['tipo'],
+        autor: l.autor as MessageEffort['autor'],
+        direction: l.direcao as MessageEffort['direction'],
+        tipo: l.tipo as MessageEffort['tipo'],
         conteudo: l.conteudo,
-        usuarioId: l.usuarioId,
+        userId: l.usuarioId,
         // Template também não foi digitado à mão: entra na mesma coluna separada.
         respostaProntaId: l.respostaProntaId ?? l.templateId ?? null,
-        anexo:
+        attachment:
           l.duracaoSeg !== null || l.bytes !== null
-            ? { duracaoSeg: l.duracaoSeg, bytes: l.bytes }
+            ? { durationSeg: l.duracaoSeg, bytes: l.bytes }
             : null,
       });
-      porConversa.set(l.conversaId, grupo);
+      byConversation.set(l.conversaId, grupo);
 
       if (l.autor === 'atendente' && l.usuarioId) {
-        const atual = instantesPorAtendente.get(l.usuarioId);
+        const atual = instantesByAgent.get(l.usuarioId);
         if (atual) atual.push(l.em);
-        else instantesPorAtendente.set(l.usuarioId, [l.em]);
+        else instantesByAgent.set(l.usuarioId, [l.em]);
       }
     }
 
-    const porAtendente = new Map<string, EsforcoConversa[]>();
-    let semAtendente = 0;
-    for (const [conversaId, grupo] of porConversa) {
-      const calculado = calcularEsforcoConversa(grupo.msgs, {
-        conversaId,
-        atendenteId: grupo.atendenteId,
+    const byAgent = new Map<string, EffortConversation[]>();
+    let withoutAgent = 0;
+    for (const [conversationId, grupo] of byConversation) {
+      const calculado = calcularEffortConversation(grupo.msgs, {
+        conversationId,
+        agentId: grupo.agentId,
       });
-      if (!calculado.atendenteId) {
-        semAtendente += 1;
+      if (!calculado.agentId) {
+        withoutAgent += 1;
         continue;
       }
-      const atual = porAtendente.get(calculado.atendenteId);
+      const atual = byAgent.get(calculado.agentId);
       if (atual) atual.push(calculado);
-      else porAtendente.set(calculado.atendenteId, [calculado]);
+      else byAgent.set(calculado.agentId, [calculado]);
     }
 
     const nomes = new Map(
-      (await tx.select({ id: usuario.id, nome: usuario.nome }).from(usuario)).map((u) => [
+      (await tx.select({ id: user.id, nome: user.nome }).from(user)).map((u) => [
         u.id,
         u.nome,
       ]),
     );
 
-    const atendentes: EsforcoDoAtendente[] = [...porAtendente.entries()]
-      .map(([id, conversas]) => {
-        const soma = (f: (c: EsforcoConversa) => number) =>
-          conversas.reduce((total, c) => total + f(c), 0);
-        const esforcoSeg = soma((c) => c.esforcoSeg);
-        const { sessaoSeg } = calcularTempoEmSessao(instantesPorAtendente.get(id) ?? []);
+    const agents: EffortOfAgent[] = [...byAgent.entries()]
+      .map(([id, conversations]) => {
+        const soma = (f: (c: EffortConversation) => number) =>
+          conversations.reduce((total, c) => total + f(c), 0);
+        const effortSeg = soma((c) => c.effortSeg);
+        const { sessionSeg } = calcularTimeInSession(instantesByAgent.get(id) ?? []);
         return {
           id,
           nome: nomes.get(id) ?? id,
-          tickets: conversas.length,
-          esforcoSeg,
-          esforcoPorTicketSeg: conversas.length > 0 ? esforcoSeg / conversas.length : null,
-          sessaoSeg,
-          ocupacao: ocupacao(esforcoSeg, sessaoSeg),
+          tickets: conversations.length,
+          effortSeg,
+          esforcoPorTicketSeg: conversations.length > 0 ? effortSeg / conversations.length : null,
+          sessionSeg,
+          ocupacao: occupancy(effortSeg, sessionSeg),
           charsEscritos: soma((c) => c.charsEscritos),
           charsLidos: soma((c) => c.charsLidos),
           audioOuvidoSeg: soma((c) => c.audioOuvidoSeg),
           audioGravadoSeg: soma((c) => c.audioGravadoSeg),
           charsDeRespostaPronta: soma((c) => c.charsDeRespostaPronta),
-          esforcoRespostaProntaSeg: soma((c) => c.esforcoRespostaProntaSeg),
+          esforcoRespostaProntaSeg: soma((c) => c.effortCannedResponseSeg),
           audiosSemMetadado: soma((c) => c.audiosSemMetadado),
         };
       })
       .sort((a, b) => b.esforcoSeg - a.esforcoSeg);
 
     return {
-      janela,
-      atendentes,
-      conversasConsideradas: porConversa.size,
-      conversasSemAtendente: semAtendente,
+      window,
+      agents,
+      conversasConsideradas: byConversation.size,
+      conversasSemAtendente: withoutAgent,
     };
   });
 }

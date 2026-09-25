@@ -1,8 +1,8 @@
 import { useId, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
-import { IconePortal, IconeBusca } from '../../../componentes/icones-portal';
+import { IconePortal, IconeSearch } from '../../../componentes/icones-portal';
 import type { NomeDeIconePortal } from '../../../componentes/icones-portal';
-import { excluirMembros, reenviarConvite, trocarPapel } from '../acoes';
+import { excluirMembers, reenviarInvitation, switchRole } from '../acoes';
 import type { ResultadoDoReenvio } from '../acoes';
 
 /**
@@ -30,22 +30,22 @@ import type { ResultadoDoReenvio } from '../acoes';
  * (`../acoes.ts`) — a tela esconder o menu é desenho, não é controle de acesso.
  */
 
-export interface LinhaDeMembro {
+export interface MemberLinha {
   id: string;
   tipo: 'usuario' | 'convite';
   nome: string;
   email: string;
   /** O rótulo do papel de conta — "Admin", "Pode editar", "Pode visualizar". */
-  papel: string;
+  role: string;
 }
 
 /** Um dos três papéis de conta, já com o que a tela mostra dele. */
-export interface OpcaoDePapel {
+export interface RoleOption {
   id: string;
   /** `admin`, `member` ou `guest` — o nome no banco, que é o que a API casa. */
   roleId: string;
   rotulo: string;
-  descricao: string;
+  description: string;
   icone: NomeDeIconePortal;
   classe: string;
 }
@@ -56,7 +56,7 @@ const TEXTO = {
   email: 'Email',
   papel: 'Papel',
   editar: 'Editar',
-  membros: 'membro(s)',
+  members: 'membro(s)',
   cancelar: 'Cancelar',
   aplicar: 'Aplicar',
   escolhaOPapel: 'Escolha o papel',
@@ -80,7 +80,7 @@ const COLUNAS: { campo: Campo; rotulo: string }[] = [
   { campo: 'papel', rotulo: TEXTO.papel },
 ];
 
-function valor(linha: LinhaDeMembro, campo: Campo): string {
+function value(linha: MemberLinha, campo: Campo): string {
   if (campo === 'nome') {
     /* `"".concat(fullName, " (", pendingInvitation, ")")` — o convidado que
        ainda não entrou carrega o estado no próprio nome, e por isso ele também
@@ -90,24 +90,24 @@ function valor(linha: LinhaDeMembro, campo: Campo): string {
   if (campo === 'email') return linha.email;
   /* `roleId: content[roleId]` — a célula mostra o RÓTULO do papel ("Admin",
      "Pode editar", "Pode visualizar"), nunca o `roleId` cru. */
-  return linha.papel;
+  return linha.role;
 }
 
-export function TabelaDeMembros({
-  membros,
+export function MembersTabela({
+  members,
   papeis,
   podeEscrever,
 }: {
-  membros: LinhaDeMembro[];
-  papeis: OpcaoDePapel[];
+  members: MemberLinha[];
+  papeis: RoleOption[];
   podeEscrever: boolean;
 }) {
-  const [busca, definirBusca] = useState('');
-  const [buscaAberta, abrirBusca] = useState(false);
-  const [ordem, definirOrdem] = useState<{ campo: Campo; sentido: 'asc' | 'desc' } | null>(null);
+  const [search, definirSearch] = useState('');
+  const [searchAberta, abrirSearch] = useState(false);
+  const [order, definirOrder] = useState<{ campo: Campo; sentido: 'asc' | 'desc' } | null>(null);
   const [marcados, definirMarcados] = useState<readonly string[]>([]);
   const [menu, abrirMenu] = useState<'papel' | 'excluir' | null>(null);
-  const [papelEscolhido, escolherPapel] = useState<OpcaoDePapel | null>(null);
+  const [roleEscolhido, escolherRole] = useState<RoleOption | null>(null);
   /* O resultado de "Reenviar" (`../acoes.ts`): sem entrega de e-mail no Pipe, o
      link novo só existe aqui, e sai da tela ao fechar — nunca vai para a URL. */
   const [reenviando, definirReenviando] = useState<string | null>(null);
@@ -115,30 +115,30 @@ export function TabelaDeMembros({
 
   async function reenviar(id: string) {
     definirReenviando(id);
-    const resultado = await reenviarConvite(id);
+    const resultado = await reenviarInvitation(id);
     definirReenviando(null);
     definirReenvio({ ...resultado, id });
   }
 
   const visiveis = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
+    const termo = search.trim().toLowerCase();
     const achados = termo
-      ? membros.filter(
+      ? members.filter(
           (m) => m.nome.toLowerCase().includes(termo) || m.email.toLowerCase().includes(termo),
         )
-      : membros;
-    if (!ordem) return achados;
-    const sinal = ordem.sentido === 'asc' ? 1 : -1;
+      : members;
+    if (!order) return achados;
+    const sinal = order.sentido === 'asc' ? 1 : -1;
     return [...achados].sort(
-      (a, b) => sinal * valor(a, ordem.campo).localeCompare(valor(b, ordem.campo), 'pt-BR'),
+      (a, b) => sinal * value(a, order.campo).localeCompare(value(b, order.campo), 'pt-BR'),
     );
-  }, [membros, busca, ordem]);
+  }, [members, search, order]);
 
-  const marcadosVisiveis = visiveis.filter((m) => marcados.includes(chave(m)));
+  const marcadosVisiveis = visiveis.filter((m) => marcados.includes(key(m)));
   const todosMarcados = visiveis.length > 0 && marcadosVisiveis.length === visiveis.length;
 
-  function alternar(linha: LinhaDeMembro) {
-    const id = chave(linha);
+  function alternar(linha: MemberLinha) {
+    const id = key(linha);
     definirMarcados((antes) =>
       antes.includes(id) ? antes.filter((x) => x !== id) : [...antes, id],
     );
@@ -146,7 +146,7 @@ export function TabelaDeMembros({
 
   function limpar() {
     definirMarcados([]);
-    escolherPapel(null);
+    escolherRole(null);
     abrirMenu(null);
   }
 
@@ -154,16 +154,16 @@ export function TabelaDeMembros({
     <div className="mb-membros">
       {/* `BlipSearch`: a lupa é um botão, e o campo nasce com largura zero e
           cresce para 200px ao ganhar o foco. Fecha ao perder. */}
-      <div className={`mb-busca${buscaAberta || busca ? ' mb-busca--aberta' : ''}`}>
-        <button type="button" onClick={() => abrirBusca(true)} aria-label="Buscar membro">
-          <IconeBusca tamanho={20} />
+      <div className={`mb-busca${searchAberta || search ? ' mb-busca--aberta' : ''}`}>
+        <button type="button" onClick={() => abrirSearch(true)} aria-label="Buscar membro">
+          <IconeSearch tamanho={20} />
         </button>
         <input
           type="text"
-          value={busca}
-          onChange={(e) => definirBusca(e.target.value)}
-          onFocus={() => abrirBusca(true)}
-          onBlur={() => abrirBusca(false)}
+          value={search}
+          onChange={(e) => definirSearch(e.target.value)}
+          onFocus={() => abrirSearch(true)}
+          onBlur={() => abrirSearch(false)}
           aria-label="Buscar membro"
         />
       </div>
@@ -176,35 +176,35 @@ export function TabelaDeMembros({
                 <Marca
                   marcado={todosMarcados}
                   alternar={() =>
-                    definirMarcados(todosMarcados ? [] : visiveis.map((m) => chave(m)))
+                    definirMarcados(todosMarcados ? [] : visiveis.map((m) => key(m)))
                   }
                   rotulo="Marcar todos"
                 />
               </th>
             ) : null}
 
-            {COLUNAS.map((coluna) => (
-              <th key={coluna.campo}>
+            {COLUNAS.map((column) => (
+              <th key={column.campo}>
                 <button
                   type="button"
                   className="mb-ordenar"
                   onClick={() =>
-                    definirOrdem({
-                      campo: coluna.campo,
+                    definirOrder({
+                      campo: column.campo,
                       sentido:
-                        ordem?.campo === coluna.campo && ordem.sentido === 'asc' ? 'desc' : 'asc',
+                        order?.campo === column.campo && order.sentido === 'asc' ? 'desc' : 'asc',
                     })
                   }
                 >
-                  {coluna.rotulo}
+                  {column.rotulo}
                   {/* Falta na nossa folha o `arrow-up` da origem. Este é o
                       `arrow-down` DELA virado — mesmo traço, outro sentido —,
                       e não um desenho novo. */}
                   <IconePortal
                     nome="baixo"
                     tamanho={16}
-                    className={`mb-seta${ordem?.campo === coluna.campo ? ' mb-seta--firme' : ''}${
-                      ordem?.campo === coluna.campo && ordem.sentido === 'asc'
+                    className={`mb-seta${order?.campo === column.campo ? ' mb-seta--firme' : ''}${
+                      order?.campo === column.campo && order.sentido === 'asc'
                         ? ' mb-seta--sobe'
                         : ''
                     }`}
@@ -223,15 +223,15 @@ export function TabelaDeMembros({
                     alternar={() => abrirMenu(menu === 'papel' ? null : 'papel')}
                     rotulo={TEXTO.editar}
                     icone="editar"
-                    acao={trocarPapel}
+                    acao={switchRole}
                     aoEnviar={limpar}
-                    alvos={marcadosVisiveis.map(chave)}
+                    alvos={marcadosVisiveis.map(key)}
                     rodape={
                       <>
                         <button
                           type="submit"
                           className="mb-btn mb-btn--texto mb-btn--marca"
-                          disabled={!papelEscolhido}
+                          disabled={!roleEscolhido}
                         >
                           {TEXTO.aplicar}
                         </button>
@@ -247,16 +247,16 @@ export function TabelaDeMembros({
                   >
                     <p>
                       {TEXTO.editar} <span className="mb-numero">{marcadosVisiveis.length}</span>{' '}
-                      {TEXTO.membros}
+                      {TEXTO.members}
                     </p>
-                    <EscolhaDePapel
+                    <RoleEscolha
                       papeis={papeis}
-                      escolhido={papelEscolhido}
-                      escolher={escolherPapel}
+                      escolhido={roleEscolhido}
+                      escolher={escolherRole}
                     />
                     {/* A descrição do papel escolhido, como na origem: ela vive
                         AQUI, embaixo do seletor, e não numa legenda no pé. */}
-                    <p className="mb-descricao">{papelEscolhido?.descricao ?? ''}</p>
+                    <p className="mb-descricao">{roleEscolhido?.description ?? ''}</p>
                   </Menu>
 
                   <Menu
@@ -264,9 +264,9 @@ export function TabelaDeMembros({
                     alternar={() => abrirMenu(menu === 'excluir' ? null : 'excluir')}
                     rotulo={TEXTO.excluir}
                     icone="lixeira"
-                    acao={excluirMembros}
+                    acao={excluirMembers}
                     aoEnviar={limpar}
-                    alvos={marcadosVisiveis.map(chave)}
+                    alvos={marcadosVisiveis.map(key)}
                     rodape={
                       <>
                         <button type="submit" className="mb-btn mb-btn--texto mb-btn--perigo">
@@ -285,7 +285,7 @@ export function TabelaDeMembros({
                     <p>
                       {TEXTO.excluir}{' '}
                       <span className="mb-numero mb-numero--perigo">{marcadosVisiveis.length}</span>{' '}
-                      {TEXTO.membros}
+                      {TEXTO.members}
                     </p>
                     <p className="mb-aviso">{TEXTO.mensagemDeExclusao}</p>
                   </Menu>
@@ -300,9 +300,9 @@ export function TabelaDeMembros({
             <LinhaVazia colunas={COLUNAS.length + 1} texto={TEXTO.semDados} />
           ) : null}
           {visiveis.map((linha) => {
-            const marcado = marcados.includes(chave(linha));
+            const marcado = marcados.includes(key(linha));
             return (
-              <tr key={chave(linha)} className={marcado ? 'mb-marcada' : ''}>
+              <tr key={key(linha)} className={marcado ? 'mb-marcada' : ''}>
                 {podeEscrever ? (
                   <td className="mb-col-marca">
                     <Marca
@@ -312,11 +312,11 @@ export function TabelaDeMembros({
                     />
                   </td>
                 ) : null}
-                {COLUNAS.map((coluna) => (
+                {COLUNAS.map((column) => (
                   /* `title={n[a.key]}`: a célula não quebra e corta com
                      reticências, então o valor inteiro fica no atributo. */
-                  <td key={coluna.campo} title={valor(linha, coluna.campo)}>
-                    <span>{valor(linha, coluna.campo)}</span>
+                  <td key={column.campo} title={value(linha, column.campo)}>
+                    <span>{value(linha, column.campo)}</span>
                   </td>
                 ))}
                 {podeEscrever ? (
@@ -342,7 +342,7 @@ export function TabelaDeMembros({
         </tbody>
       </table>
 
-      <ReenvioDeConvite resultado={reenvio} aoFechar={() => definirReenvio(null)} />
+      <InvitationReenvio resultado={reenvio} aoFechar={() => definirReenvio(null)} />
     </div>
   );
 }
@@ -353,7 +353,7 @@ export function TabelaDeMembros({
  * precisa copiar o link à mão. Falha vem da API (`ResultadoDoReenvio.erro`),
  * como convite já vencido por outra aba enquanto esta ainda mostrava a linha.
  */
-function ReenvioDeConvite({
+function InvitationReenvio({
   resultado,
   aoFechar,
 }: {
@@ -395,7 +395,7 @@ function ReenvioDeConvite({
         <div className="mb-convite-feito">
           <h1>Não foi possível reenviar</h1>
           <ul className="mb-erros" role="alert">
-            <li>{resultado.erro ?? 'Tente de novo.'}</li>
+            <li>{resultado.error ?? 'Tente de novo.'}</li>
           </ul>
           <button type="button" className="mb-botao" onClick={fechar}>
             Fechar
@@ -434,23 +434,23 @@ function Marca({
  * é outro — lá é o `bds-select` novo, com ícone e descrição por opção —, por
  * isso são dois componentes. O valor vai no `papelId` escondido.
  */
-function EscolhaDePapel({
+function RoleEscolha({
   papeis,
   escolhido,
   escolher,
 }: {
-  papeis: OpcaoDePapel[];
-  escolhido: OpcaoDePapel | null;
-  escolher: (papel: OpcaoDePapel) => void;
+  papeis: RoleOption[];
+  escolhido: RoleOption | null;
+  escolher: (role: RoleOption) => void;
 }) {
   const [aberta, abrirLista] = useState(false);
-  const [ativa, definirAtiva] = useState(0);
+  const [active, definirActive] = useState(0);
   const botao = useRef<HTMLButtonElement>(null);
   const lista = useRef<HTMLUListElement>(null);
   const id = useId();
 
   function abrir() {
-    definirAtiva(
+    definirActive(
       Math.max(
         0,
         papeis.findIndex((p) => p.id === escolhido?.id),
@@ -460,7 +460,7 @@ function EscolhaDePapel({
     requestAnimationFrame(() => lista.current?.focus());
   }
 
-  function pegar(p: OpcaoDePapel) {
+  function pegar(p: RoleOption) {
     escolher(p);
     abrirLista(false);
     botao.current?.focus();
@@ -470,10 +470,10 @@ function EscolhaDePapel({
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault();
       const passo = e.key === 'ArrowDown' ? 1 : -1;
-      definirAtiva((a) => (a + passo + papeis.length) % papeis.length);
+      definirActive((a) => (a + passo + papeis.length) % papeis.length);
     } else if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      if (papeis[ativa]) pegar(papeis[ativa]);
+      if (papeis[active]) pegar(papeis[active]);
     } else if (e.key === 'Escape') {
       e.preventDefault();
       abrirLista(false);
@@ -514,7 +514,7 @@ function EscolhaDePapel({
             tabIndex={-1}
             className="mb-escolha-opcoes"
             aria-labelledby={`${id}-rotulo`}
-            aria-activedescendant={`${id}-opcao-${ativa}`}
+            aria-activedescendant={`${id}-opcao-${active}`}
             onKeyDown={tecla}
             onBlur={(e) => {
               if (e.relatedTarget !== botao.current) abrirLista(false);
@@ -526,9 +526,9 @@ function EscolhaDePapel({
                 id={`${id}-opcao-${i}`}
                 role="option"
                 aria-selected={p.id === escolhido?.id}
-                className={`mb-escolha-opcao${i === ativa ? ' mb-escolha-opcao--ativa' : ''}`}
+                className={`mb-escolha-opcao${i === active ? ' mb-escolha-opcao--ativa' : ''}`}
                 onMouseDown={(e) => e.preventDefault()}
-                onMouseEnter={() => definirAtiva(i)}
+                onMouseEnter={() => definirActive(i)}
                 onClick={() => pegar(p)}
               >
                 {p.rotulo}
@@ -542,7 +542,7 @@ function EscolhaDePapel({
 }
 
 /** A chave da linha: o `userIdentity` deles, que aqui precisa dizer de qual tabela veio. */
-function chave(linha: { tipo: string; id: string }): string {
+function key(linha: { tipo: string; id: string }): string {
   return `${linha.tipo}:${linha.id}`;
 }
 
@@ -567,7 +567,7 @@ function Menu({
   rotulo: string;
   /** Na origem o gatilho é só o ícone (`edit`/`trash`, cor `desk`); a palavra vira o nome acessível. */
   icone: NomeDeIconePortal;
-  acao: (dados: FormData) => void;
+  acao: (data: FormData) => void;
   aoEnviar: () => void;
   alvos: string[];
   rodape: ReactNode;
@@ -618,7 +618,7 @@ function LinhaVazia({ colunas, texto }: { colunas: number; texto: string }) {
  * que o Pipe não tem —, então abre sempre no vazio da origem, sem o badge de
  * contagem, que lá só aparece com alguém na fila.
  */
-export function AbasDeMembros({
+export function MembersAbas({
   podeEscrever,
   children,
 }: {

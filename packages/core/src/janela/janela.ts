@@ -17,10 +17,10 @@
 
 import { HORA } from '../comum/tempo.js';
 
-export const JANELA_HORAS = 24;
-export const JANELA_SEG = JANELA_HORAS * HORA;
+export const WINDOW_HORAS = 24;
+export const WINDOW_SEG = WINDOW_HORAS * HORA;
 
-export type TipoCanal = 'whatsapp_cloud' | 'email' | 'widget';
+export type TipoChannel = 'whatsapp_cloud' | 'email' | 'widget';
 
 export type CategoriaTemplate = 'utilidade' | 'marketing' | 'autenticacao';
 
@@ -30,27 +30,27 @@ export type CategoriaCobranca = 'livre' | CategoriaTemplate;
 /** O que o Desk pode oferecer ao atendente neste instante. */
 export type ModoDeEnvio = 'texto_livre' | 'somente_template';
 
-export interface EstadoJanela {
+export interface StateWindow {
   /** `conversa.janela_expira_em`. `null` = canal sem janela. */
   expiraEm: Date | null;
   /** `conversa.janela_aberta_por_mensagem_id`. */
-  abertaPorMensagemId?: string | null;
+  abertaByMessageId?: string | null;
 }
 
 /**
  * Expiração a partir da última mensagem do contato.
  * `null` de entrada devolve `null` — sem mensagem do cliente não há janela.
  */
-export function calcularExpiracao(ultimaMensagemDoContatoEm: Date | null): Date | null {
-  if (!ultimaMensagemDoContatoEm) return null;
-  return new Date(ultimaMensagemDoContatoEm.getTime() + JANELA_SEG * 1000);
+export function calcularExpiration(contactInUltimaMessage: Date | null): Date | null {
+  if (!contactInUltimaMessage) return null;
+  return new Date(contactInUltimaMessage.getTime() + WINDOW_SEG * 1000);
 }
 
 /** Recalcula a janela a cada mensagem de entrada do contato. */
-export function registrarMensagemDoContato(em: Date, mensagemId?: string): EstadoJanela {
-  const estado: EstadoJanela = { expiraEm: calcularExpiracao(em) };
-  if (mensagemId) estado.abertaPorMensagemId = mensagemId;
-  return estado;
+export function contactRegistrarMessage(em: Date, messageId?: string): StateWindow {
+  const state: StateWindow = { expiraEm: calcularExpiration(em) };
+  if (messageId) state.abertaByMessageId = messageId;
+  return state;
 }
 
 /**
@@ -60,7 +60,7 @@ export function registrarMensagemDoContato(em: Date, mensagemId?: string): Estad
  * fechada. Empatar a favor do envio é o jeito de tomar erro da Meta depois do
  * envio, que é justamente o que a tela deve evitar.
  */
-export function janelaAberta(expiraEm: Date | null | undefined, agora: Date): boolean {
+export function windowAberta(expiraEm: Date | null | undefined, agora: Date): boolean {
   if (!expiraEm) return false;
   return agora.getTime() < expiraEm.getTime();
 }
@@ -77,12 +77,12 @@ export function pertoDeExpirar(
   agora: Date,
   limiarSeg = HORA,
 ): boolean {
-  if (!janelaAberta(expiraEm, agora)) return false;
+  if (!windowAberta(expiraEm, agora)) return false;
   return segundosRestantes(expiraEm, agora) <= limiarSeg;
 }
 
-export interface ConsultaEnvio {
-  canal: TipoCanal;
+export interface QueryEnvio {
+  channel: TipoChannel;
   expiraEm: Date | null;
   agora: Date;
   /** O que o atendente quer mandar. */
@@ -93,7 +93,7 @@ export interface ConsultaEnvio {
 
 export type MotivoBloqueio = 'janela_fechada' | 'template_sem_categoria';
 
-export interface AvaliacaoEnvio {
+export interface EvaluationEnvio {
   permitido: boolean;
   /** O que a tela deve oferecer agora. */
   modo: ModoDeEnvio;
@@ -101,15 +101,15 @@ export interface AvaliacaoEnvio {
   restanteSeg: number;
   /** Como a mensagem entra no relatório de custo, se for enviada. */
   categoriaCobranca: CategoriaCobranca | null;
-  dentroDaJanela: boolean;
+  windowDentro: boolean;
 }
 
 /**
  * E-mail e widget não têm janela: `janela_expira_em` fica nulo, a regra é do
  * canal e a tela é a mesma.
  */
-export function canalTemJanela(canal: TipoCanal): boolean {
-  return canal === 'whatsapp_cloud';
+export function channelTemWindow(channel: TipoChannel): boolean {
+  return channel === 'whatsapp_cloud';
 }
 
 /**
@@ -118,13 +118,13 @@ export function canalTemJanela(canal: TipoCanal): boolean {
  * Template sempre cobra pela própria categoria, inclusive dentro da janela —
  * quem define isso é a Meta, não nós. Texto livre dentro da janela é `livre`.
  */
-export function classificarCusto(entrada: {
+export function classificarCusto(inbound: {
   conteudo: 'texto_livre' | 'template';
-  dentroDaJanela: boolean;
+  windowDentro: boolean;
   categoriaTemplate?: CategoriaTemplate | null;
 }): CategoriaCobranca | null {
-  if (entrada.conteudo === 'template') return entrada.categoriaTemplate ?? null;
-  return entrada.dentroDaJanela ? 'livre' : null;
+  if (inbound.conteudo === 'template') return inbound.categoriaTemplate ?? null;
+  return inbound.windowDentro ? 'livre' : null;
 }
 
 /**
@@ -133,22 +133,22 @@ export function classificarCusto(entrada: {
  * Fora da janela, o campo de texto livre é substituído pelo seletor de template
  * **com o motivo escrito** — não um erro depois do envio.
  */
-export function avaliarEnvio(consulta: ConsultaEnvio): AvaliacaoEnvio {
-  const temJanela = canalTemJanela(consulta.canal);
-  const dentroDaJanela = temJanela ? janelaAberta(consulta.expiraEm, consulta.agora) : true;
-  const restanteSeg = temJanela ? segundosRestantes(consulta.expiraEm, consulta.agora) : 0;
-  const modo: ModoDeEnvio = dentroDaJanela ? 'texto_livre' : 'somente_template';
+export function avaliarEnvio(query: QueryEnvio): EvaluationEnvio {
+  const temWindow = channelTemWindow(query.channel);
+  const windowDentro = temWindow ? windowAberta(query.expiraEm, query.agora) : true;
+  const restanteSeg = temWindow ? segundosRestantes(query.expiraEm, query.agora) : 0;
+  const modo: ModoDeEnvio = windowDentro ? 'texto_livre' : 'somente_template';
 
-  if (consulta.conteudo === 'template') {
-    const categoria = consulta.categoriaTemplate ?? null;
-    if (temJanela && !categoria) {
+  if (query.conteudo === 'template') {
+    const categoria = query.categoriaTemplate ?? null;
+    if (temWindow && !categoria) {
       return {
         permitido: false,
         modo,
         motivo: 'template_sem_categoria',
         restanteSeg,
         categoriaCobranca: null,
-        dentroDaJanela,
+        windowDentro,
       };
     }
     return {
@@ -158,21 +158,21 @@ export function avaliarEnvio(consulta: ConsultaEnvio): AvaliacaoEnvio {
       restanteSeg,
       categoriaCobranca: classificarCusto({
         conteudo: 'template',
-        dentroDaJanela,
+        windowDentro,
         categoriaTemplate: categoria,
       }),
-      dentroDaJanela,
+      windowDentro,
     };
   }
 
-  if (!dentroDaJanela) {
+  if (!windowDentro) {
     return {
       permitido: false,
       modo,
       motivo: 'janela_fechada',
       restanteSeg,
       categoriaCobranca: null,
-      dentroDaJanela,
+      windowDentro,
     };
   }
 
@@ -182,6 +182,6 @@ export function avaliarEnvio(consulta: ConsultaEnvio): AvaliacaoEnvio {
     motivo: null,
     restanteSeg,
     categoriaCobranca: 'livre',
-    dentroDaJanela,
+    windowDentro,
   };
 }

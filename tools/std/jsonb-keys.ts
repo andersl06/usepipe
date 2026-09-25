@@ -17,12 +17,12 @@ import ts from 'typescript';
 
 const RAIZ = fileURLToPath(new URL('../../', import.meta.url));
 const MANIFESTO = join(RAIZ, 'apps/api/tests/fixtures/jsonb/manifest.json');
-const RELATORIO = join(
+const REPORT = join(
   RAIZ,
   '.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports/baseline-jsonb-keys.json',
 );
 
-export interface EntradaDoManifesto {
+export interface InboundOfManifesto {
   file: string;
   group: string;
   table: string;
@@ -44,13 +44,13 @@ export function collectKeys(doc: unknown, opaque: readonly string[] = []): strin
   const chaves = new Set<string>();
   const opacos = new Set(opaque);
 
-  function andar(valor: unknown, caminho: string): void {
-    if (Array.isArray(valor)) {
-      for (const item of valor) andar(item, caminho);
+  function andar(value: unknown, caminho: string): void {
+    if (Array.isArray(value)) {
+      for (const item of value) andar(item, caminho);
       return;
     }
-    if (valor && typeof valor === 'object') {
-      for (const [chave, filho] of Object.entries(valor as Record<string, unknown>)) {
+    if (value && typeof value === 'object') {
+      for (const [chave, filho] of Object.entries(value as Record<string, unknown>)) {
         chaves.add(chave);
         const caminhoFilho = `${caminho}.${chave}`;
         if (opacos.has(`${caminhoFilho}.*`)) continue;
@@ -72,7 +72,7 @@ export function collectKeys(doc: unknown, opaque: readonly string[] = []): strin
 export function codePropertyNames(raiz: ts.Node): Set<string> {
   const nomes = new Set<string>();
 
-  function nomeDePropriedade(nome: ts.PropertyName): string | null {
+  function nameOfProperty(nome: ts.PropertyName): string | null {
     if (ts.isIdentifier(nome)) return nome.text;
     if (ts.isPrivateIdentifier(nome)) return nome.text.replace(/^#/, '');
     if (ts.isStringLiteralLike(nome)) return nome.text;
@@ -93,7 +93,7 @@ export function codePropertyNames(raiz: ts.Node): Set<string> {
         ts.isMethodDeclaration(node)) &&
       node.name
     ) {
-      const nome = nomeDePropriedade(node.name);
+      const nome = nameOfProperty(node.name);
       if (nome !== null) nomes.add(nome);
     } else if (ts.isShorthandPropertyAssignment(node)) {
       nomes.add(node.name.text);
@@ -138,17 +138,17 @@ function nomesDoCodigoAtual(): Set<string> {
   return todos;
 }
 
-function carregarManifesto(): EntradaDoManifesto[] {
-  return JSON.parse(readFileSync(MANIFESTO, 'utf8')) as EntradaDoManifesto[];
+function carregarManifesto(): InboundOfManifesto[] {
+  return JSON.parse(readFileSync(MANIFESTO, 'utf8')) as InboundOfManifesto[];
 }
 
-function chavesDaFixture(entrada: EntradaDoManifesto): string[] {
-  const caminho = join(RAIZ, 'apps/api/tests/fixtures/jsonb', entrada.file);
+function chavesDaFixture(inbound: InboundOfManifesto): string[] {
+  const caminho = join(RAIZ, 'apps/api/tests/fixtures/jsonb', inbound.file);
   const registros = JSON.parse(readFileSync(caminho, 'utf8')) as Record<string, unknown>[];
-  const campo = entrada.field ?? 'value';
+  const campo = inbound.field ?? 'value';
   const chaves = new Set<string>();
   for (const registro of registros) {
-    for (const chave of collectKeys(registro[campo], entrada.opaque)) chaves.add(chave);
+    for (const key of collectKeys(registro[campo], inbound.opaque)) chaves.add(key);
   }
   return [...chaves];
 }
@@ -160,31 +160,31 @@ function rodarBaseline(): void {
   // flow-process-http.json tem uma entrada por coluna combinada, cada uma com seu
   // `field` e seu `opaque`) — as chaves de todas elas se juntam no relatório do arquivo,
   // nunca uma sobrescreve a outra.
-  const chavesPorArquivo = new Map<string, Set<string>>();
+  const keysByFile = new Map<string, Set<string>>();
   for (const entrada of manifesto) {
-    const chaves = chavesPorArquivo.get(entrada.file) ?? new Set<string>();
+    const chaves = keysByFile.get(entrada.file) ?? new Set<string>();
     for (const chave of chavesDaFixture(entrada)) chaves.add(chave);
-    chavesPorArquivo.set(entrada.file, chaves);
+    keysByFile.set(entrada.file, chaves);
   }
-  const relatorio: Record<string, { present: string[]; legacy: string[] }> = {};
-  for (const [arquivo, chaves] of chavesPorArquivo) {
+  const report: Record<string, { present: string[]; legacy: string[] }> = {};
+  for (const [file, chaves] of keysByFile) {
     const lista = [...chaves];
-    relatorio[arquivo] = {
+    report[file] = {
       present: lista.filter((c) => codigo.has(c)).sort(),
       legacy: lista.filter((c) => !codigo.has(c)).sort(),
     };
   }
-  mkdirSync(dirname(RELATORIO), { recursive: true });
-  writeFileSync(RELATORIO, `${JSON.stringify(relatorio, null, 2)}\n`);
-  console.log(`baseline gravada em ${RELATORIO}`);
+  mkdirSync(dirname(REPORT), { recursive: true });
+  writeFileSync(REPORT, `${JSON.stringify(report, null, 2)}\n`);
+  console.log(`baseline gravada em ${REPORT}`);
 }
 
 function rodarCheck(): void {
-  if (!existsSync(RELATORIO)) {
-    console.error(`sem baseline em ${RELATORIO}; rode --baseline primeiro`);
+  if (!existsSync(REPORT)) {
+    console.error(`sem baseline em ${REPORT}; rode --baseline primeiro`);
     process.exit(1);
   }
-  const baseline = JSON.parse(readFileSync(RELATORIO, 'utf8')) as Record<
+  const baseline = JSON.parse(readFileSync(REPORT, 'utf8')) as Record<
     string,
     { present: string[]; legacy: string[] }
   >;

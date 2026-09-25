@@ -1,8 +1,8 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { IconePortal } from './icones-portal';
-import { PERIODOS, calcularPeriodo, periodoAtual } from '../lib/periodos';
-import { Selecao } from './selecao';
+import { PERIODOS, calcularPeriod, periodCurrent } from '../lib/periodos';
+import { Selection } from './selecao';
 
 /**
  * Painel lateral "Filtros" — o `data-testid="saved-filters-sidebar"` deles,
@@ -19,7 +19,7 @@ import { Selecao } from './selecao';
  * O formulário é GET puro, como toda consulta desta tela: aplicar fecha o
  * painel e navega, e o estado continua vivendo na URL.
  */
-export function PainelFiltros({
+export function PanelFilters({
   aberto,
   aoFechar,
   acao,
@@ -32,7 +32,7 @@ export function PainelFiltros({
   acao: string;
   /** `null` esconde o link "Limpar tudo" — não há o que limpar. */
   limpar: string | null;
-  aoAplicar?: (dados: FormData) => void;
+  aoAplicar?: (data: FormData) => void;
   children: ReactNode;
 }) {
   const [aba, setAba] = useState<'nova' | 'salvos'>('nova');
@@ -123,7 +123,7 @@ export function PainelFiltros({
 }
 
 /** Um campo do painel: rótulo em negrito, texto de apoio, e o controle. */
-export function CampoDoPainel({
+export function PanelField({
   rotulo,
   apoio,
   icone,
@@ -148,15 +148,15 @@ export function CampoDoPainel({
  * select"` deles, igual no Histórico e nos dois Relatórios: os atalhos de
  * `PERIODOS` mais "Personalizado", e o par de datas que o atalho preenche.
  */
-export function CampoPeriodo({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
+export function FieldPeriod({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
   return (
-    <CampoDoPainel rotulo="Período" apoio="Selecione um intervalo de datas">
-      <Selecao
+    <PanelField rotulo="Período" apoio="Selecione um intervalo de datas">
+      <Selection
         name="periodo"
-        defaultValue={periodoAtual(de, ate, fuso)}
+        defaultValue={periodCurrent(de, ate, fuso)}
         aria-label="Atalho de período"
         onChange={(e) => {
-          const calc = calcularPeriodo(e.currentTarget.value, fuso);
+          const calc = calcularPeriod(e.currentTarget.value, fuso);
           if (!calc) return;
           const form = e.currentTarget.form;
           const campoDe = form?.elements.namedItem('de');
@@ -171,11 +171,11 @@ export function CampoPeriodo({ de, ate, fuso }: { de: string; ate: string; fuso:
           </option>
         ))}
         <option value="personalizado">Personalizado</option>
-      </Selecao>
+      </Selection>
       <div className="painel-datas">
         <input type="date" name="de" defaultValue={de} aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
       </div>
-    </CampoDoPainel>
+    </PanelField>
   );
 }

@@ -3,28 +3,28 @@ import { and, eq, inArray } from 'drizzle-orm';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { criarBanco, fecharBanco } from './cliente.js';
-import type { BancoPipe } from './cliente.js';
+import { createDatabase, closeDatabase } from './cliente.js';
+import type { DatabasePipe } from './cliente.js';
 import {
-  canal,
-  contato,
-  contatoEtiqueta,
-  conversa,
-  conversaEtiqueta,
+  channel,
+  contact,
+  contactLabel,
+  conversation,
+  conversationLabel,
   etiqueta,
-  fila,
-  filaAtendente,
+  queue,
+  queueAgent,
   inbox,
-  mensagem,
+  message,
   motivoPausa,
   notaInterna,
   respostaPronta,
-  statusAtendente,
-  templateMensagem,
+  statusAgent,
+  templateMessage,
 } from './schema/conversas.js';
-import { classificacaoConversa } from './schema/monitoria.js';
-import { papel, tenant, usuario, usuarioPapel } from './schema/identidade.js';
-import { garantirPapelDeConta } from './semente.js';
+import { classificationConversation } from './schema/monitoria.js';
+import { role, tenant, user, userRole } from './schema/identidade.js';
+import { garantirRoleOfAccount } from './semente.js';
 
 /**
  * Semente de **demonstração** do Pipe Desk. Separada da semente base de propósito:
@@ -42,7 +42,7 @@ import { garantirPapelDeConta } from './semente.js';
 const SLUG_DEMO = 'demo';
 
 /** O atendente que a tela assume enquanto não existe login (fase seguinte). */
-export const EMAIL_ATENDENTE_DEMO = 'ana.ribeiro@demo.pipe.app';
+export const EMAIL_AGENT_DEMO = 'ana.ribeiro@demo.pipe.app';
 
 const MIN = 60_000;
 const HORA = 60 * MIN;
@@ -51,7 +51,7 @@ const HORA = 60 * MIN;
  * O que esta semente considera "dela". É por estas listas que a limpeza acontece — e é
  * por isso que acrescentar gente nova aqui exige acrescentar o e-mail na lista também.
  */
-const EMAILS_CONTATO = [
+const EMAILS_CONTACT = [
   'marcelo.tavares@exemplo.com.br',
   'juliana.prado@exemplo.com.br',
   'financeiro@alencarcontabil.com.br',
@@ -60,7 +60,7 @@ const EMAILS_CONTATO = [
   'psmuniz@exemplo.com.br',
 ];
 
-const NOMES_CANAL = ['WhatsApp Oficial', 'E-mail de atendimento', 'Chat do site'];
+const NAMES_CHANNEL = ['WhatsApp Oficial', 'E-mail de atendimento', 'Chat do site'];
 
 const ATALHOS_RESPOSTA = [
   'saudacao',
@@ -92,14 +92,14 @@ const NOMES_MOTIVO_PAUSA = [
   'Feedback com supervisor',
 ];
 
-export interface ResultadoSementeDemo {
+export interface ResultSeedDemo {
   tenantId: string;
-  atendenteId: string;
-  conversas: number;
-  mensagens: number;
+  agentId: string;
+  conversations: number;
+  messages: number;
 }
 
-export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
+export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   const [registro] = await db.select().from(tenant).where(eq(tenant.slug, SLUG_DEMO)).limit(1);
   if (!registro) {
     throw new Error(`tenant "${SLUG_DEMO}" não existe: rode "pnpm banco:semear" antes.`);
@@ -113,39 +113,39 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
   // Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é
   // compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant
   // inteiro apaga o trabalho de quem está do lado.
-  const contatosAntigos = await db
-    .select({ id: contato.id })
-    .from(contato)
-    .where(inArray(contato.email, EMAILS_CONTATO));
-  const idsContato = contatosAntigos.map((c) => c.id);
-  if (idsContato.length > 0) {
-    const conversasAntigas = await db
-      .select({ id: conversa.id })
-      .from(conversa)
-      .where(inArray(conversa.contatoId, idsContato));
-    const idsConversa = conversasAntigas.map((c) => c.id);
-    if (idsConversa.length > 0) {
-      await db.delete(mensagem).where(inArray(mensagem.conversaId, idsConversa));
-      await db.delete(notaInterna).where(inArray(notaInterna.conversaId, idsConversa));
-      await db.delete(conversaEtiqueta).where(inArray(conversaEtiqueta.conversaId, idsConversa));
+  const contactsOld = await db
+    .select({ id: contact.id })
+    .from(contact)
+    .where(inArray(contact.email, EMAILS_CONTACT));
+  const idsContact = contactsOld.map((c) => c.id);
+  if (idsContact.length > 0) {
+    const conversationsOld = await db
+      .select({ id: conversation.id })
+      .from(conversation)
+      .where(inArray(conversation.contatoId, idsContact));
+    const idsConversation = conversationsOld.map((c) => c.id);
+    if (idsConversation.length > 0) {
+      await db.delete(message).where(inArray(message.conversationId, idsConversation));
+      await db.delete(notaInterna).where(inArray(notaInterna.conversaId, idsConversation));
+      await db.delete(conversationLabel).where(inArray(conversationLabel.conversaId, idsConversation));
       await db
-        .delete(classificacaoConversa)
-        .where(inArray(classificacaoConversa.conversaId, idsConversa));
-      await db.delete(conversa).where(inArray(conversa.id, idsConversa));
+        .delete(classificationConversation)
+        .where(inArray(classificationConversation.conversaId, idsConversation));
+      await db.delete(conversation).where(inArray(conversation.id, idsConversation));
     }
-    await db.delete(contatoEtiqueta).where(inArray(contatoEtiqueta.contatoId, idsContato));
-    await db.delete(contato).where(inArray(contato.id, idsContato));
+    await db.delete(contactLabel).where(inArray(contactLabel.contatoId, idsContact));
+    await db.delete(contact).where(inArray(contact.id, idsContact));
   }
 
-  const canaisAntigos = await db
-    .select({ id: canal.id })
-    .from(canal)
-    .where(inArray(canal.nome, NOMES_CANAL));
-  const idsCanal = canaisAntigos.map((c) => c.id);
-  if (idsCanal.length > 0) {
-    await db.delete(inbox).where(inArray(inbox.canalId, idsCanal));
-    await db.delete(templateMensagem).where(inArray(templateMensagem.canalId, idsCanal));
-    await db.delete(canal).where(inArray(canal.id, idsCanal));
+  const channelsOld = await db
+    .select({ id: channel.id })
+    .from(channel)
+    .where(inArray(channel.nome, NAMES_CHANNEL));
+  const idsChannel = channelsOld.map((c) => c.id);
+  if (idsChannel.length > 0) {
+    await db.delete(inbox).where(inArray(inbox.channelId, idsChannel));
+    await db.delete(templateMessage).where(inArray(templateMessage.canalId, idsChannel));
+    await db.delete(channel).where(inArray(channel.id, idsChannel));
   }
 
   await db.delete(respostaPronta).where(inArray(respostaPronta.atalho, ATALHOS_RESPOSTA));
@@ -157,51 +157,51 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
   // Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o
   // `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento
   // compartilhado isso é apagar o trabalho alheio.
-  const garantirUsuario = async (nome: string, email: string): Promise<string> => {
+  const garantirUser = async (nome: string, email: string): Promise<string> => {
     const [existente] = await db
-      .select({ id: usuario.id })
-      .from(usuario)
-      .where(eq(usuario.email, email))
+      .select({ id: user.id })
+      .from(user)
+      .where(eq(user.email, email))
       .limit(1);
     if (existente) return existente.id;
     const id = randomUUID();
-    await db.insert(usuario).values({ id, tenantId, nome, email });
+    await db.insert(user).values({ id, tenantId, nome, email });
     return id;
   };
 
-  const anaId = await garantirUsuario('Ana Ribeiro', EMAIL_ATENDENTE_DEMO);
-  const brunoId = await garantirUsuario('Bruno Faria', 'bruno.faria@demo.pipe.app');
-  const carlaId = await garantirUsuario('Carla Nunes', 'carla.nunes@demo.pipe.app');
+  const anaId = await garantirUser('Ana Ribeiro', EMAIL_AGENT_DEMO);
+  const brunoId = await garantirUser('Bruno Faria', 'bruno.faria@demo.pipe.app');
+  const carlaId = await garantirUser('Carla Nunes', 'carla.nunes@demo.pipe.app');
 
   // Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`)
   // e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha
   // qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).
-  const [papelAtendente] = await db
-    .select({ id: papel.id })
-    .from(papel)
-    .where(and(eq(papel.tenantId, tenantId), eq(papel.nome, 'atendente')))
+  const [roleAgent] = await db
+    .select({ id: role.id })
+    .from(role)
+    .where(and(eq(role.tenantId, tenantId), eq(role.nome, 'atendente')))
     .limit(1);
-  if (papelAtendente) {
+  if (roleAgent) {
     await db
-      .insert(usuarioPapel)
+      .insert(userRole)
       .values(
-        [anaId, brunoId, carlaId].map((usuarioId) => ({
+        [anaId, brunoId, carlaId].map((userId) => ({
           tenantId,
-          usuarioId,
-          papelId: papelAtendente.id,
+          userId,
+          papelId: roleAgent.id,
           escopo: 'atendimento' as const,
         })),
       )
       .onConflictDoNothing();
   }
-  await garantirPapelDeConta(db, tenantId);
+  await garantirRoleOfAccount(db, tenantId);
 
   // O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.
   await db
-    .insert(statusAtendente)
+    .insert(statusAgent)
     .values({ usuarioId: anaId, tenantId, estado: 'invisivel' })
     .onConflictDoUpdate({
-      target: statusAtendente.usuarioId,
+      target: statusAgent.usuarioId,
       set: { estado: 'invisivel', desde: agora },
     });
 
@@ -213,33 +213,33 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     { tenantId, nome: 'Feedback com supervisor', duracaoSugeridaMin: 20, contaComoProdutivo: true },
   ]);
 
-  const filas = await db.select().from(fila).where(eq(fila.tenantId, tenantId));
-  const filaPor = (nome: string) => {
-    const achada = filas.find((f) => f.nome === nome);
+  const queues = await db.select().from(queue).where(eq(queue.tenantId, tenantId));
+  const queueBy = (nome: string) => {
+    const achada = queues.find((f) => f.nome === nome);
     if (!achada) throw new Error(`fila "${nome}" não existe: rode "pnpm banco:semear" antes.`);
     return achada.id;
   };
-  const comercialId = filaPor('Comercial');
-  const closerId = filaPor('Closer');
-  const suporteId = filaPor('Suporte');
-  const financeiroId = filaPor('Financeiro');
+  const comercialId = queueBy('Comercial');
+  const closerId = queueBy('Closer');
+  const suporteId = queueBy('Suporte');
+  const financialId = queueBy('Financeiro');
 
-  await db.insert(filaAtendente).values(
-    [comercialId, closerId, suporteId, financeiroId].map((filaId) => ({
+  await db.insert(queueAgent).values(
+    [comercialId, closerId, suporteId, financialId].map((queueId) => ({
       tenantId,
-      filaId,
+      queueId,
       usuarioId: anaId,
     })),
   ).onConflictDoNothing();
 
   // --- canais e inboxes ---
-  const canalWhatsId = randomUUID();
-  const canalEmailId = randomUUID();
-  const canalSiteId = randomUUID();
-  await db.insert(canal).values([
-    { id: canalWhatsId, tenantId, tipo: 'whatsapp_cloud', nome: 'WhatsApp Oficial' },
-    { id: canalEmailId, tenantId, tipo: 'email', nome: 'E-mail de atendimento' },
-    { id: canalSiteId, tenantId, tipo: 'widget', nome: 'Chat do site' },
+  const channelWhatsId = randomUUID();
+  const channelEmailId = randomUUID();
+  const channelSiteId = randomUUID();
+  await db.insert(channel).values([
+    { id: channelWhatsId, tenantId, tipo: 'whatsapp_cloud', nome: 'WhatsApp Oficial' },
+    { id: channelEmailId, tenantId, tipo: 'email', nome: 'E-mail de atendimento' },
+    { id: channelSiteId, tenantId, tipo: 'widget', nome: 'Chat do site' },
   ]);
 
   const inboxWhatsId = randomUUID();
@@ -249,31 +249,31 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     {
       id: inboxWhatsId,
       tenantId,
-      canalId: canalWhatsId,
+      canalId: channelWhatsId,
       nome: 'WhatsApp — Atendimento',
       filaPadraoId: comercialId,
     },
     {
       id: inboxEmailId,
       tenantId,
-      canalId: canalEmailId,
+      canalId: channelEmailId,
       nome: 'E-mail — Financeiro',
-      filaPadraoId: financeiroId,
+      filaPadraoId: financialId,
     },
     {
       id: inboxSiteId,
       tenantId,
-      canalId: canalSiteId,
+      canalId: channelSiteId,
       nome: 'Site — Chat',
       filaPadraoId: comercialId,
     },
   ]);
 
   // --- templates aprovados pela Meta, o que sobra quando a janela fecha ---
-  await db.insert(templateMensagem).values([
+  await db.insert(templateMessage).values([
     {
       tenantId,
-      canalId: canalWhatsId,
+      canalId: channelWhatsId,
       nome: 'retomada_atendimento',
       categoria: 'utilidade',
       statusMeta: 'aprovado',
@@ -284,7 +284,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     {
       tenantId,
-      canalId: canalWhatsId,
+      canalId: channelWhatsId,
       nome: 'confirmacao_agendamento',
       categoria: 'utilidade',
       statusMeta: 'aprovado',
@@ -293,7 +293,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     {
       tenantId,
-      canalId: canalWhatsId,
+      canalId: channelWhatsId,
       nome: 'promocao_setembro',
       categoria: 'marketing',
       statusMeta: 'aprovado',
@@ -377,7 +377,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
       },
     ])
     .returning({ id: respostaPronta.id, atalho: respostaPronta.atalho });
-  const respostaPor = (atalho: string) => respostas.find((r) => r.atalho === atalho)?.id ?? null;
+  const responseBy = (atalho: string) => respostas.find((r) => r.atalho === atalho)?.id ?? null;
 
   // --- etiquetas: as de trabalho e as de encerramento (obrigatórias para fechar) ---
   const etiquetas = await db
@@ -394,7 +394,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
       { tenantId, nome: 'fora-de-escopo', cor: '#55544D', obrigatoriaNoEncerramento: true },
     ])
     .returning({ id: etiqueta.id, nome: etiqueta.nome });
-  const etiquetaPor = (nome: string) => {
+  const labelBy = (nome: string) => {
     const achada = etiquetas.find((e) => e.nome === nome);
     if (!achada) throw new Error(`etiqueta "${nome}" não foi criada`);
     return achada.id;
@@ -447,7 +447,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
   });
   const pessoas = [marcelo, juliana, renata, diego, cassia, paulo];
 
-  await db.insert(contato).values(
+  await db.insert(contact).values(
     pessoas.map((p) => ({
       id: p.id,
       tenantId,
@@ -457,138 +457,138 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
       atributos: p.atributos,
     })),
   );
-  await db.insert(contatoEtiqueta).values([
-    { tenantId, contatoId: cassia.id, etiquetaId: etiquetaPor('cliente-antigo') },
-    { tenantId, contatoId: juliana.id, etiquetaId: etiquetaPor('cliente-antigo') },
+  await db.insert(contactLabel).values([
+    { tenantId, contatoId: cassia.id, etiquetaId: labelBy('cliente-antigo') },
+    { tenantId, contatoId: juliana.id, etiquetaId: labelBy('cliente-antigo') },
   ]);
 
   // --- conversas ---
-  interface NovaConversa {
+  interface NewConversation {
     id: string;
-    contatoId: string;
+    contactId: string;
     inboxId: string;
-    filaId: string;
-    estado: 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
-    prioridade: 'baixa' | 'media' | 'alta';
+    queueId: string;
+    state: 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
+    priority: 'baixa' | 'media' | 'alta';
     /** Quando o contato falou pela última vez. Define a janela de 24h. */
-    ultimaDoContatoAtras: number | null;
-    ultimaMensagemAtras: number;
-    ultimaMensagemDe: 'contato' | 'atendente';
+    lastOfContactAtras: number | null;
+    lastMessageAtras: number;
+    lastMessageOf: 'contato' | 'atendente';
     criadaAtras: number;
     encerradaAtras?: number;
     emEsperaDesde?: number;
   }
 
-  const conversas: NovaConversa[] = [
+  const conversations: NewConversation[] = [
     {
       id: randomUUID(),
-      contatoId: marcelo.id,
+      contactId: marcelo.id,
       inboxId: inboxWhatsId,
-      filaId: comercialId,
-      estado: 'em_atendimento',
-      prioridade: 'alta',
-      ultimaDoContatoAtras: 2 * HORA + 12 * MIN,
-      ultimaMensagemAtras: 2 * HORA + 5 * MIN,
-      ultimaMensagemDe: 'atendente',
+      queueId: comercialId,
+      state: 'em_atendimento',
+      priority: 'alta',
+      lastOfContactAtras: 2 * HORA + 12 * MIN,
+      lastMessageAtras: 2 * HORA + 5 * MIN,
+      lastMessageOf: 'atendente',
       criadaAtras: 3 * HORA,
     },
     {
       id: randomUUID(),
-      contatoId: juliana.id,
+      contactId: juliana.id,
       inboxId: inboxWhatsId,
-      filaId: suporteId,
-      estado: 'em_atendimento',
-      prioridade: 'media',
+      queueId: suporteId,
+      state: 'em_atendimento',
+      priority: 'media',
       // Janela perto de expirar: faltam ~38 minutos.
-      ultimaDoContatoAtras: 23 * HORA + 22 * MIN,
-      ultimaMensagemAtras: 23 * HORA + 20 * MIN,
-      ultimaMensagemDe: 'atendente',
+      lastOfContactAtras: 23 * HORA + 22 * MIN,
+      lastMessageAtras: 23 * HORA + 20 * MIN,
+      lastMessageOf: 'atendente',
       criadaAtras: 26 * HORA,
     },
     {
       id: randomUUID(),
-      contatoId: renata.id,
+      contactId: renata.id,
       inboxId: inboxEmailId,
-      filaId: financeiroId,
-      estado: 'atribuida',
-      prioridade: 'media',
+      queueId: financialId,
+      state: 'atribuida',
+      priority: 'media',
       // E-mail não tem janela de 24h: a regra é do canal.
-      ultimaDoContatoAtras: null,
-      ultimaMensagemAtras: 40 * MIN,
-      ultimaMensagemDe: 'contato',
+      lastOfContactAtras: null,
+      lastMessageAtras: 40 * MIN,
+      lastMessageOf: 'contato',
       criadaAtras: 45 * MIN,
     },
     {
       id: randomUUID(),
-      contatoId: diego.id,
+      contactId: diego.id,
       inboxId: inboxSiteId,
-      filaId: comercialId,
-      estado: 'atribuida',
-      prioridade: 'baixa',
-      ultimaDoContatoAtras: null,
-      ultimaMensagemAtras: 12 * MIN,
-      ultimaMensagemDe: 'contato',
+      queueId: comercialId,
+      state: 'atribuida',
+      priority: 'baixa',
+      lastOfContactAtras: null,
+      lastMessageAtras: 12 * MIN,
+      lastMessageOf: 'contato',
       criadaAtras: 14 * MIN,
     },
     {
       id: randomUUID(),
-      contatoId: cassia.id,
+      contactId: cassia.id,
       inboxId: inboxWhatsId,
-      filaId: suporteId,
-      estado: 'em_espera',
-      prioridade: 'media',
+      queueId: suporteId,
+      state: 'em_espera',
+      priority: 'media',
       // Janela já fechada: passou de 24h desde a última mensagem dela.
-      ultimaDoContatoAtras: 30 * HORA,
-      ultimaMensagemAtras: 29 * HORA,
-      ultimaMensagemDe: 'atendente',
+      lastOfContactAtras: 30 * HORA,
+      lastMessageAtras: 29 * HORA,
+      lastMessageOf: 'atendente',
       criadaAtras: 32 * HORA,
       emEsperaDesde: 28 * HORA,
     },
     {
       id: randomUUID(),
-      contatoId: paulo.id,
+      contactId: paulo.id,
       inboxId: inboxWhatsId,
-      filaId: closerId,
-      estado: 'em_atendimento',
-      prioridade: 'alta',
-      ultimaDoContatoAtras: 18 * HORA,
-      ultimaMensagemAtras: 17 * HORA + 50 * MIN,
-      ultimaMensagemDe: 'atendente',
+      queueId: closerId,
+      state: 'em_atendimento',
+      priority: 'alta',
+      lastOfContactAtras: 18 * HORA,
+      lastMessageAtras: 17 * HORA + 50 * MIN,
+      lastMessageOf: 'atendente',
       criadaAtras: 19 * HORA,
     },
     // Conversa antiga do Marcelo, para o histórico do painel do contato.
     {
       id: randomUUID(),
-      contatoId: marcelo.id,
+      contactId: marcelo.id,
       inboxId: inboxWhatsId,
-      filaId: suporteId,
-      estado: 'encerrada',
-      prioridade: 'baixa',
-      ultimaDoContatoAtras: null,
-      ultimaMensagemAtras: 3 * 24 * HORA,
-      ultimaMensagemDe: 'atendente',
+      queueId: suporteId,
+      state: 'encerrada',
+      priority: 'baixa',
+      lastOfContactAtras: null,
+      lastMessageAtras: 3 * 24 * HORA,
+      lastMessageOf: 'atendente',
       criadaAtras: 3 * 24 * HORA + 30 * MIN,
       encerradaAtras: 3 * 24 * HORA,
     },
   ];
 
-  await db.insert(conversa).values(
-    conversas.map((c) => ({
+  await db.insert(conversation).values(
+    conversations.map((c) => ({
       id: c.id,
       tenantId,
       inboxId: c.inboxId,
-      contatoId: c.contatoId,
-      filaId: c.filaId,
+      contatoId: c.contactId,
+      filaId: c.queueId,
       atendenteId: anaId,
-      estado: c.estado,
-      prioridade: c.prioridade,
+      estado: c.state,
+      prioridade: c.priority,
       criadaEm: atras(c.criadaAtras),
       atribuidaEm: atras(c.criadaAtras - MIN),
       primeiraRespostaEm: atras(c.criadaAtras - 2 * MIN),
-      ultimaMensagemEm: atras(c.ultimaMensagemAtras),
-      ultimaMensagemDe: c.ultimaMensagemDe,
+      ultimaMensagemEm: atras(c.lastMessageAtras),
+      ultimaMensagemDe: c.lastMessageOf,
       janelaExpiraEm:
-        c.ultimaDoContatoAtras === null ? null : atras(c.ultimaDoContatoAtras - 24 * HORA),
+        c.lastOfContactAtras === null ? null : atras(c.lastOfContactAtras - 24 * HORA),
       ...(c.emEsperaDesde ? { emEsperaDesde: atras(c.emEsperaDesde) } : {}),
       ...(c.encerradaAtras
         ? { encerradaEm: atras(c.encerradaAtras), encerradaPor: anaId, motivoEncerramento: 'resolvido' }
@@ -604,87 +604,87 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     convCassia,
     convPaulo,
     convMarceloAntiga,
-  ] = conversas.map((c) => c.id) as [string, string, string, string, string, string, string];
+  ] = conversations.map((c) => c.id) as [string, string, string, string, string, string, string];
 
   // --- mensagens ---
   type Fala = {
-    conversaId: string;
+    conversationId: string;
     de: 'contato' | 'atendente';
     texto: string;
     atras: number;
     tipo?: 'texto' | 'audio' | 'documento';
     estado?: 'enviada' | 'entregue' | 'lida' | 'falhou';
-    erroCodigo?: string;
-    erroTexto?: string;
+    errorCode?: string;
+    errorText?: string;
     respostaProntaId?: string | null;
-    dentroDaJanela?: boolean;
+    insideOfWindow?: boolean;
   };
 
   const falas: Fala[] = [
     // Marcelo — comercial, negociando desconto; o áudio falhou.
     {
-      conversaId: convMarcelo,
+      conversationId: convMarcelo,
       de: 'contato',
       texto: 'Boa tarde! Vi o anúncio de vocês e queria entender o plano anual.',
       atras: 3 * HORA,
     },
     {
-      conversaId: convMarcelo,
+      conversationId: convMarcelo,
       de: 'atendente',
       texto:
         'Boa tarde, Marcelo! Sou a Ana, do comercial. O plano anual sai por R$ 4.788, ' +
         'o que dá R$ 399 por mês.',
       atras: 2 * HORA + 55 * MIN,
       estado: 'lida',
-      respostaProntaId: respostaPor('proposta-anual'),
+      respostaProntaId: responseBy('proposta-anual'),
     },
     {
-      conversaId: convMarcelo,
+      conversationId: convMarcelo,
       de: 'contato',
       texto: 'E tem desconto se eu pagar à vista?',
       atras: 2 * HORA + 12 * MIN,
     },
     {
-      conversaId: convMarcelo,
+      conversationId: convMarcelo,
       de: 'atendente',
       texto: 'Áudio de 0:34 — explicação do desconto à vista',
       atras: 2 * HORA + 9 * MIN,
       tipo: 'audio',
       estado: 'falhou',
-      erroCodigo: 'meta_131053',
-      erroTexto:
+      errorCode: 'meta_131053',
+      errorText:
         'A Meta recusou o áudio: formato ogg/opus fora do aceito. Converter para mp3 e enviar?',
     },
     {
-      conversaId: convMarcelo,
+      conversationId: convMarcelo,
       de: 'atendente',
       texto: 'Tem sim — 10% à vista, fica R$ 4.309. Posso te mandar a proposta agora?',
       atras: 2 * HORA + 5 * MIN,
       estado: 'lida',
-      respostaProntaId: respostaPor('desconto-avista'),
+      respostaProntaId: responseBy('desconto-avista'),
     },
     // Juliana — suporte, janela quase estourando.
     {
-      conversaId: convJuliana,
+      conversationId: convJuliana,
       de: 'contato',
       texto: 'não consigo acessar minha conta desde ontem à noite',
       atras: 26 * HORA,
     },
     {
-      conversaId: convJuliana,
+      conversationId: convJuliana,
       de: 'atendente',
       texto: 'Oi, Juliana! Vou verificar aqui. Aparece alguma mensagem de erro na tela?',
       atras: 25 * HORA + 40 * MIN,
       estado: 'lida',
     },
     {
-      conversaId: convJuliana,
+      conversationId: convJuliana,
       de: 'contato',
       texto: 'aparece "credenciais inválidas", mas a senha é a mesma de sempre',
       atras: 23 * HORA + 22 * MIN,
     },
     {
-      conversaId: convJuliana,
+      conversationId: convJuliana,
       de: 'atendente',
       texto:
         'Entendi. Acabei de destravar o acesso e mandei um link de redefinição para o seu ' +
@@ -694,7 +694,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     // Renata — e-mail, financeiro.
     {
-      conversaId: convRenata,
+      conversationId: convRenata,
       de: 'contato',
       texto:
         'Bom dia. Segue em anexo o comprovante da transferência da mensalidade de setembro. ' +
@@ -704,20 +704,20 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     // Diego — widget do site.
     {
-      conversaId: convDiego,
+      conversationId: convDiego,
       de: 'contato',
       texto: 'vim pelo anúncio, queria falar com alguém sobre preço',
       atras: 12 * MIN,
     },
     // Cássia — janela fechada.
     {
-      conversaId: convCassia,
+      conversationId: convCassia,
       de: 'contato',
       texto: 'oi, ainda estou esperando o retorno sobre a nota fiscal de agosto',
       atras: 30 * HORA,
     },
     {
-      conversaId: convCassia,
+      conversationId: convCassia,
       de: 'atendente',
       texto:
         'Oi, Cássia! Já pedi para o financeiro reemitir. Coloquei a conversa em espera e te ' +
@@ -727,13 +727,13 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     // Paulo — closer.
     {
-      conversaId: convPaulo,
+      conversationId: convPaulo,
       de: 'contato',
       texto: 'Ana, conversei com meu sócio e a gente quer fechar. Como faço o pagamento?',
       atras: 18 * HORA,
     },
     {
-      conversaId: convPaulo,
+      conversationId: convPaulo,
       de: 'atendente',
       texto:
         'Que ótima notícia, Paulo! Mando o link de pagamento e o contrato ainda hoje. ' +
@@ -743,13 +743,13 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
     // Conversa antiga do Marcelo.
     {
-      conversaId: convMarceloAntiga,
+      conversationId: convMarceloAntiga,
       de: 'contato',
       texto: 'consegui resolver, obrigado!',
       atras: 3 * 24 * HORA + 10 * MIN,
     },
     {
-      conversaId: convMarceloAntiga,
+      conversationId: convMarceloAntiga,
       de: 'atendente',
       texto: 'Que bom! Qualquer coisa é só chamar.',
       atras: 3 * 24 * HORA,
@@ -757,24 +757,24 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
   ];
 
-  await db.insert(mensagem).values(
+  await db.insert(message).values(
     falas.map((f) => ({
       tenantId,
-      conversaId: f.conversaId,
+      conversaId: f.conversationId,
       direcao: f.de === 'contato' ? ('entrada' as const) : ('saida' as const),
       autorTipo: f.de,
       autorId: f.de === 'atendente' ? anaId : null,
       tipo: f.tipo ?? 'texto',
       conteudo: f.texto,
       estadoEntrega: f.de === 'atendente' ? (f.estado ?? 'enviada') : null,
-      erroCodigo: f.erroCodigo ?? null,
-      erroTexto: f.erroTexto ?? null,
+      erroCodigo: f.errorCode ?? null,
+      erroTexto: f.errorText ?? null,
       respostaProntaId: f.respostaProntaId ?? null,
       criadaEm: atras(f.atras),
       entregueEm:
         f.de === 'atendente' && f.estado !== 'falhou' ? atras(f.atras - 20_000) : null,
       lidaEm: f.estado === 'lida' ? atras(f.atras - 60_000) : null,
-      dentroDaJanela: f.de === 'atendente' ? (f.dentroDaJanela ?? true) : null,
+      dentroDaJanela: f.de === 'atendente' ? (f.insideOfWindow ?? true) : null,
       categoriaCobranca: f.de === 'atendente' ? ('livre' as const) : null,
     })),
   );
@@ -790,16 +790,16 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
     },
   ]);
 
-  await db.insert(conversaEtiqueta).values([
-    { tenantId, conversaId: convMarcelo, etiquetaId: etiquetaPor('proposta-enviada') },
-    { tenantId, conversaId: convMarcelo, etiquetaId: etiquetaPor('desconto') },
-    { tenantId, conversaId: convMarcelo, etiquetaId: etiquetaPor('anual') },
-    { tenantId, conversaId: convDiego, etiquetaId: etiquetaPor('primeiro-contato') },
-    { tenantId, conversaId: convPaulo, etiquetaId: etiquetaPor('proposta-enviada') },
+  await db.insert(conversationLabel).values([
+    { tenantId, conversaId: convMarcelo, etiquetaId: labelBy('proposta-enviada') },
+    { tenantId, conversaId: convMarcelo, etiquetaId: labelBy('desconto') },
+    { tenantId, conversaId: convMarcelo, etiquetaId: labelBy('anual') },
+    { tenantId, conversaId: convDiego, etiquetaId: labelBy('primeiro-contato') },
+    { tenantId, conversaId: convPaulo, etiquetaId: labelBy('proposta-enviada') },
   ]);
 
   // Resumo já gravado. Nesta etapa a tela lê o que está no banco; não chama IA.
-  await db.insert(classificacaoConversa).values([
+  await db.insert(classificationConversation).values([
     {
       tenantId,
       conversaId: convMarcelo,
@@ -844,9 +844,9 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
 
   return {
     tenantId,
-    atendenteId: anaId,
-    conversas: conversas.length,
-    mensagens: falas.length,
+    agentId: anaId,
+    conversations: conversations.length,
+    messages: falas.length,
   };
 }
 
@@ -855,18 +855,18 @@ const executadoDiretamente = process.argv[1]
   : false;
 
 if (executadoDiretamente) {
-  const db = criarBanco({ maxConexoes: 1 });
-  semearDemo(db)
+  const db = createDatabase({ maxConnections: 1 });
+  seedDemo(db)
     .then((resultado) => {
       process.stdout.write(
         `semente de demonstração aplicada: tenant ${resultado.tenantId}, atendente ` +
-          `${resultado.atendenteId}, ${resultado.conversas} conversas, ` +
-          `${resultado.mensagens} mensagens\n`,
+          `${resultado.agentId}, ${resultado.conversations} conversas, ` +
+          `${resultado.messages} mensagens\n`,
       );
     })
-    .catch((erro: unknown) => {
-      process.stderr.write(`falha ao semear a demonstração: ${String(erro)}\n`);
+    .catch((error: unknown) => {
+      process.stderr.write(`falha ao semear a demonstração: ${String(error)}\n`);
       process.exitCode = 1;
     })
-    .finally(() => fecharBanco(db));
+    .finally(() => closeDatabase(db));
 }

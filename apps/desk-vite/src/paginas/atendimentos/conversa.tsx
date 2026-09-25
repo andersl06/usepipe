@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import type {
   Colega,
-  ConversaDoDesk,
+  ConversationOfDesk,
   EtiquetaDoDesk,
-  ItemDaConversa,
+  ItemOfConversation,
   RespostaProntaDoDesk,
 } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
 import { api } from '../../lib/api';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import { atualizarLeituras } from '../../lib/acoes';
 import { numeroDoTicket } from '../../lib/canal';
-import { nomeDeExibicao } from '../../lib/ordem';
+import { displayName } from '../../lib/ordem';
 import { Thread } from './thread';
-import { Compositor } from './compositor';
-import { CartaoEncerramentoTicket, avisarTicketFinalizado } from '@pipe/ui';
+import { Composer } from './compositor';
+import { CardClosureTicket, avisarTicketFinalizado } from '@pipe/ui';
 
 /**
  * O painel da conversa — `.pane-chat` da referência
@@ -29,74 +29,74 @@ import { CartaoEncerramentoTicket, avisarTicketFinalizado } from '@pipe/ui';
  * `close-modal-container`) e chamam `POST /v1/conversas/:id/transferir` e
  * `/encerrar`; a espera vai em `/espera` pelo menu ⋮ ("Modo de Espera").
  */
-export function Conversa({
+export function Conversation({
   aberta,
   respostas,
   etiquetas,
   colegas,
   agora,
-  painelAberto,
-  aoAlternarPainel,
+  panelAberto,
+  toAlternarPanel,
   aoFechar,
 }: {
-  aberta: ConversaDoDesk;
+  aberta: ConversationOfDesk;
   respostas: RespostaProntaDoDesk[];
   etiquetas: EtiquetaDoDesk[];
   colegas: Colega[];
   agora: Date;
-  painelAberto: boolean;
-  aoAlternarPainel: () => void;
+  panelAberto: boolean;
+  toAlternarPanel: () => void;
   aoFechar: (proximaId?: string) => void;
 }) {
-  const { conversa, itens, templates, etiquetasDaConversa } = aberta;
+  const { conversation, itens, templates, conversationTags } = aberta;
   const [modal, setModal] = useState<'transferir' | 'finalizar' | 'etiquetas' | null>(null);
   const [menu, setMenu] = useState(false);
-  const [busca, setBusca] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
-  const nome = nomeDeExibicao(conversa);
-  const numero = numeroDoTicket(conversa.id);
+  const [search, setSearch] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const nome = displayName(conversation);
+  const numero = numeroDoTicket(conversation.id);
 
   /**
    * Tirar uma etiqueta da conversa ABERTA — `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`.
    * Não encerra nada: é o gesto `ADD_TAGS` da origem, que é separado do `CLOSE_TICKET`.
    */
   async function removerEtiqueta(etiquetaId: string) {
-    setErro(null);
+    setError(null);
     try {
-      await api.delete(`/v1/conversas/${conversa.id}/etiquetas/${etiquetaId}`);
+      await api.delete(`/v1/conversas/${conversation.id}/etiquetas/${etiquetaId}`);
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
+      setError(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
     }
   }
 
   async function alternarEspera() {
     setMenu(false);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversa.id}/espera`);
+      await api.post(`/v1/conversas/${conversation.id}/espera`);
       atualizarLeituras();
     } catch (e) {
-      setErro(
+      setError(
         e instanceof Error ? e.message : `Falha ao mudar o ticket ${numero} de Modo de Espera`,
       );
     }
   }
 
-  async function reenviar(mensagemId: string) {
-    setErro(null);
+  async function reenviar(messageId: string) {
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversa.id}/mensagens/${mensagemId}/reenviar`);
+      await api.post(`/v1/conversas/${conversation.id}/mensagens/${messageId}/reenviar`);
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
+      setError(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
     }
   }
 
-  const ocorrencias = busca
+  const ocorrencias = search
     ? itens.filter(
         (i) =>
-          i.genero === 'mensagem' && (i.conteudo ?? '').toLowerCase().includes(busca.toLowerCase()),
+          i.genero === 'mensagem' && (i.conteudo ?? '').toLowerCase().includes(search.toLowerCase()),
       ).length
     : 0;
 
@@ -122,7 +122,7 @@ export function Conversa({
                 </span>
                 <span className="dk-some-medio">
                   <b>Fila:</b>
-                  <i id="ticket-team">{conversa.filaNome ?? 'Transferência direta'}</i>
+                  <i id="ticket-team">{conversation.queueName ?? 'Transferência direta'}</i>
                 </span>
               </span>
             </div>
@@ -145,8 +145,8 @@ export function Conversa({
               className="dk-botao-icone"
               title="Pesquisar na conversa"
               aria-label="Pesquisar na conversa"
-              aria-pressed={busca !== null}
-              onClick={() => setBusca((b) => (b === null ? '' : null))}
+              aria-pressed={search !== null}
+              onClick={() => setSearch((b) => (b === null ? '' : null))}
             >
               <IconeDesk nome="busca" />
             </button>
@@ -205,7 +205,7 @@ export function Conversa({
                     onClick={() => void alternarEspera()}
                   >
                     <IconeDesk nome="pausa" tamanho={20} />
-                    {conversa.estado === 'em_espera'
+                    {conversation.state === 'em_espera'
                       ? 'Remover do Modo de Espera'
                       : 'Modo de Espera'}
                   </button>
@@ -227,7 +227,7 @@ export function Conversa({
                     className="dk-menu-item"
                     onClick={() => {
                       setMenu(false);
-                      exportarTranscricao(numero, nome, itens);
+                      exportarTranscription(numero, nome, itens);
                     }}
                   >
                     <IconeDesk nome="externo" tamanho={20} />
@@ -240,17 +240,17 @@ export function Conversa({
               type="button"
               className="dk-botao-icone"
               id="show-user-info"
-              title={painelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
-              aria-label={painelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
-              aria-expanded={painelAberto}
-              onClick={aoAlternarPainel}
+              title={panelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
+              aria-label={panelAberto ? 'Esconder dados do contato' : 'Mostrar dados do contato'}
+              aria-expanded={panelAberto}
+              onClick={toAlternarPanel}
             >
-              <IconeDesk nome={painelAberto ? 'seta-direita' : 'seta-esquerda'} />
+              <IconeDesk nome={panelAberto ? 'seta-direita' : 'seta-esquerda'} />
             </button>
           </div>
         </div>
         <div className="dk-divisor" />
-        {conversa.estado !== 'encerrada' ? (
+        {conversation.state !== 'encerrada' ? (
           <>
             <div className="dk-etiquetas">
               <button
@@ -263,7 +263,7 @@ export function Conversa({
                 Adicionar tags
               </button>
               <div className="dk-etiquetas-fila" id="tags-scroll">
-                {etiquetasDaConversa.map((e) => (
+                {conversationTags.map((e) => (
                   <span key={e.id} className="dk-chip dk-chip-contorno">
                     {e.nome}
                     <button
@@ -282,7 +282,7 @@ export function Conversa({
             <div className="dk-divisor" />
           </>
         ) : null}
-        {busca !== null ? (
+        {search !== null ? (
           <div className="dk-busca-conversa">
             <label className="dk-campo">
               <span className="dk-campo-icone">
@@ -293,8 +293,8 @@ export function Conversa({
                 type="search"
                 id="search-input-desktop"
                 placeholder="Pesquisar nesta conversa"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </label>
             <button
@@ -302,17 +302,17 @@ export function Conversa({
               className="dk-botao-icone"
               title="Fechar"
               aria-label="Fechar"
-              onClick={() => setBusca(null)}
+              onClick={() => setSearch(null)}
             >
               <IconeDesk nome="fechar" />
             </button>
-            {busca ? (
+            {search ? (
               <div className="dk-busca-resultado">
                 <span>
                   {ocorrencias === 0
                     ? 'Nenhum resultado encontrado para '
                     : `${ocorrencias} resultado(s) para `}
-                  <b>“{busca}”</b>
+                  <b>“{search}”</b>
                 </span>
                 <span>
                   <button type="button" className="dk-botao-icone" aria-label="Anterior" disabled>
@@ -329,18 +329,18 @@ export function Conversa({
       </div>
 
       <Thread
-        conversaId={conversa.id}
+        conversationId={conversation.id}
         itens={itens}
         agora={agora}
         aoReenviar={(id) => void reenviar(id)}
       />
-      {erro ? (
+      {error ? (
         <p className="dk-erro" style={{ padding: '0 24px' }}>
-          {erro}
+          {error}
         </p>
       ) : null}
-      <Compositor
-        conversa={conversa}
+      <Composer
+        conversation={conversation}
         respostas={respostas}
         templates={templates}
         agora={agora}
@@ -349,7 +349,7 @@ export function Conversa({
 
       {modal === 'transferir' ? (
         <ModalTransferir
-          conversaId={conversa.id}
+          conversationId={conversation.id}
           numero={numero}
           colegas={colegas}
           aoFechar={() => setModal(null)}
@@ -361,10 +361,10 @@ export function Conversa({
       ) : null}
       {modal === 'finalizar' ? (
         <ModalFinalizar
-          conversaId={conversa.id}
+          conversationId={conversation.id}
           numero={numero}
           etiquetas={etiquetas}
-          marcadas={etiquetasDaConversa.map((e) => e.id)}
+          marcadas={conversationTags.map((e) => e.id)}
           aoFechar={() => setModal(null)}
           aoFinalizar={() => {
             setModal(null);
@@ -374,10 +374,10 @@ export function Conversa({
       ) : null}
       {modal === 'etiquetas' ? (
         <ModalEtiquetas
-          conversaId={conversa.id}
+          conversationId={conversation.id}
           numero={numero}
           etiquetas={etiquetas}
-          marcadas={etiquetasDaConversa.map((e) => e.id)}
+          marcadas={conversationTags.map((e) => e.id)}
           aoFechar={() => setModal(null)}
         />
       ) : null}
@@ -393,35 +393,35 @@ export function Conversa({
  * no modal de Finalizar, porque as duas moram na mesma `conversa_etiqueta`.
  */
 function ModalEtiquetas({
-  conversaId,
+  conversationId,
   numero,
   etiquetas,
   marcadas,
   aoFechar,
 }: {
-  conversaId: string;
+  conversationId: string;
   numero: string;
   etiquetas: EtiquetaDoDesk[];
   marcadas: string[];
   aoFechar: () => void;
 }) {
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [ocupada, setOcupada] = useState<string | null>(null);
   const aplicadas = new Set(marcadas);
 
   async function alternar(etiqueta: EtiquetaDoDesk) {
     if (ocupada) return;
     setOcupada(etiqueta.id);
-    setErro(null);
+    setError(null);
     try {
       if (aplicadas.has(etiqueta.id)) {
-        await api.delete(`/v1/conversas/${conversaId}/etiquetas/${etiqueta.id}`);
+        await api.delete(`/v1/conversas/${conversationId}/etiquetas/${etiqueta.id}`);
       } else {
-        await api.post(`/v1/conversas/${conversaId}/etiquetas`, { etiqueta_id: etiqueta.id });
+        await api.post(`/v1/conversas/${conversationId}/etiquetas`, { etiqueta_id: etiqueta.id });
       }
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível alterar as tags.');
+      setError(e instanceof Error ? e.message : 'Não foi possível alterar as tags.');
     } finally {
       setOcupada(null);
     }
@@ -455,7 +455,7 @@ function ModalEtiquetas({
             ))}
           </div>
         )}
-        {erro ? <p className="dk-erro">{erro}</p> : null}
+        {error ? <p className="dk-erro">{error}</p> : null}
         <div className="dk-modal-acoes">
           <button type="button" className="dk-botao" onClick={aoFechar}>
             Concluir
@@ -473,43 +473,43 @@ function ModalEtiquetas({
  * a transferência encerra este ticket e abre outro.
  */
 function ModalTransferir({
-  conversaId,
+  conversationId,
   numero,
   colegas,
   aoFechar,
   aoTransferir,
 }: {
-  conversaId: string;
+  conversationId: string;
   numero: string;
   colegas: Colega[];
   aoFechar: () => void;
   aoTransferir: () => void;
 }) {
   const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
-  const [filaId, setFilaId] = useState('');
-  const [atendenteId, setAtendenteId] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
+  const [queueId, setQueueId] = useState('');
+  const [agentId, setAgentId] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
-  const filas = useFilas();
+  const queues = useQueues();
 
   async function transferir() {
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversaId}/transferir`, {
-        ...(alvo === 'fila' ? { para_fila_id: filaId } : { para_atendente_id: atendenteId }),
+      await api.post(`/v1/conversas/${conversationId}/transferir`, {
+        ...(alvo === 'fila' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
       });
       atualizarLeituras();
       aoTransferir();
     } catch (e) {
-      setErro(
+      setError(
         e instanceof Error ? e.message : `Ops! Houve um erro ao transferir o ticket ${numero}.`,
       );
       setEnviando(false);
     }
   }
 
-  const podeTransferir = alvo === 'fila' ? Boolean(filaId) : Boolean(atendenteId);
+  const podeTransferir = alvo === 'fila' ? Boolean(queueId) : Boolean(agentId);
 
   return (
     <div className="dk-veu" role="presentation" onClick={aoFechar}>
@@ -545,9 +545,9 @@ function ModalTransferir({
         {alvo === 'fila' ? (
           <>
             <label htmlFor="fila">Fila</label>
-            <select id="fila" value={filaId} onChange={(e) => setFilaId(e.target.value)}>
+            <select id="fila" value={queueId} onChange={(e) => setQueueId(e.target.value)}>
               <option value="">Selecionar fila</option>
-              {filas.map((f) => (
+              {queues.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.nome}
                 </option>
@@ -559,8 +559,8 @@ function ModalTransferir({
             <label htmlFor="atendente">Atendente</label>
             <select
               id="atendente"
-              value={atendenteId}
-              onChange={(e) => setAtendenteId(e.target.value)}
+              value={agentId}
+              onChange={(e) => setAgentId(e.target.value)}
             >
               <option value="">Selecionar atendente</option>
               {colegas.map((c) => (
@@ -575,7 +575,7 @@ function ModalTransferir({
           Escolha a fila que receberá esse atendimento. Lembrando que a transferência gera um novo
           número de ticket.
         </p>
-        {erro ? <p className="dk-erro">{erro}</p> : null}
+        {error ? <p className="dk-erro">{error}</p> : null}
         <div className="dk-modal-acoes">
           <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
             Cancelar
@@ -601,14 +601,14 @@ function ModalTransferir({
  * ticket". A etiqueta é obrigatória na `api` (`POST /encerrar`).
  */
 function ModalFinalizar({
-  conversaId,
+  conversationId,
   numero,
   etiquetas,
   marcadas,
   aoFechar,
   aoFinalizar,
 }: {
-  conversaId: string;
+  conversationId: string;
   numero: string;
   etiquetas: EtiquetaDoDesk[];
   marcadas: string[];
@@ -616,19 +616,19 @@ function ModalFinalizar({
   aoFinalizar: () => void;
 }) {
   const [etiquetasIds, setEtiquetasIds] = useState(marcadas);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
   async function finalizar() {
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversaId}/encerrar`, { etiqueta_ids: etiquetasIds });
+      await api.post(`/v1/conversas/${conversationId}/encerrar`, { etiqueta_ids: etiquetasIds });
       atualizarLeituras();
       avisarTicketFinalizado(numero);
       aoFinalizar();
     } catch (e) {
-      setErro(
+      setError(
         e instanceof Error
           ? e.message
           : `Ocorreu um erro na finalização do ticket ${numero}. Por favor, tente finalizá-lo novamente ou recarregue a página.`,
@@ -638,11 +638,11 @@ function ModalFinalizar({
   }
 
   return (
-    <CartaoEncerramentoTicket
+    <CardClosureTicket
       numero={numero}
       etiquetas={etiquetas}
       selecionadas={etiquetasIds}
-      erro={erro}
+      error={error}
       enviando={enviando}
       aoSelecionar={setEtiquetasIds}
       aoCancelar={aoFechar}
@@ -652,9 +652,9 @@ function ModalFinalizar({
 }
 
 /** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */
-function useFilas(): { id: string; nome: string }[] {
-  const leitura = useLeitura<{ filas: { id: string; nome: string }[] }>('/v1/desk/filas');
-  return leitura.data?.filas ?? [];
+function useQueues(): { id: string; nome: string }[] {
+  const read = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/filas');
+  return read.data?.queues ?? [];
 }
 
 /**
@@ -664,11 +664,11 @@ function useFilas(): { id: string; nome: string }[] {
  * (`blip-desk-funcoes.md` §7) — sem e-mail assíncrono para o recorte de 90
  * dias a 5 anos, que é conversa de gestor, não do atendente numa tela.
  */
-function exportarTranscricao(numero: string, nome: string, itens: ItemDaConversa[]): void {
+function exportarTranscription(numero: string, nome: string, itens: ItemOfConversation[]): void {
   const linhas = itens.map((item) => {
     const hora = new Date(item.criadaEm).toLocaleString('pt-BR');
     if (item.genero === 'nota') return `[${hora}] Nota interna (${item.autor ?? '—'}): ${item.corpo}`;
-    const quem = item.direcao === 'entrada' ? nome : 'Atendente';
+    const quem = item.direction === 'entrada' ? nome : 'Atendente';
     return `[${hora}] ${quem}: ${item.conteudo ?? `(${item.tipo})`}`;
   });
   const texto = `Ticket ${numero} — ${nome}\n\n${linhas.join('\n')}\n`;

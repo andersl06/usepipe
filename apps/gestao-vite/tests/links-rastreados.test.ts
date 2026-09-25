@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { campoDoErroDeLink } from '../src/paginas/fluxo/growth/links-rastreados/dados.ts';
+import { fieldOfErrorOfLink } from '../src/paginas/fluxo/growth/links-rastreados/dados.ts';
 
 /**
  * `campoDoErroDeLink` decide sob qual campo do formulário (nome/destino) a
@@ -11,16 +11,16 @@ import { campoDoErroDeLink } from '../src/paginas/fluxo/growth/links-rastreados/
  */
 
 test('campoDoErroDeLink: nome_obrigatorio vai para o campo nome', () => {
-  assert.equal(campoDoErroDeLink('nome_obrigatorio'), 'nome');
+  assert.equal(fieldOfErrorOfLink('nome_obrigatorio'), 'nome');
 });
 
 test('campoDoErroDeLink: os quatro códigos de URL vão para o campo destino', () => {
   for (const codigo of ['destino_obrigatorio', 'url_invalida', 'url_precisa_https', 'url_proibida']) {
-    assert.equal(campoDoErroDeLink(codigo), 'destino');
+    assert.equal(fieldOfErrorOfLink(codigo), 'destino');
   }
 });
 
 test('campoDoErroDeLink: código desconhecido não aponta campo nenhum', () => {
-  assert.equal(campoDoErroDeLink('fluxo_nao_encontrado'), undefined);
-  assert.equal(campoDoErroDeLink('algo_novo'), undefined);
+  assert.equal(fieldOfErrorOfLink('fluxo_nao_encontrado'), undefined);
+  assert.equal(fieldOfErrorOfLink('algo_novo'), undefined);
 });

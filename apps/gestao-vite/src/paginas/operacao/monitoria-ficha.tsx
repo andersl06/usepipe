@@ -1,18 +1,18 @@
 import Link from '../../componentes/link';
 import {
   ROTULO_AVALIADOR,
-  ROTULO_ESTADO_AVALIACAO,
-  ROTULO_VALOR,
-  type FichaDeAvaliacao,
+  ROTULO_STATE_EVALUATION,
+  ROTULO_VALUE,
+  type EvaluationFicha,
 } from '../../lib/monitoria';
 import { useParams } from 'react-router-dom';
-import { ErroDaApi } from '../../lib/api';
-import { useLeitura } from '../../lib/consulta';
+import { ApiError } from '../../lib/api';
+import { useRead } from '../../lib/consulta';
 import { NaoEncontrado } from '../nao-encontrado';
 import { fatalReprovado } from '../../lib/nota-avaliacao';
 import { dataHora, numero, percentual } from '../../lib/formato';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 
 /**
  * A ficha de uma avaliação.
@@ -33,32 +33,32 @@ import { baseDoAtendimento } from './casca';
  * decide se a conversa vira feedback ou vira plano de coach.
  */
 
-function rotuloDoValor(tipo: string, valor: string | null): string {
-  if (valor === null) return 'Sem resposta';
-  if (tipo === 'conforme') return ROTULO_VALOR[valor] ?? valor;
-  return valor;
+function valueRotulo(tipo: string, value: string | null): string {
+  if (value === null) return 'Sem resposta';
+  if (tipo === 'conforme') return ROTULO_VALUE[value] ?? value;
+  return value;
 }
 
-export function PaginaFichaDeAvaliacao() {
+export function EvaluationPageFicha() {
   const { id = '' } = useParams();
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const leitura = useLeitura<{ fuso: string; ficha: FichaDeAvaliacao }>(
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const read = useRead<{ fuso: string; ficha: EvaluationFicha }>(
     `/v1/gestao/monitoria/${id}`,
   );
-  if (leitura.error instanceof ErroDaApi && leitura.error.status === 404) return <NaoEncontrado />;
-  if (!leitura.data) return null;
-  const { fuso, ficha } = leitura.data;
+  if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
+  if (!read.data) return null;
+  const { fuso, ficha } = read.data;
 
   const c = ficha.cabecalho;
-  const semResposta = ficha.grupos.flatMap((g) => g.criterios).filter((x) => x.valor === null);
+  const semResposta = ficha.groups.flatMap((g) => g.criterios).filter((x) => x.value === null);
 
   return (
     <>
       <div className="board-head">
         <h2>{c.formulario}</h2>
         <span className="sub">
-          {c.avaliado ?? 'Sem atendente'} · {c.contato ?? 'Sem contato'} · {c.fila ?? 'Sem fila'} ·
+          {c.avaliado ?? 'Sem atendente'} · {c.contact ?? 'Sem contato'} · {c.queue ?? 'Sem fila'} ·
           avaliada em {dataHora(c.avaliadaEm, fuso)} por{' '}
           {ROTULO_AVALIADOR[c.avaliadorTipo] ?? c.avaliadorTipo}
         </span>
@@ -68,9 +68,9 @@ export function PaginaFichaDeAvaliacao() {
         <Link href={`${base}/monitoria`} className="btn">
           ← Todas as avaliações
         </Link>
-        <span className="etiqueta">{ROTULO_ESTADO_AVALIACAO[c.estado] ?? c.estado}</span>
+        <span className="etiqueta">{ROTULO_STATE_EVALUATION[c.state] ?? c.state}</span>
         {c.categoria ? <span className="etiqueta">{c.categoria}</span> : null}
-        {c.sentimento ? <span className="etiqueta">Sentimento {c.sentimento}</span> : null}
+        {c.sentiment ? <span className="etiqueta">Sentimento {c.sentiment}</span> : null}
       </div>
 
       <section className="bloco-rel">
@@ -82,7 +82,7 @@ export function PaginaFichaDeAvaliacao() {
               {c.nota === null ? '—' : `${numero(c.nota, 1)} / ${numero(c.notaMaxima)}`}
             </span>
             <span className="den">
-              {ficha.fataisReprovados.length > 0
+              {ficha.fatalReprovados.length > 0
                 ? 'zerada por critério fatal'
                 : 'sem critério fatal reprovado'}
             </span>
@@ -117,9 +117,9 @@ export function PaginaFichaDeAvaliacao() {
           </div>
         </div>
 
-        {ficha.fataisReprovados.length > 0 ? (
+        {ficha.fatalReprovados.length > 0 ? (
           <p className="note">
-            <b>Zerada por critério fatal:</b> {ficha.fataisReprovados.join(', ')}. Critério fatal
+            <b>Zerada por critério fatal:</b> {ficha.fatalReprovados.join(', ')}. Critério fatal
             reprovado zera a avaliação inteira, por mais alto que tenha sido o resto — e o resto
             está ali ao lado, em “antes do critério fatal”.
           </p>
@@ -133,14 +133,14 @@ export function PaginaFichaDeAvaliacao() {
             <p className="sub">{ficha.resumo}</p>
             <span className="den">
               Resumo e classificação da IA
-              {ficha.modeloClassificacao ? ` · ${ficha.modeloClassificacao}` : ''} — é a leitura da
+              {ficha.modelClassification ? ` · ${ficha.modelClassification}` : ''} — é a leitura da
               conversa, não a avaliação do atendente.
             </span>
           </div>
         </section>
       ) : null}
 
-      {ficha.grupos.map((g) => (
+      {ficha.groups.map((g) => (
         <section key={g.id} className="bloco-rel">
           <h3>
             {g.nome} <span className="sub">peso {numero(g.peso, 2)}</span>
@@ -161,15 +161,15 @@ export function PaginaFichaDeAvaliacao() {
                     <td className="who">
                       {k.criterio}
                       {k.fatal ? <span className="den">critério fatal · zera a nota</span> : null}
-                      {k.descricao ? <span className="den">{k.descricao}</span> : null}
+                      {k.description ? <span className="den">{k.description}</span> : null}
                     </td>
                     <td>
                       <span
                         className={
-                          fatalReprovado(k.tipo, k.fatal, k.valor) ? 'etiqueta alerta' : 'etiqueta'
+                          fatalReprovado(k.tipo, k.fatal, k.value) ? 'etiqueta alerta' : 'etiqueta'
                         }
                       >
-                        {rotuloDoValor(k.tipo, k.valor)}
+                        {valueRotulo(k.tipo, k.value)}
                       </span>
                     </td>
                     <td className="num">

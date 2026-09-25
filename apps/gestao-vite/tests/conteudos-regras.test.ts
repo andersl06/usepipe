@@ -3,11 +3,11 @@ import { test } from 'node:test';
 import {
   FLAGS_DO_PIPE,
   blocosDoMenu,
-  erroDoNome,
-  estadoDaLista,
+  nameError,
+  listaState,
   idiomasRepetidos,
-  modeloValido,
-  mostrarEscolhaDeBloco,
+  templateValid,
+  blockMostrarEscolha,
   mostrarVoltar,
   tiposDisponiveis,
 } from '../src/paginas/fluxo/conteudos/regras.ts';
@@ -28,11 +28,11 @@ test('o menu de blocos segue as flags: no Pipe são texto/imagem/documento e ví
 
 test('sem mídia só sobra texto; com tudo ligado, pagamento e carrossel entram na segunda linha', () => {
   assert.deepEqual(
-    blocosDoMenu('utilidade', { midia: false, video: true, pagamento: true, carrossel: true }),
+    blocosDoMenu('utilidade', { media: false, video: true, payment: true, carrossel: true }),
     [['texto'], ['pagamento', 'carrossel']],
   );
   assert.deepEqual(
-    blocosDoMenu('marketing', { midia: true, video: true, pagamento: true, carrossel: true }),
+    blocosDoMenu('marketing', { media: true, video: true, payment: true, carrossel: true }),
     [
       ['texto', 'imagem', 'documento'],
       ['video', 'carrossel'],
@@ -41,10 +41,10 @@ test('sem mídia só sobra texto; com tudo ligado, pagamento e carrossel entram 
 });
 
 test('a escolha de bloco só aparece antes de escolher, com categoria e fora de Autenticação', () => {
-  assert.equal(mostrarEscolhaDeBloco('default', ''), false);
-  assert.equal(mostrarEscolhaDeBloco('default', 'marketing'), true);
-  assert.equal(mostrarEscolhaDeBloco('default', 'autenticacao'), false);
-  assert.equal(mostrarEscolhaDeBloco('texto', 'marketing'), false);
+  assert.equal(blockMostrarEscolha('default', ''), false);
+  assert.equal(blockMostrarEscolha('default', 'marketing'), true);
+  assert.equal(blockMostrarEscolha('default', 'autenticacao'), false);
+  assert.equal(blockMostrarEscolha('texto', 'marketing'), false);
 });
 
 test('o "voltar" só existe na primeira tradução, com bloco escolhido e sem outras traduções', () => {
@@ -55,11 +55,11 @@ test('o "voltar" só existe na primeira tradução, com bloco escolhido e sem ou
 });
 
 test('o nome do modelo segue /^[a-z]([a-z0-9_])*$/, até 512, e não repete', () => {
-  assert.equal(erroDoNome('promo_2026'), null);
-  assert.equal(erroDoNome('Promo'), 'invalido');
-  assert.equal(erroDoNome('1promo'), 'invalido');
-  assert.equal(erroDoNome('a'.repeat(513)), 'comprido');
-  assert.equal(erroDoNome('promo', ['promo']), 'usado');
+  assert.equal(nameError('promo_2026'), null);
+  assert.equal(nameError('Promo'), 'invalido');
+  assert.equal(nameError('1promo'), 'invalido');
+  assert.equal(nameError('a'.repeat(513)), 'comprido');
+  assert.equal(nameError('promo', ['promo']), 'usado');
 });
 
 test('idiomas repetidos entre traduções são apontados', () => {
@@ -80,21 +80,21 @@ test('o envio só libera com nome, categoria, bloco e traduções completas', ()
     tipo: 'texto' as const,
     traducoes: [{ idioma: 'pt_BR', texto: 'Olá' }],
   };
-  assert.equal(modeloValido(base), true);
-  assert.equal(modeloValido({ ...base, tipo: 'default' }), false);
-  assert.equal(modeloValido({ ...base, categoria: '' }), false);
-  assert.equal(modeloValido({ ...base, traducoes: [{ idioma: 'pt_BR', texto: '' }] }), false);
-  assert.equal(modeloValido({ ...base, nome: 'Promo' }), false);
+  assert.equal(templateValid(base), true);
+  assert.equal(templateValid({ ...base, tipo: 'default' }), false);
+  assert.equal(templateValid({ ...base, categoria: '' }), false);
+  assert.equal(templateValid({ ...base, translations: [{ idioma: 'pt_BR', texto: '' }] }), false);
+  assert.equal(templateValid({ ...base, nome: 'Promo' }), false);
 });
 
 test('autenticação dispensa o texto (a mensagem é fixa) mas exige idioma', () => {
   const base = { nome: 'otp', categoria: 'autenticacao' as const, tipo: 'default' as const };
-  assert.equal(modeloValido({ ...base, traducoes: [{ idioma: 'pt_BR', texto: '' }] }), true);
-  assert.equal(modeloValido({ ...base, traducoes: [{ idioma: '', texto: '' }] }), false);
+  assert.equal(templateValid({ ...base, translations: [{ idioma: 'pt_BR', texto: '' }] }), true);
+  assert.equal(templateValid({ ...base, translations: [{ idioma: '', texto: '' }] }), false);
 });
 
 test('a lista mostra indisponível sem WhatsApp, vazio sem modelos e a lista com modelos', () => {
-  assert.equal(estadoDaLista(false, 3), 'indisponivel');
-  assert.equal(estadoDaLista(true, 0), 'vazio');
-  assert.equal(estadoDaLista(true, 2), 'lista');
+  assert.equal(listaState(false, 3), 'indisponivel');
+  assert.equal(listaState(true, 0), 'vazio');
+  assert.equal(listaState(true, 2), 'lista');
 });

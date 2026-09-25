@@ -8,13 +8,13 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { esquecerCanal } = await import('../src/banco.js');
+const { esquecerChannel } = await import('../src/banco.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Growth: o rastreador de cliques (link curto + redirecionamento público) e o que
@@ -25,29 +25,29 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 let cenario: Cenario;
 let api: ApiNoAr;
 let cookie: string;
-let fluxoId: string;
+let flowId: string;
 let templateId: string;
 
 beforeAll(async () => {
   cenario = await montarCenario(`growth-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
 
-  const novo = criarToken();
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   cookie = novo.token;
 
   const { rows: bot } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome) values (${cenario.tenantId}, 'Bot de teste') returning id
   `);
-  fluxoId = bot[0]!.id;
+  flowId = bot[0]!.id;
 
   const { rows: tp } = await cenario.dono.execute<{ id: string }>(sql`
     insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo,
                                    status_meta, cabecalho_tipo)
-    values (${cenario.tenantId}, ${cenario.canalId}, 'growth_teste', 'pt_BR', 'utilidade',
+    values (${cenario.tenantId}, ${cenario.channelId}, 'growth_teste', 'pt_BR', 'utilidade',
             'Olá', 'aprovado', 'nenhum')
     returning id
   `);
@@ -72,7 +72,7 @@ function comCookie(caminho: string, init: RequestInit = {}): Promise<Response> {
 
 describe('Rastreador de cliques — cadastro do link', () => {
   it('cadastra o link e gera o código curto', async () => {
-    const resposta = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const resposta = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
       body: JSON.stringify({ nome: 'Anúncio de setembro', destino: 'https://exemplo.com/promo' }),
     });
@@ -89,7 +89,7 @@ describe('Rastreador de cliques — cadastro do link', () => {
   });
 
   it('recusa nome vazio', async () => {
-    const resposta = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const resposta = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
       body: JSON.stringify({ nome: '   ', destino: 'https://exemplo.com' }),
     });
@@ -97,24 +97,24 @@ describe('Rastreador de cliques — cadastro do link', () => {
   });
 
   it('recusa destino sem HTTPS', async () => {
-    const resposta = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const resposta = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
       body: JSON.stringify({ nome: 'x', destino: 'http://exemplo.com' }),
     });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { error: { codigo: string } }).error.codigo).toBe(
       'url_precisa_https',
     );
   });
 
   it('recusa destino para localhost e para IP de rede privada', async () => {
-    const local = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const local = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
       body: JSON.stringify({ nome: 'x', destino: 'https://localhost/x' }),
     });
     expect(local.status).toBe(400);
 
-    const privado = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const privado = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
       body: JSON.stringify({ nome: 'x', destino: 'https://192.168.0.5/x' }),
     });
@@ -141,12 +141,12 @@ describe('Rastreador de cliques — cadastro do link', () => {
 
 describe('Rastreador de cliques — redirecionamento público e contagem', () => {
   let codigo: string;
-  const destino = 'https://exemplo.com/pagina-do-clique';
+  const destination = 'https://exemplo.com/pagina-do-clique';
 
   beforeAll(async () => {
-    const resposta = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`, {
+    const resposta = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`, {
       method: 'POST',
-      body: JSON.stringify({ nome: 'Redirecionamento', destino }),
+      body: JSON.stringify({ nome: 'Redirecionamento', destination }),
     });
     codigo = ((await resposta.json()) as { codigo: string }).codigo;
   });
@@ -157,11 +157,11 @@ describe('Rastreador de cliques — redirecionamento público e contagem', () =>
       headers: { 'user-agent': 'TesteAgente/1.0' },
     });
     expect(resposta.status).toBe(302);
-    expect(resposta.headers.get('location')).toBe(destino);
+    expect(resposta.headers.get('location')).toBe(destination);
 
     const { rows } = await cenario.dono.execute<{
       n: string;
-      agente_usuario: string | null;
+      userAgent: string | null;
       origem: string | null;
     }>(sql`
       select count(*)::text as n, max(c.agente_usuario) as agente_usuario, max(c.origem) as origem
@@ -170,7 +170,7 @@ describe('Rastreador de cliques — redirecionamento público e contagem', () =>
        where l.codigo = ${codigo}
     `);
     expect(Number(rows[0]!.n)).toBeGreaterThanOrEqual(1);
-    expect(rows[0]!.agente_usuario).toBe('TesteAgente/1.0');
+    expect(rows[0]!.userAgent).toBe('TesteAgente/1.0');
     expect(rows[0]!.origem).toBe('campanha-x');
   });
 
@@ -180,7 +180,7 @@ describe('Rastreador de cliques — redirecionamento público e contagem', () =>
   });
 
   it('a leitura devolve a contagem de cliques', async () => {
-    const resposta = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`);
+    const resposta = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`);
     const corpo = (await resposta.json()) as { data: { codigo: string; cliques: number }[] };
     const linha = corpo.data.find((item) => item.codigo === codigo);
     expect(linha?.cliques).toBeGreaterThanOrEqual(1);
@@ -197,19 +197,19 @@ describe('Rastreador de cliques — redirecionamento público e contagem', () =>
     `);
 
     const hoje = new Date().toISOString().slice(0, 10);
-    const geral = await comCookie(`/v1/gestao/fluxos/${fluxoId}/links-rastreados`);
-    const doPeriodo = await comCookie(
-      `/v1/gestao/fluxos/${fluxoId}/links-rastreados?desde=${hoje}T00:00:00Z`,
+    const geral = await comCookie(`/v1/gestao/fluxos/${flowId}/links-rastreados`);
+    const ofPeriod = await comCookie(
+      `/v1/gestao/fluxos/${flowId}/links-rastreados?desde=${hoje}T00:00:00Z`,
     );
 
     const cliquesGeral = (
       (await geral.json()) as { data: { codigo: string; cliques: number }[] }
     ).data.find((item) => item.codigo === codigo)?.cliques;
-    const cliquesDoPeriodo = (
-      (await doPeriodo.json()) as { data: { codigo: string; cliques: number }[] }
+    const cliquesOfPeriod = (
+      (await ofPeriod.json()) as { data: { codigo: string; cliques: number }[] }
     ).data.find((item) => item.codigo === codigo)?.cliques;
 
-    expect(cliquesGeral).toBeGreaterThanOrEqual((cliquesDoPeriodo ?? 0) + 1);
+    expect(cliquesGeral).toBeGreaterThanOrEqual((cliquesOfPeriod ?? 0) + 1);
   });
 
   it('limite de taxa: muitos cliques do mesmo IP em pouco tempo devolvem 429', async () => {
@@ -231,7 +231,7 @@ describe('Mensagens ativas — casos que faltavam', () => {
     const resposta = await comCookie('/v1/mensagens-ativas', {
       method: 'POST',
       body: JSON.stringify({
-        canal_id: cenario.canalId,
+        canal_id: cenario.channelId,
         template_id: templateId,
         contatos: [{ nome: 'sem telefone nem id' }],
       }),
@@ -243,13 +243,13 @@ describe('Mensagens ativas — casos que faltavam', () => {
   });
 
   it('canal desativado recusa o disparo', async () => {
-    await cenario.dono.execute(sql`update canal set ativo = false where id = ${cenario.canalId}::uuid`);
-    esquecerCanal(cenario.canalId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
+    await cenario.dono.execute(sql`update canal set ativo = false where id = ${cenario.channelId}::uuid`);
+    esquecerChannel(cenario.channelId); // `resolverCanal` guarda em memória; sem isto o teste veria o cache antigo.
     try {
       const resposta = await comCookie('/v1/mensagens-ativas', {
         method: 'POST',
         body: JSON.stringify({
-          canal_id: cenario.canalId,
+          canal_id: cenario.channelId,
           template_id: templateId,
           contatos: [{ telefone: '+5511988880001' }],
         }),
@@ -259,22 +259,22 @@ describe('Mensagens ativas — casos que faltavam', () => {
         'canal_inativo',
       );
     } finally {
-      await cenario.dono.execute(sql`update canal set ativo = true where id = ${cenario.canalId}::uuid`);
-      esquecerCanal(cenario.canalId);
+      await cenario.dono.execute(sql`update canal set ativo = true where id = ${cenario.channelId}::uuid`);
+      esquecerChannel(cenario.channelId);
     }
   });
 
   it('chave de API com o escopo certo entra; sem ele, 403', async () => {
-    const comEscopo = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
+    const withScope = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
       headers: { authorization: `Bearer ${cenario.token}` },
     });
-    expect(comEscopo.status).toBe(200);
+    expect(withScope.status).toBe(200);
 
-    const semEscopo = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
-      headers: { authorization: `Bearer ${cenario.tokenSemEscopo}` },
+    const withoutScope = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
+      headers: { authorization: `Bearer ${cenario.tokenWithoutScope}` },
     });
-    expect(semEscopo.status).toBe(403);
-    expect(((await semEscopo.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
+    expect(withoutScope.status).toBe(403);
+    expect(((await withoutScope.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
       'sem_escopo',
     );
   });

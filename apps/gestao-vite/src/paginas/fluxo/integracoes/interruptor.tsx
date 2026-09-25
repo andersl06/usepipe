@@ -27,7 +27,7 @@ export function Interruptor({
   curto?: boolean;
   className?: string;
   rotulo?: string;
-  aoMudar: (valor: boolean) => void;
+  aoMudar: (value: boolean) => void;
 }) {
   return (
     <label

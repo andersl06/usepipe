@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import type { RecusaDeEntrada } from '@pipe/contracts';
+import type { RefusesOfInbound } from '@pipe/contracts';
 import { Simbolo } from '@pipe/ui';
-import { caminhoInterno, urlDeEntradaComGoogle } from '../../lib/sessao';
+import { caminhoInterno, inboundWithGoogleUrl } from '../../lib/sessao';
 import { continuar } from './acoes';
 
 /**
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
  * `Record<RecusaDeEntrada, …>` de propósito: se a API acrescentar um código, o
  * `tsc` quebra AQUI, e não em produção com um erro em branco na cara do cliente.
  */
-const RECUSAS: Record<RecusaDeEntrada, { titulo: string; saida: string }> = {
+const RECUSAS: Record<RefusesOfInbound, { titulo: string; saida: string }> = {
   dominio_publico: {
     titulo: 'Este e-mail é pessoal, e ele não diz de que empresa você é',
     saida:
@@ -96,25 +96,25 @@ const AVISOS: Record<string, { titulo: string; saida: string }> = {
   },
 };
 
-function ehRecusa(codigo: string | undefined): codigo is RecusaDeEntrada {
+function ehRecusa(codigo: string | undefined): codigo is RefusesOfInbound {
   return codigo !== undefined && codigo in RECUSAS;
 }
 
 interface Parametros {
-  erro?: string;
-  destino?: string;
+  error?: string;
+  destination?: string;
   metodo?: string;
   email?: string;
 }
 
-export default async function PaginaEntrar({
+export default async function PageLogin({
   searchParams,
 }: {
   searchParams: Promise<Parametros>;
 }) {
   const parametros = await searchParams;
-  const destino = caminhoInterno(parametros.destino);
-  const recusa = ehRecusa(parametros.erro) ? RECUSAS[parametros.erro] : null;
+  const destination = caminhoInterno(parametros.destination);
+  const recusa = ehRecusa(parametros.error) ? RECUSAS[parametros.error] : null;
   const aviso = recusa ? null : (AVISOS[parametros.metodo ?? ''] ?? null);
   const alerta = recusa ?? aviso;
 
@@ -140,7 +140,7 @@ export default async function PaginaEntrar({
 
         {/* Link, e não botão: entrar com o Google é navegação de topo para outra
             origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */}
-        <a className="btn primario entrar-google" href={urlDeEntradaComGoogle({ destino })}>
+        <a className="btn primario entrar-google" href={inboundWithGoogleUrl({ destination })}>
           Entrar com Google
         </a>
 
@@ -165,7 +165,7 @@ export default async function PaginaEntrar({
             Levamos você ao provedor de identidade da sua empresa, quando ela tiver um. Não
             guardamos nada nesta etapa.
           </p>
-          <input type="hidden" name="destino" value={destino} />
+          <input type="hidden" name="destino" value={destination} />
           <button type="submit" className="btn">
             Continuar
           </button>

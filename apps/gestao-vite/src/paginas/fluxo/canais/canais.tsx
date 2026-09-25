@@ -1,7 +1,7 @@
 import { LogoPortal } from '../../../componentes/icones-portal';
 import Link from '../../../componentes/link';
-import { cartaoConectado, rotaDoCanal, type TipoDeCanalDoBot } from '../../../lib/canal-do-fluxo';
-import { CascaDoModulo, baseDoContato, useContato } from '../contato';
+import { cardConnected, channelRota, type TipoOfChannelOfBot } from '../../../lib/canal-do-fluxo';
+import { ModuloShell, contactBase, useContact } from '../contato';
 import '../integracoes/cabecalho-de-pagina.css';
 import './canais.css';
 
@@ -23,33 +23,33 @@ import './canais.css';
  */
 type Logo =
   'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'google' | 'telegram' | 'apple' | 'email';
-type CanalDaTela = {
-  chave: string;
+type TelaChannel = {
+  key: string;
   nome: string;
   logo: Logo;
   sempre?: boolean;
   novo?: boolean;
   /** Tem página própria no bot: o cartão navega. */
-  pagina?: TipoDeCanalDoBot;
+  page?: TipoOfChannelOfBot;
 };
 
-const CANAIS: readonly CanalDaTela[] = [
-  { chave: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', sempre: true },
-  { chave: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', pagina: 'whatsapp_cloud' },
-  { chave: 'messenger', nome: 'Messenger', logo: 'messenger', pagina: 'messenger' },
-  { chave: 'instagram', nome: 'Instagram', logo: 'instagram', pagina: 'instagram' },
-  { chave: 'google-rcs', nome: 'RCS for Business', logo: 'google', novo: true },
-  { chave: 'telegram', nome: 'Telegram', logo: 'telegram' },
-  { chave: 'apple-business', nome: 'Apple Messages for Business', logo: 'apple' },
-  { chave: 'email', nome: 'E-mail', logo: 'email', sempre: true },
+const CHANNELS: readonly TelaChannel[] = [
+  { key: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', sempre: true },
+  { key: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', page: 'whatsapp_cloud' },
+  { key: 'messenger', nome: 'Messenger', logo: 'messenger', page: 'messenger' },
+  { key: 'instagram', nome: 'Instagram', logo: 'instagram', page: 'instagram' },
+  { key: 'google-rcs', nome: 'RCS for Business', logo: 'google', novo: true },
+  { key: 'telegram', nome: 'Telegram', logo: 'telegram' },
+  { key: 'apple-business', nome: 'Apple Messages for Business', logo: 'apple' },
+  { key: 'email', nome: 'E-mail', logo: 'email', sempre: true },
 ] as const;
 
-export function PaginaDeCanais() {
-  const { contato } = useContato();
-  const base = baseDoContato(contato.tipo, contato.id);
+export function ChannelsPage() {
+  const { contact } = useContact();
+  const base = contactBase(contact.tipo, contact.id);
 
   return (
-    <CascaDoModulo ativo="Canais">
+    <ModuloShell ativo="Canais">
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-titulo-caixa">
@@ -59,13 +59,13 @@ export function PaginaDeCanais() {
       </header>
 
       <div className="cn-lista">
-        {CANAIS.map((canal) => {
-          const conectado = canal.sempre || cartaoConectado(contato, canal.chave);
+        {CHANNELS.map((channel) => {
+          const conectado = channel.sempre || cardConnected(contact, channel.key);
           const miolo = (
             <>
               <div className="cn-cartao-conteudo">
-                <LogoDeCanal nome={canal.logo} />
-                <h2>{canal.nome}</h2>
+                <ChannelLogo nome={channel.logo} />
+                <h2>{channel.nome}</h2>
               </div>
               <span className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}>
                 {conectado ? 'Conectado' : 'Conectar'}
@@ -73,13 +73,13 @@ export function PaginaDeCanais() {
             </>
           );
           return (
-            <div className="cn-item" key={canal.chave}>
-              {canal.novo ? <span className="cn-novo">Novo!</span> : null}
-              {canal.pagina ? (
+            <div className="cn-item" key={channel.key}>
+              {channel.novo ? <span className="cn-novo">Novo!</span> : null}
+              {channel.page ? (
                 <Link
-                  href={rotaDoCanal(base, canal.pagina)}
+                  href={channelRota(base, channel.page)}
                   className="cn-cartao cn-cartao--link"
-                  aria-label={`${canal.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
+                  aria-label={`${channel.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
                 >
                   {miolo}
                 </Link>
@@ -92,11 +92,11 @@ export function PaginaDeCanais() {
           );
         })}
       </div>
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }
 
-function LogoDeCanal({ nome }: { nome: Logo }) {
+function ChannelLogo({ nome }: { nome: Logo }) {
   if (nome === 'pipe') {
     return <img className="cn-logo" src="/pipe/simbolo.svg" alt="" width={64} height={64} />;
   }
@@ -158,4 +158,4 @@ function LogoDeCanal({ nome }: { nome: Logo }) {
 }
 
 /** O logo do canal, para as páginas de cada canal reutilizarem o mesmo desenho da lista. */
-export { LogoDeCanal };
+export { ChannelLogo };

@@ -6,11 +6,11 @@
  * atendimento. Separá-las é o que torna o número acionável.
  */
 
-import { derivarMarcos, type ConversaEventos, type Marcos } from './eventos.js';
+import { derivarMarcos, type ConversationEvents, type Marcos } from './eventos.js';
 
-export type StatusEncerramento = 'perdida' | 'abandonada' | 'finalizada';
+export type StatusClosure = 'perdida' | 'abandonada' | 'finalizada';
 
-export interface ContagemEncerramento {
+export interface CountClosure {
   perdida: number;
   abandonada: number;
   finalizada: number;
@@ -29,22 +29,22 @@ export interface ContagemEncerramento {
  * - Encerramento sem `encerradaPor` cai na mesma regra de atribuição, porque a
  *   origem desconhecida não pode virar "finalizada" por otimismo.
  */
-export function classificarEncerramento(marcos: Marcos): StatusEncerramento | null {
+export function classificarClosure(marcos: Marcos): StatusClosure | null {
   if (!marcos.encerradaEm) return null;
-  if (marcos.encerradaPor === 'atendente' || marcos.encerradaPor === 'transferencia') {
+  if (marcos.encerradaBy === 'atendente' || marcos.encerradaBy === 'transferencia') {
     return 'finalizada';
   }
   return marcos.atribuidaEm ? 'abandonada' : 'perdida';
 }
 
-export function classificarConversa(conversa: ConversaEventos): StatusEncerramento | null {
-  return classificarEncerramento(derivarMarcos(conversa));
+export function classificarConversation(conversation: ConversationEvents): StatusClosure | null {
+  return classificarClosure(derivarMarcos(conversation));
 }
 
-export function contarEncerramentos(
-  conversas: readonly ConversaEventos[],
-): ContagemEncerramento {
-  const contagem: ContagemEncerramento = {
+export function contarClosures(
+  conversations: readonly ConversationEvents[],
+): CountClosure {
+  const count: CountClosure = {
     perdida: 0,
     abandonada: 0,
     finalizada: 0,
@@ -52,15 +52,15 @@ export function contarEncerramentos(
     abertas: 0,
   };
 
-  for (const conversa of conversas) {
-    const status = classificarConversa(conversa);
+  for (const conversation of conversations) {
+    const status = classificarConversation(conversation);
     if (status === null) {
-      contagem.abertas += 1;
+      count.abertas += 1;
       continue;
     }
-    contagem[status] += 1;
-    contagem.fechada += 1;
+    count[status] += 1;
+    count.fechada += 1;
   }
 
-  return contagem;
+  return count;
 }

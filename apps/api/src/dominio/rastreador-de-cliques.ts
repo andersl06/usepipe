@@ -1,8 +1,8 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
-import { bancoDono, noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import type { TransactionPipe } from '@pipe/db';
+import { databaseOwner, noTenant } from '../banco.js';
+import { PipeError } from '../erros.js';
 import { codigoDoPostgres } from './dominios.js';
 import { confirmarUrlSegura } from './gestao/integracoes.js';
 
@@ -25,9 +25,9 @@ import { confirmarUrlSegura } from './gestao/integracoes.js';
 
 export interface LinkRastreado {
   id: string;
-  fluxoId: string;
+  flowId: string;
   nome: string;
-  destinoUrl: string;
+  destinationUrl: string;
   codigo: string;
   urlCurta: string;
   cliques: number;
@@ -36,16 +36,16 @@ export interface LinkRastreado {
 
 export interface PedidoDeLink {
   nome: string;
-  destino: string;
+  destination: string;
 }
 
-export interface PeriodoDeContagem {
+export interface PeriodOfCount {
   desde: Date | null;
   ate: Date | null;
 }
 
-export interface ContextoDoClique {
-  agenteUsuario: string | null;
+export interface ContextOfClique {
+  agenteUser: string | null;
   origem: string | null;
   /** Chave do limitador de taxa — o IP visto pelo servidor. */
   ip: string;
@@ -60,11 +60,11 @@ export function urlCurtaDe(codigo: string): string {
   return `${basePublica()}/l/${codigo}`;
 }
 
-async function fluxoExiste(tx: TransacaoPipe, tenantId: string, fluxoId: string): Promise<void> {
+async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<void> {
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from fluxo where tenant_id = ${tenantId} and id = ${fluxoId}::uuid limit 1
   `);
-  if (!rows[0]) throw ErroPipe.naoEncontrado('fluxo');
+  if (!rows[0]) throw PipeError.naoEncontrado('fluxo');
 }
 
 /**
@@ -76,16 +76,16 @@ async function fluxoExiste(tx: TransacaoPipe, tenantId: string, fluxoId: string)
  * necessariamente quem vai clicar, e a rota pública de redirecionamento
  * devolveria esse destino para qualquer um.
  */
-export async function criarLinkRastreado(
-  tx: TransacaoPipe,
+export async function createLinkTracked(
+  tx: TransactionPipe,
   tenantId: string,
   fluxoId: string,
   pedido: PedidoDeLink,
 ): Promise<LinkRastreado> {
   const nome = pedido.nome.trim();
-  if (!nome) throw ErroPipe.requisicao('nome_obrigatorio', 'Dê um nome para o link.');
-  confirmarUrlSegura(pedido.destino);
-  await fluxoExiste(tx, tenantId, fluxoId);
+  if (!nome) throw PipeError.request('nome_obrigatorio', 'Dê um nome para o link.');
+  confirmarUrlSegura(pedido.destination);
+  await flowExists(tx, tenantId, fluxoId);
 
   // Colisão de 6 bytes em base64url é praticamente nula; a tentativa de novo cobre
   // o caso raro sem precisar de sequência à parte.
@@ -94,24 +94,24 @@ export async function criarLinkRastreado(
     try {
       const { rows } = await tx.execute<{ id: string; criado_em: string }>(sql`
         insert into link_rastreado (tenant_id, fluxo_id, nome, destino_url, codigo)
-        values (${tenantId}, ${fluxoId}::uuid, ${nome}, ${pedido.destino}, ${codigo})
+        values (${tenantId}, ${fluxoId}::uuid, ${nome}, ${pedido.destination}, ${codigo})
         returning id, criado_em
       `);
       const linha = rows[0];
       if (!linha) throw new Error('não criou o link');
       return {
         id: linha.id,
-        fluxoId,
+        flowId,
         nome,
-        destinoUrl: pedido.destino,
+        destinationUrl: pedido.destination,
         codigo,
         urlCurta: urlCurtaDe(codigo),
         cliques: 0,
         criadoEm: new Date(linha.criado_em).toISOString(),
       };
-    } catch (erro) {
-      if (codigoDoPostgres(erro) === '23505') continue;
-      throw erro;
+    } catch (error) {
+      if (codigoDoPostgres(error) === '23505') continue;
+      throw error;
     }
   }
   throw new Error('não conseguiu gerar um código curto único');
@@ -119,14 +119,14 @@ export async function criarLinkRastreado(
 
 /** A lista da tela, com a contagem de cliques — total, ou só do período pedido. */
 export async function listarLinksRastreados(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
-  fluxoId: string,
-  periodo: PeriodoDeContagem = { desde: null, ate: null },
+  flowId: string,
+  period: PeriodOfCount = { desde: null, ate: null },
 ): Promise<LinkRastreado[]> {
-  await fluxoExiste(tx, tenantId, fluxoId);
-  const desde = periodo.desde ?? new Date(0);
-  const ate = periodo.ate ?? new Date('9999-12-31T23:59:59Z');
+  await flowExists(tx, tenantId, flowId);
+  const desde = period.desde ?? new Date(0);
+  const ate = period.ate ?? new Date('9999-12-31T23:59:59Z');
 
   const { rows } = await tx.execute<{
     id: string;
@@ -140,13 +140,13 @@ export async function listarLinksRastreados(
            count(c.id) filter (where c.criado_em >= ${desde} and c.criado_em <= ${ate})::text as cliques
       from link_rastreado l
       left join clique_link c on c.link_id = l.id
-     where l.tenant_id = ${tenantId} and l.fluxo_id = ${fluxoId}::uuid
+     where l.tenant_id = ${tenantId} and l.fluxo_id = ${flowId}::uuid
      group by l.id
      order by l.criado_em desc
   `);
   return rows.map((linha) => ({
     id: linha.id,
-    fluxoId,
+    flowId,
     nome: linha.nome,
     destinoUrl: linha.destino_url,
     codigo: linha.codigo,
@@ -156,9 +156,9 @@ export async function listarLinksRastreados(
   }));
 }
 
-const JANELA_DE_TAXA_MS = 60_000;
-const LIMITE_POR_JANELA = 30;
-const contagemPorChave = new Map<string, { inicio: number; n: number }>();
+const WINDOW_OF_RATE_MS = 60_000;
+const LIMIT_BY_WINDOW = 30;
+const countByKey = new Map<string, { inicio: number; n: number }>();
 
 /**
  * Limitador de taxa simples: N cliques por IP por minuto na rota pública.
@@ -167,15 +167,15 @@ const contagemPorChave = new Map<string, { inicio: number; n: number }>();
  * divide entre réplicas. Um limitador distribuído (Redis) é o upgrade natural
  * se o Pipe rodar mais de uma instância da `api`; ninguém pediu isso ainda.
  */
-function respeitaLimiteDeTaxa(chave: string): boolean {
+function respeitaLimiteDeTaxa(key: string): boolean {
   const agora = Date.now();
-  const atual = contagemPorChave.get(chave);
-  if (!atual || agora - atual.inicio > JANELA_DE_TAXA_MS) {
-    contagemPorChave.set(chave, { inicio: agora, n: 1 });
+  const atual = countByKey.get(key);
+  if (!atual || agora - atual.inicio > WINDOW_OF_RATE_MS) {
+    countByKey.set(key, { inicio: agora, n: 1 });
     return true;
   }
   atual.n += 1;
-  return atual.n <= LIMITE_POR_JANELA;
+  return atual.n <= LIMIT_BY_WINDOW;
 }
 
 /**
@@ -187,13 +187,13 @@ function respeitaLimiteDeTaxa(chave: string): boolean {
  */
 export async function redirecionarClique(
   codigo: string,
-  contexto: ContextoDoClique,
+  context: ContextOfClique,
 ): Promise<string | null> {
-  if (!respeitaLimiteDeTaxa(contexto.ip)) {
-    throw new ErroPipe(429, 'limite_de_taxa', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
+  if (!respeitaLimiteDeTaxa(context.ip)) {
+    throw new PipeError(429, 'limite_de_taxa', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
   }
 
-  const { rows } = await bancoDono().execute<{
+  const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
     destino_url: string;
@@ -204,7 +204,7 @@ export async function redirecionarClique(
   await noTenant(link.tenant_id, (tx) =>
     tx.execute(sql`
       insert into clique_link (tenant_id, link_id, agente_usuario, origem)
-      values (${link.tenant_id}, ${link.id}::uuid, ${contexto.agenteUsuario}, ${contexto.origem})
+      values (${link.tenant_id}, ${link.id}::uuid, ${context.agenteUser}, ${context.origem})
     `),
   );
 

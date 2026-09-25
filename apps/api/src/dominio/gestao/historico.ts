@@ -1,29 +1,29 @@
 import { and, desc, eq, gte, inArray, isNotNull, lt } from 'drizzle-orm';
 import {
-  classificarEncerramento,
+  classificarClosure,
   derivarMarcos,
   segundosEntre,
-  type ConversaEventos,
-  type EncerradaPor,
-  type EventoAtendimento,
-  type StatusEncerramento,
+  type ConversationEvents,
+  type ClosedBy,
+  type EventAttendance,
+  type StatusClosure,
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contato,
-  conversa,
-  conversaEtiqueta,
+  contact,
+  conversation,
+  conversationLabel,
   etiqueta,
-  eventoAtendimento,
-  fila,
-  usuario,
+  eventAttendance,
+  queue,
+  user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { Janela } from './janela.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { Window } from './janela.js';
 import { ticketDe } from './monitoramento.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -33,43 +33,43 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * pelo `@pipe/core`, nunca do campo mutável da conversa.
  */
 
-export interface LinhaHistorico {
+export interface LineHistory {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaNome: string | null;
-  atendenteNome: string | null;
+  contactName: string;
+  queueName: string | null;
+  agentName: string | null;
   encerradaEm: Date | null;
-  status: StatusEncerramento | null;
+  status: StatusClosure | null;
   esperaSeg: number | null;
-  primeiraRespostaSeg: number | null;
-  atendimentoSeg: number | null;
+  firstResponseSeg: number | null;
+  attendanceSeg: number | null;
   etiquetas: string[];
 }
 
-export interface FiltroHistorico {
-  filaId?: string | undefined;
-  atendenteId?: string | undefined;
+export interface HistoryFilter {
+  queueId?: string | undefined;
+  agentId?: string | undefined;
   etiquetaId?: string | undefined;
 }
 
 export interface Catalogos {
-  filas: { id: string; nome: string }[];
-  atendentes: { id: string; nome: string }[];
+  queues: { id: string; nome: string }[];
+  agents: { id: string; nome: string }[];
   etiquetas: { id: string; nome: string }[];
 }
 
 /** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
-export const LIMITE_HISTORICO = 200;
+export const LIMIT_HISTORY = 200;
 
-export async function carregarCatalogos(tx: TransacaoPipe): Promise<Catalogos> {
+export async function carregarCatalogos(tx: TransactionPipe): Promise<Catalogos> {
   return consultar(tx, async (tx) => ({
-    filas: await tx.select({ id: fila.id, nome: fila.nome }).from(fila).orderBy(fila.ordem),
+    filas: await tx.select({ id: queue.id, nome: queue.nome }).from(queue).orderBy(queue.order),
     atendentes: await tx
-      .select({ id: usuario.id, nome: usuario.nome })
-      .from(usuario)
-      .where(eq(usuario.ativo, true))
-      .orderBy(usuario.nome),
+      .select({ id: user.id, nome: user.nome })
+      .from(user)
+      .where(eq(user.ativo, true))
+      .orderBy(user.nome),
     etiquetas: await tx
       .select({ id: etiqueta.id, nome: etiqueta.nome })
       .from(etiqueta)
@@ -77,36 +77,36 @@ export async function carregarCatalogos(tx: TransacaoPipe): Promise<Catalogos> {
   }));
 }
 
-export async function carregarHistorico(
-  tx: TransacaoPipe,
-  janela: Janela,
-  filtro: FiltroHistorico = {},
-): Promise<{ linhas: LinhaHistorico[]; truncado: boolean }> {
+export async function loadHistory(
+  tx: TransactionPipe,
+  window: Window,
+  filter: HistoryFilter = {},
+): Promise<{ linhas: LineHistory[]; truncado: boolean }> {
   return consultar(tx, async (tx) => {
     const recorte = [
-      filtro.filaId ? eq(conversa.filaId, filtro.filaId) : undefined,
-      filtro.atendenteId ? eq(conversa.atendenteId, filtro.atendenteId) : undefined,
+      filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
+      filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     const base = tx
       .select({
-        id: conversa.id,
-        encerradaEm: conversa.encerradaEm,
-        filaNome: fila.nome,
-        atendenteNome: usuario.nome,
-        contatoNome: contato.nome,
+        id: conversation.id,
+        encerradaEm: conversation.encerradaEm,
+        filaNome: queue.nome,
+        atendenteNome: user.nome,
+        contatoNome: contact.nome,
       })
-      .from(conversa)
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
-      .leftJoin(contato, eq(contato.id, conversa.contatoId));
+      .from(conversation)
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(contact, eq(contact.id, conversation.contatoId));
 
-    const comEtiqueta = filtro.etiquetaId
+    const comEtiqueta = filter.etiquetaId
       ? base.innerJoin(
-          conversaEtiqueta,
+          conversationLabel,
           and(
-            eq(conversaEtiqueta.conversaId, conversa.id),
-            eq(conversaEtiqueta.etiquetaId, filtro.etiquetaId),
+            eq(conversationLabel.conversaId, conversation.id),
+            eq(conversationLabel.etiquetaId, filter.etiquetaId),
           ),
         )
       : base;
@@ -114,55 +114,55 @@ export async function carregarHistorico(
     const cru = await comEtiqueta
       .where(
         and(
-          isNotNull(conversa.encerradaEm),
-          gte(conversa.encerradaEm, janela.inicio),
-          lt(conversa.encerradaEm, janela.fim),
+          isNotNull(conversation.encerradaEm),
+          gte(conversation.encerradaEm, window.inicio),
+          lt(conversation.encerradaEm, window.fim),
           ...recorte,
         ),
       )
-      .orderBy(desc(conversa.encerradaEm))
-      .limit(LIMITE_HISTORICO + 1);
+      .orderBy(desc(conversation.encerradaEm))
+      .limit(LIMIT_HISTORY + 1);
 
-    const truncado = cru.length > LIMITE_HISTORICO;
-    const pagina = cru.slice(0, LIMITE_HISTORICO);
-    const ids = pagina.map((c) => c.id);
+    const truncado = cru.length > LIMIT_HISTORY;
+    const page = cru.slice(0, LIMIT_HISTORY);
+    const ids = page.map((c) => c.id);
     if (ids.length === 0) return { linhas: [], truncado: false };
 
     const eventos = await tx
       .select({
-        conversaId: eventoAtendimento.conversaId,
-        tipo: eventoAtendimento.tipo,
-        em: eventoAtendimento.em,
-        usuarioId: eventoAtendimento.usuarioId,
-        dados: eventoAtendimento.dados,
+        conversaId: eventAttendance.conversaId,
+        tipo: eventAttendance.tipo,
+        em: eventAttendance.em,
+        usuarioId: eventAttendance.usuarioId,
+        dados: eventAttendance.data,
       })
-      .from(eventoAtendimento)
-      .where(inArray(eventoAtendimento.conversaId, ids));
+      .from(eventAttendance)
+      .where(inArray(eventAttendance.conversaId, ids));
 
-    const porConversa = new Map<string, EventoAtendimento[]>();
+    const byConversation = new Map<string, EventAttendance[]>();
     for (const e of eventos) {
-      const dados = (e.dados ?? {}) as { encerrada_por?: string };
-      const evento: EventoAtendimento = {
-        conversaId: e.conversaId,
+      const data = (e.dados ?? {}) as { closedBy?: string };
+      const evento: EventAttendance = {
+        conversationId: e.conversaId,
         tipo: e.tipo as TipoEvento,
         em: e.em,
-        usuarioId: e.usuarioId,
-        encerradaPor: (dados.encerrada_por ?? null) as EncerradaPor | null,
+        userId: e.usuarioId,
+        encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
       };
-      const atual = porConversa.get(e.conversaId);
+      const atual = byConversation.get(e.conversaId);
       if (atual) atual.push(evento);
-      else porConversa.set(e.conversaId, [evento]);
+      else byConversation.set(e.conversaId, [evento]);
     }
 
-    const etiquetasPorConversa = new Map<string, string[]>();
+    const labelsByConversation = new Map<string, string[]>();
     for (const l of await tx
-      .select({ conversaId: conversaEtiqueta.conversaId, nome: etiqueta.nome })
-      .from(conversaEtiqueta)
-      .innerJoin(etiqueta, eq(etiqueta.id, conversaEtiqueta.etiquetaId))
-      .where(inArray(conversaEtiqueta.conversaId, ids))) {
-      const atual = etiquetasPorConversa.get(l.conversaId);
+      .select({ conversaId: conversationLabel.conversaId, nome: etiqueta.nome })
+      .from(conversationLabel)
+      .innerJoin(etiqueta, eq(etiqueta.id, conversationLabel.etiquetaId))
+      .where(inArray(conversationLabel.conversaId, ids))) {
+      const atual = labelsByConversation.get(l.conversaId);
       if (atual) atual.push(l.nome);
-      else etiquetasPorConversa.set(l.conversaId, [l.nome]);
+      else labelsByConversation.set(l.conversaId, [l.nome]);
     }
 
     const diferenca = (a: Date | null, b: Date | null) => {
@@ -171,9 +171,9 @@ export async function carregarHistorico(
       return s < 0 ? null : s;
     };
 
-    const linhas: LinhaHistorico[] = pagina.map((c) => {
-      const entrada: ConversaEventos = { conversaId: c.id, eventos: porConversa.get(c.id) ?? [] };
-      const marcos = derivarMarcos(entrada);
+    const linhas: LineHistory[] = page.map((c) => {
+      const inbound: ConversationEvents = { conversationId: c.id, eventos: byConversation.get(c.id) ?? [] };
+      const marcos = derivarMarcos(inbound);
       return {
         id: c.id,
         ticket: ticketDe(c.id),
@@ -181,14 +181,14 @@ export async function carregarHistorico(
         filaNome: c.filaNome,
         atendenteNome: c.atendenteNome,
         encerradaEm: marcos.encerradaEm ?? c.encerradaEm,
-        status: classificarEncerramento(marcos),
+        status: classificarClosure(marcos),
         // Espera total do cliente: com resposta, até ela; sem resposta, até o fim.
-        esperaSeg: marcos.primeiraRespostaEm
-          ? diferenca(marcos.criadaEm, marcos.primeiraRespostaEm)
+        esperaSeg: marcos.firstRespostaIn
+          ? diferenca(marcos.criadaEm, marcos.firstRespostaIn)
           : diferenca(marcos.criadaEm, marcos.encerradaEm),
-        primeiraRespostaSeg: diferenca(marcos.atribuidaEm, marcos.primeiraRespostaEm),
-        atendimentoSeg: diferenca(marcos.primeiraRespostaEm, marcos.encerradaEm),
-        etiquetas: etiquetasPorConversa.get(c.id) ?? [],
+        primeiraRespostaSeg: diferenca(marcos.atribuidaEm, marcos.firstRespostaIn),
+        atendimentoSeg: diferenca(marcos.firstRespostaIn, marcos.encerradaEm),
+        etiquetas: labelsByConversation.get(c.id) ?? [],
       };
     });
 
@@ -209,7 +209,7 @@ export async function carregarHistorico(
  * já tem teto de LIMITE_HISTORICO linhas: agrupar no banco daria grupos calculados
  * sobre um universo diferente do que a tela mostra, que é pior do que não agrupar.
  */
-export const AGRUPAMENTOS = [
+export const GROUPINGS = [
   { chave: 'nenhum', rotulo: 'Sem agrupamento' },
   { chave: 'fila', rotulo: 'Fila' },
   { chave: 'atendente', rotulo: 'Atendente' },
@@ -217,15 +217,15 @@ export const AGRUPAMENTOS = [
   { chave: 'etiqueta', rotulo: 'Etiqueta' },
 ] as const;
 
-export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
+export type Grouping = (typeof GROUPINGS)[number]['chave'];
 
-export function agrupamentoValido(valor: string | undefined): Agrupamento {
-  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+export function groupingValid(value: string | undefined): Grouping {
+  return (GROUPINGS.find((a) => a.chave === value)?.chave ?? 'nenhum') as Grouping;
 }
 
-export interface GrupoHistorico {
+export interface GroupHistory {
   titulo: string;
-  linhas: LinhaHistorico[];
+  linhas: LineHistory[];
 }
 
 const ROTULO_DESFECHO: Record<string, string> = {
@@ -242,27 +242,27 @@ const ROTULO_DESFECHO: Record<string, string> = {
  * passa do total de linhas de propósito, porque a pergunta ali é "quantas
  * conversas encostaram nesta etiqueta", não "como reparto o total".
  */
-export function agruparHistorico(
-  linhas: readonly LinhaHistorico[],
-  por: Agrupamento,
-): GrupoHistorico[] {
-  if (por === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
+export function agruparHistory(
+  linhas: readonly LineHistory[],
+  by: Grouping,
+): GroupHistory[] {
+  if (by === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
 
-  const chavesDe = (l: LinhaHistorico): string[] => {
-    if (por === 'fila') return [l.filaNome ?? 'Sem fila'];
-    if (por === 'atendente') return [l.atendenteNome ?? 'Sem atendente'];
-    if (por === 'status') {
+  const chavesDe = (l: LineHistory): string[] => {
+    if (by === 'fila') return [l.queueName ?? 'Sem fila'];
+    if (by === 'atendente') return [l.agentName ?? 'Sem atendente'];
+    if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }
     return l.etiquetas.length > 0 ? l.etiquetas : ['Sem etiqueta'];
   };
 
-  const mapa = new Map<string, LinhaHistorico[]>();
+  const mapa = new Map<string, LineHistory[]>();
   for (const l of linhas) {
-    for (const chave of chavesDe(l)) {
-      const atual = mapa.get(chave);
+    for (const key of chavesDe(l)) {
+      const atual = mapa.get(key);
       if (atual) atual.push(l);
-      else mapa.set(chave, [l]);
+      else mapa.set(key, [l]);
     }
   }
   return [...mapa.entries()]

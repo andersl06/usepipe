@@ -1,5 +1,5 @@
-import type { CondicaoBlip } from '@pipe/core';
-import { VARIAVEL_DO_ENCAMINHAMENTO } from '@pipe/core';
+import type { ConditionBlip } from '@pipe/core';
+import { VARIABLE_OF_FORWARDING } from '@pipe/core';
 import type { DesenhoDoBuilder } from '@pipe/contracts';
 
 /**
@@ -40,29 +40,29 @@ export interface AcaoDoEditor {
   $title?: string;
   type: string;
   settings?: Record<string, unknown>;
-  conditions?: CondicaoBlip[];
+  conditions?: ConditionBlip[];
   [extensao: string]: unknown;
 }
 
-export interface ValidacaoDaEntrada {
+export interface InboundValidation {
   rule: string;
   regex?: string | null;
   type?: string | null;
   error?: string | null;
 }
 
-export interface EntradaDoEditor {
+export interface EditorInbound {
   bypass?: boolean;
   variable?: string | null;
-  validation?: ValidacaoDaEntrada | null;
-  conditions?: CondicaoBlip[];
+  validation?: InboundValidation | null;
+  conditions?: ConditionBlip[];
   expiration?: string | null;
   [extensao: string]: unknown;
 }
 
 export interface ItemDeConteudo {
   action?: AcaoDoEditor;
-  input?: EntradaDoEditor;
+  input?: EditorInbound;
   [extensao: string]: unknown;
 }
 
@@ -70,13 +70,13 @@ export interface SaidaDoEditor {
   $id?: string;
   stateId?: string;
   typeOfStateId?: string;
-  conditions?: CondicaoBlip[];
+  conditions?: ConditionBlip[];
   $isDeskOutput?: boolean;
   $isDeskDefaultOutput?: boolean;
   [extensao: string]: unknown;
 }
 
-export interface Bloco {
+export interface Block {
   id: string;
   root?: boolean;
   $title?: string;
@@ -92,9 +92,9 @@ export interface Bloco {
   [extensao: string]: unknown;
 }
 
-export type Mapa = Record<string, Bloco>;
+export type Mapa = Record<string, Block>;
 
-export interface Posicao {
+export interface Position {
   top: number;
   left: number;
 }
@@ -108,15 +108,15 @@ export interface Aresta {
 /* ------------------------------------------------------------- constantes */
 
 export const TITULO_PADRAO = 'Novo bloco';
-export const TITULO_DO_ATENDIMENTO = 'Atendimento humano';
-export const ROTULO_DA_ENTRADA = 'Entrada do usuário';
+export const TITULO_OF_ATTENDANCE = 'Atendimento humano';
+export const ROTULO_OF_INBOUND = 'Entrada do usuário';
 export const LIMITE_DE_SAIDAS = 25;
 export const ID_DO_FALLBACK = 'fallback';
 export const ID_DO_FIM = 'end';
-export const PREFIXO_DO_ATENDIMENTO = 'desk:';
-export const VERSAO_DO_BLOCO_DE_ATENDIMENTO = '3.0.0';
+export const PREFIX_OF_ATTENDANCE = 'desk:';
+export const VERSION_OF_BLOCK_OF_ATTENDANCE = '3.0.0';
 
-export const MENSAGENS = {
+export const MESSAGES = {
   limiteDeSaidas: 'Limite de 25 condições de saída atingidos',
   naoExclui: 'Não é possível deletar este estado',
   fimNaoLiga: "Um bloco de 'Fim' não se conecta com um próximo bloco. Ele deve ser sempre o último.",
@@ -126,7 +126,7 @@ export const MENSAGENS = {
 const TIPO_DO_TICKET = 'application/vnd.iris.ticket+json';
 
 /** As três "Saídas de atendimento" do bloco `desk:`, na ordem do editor. */
-export const SAIDAS_DE_ATENDIMENTO = [
+export const OUTPUTS_OF_ATTENDANCE = [
   { status: 'ClosedAttendant', rotulo: 'ticket finalizado pelo atendente' },
   { status: 'ClosedClient', rotulo: 'ticket finalizado pelo cliente' },
   { status: 'ClosedClientInactivity', rotulo: 'ticket finalizado por inatividade do cliente' },
@@ -136,39 +136,39 @@ export const SAIDAS_DE_ATENDIMENTO = [
 
 export const gerarId = (): string => crypto.randomUUID();
 
-const copiar = <T>(valor: T): T => JSON.parse(JSON.stringify(valor)) as T;
+const copiar = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 /** Formato privado para copiar blocos entre pontos do mesmo Builder. */
 const MARCADOR_DE_AREA_DE_TRANSFERENCIA = 'pipe-builder:block/v1:';
 
-export const ehAtendimento = (id: string): boolean => id.startsWith(PREFIXO_DO_ATENDIMENTO);
+export const ehAttendance = (id: string): boolean => id.startsWith(PREFIX_OF_ATTENDANCE);
 
-const px = (valor: string | undefined, padrao: number): number => {
-  const n = Number.parseFloat(valor ?? '');
+const px = (value: string | undefined, padrao: number): number => {
+  const n = Number.parseFloat(value ?? '');
   return Number.isFinite(n) ? n : padrao;
 };
 
-export function posicaoDe(bloco: Bloco): Posicao {
-  return { top: px(bloco.$position?.top, 40), left: px(bloco.$position?.left, 40) };
+export function positionOf(block: Block): Position {
+  return { top: px(block.$position?.top, 40), left: px(block.$position?.left, 40) };
 }
 
 /** O editor da Blip nunca deixa um bloco em coordenada negativa (`checkNegative`). */
-export function posicaoComoTexto(posicao: Posicao): { top: string; left: string } {
+export function positionAsText(position: Position): { top: string; left: string } {
   return {
-    top: `${Math.max(0, Math.round(posicao.top))}px`,
-    left: `${Math.max(0, Math.round(posicao.left))}px`,
+    top: `${Math.max(0, Math.round(position.top))}px`,
+    left: `${Math.max(0, Math.round(position.left))}px`,
   };
 }
 
 /** A raiz do desenho, se houver uma só. */
-export function raizDe(mapa: Mapa): Bloco | null {
+export function raizDe(mapa: Mapa): Block | null {
   const raizes = Object.values(mapa).filter((b) => b.root);
   return raizes.length === 1 ? raizes[0]! : null;
 }
 
 /** A entrada de um bloco (o item `input` de `$contentActions`), se houver. */
-export function entradaDe(bloco: Bloco): EntradaDoEditor | null {
-  return bloco.$contentActions?.find((c) => c.input)?.input ?? null;
+export function inboundOf(block: Block): EditorInbound | null {
+  return block.$contentActions?.find((c) => c.input)?.input ?? null;
 }
 
 /* ---------------------------------------------------------- ler e montar */
@@ -186,10 +186,10 @@ const ARRANJO = { left: 160, top: 96, passoX: 300, passoY: 180, porLinha: 4 } as
  * caminho) vem com `$position` vazio em todo bloco, e todos nasceriam empilhados
  * no mesmo ponto. Quem não tem posição ganha uma, em grade, na ordem do mapa.
  */
-function arranjarSemPosicao(mapa: Mapa): void {
-  const semPosicao = Object.values(mapa).filter((b) => !b.$position?.top && !b.$position?.left);
-  semPosicao.forEach((bloco, i) => {
-    bloco.$position = posicaoComoTexto({
+function arranjarWithoutPosition(mapa: Mapa): void {
+  const withoutPosition = Object.values(mapa).filter((b) => !b.$position?.top && !b.$position?.left);
+  withoutPosition.forEach((block, i) => {
+    block.$position = positionAsText({
       left: ARRANJO.left + (i % ARRANJO.porLinha) * ARRANJO.passoX,
       top: ARRANJO.top + Math.floor(i / ARRANJO.porLinha) * ARRANJO.passoY,
     });
@@ -198,13 +198,13 @@ function arranjarSemPosicao(mapa: Mapa): void {
 
 export function lerDesenho(desenho: DesenhoDoBuilder): Mapa {
   const mapa: Mapa = {};
-  for (const [codigo, bruto] of Object.entries(desenho.fluxo)) {
+  for (const [codigo, bruto] of Object.entries(desenho.flow)) {
     if (!bruto || typeof bruto !== 'object') continue;
-    const bloco = copiar(bruto) as Bloco;
-    if (typeof bloco.id !== 'string' || !bloco.id) bloco.id = codigo;
-    mapa[codigo] = bloco;
+    const block = copiar(bruto) as Block;
+    if (typeof block.id !== 'string' || !block.id) block.id = codigo;
+    mapa[codigo] = block;
   }
-  arranjarSemPosicao(mapa);
+  arranjarWithoutPosition(mapa);
   return mapa;
 }
 
@@ -214,16 +214,16 @@ export function lerDesenho(desenho: DesenhoDoBuilder): Mapa {
  * — mais as ações globais. Só a chave do mapa é conferida contra o `id`, para
  * um bloco renomeado por fora nunca sair com dois nomes.
  */
-export function montarDesenho(mapa: Mapa, globais: Record<string, unknown>): DesenhoDoBuilder {
-  const fluxo: Record<string, unknown> = {};
-  for (const bloco of Object.values(mapa)) fluxo[bloco.id] = copiar(bloco);
-  return { fluxo, globais: copiar(globais) };
+export function montarDesenho(mapa: Mapa, global: Record<string, unknown>): DesenhoDoBuilder {
+  const flow: Record<string, unknown> = {};
+  for (const block of Object.values(mapa)) flow[block.id] = copiar(block);
+  return { flow, globals: copiar(global) };
 }
 
 /* ------------------------------------------------------------- os blocos */
 
 /** O cartão que o editor desenha para uma fala ou uma entrada. */
-export function cartao(id: string, tipo: string, conteudo: unknown, lado: 'left' | 'right') {
+export function card(id: string, tipo: string, conteudo: unknown, lado: 'left' | 'right') {
   return {
     document: { id, type: tipo, content: conteudo },
     editable: true,
@@ -234,23 +234,23 @@ export function cartao(id: string, tipo: string, conteudo: unknown, lado: 'left'
 }
 
 /** A "Entrada do usuário" que todo bloco novo traz. */
-export function novaEntrada(id = gerarId()): ItemDeConteudo {
+export function newInbound(id = gerarId()): ItemDeConteudo {
   return {
     input: {
       bypass: false,
-      $cardContent: cartao(id, 'text/plain', ROTULO_DA_ENTRADA, 'right'),
+      $cardContent: card(id, 'text/plain', ROTULO_OF_INBOUND, 'right'),
       $invalid: false,
     },
     $invalid: false,
   };
 }
 
-function esqueleto(id: string, titulo: string, posicao: Posicao): Bloco {
+function esqueleto(id: string, titulo: string, position: Position): Block {
   return {
     id,
     root: false,
     $title: titulo,
-    $position: posicaoComoTexto(posicao),
+    $position: positionAsText(position),
     $tags: [],
     $contentActions: [],
     $conditionOutputs: [],
@@ -266,23 +266,23 @@ function esqueleto(id: string, titulo: string, posicao: Posicao): Bloco {
 }
 
 /** A saída padrão de bloco novo: `fallback`, como no editor — se houver um. */
-function saidaPadraoInicial(mapa: Mapa): Bloco['$defaultOutput'] {
+function saidaPadraoInicial(mapa: Mapa): Block['$defaultOutput'] {
   return mapa[ID_DO_FALLBACK] ? { stateId: ID_DO_FALLBACK, $invalid: false } : null;
 }
 
 /** "Padrão" do menu NOVO BLOCO (`createContentState`). */
-export function novoBloco(mapa: Mapa, posicao: Posicao, id = gerarId()): Bloco {
+export function newBlock(mapa: Mapa, position: Position, id = gerarId()): Block {
   return {
-    ...esqueleto(id, TITULO_PADRAO, posicao),
-    $contentActions: [novaEntrada(`${id}-entrada`)],
+    ...esqueleto(id, TITULO_PADRAO, position),
+    $contentActions: [newInbound(`${id}-entrada`)],
     $defaultOutput: saidaPadraoInicial(mapa),
   };
 }
 
 /** "Humano" do menu NOVO BLOCO (`createDeskStateWithForwardAndLeaving`). */
-export function novoBlocoDeAtendimento(mapa: Mapa, posicao: Posicao, id = gerarId()): Bloco {
-  const codigo = `${PREFIXO_DO_ATENDIMENTO}${id}`;
-  const saidasDeAtendimento: SaidaDoEditor[] = SAIDAS_DE_ATENDIMENTO.map((s) => ({
+export function attendanceNewBlock(mapa: Mapa, position: Position, id = gerarId()): Block {
+  const codigo = `${PREFIX_OF_ATTENDANCE}${id}`;
+  const attendanceOutputs: SaidaDoEditor[] = OUTPUTS_OF_ATTENDANCE.map((s) => ({
     $id: `${id}-${s.status}`,
     $isDeskOutput: true,
     conditions: [
@@ -290,62 +290,62 @@ export function novoBlocoDeAtendimento(mapa: Mapa, posicao: Posicao, id = gerarI
       { source: 'context', variable: 'input.content@status', comparison: 'equals', values: [s.status] },
     ],
   }));
-  saidasDeAtendimento.push({
+  attendanceOutputs.push({
     $id: `${id}-erro`,
     $isDeskOutput: true,
     $isDeskDefaultOutput: true,
     conditions: [
-      { source: 'context', variable: VARIAVEL_DO_ENCAMINHAMENTO, comparison: 'equals', values: ['Error'] },
+      { source: 'context', variable: VARIABLE_OF_FORWARDING, comparison: 'equals', values: ['Error'] },
     ],
     ...(mapa[ID_DO_FALLBACK] ? { stateId: ID_DO_FALLBACK } : {}),
     $invalid: false,
   });
-  const entrada = novaEntrada(`${id}-entrada`);
-  entrada.input!.conditions = [
-    { source: 'context', variable: VARIAVEL_DO_ENCAMINHAMENTO, comparison: 'equals', values: ['Success'] },
+  const inbound = newInbound(`${id}-entrada`);
+  inbound.input!.conditions = [
+    { source: 'context', variable: VARIABLE_OF_FORWARDING, comparison: 'equals', values: ['Success'] },
   ];
   return {
-    ...esqueleto(codigo, TITULO_DO_ATENDIMENTO, posicao),
-    deskStateVersion: VERSAO_DO_BLOCO_DE_ATENDIMENTO,
-    $contentActions: [entrada],
+    ...esqueleto(codigo, TITULO_OF_ATTENDANCE, position),
+    deskStateVersion: VERSION_OF_BLOCK_OF_ATTENDANCE,
+    $contentActions: [inbound],
     $enteringCustomActions: [{ $id: `${id}-forward`, type: 'ForwardToDesk', settings: {}, conditions: [] }],
     $afterStateChangedActions: [
       { $id: `${id}-leaving`, type: 'LeavingFromDesk', settings: {}, conditions: [] },
     ],
-    $conditionOutputs: saidasDeAtendimento,
+    $conditionOutputs: attendanceOutputs,
     // Encerrado o atendimento, a conversa volta a este mesmo bloco por padrão.
     $defaultOutput: { stateId: codigo, $invalid: false },
   };
 }
 
-export function adicionarBloco(mapa: Mapa, bloco: Bloco): Mapa {
-  return { ...mapa, [bloco.id]: bloco };
+export function addBlock(mapa: Mapa, block: Block): Mapa {
+  return { ...mapa, [block.id]: block };
 }
 
-export function renomearBloco(mapa: Mapa, id: string, titulo: string): Mapa {
-  const bloco = mapa[id];
-  if (!bloco) return mapa;
-  return { ...mapa, [id]: { ...bloco, $title: titulo } };
+export function renomearBlock(mapa: Mapa, id: string, titulo: string): Mapa {
+  const block = mapa[id];
+  if (!block) return mapa;
+  return { ...mapa, [id]: { ...block, $title: titulo } };
 }
 
-export function moverBloco(mapa: Mapa, id: string, posicao: Posicao): Mapa {
-  const bloco = mapa[id];
-  if (!bloco) return mapa;
-  return { ...mapa, [id]: { ...bloco, $position: posicaoComoTexto(posicao) } };
+export function moverBlock(mapa: Mapa, id: string, position: Position): Mapa {
+  const block = mapa[id];
+  if (!block) return mapa;
+  return { ...mapa, [id]: { ...block, $position: positionAsText(position) } };
 }
 
 /** Troca o bloco inteiro — é o que o painel faz ao editar conteúdo, ações e saídas. */
-export function substituirBloco(mapa: Mapa, bloco: Bloco): Mapa {
-  return { ...mapa, [bloco.id]: bloco };
+export function substituirBlock(mapa: Mapa, block: Block): Mapa {
+  return { ...mapa, [block.id]: block };
 }
 
 /** "Duplicar" do menu de contexto: cópia com id novo, "[Cópia]" no título, 20px ao lado. */
-function copiaDoBloco(origem: Bloco, posicao: Posicao, novoId = gerarId()): Bloco {
+function blockCopia(origem: Block, position: Position, novoId = gerarId()): Block {
   const copia = copiar(origem);
-  copia.id = ehAtendimento(origem.id) ? `${PREFIXO_DO_ATENDIMENTO}${novoId}` : novoId;
+  copia.id = ehAttendance(origem.id) ? `${PREFIX_OF_ATTENDANCE}${novoId}` : novoId;
   copia.root = false;
   copia.$title = `${origem.$title ?? TITULO_PADRAO} [Cópia]`;
-  copia.$position = posicaoComoTexto(posicao);
+  copia.$position = positionAsText(position);
   for (const saida of copia.$conditionOutputs ?? []) {
     delete saida.$id;
     delete saida.$connId;
@@ -358,52 +358,52 @@ function copiaDoBloco(origem: Bloco, posicao: Posicao, novoId = gerarId()): Bloc
 }
 
 /** "Duplicar" conserva o deslocamento curto que o editor mostra ao lado do original. */
-export function duplicarBloco(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
+export function duplicarBlock(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
   const origem = mapa[id];
   if (!origem) return mapa;
-  const posicao = posicaoDe(origem);
-  const copia = copiaDoBloco(origem, { top: posicao.top + 20, left: posicao.left + 20 }, novoId);
+  const position = positionOf(origem);
+  const copia = blockCopia(origem, { top: position.top + 20, left: position.left + 20 }, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 
-export function textoDoBlocoCopiado(bloco: Bloco): string {
-  return `${MARCADOR_DE_AREA_DE_TRANSFERENCIA}${JSON.stringify(bloco)}`;
+export function copiedBlockText(block: Block): string {
+  return `${MARCADOR_DE_AREA_DE_TRANSFERENCIA}${JSON.stringify(block)}`;
 }
 
-export function blocoDoTextoCopiado(texto: string): Bloco | null {
+export function copiedTextBlock(texto: string): Block | null {
   if (!texto.startsWith(MARCADOR_DE_AREA_DE_TRANSFERENCIA)) return null;
   try {
-    const valor: unknown = JSON.parse(texto.slice(MARCADOR_DE_AREA_DE_TRANSFERENCIA.length));
-    if (!valor || typeof valor !== 'object' || typeof (valor as Bloco).id !== 'string') return null;
-    return copiar(valor as Bloco);
+    const value: unknown = JSON.parse(texto.slice(MARCADOR_DE_AREA_DE_TRANSFERENCIA.length));
+    if (!value || typeof value !== 'object' || typeof (value as Block).id !== 'string') return null;
+    return copiar(value as Block);
   } catch {
     return null;
   }
 }
 
 /** "Colar" cria uma cópia na posição do clique e nunca sobrescreve o original. */
-export function colarBloco(mapa: Mapa, origem: Bloco, posicao: Posicao, novoId = gerarId()): Mapa {
-  const copia = copiaDoBloco(origem, posicao, novoId);
+export function colarBlock(mapa: Mapa, origem: Block, position: Position, novoId = gerarId()): Mapa {
+  const copia = blockCopia(origem, position, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 
 /** Início, Exceções e Fim não saem — como no editor. */
 export function podeExcluir(mapa: Mapa, id: string): boolean {
-  const bloco = mapa[id];
-  if (!bloco) return false;
-  return !bloco.root && id !== ID_DO_FALLBACK && id !== ID_DO_FIM;
+  const block = mapa[id];
+  if (!block) return false;
+  return !block.root && id !== ID_DO_FALLBACK && id !== ID_DO_FIM;
 }
 
 /**
  * Exclui o bloco e o que apontava para ele: condição de saída comum some,
  * "Saída de atendimento" fica sem destino, saída padrão fica vazia.
  */
-export function excluirBloco(mapa: Mapa, id: string): Mapa {
+export function excluirBlock(mapa: Mapa, id: string): Mapa {
   if (!podeExcluir(mapa, id)) return mapa;
   const novo: Mapa = {};
-  for (const bloco of Object.values(mapa)) {
-    if (bloco.id === id) continue;
-    novo[bloco.id] = desligarDe(bloco, id, true);
+  for (const block of Object.values(mapa)) {
+    if (block.id === id) continue;
+    novo[block.id] = desligarDe(block, id, true);
   }
   return novo;
 }
@@ -411,7 +411,7 @@ export function excluirBloco(mapa: Mapa, id: string): Mapa {
 /* -------------------------------------------------------------- as setas */
 
 /** A saída sem o destino — o que o editor faz com uma "Saída de atendimento" desligada. */
-export function semDestino(saida: SaidaDoEditor): SaidaDoEditor {
+export function withoutDestination(saida: SaidaDoEditor): SaidaDoEditor {
   const resto = { ...saida };
   delete resto.stateId;
   return resto;
@@ -421,28 +421,28 @@ export function semDestino(saida: SaidaDoEditor): SaidaDoEditor {
 export function arestasDe(mapa: Mapa): Aresta[] {
   const vistas = new Set<string>();
   const arestas: Aresta[] = [];
-  for (const bloco of Object.values(mapa)) {
-    for (const saida of bloco.$conditionOutputs ?? []) {
+  for (const block of Object.values(mapa)) {
+    for (const saida of block.$conditionOutputs ?? []) {
       if (!saida.stateId || saida.$isDeskDefaultOutput || !mapa[saida.stateId]) continue;
-      const chave = `${bloco.id}\u0000${saida.stateId}`;
-      if (vistas.has(chave)) continue;
-      vistas.add(chave);
-      arestas.push({ de: bloco.id, para: saida.stateId });
+      const key = `${block.id}\u0000${saida.stateId}`;
+      if (vistas.has(key)) continue;
+      vistas.add(key);
+      arestas.push({ de: block.id, para: saida.stateId });
     }
   }
   return arestas;
 }
 
-export type ResultadoDeLigacao = { ok: true; mapa: Mapa } | { ok: false; erro: string };
+export type ConnectionResult = { ok: true; mapa: Mapa } | { ok: false; error: string };
 
 /** Arrastou da saída de `de` até `para`: nasce uma condição de saída nova para `para`. */
-export function ligar(mapa: Mapa, de: string, para: string, id = gerarId()): ResultadoDeLigacao {
+export function ligar(mapa: Mapa, de: string, para: string, id = gerarId()): ConnectionResult {
   const origem = mapa[de];
-  if (!origem || !mapa[para]) return { ok: false, erro: 'Bloco não encontrado.' };
-  if (de === ID_DO_FIM) return { ok: false, erro: MENSAGENS.fimNaoLiga };
+  if (!origem || !mapa[para]) return { ok: false, error: 'Bloco não encontrado.' };
+  if (de === ID_DO_FIM) return { ok: false, error: MESSAGES.fimNaoLiga };
   const saidas = origem.$conditionOutputs ?? [];
   if (saidas.some((s) => s.stateId === para)) return { ok: true, mapa };
-  if (saidas.length >= LIMITE_DE_SAIDAS) return { ok: false, erro: MENSAGENS.limiteDeSaidas };
+  if (saidas.length >= LIMITE_DE_SAIDAS) return { ok: false, error: MESSAGES.limiteDeSaidas };
   const nova: SaidaDoEditor = {
     $id: id,
     stateId: para,
@@ -458,10 +458,10 @@ export function ligar(mapa: Mapa, de: string, para: string, id = gerarId()): Res
  * fica sem destino, as outras somem. Com `tudo`, TODAS as saídas para `alvo`
  * (é o que excluir o bloco de destino precisa).
  */
-function desligarDe(bloco: Bloco, alvo: string, tudo: boolean): Bloco {
-  const saidas = bloco.$conditionOutputs ?? [];
-  const padrao = bloco.$defaultOutput?.stateId === alvo;
-  if (!saidas.some((s) => s.stateId === alvo) && !(tudo && padrao)) return bloco;
+function desligarDe(block: Block, alvo: string, tudo: boolean): Block {
+  const saidas = block.$conditionOutputs ?? [];
+  const padrao = block.$defaultOutput?.stateId === alvo;
+  if (!saidas.some((s) => s.stateId === alvo) && !(tudo && padrao)) return block;
   let feito = false;
   const restantes: SaidaDoEditor[] = [];
   for (const saida of saidas) {
@@ -470,10 +470,10 @@ function desligarDe(bloco: Bloco, alvo: string, tudo: boolean): Bloco {
       continue;
     }
     feito = true;
-    if (saida.$isDeskOutput) restantes.push(semDestino(saida));
+    if (saida.$isDeskOutput) restantes.push(withoutDestination(saida));
   }
   return {
-    ...bloco,
+    ...block,
     $conditionOutputs: restantes,
     ...(tudo && padrao ? { $defaultOutput: null } : {}),
   };

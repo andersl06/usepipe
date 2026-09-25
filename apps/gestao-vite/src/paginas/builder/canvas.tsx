@@ -1,12 +1,12 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as PointerEventDeReact, WheelEvent as WheelEventDeReact } from 'react';
-import type { Aresta, Bloco, Mapa, Posicao } from './modelo';
-import { arestasDe, blocoDoTextoCopiado, podeExcluir, posicaoDe, textoDoBlocoCopiado } from './modelo';
+import type { Aresta, Block, Mapa, Position } from './modelo';
+import { arestasDe, copiedTextBlock, podeExcluir, positionOf, copiedBlockText } from './modelo';
 import { No } from './no';
-import { etiquetasDoBloco } from './etiquetas-do-bloco';
+import { blockTags } from './etiquetas-do-bloco';
 import {
-  ALTURA_PADRAO_DO_BLOCO,
-  LARGURA_DO_BLOCO,
+  ALTURA_DEFAULT_OF_BLOCK,
+  LARGURA_OF_BLOCK,
   PASSO_DO_ZOOM,
   caminhoDaSeta,
   caminhoProvisorio,
@@ -42,45 +42,45 @@ import type { Caixa, Ponto } from './setas';
 
 export interface PropsDoCanvas {
   mapa: Mapa;
-  errosPorBloco: Record<string, string[]>;
+  errorsByBlock: Record<string, string[]>;
   selecionado: string | null;
   editando: string | null;
   zoom: number;
-  deslocamento: Posicao;
-  onDeslocar: (posicao: Posicao) => void;
-  onZoom: (valor: number) => void;
+  offset: Position;
+  onDeslocar: (position: Position) => void;
+  onZoom: (value: number) => void;
   onSelecionar: (id: string | null) => void;
   onAbrir: (id: string) => void;
-  onMover: (id: string, posicao: Posicao) => void;
+  onMover: (id: string, position: Position) => void;
   onSoltar: () => void;
   onLigar: (de: string, para: string) => void;
   onDesligar: (de: string, para: string) => void;
   onDuplicar: (id: string) => void;
   onCopiarId: (id: string) => void;
-  onColar: (bloco: Bloco, posicao: Posicao) => void;
+  onColar: (block: Block, position: Position) => void;
   onExcluir: (id: string) => void;
   onAviso: (texto: string) => void;
   pesquisa: string;
 }
 
 type Arrasto =
-  | { tipo: 'bloco'; id: string; origem: Ponto; inicio: Posicao; moveu: boolean }
-  | { tipo: 'cena'; origem: Ponto; inicio: Posicao }
+  | { tipo: 'bloco'; id: string; origem: Ponto; inicio: Position; moveu: boolean }
+  | { tipo: 'cena'; origem: Ponto; inicio: Position }
   | { tipo: 'ligacao'; de: string; origem: Ponto; ate: Ponto; alvo: string | null; moveu: boolean };
 
-type MenuDeContexto =
+type ContextMenu =
   | { tipo: 'bloco'; id: string; x: number; y: number }
-  | { tipo: 'fundo'; x: number; y: number; posicao: Posicao };
+  | { tipo: 'fundo'; x: number; y: number; position: Position };
 
-const chaveDaAresta = (a: Aresta): string => `${a.de}\u0000${a.para}`;
+const arestaKey = (a: Aresta): string => `${a.de}\u0000${a.para}`;
 
 export function Canvas({
   mapa,
-  errosPorBloco,
+  errorsByBlock,
   selecionado,
   editando,
   zoom,
-  deslocamento,
+  offset,
   onDeslocar,
   onZoom,
   onSelecionar,
@@ -100,8 +100,8 @@ export function Canvas({
   const [arrasto, setArrasto] = useState<Arrasto | null>(null);
   const [alturas, setAlturas] = useState<Record<string, number>>({});
   const [arestaSelecionada, setArestaSelecionada] = useState<string | null>(null);
-  const [menu, setMenu] = useState<MenuDeContexto | null>(null);
-  const [blocoCopiado, setBlocoCopiado] = useState<Bloco | null>(null);
+  const [menu, setMenu] = useState<ContextMenu | null>(null);
+  const [copiedBlock, setCopiedBlock] = useState<Block | null>(null);
   const escala = zoom / 100;
 
   /* A altura real de cada cartão, para a seta sair da face certa. */
@@ -157,20 +157,20 @@ export function Canvas({
   function pontoDoCanvas(e: { clientX: number; clientY: number }): Ponto {
     const caixa = fundo.current?.getBoundingClientRect();
     return {
-      x: ((caixa ? e.clientX - caixa.left : e.clientX) - deslocamento.left) / escala,
-      y: ((caixa ? e.clientY - caixa.top : e.clientY) - deslocamento.top) / escala,
+      x: ((caixa ? e.clientX - caixa.left : e.clientX) - offset.left) / escala,
+      y: ((caixa ? e.clientY - caixa.top : e.clientY) - offset.top) / escala,
     };
   }
 
   function caixaDe(id: string): Caixa {
-    const bloco = mapa[id];
-    const posicao = bloco ? posicaoDe(bloco) : { top: 0, left: 0 };
-    return { ...posicao, largura: LARGURA_DO_BLOCO, altura: alturas[id] ?? ALTURA_PADRAO_DO_BLOCO };
+    const block = mapa[id];
+    const position = block ? positionOf(block) : { top: 0, left: 0 };
+    return { ...position, largura: LARGURA_OF_BLOCK, altura: alturas[id] ?? ALTURA_DEFAULT_OF_BLOCK };
   }
 
   /** O bloco sob o ponteiro, no plano do canvas. `elementFromPoint` falha
    * durante a captura do ponteiro em alguns navegadores e com setas por cima. */
-  function blocoSob(e: { clientX: number; clientY: number }): string | null {
+  function blockSob(e: { clientX: number; clientY: number }): string | null {
     const ponto = pontoDoCanvas(e);
     const ids = Object.keys(mapa);
     for (let i = ids.length - 1; i >= 0; i -= 1) {
@@ -182,7 +182,7 @@ export function Canvas({
 
   /* ------------------------------------------------------------- blocos */
 
-  function aoPressionarBloco(id: string, e: PointerEventDeReact<HTMLDivElement>): void {
+  function toPressionarBlock(id: string, e: PointerEventDeReact<HTMLDivElement>): void {
     if (e.button !== 0) return;
     e.stopPropagation();
     setMenu(null);
@@ -192,7 +192,7 @@ export function Canvas({
       tipo: 'bloco',
       id,
       origem: { x: e.clientX, y: e.clientY },
-      inicio: posicaoDe(mapa[id]!),
+      inicio: positionOf(mapa[id]!),
       moveu: false,
     });
   }
@@ -218,7 +218,7 @@ export function Canvas({
     setArestaSelecionada(null);
     onSelecionar(null);
     e.currentTarget.setPointerCapture(e.pointerId);
-    setArrasto({ tipo: 'cena', origem: { x: e.clientX, y: e.clientY }, inicio: deslocamento });
+    setArrasto({ tipo: 'cena', origem: { x: e.clientX, y: e.clientY }, inicio: offset });
   }
 
   function aoMover(e: PointerEventDeReact<HTMLElement>): void {
@@ -235,7 +235,7 @@ export function Canvas({
         top: arrasto.inicio.top + (e.clientY - arrasto.origem.y),
       });
     } else {
-      const alvo = blocoSob(e);
+      const alvo = blockSob(e);
       const moveu = arrasto.moveu || houveArrasto(e.clientX - arrasto.origem.x, e.clientY - arrasto.origem.y);
       setArrasto({ ...arrasto, ate: pontoDoCanvas(e), alvo, moveu });
     }
@@ -252,7 +252,7 @@ export function Canvas({
     } else if (arrasto.tipo === 'ligacao') {
       // Sem arrasto de verdade, é clique no ponto de saída — não cria laço do
       // bloco para ele mesmo sozinho (ver `houveArrasto` em `setas.ts`).
-      const alvo = arrasto.moveu ? blocoSob(e) : null;
+      const alvo = arrasto.moveu ? blockSob(e) : null;
       if (alvo) onLigar(arrasto.de, alvo);
     }
     setArrasto(null);
@@ -266,19 +266,19 @@ export function Canvas({
       onZoom(zoomAjustado(zoom + (e.deltaY > 0 ? -PASSO_DO_ZOOM : PASSO_DO_ZOOM)));
       return;
     }
-    onDeslocar({ left: deslocamento.left - e.deltaX, top: deslocamento.top - e.deltaY });
+    onDeslocar({ left: offset.left - e.deltaX, top: offset.top - e.deltaY });
   }
 
   /* -------------------------------------------------------------- setas */
 
   const arestas = arestasDe(mapa);
   const blocos = Object.values(mapa);
-  const alvoDaLigacao = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
-  const menuDoBloco = menu?.tipo === 'bloco' ? mapa[menu.id] : undefined;
+  const connectionAlvo = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
+  const blockMenu = menu?.tipo === 'bloco' ? mapa[menu.id] : undefined;
   const termoDaPesquisa = pesquisa.trim().toLocaleLowerCase('pt-BR');
-  const corresponde = (bloco: (typeof blocos)[number]): boolean =>
+  const corresponde = (block: (typeof blocos)[number]): boolean =>
     !termoDaPesquisa ||
-    [bloco.id, bloco.$title ?? '', ...etiquetasDoBloco(bloco).map((etiqueta) => etiqueta.rotulo)]
+    [block.id, block.$title ?? '', ...blockTags(block).map((etiqueta) => etiqueta.rotulo)]
       .join(' ')
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '')
@@ -292,31 +292,31 @@ export function Canvas({
     gesto(menu.id);
   }
 
-  function copiarBloco(id: string): void {
-    const bloco = mapa[id];
-    if (!bloco) return;
-    setBlocoCopiado(bloco);
+  function copyBlock(id: string): void {
+    const block = mapa[id];
+    if (!block) return;
+    setCopiedBlock(block);
     setMenu(null);
-    void navigator.clipboard?.writeText(textoDoBlocoCopiado(bloco)).then(
+    void navigator.clipboard?.writeText(copiedBlockText(block)).then(
       () => onAviso('Bloco copiado.'),
       () => onAviso('Bloco copiado nesta aba.'),
     );
   }
 
-  async function colarBloco(): Promise<void> {
+  async function colarBlock(): Promise<void> {
     if (!menu || menu.tipo !== 'fundo') return;
-    let bloco = blocoCopiado;
+    let block = copiedBlock;
     try {
-      bloco = blocoDoTextoCopiado(await navigator.clipboard.readText()) ?? bloco;
+      block = copiedTextBlock(await navigator.clipboard.readText()) ?? block;
     } catch {
       // A cópia feita neste Builder continua disponível mesmo sem permissão de leitura do navegador.
     }
     setMenu(null);
-    if (!bloco) {
+    if (!block) {
       onAviso('Copie um bloco do Builder antes de colar.');
       return;
     }
-    onColar(bloco, menu.posicao);
+    onColar(block, menu.position);
     onAviso('Bloco colado.');
   }
 
@@ -328,7 +328,7 @@ export function Canvas({
       tipo: 'fundo',
       x: e.clientX - (caixa?.left ?? 0),
       y: e.clientY - (caixa?.top ?? 0),
-      posicao: { top: ponto.y, left: ponto.x },
+      position: { top: ponto.y, left: ponto.x },
     });
   }
 
@@ -346,20 +346,20 @@ export function Canvas({
     >
       <div
         className="bl-cena"
-        style={{ transform: `translate(${deslocamento.left}px, ${deslocamento.top}px) scale(${escala})` }}
+        style={{ transform: `translate(${offset.left}px, ${offset.top}px) scale(${escala})` }}
       >
         <svg className="bl-setas" aria-hidden="true">
           {arestas.map((a) => {
             const { d, fim, faceDoFim } = caminhoDaSeta(caixaDe(a.de), caixaDe(a.para));
-            const chave = chaveDaAresta(a);
-            const ativa = chave === arestaSelecionada;
+            const key = arestaKey(a);
+            const active = key === arestaSelecionada;
             return (
               <g
-                key={chave}
-                className={`bl-seta${ativa ? ' bl-seta--selecionada' : ''}`}
+                key={key}
+                className={`bl-seta${active ? ' bl-seta--selecionada' : ''}`}
                 onPointerDown={(e) => {
                   e.stopPropagation();
-                  setArestaSelecionada(ativa ? null : chave);
+                  setArestaSelecionada(active ? null : key);
                   onSelecionar(null);
                 }}
               >
@@ -374,7 +374,7 @@ export function Canvas({
               className="bl-seta-traco bl-seta--provisoria"
               d={caminhoProvisorio(
                 {
-                  x: caixaDe(arrasto.de).left + LARGURA_DO_BLOCO / 2,
+                  x: caixaDe(arrasto.de).left + LARGURA_OF_BLOCK / 2,
                   y: caixaDe(arrasto.de).top + caixaDe(arrasto.de).altura,
                 },
                 arrasto.ate,
@@ -383,30 +383,30 @@ export function Canvas({
           ) : null}
         </svg>
 
-        {blocos.map((bloco) => (
+        {blocos.map((block) => (
           <No
-            key={bloco.id}
-            bloco={bloco}
-            erros={errosPorBloco[bloco.id] ?? []}
-            selecionado={selecionado === bloco.id}
-            editando={editando === bloco.id}
-            alvo={alvoDaLigacao === bloco.id}
-            corresponde={corresponde(bloco)}
-            onPointerDown={(e) => aoPressionarBloco(bloco.id, e)}
-            onPointerDownNaSaida={(e) => aoPressionarSaida(bloco.id, e)}
+            key={block.id}
+            block={block}
+            errors={errorsByBlock[block.id] ?? []}
+            selecionado={selecionado === block.id}
+            editando={editando === block.id}
+            alvo={connectionAlvo === block.id}
+            corresponde={corresponde(block)}
+            onPointerDown={(e) => toPressionarBlock(block.id, e)}
+            onPointerDownNaSaida={(e) => aoPressionarSaida(block.id, e)}
             onContextMenu={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              if (bloco.root) return;
-              onSelecionar(bloco.id);
+              if (block.root) return;
+              onSelecionar(block.id);
               const caixa = fundo.current?.getBoundingClientRect();
-              setMenu({ tipo: 'bloco', id: bloco.id, x: e.clientX - (caixa?.left ?? 0), y: e.clientY - (caixa?.top ?? 0) });
+              setMenu({ tipo: 'bloco', id: block.id, x: e.clientX - (caixa?.left ?? 0), y: e.clientY - (caixa?.top ?? 0) });
             }}
           />
         ))}
       </div>
 
-      {menu?.tipo === 'bloco' && menuDoBloco ? (
+      {menu?.tipo === 'bloco' && blockMenu ? (
         <div
           className="bl-menu-contexto"
           role="menu"
@@ -416,7 +416,7 @@ export function Canvas({
           <button type="button" role="menuitem" onClick={() => escolher(onDuplicar)}>
             Duplicar
           </button>
-          <button type="button" role="menuitem" onClick={() => copiarBloco(menu.id)}>
+          <button type="button" role="menuitem" onClick={() => copyBlock(menu.id)}>
             Copiar
           </button>
           <button type="button" role="menuitem" onClick={() => escolher(onCopiarId)}>
@@ -436,7 +436,7 @@ export function Canvas({
           style={{ left: menu.x, top: menu.y }}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <button type="button" role="menuitem" onClick={() => void colarBloco()}>
+          <button type="button" role="menuitem" onClick={() => void colarBlock()}>
             Colar
           </button>
         </div>

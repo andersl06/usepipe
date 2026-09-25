@@ -1,17 +1,17 @@
 import { Outlet } from 'react-router-dom';
-import { BarrasDoContato, useContato } from '../contato';
-import { NavegacaoGrowth } from './navegacao';
+import { ContactBarras, useContact } from '../contato';
+import { NavigationGrowth } from './navegacao';
 import './growth.css';
 
-export function CascaDeGrowth() {
-  const { contato } = useContato();
-  const id = contato.id;
+export function GrowthShell() {
+  const { contact } = useContact();
+  const id = contact.id;
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Growth" />
+      <ContactBarras ativo="Growth" />
       {/* `section.main-section > ui-view`: a lateral e o miolo, lado a lado. */}
       <div className="gr-casca">
-        <NavegacaoGrowth id={id} />
+        <NavigationGrowth id={id} />
         <main className="gr-miolo">
           <Outlet />
         </main>

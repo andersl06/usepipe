@@ -1,6 +1,6 @@
 import { CONTEUDOS_SEM_EFEITO, CONTEUDOS_SUPORTADOS } from '@pipe/core';
-import type { Bloco, EntradaDoEditor, ItemDeConteudo, ValidacaoDaEntrada } from './modelo';
-import { ROTULO_DA_ENTRADA, cartao, gerarId, novaEntrada } from './modelo';
+import type { Block, EditorInbound, ItemDeConteudo, InboundValidation } from './modelo';
+import { ROTULO_OF_INBOUND, card, gerarId, newInbound } from './modelo';
 
 /**
  * A aba "Conteúdo" do bloco: a sequência de cartões que o editor da Blip
@@ -32,7 +32,7 @@ export const ROTULOS_DO_CONTEUDO = {
   texto: 'Texto',
   menu: 'Menu',
   quickReply: 'Quick reply',
-  entrada: ROTULO_DA_ENTRADA,
+  inbound: ROTULO_OF_INBOUND,
   digitando: 'Digitando',
   dinamico: 'Conteúdo dinâmico',
   limite: 'Limite de 25 conteúdos atingido',
@@ -59,7 +59,7 @@ export const TIPO_SELECT = 'application/vnd.lime.select+json';
 export const TIPO_DIGITANDO = 'application/vnd.lime.chatstate+json';
 
 /** As regras de validação da entrada, com o rótulo do `bds-select` do editor. */
-export const REGRAS_DE_VALIDACAO = [
+export const RULES_OF_VALIDATION = [
   { valor: 'text', rotulo: 'Texto' },
   { valor: 'number', rotulo: 'Número' },
   { valor: 'date', rotulo: 'Data' },
@@ -68,7 +68,7 @@ export const REGRAS_DE_VALIDACAO = [
 ] as const;
 
 /** A "Instrução de validação" que o editor sugere por regra. */
-export const INSTRUCAO_PADRAO: Record<string, string> = {
+export const INSTRUCTION_DEFAULT: Record<string, string> = {
   text: 'Digite um texto',
   number: 'Digite um número válido',
   date: 'Por favor, utilize o formato DD/MM/YYYY',
@@ -76,68 +76,68 @@ export const INSTRUCAO_PADRAO: Record<string, string> = {
   type: 'Não entendi, formato não esperado',
 };
 
-export interface OpcaoDoMenu {
+export interface MenuOption {
   text: string;
   value?: unknown;
 }
 
-export type Cartao =
+export type Card =
   | { indice: number; tipo: 'texto'; texto: string }
-  | { indice: number; tipo: 'menu' | 'quickReply'; texto: string; opcoes: OpcaoDoMenu[] }
-  | { indice: number; tipo: 'entrada'; entrada: EntradaDoEditor }
+  | { indice: number; tipo: 'menu' | 'quickReply'; texto: string; options: MenuOption[] }
+  | { indice: number; tipo: 'entrada'; inbound: EditorInbound }
   | { indice: number; tipo: 'digitando' }
   | { indice: number; tipo: 'outro'; mime: string; suportado: boolean };
 
 const texto = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-function lerSelect(conteudo: unknown): { texto: string; opcoes: OpcaoDoMenu[]; imediato: boolean } {
+function lerSelect(conteudo: unknown): { texto: string; options: MenuOption[]; imediato: boolean } {
   const c = (conteudo ?? {}) as { text?: unknown; scope?: unknown; options?: unknown };
-  const opcoes = Array.isArray(c.options)
+  const options = Array.isArray(c.options)
     ? c.options.map((o) => {
-        const opcao = (o ?? {}) as { text?: unknown; value?: unknown };
-        return { text: texto(opcao.text), ...(opcao.value !== undefined ? { value: opcao.value } : {}) };
+        const option = (o ?? {}) as { text?: unknown; value?: unknown };
+        return { text: texto(option.text), ...(option.value !== undefined ? { value: option.value } : {}) };
       })
     : [];
-  return { texto: texto(c.text), opcoes, imediato: c.scope === 'immediate' };
+  return { texto: texto(c.text), options, imediato: c.scope === 'immediate' };
 }
 
 /** Os `$contentActions` do bloco como cartões, na ordem em que o robô os manda. */
-export function cartoesDe(bloco: Bloco): Cartao[] {
-  const cartoes: Cartao[] = [];
-  (bloco.$contentActions ?? []).forEach((item, indice) => {
+export function cardsOf(block: Block): Card[] {
+  const cards: Card[] = [];
+  (block.$contentActions ?? []).forEach((item, indice) => {
     if (item.input) {
-      cartoes.push({ indice, tipo: 'entrada', entrada: item.input });
+      cards.push({ indice, tipo: 'entrada', inbound: item.input });
       return;
     }
     const acao = item.action;
     if (!acao) return;
     const mime = texto(acao.settings?.['type']);
     if (acao.type === 'SendMessage' && mime === TIPO_TEXTO) {
-      cartoes.push({ indice, tipo: 'texto', texto: texto(acao.settings?.['content']) });
+      cards.push({ indice, tipo: 'texto', texto: texto(acao.settings?.['content']) });
     } else if (acao.type === 'SendMessage' && mime === TIPO_SELECT) {
       const lido = lerSelect(acao.settings?.['content']);
-      cartoes.push({ indice, tipo: lido.imediato ? 'quickReply' : 'menu', texto: lido.texto, opcoes: lido.opcoes });
+      cards.push({ indice, tipo: lido.imediato ? 'quickReply' : 'menu', texto: lido.texto, options: lido.options });
     } else if (acao.type === 'SendMessage' && mime === TIPO_DIGITANDO) {
-      cartoes.push({ indice, tipo: 'digitando' });
+      cards.push({ indice, tipo: 'digitando' });
     } else {
       const suportado =
         acao.type === 'SendRawMessage' ? mime === TIPO_TEXTO : CONTEUDOS_SUPORTADOS.has(mime) || CONTEUDOS_SEM_EFEITO.has(mime);
-      cartoes.push({ indice, tipo: 'outro', mime: mime || acao.type, suportado });
+      cards.push({ indice, tipo: 'outro', mime: mime || acao.type, suportado });
     }
   });
-  return cartoes;
+  return cards;
 }
 
-export const temEntrada = (bloco: Bloco): boolean => (bloco.$contentActions ?? []).some((c) => c.input);
+export const temInbound = (block: Block): boolean => (block.$contentActions ?? []).some((c) => c.input);
 
-function fala(id: string, mime: string, conteudo: unknown, tipoDoCartao: string): ItemDeConteudo {
+function fala(id: string, mime: string, conteudo: unknown, cardTipo: string): ItemDeConteudo {
   return {
     action: {
       $id: id,
-      $typeOfContent: tipoDoCartao,
+      $typeOfContent: cardTipo,
       type: 'SendMessage',
       settings: { id, type: mime, content: conteudo },
-      $cardContent: cartao(id, mime, conteudo, 'left'),
+      $cardContent: card(id, mime, conteudo, 'left'),
     },
     $invalid: false,
   };
@@ -147,49 +147,49 @@ export function novoTexto(conteudo = '', id = gerarId()): ItemDeConteudo {
   return fala(id, TIPO_TEXTO, conteudo, 'text');
 }
 
-export function novoMenu(conteudo = '', opcoes: OpcaoDoMenu[] = [], id = gerarId()): ItemDeConteudo {
-  return fala(id, TIPO_SELECT, { text: conteudo, options: opcoes }, 'select');
+export function novoMenu(conteudo = '', options: MenuOption[] = [], id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_SELECT, { text: conteudo, options: options }, 'select');
 }
 
-export function novoQuickReply(conteudo = '', opcoes: OpcaoDoMenu[] = [], id = gerarId()): ItemDeConteudo {
-  return fala(id, TIPO_SELECT, { text: conteudo, scope: 'immediate', options: opcoes }, 'select-immediate');
+export function novoQuickReply(conteudo = '', options: MenuOption[] = [], id = gerarId()): ItemDeConteudo {
+  return fala(id, TIPO_SELECT, { text: conteudo, scope: 'immediate', options: options }, 'select-immediate');
 }
 
-export type ResultadoDeConteudo = { ok: true; bloco: Bloco } | { ok: false; erro: string };
+export type ResultadoDeConteudo = { ok: true; block: Block } | { ok: false; error: string };
 
 /**
  * Um cartão a mais, ANTES da entrada do usuário: a entrada é sempre o último
  * item — o motor manda as falas e só então espera (`converterEstado` põe o
  * `input` fora da lista de ações, mas a ordem dos cartões é o que a pessoa vê).
  */
-export function adicionarConteudo(bloco: Bloco, item: ItemDeConteudo): ResultadoDeConteudo {
-  const atuais = bloco.$contentActions ?? [];
-  if (atuais.length >= LIMITE_DE_CONTEUDOS) return { ok: false, erro: ROTULOS_DO_CONTEUDO.limite };
-  const indiceDaEntrada = atuais.findIndex((c) => c.input);
-  const lista = [...atuais];
+export function adicionarConteudo(block: Block, item: ItemDeConteudo): ResultadoDeConteudo {
+  const current = block.$contentActions ?? [];
+  if (current.length >= LIMITE_DE_CONTEUDOS) return { ok: false, error: ROTULOS_DO_CONTEUDO.limite };
+  const inboundIndice = current.findIndex((c) => c.input);
+  const lista = [...current];
   if (item.input) {
-    if (indiceDaEntrada >= 0) return { ok: true, bloco };
+    if (inboundIndice >= 0) return { ok: true, block };
     lista.push(item);
-  } else if (indiceDaEntrada >= 0) {
-    lista.splice(indiceDaEntrada, 0, item);
+  } else if (inboundIndice >= 0) {
+    lista.splice(inboundIndice, 0, item);
   } else {
     lista.push(item);
   }
-  return { ok: true, bloco: { ...bloco, $contentActions: lista } };
+  return { ok: true, block: { ...block, $contentActions: lista } };
 }
 
-export function removerConteudo(bloco: Bloco, indice: number): Bloco {
-  return { ...bloco, $contentActions: (bloco.$contentActions ?? []).filter((_, i) => i !== indice) };
+export function removerConteudo(block: Block, indice: number): Block {
+  return { ...block, $contentActions: (block.$contentActions ?? []).filter((_, i) => i !== indice) };
 }
 
 /** Sobe ou desce uma fala. A entrada não sai do fim. */
-export function moverConteudo(bloco: Bloco, de: number, para: number): Bloco {
-  const lista = [...(bloco.$contentActions ?? [])];
-  if (de < 0 || de >= lista.length || para < 0 || para >= lista.length || de === para) return bloco;
-  if (lista[de]!.input || lista[para]!.input) return bloco;
+export function moverConteudo(block: Block, de: number, para: number): Block {
+  const lista = [...(block.$contentActions ?? [])];
+  if (de < 0 || de >= lista.length || para < 0 || para >= lista.length || de === para) return block;
+  if (lista[de]!.input || lista[para]!.input) return block;
   const [item] = lista.splice(de, 1);
   lista.splice(para, 0, item!);
-  return { ...bloco, $contentActions: lista };
+  return { ...block, $contentActions: lista };
 }
 
 function comSettings(item: ItemDeConteudo, mudar: (s: Record<string, unknown>) => Record<string, unknown>): ItemDeConteudo {
@@ -209,77 +209,77 @@ function comSettings(item: ItemDeConteudo, mudar: (s: Record<string, unknown>) =
   };
 }
 
-export function definirTexto(bloco: Bloco, indice: number, conteudo: string): Bloco {
-  const lista = (bloco.$contentActions ?? []).map((item, i) =>
+export function definirTexto(block: Block, indice: number, conteudo: string): Block {
+  const lista = (block.$contentActions ?? []).map((item, i) =>
     i === indice ? comSettings(item, (s) => ({ ...s, content: conteudo })) : item,
   );
-  return { ...bloco, $contentActions: lista };
+  return { ...block, $contentActions: lista };
 }
 
 /** O texto e as opções de um menu ou quick reply; o `scope` fica como está. */
-export function definirMenu(bloco: Bloco, indice: number, conteudo: string, opcoes: OpcaoDoMenu[]): Bloco {
-  const lista = (bloco.$contentActions ?? []).map((item, i) => {
+export function definirMenu(block: Block, indice: number, conteudo: string, options: MenuOption[]): Block {
+  const lista = (block.$contentActions ?? []).map((item, i) => {
     if (i !== indice) return item;
     return comSettings(item, (s) => {
       const atual = (s['content'] ?? {}) as Record<string, unknown>;
-      return { ...s, content: { ...atual, text: conteudo, options: opcoes } };
+      return { ...s, content: { ...atual, text: conteudo, options: options } };
     });
   });
-  return { ...bloco, $contentActions: lista };
+  return { ...block, $contentActions: lista };
 }
 
 /** Troca a entrada do bloco (o item `input`). Sem entrada no bloco, nada muda. */
-export function definirEntrada(bloco: Bloco, entrada: EntradaDoEditor): Bloco {
-  const lista = (bloco.$contentActions ?? []).map((item) => (item.input ? { ...item, input: entrada } : item));
-  return { ...bloco, $contentActions: lista };
+export function definirInbound(block: Block, inbound: EditorInbound): Block {
+  const lista = (block.$contentActions ?? []).map((item) => (item.input ? { ...item, input: inbound } : item));
+  return { ...block, $contentActions: lista };
 }
 
 /** "Aguardar resposta" liga a espera; "Não aguardar" é `bypass`. Sem entrada, cria uma. */
-export function definirEspera(bloco: Bloco, aguardar: boolean): Bloco {
-  const entrada = (bloco.$contentActions ?? []).find((c) => c.input)?.input;
-  if (entrada) return definirEntrada(bloco, { ...entrada, bypass: !aguardar });
-  const nova = novaEntrada();
+export function definirEspera(block: Block, aguardar: boolean): Block {
+  const inbound = (block.$contentActions ?? []).find((c) => c.input)?.input;
+  if (inbound) return definirInbound(block, { ...inbound, bypass: !aguardar });
+  const nova = newInbound();
   nova.input!.bypass = !aguardar;
-  const r = adicionarConteudo(bloco, nova);
-  return r.ok ? r.bloco : bloco;
+  const r = adicionarConteudo(block, nova);
+  return r.ok ? r.block : block;
 }
 
 /** A validação com a regra trocada: a instrução vem preenchida como no editor. */
-export function validacaoComRegra(atual: ValidacaoDaEntrada | null | undefined, regra: string): ValidacaoDaEntrada {
+export function validationWithRule(atual: InboundValidation | null | undefined, regra: string): InboundValidation {
   return {
     rule: regra,
-    error: atual?.error?.trim() ? atual.error : INSTRUCAO_PADRAO[regra] ?? '',
+    error: atual?.error?.trim() ? atual.error : INSTRUCTION_DEFAULT[regra] ?? '',
     ...(regra === 'regex' ? { regex: atual?.regex ?? '' } : {}),
     ...(regra === 'type' ? { type: atual?.type ?? '' } : {}),
   };
 }
 
 /** Os erros do conteúdo do bloco, na frase do painel. */
-export function errosDoConteudo(bloco: Bloco): string[] {
-  const erros: string[] = [];
-  for (const c of cartoesDe(bloco)) {
-    if (c.tipo === 'texto' && !c.texto.trim()) erros.push('Texto: campo obrigatório.');
+export function contentErrors(block: Block): string[] {
+  const errors: string[] = [];
+  for (const c of cardsOf(block)) {
+    if (c.tipo === 'texto' && !c.texto.trim()) errors.push('Texto: campo obrigatório.');
     if (c.tipo === 'menu' || c.tipo === 'quickReply') {
       const limite = c.tipo === 'menu' ? LIMITE_DO_MENU : LIMITE_DO_QUICK_REPLY;
-      if (!c.texto.trim()) erros.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: texto obrigatório.`);
-      if (c.opcoes.length === 0) erros.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: informe ao menos uma opção.`);
-      if (c.opcoes.some((o) => !o.text.trim())) erros.push('Opção sem texto.');
-      if (c.opcoes.length > limite.opcoes || c.opcoes.some((o) => o.text.length > limite.caracteres)) {
-        erros.push(c.tipo === 'menu' ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply);
+      if (!c.texto.trim()) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: texto obrigatório.`);
+      if (c.options.length === 0) errors.push(`${c.tipo === 'menu' ? 'Menu' : 'Quick reply'}: informe ao menos uma opção.`);
+      if (c.options.some((o) => !o.text.trim())) errors.push('Opção sem texto.');
+      if (c.options.length > limite.opcoes || c.options.some((o) => o.text.length > limite.caracteres)) {
+        errors.push(c.tipo === 'menu' ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply);
       }
     }
     if (c.tipo === 'entrada') {
-      const e = c.entrada;
+      const e = c.inbound;
       if (e.variable?.trim() && !/^[a-zA-Z0-9.]+$/.test(e.variable)) {
-        erros.push('O nome da variável de entrada só pode ter letras, números e pontos.');
+        errors.push('O nome da variável de entrada só pode ter letras, números e pontos.');
       }
       const v = e.validation;
       if (v) {
-        if (v.rule === 'regex' && !v.regex?.trim()) erros.push('A expressão regular é obrigatória na regra de validação regex.');
-        if (v.rule === 'type' && !v.type?.trim()) erros.push('O tipo de mídia é obrigatório na regra de validação type.');
-        if (!v.error?.trim()) erros.push('A mensagem de erro da validação é obrigatória.');
+        if (v.rule === 'regex' && !v.regex?.trim()) errors.push('A expressão regular é obrigatória na regra de validação regex.');
+        if (v.rule === 'type' && !v.type?.trim()) errors.push('O tipo de mídia é obrigatório na regra de validação type.');
+        if (!v.error?.trim()) errors.push('A mensagem de erro da validação é obrigatória.');
       }
     }
   }
-  return erros;
+  return errors;
 }

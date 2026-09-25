@@ -1,10 +1,10 @@
 import { useState, type FormEvent } from 'react';
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { useLeitura } from '../../../../lib/consulta';
+import { useRead } from '../../../../lib/consulta';
 import { numero } from '../../../../lib/formato';
-import { useContato } from '../../contato';
-import { criarLinkRastreado } from './gravar';
+import { useContact } from '../../contato';
+import { createLinkTracked } from './gravar';
 import type { LinkRastreado, Resultado } from './dados';
 
 /**
@@ -40,9 +40,9 @@ function BotaoCopiarLink({ url, nome }: { url: string; nome: string }) {
   );
 }
 
-function FormularioDeLink({ fluxoId, aoCriar }: { fluxoId: string; aoCriar: () => void }) {
+function FormularioDeLink({ flowId, toCreate }: { flowId: string; toCreate: () => void }) {
   const [nome, setNome] = useState('');
-  const [destino, setDestino] = useState('');
+  const [destination, setDestination] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<Resultado<LinkRastreado> | null>(null);
 
@@ -50,20 +50,20 @@ function FormularioDeLink({ fluxoId, aoCriar }: { fluxoId: string; aoCriar: () =
     evento.preventDefault();
     setEnviando(true);
     setResultado(null);
-    const r = await criarLinkRastreado(fluxoId, { nome: nome.trim(), destino: destino.trim() });
+    const r = await createLinkTracked(flowId, { nome: nome.trim(), destination: destination.trim() });
     setEnviando(false);
     if (r.ok) {
       setNome('');
-      setDestino('');
-      aoCriar();
+      setDestination('');
+      toCreate();
     } else {
       setResultado(r);
     }
   }
 
-  const erroNome = resultado && !resultado.ok && resultado.campo === 'nome' ? resultado.erro : null;
-  const erroDestino = resultado && !resultado.ok && resultado.campo === 'destino' ? resultado.erro : null;
-  const erroGeral = resultado && !resultado.ok && !resultado.campo ? resultado.erro : null;
+  const errorName = resultado && !resultado.ok && resultado.campo === 'nome' ? resultado.error : null;
+  const errorDestination = resultado && !resultado.ok && resultado.campo === 'destino' ? resultado.error : null;
+  const errorGeneral = resultado && !resultado.ok && !resultado.campo ? resultado.error : null;
 
   return (
     <form className="gr-formulario" onSubmit={(e) => void enviar(e)}>
@@ -77,9 +77,9 @@ function FormularioDeLink({ fluxoId, aoCriar }: { fluxoId: string; aoCriar: () =
           disabled={enviando}
         />
       </label>
-      {erroNome ? (
+      {errorName ? (
         <p className="gr-aviso" role="alert">
-          {erroNome}
+          {errorName}
         </p>
       ) : null}
 
@@ -87,22 +87,22 @@ function FormularioDeLink({ fluxoId, aoCriar }: { fluxoId: string; aoCriar: () =
         URL de destino
         <input
           type="url"
-          value={destino}
-          onChange={(e) => setDestino(e.target.value)}
+          value={destination}
+          onChange={(e) => setDestination(e.target.value)}
           placeholder="https://exemplo.com/promo"
           required
           disabled={enviando}
         />
       </label>
-      {erroDestino ? (
+      {errorDestination ? (
         <p className="gr-aviso" role="alert">
-          {erroDestino}
+          {errorDestination}
         </p>
       ) : null}
 
-      {erroGeral ? (
+      {errorGeneral ? (
         <p className="gr-aviso" role="alert">
-          {erroGeral}
+          {errorGeneral}
         </p>
       ) : null}
 
@@ -115,14 +115,14 @@ function FormularioDeLink({ fluxoId, aoCriar }: { fluxoId: string; aoCriar: () =
   );
 }
 
-export default function PaginaLinksRastreados() {
-  const { contato } = useContato();
-  const fluxoId = contato.id;
-  const [criar, setCriar] = useState(false);
-  const leitura = useLeitura<{ data: LinkRastreado[] }>(
-    `/v1/gestao/fluxos/${fluxoId}/links-rastreados`,
+export default function PageTrackedLinks() {
+  const { contact } = useContact();
+  const flowId = contact.id;
+  const [create, setCreate] = useState(false);
+  const read = useRead<{ data: LinkRastreado[] }>(
+    `/v1/gestao/fluxos/${flowId}/links-rastreados`,
   );
-  const links = leitura.data?.data ?? [];
+  const links = read.data?.data ?? [];
 
   return (
     <div className="gr-container">
@@ -135,7 +135,7 @@ export default function PaginaLinksRastreados() {
           <button
             className="gr-botao gr-botao-primario"
             type="button"
-            onClick={() => setCriar(true)}
+            onClick={() => setCreate(true)}
           >
             Criar link
           </button>
@@ -160,7 +160,7 @@ export default function PaginaLinksRastreados() {
                   <tr key={link.id}>
                     <td>{link.nome}</td>
                     <td>{link.urlCurta}</td>
-                    <td>{link.destinoUrl}</td>
+                    <td>{link.destinationUrl}</td>
                     <td className="num">{numero(link.cliques)}</td>
                     <td>
                       <BotaoCopiarLink url={link.urlCurta} nome={link.nome} />
@@ -172,18 +172,18 @@ export default function PaginaLinksRastreados() {
           </div>
         ) : (
           <div className="gr-vazio">
-            <Ilustracao nome="vazio" tamanho={72} />
+            <Illustration nome="vazio" tamanho={72} />
             <h2>Crie o primeiro link rastreado</h2>
             <p>Cadastre um destino e receba um link curto para medir os cliques da campanha.</p>
           </div>
         )}
       </section>
 
-      {criar ? (
+      {create ? (
         <div
           className="gr-sobreposicao"
           role="presentation"
-          onMouseDown={(e) => e.target === e.currentTarget && setCriar(false)}
+          onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
         >
           <section
             className="gr-modal"
@@ -199,12 +199,12 @@ export default function PaginaLinksRastreados() {
                 className="gr-icone-botao"
                 type="button"
                 aria-label="Fechar"
-                onClick={() => setCriar(false)}
+                onClick={() => setCreate(false)}
               >
                 <IconePortal nome="fechar" tamanho={20} />
               </button>
             </header>
-            <FormularioDeLink fluxoId={fluxoId} aoCriar={() => setCriar(false)} />
+            <FormularioDeLink flowId={flowId} toCreate={() => setCreate(false)} />
           </section>
         </div>
       ) : null}

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  ESCALA_POR_TIPO,
+  ESCALA_BY_TIPO,
   classeDaNota,
   disparoValido,
   tipoDePesquisaValido,
@@ -16,11 +16,11 @@ import {
 
 test('a escala sai do tipo, não do formulário', () => {
   assert.deepEqual(
-    { min: ESCALA_POR_TIPO.csat.min, max: ESCALA_POR_TIPO.csat.max },
+    { min: ESCALA_BY_TIPO.csat.min, max: ESCALA_BY_TIPO.csat.max },
     { min: 1, max: 5 },
   );
   assert.deepEqual(
-    { min: ESCALA_POR_TIPO.nps.min, max: ESCALA_POR_TIPO.nps.max },
+    { min: ESCALA_BY_TIPO.nps.min, max: ESCALA_BY_TIPO.nps.max },
     { min: 0, max: 10 },
   );
 });

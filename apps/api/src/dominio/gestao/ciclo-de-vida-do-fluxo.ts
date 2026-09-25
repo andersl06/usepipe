@@ -1,17 +1,17 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { DESCRICAO_FLUXO_MAX, fluxo } from '@pipe/db/schema';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { DESCRIPTION_FLOW_MAX, flow } from '@pipe/db/schema';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
+import { exigirPermissionInFlow } from './equipe-do-fluxo.js';
 import {
-  IMAGEM,
+  IMAGE,
   TAMANHO,
   conferir,
   limparNome,
   nomeCurto,
-  tipoRealDaImagem,
+  typeRealOfImage,
 } from './regras-de-nome.js';
 
 /**
@@ -64,31 +64,31 @@ import {
  * (a unicidade ignora os arquivados). O que muda é que dá para voltar atrás.
  */
 
-export const EDITAR_FLUXO = 'automacao.fluxo.editar';
-export const EXCLUIR_FLUXO = 'automacao.fluxo.excluir';
+export const EDITAR_FLOW = 'automacao.fluxo.editar';
+export const DELETE_FLOW = 'automacao.fluxo.excluir';
 
 /** `ng-minlength="2"` / `ng-maxlength="160"` do `<textarea name="description">`. */
-export const DESCRICAO = { min: 2, max: DESCRICAO_FLUXO_MAX } as const;
+export const DESCRIPTION = { min: 2, max: DESCRIPTION_FLOW_MAX } as const;
 
-export interface PedidoDeCriacao {
+export interface RequestOfCreation {
   nome: string;
   tipo: 'fluxo' | 'roteador';
   /** `data:image/...;base64,...`, ou nada. */
-  imagem?: string | null | undefined;
+  image?: string | null | undefined;
 }
 
 /** Só o que veio muda; `undefined` é "não mexa", `null` é "apague". */
-export interface PedidoDeEdicao {
+export interface RequestOfEdit {
   nome?: string | undefined;
-  descricao?: string | null | undefined;
+  description?: string | null | undefined;
   imagem?: string | null | undefined;
 }
 
-export interface FluxoGravado {
+export interface FlowWritten {
   id: string;
   nome: string;
   descricao: string | null;
-  imagemUrl: string | null;
+  imageUrl: string | null;
   shortName: string | null;
 }
 
@@ -104,13 +104,13 @@ function nomeConferido(bruto: string): string {
   const nome = limparNome(bruto).trim();
   const recusa = conferir(nome, { tamanho: 'tamanho', comecoInvalido: 'comeco' });
   if (recusa?.motivo === 'tamanho') {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'nome_tamanho',
       `O nome do fluxo precisa ter entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
     );
   }
   if (recusa) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'nome_comeco',
       'O nome de seu fluxo não pode começar com números ou caracteres especiais.',
     );
@@ -124,16 +124,16 @@ function nomeConferido(bruto: string): string {
  * (`validateSpecialCharacter(description, 'description')`) NÃO é aplicado:
  * o corpo dele para este campo não foi lido, e copiar o do nome seria supor.
  */
-function descricaoConferida(bruta: string | null): string | null {
-  const descricao = (bruta ?? '').trim();
-  if (descricao.length === 0) return null;
-  if (descricao.length < DESCRICAO.min || descricao.length > DESCRICAO.max) {
-    throw ErroPipe.requisicao(
+function descriptionChecked(bruta: string | null): string | null {
+  const description = (bruta ?? '').trim();
+  if (description.length === 0) return null;
+  if (description.length < DESCRIPTION.min || description.length > DESCRIPTION.max) {
+    throw PipeError.request(
       'descricao_tamanho',
-      `A descrição precisa ter entre ${DESCRICAO.min} e ${DESCRICAO.max} caracteres.`,
+      `A descrição precisa ter entre ${DESCRIPTION.min} e ${DESCRIPTION.max} caracteres.`,
     );
   }
-  return descricao;
+  return description;
 }
 
 /**
@@ -142,67 +142,67 @@ function descricaoConferida(bruta: string | null): string | null {
  * `uploadApplicationImageSafely` deles) ou recusa (edição, onde o
  * `ng-mime-type` deixa o formulário inválido).
  */
-export function imagemDosBytes(dataUrl: string): string | null {
+export function imageOfBytes(dataUrl: string): string | null {
   const m = /^data:[^;]+;base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
   if (!m) return null;
   const bytes = new Uint8Array(Buffer.from(m[1] ?? '', 'base64'));
-  if (bytes.byteLength === 0 || bytes.byteLength > IMAGEM.maxBytes) return null;
-  const mime = tipoRealDaImagem(bytes);
+  if (bytes.byteLength === 0 || bytes.byteLength > IMAGE.maxBytes) return null;
+  const mime = typeRealOfImage(bytes);
   if (!mime) return null;
   return `data:${mime};base64,${Buffer.from(bytes).toString('base64')}`;
 }
 
 /** Outro contato VIVO com este nome? Arquivado não conta: o nome dele ficou livre. */
 async function nomeEmUso(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   nome: string,
   excetoId?: string,
 ): Promise<boolean> {
   const [conflito] = await tx
-    .select({ id: fluxo.id })
-    .from(fluxo)
+    .select({ id: flow.id })
+    .from(flow)
     .where(
       and(
-        eq(fluxo.tenantId, tenantId),
-        eq(fluxo.nome, nome),
-        ne(fluxo.estado, 'arquivado'),
-        excetoId ? ne(fluxo.id, excetoId) : undefined,
+        eq(flow.tenantId, tenantId),
+        eq(flow.nome, nome),
+        ne(flow.estado, 'arquivado'),
+        excetoId ? ne(flow.id, excetoId) : undefined,
       ),
     )
     .limit(1);
   return conflito !== undefined;
 }
 
-function conflitoDeNome(): ErroPipe {
+function conflitoDeNome(): PipeError {
   /* "Experimente usar outro nome" é o `errorMsg.1` da origem, literal. */
-  return ErroPipe.conflito(
+  return PipeError.conflito(
     'nome_em_uso',
     'Já existe um fluxo com este nome. Experimente usar outro nome.',
   );
 }
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (userId: string): Ator => ({ tipo: 'usuario', id: userId });
 
 /* ------------------------------------------------------------- Gestos */
 
 /** `create`: autoriza, valida, grava. A foto inválida é engolida, como lá. */
-export async function criarFluxo(
-  tx: TransacaoPipe,
+export async function createFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
-  pedido: PedidoDeCriacao,
+  pedido: RequestOfCreation,
 ): Promise<{ id: string }> {
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  await exigirPermission(tx, usuarioId, EDITAR_FLOW);
   const nome = nomeConferido(pedido.nome);
   const tipo = pedido.tipo === 'roteador' ? 'roteador' : 'fluxo';
-  const imagemUrl = pedido.imagem ? imagemDosBytes(pedido.imagem) : null;
+  const imageUrl = pedido.image ? imageOfBytes(pedido.image) : null;
 
   if (await nomeEmUso(tx, tenantId, nome)) throw conflitoDeNome();
   const [criado] = await tx
-    .insert(fluxo)
-    .values({ tenantId, nome, tipo, shortName: nomeCurto(nome), imagemUrl })
-    .returning({ id: fluxo.id });
+    .insert(flow)
+    .values({ tenantId, nome, tipo, shortName: nomeCurto(nome), imageUrl })
+    .returning({ id: flow.id });
   if (!criado) throw conflitoDeNome();
 
   await registrarAuditoria(tx, tenantId, {
@@ -216,39 +216,39 @@ export async function criarFluxo(
 }
 
 /** O contato vivo, ou 404 — o `fetch_inbox` deles. Arquivado é "não existe". */
-async function fluxoVivo(tx: TransacaoPipe, tenantId: string, id: string) {
+async function flowVivo(tx: TransactionPipe, tenantId: string, id: string) {
   const [atual] = await tx
     .select({
-      id: fluxo.id,
-      nome: fluxo.nome,
-      tipo: fluxo.tipo,
-      estado: fluxo.estado,
-      canalId: fluxo.canalId,
-      descricao: fluxo.descricao,
-      imagemUrl: fluxo.imagemUrl,
-      shortName: fluxo.shortName,
+      id: flow.id,
+      nome: flow.nome,
+      tipo: flow.tipo,
+      estado: flow.estado,
+      canalId: flow.channelId,
+      descricao: flow.descricao,
+      imagemUrl: flow.imageUrl,
+      shortName: flow.shortName,
     })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, id), ne(fluxo.estado, 'arquivado')))
+    .from(flow)
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, id), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
   return atual;
 }
 
 /** `update`: só o que veio. Nada mudou, nada é gravado — nem no log. */
-export async function editarFluxo(
-  tx: TransacaoPipe,
+export async function editarFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
-  pedido: PedidoDeEdicao,
-): Promise<FluxoGravado> {
-  const atual = await fluxoVivo(tx, tenantId, id);
+  pedido: RequestOfEdit,
+): Promise<FlowWritten> {
+  const atual = await flowVivo(tx, tenantId, id);
   /* "Configurações básicas" é uma linha do `PermissionsList.html`
      (`basicConfigurations`), então editar ESTE contato passa a valer também
      para quem tem a permissão nele — sem tirar de quem já a tinha na conta
      (`exigirPermissaoNoFluxo`, migração 0035). */
-  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
+  await exigirPermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,
@@ -262,16 +262,16 @@ export async function editarFluxo(
     depois.nome = nomeConferido(pedido.nome);
     depois.shortName = nomeCurto(depois.nome);
   }
-  if (pedido.descricao !== undefined) depois.descricao = descricaoConferida(pedido.descricao);
+  if (pedido.description !== undefined) depois.descricao = descriptionChecked(pedido.description);
   if (pedido.imagem !== undefined) {
     if (pedido.imagem === null) {
       depois.imagemUrl = null;
     } else {
-      const lida = imagemDosBytes(pedido.imagem);
+      const lida = imageOfBytes(pedido.imagem);
       if (!lida) {
-        const tipos = IMAGEM.aceitos.join(', ');
-        const teto = Math.round(IMAGEM.maxBytes / 1024);
-        throw ErroPipe.requisicao(
+        const tipos = IMAGE.aceitos.join(', ');
+        const teto = Math.round(IMAGE.maxBytes / 1024);
+        throw PipeError.request(
           'imagem_invalida',
           `A imagem precisa ser ${tipos} e ter até ${teto} KB.`,
         );
@@ -288,17 +288,17 @@ export async function editarFluxo(
   }
 
   const [gravado] = await tx
-    .update(fluxo)
+    .update(flow)
     .set({ ...depois, atualizadoEm: new Date() })
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, atual.id)))
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)))
     .returning({
-      id: fluxo.id,
-      nome: fluxo.nome,
-      descricao: fluxo.descricao,
-      imagemUrl: fluxo.imagemUrl,
-      shortName: fluxo.shortName,
+      id: flow.id,
+      nome: flow.nome,
+      descricao: flow.descricao,
+      imagemUrl: flow.imageUrl,
+      shortName: flow.shortName,
     });
-  if (!gravado) throw ErroPipe.naoEncontrado('fluxo');
+  if (!gravado) throw PipeError.naoEncontrado('fluxo');
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
@@ -312,19 +312,19 @@ export async function editarFluxo(
 }
 
 /** `destroy`: some da lista e do canal — arquivando, pelo motivo do cabeçalho. */
-export async function excluirFluxo(
-  tx: TransacaoPipe,
+export async function deleteFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  const atual = await fluxoVivo(tx, tenantId, id);
-  await exigirPermissao(tx, usuarioId, EXCLUIR_FLUXO);
+  const atual = await flowVivo(tx, tenantId, id);
+  await exigirPermission(tx, usuarioId, DELETE_FLOW);
 
   await tx
-    .update(fluxo)
+    .update(flow)
     .set({ estado: 'arquivado', atualizadoEm: new Date() })
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, atual.id)));
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),

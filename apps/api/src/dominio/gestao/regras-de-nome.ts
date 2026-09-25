@@ -50,7 +50,7 @@ export const TAMANHO = {
  * que a tela desenha com 150px de diâmetro, e pequeno o bastante para a linha
  * continuar uma linha.
  */
-export const IMAGEM = {
+export const IMAGE = {
   /** O `accept` do `<input type="file">`, igual ao deles. */
   aceitos: ['.gif', '.png', '.jpeg', '.jpg'] as const,
   maxBytes: 262_144,
@@ -75,10 +75,10 @@ const ASSINATURAS: readonly (readonly [string, readonly number[]])[] = [
 ] as const;
 
 /** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */
-export function tipoRealDaImagem(dados: Uint8Array): string | null {
+export function typeRealOfImage(data: Uint8Array): string | null {
   for (const [mime, bytes] of ASSINATURAS) {
-    if (dados.length < bytes.length) continue;
-    if (bytes.every((esperado, i) => dados[i] === esperado)) return mime;
+    if (data.length < bytes.length) continue;
+    if (bytes.every((esperado, i) => data[i] === esperado)) return mime;
   }
   return null;
 }

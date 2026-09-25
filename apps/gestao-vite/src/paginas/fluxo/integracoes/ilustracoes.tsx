@@ -120,13 +120,13 @@ const FIGURAS = {
   },
 } as const;
 
-export type NomeDeIlustracao = keyof typeof FIGURAS;
+export type IllustrationName = keyof typeof FIGURAS;
 
-export function IlustracaoIntegracao({
+export function IllustrationIntegration({
   nome,
   altura = 57,
   ...resto
-}: { nome: NomeDeIlustracao; altura?: number } & Omit<SVGProps<SVGSVGElement>, 'name'>) {
+}: { nome: IllustrationName; altura?: number } & Omit<SVGProps<SVGSVGElement>, 'name'>) {
   const figura = FIGURAS[nome];
   return (
     <svg

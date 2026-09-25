@@ -9,12 +9,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * O ciclo de vida do contato (fluxo/roteador): `POST`, `PATCH /:id` e
@@ -33,13 +33,13 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 /** Quem cria e edita, mas não exclui — o `member` deles. */
-let sessaoEditor: string;
+let sessionEditor: string;
 /** Quem também exclui — o `admin` deles. */
-let sessaoAdmin: string;
+let sessionAdmin: string;
 /** Gente do tenant A sem permissão nenhuma sobre fluxo. */
-let sessaoSemPoder: string;
+let sessionWithoutPoder: string;
 /** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */
-let sessaoDoOutroTenant: string;
+let sessionOfOtherTenant: string;
 
 const RECADOS = {
   tamanho: 'recado: tamanho',
@@ -49,17 +49,17 @@ const RECADOS = {
 };
 
 /** Um usuário novo no tenant, com um papel que carrega estas permissões. */
-async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
-  const { rows: usuarios } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Pessoa ${marca}`}, ${`pessoa-${marca}@e2e.pipe.app`})
     returning id
   `);
-  const usuarioId = usuarios[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
+  const userId = users[0]!.id;
+  if (permissions.length === 0) return userId;
 
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
       values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
@@ -69,26 +69,26 @@ async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`papel ${marca}`}, 'atendimento') returning id
   `);
-  const papelId = papeis[0]!.id;
-  for (const codigo of permissoes) {
+  const roleId = papeis[0]!.id;
+  for (const codigo of permissions) {
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, ${codigo})
+      values (${cenario.tenantId}, ${roleId}, ${codigo})
     `);
   }
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papelId})
+    values (${cenario.tenantId}, ${userId}, ${roleId})
   `);
-  return usuarioId;
+  return userId;
 }
 
 /** Grava uma sessão viva para a pessoa e devolve o token do cookie. */
-async function abrirSessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario, userId: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -103,22 +103,22 @@ const PNG = `data:image/png;base64,${Buffer.from([
 ]).toString('base64')}`;
 
 /** Rótulo de PNG, bytes de texto: o tipo mente. */
-const NAO_IMAGEM = `data:image/png;base64,${Buffer.from('isto não é uma imagem').toString(
+const NOT_IMAGE = `data:image/png;base64,${Buffer.from('isto não é uma imagem').toString(
   'base64',
 )}`;
 
-type LinhaDeFluxo = {
+type LineOfFlow = {
   nome: string;
   tipo: string;
-  estado: string;
+  state: string;
   short_name: string | null;
-  descricao: string | null;
-  imagem_url: string | null;
+  description: string | null;
+  imageUrl: string | null;
   tenant_id: string;
 }
 
-async function linhaDoFluxo(id: string): Promise<LinhaDeFluxo | undefined> {
-  const { rows } = await a.dono.execute<LinhaDeFluxo>(sql`
+async function lineOfFlow(id: string): Promise<LineOfFlow | undefined> {
+  const { rows } = await a.dono.execute<LineOfFlow>(sql`
     select nome, tipo, estado, short_name, descricao, imagem_url, tenant_id
       from fluxo where id = ${id}::uuid
   `);
@@ -138,25 +138,25 @@ async function auditoriaDe(id: string) {
   return rows;
 }
 
-type RespostaDeCriacao = { id?: string; erro?: string };
+type ResponseOfCreation = { id?: string; error?: string };
 
-async function criar(
-  sessao: string,
+async function create(
+  session: string,
   corpo: Record<string, unknown>,
-): Promise<{ status: number; corpo: RespostaDeCriacao }> {
+): Promise<{ status: number; corpo: ResponseOfCreation }> {
   const resposta = await fetch(`${api.url}/v1/gestao/fluxos`, {
     method: 'POST',
-    headers: comCookie(sessao),
+    headers: comCookie(session),
     body: JSON.stringify({ recados: RECADOS, tipo: 'fluxo', ...corpo }),
   });
-  return { status: resposta.status, corpo: (await resposta.json()) as RespostaDeCriacao };
+  return { status: resposta.status, corpo: (await resposta.json()) as ResponseOfCreation };
 }
 
 /** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */
 async function criado(nome: string, extra: Record<string, unknown> = {}): Promise<string> {
-  const { status, corpo } = await criar(sessaoEditor, { nome, ...extra });
+  const { status, corpo } = await create(sessionEditor, { nome, ...extra });
   expect(status).toBe(200);
-  expect(corpo.erro).toBeUndefined();
+  expect(corpo.error).toBeUndefined();
   return corpo.id!;
 }
 
@@ -185,11 +185,11 @@ beforeAll(async () => {
   const semPoder = await pessoaCom(a, []);
   const adminDoB = await pessoaCom(b, ['automacao.fluxo.editar', 'automacao.fluxo.excluir']);
 
-  api = await subirApi(0);
-  sessaoEditor = await abrirSessao(a, editor);
-  sessaoAdmin = await abrirSessao(a, admin);
-  sessaoSemPoder = await abrirSessao(a, semPoder);
-  sessaoDoOutroTenant = await abrirSessao(b, adminDoB);
+  api = await upApi(0);
+  sessionEditor = await openSession(a, editor);
+  sessionAdmin = await openSession(a, admin);
+  sessionWithoutPoder = await openSession(a, semPoder);
+  sessionOfOtherTenant = await openSession(b, adminDoB);
 }, 180_000);
 
 afterAll(async () => {
@@ -201,11 +201,11 @@ afterAll(async () => {
 describe('POST /v1/gestao/fluxos', () => {
   it('cria o fluxo em rascunho, com o shortName derivado do nome, e registra no log', async () => {
     const nome = `Atendimento ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await criar(sessaoEditor, { nome });
+    const { status, corpo } = await create(sessionEditor, { nome });
     expect(status).toBe(200);
     expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
 
-    const linha = await linhaDoFluxo(corpo.id!);
+    const linha = await lineOfFlow(corpo.id!);
     expect(linha).toMatchObject({
       nome,
       tipo: 'fluxo',
@@ -223,13 +223,13 @@ describe('POST /v1/gestao/fluxos', () => {
 
   it('roteador é o mesmo contato com outro tipo', async () => {
     const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, { tipo: 'roteador' });
-    expect((await linhaDoFluxo(id))?.tipo).toBe('roteador');
+    expect((await lineOfFlow(id))?.tipo).toBe('roteador');
   });
 
   it('saneia o nome como a origem faz a cada tecla, e o shortName sai do nome limpo', async () => {
     const marca = randomUUID().slice(0, 6);
     const id = await criado(`  Fluxo Padrão #${marca}!  `);
-    const linha = await linhaDoFluxo(id);
+    const linha = await lineOfFlow(id);
     expect(linha?.nome).toBe(`Fluxo Padrão ${marca}`);
     expect(linha?.short_name).toBe(`fluxo-padrão-${marca}`);
   });
@@ -238,17 +238,17 @@ describe('POST /v1/gestao/fluxos', () => {
     const nome = `Repetido ${randomUUID().slice(0, 6)}`;
     await criado(nome);
 
-    const curto = await criar(sessaoEditor, { nome: 'A' });
+    const curto = await create(sessionEditor, { nome: 'A' });
     expect(curto.status).toBe(200);
     expect(curto.corpo).toEqual({ erro: RECADOS.tamanho });
 
-    const longo = await criar(sessaoEditor, { nome: 'A'.repeat(31) });
+    const longo = await create(sessionEditor, { nome: 'A'.repeat(31) });
     expect(longo.corpo).toEqual({ erro: RECADOS.tamanho });
 
-    const numero = await criar(sessaoEditor, { nome: '1 Fluxo' });
+    const numero = await create(sessionEditor, { nome: '1 Fluxo' });
     expect(numero.corpo).toEqual({ erro: RECADOS.comecoInvalido });
 
-    const repetido = await criar(sessaoEditor, { nome });
+    const repetido = await create(sessionEditor, { nome });
     expect(repetido.corpo).toEqual({ erro: RECADOS.nomeEmUso });
 
     const { rows } = await a.dono.execute<{ n: string }>(sql`
@@ -260,7 +260,7 @@ describe('POST /v1/gestao/fluxos', () => {
 
   it('sem automacao.fluxo.editar, a recusa é a frase da tela — e nada é gravado', async () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
-    const { status, corpo } = await criar(sessaoSemPoder, { nome });
+    const { status, corpo } = await create(sessionWithoutPoder, { nome });
     expect(status).toBe(200);
     expect(corpo).toEqual({ erro: RECADOS.semPermissao });
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -270,16 +270,16 @@ describe('POST /v1/gestao/fluxos', () => {
   });
 
   it('sem sessão, 401; sem os recados da tela, 400', async () => {
-    const semSessao = await fetch(`${api.url}/v1/gestao/fluxos`, {
+    const withoutSession = await fetch(`${api.url}/v1/gestao/fluxos`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ nome: 'Qualquer', tipo: 'fluxo', recados: RECADOS }),
     });
-    expect(semSessao.status).toBe(401);
+    expect(withoutSession.status).toBe(401);
 
     const semRecados = await fetch(`${api.url}/v1/gestao/fluxos`, {
       method: 'POST',
-      headers: comCookie(sessaoEditor),
+      headers: comCookie(sessionEditor),
       body: JSON.stringify({ nome: 'Qualquer', tipo: 'fluxo' }),
     });
     expect(semRecados.status).toBe(400);
@@ -289,10 +289,10 @@ describe('POST /v1/gestao/fluxos', () => {
 
   it('a foto é lida pelos bytes: PNG entra, rótulo mentindo é engolido e o fluxo nasce sem foto', async () => {
     const comFoto = await criado(`Com foto ${randomUUID().slice(0, 6)}`, { imagem: PNG });
-    expect((await linhaDoFluxo(comFoto))?.imagem_url).toBe(PNG);
+    expect((await lineOfFlow(comFoto))?.imageUrl).toBe(PNG);
 
-    const semFoto = await criado(`Sem foto ${randomUUID().slice(0, 6)}`, { imagem: NAO_IMAGEM });
-    expect((await linhaDoFluxo(semFoto))?.imagem_url).toBeNull();
+    const semFoto = await criado(`Sem foto ${randomUUID().slice(0, 6)}`, { imagem: NOT_IMAGE });
+    expect((await lineOfFlow(semFoto))?.imageUrl).toBeNull();
   });
 });
 
@@ -301,7 +301,7 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
     const marca = randomUUID().slice(0, 6);
     const id = await criado(`Antes ${marca}`);
 
-    const { status, corpo } = await editar(sessaoEditor, id, {
+    const { status, corpo } = await editar(sessionEditor, id, {
       nome: `Depois ${marca}`,
       descricao: '  Atende o suporte de primeiro nível.  ',
     });
@@ -314,9 +314,9 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
       shortName: `depois-${marca}`,
     });
 
-    const linha = await linhaDoFluxo(id);
+    const linha = await lineOfFlow(id);
     expect(linha?.nome).toBe(`Depois ${marca}`);
-    expect(linha?.descricao).toBe('Atende o suporte de primeiro nível.');
+    expect(linha?.description).toBe('Atende o suporte de primeiro nível.');
     expect(linha?.short_name).toBe(`depois-${marca}`);
 
     const log = await auditoriaDe(id);
@@ -336,33 +336,33 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
 
   it('campo ausente não mexe; nada mudado não grava nem registra', async () => {
     const id = await criado(`Quieto ${randomUUID().slice(0, 6)}`);
-    await editar(sessaoEditor, id, { descricao: 'Uma descrição' });
+    await editar(sessionEditor, id, { descricao: 'Uma descrição' });
 
-    const soNome = await editar(sessaoEditor, id, { nome: (await linhaDoFluxo(id))!.nome });
+    const soNome = await editar(sessionEditor, id, { nome: (await lineOfFlow(id))!.nome });
     expect(soNome.status).toBe(200);
     expect(soNome.corpo['descricao']).toBe('Uma descrição');
 
-    const vazio = await editar(sessaoEditor, id, {});
-    expect(vazio.status).toBe(200);
+    const empty = await editar(sessionEditor, id, {});
+    expect(empty.status).toBe(200);
     // criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.
     expect(await auditoriaDe(id)).toHaveLength(2);
   });
 
   it('descrição: vazia vira nula; 1 caractere ou mais de 160 é 400', async () => {
     const id = await criado(`Descrito ${randomUUID().slice(0, 6)}`);
-    await editar(sessaoEditor, id, { descricao: 'Tem descrição' });
+    await editar(sessionEditor, id, { descricao: 'Tem descrição' });
 
-    const apagada = await editar(sessaoEditor, id, { descricao: '' });
+    const apagada = await editar(sessionEditor, id, { descricao: '' });
     expect(apagada.status).toBe(200);
     expect(apagada.corpo['descricao']).toBeNull();
-    expect((await linhaDoFluxo(id))?.descricao).toBeNull();
+    expect((await lineOfFlow(id))?.description).toBeNull();
 
     for (const invalida of ['x', 'a'.repeat(161)]) {
-      const { status, corpo } = await editar(sessaoEditor, id, { descricao: invalida });
+      const { status, corpo } = await editar(sessionEditor, id, { descricao: invalida });
       expect(status).toBe(400);
       expect((corpo['erro'] as { codigo: string }).codigo).toBe('descricao_tamanho');
     }
-    const noLimite = await editar(sessaoEditor, id, { descricao: 'a'.repeat(160) });
+    const noLimite = await editar(sessionEditor, id, { descricao: 'a'.repeat(160) });
     expect(noLimite.status).toBe(200);
   });
 
@@ -371,59 +371,59 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
     const id = await criado(`Um ${marca}`);
     const outro = await criado(`Dois ${marca}`);
 
-    const curto = await editar(sessaoEditor, id, { nome: 'A' });
+    const curto = await editar(sessionEditor, id, { nome: 'A' });
     expect(curto.status).toBe(400);
     expect((curto.corpo['erro'] as { codigo: string }).codigo).toBe('nome_tamanho');
 
-    const numero = await editar(sessaoEditor, id, { nome: '9 vidas' });
+    const numero = await editar(sessionEditor, id, { nome: '9 vidas' });
     expect(numero.status).toBe(400);
     expect((numero.corpo['erro'] as { codigo: string }).codigo).toBe('nome_comeco');
 
-    const emUso = await editar(sessaoEditor, id, { nome: `Dois ${marca}` });
+    const emUso = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
     expect(emUso.status).toBe(409);
     expect((emUso.corpo['erro'] as { codigo: string }).codigo).toBe('nome_em_uso');
 
     // O próprio nome não é conflito consigo mesmo.
-    const mesmo = await editar(sessaoEditor, id, { nome: `Um ${marca}` });
+    const mesmo = await editar(sessionEditor, id, { nome: `Um ${marca}` });
     expect(mesmo.status).toBe(200);
 
     // Arquivado, o outro libera o nome.
-    expect((await excluir(sessaoAdmin, outro)).status).toBe(204);
-    const liberado = await editar(sessaoEditor, id, { nome: `Dois ${marca}` });
+    expect((await excluir(sessionAdmin, outro)).status).toBe(204);
+    const liberado = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
     expect(liberado.status).toBe(200);
   });
 
   it('imagem: `null` tira, `data:` troca, e o que não é imagem é 400', async () => {
     const id = await criado(`Retrato ${randomUUID().slice(0, 6)}`, { imagem: PNG });
 
-    const tirada = await editar(sessaoEditor, id, { imagem: null });
+    const tirada = await editar(sessionEditor, id, { imagem: null });
     expect(tirada.status).toBe(200);
     expect(tirada.corpo['imagemUrl']).toBeNull();
 
-    const posta = await editar(sessaoEditor, id, { imagem: PNG });
+    const posta = await editar(sessionEditor, id, { imagem: PNG });
     expect(posta.status).toBe(200);
     expect(posta.corpo['imagemUrl']).toBe(PNG);
 
-    const falsa = await editar(sessaoEditor, id, { imagem: NAO_IMAGEM });
+    const falsa = await editar(sessionEditor, id, { imagem: NOT_IMAGE });
     expect(falsa.status).toBe(400);
     expect((falsa.corpo['erro'] as { codigo: string }).codigo).toBe('imagem_invalida');
-    expect((await linhaDoFluxo(id))?.imagem_url).toBe(PNG);
+    expect((await lineOfFlow(id))?.imageUrl).toBe(PNG);
   });
 
   it('sem permissão é 403; de outro tenant é 404; id malformado é 404', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
-    const semPoder = await editar(sessaoSemPoder, id, { nome: 'Invasor' });
+    const semPoder = await editar(sessionWithoutPoder, id, { nome: 'Invasor' });
     expect(semPoder.status).toBe(403);
     expect((semPoder.corpo['erro'] as { codigo: string }).codigo).toBe('sem_permissao');
 
-    const outroTenant = await editar(sessaoDoOutroTenant, id, { nome: 'Vizinho' });
+    const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'Vizinho' });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await editar(sessaoEditor, 'nao-e-uuid', { nome: 'Tanto faz' });
+    const malformado = await editar(sessionEditor, 'nao-e-uuid', { nome: 'Tanto faz' });
     expect(malformado.status).toBe(404);
 
-    expect((await linhaDoFluxo(id))?.nome).toContain('Guardado');
+    expect((await lineOfFlow(id))?.nome).toContain('Guardado');
   });
 });
 
@@ -431,17 +431,17 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
   it('só quem tem automacao.fluxo.excluir exclui — editar não basta', async () => {
     const id = await criado(`Protegido ${randomUUID().slice(0, 6)}`);
 
-    const editor = await excluir(sessaoEditor, id);
+    const editor = await excluir(sessionEditor, id);
     expect(editor.status).toBe(403);
     const corpo = (await editor.json()) as {
-      erro: { codigo: string; detalhe: { permissao: string } };
+      erro: { codigo: string; detalhe: { permission: string } };
     };
     expect(corpo.erro.codigo).toBe('sem_permissao');
-    expect(corpo.erro.detalhe.permissao).toBe('automacao.fluxo.excluir');
-    expect((await linhaDoFluxo(id))?.estado).toBe('rascunho');
+    expect(corpo.erro.detalhe.permission).toBe('automacao.fluxo.excluir');
+    expect((await lineOfFlow(id))?.state).toBe('rascunho');
 
-    expect((await excluir(sessaoDoOutroTenant, id)).status).toBe(404);
-    expect((await linhaDoFluxo(id))?.estado).toBe('rascunho');
+    expect((await excluir(sessionOfOtherTenant, id)).status).toBe(404);
+    expect((await lineOfFlow(id))?.state).toBe('rascunho');
   });
 
   it('arquiva em vez de apagar: some da grade, o nome fica livre, a versão fica para o histórico', async () => {
@@ -452,23 +452,23 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
       values (${a.tenantId}, ${id}::uuid, 1, 'rascunho')
     `);
 
-    const resposta = await excluir(sessaoAdmin, id);
+    const resposta = await excluir(sessionAdmin, id);
     expect(resposta.status).toBe(204);
 
-    const linha = await linhaDoFluxo(id);
-    expect(linha?.estado).toBe('arquivado');
+    const linha = await lineOfFlow(id);
+    expect(linha?.state).toBe('arquivado');
     expect(linha?.nome).toBe(nome);
 
-    const { rows: versoes } = await a.dono.execute<{ n: string }>(
+    const { rows: versions } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from fluxo_versao where fluxo_id = ${id}::uuid`,
     );
-    expect(versoes[0]?.n).toBe('1');
+    expect(versions[0]?.n).toBe('1');
 
     const grade = await fetch(`${api.url}/v1/gestao/fluxos?busca=${encodeURIComponent(nome)}`, {
-      headers: comCookie(sessaoAdmin),
+      headers: comCookie(sessionAdmin),
     });
-    const { fluxos } = (await grade.json()) as { fluxos: { id: string }[] };
-    expect(fluxos.map((f) => f.id)).not.toContain(id);
+    const { flows } = (await grade.json()) as { flows: { id: string }[] };
+    expect(flows.map((f) => f.id)).not.toContain(id);
 
     const log = await auditoriaDe(id);
     expect(log.at(-1)).toMatchObject({
@@ -478,12 +478,12 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
     });
 
     // Excluído é "não existe": excluir de novo e editar dão 404.
-    expect((await excluir(sessaoAdmin, id)).status).toBe(404);
-    expect((await editar(sessaoEditor, id, { nome: 'Ressuscitado' })).status).toBe(404);
+    expect((await excluir(sessionAdmin, id)).status).toBe(404);
+    expect((await editar(sessionEditor, id, { nome: 'Ressuscitado' })).status).toBe(404);
 
     // E o nome voltou a estar livre para um contato novo.
-    const novo = await criar(sessaoEditor, { nome });
-    expect(novo.corpo.erro).toBeUndefined();
+    const novo = await create(sessionEditor, { nome });
+    expect(novo.corpo.error).toBeUndefined();
     expect(novo.corpo.id).not.toBe(id);
   });
 

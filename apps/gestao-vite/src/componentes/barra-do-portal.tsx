@@ -1,5 +1,5 @@
 import { Avatar } from '@pipe/ui';
-import { useSair, useTrocarDeConta, type CascaDoPortal } from '../lib/casca';
+import { useSair, accountUseSwitch, type PortalShell } from '../lib/casca';
 import { Link } from './link';
 import { IconePortal, type NomeDeIconePortal } from './icones-portal';
 
@@ -17,12 +17,12 @@ import { IconePortal, type NomeDeIconePortal } from './icones-portal';
 /** O e-mail do suporte, o único destino de fora que já existe hoje. */
 const EMAIL_SUPORTE = 'suporte@usepipe.ai';
 
-export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
-  const trocarDeConta = useTrocarDeConta();
+export function BarraDoPortal({ data }: { data: PortalShell }) {
+  const accountSwitch = accountUseSwitch();
   const sair = useSair();
   /* A lista do menu traz as OUTRAS contas, não todas: no DOM da origem, quem
      está em `supernova` vê três itens e nenhum deles é `supernova`. */
-  const outras = dados.contas.filter((c) => !c.emVigor);
+  const outras = data.accounts.filter((c) => !c.emVigor);
 
   return (
     <header className="g-barra g-barra-sup pt-barra">
@@ -52,8 +52,8 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
             <IconePortal nome="contrato" tamanho={24} />
           </span>
           <span className="pt-conta-texto">
-            <b>{dados.tenant.nome}</b>
-            <span className="pt-plano">{dados.tenant.plano}</span>
+            <b>{data.tenant.nome}</b>
+            <span className="pt-plano">{data.tenant.plano}</span>
           </span>
           <span className="pt-conta-seta">
             <IconePortal nome="baixo" tamanho={24} />
@@ -71,7 +71,7 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
             <IconePortal nome="painel" tamanho={24} />
             <span>
               Painel do contrato
-              <span className="pt-painel-conta">{dados.tenant.nome}</span>
+              <span className="pt-painel-conta">{data.tenant.nome}</span>
             </span>
           </Link>
 
@@ -81,26 +81,26 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
                   contrato e de BALÃO quando é a conta pessoal, o nome em 16 e,
                   embaixo, em 12, o tipo de conta (contrato) ou o endereço
                   (pessoal — é onde eles põem `beagleaz.blip.ai`). */}
-              {outras.map((conta) => (
+              {outras.map((account) => (
                 <button
-                  key={conta.tenantId}
+                  key={account.tenantId}
                   type="button"
-                  disabled={trocarDeConta.isPending}
-                  onClick={() => trocarDeConta.mutate(conta.tenantId)}
+                  disabled={accountSwitch.isPending}
+                  onClick={() => accountSwitch.mutate(account.tenantId)}
                 >
                   {/* `balao` é o `message-ballon` deles, tal e qual. No lugar
                       do `business` vai o `painel`, que é o que mais lembra uma
                       fachada no nosso jogo de ícones — ícone novo no pacote
                       compartilhado por causa de uma tela não se paga. */}
-                  <IconePortal nome={conta.pessoal ? 'balao' : 'contrato'} tamanho={24} />
+                  <IconePortal nome={account.pessoal ? 'balao' : 'contrato'} tamanho={24} />
                   <span>
-                    {conta.nome}
-                    {conta.pessoal ? (
-                      <span className="pt-conta-tipo">{conta.slug}.usepipe.ai</span>
+                    {account.nome}
+                    {account.pessoal ? (
+                      <span className="pt-conta-tipo">{account.slug}.usepipe.ai</span>
                     ) : (
-                      <span className="pt-conta-tipo">{conta.plano}</span>
+                      <span className="pt-conta-tipo">{account.plano}</span>
                     )}
-                    {conta.onboardingConcluido ? null : <span className="g-tipo">em cadastro</span>}
+                    {account.onboardingConcluido ? null : <span className="g-tipo">em cadastro</span>}
                   </span>
                 </button>
               ))}
@@ -181,17 +181,17 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
               direita (`menu-user`), e é ela que diz que ali abre um menu. */}
           <summary
             className="g-iconbtn g-avatar"
-            title={dados.usuario.nome}
-            aria-label={`Conta de ${dados.usuario.nome}`}
+            title={data.user.nome}
+            aria-label={`Conta de ${data.user.nome}`}
           >
             {/* `<img>` cru e não `next/image`: a foto vem do provedor de
                 identidade (Google, SSO), em domínio que muda por cliente, e
                 cadastrar cada um em `images.remotePatterns` para servir 32px
                 é trabalho que não paga. Mesma escolha da tela de entrada. */}
-            {dados.usuario.avatarUrl ? (
-              <img className="avatar pt-foto" src={dados.usuario.avatarUrl} alt="" />
+            {data.user.avatarUrl ? (
+              <img className="avatar pt-foto" src={data.user.avatarUrl} alt="" />
             ) : (
-              <Avatar nome={dados.usuario.nome} />
+              <Avatar nome={data.user.nome} />
             )}
             <IconePortal nome="baixo" tamanho={24} className="pt-seta" />
           </summary>
@@ -200,14 +200,14 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
                 o e-mail em 10 embaixo. Depois dele vem uma régua, e cada item
                 é separado por outra — o menu deles tem três réguas. */}
             <div className="eu-bloco">
-              {dados.usuario.avatarUrl ? (
-                <img className="avatar" src={dados.usuario.avatarUrl} alt="" />
+              {data.user.avatarUrl ? (
+                <img className="avatar" src={data.user.avatarUrl} alt="" />
               ) : (
-                <Avatar nome={dados.usuario.nome} />
+                <Avatar nome={data.user.nome} />
               )}
               <span className="eu-nomes">
-                <b>{dados.usuario.nome}</b>
-                <span>{dados.usuario.email}</span>
+                <b>{data.user.nome}</b>
+                <span>{data.user.email}</span>
               </span>
             </div>
             {/* Os três itens do menu deles, nesta ordem e cada um com o seu

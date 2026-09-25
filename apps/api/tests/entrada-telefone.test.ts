@@ -8,11 +8,11 @@ process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
-const { subirApi } = await import('../src/servidor.js');
-const { assinar, montarCenario, payloadDeMensagem } = await import('./ajuda.js');
+const { upApi } = await import('../src/servidor.js');
+const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * O nono dígito na entrada. A Meta ainda entrega celular brasileiro antigo sem o 9
@@ -26,7 +26,7 @@ let api: ApiNoAr;
 
 beforeAll(async () => {
   cenario = await montarCenario(`telefone-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
 }, 180_000);
 
 afterAll(async () => {
@@ -35,8 +35,8 @@ afterAll(async () => {
 });
 
 async function falar(de: string, texto: string): Promise<void> {
-  const corpo = JSON.stringify(payloadDeMensagem(de, texto));
-  const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.canalId}`, {
+  const corpo = JSON.stringify(payloadOfMessage(de, texto));
+  const resposta = await fetch(`${api.url}/webhooks/whatsapp/${cenario.channelId}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', 'x-hub-signature-256': assinar(corpo) },
     body: corpo,
@@ -44,7 +44,7 @@ async function falar(de: string, texto: string): Promise<void> {
   expect(resposta.status).toBe(200);
 }
 
-async function contatosComTelefone(...telefones: string[]): Promise<string[]> {
+async function contactsWithPhone(...telefones: string[]): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     select id from contato
      where tenant_id = ${cenario.tenantId}::uuid
@@ -71,24 +71,24 @@ describe('nono dígito na entrada', () => {
 
     await falar('553199998888', 'oi, sou eu');
 
-    expect(await contatosComTelefone('+5531999998888', '+553199998888')).toEqual([importado]);
-    const { rows: conversas } = await cenario.dono.execute<{ n: number }>(sql`
+    expect(await contactsWithPhone('+5531999998888', '+553199998888')).toEqual([importado]);
+    const { rows: conversations } = await cenario.dono.execute<{ n: number }>(sql`
       select count(*)::int as n from conversa where contato_id = ${importado}::uuid
     `);
-    expect(conversas[0]!.n).toBe(1);
+    expect(conversations[0]!.n).toBe(1);
   });
 
   it('contato novo que chega sem o 9 é gravado na forma canônica', async () => {
     await falar('552188887777', 'primeira vez');
 
-    expect(await contatosComTelefone('+552188887777')).toEqual([]);
-    expect(await contatosComTelefone('+5521988887777')).toHaveLength(1);
+    expect(await contactsWithPhone('+552188887777')).toEqual([]);
+    expect(await contactsWithPhone('+5521988887777')).toHaveLength(1);
   });
 
   it('fixo não ganha 9: só a faixa de celular é normalizada', async () => {
     await falar('551133334444', 'do escritório');
 
-    expect(await contatosComTelefone('+551133334444')).toHaveLength(1);
-    expect(await contatosComTelefone('+5511933334444')).toEqual([]);
+    expect(await contactsWithPhone('+551133334444')).toHaveLength(1);
+    expect(await contactsWithPhone('+5511933334444')).toEqual([]);
   });
 });

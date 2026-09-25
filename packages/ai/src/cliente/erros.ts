@@ -5,24 +5,24 @@
  */
 
 /** O modelo respondeu, mas fora do formato combinado. Carrega o bruto para poder gravar. */
-export class ErroFormatoIa extends Error {
+export class FormatIaError extends Error {
   constructor(
-    mensagem: string,
+    message: string,
     /** O que o modelo devolveu, para o chamador gravar mesmo recusando o resultado. */
     readonly bruto: unknown,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroFormatoIa';
   }
 }
 
 /** A chamada não chegou a produzir resposta utilizável (recusa, corte, rede). */
-export class ErroChamadaIa extends Error {
+export class CallIaError extends Error {
   constructor(
-    mensagem: string,
+    message: string,
     readonly causa?: unknown,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroChamadaIa';
   }
 }

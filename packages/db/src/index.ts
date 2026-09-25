@@ -2,15 +2,15 @@ export * as schema from './schema/index.js';
 export * from './cliente.js';
 export * from './tenant.js';
 export * from './particoes.js';
-export { migrar, PASTA_MIGRATIONS } from './migrar.js';
+export { migrate, PASTA_MIGRATIONS } from './migrar.js';
 export * from './segredo.js';
 export * from './auditoria.js';
 export {
-  semear,
-  garantirPapelDeConta,
-  CATALOGO_PERMISSOES,
-  PAPEIS_DA_CONTA,
+  seed,
+  garantirRoleOfAccount,
+  CATALOG_PERMISSIONS,
+  PAPEIS_OF_ACCOUNT,
   PAPEIS_DIA_1,
-  FILAS_EXEMPLO,
+  QUEUES_EXAMPLE,
 } from './semente.js';
-export type { ResultadoSemente } from './semente.js';
+export type { ResultSeed } from './semente.js';

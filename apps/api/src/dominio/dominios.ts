@@ -3,7 +3,7 @@ import { resolveTxt } from 'node:dns/promises';
 import { sql } from 'drizzle-orm';
 import { DOMINIOS_PUBLICOS } from '@pipe/autenticacao';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 
 /**
  * Verificação de domínio: o que transforma "o e-mail dela termina em @acme.com.br"
@@ -20,26 +20,26 @@ import { ErroPipe } from '../erros.js';
  */
 
 /** O nome do registro. Prefixo próprio para não brigar com SPF e afins no apex. */
-export const PREFIXO_TXT = '_pipe-verificacao';
+export const PREFIX_TXT = '_pipe-verificacao';
 
-export interface RegistroDeVerificacao {
+export interface RegistroOfVerification {
   nome: string;
   tipo: 'TXT';
-  valor: string;
+  value: string;
 }
 
-export interface DominioRegistrado {
+export interface DomainRegistered {
   id: string;
   dominio: string;
   verificadoEm: Date | null;
-  registro: RegistroDeVerificacao;
+  registro: RegistroOfVerification;
 }
 
 /** Rótulos de DNS, sem esquema, sem caminho, com pelo menos um ponto. */
-const DOMINIO_ACEITAVEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
+const DOMAIN_ACEITAVEL = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/;
 
-export function normalizarDominio(cru: string | undefined): string {
-  const dominio = (cru ?? '')
+export function normalizeDomain(cru: string | undefined): string {
+  const domain = (cru ?? '')
     .trim()
     .toLowerCase()
     // Cola de quem copia do navegador ou escreve "@acme.com.br".
@@ -49,21 +49,21 @@ export function normalizarDominio(cru: string | undefined): string {
     // Ponto final é FQDN válido no DNS e lixo na comparação com o e-mail.
     .replace(/\.$/, '');
 
-  if (!DOMINIO_ACEITAVEL.test(dominio)) {
-    throw ErroPipe.requisicao('dominio_invalido', `"${cru ?? ''}" não é um domínio.`);
+  if (!DOMAIN_ACEITAVEL.test(domain)) {
+    throw PipeError.request('dominio_invalido', `"${cru ?? ''}" não é um domínio.`);
   }
-  if (DOMINIOS_PUBLICOS.has(dominio)) {
-    throw ErroPipe.requisicao(
+  if (DOMINIOS_PUBLICOS.has(domain)) {
+    throw PipeError.request(
       'dominio_publico',
-      `${dominio} é domínio de e-mail pessoal e nunca identifica uma empresa. Convide por link.`,
-      { dominio },
+      `${domain} é domínio de e-mail pessoal e nunca identifica uma empresa. Convide por link.`,
+      { domain },
     );
   }
-  return dominio;
+  return domain;
 }
 
-export function registroDeVerificacao(dominio: string, token: string): RegistroDeVerificacao {
-  return { nome: `${PREFIXO_TXT}.${dominio}`, tipo: 'TXT', valor: `pipe-verificacao=${token}` };
+export function registroOfVerification(domain: string, token: string): RegistroOfVerification {
+  return { nome: `${PREFIX_TXT}.${domain}`, tipo: 'TXT', value: `pipe-verificacao=${token}` };
 }
 
 /**
@@ -71,11 +71,11 @@ export function registroDeVerificacao(dominio: string, token: string): RegistroD
  * mesmo domínio devolve o mesmo token, senão quem já publicou o registro veria a
  * verificação falhar sem ter mexido em nada.
  */
-export async function registrarDominio(
+export async function logDomain(
   tenantId: string,
-  dominioCru: string | undefined,
-): Promise<DominioRegistrado> {
-  const dominio = normalizarDominio(dominioCru);
+  domainRaw: string | undefined,
+): Promise<DomainRegistered> {
+  const dominio = normalizeDomain(domainRaw);
 
   return noTenant(tenantId, async (tx) => {
     const { rows: existente } = await tx.execute<{
@@ -91,7 +91,7 @@ export async function registrarDominio(
         id: linha.id,
         dominio,
         verificadoEm: linha.verificado_em ? new Date(linha.verificado_em) : null,
-        registro: registroDeVerificacao(dominio, linha.token_verificacao),
+        registro: registroOfVerification(dominio, linha.token_verificacao),
       };
     }
 
@@ -109,20 +109,20 @@ export async function registrarDominio(
         id: rows[0]!.id,
         dominio,
         verificadoEm: null,
-        registro: registroDeVerificacao(dominio, token),
+        registro: registroOfVerification(dominio, token),
       };
-    } catch (erro) {
-      if (codigoDoPostgres(erro) === '23505') {
-        throw ErroPipe.conflito('dominio_em_uso', `${dominio} já pertence a outra conta do Pipe.`);
+    } catch (error) {
+      if (codigoDoPostgres(error) === '23505') {
+        throw PipeError.conflito('dominio_em_uso', `${dominio} já pertence a outra conta do Pipe.`);
       }
-      throw erro;
+      throw error;
     }
   });
 }
 
-export interface ResultadoDaVerificacao {
+export interface ResultOfVerification {
   id: string;
-  dominio: string;
+  domain: string;
   verificadoEm: Date;
 }
 
@@ -138,23 +138,23 @@ export type ResolvedorTxt = (nome: string) => Promise<string[][]>;
  * CONCATENAÇÃO deles; comparar pedaço a pedaço é o erro que faz a verificação
  * falhar só para quem tem token longo.
  */
-export async function verificarDominio(
+export async function checkDomain(
   tenantId: string,
   id: string,
   resolvedor: ResolvedorTxt = resolveTxt,
-): Promise<ResultadoDaVerificacao> {
+): Promise<ResultOfVerification> {
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
       dominio: string;
-      token_verificacao: string | null;
+      tokenVerification: string | null;
     }>(sql`select id, dominio, token_verificacao from dominio_tenant
              where id = ${id}::uuid limit 1`);
     return rows[0] ?? null;
   });
 
-  if (!linha?.token_verificacao) throw ErroPipe.naoEncontrado('Domínio');
-  const esperado = registroDeVerificacao(linha.dominio, linha.token_verificacao);
+  if (!linha?.tokenVerification) throw PipeError.naoEncontrado('Domínio');
+  const esperado = registroOfVerification(linha.dominio, linha.tokenVerification);
 
   let registros: string[][];
   try {
@@ -165,11 +165,11 @@ export async function verificarDominio(
     registros = [];
   }
 
-  const publicado = registros.some((pedacos) => pedacos.join('').trim() === esperado.valor);
+  const publicado = registros.some((pedacos) => pedacos.join('').trim() === esperado.value);
   if (!publicado) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'dominio_nao_verificado',
-      `Não encontrei ${esperado.valor} em ${esperado.nome}. Publique o TXT e tente de novo — a propagação leva alguns minutos.`,
+      `Não encontrei ${esperado.value} em ${esperado.nome}. Publique o TXT e tente de novo — a propagação leva alguns minutos.`,
       { registro: { ...esperado } },
     );
   }

@@ -18,9 +18,9 @@ export const CATEGORIAS_TEMPLATE = ['utilidade', 'marketing', 'autenticacao'] as
 export type CategoriaTemplate = (typeof CATEGORIAS_TEMPLATE)[number];
 
 export const ROTULO_CATEGORIA_TEMPLATE: Record<CategoriaTemplate, string> = {
-  utilidade: 'Utilidade',
+  utility: 'Utilidade',
   marketing: 'Marketing',
-  autenticacao: 'Autenticação',
+  authentication: 'Autenticação',
 };
 
 export const ROTULO_STATUS_META: Record<string, string> = {
@@ -36,9 +36,9 @@ export type CabecalhoTemplate = (typeof CABECALHOS_TEMPLATE)[number];
 export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
   nenhum: 'Sem cabeçalho',
   texto: 'Texto',
-  imagem: 'Imagem',
+  image: 'Imagem',
   video: 'Vídeo',
-  documento: 'Documento',
+  document: 'Documento',
 };
 
 /**
@@ -48,12 +48,12 @@ export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
  * a mesma, e é ela que faz a tela avisar o cadastro antes do disparo errar em
  * produção.
  */
-export function cabecalhoTemMidia(cabecalho: string): boolean {
+export function headerTemMedia(cabecalho: string): boolean {
   return cabecalho === 'imagem' || cabecalho === 'video' || cabecalho === 'documento';
 }
 
-export function deslocamentoDoCabecalho(cabecalho: string): 0 | 1 {
-  return cabecalhoTemMidia(cabecalho) ? 1 : 0;
+export function headerOffset(cabecalho: string): 0 | 1 {
+  return headerTemMedia(cabecalho) ? 1 : 0;
 }
 
 export interface RespostaProntaListada {
@@ -62,23 +62,23 @@ export interface RespostaProntaListada {
   titulo: string;
   corpo: string;
   categoria: string | null;
-  ativa: boolean;
+  active: boolean;
 }
 
-export interface ModeloListado {
+export interface TemplateListed {
   id: string;
-  canalId: string;
+  channelId: string;
   corpo: string;
   nome: string;
   idioma: string;
   categoria: string;
   statusMeta: string;
   cabecalhoTipo: string;
-  variaveis: string[];
-  canalNome: string;
+  variables: string[];
+  channelName: string;
 }
 
-export interface CanalWhatsapp {
+export interface ChannelWhatsapp {
   id: string;
   nome: string;
 }

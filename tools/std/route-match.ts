@@ -483,8 +483,8 @@ function isImportLikeLiteral(node: ts.Node): boolean {
 function regexPath(raw: string): string {
   const body = raw.replace(/^\//, '').replace(/\/[a-z]*$/i, '').replaceAll('\\/', '/');
   const v1 = body.indexOf('/v1/');
-  const fluxo = body.indexOf('/fluxos/');
-  const start = v1 >= 0 ? v1 : fluxo;
+  const flow = body.indexOf('/fluxos/');
+  const start = v1 >= 0 ? v1 : flow;
   if (start < 0) return '';
   return body
     .slice(start)

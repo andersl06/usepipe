@@ -1,27 +1,27 @@
 import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { chaveApi, usuario, webhookSaida } from '@pipe/db/schema';
-import { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { hashDoSegredo } from '../../autenticacao.js';
-import { chaveiro } from '../../banco.js';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { keyApi, user, webhookSaida } from '@pipe/db/schema';
+import { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
+import { hashOfSecret } from '../../autenticacao.js';
+import { keyring } from '../../banco.js';
 import {
   CABECALHOS_RESERVADOS,
   EVENTOS,
-  cabecalhoDeAutorizacao,
+  headerOfAuthorization,
   cabecalhosDeSaida,
-  decifrarSegredoDeWebhook,
+  decryptSecretOfWebhook,
 } from '../../webhooks-saida.js';
 import type {
   CabecalhoCustomizado,
   EventoWebhook,
-  TipoAutenticacaoWebhook,
+  TypeAuthenticationWebhook,
 } from '../../webhooks-saida.js';
 import { chamarComMtls } from '../mtls.js';
-import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
+import { EDITAR_FLOW } from './ciclo-de-vida-do-fluxo.js';
 
 /**
  * As três telas de Integrações do fluxo que só mostravam mock:
@@ -47,18 +47,18 @@ import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
  * do fluxo como as outras.
  */
 
-export const GERENCIAR_CHAVE = 'chave_api.gerenciar';
-export const GERENCIAR_INTEGRACAO = 'automacao.integracao.gerenciar';
+export const MANAGE_KEY = 'chave_api.gerenciar';
+export const MANAGE_INTEGRATION = 'automacao.integracao.gerenciar';
 
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
-async function fluxoExiste(tx: TransacaoPipe, tenantId: string, fluxoId: string): Promise<void> {
+async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<void> {
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from fluxo
      where tenant_id = ${tenantId} and id = ${fluxoId}::uuid and estado <> 'arquivado'
      limit 1
   `);
-  if (!rows[0]) throw ErroPipe.naoEncontrado('fluxo');
+  if (!rows[0]) throw PipeError.naoEncontrado('fluxo');
 }
 
 /* --------------------------------------------------------- Chaves do fluxo */
@@ -77,7 +77,7 @@ export const LIMITE_DE_CHAVES = 3;
  * nas rotas DAQUELE fluxo — em rota que não é por fluxo ela é recusada (403
  * `chave_de_fluxo`), em rota de outro fluxo idem (`chave_de_outro_fluxo`).
  */
-const ESCOPOS_DA_CHAVE_DO_FLUXO = [
+const SCOPES_OF_KEY_OF_FLOW = [
   'conversas:ler',
   'conversas:escrever',
   'mensagens:ler',
@@ -85,7 +85,7 @@ const ESCOPOS_DA_CHAVE_DO_FLUXO = [
   'contatos:ler',
 ] as const;
 
-export interface ChaveDeFluxo {
+export interface KeyOfFlow {
   id: string;
   nome: string;
   prefixo: string;
@@ -96,28 +96,28 @@ export interface ChaveDeFluxo {
   requisitante: string | null;
 }
 
-export interface ChaveDeFluxoCriada extends ChaveDeFluxo {
+export interface KeyOfFlowCreated extends KeyOfFlow {
   /** `pipe_<prefixo>_<segredo>` — aparece só aqui. O banco guarda só o hash. */
   token: string;
 }
 
-type LinhaChave = {
+type LineKey = {
   id: string;
   nome: string;
-  prefixo: string;
-  escopos: string[] | null;
+  prefix: string;
+  scopes: string[] | null;
   criadoEm: Date;
   ultimoUsoEm: Date | null;
   revogadaEm: Date | null;
   requisitante?: string | null;
 };
 
-function comoChave(linha: LinhaChave): ChaveDeFluxo {
+function asKey(linha: LineKey): KeyOfFlow {
   return {
     id: linha.id,
     nome: linha.nome,
-    prefixo: linha.prefixo,
-    escopos: linha.escopos ?? [],
+    prefixo: linha.prefix,
+    escopos: linha.scopes ?? [],
     criadaEm: linha.criadoEm.toISOString(),
     ultimoUsoEm: linha.ultimoUsoEm?.toISOString() ?? null,
     revogadaEm: linha.revogadaEm?.toISOString() ?? null,
@@ -125,85 +125,85 @@ function comoChave(linha: LinhaChave): ChaveDeFluxo {
   };
 }
 
-const COLUNAS_CHAVE = {
-  id: chaveApi.id,
-  nome: chaveApi.nome,
-  prefixo: chaveApi.prefixo,
-  escopos: chaveApi.escopos,
-  criadoEm: chaveApi.criadoEm,
-  ultimoUsoEm: chaveApi.ultimoUsoEm,
-  revogadaEm: chaveApi.revogadaEm,
+const COLUMNS_KEY = {
+  id: keyApi.id,
+  nome: keyApi.nome,
+  prefixo: keyApi.prefix,
+  escopos: keyApi.scopes,
+  criadoEm: keyApi.criadoEm,
+  ultimoUsoEm: keyApi.ultimoUsoEm,
+  revogadaEm: keyApi.revogadaEm,
 };
 
-const COLUNAS_CHAVE_LISTA = { ...COLUNAS_CHAVE, requisitante: usuario.nome };
+const COLUMNS_KEY_LIST = { ...COLUMNS_KEY, requisitante: user.nome };
 
 /** As chaves DESTE fluxo — nunca as de conta (`fluxo_id is null`). */
-export async function listarChavesDoFluxo(
-  tx: TransacaoPipe,
+export async function listKeysOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<ChaveDeFluxo[]> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_CHAVE);
-  await fluxoExiste(tx, tenantId, fluxoId);
+): Promise<KeyOfFlow[]> {
+  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await flowExists(tx, tenantId, fluxoId);
   const linhas = await tx
-    .select(COLUNAS_CHAVE_LISTA)
-    .from(chaveApi)
-    .leftJoin(usuario, eq(chaveApi.criadaPor, usuario.id))
+    .select(COLUMNS_KEY_LIST)
+    .from(keyApi)
+    .leftJoin(user, eq(keyApi.createdBy, user.id))
     .where(
       and(
-        eq(chaveApi.tenantId, tenantId),
-        eq(chaveApi.fluxoId, fluxoId),
-        isNull(chaveApi.revogadaEm),
+        eq(keyApi.tenantId, tenantId),
+        eq(keyApi.flowId, fluxoId),
+        isNull(keyApi.revogadaEm),
       ),
     )
-    .orderBy(desc(chaveApi.criadoEm));
-  return linhas.map(comoChave);
+    .orderBy(desc(keyApi.criadoEm));
+  return linhas.map(asKey);
 }
 
 /** `createKey()`: sem nome é recusa, no limite é recusa, senão gera e grava. */
-export async function criarChaveDoFluxo(
-  tx: TransacaoPipe,
+export async function createKeyOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   nome: string,
-): Promise<ChaveDeFluxoCriada> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_CHAVE);
-  await fluxoExiste(tx, tenantId, fluxoId);
+): Promise<KeyOfFlowCreated> {
+  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await flowExists(tx, tenantId, fluxoId);
 
   const nomeAparado = nome.trim();
   if (!nomeAparado) {
-    throw ErroPipe.requisicao('nome_ausente', 'Adicione um nome para identificar a chave.');
+    throw PipeError.request('nome_ausente', 'Adicione um nome para identificar a chave.');
   }
   if (nomeAparado.length > 100) {
-    throw ErroPipe.requisicao('nome_grande', 'O nome da chave pode ter até 100 caracteres.');
+    throw PipeError.request('nome_grande', 'O nome da chave pode ter até 100 caracteres.');
   }
 
-  const { rows: contagem } = await tx.execute<{ n: string }>(sql`
+  const { rows: count } = await tx.execute<{ n: string }>(sql`
     select count(*)::text as n from chave_api
      where tenant_id = ${tenantId}
        and fluxo_id = ${fluxoId}::uuid
        and revogada_em is null
   `);
-  if (Number(contagem[0]?.n ?? 0) >= LIMITE_DE_CHAVES) {
-    throw ErroPipe.requisicao('limite_de_chaves', `Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
+  if (Number(count[0]?.n ?? 0) >= LIMITE_DE_CHAVES) {
+    throw PipeError.request('limite_de_chaves', `Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
   }
 
-  const prefixo = randomBytes(6).toString('hex');
-  const segredo = randomBytes(24).toString('hex');
+  const prefix = randomBytes(6).toString('hex');
+  const secret = randomBytes(24).toString('hex');
   const [criada] = await tx
-    .insert(chaveApi)
+    .insert(keyApi)
     .values({
       tenantId,
       fluxoId,
       nome: nomeAparado,
-      prefixo,
-      hash: hashDoSegredo(segredo),
-      escopos: [...ESCOPOS_DA_CHAVE_DO_FLUXO],
+      prefix,
+      hash: hashOfSecret(secret),
+      escopos: [...SCOPES_OF_KEY_OF_FLOW],
       criadaPor: usuarioId,
     })
-    .returning(COLUNAS_CHAVE);
+    .returning(COLUMNS_KEY);
   if (!criada) throw new Error('não criou a chave de API');
 
   await registrarAuditoria(tx, tenantId, {
@@ -211,44 +211,44 @@ export async function criarChaveDoFluxo(
     acao: 'criou',
     objetoTipo: 'chave_api',
     objetoId: criada.id,
-    depois: { nome: nomeAparado, fluxoId, prefixo },
+    depois: { nome: nomeAparado, fluxoId, prefix },
   });
 
-  return { ...comoChave(criada), token: `pipe_${prefixo}_${segredo}` };
+  return { ...asKey(criada), token: `pipe_${prefix}_${secret}` };
 }
 
 /** `deleteKey()`: revoga (`revogada_em`), nunca apaga a linha — o mesmo motivo do log de uso. */
-export async function revogarChaveDoFluxo(
-  tx: TransacaoPipe,
+export async function revogarKeyOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-  chaveId: string,
+  keyId: string,
 ): Promise<void> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_CHAVE);
-  await fluxoExiste(tx, tenantId, fluxoId);
+  await exigirPermission(tx, usuarioId, MANAGE_KEY);
+  await flowExists(tx, tenantId, fluxoId);
 
   const [atual] = await tx
-    .select({ id: chaveApi.id, revogadaEm: chaveApi.revogadaEm })
-    .from(chaveApi)
+    .select({ id: keyApi.id, revogadaEm: keyApi.revogadaEm })
+    .from(keyApi)
     .where(
-      and(eq(chaveApi.tenantId, tenantId), eq(chaveApi.fluxoId, fluxoId), eq(chaveApi.id, chaveId)),
+      and(eq(keyApi.tenantId, tenantId), eq(keyApi.flowId, fluxoId), eq(keyApi.id, keyId)),
     )
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('chave de API');
+  if (!atual) throw PipeError.naoEncontrado('chave de API');
   if (atual.revogadaEm) return; // já revogada: idempotente, nada novo para o log.
 
   const agora = new Date();
   await tx
-    .update(chaveApi)
+    .update(keyApi)
     .set({ revogadaEm: agora })
-    .where(and(eq(chaveApi.tenantId, tenantId), eq(chaveApi.id, chaveId)));
+    .where(and(eq(keyApi.tenantId, tenantId), eq(keyApi.id, keyId)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
     acao: 'desativou',
     objetoTipo: 'chave_api',
-    objetoId: chaveId,
+    objetoId: keyId,
     antes: { revogadaEm: null },
     depois: { revogadaEm: agora.toISOString() },
   });
@@ -271,17 +271,17 @@ export function confirmarUrlSegura(url: string): void {
   try {
     analisada = new URL(url);
   } catch {
-    throw ErroPipe.requisicao('url_invalida', 'Informe uma URL válida.');
+    throw PipeError.request('url_invalida', 'Informe uma URL válida.');
   }
   if (analisada.protocol !== 'https:') {
-    throw ErroPipe.requisicao('url_precisa_https', 'A URL precisa usar HTTPS.');
+    throw PipeError.request('url_precisa_https', 'A URL precisa usar HTTPS.');
   }
   const host = analisada.hostname.toLowerCase();
   if (host === 'localhost' || host.endsWith('.localhost') || host === '0.0.0.0') {
-    throw ErroPipe.requisicao('url_proibida', 'A URL não pode apontar para localhost.');
+    throw PipeError.request('url_proibida', 'A URL não pode apontar para localhost.');
   }
   if (ipPrivado(host)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'url_proibida',
       'A URL não pode apontar para um endereço de rede privada.',
     );
@@ -320,10 +320,10 @@ function ipPrivado(host: string): boolean {
  * `senha`/`clientSecret` são cifrados em repouso e NUNCA voltam (nem aqui,
  * nem em auditoria) — só entram na entrega/teste, decifrados na hora.
  */
-export interface AutenticacaoWebhookVisivel {
-  tipo: TipoAutenticacaoWebhook;
-  usuario: string | null;
-  urlAutorizacao: string | null;
+export interface AuthenticationWebhookVisible {
+  tipo: TypeAuthenticationWebhook;
+  user: string | null;
+  urlAuthorization: string | null;
   clientId: string | null;
 }
 
@@ -333,14 +333,14 @@ export interface WebhookDeSaida {
   eventos: string[];
   ativo: boolean;
   criadoEm: string;
-  autenticacao: AutenticacaoWebhookVisivel;
+  authentication: AuthenticationWebhookVisible;
   cabecalhos: CabecalhoCustomizado[];
 }
 
 export interface WebhookDeSaidaCriado extends WebhookDeSaida {
   /** Aparece só na criação — o banco guarda o segredo cifrado^Wem claro para
    *  assinar (`webhook_saida.segredo`), mas a TELA nunca volta a mostrá-lo. */
-  segredo: string;
+  secret: string;
 }
 
 type LinhaWebhook = {
@@ -349,9 +349,9 @@ type LinhaWebhook = {
   eventos: string[] | null;
   ativo: boolean;
   criadoEm: Date;
-  tipoAutenticacao: string;
-  autenticacaoUsuario: string | null;
-  oauth2UrlAutorizacao: string | null;
+  typeAuthentication: string;
+  authenticationUser: string | null;
+  oauth2UrlAuthorization: string | null;
   oauth2ClientId: string | null;
   /** `jsonb`: o driver já devolve parseado, mas o tipo da coluna some no `select`. */
   cabecalhos: unknown;
@@ -364,10 +364,10 @@ function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
     eventos: linha.eventos ?? [],
     ativo: linha.ativo,
     criadoEm: linha.criadoEm.toISOString(),
-    autenticacao: {
-      tipo: linha.tipoAutenticacao as TipoAutenticacaoWebhook,
-      usuario: linha.autenticacaoUsuario,
-      urlAutorizacao: linha.oauth2UrlAutorizacao,
+    authentication: {
+      tipo: linha.typeAuthentication as TypeAuthenticationWebhook,
+      user: linha.authenticationUser,
+      urlAuthorization: linha.oauth2UrlAuthorization,
       clientId: linha.oauth2ClientId,
     },
     cabecalhos: (linha.cabecalhos as CabecalhoCustomizado[] | null) ?? [],
@@ -381,21 +381,21 @@ const COLUNAS_WEBHOOK = {
   eventos: webhookSaida.eventos,
   ativo: webhookSaida.ativo,
   criadoEm: webhookSaida.criadoEm,
-  tipoAutenticacao: webhookSaida.tipoAutenticacao,
-  autenticacaoUsuario: webhookSaida.autenticacaoUsuario,
-  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAutorizacao,
+  tipoAutenticacao: webhookSaida.typeAuthentication,
+  autenticacaoUsuario: webhookSaida.authenticationUser,
+  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAuthorization,
   oauth2ClientId: webhookSaida.oauth2ClientId,
   cabecalhos: webhookSaida.cabecalhos,
 };
 
 function eventosConferidos(eventos: unknown): EventoWebhook[] {
   if (!Array.isArray(eventos) || eventos.length === 0) {
-    throw ErroPipe.requisicao('eventos_ausentes', 'Selecione ao menos um evento.');
+    throw PipeError.request('eventos_ausentes', 'Selecione ao menos um evento.');
   }
   const unicos = [...new Set(eventos)];
   for (const evento of unicos) {
     if (!(EVENTOS as readonly string[]).includes(String(evento))) {
-      throw ErroPipe.requisicao('evento_invalido', `Evento desconhecido: "${String(evento)}".`);
+      throw PipeError.request('evento_invalido', `Evento desconhecido: "${String(evento)}".`);
     }
   }
   return unicos as EventoWebhook[];
@@ -404,44 +404,44 @@ function eventosConferidos(eventos: unknown): EventoWebhook[] {
 /** `+ Adicionar cabeçalho` da origem: Chave/Valor, sem repetir e sem os reservados da assinatura. */
 const LIMITE_CABECALHOS = 20;
 
-function cabecalhosConferidos(valor: unknown): CabecalhoCustomizado[] {
-  if (valor === undefined) return [];
-  if (!Array.isArray(valor)) {
-    throw ErroPipe.requisicao('cabecalhos_invalidos', 'Cabeçalhos customizados inválidos.');
+function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
+  if (value === undefined) return [];
+  if (!Array.isArray(value)) {
+    throw PipeError.request('cabecalhos_invalidos', 'Cabeçalhos customizados inválidos.');
   }
-  if (valor.length > LIMITE_CABECALHOS) {
-    throw ErroPipe.requisicao(
+  if (value.length > LIMITE_CABECALHOS) {
+    throw PipeError.request(
       'cabecalhos_no_limite',
       `Limite de ${LIMITE_CABECALHOS} cabeçalhos customizados.`,
     );
   }
   const vistos = new Set<string>();
   const conferidos: CabecalhoCustomizado[] = [];
-  for (const item of valor) {
+  for (const item of value) {
     const bruto = item as Record<string, unknown>;
-    const chave = typeof bruto?.['chave'] === 'string' ? bruto['chave'].trim() : '';
-    const valorDoCabecalho = typeof bruto?.['valor'] === 'string' ? bruto['valor'] : '';
-    if (!chave || chave.length > 200 || valorDoCabecalho.length > 2000) {
-      throw ErroPipe.requisicao(
+    const key = typeof bruto?.['chave'] === 'string' ? bruto['chave'].trim() : '';
+    const valueOfHeader = typeof bruto?.['valor'] === 'string' ? bruto['valor'] : '';
+    if (!key || key.length > 200 || valueOfHeader.length > 2000) {
+      throw PipeError.request(
         'cabecalho_invalido',
         'Cada cabeçalho precisa de uma chave (até 200 caracteres) e um valor (até 2000).',
       );
     }
-    const chaveNormal = chave.toLowerCase();
-    if ((CABECALHOS_RESERVADOS as readonly string[]).includes(chaveNormal)) {
-      throw ErroPipe.requisicao(
+    const keyNormal = key.toLowerCase();
+    if ((CABECALHOS_RESERVADOS as readonly string[]).includes(keyNormal)) {
+      throw PipeError.request(
         'cabecalho_reservado',
-        `O cabeçalho "${chave}" é reservado pela assinatura do webhook.`,
+        `O cabeçalho "${key}" é reservado pela assinatura do webhook.`,
       );
     }
-    if (vistos.has(chaveNormal)) {
-      throw ErroPipe.requisicao(
+    if (vistos.has(keyNormal)) {
+      throw PipeError.request(
         'cabecalho_repetido',
-        `O cabeçalho "${chave}" foi informado mais de uma vez.`,
+        `O cabeçalho "${key}" foi informado mais de uma vez.`,
       );
     }
-    vistos.add(chaveNormal);
-    conferidos.push({ chave, valor: valorDoCabecalho });
+    vistos.add(keyNormal);
+    conferidos.push({ key, value: valueOfHeader });
   }
   return conferidos;
 }
@@ -453,8 +453,8 @@ function cabecalhosConferidos(valor: unknown): CabecalhoCustomizado[] {
  * credenciais de novo; não dá para só trocar o tipo e manter a senha antiga
  * cifrada de um jeito que o formulário nunca viu em claro.
  */
-export interface AutenticacaoWebhookEntrada {
-  tipo: TipoAutenticacaoWebhook;
+export interface AuthenticationWebhookInbound {
+  tipo: TypeAuthenticationWebhook;
   usuario?: string;
   senha?: string;
   urlAutorizacao?: string;
@@ -462,69 +462,69 @@ export interface AutenticacaoWebhookEntrada {
   clientSecret?: string;
 }
 
-function autenticacaoConferida(valor: unknown): AutenticacaoWebhookEntrada {
+function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
   const bruto = (valor ?? { tipo: 'nenhuma' }) as Record<string, unknown>;
   const tipo = String(bruto['tipo'] ?? '');
-  if (!(TIPOS_AUTENTICACAO_WEBHOOK as readonly string[]).includes(tipo)) {
-    throw ErroPipe.requisicao('autenticacao_invalida', 'Tipo de autenticação desconhecido.');
+  if (!(TYPES_AUTHENTICATION_WEBHOOK as readonly string[]).includes(tipo)) {
+    throw PipeError.request('autenticacao_invalida', 'Tipo de autenticação desconhecido.');
   }
 
   if (tipo === 'basica') {
-    const usuario = typeof bruto['usuario'] === 'string' ? bruto['usuario'].trim() : '';
+    const user = typeof bruto['usuario'] === 'string' ? bruto['usuario'].trim() : '';
     const senha = typeof bruto['senha'] === 'string' ? bruto['senha'] : '';
-    if (!usuario || !senha) {
-      throw ErroPipe.requisicao(
+    if (!user || !senha) {
+      throw PipeError.request(
         'autenticacao_incompleta',
         'Informe usuário e senha da autenticação básica.',
       );
     }
-    return { tipo: 'basica', usuario, senha };
+    return { tipo: 'basica', user, senha };
   }
 
   if (tipo === 'oauth2_client_credentials') {
-    const urlAutorizacao =
+    const urlAuthorization =
       typeof bruto['urlAutorizacao'] === 'string' ? bruto['urlAutorizacao'] : '';
     const clientId = typeof bruto['clientId'] === 'string' ? bruto['clientId'].trim() : '';
     const clientSecret = typeof bruto['clientSecret'] === 'string' ? bruto['clientSecret'] : '';
-    if (!urlAutorizacao || !clientId || !clientSecret) {
-      throw ErroPipe.requisicao(
+    if (!urlAuthorization || !clientId || !clientSecret) {
+      throw PipeError.request(
         'autenticacao_incompleta',
         'Informe URL de autorização, Client ID e Client Secret do OAuth 2.0.',
       );
     }
-    confirmarUrlSegura(urlAutorizacao);
-    return { tipo: 'oauth2_client_credentials', urlAutorizacao, clientId, clientSecret };
+    confirmarUrlSegura(urlAuthorization);
+    return { tipo: 'oauth2_client_credentials', urlAuthorization, clientId, clientSecret };
   }
 
   return { tipo: 'nenhuma' };
 }
 
 /** As colunas que a gravação seta — os dois segredos saem cifrados daqui. */
-function colunasDeAutenticacao(autenticacao: AutenticacaoWebhookEntrada) {
+function columnsOfAuthentication(authentication: AuthenticationWebhookInbound) {
   return {
-    tipoAutenticacao: autenticacao.tipo,
-    autenticacaoUsuario: autenticacao.tipo === 'basica' ? autenticacao.usuario! : null,
+    tipoAutenticacao: authentication.tipo,
+    autenticacaoUsuario: authentication.tipo === 'basica' ? authentication.usuario! : null,
     autenticacaoSenha:
-      autenticacao.tipo === 'basica' ? cifrar(autenticacao.senha!, chaveiro()) : null,
+      authentication.tipo === 'basica' ? cifrar(authentication.senha!, keyring()) : null,
     oauth2UrlAutorizacao:
-      autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.urlAutorizacao! : null,
+      authentication.tipo === 'oauth2_client_credentials' ? authentication.urlAutorizacao! : null,
     oauth2ClientId:
-      autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.clientId! : null,
+      authentication.tipo === 'oauth2_client_credentials' ? authentication.clientId! : null,
     oauth2ClientSecret:
-      autenticacao.tipo === 'oauth2_client_credentials'
-        ? cifrar(autenticacao.clientSecret!, chaveiro())
+      authentication.tipo === 'oauth2_client_credentials'
+        ? cifrar(authentication.clientSecret!, keyring())
         : null,
   };
 }
 
 /** O que entra no log de auditoria — nunca `senha`/`clientSecret`, nem cifrados. */
-function autenticacaoParaAuditoria(
-  autenticacao: AutenticacaoWebhookEntrada,
-): AutenticacaoWebhookVisivel {
+function authenticationForAuditoria(
+  autenticacao: AuthenticationWebhookInbound,
+): AuthenticationWebhookVisible {
   return {
     tipo: autenticacao.tipo,
-    usuario: autenticacao.tipo === 'basica' ? (autenticacao.usuario ?? null) : null,
-    urlAutorizacao:
+    user: autenticacao.tipo === 'basica' ? (autenticacao.usuario ?? null) : null,
+    urlAuthorization:
       autenticacao.tipo === 'oauth2_client_credentials'
         ? (autenticacao.urlAutorizacao ?? null)
         : null,
@@ -534,11 +534,11 @@ function autenticacaoParaAuditoria(
 }
 
 export async function listarWebhooks(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
 ): Promise<WebhookDeSaida[]> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
+  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
   const linhas = await tx
     .select(COLUNAS_WEBHOOK)
     .from(webhookSaida)
@@ -556,16 +556,16 @@ export interface PedidoDeWebhook {
   cabecalhos?: unknown;
 }
 
-export async function criarWebhook(
-  tx: TransacaoPipe,
+export async function createWebhook(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   pedido: PedidoDeWebhook,
 ): Promise<WebhookDeSaidaCriado> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
+  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
   confirmarUrlSegura(pedido.url);
   const eventos = eventosConferidos(pedido.eventos);
-  const autenticacao = autenticacaoConferida(pedido.autenticacao);
+  const authentication = authenticationChecked(pedido.autenticacao);
   const cabecalhos = cabecalhosConferidos(pedido.cabecalhos);
   const segredo = randomBytes(32).toString('hex');
 
@@ -578,7 +578,7 @@ export async function criarWebhook(
       segredo,
       ativo: true,
       cabecalhos,
-      ...colunasDeAutenticacao(autenticacao),
+      ...columnsOfAuthentication(authentication),
     })
     .returning(COLUNAS_WEBHOOK);
   if (!criado) throw new Error('não criou o webhook');
@@ -592,46 +592,46 @@ export async function criarWebhook(
       url: pedido.url,
       eventos,
       ativo: true,
-      autenticacao: autenticacaoParaAuditoria(autenticacao),
+      autenticacao: authenticationForAuditoria(authentication),
       cabecalhos,
     },
   });
 
-  return { ...comoWebhook(criado), segredo };
+  return { ...comoWebhook(criado), secret };
 }
 
 /** Linha completa, com os segredos — só para entrega/teste (`testarWebhook`) e edição/exclusão. */
 async function webhookVivo(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   id: string,
 ): Promise<
   WebhookDeSaida & {
     segredo: string;
-    autenticacaoSenha: string | null;
+    authenticationPassword: string | null;
     oauth2ClientSecret: string | null;
   }
 > {
   const [atual] = await tx
     .select({
       ...COLUNAS_WEBHOOK,
-      segredo: webhookSaida.segredo,
-      autenticacaoSenha: webhookSaida.autenticacaoSenha,
+      segredo: webhookSaida.secret,
+      autenticacaoSenha: webhookSaida.authenticationPassword,
       oauth2ClientSecret: webhookSaida.oauth2ClientSecret,
     })
     .from(webhookSaida)
     .where(and(eq(webhookSaida.tenantId, tenantId), eq(webhookSaida.id, id)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('webhook');
+  if (!atual) throw PipeError.naoEncontrado('webhook');
   return {
     ...comoWebhook(atual),
     segredo: atual.segredo,
-    autenticacaoSenha: atual.autenticacaoSenha,
+    authenticationPassword: atual.autenticacaoSenha,
     oauth2ClientSecret: atual.oauth2ClientSecret,
   };
 }
 
-export interface PedidoDeEdicaoDeWebhook {
+export interface RequestOfEditOfWebhook {
   url?: string;
   eventos?: string[];
   ativo?: boolean;
@@ -642,20 +642,20 @@ export interface PedidoDeEdicaoDeWebhook {
 
 /** `PATCH`: url/eventos/ativo/autenticacao/cabecalhos — só o que veio. Ativar/desativar vira `Acao` própria. */
 export async function editarWebhook(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
-  pedido: PedidoDeEdicaoDeWebhook,
+  pedido: RequestOfEditOfWebhook,
 ): Promise<WebhookDeSaida> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
+  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
   const atual = await webhookVivo(tx, tenantId, id);
 
   const antes = {
     url: atual.url,
     eventos: atual.eventos,
     ativo: atual.ativo,
-    autenticacao: atual.autenticacao,
+    autenticacao: atual.authentication,
     cabecalhos: atual.cabecalhos,
   };
   const depois = { ...antes };
@@ -666,10 +666,10 @@ export async function editarWebhook(
   if (pedido.eventos !== undefined) depois.eventos = eventosConferidos(pedido.eventos);
   if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
 
-  let autenticacaoEntrada: AutenticacaoWebhookEntrada | undefined;
+  let authenticationInbound: AuthenticationWebhookInbound | undefined;
   if (pedido.autenticacao !== undefined) {
-    autenticacaoEntrada = autenticacaoConferida(pedido.autenticacao);
-    depois.autenticacao = autenticacaoParaAuditoria(autenticacaoEntrada);
+    authenticationInbound = authenticationChecked(pedido.autenticacao);
+    depois.autenticacao = authenticationForAuditoria(authenticationInbound);
   }
   if (pedido.cabecalhos !== undefined) depois.cabecalhos = cabecalhosConferidos(pedido.cabecalhos);
 
@@ -681,7 +681,7 @@ export async function editarWebhook(
     eventos: depois.eventos,
     ativo: depois.ativo,
     cabecalhos: depois.cabecalhos,
-    ...(autenticacaoEntrada ? colunasDeAutenticacao(autenticacaoEntrada) : {}),
+    ...(authenticationInbound ? columnsOfAuthentication(authenticationInbound) : {}),
   };
 
   const [gravado] = await tx
@@ -689,7 +689,7 @@ export async function editarWebhook(
     .set(colunasParaGravar)
     .where(and(eq(webhookSaida.tenantId, tenantId), eq(webhookSaida.id, id)))
     .returning(COLUNAS_WEBHOOK);
-  if (!gravado) throw ErroPipe.naoEncontrado('webhook');
+  if (!gravado) throw PipeError.naoEncontrado('webhook');
 
   const soAtivo = Object.keys(mudanca.depois).length === 1 && 'ativo' in mudanca.depois;
   await registrarAuditoria(tx, tenantId, {
@@ -705,12 +705,12 @@ export async function editarWebhook(
 
 /** `DELETE` de verdade: `entrega_webhook.webhook_id` é `ON DELETE CASCADE`, sem histórico a proteger. */
 export async function excluirWebhook(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
 ): Promise<void> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
+  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
   const atual = await webhookVivo(tx, tenantId, id);
 
   await tx
@@ -726,22 +726,22 @@ export async function excluirWebhook(
       url: atual.url,
       eventos: atual.eventos,
       ativo: atual.ativo,
-      autenticacao: atual.autenticacao,
+      autenticacao: atual.authentication,
       cabecalhos: atual.cabecalhos,
     },
   });
 }
 
-export interface ResultadoDoTeste {
+export interface ResultOfTest {
   ok: boolean;
   status?: number;
-  erro?: string;
+  error?: string;
   /** Os primeiros caracteres da resposta — "mostra a resposta (status e corpo curto)". */
   corpo?: string;
 }
 
 /** Corta a prévia do corpo da resposta do teste — nunca a resposta inteira no log/tela. */
-const LIMITE_CORPO_DO_TESTE = 300;
+const LIMIT_BODY_OF_TEST = 300;
 
 /**
  * O botão "Testar": um POST imediato, fora da fila de `webhooks-saida.ts` —
@@ -752,12 +752,12 @@ const LIMITE_CORPO_DO_TESTE = 300;
  * — e o MESMO certificado mTLS, se o host tiver um (`chamarComMtls`).
  */
 export async function testarWebhook(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
-): Promise<ResultadoDoTeste> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
+): Promise<ResultOfTest> {
+  await exigirPermission(tx, usuarioId, MANAGE_INTEGRATION);
   const webhook = await webhookVivo(tx, tenantId, id);
 
   const corpo = JSON.stringify({
@@ -771,21 +771,21 @@ export async function testarWebhook(
 
   try {
     const cabecalhos = cabecalhosDeSaida({
-      segredo: webhook.segredo,
+      secret: webhook.segredo,
       timestamp,
       corpo,
       deliveryId: randomBytes(16).toString('hex'),
       customizados: webhook.cabecalhos,
     });
-    const autorizacao = await cabecalhoDeAutorizacao({
-      tipo: webhook.autenticacao.tipo,
-      usuario: webhook.autenticacao.usuario,
-      senha: decifrarSegredoDeWebhook(webhook.autenticacaoSenha),
-      oauth2UrlAutorizacao: webhook.autenticacao.urlAutorizacao,
-      oauth2ClientId: webhook.autenticacao.clientId,
-      oauth2ClientSecret: decifrarSegredoDeWebhook(webhook.oauth2ClientSecret),
+    const authorization = await headerOfAuthorization({
+      tipo: webhook.authentication.tipo,
+      user: webhook.authentication.user,
+      senha: decryptSecretOfWebhook(webhook.authenticationPassword),
+      oauth2UrlAuthorization: webhook.authentication.urlAuthorization,
+      oauth2ClientId: webhook.authentication.clientId,
+      oauth2ClientSecret: decryptSecretOfWebhook(webhook.oauth2ClientSecret),
     });
-    if (autorizacao) cabecalhos['authorization'] = autorizacao;
+    if (authorization) cabecalhos['authorization'] = authorization;
 
     const resposta = await chamarComMtls(tenantId, webhook.url, {
       metodo: 'POST',
@@ -796,17 +796,17 @@ export async function testarWebhook(
     const corpoDaResposta = await resposta
       .texto()
       .catch(() => '')
-      .then((texto) => texto.slice(0, LIMITE_CORPO_DO_TESTE));
+      .then((texto) => texto.slice(0, LIMIT_BODY_OF_TEST));
     return resposta.ok
       ? { ok: true, status: resposta.status, corpo: corpoDaResposta }
       : {
           ok: false,
           status: resposta.status,
-          erro: `HTTP ${resposta.status}`,
+          error: `HTTP ${resposta.status}`,
           corpo: corpoDaResposta,
         };
   } catch (falha) {
-    return { ok: false, erro: (falha as Error).message };
+    return { ok: false, error: (falha as Error).message };
   }
 }
 
@@ -817,21 +817,21 @@ export async function testarWebhook(
  * próprio `webhook_saida` — o mesmo recurso do item de Integrações, só que
  * criado/lido pelo conjunto de eventos em vez do id.
  */
-const EVENTOS_MENSAGENS: readonly EventoWebhook[] = ['mensagem.criada'];
-const EVENTOS_NOTIFICACOES: readonly EventoWebhook[] = [
+const EVENTS_MESSAGES: readonly EventoWebhook[] = ['mensagem.criada'];
+const EVENTS_NOTIFICATIONS: readonly EventoWebhook[] = [
   'conversa.criada',
   'conversa.estado_alterado',
   'conversa.atribuida',
   'conversa.encerrada',
 ];
 
-export interface ConexaoDoFluxo {
-  fluxoId: string;
+export interface ConnectionOfFlow {
+  flowId: string;
   endpoint: string;
   /** O prefixo da chave ativa mais recente do fluxo — nunca o segredo. */
-  chavePrefixo: string | null;
-  urlMensagens: string | null;
-  urlNotificacoes: string | null;
+  keyPrefix: string | null;
+  urlMessages: string | null;
+  urlNotifications: string | null;
 }
 
 /**
@@ -842,12 +842,12 @@ export interface ConexaoDoFluxo {
  * os nossos próprios (`EVENTOS_MENSAGENS`/`EVENTOS_NOTIFICACOES`, catálogo
  * fechado), então não há entrada de cliente para escapar.
  */
-function literalDeArray(valores: readonly string[]): string {
-  return `{${valores.join(',')}}`;
+function literalDeArray(values: readonly string[]): string {
+  return `{${values.join(',')}}`;
 }
 
 async function urlDoWebhookPara(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   eventos: readonly string[],
 ): Promise<string | null> {
@@ -861,41 +861,41 @@ async function urlDoWebhookPara(
 }
 
 async function montarConexao(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   fluxoId: string,
-): Promise<ConexaoDoFluxo> {
-  const [chave] = await tx
-    .select({ prefixo: chaveApi.prefixo })
-    .from(chaveApi)
+): Promise<ConnectionOfFlow> {
+  const [key] = await tx
+    .select({ prefixo: keyApi.prefix })
+    .from(keyApi)
     .where(
       and(
-        eq(chaveApi.tenantId, tenantId),
-        eq(chaveApi.fluxoId, fluxoId),
-        isNull(chaveApi.revogadaEm),
+        eq(keyApi.tenantId, tenantId),
+        eq(keyApi.flowId, fluxoId),
+        isNull(keyApi.revogadaEm),
       ),
     )
-    .orderBy(desc(chaveApi.criadoEm))
+    .orderBy(desc(keyApi.criadoEm))
     .limit(1);
 
   return {
-    fluxoId,
+    flowId,
     endpoint: `${(process.env['PIPE_API_URL_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '')}/v1`,
-    chavePrefixo: chave?.prefixo ?? null,
-    urlMensagens: await urlDoWebhookPara(tx, tenantId, EVENTOS_MENSAGENS),
-    urlNotificacoes: await urlDoWebhookPara(tx, tenantId, EVENTOS_NOTIFICACOES),
+    keyPrefix: key?.prefixo ?? null,
+    urlMessages: await urlDoWebhookPara(tx, tenantId, EVENTS_MESSAGES),
+    urlNotifications: await urlDoWebhookPara(tx, tenantId, EVENTS_NOTIFICATIONS),
   };
 }
 
 /** Leitura de "Informações de conexão" — mesma permissão de editar o fluxo. */
-export async function carregarConexaoDoFluxo(
-  tx: TransacaoPipe,
+export async function loadConnectionOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<ConexaoDoFluxo> {
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
-  await fluxoExiste(tx, tenantId, fluxoId);
+): Promise<ConnectionOfFlow> {
+  await exigirPermission(tx, usuarioId, EDITAR_FLOW);
+  await flowExists(tx, tenantId, fluxoId);
   return montarConexao(tx, tenantId, fluxoId);
 }
 
@@ -906,7 +906,7 @@ export interface PedidoDeConexao {
 }
 
 async function upsertWebhookDeConexao(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   eventos: readonly EventoWebhook[],
@@ -922,17 +922,17 @@ async function upsertWebhookDeConexao(
   const existente = rows[0];
 
   if (!url) {
-    if (existente) await excluirWebhookSemPermissao(tx, tenantId, usuarioId, existente.id);
+    if (existente) await deleteWebhookWithoutPermission(tx, tenantId, usuarioId, existente.id);
     return;
   }
   confirmarUrlSegura(url);
 
   if (!existente) {
-    await criarWebhookSemPermissao(tx, tenantId, usuarioId, { url, eventos: [...eventos] });
+    await createWebhookWithoutPermission(tx, tenantId, usuarioId, { url, eventos: [...eventos] });
     return;
   }
   if (existente.url === url) return;
-  await editarWebhookSemPermissao(tx, tenantId, usuarioId, existente.id, { url });
+  await editarWebhookWithoutPermission(tx, tenantId, usuarioId, existente.id, { url });
 }
 
 /**
@@ -941,8 +941,8 @@ async function upsertWebhookDeConexao(
  * (`GERENCIAR_INTEGRACAO`), e checar duas vezes na mesma transação não muda
  * o resultado, só o número de consultas.
  */
-async function criarWebhookSemPermissao(
-  tx: TransacaoPipe,
+async function createWebhookWithoutPermission(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   pedido: PedidoDeWebhook,
@@ -962,8 +962,8 @@ async function criarWebhookSemPermissao(
   });
 }
 
-async function editarWebhookSemPermissao(
-  tx: TransacaoPipe,
+async function editarWebhookWithoutPermission(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
@@ -987,8 +987,8 @@ async function editarWebhookSemPermissao(
   });
 }
 
-async function excluirWebhookSemPermissao(
-  tx: TransacaoPipe,
+async function deleteWebhookWithoutPermission(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   id: string,
@@ -1011,24 +1011,24 @@ async function excluirWebhookSemPermissao(
 }
 
 /** Escrita de "Informações de conexão" — permissão própria de integração. */
-export async function salvarConexaoDoFluxo(
-  tx: TransacaoPipe,
+export async function saveConnectionOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
-  usuarioId: string,
-  fluxoId: string,
+  userId: string,
+  flowId: string,
   pedido: PedidoDeConexao,
-): Promise<ConexaoDoFluxo> {
-  await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
-  await fluxoExiste(tx, tenantId, fluxoId);
+): Promise<ConnectionOfFlow> {
+  await exigirPermission(tx, userId, MANAGE_INTEGRATION);
+  await flowExists(tx, tenantId, flowId);
 
-  await upsertWebhookDeConexao(tx, tenantId, usuarioId, EVENTOS_MENSAGENS, pedido.urlMensagens);
+  await upsertWebhookDeConexao(tx, tenantId, userId, EVENTS_MESSAGES, pedido.urlMensagens);
   await upsertWebhookDeConexao(
     tx,
     tenantId,
-    usuarioId,
-    EVENTOS_NOTIFICACOES,
+    userId,
+    EVENTS_NOTIFICATIONS,
     pedido.urlNotificacoes,
   );
 
-  return montarConexao(tx, tenantId, fluxoId);
+  return montarConexao(tx, tenantId, flowId);
 }

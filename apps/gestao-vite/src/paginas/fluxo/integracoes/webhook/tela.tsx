@@ -1,19 +1,19 @@
 import { useState } from 'react';
 import Link from '../../../../componentes/link';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { useLeitura } from '../../../../lib/consulta';
-import { ModalConfirmacao } from '../../../cadastros/_modal';
+import { useRead } from '../../../../lib/consulta';
+import { ModalConfirmation } from '../../../cadastros/_modal';
 import { Interruptor } from '../interruptor';
-import { IlustracaoIntegracao } from '../ilustracoes';
+import { IllustrationIntegration } from '../ilustracoes';
 import { LIMITE_URLS, adicionarUrl, removerUrl, salvarDesabilitado, urlValida } from './regras';
 import {
-  criarWebhook,
+  createWebhook,
   editarWebhook,
   excluirWebhook,
   testarWebhook,
-  type AutenticacaoEntrada,
+  type AuthenticationInbound,
   type CabecalhoCustomizado,
-  type TipoAutenticacao,
+  type TipoAuthentication,
   type WebhookListado,
 } from './gravar';
 
@@ -58,7 +58,7 @@ function rotuloDoEvento(evento: string): string {
   return EVENTOS_ROTULOS[evento] ?? evento;
 }
 
-function rotuloDaAutenticacao(tipo: TipoAutenticacao): string {
+function authenticationRotulo(tipo: TipoAuthentication): string {
   if (tipo === 'basica') return 'Autenticação básica';
   if (tipo === 'oauth2_client_credentials') return 'OAuth 2.0';
   return 'Sem autenticação';
@@ -67,7 +67,7 @@ function rotuloDaAutenticacao(tipo: TipoAutenticacao): string {
 type Aba = 'visao-geral' | 'configuracoes';
 
 export function TelaDoWebhook({ base }: { base: string }) {
-  const { data, isLoading } = useLeitura<WebhookListado[]>('/v1/gestao/webhooks');
+  const { data, isLoading } = useRead<WebhookListado[]>('/v1/gestao/webhooks');
   const webhooks = data ?? [];
   const algumAtivo = webhooks.some((w) => w.ativo);
 
@@ -76,8 +76,8 @@ export function TelaDoWebhook({ base }: { base: string }) {
 
   const [urls, setUrls] = useState<string[]>(['']);
   const [eventos, setEventos] = useState<string[]>([...TODOS_OS_EVENTOS]);
-  const [tipoAuth, setTipoAuth] = useState<TipoAutenticacao>('nenhuma');
-  const [authUsuario, setAuthUsuario] = useState('');
+  const [tipoAuth, setTipoAuth] = useState<TipoAuthentication>('nenhuma');
+  const [authUser, setAuthUser] = useState('');
   const [authSenha, setAuthSenha] = useState('');
   const [oauthUrl, setOauthUrl] = useState('');
   const [oauthClientId, setOauthClientId] = useState('');
@@ -85,13 +85,13 @@ export function TelaDoWebhook({ base }: { base: string }) {
   const [cabecalhos, setCabecalhos] = useState<CabecalhoCustomizado[]>([]);
 
   const [criando, setCriando] = useState(false);
-  const [avisoDeCriacao, setAvisoDeCriacao] = useState('');
-  const [segredosGerados, setSegredosGerados] = useState<{ url: string; segredo: string }[]>([]);
+  const [creationNotice, creationSetNotice] = useState('');
+  const [secretsGerados, setSecretsGerados] = useState<{ url: string; secret: string }[]>([]);
 
   const [excluindo, setExcluindo] = useState<WebhookListado | null>(null);
   const [excluindoAgora, setExcluindoAgora] = useState(false);
-  const [erroDeExclusao, setErroDeExclusao] = useState<string | null>(null);
-  const [testeDe, setTesteDe] = useState<Record<string, string>>({});
+  const [exclusaoError, exclusaoSetError] = useState<string | null>(null);
+  const [testOf, setTestOf] = useState<Record<string, string>>({});
 
   const urlsAparadas = urls.map((u) => u.trim());
   const urlsPreenchidas = urlsAparadas.filter((u) => u !== '');
@@ -99,8 +99,8 @@ export function TelaDoWebhook({ base }: { base: string }) {
   const algumaUrlRepeteWebhookExistente = urlsPreenchidas.some((u) =>
     webhooks.some((w) => w.url === u),
   );
-  const autenticacaoIncompleta =
-    (tipoAuth === 'basica' && (!authUsuario.trim() || !authSenha)) ||
+  const authenticationIncompleta =
+    (tipoAuth === 'basica' && (!authUser.trim() || !authSenha)) ||
     (tipoAuth === 'oauth2_client_credentials' &&
       (!oauthUrl.trim() || !oauthClientId.trim() || !oauthClientSecret));
   const salvarBloqueado =
@@ -109,14 +109,14 @@ export function TelaDoWebhook({ base }: { base: string }) {
     salvarDesabilitado(urlsAparadas) ||
     algumaUrlRepeteWebhookExistente ||
     eventos.length === 0 ||
-    autenticacaoIncompleta;
+    authenticationIncompleta;
 
-  function autenticacaoParaEnvio(): AutenticacaoEntrada {
-    if (tipoAuth === 'basica') return { tipo: 'basica', usuario: authUsuario.trim(), senha: authSenha };
+  function authenticationForEnvio(): AuthenticationInbound {
+    if (tipoAuth === 'basica') return { tipo: 'basica', user: authUser.trim(), senha: authSenha };
     if (tipoAuth === 'oauth2_client_credentials') {
       return {
         tipo: 'oauth2_client_credentials',
-        urlAutorizacao: oauthUrl.trim(),
+        urlAuthorization: oauthUrl.trim(),
         clientId: oauthClientId.trim(),
         clientSecret: oauthClientSecret,
       };
@@ -128,7 +128,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
     setUrls(['']);
     setEventos([...TODOS_OS_EVENTOS]);
     setTipoAuth('nenhuma');
-    setAuthUsuario('');
+    setAuthUser('');
     setAuthSenha('');
     setOauthUrl('');
     setOauthClientId('');
@@ -140,25 +140,25 @@ export function TelaDoWebhook({ base }: { base: string }) {
   async function salvar() {
     if (salvarBloqueado) return;
     setCriando(true);
-    setAvisoDeCriacao('');
-    const autenticacao = autenticacaoParaEnvio();
+    creationSetNotice('');
+    const authentication = authenticationForEnvio();
     const cabecalhosPreenchidos = cabecalhos
-      .map((c) => ({ chave: c.chave.trim(), valor: c.valor }))
+      .map((c) => ({ chave: c.key.trim(), valor: c.value }))
       .filter((c) => c.chave !== '');
 
-    const criados: { url: string; segredo: string }[] = [];
+    const criados: { url: string; secret: string }[] = [];
     for (const url of urlsPreenchidas) {
-      const resultado = await criarWebhook(url, eventos, autenticacao, cabecalhosPreenchidos);
+      const resultado = await createWebhook(url, eventos, authentication, cabecalhosPreenchidos);
       if (!resultado.ok) {
         setCriando(false);
-        setAvisoDeCriacao(resultado.erro);
-        if (criados.length > 0) setSegredosGerados(criados);
+        creationSetNotice(resultado.error);
+        if (criados.length > 0) setSecretsGerados(criados);
         return;
       }
-      criados.push({ url: resultado.valor.url, segredo: resultado.valor.segredo });
+      criados.push({ url: resultado.value.url, secret: resultado.value.secret });
     }
     setCriando(false);
-    setSegredosGerados(criados);
+    setSecretsGerados(criados);
     limparRascunho();
   }
 
@@ -167,29 +167,29 @@ export function TelaDoWebhook({ base }: { base: string }) {
   }
 
   async function testar(webhook: WebhookListado) {
-    setTesteDe((atual) => ({ ...atual, [webhook.id]: 'Testando…' }));
+    setTestOf((atual) => ({ ...atual, [webhook.id]: 'Testando…' }));
     const resultado = await testarWebhook(webhook.id);
     let texto: string;
     if (!resultado.ok) {
-      texto = resultado.erro;
-    } else if (resultado.valor.ok) {
-      texto = `Entregue (HTTP ${resultado.valor.status}).`;
-      if (resultado.valor.corpo) texto += ` Resposta: "${resultado.valor.corpo}"`;
+      texto = resultado.error;
+    } else if (resultado.value.ok) {
+      texto = `Entregue (HTTP ${resultado.value.status}).`;
+      if (resultado.value.corpo) texto += ` Resposta: "${resultado.value.corpo}"`;
     } else {
-      texto = `Falhou: ${resultado.valor.erro ?? `HTTP ${resultado.valor.status}`}`;
-      if (resultado.valor.corpo) texto += ` — "${resultado.valor.corpo}"`;
+      texto = `Falhou: ${resultado.value.error ?? `HTTP ${resultado.value.status}`}`;
+      if (resultado.value.corpo) texto += ` — "${resultado.value.corpo}"`;
     }
-    setTesteDe((atual) => ({ ...atual, [webhook.id]: texto }));
+    setTestOf((atual) => ({ ...atual, [webhook.id]: texto }));
   }
 
   async function confirmarExclusao() {
     if (!excluindo) return;
     setExcluindoAgora(true);
-    setErroDeExclusao(null);
+    exclusaoSetError(null);
     const resultado = await excluirWebhook(excluindo.id);
     setExcluindoAgora(false);
     if (!resultado.ok) {
-      setErroDeExclusao(resultado.erro);
+      exclusaoSetError(resultado.error);
       return;
     }
     setExcluindo(null);
@@ -238,7 +238,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
 
             {aba === 'visao-geral' ? (
               <div className="ig-painel">
-                <IlustracaoIntegracao nome="webhook" altura={72} className="ig-figura-grande" />
+                <IllustrationIntegration nome="webhook" altura={72} className="ig-figura-grande" />
                 <div className="ig-painel-texto">
                   <p className="ig-typo-16">
                     Envie os dados do seu chatbot para sua aplicação, por HTTPS, assinados por HMAC
@@ -256,26 +256,26 @@ export function TelaDoWebhook({ base }: { base: string }) {
               </div>
             ) : (
               <div className="ig-painel-texto">
-                {segredosGerados.length > 0 ? (
+                {secretsGerados.length > 0 ? (
                   <div className="ig-form ig-segredo-gerado">
                     <p className="ig-typo-16">
                       <strong>
-                        {segredosGerados.length === 1
+                        {secretsGerados.length === 1
                           ? 'Webhook criado.'
-                          : `${segredosGerados.length} webhooks criados.`}
+                          : `${secretsGerados.length} webhooks criados.`}
                       </strong>{' '}
                       Copie os segredos agora: por segurança, eles não podem ser mostrados de novo.
                     </p>
-                    {segredosGerados.map((gerado) => (
+                    {secretsGerados.map((gerado) => (
                       <div key={gerado.url} className="ig-mb3">
                         <p className="ig-typo-14">{gerado.url}</p>
                         <div className="cf-copiavel">
-                          <input readOnly value={gerado.segredo} aria-label={`Segredo de ${gerado.url}`} />
+                          <input readOnly value={gerado.secret} aria-label={`Segredo de ${gerado.url}`} />
                           <button
                             type="button"
                             className="cf-copiavel-botao"
                             aria-label={`Copiar segredo de ${gerado.url}`}
-                            onClick={() => void navigator.clipboard?.writeText(gerado.segredo)}
+                            onClick={() => void navigator.clipboard?.writeText(gerado.secret)}
                           >
                             Copiar
                           </button>
@@ -285,7 +285,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                     <button
                       type="button"
                       className="ig-botao ig-botao--fantasma"
-                      onClick={() => setSegredosGerados([])}
+                      onClick={() => setSecretsGerados([])}
                     >
                       Já copiei
                     </button>
@@ -314,14 +314,14 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             id={`url-webhook-${indice}`}
                             className="ig-campo-url"
                             rotulo="Endereço HTTPS"
-                            valor={url}
-                            erro={
+                            value={url}
+                            error={
                               invalida
                                 ? 'O endereço precisa ser HTTPS, não repetir e não apontar para rede privada.'
                                 : undefined
                             }
-                            aoMudar={(valor) =>
-                              setUrls((atual) => atual.map((u, i) => (i === indice ? valor : u)))
+                            aoMudar={(value) =>
+                              setUrls((atual) => atual.map((u, i) => (i === indice ? value : u)))
                             }
                             placeholder="https://minha-aplicacao.com/webhook"
                           />
@@ -391,7 +391,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                               aoMudar={(ligado) => {
                                 if (!ligado) {
                                   setTipoAuth('nenhuma');
-                                  setAuthUsuario('');
+                                  setAuthUser('');
                                   setAuthSenha('');
                                   setOauthUrl('');
                                   setOauthClientId('');
@@ -438,20 +438,20 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                   <Campo
                                     className="ig-w40"
                                     rotulo="URL de autorização"
-                                    valor={oauthUrl}
+                                    value={oauthUrl}
                                     aoMudar={setOauthUrl}
                                     placeholder="https://exemplo.com/oauth/token"
                                   />
                                   <Campo
                                     className="ig-w10"
                                     rotulo="Grant Type"
-                                    valor="client_credentials"
-                                    somenteLeitura
+                                    value="client_credentials"
+                                    somenteRead
                                   />
                                   <Campo
                                     className="ig-w40"
                                     rotulo="Client ID"
-                                    valor={oauthClientId}
+                                    value={oauthClientId}
                                     aoMudar={setOauthClientId}
                                   />
                                 </div>
@@ -460,7 +460,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                     className="ig-w40"
                                     tipo="password"
                                     rotulo="Client Secret"
-                                    valor={oauthClientSecret}
+                                    value={oauthClientSecret}
                                     aoMudar={setOauthClientSecret}
                                   />
                                 </div>
@@ -475,14 +475,14 @@ export function TelaDoWebhook({ base }: { base: string }) {
                                   <Campo
                                     className="ig-w40"
                                     rotulo="Usuário"
-                                    valor={authUsuario}
-                                    aoMudar={setAuthUsuario}
+                                    value={authUser}
+                                    aoMudar={setAuthUser}
                                   />
                                   <Campo
                                     className="ig-w40"
                                     tipo="password"
                                     rotulo="Senha"
-                                    valor={authSenha}
+                                    value={authSenha}
                                     aoMudar={setAuthSenha}
                                   />
                                 </div>
@@ -498,20 +498,20 @@ export function TelaDoWebhook({ base }: { base: string }) {
                               <Campo
                                 className="ig-cabecalho-campo ig-w40"
                                 rotulo="Chave"
-                                valor={cabecalho.chave}
-                                aoMudar={(valor) =>
+                                value={cabecalho.key}
+                                aoMudar={(value) =>
                                   setCabecalhos((atual) =>
-                                    atual.map((c, i) => (i === indice ? { ...c, chave: valor } : c)),
+                                    atual.map((c, i) => (i === indice ? { ...c, key: value } : c)),
                                   )
                                 }
                               />
                               <Campo
                                 className="ig-cabecalho-campo ig-w40"
                                 rotulo="Valor"
-                                valor={cabecalho.valor}
-                                aoMudar={(valor) =>
+                                value={cabecalho.value}
+                                aoMudar={(value) =>
                                   setCabecalhos((atual) =>
-                                    atual.map((c, i) => (i === indice ? { ...c, valor } : c)),
+                                    atual.map((c, i) => (i === indice ? { ...c, value } : c)),
                                   )
                                 }
                               />
@@ -532,7 +532,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             className="ig-botao-tracejado"
                             disabled={cabecalhos.length >= LIMITE_CABECALHOS}
                             onClick={() =>
-                              setCabecalhos((atual) => [...atual, { chave: '', valor: '' }])
+                              setCabecalhos((atual) => [...atual, { key: '', value: '' }])
                             }
                           >
                             + Adicionar cabeçalho
@@ -542,9 +542,9 @@ export function TelaDoWebhook({ base }: { base: string }) {
                     ) : null}
                   </div>
 
-                  {avisoDeCriacao ? (
+                  {creationNotice ? (
                     <p role="alert" className="ig-aviso">
-                      {avisoDeCriacao}
+                      {creationNotice}
                     </p>
                   ) : null}
                   <div className="ig-acoes">
@@ -586,7 +586,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                           className="ig-botao-icone"
                           aria-label="Excluir webhook"
                           onClick={() => {
-                            setErroDeExclusao(null);
+                            exclusaoSetError(null);
                             setExcluindo(webhook);
                           }}
                         >
@@ -599,7 +599,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                             {rotuloDoEvento(evento)}
                           </span>
                         ))}
-                        <span className="ig-chip">{rotuloDaAutenticacao(webhook.autenticacao.tipo)}</span>
+                        <span className="ig-chip">{authenticationRotulo(webhook.authentication.tipo)}</span>
                         {webhook.cabecalhos.length > 0 ? (
                           <span className="ig-chip">
                             {webhook.cabecalhos.length}{' '}
@@ -607,7 +607,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                           </span>
                         ) : null}
                       </div>
-                      {testeDe[webhook.id] ? <p className="ig-typo-14">{testeDe[webhook.id]}</p> : null}
+                      {testOf[webhook.id] ? <p className="ig-typo-14">{testOf[webhook.id]}</p> : null}
                     </li>
                   ))}
                   {webhooks.length === 0 && !isLoading ? (
@@ -620,11 +620,11 @@ export function TelaDoWebhook({ base }: { base: string }) {
         </section>
       </div>
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={excluindo !== null}
         titulo="Excluir webhook"
-        mensagem={<>Quer mesmo excluir o webhook para &quot;{excluindo?.url}&quot;?</>}
-        erro={erroDeExclusao}
+        message={<>Quer mesmo excluir o webhook para &quot;{excluindo?.url}&quot;?</>}
+        error={exclusaoError}
         confirmando={excluindoAgora}
         onConfirmar={() => void confirmarExclusao()}
         onCancelar={() => setExcluindo(null)}
@@ -637,30 +637,30 @@ export function TelaDoWebhook({ base }: { base: string }) {
 function Campo({
   id,
   rotulo,
-  valor,
-  erro,
+  value,
+  error,
   placeholder,
   className,
   tipo = 'text',
-  somenteLeitura,
+  somenteRead,
   aoMudar,
 }: {
   id?: string;
   rotulo?: string;
-  valor: string;
-  erro?: string;
+  value: string;
+  error?: string;
   placeholder?: string;
   className?: string;
   tipo?: 'text' | 'password';
-  somenteLeitura?: boolean;
-  aoMudar?: (valor: string) => void;
+  somenteRead?: boolean;
+  aoMudar?: (value: string) => void;
 }) {
   return (
     <div
       className={[
         'ig-campo',
-        erro ? 'ig-campo--erro' : '',
-        somenteLeitura ? 'ig-campo--desabilitado' : '',
+        error ? 'ig-campo--erro' : '',
+        somenteRead ? 'ig-campo--desabilitado' : '',
         className ?? '',
       ]
         .join(' ')
@@ -672,16 +672,16 @@ function Campo({
           <input
             id={id}
             type={tipo}
-            value={valor}
+            value={value}
             placeholder={placeholder}
             autoComplete="off"
             autoCapitalize="off"
-            readOnly={somenteLeitura}
+            readOnly={somenteRead}
             onChange={(evento) => aoMudar?.(evento.target.value)}
           />
         </div>
       </div>
-      {erro ? <p className="ig-campo-erro">{erro}</p> : null}
+      {error ? <p className="ig-campo-erro">{error}</p> : null}
     </div>
   );
 }

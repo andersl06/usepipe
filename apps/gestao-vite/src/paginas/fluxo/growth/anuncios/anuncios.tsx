@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 
 /**
  * Growth › Anúncios (Beta) — `growth/adsbuying` na origem. Refeito por foto
@@ -26,7 +26,7 @@ import { Ilustracao } from '@pipe/ui';
  * fingir um clique que "funciona". TODO: quando existir a chave de Marketing
  * API do Pipe, trocar o aviso por `lib/growth.ts#conectarFacebook` de verdade.
  */
-export default function PaginaAnuncios() {
+export default function PageAds() {
   const [aviso, setAviso] = useState('');
 
   return (
@@ -44,7 +44,7 @@ export default function PaginaAnuncios() {
         <div className="ck-col-12">
           <div className="ck-papel an-conexao">
             <div className="an-ilustracao">
-              <Ilustracao nome="vazio" tamanho={140} />
+              <Illustration nome="vazio" tamanho={140} />
             </div>
             <div className="an-corpo">
               <h2 className="an-titulo">

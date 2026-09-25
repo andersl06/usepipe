@@ -10,7 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { carimbos, id, listaCheck, momento } from './comum.js';
+import { carimbos, id, listaCheck, moment } from './comum.js';
 
 /**
  * Módulo 1 — Identidade e tenancy. Base de tudo; não depende de nenhum outro módulo.
@@ -30,7 +30,7 @@ import { carimbos, id, listaCheck, momento } from './comum.js';
  * é exatamente quando ele vai fazer falta, para o código saber a quem
  * perguntar sem consultar planilha.
  */
-export const IMPLANTACOES = ['compartilhada', 'dedicada'] as const;
+export const DEPLOYMENTS = ['compartilhada', 'dedicada'] as const;
 
 /**
  * Os três planos, com os limites que a cobrança usa.
@@ -48,39 +48,39 @@ export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
 export type Plano = (typeof PLANOS)[number];
 
 export interface LimitesDoPlano {
-  precoPorAtendenteCentavos: number;
-  minimoDeAtendentes: number;
-  conversasIaPorAtendente: number;
+  priceByAgentCentavos: number;
+  minimumOfAgents: number;
+  conversationsAiByAgent: number;
   /** Fração das conversas que a monitoria avalia. 1 é todas. */
-  amostragemDeMonitoria: number;
-  excedenteCentavosPorConversa: number;
+  samplingOfQualityReview: number;
+  excessCentavosByConversation: number;
   sso: boolean;
 }
 
 export const LIMITES_DO_PLANO: Readonly<Record<Plano, LimitesDoPlano>> = {
   essencial: {
-    precoPorAtendenteCentavos: 9_700,
-    minimoDeAtendentes: 3,
-    conversasIaPorAtendente: 300,
-    amostragemDeMonitoria: 0.2,
-    excedenteCentavosPorConversa: 25,
+    priceByAgentCentavos: 9_700,
+    minimumOfAgents: 3,
+    conversationsAiByAgent: 300,
+    samplingOfQualityReview: 0.2,
+    excessCentavosByConversation: 25,
     sso: false,
   },
-  operacao: {
-    precoPorAtendenteCentavos: 17_900,
-    minimoDeAtendentes: 5,
-    conversasIaPorAtendente: 1_000,
-    amostragemDeMonitoria: 1,
-    excedenteCentavosPorConversa: 18,
+  operations: {
+    priceByAgentCentavos: 17_900,
+    minimumOfAgents: 5,
+    conversationsAiByAgent: 1_000,
+    samplingOfQualityReview: 1,
+    excessCentavosByConversation: 18,
     sso: false,
   },
   /* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */
   escala: {
-    precoPorAtendenteCentavos: 0,
-    minimoDeAtendentes: 20,
-    conversasIaPorAtendente: 0,
-    amostragemDeMonitoria: 1,
-    excedenteCentavosPorConversa: 0,
+    priceByAgentCentavos: 0,
+    minimumOfAgents: 20,
+    conversationsAiByAgent: 0,
+    samplingOfQualityReview: 1,
+    excessCentavosByConversation: 0,
     sso: true,
   },
 };
@@ -96,7 +96,7 @@ export const tenant = pgTable(
     logoUrl: text('logo_url'),
     corPrimaria: text('cor_primaria'),
     plano: text('plano').notNull().default('essencial'),
-    implantacao: text('implantacao').notNull().default('compartilhada'),
+    deployment: text('implantacao').notNull().default('compartilhada'),
     ativo: boolean('ativo').notNull().default(true),
     /**
      * A instância do Twenty deste cliente, e a chave para falar com ela.
@@ -112,7 +112,7 @@ export const tenant = pgTable(
      * a tiver tem a base de clientes daquele tenant inteira.
      */
     twentyUrl: text('twenty_url'),
-    twentyChave: text('twenty_chave'),
+    twentyKey: text('twenty_chave'),
     /**
      * Os dados que a própria pessoa preenche em "minha conta", depois de entrar.
      *
@@ -123,17 +123,17 @@ export const tenant = pgTable(
      */
     site: text('site'),
     funcionarios: text('funcionarios'),
-    cidade: text('cidade'),
-    estado: text('estado'),
+    city: text('cidade'),
+    state: text('estado'),
     pais: text('pais'),
     telefone: text('telefone'),
     optinWhatsapp: boolean('optin_whatsapp').notNull().default(false),
     /** Nulo = onboarding em aberto, e a Gestão leva para "minha conta". */
-    onboardingConcluidoEm: momento('onboarding_concluido_em'),
+    onboardingConcluidoEm: moment('onboarding_concluido_em'),
     ...carimbos(),
   },
   (t) => [
-    listaCheck('tenant_implantacao_ck', t.implantacao, IMPLANTACOES),
+    listaCheck('tenant_implantacao_ck', t.deployment, DEPLOYMENTS),
     listaCheck('tenant_plano_ck', t.plano, PLANOS),
   ],
 );
@@ -147,7 +147,7 @@ export const refTenant = () =>
     .notNull()
     .references(() => tenant.id, { onDelete: 'cascade' });
 
-export const usuario = pgTable(
+export const user = pgTable(
   'usuario',
   {
     id: id(),
@@ -157,7 +157,7 @@ export const usuario = pgTable(
     senhaHash: text('senha_hash'),
     avatarUrl: text('avatar_url'),
     ativo: boolean('ativo').notNull().default(true),
-    ultimoAcessoEm: momento('ultimo_acesso_em'),
+    lastAccessAt: moment('ultimo_acesso_em'),
     ...carimbos(),
   },
   (t) => [uniqueIndex('usuario_tenant_email_uk').on(t.tenantId, t.email)],
@@ -172,30 +172,30 @@ export const usuario = pgTable(
  * supervisor, atendente, avaliador): zero ou mais por pessoa. As permissões
  * efetivas são a união dos dois.
  */
-export const ESCOPOS_PAPEL = ['conta', 'atendimento'] as const;
-export type EscopoPapel = (typeof ESCOPOS_PAPEL)[number];
+export const SCOPES_ROLE = ['conta', 'atendimento'] as const;
+export type ScopeRole = (typeof SCOPES_ROLE)[number];
 
 /** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */
-export const PAPEIS_DE_CONTA = ['admin', 'member', 'guest'] as const;
-export type PapelDeConta = (typeof PAPEIS_DE_CONTA)[number];
+export const PAPEIS_OF_ACCOUNT = ['admin', 'member', 'guest'] as const;
+export type RoleOfAccount = (typeof PAPEIS_OF_ACCOUNT)[number];
 
-export const papel = pgTable(
+export const role = pgTable(
   'papel',
   {
     id: id(),
     tenantId: refTenant(),
     nome: text('nome').notNull(),
-    descricao: text('descricao'),
+    description: text('descricao'),
     /** Papel do dia 1 não é editável pelo cliente. */
     deSistema: boolean('de_sistema').notNull().default(false),
-    escopo: text('escopo').notNull().default('atendimento'),
+    scope: text('escopo').notNull().default('atendimento'),
     ...carimbos(),
   },
   (t) => [
     uniqueIndex('papel_tenant_nome_uk').on(t.tenantId, t.nome),
     /* Alvo das FKs compostas de `usuario_papel` e `convite`. */
-    uniqueIndex('papel_id_escopo_uk').on(t.id, t.escopo),
-    listaCheck('papel_escopo_ck', t.escopo, ESCOPOS_PAPEL),
+    uniqueIndex('papel_id_escopo_uk').on(t.id, t.scope),
+    listaCheck('papel_escopo_ck', t.scope, SCOPES_ROLE),
   ],
 );
 
@@ -204,36 +204,36 @@ export const papel = pgTable(
  * `relatorio.esforco.ver`). Não tem tenant de propósito: é vocabulário do produto,
  * igual para todo mundo, e por isso é a única tabela sem RLS junto de `tenant`.
  */
-export const permissao = pgTable('permissao', {
+export const permission = pgTable('permissao', {
   codigo: text('codigo').primaryKey(),
   descricao: text('descricao').notNull(),
   grupo: text('grupo').notNull(),
 });
 
-export const papelPermissao = pgTable(
+export const rolePermission = pgTable(
   'papel_permissao',
   {
     tenantId: refTenant(),
-    papelId: uuid('papel_id')
+    roleId: uuid('papel_id')
       .notNull()
-      .references(() => papel.id, { onDelete: 'cascade' }),
-    permissaoCodigo: text('permissao_codigo')
+      .references(() => role.id, { onDelete: 'cascade' }),
+    permissionCode: text('permissao_codigo')
       .notNull()
-      .references(() => permissao.codigo, { onDelete: 'cascade' }),
+      .references(() => permission.codigo, { onDelete: 'cascade' }),
   },
-  (t) => [primaryKey({ columns: [t.papelId, t.permissaoCodigo] })],
+  (t) => [primaryKey({ columns: [t.roleId, t.permissionCode] })],
 );
 
-export const usuarioPapel = pgTable(
+export const userRole = pgTable(
   'usuario_papel',
   {
     tenantId: refTenant(),
-    usuarioId: uuid('usuario_id')
+    userId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     papelId: uuid('papel_id')
       .notNull()
-      .references(() => papel.id, { onDelete: 'cascade' }),
+      .references(() => role.id, { onDelete: 'cascade' }),
     /**
      * Cópia do `papel.escopo`, amarrada pela FK composta: é o que deixa o índice
      * parcial abaixo garantir UM papel de conta por pessoa sem trigger. Quem
@@ -242,16 +242,16 @@ export const usuarioPapel = pgTable(
     escopo: text('escopo').notNull().default('atendimento'),
   },
   (t) => [
-    primaryKey({ columns: [t.usuarioId, t.papelId] }),
+    primaryKey({ columns: [t.userId, t.papelId] }),
     foreignKey({
       name: 'usuario_papel_papel_escopo_fk',
       columns: [t.papelId, t.escopo],
-      foreignColumns: [papel.id, papel.escopo],
+      foreignColumns: [role.id, role.scope],
     })
       .onDelete('cascade')
       .onUpdate('cascade'),
     uniqueIndex('usuario_papel_um_da_conta_uk')
-      .on(t.usuarioId)
+      .on(t.userId)
       .where(sql`"escopo" = 'conta'`),
   ],
 );
@@ -271,16 +271,16 @@ export const usuarioPapel = pgTable(
  * quando a escolha volta a coincidir com o papel, para a tabela guardar só a
  * exceção e nunca virar cópia desatualizada do RBAC.
  */
-export const usuarioPermissao = pgTable(
+export const userPermission = pgTable(
   'usuario_permissao',
   {
     tenantId: refTenant(),
     usuarioId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     permissaoCodigo: text('permissao_codigo')
       .notNull()
-      .references(() => permissao.codigo, { onDelete: 'cascade' }),
+      .references(() => permission.codigo, { onDelete: 'cascade' }),
     /** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */
     concedida: boolean('concedida').notNull(),
     ...carimbos(),
@@ -296,9 +296,9 @@ export const equipe = pgTable('equipe', {
   ...carimbos(),
 });
 
-export const FUNCOES_EQUIPE = ['membro', 'lider'] as const;
+export const FUNCTIONS_TEAM = ['membro', 'lider'] as const;
 
-export const membroEquipe = pgTable(
+export const memberTeam = pgTable(
   'membro_equipe',
   {
     tenantId: refTenant(),
@@ -307,40 +307,40 @@ export const membroEquipe = pgTable(
       .references(() => equipe.id, { onDelete: 'cascade' }),
     usuarioId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
-    funcao: text('funcao').notNull().default('membro'),
+      .references(() => user.id, { onDelete: 'cascade' }),
+    function: text('funcao').notNull().default('membro'),
   },
   (t) => [
     primaryKey({ columns: [t.equipeId, t.usuarioId] }),
-    listaCheck('membro_equipe_funcao_ck', t.funcao, FUNCOES_EQUIPE),
+    listaCheck('membro_equipe_funcao_ck', t.function, FUNCTIONS_TEAM),
   ],
 );
 
-export const sessao = pgTable(
+export const session = pgTable(
   'sessao',
   {
     id: id(),
     tenantId: refTenant(),
     usuarioId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     tokenHash: text('token_hash').notNull(),
-    expiraEm: momento('expira_em').notNull(),
+    expiraEm: moment('expira_em').notNull(),
     ip: text('ip'),
     agente: text('agente'),
     /** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */
     origem: text('origem').notNull().default('senha'),
-    criadoEm: momento('criado_em').notNull().defaultNow(),
-    encerradaEm: momento('encerrada_em'),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
+    encerradaEm: moment('encerrada_em'),
   },
   (t) => [
     uniqueIndex('sessao_token_hash_uk').on(t.tokenHash),
     index('sessao_usuario_idx').on(t.tenantId, t.usuarioId, t.expiraEm),
-    listaCheck('sessao_origem_ck', t.origem, ORIGENS_DE_SESSAO),
+    listaCheck('sessao_origem_ck', t.origem, ORIGINS_OF_SESSION),
   ],
 );
 
-export const ORIGENS_DE_SESSAO = ['senha', 'google', 'sso'] as const;
+export const ORIGINS_OF_SESSION = ['senha', 'google', 'sso'] as const;
 
 /**
  * A conta da pessoa no provedor externo.
@@ -357,18 +357,18 @@ export const ORIGENS_DE_SESSAO = ['senha', 'google', 'sso'] as const;
  * seria a mesma pessoa entrando em dois clientes com o mesmo login — e a decisão
  * de qual vale ficaria com quem consultasse primeiro.
  */
-export const identidadeExterna = pgTable(
+export const identityExternal = pgTable(
   'identidade_externa',
   {
     id: id(),
     tenantId: refTenant(),
     usuarioId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     emissor: text('emissor').notNull(),
     sujeito: text('sujeito').notNull(),
     emailNoProvedor: text('email_no_provedor'),
-    ultimoAcessoEm: momento('ultimo_acesso_em'),
+    ultimoAcessoEm: moment('ultimo_acesso_em'),
     ...carimbos(),
   },
   (t) => [
@@ -398,17 +398,17 @@ export const identidadeExterna = pgTable(
  * Domínio público — gmail, hotmail, outlook — nunca é cadastrável, e a lista
  * dessas exceções vive no código, não aqui.
  */
-export const dominioTenant = pgTable(
+export const domainTenant = pgTable(
   'dominio_tenant',
   {
     id: id(),
     tenantId: refTenant(),
-    dominio: text('dominio').notNull(),
-    verificadoEm: momento('verificado_em'),
-    tokenVerificacao: text('token_verificacao'),
+    domain: text('dominio').notNull(),
+    verificadoEm: moment('verificado_em'),
+    tokenVerification: text('token_verificacao'),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('dominio_tenant_dominio_uk').on(t.dominio)],
+  (t) => [uniqueIndex('dominio_tenant_dominio_uk').on(t.domain)],
 );
 
 /**
@@ -451,8 +451,8 @@ export const conexaoSso = pgTable(
     estado: text('estado').notNull().default('rascunho'),
     politica: text('politica').notNull().default('desligado'),
     /** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */
-    testadaEm: momento('testada_em'),
-    ativadaEm: momento('ativada_em'),
+    testadaEm: moment('testada_em'),
+    ativadaEm: moment('ativada_em'),
     ...carimbos(),
   },
   (t) => [
@@ -469,15 +469,15 @@ export const conexaoSso = pgTable(
  * `prefixo` visível, que é o que a tela mostra para o cliente reconhecer a chave.
  * Escopo de escrita é separado de escopo de leitura (§4.6 da spec).
  */
-export const chaveApi = pgTable(
+export const keyApi = pgTable(
   'chave_api',
   {
     id: id(),
     tenantId: refTenant(),
     nome: text('nome').notNull(),
-    prefixo: text('prefixo').notNull(),
+    prefix: text('prefixo').notNull(),
     hash: text('hash').notNull(),
-    escopos: text('escopos').array().notNull().default(sql`'{}'::text[]`),
+    scopes: text('escopos').array().notNull().default(sql`'{}'::text[]`),
     /**
      * A chave é da CONTA (`null`, o padrão) ou de UM fluxo — a tela de
      * "Chaves de acesso" do fluxo (migração 0032). A FK para `fluxo` cruza
@@ -485,16 +485,16 @@ export const chaveApi = pgTable(
      * ciclo de import, o mesmo motivo de `0003_chaves_cruzadas.sql`. A
      * constraint de verdade está na migração 0032, plain column aqui.
      */
-    fluxoId: uuid('fluxo_id'),
-    expiraEm: momento('expira_em'),
-    ultimoUsoEm: momento('ultimo_uso_em'),
-    criadaPor: uuid('criada_por').references(() => usuario.id, { onDelete: 'set null' }),
-    revogadaEm: momento('revogada_em'),
+    flowId: uuid('fluxo_id'),
+    expiraEm: moment('expira_em'),
+    ultimoUsoEm: moment('ultimo_uso_em'),
+    createdBy: uuid('criada_por').references(() => user.id, { onDelete: 'set null' }),
+    revogadaEm: moment('revogada_em'),
     ...carimbos(),
   },
   (t) => [
-    uniqueIndex('chave_api_prefixo_uk').on(t.prefixo),
-    index('chave_api_fluxo_idx').on(t.tenantId, t.fluxoId),
+    uniqueIndex('chave_api_prefixo_uk').on(t.prefix),
+    index('chave_api_fluxo_idx').on(t.tenantId, t.flowId),
   ],
 );
 
@@ -513,7 +513,7 @@ export const logAuditoria = pgTable(
     antes: jsonb('antes'),
     depois: jsonb('depois'),
     ip: text('ip'),
-    em: momento('em').notNull().defaultNow(),
+    em: moment('em').notNull().defaultNow(),
   },
   (t) => [
     listaCheck('log_auditoria_ator_tipo_ck', t.atorTipo, TIPOS_ATOR),
@@ -536,7 +536,7 @@ export const logAuditoria = pgTable(
  * único, marcado por `aceito_em` — reaproveitar link é o defeito clássico, e é o
  * que a leitura `for update` na hora de aceitar fecha.
  */
-export const convite = pgTable(
+export const invitation = pgTable(
   'convite',
   {
     id: id(),
@@ -544,15 +544,15 @@ export const convite = pgTable(
     email: text('email').notNull(),
     papelId: uuid('papel_id')
       .notNull()
-      .references(() => papel.id, { onDelete: 'cascade' }),
+      .references(() => role.id, { onDelete: 'cascade' }),
     /** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */
     escopo: text('escopo').notNull().default('conta'),
     tokenHash: text('token_hash').notNull(),
-    expiraEm: momento('expira_em').notNull(),
-    criadoPor: uuid('criado_por').references(() => usuario.id, { onDelete: 'set null' }),
-    aceitoEm: momento('aceito_em'),
+    expiraEm: moment('expira_em').notNull(),
+    invitationCreatedBy: uuid('criado_por').references(() => user.id, { onDelete: 'set null' }),
+    aceitoEm: moment('aceito_em'),
     /** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */
-    usuarioId: uuid('usuario_id').references(() => usuario.id, { onDelete: 'set null' }),
+    usuarioId: uuid('usuario_id').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
   (t) => [
@@ -562,7 +562,7 @@ export const convite = pgTable(
     foreignKey({
       name: 'convite_papel_escopo_fk',
       columns: [t.papelId, t.escopo],
-      foreignColumns: [papel.id, papel.escopo],
+      foreignColumns: [role.id, role.scope],
     })
       .onDelete('cascade')
       .onUpdate('cascade'),

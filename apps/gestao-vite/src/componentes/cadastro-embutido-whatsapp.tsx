@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Botao, Etiqueta } from '@pipe/ui';
 import type { VarianteDeBotao } from '@pipe/ui';
-import { concluirCadastroEmbutido, iniciarCadastroEmbutido } from '../paginas/implantacao/acoes';
+import { concluirRegistrationEmbedded, iniciarRegistrationEmbedded } from '../paginas/implantacao/acoes';
 
 /**
  * Portado de chatwoot/chatwoot (MIT):
@@ -32,8 +32,8 @@ interface RespostaDoLogin {
 }
 
 interface SdkDoFacebook {
-  init(opcoes: Record<string, unknown>): void;
-  login(retorno: (resposta: RespostaDoLogin) => void, opcoes: Record<string, unknown>): void;
+  init(options: Record<string, unknown>): void;
+  login(return: (resposta: RespostaDoLogin) => void, options: Record<string, unknown>): void;
 }
 
 declare global {
@@ -76,15 +76,15 @@ function iniciarFacebook(appId: string, versao: string): Promise<void> {
   });
 }
 
-interface DadosDaEmpresa {
+interface EmpresaData {
   waba_id: string;
   phone_number_id?: string;
   business_id?: string;
 }
 
 /** `isValidBusinessData`: só o `waba_id` é garantido (a coexistência manda só ele). */
-function dadosDeEmpresaValidos(dados: unknown): dados is DadosDaEmpresa {
-  return Boolean(dados && typeof dados === 'object' && (dados as DadosDaEmpresa).waba_id);
+function empresaValidData(data: unknown): data is EmpresaData {
+  return Boolean(data && typeof data === 'object' && (data as EmpresaData).waba_id);
 }
 
 const EVENTO_DE_COEXISTENCIA = 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
@@ -96,11 +96,11 @@ const EVENTOS_SEM_SUPORTE = [
   'FINISH_GRANT_ONLY_API_ACCESS',
 ];
 
-type Classificacao =
+type Classification =
   | { tipo: 'fim'; coexistencia: boolean }
   | { tipo: 'sem_suporte' }
   | { tipo: 'cancelado' }
-  | { tipo: 'erro'; mensagem: string | undefined }
+  | { tipo: 'erro'; message: string | undefined }
   | { tipo: 'ignorar' };
 
 /**
@@ -108,37 +108,37 @@ type Classificacao =
  * também reporta falha como `CANCEL` com `error_message` — um `CANCEL` puro é a
  * pessoa desistindo, e os dois não podem ser lidos como a mesma coisa.
  */
-function classificarEvento(dados: { event?: unknown; error_message?: string }): Classificacao {
-  const evento = dados.event;
+function classificarEvento(data: { event?: unknown; error_message?: string }): Classification {
+  const evento = data.event;
   if (typeof evento !== 'string') return { tipo: 'ignorar' };
   if (EVENTOS_DE_FIM.includes(evento)) {
     return { tipo: 'fim', coexistencia: evento === EVENTO_DE_COEXISTENCIA };
   }
   if (EVENTOS_SEM_SUPORTE.includes(evento)) return { tipo: 'sem_suporte' };
-  if (evento.toUpperCase() === 'ERROR') return { tipo: 'erro', mensagem: dados.error_message };
+  if (evento.toUpperCase() === 'ERROR') return { tipo: 'erro', message: data.error_message };
   if (evento === 'CANCEL') {
-    return dados.error_message
-      ? { tipo: 'erro', mensagem: dados.error_message }
+    return data.error_message
+      ? { tipo: 'erro', message: data.error_message }
       : { tipo: 'cancelado' };
   }
   return { tipo: 'ignorar' };
 }
 
 /** `createMessageHandler`: só mensagem do Facebook, e só do tipo do cadastro embutido. */
-function criarTratador(
-  aoReceber: (dados: { event?: unknown; error_message?: string; data?: unknown }) => void,
+function createTratador(
+  aoReceber: (data: { event?: unknown; error_message?: string; data?: unknown }) => void,
 ): (evento: MessageEvent) => void {
   return (evento) => {
     if (!evento.origin.endsWith('facebook.com')) return;
     try {
-      const dados: unknown =
+      const data: unknown =
         typeof evento.data === 'string' ? JSON.parse(evento.data) : evento.data;
       if (
-        dados &&
-        typeof dados === 'object' &&
-        (dados as { type?: string }).type === 'WA_EMBEDDED_SIGNUP'
+        data &&
+        typeof data === 'object' &&
+        (data as { type?: string }).type === 'WA_EMBEDDED_SIGNUP'
       ) {
-        aoReceber(dados as { event?: unknown; error_message?: string; data?: unknown });
+        aoReceber(data as { event?: unknown; error_message?: string; data?: unknown });
       }
     } catch {
       // Mensagem que não é JSON, ou não é nossa.
@@ -147,7 +147,7 @@ function criarTratador(
 }
 
 /** `initWhatsAppEmbeddedSignup` */
-function abrirCadastro(configId: string): Promise<string> {
+function abrirRegistration(configId: string): Promise<string> {
   return new Promise((resolver, rejeitar) => {
     window.FB!.login(
       (resposta) => {
@@ -169,7 +169,7 @@ function abrirCadastro(configId: string): Promise<string> {
   });
 }
 
-interface Credenciais {
+interface Credentials {
   codigo: string;
   wabaId: string;
   numeroId: string;
@@ -181,27 +181,27 @@ interface Credenciais {
  * `runEmbeddedSignup`: `null` quando a pessoa fecha o popup; rejeita em erro do
  * SDK, erro do cadastro e fim sem número utilizável.
  */
-function executarCadastro(
+function executarRegistration(
   appId: string,
   versao: string,
   configId: string,
-): Promise<Credenciais | null> {
+): Promise<Credentials | null> {
   return new Promise((resolver, rejeitar) => {
     let codigo: string | null = null;
-    let empresa: DadosDaEmpresa | null = null;
+    let empresa: EmpresaData | null = null;
     let coexistencia = false;
     let encerrado = false;
 
-    const tratador = criarTratador((dados) => {
-      const resultado = classificarEvento(dados);
+    const tratador = createTratador((data) => {
+      const resultado = classificarEvento(data);
       if (resultado.tipo === 'fim') {
         // Fica o primeiro evento terminal: um FINISH de coexistência ganha de um FINISH comum que chegue depois.
         if (empresa) return;
-        if (!dadosDeEmpresaValidos(dados.data)) {
+        if (!empresaValidData(data.data)) {
           encerrar(() => rejeitar(new Error('A Meta devolveu os dados da empresa incompletos.')));
           return;
         }
-        empresa = dados.data;
+        empresa = data.data;
         coexistencia = resultado.coexistencia;
         seguirSePronto();
       } else if (resultado.tipo === 'sem_suporte') {
@@ -213,7 +213,7 @@ function executarCadastro(
       } else if (resultado.tipo === 'cancelado') {
         encerrar(() => resolver(null));
       } else if (resultado.tipo === 'erro') {
-        encerrar(() => rejeitar(new Error(resultado.mensagem || 'O cadastro na Meta falhou.')));
+        encerrar(() => rejeitar(new Error(resultado.message || 'O cadastro na Meta falhou.')));
       }
     });
 
@@ -226,14 +226,14 @@ function executarCadastro(
 
     function seguirSePronto(): void {
       if (!codigo || !empresa) return;
-      const credenciais: Credenciais = {
+      const credentials: Credentials = {
         codigo,
         wabaId: empresa.waba_id,
         numeroId: empresa.phone_number_id ?? '',
         businessId: empresa.business_id ?? '',
         coexistencia,
       };
-      encerrar(() => resolver(credenciais));
+      encerrar(() => resolver(credentials));
     }
 
     window.addEventListener('message', tratador);
@@ -241,19 +241,19 @@ function executarCadastro(
       try {
         await carregarSdk();
         await iniciarFacebook(appId, versao || VERSAO_PADRAO);
-        codigo = await abrirCadastro(configId);
+        codigo = await abrirRegistration(configId);
         seguirSePronto();
-      } catch (erro) {
-        const mensagem = (erro as Error).message;
+      } catch (error) {
+        const message = (error as Error).message;
         // Fechar o popup não é erro: é a pessoa desistindo.
-        if (mensagem === 'Login cancelado') encerrar(() => resolver(null));
-        else encerrar(() => rejeitar(erro as Error));
+        if (message === 'Login cancelado') encerrar(() => resolver(null));
+        else encerrar(() => rejeitar(error as Error));
       }
     })();
   });
 }
 
-function credenciaisDeEnsaio(): Credenciais {
+function ensaioCredentials(): Credentials {
   return {
     codigo: `ensaio-${crypto.randomUUID()}`,
     wabaId: 'waba-duble',
@@ -269,22 +269,22 @@ function credenciaisDeEnsaio(): Credenciais {
  * aconteceu ali mesmo, sem trocar de tela.
  */
 export function ConectarWhatsApp({
-  canalId,
-  fluxoId,
+  channelId,
+  flowId,
   rotulo = 'Conectar WhatsApp',
   variante = 'primario',
   className,
-  prefixo,
+  prefix,
   onConectado,
 }: {
-  canalId?: string;
+  channelId?: string;
   /** Conexão de dentro do bot (`fluxo/canais/whatsapp`): o canal nasce ligado a ele. */
-  fluxoId?: string;
+  flowId?: string;
   rotulo?: string;
   variante?: VarianteDeBotao;
   className?: string;
   /** O que vem antes do rótulo — o logo do Facebook do botão `variant="facebook"` da origem. */
-  prefixo?: ReactNode;
+  prefix?: ReactNode;
   onConectado?: () => void;
 }) {
   const [ocupado, setOcupado] = useState(false);
@@ -295,38 +295,38 @@ export function ConectarWhatsApp({
     setOcupado(true);
     setAviso(null);
     try {
-      const inicio = await iniciarCadastroEmbutido();
-      if (!inicio.ok || !inicio.estado) {
-        setAviso({ tom: 'erro', texto: inicio.erro ?? 'Não foi possível iniciar a conexão.' });
+      const inicio = await iniciarRegistrationEmbedded();
+      if (!inicio.ok || !inicio.state) {
+        setAviso({ tom: 'erro', texto: inicio.error ?? 'Não foi possível iniciar a conexão.' });
         return;
       }
 
-      let credenciais: Credenciais | null;
+      let credentials: Credentials | null;
       try {
-        credenciais =
+        credentials =
           inicio.modo === 'real'
-            ? await executarCadastro(
+            ? await executarRegistration(
                 inicio.appId ?? '',
                 inicio.versao ?? VERSAO_PADRAO,
                 inicio.configId ?? '',
               )
-            : credenciaisDeEnsaio();
-      } catch (erro) {
-        setAviso({ tom: 'erro', texto: (erro as Error).message || 'O cadastro na Meta falhou.' });
+            : ensaioCredentials();
+      } catch (error) {
+        setAviso({ tom: 'erro', texto: (error as Error).message || 'O cadastro na Meta falhou.' });
         return;
       }
-      if (!credenciais) return;
+      if (!credentials) return;
 
-      const resultado = await concluirCadastroEmbutido({
-        ...credenciais,
-        estado: inicio.estado,
-        ...(canalId ? { canalId } : {}),
-        ...(fluxoId ? { fluxoId } : {}),
+      const resultado = await concluirRegistrationEmbedded({
+        ...credentials,
+        state: inicio.state,
+        ...(channelId ? { channelId } : {}),
+        ...(flowId ? { flowId } : {}),
       });
       setAviso(
         resultado.ok
-          ? { tom: 'sucesso', texto: resultado.mensagem ?? 'WhatsApp conectado.' }
-          : { tom: 'erro', texto: resultado.erro ?? 'A conexão falhou.' },
+          ? { tom: 'sucesso', texto: resultado.message ?? 'WhatsApp conectado.' }
+          : { tom: 'erro', texto: resultado.error ?? 'A conexão falhou.' },
       );
       if (resultado.ok) onConectado?.();
     } finally {
@@ -337,7 +337,7 @@ export function ConectarWhatsApp({
   return (
     <div className="cl-acoes">
       <Botao variante={variante} className={className} onClick={() => void conectar()} disabled={ocupado}>
-        {prefixo}
+        {prefix}
         {ocupado ? 'Conectando…' : rotulo}
       </Botao>
       {aviso ? <Etiqueta tom={aviso.tom}>{aviso.texto}</Etiqueta> : null}

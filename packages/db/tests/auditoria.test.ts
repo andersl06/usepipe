@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { diferenca, registrarAuditoria } from '../src/auditoria.js';
-import type { TransacaoPipe } from '../src/tenant.js';
+import type { TransactionPipe } from '../src/tenant.js';
 
 /**
  * O log é lido por gente do suporte e sai em auditoria de contrato. Estes
@@ -16,7 +16,7 @@ describe('auditoria', () => {
           gravado.push(v);
         },
       }),
-    } as unknown as TransacaoPipe;
+    } as unknown as TransactionPipe;
     return { tx, gravado };
   }
 

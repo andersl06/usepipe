@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { BotaoDeIcone, Botao, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { CanalWhatsapp, ModeloListado } from '../../lib/comunicacao';
+import { useRead } from '../../lib/consulta';
+import type { ChannelWhatsapp, TemplateListed } from '../../lib/comunicacao';
 import {
   ROTULO_CABECALHO,
   ROTULO_CATEGORIA_TEMPLATE,
   ROTULO_STATUS_META,
-  cabecalhoTemMidia,
-  deslocamentoDoCabecalho,
+  headerTemMedia,
+  headerOffset,
   type CabecalhoTemplate,
   type CategoriaTemplate,
 } from '../../lib/comunicacao';
-import { excluirModeloDoCanal, sincronizarModelosDoCanal } from '../../lib/canais-gravar';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
-import { Selecao } from '../../componentes/selecao';
-import { ModalConfirmacao } from './_modal';
-import { FormularioModelo } from './comunicacao-modelos-formulario';
+import { channelExcluirTemplate, channelSincronizarTemplates } from '../../lib/canais-gravar';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
+import { Selection } from '../../componentes/selecao';
+import { ModalConfirmation } from './_modal';
+import { FormularioTemplate } from './comunicacao-modelos-formulario';
 
 /**
  * Opções do filtro "Status" — `FICHA-message-template.md` §3 documenta
@@ -26,7 +26,7 @@ import { FormularioModelo } from './comunicacao-modelos-formulario';
  * cartão (§4 "Status na Meta"), na mesma POSIÇÃO documentada ("Filtrar
  * por:", antes da busca).
  */
-const OPCOES_STATUS = Object.keys(ROTULO_STATUS_META);
+const OPTIONS_STATUS = Object.keys(ROTULO_STATUS_META);
 
 /**
  * Posições reais de disparo, para leitura direta no cartão: sem cabeçalho de
@@ -34,40 +34,40 @@ const OPCOES_STATUS = Object.keys(ROTULO_STATUS_META);
  * o número deslocado — é a regra do §"modelos" da tarefa, visível na tela de
  * quem cadastra, não só no código de envio (`apps/workers/src/whatsapp/template.ts`).
  */
-function posicoesDeDisparo(cabecalho: string, quantidade: number): string {
-  if (quantidade === 0) return 'nenhuma';
-  const deslocamento = deslocamentoDoCabecalho(cabecalho);
-  const posicoes = Array.from({ length: quantidade }, (_, i) => i + 1 + deslocamento);
-  return posicoes.map((p) => `{{${p}}}`).join(', ');
+function disparoPositions(cabecalho: string, quantity: number): string {
+  if (quantity === 0) return 'nenhuma';
+  const offset = headerOffset(cabecalho);
+  const positions = Array.from({ length: quantity }, (_, i) => i + 1 + offset);
+  return positions.map((p) => `{{${p}}}`).join(', ');
 }
 
 /** "Sincronizar com a Meta" — um botão por canal, `POST .../modelos/sincronizar`. */
-function BarraDeSincronizacao({ canais }: { canais: CanalWhatsapp[] }) {
+function SyncBarra({ channels }: { channels: ChannelWhatsapp[] }) {
   const [sincronizando, setSincronizando] = useState<string | null>(null);
-  const [resultado, setResultado] = useState<{ canal: string; texto: string; erro?: boolean } | null>(null);
+  const [resultado, setResultado] = useState<{ channel: string; texto: string; error?: boolean } | null>(null);
 
-  async function sincronizar(canal: CanalWhatsapp) {
-    setSincronizando(canal.id);
+  async function sincronizar(channel: ChannelWhatsapp) {
+    setSincronizando(channel.id);
     setResultado(null);
-    const saida = await sincronizarModelosDoCanal(canal.id);
+    const saida = await channelSincronizarTemplates(channel.id);
     setSincronizando(null);
     if (!saida.ok) {
-      setResultado({ canal: canal.nome, texto: saida.erro, erro: true });
+      setResultado({ channel: channel.nome, texto: saida.error, error: true });
       return;
     }
-    const { criados, atualizados, removidos, ignorados } = saida.valor;
+    const { criados, atualizados, removidos, ignorados } = saida.value;
     setResultado({
-      canal: canal.nome,
+      channel: channel.nome,
       texto: `${criados} criado(s), ${atualizados} atualizado(s), ${removidos} removido(s)${ignorados ? `, ${ignorados} ignorado(s)` : ''}.`,
     });
   }
 
-  if (canais.length === 0) return null;
+  if (channels.length === 0) return null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-2)' }}>
       <div style={{ display: 'flex', gap: 'var(--p-e-2)', flexWrap: 'wrap' }}>
-        {canais.map((c) => (
+        {channels.map((c) => (
           <Botao
             key={c.id}
             type="button"
@@ -79,48 +79,48 @@ function BarraDeSincronizacao({ canais }: { canais: CanalWhatsapp[] }) {
         ))}
       </div>
       {resultado ? (
-        <Etiqueta tom={resultado.erro ? 'erro' : 'sucesso'}>
-          {resultado.canal}: {resultado.texto}
+        <Etiqueta tom={resultado.error ? 'erro' : 'sucesso'}>
+          {resultado.channel}: {resultado.texto}
         </Etiqueta>
       ) : null}
     </div>
   );
 }
 
-export function PaginaModelos() {
-  const leitura = useLeitura<{ modelos: ModeloListado[]; canais: CanalWhatsapp[] }>(
+export function PageTemplates() {
+  const read = useRead<{ modelos: TemplateListed[]; channels: ChannelWhatsapp[] }>(
     '/v1/gestao/comunicacao/modelos',
   );
   const [status, setStatus] = useState('');
-  const [paraExcluir, setParaExcluir] = useState<ModeloListado | null>(null);
+  const [paraExcluir, setParaExcluir] = useState<TemplateListed | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  if (!leitura.data) return null;
-  const { modelos: todosOsModelos, canais } = leitura.data;
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  if (!read.data) return null;
+  const { modelos: todosOsModelos, channels } = read.data;
   const modelos = status ? todosOsModelos.filter((m) => m.statusMeta === status) : todosOsModelos;
 
   async function excluir() {
     if (!paraExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
-    const resultado = await excluirModeloDoCanal(paraExcluir.canalId, paraExcluir.nome);
+    setErrorExclusao(null);
+    const resultado = await channelExcluirTemplate(paraExcluir.channelId, paraExcluir.nome);
     setExcluindo(false);
     if (!resultado.ok) {
-      setErroExclusao(resultado.erro);
+      setErrorExclusao(resultado.error);
       return;
     }
     setParaExcluir(null);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Modelos de mensagem',
       /* O texto literal do vazio deles (`FICHA-message-template.md` §6),
          apontando para onde o modelo se cadastra — aqui, o formulário logo
          abaixo da lista. */
-      vazio: 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot!',
-      vazioDescricao: 'Crie novos modelos no formulário abaixo, ou sincronize com a Meta.',
-      cartoes: modelos.map((m) => ({
+      empty: 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot!',
+      emptyDescription: 'Crie novos modelos no formulário abaixo, ou sincronize com a Meta.',
+      cards: modelos.map((m) => ({
         id: m.id,
         campos: [
           { rotulo: 'Nome', valor: m.nome },
@@ -129,22 +129,22 @@ export function PaginaModelos() {
             rotulo: 'Categoria',
             valor: ROTULO_CATEGORIA_TEMPLATE[m.categoria as CategoriaTemplate] ?? m.categoria,
           },
-          { rotulo: 'Canal', valor: m.canalNome },
+          { rotulo: 'Canal', valor: m.channelName },
           {
             rotulo: 'Cabeçalho',
             valor: ROTULO_CABECALHO[m.cabecalhoTipo as CabecalhoTemplate] ?? m.cabecalhoTipo,
           },
           {
-            rotulo: cabecalhoTemMidia(m.cabecalhoTipo)
+            rotulo: headerTemMedia(m.cabecalhoTipo)
               ? 'Variáveis (cabeçalho desloca +1)'
               : 'Variáveis',
-            valor: posicoesDeDisparo(m.cabecalhoTipo, m.variaveis.length),
+            valor: disparoPositions(m.cabecalhoTipo, m.variables.length),
           },
           { rotulo: 'Status na Meta', valor: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
         ],
         situacao: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta,
         ativa: m.statusMeta === 'aprovado',
-        procura: `${m.nome} ${m.idioma} ${m.categoria} ${m.canalNome}`.toLowerCase(),
+        procura: `${m.nome} ${m.idioma} ${m.categoria} ${m.channelName}`.toLowerCase(),
         acao: (
           <BotaoDeIcone nome="x" rotulo={`Excluir o modelo ${m.nome}`} onClick={() => setParaExcluir(m)} />
         ),
@@ -164,7 +164,7 @@ export function PaginaModelos() {
         <h2>Modelos de mensagens</h2>
       </div>
 
-      <BarraDeSincronizacao canais={canais} />
+      <SyncBarra channels={channels} />
 
       {/* §2.2/§2.3: dentro do painel de conteúdo, o título repete e vem a
           linha "Filtrar por:" ANTES da busca. "Fluxo de retorno" (§3) fica de
@@ -180,32 +180,32 @@ export function PaginaModelos() {
             ocupando 69% — com o placeholder literal "Pesquise pelo nome do
             modelo de mensagem" (§3). */}
         <ListaRegras
-          secoes={secoes}
+          sections={sections}
           placeholder="Pesquise pelo nome do modelo de mensagem"
-          ocultarCabecalhoDeSecao
-          filtros={
+          sectionOcultarHeader
+          filters={
             <>
               <span className="filtrar-rotulo">Filtrar por:</span>
-              <Selecao value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+              <Selection value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
                 <option value="">Status</option>
-                {OPCOES_STATUS.map((s) => (
+                {OPTIONS_STATUS.map((s) => (
                   <option key={s} value={s}>
                     {ROTULO_STATUS_META[s]}
                   </option>
                 ))}
-              </Selecao>
+              </Selection>
             </>
           }
         />
       </div>
 
-      <FormularioModelo canais={canais} />
+      <FormularioTemplate channels={channels} />
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={paraExcluir !== null}
         titulo="Excluir modelo"
-        mensagem={`Excluir "${paraExcluir?.nome}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}
-        erro={erroExclusao}
+        message={`Excluir "${paraExcluir?.nome}"? A Meta apaga o modelo em todos os idiomas cadastrados com este nome.`}
+        error={errorExclusao}
         confirmando={excluindo}
         rotuloConfirmar="Excluir"
         onConfirmar={() => void excluir()}

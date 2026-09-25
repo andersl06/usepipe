@@ -1,12 +1,12 @@
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import {
   ROTULO_ALVO,
-  ROTULO_ESCOPO,
-  type FilaConfigurada,
+  ROTULO_SCOPE,
+  type QueueConfigured,
   type RegraSlaConfigurada,
 } from '../../lib/configuracoes';
-import { duracao, numero } from '../../lib/formato';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { duration, numero } from '../../lib/formato';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
 
 /**
  * Regras: o que decide o SLA e a capacidade de cada fila.
@@ -22,54 +22,54 @@ import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras'
  * Somente leitura por enquanto — ver o comentário de `lib/configuracoes.ts` e a
  * divergência registrada no §6 da pesquisa.
  */
-export function PaginaRegras() {
-  const leitura = useLeitura<{ filas: FilaConfigurada[]; regras: RegraSlaConfigurada[] }>(
+export function PageRules() {
+  const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(
     '/v1/gestao/configuracoes/regras',
   );
-  if (!leitura.data) return null;
-  const { filas, regras } = leitura.data;
+  if (!read.data) return null;
+  const { queues, regras } = read.data;
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Regras de SLA',
-      vazio: 'Nenhuma regra de SLA cadastrada. Toda conversa aparece como “Sem regra”.',
-      cartoes: regras.map((r) => {
-        const escopo = `${ROTULO_ESCOPO[r.escopoTipo] ?? r.escopoTipo}${r.escopoNome ? ` · ${r.escopoNome}` : ''}`;
+      empty: 'Nenhuma regra de SLA cadastrada. Toda conversa aparece como “Sem regra”.',
+      cards: regras.map((r) => {
+        const scope = `${ROTULO_SCOPE[r.scopeType] ?? r.scopeType}${r.scopeName ? ` · ${r.scopeName}` : ''}`;
         return {
           id: r.id,
           campos: [
             { rotulo: 'Regra', valor: r.nome },
             { rotulo: 'Alvo', valor: ROTULO_ALVO[r.alvo] ?? r.alvo },
-            { rotulo: 'Prazo', valor: duracao(r.prazoSeg), classe: 'num' },
+            { rotulo: 'Prazo', valor: duration(r.prazoSeg), classe: 'num' },
             {
               rotulo: 'Alerta',
-              valor: r.alertaSeg === null ? '—' : duracao(r.alertaSeg),
+              valor: r.alertaSeg === null ? '—' : duration(r.alertaSeg),
               classe: 'num',
             },
-            { rotulo: 'Escopo', valor: escopo },
+            { rotulo: 'Escopo', valor: scope },
           ],
-          situacao: r.ativa ? 'Ativa' : 'Desativada',
-          ativa: r.ativa,
-          procura: `${r.nome} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${escopo}`.toLowerCase(),
+          situacao: r.active ? 'Ativa' : 'Desativada',
+          ativa: r.active,
+          procura: `${r.nome} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${scope}`.toLowerCase(),
         };
       }),
     },
     {
       titulo: 'Filas',
-      vazio: 'Nenhuma fila cadastrada.',
-      cartoes: filas.map((f) => ({
+      empty: 'Nenhuma fila cadastrada.',
+      cards: queues.map((f) => ({
         id: f.id,
         campos: [
           { rotulo: 'Fila', valor: f.nome },
-          { rotulo: 'Capacidade padrão', valor: numero(f.capacidadePadrao), classe: 'num' },
-          { rotulo: 'Ordem', valor: numero(f.ordem), classe: 'num' },
+          { rotulo: 'Capacidade padrão', valor: numero(f.capacityDefault), classe: 'num' },
+          { rotulo: 'Ordem', valor: numero(f.order), classe: 'num' },
           {
             rotulo: 'Horário de atendimento',
             valor: f.temHorario ? 'Definido' : 'Sem horário, o relógio corre sempre',
           },
         ],
-        situacao: f.ativa ? 'Ativa' : 'Desativada',
-        ativa: f.ativa,
+        situacao: f.active ? 'Ativa' : 'Desativada',
+        ativa: f.active,
         procura: f.nome.toLowerCase(),
       })),
     },
@@ -85,7 +85,7 @@ export function PaginaRegras() {
         </span>
       </div>
 
-      <ListaRegras secoes={secoes} />
+      <ListaRegras sections={sections} />
     </>
   );
 }

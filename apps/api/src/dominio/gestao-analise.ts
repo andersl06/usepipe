@@ -1,23 +1,23 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import {
-  NOME_DO_CANAL,
+  NAME_OF_CHANNEL,
   diasDoIntervalo,
   intervaloAnterior,
   type ArestaDaJornada,
-  type DadosDeMensagensAtivas,
-  type DadosDoDashboard,
+  type ActiveMessagesData,
+  type DashboardData,
   type Intervalo,
-  type JanelaDeInstantes,
-  type RelatorioPersonalizado,
+  type InstantesWindow,
+  type ReportCustom,
   type VisaoGeral,
 } from '@pipe/core/analise';
 import {
-  condicaoDeCursor,
-  montarPagina,
-  ordemSql,
+  conditionOfCursor,
+  assemblePage,
+  orderSql,
   type Cursor,
-  type Pagina,
+  type Page,
 } from '../paginacao.js';
 
 /**
@@ -28,12 +28,12 @@ import {
  */
 
 /** Um intervalo em instantes, já no fuso da conta — `janelaDeDatas` do banco.ts. */
-export async function janelaDeDatas(
-  tx: TransacaoPipe,
+export async function windowOfDatas(
+  tx: TransactionPipe,
   fuso: string,
   de: string,
   ate: string,
-): Promise<JanelaDeInstantes> {
+): Promise<InstantesWindow> {
   const r = await tx.execute<{ inicio: Date; fim: Date }>(
     sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,
                ((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,
@@ -61,17 +61,17 @@ export async function janelaDeDatas(
  * "todos os chatbots conectados") — o motor do Pipe ainda não roteia.
  */
 export async function carregarDashboard(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   fluxoId: string,
   intervalo: Intervalo,
   fuso: string,
-): Promise<DadosDoDashboard | null> {
+): Promise<DashboardData | null> {
   const anterior = intervaloAnterior(intervalo);
   {
-    const { rows: contato } = await tx.execute<{ tipo: string; canal: string | null }>(
+    const { rows: contact } = await tx.execute<{ tipo: string; canal: string | null }>(
       sql`select f.tipo, k.tipo as canal from fluxo f left join canal k on k.id = f.canal_id where f.id = ${fluxoId}`,
     );
-    if (!contato[0]) return null;
+    if (!contact[0]) return null;
 
     const medir = async (i: Intervalo) => {
       /* Um `rollup` por dia: as linhas de cada dia e, com `dia` nulo, o período
@@ -81,7 +81,7 @@ export async function carregarDashboard(
         enviadas: number;
         recebidas: number;
         total: number;
-        com_interacao: number;
+        withInteraction: number;
         recorrentes: number;
       }>(sql`
         with conv as (
@@ -110,8 +110,8 @@ export async function carregarDashboard(
          group by rollup (dia)
          order by dia nulls first
       `);
-      const [soma, ...porDia] = rows;
-      const { rows: fluxo } = await tx.execute<{ total: number; transbordo: number }>(sql`
+      const [soma, ...byDay] = rows;
+      const { rows: flow } = await tx.execute<{ total: number; transbordo: number }>(sql`
         select count(distinct e.contato_id)::int as total,
                count(distinct e.contato_id) filter (where exists (
                  select 1 from evento_atendimento ev
@@ -126,7 +126,7 @@ export async function carregarDashboard(
       `);
       /* O `rollup` devolve a linha do total mesmo sem mensagem nenhuma; o que
          falta são os dias vazios, e o gráfico da origem tem um rótulo por dia. */
-      const doDia = new Map(porDia.map((d) => [d.dia, d]));
+      const doDia = new Map(byDay.map((d) => [d.dia, d]));
       return {
         soma,
         porDia: diasDoIntervalo(i).map((d) => ({
@@ -134,9 +134,9 @@ export async function carregarDashboard(
           enviadas: doDia.get(d)?.enviadas ?? 0,
           recebidas: doDia.get(d)?.recebidas ?? 0,
           total: doDia.get(d)?.total ?? 0,
-          com_interacao: doDia.get(d)?.com_interacao ?? 0,
+          com_interacao: doDia.get(d)?.withInteraction ?? 0,
         })),
-        fluxo: fluxo[0],
+        fluxo: flow[0],
       };
     };
 
@@ -168,42 +168,42 @@ export async function carregarDashboard(
        limit 10
     `);
 
-    const canal = contato[0].canal;
+    const channel = contact[0].canal;
     return {
-      roteador: contato[0].tipo === 'roteador',
-      canal: canal ? (NOME_DO_CANAL[canal] ?? canal) : null,
-      contatos: {
-        comInteracao: par((m) => m.soma?.com_interacao),
+      router: contact[0].tipo === 'roteador',
+      channel: channel ? (NAME_OF_CHANNEL[channel] ?? channel) : null,
+      contacts: {
+        withInteraction: par((m) => m.soma?.withInteraction),
         total: par((m) => m.soma?.total),
-        porDia: agora.porDia.map((d) => ({
+        byDia: agora.porDia.map((d) => ({
           dia: d.dia,
           comInteracao: d.com_interacao,
           total: d.total,
         })),
       },
-      mensagens: {
+      messages: {
         enviadas: par((m) => m.soma?.enviadas),
         recebidas: par((m) => m.soma?.recebidas),
-        porDia: agora.porDia.map((d) => ({
+        byDia: agora.porDia.map((d) => ({
           dia: d.dia,
           enviadas: d.enviadas,
           recebidas: d.recebidas,
         })),
       },
       recorrencia: {
-        contatos: par((m) => m.soma?.recorrentes),
+        contacts: par((m) => m.soma?.recorrentes),
         maisRecorrentes: topo.map((t) => ({
           nome: t.nome ?? t.id,
           recorrencia: t.recorrencia,
           telefone: t.telefone,
         })),
       },
-      fluxo: {
+      flow: {
         transbordo: par((m) => m.fluxo?.transbordo),
         total: par((m) => m.fluxo?.total),
-        excecao: null,
+        exception: null,
       },
-      blocosExcecao: [],
+      blocksException: [],
       blocosTransbordo: [],
     };
   }
@@ -218,9 +218,9 @@ export async function carregarDashboard(
  * ponytail: a origem pede de 20 em 20 conforme rola; aqui vêm os 1000 mais
  * recentes de uma vez — o mesmo teto que a dica do "Exportar lista" anuncia.
  */
-export async function carregarListaDeContatos(
-  tx: TransacaoPipe,
-  fluxoId: string,
+export async function loadListOfContacts(
+  tx: TransactionPipe,
+  flowId: string,
   intervalo: Intervalo,
   fuso: string,
   tipo: 'interacao' | 'rejeicao',
@@ -233,7 +233,7 @@ export async function carregarListaDeContatos(
         join contato c on c.id = cv.contato_id
        where m.direcao in ('entrada', 'saida')
          and exists (select 1 from execucao_fluxo e join fluxo_versao v on v.id = e.fluxo_versao_id
-                      where e.conversa_id = cv.id and v.fluxo_id = ${fluxoId})
+                      where e.conversa_id = cv.id and v.fluxo_id = ${flowId})
          and m.criada_em >= (${intervalo.inicio}::date)::timestamp at time zone ${fuso}
          and m.criada_em < ((${intervalo.fim}::date + 1)::timestamp) at time zone ${fuso}
        group by c.id
@@ -259,13 +259,13 @@ export async function carregarListaDeContatos(
  * `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, e a
  * resposta amarrada por `disparo_id`.
  */
-export async function carregarMensagensAtivas(
-  _tx: TransacaoPipe,
-  _fluxoId: string,
+export async function loadMessagesActive(
+  _tx: TransactionPipe,
+  unusedFlowId: string,
   _intervalo: Intervalo,
   _template: string | null,
-): Promise<DadosDeMensagensAtivas> {
-  return { status: [], respostasPorHora: Array<number>(24).fill(0), falhas: [], templates: [] };
+): Promise<ActiveMessagesData> {
+  return { status: [], respostasByHora: Array<number>(24).fill(0), falhas: [], templates: [] };
 }
 
 /* ═══════════════════════════════════ Visão geral, relatórios, jornada ═══ */
@@ -281,9 +281,9 @@ type Linha = Record<string, unknown>;
  * mensagem trafegada e fica fora.
  */
 export async function carregarVisaoGeral(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   fluxoId: string,
-  periodo: JanelaDeInstantes,
+  period: InstantesWindow,
   fuso: string,
 ): Promise<VisaoGeral> {
   const base = sql`
@@ -300,13 +300,13 @@ export async function carregarVisaoGeral(
         join conversas cv on cv.id = m.conversa_id
         join conversa c on c.id = m.conversa_id
         join inbox i on i.id = c.inbox_id
-       where m.criada_em >= ${periodo.inicio} and m.criada_em < ${periodo.fim}
+       where m.criada_em >= ${period.inicio} and m.criada_em < ${period.fim}
          and m.direcao <> 'interna'
     )`;
 
   {
-    const linhas = async <T extends Linha>(consulta: ReturnType<typeof sql>) =>
-      (await tx.execute<T>(consulta)).rows;
+    const linhas = async <T extends Linha>(query: ReturnType<typeof sql>) =>
+      (await tx.execute<T>(query)).rows;
     const n = (v: unknown) => Number(v ?? 0);
 
     const [c] = await linhas(sql`${base}
@@ -326,7 +326,7 @@ export async function carregarVisaoGeral(
              count(*) filter (where direcao = 'saida') as enviadas
         from msgs group by dia order by dia`);
 
-    const canais = await linhas(sql`${base}
+    const channels = await linhas(sql`${base}
       select ca.nome as canal, count(*) as total
         from msgs join canal ca on ca.id = msgs.canal_id
        where direcao = 'saida' and dentro_da_janela = false
@@ -341,14 +341,14 @@ export async function carregarVisaoGeral(
         enviadas: n(c?.enviadas),
         ativas: n(c?.ativas),
       },
-      porDia: dias.map((d) => ({
+      byDia: dias.map((d) => ({
         dia: String(d.dia),
         ativos: n(d.ativos),
         engajados: n(d.engajados),
         recebidas: n(d.recebidas),
         enviadas: n(d.enviadas),
       })),
-      ativasPorCanal: canais.map((d) => ({ canal: String(d.canal), total: n(d.total) })),
+      activeByChannel: channels.map((d) => ({ canal: String(d.canal), total: n(d.total) })),
     };
   }
 }
@@ -362,7 +362,7 @@ export async function carregarVisaoGeral(
  * modificado_em) com os gráficos dela, e esta função lendo os públicos mais os
  * privados da pessoa — o mesmo filtro do `getReports()` da origem.
  */
-export async function carregarRelatorios(_tx: TransacaoPipe): Promise<RelatorioPersonalizado[]> {
+export async function loadReports(_tx: TransactionPipe): Promise<ReportCustom[]> {
   return [];
 }
 
@@ -380,9 +380,9 @@ export async function carregarRelatorios(_tx: TransacaoPipe): Promise<RelatorioP
  * por etapa os N maiores e somar o resto numa aresta `tipo: 'outros'`.
  */
 export async function carregarJornada(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   fluxoId: string,
-  periodo: JanelaDeInstantes,
+  periodo: InstantesWindow,
 ): Promise<ArestaDaJornada[]> {
   {
     const { rows } = await tx.execute<Linha>(sql`
@@ -420,7 +420,7 @@ export async function carregarJornada(
 export interface LinhaDoLog {
   id: string;
   criadaEm: string;
-  direcao: string;
+  direction: string;
   tipo: string;
   conteudo: string | null;
   metadata: unknown;
@@ -428,13 +428,13 @@ export interface LinhaDoLog {
   para: string | null;
 }
 
-export interface FiltroDoLog {
+export interface LogFilter {
   /** `AAAA-MM-DD`, no fuso da conta — mesmo formato de `intervaloDoPeriodo`. */
   de?: string;
   ate?: string;
   direcao?: string;
   tipo?: string;
-  busca?: string;
+  search?: string;
 }
 
 /**
@@ -457,28 +457,28 @@ export interface FiltroDoLog {
  * com centenas de milhares de conversas. Caminho, se doer: coluna
  * `canal_id` desnormalizada em `mensagem`, preenchida na escrita.
  */
-export async function carregarLogDeMensagens(
-  tx: TransacaoPipe,
+export async function loadLogOfMessages(
+  tx: TransactionPipe,
   fluxoId: string,
   fuso: string,
-  filtro: FiltroDoLog,
+  filter: LogFilter,
   cursor: Cursor | null,
   limite: number,
-): Promise<Pagina<LinhaDoLog>> {
-  const { rows: bot } = await tx.execute<{ canalId: string | null }>(
+): Promise<Page<LinhaDoLog>> {
+  const { rows: bot } = await tx.execute<{ channelId: string | null }>(
     sql`select canal_id as "canalId" from fluxo where id = ${fluxoId}`,
   );
-  const canalId = bot[0]?.canalId ?? null;
-  if (!canalId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
+  const channelId = bot[0]?.channelId ?? null;
+  if (!channelId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
 
-  const filtroBusca = filtro.busca?.trim() ? sql`m.conteudo ilike ${`%${filtro.busca.trim()}%`}` : sql`true`;
-  const filtroDirecao = filtro.direcao ? sql`m.direcao = ${filtro.direcao}` : sql`true`;
-  const filtroTipo = filtro.tipo ? sql`m.tipo = ${filtro.tipo}` : sql`true`;
-  const filtroDe = filtro.de
-    ? sql`m.criada_em >= (${filtro.de}::date)::timestamp at time zone ${fuso}`
+  const filterSearch = filter.search?.trim() ? sql`m.conteudo ilike ${`%${filter.search.trim()}%`}` : sql`true`;
+  const filterDirection = filter.direcao ? sql`m.direcao = ${filter.direcao}` : sql`true`;
+  const filterType = filter.tipo ? sql`m.tipo = ${filter.tipo}` : sql`true`;
+  const filterOf = filter.de
+    ? sql`m.criada_em >= (${filter.de}::date)::timestamp at time zone ${fuso}`
     : sql`true`;
-  const filtroAte = filtro.ate
-    ? sql`m.criada_em < ((${filtro.ate}::date + 1)::timestamp) at time zone ${fuso}`
+  const filterUntil = filter.ate
+    ? sql`m.criada_em < ((${filter.ate}::date + 1)::timestamp) at time zone ${fuso}`
     : sql`true`;
 
   const { rows } = await tx.execute<{
@@ -488,8 +488,8 @@ export async function carregarLogDeMensagens(
     tipo: string;
     conteudo: string | null;
     metadata: unknown;
-    contato: string | null;
-    canal: string;
+    contact: string | null;
+    channel: string;
   }>(sql`
     select m.id, m.criada_em, m.direcao, m.tipo, m.conteudo, m.dados as metadata,
            coalesce(ct.nome, ct.telefone_e164) as contato, ca.nome as canal
@@ -498,28 +498,28 @@ export async function carregarLogDeMensagens(
       join contato ct on ct.id = cv.contato_id
       join inbox i on i.id = cv.inbox_id
       join canal ca on ca.id = i.canal_id
-     where i.canal_id = ${canalId}
-       and ${filtroBusca} and ${filtroDirecao} and ${filtroTipo} and ${filtroDe} and ${filtroAte}
-       and ${condicaoDeCursor('m.criada_em', 'timestamptz', 'desc', cursor, 'm.id')}
-     order by ${ordemSql('m.criada_em', 'desc', 'm.id')}
+     where i.canal_id = ${channelId}
+       and ${filterSearch} and ${filterDirection} and ${filterType} and ${filterOf} and ${filterUntil}
+       and ${conditionOfCursor('m.criada_em', 'timestamptz', 'desc', cursor, 'm.id')}
+     order by ${orderSql('m.criada_em', 'desc', 'm.id')}
      limit ${limite + 1}
   `);
 
-  const pagina = montarPagina(rows, limite, (linha) => ({
-    valor: new Date(linha.criada_em).toISOString(),
+  const page = assemblePage(rows, limite, (linha) => ({
+    value: new Date(linha.criada_em).toISOString(),
     id: linha.id,
   }));
   return {
-    ...pagina,
-    data: pagina.data.map((linha) => ({
+    ...page,
+    data: page.data.map((linha) => ({
       id: linha.id,
       criadaEm: new Date(linha.criada_em).toISOString(),
       direcao: linha.direcao,
       tipo: linha.tipo,
       conteudo: linha.conteudo,
       metadata: linha.metadata,
-      de: linha.direcao === 'entrada' ? linha.contato : linha.canal,
-      para: linha.direcao === 'entrada' ? linha.canal : linha.contato,
+      de: linha.direcao === 'entrada' ? linha.contact : linha.channel,
+      para: linha.direcao === 'entrada' ? linha.channel : linha.contact,
     })),
   };
 }

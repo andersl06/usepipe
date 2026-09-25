@@ -1,14 +1,14 @@
 import Link from '../../../componentes/link';
 import { IconePortal } from '../../../componentes/icones-portal';
-import { useLeitura } from '../../../lib/consulta';
-import type { ContatoListado } from '@pipe/contracts';
-import { baseDoContato, useContato } from '../contato';
+import { useRead } from '../../../lib/consulta';
+import type { ContactListed } from '@pipe/contracts';
+import { contactBase, useContact } from '../contato';
 import {
-  formatarLimiteDoPeriodo,
-  formatarUltimaInteracao,
-  periodoPadrao,
-  rotuloDeContagem,
-  rotuloDoCanal,
+  formatPeriodLimit,
+  formatarUltimaInteraction,
+  periodDefault,
+  countRotulo,
+  channelRotulo,
 } from './regras';
 
 /* Estrutura do template `users-content-view` da origem (portal.js, módulo 2753):
@@ -16,13 +16,13 @@ import {
    `user-dimension` (botão tracejado "+ Adicionar filtros"); à direita `page-header`
    (Contatos + recarregar), `#contacts-filter` (contagem + `blip-daterange-picker`)
    e a lista de `card.card--mini-card.user-card`. */
-export function ListaContatosDoBot() {
-  const { contato: bot } = useContato();
+export function BotListaContacts() {
+  const { contact: bot } = useContact();
   const id = bot.id;
-  const base = baseDoContato(bot.tipo, id);
-  const leitura = useLeitura<ContatoListado[]>(`/v1/gestao/fluxos/${id}/contatos`);
-  const contatos = leitura.data ?? [];
-  const periodo = periodoPadrao(new Date());
+  const base = contactBase(bot.tipo, id);
+  const read = useRead<ContactListed[]>(`/v1/gestao/fluxos/${id}/contatos`);
+  const contacts = read.data ?? [];
+  const period = periodDefault(new Date());
   return (
     <div className="ct-listagem">
       <aside className="ct-filtros">
@@ -67,7 +67,7 @@ export function ListaContatosDoBot() {
         <div className="ct-container">
           <div className="ct-filtro-contatos">
             <div className="ct-contagem">
-              <span>{rotuloDeContagem(contatos.length)}</span>
+              <span>{countRotulo(contacts.length)}</span>
             </div>
             {/* ponytail: o seletor de período é só visual; o filtro por data não tem backend. */}
             <div className="ct-periodo" aria-label="Período">
@@ -78,43 +78,43 @@ export function ListaContatosDoBot() {
                 className="ct-periodo-data"
                 aria-label="Data inicial"
                 readOnly
-                value={formatarLimiteDoPeriodo(periodo.inicio)}
+                value={formatPeriodLimit(period.inicio)}
               />
               <span>~</span>
               <input
                 className="ct-periodo-data"
                 aria-label="Data final"
                 readOnly
-                value={formatarLimiteDoPeriodo(periodo.fim)}
+                value={formatPeriodLimit(period.fim)}
               />
             </div>
           </div>
-          {contatos.length === 0 ? (
+          {contacts.length === 0 ? (
             <div className="ct-sem-contatos">Nenhum contato encontrado</div>
           ) : (
             <div className="ct-cartoes">
-              {contatos.map((contato) => (
+              {contacts.map((contact) => (
                 <Link
                   className="ct-usuario"
-                  href={`${base}/contatos/${contato.id}`}
-                  key={contato.id}
+                  href={`${base}/contatos/${contact.id}`}
+                  key={contact.id}
                 >
                   <span className="ct-secao ct-secao-avatar">
                     <span className="ct-avatar">
-                      {contato.avatarUrl ? (
-                        <img src={contato.avatarUrl} alt="" />
+                      {contact.avatarUrl ? (
+                        <img src={contact.avatarUrl} alt="" />
                       ) : (
                         <IconePortal nome="avatar" tamanho={32} />
                       )}
                     </span>
                   </span>
                   <span className="ct-secao ct-secao-nome">
-                    <span className="ct-nome">{contato.nome ?? '-'}</span>
+                    <span className="ct-nome">{contact.nome ?? '-'}</span>
                     <span className="ct-ultima-interacao">
                       <span>Última interação:</span>&nbsp;
                       <span>
-                        {formatarUltimaInteracao(
-                          contato.ultimaConversa ? new Date(contato.ultimaConversa) : null,
+                        {formatarUltimaInteraction(
+                          contact.lastConversation ? new Date(contact.lastConversation) : null,
                         )}
                       </span>
                     </span>
@@ -123,7 +123,7 @@ export function ListaContatosDoBot() {
                   <span className="ct-secao ct-secao-canal">
                     <span className="ct-canal-rotulo">Canal</span>
                     <span className="ct-canal-valor">
-                      {rotuloDoCanal(contato.canalTipo, contato.canalNome)}
+                      {channelRotulo(contact.canalTipo, contact.canalNome)}
                     </span>
                   </span>
                   <span className="ct-secao ct-secao-teste" />

@@ -11,10 +11,10 @@ import type { ArestaDaJornada, TipoDeAresta } from '@pipe/core/analise';
  */
 
 /** `getEdgeOrder()`: dentro da etapa, `Regular` em cima, `Other` no meio, `End` embaixo. */
-const ORDEM: Record<TipoDeAresta, number> = { regular: 0, outros: 1, saida: 2 };
+const ORDER: Record<TipoDeAresta, number> = { regular: 0, outros: 1, saida: 2 };
 
 /** `SankeyService.sumCounters`. */
-const soma = (arestas: ArestaDaJornada[]) => arestas.reduce((t, a) => t + a.quantidade, 0);
+const soma = (arestas: ArestaDaJornada[]) => arestas.reduce((t, a) => t + a.quantity, 0);
 
 /**
  * `SankeyService.getLabelSufix(nome, i)`: a fatia do nó na etapa `i` — quem
@@ -35,7 +35,7 @@ export function sufixoDoRotulo(nome: string, i: number, arestas: ArestaDaJornada
 export interface NoDoSankey {
   rotulo: string;
   tipo: TipoDeAresta;
-  coluna: number;
+  column: number;
   x: number;
   y: number;
   altura: number;
@@ -60,70 +60,70 @@ export function desenharSankey(
   folga = 30,
 ): Sankey {
   /* `orderSankeyEdges()`: por etapa, e dentro dela pelo tipo. */
-  const ordenadas = [...arestas].sort((a, b) => a.passo - b.passo || ORDEM[a.tipo] - ORDEM[b.tipo]);
+  const ordenadas = [...arestas].sort((a, b) => a.passo - b.passo || ORDER[a.tipo] - ORDER[b.tipo]);
 
-  type Acumulado = { nome: string; coluna: number; tipo: TipoDeAresta; entra: number; sai: number };
+  type Acumulado = { nome: string; column: number; tipo: TipoDeAresta; entra: number; sai: number };
   const nos = new Map<string, Acumulado>();
   /* `loadNodeColors()` empurra a origem SEM tipo e o destino COM tipo, e fica
      com a primeira aparição: nó que já nasceu como origem é `Regular`. */
-  const no = (nome: string, coluna: number, tipo: TipoDeAresta) => {
+  const no = (nome: string, column: number, tipo: TipoDeAresta) => {
     const achado = nos.get(nome);
     if (achado) return achado;
-    const novo = { nome, coluna, tipo, entra: 0, sai: 0 };
+    const novo = { nome, column, tipo, entra: 0, sai: 0 };
     nos.set(nome, novo);
     return novo;
   };
   for (const a of ordenadas) {
-    no(a.de, a.passo - 1, 'regular').sai += a.quantidade;
-    no(a.para, a.passo, a.tipo).entra += a.quantidade;
+    no(a.de, a.passo - 1, 'regular').sai += a.quantity;
+    no(a.para, a.passo, a.tipo).entra += a.quantity;
   }
 
   const lista = [...nos.values()];
-  const colunas = lista.reduce((m, n) => Math.max(m, n.coluna + 1), 0);
-  const valor = (n: Acumulado) => Math.max(n.entra, n.sai);
+  const colunas = lista.reduce((m, n) => Math.max(m, n.column + 1), 0);
+  const value = (n: Acumulado) => Math.max(n.entra, n.sai);
 
   /* A escala é a da coluna mais cheia: ela ocupa a altura toda. */
   let escala = Infinity;
   for (let c = 0; c < colunas; c++) {
-    const daColuna = lista.filter((n) => n.coluna === c);
-    const total = daColuna.reduce((t, n) => t + valor(n), 0);
-    if (total > 0) escala = Math.min(escala, (altura - folga * (daColuna.length - 1)) / total);
+    const ofColumn = lista.filter((n) => n.column === c);
+    const total = ofColumn.reduce((t, n) => t + value(n), 0);
+    if (total > 0) escala = Math.min(escala, (altura - folga * (ofColumn.length - 1)) / total);
   }
   if (!Number.isFinite(escala)) escala = 0;
 
   const passoX = colunas > 1 ? (largura - larguraDoNo) / (colunas - 1) : 0;
-  const posicao = new Map<string, { x: number; y: number; altura: number }>();
+  const position = new Map<string, { x: number; y: number; altura: number }>();
   const topo = new Array<number>(colunas).fill(0);
   const desenhados: NoDoSankey[] = lista.map((n) => {
-    const h = valor(n) * escala;
-    const p = { x: n.coluna * passoX, y: topo[n.coluna] ?? 0, altura: h };
-    topo[n.coluna] = p.y + h + folga;
-    posicao.set(n.nome, p);
+    const h = value(n) * escala;
+    const p = { x: n.column * passoX, y: topo[n.column] ?? 0, altura: h };
+    topo[n.column] = p.y + h + folga;
+    position.set(n.nome, p);
     return {
-      rotulo: `${n.nome}: ${sufixoDoRotulo(n.nome, n.coluna, arestas)}`,
+      rotulo: `${n.nome}: ${sufixoDoRotulo(n.nome, n.column, arestas)}`,
       tipo: n.tipo,
-      coluna: n.coluna,
+      coluna: n.column,
       ...p,
     };
   });
 
   const saida = new Map<string, number>();
-  const entrada = new Map<string, number>();
+  const inbound = new Map<string, number>();
   const faixas = ordenadas.map((a) => {
-    const de = posicao.get(a.de)!;
-    const para = posicao.get(a.para)!;
-    const h = a.quantidade * escala;
+    const de = position.get(a.de)!;
+    const para = position.get(a.para)!;
+    const h = a.quantity * escala;
     const y0 = de.y + (saida.get(a.de) ?? 0);
-    const y1 = para.y + (entrada.get(a.para) ?? 0);
+    const y1 = para.y + (inbound.get(a.para) ?? 0);
     saida.set(a.de, (saida.get(a.de) ?? 0) + h);
-    entrada.set(a.para, (entrada.get(a.para) ?? 0) + h);
+    inbound.set(a.para, (inbound.get(a.para) ?? 0) + h);
     const x0 = de.x + larguraDoNo;
     const x1 = para.x;
     const xm = (x0 + x1) / 2;
     return {
       d: `M${x0},${y0}C${xm},${y0} ${xm},${y1} ${x1},${y1}L${x1},${y1 + h}C${xm},${y1 + h} ${xm},${y0 + h} ${x0},${y0 + h}Z`,
       /* `createCustomTooltipContent()`: origem, destino, "N Contatos: X%". */
-      dica: `${a.de} → ${a.para}\n${a.quantidade} Contatos: ${sufixoDaDica(a, arestas)}`,
+      dica: `${a.de} → ${a.para}\n${a.quantity} Contatos: ${sufixoDaDica(a, arestas)}`,
     };
   });
 
@@ -133,5 +133,5 @@ export function desenharSankey(
 /** `getTooltipSufix()`: a fatia desta aresta entre as que saem do mesmo nó. */
 function sufixoDaDica(aresta: ArestaDaJornada, arestas: ArestaDaJornada[]): string {
   const n = soma(arestas.filter((a) => a.de === aresta.de));
-  return n ? `${((aresta.quantidade / n) * 100).toFixed(2)}%` : '';
+  return n ? `${((aresta.quantity / n) * 100).toFixed(2)}%` : '';
 }

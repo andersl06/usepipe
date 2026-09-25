@@ -10,22 +10,22 @@
  */
 
 /** O contato (o `fluxo`) e o canal dele — `GET /v1/gestao/fluxos/:id`. */
-export interface ContatoDoFluxo {
+export interface ContactOfFlow {
   id: string;
   nome: string;
   estado: string;
   tipo: string;
-  imagemUrl: string | null;
+  imageUrl: string | null;
   shortName: string | null;
   /** O "Descrição" de "Editar Fluxo"; opcional lá, nula aqui. */
-  descricao: string | null;
+  description: string | null;
   criadoEm: string | null;
   canalId: string | null;
   canalNome: string | null;
-  canalTipo: string | null;
-  canalAtivo: boolean | null;
+  channelType: string | null;
+  channelActive: boolean | null;
   /** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */
-  canalNumero: string | null;
+  channelNumber: string | null;
 }
 
 /* ---------------------------------------------------------------- Canal */
@@ -35,14 +35,14 @@ export interface ContatoDoFluxo {
  * e a resposta de `PUT`. `fluxoId`/`fluxoNome` dizem qual bot vivo está com
  * ele (um bot por número — regra da origem, `FICHA-conectar-canal-no-bot.md` §4).
  */
-export interface CanalDoFluxo {
+export interface ChannelOfFlow {
   id: string;
   tipo: string;
   nome: string;
   numero: string | null;
   ativo: boolean;
-  fluxoId: string | null;
-  fluxoNome: string | null;
+  flowId: string | null;
+  flowName: string | null;
 }
 
 /**
@@ -51,18 +51,18 @@ export interface CanalDoFluxo {
  * que já estão com outro bot (para dizer qual, como a origem manda "remover do
  * anterior"). Decisão Pipe: na origem o número nasce no bot e não há lista.
  */
-export interface CanalDoFluxoNaTela {
-  canal: CanalDoFluxo | null;
-  disponiveis: CanalDoFluxo[];
+export interface ChannelOfFlowInScreen {
+  channel: ChannelOfFlow | null;
+  disponiveis: ChannelOfFlow[];
 }
 
 /** `PUT /v1/gestao/fluxos/:id/canal`. */
-export interface PedidoDeCanalDoFluxo {
+export interface RequestOfChannelOfFlow {
   canalId: string;
 }
 
-export interface CascaDoContato {
-  contato: ContatoDoFluxo;
+export interface ShellOfContact {
+  contato: ContactOfFlow;
   /** O fuso da conta, para o "criado em" e o "hoje" não serem o do navegador. */
   fuso: string;
 }
@@ -70,7 +70,7 @@ export interface CascaDoContato {
 /* ------------------------------------------------------------- Contatos */
 
 /** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */
-export interface ContatoListado {
+export interface ContactListed {
   id: string;
   nome: string | null;
   email: string | null;
@@ -79,61 +79,61 @@ export interface ContatoListado {
   canalNome: string;
   canalTipo: string;
   conversas: number;
-  ultimaConversa: string | null;
+  lastConversation: string | null;
 }
 
-export interface TicketDoContato {
+export interface TicketOfContact {
   id: string;
   estado: string;
   criadaEm: string;
   encerradaEm: string | null;
   inbox: string;
-  fila: string | null;
-  atendente: string | null;
-  atendenteEmail: string | null;
+  queue: string | null;
+  agent: string | null;
+  agentEmail: string | null;
   resumo: string | null;
 }
 
-export interface MensagemDoHistorico {
+export interface MessageOfHistory {
   id: string;
   texto: string | null;
   tipo: string;
-  direcao: string;
+  direction: string;
   autor: string | null;
-  estado: string | null;
+  state: string | null;
   criadaEm: string;
 }
 
 /** O detalhe — `GET /v1/gestao/fluxos/:id/contatos/:contatoId[?ticketId]`. */
-export interface DetalheDoContato {
+export interface DetalheOfContact {
   pessoa: {
     id: string;
     nome: string | null;
     email: string | null;
     telefone: string | null;
-    documento: string | null;
+    document: string | null;
     avatarUrl: string | null;
     atributos: unknown;
     criadoEm: string;
   };
-  identidade: string | null;
-  canal: string | null;
-  conversas: TicketDoContato[];
-  selecionada: TicketDoContato | null;
-  historico: MensagemDoHistorico[];
+  identity: string | null;
+  channel: string | null;
+  conversations: TicketOfContact[];
+  selecionada: TicketOfContact | null;
+  history: MessageOfHistory[];
 }
 
 /* ------------------------------------------------------------------ Log */
 
 /** Uma linha do Log — `GET /v1/gestao/fluxos/:id/logs?busca=`. */
-export interface LogDoFluxo {
+export interface LogOfFlow {
   id: string;
   criadaEm: string;
   direcao: string;
   tipo: string;
   conteudo: string | null;
   metadata: unknown;
-  contato: string | null;
+  contact: string | null;
   canal: string;
   de: string | null;
   para: string | null;
@@ -144,44 +144,44 @@ export interface LogDoFluxo {
 export interface EnvioGrowth {
   id: string;
   disparoId: string | null;
-  contatoNome: string | null;
+  contactName: string | null;
   templateNome: string | null;
-  canalNome: string;
+  channelName: string;
   estado: string | null;
-  erroCodigo: string | null;
+  errorCode: string | null;
   criadaEm: string;
   custoCentavos: number | null;
 }
 
-export interface ModeloGrowth {
+export interface TemplateGrowth {
   id: string;
   nome: string;
   idioma: string;
   categoria: string;
   statusMeta: string;
   corpo: string;
-  variaveis: string[];
-  canalId: string;
+  variables: string[];
+  channelId: string;
   canalNome: string;
 }
 
-export interface ContatoGrowth {
+export interface ContactGrowth {
   id: string;
   nome: string | null;
   telefone: string;
 }
 
 /** `GET /v1/gestao/fluxos/:id/growth` — os dados são da CONTA, não do contato. */
-export interface DadosDeGrowth {
-  canais: { id: string; nome: string }[];
-  modelos: ModeloGrowth[];
-  contatos: ContatoGrowth[];
+export interface DataOfGrowth {
+  channels: { id: string; nome: string }[];
+  modelos: TemplateGrowth[];
+  contacts: ContactGrowth[];
   envios: EnvioGrowth[];
 }
 
 /* ------------------------------------------------------------ Conteúdos */
 
-export interface ModeloListado {
+export interface TemplateListed {
   id: string;
   canalId: string;
   corpo: string;
@@ -195,15 +195,15 @@ export interface ModeloListado {
 }
 
 /** `GET /v1/gestao/fluxos/:id/conteudos`. Sem canal WhatsApp, `modelos` é vazio. */
-export interface ConteudosDoFluxo {
+export interface ContentItemsOfFlow {
   canalId: string | null;
-  modelos: ModeloListado[];
+  modelos: TemplateListed[];
 }
 
 /* ------------------------------------------------------------- Serviços */
 
 /** Um chatbot (um `fluxo`) — o roteador, ou o que atende um serviço. */
-export interface ServicoDoRoteador {
+export interface RouterService {
   id: string;
   nome: string;
   estado: string;
@@ -212,7 +212,7 @@ export interface ServicoDoRoteador {
 }
 
 /** Um serviço do roteador (`roteador_servico`): o nome e o chatbot que atende. */
-export interface ServicoVinculado {
+export interface LinkedService {
   /** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */
   id: string;
   /** O nome do serviço: é o `address` do `Redirect`. */
@@ -222,8 +222,8 @@ export interface ServicoVinculado {
   /** "Não redirecionar automaticamente para o principal". */
   persistente: boolean;
   /** "Expiração do redirecionamento", em minutos; nula para principal e persistente. */
-  expiracaoMin: number | null;
-  chatbot: ServicoDoRoteador;
+  expirationMin: number | null;
+  chatbot: RouterService;
 }
 
 /**
@@ -231,11 +231,11 @@ export interface ServicoVinculado {
  * `roteador` é nulo e as listas vêm vazias. `busca` são os chatbots que podem virar
  * serviço (tipo `fluxo`, não arquivados); o não publicado aparece apagado na tela.
  */
-export interface DadosDeServicos {
-  roteador: ServicoDoRoteador | null;
-  principal: ServicoVinculado | null;
-  filhos: ServicoVinculado[];
-  busca: ServicoDoRoteador[];
+export interface DataOfServices {
+  router: RouterService | null;
+  principal: LinkedService | null;
+  filhos: LinkedService[];
+  search: RouterService[];
 }
 
 /**
@@ -243,7 +243,7 @@ export interface DadosDeServicos {
  * `PATCH …/servicos/:servicoId` (só o que muda). Principal ignora `persistente` e
  * `expiracaoMin`; persistente ignora `expiracaoMin`.
  */
-export interface PedidoDeServico {
+export interface RequestOfService {
   nome: string;
   chatbotId: string;
   principal: boolean;
@@ -254,10 +254,10 @@ export interface PedidoDeServico {
 /* --------------------------------------------------------------- Portal */
 
 /** Os tamanhos de página do `bds-pagination` da origem (`items-page="[40,80,120]"`). */
-export const POR_PAGINA = [40, 80, 120] as const;
+export const BY_PAGE = [40, 80, 120] as const;
 
 /** Um cartão da grade do portal. */
-export interface FluxoDoPortal {
+export interface FlowOfPortal {
   id: string;
   nome: string;
   estado: string;
@@ -267,7 +267,7 @@ export interface FluxoDoPortal {
 
 /** `GET /v1/gestao/fluxos?busca=&pagina=&porPagina=` — a grade, paginada no banco. */
 export interface GradeDoPortal {
-  fluxos: FluxoDoPortal[];
+  flows: FlowOfPortal[];
   /** Quantos fluxos a conta tem ao todo, ignorando a busca. */
   total: number;
   /** Quantos a busca encontrou. Sem busca, é igual a `total`. */
@@ -284,9 +284,9 @@ export interface GradeDoPortal {
  * último valor gravado (não se apagam ao desligar o interruptor), mas a tela
  * só os mostra — e só exige preenchidos — quando `ativo` é `true`.
  */
-export interface ConfiguracaoDeBoasVindas {
+export interface ConfigurationOfWelcome {
   ativo: boolean;
-  mensagem: string;
+  message: string;
   textoBotao: string;
 }
 
@@ -304,7 +304,7 @@ export interface ItemDoMenuPersistente {
  * você precisa preencher a tela de boas-vindas"): a tela some o Salvar quando
  * falsa, e a `api` recusa o PATCH do mesmo jeito.
  */
-export interface ConfiguracaoDeMenuPersistente {
+export interface ConfigurationOfMenuPersistent {
   itens: ItemDoMenuPersistente[];
   boasVindasPreenchida: boolean;
 }
@@ -318,8 +318,8 @@ export interface ConfiguracaoDeMenuPersistente {
  * globalActions }` do botão "Exportar" do Builder, com os nomes traduzidos.
  */
 export interface DesenhoDoBuilder {
-  fluxo: Record<string, unknown>;
-  globais: Record<string, unknown>;
+  flow: Record<string, unknown>;
+  globals: Record<string, unknown>;
 }
 
 /**
@@ -327,22 +327,22 @@ export interface DesenhoDoBuilder {
  * `@pipe/core`), preso ao bloco que o causa. `bloco` é o `id` do estado no
  * editor; `null` quando o erro é do fluxo inteiro (sem raiz, por exemplo).
  */
-export interface ErroDoBloco {
-  bloco: string | null;
+export interface BlockError {
+  block: string | null;
   mensagem: string;
 }
 
-export type EstadoDaVersao = 'rascunho' | 'publicada' | 'arquivada';
+export type StateOfVersion = 'rascunho' | 'publicada' | 'arquivada';
 
 /** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */
-export interface VersaoDoFluxo {
+export interface VersionOfFlow {
   id: string;
   versao: number;
-  estado: EstadoDaVersao;
+  estado: StateOfVersion;
   blocos: number;
   publicadaEm: string | null;
   /** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */
-  publicadaPor: string | null;
+  publishedBy: string | null;
   criadoEm: string | null;
   atualizadoEm: string | null;
 }
@@ -355,30 +355,30 @@ export interface VersaoDoFluxo {
 export type OrigemDoDesenho = 'rascunho' | 'publicada' | 'padrao';
 
 /** `GET /v1/gestao/fluxos/:id/builder`. */
-export interface BuilderDoFluxo {
-  fluxoId: string;
+export interface BuilderOfFlow {
+  flowId: string;
   origem: OrigemDoDesenho;
   /** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */
-  versao: VersaoDoFluxo | null;
+  versao: VersionOfFlow | null;
   /** A versão que o motor está rodando agora, se houver. */
-  publicada: VersaoDoFluxo | null;
+  publicada: VersionOfFlow | null;
   desenho: DesenhoDoBuilder;
   /** O que impediria publicar o desenho carregado. Vazio = publicável. */
-  erros: ErroDoBloco[];
+  errors: BlockError[];
   /** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */
   naoSuportado: Record<string, number>;
 }
 
 /** `PUT /v1/gestao/fluxos/:id/builder` e `POST .../versoes/:versao/restaurar`. */
 export interface RascunhoGravado {
-  versao: VersaoDoFluxo;
-  erros: ErroDoBloco[];
+  versao: VersionOfFlow;
+  erros: BlockError[];
   naoSuportado: Record<string, number>;
 }
 
 /** `POST /v1/gestao/fluxos/:id/builder/publicar`. */
 export interface VersaoPublicada {
-  versao: VersaoDoFluxo;
+  versao: VersionOfFlow;
   /** A que saiu do ar para esta entrar, se havia. */
-  arquivada: VersaoDoFluxo | null;
+  arquivada: VersionOfFlow | null;
 }

@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { IconePortal } from '../../componentes/icones-portal';
-import type { Bloco, Mapa } from './modelo';
-import { ehAtendimento } from './modelo';
+import type { Block, Mapa } from './modelo';
+import { ehAttendance } from './modelo';
 import { LIMITE_DO_TITULO } from './validacao';
 import { ROTULOS_DO_CONTEUDO } from './conteudo';
-import { ROTULOS_DAS_ACOES } from './acoes-do-bloco';
+import { ROTULOS_OF_ACTIONS } from './acoes-do-bloco';
 import { ROTULOS_DAS_SAIDAS } from './condicoes';
-import { PainelDeConteudo } from './painel-conteudo';
-import { PainelDeAcoes } from './painel-acoes';
-import { PainelDeSaidas } from './painel-saidas';
+import { ContentPanel } from './painel-conteudo';
+import { ActionsPanel } from './painel-acoes';
+import { OutputsPanel } from './painel-saidas';
 
 /**
  * A barra lateral do bloco — o `sidebar-content-component.builder-sidebar`
@@ -25,23 +25,23 @@ import { PainelDeSaidas } from './painel-saidas';
 
 type Aba = 'conteudo' | 'acoes' | 'saidas';
 
-type TagDoBloco = { label: string; color: string; indice: number };
+type BlockTag = { label: string; color: string; indice: number };
 
-function tagsDoBloco(tags: unknown[] | undefined): TagDoBloco[] {
+function blockTags(tags: unknown[] | undefined): BlockTag[] {
   return (tags ?? []).flatMap((tag, indice) => {
     if (!tag || typeof tag !== 'object') return [];
-    const valor = tag as { label?: unknown; color?: unknown; background?: unknown };
-    if (typeof valor.label !== 'string' || !valor.label.trim()) return [];
+    const value = tag as { label?: unknown; color?: unknown; background?: unknown };
+    if (typeof value.label !== 'string' || !value.label.trim()) return [];
     const cor =
-      typeof valor.color === 'string'
-        ? valor.color
-        : typeof valor.background === 'string'
-          ? valor.background
+      typeof value.color === 'string'
+        ? value.color
+        : typeof value.background === 'string'
+          ? value.background
           : '#4a5d23';
     return [
       {
         indice,
-        label: valor.label,
+        label: value.label,
         color: ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())
           ? '#4a5d23'
           : cor,
@@ -50,19 +50,19 @@ function tagsDoBloco(tags: unknown[] | undefined): TagDoBloco[] {
   });
 }
 
-export function PainelDoBloco({
-  bloco,
+export function BlockPanel({
+  block,
   mapa,
-  erros,
+  errors,
   onMudar,
   onFechar,
   onAviso,
 }: {
-  bloco: Bloco;
+  block: Block;
   mapa: Mapa;
   /** Os erros do bloco (da tela e do motor), para a faixa do topo. */
-  erros: string[];
-  onMudar: (bloco: Bloco) => void;
+  errors: string[];
+  onMudar: (block: Block) => void;
   onFechar: () => void;
   onAviso: (texto: string) => void;
 }) {
@@ -70,31 +70,31 @@ export function PainelDoBloco({
   const [editandoTitulo, setEditandoTitulo] = useState(false);
   const [novaTag, setNovaTag] = useState('');
   const [tagAberta, setTagAberta] = useState<number | null>(null);
-  const abas: { chave: Aba; rotulo: string }[] = [
+  const abas: { key: Aba; rotulo: string }[] = [
     {
       chave: 'conteudo',
-      rotulo: ehAtendimento(bloco.id)
+      rotulo: ehAttendance(block.id)
         ? ROTULOS_DO_CONTEUDO.abaAtendimento
         : ROTULOS_DO_CONTEUDO.aba,
     },
     { chave: 'saidas', rotulo: ROTULOS_DAS_SAIDAS.titulo },
-    { chave: 'acoes', rotulo: ROTULOS_DAS_ACOES.aba },
-  ].filter((a) => !ehAtendimento(bloco.id) || a.chave !== 'acoes') as {
-    chave: Aba;
+    { chave: 'acoes', rotulo: ROTULOS_OF_ACTIONS.aba },
+  ].filter((a) => !ehAttendance(block.id) || a.chave !== 'acoes') as {
+    key: Aba;
     rotulo: string;
   }[];
-  const tags = tagsDoBloco(bloco.$tags);
+  const tags = blockTags(block.$tags);
   function adicionarTag(): void {
     const label = novaTag.trim();
     if (!label || tags.some((tag) => tag.label.toLowerCase() === label.toLowerCase())) return;
     onMudar({
-      ...bloco,
-      $tags: [...(bloco.$tags ?? []), { id: crypto.randomUUID(), label, background: '#4a5d23' }],
+      ...block,
+      $tags: [...(block.$tags ?? []), { id: crypto.randomUUID(), label, background: '#4a5d23' }],
     });
     setNovaTag('');
   }
   return (
-    <aside className="bl-painel bl-painel--bloco" aria-label={`Bloco ${bloco.$title ?? bloco.id}`}>
+    <aside className="bl-painel bl-painel--bloco" aria-label={`Bloco ${block.$title ?? block.id}`}>
       <div className="bl-painel-cabecalho">
         <input
           id="builder-sidebar-title"
@@ -102,14 +102,14 @@ export function PainelDoBloco({
           type="text"
           maxLength={LIMITE_DO_TITULO}
           placeholder="Nome do bloco"
-          value={bloco.$title ?? ''}
+          value={block.$title ?? ''}
           readOnly={
-            !!bloco.root || bloco.id === 'fallback' || bloco.id === 'end' || !editandoTitulo
+            !!block.root || block.id === 'fallback' || block.id === 'end' || !editandoTitulo
           }
           data-test="state-title"
           onFocus={() => setEditandoTitulo(true)}
           onBlur={() => setEditandoTitulo(false)}
-          onChange={(e) => onMudar({ ...bloco, $title: e.target.value })}
+          onChange={(e) => onMudar({ ...block, $title: e.target.value })}
         />
         <button
           type="button"
@@ -136,7 +136,7 @@ export function PainelDoBloco({
                   type="button"
                   aria-label={`Remover tag ${tag.label}`}
                   onClick={() =>
-                    onMudar({ ...bloco, $tags: bloco.$tags?.filter((_, i) => i !== tag.indice) })
+                    onMudar({ ...block, $tags: block.$tags?.filter((_, i) => i !== tag.indice) })
                   }
                 >
                   <IconePortal nome="fechar" tamanho={12} />
@@ -152,8 +152,8 @@ export function PainelDoBloco({
                       style={{ background: cor }}
                       onClick={() => {
                         onMudar({
-                          ...bloco,
-                          $tags: bloco.$tags?.map((item, i) =>
+                          ...block,
+                          $tags: block.$tags?.map((item, i) =>
                             i === tag.indice
                               ? { ...(item as object), color: cor, background: cor }
                               : item,
@@ -182,9 +182,9 @@ export function PainelDoBloco({
           />
       </div>
       <hr className="bl-painel-fio" />
-      {erros.length > 0 ? (
+      {errors.length > 0 ? (
         <ul className="bl-erros bl-painel-erros">
-          {erros.map((e) => (
+          {errors.map((e) => (
             <li key={e}>{e}</li>
           ))}
         </ul>
@@ -192,12 +192,12 @@ export function PainelDoBloco({
       <div className="bl-abas" role="tablist">
         {abas.map((a) => (
           <button
-            key={a.chave}
+            key={a.key}
             type="button"
             role="tab"
-            aria-selected={aba === a.chave}
-            className={aba === a.chave ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
-            onClick={() => setAba(a.chave)}
+            aria-selected={aba === a.key}
+            className={aba === a.key ? 'bl-aba bl-aba--ativa' : 'bl-aba'}
+            onClick={() => setAba(a.key)}
           >
             {a.rotulo}
           </button>
@@ -205,13 +205,13 @@ export function PainelDoBloco({
       </div>
       <div className={`bl-painel-corpo bl-painel-corpo--${aba}`}>
         {aba === 'conteudo' ? (
-          <PainelDeConteudo bloco={bloco} onMudar={onMudar} onAviso={onAviso} />
+          <ContentPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
         {aba === 'acoes' ? (
-          <PainelDeAcoes bloco={bloco} onMudar={onMudar} onAviso={onAviso} />
+          <ActionsPanel block={block} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
         {aba === 'saidas' ? (
-          <PainelDeSaidas bloco={bloco} mapa={mapa} onMudar={onMudar} onAviso={onAviso} />
+          <OutputsPanel block={block} mapa={mapa} onMudar={onMudar} onAviso={onAviso} />
         ) : null}
       </div>
     </aside>

@@ -808,7 +808,7 @@ export function IconePortal({
  * `<icon name="Search" width="32" height="32">` numa grade de 72, desenhado à
  * parte do design system. Copiada como está para o traço não engordar.
  */
-export function IconeBusca({ tamanho = 32, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
+export function IconeSearch({ tamanho = 32, ...resto }: { tamanho?: number } & SVGProps<SVGSVGElement>) {
   return (
     <svg
       width={tamanho}

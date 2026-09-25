@@ -1,19 +1,19 @@
 import { Icone } from '@pipe/ui';
-import { IconeGestao } from '../../componentes/icones-gestao';
-import { Selecao } from '../../componentes/selecao';
-import type { Bloco, Mapa, SaidaDoEditor } from './modelo';
-import { SAIDAS_DE_ATENDIMENTO, ehAtendimento } from './modelo';
+import { IconeManagement } from '../../componentes/icones-gestao';
+import { Selection } from '../../componentes/selecao';
+import type { Block, Mapa, SaidaDoEditor } from './modelo';
+import { OUTPUTS_OF_ATTENDANCE, ehAttendance } from './modelo';
 import {
   ROTULOS_DAS_SAIDAS,
   adicionarSaida,
-  definirCondicoesDaSaida,
-  definirDestinoDaSaida,
+  outputDefinirConditions,
+  outputDefinirDestination,
   definirSaidaPadrao,
-  errosDaSaida,
+  outputErrors,
   moverSaida,
   removerSaida,
 } from './condicoes';
-import { EditorDeCondicoes } from './condicao';
+import { ConditionsEditor } from './condicao';
 import { CabecalhoInfo } from './cabecalho-info';
 
 /**
@@ -31,35 +31,35 @@ import { CabecalhoInfo } from './cabecalho-info';
  * encaminhamento que falhou), e só o destino se escolhe.
  */
 
-function rotuloDaSaidaDeAtendimento(saida: SaidaDoEditor): string {
+function rotuloOfOutputOfAttendance(saida: SaidaDoEditor): string {
   if (saida.$isDeskDefaultOutput) return 'sem atendente disponível (erro ao encaminhar)';
   const status = saida.conditions?.find((c) => c.variable === 'input.content@status')?.values?.[0];
-  return SAIDAS_DE_ATENDIMENTO.find((s) => s.status === status)?.rotulo ?? 'saída de atendimento';
+  return OUTPUTS_OF_ATTENDANCE.find((s) => s.status === status)?.rotulo ?? 'saída de atendimento';
 }
 
-export function PainelDeSaidas({
-  bloco,
+export function OutputsPanel({
+  block,
   mapa,
   onMudar,
   onAviso,
 }: {
-  bloco: Bloco;
+  block: Block;
   mapa: Mapa;
-  onMudar: (bloco: Bloco) => void;
+  onMudar: (block: Block) => void;
   onAviso: (texto: string) => void;
 }) {
-  const saidas = bloco.$conditionOutputs ?? [];
+  const saidas = block.$conditionOutputs ?? [];
   // O editor permite laço (`allowLoopback`): o próprio bloco também é destino.
   const destinos = Object.values(mapa);
   const existe = (id: string): boolean => id in mapa;
-  const atendimento = ehAtendimento(bloco.id);
+  const attendance = ehAttendance(block.id);
 
-  const seletorDeDestino = (valor: string, onEscolher: (id: string) => void, rotulo: string) => (
+  const destinationSeletor = (value: string, onEscolher: (id: string) => void, rotulo: string) => (
     <label className="bl-campo">
       <span className="sub">{rotulo}</span>
-      <Selecao
-        value={existe(valor) ? valor : valor ? '__outro' : ''}
-        onChange={(e) => onEscolher(e.target.value === '__outro' ? valor : e.target.value)}
+      <Selection
+        value={existe(value) ? value : value ? '__outro' : ''}
+        onChange={(e) => onEscolher(e.target.value === '__outro' ? value : e.target.value)}
       >
         <option value="">{ROTULOS_DAS_SAIDAS.direcionar}</option>
         {destinos.map((b) => (
@@ -67,20 +67,20 @@ export function PainelDeSaidas({
             {b.$title || b.id}
           </option>
         ))}
-        {valor && !existe(valor) ? <option value="__outro">{valor} (não existe)</option> : null}
-      </Selecao>
+        {value && !existe(value) ? <option value="__outro">{value} (não existe)</option> : null}
+      </Selection>
     </label>
   );
 
   function adicionar(): void {
-    const r = adicionarSaida(bloco);
-    if (r.ok) onMudar(r.bloco);
-    else onAviso(r.erro);
+    const r = adicionarSaida(block);
+    if (r.ok) onMudar(r.block);
+    else onAviso(r.error);
   }
 
   return (
     <div className="bl-aba-corpo">
-      {atendimento ? (
+      {attendance ? (
         <section className="bl-disponibilidade">
           <CabecalhoInfo titulo="Disponibilidade de atendimento" aberto>
             <p>
@@ -106,7 +106,7 @@ export function PainelDeSaidas({
                     return;
                   }
                   onMudar({
-                    ...bloco,
+                    ...block,
                     $conditionOutputs: [
                       {
                         $id: crypto.randomUUID(),
@@ -132,9 +132,9 @@ export function PainelDeSaidas({
             ) : (
               <div key={status} className="bl-saida">
                 <p>{titulo.replace('+ Condição para ', '')}</p>
-                {seletorDeDestino(
+                {destinationSeletor(
                   saidas[indice]!.stateId ?? '',
-                  (id) => onMudar(definirDestinoDaSaida(bloco, indice, id)),
+                  (id) => onMudar(outputDefinirDestination(block, indice, id)),
                   ROTULOS_DAS_SAIDAS.irPara,
                 )}
                 <button
@@ -142,10 +142,10 @@ export function PainelDeSaidas({
                   className="iconbtn"
                   aria-label="Excluir condição de disponibilidade"
                   onClick={() =>
-                    onMudar({ ...bloco, $conditionOutputs: saidas.filter((_, i) => i !== indice) })
+                    onMudar({ ...block, $conditionOutputs: saidas.filter((_, i) => i !== indice) })
                   }
                 >
-                  <IconeGestao nome="lixeira" tamanho={18} />
+                  <IconeManagement nome="lixeira" tamanho={18} />
                 </button>
               </div>
             );
@@ -170,17 +170,17 @@ export function PainelDeSaidas({
       <div className="bl-lista-de-saidas">
         {saidas.map((saida, i) => {
           if (saida.$isDeskCustomOutput) return null;
-          const erros = errosDaSaida(saida, existe);
+          const errors = outputErrors(saida, existe);
           const fixa = !!saida.$isDeskOutput;
           return (
             <section
               key={saida.$id ?? i}
-              className={`bl-saida${fixa ? ' bl-saida--atendimento' : ''}${erros.length > 0 ? ' bl-saida--erro' : ''}`}
+              className={`bl-saida${fixa ? ' bl-saida--atendimento' : ''}${errors.length > 0 ? ' bl-saida--erro' : ''}`}
             >
               <header className="bl-saida-cabecalho">
                 <b>
                   {fixa
-                    ? rotuloDaSaidaDeAtendimento(saida)
+                    ? rotuloOfOutputOfAttendance(saida)
                     : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
                 </b>
                 <span className="bl-saida-ordem">
@@ -190,7 +190,7 @@ export function PainelDeSaidas({
                     title="Subir"
                     aria-label="Subir"
                     disabled={i === 0}
-                    onClick={() => onMudar(moverSaida(bloco, i, i - 1))}
+                    onClick={() => onMudar(moverSaida(block, i, i - 1))}
                   >
                     <Icone nome="cima" tamanho={16} />
                   </button>
@@ -200,7 +200,7 @@ export function PainelDeSaidas({
                     title="Descer"
                     aria-label="Descer"
                     disabled={i === saidas.length - 1}
-                    onClick={() => onMudar(moverSaida(bloco, i, i + 1))}
+                    onClick={() => onMudar(moverSaida(block, i, i + 1))}
                   >
                     <Icone nome="baixo" tamanho={16} />
                   </button>
@@ -210,28 +210,28 @@ export function PainelDeSaidas({
                       className="iconbtn"
                       title="Deletar"
                       aria-label="Deletar"
-                      onClick={() => onMudar(removerSaida(bloco, i))}
+                      onClick={() => onMudar(removerSaida(block, i))}
                     >
-                      <IconeGestao nome="lixeira" tamanho={18} />
+                      <IconeManagement nome="lixeira" tamanho={18} />
                     </button>
                   ) : null}
                 </span>
               </header>
               {fixa ? null : (
-                <EditorDeCondicoes
-                  condicoes={saida.conditions ?? []}
-                  onMudar={(condicoes) => onMudar(definirCondicoesDaSaida(bloco, i, condicoes))}
+                <ConditionsEditor
+                  conditions={saida.conditions ?? []}
+                  onMudar={(conditions) => onMudar(outputDefinirConditions(block, i, conditions))}
                   rotuloAdicionar="+ Adicionar condição"
                 />
               )}
-              {seletorDeDestino(
+              {destinationSeletor(
                 saida.stateId ?? '',
-                (id) => onMudar(definirDestinoDaSaida(bloco, i, id)),
+                (id) => onMudar(outputDefinirDestination(block, i, id)),
                 ROTULOS_DAS_SAIDAS.irPara,
               )}
-              {erros.length > 0 ? (
+              {errors.length > 0 ? (
                 <ul className="bl-erros">
-                  {erros.map((e) => (
+                  {errors.map((e) => (
                     <li key={e}>{e}</li>
                   ))}
                 </ul>
@@ -249,9 +249,9 @@ export function PainelDeSaidas({
         <CabecalhoInfo titulo={ROTULOS_DAS_SAIDAS.saidaPadrao} aberto>
           <p>{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
         </CabecalhoInfo>
-        {seletorDeDestino(
-          bloco.$defaultOutput?.stateId ?? '',
-          (id) => onMudar(definirSaidaPadrao(bloco, id)),
+        {destinationSeletor(
+          block.$defaultOutput?.stateId ?? '',
+          (id) => onMudar(definirSaidaPadrao(block, id)),
           ROTULOS_DAS_SAIDAS.irPara,
         )}
         <p className="bl-ajuda">{ROTULOS_DAS_SAIDAS.semSeta}</p>

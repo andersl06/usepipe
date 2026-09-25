@@ -91,7 +91,7 @@ export function diaCurto(iso: string): string {
 }
 
 /** `00:00:00` para os tempos médios; `-` quando não há valor, como lá. */
-export function tempoMedio(segundos: number | null): string {
+export function timeMedio(segundos: number | null): string {
   if (segundos === null) return '-';
   const s = Math.max(0, Math.round(segundos));
   const dois = (n: number) => String(n).padStart(2, '0');

@@ -1,5 +1,5 @@
 import { createHash, createHmac } from 'node:crypto';
-import { ErroPipe } from '../../erros.js';
+import { PipeError } from '../../erros.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb
@@ -63,7 +63,7 @@ export interface NumeroDaWaba {
   status?: string;
 }
 
-export interface PermissaoDoToken {
+export interface PermissionOfToken {
   permission?: string;
   status?: string;
 }
@@ -93,7 +93,7 @@ export const CAMPOS_DO_PERFIL = 'about,address,description,email,profile_picture
  * compartilhe este código" e `FOOTER.code_expiration_minutes` (1 a 90) põe o
  * "este código expira em N minutos" — ver `montarModelo` em `modelos.ts`.
  */
-export interface ComponenteDoModelo {
+export interface ComponentOfTemplate {
   type: string;
   format?: string;
   text?: string;
@@ -103,29 +103,29 @@ export interface ComponenteDoModelo {
   code_expiration_minutes?: number;
 }
 
-export interface ModeloDaMeta {
+export interface TemplateOfMeta {
   id?: string;
   name: string;
   language: string;
   status?: string;
   category?: string;
-  components?: ComponenteDoModelo[];
+  components?: ComponentOfTemplate[];
 }
 
-export interface NovoModeloDaMeta {
+export interface NewTemplateOfMeta {
   name: string;
   language: string;
   category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-  components: ComponenteDoModelo[];
+  components: ComponentOfTemplate[];
 }
 
 export abstract class ClienteGraph {
   abstract readonly nome: 'real' | 'duble';
 
-  abstract trocarCodigoPorToken(codigo: string): Promise<{ access_token?: string }>;
+  abstract exchangeCodeByToken(codigo: string): Promise<{ access_token?: string }>;
   abstract buscarTodosOsNumeros(wabaId: string): Promise<NumeroDaWaba[]>;
   abstract buscarModelos(wabaId: string): Promise<unknown>;
-  abstract buscarPermissoes(): Promise<{ data?: PermissaoDoToken[] }>;
+  abstract fetchPermissions(): Promise<{ data?: PermissionOfToken[] }>;
   abstract buscarNumero(
     id: string,
     campos?: string,
@@ -155,7 +155,7 @@ export abstract class ClienteGraph {
    * Prova que o `appSecret` colado é o do app dono do token: a Meta confere o
    * `appsecret_proof` (HMAC-SHA256 do token com o segredo) sempre que ele vem.
    */
-  abstract conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean>;
+  abstract checkSecretOfApp(numeroId: string, secret: string): Promise<boolean>;
   abstract lerPerfil(numeroId: string): Promise<PerfilDoNumero>;
   abstract gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown>;
   /**
@@ -164,18 +164,18 @@ export abstract class ClienteGraph {
    * de exemplo no cabeçalho do modelo) esperam. O nome ficou de quando só a
    * foto subia; a API é a mesma para qualquer tipo, e `tipo` é o MIME.
    */
-  abstract subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
+  abstract upPhoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
   /** `GET /{waba}/message_templates`, todas as páginas. */
-  abstract listarModelos(wabaId: string): Promise<ModeloDaMeta[]>;
+  abstract listarModelos(wabaId: string): Promise<TemplateOfMeta[]>;
   /** `POST /{waba}/message_templates`: manda para análise da Meta. */
-  abstract criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }>;
+  abstract createTemplate(wabaId: string, template: NewTemplateOfMeta): Promise<{ id?: string; status?: string }>;
   /** `DELETE /{waba}/message_templates?name=`: some em TODOS os idiomas desse nome. */
-  abstract excluirModelo(wabaId: string, nome: string): Promise<unknown>;
+  abstract deleteTemplate(wabaId: string, nome: string): Promise<unknown>;
 
   /** `phone_number_verified?`: conectado já está registrado, mesmo com o código de verificação vencido. */
   async numeroVerificado(numeroId: string): Promise<boolean> {
-    const dados = await this.buscarNumero(numeroId, 'status,code_verification_status');
-    return dados['status'] === 'CONNECTED' || dados['code_verification_status'] === 'VERIFIED';
+    const data = await this.buscarNumero(numeroId, 'status,code_verification_status');
+    return data['status'] === 'CONNECTED' || data['code_verification_status'] === 'VERIFIED';
   }
 
   /**
@@ -196,30 +196,30 @@ export abstract class ClienteGraph {
 }
 
 /** Tira segredo de texto que vai virar mensagem de erro. Acréscimo do Pipe. */
-function esconder(texto: string, ...segredos: string[]): string {
+function esconder(texto: string, ...secrets: string[]): string {
   let saida = texto;
-  for (const segredo of segredos) {
+  for (const segredo of secrets) {
     if (segredo.length >= 8) saida = saida.split(segredo).join('«segredo»');
   }
   return saida;
 }
 
-function credenciaisDoApp(): { id: string; segredo: string } {
+function credentialsOfApp(): { id: string; secret: string } {
   const id = process.env['WHATSAPP_APP_ID'] ?? '';
-  const segredo = process.env['WHATSAPP_APP_SECRET'] ?? '';
-  if (!id || !segredo) {
+  const secret = process.env['WHATSAPP_APP_SECRET'] ?? '';
+  if (!id || !secret) {
     // Acréscimo do Pipe: o original manda string vazia e deixa a Meta recusar,
     // o que vira um erro dela sem dizer qual variável falta.
-    throw new ErroPipe(
+    throw new PipeError(
       500,
       'app_sem_credencial',
       'Faltam WHATSAPP_APP_ID e WHATSAPP_APP_SECRET: sem elas não há como trocar o código do cadastro embutido.',
     );
   }
-  return { id, segredo };
+  return { id, secret };
 }
 
-type PaginaDeNumeros = {
+type PageOfNumbers = {
   data?: NumeroDaWaba[];
   paging?: { next?: string; cursors?: { after?: string } };
 };
@@ -234,9 +234,9 @@ export class ClienteGraphReal extends ClienteGraph {
     super();
   }
 
-  private url(caminho: string, consulta: Record<string, string> = {}, versao = versaoDaApi()): string {
+  private url(caminho: string, query: Record<string, string> = {}, versao = versaoDaApi()): string {
     const url = new URL(`${URL_BASE}/${versao}/${caminho}`);
-    for (const [chave, valor] of Object.entries(consulta)) url.searchParams.set(chave, valor);
+    for (const [key, value] of Object.entries(query)) url.searchParams.set(key, value);
     return url.toString();
   }
 
@@ -248,18 +248,18 @@ export class ClienteGraphReal extends ClienteGraph {
   private async pedir<T>(
     url: string,
     init: RequestInit,
-    mensagem: string,
+    message: string,
     ...segredos: string[]
   ): Promise<T> {
     const ocultos = [this.token, process.env['WHATSAPP_APP_SECRET'] ?? '', ...segredos];
     let resposta: Response;
     try {
       resposta = await this.buscar(url, init);
-    } catch (erro) {
-      throw new ErroPipe(
+    } catch (error) {
+      throw new PipeError(
         502,
         'meta_inacessivel',
-        `${mensagem}: ${esconder(String((erro as Error)?.message ?? erro), ...ocultos)}`,
+        `${message}: ${esconder(String((error as Error)?.message ?? error), ...ocultos)}`,
       );
     }
 
@@ -272,22 +272,22 @@ export class ClienteGraphReal extends ClienteGraph {
     }
 
     if (!resposta.ok) {
-      const erro = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
-      const detalhe = erro?.message ? esconder(erro.message, ...ocultos) : `HTTP ${resposta.status}`;
-      throw new ErroPipe(502, 'meta_recusou', `${mensagem}: ${detalhe}`, {
+      const error = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
+      const detalhe = error?.message ? esconder(error.message, ...ocultos) : `HTTP ${resposta.status}`;
+      throw new PipeError(502, 'meta_recusou', `${message}: ${detalhe}`, {
         http: resposta.status,
-        ...(erro?.code === undefined ? {} : { codigo_meta: erro.code }),
+        ...(error?.code === undefined ? {} : { codigo_meta: error.code }),
       });
     }
     return corpo as T;
   }
 
-  trocarCodigoPorToken(codigo: string): Promise<{ access_token?: string }> {
-    const app = credenciaisDoApp();
+  exchangeCodeByToken(codigo: string): Promise<{ access_token?: string }> {
+    const app = credentialsOfApp();
     return this.pedir(
       this.url('oauth/access_token', {
         client_id: app.id,
-        client_secret: app.segredo,
+        client_secret: app.secret,
         code: codigo,
       }),
       {},
@@ -301,13 +301,13 @@ export class ClienteGraphReal extends ClienteGraph {
     const numeros: NumeroDaWaba[] = [];
     let depois: string | undefined;
     do {
-      const pagina: PaginaDeNumeros | null = await this.pedir<PaginaDeNumeros | null>(
+      const page: PageOfNumbers | null = await this.pedir<PageOfNumbers | null>(
         this.url(`${wabaId}/phone_numbers`, depois ? { after: depois } : {}),
         { headers: this.cabecalhos() },
         'A busca dos números da WABA falhou',
       );
-      numeros.push(...(pagina?.data ?? []));
-      depois = pagina?.paging?.next ? pagina.paging.cursors?.after : undefined;
+      numeros.push(...(page?.data ?? []));
+      depois = page?.paging?.next ? page.paging.cursors?.after : undefined;
     } while (depois);
     return numeros;
   }
@@ -320,7 +320,7 @@ export class ClienteGraphReal extends ClienteGraph {
     );
   }
 
-  buscarPermissoes(): Promise<{ data?: PermissaoDoToken[] }> {
+  fetchPermissions(): Promise<{ data?: PermissionOfToken[] }> {
     return this.pedir(
       this.url('me/permissions'),
       { headers: this.cabecalhos() },
@@ -413,7 +413,7 @@ export class ClienteGraphReal extends ClienteGraph {
     return this.pedir(this.url('app'), { headers: this.cabecalhos() }, 'A busca do aplicativo do token falhou');
   }
 
-  async conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean> {
+  async checkSecretOfApp(numeroId: string, segredo: string): Promise<boolean> {
     const prova = createHmac('sha256', segredo).update(this.token).digest('hex');
     try {
       await this.pedir(
@@ -426,7 +426,7 @@ export class ClienteGraphReal extends ClienteGraph {
       return true;
     } catch (erro) {
       // Só a recusa da Meta quer dizer "segredo errado"; rede fora é outro problema.
-      if (erro instanceof ErroPipe && erro.codigo === 'meta_recusou') return false;
+      if (erro instanceof PipeError && erro.codigo === 'meta_recusou') return false;
       throw erro;
     }
   }
@@ -457,15 +457,15 @@ export class ClienteGraphReal extends ClienteGraph {
    * de uma vez (`file_offset: 0`). O id da sessão já vem com `?sig=…` — vai
    * colado na URL, sem codificar, senão a assinatura dela deixa de bater.
    */
-  async subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string> {
-    const sessao = await this.pedir<{ id?: string }>(
+  async upPhoto(appId: string, bytes: Buffer, tipo: string): Promise<string> {
+    const session = await this.pedir<{ id?: string }>(
       this.url(`${appId}/uploads`, { file_length: String(bytes.length), file_type: tipo }),
       { method: 'POST', headers: this.cabecalhos() },
       'A abertura do envio da foto falhou',
     );
-    if (!sessao?.id) throw new ErroPipe(502, 'meta_recusou', 'A Meta não abriu a sessão de envio da foto.');
+    if (!session?.id) throw new PipeError(502, 'meta_recusou', 'A Meta não abriu a sessão de envio da foto.');
     const enviado = await this.pedir<{ h?: string }>(
-      `${URL_BASE}/${versaoDaApi()}/${sessao.id}`,
+      `${URL_BASE}/${versaoDaApi()}/${session.id}`,
       {
         method: 'POST',
         headers: { authorization: `OAuth ${this.token}`, file_offset: '0' },
@@ -473,19 +473,19 @@ export class ClienteGraphReal extends ClienteGraph {
       },
       'O envio da foto falhou',
     );
-    if (!enviado?.h) throw new ErroPipe(502, 'meta_recusou', 'A Meta não devolveu o identificador da foto.');
+    if (!enviado?.h) throw new PipeError(502, 'meta_recusou', 'A Meta não devolveu o identificador da foto.');
     return enviado.h;
   }
 
-  async listarModelos(wabaId: string): Promise<ModeloDaMeta[]> {
-    const modelos: ModeloDaMeta[] = [];
+  async listarModelos(wabaId: string): Promise<TemplateOfMeta[]> {
+    const modelos: TemplateOfMeta[] = [];
     let depois: string | undefined;
     do {
-      const consulta: Record<string, string> = { fields: 'id,name,language,status,category,components', limit: '100' };
-      if (depois) consulta['after'] = depois;
-      const pagina: { data?: ModeloDaMeta[]; paging?: { next?: string; cursors?: { after?: string } } } | null =
+      const query: Record<string, string> = { fields: 'id,name,language,status,category,components', limit: '100' };
+      if (depois) query['after'] = depois;
+      const pagina: { data?: TemplateOfMeta[]; paging?: { next?: string; cursors?: { after?: string } } } | null =
         await this.pedir(
-          this.url(`${wabaId}/message_templates`, consulta),
+          this.url(`${wabaId}/message_templates`, query),
           { headers: this.cabecalhos() },
           'A busca dos modelos de mensagem da WABA falhou',
         );
@@ -495,7 +495,7 @@ export class ClienteGraphReal extends ClienteGraph {
     return modelos;
   }
 
-  criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }> {
+  createTemplate(wabaId: string, modelo: NewTemplateOfMeta): Promise<{ id?: string; status?: string }> {
     return this.pedir(
       this.url(`${wabaId}/message_templates`),
       { method: 'POST', headers: this.cabecalhos(), body: JSON.stringify(modelo) },
@@ -503,7 +503,7 @@ export class ClienteGraphReal extends ClienteGraph {
     );
   }
 
-  excluirModelo(wabaId: string, nome: string): Promise<unknown> {
+  deleteTemplate(wabaId: string, nome: string): Promise<unknown> {
     return this.pedir(
       this.url(`${wabaId}/message_templates`, { name: nome }),
       { method: 'DELETE', headers: this.cabecalhos() },
@@ -546,8 +546,8 @@ export class ClienteGraphDuble extends ClienteGraph {
   }
 
   /** Onze dígitos estáveis a partir de um texto qualquer. */
-  static sufixo(semente: string): string {
-    const hash = createHash('sha256').update(semente).digest('hex').slice(0, 12);
+  static sufixo(seed: string): string {
+    const hash = createHash('sha256').update(seed).digest('hex').slice(0, 12);
     return BigInt(`0x${hash}`).toString().padStart(11, '0').slice(0, 11);
   }
 
@@ -559,7 +559,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     ClienteGraphDuble.chamadas.push(chamada);
   }
 
-  private semPermissao(): boolean {
+  private withoutPermission(): boolean {
     return this.token.includes('sem-permissao');
   }
 
@@ -567,11 +567,11 @@ export class ClienteGraphDuble extends ClienteGraph {
     return this.token.slice(this.token.lastIndexOf('-') + 1);
   }
 
-  trocarCodigoPorToken(codigo: string): Promise<{ access_token?: string }> {
+  exchangeCodeByToken(codigo: string): Promise<{ access_token?: string }> {
     this.registrar({ acao: 'trocar_codigo' });
     if (!codigo || codigo.startsWith('invalido')) {
       return Promise.reject(
-        new ErroPipe(
+        new PipeError(
           502,
           'meta_recusou',
           'A troca do token falhou: código de cadastro inválido ou expirado.',
@@ -588,9 +588,9 @@ export class ClienteGraphDuble extends ClienteGraph {
 
   buscarTodosOsNumeros(wabaId: string): Promise<NumeroDaWaba[]> {
     this.registrar({ acao: 'buscar_numeros', wabaId });
-    if (this.semPermissao()) {
+    if (this.withoutPermission()) {
       return Promise.reject(
-        new ErroPipe(502, 'meta_recusou', 'A busca dos números da WABA falhou: (#200) Permissions error', {
+        new PipeError(502, 'meta_recusou', 'A busca dos números da WABA falhou: (#200) Permissions error', {
           http: 403,
           codigo_meta: 200,
         }),
@@ -609,18 +609,18 @@ export class ClienteGraphDuble extends ClienteGraph {
 
   buscarModelos(wabaId: string): Promise<unknown> {
     this.registrar({ acao: 'buscar_modelos', wabaId });
-    if (this.semPermissao()) {
+    if (this.withoutPermission()) {
       return Promise.reject(
-        new ErroPipe(502, 'meta_recusou', 'A busca dos modelos de mensagem da WABA falhou: (#200) Permissions error'),
+        new PipeError(502, 'meta_recusou', 'A busca dos modelos de mensagem da WABA falhou: (#200) Permissions error'),
       );
     }
     return Promise.resolve({ data: [] });
   }
 
-  buscarPermissoes(): Promise<{ data?: PermissaoDoToken[] }> {
+  fetchPermissions(): Promise<{ data?: PermissionOfToken[] }> {
     this.registrar({ acao: 'buscar_permissoes' });
     return Promise.resolve({
-      data: this.semPermissao()
+      data: this.withoutPermission()
         ? []
         : [
             { permission: 'whatsapp_business_messaging', status: 'granted' },
@@ -685,7 +685,7 @@ export class ClienteGraphDuble extends ClienteGraph {
   }
 
   /** Segredo que começa com `bad` (hexadecimal válido) é o segredo de outro app. */
-  conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean> {
+  checkSecretOfApp(numeroId: string, segredo: string): Promise<boolean> {
     this.registrar({ acao: 'conferir_segredo', numeroId });
     return Promise.resolve(!segredo.startsWith('bad'));
   }
@@ -707,25 +707,25 @@ export class ClienteGraphDuble extends ClienteGraph {
     return Promise.resolve({ success: true });
   }
 
-  subirFoto(appId: string, bytes: Buffer): Promise<string> {
+  upPhoto(appId: string, bytes: Buffer): Promise<string> {
     this.registrar({ acao: 'subir_foto' });
     return Promise.resolve(`${appId}-${ClienteGraphDuble.sufixo(bytes.toString('base64'))}`);
   }
 
   /** Modelos por WABA. O que é criado nasce `PENDING`, como na Meta. */
-  static readonly modelos = new Map<string, ModeloDaMeta[]>();
+  static readonly modelos = new Map<string, TemplateOfMeta[]>();
 
-  listarModelos(wabaId: string): Promise<ModeloDaMeta[]> {
+  listarModelos(wabaId: string): Promise<TemplateOfMeta[]> {
     this.registrar({ acao: 'listar_modelos', wabaId });
     return Promise.resolve((ClienteGraphDuble.modelos.get(wabaId) ?? []).map((m) => ({ ...m })));
   }
 
-  criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }> {
+  createTemplate(wabaId: string, modelo: NewTemplateOfMeta): Promise<{ id?: string; status?: string }> {
     this.registrar({ acao: 'criar_modelo', wabaId });
     const lista = ClienteGraphDuble.modelos.get(wabaId) ?? [];
     if (lista.some((m) => m.name === modelo.name && m.language === modelo.language)) {
       return Promise.reject(
-        new ErroPipe(502, 'meta_recusou', 'A criação do modelo de mensagem falhou: já existe conteúdo neste idioma.', {
+        new PipeError(502, 'meta_recusou', 'A criação do modelo de mensagem falhou: já existe conteúdo neste idioma.', {
           http: 400,
           codigo_meta: 100,
         }),
@@ -737,7 +737,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     return Promise.resolve({ id, status: 'PENDING' });
   }
 
-  excluirModelo(wabaId: string, nome: string): Promise<unknown> {
+  deleteTemplate(wabaId: string, nome: string): Promise<unknown> {
     this.registrar({ acao: 'excluir_modelo', wabaId });
     const lista = ClienteGraphDuble.modelos.get(wabaId) ?? [];
     ClienteGraphDuble.modelos.set(

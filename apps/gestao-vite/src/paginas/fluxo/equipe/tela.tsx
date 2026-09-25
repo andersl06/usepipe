@@ -2,38 +2,38 @@ import { useId, useMemo, useState } from 'react';
 import { Avatar } from '@pipe/ui';
 import { useNavigate } from 'react-router-dom';
 import type {
-  MembroDoFluxo,
-  NivelNoFluxo,
-  PapelNoFluxo,
-  PermissoesNoFluxo,
-  RecursoDoFluxo,
+  MemberOfFlow,
+  LevelInFlow,
+  RoleInFlow,
+  PermissionsInFlow,
+  RecursoOfFlow,
 } from '@pipe/contracts';
 import { IconePortal } from '../../../componentes/icones-portal';
-import { Paginacao, usePagina } from '../../../componentes/paginacao';
+import { Pagination, usePage } from '../../../componentes/paginacao';
 import { atualizarLeituras } from '../../../lib/acoes';
 import { api } from '../../../lib/api';
-import { BotaoBds, CabecalhoDaPagina } from '../configuracoes/pecas';
-import { acaoDeAdicionar, COLUNAS_DE_NIVEL, PAPEIS_DO_FLUXO } from './permissoes';
+import { BotaoBds, PageHeader } from '../configuracoes/pecas';
+import { acaoDeAdicionar, COLUNAS_DE_NIVEL, ROLES_OF_FLOW } from './permissoes';
 import '../configuracoes/configuracoes.css';
 import './equipe.css';
 
 interface ResultadoSimples {
   ok: boolean;
-  erro?: string;
+  error?: string;
   codigo?: string;
 }
 
 /** O mesmo formato de `contrato/membros/convidar.tsx` — o `emailValidation`
     do blip-ds é um formato, não uma consulta. */
-const FORMATO_DE_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
+const FORMAT_OF_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
 /** O `{ erro: { codigo, mensagem } }` da `api` virado em `ResultadoSimples`. */
-function recusa(erro: unknown): ResultadoSimples {
-  const corpo = (erro as { corpo?: { erro?: { codigo?: string; mensagem?: string } } }).corpo;
+function recusa(error: unknown): ResultadoSimples {
+  const corpo = (error as { corpo?: { error?: { codigo?: string; message?: string } } }).corpo;
   return {
     ok: false,
-    erro: corpo?.erro?.mensagem ?? (erro as Error).message,
-    ...(corpo?.erro?.codigo ? { codigo: corpo.erro.codigo } : {}),
+    error: corpo?.error?.message ?? (error as Error).message,
+    ...(corpo?.error?.codigo ? { codigo: corpo.error.codigo } : {}),
   };
 }
 
@@ -42,8 +42,8 @@ async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
     await chamada;
     atualizarLeituras();
     return { ok: true };
-  } catch (erro) {
-    return recusa(erro);
+  } catch (error) {
+    return recusa(error);
   }
 }
 
@@ -55,8 +55,8 @@ async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
  * tirava do contrato inteiro. Agora tira só deste contato, que é o que a
  * origem sempre fez (`TeamController`, tudo por bot).
  */
-const caminho = (fluxoId: string, alvo?: string) =>
-  `/v1/gestao/fluxos/${fluxoId}/equipe${alvo ? `/${alvo}` : ''}`;
+const caminho = (flowId: string, alvo?: string) =>
+  `/v1/gestao/fluxos/${flowId}/equipe${alvo ? `/${alvo}` : ''}`;
 
 /**
  * O `rzslider` "Permissão" do modal de adição da origem
@@ -64,16 +64,16 @@ const caminho = (fluxoId: string, alvo?: string) =>
  * Um `<input type="range">` de verdade por baixo dá arraste e teclado sem
  * reimplementar o comportamento nativo.
  */
-function ControleDePermissao({
-  papel,
+function PermissionControle({
+  role,
   aoEscolher,
 }: {
-  papel: PapelNoFluxo;
-  aoEscolher: (papel: PapelNoFluxo) => void;
+  role: RoleInFlow;
+  aoEscolher: (role: RoleInFlow) => void;
 }) {
   const indice = Math.max(
     0,
-    PAPEIS_DO_FLUXO.findIndex((p) => p.papel === papel),
+    ROLES_OF_FLOW.findIndex((p) => p.role === role),
   );
   return (
     <div className="cf-equipe-permissao">
@@ -82,21 +82,21 @@ function ControleDePermissao({
         type="range"
         className="cf-equipe-slider"
         min={0}
-        max={PAPEIS_DO_FLUXO.length - 1}
+        max={ROLES_OF_FLOW.length - 1}
         step={1}
         value={indice}
         onChange={(evento) => {
-          const escolhido = PAPEIS_DO_FLUXO[Number(evento.target.value)];
-          if (escolhido) aoEscolher(escolhido.papel);
+          const escolhido = ROLES_OF_FLOW[Number(evento.target.value)];
+          if (escolhido) aoEscolher(escolhido.role);
         }}
         aria-label="Permissão"
       />
       <div className="cf-equipe-slider-niveis">
-        {PAPEIS_DO_FLUXO.map((parada) => (
+        {ROLES_OF_FLOW.map((parada) => (
           <span
-            key={parada.papel}
+            key={parada.role}
             className={
-              parada.papel === papel
+              parada.role === role
                 ? 'cf-equipe-slider-nivel cf-equipe-slider-nivel--ativa'
                 : 'cf-equipe-slider-nivel'
             }
@@ -119,16 +119,16 @@ function ControleDePermissao({
  * (`selectAllPermissions()`) e só "Personalizado" solta cada linha para a mão
  * (`checkStatus()`). Os RECURSOS vêm do servidor, na ordem do template deles.
  */
-export function ListaDePermissoes({
+export function PermissionsLista({
   recursos,
-  permissoes,
+  permissions,
   editavel,
-  aoTrocar,
+  toSwitch,
 }: {
-  recursos: readonly RecursoDoFluxo[];
-  permissoes: PermissoesNoFluxo;
+  recursos: readonly RecursoOfFlow[];
+  permissions: PermissionsInFlow;
   editavel: boolean;
-  aoTrocar: (chave: string, nivel: NivelNoFluxo) => void;
+  toSwitch: (key: string, nivel: LevelInFlow) => void;
 }) {
   const nomeDoGrupo = useId();
   return (
@@ -136,10 +136,10 @@ export function ListaDePermissoes({
       <div className="cf-equipe-granular-cabecalho">
         <span className="cf-equipe-granular-recurso">Funcionalidades</span>
         <div className="cf-equipe-granular-colunas">
-          {COLUNAS_DE_NIVEL.map((coluna) => (
-            <span key={coluna.nivel} className="cf-equipe-granular-coluna">
-              {coluna.rotulo}
-              <span className="cf-equipe-granular-dica" title={coluna.dica}>
+          {COLUNAS_DE_NIVEL.map((column) => (
+            <span key={column.nivel} className="cf-equipe-granular-coluna">
+              {column.rotulo}
+              <span className="cf-equipe-granular-dica" title={column.dica}>
                 <IconePortal nome="informacao-cheia" tamanho={16} />
               </span>
             </span>
@@ -149,22 +149,22 @@ export function ListaDePermissoes({
       <hr className="cf-equipe-granular-traco" />
       <ul className="cf-equipe-granular-lista">
         {recursos.map((recurso) => {
-          const nivel = permissoes[recurso.chave] ?? 'nenhum';
+          const nivel = permissions[recurso.key] ?? 'nenhum';
           return (
-            <li key={recurso.chave} className="cf-equipe-granular-linha">
+            <li key={recurso.key} className="cf-equipe-granular-linha">
               <span className="cf-equipe-granular-recurso">{recurso.titulo}</span>
               <div className="cf-equipe-granular-colunas">
-                {COLUNAS_DE_NIVEL.map((coluna) => (
-                  <span key={coluna.nivel} className="cf-equipe-granular-coluna">
+                {COLUNAS_DE_NIVEL.map((column) => (
+                  <span key={column.nivel} className="cf-equipe-granular-coluna">
                     <input
                       type="radio"
                       className="cf-equipe-radio"
-                      name={`${nomeDoGrupo}-${recurso.chave}`}
-                      checked={nivel === coluna.nivel}
-                      onChange={() => aoTrocar(recurso.chave, coluna.nivel)}
+                      name={`${nomeDoGrupo}-${recurso.key}`}
+                      checked={nivel === column.nivel}
+                      onChange={() => toSwitch(recurso.key, column.nivel)}
                       /* Fora de "Personalizado" o traço manda, como na origem. */
                       disabled={!editavel}
-                      aria-label={`${recurso.titulo}: ${coluna.rotulo}`}
+                      aria-label={`${recurso.titulo}: ${column.rotulo}`}
                     />
                   </span>
                 ))}
@@ -204,17 +204,17 @@ export function ListaDePermissoes({
  * copiar porque o Pipe não manda e-mail.
  */
 function ModalDeAdicionar({
-  fluxoId,
-  membros,
+  flowId,
+  members,
   aoFechar,
 }: {
-  fluxoId: string;
-  membros: MembroDoFluxo[];
+  flowId: string;
+  members: MemberOfFlow[];
   aoFechar: () => void;
 }) {
   const navegar = useNavigate();
   const [email, setEmail] = useState('');
-  const [papel, setPapel] = useState<PapelNoFluxo>('visualizar');
+  const [role, setRole] = useState<RoleInFlow>('visualizar');
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
   /** Aparece quando a `api` diz que a pessoa não está no contrato. */
@@ -223,25 +223,25 @@ function ModalDeAdicionar({
   const [copiado, setCopiado] = useState(false);
 
   const emailLimpo = email.trim();
-  const emailValido = FORMATO_DE_EMAIL.test(emailLimpo);
-  const emailJaMembro = membros.some((m) => m.email.toLowerCase() === emailLimpo.toLowerCase());
+  const emailValido = FORMAT_OF_EMAIL.test(emailLimpo);
+  const emailAlreadyMember = members.some((m) => m.email.toLowerCase() === emailLimpo.toLowerCase());
 
   async function salvar() {
     setEnviando(true);
     try {
-      const membro = await api.post<MembroDoFluxo>(caminho(fluxoId), {
+      const member = await api.post<MemberOfFlow>(caminho(flowId), {
         email: emailLimpo,
-        papelNoFluxo: papel,
+        papelNoFluxo: role,
       });
       atualizarLeituras();
-      if (papel === 'personalizado') {
-        navegar(`editar/${membro.usuarioId}`);
+      if (role === 'personalizado') {
+        navegar(`editar/${member.userId}`);
       } else {
         aoFechar();
       }
-    } catch (erro) {
-      const resultado = recusa(erro);
-      setAviso(resultado.erro ?? 'Não foi possível adicionar.');
+    } catch (error) {
+      const resultado = recusa(error);
+      setAviso(resultado.error ?? 'Não foi possível adicionar.');
       setConvidar(resultado.codigo === 'pessoa_fora_do_contrato');
     } finally {
       setEnviando(false);
@@ -249,7 +249,7 @@ function ModalDeAdicionar({
   }
 
   /** O `guest` de `confirmAddUser`: entrar no contrato é pré-requisito, não o gesto. */
-  async function convidarParaOContrato() {
+  async function convidarForContract() {
     setEnviando(true);
     try {
       const corpo = await api.post<{ url: string }>('/v1/convites', {
@@ -257,8 +257,8 @@ function ModalDeAdicionar({
         papel: 'guest',
       });
       setLinkCriado({ email: emailLimpo, url: corpo.url });
-    } catch (erro) {
-      setAviso(recusa(erro).erro ?? 'Não foi possível convidar.');
+    } catch (error) {
+      setAviso(recusa(error).error ?? 'Não foi possível convidar.');
     }
     setEnviando(false);
   }
@@ -333,12 +333,12 @@ function ModalDeAdicionar({
                 Formato de endereço e-mail inválido.
               </p>
             ) : null}
-            {emailValido && emailJaMembro ? (
+            {emailValido && emailAlreadyMember ? (
               <p className="cf-aviso" role="alert">
                 Essa pessoa já faz parte da equipe.
               </p>
             ) : null}
-            <ControleDePermissao papel={papel} aoEscolher={setPapel} />
+            <PermissionControle role={role} aoEscolher={setRole} />
             {aviso ? (
               <p className="cf-aviso" role="alert">
                 {aviso}
@@ -349,16 +349,16 @@ function ModalDeAdicionar({
                 Cancelar
               </BotaoBds>
               {convidar ? (
-                <BotaoBds variante="bot" disabled={enviando} onClick={convidarParaOContrato}>
+                <BotaoBds variante="bot" disabled={enviando} onClick={convidarForContract}>
                   Convidar para o contrato
                 </BotaoBds>
               ) : (
                 <BotaoBds
                   variante="bot"
-                  disabled={enviando || !emailValido || emailJaMembro}
+                  disabled={enviando || !emailValido || emailAlreadyMember}
                   onClick={salvar}
                 >
-                  {acaoDeAdicionar(papel)}
+                  {acaoDeAdicionar(role)}
                 </BotaoBds>
               )}
             </footer>
@@ -394,42 +394,42 @@ function ModalDeAdicionar({
  * era a lista de `/contrato/membros` inteira, porque não havia RBAC por fluxo.
  */
 export function TelaDeEquipe({
-  fluxoId,
-  membros,
+  flowId,
+  members,
   podeGerir,
 }: {
-  fluxoId: string;
-  membros: MembroDoFluxo[];
+  flowId: string;
+  members: MemberOfFlow[];
   podeGerir: boolean;
 }) {
   const navegar = useNavigate();
-  const [busca, setBusca] = useState('');
+  const [search, setSearch] = useState('');
   const [adicionando, setAdicionando] = useState(false);
-  const [excluindo, setExcluindo] = useState<MembroDoFluxo | null>(null);
+  const [excluindo, setExcluindo] = useState<MemberOfFlow | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
 
   const filtrados = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    if (!termo) return membros;
-    return membros.filter(
+    const termo = search.trim().toLowerCase();
+    if (!termo) return members;
+    return members.filter(
       (m) => m.nome.toLowerCase().includes(termo) || m.email.toLowerCase().includes(termo),
     );
-  }, [membros, busca]);
-  const pagina = usePagina(filtrados, 5);
+  }, [members, search]);
+  const page = usePage(filtrados, 5);
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         titulo={<h1>Equipe</h1>}
-        acoes={
+        actions={
           <div className="cf-equipe-acoes">
             <label className="cf-equipe-busca">
               <IconePortal nome="avatar" tamanho={24} />
               <input
                 type="text"
-                value={busca}
-                onChange={(evento) => setBusca(evento.target.value)}
+                value={search}
+                onChange={(evento) => setSearch(evento.target.value)}
                 placeholder="Pesquisar por nome ou e-mail"
                 aria-label="Pesquisar por nome ou e-mail"
               />
@@ -442,25 +442,25 @@ export function TelaDeEquipe({
             ) : null}
           </div>
         }
-        descricao={
+        description={
           <p>Adicione pessoas para a sua equipe e dê permissões para alterarem o Chatbot.</p>
         }
       />
       <div className="cf-container cf-equipe">
-        {pagina.visiveis.map((membro) => (
+        {page.visiveis.map((member) => (
           <div
-            key={membro.usuarioId}
+            key={member.userId}
             className={podeGerir ? 'cf-equipe-link cf-equipe-link--clicavel' : 'cf-equipe-link'}
             role={podeGerir ? 'link' : undefined}
             tabIndex={podeGerir ? 0 : undefined}
             /* `editUser(user)` da origem: o cartão inteiro (`<a class="no-decoration">`)
                e o ícone de lápis abrem a MESMA edição. */
-            onClick={podeGerir ? () => navegar(`editar/${membro.usuarioId}`) : undefined}
+            onClick={podeGerir ? () => navegar(`editar/${member.userId}`) : undefined}
             onKeyDown={
               podeGerir
                 ? (evento) => {
                     if (evento.target === evento.currentTarget && evento.key === 'Enter') {
-                      navegar(`editar/${membro.usuarioId}`);
+                      navegar(`editar/${member.userId}`);
                     }
                   }
                 : undefined
@@ -469,24 +469,24 @@ export function TelaDeEquipe({
             <div className="cf-equipe-cartao">
               <div className="cf-equipe-linha">
                 <div className="cf-equipe-secao cf-equipe-w5 cf-equipe-avatar-secao">
-                  <Avatar nome={membro.nome} className="cf-equipe-avatar" />
+                  <Avatar nome={member.nome} className="cf-equipe-avatar" />
                 </div>
                 <div className="cf-equipe-secao cf-equipe-secao--corta cf-equipe-w25">
                   <span className="cf-equipe-rotulo">Membro</span>
-                  <span className="cf-equipe-valor">{membro.nome}</span>
+                  <span className="cf-equipe-valor">{member.nome}</span>
                 </div>
                 <div className="cf-equipe-divisor" />
                 <div
                   className={`cf-equipe-secao cf-equipe-secao--corta ${
-                    membro.papelNoFluxo === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'
+                    member.roleInFlow === 'admin' ? 'cf-equipe-w20' : 'cf-equipe-w40'
                   }`}
                 >
                   <span className="cf-equipe-rotulo">E-mail</span>
-                  <span className="cf-equipe-valor" title={membro.email}>
-                    {membro.email}
+                  <span className="cf-equipe-valor" title={member.email}>
+                    {member.email}
                   </span>
                 </div>
-                {membro.papelNoFluxo === 'admin' ? (
+                {member.roleInFlow === 'admin' ? (
                   <>
                     <div className="cf-equipe-divisor" />
                     <div className="cf-equipe-secao cf-equipe-secao--selo">
@@ -501,10 +501,10 @@ export function TelaDeEquipe({
                       <button
                         type="button"
                         className="cf-equipe-icone"
-                        aria-label={`Editar ${membro.nome}`}
+                        aria-label={`Editar ${member.nome}`}
                         onClick={(evento) => {
                           evento.stopPropagation();
-                          navegar(`editar/${membro.usuarioId}`);
+                          navegar(`editar/${member.userId}`);
                         }}
                       >
                         <IconePortal nome="editar" tamanho={20} />
@@ -512,10 +512,10 @@ export function TelaDeEquipe({
                       <button
                         type="button"
                         className="cf-equipe-icone"
-                        aria-label={`Remover ${membro.nome}`}
+                        aria-label={`Remover ${member.nome}`}
                         onClick={(evento) => {
                           evento.stopPropagation();
-                          setExcluindo(membro);
+                          setExcluindo(member);
                           setAviso('');
                         }}
                       >
@@ -532,14 +532,14 @@ export function TelaDeEquipe({
         {filtrados.length === 0 ? (
           <span className="cf-equipe-vazio">Nenhum membro encontrado =(</span>
         ) : (
-          <Paginacao estado={pagina} />
+          <Pagination state={page} />
         )}
       </div>
 
       {adicionando ? (
         <ModalDeAdicionar
-          fluxoId={fluxoId}
-          membros={membros}
+          flowId={flowId}
+          members={members}
           aoFechar={() => setAdicionando(false)}
         />
       ) : null}
@@ -572,10 +572,10 @@ export function TelaDeEquipe({
                 disabled={enviando}
                 onClick={async () => {
                   setEnviando(true);
-                  const resultado = await gravar(api.delete(caminho(fluxoId, excluindo.usuarioId)));
+                  const resultado = await gravar(api.delete(caminho(flowId, excluindo.userId)));
                   setEnviando(false);
                   if (!resultado.ok) {
-                    setAviso(resultado.erro ?? 'Não foi possível remover.');
+                    setAviso(resultado.error ?? 'Não foi possível remover.');
                     return;
                   }
                   setExcluindo(null);

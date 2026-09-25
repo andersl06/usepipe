@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { NormalizadorBrasil, candidatosDoTelefone, paraE164 } from '@pipe/core';
 import { CsvMalformado, escreverCsv, lerCsv } from '../src/csv.js';
-import { chaveDaColuna } from '../src/importacao-de-contatos.js';
+import { keyOfColumn } from '../src/importacao-de-contatos.js';
 
 /**
  * O normalizador de telefone (porte do Chatwoot) e o leitor de CSV, sem banco.
@@ -13,7 +13,7 @@ describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {
   const br = new NormalizadorBrasil();
 
   it('número parcial fica como está, sem erro', () => {
-    expect(br.candidatosDeContato('55')).toEqual(['55']);
+    expect(br.contactCandidatos('55')).toEqual(['55']);
   });
 
   it('celular antigo de oito dígitos ganha o 9', () => {
@@ -49,9 +49,9 @@ describe('telefone digitado por gente → E.164 (acréscimo do Pipe)', () => {
     ['  ', null],
     [null, null],
   ];
-  for (const [entrada, saida] of casos) {
-    it(`${JSON.stringify(entrada)} → ${String(saida)}`, () => {
-      expect(paraE164(entrada)).toBe(saida);
+  for (const [inbound, saida] of casos) {
+    it(`${JSON.stringify(inbound)} → ${String(saida)}`, () => {
+      expect(paraE164(inbound)).toBe(saida);
     });
   }
 });
@@ -90,10 +90,10 @@ describe('leitor de CSV', () => {
 
 describe('cabeçalhos em português', () => {
   it('viram as colunas que o porte reconhece', () => {
-    expect(chaveDaColuna(' Telefone ')).toBe('phone_number');
-    expect(chaveDaColuna('Celular')).toBe('phone_number');
-    expect(chaveDaColuna('E-mail')).toBe('email');
-    expect(chaveDaColuna('Nome')).toBe('name');
-    expect(chaveDaColuna('plano')).toBe('plano');
+    expect(keyOfColumn(' Telefone ')).toBe('phone_number');
+    expect(keyOfColumn('Celular')).toBe('phone_number');
+    expect(keyOfColumn('E-mail')).toBe('email');
+    expect(keyOfColumn('Nome')).toBe('name');
+    expect(keyOfColumn('plano')).toBe('plano');
   });
 });

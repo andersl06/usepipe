@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import type { ConversaAberta, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
+import type { ConversationOpen, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { api, chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/acoes';
-import { MAX_ARQUIVOS_POR_ENVIO, recusaDoLote } from '../../lib/anexos';
-import { janelaAberta } from '../../lib/ordem';
+import { MAX_FILES_BY_ENVIO, recusaDoLote } from '../../lib/anexos';
+import { windowAberta } from '../../lib/ordem';
 import { numeroDoTicket } from '../../lib/canal';
 
 /**
@@ -23,14 +23,14 @@ import { numeroDoTicket } from '../../lib/canal';
  * Enviar vai para `POST /v1/conversas/:id/mensagens` (texto, anexo ou template).
  * A nota interna não passa por aqui: é o "Comentário" do painel do contato.
  */
-export function Compositor({
-  conversa,
+export function Composer({
+  conversation,
   respostas,
   templates,
   agora,
   aoEnviar,
 }: {
-  conversa: ConversaAberta;
+  conversation: ConversationOpen;
   respostas: RespostaProntaDoDesk[];
   templates: TemplateAprovado[];
   agora: Date;
@@ -38,21 +38,21 @@ export function Compositor({
 }) {
   const [texto, setTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
-  const [painelRespostas, setPainelRespostas] = useState(false);
-  const [modeloAberto, setModeloAberto] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [panelRespostas, setPanelRespostas] = useState(false);
+  const [templateAberto, setTemplateAberto] = useState(false);
   /** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */
   const [respostaProntaId, setRespostaProntaId] = useState<string | null>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
-  const arquivo = useRef<HTMLInputElement>(null);
+  const file = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setTexto('');
-    setErro(null);
-    setPainelRespostas(false);
+    setError(null);
+    setPanelRespostas(false);
     setRespostaProntaId(null);
     campo.current?.focus();
-  }, [conversa.id]);
+  }, [conversation.id]);
 
   /* O piso e o teto do campo (4em a 11.5em): cresce com o texto. */
   useEffect(() => {
@@ -62,36 +62,36 @@ export function Compositor({
     el.style.height = `${Math.max(64, Math.min(184, el.scrollHeight))}px`;
   }, [texto]);
 
-  if (conversa.estado === 'em_espera') {
+  if (conversation.state === 'em_espera') {
     return (
       <Fechado
         titulo="Retire o cliente do Modo de espera clicando no botão abaixo."
         botao="Remover do Modo de Espera"
         aoClicar={async () => {
-          await api.post(`/v1/conversas/${conversa.id}/espera`);
+          await api.post(`/v1/conversas/${conversation.id}/espera`);
           atualizarLeituras();
         }}
       />
     );
   }
-  if (conversa.estado === 'encerrada') {
+  if (conversation.state === 'encerrada') {
     return (
       <Fechado
         titulo="Conversa encerrada pelo atendente."
-        descricao="Envie uma nova mensagem para reabrir a conversa."
+        description="Envie uma nova mensagem para reabrir a conversa."
       />
     );
   }
 
-  const aberta = janelaAberta(conversa.janelaExpiraEm, conversa.canalTipo, agora);
+  const aberta = windowAberta(conversation.windowExpiresAt, conversation.channelType, agora);
 
   async function enviar() {
     const corpo = texto.trim();
     if (!corpo || enviando) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversa.id}/mensagens`, {
+      await api.post(`/v1/conversas/${conversation.id}/mensagens`, {
         texto: corpo,
         tipo: 'texto',
         ...(respostaProntaId ? { resposta_pronta_id: respostaProntaId } : {}),
@@ -101,7 +101,7 @@ export function Compositor({
       setRespostaProntaId(null);
       aoEnviar();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
+      setError(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
     } finally {
       setEnviando(false);
       campo.current?.focus();
@@ -120,12 +120,12 @@ export function Compositor({
     const arquivos = Array.from(lista ?? []);
     if (arquivos.length === 0) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
       const recusa = recusaDoLote(arquivos);
       if (recusa) throw new Error(recusa);
 
-      const anexoIds: string[] = [];
+      const attachmentIds: string[] = [];
       for (const f of arquivos) {
         const resposta = await chamarApi(`/v1/anexos?nome=${encodeURIComponent(f.name)}`, {
           method: 'POST',
@@ -135,32 +135,32 @@ export function Compositor({
         if (!resposta.ok) {
           throw new Error(`"${f.name}": ${await motivoDaFalha(resposta)} Nenhum arquivo foi enviado.`);
         }
-        const anexo = (await resposta.json()) as { id: string };
-        anexoIds.push(anexo.id);
+        const attachment = (await resposta.json()) as { id: string };
+        attachmentIds.push(attachment.id);
       }
-      await api.post(`/v1/conversas/${conversa.id}/mensagens/anexos`, { anexo_ids: anexoIds });
+      await api.post(`/v1/conversas/${conversation.id}/mensagens/anexos`, { anexo_ids: attachmentIds });
       atualizarLeituras();
       aoEnviar();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível enviar os arquivos.');
+      setError(e instanceof Error ? e.message : 'Não foi possível enviar os arquivos.');
     } finally {
       setEnviando(false);
-      if (arquivo.current) arquivo.current.value = '';
+      if (file.current) file.current.value = '';
     }
   }
 
   function aoTeclar(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === 'Enter' && !e.shiftKey && !painelRespostas) {
+    if (e.key === 'Enter' && !e.shiftKey && !panelRespostas) {
       e.preventDefault();
       void enviar();
     }
-    if (e.key === 'Escape') setPainelRespostas(false);
+    if (e.key === 'Escape') setPanelRespostas(false);
   }
 
   function usarResposta(r: RespostaProntaDoDesk) {
     setTexto(r.corpo);
     setRespostaProntaId(r.id);
-    setPainelRespostas(false);
+    setPanelRespostas(false);
     campo.current?.focus();
   }
 
@@ -170,15 +170,15 @@ export function Compositor({
         <Fechado
           titulo="A janela de 24 horas de conversação foi excedida. Envie uma mensagem ativa para retomar o atendimento."
           botao="Enviar mensagem ativa"
-          aoClicar={() => setModeloAberto(true)}
+          aoClicar={() => setTemplateAberto(true)}
         />
-        {modeloAberto ? (
-          <ModalDeModelo
-            conversa={conversa}
+        {templateAberto ? (
+          <TemplateModal
+            conversation={conversation}
             templates={templates}
-            aoFechar={() => setModeloAberto(false)}
+            aoFechar={() => setTemplateAberto(false)}
             aoEnviar={() => {
-              setModeloAberto(false);
+              setTemplateAberto(false);
               aoEnviar();
             }}
           />
@@ -190,8 +190,8 @@ export function Compositor({
   return (
     <div className="dk-compositor">
       <div className="dk-compositor-papel">
-        {painelRespostas ? (
-          <PainelDeRespostas respostas={respostas} termo={texto} aoEscolher={usarResposta} />
+        {panelRespostas ? (
+          <RespostasPanel respostas={respostas} termo={texto} aoEscolher={usarResposta} />
         ) : null}
         <div className="dk-compositor-miolo">
           <div className="dk-compositor-campo">
@@ -217,8 +217,8 @@ export function Compositor({
                 id="custom-reply-btn"
                 title="Enviar resposta pronta"
                 aria-label="Enviar resposta pronta"
-                aria-expanded={painelRespostas}
-                onClick={() => setPainelRespostas((v) => !v)}
+                aria-expanded={panelRespostas}
+                onClick={() => setPanelRespostas((v) => !v)}
               >
                 <IconeDesk nome="resposta-pronta" />
               </button>
@@ -226,14 +226,14 @@ export function Compositor({
                 type="button"
                 className="dk-botao-icone"
                 id="send-file-btn"
-                title={`Enviar arquivos (máximo de ${MAX_ARQUIVOS_POR_ENVIO} arquivos por envio)`}
-                aria-label={`Enviar arquivos (máximo de ${MAX_ARQUIVOS_POR_ENVIO} arquivos por envio)`}
-                onClick={() => arquivo.current?.click()}
+                title={`Enviar arquivos (máximo de ${MAX_FILES_BY_ENVIO} arquivos por envio)`}
+                aria-label={`Enviar arquivos (máximo de ${MAX_FILES_BY_ENVIO} arquivos por envio)`}
+                onClick={() => file.current?.click()}
               >
                 <IconeDesk nome="anexo" />
               </button>
               <input
-                ref={arquivo}
+                ref={file}
                 type="file"
                 multiple
                 className="dk-so-leitor"
@@ -279,7 +279,7 @@ export function Compositor({
           </div>
         </div>
       </div>
-      {erro ? <p className="dk-erro">{erro}</p> : null}
+      {error ? <p className="dk-erro">{error}</p> : null}
     </div>
   );
 }
@@ -287,12 +287,12 @@ export function Compositor({
 /** O bloco que substitui o compositor (piso de 150px, uma linha e um botão). */
 function Fechado({
   titulo,
-  descricao,
+  description,
   botao,
   aoClicar,
 }: {
   titulo: string;
-  descricao?: string;
+  description?: string;
   botao?: string;
   aoClicar?: () => void | Promise<void>;
 }) {
@@ -301,7 +301,7 @@ function Fechado({
       <div className="dk-compositor-fechado">
         <div>
           <b>{titulo}</b>
-          {descricao ? <div>{descricao}</div> : null}
+          {description ? <div>{description}</div> : null}
         </div>
         {botao && aoClicar ? (
           <button type="button" className="dk-botao" onClick={() => void aoClicar()}>
@@ -319,7 +319,7 @@ function Fechado({
  * selecionar"); sem resultado, "Não há título de resposta pronta que
  * contenha este texto.". Filtra pelo título com o que está no campo.
  */
-function PainelDeRespostas({
+function RespostasPanel({
   respostas,
   termo,
   aoEscolher,
@@ -329,10 +329,10 @@ function PainelDeRespostas({
   aoEscolher: (r: RespostaProntaDoDesk) => void;
 }) {
   const [indice, setIndice] = useState(0);
-  const filtro = termo.trim().replace(/^\//, '').toLowerCase();
+  const filter = termo.trim().replace(/^\//, '').toLowerCase();
   const lista = respostas.filter(
     (r) =>
-      !filtro || r.titulo.toLowerCase().includes(filtro) || r.atalho.toLowerCase().includes(filtro),
+      !filter || r.titulo.toLowerCase().includes(filter) || r.atalho.toLowerCase().includes(filter),
   );
   const atual = lista[Math.min(indice, lista.length - 1)] ?? null;
 
@@ -396,38 +396,38 @@ function PainelDeRespostas({
  * modelo, preenche as variáveis na ordem `{{1}}`, `{{2}}`… e envia por
  * `POST /v1/conversas/:id/mensagens` com `template_id` e `parametros`.
  */
-function ModalDeModelo({
-  conversa,
+function TemplateModal({
+  conversation,
   templates,
   aoFechar,
   aoEnviar,
 }: {
-  conversa: ConversaAberta;
+  conversation: ConversationOpen;
   templates: TemplateAprovado[];
   aoFechar: () => void;
   aoEnviar: () => void;
 }) {
   const [templateId, setTemplateId] = useState(templates[0]?.id ?? '');
   const [parametros, setParametros] = useState<string[]>([]);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const template = templates.find((t) => t.id === templateId) ?? null;
-  const variaveis = Array.isArray(template?.variaveis) ? (template.variaveis as string[]) : [];
+  const variables = Array.isArray(template?.variables) ? (template.variables as string[]) : [];
 
   async function enviar() {
     if (!template) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
-      await api.post(`/v1/conversas/${conversa.id}/mensagens`, {
+      await api.post(`/v1/conversas/${conversation.id}/mensagens`, {
         tipo: 'template',
         template_id: template.id,
-        parametros: variaveis.map((_, i) => parametros[i] ?? ''),
+        parametros: variables.map((_, i) => parametros[i] ?? ''),
       });
       atualizarLeituras();
       aoEnviar();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao enviar mensagem ativa');
+      setError(e instanceof Error ? e.message : 'Erro ao enviar mensagem ativa');
     } finally {
       setEnviando(false);
     }
@@ -441,7 +441,7 @@ function ModalDeModelo({
         aria-labelledby="modelo-titulo"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {numeroDoTicket(conversa.id)}</h2>
+        <h2 id="modelo-titulo">Enviar mensagem ativa · Ticket {numeroDoTicket(conversation.id)}</h2>
         {templates.length === 0 ? (
           <p>Nenhum modelo de mensagem aprovado para este canal.</p>
         ) : (
@@ -454,7 +454,7 @@ function ModalDeModelo({
                 </option>
               ))}
             </select>
-            {variaveis.map((v, i) => (
+            {variables.map((v, i) => (
               <div key={v}>
                 <label htmlFor={`var-${i}`}>{v}</label>
                 <input
@@ -472,7 +472,7 @@ function ModalDeModelo({
             <p style={{ whiteSpace: 'pre-line' }}>{template?.corpo}</p>
           </>
         )}
-        {erro ? <p className="dk-erro">{erro}</p> : null}
+        {error ? <p className="dk-erro">{error}</p> : null}
         <div className="dk-modal-acoes">
           <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
             Cancelar

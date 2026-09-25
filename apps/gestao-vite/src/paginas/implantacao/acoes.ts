@@ -8,31 +8,31 @@ import { atualizarLeituras } from '../../lib/acoes';
  */
 export interface ResultadoDaAcao {
   ok: boolean;
-  erro?: string;
-  mensagem?: string;
+  error?: string;
+  message?: string;
   link?: string;
 }
 
-export interface InicioDoCadastro {
+export interface RegistrationStart {
   ok: boolean;
-  erro?: string;
-  estado?: string;
+  error?: string;
+  state?: string;
   appId?: string;
   configId?: string;
   versao?: string;
   modo?: 'real' | 'duble';
 }
 
-export interface CredenciaisDoCadastro {
+export interface RegistrationCredentials {
   codigo: string;
   wabaId: string;
   numeroId?: string;
   businessId?: string;
   coexistencia?: boolean;
-  estado: string;
-  canalId?: string;
+  state: string;
+  channelId?: string;
   /** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */
-  fluxoId?: string;
+  flowId?: string;
 }
 
 function postarJson(caminho: string, corpo: unknown): Promise<Response> {
@@ -44,107 +44,107 @@ function postarJson(caminho: string, corpo: unknown): Promise<Response> {
 }
 
 /** O primeiro passo do cadastro embutido: a `api` gera o estado e diz o modo. */
-export async function iniciarCadastroEmbutido(): Promise<InicioDoCadastro> {
+export async function iniciarRegistrationEmbedded(): Promise<RegistrationStart> {
   const resposta = await chamarApi('/v1/canais/whatsapp/estado', { method: 'POST' });
-  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
-  return { ok: true, ...((await resposta.json()) as Omit<InicioDoCadastro, 'ok'>) };
+  if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
+  return { ok: true, ...((await resposta.json()) as Omit<RegistrationStart, 'ok'>) };
 }
 
 /** O último: o código do Facebook vira canal na `api`. */
-export async function concluirCadastroEmbutido(
-  credenciais: CredenciaisDoCadastro,
+export async function concluirRegistrationEmbedded(
+  credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/canais/whatsapp', {
-    codigo: credenciais.codigo,
-    waba_id: credenciais.wabaId,
-    phone_number_id: credenciais.numeroId || undefined,
-    business_id: credenciais.businessId || undefined,
-    coexistencia: credenciais.coexistencia === true,
-    estado: credenciais.estado,
-    canal_id: credenciais.canalId,
-    fluxo_id: credenciais.fluxoId,
+    codigo: credentials.codigo,
+    waba_id: credentials.wabaId,
+    phone_number_id: credentials.numeroId || undefined,
+    business_id: credentials.businessId || undefined,
+    coexistencia: credentials.coexistencia === true,
+    estado: credentials.state,
+    canal_id: credentials.channelId,
+    fluxo_id: credentials.flowId,
   });
-  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
-  const canal = (await resposta.json()) as {
+  if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
+  const channel = (await resposta.json()) as {
     numero?: string | null;
     nome?: string;
     motivo?: string | null;
   };
   atualizarLeituras();
-  if (canal.motivo === 'reautorizacao_pendente') {
+  if (channel.motivo === 'reautorizacao_pendente') {
     return {
       ok: true,
-      mensagem: 'O número foi ligado, mas a Meta não aceitou a configuração do webhook. Reconecte.',
+      message: 'O número foi ligado, mas a Meta não aceitou a configuração do webhook. Reconecte.',
     };
   }
   return {
     ok: true,
-    mensagem: credenciais.canalId
+    message: credentials.channelId
       ? 'Reautorização concluída.'
-      : `WhatsApp conectado: ${canal.numero ?? canal.nome ?? 'número novo'}.`,
+      : `WhatsApp conectado: ${channel.numero ?? channel.nome ?? 'número novo'}.`,
   };
 }
 
 export async function conectarManual(
   _anterior: ResultadoDaAcao,
-  dados: FormData,
+  data: FormData,
 ): Promise<ResultadoDaAcao> {
-  const campo = (nome: string) => String(dados.get(nome) ?? '').trim();
+  const campo = (nome: string) => String(data.get(nome) ?? '').trim();
   const resposta = await postarJson('/v1/canais/whatsapp/manual', {
     waba_id: campo('wabaId'),
     phone_number_id: campo('numeroId'),
     access_token: campo('token'),
     nome: campo('nome') || undefined,
   });
-  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
-  const canal = (await resposta.json()) as { nome?: string; erroDeWebhook?: string | null };
+  if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
+  const channel = (await resposta.json()) as { nome?: string; webhookError?: string | null };
   atualizarLeituras();
-  return canal.erroDeWebhook
-    ? { ok: true, mensagem: `Canal criado, mas o webhook falhou: ${canal.erroDeWebhook}` }
-    : { ok: true, mensagem: `Canal ${canal.nome ?? ''} conectado.` };
+  return channel.webhookError
+    ? { ok: true, message: `Canal criado, mas o webhook falhou: ${channel.webhookError}` }
+    : { ok: true, message: `Canal ${channel.nome ?? ''} conectado.` };
 }
 
 export async function convidar(
   _anterior: ResultadoDaAcao,
-  dados: FormData,
+  data: FormData,
 ): Promise<ResultadoDaAcao> {
   const resposta = await postarJson('/v1/convites', {
-    email: String(dados.get('email') ?? '').trim(),
-    papel: String(dados.get('papel') ?? '').trim(),
+    email: String(data.get('email') ?? '').trim(),
+    papel: String(data.get('papel') ?? '').trim(),
   });
-  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
-  const convite = (await resposta.json()) as { email: string; url: string };
+  if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
+  const invitation = (await resposta.json()) as { email: string; url: string };
   atualizarLeituras();
-  return { ok: true, mensagem: `Convite para ${convite.email} criado.`, link: convite.url };
+  return { ok: true, message: `Convite para ${invitation.email} criado.`, link: invitation.url };
 }
 
-export async function importarContatos(
+export async function importContacts(
   _anterior: ResultadoDaAcao,
-  dados: FormData,
+  data: FormData,
 ): Promise<ResultadoDaAcao> {
-  const arquivo = dados.get('arquivo');
-  if (!(arquivo instanceof File) || arquivo.size === 0) {
-    return { ok: false, erro: 'Escolha um arquivo CSV.' };
+  const file = data.get('arquivo');
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: 'Escolha um arquivo CSV.' };
   }
   const resposta = await chamarApi(
-    `/v1/contatos/importacoes?nome=${encodeURIComponent(arquivo.name)}`,
-    { method: 'POST', body: await arquivo.text(), headers: { 'content-type': 'text/csv' } },
+    `/v1/contatos/importacoes?nome=${encodeURIComponent(file.name)}`,
+    { method: 'POST', body: await file.text(), headers: { 'content-type': 'text/csv' } },
   );
-  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
-  const importacao = (await resposta.json()) as {
-    estado: string;
+  if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
+  const import = (await resposta.json()) as {
+    state: string;
     aceitos: number;
     rejeitados: number;
   };
   atualizarLeituras();
-  if (importacao.estado === 'falhou') {
-    return { ok: false, erro: 'O arquivo tem aspas malformadas e nada foi importado.' };
+  if (import.estado === 'falhou') {
+    return { ok: false, error: 'O arquivo tem aspas malformadas e nada foi importado.' };
   }
-  if (importacao.estado === 'concluida') {
+  if (import.estado === 'concluida') {
     return {
       ok: true,
-      mensagem: `${importacao.aceitos} contato(s) importado(s), ${importacao.rejeitados} linha(s) rejeitada(s).`,
+      message: `${import.aceitos} contato(s) importado(s), ${import.rejeitados} linha(s) rejeitada(s).`,
     };
   }
-  return { ok: true, mensagem: 'Arquivo recebido. A importação roda em segundo plano.' };
+  return { ok: true, message: 'Arquivo recebido. A importação roda em segundo plano.' };
 }

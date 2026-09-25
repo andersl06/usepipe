@@ -1,15 +1,15 @@
 export const INTERVALOS_RAPIDOS = [7, 30, 60, 90] as const;
 
 /** Mesma conta do Data Extractor (`differenceInDays`), com no máximo 90 dias. */
-export function diasDoPeriodo(inicio: string, fim: string): number | null {
+export function periodDias(inicio: string, fim: string): number | null {
   const a = Date.parse(`${inicio}T00:00:00Z`);
   const b = Date.parse(`${fim}T00:00:00Z`);
   if (!inicio || !fim || Number.isNaN(a) || Number.isNaN(b) || b < a) return null;
   return Math.floor((b - a) / 86_400_000);
 }
 
-export function periodoValido(inicio: string, fim: string): boolean {
-  const dias = diasDoPeriodo(inicio, fim);
+export function periodValid(inicio: string, fim: string): boolean {
+  const dias = periodDias(inicio, fim);
   return dias !== null && dias <= 90;
 }
 

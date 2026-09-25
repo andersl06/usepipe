@@ -3,10 +3,10 @@ import { BarraDoPortal } from '../../../componentes/barra-do-portal';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { Navigate } from 'react-router-dom';
 import { useEu } from '../../../contexto/sessao';
-import { useCascaDoPortal } from '../../../lib/casca';
-import { useLeitura } from '../../../lib/consulta';
+import { portalUseShell } from '../../../lib/casca';
+import { useRead } from '../../../lib/consulta';
 import type { CertificadoMtls } from '../../../lib/certificados';
-import type { ResumoDoContrato } from '../../../lib/contrato';
+import type { ContractSummary } from '../../../lib/contrato';
 import './certificados.css';
 import { TelaDeCertificados } from './tela';
 
@@ -25,22 +25,22 @@ import { TelaDeCertificados } from './tela';
  * O contrato de dados, os textos e os modais estão em
  * `referencias-blip/pesquisa/blip-certificados-mtls.md`.
  */
-export function PaginaDeCertificados() {
+export function CertificatesPage() {
   const eu = useEu();
-  const casca = useCascaDoPortal();
-  const podeLer = eu.permissoes.includes('conta.membros.ler');
-  const leitura = useLeitura<ResumoDoContrato>(podeLer ? '/v1/gestao/contrato/resumo' : null);
-  const lista = useLeitura<CertificadoMtls[]>(
+  const shell = portalUseShell();
+  const podeLer = eu.permissions.includes('conta.membros.ler');
+  const read = useRead<ContractSummary>(podeLer ? '/v1/gestao/contrato/resumo' : null);
+  const lista = useRead<CertificadoMtls[]>(
     podeLer ? '/v1/gestao/contrato/certificados' : null,
   );
   if (!podeLer) return <Navigate to="/contrato" replace />;
-  if (!leitura.data || !lista.data) return null;
-  const contrato = leitura.data;
-  const podeEscrever = eu.permissoes.includes('conta.membros.escrever');
+  if (!read.data || !lista.data) return null;
+  const contract = read.data;
+  const podeEscrever = eu.permissions.includes('conta.membros.escrever');
 
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={casca} />
+      <BarraDoPortal data={shell} />
 
       <main className="pt-conteudo">
         {/* `setHeaderContent({ redirect: "/", text: "Certificados MTLS de {0}" })`:
@@ -49,7 +49,7 @@ export function PaginaDeCertificados() {
           <Link className="cm-voltar" href="/contrato" aria-label="Voltar ao painel do contrato">
             <IconePortal nome="esquerda" tamanho={24} />
           </Link>
-          <h1>Certificados MTLS de {contrato.nome}</h1>
+          <h1>Certificados MTLS de {contract.nome}</h1>
         </div>
 
         <TelaDeCertificados certificados={lista.data} podeEscrever={podeEscrever} />

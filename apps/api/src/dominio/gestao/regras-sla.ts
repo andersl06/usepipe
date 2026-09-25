@@ -1,10 +1,10 @@
 import { and, eq, ne } from 'drizzle-orm';
-import { fila, regraSla, slaConversa, ALVOS_SLA } from '@pipe/db/schema';
+import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { REGRA_GERENCIAR } from './cadastros.js';
+import type { TransactionPipe } from '@pipe/db';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
+import { RULE_MANAGE } from './cadastros.js';
 
 /**
  * Escrita de `regra_sla` — item 2 da tarefa de cadastros do Atendimento. A
@@ -26,11 +26,11 @@ import { REGRA_GERENCIAR } from './cadastros.js';
  * escopo seria aceita e nunca aplicada — pior que recusar na entrada.
  */
 
-const ESCOPOS_SLA_SUPORTADOS = ['tenant', 'fila'] as const;
-type EscopoSla = (typeof ESCOPOS_SLA_SUPORTADOS)[number];
+const SCOPES_SLA_SUPPORTED = ['tenant', 'fila'] as const;
+type ScopeSla = (typeof SCOPES_SLA_SUPPORTED)[number];
 
-function escopoSlaValido(bruto: string): bruto is EscopoSla {
-  return (ESCOPOS_SLA_SUPORTADOS as readonly string[]).includes(bruto);
+function scopeSlaValid(bruto: string): bruto is ScopeSla {
+  return (SCOPES_SLA_SUPPORTED as readonly string[]).includes(bruto);
 }
 
 /** Uma semana: acima disso o prazo provavelmente é erro de digitação (segundos em vez de minutos). */
@@ -43,10 +43,10 @@ export interface PedidoDeRegraSla {
   alertaSeg?: number | null;
   escopoTipo?: string;
   escopoId?: string | null;
-  ativa?: boolean;
+  active?: boolean;
 }
 
-export interface PedidoDeEdicaoDeRegraSla {
+export interface RequestOfEditOfRuleSla {
   nome?: string;
   alvo?: string;
   prazoSeg?: number;
@@ -69,14 +69,14 @@ export interface RegraSlaGravada {
 
 function nomeConferido(bruto: unknown): string {
   const nome = String(bruto ?? '').trim();
-  if (!nome) throw ErroPipe.requisicao('nome_obrigatorio', 'Informe o nome da regra.');
+  if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome da regra.');
   return nome;
 }
 
 function alvoConferido(bruto: unknown): string {
   const alvo = String(bruto ?? '');
   if (!(ALVOS_SLA as readonly string[]).includes(alvo)) {
-    throw ErroPipe.requisicao('alvo_invalido', `"${alvo}" não é um alvo de SLA válido.`);
+    throw PipeError.request('alvo_invalido', `"${alvo}" não é um alvo de SLA válido.`);
   }
   return alvo;
 }
@@ -84,7 +84,7 @@ function alvoConferido(bruto: unknown): string {
 function prazoConferido(bruto: unknown): number {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n > PRAZO_SEG_MAX) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'prazo_invalido',
       `O prazo é um inteiro de 1 a ${PRAZO_SEG_MAX} segundos (uma semana).`,
     );
@@ -97,7 +97,7 @@ function alertaConferido(bruto: unknown, prazoSeg: number): number | null {
   if (bruto === undefined || bruto === null) return null;
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n >= prazoSeg) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'alerta_invalido',
       'O alerta é um inteiro positivo, menor que o prazo — alerta que soa depois do estouro não avisa nada.',
     );
@@ -105,7 +105,7 @@ function alertaConferido(bruto: unknown, prazoSeg: number): number | null {
   return n;
 }
 
-async function nomeEmUso(tx: TransacaoPipe, tid: string, nome: string, excetoId?: string): Promise<boolean> {
+async function nomeEmUso(tx: TransactionPipe, tid: string, nome: string, excetoId?: string): Promise<boolean> {
   const [conflito] = await tx
     .select({ id: regraSla.id })
     .from(regraSla)
@@ -114,28 +114,28 @@ async function nomeEmUso(tx: TransacaoPipe, tid: string, nome: string, excetoId?
   return conflito !== undefined;
 }
 
-async function escopoConferido(
-  tx: TransacaoPipe,
+async function scopeChecked(
+  tx: TransactionPipe,
   tid: string,
-  escopoTipo: string,
-  escopoId: unknown,
-): Promise<{ escopoTipo: EscopoSla; escopoId: string | null }> {
-  if (!escopoSlaValido(escopoTipo)) {
-    throw ErroPipe.requisicao(
+  scopeType: string,
+  scopeId: unknown,
+): Promise<{ scopeType: ScopeSla; scopeId: string | null }> {
+  if (!scopeSlaValid(scopeType)) {
+    throw PipeError.request(
       'escopo_invalido',
-      `Escopo "${escopoTipo}" não é aplicado pelo motor de SLA hoje. Use "tenant" ou "fila".`,
+      `Escopo "${scopeType}" não é aplicado pelo motor de SLA hoje. Use "tenant" ou "fila".`,
     );
   }
-  if (escopoTipo === 'tenant') return { escopoTipo, escopoId: null };
+  if (scopeType === 'tenant') return { scopeType, scopeId: null };
 
-  const id = String(escopoId ?? '').trim();
-  if (!id) throw ErroPipe.requisicao('escopo_id_obrigatorio', 'Escolha a fila deste escopo.');
-  const [alvo] = await tx.select({ id: fila.id }).from(fila).where(and(eq(fila.tenantId, tid), eq(fila.id, id))).limit(1);
-  if (!alvo) throw ErroPipe.requisicao('fila_nao_encontrada', 'Fila não encontrada.');
-  return { escopoTipo, escopoId: id };
+  const id = String(scopeId ?? '').trim();
+  if (!id) throw PipeError.request('escopo_id_obrigatorio', 'Escolha a fila deste escopo.');
+  const [alvo] = await tx.select({ id: queue.id }).from(queue).where(and(eq(queue.tenantId, tid), eq(queue.id, id))).limit(1);
+  if (!alvo) throw PipeError.request('fila_nao_encontrada', 'Fila não encontrada.');
+  return { scopeType, scopeId: id };
 }
 
-async function regraSlaViva(tx: TransacaoPipe, tid: string, id: string): Promise<RegraSlaGravada> {
+async function regraSlaViva(tx: TransactionPipe, tid: string, id: string): Promise<RegraSlaGravada> {
   const [atual] = await tx
     .select({
       id: regraSla.id,
@@ -150,52 +150,52 @@ async function regraSlaViva(tx: TransacaoPipe, tid: string, id: string): Promise
     .from(regraSla)
     .where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('regra de SLA');
+  if (!atual) throw PipeError.naoEncontrado('regra de SLA');
   return atual;
 }
 
-export async function criarRegraSla(
-  tx: TransacaoPipe,
+export async function createRuleSla(
+  tx: TransactionPipe,
   tid: string,
-  usuarioId: string,
+  userId: string,
   pedido: PedidoDeRegraSla,
 ): Promise<{ id: string }> {
-  await exigirPermissao(tx, usuarioId, REGRA_GERENCIAR);
+  await exigirPermission(tx, userId, RULE_MANAGE);
 
   const nome = nomeConferido(pedido.nome);
   const alvo = alvoConferido(pedido.alvo);
   const prazoSeg = prazoConferido(pedido.prazoSeg);
   const alertaSeg = alertaConferido(pedido.alertaSeg, prazoSeg);
-  const { escopoTipo, escopoId } = await escopoConferido(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
-  const ativa = pedido.ativa ?? true;
+  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
+  const active = pedido.active ?? true;
 
-  if (await nomeEmUso(tx, tid, nome)) throw ErroPipe.conflito('nome_em_uso', `Já existe uma regra chamada "${nome}".`);
+  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${nome}".`);
 
   const [criada] = await tx
     .insert(regraSla)
-    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, ativa })
+    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, active })
     .returning({ id: regraSla.id });
-  if (!criada) throw ErroPipe.requisicao('regra_nao_criada', 'Não consegui gravar a regra de SLA.');
+  if (!criada) throw PipeError.request('regra_nao_criada', 'Não consegui gravar a regra de SLA.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_sla',
     objetoId: criada.id,
-    depois: { nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, ativa },
+    depois: { nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, active },
   });
   return { id: criada.id };
 }
 
 export async function editarRegraSla(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
-  pedido: PedidoDeEdicaoDeRegraSla,
+  pedido: RequestOfEditOfRuleSla,
 ): Promise<RegraSlaGravada> {
   const atual = await regraSlaViva(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, REGRA_GERENCIAR);
+  await exigirPermission(tx, usuarioId, RULE_MANAGE);
 
   const antes = { ...atual };
   const depois = { ...antes };
@@ -210,25 +210,25 @@ export async function editarRegraSla(
   if (pedido.alertaSeg !== undefined) depois.alertaSeg = alertaConferido(pedido.alertaSeg, depois.prazoSeg);
   else if (depois.alertaSeg !== null && depois.alertaSeg >= depois.prazoSeg) {
     // Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'alerta_invalido',
       'O novo prazo é menor ou igual ao alerta já cadastrado. Informe também o novo alerta.',
     );
   }
 
   if (pedido.escopoTipo !== undefined || pedido.escopoId !== undefined) {
-    const resolvido = await escopoConferido(
+    const resolvido = await scopeChecked(
       tx,
       tid,
       pedido.escopoTipo ?? depois.escopoTipo,
       pedido.escopoId !== undefined ? pedido.escopoId : depois.escopoId,
     );
-    depois.escopoTipo = resolvido.escopoTipo;
-    depois.escopoId = resolvido.escopoId;
+    depois.escopoTipo = resolvido.scopeType;
+    depois.escopoId = resolvido.scopeId;
   }
 
   if (depois.nome !== antes.nome && (await nomeEmUso(tx, tid, depois.nome, id))) {
-    throw ErroPipe.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
+    throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
   }
 
   const mudanca = diferenca(antes, depois);
@@ -257,7 +257,7 @@ export async function editarRegraSla(
       escopoId: regraSla.escopoId,
       ativa: regraSla.ativa,
     });
-  if (!gravada) throw ErroPipe.naoEncontrado('regra de SLA');
+  if (!gravada) throw PipeError.naoEncontrado('regra de SLA');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: usuarioId },
@@ -270,19 +270,19 @@ export async function editarRegraSla(
   return gravada;
 }
 
-export async function excluirRegraSla(tx: TransacaoPipe, tid: string, usuarioId: string, id: string): Promise<void> {
+export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioId: string, id: string): Promise<void> {
   const atual = await regraSlaViva(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, REGRA_GERENCIAR);
+  await exigirPermission(tx, usuarioId, RULE_MANAGE);
 
   // `sla_conversa.regra_id` é `ON DELETE CASCADE`: excluir a regra apagaria em
   // silêncio o cronômetro de toda conversa que ainda está correndo com ela.
-  const [emAndamento] = await tx
-    .select({ id: slaConversa.id })
-    .from(slaConversa)
-    .where(and(eq(slaConversa.regraId, id), eq(slaConversa.estado, 'correndo')))
+  const [inProgress] = await tx
+    .select({ id: slaConversation.id })
+    .from(slaConversation)
+    .where(and(eq(slaConversation.regraId, id), eq(slaConversation.state, 'correndo')))
     .limit(1);
-  if (emAndamento) {
-    throw ErroPipe.conflito(
+  if (inProgress) {
+    throw PipeError.conflito(
       'regra_com_sla_correndo',
       'Esta regra tem cronômetro de SLA correndo em conversa aberta. Desative-a em vez de excluir, ou espere as conversas encerrarem.',
     );

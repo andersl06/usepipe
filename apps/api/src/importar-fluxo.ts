@@ -1,8 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
-import { lerFluxoDaBlip, relatorioDaImportacao, validarFluxo } from '@pipe/core';
+import { blipReadFlow, importReport, validateFlow } from '@pipe/core';
 import { fecharBancos, noTenant } from './banco.js';
-import { importarFluxoDaBlip } from './dominio/fluxo.js';
+import { importFlowOfBlip } from './dominio/fluxo.js';
 
 /**
  * Importa um fluxo do Builder da Blip — o export do editor ou o fluxo publicado.
@@ -37,21 +37,21 @@ if (!values.arquivo) {
 const json: unknown = JSON.parse(readFileSync(values.arquivo, 'utf8'));
 
 if (!values.tenant) {
-  const fluxo = lerFluxoDaBlip(json, 'previa');
-  let validacao = 'ok';
+  const flow = blipReadFlow(json, 'previa');
+  let validation = 'ok';
   try {
-    validarFluxo(fluxo);
-  } catch (erro) {
-    validacao = (erro as Error).message;
+    validateFlow(flow);
+  } catch (error) {
+    validation = (error as Error).message;
   }
-  console.log(JSON.stringify({ relatorio: relatorioDaImportacao(fluxo), validacao }, null, 2));
+  console.log(JSON.stringify({ relatorio: importReport(flow), validation }, null, 2));
 } else {
   const tenantId = values.tenant;
   const resultado = await noTenant(tenantId, (tx) =>
-    importarFluxoDaBlip(tx, {
+    importFlowOfBlip(tx, {
       tenantId,
       nome: values.nome ?? 'Fluxo importado da Blip',
-      canalId: values.canal ?? null,
+      channelId: values.canal ?? null,
       json,
       publicar: values.publicar ?? false,
     }),

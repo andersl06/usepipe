@@ -1,7 +1,7 @@
 import Link from '../../componentes/link';
 import { Navigate } from 'react-router-dom';
-import { useLeitura } from '../../lib/consulta';
-import type { ContaEmVigor } from '../../lib/conta';
+import { useRead } from '../../lib/consulta';
+import type { AccountInVigor } from '../../lib/conta';
 import { FundoPipe } from '../fundo-pipe';
 import './boas-vindas.css';
 
@@ -22,12 +22,12 @@ import './boas-vindas.css';
  * juntar os dois faria a primeira tela de quem acabou de entrar ser um
  * formulário de oito campos.
  */
-export function PaginaBemVindo() {
-  const leitura = useLeitura<ContaEmVigor>('/v1/conta');
-  if (leitura.error) return <Navigate to="/entrar" replace />;
-  if (!leitura.data) return null;
-  const conta = leitura.data;
-  if (conta.onboardingConcluidoEm) return <Navigate to="/portal" replace />;
+export function PageWelcome() {
+  const read = useRead<AccountInVigor>('/v1/conta');
+  if (read.error) return <Navigate to="/entrar" replace />;
+  if (!read.data) return null;
+  const account = read.data;
+  if (account.onboardingConcluidoEm) return <Navigate to="/portal" replace />;
 
   return (
     <main className="bv">
@@ -49,7 +49,7 @@ export function PaginaBemVindo() {
               inteligente. Mas, primeiro, precisamos criar seu espaço de trabalho.
             </p>
             <p className="bv-endereco">
-              O endereço da sua conta é <b>{conta.slug}</b>.
+              O endereço da sua conta é <b>{account.slug}</b>.
             </p>
 
             <div className="bv-acao">

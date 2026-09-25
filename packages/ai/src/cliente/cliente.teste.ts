@@ -3,24 +3,24 @@ import { describe, expect, it } from 'vitest';
 
 import { comRetentativa, esperaDaTentativa, vaiDeNovo } from './cliente.js';
 
-function erroDeApi(status: number): InstanceType<typeof Anthropic.APIError> {
+function apiError(status: number): InstanceType<typeof Anthropic.APIError> {
   return new Anthropic.APIError(status, undefined, `erro ${status}`, undefined);
 }
 
 describe('quando vale tentar de novo', () => {
   it('rede e limite de taxa valem', () => {
     expect(vaiDeNovo(new Anthropic.APIConnectionError({ message: 'sem rede' }))).toBe(true);
-    expect(vaiDeNovo(erroDeApi(429))).toBe(true);
-    expect(vaiDeNovo(erroDeApi(408))).toBe(true);
-    expect(vaiDeNovo(erroDeApi(409))).toBe(true);
-    expect(vaiDeNovo(erroDeApi(500))).toBe(true);
-    expect(vaiDeNovo(erroDeApi(529))).toBe(true);
+    expect(vaiDeNovo(apiError(429))).toBe(true);
+    expect(vaiDeNovo(apiError(408))).toBe(true);
+    expect(vaiDeNovo(apiError(409))).toBe(true);
+    expect(vaiDeNovo(apiError(500))).toBe(true);
+    expect(vaiDeNovo(apiError(529))).toBe(true);
   });
 
   it('erro nosso não vale: repetir só gasta dinheiro', () => {
-    expect(vaiDeNovo(erroDeApi(400))).toBe(false);
-    expect(vaiDeNovo(erroDeApi(401))).toBe(false);
-    expect(vaiDeNovo(erroDeApi(404))).toBe(false);
+    expect(vaiDeNovo(apiError(400))).toBe(false);
+    expect(vaiDeNovo(apiError(401))).toBe(false);
+    expect(vaiDeNovo(apiError(404))).toBe(false);
     expect(vaiDeNovo(new Error('qualquer coisa'))).toBe(false);
   });
 });
@@ -56,7 +56,7 @@ describe('retentativa', () => {
     const r = await comRetentativa(
       async () => {
         vezes++;
-        if (vezes < 3) throw erroDeApi(429);
+        if (vezes < 3) throw apiError(429);
         return 'ok';
       },
       { dormir: async (ms) => void esperas.push(ms) },
@@ -73,7 +73,7 @@ describe('retentativa', () => {
       comRetentativa(
         async () => {
           vezes++;
-          throw erroDeApi(500);
+          throw apiError(500);
         },
         { tentativas: 3, dormir: async () => {} },
       ),
@@ -87,7 +87,7 @@ describe('retentativa', () => {
       comRetentativa(
         async () => {
           vezes++;
-          throw erroDeApi(400);
+          throw apiError(400);
         },
         { dormir: async () => {} },
       ),

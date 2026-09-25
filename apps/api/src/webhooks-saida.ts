@@ -1,9 +1,9 @@
 import { createHmac, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrar, estaCifrado } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
-import type { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
-import { chaveiro, noTenant } from './banco.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import { keyring, noTenant } from './banco.js';
 import { chamarComMtls } from './dominio/mtls.js';
 
 /**
@@ -41,12 +41,12 @@ export const EVENTOS = [
 export type EventoWebhook = (typeof EVENTOS)[number];
 
 export const MAX_TENTATIVAS_WEBHOOK = Number(process.env['PIPE_WEBHOOK_MAX_TENTATIVAS'] ?? 5);
-const TEMPO_LIMITE_MS = Number(process.env['PIPE_WEBHOOK_TIMEOUT_MS'] ?? 5_000);
+const TIME_LIMIT_MS = Number(process.env['PIPE_WEBHOOK_TIMEOUT_MS'] ?? 5_000);
 /** Tolerância recomendada ao consumidor, publicada junto do payload. */
 export const TOLERANCIA_REPLAY_SEG = 300;
 
-export function assinar(segredo: string, timestamp: string, corpo: string): string {
-  return `sha256=${createHmac('sha256', segredo).update(`${timestamp}.${corpo}`).digest('hex')}`;
+export function assinar(secret: string, timestamp: string, corpo: string): string {
+  return `sha256=${createHmac('sha256', secret).update(`${timestamp}.${corpo}`).digest('hex')}`;
 }
 
 /**
@@ -56,7 +56,7 @@ export function assinar(segredo: string, timestamp: string, corpo: string): stri
  * verdade (`entregarUma`) quanto o botão "Testar" (`testarWebhook`, no
  * domínio) montam a MESMA requisição.
  */
-export type TipoAutenticacaoWebhook = (typeof TIPOS_AUTENTICACAO_WEBHOOK)[number];
+export type TypeAuthenticationWebhook = (typeof TYPES_AUTHENTICATION_WEBHOOK)[number];
 
 /** Os cabeçalhos reservados: nenhum cabeçalho customizado pode usar um destes nomes. */
 export const CABECALHOS_RESERVADOS = [
@@ -68,16 +68,16 @@ export const CABECALHOS_RESERVADOS = [
 ] as const;
 
 export interface CabecalhoCustomizado {
-  chave: string;
-  valor: string;
+  key: string;
+  value: string;
 }
 
 /** Já decifrada — o que sai do banco, pronto para montar a requisição. */
-export interface AutenticacaoDeSaidaDecifrada {
-  tipo: TipoAutenticacaoWebhook;
-  usuario?: string | null;
+export interface AuthenticationOfOutputDecrypted {
+  tipo: TypeAuthenticationWebhook;
+  user?: string | null;
   senha?: string | null;
-  oauth2UrlAutorizacao?: string | null;
+  oauth2UrlAuthorization?: string | null;
   oauth2ClientId?: string | null;
   oauth2ClientSecret?: string | null;
 }
@@ -87,17 +87,17 @@ export interface AutenticacaoDeSaidaDecifrada {
  * entrega; cachear por `(tenantId, webhookId)` até expirar, se o volume de
  * disparos pedir).
  */
-async function obterTokenOAuth2(auth: AutenticacaoDeSaidaDecifrada): Promise<string> {
+async function obterTokenOAuth2(auth: AuthenticationOfOutputDecrypted): Promise<string> {
   const corpo = new URLSearchParams({
     grant_type: 'client_credentials',
     client_id: auth.oauth2ClientId ?? '',
     client_secret: auth.oauth2ClientSecret ?? '',
   });
-  const resposta = await fetch(auth.oauth2UrlAutorizacao ?? '', {
+  const resposta = await fetch(auth.oauth2UrlAuthorization ?? '', {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: corpo,
-    signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
+    signal: AbortSignal.timeout(TIME_LIMIT_MS),
   });
   if (!resposta.ok) throw new Error(`token OAuth2: HTTP ${resposta.status}`);
   const json = (await resposta.json().catch(() => null)) as { access_token?: unknown } | null;
@@ -108,11 +108,11 @@ async function obterTokenOAuth2(auth: AutenticacaoDeSaidaDecifrada): Promise<str
 }
 
 /** `null` = sem cabeçalho `Authorization` (autenticação `nenhuma`). */
-export async function cabecalhoDeAutorizacao(
-  auth: AutenticacaoDeSaidaDecifrada,
+export async function headerOfAuthorization(
+  auth: AuthenticationOfOutputDecrypted,
 ): Promise<string | null> {
   if (auth.tipo === 'basica') {
-    const par = `${auth.usuario ?? ''}:${auth.senha ?? ''}`;
+    const par = `${auth.user ?? ''}:${auth.senha ?? ''}`;
     return `Basic ${Buffer.from(par, 'utf8').toString('base64')}`;
   }
   if (auth.tipo === 'oauth2_client_credentials') {
@@ -127,16 +127,16 @@ export async function cabecalhoDeAutorizacao(
  * (a gravação já recusa nomes reservados, isto aqui é o cinto e a suspensório).
  */
 export function cabecalhosDeSaida(params: {
-  segredo: string;
+  secret: string;
   timestamp: string;
   corpo: string;
   deliveryId: string;
   customizados?: readonly CabecalhoCustomizado[] | null;
 }): Record<string, string> {
   const cabecalhos: Record<string, string> = {};
-  for (const { chave, valor } of params.customizados ?? []) cabecalhos[chave] = valor;
+  for (const { key, value } of params.customizados ?? []) cabecalhos[key] = value;
   cabecalhos['content-type'] = 'application/json';
-  cabecalhos['x-pipe-signature'] = assinar(params.segredo, params.timestamp, params.corpo);
+  cabecalhos['x-pipe-signature'] = assinar(params.secret, params.timestamp, params.corpo);
   cabecalhos['x-pipe-timestamp'] = params.timestamp;
   cabecalhos['x-pipe-delivery'] = params.deliveryId;
   return cabecalhos;
@@ -147,9 +147,9 @@ export function cabecalhosDeSaida(params: {
  * e texto que não é um envelope nosso também (o mesmo critério tolerante de
  * `dominio/twenty.ts`, para não derrubar dado gravado direto no banco).
  */
-export function decifrarSegredoDeWebhook(valor: string | null): string | null {
+export function decryptSecretOfWebhook(valor: string | null): string | null {
   if (!valor) return null;
-  return estaCifrado(valor) ? decifrar(valor, chaveiro()) : valor;
+  return estaCifrado(valor) ? decifrar(valor, keyring()) : valor;
 }
 
 /**
@@ -159,10 +159,10 @@ export function decifrarSegredoDeWebhook(valor: string | null): string | null {
  * juntos, ou nenhum dos dois entra. Entregar é outro passo, fora da transação.
  */
 export async function emitir(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   evento: EventoWebhook,
-  dados: Record<string, unknown>,
+  data: Record<string, unknown>,
 ): Promise<number> {
   const { rows: assinantes } = await tx.execute<{ id: string }>(sql`
     select id from webhook_saida
@@ -175,7 +175,7 @@ export async function emitir(
     delivery_id: randomUUID(),
     tenant_id: tenantId,
     occurred_at: new Date().toISOString(),
-    data: dados,
+    data: data,
   };
 
   // Em série: `Promise.all` dentro da transação derruba o tenant da sessão.
@@ -188,21 +188,21 @@ export async function emitir(
   return assinantes.length;
 }
 
-export interface ResultadoEntregaWebhook {
+export interface ResultDeliveryWebhook {
   id: string;
-  estado: 'entregue' | 'pendente' | 'descartada';
-  erro?: string;
+  state: 'entregue' | 'pendente' | 'descartada';
+  error?: string;
 }
 
-type LinhaEntrega = {
+type LineDelivery = {
   id: string;
   url: string;
   segredo: string;
   payload: unknown;
   tentativas: number;
-  tipo_autenticacao: TipoAutenticacaoWebhook;
-  autenticacao_usuario: string | null;
-  autenticacao_senha: string | null;
+  typeAuthentication: TypeAuthenticationWebhook;
+  authenticationUser: string | null;
+  authenticationPassword: string | null;
   oauth2_url_autorizacao: string | null;
   oauth2_client_id: string | null;
   oauth2_client_secret: string | null;
@@ -217,9 +217,9 @@ type LinhaEntrega = {
 export async function entregarPendentes(
   tenantId: string,
   lote = 20,
-): Promise<ResultadoEntregaWebhook[]> {
+): Promise<ResultDeliveryWebhook[]> {
   const pendentes = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaEntrega>(sql`
+    const { rows } = await tx.execute<LineDelivery>(sql`
       with alvo as (
         select id from entrega_webhook
          where estado = 'pendente'
@@ -239,7 +239,7 @@ export async function entregarPendentes(
     return rows;
   });
 
-  const resultados: ResultadoEntregaWebhook[] = [];
+  const resultados: ResultDeliveryWebhook[] = [];
   // Em série: cada entrega abre a própria transação para gravar o resultado.
   for (const linha of pendentes) {
     resultados.push(await entregarUma(tenantId, linha));
@@ -249,44 +249,44 @@ export async function entregarPendentes(
 
 async function entregarUma(
   tenantId: string,
-  linha: LinhaEntrega,
-): Promise<ResultadoEntregaWebhook> {
+  linha: LineDelivery,
+): Promise<ResultDeliveryWebhook> {
   const corpo = JSON.stringify(linha.payload);
   const timestamp = String(Math.floor(Date.now() / 1000));
-  const entregaId = randomUUID();
+  const deliveryId = randomUUID();
   const tentativas = linha.tentativas + 1;
 
-  let erro: string | null = null;
+  let error: string | null = null;
   try {
     const cabecalhos = cabecalhosDeSaida({
-      segredo: linha.segredo,
+      secret: linha.segredo,
       timestamp,
       corpo,
-      deliveryId: entregaId,
+      deliveryId: deliveryId,
       customizados: linha.cabecalhos,
     });
-    const autorizacao = await cabecalhoDeAutorizacao({
-      tipo: linha.tipo_autenticacao,
-      usuario: linha.autenticacao_usuario,
-      senha: decifrarSegredoDeWebhook(linha.autenticacao_senha),
-      oauth2UrlAutorizacao: linha.oauth2_url_autorizacao,
+    const authorization = await headerOfAuthorization({
+      tipo: linha.typeAuthentication,
+      user: linha.authenticationUser,
+      senha: decryptSecretOfWebhook(linha.authenticationPassword),
+      oauth2UrlAuthorization: linha.oauth2_url_autorizacao,
       oauth2ClientId: linha.oauth2_client_id,
-      oauth2ClientSecret: decifrarSegredoDeWebhook(linha.oauth2_client_secret),
+      oauth2ClientSecret: decryptSecretOfWebhook(linha.oauth2_client_secret),
     });
-    if (autorizacao) cabecalhos['authorization'] = autorizacao;
+    if (authorization) cabecalhos['authorization'] = authorization;
 
     const resposta = await chamarComMtls(tenantId, linha.url, {
       metodo: 'POST',
       headers: cabecalhos,
       body: corpo,
-      timeoutMs: TEMPO_LIMITE_MS,
+      timeoutMs: TIME_LIMIT_MS,
     });
-    if (!resposta.ok) erro = `HTTP ${resposta.status}`;
+    if (!resposta.ok) error = `HTTP ${resposta.status}`;
   } catch (falha) {
-    erro = (falha as Error).message;
+    error = (falha as Error).message;
   }
 
-  if (!erro) {
+  if (!error) {
     await noTenant(tenantId, async (tx) => {
       await tx.execute(sql`
         update entrega_webhook
@@ -295,7 +295,7 @@ async function entregarUma(
          where id = ${linha.id}
       `);
     });
-    return { id: linha.id, estado: 'entregue' };
+    return { id: linha.id, state: 'entregue' };
   }
 
   // `descartada` e não `falhou`: o catálogo de estados de `entrega_webhook` separa
@@ -307,14 +307,14 @@ async function entregarUma(
       update entrega_webhook
          set estado = ${desistiu ? 'descartada' : 'pendente'},
              tentativas = ${tentativas},
-             ultimo_erro = ${erro},
+             ultimo_erro = ${error},
              proxima_tentativa_em = ${
                desistiu ? null : sql`now() + ${`${esperaSeg} seconds`}::interval`
              }
        where id = ${linha.id}
     `);
   });
-  return { id: linha.id, estado: desistiu ? 'descartada' : 'pendente', erro };
+  return { id: linha.id, state: desistiu ? 'descartada' : 'pendente', error };
 }
 
 /**
@@ -323,7 +323,7 @@ async function entregarUma(
  * varredura pega depois.
  */
 export function drenarEmSegundoPlano(tenantId: string): void {
-  void entregarPendentes(tenantId).catch((erro: unknown) => {
-    console.error('[webhook-saida] falhou ao drenar', erro);
+  void entregarPendentes(tenantId).catch((error: unknown) => {
+    console.error('[webhook-saida] falhou ao drenar', error);
   });
 }

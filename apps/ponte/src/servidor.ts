@@ -1,9 +1,9 @@
 import express from 'express';
 import { sql } from 'drizzle-orm';
 import type { Server } from 'node:http';
-import { noTenant, fecharBanco } from './banco.js';
+import { noTenant, fecharDatabase } from './banco.js';
 import { despachar } from './rotas.js';
-import type { Sessao } from './rotas.js';
+import type { Session } from './rotas.js';
 import { falha } from './lime.js';
 import type { ComandoLime } from './lime.js';
 
@@ -22,7 +22,7 @@ import type { ComandoLime } from './lime.js';
  * a ponte confia numa chave de ambiente. **Isto não vai para a internet**: no dia em
  * que a tela for nossa, quem manda é a sessão que a `apps/api` já emite.
  */
-function sessaoConfigurada(): { tenantId: string; email: string } {
+function sessionConfigured(): { tenantId: string; email: string } {
   const tenantId = process.env['PIPE_PONTE_TENANT_ID'];
   const email = process.env['PIPE_PONTE_EMAIL'];
   if (!tenantId || !email) {
@@ -33,26 +33,26 @@ function sessaoConfigurada(): { tenantId: string; email: string } {
   return { tenantId, email };
 }
 
-async function resolverSessao(): Promise<Sessao> {
-  const { tenantId, email } = sessaoConfigurada();
-  const usuario = await noTenant(tenantId, async (tx) => {
+async function resolveSession(): Promise<Session> {
+  const { tenantId, email } = sessionConfigured();
+  const user = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string; nome: string | null }>(sql`
       select id, nome from usuario where lower(email) = ${email.toLowerCase()} limit 1
     `);
     return rows[0] ?? null;
   });
-  if (!usuario) throw new Error(`ponte: usuário ${email} não existe no tenant ${tenantId}`);
-  return { tenantId, usuarioId: usuario.id, email, nome: usuario.nome };
+  if (!user) throw new Error(`ponte: usuário ${email} não existe no tenant ${tenantId}`);
+  return { tenantId, userId: user.id, email, name: user.nome };
 }
 
-export interface PonteNoAr {
+export interface BridgeInAr {
   url: string;
   porta: number;
   fechar: () => Promise<void>;
 }
 
-export async function subirPonte(porta = Number(process.env['PORT'] ?? 3020)): Promise<PonteNoAr> {
-  const sessao = await resolverSessao();
+export async function startBridge(porta = Number(process.env['PORT'] ?? 3020)): Promise<BridgeInAr> {
+  const session = await resolveSession();
   const app = express();
   app.use(express.json({ limit: '1mb' }));
 
@@ -76,7 +76,7 @@ export async function subirPonte(porta = Number(process.env['PORT'] ?? 3020)): P
   });
 
   app.get('/saude', (_req, res) => {
-    res.json({ ok: true, tenant: sessao.tenantId, atendente: sessao.email });
+    res.json({ ok: true, tenant: session.tenantId, atendente: session.email });
   });
 
   /**
@@ -90,7 +90,7 @@ export async function subirPonte(porta = Number(process.env['PORT'] ?? 3020)): P
       res.status(400).json(falha(1, 'comando sem uri'));
       return;
     }
-    void despachar(cmd, sessao)
+    void despachar(cmd, session)
       .then((resposta) => {
         if (!resposta) {
           res.status(204).end();
@@ -98,8 +98,8 @@ export async function subirPonte(porta = Number(process.env['PORT'] ?? 3020)): P
         }
         res.json({ id: cmd.id, method: cmd.method, ...resposta });
       })
-      .catch((erro: unknown) => {
-        const texto = erro instanceof Error ? erro.message : String(erro);
+      .catch((error: unknown) => {
+        const texto = error instanceof Error ? error.message : String(error);
         console.error(`[ponte] ${cmd.method} ${cmd.uri} falhou: ${texto}`);
         res.json({ id: cmd.id, method: cmd.method, ...falha(2, texto) });
       });
@@ -116,7 +116,7 @@ export async function subirPonte(porta = Number(process.env['PORT'] ?? 3020)): P
     porta: portaReal,
     fechar: async () => {
       await new Promise<void>((r) => servidor.close(() => r()));
-      await fecharBanco();
+      await fecharDatabase();
     },
   };
 }

@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import type { TemplateAprovado, TipoCanalBanco } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
+import type { TemplateAprovado, TypeChannelDatabase } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
 import { api } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/acoes';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
-import { nomeDeExibicao, telefoneInternacional } from '../../lib/ordem';
-import type { ContatoDaLista } from '../../lib/contatos';
+import { displayName, telefoneInternacional } from '../../lib/ordem';
+import type { ListaContact } from '../../lib/contatos';
 import { aplicarParametros } from '../../lib/modelo';
 
 /**
@@ -25,93 +25,93 @@ import { aplicarParametros } from '../../lib/modelo';
  * O envio vai para `POST /v1/mensagens-ativas` (canal, modelo, contatos), que
  * já existe na `api`; "chatbot" da referência é o nosso canal.
  */
-const MAX_CONTATOS = 15;
+const MAX_CONTACTS = 15;
 
-interface Canal {
+interface Channel {
   id: string;
   nome: string;
-  tipo: TipoCanalBanco;
+  tipo: TypeChannelDatabase;
   templates: TemplateAprovado[];
 }
 
-interface Destino {
-  contatoId: string | null;
+interface Destination {
+  contactId: string | null;
   telefone: string | null;
   nome: string | null;
 }
 
-export function PaginaMensagemAtiva() {
+export function PageActiveMessage() {
   const navegar = useNavigate();
   const [parametros] = useSearchParams();
   const [passo, setPasso] = useState<1 | 2 | 3>(1);
   const [origem, setOrigem] = useState<'existente' | 'novo'>(
     parametros.get('contato') ? 'existente' : 'novo',
   );
-  const [canalId, setCanalId] = useState('');
+  const [channelId, setChannelId] = useState('');
   const [telefone, setTelefone] = useState('');
   const [nome, setNome] = useState('');
-  const [busca, setBusca] = useState('');
-  const [destinos, setDestinos] = useState<Destino[]>([]);
+  const [search, setSearch] = useState('');
+  const [destinos, setDestinos] = useState<Destination[]>([]);
   const [templateId, setTemplateId] = useState('');
-  const [parametrosDoModelo, setParametrosDoModelo] = useState<string[]>([]);
-  const [erro, setErro] = useState<string | null>(null);
+  const [templateParametros, templateSetParametros] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{ enviadas: number; recusadas: number } | null>(null);
 
-  const canais = useLeitura<{ canais: Canal[] }>('/v1/desk/canais');
-  const contatos = useLeitura<{ contatos: ContatoDaLista[] }>(
+  const channels = useRead<{ channels: Channel[] }>('/v1/desk/canais');
+  const contacts = useRead<{ contacts: ListaContact[] }>(
     origem === 'existente'
-      ? `/v1/desk/contatos${busca.trim().length >= 2 ? `?busca=${encodeURIComponent(busca.trim())}` : ''}`
+      ? `/v1/desk/contatos${search.trim().length >= 2 ? `?busca=${encodeURIComponent(search.trim())}` : ''}`
       : null,
   );
-  const contatoInicial = useLeitura<{
-    contato: { id: string; nome: string | null; telefone: string | null };
+  const contactInitial = useRead<{
+    contact: { id: string; nome: string | null; telefone: string | null };
   }>(parametros.get('contato') ? `/v1/desk/contatos/${parametros.get('contato')}` : null);
   /* Vindo de "Conversar novamente" (Contatos), o contato já entra selecionado. */
   useEffect(() => {
-    const c = contatoInicial.data?.contato;
+    const c = contactInitial.data?.contact;
     if (c)
       setDestinos((atual) =>
-        atual.length === 0 ? [{ contatoId: c.id, telefone: c.telefone, nome: c.nome }] : atual,
+        atual.length === 0 ? [{ contactId: c.id, telefone: c.telefone, nome: c.nome }] : atual,
       );
-  }, [contatoInicial.data]);
+  }, [contactInitial.data]);
 
-  const canal = canais.data?.canais.find((c) => c.id === canalId) ?? null;
-  const template = canal?.templates.find((t) => t.id === templateId) ?? null;
-  const variaveis = Array.isArray(template?.variaveis) ? (template.variaveis as string[]) : [];
+  const channel = channels.data?.channels.find((c) => c.id === channelId) ?? null;
+  const template = channel?.templates.find((t) => t.id === templateId) ?? null;
+  const variables = Array.isArray(template?.variables) ? (template.variables as string[]) : [];
 
   function adicionarNovo() {
     const t = telefone.replace(/\D/g, '');
-    if (t.length < 10) return setErro('Informe o identificador completo');
-    if (destinos.length >= MAX_CONTATOS)
-      return setErro(`Selecione entre 1 e ${MAX_CONTATOS} contatos`);
+    if (t.length < 10) return setError('Informe o identificador completo');
+    if (destinos.length >= MAX_CONTACTS)
+      return setError(`Selecione entre 1 e ${MAX_CONTACTS} contatos`);
     setDestinos([
       ...destinos,
-      { contatoId: null, telefone: '+55' + t.replace(/^55/, ''), nome: nome.trim() || null },
+      { contactId: null, telefone: '+55' + t.replace(/^55/, ''), nome: nome.trim() || null },
     ]);
     setTelefone('');
     setNome('');
-    setErro(null);
+    setError(null);
   }
 
-  function alternarExistente(c: ContatoDaLista) {
-    const ja = destinos.some((d) => d.contatoId === c.id);
-    if (ja) setDestinos(destinos.filter((d) => d.contatoId !== c.id));
-    else if (destinos.length < MAX_CONTATOS)
-      setDestinos([...destinos, { contatoId: c.id, telefone: c.telefone, nome: c.nome }]);
+  function alternarExistente(c: ListaContact) {
+    const ja = destinos.some((d) => d.contactId === c.id);
+    if (ja) setDestinos(destinos.filter((d) => d.contactId !== c.id));
+    else if (destinos.length < MAX_CONTACTS)
+      setDestinos([...destinos, { contactId: c.id, telefone: c.telefone, nome: c.nome }]);
   }
 
   async function enviar() {
-    if (!canal || !template) return;
+    if (!channel || !template) return;
     setEnviando(true);
-    setErro(null);
+    setError(null);
     try {
       const r = await api.post<{ enviadas: number; recusadas: number }>('/v1/mensagens-ativas', {
-        canal_id: canal.id,
+        canal_id: channel.id,
         template_id: template.id,
-        parametros: variaveis.map((_, i) => parametrosDoModelo[i] ?? ''),
+        parametros: variables.map((_, i) => templateParametros[i] ?? ''),
         contatos: destinos.map((d) => ({
-          contato_id: d.contatoId,
+          contato_id: d.contactId,
           telefone: d.telefone,
           nome: d.nome,
         })),
@@ -119,7 +119,7 @@ export function PaginaMensagemAtiva() {
       setResultado(r);
       atualizarLeituras();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao enviar mensagem ativa');
+      setError(e instanceof Error ? e.message : 'Erro ao enviar mensagem ativa');
     } finally {
       setEnviando(false);
     }
@@ -199,9 +199,9 @@ export function PaginaMensagemAtiva() {
                   </div>
                   <label className="dk-campo-flutuante">
                     <span>Salvar contato no chatbot</span>
-                    <select value={canalId} onChange={(e) => setCanalId(e.target.value)}>
+                    <select value={channelId} onChange={(e) => setChannelId(e.target.value)}>
                       <option value="">Selecionar chatbot</option>
-                      {canais.data?.canais.map((c) => (
+                      {channels.data?.channels.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.nome}
                         </option>
@@ -249,9 +249,9 @@ export function PaginaMensagemAtiva() {
                   <p>Busque por contatos existentes para enviar uma mensagem ativa</p>
                   <label className="dk-campo-flutuante">
                     <span>Salvar contato no chatbot</span>
-                    <select value={canalId} onChange={(e) => setCanalId(e.target.value)}>
+                    <select value={channelId} onChange={(e) => setChannelId(e.target.value)}>
                       <option value="">Selecionar chatbot</option>
-                      {canais.data?.canais.map((c) => (
+                      {channels.data?.channels.map((c) => (
                         <option key={c.id} value={c.id}>
                           {c.nome}
                         </option>
@@ -265,27 +265,27 @@ export function PaginaMensagemAtiva() {
                     <input
                       type="search"
                       placeholder="Pesquisar"
-                      value={busca}
-                      onChange={(e) => setBusca(e.target.value)}
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
                     />
                   </label>
                   <ul className="dk-ativa-contatos">
-                    {contatos.data?.contatos.slice(0, 20).map((c) => (
+                    {contacts.data?.contacts.slice(0, 20).map((c) => (
                       <li key={c.id}>
                         <label>
                           <input
                             type="checkbox"
-                            checked={destinos.some((d) => d.contatoId === c.id)}
+                            checked={destinos.some((d) => d.contactId === c.id)}
                             onChange={() => alternarExistente(c)}
                           />
                           <Avatar tamanho={32} />
                           <span>
                             <b>
-                              {nomeDeExibicao({
-                                contatoNome: c.nome,
-                                contatoTelefone: c.telefone,
-                                contatoEmail: c.email,
-                                contatoId: c.id,
+                              {displayName({
+                                contactName: c.nome,
+                                contactTelefone: c.telefone,
+                                contactEmail: c.email,
+                                contactId: c.id,
                               })}
                             </b>
                             <small>
@@ -298,12 +298,12 @@ export function PaginaMensagemAtiva() {
                   </ul>
                 </>
               )}
-              {erro ? <p className="dk-erro">{erro}</p> : null}
+              {error ? <p className="dk-erro">{error}</p> : null}
             </div>
             <aside className="dk-ativa-lado">
               <div className="dk-ativa-lado-topo">
                 <span>
-                  Contatos selecionados {destinos.length}/{MAX_CONTATOS}
+                  Contatos selecionados {destinos.length}/{MAX_CONTACTS}
                 </span>
                 <button type="button" className="dk-ativa-limpar" onClick={() => setDestinos([])}>
                   Limpar seleção
@@ -314,13 +314,13 @@ export function PaginaMensagemAtiva() {
                   <>
                     <div className="dk-ativa-caixa" />
                     <div>
-                      Selecione entre 1 e {MAX_CONTATOS} contatos para enviar a mensagem ativa
+                      Selecione entre 1 e {MAX_CONTACTS} contatos para enviar a mensagem ativa
                     </div>
                   </>
                 ) : (
                   <ul className="dk-ativa-selecionados">
                     {destinos.map((d, i) => (
-                      <li key={(d.contatoId ?? d.telefone ?? '') + i}>
+                      <li key={(d.contactId ?? d.telefone ?? '') + i}>
                         <Avatar tamanho={32} />
                         <span>
                           <b>{d.nome ?? 'Desconhecido'}</b>
@@ -352,7 +352,7 @@ export function PaginaMensagemAtiva() {
             <button
               type="button"
               className="dk-botao dk-botao-curto"
-              disabled={destinos.length === 0 || !canalId}
+              disabled={destinos.length === 0 || !channelId}
               onClick={() => setPasso(2)}
             >
               Continuar
@@ -366,12 +366,12 @@ export function PaginaMensagemAtiva() {
           <div className="dk-ativa-corpo">
             <div className="dk-ativa-form">
               <h3>Escolher modelo</h3>
-              <p>Modelos de mensagem aprovados para o chatbot {canal?.nome ?? ''}.</p>
-              {(canal?.templates ?? []).length === 0 ? (
+              <p>Modelos de mensagem aprovados para o chatbot {channel?.nome ?? ''}.</p>
+              {(channel?.templates ?? []).length === 0 ? (
                 <p>Nenhum modelo de mensagem aprovado para este chatbot.</p>
               ) : (
                 <ul className="dk-ativa-modelos">
-                  {canal?.templates.map((t) => (
+                  {channel?.templates.map((t) => (
                     <li key={t.id}>
                       <label>
                         <input
@@ -389,16 +389,16 @@ export function PaginaMensagemAtiva() {
                   ))}
                 </ul>
               )}
-              {variaveis.map((v, i) => (
+              {variables.map((v, i) => (
                 <label key={v} className="dk-campo-flutuante">
                   <span>{v}</span>
                   <input
                     type="text"
-                    value={parametrosDoModelo[i] ?? ''}
+                    value={templateParametros[i] ?? ''}
                     onChange={(e) => {
-                      const novo = [...parametrosDoModelo];
+                      const novo = [...templateParametros];
                       novo[i] = e.target.value;
-                      setParametrosDoModelo(novo);
+                      templateSetParametros(novo);
                     }}
                   />
                 </label>
@@ -417,7 +417,7 @@ export function PaginaMensagemAtiva() {
                   style={{ float: 'none', maxWidth: '100%', whiteSpace: 'pre-line' }}
                 >
                   {template
-                    ? aplicarParametros(template.corpo, parametrosDoModelo)
+                    ? aplicarParametros(template.corpo, templateParametros)
                     : 'Escolha um modelo para ver a mensagem.'}
                 </div>
               </div>
@@ -450,7 +450,7 @@ export function PaginaMensagemAtiva() {
               <h3>Dados da Mensagem Ativa</h3>
               <div className="dk-campo-flutuante">
                 <span>Chatbot</span>
-                <b>{canal?.nome}</b>
+                <b>{channel?.nome}</b>
               </div>
               <div className="dk-campo-flutuante">
                 <span>Modelo de mensagem</span>
@@ -465,7 +465,7 @@ export function PaginaMensagemAtiva() {
                   {resultado.enviadas} enviada(s), {resultado.recusadas} recusada(s).
                 </p>
               ) : null}
-              {erro ? <p className="dk-erro">{erro}</p> : null}
+              {error ? <p className="dk-erro">{error}</p> : null}
             </div>
             <aside className="dk-ativa-lado">
               <div className="dk-ativa-lado-topo">
@@ -479,7 +479,7 @@ export function PaginaMensagemAtiva() {
                   className="dk-balao"
                   style={{ float: 'none', maxWidth: '100%', whiteSpace: 'pre-line' }}
                 >
-                  {template ? aplicarParametros(template.corpo, parametrosDoModelo) : ''}
+                  {template ? aplicarParametros(template.corpo, templateParametros) : ''}
                 </div>
               </div>
             </aside>

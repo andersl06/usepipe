@@ -13,17 +13,17 @@
 
 import { z } from 'zod';
 
-import type { ChamadaEstruturada, Esforco } from '../cliente/cliente.js';
+import type { ChamadaEstruturada, Effort } from '../cliente/cliente.js';
 import { chamadaPadrao } from '../cliente/cliente.js';
-import { ErroFormatoIa } from '../cliente/erros.js';
-import { PROMPT_AVALIACAO } from '../prompts/avaliacao.js';
+import { FormatIaError } from '../cliente/erros.js';
+import { PROMPT_EVALUATION } from '../prompts/avaliacao.js';
 import { identificador } from '../prompts/tipos.js';
-import type { Transcricao } from '../transcricao/transcricao.js';
-import { calcularNota, fracaoDoValor } from './nota.js';
-import type { Formulario, ResultadoAvaliacao, RespostaBruta } from './tipos.js';
+import type { Transcription } from '../transcricao/transcricao.js';
+import { calcularNota, valueFraction } from './nota.js';
+import type { Formulario, ResultEvaluation, RespostaBruta } from './tipos.js';
 import { criteriosDoFormulario } from './tipos.js';
 
-const EsquemaAvaliacao = z.object({
+const EsquemaEvaluation = z.object({
   respostas: z.array(
     z.object({
       criterioId: z.string(),
@@ -35,14 +35,14 @@ const EsquemaAvaliacao = z.object({
   confianca: z.number().min(0).max(1),
 });
 
-export type SaidaAvaliacaoIa = z.infer<typeof EsquemaAvaliacao>;
+export type OutputEvaluationIa = z.infer<typeof EsquemaEvaluation>;
 
-export interface OpcoesAvaliacao {
+export interface OptionsEvaluation {
   formulario: Formulario;
-  transcricao: Transcricao;
-  contexto?: string | null;
-  modelo?: string;
-  esforco?: Esforco;
+  transcription: Transcription;
+  context?: string | null;
+  template?: string;
+  effort?: Effort;
   /** Dublê nos testes; na produção, a chamada real. */
   chamar?: ChamadaEstruturada;
 }
@@ -58,73 +58,73 @@ function tetoDeTokens(formulario: Formulario): number {
  * fora do índice da transcrição é alucinação e derruba a avaliação.
  */
 export function resolverEvidencia(
-  transcricao: Transcricao,
+  transcription: Transcription,
   criterioId: string,
   evidencia: string | null | undefined,
 ): string | null {
   const rotulo = evidencia?.trim();
   if (!rotulo) return null;
-  const mensagemId = transcricao.indice[rotulo];
-  if (!mensagemId) {
-    throw new ErroFormatoIa(
+  const messageId = transcription.indice[rotulo];
+  if (!messageId) {
+    throw new FormatIaError(
       `Evidência "${rotulo}" do critério ${criterioId} não existe na transcrição.`,
       evidencia,
     );
   }
-  return mensagemId;
+  return messageId;
 }
 
-export async function avaliarConversa(opcoes: OpcoesAvaliacao): Promise<ResultadoAvaliacao> {
-  const { formulario, transcricao } = opcoes;
-  const chamar = opcoes.chamar ?? chamadaPadrao;
-  const texto = PROMPT_AVALIACAO.montar({
-    transcricao: transcricao.texto,
-    truncada: transcricao.truncada,
-    mensagensOmitidas: transcricao.mensagensOmitidas,
+export async function avaliarConversation(options: OptionsEvaluation): Promise<ResultEvaluation> {
+  const { formulario, transcription } = options;
+  const chamar = options.chamar ?? chamadaPadrao;
+  const texto = PROMPT_EVALUATION.montar({
+    transcription: transcription.texto,
+    truncada: transcription.truncada,
+    messagesOmitidas: transcription.messagesOmitidas,
     formulario,
-    contexto: opcoes.contexto,
+    context: options.context,
   });
 
-  const { dados, consumo, modelo } = await chamar({
+  const { data, consumo, template } = await chamar({
     sistema: texto.sistema,
-    usuario: texto.usuario,
-    esquema: EsquemaAvaliacao,
-    funcionalidade: 'avaliacao',
-    modelo: opcoes.modelo,
-    esforco: opcoes.esforco ?? 'medium',
+    user: texto.user,
+    esquema: EsquemaEvaluation,
+    feature: 'avaliacao',
+    template: options.template,
+    effort: options.effort ?? 'medium',
     maxTokens: tetoDeTokens(formulario),
   });
 
-  const porId = new Map(
+  const byId = new Map(
     criteriosDoFormulario(formulario).map(({ criterio }) => [criterio.id, criterio]),
   );
-  const enriquecidas: (RespostaBruta & { evidenciaMensagemId: string | null })[] = [];
+  const enriquecidas: (RespostaBruta & { evidenciaMessageId: string | null })[] = [];
   const vistos = new Set<string>();
 
-  for (const resposta of dados.respostas) {
-    const criterio = porId.get(resposta.criterioId);
+  for (const resposta of data.respostas) {
+    const criterio = byId.get(resposta.criterioId);
     if (!criterio) {
-      throw new ErroFormatoIa(
+      throw new FormatIaError(
         `O modelo respondeu o critério "${resposta.criterioId}", que não existe no formulário "${formulario.nome}".`,
-        dados,
+        data,
       );
     }
     if (vistos.has(criterio.id)) {
-      throw new ErroFormatoIa(`O critério "${criterio.id}" foi respondido duas vezes.`, dados);
+      throw new FormatIaError(`O critério "${criterio.id}" foi respondido duas vezes.`, data);
     }
     vistos.add(criterio.id);
 
-    const evidenciaMensagemId = resolverEvidencia(transcricao, criterio.id, resposta.evidencia);
-    const fracao = fracaoDoValor(criterio, resposta.valor);
-    if (fracao !== null && fracao < 1 && !evidenciaMensagemId) {
-      throw new ErroFormatoIa(
+    const evidenciaMessageId = resolverEvidencia(transcription, criterio.id, resposta.evidencia);
+    const fraction = valueFraction(criterio, resposta.valor);
+    if (fraction !== null && fraction < 1 && !evidenciaMessageId) {
+      throw new FormatIaError(
         `O critério "${criterio.nome}" (${criterio.id}) não saiu conforme e veio sem evidência. ` +
           'Evidência é obrigatória para o atendente poder contestar.',
-        dados,
+        data,
       );
     }
 
-    enriquecidas.push({ ...resposta, evidenciaMensagemId });
+    enriquecidas.push({ ...resposta, evidenciaMessageId });
   }
 
   const calculada = calcularNota(formulario, enriquecidas);
@@ -133,11 +133,11 @@ export async function avaliarConversa(opcoes: OpcoesAvaliacao): Promise<Resultad
     formularioId: formulario.id,
     nota: calculada.nota,
     notaAntesDoFatal: calculada.notaAntesDoFatal,
-    fataisReprovados: calculada.fataisReprovados,
+    fatalReprovados: calculada.fatalReprovados,
     respostas: calculada.respostas,
-    confianca: dados.confianca,
+    confianca: data.confianca,
     consumo,
-    modelo,
-    prompt: identificador(PROMPT_AVALIACAO),
+    template,
+    prompt: identificador(PROMPT_EVALUATION),
   };
 }

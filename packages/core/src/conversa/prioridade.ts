@@ -31,24 +31,24 @@
  * meio muda a ordem da fila de espera; use `pesoPrioridade`, nunca um mapa
  * paralelo de pesos.
  */
-export const NIVEIS_PRIORIDADE = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;
+export const NIVEIS_PRIORITY = ['maxima', 'alta', 'media', 'baixa', 'sem_prioridade'] as const;
 
-export type NivelPrioridade = (typeof NIVEIS_PRIORIDADE)[number];
+export type NivelPriority = (typeof NIVEIS_PRIORITY)[number];
 
 /**
  * O que uma REGRA de priorização pode atribuir: tudo menos a ausência. Uma regra
  * que atribui "sem prioridade" não é uma regra — é a falta dela, e teria o
  * efeito de rebaixar o ticket para o fim da fila sem ninguém ter pedido.
  */
-export const NIVEIS_ATRIBUIVEIS = NIVEIS_PRIORIDADE.filter((n) => n !== 'sem_prioridade');
+export const NIVEIS_ATRIBUIVEIS = NIVEIS_PRIORITY.filter((n) => n !== 'sem_prioridade');
 
 /** Rótulo de tela de cada degrau. */
-export const ROTULOS_PRIORIDADE: Record<NivelPrioridade, string> = {
+export const ROTULOS_PRIORITY: Record<NivelPriority, string> = {
   maxima: 'Máxima',
   alta: 'Alta',
   media: 'Média',
   baixa: 'Baixa',
-  sem_prioridade: 'Sem prioridade',
+  withoutPriority: 'Sem prioridade',
 };
 
 /**
@@ -56,9 +56,9 @@ export const ROTULOS_PRIORIDADE: Record<NivelPrioridade, string> = {
  * no meio — inventar prioridade para o que não se reconhece é o defeito que esta
  * função existe para não repetir.
  */
-export function pesoPrioridade(nivel: string): number {
-  const posicao = (NIVEIS_PRIORIDADE as readonly string[]).indexOf(nivel);
-  return posicao === -1 ? NIVEIS_PRIORIDADE.length : posicao;
+export function pesoPriority(nivel: string): number {
+  const position = (NIVEIS_PRIORITY as readonly string[]).indexOf(nivel);
+  return position === -1 ? NIVEIS_PRIORITY.length : position;
 }
 
 /*

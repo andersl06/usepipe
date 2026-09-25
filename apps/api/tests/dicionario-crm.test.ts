@@ -9,13 +9,13 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { cifrar, chaveiroDoAmbiente } = await import('@pipe/db');
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { lerDicionario, lerMetadados, sincronizarDicionario } = await import(
+const { cifrar, keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente } = await import('@pipe/db');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/dominio/dicionario-crm.js'
 );
 const { noTenant } = await import('../src/banco.js');
-const { subirApi } = await import('../src/servidor.js');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -25,9 +25,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
  * dentro do arquivo. As variações abaixo (campo removido, versão antiga) partem dela.
  */
 interface Fixture {
-  introspeccao: { data: { o: { fields: { name: string }[] }; f: { fields: { name: string }[] } } };
+  introspection: { data: { o: { fields: { name: string }[] }; f: { fields: { name: string }[] } } };
   workspace: unknown;
-  paginas: {
+  pages: {
     data: { objects: { pageInfo: unknown; edges: { node: NoGravado }[] } };
   }[];
 }
@@ -53,13 +53,13 @@ function copia<T>(x: T): T {
 
 /** As respostas, na ordem em que o cliente as pede: introspecção, workspace, páginas. */
 function respostas(f: Fixture = FIXTURE): unknown[] {
-  return [f.introspeccao, f.workspace, ...f.paginas];
+  return [f.introspection, f.workspace, ...f.pages];
 }
 
 /** A mesma fixture, sem um campo e sem um objeto — o que "sumiu" do CRM. */
 function semAlgo(objetoRemovido: string, campoRemovido: [string, string]): Fixture {
   const f = copia(FIXTURE);
-  for (const p of f.paginas) {
+  for (const p of f.pages) {
     p.data.objects.edges = p.data.objects.edges.filter((e) => e.node.nameSingular !== objetoRemovido);
     for (const { node } of p.data.objects.edges) {
       if (node.nameSingular === campoRemovido[0]) {
@@ -122,10 +122,10 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
     // Variante sintética da gravação: troca applicationId por isCustom, como era o schema
     // antigo. Não há instância antiga no ar para gravar de verdade.
     const f = copia(FIXTURE);
-    for (const t of [f.introspeccao.data.o, f.introspeccao.data.f]) {
+    for (const t of [f.introspection.data.o, f.introspection.data.f]) {
       t.fields = t.fields.map((c) => (c.name === 'applicationId' ? { name: 'isCustom' } : c));
     }
-    for (const p of f.paginas) {
+    for (const p of f.pages) {
       for (const { node } of p.data.objects.edges) {
         node.isCustom = node.applicationId === APP_DO_CLIENTE;
         delete node.applicationId;
@@ -135,7 +135,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
         }
       }
     }
-    const { buscar, chamadas } = fetchFalso([f.introspeccao, ...f.paginas]);
+    const { buscar, chamadas } = fetchFalso([f.introspection, ...f.pages]);
 
     const meta = await lerMetadados(CONFIG, buscar);
 
@@ -157,7 +157,7 @@ describe('sincronização do dicionário, no banco', () => {
     for (const c of [a, b]) {
       await c.dono.execute(sql`
         update tenant set twenty_url = ${`https://crm-${c.tenantId.slice(0, 8)}.teste`},
-                          twenty_chave = ${cifrar('k', chaveiroDoAmbiente())}
+                          twenty_chave = ${cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente())}
          where id = ${c.tenantId}
       `);
     }
@@ -168,12 +168,12 @@ describe('sincronização do dicionário, no banco', () => {
     await b.encerrar();
   });
 
-  const ler = (c: Cenario) => noTenant(c.tenantId, lerDicionario);
+  const ler = (c: Cenario) => noTenant(c.tenantId, readDictionary);
   const campo = async (c: Cenario, objeto: string, nome: string) =>
     (await ler(c)).find((o) => o.codigo === objeto)?.campos.find((x) => x.codigo === nome);
 
   it('grava objetos e campos no formato do Twenty, casando por name', async () => {
-    const r = await sincronizarDicionario(a.tenantId, fetchFalso(respostas()).buscar);
+    const r = await syncDictionary(a.tenantId, fetchFalso(respostas()).buscar);
 
     expect(r).toMatchObject({
       estado: 'sincronizado',
@@ -187,8 +187,8 @@ describe('sincronização do dicionário, no banco', () => {
     expect(pessoa?.rotulo).toBe('Pessoa');
     expect(pessoa?.namePlural).toBe('people');
 
-    const contatoId = await campo(a, 'person', 'pipeContatoId');
-    expect(contatoId).toMatchObject({ tipo: 'TEXT', isCustom: true, agregavel: false });
+    const contactId = await campo(a, 'person', 'pipeContatoId');
+    expect(contactId).toMatchObject({ tipo: 'TEXT', isCustom: true, agregavel: false });
     expect((await campo(a, 'person', 'name'))?.isCustom).toBe(false);
 
     // Relação no formato da API, com a cardinalidade.
@@ -202,7 +202,7 @@ describe('sincronização do dicionário, no banco', () => {
     });
 
     // Opções do SELECT exatamente como vieram.
-    const gravado = FIXTURE.paginas[1]!.data.objects.edges[0]!.node.fieldsList.find(
+    const gravado = FIXTURE.pages[1]!.data.objects.edges[0]!.node.fieldsList.find(
       (c) => c.name === 'stage',
     );
     expect(gravado?.options).toBeInstanceOf(Array);
@@ -224,7 +224,7 @@ describe('sincronização do dicionário, no banco', () => {
 
   it('sincronizar de novo não duplica nada', async () => {
     const antes = await contar(a);
-    await sincronizarDicionario(a.tenantId, fetchFalso(respostas()).buscar);
+    await syncDictionary(a.tenantId, fetchFalso(respostas()).buscar);
     expect(await contar(a)).toEqual(antes);
   });
 
@@ -236,26 +236,26 @@ describe('sincronização do dicionário, no banco', () => {
     `);
     const antes = await contar(a);
 
-    const r = await sincronizarDicionario(
+    const r = await syncDictionary(
       a.tenantId,
       fetchFalso(respostas(semAlgo('opportunity', ['person', 'pipeContatoId']))).buscar,
     );
 
-    const camposDaOportunidade = FIXTURE.paginas[1]!.data.objects.edges[0]!.node.fieldsList.length;
-    expect(r).toMatchObject({ removidos: { objetos: 1, campos: 1 + camposDaOportunidade } });
+    const fieldsOfOpportunity = FIXTURE.pages[1]!.data.objects.edges[0]!.node.fieldsList.length;
+    expect(r).toMatchObject({ removidos: { objetos: 1, campos: 1 + fieldsOfOpportunity } });
     expect(await contar(a)).toEqual(antes);
 
     const removido = await campo(a, 'person', 'pipeContatoId');
     expect(removido?.isActive).toBe(false);
     expect(removido?.excluidoEm).not.toBeNull();
-    const oportunidade = (await ler(a)).find((o) => o.codigo === 'opportunity');
-    expect(oportunidade).toMatchObject({ isActive: false });
-    expect(oportunidade?.excluidoEm).not.toBeNull();
+    const opportunity = (await ler(a)).find((o) => o.codigo === 'opportunity');
+    expect(opportunity).toMatchObject({ isActive: false });
+    expect(opportunity?.excluidoEm).not.toBeNull();
     expect(await origemDoLead(a)).toEqual({ excluido_em: null });
   });
 
   it('o que volta ao CRM volta ativo', async () => {
-    await sincronizarDicionario(a.tenantId, fetchFalso(respostas()).buscar);
+    await syncDictionary(a.tenantId, fetchFalso(respostas()).buscar);
     const devolvido = await campo(a, 'person', 'pipeContatoId');
     expect(devolvido).toMatchObject({ isActive: true, excluidoEm: null });
   });
@@ -263,8 +263,8 @@ describe('sincronização do dicionário, no banco', () => {
   it('isola os tenants: a sincronização de um não aparece, nem muda, no outro', async () => {
     expect(await ler(b)).toEqual([]);
 
-    await sincronizarDicionario(b.tenantId, fetchFalso(respostas()).buscar);
-    await sincronizarDicionario(
+    await syncDictionary(b.tenantId, fetchFalso(respostas()).buscar);
+    await syncDictionary(
       a.tenantId,
       fetchFalso(respostas(semAlgo('opportunity', ['person', 'pipeContatoId']))).buscar,
     );
@@ -286,34 +286,34 @@ describe('sincronização do dicionário, no banco', () => {
   it('tenant sem CRM é pulado sem chamar ninguém, e não é erro', async () => {
     const c = await montarCenario(`dic-c-${randomUUID().slice(0, 8)}`);
     try {
-      expect(await sincronizarDicionario(c.tenantId, naoChame)).toEqual({ estado: 'sem_crm' });
+      expect(await syncDictionary(c.tenantId, naoChame)).toEqual({ estado: 'sem_crm' });
     } finally {
       await c.encerrar();
     }
   });
 
   it('CRM que devolve zero objetos não apaga o dicionário', async () => {
-    const vazio = copia(FIXTURE);
-    vazio.paginas = [
+    const empty = copia(FIXTURE);
+    empty.pages = [
       { data: { objects: { pageInfo: { hasNextPage: false, endCursor: null }, edges: [] } } },
     ];
-    const erro = await sincronizarDicionario(b.tenantId, fetchFalso(respostas(vazio)).buscar).catch(
+    const error = await syncDictionary(b.tenantId, fetchFalso(respostas(empty)).buscar).catch(
       (e: unknown) => e,
     );
-    expect(String((erro as Error).message)).toContain('zero objetos');
+    expect(String((error as Error).message)).toContain('zero objetos');
     expect((await campo(b, 'person', 'name'))?.excluidoEm).toBeNull();
   });
 
   it('GET /v1/crm/dicionario exige sessão e devolve só o dicionário do tenant dela', async () => {
-    const api = await subirApi(0);
+    const api = await upApi(0);
     try {
-      const semSessao = await fetch(`${api.url}/v1/crm/dicionario`);
-      expect(semSessao.status).toBe(401);
+      const withoutSession = await fetch(`${api.url}/v1/crm/dicionario`);
+      expect(withoutSession.status).toBe(401);
 
-      const novo = criarToken();
+      const novo = createTokencriarTokencreateToken();
       await a.dono.execute(sql`
         insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-        values (${a.tenantId}, ${a.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+        values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
       `);
       const r = await fetch(`${api.url}/v1/crm/dicionario`, {
         headers: { cookie: `${NOME_DO_COOKIE}=${novo.token}` },

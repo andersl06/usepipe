@@ -2,104 +2,104 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   adicionarAcaoGlobal,
-  listaDeAcoesGlobais,
+  actionsGlobalLista,
   moverAcaoGlobal,
   removerAcaoGlobal,
   substituirAcaoGlobal,
 } from '../src/paginas/builder/acoes-globais.ts';
 import {
-  LIMITE_DE_ACOES,
-  ROTULOS_DAS_ACOES,
+  ACTIONS_LIMIT,
+  ROTULOS_OF_ACTIONS,
   tipoDeAcao,
-  colarAcoes,
+  colarActions,
   cabecalhosDoCampo,
   comCabecalhos,
   comCampo,
   comCampoJson,
-  errosDaAcao,
+  actionErrors,
   moverAcao,
   novaAcao,
 } from '../src/paginas/builder/acoes-do-bloco.ts';
 import {
-  MENSAGENS_DE_IMPORTACAO,
-  nomeDoArquivoDeExportacao,
-  textoDeExportacao,
-  validarImportacao,
+  MESSAGES_OF_IMPORT,
+  nameOfFileOfExport,
+  exportText,
+  validateImport,
 } from '../src/paginas/builder/importar-exportar.ts';
-import { novoBloco } from '../src/paginas/builder/modelo.ts';
-import { etiquetasDoBloco } from '../src/paginas/builder/etiquetas-do-bloco.ts';
-import { errosDoBloco } from '../src/paginas/builder/validacao.ts';
+import { newBlock } from '../src/paginas/builder/modelo.ts';
+import { blockTags } from '../src/paginas/builder/etiquetas-do-bloco.ts';
+import { blockErrors } from '../src/paginas/builder/validacao.ts';
 import {
-  VARIAVEIS_DO_SISTEMA,
-  filtrarVariaveis,
-  filtrarVariaveisDoSistema,
-  variaveisDoUsuario,
+  VARIABLES_OF_SISTEMA,
+  filterVariables,
+  sistemaFiltrarVariables,
+  userVariables,
 } from '../src/paginas/builder/variaveis.ts';
 
 /* ------------------------------------------------------------- variaveis.ts */
 
 test('colar ações preserva origem, cria ids únicos e respeita o limite atomicamente', () => {
-  const bloco = novoBloco({}, { top: 0, left: 0 }, 'bloco');
+  const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
   const original = {
     $id: 'origem',
     type: 'SetVariable',
     settings: { variable: 'saldo', value: '1' },
   };
-  const r = colarAcoes(bloco, '$enteringCustomActions', [original, original]);
+  const r = colarActions(block, '$enteringCustomActions', [original, original]);
   assert.ok(r.ok);
-  const acoes = r.bloco.$enteringCustomActions!;
-  assert.equal(new Set(acoes.map((a) => a.$id)).size, 2);
-  assert.ok(acoes.every((a) => a.$id !== original.$id));
-  acoes[0]!.settings!.value = '2';
+  const actions = r.block.$enteringCustomActions!;
+  assert.equal(new Set(actions.map((a) => a.$id)).size, 2);
+  assert.ok(actions.every((a) => a.$id !== original.$id));
+  actions[0]!.settings!.value = '2';
   assert.equal(original.settings.value, '1');
-  assert.equal(acoes[1]!.settings!.value, '1');
+  assert.equal(actions[1]!.settings!.value, '1');
   assert.deepEqual(
-    moverAcao(r.bloco, '$enteringCustomActions', 0, 1).$enteringCustomActions?.map((a) => a.$id),
-    [acoes[1]!.$id, acoes[0]!.$id],
+    moverAcao(r.block, '$enteringCustomActions', 0, 1).$enteringCustomActions?.map((a) => a.$id),
+    [actions[1]!.$id, actions[0]!.$id],
   );
-  const cheio = { ...bloco, $enteringCustomActions: Array.from({ length: 14 }, () => original) };
-  assert.equal(colarAcoes(cheio, '$enteringCustomActions', [original, original]).ok, false);
+  const cheio = { ...block, $enteringCustomActions: Array.from({ length: 14 }, () => original) };
+  assert.equal(colarActions(cheio, '$enteringCustomActions', [original, original]).ok, false);
   assert.equal(cheio.$enteringCustomActions.length, 14);
 });
 
 test('ProcessHttp edita cabeçalhos em pares e mantém o objeto do fluxo', () => {
   const acao = novaAcao('ProcessHttp');
   assert.equal(acao.settings?.method, 'GET');
-  assert.deepEqual(tipoDeAcao('ProcessHttp')?.campos[0]?.opcoes, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+  assert.deepEqual(tipoDeAcao('ProcessHttp')?.campos[0]?.options, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
   const valida = comCabecalhos(
     comCampo(acao, 'uri', 'https://api.exemplo.test'),
     'headers',
-    [{ chave: 'authorization', valor: 'Bearer {{token}}' }],
+    [{ key: 'authorization', value: 'Bearer {{token}}' }],
   );
   assert.deepEqual(valida.settings?.headers, { authorization: 'Bearer {{token}}' });
   assert.deepEqual(cabecalhosDoCampo(valida, 'headers'), [{ chave: 'authorization', valor: 'Bearer {{token}}' }]);
-  assert.deepEqual(errosDaAcao(valida), []);
+  assert.deepEqual(actionErrors(valida), []);
 
-  const semChave = comCabecalhos(valida, 'headers', [{ chave: '', valor: 'ignorado' }]);
-  assert.equal(semChave.settings?.headers, undefined);
+  const withoutKey = comCabecalhos(valida, 'headers', [{ key: '', value: 'ignorado' }]);
+  assert.equal(withoutKey.settings?.headers, undefined);
 
   const invalida = comCampoJson(acao, 'headers', '{');
-  assert.deepEqual(errosDaAcao(invalida), ['URL: campo obrigatório.']);
+  assert.deepEqual(actionErrors(invalida), ['URL: campo obrigatório.']);
 });
 
 test('rascunho de saída vazio fica no cartão e não entra no alerta de publicação', () => {
-  const bloco = novoBloco({}, { top: 0, left: 0 }, 'inicio');
-  bloco.$conditionOutputs = [{ conditions: [{ source: 'input', comparison: 'equals', values: [] }] }];
-  const erros = errosDoBloco(bloco, { inicio: bloco });
-  assert.ok(!erros.includes('Definição de saída não preenchida'));
-  assert.ok(!erros.includes('A condição precisa de valores quando a comparação não é exists nem notExists.'));
+  const block = newBlock({}, { top: 0, left: 0 }, 'inicio');
+  block.$conditionOutputs = [{ conditions: [{ source: 'input', comparison: 'equals', values: [] }] }];
+  const errors = blockErrors(block, { inicio: block });
+  assert.ok(!errors.includes('Definição de saída não preenchida'));
+  assert.ok(!errors.includes('A condição precisa de valores quando a comparação não é exists nem notExists.'));
 });
 
 test('card do bloco mostra ações de conteúdo, entrada e ações personalizadas sem repetir', () => {
-  const bloco = novoBloco({}, { top: 0, left: 0 }, 'inicio');
-  bloco.$contentActions = [
+  const block = newBlock({}, { top: 0, left: 0 }, 'inicio');
+  block.$contentActions = [
     { action: { type: 'SendMessage' } },
     { action: { type: 'SendMessage' } },
     { input: { bypass: false } },
   ];
-  bloco.$leavingCustomActions = [{ type: 'ProcessHttp' }];
-  bloco.$tags = [{ label: 'API', background: '#3f7de8' }];
-  const etiquetas = etiquetasDoBloco(bloco);
+  block.$leavingCustomActions = [{ type: 'ProcessHttp' }];
+  block.$tags = [{ label: 'API', background: '#3f7de8' }];
+  const etiquetas = blockTags(block);
   assert.deepEqual(
     etiquetas.map(({ rotulo }) => rotulo),
     ['API', 'ProcessHttp', 'SendMessage', 'UserInput'],
@@ -108,83 +108,83 @@ test('card do bloco mostra ações de conteúdo, entrada e ações personalizada
 });
 
 test('variaveisDoUsuario junta as variáveis de context de blocos e ações globais, sem repetir', () => {
-  const bloco = novoBloco({}, { top: 0, left: 0 }, 'bloco');
-  bloco.$enteringCustomActions = [{ type: 'SetVariable', settings: { variable: 'saldo' } }];
-  bloco.$conditionOutputs = [
+  const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
+  block.$enteringCustomActions = [{ type: 'SetVariable', settings: { variable: 'saldo' } }];
+  block.$conditionOutputs = [
     {
       $id: 's1',
       stateId: 'outro',
       conditions: [{ source: 'context', variable: 'etapa', comparison: 'equals', values: ['1'] }],
     },
   ];
-  bloco.$contentActions![0]!.input!.variable = 'resposta';
-  const mapa = { bloco };
-  const globais = {
+  block.$contentActions![0]!.input!.variable = 'resposta';
+  const mapa = { block };
+  const global = {
     $leavingCustomActions: [
       { type: 'DeleteVariable', settings: { variable: 'temp' } },
       { type: 'SetVariable', settings: { variable: 'saldo' } },
     ],
   };
 
-  assert.deepEqual(variaveisDoUsuario(mapa, globais), ['etapa', 'resposta', 'saldo', 'temp']);
+  assert.deepEqual(userVariables(mapa, global), ['etapa', 'resposta', 'saldo', 'temp']);
 });
 
 test('variaveisDoUsuario devolve lista vazia quando o fluxo não referencia nenhuma variável de context', () => {
-  const mapa = { bloco: novoBloco({}, { top: 0, left: 0 }, 'bloco') };
-  assert.deepEqual(variaveisDoUsuario(mapa, {}), []);
+  const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
+  assert.deepEqual(userVariables(mapa, {}), []);
 });
 
 test('filtrarVariaveis ignora acento e caixa', () => {
   const nomes = ['Saldo', 'situação', 'temp'];
-  assert.deepEqual(filtrarVariaveis(nomes, 'situacao'), ['situação']);
-  assert.deepEqual(filtrarVariaveis(nomes, 'SALDO'), ['Saldo']);
-  assert.deepEqual(filtrarVariaveis(nomes, ''), nomes);
-  assert.deepEqual(filtrarVariaveis(nomes, 'zzz'), []);
+  assert.deepEqual(filterVariables(nomes, 'situacao'), ['situação']);
+  assert.deepEqual(filterVariables(nomes, 'SALDO'), ['Saldo']);
+  assert.deepEqual(filterVariables(nomes, ''), nomes);
+  assert.deepEqual(filterVariables(nomes, 'zzz'), []);
 });
 
 test('filtrarVariaveisDoSistema busca no nome e na descrição', () => {
-  const porNome = filtrarVariaveisDoSistema(VARIAVEIS_DO_SISTEMA, 'contact.email');
+  const byName = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, 'contact.email');
   assert.deepEqual(
-    porNome.map((v) => v.nome),
+    byName.map((v) => v.nome),
     ['contact.email'],
   );
 
-  const porDescricao = filtrarVariaveisDoSistema(VARIAVEIS_DO_SISTEMA, 'atendimento');
-  assert.ok(porDescricao.some((v) => v.nome === 'ticket.id'));
+  const byDescription = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, 'atendimento');
+  assert.ok(byDescription.some((v) => v.nome === 'ticket.id'));
 });
 
 /* --------------------------------------------------------- importar-exportar.ts */
 
 test('textoDeExportacao produz {flow, globalActions} com o bloco pela chave do id', () => {
-  const bloco = novoBloco({}, { top: 0, left: 0 }, 'onboarding');
-  bloco.root = true;
-  const mapa = { onboarding: bloco };
-  const globais = { $enteringCustomActions: [{ type: 'TrackEvent' }] };
+  const block = newBlock({}, { top: 0, left: 0 }, 'onboarding');
+  block.root = true;
+  const mapa = { onboarding: block };
+  const global = { $enteringCustomActions: [{ type: 'TrackEvent' }] };
 
-  const json = JSON.parse(textoDeExportacao(mapa, globais)) as {
+  const json = JSON.parse(exportText(mapa, global)) as {
     flow: Record<string, unknown>;
     globalActions: unknown;
   };
 
   assert.deepEqual(Object.keys(json.flow), ['onboarding']);
   assert.equal((json.flow.onboarding as { id: string }).id, 'onboarding');
-  assert.deepEqual(json.globalActions, globais);
+  assert.deepEqual(json.globalActions, global);
 });
 
 test('nomeDoArquivoDeExportacao sanitiza o nome do fluxo e nunca fica vazio', () => {
-  assert.equal(nomeDoArquivoDeExportacao('Meu Bot!'), 'meu-bot.json');
-  assert.equal(nomeDoArquivoDeExportacao('  '), 'fluxo.json');
-  assert.equal(nomeDoArquivoDeExportacao('Atendimento/Vendas'), 'atendimento-vendas.json');
+  assert.equal(nameOfFileOfExport('Meu Bot!'), 'meu-bot.json');
+  assert.equal(nameOfFileOfExport('  '), 'fluxo.json');
+  assert.equal(nameOfFileOfExport('Atendimento/Vendas'), 'atendimento-vendas.json');
 });
 
 test('validarImportacao recusa texto que não é JSON', () => {
-  const r = validarImportacao('{ isso não é json');
-  assert.deepEqual(r, { ok: false, erro: MENSAGENS_DE_IMPORTACAO.arquivoInvalido });
+  const r = validateImport('{ isso não é json');
+  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
 test('validarImportacao recusa JSON que não tem o formato do export do editor', () => {
-  const r = validarImportacao(JSON.stringify({ nada: 'a ver' }));
-  assert.deepEqual(r, { ok: false, erro: MENSAGENS_DE_IMPORTACAO.arquivoInvalido });
+  const r = validateImport(JSON.stringify({ nada: 'a ver' }));
+  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
 test('validarImportacao recusa um fluxo sem bloco raiz', () => {
@@ -192,8 +192,8 @@ test('validarImportacao recusa um fluxo sem bloco raiz', () => {
     flow: { onboarding: { id: 'onboarding', $contentActions: [] } },
     globalActions: {},
   };
-  const r = validarImportacao(JSON.stringify(semRaiz));
-  assert.deepEqual(r, { ok: false, erro: MENSAGENS_DE_IMPORTACAO.semRaiz });
+  const r = validateImport(JSON.stringify(semRaiz));
+  assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.semRaiz });
 });
 
 test('validarImportacao aceita um export válido e devolve o mapa pronto pra carregar', () => {
@@ -201,69 +201,69 @@ test('validarImportacao aceita um export válido e devolve o mapa pronto pra car
     flow: { onboarding: { id: 'onboarding', root: true, $contentActions: [] } },
     globalActions: { $enteringCustomActions: [] },
   };
-  const r = validarImportacao(JSON.stringify(valido));
+  const r = validateImport(JSON.stringify(valido));
   assert.equal(r.ok, true);
   if (!r.ok) return;
   assert.equal(r.mapa.onboarding?.root, true);
-  assert.deepEqual(r.globais, { $enteringCustomActions: [] });
+  assert.deepEqual(r.global, { $enteringCustomActions: [] });
 });
 
 /* ------------------------------------------------------------- acoes-globais.ts */
 
 test('listaDeAcoesGlobais devolve lista vazia quando a chave não existe', () => {
-  assert.deepEqual(listaDeAcoesGlobais({}, '$enteringCustomActions'), []);
+  assert.deepEqual(actionsGlobalLista({}, '$enteringCustomActions'), []);
 });
 
 test('adicionarAcaoGlobal acrescenta na lista certa sem mexer na outra', () => {
   const r = adicionarAcaoGlobal({}, '$enteringCustomActions', { type: 'SetVariable' });
   assert.equal(r.ok, true);
   if (!r.ok) return;
-  assert.deepEqual(listaDeAcoesGlobais(r.globais, '$enteringCustomActions'), [
+  assert.deepEqual(actionsGlobalLista(r.global, '$enteringCustomActions'), [
     { type: 'SetVariable' },
   ]);
-  assert.deepEqual(listaDeAcoesGlobais(r.globais, '$leavingCustomActions'), []);
+  assert.deepEqual(actionsGlobalLista(r.global, '$leavingCustomActions'), []);
 });
 
 test('adicionarAcaoGlobal recusa depois do limite de 15, igual às ações de bloco', () => {
   const cheias = {
-    $enteringCustomActions: Array.from({ length: LIMITE_DE_ACOES }, () => ({
+    $enteringCustomActions: Array.from({ length: ACTIONS_LIMIT }, () => ({
       type: 'SetVariable',
     })),
   };
   const r = adicionarAcaoGlobal(cheias, '$enteringCustomActions', { type: 'SetVariable' });
-  assert.deepEqual(r, { ok: false, erro: ROTULOS_DAS_ACOES.limite });
+  assert.deepEqual(r, { ok: false, erro: ROTULOS_OF_ACTIONS.limite });
 });
 
 test('substituirAcaoGlobal troca só o índice pedido', () => {
-  const globais = {
+  const global = {
     $leavingCustomActions: [
       { type: 'SetVariable', $title: 'a' },
       { type: 'TrackEvent', $title: 'b' },
     ],
   };
-  const trocado = substituirAcaoGlobal(globais, '$leavingCustomActions', 1, {
+  const trocado = substituirAcaoGlobal(global, '$leavingCustomActions', 1, {
     type: 'TrackEvent',
     $title: 'novo',
   });
   assert.deepEqual(
-    listaDeAcoesGlobais(trocado, '$leavingCustomActions').map((a) => a.$title),
+    actionsGlobalLista(trocado, '$leavingCustomActions').map((a) => a.$title),
     ['a', 'novo'],
   );
 });
 
 test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
-  const globais = {
+  const global = {
     $enteringCustomActions: [{ type: 'A' }, { type: 'B' }, { type: 'C' }],
   };
-  const movido = moverAcaoGlobal(globais, '$enteringCustomActions', 2, 0);
+  const movido = moverAcaoGlobal(global, '$enteringCustomActions', 2, 0);
   assert.deepEqual(
-    listaDeAcoesGlobais(movido, '$enteringCustomActions').map((a) => a.type),
+    actionsGlobalLista(movido, '$enteringCustomActions').map((a) => a.type),
     ['C', 'A', 'B'],
   );
 
   const removido = removerAcaoGlobal(movido, '$enteringCustomActions', 1);
   assert.deepEqual(
-    listaDeAcoesGlobais(removido, '$enteringCustomActions').map((a) => a.type),
+    actionsGlobalLista(removido, '$enteringCustomActions').map((a) => a.type),
     ['C', 'B'],
   );
 });

@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { bancoDono } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
+import { databaseOwner } from '../../banco.js';
+import { PipeError } from '../../erros.js';
 import { clienteGraph } from './cliente-graph.js';
 
 /**
@@ -16,49 +16,49 @@ import { clienteGraph } from './cliente-graph.js';
  * `configuracao_invalida` — é o `ArgumentError` de lá.
  */
 
-const PERMISSAO_DE_MENSAGEM = 'whatsapp_business_messaging';
+const PERMISSION_OF_MESSAGE = 'whatsapp_business_messaging';
 
-export interface PreviaDaConfiguracao {
+export interface PreviaOfConfiguration {
   nomeVerificado: string | null;
   numero: string;
   numeroId: string;
   wabaId: string;
-  acessoAosModelos: true;
+  accessToTemplates: true;
   nomeSugerido: string;
   /** O app dono do token: é nele que a foto do perfil sobe (`subirFoto`). */
   appId: string | null;
 }
 
 /** O App Secret da Meta: 32 caracteres hexadecimais. */
-const FORMATO_DO_SEGREDO = /^[0-9a-f]{32}$/i;
+const FORMAT_OF_SECRET = /^[0-9a-f]{32}$/i;
 
-function recusa(mensagem: string): ErroPipe {
-  return new ErroPipe(422, 'configuracao_invalida', mensagem);
+function recusa(message: string): PipeError {
+  return new PipeError(422, 'configuracao_invalida', message);
 }
 
 export function numeroNormalizado(numero: unknown): string {
   return `+${String(numero ?? '').replace(/[^\d]/g, '')}`;
 }
 
-export async function validarConfiguracaoManual(dados: {
+export async function validateConfigurationManual(data: {
   wabaId?: string | undefined;
   numeroId?: string | undefined;
   token?: string | undefined;
   appSecret?: string | undefined;
   /** Reconexão: o canal que JÁ tem este número não disputa consigo mesmo. */
-  canalId?: string | undefined;
-}): Promise<PreviaDaConfiguracao> {
+  channelId?: string | undefined;
+}): Promise<PreviaOfConfiguration> {
   // `validate_parameters!`
-  if (!dados.wabaId) throw recusa('O WABA ID é obrigatório.');
-  if (!dados.numeroId) throw recusa('O Phone Number ID é obrigatório.');
-  if (!dados.token) throw recusa('O token de acesso é obrigatório.');
+  if (!data.wabaId) throw recusa('O WABA ID é obrigatório.');
+  if (!data.numeroId) throw recusa('O Phone Number ID é obrigatório.');
+  if (!data.token) throw recusa('O token de acesso é obrigatório.');
   // Acréscimo do Pipe: o token é do app do CLIENTE, e a Meta assina o webhook com
   // o segredo DESSE app. Sem ele, toda mensagem recebida cai em 401.
-  if (!dados.appSecret) throw recusa('O App Secret é obrigatório.');
-  if (!FORMATO_DO_SEGREDO.test(dados.appSecret)) {
+  if (!data.appSecret) throw recusa('O App Secret é obrigatório.');
+  if (!FORMAT_OF_SECRET.test(data.appSecret)) {
     throw recusa('O App Secret tem 32 caracteres, só números e letras de a a f.');
   }
-  const { wabaId, numeroId, token, appSecret } = dados as {
+  const { wabaId, numeroId, token, appSecret } = data as {
     wabaId: string;
     numeroId: string;
     token: string;
@@ -71,25 +71,25 @@ export async function validarConfiguracaoManual(dados: {
   const numeros = await cliente.buscarTodosOsNumeros(wabaId);
   const achado = numeros.find((n) => String(n.id) === String(numeroId));
   if (!achado) throw recusa('Este Phone Number ID não pertence ao WABA ID informado.');
-  const dadosDoNumero: Record<string, unknown> = {
+  const dataOfNumber: Record<string, unknown> = {
     ...achado,
     ...(await cliente.buscarNumero(numeroId, 'status,code_verification_status')),
   };
 
   // `verify_phone_number_ready!`
   if (
-    dadosDoNumero['status'] !== 'CONNECTED' &&
-    dadosDoNumero['code_verification_status'] !== 'VERIFIED'
+    dataOfNumber['status'] !== 'CONNECTED' &&
+    dataOfNumber['code_verification_status'] !== 'VERIFIED'
   ) {
     throw recusa('Conclua a verificação do número na Meta antes de continuar.');
   }
 
   // `verify_uniqueness!` — global, entre clientes: papel dono, só sim ou não.
-  const numero = numeroNormalizado(dadosDoNumero['display_phone_number']);
+  const numero = numeroNormalizado(dataOfNumber['display_phone_number']);
   /* Na reconexão o dono do número é o próprio canal que está sendo reconectado:
      ele não disputa consigo mesmo, senão trocar o token vencido seria impossível. */
-  const eu = dados.canalId ?? null;
-  const { rows } = await bancoDono().execute<{ numero: boolean; id: boolean }>(sql`
+  const eu = data.channelId ?? null;
+  const { rows } = await databaseOwner().execute<{ numero: boolean; id: boolean }>(sql`
     select exists (
              select 1 from canal
               where tipo = 'whatsapp_cloud' and config->>'numero' = ${numero}
@@ -116,9 +116,9 @@ export async function validarConfiguracaoManual(dados: {
   // `verify_messaging_access!`
   let permitido = false;
   try {
-    const permissoes = (await cliente.buscarPermissoes()).data ?? [];
-    permitido = permissoes.some(
-      (p) => p.permission === PERMISSAO_DE_MENSAGEM && p.status === 'granted',
+    const permissions = (await cliente.fetchPermissions()).data ?? [];
+    permitido = permissions.some(
+      (p) => p.permission === PERMISSION_OF_MESSAGE && p.status === 'granted',
     );
   } catch {
     permitido = false;
@@ -130,22 +130,22 @@ export async function validarConfiguracaoManual(dados: {
   }
 
   // Acréscimo do Pipe: o segredo tem de ser do app que gerou o token.
-  if (!(await cliente.conferirSegredoDoApp(numeroId, appSecret))) {
+  if (!(await cliente.checkSecretOfApp(numeroId, appSecret))) {
     throw recusa('Este App Secret não é do aplicativo que gerou o token.');
   }
   const app = await cliente.buscarAppDoToken().catch(() => null);
 
   // `build_preview`
   const nomeVerificado =
-    typeof dadosDoNumero['verified_name'] === 'string' && dadosDoNumero['verified_name']
-      ? dadosDoNumero['verified_name']
+    typeof dataOfNumber['verified_name'] === 'string' && dataOfNumber['verified_name']
+      ? dataOfNumber['verified_name']
       : null;
   return {
     nomeVerificado,
     numero,
     numeroId: String(achado.id),
     wabaId: String(wabaId),
-    acessoAosModelos: true,
+    accessToTemplates: true,
     nomeSugerido: `${nomeVerificado ?? numero} WhatsApp`,
     appId: app?.id ? String(app.id) : null,
   };

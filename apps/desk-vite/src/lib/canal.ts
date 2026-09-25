@@ -1,4 +1,4 @@
-import type { TipoCanalBanco } from '@pipe/contracts';
+import type { TypeChannelDatabase } from '@pipe/contracts';
 
 /**
  * O canal de cada conversa, como a referência o mostra: um selo com o logo
@@ -9,17 +9,17 @@ import type { TipoCanalBanco } from '@pipe/contracts';
  * origem); `widget` (o chat próprio) usa o de e-mail por falta de um logo
  * de chat que não seja marca deles.
  */
-export type NomeDeLogoDeCanal = 'whatsapp' | 'instagram' | 'email';
+export type NameOfLogoOfChannel = 'whatsapp' | 'instagram' | 'email';
 
-export const CANAIS: Record<TipoCanalBanco, { logo: NomeDeLogoDeCanal; nome: string }> = {
+export const CHANNELS: Record<TypeChannelDatabase, { logo: NameOfLogoOfChannel; nome: string }> = {
   whatsapp_cloud: { logo: 'whatsapp', nome: 'WhatsApp' },
   instagram: { logo: 'instagram', nome: 'Instagram' },
   email: { logo: 'email', nome: 'E-mail' },
   widget: { logo: 'email', nome: 'Chat' },
 };
 
-export function canalDe(tipo: TipoCanalBanco): { logo: NomeDeLogoDeCanal; nome: string } {
-  return CANAIS[tipo] ?? CANAIS.widget;
+export function channelOf(tipo: TypeChannelDatabase): { logo: NameOfLogoOfChannel; nome: string } {
+  return CHANNELS[tipo] ?? CHANNELS.widget;
 }
 
 /**

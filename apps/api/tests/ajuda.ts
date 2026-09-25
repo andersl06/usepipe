@@ -1,7 +1,7 @@
 import { createHash, createHmac, randomBytes, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import { criarBanco, fecharBanco, migrar } from '@pipe/db';
-import type { BancoPipe } from '@pipe/db';
+import { createDatabase, closeDatabase, migrate } from '@pipe/db';
+import type { DatabasePipe } from '@pipe/db';
 
 export const URL_DONO = process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
 
@@ -10,14 +10,14 @@ export const VERIFY_TOKEN = 'token-de-inscricao';
 export const PHONE_NUMBER_ID = '555000111';
 
 export interface Cenario {
-  dono: BancoPipe;
+  dono: DatabasePipe;
   tenantId: string;
-  canalId: string;
+  channelId: string;
   inboxId: string;
-  filaId: string;
-  atendenteId: string;
+  queueId: string;
+  agentId: string;
   token: string;
-  tokenSemEscopo: string;
+  tokenWithoutScope: string;
   encerrar: () => Promise<void>;
 }
 
@@ -29,11 +29,11 @@ export interface Cenario {
  * Montado com o papel dono: é semente, não caminho de produção.
  */
 export async function montarCenario(sufixo: string): Promise<Cenario> {
-  await migrar(URL_DONO);
-  const dono = criarBanco({ url: URL_DONO, maxConexoes: 3 });
+  await migrate(URL_DONO);
+  const dono = createDatabase({ url: URL_DONO, maxConnections: 3 });
 
-  const um = async <T extends Record<string, unknown>>(consulta: ReturnType<typeof sql>) => {
-    const { rows } = await dono.execute<T>(consulta);
+  const um = async <T extends Record<string, unknown>>(query: ReturnType<typeof sql>) => {
+    const { rows } = await dono.execute<T>(query);
     const linha = rows[0];
     if (!linha) throw new Error('a semente não devolveu linha');
     return linha;
@@ -43,7 +43,7 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     sql`insert into tenant (nome, slug) values (${`e2e ${sufixo}`}, ${`e2e-${sufixo}`}) returning id`,
   );
 
-  const canal = await um<{ id: string }>(sql`
+  const channel = await um<{ id: string }>(sql`
     insert into canal (tenant_id, tipo, nome, config)
     values (${tenant.id}, 'whatsapp_cloud', 'WhatsApp de teste', ${JSON.stringify({
       appSecret: APP_SECRET,
@@ -54,17 +54,17 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     returning id
   `);
 
-  const fila = await um<{ id: string }>(
+  const queue = await um<{ id: string }>(
     sql`insert into fila (tenant_id, nome) values (${tenant.id}, ${`Suporte ${sufixo}`}) returning id`,
   );
 
   const inbox = await um<{ id: string }>(sql`
     insert into inbox (tenant_id, canal_id, nome, fila_padrao_id)
-    values (${tenant.id}, ${canal.id}, 'Entrada', ${fila.id})
+    values (${tenant.id}, ${channel.id}, 'Entrada', ${queue.id})
     returning id
   `);
 
-  const atendente = await um<{ id: string }>(sql`
+  const agent = await um<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${tenant.id}, 'Ana Ribeiro', ${`ana-${sufixo}@e2e.pipe.app`})
     returning id
@@ -72,45 +72,45 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
 
   await dono.execute(sql`
     insert into fila_atendente (tenant_id, fila_id, usuario_id)
-    values (${tenant.id}, ${fila.id}, ${atendente.id})
+    values (${tenant.id}, ${queue.id}, ${agent.id})
   `);
   await dono.execute(sql`
     insert into status_atendente (usuario_id, tenant_id, estado, desde)
-    values (${atendente.id}, ${tenant.id}, 'online', now())
+    values (${agent.id}, ${tenant.id}, 'online', now())
   `);
 
-  const token = await criarChave(dono, tenant.id, ['*']);
-  const tokenSemEscopo = await criarChave(dono, tenant.id, ['filas:ler']);
+  const token = await createKey(dono, tenant.id, ['*']);
+  const tokenWithoutScope = await createKey(dono, tenant.id, ['filas:ler']);
 
   return {
     dono,
     tenantId: tenant.id,
-    canalId: canal.id,
+    channelId: channel.id,
     inboxId: inbox.id,
-    filaId: fila.id,
-    atendenteId: atendente.id,
+    queueId: queue.id,
+    agentId: agent.id,
     token,
-    tokenSemEscopo,
+    tokenWithoutScope,
     encerrar: async () => {
       await dono.execute(sql`delete from tenant where id = ${tenant.id}::uuid`);
-      await fecharBanco(dono);
+      await closeDatabase(dono);
     },
   };
 }
 
-async function criarChave(
-  dono: BancoPipe,
+async function createKey(
+  dono: DatabasePipe,
   tenantId: string,
-  escopos: string[],
+  scopes: string[],
 ): Promise<string> {
-  const prefixo = randomBytes(6).toString('hex');
-  const segredo = randomBytes(24).toString('hex');
-  const hash = createHash('sha256').update(segredo).digest('hex');
+  const prefix = randomBytes(6).toString('hex');
+  const secret = randomBytes(24).toString('hex');
+  const hash = createHash('sha256').update(secret).digest('hex');
   await dono.execute(sql`
     insert into chave_api (tenant_id, nome, prefixo, hash, escopos)
-    values (${tenantId}, 'e2e', ${prefixo}, ${hash}, ${`{${escopos.join(',')}}`}::text[])
+    values (${tenantId}, 'e2e', ${prefix}, ${hash}, ${`{${scopes.join(',')}}`}::text[])
   `);
-  return `pipe_${prefixo}_${segredo}`;
+  return `pipe_${prefix}_${secret}`;
 }
 
 export function assinar(corpo: string): string {
@@ -118,12 +118,12 @@ export function assinar(corpo: string): string {
 }
 
 /** Um payload de mensagem recebida, no formato que a Meta manda. */
-export function payloadDeMensagem(
+export function payloadOfMessage(
   de: string,
   texto: string,
-  opcoes: { id?: string; nome?: string; em?: Date } = {},
+  options: { id?: string; nome?: string; em?: Date } = {},
 ): unknown {
-  const em = opcoes.em ?? new Date();
+  const em = options.em ?? new Date();
   return {
     object: 'whatsapp_business_account',
     entry: [
@@ -135,11 +135,11 @@ export function payloadDeMensagem(
             value: {
               messaging_product: 'whatsapp',
               metadata: { phone_number_id: PHONE_NUMBER_ID },
-              contacts: [{ profile: { name: opcoes.nome ?? 'Cliente Teste' }, wa_id: de }],
+              contacts: [{ profile: { name: options.nome ?? 'Cliente Teste' }, wa_id: de }],
               messages: [
                 {
                   from: de,
-                  id: opcoes.id ?? `wamid.ENTRADA.${randomUUID()}`,
+                  id: options.id ?? `wamid.ENTRADA.${randomUUID()}`,
                   timestamp: String(Math.floor(em.getTime() / 1000)),
                   type: 'text',
                   text: { body: texto },

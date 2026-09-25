@@ -1,11 +1,11 @@
 import { createContext, useContext, type ReactNode } from 'react';
 import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { BarraDoPortal } from '../../componentes/barra-do-portal';
-import { useCascaDoPortal } from '../../lib/casca';
-import { useLeitura } from '../../lib/consulta';
-import { ErroDaApi } from '../../lib/api';
+import { portalUseShell } from '../../lib/casca';
+import { useRead } from '../../lib/consulta';
+import { ApiError } from '../../lib/api';
 import { NaoEncontrado } from '../nao-encontrado';
-import { BarraDoContato, UUID, type Contato } from './barra-do-contato';
+import { ContactBarra, UUID, type Contact } from './barra-do-contato';
 import './fluxo.css';
 
 /**
@@ -13,12 +13,12 @@ import './fluxo.css';
  * origem chama `master`, `fluxo` para o resto (`builder`). É a MESMA
  * distinção de `itens.ts`, aqui do lado de quem monta o caminho, não o menu.
  */
-export function prefixoDoContato(tipo: string): 'roteador' | 'fluxo' {
+export function contactPrefix(tipo: string): 'roteador' | 'fluxo' {
   return tipo === 'roteador' ? 'roteador' : 'fluxo';
 }
 
-export function baseDoContato(tipo: string, id: string): string {
-  return `/${prefixoDoContato(tipo)}/${id}`;
+export function contactBase(tipo: string, id: string): string {
+  return `/${contactPrefix(tipo)}/${id}`;
 }
 
 /**
@@ -28,20 +28,20 @@ export function baseDoContato(tipo: string, id: string): string {
  *
  * `criadoEm` chega como texto (JSON); quem mostra data converte.
  */
-export interface ContatoCarregado {
-  contato: Omit<Contato, 'criadoEm'> & { criadoEm: string | null };
+export interface ContactLoaded {
+  contact: Omit<Contact, 'criadoEm'> & { criadoEm: string | null };
   fuso: string;
 }
 
 /* Contexto do React, e não o `useOutletContext` do roteador: este só alcança
    a filha direta, e as cascas de módulo (Contatos, Growth, Configurações)
    têm um `<Outlet>` no meio do caminho. */
-const ContextoDoContato = createContext<ContatoCarregado | undefined>(undefined);
+const ContactContext = createContext<ContactLoaded | undefined>(undefined);
 
-export function useContato(): ContatoCarregado {
-  const valor = useContext(ContextoDoContato);
-  if (!valor) throw new Error('useContato fora de RotaDoContato');
-  return valor;
+export function useContact(): ContactLoaded {
+  const value = useContext(ContactContext);
+  if (!value) throw new Error('useContato fora de RotaDoContato');
+  return value;
 }
 
 /**
@@ -55,29 +55,29 @@ export function useContato(): ContatoCarregado {
  * preservando o resto do caminho, a busca e o hash. É a rede de segurança
  * para link antigo, favorito ou o link que uma tela ainda não ajustada gera.
  */
-export function RotaDoContato() {
+export function ContactRota() {
   const { id = '' } = useParams();
   const local = useLocation();
   const valido = UUID.test(id);
-  const leitura = useLeitura<ContatoCarregado>(valido ? `/v1/gestao/fluxos/${id}` : null);
+  const read = useRead<ContactLoaded>(valido ? `/v1/gestao/fluxos/${id}` : null);
 
-  if (!valido || (leitura.error instanceof ErroDaApi && leitura.error.status === 404)) {
+  if (!valido || (read.error instanceof ApiError && read.error.status === 404)) {
     return <NaoEncontrado />;
   }
-  if (leitura.error) return <FalhaDeLeitura erro={leitura.error} />;
-  if (!leitura.data) return null;
+  if (read.error) return <ReadFalha error={read.error} />;
+  if (!read.data) return null;
 
-  const prefixoCerto = prefixoDoContato(leitura.data.contato.tipo);
-  const prefixoAtual = local.pathname.startsWith('/roteador/') ? 'roteador' : 'fluxo';
-  if (prefixoAtual !== prefixoCerto) {
-    const resto = local.pathname.slice(`/${prefixoAtual}/${id}`.length);
-    return <Navigate to={`/${prefixoCerto}/${id}${resto}${local.search}${local.hash}`} replace />;
+  const prefixCerto = contactPrefix(read.data.contact.tipo);
+  const prefixCurrent = local.pathname.startsWith('/roteador/') ? 'roteador' : 'fluxo';
+  if (prefixCurrent !== prefixCerto) {
+    const resto = local.pathname.slice(`/${prefixCurrent}/${id}`.length);
+    return <Navigate to={`/${prefixCerto}/${id}${resto}${local.search}${local.hash}`} replace />;
   }
 
   return (
-    <ContextoDoContato.Provider value={leitura.data}>
+    <ContactContext.Provider value={read.data}>
       <Outlet />
-    </ContextoDoContato.Provider>
+    </ContactContext.Provider>
   );
 }
 
@@ -85,13 +85,13 @@ export function RotaDoContato() {
  * A casca comum dos módulos do contato: barra do portal, barra do contato e o
  * miolo com a `fx-coluna` — o `CascaDoModulo` de antes, agora sem consulta.
  */
-export function CascaDoModulo({ ativo, children }: { ativo?: string; children: ReactNode }) {
-  const { contato } = useContato();
-  const casca = useCascaDoPortal();
+export function ModuloShell({ ativo, children }: { ativo?: string; children: ReactNode }) {
+  const { contact } = useContact();
+  const shell = portalUseShell();
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={casca} />
-      <BarraDoContato contato={contatoComData(contato)} ativo={ativo} />
+      <BarraDoPortal data={shell} />
+      <ContactBarra contact={contactWithData(contact)} ativo={ativo} />
       <main className="pt-conteudo fx-miolo">
         <div className="fx-coluna">{children}</div>
       </main>
@@ -100,28 +100,28 @@ export function CascaDoModulo({ ativo, children }: { ativo?: string; children: R
 }
 
 /** As duas barras sem o miolo padronizado — para as telas que desenham o próprio `main`. */
-export function BarrasDoContato({ ativo }: { ativo?: string }) {
-  const { contato } = useContato();
-  const casca = useCascaDoPortal();
+export function ContactBarras({ ativo }: { ativo?: string }) {
+  const { contact } = useContact();
+  const shell = portalUseShell();
   return (
     <>
-      <BarraDoPortal dados={casca} />
-      <BarraDoContato contato={contatoComData(contato)} ativo={ativo} />
+      <BarraDoPortal data={shell} />
+      <ContactBarra contact={contactWithData(contact)} ativo={ativo} />
     </>
   );
 }
 
-function contatoComData(contato: ContatoCarregado['contato']): Contato {
-  return { ...contato, criadoEm: contato.criadoEm ? new Date(contato.criadoEm) : null };
+function contactWithData(contact: ContactLoaded['contact']): Contact {
+  return { ...contact, criadoEm: contact.criadoEm ? new Date(contact.criadoEm) : null };
 }
 
 /** A `api` respondeu erro que não é 404: dizer o que houve vale mais que a tela em branco. */
-export function FalhaDeLeitura({ erro }: { erro: Error }) {
+export function ReadFalha({ error }: { error: Error }) {
   return (
     <div className="pt-app">
       <main className="pt-conteudo fx-miolo">
         <div className="fx-coluna">
-          <p role="alert">Não foi possível carregar esta tela: {erro.message}</p>
+          <p role="alert">Não foi possível carregar esta tela: {error.message}</p>
         </div>
       </main>
     </div>

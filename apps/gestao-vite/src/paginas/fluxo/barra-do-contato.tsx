@@ -1,10 +1,10 @@
 import { Avatar } from '@pipe/ui';
-import type { MinhasPermissoesNoFluxo } from '@pipe/contracts';
-import { IconeGestao } from '../../componentes/icones-gestao';
+import type { MyPermissionsInFlow } from '@pipe/contracts';
+import { IconeManagement } from '../../componentes/icones-gestao';
 import { IconePortal } from '../../componentes/icones-portal';
 import { Link } from '../../componentes/link';
-import { useLeitura } from '../../lib/consulta';
-import { ICONES_DO_CONTATO, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
+import { useRead } from '../../lib/consulta';
+import { ICONES_OF_CONTACT, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
 
 /**
  * A barra do CONTATO — a `subheader-detail` da origem (módulo 80688).
@@ -21,33 +21,33 @@ export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{1
  * O contato e o canal dele — o que `GET /v1/gestao/fluxos/:id` responde
  * (`ContatoDoFluxo` na `api`). A consulta mudou de lado; a forma é a mesma.
  */
-export interface Contato {
+export interface Contact {
   id: string;
   nome: string;
-  estado: string;
+  state: string;
   tipo: string;
-  imagemUrl: string | null;
+  imageUrl: string | null;
   shortName: string | null;
-  descricao: string | null;
+  description: string | null;
   criadoEm: Date | null;
-  canalId: string | null;
-  canalNome: string | null;
-  canalTipo: string | null;
-  canalAtivo: boolean | null;
+  channelId: string | null;
+  channelName: string | null;
+  channelTipo: string | null;
+  channelActive: boolean | null;
   /** O número (WhatsApp), o `@usuário` (Instagram) ou o id da Página (Messenger). */
-  canalNumero: string | null;
+  channelNumero: string | null;
 }
 
-export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: string }) {
-  const tipo = contato.tipo === 'roteador' ? 'roteador' : 'fluxo';
-  const base = `/${tipo}/${contato.id}`;
+export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: string }) {
+  const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
+  const base = `/${tipo}/${contact.id}`;
   /* O passo 2 da origem (`getUpdatedMenus()`): a barra só mostra o que a pessoa
      pode ver NESTE contato. Enquanto a resposta não chega, `undefined` deixa a
      fileira inteira — piscar a barra completa e depois encolher é pior do que o
      quadro curto de atraso, e quem não pode entrar continua recebendo 403 na
      tela de destino, que é onde a permissão vale de verdade. */
-  const minhas = useLeitura<MinhasPermissoesNoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe/eu`);
-  const itens = itensDoMenu(tipo, contato.id, minhas.data);
+  const minhas = useRead<MyPermissionsInFlow>(`/v1/gestao/fluxos/${contact.id}/equipe/eu`);
+  const itens = itensDoMenu(tipo, contact.id, minhas.data);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
   const excedentes = itens.slice(LIMITE_VISIVEL);
 
@@ -59,17 +59,17 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
       <div className="fx-subbarra">
         <div className="fx-contato">
           <span className="fx-av">
-            {contato.imagemUrl ? (
-              <img src={contato.imagemUrl} alt="" width={36} height={36} />
+            {contact.imageUrl ? (
+              <img src={contact.imageUrl} alt="" width={36} height={36} />
             ) : (
-              <Avatar nome={contato.nome} />
+              <Avatar nome={contact.nome} />
             )}
             {/* O `u-status-on/off` deles, no vértice do avatar. Lá o sinal é
                 `application.status` (online/offline); aqui é `estado`, que é o
                 mais perto que temos: publicado atende, rascunho ainda não. */}
             <i
-              className={contato.estado === 'publicado' ? 'g-ponto g-ponto-on' : 'g-ponto'}
-              title={contato.estado === 'publicado' ? 'Publicado' : 'Rascunho'}
+              className={contact.state === 'publicado' ? 'g-ponto g-ponto-on' : 'g-ponto'}
+              title={contact.state === 'publicado' ? 'Publicado' : 'Rascunho'}
             />
           </span>
 
@@ -79,7 +79,7 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
               "Home" é a tela do contato, que é para onde o `ui-sref` dela aponta. */}
           <details className="g-menu fx-contato-menu">
             <summary>
-              <span className="fx-contato-nome">{contato.nome}</span>
+              <span className="fx-contato-nome">{contact.nome}</span>
               <IconePortal nome="baixo" tamanho={16} />
             </summary>
             <div className="g-painel">
@@ -106,7 +106,7 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
           {excedentes.length > 0 ? (
             <details className="g-menu fx-mais">
               <summary className="g-iconbtn" title="Mais seções" aria-label="Mais seções">
-                <IconeGestao nome="reticencias" tamanho={24} />
+                <IconeManagement nome="reticencias" tamanho={24} />
               </summary>
               <div className="g-painel">
                 {excedentes.map((item) =>
@@ -129,7 +129,7 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
         {/* `subheader-icons`: Integrações, Configurações e Equipe navegam para as
             telas do contato; só Testar ainda permanece em breve. */}
         <div className="fx-icones">
-          {ICONES_DO_CONTATO.map((item) =>
+          {ICONES_OF_CONTACT.map((item) =>
             item.href ? (
               <Link
                 key={item.rotulo}

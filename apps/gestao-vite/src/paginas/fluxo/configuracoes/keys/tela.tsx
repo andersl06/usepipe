@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
-import { ModalConfirmacao } from '../../../cadastros/_modal';
-import { useLeitura } from '../../../../lib/consulta';
+import { ModalConfirmation } from '../../../cadastros/_modal';
+import { useRead } from '../../../../lib/consulta';
 import {
   BotaoBds,
   BotaoDeIcone,
-  CabecalhoDaPagina,
+  PageHeader,
   CampoBds,
   CampoCopiavel,
-  Papel,
+  Role,
 } from '../pecas';
-import { LIMITE_DE_CHAVES, erroAoCriar, marcarPadrao, noLimite, podeExcluir } from '../regras';
-import { criarChave, revogarChave, type ChaveListada } from './gravar';
+import { LIMITE_DE_CHAVES, errorToCreate, marcarPadrao, noLimite, podeExcluir } from '../regras';
+import { createKey, revogarKey, type KeyListed } from './gravar';
 
 /** `/assets/img/ballons.svg` — os dois balões da ajuda, na tinta da marca suave. */
-function Baloes() {
+function Bubbles() {
   return (
     <svg
       className="cf-baloes"
@@ -47,7 +47,7 @@ function formatarData(iso: string): string {
     .replace(',', ' -');
 }
 
-function ModalDaChave({ token, onFechar }: { token: string; onFechar: () => void }) {
+function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) {
   useEffect(() => {
     const fecharComEscape = (evento: KeyboardEvent) => {
       if (evento.key === 'Escape') onFechar();
@@ -74,12 +74,12 @@ function ModalDaChave({ token, onFechar }: { token: string; onFechar: () => void
         <div className="cf-modal-chave-campo">
           <h3>Usando SDK</h3>
           <p>Chave de acesso</p>
-          <CampoCopiavel rotulo="Chave de acesso" valor={token} />
+          <CampoCopiavel rotulo="Chave de acesso" value={token} />
         </div>
         <div className="cf-modal-chave-campo">
           <h3>Usando HTTP</h3>
           <p>Cabeçalho de autenticação</p>
-          <CampoCopiavel rotulo="Autorização HTTP" valor={`Bearer ${token}`} />
+          <CampoCopiavel rotulo="Autorização HTTP" value={`Bearer ${token}`} />
         </div>
         <div className="cf-modal-acoes">
           <BotaoBds autoFocus onClick={onFechar}>
@@ -98,9 +98,9 @@ function ModalDaChave({ token, onFechar }: { token: string; onFechar: () => void
  * (`pipe_<prefixo>_<segredo>`) só existe na resposta do `POST`; a lista
  * seguinte já vem só com o prefixo.
  */
-export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
-  const caminho = `/v1/gestao/fluxos/${fluxoId}/chaves`;
-  const { data, isLoading } = useLeitura<ChaveListada[]>(caminho);
+export function TelaDeChaves({ flowId }: { flowId: string }) {
+  const caminho = `/v1/gestao/fluxos/${flowId}/chaves`;
+  const { data, isLoading } = useRead<KeyListed[]>(caminho);
   const chaves = marcarPadrao(data ?? []);
 
   const [mostrarAjuda, setMostrarAjuda] = useState(false);
@@ -109,43 +109,43 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
   const [nome, setNome] = useState('');
   const [aviso, setAviso] = useState('');
   const [tokenGerado, setTokenGerado] = useState<string | null>(null);
-  const [excluindo, setExcluindo] = useState<(ChaveListada & { padrao: boolean }) | null>(null);
-  const [erroDeExclusao, setErroDeExclusao] = useState<string | null>(null);
+  const [excluindo, setExcluindo] = useState<(KeyListed & { padrao: boolean }) | null>(null);
+  const [exclusaoError, exclusaoSetError] = useState<string | null>(null);
   const [excluindoAgora, setExcluindoAgora] = useState(false);
 
   const limite = noLimite(chaves.length);
 
-  async function criar() {
-    const erro = erroAoCriar(nome, chaves.length);
-    if (erro === 'limite') {
+  async function create() {
+    const error = errorToCreate(nome, chaves.length);
+    if (error === 'limite') {
       setAviso(`Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
       return;
     }
-    if (erro === 'nome') {
+    if (error === 'nome') {
       setAviso('Adicione um nome para identificar a chave');
       return;
     }
     setSalvando(true);
     setAviso('');
-    const resultado = await criarChave(fluxoId, nome.trim());
+    const resultado = await createKey(flowId, nome.trim());
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     setCriando(false);
     setNome('');
-    setTokenGerado(resultado.valor.token);
+    setTokenGerado(resultado.value.token);
   }
 
   async function confirmarExclusao() {
     if (!excluindo) return;
     setExcluindoAgora(true);
-    setErroDeExclusao(null);
-    const resultado = await revogarChave(fluxoId, excluindo.id);
+    exclusaoSetError(null);
+    const resultado = await revogarKey(flowId, excluindo.id);
     setExcluindoAgora(false);
     if (!resultado.ok) {
-      setErroDeExclusao(resultado.erro);
+      exclusaoSetError(resultado.error);
       return;
     }
     setExcluindo(null);
@@ -153,7 +153,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
 
   return (
     <>
-      <CabecalhoDaPagina
+      <PageHeader
         id="accesskey-header"
         titulo={
           <div className="cf-chaves-titulo">
@@ -162,11 +162,11 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
               icone="informacao"
               rotulo="Mais informações"
               aria-expanded={mostrarAjuda}
-              onClick={() => setMostrarAjuda((valor) => !valor)}
+              onClick={() => setMostrarAjuda((value) => !value)}
             />
           </div>
         }
-        acoes={
+        actions={
           limite ? (
             <p className="cf-faixa-alerta" role="status">
               Limite de {LIMITE_DE_CHAVES} chaves atingido
@@ -188,7 +188,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
 
       <div className="cf-container cf-chaves">
         {mostrarAjuda ? (
-          <Papel className="cf-chaves-ajuda">
+          <Role className="cf-chaves-ajuda">
             <div className="cf-chaves-ajuda-dados">
               <div className="cf-chaves-ajuda-texto">
                 <p>
@@ -208,18 +208,18 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
                 Ok
               </BotaoBds>
             </div>
-            <Baloes />
-          </Papel>
+            <Bubbles />
+          </Role>
         ) : null}
 
         {criando ? (
-          <Papel className="cf-chaves-criar">
+          <Role className="cf-chaves-criar">
             <div className="cf-chaves-criar-dados">
               <CampoBds
                 id="name"
                 rotulo="Nome"
                 placeholder="Dê um nome para a chave"
-                valor={nome}
+                value={nome}
                 aoMudar={setNome}
                 maxLength={100}
                 desabilitado={salvando}
@@ -242,61 +242,61 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
               >
                 Cancelar
               </BotaoBds>
-              <BotaoBds onClick={() => void criar()} disabled={salvando}>
+              <BotaoBds onClick={() => void create()} disabled={salvando}>
                 Criar
               </BotaoBds>
             </div>
-          </Papel>
+          </Role>
         ) : null}
 
-        {chaves.map((chave) => (
-          <Papel key={chave.id}>
+        {chaves.map((key) => (
+          <Role key={key.id}>
             <div className="cf-chave">
               <dl className="cf-chave-dados">
                 <div className="cf-chave-coluna">
                   <dt>Id</dt>
-                  <dd>{chave.id}</dd>
+                  <dd>{key.id}</dd>
                 </div>
                 <div className="cf-chave-coluna">
                   <dt>Data de criação</dt>
-                  <dd>{formatarData(chave.criadaEm)}</dd>
+                  <dd>{formatarData(key.criadaEm)}</dd>
                 </div>
                 <div className="cf-chave-coluna">
                   <dt>Nome</dt>
-                  <dd>{chave.nome}</dd>
+                  <dd>{key.nome}</dd>
                 </div>
                 <div className="cf-chave-coluna">
                   <dt>Requisitante</dt>
-                  <dd>{chave.requisitante ?? '-'}</dd>
+                  <dd>{key.requisitante ?? '-'}</dd>
                 </div>
               </dl>
               <div className="cf-chave-selo">
-                {chave.padrao ? <span className="cf-selo cf-selo--info">Padrão</span> : null}
+                {key.padrao ? <span className="cf-selo cf-selo--info">Padrão</span> : null}
               </div>
               <div className="cf-chave-acoes">
                 <BotaoDeIcone
                   icone="lixeira"
                   rotulo="Excluir chave"
-                  disabled={!podeExcluir(chave)}
+                  disabled={!podeExcluir(key)}
                   onClick={() => {
-                    setErroDeExclusao(null);
-                    setExcluindo(chave);
+                    exclusaoSetError(null);
+                    setExcluindo(key);
                   }}
                 />
               </div>
             </div>
-          </Papel>
+          </Role>
         ))}
       </div>
 
       {tokenGerado ? (
-        <ModalDaChave token={tokenGerado} onFechar={() => setTokenGerado(null)} />
+        <KeyModal token={tokenGerado} onFechar={() => setTokenGerado(null)} />
       ) : null}
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={excluindo !== null}
         titulo="Excluir chave"
-        mensagem={
+        message={
           <>
             <strong>Cuidado</strong>: certifique-se de que a chave removida não seja a mesma usada
             para a configuração HTTP do bot.
@@ -304,7 +304,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
             Quer mesmo excluir a chave &quot;{excluindo?.nome}&quot;?
           </>
         }
-        erro={erroDeExclusao}
+        error={exclusaoError}
         confirmando={excluindoAgora}
         onConfirmar={() => void confirmarExclusao()}
         onCancelar={() => setExcluindo(null)}

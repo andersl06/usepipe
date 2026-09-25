@@ -20,32 +20,32 @@ export const PERIODOS = [
   { chave: '180', rotulo: 'Últimos 180 dias' },
 ] as const;
 
-export function calcularPeriodo(
-  chave: string,
+export function calcularPeriod(
+  key: string,
   fuso: string,
 ): { de: string; ate: string } | undefined {
   const agora = new Date();
   const hoje = dataIso(agora, fuso);
-  if (chave === 'hoje') return { de: hoje, ate: hoje };
-  if (chave === 'ontem') {
+  if (key === 'hoje') return { de: hoje, ate: hoje };
+  if (key === 'ontem') {
     const ontem = dataIso(new Date(agora.getTime() - 86_400_000), fuso);
     return { de: ontem, ate: ontem };
   }
-  const dias = Number(chave);
+  const dias = Number(key);
   if (!Number.isInteger(dias)) return undefined;
   const inicio = dataIso(new Date(agora.getTime() - (dias - 1) * 86_400_000), fuso);
   return { de: inicio, ate: hoje };
 }
 
 /** Qual atalho corresponde ao `de`/`ate` atuais, se algum — senão, "personalizado". */
-export function periodoAtual(de: string, ate: string, fuso: string): string {
+export function periodCurrent(de: string, ate: string, fuso: string): string {
   const achado = PERIODOS.find((p) => {
-    const calc = calcularPeriodo(p.chave, fuso);
+    const calc = calcularPeriod(p.chave, fuso);
     return calc !== undefined && calc.de === de && calc.ate === ate;
   });
   return achado?.chave ?? 'personalizado';
 }
 
-export function rotuloDoPeriodo(chave: string): string {
-  return PERIODOS.find((p) => p.chave === chave)?.rotulo ?? 'Personalizado';
+export function periodRotulo(key: string): string {
+  return PERIODOS.find((p) => p.chave === key)?.rotulo ?? 'Personalizado';
 }

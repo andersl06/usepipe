@@ -32,7 +32,7 @@ export function Formulario({
   rotuloBotao = 'Salvar',
   className,
 }: {
-  acao: (anterior: Resultado | null, dados: FormData) => Promise<Resultado>;
+  acao: (anterior: Resultado | null, data: FormData) => Promise<Resultado>;
   children: ReactNode;
   /** Substitui o botão padrão — é como a confirmação de exclusão entra. */
   botao?: ReactNode;
@@ -69,7 +69,7 @@ export function FormularioDeLinha({
   campos,
   children,
 }: {
-  acao: (anterior: Resultado | null, dados: FormData) => Promise<Resultado>;
+  acao: (anterior: Resultado | null, data: FormData) => Promise<Resultado>;
   campos: Record<string, string>;
   children: ReactNode;
 }) {
@@ -77,13 +77,13 @@ export function FormularioDeLinha({
 
   return (
     <form action={enviar} className="cfg-linha-form">
-      {Object.entries(campos).map(([nome, valor]) => (
-        <input key={nome} type="hidden" name={nome} value={valor} />
+      {Object.entries(campos).map(([nome, value]) => (
+        <input key={nome} type="hidden" name={nome} value={value} />
       ))}
       {children}
       {resultado && !resultado.ok ? (
         <span className="cfg-aviso erro" role="alert">
-          {resultado.erro}
+          {resultado.error}
         </span>
       ) : null}
     </form>
@@ -114,7 +114,7 @@ export function BotaoDeEnvio({
  * O segundo confirma. Sem diálogo modal: modal para uma frase é foco roubado e
  * uma armadilha de teclado a mais para manter.
  */
-export function BotaoDeConfirmacao({
+export function ConfirmationButton({
   rotulo,
   pergunta,
   rotuloConfirmar = 'Confirmar',
@@ -159,12 +159,12 @@ function Resposta({ resultado }: { resultado: Resultado | null }) {
   if (!resultado.ok) {
     return (
       <span className="cfg-aviso erro" role="alert">
-        {resultado.erro}
+        {resultado.error}
       </span>
     );
   }
 
-  if (resultado.segredo) return <Segredo valor={resultado.segredo} />;
+  if (resultado.secret) return <Secret value={resultado.secret} />;
 
   return (
     <span className="cfg-aviso ok" role="status">
@@ -182,7 +182,7 @@ function Resposta({ resultado }: { resultado: Resultado | null }) {
  * É `readOnly` e não `disabled` de propósito: campo desabilitado não recebe foco
  * e não pode ser copiado com o teclado.
  */
-function Segredo({ valor }: { valor: string }) {
+function Secret({ value }: { value: string }) {
   const [copiado, setCopiado] = useState(false);
   const idCampo = useId();
 
@@ -190,11 +190,11 @@ function Segredo({ valor }: { valor: string }) {
     <div className="cfg-segredo" role="status">
       <label htmlFor={idCampo}>
         Copie agora — isto não aparece de novo.
-        <input id={idCampo} className="campo mono" readOnly value={valor} />
+        <input id={idCampo} className="campo mono" readOnly value={value} />
       </label>
       <Botao
         onClick={() => {
-          void navigator.clipboard?.writeText(valor).then(() => setCopiado(true));
+          void navigator.clipboard?.writeText(value).then(() => setCopiado(true));
         }}
       >
         {copiado ? 'Copiado' : 'Copiar'}

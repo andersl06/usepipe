@@ -1,5 +1,5 @@
 import { IconeDesk } from './icones-desk';
-import { iniciais } from '../lib/formato';
+import { initials } from '../lib/formato';
 
 /**
  * O `bds-avatar` da referência: disco na cor "system" com as iniciais quando
@@ -26,7 +26,7 @@ export function Avatar({
   ]
     .filter(Boolean)
     .join(' ');
-  const texto = nome ? iniciais(nome) : '';
+  const texto = nome ? initials(nome) : '';
   return (
     <span
       className={classes}

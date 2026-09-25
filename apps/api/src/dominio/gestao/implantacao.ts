@@ -1,9 +1,9 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
-import type { SinaisDaImplantacao } from './passos-da-implantacao.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { SignalsOfDeployment } from './passos-da-implantacao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -15,29 +15,29 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * pergunta ao banco.
  */
 
-export interface CanalDaImplantacao {
+export interface ChannelOfDeployment {
   id: string;
   nome: string;
   ativo: boolean;
   numero: string | null;
-  reautorizacaoPendente: boolean;
+  reauthorizationPending: boolean;
 }
 
-export interface Implantacao {
-  sinais: SinaisDaImplantacao;
-  canais: CanalDaImplantacao[];
+export interface Deployment {
+  signals: SignalsOfDeployment;
+  channels: ChannelOfDeployment[];
 }
 
 type Linha = Record<string, unknown>;
 
-export async function carregarImplantacao(tx: TransacaoPipe): Promise<Implantacao> {
+export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
   return consultar(tx, async (tx) => {
-    const um = async <T extends Linha>(consulta: ReturnType<typeof sql>): Promise<T> => {
-      const { rows } = await tx.execute<T>(consulta);
+    const um = async <T extends Linha>(query: ReturnType<typeof sql>): Promise<T> => {
+      const { rows } = await tx.execute<T>(query);
       return rows[0] as T;
     };
 
-    const acesso = await um<{ v: boolean }>(sql`
+    const access = await um<{ v: boolean }>(sql`
       select exists (
         select 1 from usuario u
           join usuario_papel up on up.usuario_id = u.id
@@ -46,13 +46,13 @@ export async function carregarImplantacao(tx: TransacaoPipe): Promise<Implantaca
       ) as v
     `);
 
-    const { rows: canais } = await tx.execute<{
+    const { rows: channels } = await tx.execute<{
       id: string;
       nome: string;
       ativo: boolean;
       numero_id: string | null;
       numero: string | null;
-      reautorizacao: boolean;
+      reauthorization: boolean;
     }>(sql`
       select id, nome, ativo, numero_id, config->>'numero' as numero,
              coalesce(config->>'reautorizacaoPendente', 'false') = 'true' as reautorizacao
@@ -61,12 +61,12 @@ export async function carregarImplantacao(tx: TransacaoPipe): Promise<Implantaca
        order by criado_em
     `);
 
-    const pessoas = await um<{ convites: string; membros: string }>(sql`
+    const pessoas = await um<{ convites: string; members: string }>(sql`
       select (select count(*) from convite)::text as convites,
              (select count(*) from usuario where ativo)::text as membros
     `);
 
-    const filas = await um<{ ativas: string; com_atendente: string }>(sql`
+    const queues = await um<{ ativas: string; withAgent: string }>(sql`
       select count(*) filter (where f.ativa)::text as ativas,
              count(*) filter (
                where f.ativa and exists (select 1 from fila_atendente fa where fa.fila_id = f.id)
@@ -74,9 +74,9 @@ export async function carregarImplantacao(tx: TransacaoPipe): Promise<Implantaca
         from fila f
     `);
 
-    const { rows: importacoes } = await tx.execute<{
+    const { rows: imports } = await tx.execute<{
       id: string;
-      estado: string;
+      state: string;
       aceitos: number;
       rejeitados: number;
       tem_falhas: boolean;
@@ -89,39 +89,39 @@ export async function carregarImplantacao(tx: TransacaoPipe): Promise<Implantaca
        limit 1
     `);
 
-    const conversa = await um<{ v: boolean }>(sql`
+    const conversation = await um<{ v: boolean }>(sql`
       select exists (
         select 1 from mensagem where direcao = 'saida' and autor_tipo = 'atendente'
       ) as v
     `);
 
-    const ultima = importacoes[0];
+    const ultima = imports[0];
     return {
       sinais: {
-        adminEntrou: acesso.v === true,
-        canaisConectados: canais.filter((c) => c.ativo && c.numero_id && !c.reautorizacao).length,
-        canaisPendentes: canais.filter((c) => c.ativo && c.reautorizacao).length,
+        adminEntrou: access.v === true,
+        canaisConectados: channels.filter((c) => c.ativo && c.numero_id && !c.reauthorization).length,
+        canaisPendentes: channels.filter((c) => c.ativo && c.reauthorization).length,
         convites: Number(pessoas.convites),
-        membros: Number(pessoas.membros),
-        filasAtivas: Number(filas.ativas),
-        filasComAtendente: Number(filas.com_atendente),
+        membros: Number(pessoas.members),
+        filasAtivas: Number(queues.ativas),
+        filasComAtendente: Number(queues.withAgent),
         ultimaImportacao: ultima
           ? {
               id: ultima.id,
-              estado: ultima.estado,
+              estado: ultima.state,
               aceitos: Number(ultima.aceitos),
               rejeitados: Number(ultima.rejeitados),
               temFalhas: ultima.tem_falhas === true,
             }
           : null,
-        conversaAtendida: conversa.v === true,
+        conversaAtendida: conversation.v === true,
       },
-      canais: canais.map((c) => ({
+      canais: channels.map((c) => ({
         id: c.id,
         nome: c.nome,
         ativo: c.ativo,
         numero: c.numero,
-        reautorizacaoPendente: c.reautorizacao === true,
+        reautorizacaoPendente: c.reauthorization === true,
       })),
     };
   });

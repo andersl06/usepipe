@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 import { registrarEvento } from './eventos.js';
 
 /**
@@ -19,49 +19,49 @@ import { registrarEvento } from './eventos.js';
  * clicarem ao mesmo tempo, a segunda não muda nada e recebe recusa — o `where` faz o
  * desempate no banco, sem corrida.
  */
-export async function assumirConversa(
-  ator: { tenantId: string; atendenteId: string },
-  conversaId: string,
+export async function assumeConversation(
+  ator: { tenantId: string; agentId: string },
+  conversationId: string,
   em = new Date(),
-): Promise<{ conversaId: string; filaId: string | null }> {
+): Promise<{ conversationId: string; queueId: string | null }> {
   return noTenant(ator.tenantId, async (tx) => {
-    const { rows: antes } = await tx.execute<{ estado: string; fila_id: string | null }>(
-      sql`select estado, fila_id from conversa where id = ${conversaId}::uuid limit 1`,
+    const { rows: antes } = await tx.execute<{ state: string; fila_id: string | null }>(
+      sql`select estado, fila_id from conversa where id = ${conversationId}::uuid limit 1`,
     );
-    const conversa = antes[0];
-    if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
+    const conversation = antes[0];
+    if (!conversation) throw PipeError.naoEncontrado('Conversa');
 
     const { rowCount } = await tx.execute(sql`
       update conversa
-         set atendente_id = ${ator.atendenteId}::uuid, estado = 'atribuida',
+         set atendente_id = ${ator.agentId}::uuid, estado = 'atribuida',
              atribuida_em = ${em}, atualizado_em = now()
-       where id = ${conversaId}::uuid and estado = 'na_fila'
+       where id = ${conversationId}::uuid and estado = 'na_fila'
     `);
 
     if (!rowCount) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'conversa_indisponivel',
-        conversa.estado === 'na_fila'
+        conversation.state === 'na_fila'
           ? 'Não foi possível assumir a conversa.'
-          : `A conversa não está na fila (estado: ${conversa.estado}).`,
+          : `A conversa não está na fila (estado: ${conversation.state}).`,
       );
     }
 
     await tx.execute(sql`
       insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, por_usuario_id, em)
-      values (${ator.tenantId}::uuid, ${conversaId}::uuid, ${ator.atendenteId}::uuid,
-              ${conversa.fila_id}, 'assumida_pelo_atendente', ${ator.atendenteId}::uuid, ${em})
+      values (${ator.tenantId}::uuid, ${conversationId}::uuid, ${ator.agentId}::uuid,
+              ${conversation.fila_id}, 'assumida_pelo_atendente', ${ator.agentId}::uuid, ${em})
     `);
 
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
-      conversaId,
+      conversationId,
       tipo: 'atribuida',
       em,
-      usuarioId: ator.atendenteId,
-      filaId: conversa.fila_id,
+      userId: ator.agentId,
+      queueId: conversation.fila_id,
     });
 
-    return { conversaId, filaId: conversa.fila_id };
+    return { conversationId, filaId: conversation.fila_id };
   });
 }

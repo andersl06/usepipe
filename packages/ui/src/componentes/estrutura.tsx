@@ -31,7 +31,7 @@ import { Simbolo } from '../icones';
  * Um destino de navegação. Repare que não existe `desabilitado`:
  * quem não funciona não entra na lista.
  */
-export type ItemDeNavegacao = {
+export type NavigationItem = {
   rotulo: string;
   href: string;
 };
@@ -44,7 +44,7 @@ export type ItemDeNavegacao = {
  * página. Sem isso, um `<a>` cru transformaria toda troca de módulo num
  * recarregamento completo — uma regressão de sensação que ninguém pediu.
  */
-export type ComponenteDeLink = ComponentType<{
+export type LinkComponent = ComponentType<{
   href: string;
   className?: string;
   children: ReactNode;
@@ -54,7 +54,7 @@ export type ComponenteDeLink = ComponentType<{
 }>;
 
 /** Link padrão: âncora comum, para quem não passar um. */
-const LinkPadrao: ComponenteDeLink = ({ href, children, ...resto }) => (
+const LinkPadrao: LinkComponent = ({ href, children, ...resto }) => (
   <a href={href} {...resto}>
     {children}
   </a>
@@ -68,7 +68,7 @@ export function Marca({
 }: {
   nome: string;
   href?: string;
-  Link?: ComponenteDeLink;
+  Link?: LinkComponent;
 }) {
   return (
     <Link className="p-marca" href={href}>
@@ -94,9 +94,9 @@ export function NavModulos({
   caminhoAtual,
   Link = LinkPadrao,
 }: {
-  itens: readonly ItemDeNavegacao[];
+  itens: readonly NavigationItem[];
   caminhoAtual: string;
-  Link?: ComponenteDeLink;
+  Link?: LinkComponent;
 }) {
   return (
     <nav className="p-modulos" aria-label="Módulos">
@@ -122,17 +122,17 @@ export function Cabecalho({
   nome,
   itens,
   caminhoAtual,
-  hrefConfiguracoes,
+  hrefSettings,
   fim,
   Link = LinkPadrao,
 }: {
   nome: string;
-  itens: readonly ItemDeNavegacao[];
+  itens: readonly NavigationItem[];
   caminhoAtual: string;
   /** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */
-  hrefConfiguracoes?: string;
+  hrefSettings?: string;
   fim?: ReactNode;
-  Link?: ComponenteDeLink;
+  Link?: LinkComponent;
 }) {
   return (
     <header className="p-topo">
@@ -140,10 +140,10 @@ export function Cabecalho({
       <NavModulos itens={itens} caminhoAtual={caminhoAtual} Link={Link} />
       <div className="p-topo-fim">
         {fim}
-        {hrefConfiguracoes ? (
+        {hrefSettings ? (
           <Link
             className="iconbtn"
-            href={hrefConfiguracoes}
+            href={hrefSettings}
             title="Configurações"
             aria-label="Configurações"
           >
@@ -161,7 +161,7 @@ export function Cabecalho({
  * Devolve `null` com menos de dois itens: sem escolha para oferecer, a
  * lateral só rouba largura do conteúdo.
  */
-export function LateralContexto({
+export function LateralContext({
   titulo,
   itens,
   caminhoAtual,
@@ -169,10 +169,10 @@ export function LateralContexto({
   Link = LinkPadrao,
 }: {
   titulo?: string;
-  itens: readonly ItemDeNavegacao[];
+  itens: readonly NavigationItem[];
   caminhoAtual: string;
   className?: string;
-  Link?: ComponenteDeLink;
+  Link?: LinkComponent;
 }) {
   if (itens.length < 2) return null;
 
@@ -196,7 +196,7 @@ export function LateralContexto({
 }
 
 /** Invólucro padrão: topo fixo, e abaixo lateral (opcional) + conteúdo. */
-export function Aplicacao({ cabecalho, lateral, children }: { cabecalho: ReactNode; lateral?: ReactNode; children: ReactNode }) {
+export function Application({ cabecalho, lateral, children }: { cabecalho: ReactNode; lateral?: ReactNode; children: ReactNode }) {
   return (
     <div className="p-app">
       {cabecalho}
@@ -215,7 +215,7 @@ export function Aplicacao({ cabecalho, lateral, children }: { cabecalho: ReactNo
  * de volta. É o corte que o Salesforce faz ao sair para `salesforce-setup.com`,
  * na escala que faz sentido para nós.
  */
-export function AreaConfiguracoes({
+export function AreaSettings({
   nome,
   itens,
   caminhoAtual,
@@ -224,11 +224,11 @@ export function AreaConfiguracoes({
   Link = LinkPadrao,
 }: {
   nome: string;
-  itens: readonly ItemDeNavegacao[];
+  itens: readonly NavigationItem[];
   caminhoAtual: string;
   hrefVoltar?: string;
   children: ReactNode;
-  Link?: ComponenteDeLink;
+  Link?: LinkComponent;
 }) {
   return (
     <div className="p-app">
@@ -240,7 +240,7 @@ export function AreaConfiguracoes({
         <b>Configurações</b>
       </header>
       <div className="p-miolo">
-        <LateralContexto
+        <LateralContext
           itens={itens}
           caminhoAtual={caminhoAtual}
           className="p-config-lateral"

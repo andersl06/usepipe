@@ -12,13 +12,13 @@ process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
 // Ping rápido para o teste não esperar 15 segundos pelo quadro de controle.
 process.env['PIPE_WS_PING_MS'] = '150';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { evento, publicar, conexoesVivas } = await import('../src/tempo-real.js');
+const { evento, publicar, connectionsVivas } = await import('../src/tempo-real.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Tempo real: o canal, a autenticação e — o que mais importa — o ISOLAMENTO.
@@ -33,11 +33,11 @@ let outro: Cenario;
 let api: ApiNoAr;
 let urlWs: string;
 
-async function abrirSessao(alvo: Cenario, usuarioId?: string): Promise<string> {
-  const novo = criarToken();
+async function openSession(alvo: Cenario, userId?: string): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await alvo.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${alvo.tenantId}, ${usuarioId ?? alvo.atendenteId}, ${novo.hash},
+    values (${alvo.tenantId}, ${userId ?? alvo.agentId}, ${novo.hash},
             ${novo.expiraEm}, 'google')
   `);
   return novo.token;
@@ -46,7 +46,7 @@ async function abrirSessao(alvo: Cenario, usuarioId?: string): Promise<string> {
 beforeAll(async () => {
   cenario = await montarCenario(`ws-${randomUUID().slice(0, 8)}`);
   outro = await montarCenario(`ws-outro-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
   urlWs = `${api.url.replace('http://', 'ws://')}/v1/eventos`;
 });
 
@@ -68,7 +68,7 @@ const abertos: WebSocket[] = [];
 afterEach(async () => {
   for (const ws of abertos.splice(0)) ws.close();
   const limite = Date.now() + 3_000;
-  while (conexoesVivas() > 0 && Date.now() < limite) {
+  while (connectionsVivas() > 0 && Date.now() < limite) {
     await new Promise((r) => setTimeout(r, 20));
   }
 });
@@ -114,13 +114,13 @@ async function esperar(cliente: Cliente, quantos = 1, tetoMs = 3_000): Promise<v
 describe('autenticação do canal', () => {
   it('sem cookie, o socket nem chega a existir', async () => {
     const ws = new WebSocket(urlWs, { headers: { origin: 'http://localhost:3200' } });
-    const erro = await new Promise<Error>((resolve) => ws.once('error', resolve));
-    expect(String(erro.message)).toContain('401');
+    const error = await new Promise<Error>((resolve) => ws.once('error', resolve));
+    expect(String(error.message)).toContain('401');
   });
 
   it('cookie forjado, 401', async () => {
     const ws = new WebSocket(urlWs, {
-      headers: { cookie: `${NOME_DO_COOKIE}=${criarToken().token}`, origin: 'http://localhost:3200' },
+      headers: { cookie: `${NOME_DO_COOKIE}=${createTokencriarTokencreateToken().token}`, origin: 'http://localhost:3200' },
     });
     const erro = await new Promise<Error>((resolve) => ws.once('error', resolve));
     expect(String(erro.message)).toContain('401');
@@ -129,7 +129,7 @@ describe('autenticação do canal', () => {
   it('origem fora de PIPE_ORIGENS, 403 — CORS não vale para WebSocket', async () => {
     // Sem esta conferência, um site qualquer abriria o socket e o navegador anexaria
     // o cookie da vítima: cross-site WebSocket hijacking.
-    const token = await abrirSessao(cenario);
+    const token = await openSession(cenario);
     const ws = new WebSocket(urlWs, {
       headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'https://site-do-mal.example' },
     });
@@ -138,7 +138,7 @@ describe('autenticação do canal', () => {
   });
 
   it('caminho errado, 404', async () => {
-    const token = await abrirSessao(cenario);
+    const token = await openSession(cenario);
     const ws = new WebSocket(`${api.url.replace('http://', 'ws://')}/v1/outra-coisa`, {
       headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'http://localhost:3200' },
     });
@@ -149,16 +149,16 @@ describe('autenticação do canal', () => {
 
 describe('inscrição', () => {
   it('confirma os assuntos pedidos', async () => {
-    const cliente = await conectar(await abrirSessao(cenario), ['conversa']);
+    const cliente = await conectar(await openSession(cenario), ['conversa']);
     // A confirmação já foi esperada em `conectar`.
-    expect(conexoesVivas(cenario.tenantId)).toBeGreaterThan(0);
+    expect(connectionsVivas(cenario.tenantId)).toBeGreaterThan(0);
     cliente.fechar();
   });
 
   it('recusa assunto que não existe', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `${NOME_DO_COOKIE}=${await abrirSessao(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });
@@ -181,7 +181,7 @@ describe('inscrição', () => {
   it('sem inscrição não chega evento nenhum', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `${NOME_DO_COOKIE}=${await abrirSessao(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });
@@ -203,21 +203,21 @@ describe('inscrição', () => {
 
 describe('isolamento — a regra que não se dobra', () => {
   it('entrega o evento do PRÓPRIO tenant', async () => {
-    const cliente = await conectar(await abrirSessao(cenario));
-    const conversaId = randomUUID();
+    const cliente = await conectar(await openSession(cenario));
+    const conversationId = randomUUID();
 
-    await publicar(cenario.tenantId, evento('conversa', conversaId));
+    await publicar(cenario.tenantId, evento('conversa', conversationId));
     await esperar(cliente);
 
     expect(cliente.recebidos).toEqual([
-      { assunto: 'conversa', id: conversaId, em: expect.any(String) },
+      { assunto: 'conversa', id: conversationId, em: expect.any(String) },
     ]);
     cliente.fechar();
   });
 
   it('NUNCA entrega evento de outro tenant', async () => {
-    const meu = await conectar(await abrirSessao(cenario));
-    const alheio = await conectar(await abrirSessao(outro));
+    const meu = await conectar(await openSession(cenario));
+    const alheio = await conectar(await openSession(outro));
 
     await publicar(outro.tenantId, evento('conversa', randomUUID()));
     await esperar(alheio);
@@ -239,12 +239,12 @@ describe('isolamento — a regra que não se dobra', () => {
     `);
     const outraPessoaId = rows[0]!.id;
 
-    const dono = await conectar(await abrirSessao(cenario, outraPessoaId));
-    const colega = await conectar(await abrirSessao(cenario));
+    const dono = await conectar(await openSession(cenario, outraPessoaId));
+    const colega = await conectar(await openSession(cenario));
 
     await publicar(cenario.tenantId, {
       ...evento('atendente', outraPessoaId),
-      usuarioId: outraPessoaId,
+      userId: outraPessoaId,
     });
     await esperar(dono);
     await new Promise((r) => setTimeout(r, 300));
@@ -257,7 +257,7 @@ describe('isolamento — a regra que não se dobra', () => {
   });
 
   it('só entrega o assunto assinado', async () => {
-    const cliente = await conectar(await abrirSessao(cenario), ['fila']);
+    const cliente = await conectar(await openSession(cenario), ['fila']);
 
     await publicar(cenario.tenantId, evento('conversa', randomUUID()));
     await publicar(cenario.tenantId, evento('fila'));
@@ -271,7 +271,7 @@ describe('isolamento — a regra que não se dobra', () => {
 
 describe('o evento diz O QUE mudou, nunca O QUE É', () => {
   it('o payload tem só assunto, id e hora — nada do registro', async () => {
-    const cliente = await conectar(await abrirSessao(cenario), ['conversa']);
+    const cliente = await conectar(await openSession(cenario), ['conversa']);
     const conversaId = randomUUID();
 
     await publicar(cenario.tenantId, evento('conversa', conversaId));
@@ -287,24 +287,24 @@ describe('o evento diz O QUE mudou, nunca O QUE É', () => {
 
 describe('queda', () => {
   it('a conexão some do registro quando o socket fecha', async () => {
-    const antes = conexoesVivas(cenario.tenantId);
-    const cliente = await conectar(await abrirSessao(cenario));
-    expect(conexoesVivas(cenario.tenantId)).toBe(antes + 1);
+    const antes = connectionsVivas(cenario.tenantId);
+    const cliente = await conectar(await openSession(cenario));
+    expect(connectionsVivas(cenario.tenantId)).toBe(antes + 1);
 
     cliente.fechar();
     const limite = Date.now() + 2_000;
-    while (conexoesVivas(cenario.tenantId) > antes && Date.now() < limite) {
+    while (connectionsVivas(cenario.tenantId) > antes && Date.now() < limite) {
       await new Promise((r) => setTimeout(r, 20));
     }
     // Conexão que não some do registro é vazamento de memória e entrega para socket
     // morto — o processo ficaria escrevendo em quem já foi embora.
-    expect(conexoesVivas(cenario.tenantId)).toBe(antes);
+    expect(connectionsVivas(cenario.tenantId)).toBe(antes);
   });
 
   it('manda o `ping` do contrato, que é como a tela sabe que está viva', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
-        cookie: `${NOME_DO_COOKIE}=${await abrirSessao(cenario)}`,
+        cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
         origin: 'http://localhost:3200',
       },
     });

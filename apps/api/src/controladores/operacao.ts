@@ -1,7 +1,7 @@
 import { timingSafeEqual } from 'node:crypto';
 import { Controller, Get, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 import { renderizar } from '../metricas.js';
 import { verificarSaude } from '../saude.js';
 
@@ -26,15 +26,15 @@ import { verificarSaude } from '../saude.js';
  * Atrás do Traefik o IP visto é o do proxy, que é privado — ou seja, sem token a
  * camada 2 libera qualquer um que chegue pelo proxy. Por isso: **em produção, token.**
  */
-export function podeVerMetricas(requisicao: Request): boolean {
+export function canVerMetrics(request: Request): boolean {
   const esperado = process.env['PIPE_METRICS_TOKEN'];
   if (esperado && esperado.length > 0) {
-    const dado = (requisicao.header('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
+    const dado = (request.header('authorization') ?? '').replace(/^Bearer\s+/i, '').trim();
     const a = Buffer.from(dado);
     const b = Buffer.from(esperado);
     return a.length === b.length && timingSafeEqual(a, b);
   }
-  return ehRedeInterna(requisicao.ip);
+  return ehRedeInterna(request.ip);
 }
 
 export function ehRedeInterna(ip: string | undefined): boolean {
@@ -49,7 +49,7 @@ export function ehRedeInterna(ip: string | undefined): boolean {
 }
 
 @Controller()
-export class ControladorOperacao {
+export class OperationsController {
   @Get('saude')
   async saude(@Res() resposta: Response): Promise<void> {
     const saude = await verificarSaude();
@@ -60,9 +60,9 @@ export class ControladorOperacao {
   }
 
   @Get('metrics')
-  async metricas(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
-    if (!podeVerMetricas(requisicao)) {
-      throw ErroPipe.naoAutorizado('Métricas exigem PIPE_METRICS_TOKEN ou rede interna.');
+  async metrics(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+    if (!canVerMetrics(requisicao)) {
+      throw PipeError.naoAutorizado('Métricas exigem PIPE_METRICS_TOKEN ou rede interna.');
     }
     resposta.setHeader('content-type', 'text/plain; version=0.0.4; charset=utf-8');
     resposta.send(await renderizar());

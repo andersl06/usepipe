@@ -2,10 +2,10 @@ import type { IncomingMessage, Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
-import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/autenticacao';
+import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/autenticacao';
 import { ASSUNTOS } from '@pipe/contracts';
-import type { Assunto, EventoDoServidor, Inscricao, QuadroDeControle } from '@pipe/contracts';
-import { bancoDono } from './banco.js';
+import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
+import { databaseOwner } from './banco.js';
 import { lerCookie } from './sessao.js';
 import { registrar } from './tempo-real.js';
 import type { Conexao } from './tempo-real.js';
@@ -47,8 +47,8 @@ const MAX_PINGS_SEM_RESPOSTA = Number(process.env['PIPE_WS_MAX_PINGS'] ?? 1);
 
 const CAMINHO = '/v1/eventos';
 
-function ehAssunto(valor: unknown): valor is Assunto {
-  return typeof valor === 'string' && (ASSUNTOS as readonly string[]).includes(valor);
+function ehAssunto(value: unknown): value is Assunto {
+  return typeof value === 'string' && (ASSUNTOS as readonly string[]).includes(value);
 }
 
 function enviar(socket: WebSocket, dado: EventoDoServidor | QuadroDeControle): void {
@@ -60,34 +60,34 @@ function recusar(socket: Duplex, status: number, motivo: string): void {
   socket.destroy();
 }
 
-export interface CanalDeEventos {
+export interface ChannelOfEvents {
   fechar: () => Promise<void>;
 }
 
-export function ligarCanalDeEventos(servidor: Server): CanalDeEventos {
+export function connectChannelOfEvents(servidor: Server): ChannelOfEvents {
   const wss = new WebSocketServer({ noServer: true });
 
-  const aoSubir = (requisicao: IncomingMessage, socket: Duplex, cabeca: Buffer): void => {
+  const toUp = (request: IncomingMessage, socket: Duplex, cabeca: Buffer): void => {
     // `void` porque `upgrade` não espera promessa; toda falha vira recusa explícita.
     void (async () => {
       try {
-        const url = new URL(requisicao.url ?? '/', 'http://interno');
+        const url = new URL(request.url ?? '/', 'http://interno');
         if (url.pathname !== CAMINHO) return recusar(socket, 404, 'Not Found');
 
-        const origem = requisicao.headers.origin;
+        const origem = request.headers.origin;
         // Sem `Origin` é cliente que não é navegador (teste, integração). O cookie
         // continua sendo exigido logo abaixo, então isto não abre porta.
         if (origem && !origemPermitida(origem.replace(/\/$/, ''), origensPermitidas())) {
           return recusar(socket, 403, 'Forbidden');
         }
 
-        const token = lerCookie(requisicao.headers.cookie, 'pipe_sessao');
+        const token = lerCookie(request.headers.cookie, 'pipe_sessao');
         if (!token) return recusar(socket, 401, 'Unauthorized');
-        const sessao = await resolverSessao(bancoDono(), hashDoToken(token));
-        if (!sessao) return recusar(socket, 401, 'Unauthorized');
+        const session = await resolveSession(databaseOwner(), hashDoToken(token));
+        if (!session) return recusar(socket, 401, 'Unauthorized');
 
-        wss.handleUpgrade(requisicao, socket, cabeca, (ws) => {
-          void aoConectar(ws, sessao.tenantId, sessao.usuarioId);
+        wss.handleUpgrade(request, socket, cabeca, (ws) => {
+          void aoConectar(ws, session.tenantId, session.userId);
         });
       } catch {
         recusar(socket, 500, 'Internal Server Error');
@@ -95,18 +95,18 @@ export function ligarCanalDeEventos(servidor: Server): CanalDeEventos {
     })();
   };
 
-  servidor.on('upgrade', aoSubir);
+  servidor.on('upgrade', toUp);
 
   return {
     fechar: async () => {
-      servidor.off('upgrade', aoSubir);
+      servidor.off('upgrade', toUp);
       for (const ws of wss.clients) ws.terminate();
       await new Promise<void>((resolve) => wss.close(() => resolve()));
     },
   };
 }
 
-async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): Promise<void> {
+async function aoConectar(ws: WebSocket, tenantId: string, userId: string): Promise<void> {
   // Começa sem assunto nenhum: o socket existe, mas não entrega nada até a `Inscricao`
   // chegar. Assinar tudo por padrão seria entregar o que a tela não pediu.
   const assuntos = new Set<Assunto>();
@@ -143,9 +143,9 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
   });
 
   ws.on('message', (cru) => {
-    let pedido: Inscricao;
+    let pedido: Subscription;
     try {
-      pedido = JSON.parse(String(cru)) as Inscricao;
+      pedido = JSON.parse(String(cru)) as Subscription;
     } catch {
       enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });
       return;
@@ -171,7 +171,7 @@ async function aoConectar(ws: WebSocket, tenantId: string, usuarioId: string): P
 
   const conexao: Conexao = {
     tenantId,
-    usuarioId,
+    userId,
     assuntos,
     entregar: (evento) => enviar(ws, evento),
   };

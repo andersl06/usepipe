@@ -8,13 +8,13 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 13).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { subirApi } = await import('../src/servidor.js');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { usarArmazenamento } = await import('../src/dominio/anexo.js');
+const { useStorage } = await import('../src/dominio/anexo.js');
 const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/armazenamento');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 let cenario: Cenario;
 let api: ApiNoAr;
@@ -23,21 +23,21 @@ let api: ApiNoAr;
 const objetos = new Map<string, Uint8Array>();
 
 beforeAll(async () => {
-  usarArmazenamento({
-    guardar: async (chave, dados) => {
-      objetos.set(chave, dados);
-      return { chave, bytes: dados.byteLength };
+  useStorage({
+    guardar: async (key, dados) => {
+      objetos.set(key, dados);
+      return { key, bytes: dados.byteLength };
     },
     ler: async (chave) => {
-      const dados = objetos.get(chave);
-      return dados ? { dados, bytes: dados.byteLength } : null;
+      const data = objetos.get(chave);
+      return data ? { data, bytes: data.byteLength } : null;
     },
     remover: async (chave) => {
       objetos.delete(chave);
     },
   });
   cenario = await montarCenario(`anexo-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
   // O link é absoluto porque é a Meta que o baixa. No teste a porta é efêmera, então
   // a base pública passa a ser a do servidor que acabou de subir.
   process.env['PIPE_STORAGE_URL_BASE'] = api.url;
@@ -46,12 +46,12 @@ beforeAll(async () => {
 afterAll(async () => {
   await api.fechar();
   await cenario.encerrar();
-  usarArmazenamento(null);
+  useStorage(null);
 });
 
 const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x01]);
 
-function subir(
+function up(
   dados: Buffer,
   mime: string,
   nome = 'arquivo.png',
@@ -66,7 +66,7 @@ function subir(
 
 describe('subir anexo', () => {
   it('guarda o arquivo e devolve link assinado', async () => {
-    const resposta = await subir(PNG, 'image/png');
+    const resposta = await up(PNG, 'image/png');
 
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as {
@@ -84,17 +84,17 @@ describe('subir anexo', () => {
   });
 
   it('a chave do objeto começa pelo tenant — isolamento no caminho', async () => {
-    const resposta = await subir(PNG, 'image/png');
+    const resposta = await up(PNG, 'image/png');
     const { id } = (await resposta.json()) as { id: string };
 
-    const { rows } = await cenario.dono.execute<{ chave_storage: string }>(
+    const { rows } = await cenario.dono.execute<{ keyStorage: string }>(
       sql`select chave_storage from anexo where id = ${id}::uuid`,
     );
-    expect(rows[0]!.chave_storage.startsWith(`${cenario.tenantId}/`)).toBe(true);
+    expect(rows[0]!.keyStorage.startsWith(`${cenario.tenantId}/`)).toBe(true);
   });
 
   it('recusa tipo fora da lista da Blip', async () => {
-    const resposta = await subir(Buffer.from([0x4d, 0x5a, 0x90]), 'application/x-msdownload', 'a.exe');
+    const resposta = await up(Buffer.from([0x4d, 0x5a, 0x90]), 'application/x-msdownload', 'a.exe');
     expect(resposta.status).toBe(400);
     expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
       'tipo_nao_aceito',
@@ -102,13 +102,13 @@ describe('subir anexo', () => {
   });
 
   it('os BYTES desmentem o Content-Type: PNG declarado como PDF vira PNG', async () => {
-    const resposta = await subir(PNG, 'application/pdf', 'mentira.pdf');
+    const resposta = await up(PNG, 'application/pdf', 'mentira.pdf');
     expect(resposta.status).toBe(201);
     expect(((await resposta.json()) as { mime: string }).mime).toBe('image/png');
   });
 
   it('recusa arquivo vazio', async () => {
-    const resposta = await subir(Buffer.alloc(0), 'image/png');
+    const resposta = await up(Buffer.alloc(0), 'image/png');
     expect(resposta.status).toBe(400);
   });
 
@@ -120,12 +120,12 @@ describe('subir anexo', () => {
     grande[1] = 0x44;
     grande[2] = 0x33; // ID3 → audio/mpeg
 
-    const resposta = await subir(grande, 'audio/mpeg', 'longo.mp3');
+    const resposta = await up(grande, 'audio/mpeg', 'longo.mp3');
 
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { erro: { codigo: string; mensagem: string } };
-    expect(corpo.erro.codigo).toBe('arquivo_grande_demais');
-    expect(corpo.erro.mensagem).toContain('16');
+    const corpo = (await resposta.json()) as { error: { codigo: string; message: string } };
+    expect(corpo.error.codigo).toBe('arquivo_grande_demais');
+    expect(corpo.error.message).toContain('16');
   });
 
   it('sem credencial, 401', async () => {
@@ -139,8 +139,8 @@ describe('subir anexo', () => {
 });
 
 describe('baixar por link assinado', () => {
-  async function linkDe(dados: Buffer, mime: string, nome: string): Promise<string> {
-    const r = await subir(dados, mime, nome);
+  async function linkDe(data: Buffer, mime: string, nome: string): Promise<string> {
+    const r = await up(data, mime, nome);
     return ((await r.json()) as { link: string }).link;
   }
 

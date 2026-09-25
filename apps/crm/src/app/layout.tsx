@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
-import { EstruturaCrm } from '../componentes/estrutura-crm';
+import { StructureCrm } from '../componentes/estrutura-crm';
 import { euAtual } from '../lib/banco';
-import { CHAVE_TEMA } from '../lib/configuracoes-comum';
+import { KEY_TEMA } from '../lib/configuracoes-comum';
 // A ordem importa: o token e a base do design system entram antes da folha do
 // aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
 import '@pipe/ui/estilos.css';
@@ -25,7 +25,7 @@ export const metadata: Metadata = {
  * O `try` não é decoração — `localStorage` lança em janela anônima com cookies
  * bloqueados, e um erro aqui derrubaria a página antes do primeiro pixel.
  */
-const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(CHAVE_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
+const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(KEY_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   /* `euAtual` e não `exigirEu`: este layout também embrulha `/entrar` e
@@ -44,13 +44,13 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
         />
       </head>
       <body>
-        <EstruturaCrm
-          usuario={
-            eu ? { nome: eu.usuario.nome, email: eu.usuario.email, tenant: eu.tenant.nome } : null
+        <StructureCrm
+          user={
+            eu ? { nome: eu.user.nome, email: eu.user.email, tenant: eu.tenant.nome } : null
           }
         >
           {children}
-        </EstruturaCrm>
+        </StructureCrm>
       </body>
     </html>
   );

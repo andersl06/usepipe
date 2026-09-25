@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import type { VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analise';
-import { useLeitura } from '../../../../lib/consulta';
-import { useContato } from '../../contato';
+import { useRead } from '../../../../lib/consulta';
+import { useContact } from '../../contato';
 import { VisaoGeral } from './visao-geral';
 import './visao-geral.css';
 
@@ -13,23 +13,23 @@ import './visao-geral.css';
  * `api`, no fuso da conta.
  */
 interface RespostaDaVisaoGeral {
-  dados: DadosDaVisaoGeral;
+  data: DadosDaVisaoGeral;
   de: string;
   ate: string;
 }
 
-export function PaginaDaVisaoGeral() {
-  const { contato } = useContato();
-  const [busca] = useSearchParams();
+export function OverviewPage() {
+  const { contact } = useContact();
+  const [search] = useSearchParams();
   const q = new URLSearchParams();
-  for (const chave of ['de', 'ate']) {
-    const v = busca.get(chave);
-    if (v) q.set(chave, v);
+  for (const key of ['de', 'ate']) {
+    const v = search.get(key);
+    if (v) q.set(key, v);
   }
-  const leitura = useLeitura<RespostaDaVisaoGeral>(
-    `/v1/gestao/fluxos/${contato.id}/analise/visao-geral?${q.toString()}`,
+  const read = useRead<RespostaDaVisaoGeral>(
+    `/v1/gestao/fluxos/${contact.id}/analise/visao-geral?${q.toString()}`,
   );
-  if (!leitura.data) return null;
-  const { dados, de, ate } = leitura.data;
-  return <VisaoGeral dados={dados} de={de} ate={ate} />;
+  if (!read.data) return null;
+  const { data, de, ate } = read.data;
+  return <VisaoGeral data={data} de={de} ate={ate} />;
 }

@@ -1,5 +1,5 @@
 /** Um intervalo em instantes (a `Janela` da api). */
-export interface Janela {
+export interface Window {
   inicio: string;
   fim: string;
 }
@@ -13,15 +13,15 @@ export interface Janela {
  * matéria-prima e se soma o que o core devolveu.
  */
 
-export interface EsforcoDoAtendente {
+export interface AgentEffort {
   id: string;
   nome: string;
   tickets: number;
-  esforcoSeg: number;
+  effortSeg: number;
   /** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */
-  esforcoPorTicketSeg: number | null;
-  sessaoSeg: number;
-  ocupacao: number | null;
+  effortByTicketSeg: number | null;
+  sessionSeg: number;
+  occupancy: number | null;
   charsEscritos: number;
   charsLidos: number;
   audioOuvidoSeg: number;
@@ -29,14 +29,14 @@ export interface EsforcoDoAtendente {
   /** Texto que o atendente **não** digitou: resposta pronta e template. */
   charsDeRespostaPronta: number;
   /** O que esse texto acrescentaria ao esforço se fosse contado como digitação. */
-  esforcoRespostaProntaSeg: number;
+  effortCannedResponseSeg: number;
   audiosSemMetadado: number;
 }
 
-export interface RelatorioEsforco {
-  janela: Janela;
-  atendentes: EsforcoDoAtendente[];
-  conversasConsideradas: number;
+export interface ReportEffort {
+  window: Window;
+  agents: AgentEffort[];
+  conversationsConsideradas: number;
   /** Conversas encerradas no período que não geraram esforço de nenhum atendente. */
-  conversasSemAtendente: number;
+  conversationsWithoutAgent: number;
 }

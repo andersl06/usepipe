@@ -1,4 +1,4 @@
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 import { IconePortal } from '../../../../componentes/icones-portal';
 
 /**
@@ -30,21 +30,21 @@ import { IconePortal } from '../../../../componentes/icones-portal';
  * honesto. TODO: quando existir a integração de cobrança, trocar por
  * `lib/growth.ts#relatorioDePagamentos`.
  */
-const FORMAS_DE_PAGAMENTO = [
+const FORMAS_OF_PAYMENT = [
   { rotulo: 'PIX', cor: 'var(--p-grafico-1)' },
   { rotulo: 'Cartão de crédito', cor: 'var(--p-grafico-2)' },
   { rotulo: 'Boleto', cor: 'var(--p-grafico-3)' },
   { rotulo: 'Link de pagamento', cor: 'var(--p-grafico-4)' },
 ];
 
-function CartaoResumo({ rotulo, legenda }: { rotulo: string; legenda: string }) {
+function CardSummary({ rotulo, legenda }: { rotulo: string; legenda: string }) {
   return (
     <div className="pg-cartao pg-resumo">
       <p className="pg-resumo-rotulo">{rotulo}</p>
       <p className="pg-resumo-legenda">{legenda}</p>
       <p className="pg-resumo-valor">—</p>
       <div className="pg-barras">
-        {FORMAS_DE_PAGAMENTO.map((forma) => (
+        {FORMAS_OF_PAYMENT.map((forma) => (
           <div className="pg-barra-vertical" key={forma.rotulo}>
             <span className="pg-barra-vertical-cheia" />
             <span className="pg-barra-vertical-rotulo">—</span>
@@ -55,7 +55,7 @@ function CartaoResumo({ rotulo, legenda }: { rotulo: string; legenda: string }) 
   );
 }
 
-export default function PaginaRelatorioDePagamentos() {
+export default function PaymentsPageReport() {
   return (
     <div className="gr-container pg-pagina">
       <p className="pg-aviso" role="status">
@@ -96,11 +96,11 @@ export default function PaginaRelatorioDePagamentos() {
           <div className="pg-cartao pg-grafico">
             <h3>Evolução de valores enviados e recebidos</h3>
             <div className="pg-grafico-vazio">
-              <Ilustracao nome="vazio" tamanho={72} />
+              <Illustration nome="vazio" tamanho={72} />
               <p>Sem dados suficientes para o gráfico.</p>
             </div>
             <ul className="pg-legenda">
-              {FORMAS_DE_PAGAMENTO.map((forma) => (
+              {FORMAS_OF_PAYMENT.map((forma) => (
                 <li key={forma.rotulo}>
                   <span className="pg-legenda-ponto" style={{ background: forma.cor }} />
                   {forma.rotulo}
@@ -113,8 +113,8 @@ export default function PaginaRelatorioDePagamentos() {
         <section className="pg-coluna">
           <h2 className="pg-coluna-titulo">Pagamentos</h2>
           <div className="pg-par">
-            <CartaoResumo rotulo="Mensagens enviadas" legenda="Quantidade por tipo de pagamento" />
-            <CartaoResumo
+            <CardSummary rotulo="Mensagens enviadas" legenda="Quantidade por tipo de pagamento" />
+            <CardSummary
               rotulo="Valor estimado de pagamento"
               legenda="Valor total estimado enviado"
             />

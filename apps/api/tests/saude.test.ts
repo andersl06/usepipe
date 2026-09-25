@@ -8,9 +8,9 @@ process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['PIPE_VERSAO'] = '9.9.9-teste';
 process.env['PIPE_SAUDE_TIMEOUT_MS'] = '2000';
 
-const { subirApi } = await import('../src/servidor.js');
+const { upApi } = await import('../src/servidor.js');
 
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * `/saude` com o banco fora.
@@ -23,7 +23,7 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 let api: ApiNoAr;
 
 beforeAll(async () => {
-  api = await subirApi(0);
+  api = await upApi(0);
 }, 60_000);
 
 afterAll(async () => {
@@ -40,11 +40,11 @@ describe('GET /saude com o banco fora', () => {
     const corpo = (await resposta.json()) as {
       ok: boolean;
       versao: string;
-      banco: string;
+      database: string;
       redis: string;
     };
     expect(corpo.ok).toBe(false);
-    expect(corpo.banco).toBe('falha');
+    expect(corpo.database).toBe('falha');
     expect(corpo.versao).toBe('9.9.9-teste');
 
     // O ponto do tempo-limite: responder rápido. Healthcheck que pendura deixa o

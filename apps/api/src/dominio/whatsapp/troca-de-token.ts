@@ -1,4 +1,4 @@
-import { ErroPipe } from '../../erros.js';
+import { PipeError } from '../../erros.js';
 import { clienteGraph } from './cliente-graph.js';
 
 /**
@@ -8,17 +8,17 @@ import { clienteGraph } from './cliente-graph.js';
  * v4). Por isso a troca é a primeira coisa que o cadastro faz, antes de qualquer
  * consulta ao banco.
  */
-export async function trocarCodigo(codigo: string | undefined): Promise<string> {
+export async function exchangeCode(codigo: string | undefined): Promise<string> {
   if (!codigo || !codigo.trim()) {
-    throw ErroPipe.requisicao('codigo_ausente', 'O código de autorização é obrigatório.');
+    throw PipeError.request('codigo_ausente', 'O código de autorização é obrigatório.');
   }
 
-  const resposta = await clienteGraph().trocarCodigoPorToken(codigo);
+  const resposta = await clienteGraph().exchangeCodeByToken(codigo);
   const token = resposta.access_token;
   // O original põe a resposta inteira na mensagem; aqui ela não entra — ver o
   // cabeçalho de `cliente-graph.ts`.
   if (!token) {
-    throw new ErroPipe(502, 'meta_sem_token', 'A troca do código voltou sem access_token.');
+    throw new PipeError(502, 'meta_sem_token', 'A troca do código voltou sem access_token.');
   }
   return token;
 }

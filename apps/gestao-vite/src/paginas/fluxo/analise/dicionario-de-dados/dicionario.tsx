@@ -1,7 +1,7 @@
 import { useSearchParams } from 'react-router-dom';
 import Link from '../../../../componentes/link';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { PAGINAS, SobreDados } from './paginas';
+import { PAGES, AboutData } from './paginas';
 import './dicionario.css';
 
 /**
@@ -30,17 +30,17 @@ import './dicionario.css';
  *   ponytail: sem estado de "fechado" na URL; entra um parâmetro se alguém sentir falta.
  */
 interface Item {
-  chave: string;
+  key: string;
   rotulo: string;
   /** `isActive` do `valuesItemMenu`: o inativo abre o alerta em vez de navegar. */
   ativo: boolean;
 }
 
-interface Secao {
-  chave: string;
+interface Section {
+  key: string;
   titulo: string;
   /** `active` do `ZV`/`AV`: inativa ganha o selo "Em Breve" (`SV`). */
-  ativa: boolean;
+  active: boolean;
   /** Presente = acordeão (`AV`); ausente = item único (`ZV`). */
   itens?: readonly Item[];
 }
@@ -50,38 +50,38 @@ interface Secao {
  * `TV.menuOne` (subseções). "Lista de blocos" existe porque a flag
  * `is-displaying-block-listing-section` do roteador é `true` (`hidden: !a`).
  */
-const SECOES: readonly Secao[] = [
-  { chave: 'aboutData', titulo: 'Sobre dados', ativa: true },
+const SECTIONS: readonly Section[] = [
+  { key: 'aboutData', titulo: 'Sobre dados', active: true },
   {
-    chave: 'dashboard',
+    key: 'dashboard',
     titulo: 'Dashboard',
-    ativa: true,
+    active: true,
     itens: [
-      { chave: 'dateFilter', rotulo: 'Filtro de data', ativo: true },
-      { chave: 'comparisonIndicator', rotulo: 'Indicador de comparação', ativo: true },
-      { chave: 'contacts', rotulo: 'Contatos', ativo: true },
-      { chave: 'recurrence', rotulo: 'Recorrência', ativo: true },
-      { chave: 'messages', rotulo: 'Mensagens', ativo: true },
-      { chave: 'channels', rotulo: 'Canais (Em breve)', ativo: false },
-      { chave: 'conversationalFlow', rotulo: 'Fluxo conversacional', ativo: true },
-      { chave: 'listOfBlocks', rotulo: 'Lista de blocos', ativo: true },
-      { chave: 'frequentlyAskedQuestions', rotulo: 'Perguntas frequentes', ativo: true },
+      { key: 'dateFilter', rotulo: 'Filtro de data', ativo: true },
+      { key: 'comparisonIndicator', rotulo: 'Indicador de comparação', ativo: true },
+      { key: 'contacts', rotulo: 'Contatos', ativo: true },
+      { key: 'recurrence', rotulo: 'Recorrência', ativo: true },
+      { key: 'messages', rotulo: 'Mensagens', ativo: true },
+      { key: 'channels', rotulo: 'Canais (Em breve)', ativo: false },
+      { key: 'conversationalFlow', rotulo: 'Fluxo conversacional', ativo: true },
+      { key: 'listOfBlocks', rotulo: 'Lista de blocos', ativo: true },
+      { key: 'frequentlyAskedQuestions', rotulo: 'Perguntas frequentes', ativo: true },
     ],
   },
-  { chave: 'overview', titulo: 'Visão Geral', ativa: false },
-  { chave: 'contactJourney', titulo: 'Jornada dos Contatos', ativa: false },
-  { chave: 'customReport', titulo: 'Relatórios Personalizados', ativa: false },
+  { key: 'overview', titulo: 'Visão Geral', active: false },
+  { key: 'contactJourney', titulo: 'Jornada dos Contatos', active: false },
+  { key: 'customReport', titulo: 'Relatórios Personalizados', active: false },
   {
-    chave: 'reportManager',
+    key: 'reportManager',
     titulo: 'Gerenciador de Relatórios',
-    ativa: true,
+    active: true,
     itens: [
-      { chave: 'activeMessages', rotulo: 'Mensagens ativas', ativo: true },
-      { chave: 'eventTracking', rotulo: 'Rastreamento de eventos', ativo: true },
-      { chave: 'chatbotUserMetrics', rotulo: 'Métricas de chatbot e usuários', ativo: true },
-      { chave: 'statusAttendants', rotulo: 'Status dos atendentes', ativo: true },
-      { chave: 'serviceMetrics', rotulo: 'Métricas de atendimento', ativo: true },
-      { chave: 'serviceHistory', rotulo: 'Histórico de atendimento', ativo: true },
+      { key: 'activeMessages', rotulo: 'Mensagens ativas', ativo: true },
+      { key: 'eventTracking', rotulo: 'Rastreamento de eventos', ativo: true },
+      { key: 'chatbotUserMetrics', rotulo: 'Métricas de chatbot e usuários', ativo: true },
+      { key: 'statusAttendants', rotulo: 'Status dos atendentes', ativo: true },
+      { key: 'serviceMetrics', rotulo: 'Métricas de atendimento', ativo: true },
+      { key: 'serviceHistory', rotulo: 'Histórico de atendimento', ativo: true },
     ],
   },
 ];
@@ -89,13 +89,13 @@ const SECOES: readonly Secao[] = [
 /** O `id` do alerta único; os itens inativos o abrem por `popovertarget`. */
 const ALERTA = 'dd-alerta';
 
-export function PaginaDoDicionario() {
-  const [busca] = useSearchParams();
-  const [pedida, subPedida] = (busca.get('path') ?? '').split(':');
+export function DictionaryPage() {
+  const [search] = useSearchParams();
+  const [pedida, subPedida] = (search.get('path') ?? '').split(':');
   /* O `mV` do `bV`: sem `path` (ou com lixo), a seção é "Sobre dados". */
-  const secao = SECOES.find((s) => s.ativa && s.chave === pedida) ?? SECOES[0]!;
-  const item = secao.itens?.find((i) => i.ativo && i.chave === subPedida);
-  const Pagina = PAGINAS[item?.chave ?? secao.chave] ?? SobreDados;
+  const section = SECTIONS.find((s) => s.active && s.key === pedida) ?? SECTIONS[0]!;
+  const item = section.itens?.find((i) => i.ativo && i.key === subPedida);
+  const Page = PAGES[item?.key ?? section.key] ?? AboutData;
 
   return (
     /* `nC` + `oC`: 60 em cima; coluna de 85%, entre 1024 e 2560, centrada. */
@@ -109,23 +109,23 @@ export function PaginaDoDicionario() {
         <div className="dd-papel">
           <nav className="dd-menu" aria-label="Dicionário de dados">
             <div className="dd-menu-lista">
-              {SECOES.map((s) =>
+              {SECTIONS.map((s) =>
                 s.itens ? (
                   <Acordeao
-                    key={s.chave}
-                    secao={s}
-                    aberta={s.chave === secao.chave}
-                    selecionado={item?.chave ?? null}
+                    key={s.key}
+                    section={s}
+                    aberta={s.key === section.key}
+                    selecionado={item?.key ?? null}
                   />
                 ) : (
-                  <ItemUnico key={s.chave} secao={s} aberta={s.chave === secao.chave} />
+                  <ItemUnico key={s.key} section={s} aberta={s.key === section.key} />
                 ),
               )}
             </div>
           </nav>
 
           <div className="dd-area">
-            <Pagina />
+            <Page />
           </div>
         </div>
       </div>
@@ -138,8 +138,8 @@ export function PaginaDoDicionario() {
 /* ------------------------------------------------------------------ peças */
 
 /** A classe de cor do título: `open` (primária) na seção clicada, `active` no resto. */
-function corDoTitulo(ativa: boolean, aberta: boolean) {
-  if (!ativa) return '';
+function corDoTitulo(active: boolean, aberta: boolean) {
+  if (!active) return '';
   return aberta ? 'dd-aberto' : 'dd-ativo';
 }
 
@@ -147,19 +147,19 @@ function corDoTitulo(ativa: boolean, aberta: boolean) {
  * `ZV` — item de uma linha só: "Sobre dados" e os três "Em Breve". O ativo navega
  * (`handleSectionClick`); o inativo abre o alerta (`r(e => !e)`).
  */
-function ItemUnico({ secao, aberta }: { secao: Secao; aberta: boolean }) {
+function ItemUnico({ section, aberta }: { section: Section; aberta: boolean }) {
   const miolo = (
     <span className="dd-unico-linha">
-      <span className={`dd-unico-titulo ${corDoTitulo(secao.ativa, aberta)}`}>{secao.titulo}</span>
-      {secao.ativa ? null : (
+      <span className={`dd-unico-titulo ${corDoTitulo(section.active, aberta)}`}>{section.titulo}</span>
+      {section.active ? null : (
         <span className="dd-embreve">
           <span>Em Breve</span>
         </span>
       )}
     </span>
   );
-  return secao.ativa ? (
-    <Link className="dd-unico" href={`?path=${secao.chave}`}>
+  return section.active ? (
+    <Link className="dd-unico" href={`?path=${section.key}`}>
       {miolo}
     </Link>
   ) : (
@@ -175,19 +175,19 @@ function ItemUnico({ secao, aberta }: { secao: Secao; aberta: boolean }) {
  * itens. A seta é `arrow-down` aberto e `arrow-right` fechado (`WV`).
  */
 function Acordeao({
-  secao,
+  section,
   aberta,
   selecionado,
 }: {
-  secao: Secao;
+  section: Section;
   aberta: boolean;
   selecionado: string | null;
 }) {
-  const cor = corDoTitulo(secao.ativa, aberta);
+  const cor = corDoTitulo(section.active, aberta);
   return (
     <div className="dd-acordeao">
-      <Link className="dd-acordeao-cabeca" href={`?path=${secao.chave}`}>
-        <span className={`dd-acordeao-titulo ${cor}`}>{secao.titulo}</span>
+      <Link className="dd-acordeao-cabeca" href={`?path=${section.key}`}>
+        <span className={`dd-acordeao-titulo ${cor}`}>{section.titulo}</span>
         <IconePortal
           nome={aberta ? 'baixo' : 'direita'}
           tamanho={24}
@@ -196,10 +196,10 @@ function Acordeao({
       </Link>
 
       {aberta
-        ? secao.itens?.map((i) => {
+        ? section.itens?.map((i) => {
             /* `wV`: bolinha da marca no item escolhido; `open` nele, `active` nos
                demais, e nenhuma das duas no inativo (fica fantasma). */
-            const escolhido = i.ativo && i.chave === selecionado;
+            const escolhido = i.ativo && i.key === selecionado;
             const miolo = (
               <>
                 <span className="dd-sub-marca">
@@ -213,11 +213,11 @@ function Acordeao({
               </>
             );
             return i.ativo ? (
-              <Link key={i.chave} className="dd-sub" href={`?path=${secao.chave}:${i.chave}`}>
+              <Link key={i.key} className="dd-sub" href={`?path=${section.key}:${i.key}`}>
                 {miolo}
               </Link>
             ) : (
-              <button key={i.chave} type="button" className="dd-sub" popoverTarget={ALERTA}>
+              <button key={i.key} type="button" className="dd-sub" popoverTarget={ALERTA}>
                 {miolo}
               </button>
             );

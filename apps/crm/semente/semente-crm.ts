@@ -2,27 +2,27 @@ import 'dotenv/config';
 import { createHash } from 'node:crypto';
 import { and, eq, inArray, isNotNull, sql } from 'drizzle-orm';
 import { calcularScore, type Expressao, type FaixaScore, type RegraScore } from '@pipe/core';
-import { criarBanco, fecharBanco, type BancoPipe } from '@pipe/db';
+import { createDatabase, closeDatabase, type DatabasePipe } from '@pipe/db';
 import {
-  atividade,
-  classificacaoConversa,
-  conta,
-  contato,
-  contatoEtiqueta,
-  conversa,
+  activity,
+  classificationConversation,
+  account,
+  contact,
+  contactLabel,
+  conversation,
   etiqueta,
   faixaScore,
-  fila,
+  queue,
   formulario,
   formularioPergunta,
   formularioVersao,
   lead,
-  oportunidade,
+  opportunity,
   regraScore,
   respostaFormulario,
   scoreLead,
   tenant,
-  usuario,
+  user,
 } from '@pipe/db/schema';
 
 /**
@@ -55,11 +55,11 @@ function idDe(nome: string): string {
 }
 
 /** Gerador determinístico: rodar duas vezes dá exatamente a mesma base. */
-function aleatorio(semente: number): () => number {
-  let estado = semente >>> 0;
+function aleatorio(seed: number): () => number {
+  let state = seed >>> 0;
   return () => {
-    estado = (estado + 0x6d2b79f5) >>> 0;
-    let t = estado;
+    state = (state + 0x6d2b79f5) >>> 0;
+    let t = state;
     t = Math.imul(t ^ (t >>> 15), t | 1);
     t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -68,7 +68,7 @@ function aleatorio(semente: number): () => number {
 
 const rnd = aleatorio(20260905);
 const entre = (min: number, max: number) => min + rnd() * (max - min);
-const inteiro = (min: number, max: number) => Math.floor(entre(min, max + 1));
+const entire = (min: number, max: number) => Math.floor(entre(min, max + 1));
 const escolher = <T,>(lista: readonly T[]): T => lista[Math.floor(rnd() * lista.length)] as T;
 const sorteio = (p: number) => rnd() < p;
 const dias = (n: number) => n * 86_400_000;
@@ -104,7 +104,7 @@ const CAMPANHAS: Record<string, string | null> = {
  * Nomes fictícios de propósito: é tenant de demonstração, e cliente real de
  * ninguém entra em semente que vai para o repositório.
  */
-const CONTAS = [
+const ACCOUNTS = [
   { nome: 'Almeida Participações', dominio: 'almeidapar.com.br' },
   { nome: 'Barreto Engenharia', dominio: 'barretoeng.com.br' },
   { nome: 'Clínica Vida Plena', dominio: 'vidaplena.med.br' },
@@ -128,7 +128,7 @@ function cnpjDe(indice: number): string {
 }
 
 const FASES = ['Novo', 'Qualificado', 'Reunião', 'Proposta', 'Fechamento'] as const;
-const PROBABILIDADE: Record<string, number> = {
+const PROBABILITY: Record<string, number> = {
   Novo: 10,
   Qualificado: 25,
   Reunião: 45,
@@ -140,16 +140,16 @@ const PROBABILIDADE: Record<string, number> = {
  * As regras da versão 4. Os pesos são os do mockup aprovado, e o corte em 60 é a
  * regra de negócio que já roda no webhook de hoje.
  */
-const REGRAS: { nome: string; pontos: number; condicao: Expressao }[] = [
+const REGRAS: { nome: string; pontos: number; condition: Expressao }[] = [
   {
     nome: 'Patrimônio acima de R$ 500 mil',
     pontos: 30,
-    condicao: { campo: 'patrimonio', operador: 'maior_igual', valor: 500_000 },
+    condition: { campo: 'patrimonio', operador: 'maior_igual', valor: 500_000 },
   },
   {
     nome: 'Patrimônio entre R$ 250 e 500 mil',
     pontos: 22,
-    condicao: {
+    condition: {
       combinador: 'e',
       condicoes: [
         { campo: 'patrimonio', operador: 'maior_igual', valor: 250_000 },
@@ -160,22 +160,22 @@ const REGRAS: { nome: string; pontos: number; condicao: Expressao }[] = [
   {
     nome: 'Diagnóstico respondido inteiro',
     pontos: 18,
-    condicao: { campo: 'diagnostico_completo', operador: 'igual', valor: true },
+    condition: { campo: 'diagnostico_completo', operador: 'igual', valor: true },
   },
   {
     nome: 'Indicação de cliente',
     pontos: 14,
-    condicao: { campo: 'origem', operador: 'igual', valor: 'Indicação' },
+    condition: { campo: 'origem', operador: 'igual', valor: 'Indicação' },
   },
   {
     nome: 'Interesse declarado em plano anual',
     pontos: 12,
-    condicao: { campo: 'interesse_plano', operador: 'igual', valor: 'anual' },
+    condition: { campo: 'interesse_plano', operador: 'igual', valor: 'anual' },
   },
   {
     nome: 'Origem: anúncio pago',
     pontos: 10,
-    condicao: {
+    condition: {
       campo: 'origem',
       operador: 'em',
       valor: ['Anúncio Meta', 'Anúncio Google'],
@@ -184,7 +184,7 @@ const REGRAS: { nome: string; pontos: number; condicao: Expressao }[] = [
   {
     nome: 'Faixa etária 35–50',
     pontos: 8,
-    condicao: {
+    condition: {
       combinador: 'e',
       condicoes: [
         { campo: 'idade', operador: 'maior_igual', valor: 35 },
@@ -195,25 +195,25 @@ const REGRAS: { nome: string; pontos: number; condicao: Expressao }[] = [
   {
     nome: 'WhatsApp confirmado',
     pontos: 5,
-    condicao: { campo: 'whatsapp_confirmado', operador: 'igual', valor: true },
+    condition: { campo: 'whatsapp_confirmado', operador: 'igual', valor: true },
   },
   {
     nome: 'Sem resposta na campanha de julho',
     pontos: -6,
-    condicao: { campo: 'respondeu_campanha_julho', operador: 'igual', valor: false },
+    condition: { campo: 'respondeu_campanha_julho', operador: 'igual', valor: false },
   },
   {
     nome: 'Importado sem origem definida',
     pontos: -4,
-    condicao: { campo: 'origem', operador: 'igual', valor: 'Importado RD' },
+    condition: { campo: 'origem', operador: 'igual', valor: 'Importado RD' },
   },
 ];
 
-const FAIXAS: { nome: string; minimo: number; maximo: number; fila: string | null; estrategia: string }[] =
+const FAIXAS: { nome: string; minimo: number; maximo: number; queue: string | null; estrategia: string }[] =
   [
-    { nome: 'Nutrição', minimo: 0, maximo: 39, fila: null, estrategia: 'nenhuma' },
-    { nome: 'Comercial', minimo: 40, maximo: 59, fila: 'Comercial', estrategia: 'rodizio' },
-    { nome: 'Closer', minimo: 60, maximo: 100, fila: 'Closer', estrategia: 'menor_carga' },
+    { nome: 'Nutrição', minimo: 0, maximo: 39, queue: null, estrategia: 'nenhuma' },
+    { nome: 'Comercial', minimo: 40, maximo: 59, queue: 'Comercial', estrategia: 'rodizio' },
+    { nome: 'Closer', minimo: 60, maximo: 100, queue: 'Closer', estrategia: 'menor_carga' },
   ];
 
 /** As faixas no formato do motor: `maximo` do topo é aberto. */
@@ -321,7 +321,7 @@ const NOTAS = [
   'Sócio da empresa entra na decisão; pediu proposta por e-mail.',
 ] as const;
 
-const RESUMOS_ATENDIMENTO = [
+const SUMMARIES_ATTENDANCE = [
   'Cliente perguntou sobre taxa de administração e prazo de resgate. Atendente explicou as duas coisas e enviou a lâmina. Ficou de responder até sexta.',
   'Pedido de simulação para aporte de R$ 30 mil. Atendente registrou o pedido e prometeu retorno em 24h.',
   'Reclamação sobre demora no cadastro. Atendente checou com o back-office e informou o novo prazo. Cliente aceitou.',
@@ -333,37 +333,37 @@ const CATEGORIAS = ['Dúvida de produto', 'Cadastro', 'Financeiro', 'Retenção'
 
 /* ------------------------------------------------------------------- semente */
 
-async function semearCrm(db: BancoPipe) {
+async function seedCrm(db: DatabasePipe) {
   const [tenantLinha] = await db.select({ id: tenant.id }).from(tenant).where(eq(tenant.slug, 'demo'));
   if (!tenantLinha) throw new Error('tenant "demo" não existe: rode `pnpm banco:semear` antes.');
   const tenantId = tenantLinha.id;
 
-  const usuarios = await db
-    .select({ id: usuario.id, nome: usuario.nome })
-    .from(usuario)
-    .where(and(eq(usuario.tenantId, tenantId), eq(usuario.ativo, true)))
-    .orderBy(usuario.nome);
-  if (usuarios.length === 0) throw new Error('nenhum usuário no tenant demo.');
+  const users = await db
+    .select({ id: user.id, nome: user.nome })
+    .from(user)
+    .where(and(eq(user.tenantId, tenantId), eq(user.ativo, true)))
+    .orderBy(user.nome);
+  if (users.length === 0) throw new Error('nenhum usuário no tenant demo.');
 
-  const filas = await db
-    .select({ id: fila.id, nome: fila.nome })
-    .from(fila)
-    .where(eq(fila.tenantId, tenantId));
-  const filaPorNome = new Map(filas.map((f) => [f.nome, f.id]));
+  const queues = await db
+    .select({ id: queue.id, nome: queue.nome })
+    .from(queue)
+    .where(eq(queue.tenantId, tenantId));
+  const queueByName = new Map(queues.map((f) => [f.nome, f.id]));
 
   /**
    * Contatos que já conversaram vêm primeiro: é o que faz a linha do tempo do lead
    * mostrar atendimento de verdade em vez de uma lista de notas inventadas.
    */
-  const comConversa = await db
-    .selectDistinct({ id: contato.id, nome: contato.nome })
-    .from(contato)
-    .innerJoin(conversa, eq(conversa.contatoId, contato.id))
-    .where(and(eq(contato.tenantId, tenantId), isNotNull(contato.nome)))
-    .orderBy(contato.nome)
+  const withConversation = await db
+    .selectDistinct({ id: contact.id, nome: contact.nome })
+    .from(contact)
+    .innerJoin(conversation, eq(conversation.contatoId, contact.id))
+    .where(and(eq(contact.tenantId, tenantId), isNotNull(contact.nome)))
+    .orderBy(contact.nome)
     .limit(60);
 
-  if (comConversa.length < 10) {
+  if (withConversation.length < 10) {
     throw new Error(
       'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/gestao-vite seed:gestao` antes.',
     );
@@ -373,8 +373,8 @@ async function semearCrm(db: BancoPipe) {
 
   /* ---------------------------------------------------- limpeza do que é meu */
 
-  const idsLead = comConversa.map((c) => idDe(`lead:${c.id}`));
-  const idsOportunidade = comConversa.flatMap((c) => [
+  const idsLead = withConversation.map((c) => idDe(`lead:${c.id}`));
+  const idsOpportunity = withConversation.flatMap((c) => [
     idDe(`oportunidade:${c.id}:1`),
     idDe(`oportunidade:${c.id}:2`),
   ]);
@@ -382,17 +382,17 @@ async function semearCrm(db: BancoPipe) {
   const idsRegra = REGRAS.map((r) => idDe(`regra:${VERSAO_REGRA}:${r.nome}`));
   const idsFaixa = FAIXAS.map((f) => idDe(`faixa:${VERSAO_REGRA}:${f.nome}`));
   const idsEtiqueta = ETIQUETAS_CRM.map((e) => idDe(`etiqueta:${e.nome}`));
-  const idsConta = CONTAS.map((c) => idDe(`conta:${c.nome}`));
-  const idsClassificacao = comConversa.map((c) => idDe(`classificacao:${c.id}`));
+  const idsAccount = ACCOUNTS.map((c) => idDe(`conta:${c.nome}`));
+  const idsClassification = withConversation.map((c) => idDe(`classificacao:${c.id}`));
 
   // Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.
-  await db.delete(oportunidade).where(inArray(oportunidade.id, idsOportunidade));
+  await db.delete(opportunity).where(inArray(opportunity.id, idsOpportunity));
   await db.delete(lead).where(inArray(lead.id, idsLead));
   await db.delete(formulario).where(inArray(formulario.id, idsFormulario));
   await db.delete(regraScore).where(inArray(regraScore.id, idsRegra));
   await db.delete(faixaScore).where(inArray(faixaScore.id, idsFaixa));
   await db.delete(etiqueta).where(inArray(etiqueta.id, idsEtiqueta));
-  await db.delete(classificacaoConversa).where(inArray(classificacaoConversa.id, idsClassificacao));
+  await db.delete(classificationConversation).where(inArray(classificationConversation.id, idsClassification));
 
   /*
    * O contato é de outra semente: só o vínculo com a conta é meu, e é só ele
@@ -400,21 +400,21 @@ async function semearCrm(db: BancoPipe) {
    * chave estrangeira segura a linha.
    */
   await db
-    .update(contato)
+    .update(contact)
     .set({ contaId: null })
-    .where(and(eq(contato.tenantId, tenantId), inArray(contato.contaId, idsConta)));
-  await db.delete(conta).where(inArray(conta.id, idsConta));
+    .where(and(eq(contact.tenantId, tenantId), inArray(contact.accountId, idsAccount)));
+  await db.delete(account).where(inArray(account.id, idsAccount));
 
   /* ------------------------------------------------------------------ contas */
 
-  await db.insert(conta).values(
-    CONTAS.map((c, i) => ({
-      id: idsConta[i] as string,
+  await db.insert(account).values(
+    ACCOUNTS.map((c, i) => ({
+      id: idsAccount[i] as string,
       tenantId,
       nome: c.nome,
       documento: cnpjDe(i),
       dominio: c.dominio,
-      proprietarioId: (usuarios[i % usuarios.length] as { id: string }).id,
+      proprietarioId: (users[i % users.length] as { id: string }).id,
     })),
   );
 
@@ -426,7 +426,7 @@ async function semearCrm(db: BancoPipe) {
       tenantId,
       versao: VERSAO_REGRA,
       nome: r.nome,
-      condicao: r.condicao,
+      condicao: r.condition,
       pontos: r.pontos,
       ativa: true,
     })),
@@ -440,7 +440,7 @@ async function semearCrm(db: BancoPipe) {
       nome: f.nome,
       minimo: f.minimo,
       maximo: f.maximo,
-      filaId: f.fila ? (filaPorNome.get(f.fila) ?? null) : null,
+      filaId: f.queue ? (queueByName.get(f.queue) ?? null) : null,
       estrategiaProprietario: f.estrategia,
     })),
   );
@@ -474,14 +474,14 @@ async function semearCrm(db: BancoPipe) {
     { id: idPlano, tenantId, nome: 'Interesse em plano', slug: 'interesse-plano', ativo: true },
   ]);
 
-  const versoes = [
+  const versions = [
     { id: idDe('versao:diagnostico:1'), formularioId: idDiagnostico, versao: 1, dias: 120 },
     { id: idDe('versao:diagnostico:2'), formularioId: idDiagnostico, versao: 2, dias: 30 },
     { id: idDe('versao:plano:1'), formularioId: idPlano, versao: 1, dias: 90 },
   ];
 
   await db.insert(formularioVersao).values(
-    versoes.map((v) => ({
+    versions.map((v) => ({
       id: v.id,
       tenantId,
       formularioId: v.formularioId,
@@ -490,17 +490,17 @@ async function semearCrm(db: BancoPipe) {
     })),
   );
 
-  const perguntasPorVersao = new Map<string, { id: string; codigo: string; tipo: string }[]>();
+  const perguntasByVersion = new Map<string, { id: string; codigo: string; tipo: string }[]>();
   const linhasPergunta: (typeof formularioPergunta.$inferInsert)[] = [];
 
   function registrarPerguntas(
     versaoId: string,
-    chave: string,
-    lista: readonly { codigo: string; rotulo: string; tipo: string; opcoes: readonly string[]; obrigatoria: boolean }[],
+    key: string,
+    lista: readonly { codigo: string; rotulo: string; tipo: string; options: readonly string[]; obrigatoria: boolean }[],
   ) {
     const registradas: { id: string; codigo: string; tipo: string }[] = [];
     lista.forEach((p, i) => {
-      const id = idDe(`pergunta:${chave}:${p.codigo}`);
+      const id = idDe(`pergunta:${key}:${p.codigo}`);
       linhasPergunta.push({
         id,
         tenantId,
@@ -508,18 +508,18 @@ async function semearCrm(db: BancoPipe) {
         codigo: p.codigo,
         rotulo: p.rotulo,
         tipo: p.tipo,
-        opcoes: [...p.opcoes],
+        opcoes: [...p.options],
         ordem: i + 1,
         obrigatoria: p.obrigatoria,
       });
       registradas.push({ id, codigo: p.codigo, tipo: p.tipo });
     });
-    perguntasPorVersao.set(versaoId, registradas);
+    perguntasByVersion.set(versaoId, registradas);
   }
 
-  registrarPerguntas(versoes[0]!.id, 'diag1', PERGUNTAS_DIAGNOSTICO);
-  registrarPerguntas(versoes[1]!.id, 'diag2', PERGUNTAS_DIAGNOSTICO_V2);
-  registrarPerguntas(versoes[2]!.id, 'plano1', PERGUNTAS_PLANO);
+  registrarPerguntas(versions[0]!.id, 'diag1', PERGUNTAS_DIAGNOSTICO);
+  registrarPerguntas(versions[1]!.id, 'diag2', PERGUNTAS_DIAGNOSTICO_V2);
+  registrarPerguntas(versions[2]!.id, 'plano1', PERGUNTAS_PLANO);
 
   await db.insert(formularioPergunta).values(linhasPergunta);
 
@@ -530,30 +530,30 @@ async function semearCrm(db: BancoPipe) {
     nome: r.nome,
     versao: VERSAO_REGRA,
     pontos: r.pontos,
-    condicao: r.condicao,
+    condicao: r.condition,
     ativa: true,
   }));
 
   const linhasLead: (typeof lead.$inferInsert)[] = [];
   const linhasResposta: (typeof respostaFormulario.$inferInsert)[] = [];
   const linhasScore: (typeof scoreLead.$inferInsert)[] = [];
-  const linhasAtividade: (typeof atividade.$inferInsert)[] = [];
-  const linhasOportunidade: (typeof oportunidade.$inferInsert)[] = [];
-  const linhasContatoEtiqueta: (typeof contatoEtiqueta.$inferInsert)[] = [];
-  const linhasClassificacao: (typeof classificacaoConversa.$inferInsert)[] = [];
+  const linhasActivity: (typeof activity.$inferInsert)[] = [];
+  const linhasOpportunity: (typeof opportunity.$inferInsert)[] = [];
+  const linhasContactTag: (typeof contactLabel.$inferInsert)[] = [];
+  const linhasClassification: (typeof classificationConversation.$inferInsert)[] = [];
 
-  const faixaPorContato = new Map<string, string | null>();
+  const tierByContact = new Map<string, string | null>();
   /** Conta → contatos dela. Vira um `update` por conta, não sessenta. */
-  const contatosPorConta = new Map<string, string[]>();
+  const contactsByAccount = new Map<string, string[]>();
 
-  for (const [indice, c] of comConversa.entries()) {
+  for (const [indice, c] of withConversation.entries()) {
     const leadId = idDe(`lead:${c.id}`);
     // Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o
     // bastante para a ficha da conta ter mais de uma linha em cada bloco.
-    const contaId = idsConta[indice % idsConta.length] as string;
-    const contatosDaConta = contatosPorConta.get(contaId);
-    if (contatosDaConta) contatosDaConta.push(c.id);
-    else contatosPorConta.set(contaId, [c.id]);
+    const accountId = idsAccount[indice % idsAccount.length] as string;
+    const accountContacts = contactsByAccount.get(accountId);
+    if (accountContacts) accountContacts.push(c.id);
+    else contactsByAccount.set(accountId, [c.id]);
     // Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel
     // compara um mês cheio com um mês de cinco dias e a variação vira ruído.
     const criadoEm = new Date(
@@ -565,16 +565,16 @@ async function semearCrm(db: BancoPipe) {
     const patrimonio = escolher([120_000, 260_000, 320_000, 480_000, 640_000, 1_200_000]);
     const diagnosticoCompleto = sorteio(0.72);
     const interessePlano = sorteio(0.65) ? (sorteio(0.7) ? 'anual' : 'mensal') : null;
-    const idade = inteiro(30, 58);
+    const age = entire(30, 58);
     const respondeuCampanhaJulho = sorteio(0.7);
     const whatsappConfirmado = sorteio(0.8);
 
-    const dados = {
+    const data = {
       origem,
       patrimonio,
       diagnostico_completo: diagnosticoCompleto,
       interesse_plano: interessePlano,
-      idade,
+      age,
       respondeu_campanha_julho: respondeuCampanhaJulho,
       whatsapp_confirmado: whatsappConfirmado,
     };
@@ -583,7 +583,7 @@ async function semearCrm(db: BancoPipe) {
     // diz isso em vez de exibir zero — zero é um número, ausência de cálculo não é.
     const pontuado = diagnosticoCompleto || interessePlano !== null || sorteio(0.5);
     const resultado = pontuado
-      ? calcularScore(regrasMotor, dados, {
+      ? calcularScore(regrasMotor, data, {
           faixas: FAIXAS_MOTOR,
           limites: { minimo: 0, maximo: 100 },
           versaoRegra: VERSAO_REGRA,
@@ -595,7 +595,7 @@ async function semearCrm(db: BancoPipe) {
     const faseDesde = new Date(
       Math.max(criadoEm.getTime(), agora.getTime() - dias(entre(0, 16))),
     );
-    const acimaDoCorte = (resultado?.valor ?? 0) >= 60;
+    const acimaDoCorte = (resultado?.value ?? 0) >= 60;
 
     const status = !pontuado
       ? 'novo'
@@ -618,15 +618,15 @@ async function semearCrm(db: BancoPipe) {
 
     // Lead da faixa de nutrição não tem dono: é exatamente a aba "sem proprietário".
     const proprietario =
-      resultado && resultado.faixa !== 'Nutrição' && sorteio(0.82) ? escolher(usuarios) : null;
+      resultado && resultado.faixa !== 'Nutrição' && sorteio(0.82) ? escolher(users) : null;
 
-    faixaPorContato.set(c.id, resultado?.faixa ?? null);
+    tierByContact.set(c.id, resultado?.faixa ?? null);
 
     linhasLead.push({
       id: leadId,
       tenantId,
       contatoId: c.id,
-      contaId,
+      accountId,
       origem,
       campanha: CAMPANHAS[origem] ?? null,
       utm:
@@ -641,7 +641,7 @@ async function semearCrm(db: BancoPipe) {
       fase,
       faseDesde,
       proprietarioId: proprietario?.id ?? null,
-      scoreAtual: resultado?.valor ?? null,
+      scoreAtual: resultado?.value ?? null,
       faixaAtual: resultado?.faixa ?? null,
       desqualificadoEm: status === 'desqualificado' ? new Date(agora.getTime() - dias(entre(1, 20))) : null,
       customizados: {
@@ -653,7 +653,7 @@ async function semearCrm(db: BancoPipe) {
               : patrimonio >= 100_000
                 ? 'R$ 100 a 250 mil'
                 : 'Até R$ 100 mil',
-        idade,
+        age,
         whatsapp_confirmado: whatsappConfirmado ? 'sim' : 'não',
         respondeu_campanha_julho: respondeuCampanhaJulho ? 'sim' : 'não',
       },
@@ -666,10 +666,10 @@ async function semearCrm(db: BancoPipe) {
         tenantId,
         leadId,
         versaoRegra: resultado.versaoRegra,
-        valor: resultado.valor,
+        valor: resultado.value,
         faixa: resultado.faixa,
-        explicacao: resultado.explicacao,
-        calculadoEm: new Date(criadoEm.getTime() + 1000 * inteiro(60, 3600)),
+        explicacao: resultado.explanation,
+        calculadoEm: new Date(criadoEm.getTime() + 1000 * entire(60, 3600)),
       });
     }
 
@@ -677,38 +677,38 @@ async function semearCrm(db: BancoPipe) {
 
     // Lead antigo respondeu a versão 1 do diagnóstico; lead recente, a versão 2.
     const usaV2 = criadoEm.getTime() > agora.getTime() - dias(30);
-    const versaoDiag = usaV2 ? versoes[1]! : versoes[0]!;
-    const perguntasDiag = perguntasPorVersao.get(versaoDiag.id) ?? [];
+    const versaoDiag = usaV2 ? versions[1]! : versions[0]!;
+    const perguntasDiag = perguntasByVersion.get(versaoDiag.id) ?? [];
 
-    const respondidoEm = new Date(criadoEm.getTime() + 1000 * inteiro(30, 900));
+    const respondidoEm = new Date(criadoEm.getTime() + 1000 * entire(30, 900));
     // Diagnóstico incompleto responde só as duas primeiras — e a regra dos 18 pontos
     // não casa. É o que faz a explicação do score contar uma história verdadeira.
     const quantas = diagnosticoCompleto ? perguntasDiag.length : 2;
 
     for (const p of perguntasDiag.slice(0, quantas)) {
-      const valor = respostaDiagnostico(p.codigo, { patrimonio, idade });
-      if (valor === null) continue;
+      const value = respostaDiagnostico(p.codigo, { patrimonio, age });
+      if (value === null) continue;
       linhasResposta.push({
         id: idDe(`resposta:${c.id}:${versaoDiag.id}:${p.codigo}`),
         tenantId,
         leadId,
         versaoId: versaoDiag.id,
         perguntaId: p.id,
-        ...valor,
+        ...value,
         criadoEm: respondidoEm,
       });
     }
 
     if (interessePlano) {
-      const versaoPlano = versoes[2]!;
-      const perguntasPlano = perguntasPorVersao.get(versaoPlano.id) ?? [];
-      const emPlano = new Date(respondidoEm.getTime() + 1000 * inteiro(600, 86_400));
+      const versaoPlano = versions[2]!;
+      const perguntasPlano = perguntasByVersion.get(versaoPlano.id) ?? [];
+      const emPlano = new Date(respondidoEm.getTime() + 1000 * entire(600, 86_400));
       for (const p of perguntasPlano) {
-        const valor =
+        const value =
           p.codigo === 'plano'
             ? { valorTexto: interessePlano === 'anual' ? 'Anual' : 'Mensal' }
             : p.codigo === 'inicio_previsto'
-              ? { valorData: new Date(agora.getTime() + dias(inteiro(7, 90))) }
+              ? { valorData: new Date(agora.getTime() + dias(entire(7, 90))) }
               : { valorTexto: escolher(NOTAS) };
         linhasResposta.push({
           id: idDe(`resposta:${c.id}:${versaoPlano.id}:${p.codigo}`),
@@ -716,7 +716,7 @@ async function semearCrm(db: BancoPipe) {
           leadId,
           versaoId: versaoPlano.id,
           perguntaId: p.id,
-          ...valor,
+          ...value,
           criadoEm: emPlano,
         });
       }
@@ -725,7 +725,7 @@ async function semearCrm(db: BancoPipe) {
     /* ---------------------------------------------------------- etiquetas */
 
     if (patrimonio >= 500_000) {
-      linhasContatoEtiqueta.push({
+      linhasContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Alto ticket'),
@@ -733,7 +733,7 @@ async function semearCrm(db: BancoPipe) {
       });
     }
     if (diagnosticoCompleto) {
-      linhasContatoEtiqueta.push({
+      linhasContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Perfil investidor'),
@@ -741,7 +741,7 @@ async function semearCrm(db: BancoPipe) {
       });
     }
     if (!pontuado) {
-      linhasContatoEtiqueta.push({
+      linhasContactTag.push({
         tenantId,
         contatoId: c.id,
         etiquetaId: idDe('etiqueta:Frio'),
@@ -751,7 +751,7 @@ async function semearCrm(db: BancoPipe) {
 
     /* --------------------------------------------------------- atividades */
 
-    linhasAtividade.push({
+    linhasActivity.push({
       id: idDe(`atividade:${c.id}:formulario`),
       tenantId,
       tipo: 'nota',
@@ -764,17 +764,17 @@ async function semearCrm(db: BancoPipe) {
       criadoEm: respondidoEm,
     });
 
-    const quantasAtividades = inteiro(1, 4);
-    for (let i = 0; i < quantasAtividades; i += 1) {
+    const quantasActivities = entire(1, 4);
+    for (let i = 0; i < quantasActivities; i += 1) {
       const tipo = escolher(['ligacao', 'email', 'reuniao', 'nota', 'tarefa'] as const);
       const em = new Date(criadoEm.getTime() + dias(entre(0.2, 20)));
       if (em.getTime() > agora.getTime()) continue;
-      linhasAtividade.push({
+      linhasActivity.push({
         id: idDe(`atividade:${c.id}:${i}`),
         tenantId,
         tipo,
         leadId,
-        usuarioId: proprietario?.id ?? escolher(usuarios).id,
+        usuarioId: proprietario?.id ?? escolher(users).id,
         resumo:
           tipo === 'ligacao'
             ? 'Ligação de qualificação'
@@ -791,7 +791,7 @@ async function semearCrm(db: BancoPipe) {
       });
     }
 
-    linhasAtividade.push({
+    linhasActivity.push({
       id: idDe(`atividade:${c.id}:fase`),
       tenantId,
       tipo: 'mudanca_fase',
@@ -808,21 +808,21 @@ async function semearCrm(db: BancoPipe) {
     // Só lead acima do corte vira oportunidade, que é a regra do funil de hoje.
     // Vira oportunidade quem o comercial de fato trabalha: da faixa Comercial para
     // cima. Abaixo disso é nutrição, e nutrição não ocupa coluna do funil.
-    if ((resultado?.valor ?? 0) >= 45 && status !== 'desqualificado') {
-      const valor = escolher([4788, 7200, 9600, 12_400, 18_000, 24_000, 36_000, 48_000]);
+    if ((resultado?.value ?? 0) >= 45 && status !== 'desqualificado') {
+      const value = escolher([4788, 7200, 9600, 12_400, 18_000, 24_000, 36_000, 48_000]);
       const abertaEm = new Date(criadoEm.getTime() + dias(entre(1, 6)));
-      linhasOportunidade.push({
+      linhasOpportunity.push({
         id: idDe(`oportunidade:${c.id}:1`),
         tenantId,
         leadId,
-        contaId,
+        accountId,
         nome: c.nome ?? `Oportunidade ${indice + 1}`,
-        valor: valor.toFixed(2),
+        valor: value.toFixed(2),
         moeda: 'BRL',
         fase,
-        probabilidade: PROBABILIDADE[fase] ?? 10,
-        fechamentoPrevisto: dataIso(new Date(agora.getTime() + dias(inteiro(5, 75)))),
-        proprietarioId: proprietario?.id ?? escolher(usuarios).id,
+        probabilidade: PROBABILITY[fase] ?? 10,
+        fechamentoPrevisto: dataIso(new Date(agora.getTime() + dias(entire(5, 75)))),
+        proprietarioId: proprietario?.id ?? escolher(users).id,
         criadoEm: new Date(Math.min(abertaEm.getTime(), agora.getTime())),
       });
 
@@ -831,20 +831,20 @@ async function semearCrm(db: BancoPipe) {
       if (sorteio(0.28)) {
         const ganha = sorteio(0.7);
         const fechadaEm = new Date(agora.getTime() - dias(entre(0, 24)));
-        linhasOportunidade.push({
+        linhasOpportunity.push({
           id: idDe(`oportunidade:${c.id}:2`),
           tenantId,
           leadId,
-          contaId,
+          accountId,
           nome: `${c.nome ?? 'Cliente'} · renovação`,
-          valor: (valor * 0.8).toFixed(2),
+          valor: (value * 0.8).toFixed(2),
           moeda: 'BRL',
           fase: ganha ? 'Fechamento' : 'Proposta',
           probabilidade: ganha ? 100 : 0,
           fechadaEm,
           ganha,
           motivoPerda: ganha ? null : escolher(['Preço', 'Sem retorno', 'Escolheu concorrente']),
-          proprietarioId: proprietario?.id ?? escolher(usuarios).id,
+          proprietarioId: proprietario?.id ?? escolher(users).id,
           criadoEm: new Date(fechadaEm.getTime() - dias(entre(10, 40))),
         });
       }
@@ -852,20 +852,20 @@ async function semearCrm(db: BancoPipe) {
   }
 
   // Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.
-  for (const [contaId, ids] of contatosPorConta) {
+  for (const [accountId, ids] of contactsByAccount) {
     await db
-      .update(contato)
-      .set({ contaId })
-      .where(and(eq(contato.tenantId, tenantId), inArray(contato.id, ids)));
+      .update(contact)
+      .set({ accountId })
+      .where(and(eq(contact.tenantId, tenantId), inArray(contact.id, ids)));
   }
 
   await db.insert(lead).values(linhasLead);
   if (linhasScore.length > 0) await db.insert(scoreLead).values(linhasScore);
   if (linhasResposta.length > 0) await db.insert(respostaFormulario).values(linhasResposta);
-  if (linhasAtividade.length > 0) await db.insert(atividade).values(linhasAtividade);
-  if (linhasOportunidade.length > 0) await db.insert(oportunidade).values(linhasOportunidade);
-  if (linhasContatoEtiqueta.length > 0) {
-    await db.insert(contatoEtiqueta).values(linhasContatoEtiqueta).onConflictDoNothing();
+  if (linhasActivity.length > 0) await db.insert(activity).values(linhasActivity);
+  if (linhasOpportunity.length > 0) await db.insert(opportunity).values(linhasOpportunity);
+  if (linhasContactTag.length > 0) {
+    await db.insert(contactLabel).values(linhasContactTag).onConflictDoNothing();
   }
 
   /* ------------------------------------- resumo do atendimento na linha do tempo */
@@ -876,52 +876,52 @@ async function semearCrm(db: BancoPipe) {
    * criadas com id próprio e `onConflictDoNothing`: se o worker de IA já classificou
    * a conversa, a dele fica.
    */
-  const conversasParaResumir = await db
-    .select({ id: conversa.id, contatoId: conversa.contatoId, encerradaEm: conversa.encerradaEm })
-    .from(conversa)
+  const conversationsForResumir = await db
+    .select({ id: conversation.id, contatoId: conversation.contatoId, encerradaEm: conversation.encerradaEm })
+    .from(conversation)
     .where(
       and(
-        eq(conversa.tenantId, tenantId),
+        eq(conversation.tenantId, tenantId),
         inArray(
-          conversa.contatoId,
-          comConversa.map((c) => c.id),
+          conversation.contatoId,
+          withConversation.map((c) => c.id),
         ),
-        isNotNull(conversa.encerradaEm),
+        isNotNull(conversation.encerradaEm),
       ),
     )
-    .orderBy(sql`${conversa.encerradaEm} desc`)
+    .orderBy(sql`${conversation.encerradaEm} desc`)
     .limit(60);
 
   const vistos = new Set<string>();
-  for (const cv of conversasParaResumir) {
+  for (const cv of conversationsForResumir) {
     // Uma conversa resumida por contato: o objetivo é a ficha, não o dataset da IA.
     if (vistos.has(cv.contatoId)) continue;
     vistos.add(cv.contatoId);
-    linhasClassificacao.push({
+    linhasClassification.push({
       id: idDe(`classificacao:${cv.contatoId}`),
       tenantId,
       conversaId: cv.id,
       categoria: escolher(CATEGORIAS),
-      resumo: escolher(RESUMOS_ATENDIMENTO),
+      resumo: escolher(SUMMARIES_ATTENDANCE),
       sentimento: escolher(['positivo', 'neutro', 'negativo'] as const),
       confianca: '0.8600',
       modelo: 'semente',
       criadaEm: cv.encerradaEm ?? agora,
     });
   }
-  if (linhasClassificacao.length > 0) {
-    await db.insert(classificacaoConversa).values(linhasClassificacao).onConflictDoNothing();
+  if (linhasClassification.length > 0) {
+    await db.insert(classificationConversation).values(linhasClassification).onConflictDoNothing();
   }
 
   return {
     leads: linhasLead.length,
     comScore: linhasScore.length,
     respostas: linhasResposta.length,
-    oportunidades: linhasOportunidade.length,
-    atividades: linhasAtividade.length,
+    oportunidades: linhasOpportunity.length,
+    atividades: linhasActivity.length,
     regras: REGRAS.length,
-    contas: CONTAS.length,
-    resumos: linhasClassificacao.length,
+    contas: ACCOUNTS.length,
+    resumos: linhasClassification.length,
   };
 }
 
@@ -930,21 +930,21 @@ function dataIso(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-type ValorResposta = {
-  valorTexto?: string;
-  valorNum?: string;
-  valorBool?: boolean;
-  valorData?: Date;
+type ValueResposta = {
+  valueText?: string;
+  valueNum?: string;
+  valueBool?: boolean;
+  valueData?: Date;
 };
 
 function respostaDiagnostico(
   codigo: string,
-  perfil: { patrimonio: number; idade: number },
-): ValorResposta | null {
+  perfil: { patrimonio: number; age: number },
+): ValueResposta | null {
   switch (codigo) {
     case 'patrimonio_faixa':
       return {
-        valorTexto:
+        valueText:
           perfil.patrimonio >= 500_000
             ? 'Acima de R$ 500 mil'
             : perfil.patrimonio >= 250_000
@@ -955,7 +955,7 @@ function respostaDiagnostico(
       };
     case 'objetivo':
       return {
-        valorTexto: escolher([
+        valueText: escolher([
           'Aposentadoria',
           'Renda passiva',
           'Reserva de emergência',
@@ -963,24 +963,24 @@ function respostaDiagnostico(
         ]),
       };
     case 'ja_investe':
-      return { valorBool: perfil.patrimonio >= 100_000 };
+      return { valueBool: perfil.patrimonio >= 100_000 };
     case 'renda_mensal':
-      return { valorNum: (Math.round(perfil.patrimonio / 40 / 500) * 500).toFixed(6) };
+      return { valueNum: (Math.round(perfil.patrimonio / 40 / 500) * 500).toFixed(6) };
     case 'horizonte':
       return {
-        valorTexto: escolher(['Menos de 2 anos', '2 a 5 anos', 'Mais de 5 anos']),
+        valueText: escolher(['Menos de 2 anos', '2 a 5 anos', 'Mais de 5 anos']),
       };
     case 'perfil_risco':
-      return { valorTexto: escolher(['Conservador', 'Moderado', 'Arrojado']) };
+      return { valueText: escolher(['Conservador', 'Moderado', 'Arrojado']) };
     case 'aporte_mensal':
-      return { valorNum: (inteiro(2, 40) * 500).toFixed(6) };
+      return { valueNum: (entire(2, 40) * 500).toFixed(6) };
     default:
       return null;
   }
 }
 
-const db = criarBanco({ maxConexoes: 4 });
-semearCrm(db)
+const db = createDatabase({ maxConnections: 4 });
+seedCrm(db)
   .then((r) => {
     process.stdout.write(
       `semente do CRM: ${r.leads} leads (${r.comScore} com score explicado), ` +
@@ -988,8 +988,8 @@ semearCrm(db)
         `${r.atividades} atividades, ${r.contas} contas, ${r.regras} regras de score, ${r.resumos} resumos de atendimento\n`,
     );
   })
-  .catch((erro: unknown) => {
-    process.stderr.write(`falha ao semear o CRM: ${String(erro)}\n`);
+  .catch((error: unknown) => {
+    process.stderr.write(`falha ao semear o CRM: ${String(error)}\n`);
     process.exitCode = 1;
   })
-  .finally(() => fecharBanco(db));
+  .finally(() => closeDatabase(db));

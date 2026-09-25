@@ -3,13 +3,13 @@
    seletor, formatação de data e o lado de cada balão do histórico. */
 
 /** `{{ $ctrl.totalItems }} Contatos Aproximadamente` / `1 Contato` / `0 Contato`. */
-export function rotuloDeContagem(total: number): string {
+export function countRotulo(total: number): string {
   if (total > 1) return `${total} Contatos Aproximadamente`;
   return `${total} Contato`;
 }
 
 /** `getFormatedLastInteraction`: `toLocaleString(idioma, {ano, mês, dia, hora, minuto})`. */
-export function formatarUltimaInteracao(data: Date | null | undefined): string {
+export function formatarUltimaInteraction(data: Date | null | undefined): string {
   if (!data) return '-';
   return data.toLocaleString('pt-BR', {
     year: 'numeric',
@@ -29,13 +29,13 @@ export function diaEHora(data: Date): { dia: string; hora: string } {
 }
 
 /** Carimbo do balão do histórico: `16/09/2026 - 13:26`. */
-export function carimboDaMensagem(data: Date): string {
+export function messageCarimbo(data: Date): string {
   const { dia, hora } = diaEHora(data);
   return `${dia} - ${hora}`;
 }
 
 /** Texto do seletor de período: `09 set, 2026 - 00:00`. */
-export function formatarLimiteDoPeriodo(data: Date): string {
+export function formatPeriodLimit(data: Date): string {
   const dia = String(data.getDate()).padStart(2, '0');
   const mes = data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '');
   const { hora } = diaEHora(data);
@@ -43,7 +43,7 @@ export function formatarLimiteDoPeriodo(data: Date): string {
 }
 
 /** Período padrão da origem: últimos 7 dias, do início do dia inicial ao fim do dia atual. */
-export function periodoPadrao(hoje: Date): { inicio: Date; fim: Date } {
+export function periodDefault(hoje: Date): { inicio: Date; fim: Date } {
   const inicio = new Date(hoje);
   inicio.setDate(inicio.getDate() - 7);
   inicio.setHours(0, 0, 0, 0);
@@ -53,12 +53,12 @@ export function periodoPadrao(hoje: Date): { inicio: Date; fim: Date } {
 }
 
 /** Na origem o contato fica à direita (`.right`) e o bot/atendente à esquerda, com foto. */
-export function ladoDaMensagem(direcao: string): 'direita' | 'esquerda' {
-  return direcao === 'entrada' ? 'direita' : 'esquerda';
+export function messageLado(direction: string): 'direita' | 'esquerda' {
+  return direction === 'entrada' ? 'direita' : 'esquerda';
 }
 
 /** `modules.application.detail.attendance.history.<statusName>` traduzido para o estado do Pipe. */
-export function rotuloDoStatus(estado: string): string {
+export function rotuloDoStatus(state: string): string {
   const rotulos: Record<string, string> = {
     na_fila: 'Na fila',
     atribuida: 'Atribuído',
@@ -66,11 +66,11 @@ export function rotuloDoStatus(estado: string): string {
     em_espera: 'Em atendimento',
     encerrada: 'Atendido',
   };
-  return rotulos[estado] ?? estado;
+  return rotulos[state] ?? state;
 }
 
 /** `getChannelNameFromSource`: nome do canal a partir da origem. */
-export function rotuloDoCanal(tipo: string, nome: string): string {
+export function channelRotulo(tipo: string, nome: string): string {
   const rotulos: Record<string, string> = {
     whatsapp_cloud: 'WhatsApp',
     email: 'E-mail',

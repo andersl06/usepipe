@@ -1,6 +1,6 @@
 import Link from '../../../componentes/link';
-import { baseDoContato, useContato } from '../contato';
-import { IlustracaoIntegracao, type NomeDeIlustracao } from './ilustracoes';
+import { contactBase, useContact } from '../contato';
+import { IllustrationIntegration, type IllustrationName } from './ilustracoes';
 
 /**
  * A grade de Integrações — `auth.application.detail.integrations` da origem.
@@ -27,9 +27,9 @@ import { IlustracaoIntegracao, type NomeDeIlustracao } from './ilustracoes';
  * cartões visuais (a origem os manda para estados próprios que não existem
  * aqui) e nenhuma integração está ativa, então os três dizem "Conectar".
  */
-const CARTOES: readonly {
+const CARDS: readonly {
   id: string;
-  ilustracao: NomeDeIlustracao;
+  illustration: IllustrationName;
   altura: number;
   titulo: string;
   resumo: string;
@@ -37,21 +37,21 @@ const CARTOES: readonly {
 }[] = [
   {
     id: 'dashbot-card-integration',
-    ilustracao: 'dashbot',
+    illustration: 'dashbot',
     altura: 67,
     titulo: 'Dashbot',
     resumo: 'Envie dados do seu chatbot para a sua conta do Dashbot',
   },
   {
     id: 'botanalytics-card-integration',
-    ilustracao: 'botanalytics',
+    illustration: 'botanalytics',
     altura: 57,
     titulo: 'Botanalytics',
     resumo: 'Envie dados do seu chatbot para a sua conta do Botanalytics',
   },
   {
     id: 'webhook-card-integration',
-    ilustracao: 'webhook',
+    illustration: 'webhook',
     altura: 57,
     titulo: 'Webhook',
     resumo: 'Envie os dados do seu chatbot para sua aplicação.',
@@ -59,23 +59,23 @@ const CARTOES: readonly {
   },
 ];
 
-export function PaginaIntegracoes() {
-  const { contato } = useContato();
-  const id = contato.id;
-  const base = baseDoContato(contato.tipo, id);
+export function PageIntegrations() {
+  const { contact } = useContact();
+  const id = contact.id;
+  const base = contactBase(contact.tipo, id);
   return (
     <div className="ig-lista">
-      {CARTOES.map((cartao) => {
+      {CARDS.map((card) => {
         const miolo = (
           <>
-            <IlustracaoIntegracao
-              nome={cartao.ilustracao}
-              altura={cartao.altura}
-              className={cartao.altura === 67 ? 'ig-figura ig-figura--mb0' : 'ig-figura'}
+            <IllustrationIntegration
+              nome={card.illustration}
+              altura={card.altura}
+              className={card.altura === 67 ? 'ig-figura ig-figura--mb0' : 'ig-figura'}
             />
             <div className="ig-texto">
-              <h4>{cartao.titulo}</h4>
-              <small>{cartao.resumo}</small>
+              <h4>{card.titulo}</h4>
+              <small>{card.resumo}</small>
             </div>
             <div className="ig-botao-caixa">
               <span className="ig-botao">Conectar</span>
@@ -83,17 +83,17 @@ export function PaginaIntegracoes() {
           </>
         );
         return (
-          <div className="ig-item" key={cartao.id}>
-            {cartao.rota ? (
+          <div className="ig-item" key={card.id}>
+            {card.rota ? (
               <Link
                 className="ig-cartao"
-                id={cartao.id}
-                href={`${base}/integracoes/${cartao.rota}`}
+                id={card.id}
+                href={`${base}/integracoes/${card.rota}`}
               >
                 {miolo}
               </Link>
             ) : (
-              <div className="ig-cartao" id={cartao.id} aria-disabled="true">
+              <div className="ig-cartao" id={card.id} aria-disabled="true">
                 {miolo}
               </div>
             )}

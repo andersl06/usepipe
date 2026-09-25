@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
-import { FORMATO_E164, candidatosDoTelefone, paraE164 } from '@pipe/core';
+import type { TransactionPipe } from '@pipe/db';
+import { FORMAT_E164, candidatosDoTelefone, paraE164 } from '@pipe/core';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/services/data_import/contact_manager.rb,
@@ -29,21 +29,21 @@ import { FORMATO_E164, candidatosDoTelefone, paraE164 } from '@pipe/core';
 const CAMPOS_PROPRIOS = new Set(['identifier', 'email', 'name', 'phone_number']);
 
 /** `Devise.email_regexp`. */
-const FORMATO_EMAIL = /^[^@\s]+@[^@\s]+$/;
+const FORMAT_EMAIL = /^[^@\s]+@[^@\s]+$/;
 
-export type ParametrosDoContato = Record<string, string>;
+export type ParametersOfContact = Record<string, string>;
 
-export interface ContatoMontado {
+export interface ContactAssembled {
   id: string | null;
   nome: string | null;
   email: string | null;
   telefone: string | null;
   atributos: Record<string, unknown>;
-  erros: string[];
+  errors: string[];
 }
 
-type LinhaContato = {
-  [coluna: string]: unknown;
+type LineContact = {
+  [column: string]: unknown;
   id: string;
   nome: string | null;
   email: string | null;
@@ -51,18 +51,18 @@ type LinhaContato = {
   atributos: Record<string, unknown> | null;
 };
 
-function lista(valores: readonly string[]): SQL {
+function lista(values: readonly string[]): SQL {
   return sql.join(
-    valores.map((v) => sql`${v}`),
+    values.map((v) => sql`${v}`),
     sql`, `,
   );
 }
 
-async function umContato(tx: TransacaoPipe, condicao: SQL): Promise<ContatoMontado | null> {
-  const { rows } = await tx.execute<LinhaContato>(sql`
+async function aContact(tx: TransactionPipe, condition: SQL): Promise<ContactAssembled | null> {
+  const { rows } = await tx.execute<LineContact>(sql`
     select id, nome, email, telefone_e164, atributos
       from contato
-     where excluido_em is null and ${condicao}
+     where excluido_em is null and ${condition}
      limit 1
   `);
   const linha = rows[0];
@@ -73,7 +73,7 @@ async function umContato(tx: TransacaoPipe, condicao: SQL): Promise<ContatoMonta
     email: linha.email,
     telefone: linha.telefone_e164,
     atributos: { ...(linha.atributos ?? {}) },
-    erros: [],
+    errors: [],
   };
 }
 
@@ -84,19 +84,19 @@ function formasDoTelefone(e164: string): string[] {
 
 /** `find_existing_contact`: identificador, depois e-mail, depois telefone. */
 async function acharExistente(
-  tx: TransacaoPipe,
-  params: ParametrosDoContato,
-): Promise<ContatoMontado | null> {
+  tx: TransactionPipe,
+  params: ParametersOfContact,
+): Promise<ContactAssembled | null> {
   if (params['identifier']) {
-    const achado = await umContato(tx, sql`atributos->>'identifier' = ${params['identifier']}`);
+    const achado = await aContact(tx, sql`atributos->>'identifier' = ${params['identifier']}`);
     if (achado) return achado;
   }
   if (params['email']) {
-    const achado = await umContato(tx, sql`lower(email) = ${params['email'].toLowerCase()}`);
+    const achado = await aContact(tx, sql`lower(email) = ${params['email'].toLowerCase()}`);
     if (achado) return achado;
   }
   const telefone = paraE164(params['phone_number']);
-  if (telefone && FORMATO_E164.test(telefone)) {
+  if (telefone && FORMAT_E164.test(telefone)) {
     // A forma exata ganha quando as duas existem (o `prefers the normalized format` do spec).
     const { rows } = await tx.execute<{ id: string }>(sql`
       select id from contato
@@ -104,56 +104,56 @@ async function acharExistente(
        order by (telefone_e164 = ${telefone}) desc
        limit 1
     `);
-    if (rows[0]) return umContato(tx, sql`id = ${rows[0].id}::uuid`);
+    if (rows[0]) return aContact(tx, sql`id = ${rows[0].id}::uuid`);
   }
   return null;
 }
 
 /** `update_contact_attributes`: nome, e o resto da linha nos atributos. */
-function atualizarAtributos(params: ParametrosDoContato, contato: ContatoMontado): void {
-  if (params['name']) contato.nome = params['name'];
-  for (const [chave, valor] of Object.entries(params)) {
-    if (CAMPOS_PROPRIOS.has(chave) && chave !== 'identifier') continue;
-    contato.atributos[chave] = valor;
+function atualizarAtributos(params: ParametersOfContact, contact: ContactAssembled): void {
+  if (params['name']) contact.nome = params['name'];
+  for (const [key, value] of Object.entries(params)) {
+    if (CAMPOS_PROPRIOS.has(key) && key !== 'identifier') continue;
+    contact.atributos[key] = value;
   }
 }
 
-export async function montarContato(
-  tx: TransacaoPipe,
-  params: ParametrosDoContato,
-): Promise<ContatoMontado> {
+export async function assembleContact(
+  tx: TransactionPipe,
+  params: ParametersOfContact,
+): Promise<ContactAssembled> {
   const existente = await acharExistente(tx, params);
-  const contato: ContatoMontado = existente ?? {
+  const contact: ContactAssembled = existente ?? {
     id: null,
     nome: null,
     email: null,
     telefone: null,
     atributos: {},
-    erros: [],
+    errors: [],
   };
 
   // `find_or_initialize_contact` e `update_contact_with_merged_attributes`: o
   // que veio na linha sobrescreve; o que não veio fica como estava.
-  if (params['email']) contato.email = params['email'];
-  if (params['phone_number']) contato.telefone = paraE164(params['phone_number']);
-  atualizarAtributos(params, contato);
+  if (params['email']) contact.email = params['email'];
+  if (params['phone_number']) contact.telefone = paraE164(params['phone_number']);
+  atualizarAtributos(params, contact);
 
-  contato.erros = await validar(tx, contato);
-  return contato;
+  contact.errors = await validar(tx, contact);
+  return contact;
 }
 
 /** As validações do `Contact`, com as frases do pt_BR do Chatwoot. */
-async function validar(tx: TransacaoPipe, contato: ContatoMontado): Promise<string[]> {
-  const erros: string[] = [];
+async function validar(tx: TransactionPipe, contato: ContactAssembled): Promise<string[]> {
+  const errors: string[] = [];
   if (!contato.telefone && !contato.email) {
-    erros.push('Informe telefone ou e-mail: contato sem identificador não recebe mensagem');
-    return erros;
+    errors.push('Informe telefone ou e-mail: contato sem identificador não recebe mensagem');
+    return errors;
   }
-  if (contato.email && !FORMATO_EMAIL.test(contato.email)) erros.push('E-mail inválido');
-  if (contato.telefone && !FORMATO_E164.test(contato.telefone)) {
-    erros.push('Telefone deve estar no formato e164');
+  if (contato.email && !FORMAT_EMAIL.test(contato.email)) errors.push('E-mail inválido');
+  if (contato.telefone && !FORMAT_E164.test(contato.telefone)) {
+    errors.push('Telefone deve estar no formato e164');
   }
-  if (erros.length > 0) return erros;
+  if (errors.length > 0) return errors;
 
   // `uniqueness: { scope: [:account_id] }` — o outro contato que já tem este dado.
   const outro = contato.id ? sql`id <> ${contato.id}::uuid` : sql`true`;
@@ -164,7 +164,7 @@ async function validar(tx: TransacaoPipe, contato: ContatoMontado): Promise<stri
          and telefone_e164 in (${lista(formasDoTelefone(contato.telefone))})
        limit 1
     `);
-    if (rows[0]) erros.push('Telefone já está em uso');
+    if (rows[0]) errors.push('Telefone já está em uso');
   }
   if (contato.email) {
     const { rows } = await tx.execute<{ id: string }>(sql`
@@ -172,16 +172,16 @@ async function validar(tx: TransacaoPipe, contato: ContatoMontado): Promise<stri
        where excluido_em is null and ${outro} and lower(email) = ${contato.email.toLowerCase()}
        limit 1
     `);
-    if (rows[0]) erros.push('E-mail já está em uso');
+    if (rows[0]) errors.push('E-mail já está em uso');
   }
-  return erros;
+  return errors;
 }
 
 /** O `Contact.import` de uma linha já validada. Devolve o id. */
-export async function salvarContato(
-  tx: TransacaoPipe,
+export async function saveContact(
+  tx: TransactionPipe,
   tenantId: string,
-  contato: ContatoMontado,
+  contato: ContactAssembled,
 ): Promise<string> {
   const atributos = JSON.stringify(contato.atributos);
   let id = contato.id;

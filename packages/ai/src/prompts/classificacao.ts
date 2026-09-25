@@ -17,34 +17,34 @@
 
 import type { Prompt } from './tipos.js';
 
-export interface OpcaoTaxonomia {
+export interface OptionTaxonomia {
   categoria: string;
   subcategoria?: string | null;
-  descricao?: string | null;
+  description?: string | null;
   /** Quantas vezes um humano escolheu esta opção. É o que ordena e poda a lista. */
   usos?: number | null;
 }
 
 export interface Taxonomia {
-  opcoes: readonly OpcaoTaxonomia[];
+  options: readonly OptionTaxonomia[];
   /** Intenções aceitas. Vazio, o modelo responde livre. */
-  intencoes?: readonly string[];
+  intents?: readonly string[];
 }
 
-export interface EntradaClassificacao {
-  transcricao: string;
+export interface InboundClassification {
+  transcription: string;
   truncada: boolean;
-  mensagensOmitidas: number;
+  messagesOmitidas: number;
   taxonomia: Taxonomia;
   /** Teto de opções apresentadas. Lista longa demais dilui a escolha. */
-  maxOpcoes?: number;
-  contexto?: string | null;
+  maxOptions?: number;
+  context?: string | null;
 }
 
-export const MAX_OPCOES_PADRAO = 40;
+export const MAX_OPTIONS_DEFAULT = 40;
 
 /** Chave textual de uma opção, do jeito que ela aparece na lista e volta na resposta. */
-export function chaveDaOpcao(o: OpcaoTaxonomia): string {
+export function optionKey(o: OptionTaxonomia): string {
   return o.subcategoria?.trim() ? `${o.categoria} > ${o.subcategoria}` : o.categoria;
 }
 
@@ -52,41 +52,41 @@ export function chaveDaOpcao(o: OpcaoTaxonomia): string {
  * Ordena por uso real (desc) e poda ao teto, com desempate alfabético para a lista
  * ser estável entre execuções — prompt que muda sozinho não pode ser medido.
  */
-export function prepararOpcoes(
+export function prepararOptions(
   taxonomia: Taxonomia,
-  maxOpcoes = MAX_OPCOES_PADRAO,
-): OpcaoTaxonomia[] {
-  return [...taxonomia.opcoes]
+  maxOptions = MAX_OPTIONS_DEFAULT,
+): OptionTaxonomia[] {
+  return [...taxonomia.options]
     .sort(
       (a, b) =>
-        (b.usos ?? 0) - (a.usos ?? 0) || chaveDaOpcao(a).localeCompare(chaveDaOpcao(b), 'pt-BR'),
+        (b.usos ?? 0) - (a.usos ?? 0) || optionKey(a).localeCompare(optionKey(b), 'pt-BR'),
     )
-    .slice(0, Math.max(1, maxOpcoes));
+    .slice(0, Math.max(1, maxOptions));
 }
 
-function listar(opcoes: readonly OpcaoTaxonomia[]): string {
-  return opcoes
+function listar(options: readonly OptionTaxonomia[]): string {
+  return options
     .map((o) => {
-      const descricao = o.descricao?.trim() ? ` — ${o.descricao.trim()}` : '';
-      return `- ${chaveDaOpcao(o)}${descricao}`;
+      const description = o.description?.trim() ? ` — ${o.description.trim()}` : '';
+      return `- ${optionKey(o)}${description}`;
     })
     .join('\n');
 }
 
-export const PROMPT_CLASSIFICACAO: Prompt<EntradaClassificacao> = {
+export const PROMPT_CLASSIFICATION: Prompt<InboundClassification> = {
   nome: 'classificacao',
   versao: 'v1',
-  montar(entrada) {
-    const opcoes = prepararOpcoes(entrada.taxonomia, entrada.maxOpcoes);
-    const intencoes = entrada.taxonomia.intencoes ?? [];
-    const blocoIntencoes = intencoes.length
-      ? `\n\nIntenções aceitas (escolha exatamente uma):\n${intencoes.map((i) => `- ${i}`).join('\n')}`
+  montar(inbound) {
+    const options = prepararOptions(inbound.taxonomia, inbound.maxOptions);
+    const intents = inbound.taxonomia.intents ?? [];
+    const blockIntents = intents.length
+      ? `\n\nIntenções aceitas (escolha exatamente uma):\n${intents.map((i) => `- ${i}`).join('\n')}`
       : '\n\nIntenção: descreva em até quatro palavras o que o cliente queria.';
 
-    const aviso = entrada.truncada
-      ? `\n\nAviso: ${entrada.mensagensOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros.`
+    const aviso = inbound.truncada
+      ? `\n\nAviso: ${inbound.messagesOmitidas} mensagens do meio foram omitidas por tamanho. Início e fim estão inteiros.`
       : '';
-    const contexto = entrada.contexto?.trim() ? `Contexto: ${entrada.contexto.trim()}\n\n` : '';
+    const context = inbound.context?.trim() ? `Contexto: ${inbound.context.trim()}\n\n` : '';
 
     return {
       sistema: `Você classifica atendimentos encerrados de uma central de relacionamento brasileira.
@@ -105,8 +105,8 @@ Regras:
 - Não classifique pelo canal, pelo produto citado ou pela saudação. Classifique pelo que ficou resolvido.
 
 Opções válidas, das mais usadas para as menos usadas:
-${listar(opcoes)}${blocoIntencoes}`,
-      usuario: `${contexto}Transcrição:\n${entrada.transcricao}${aviso}`,
+${listar(options)}${blockIntents}`,
+      user: `${context}Transcrição:\n${inbound.transcription}${aviso}`,
     };
   },
 };

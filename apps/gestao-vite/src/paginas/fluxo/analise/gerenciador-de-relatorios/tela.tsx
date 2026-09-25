@@ -1,15 +1,15 @@
 import { useState, type FormEvent } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { Selecao } from '../../../../componentes/selecao';
+import { Selection } from '../../../../componentes/selecao';
 import {
   INTERVALOS_RAPIDOS,
   cincoAnosAntes,
-  diasDoPeriodo,
+  periodDias,
   inicioDoIntervalo,
-  periodoValido,
+  periodValid,
 } from './regras';
 
-const RELATORIOS = [
+const REPORTS = [
   {
     valor: 'notifications',
     nome: 'Mensagens ativas',
@@ -32,7 +32,7 @@ const RELATORIOS = [
   },
 ] as const;
 
-const RELATORIOS_DE_ATENDIMENTO = [
+const REPORTS_OF_ATTENDANCE = [
   {
     valor: 'attendants',
     nome: 'Status dos atendentes',
@@ -51,32 +51,32 @@ const RELATORIOS_DE_ATENDIMENTO = [
 ] as const;
 
 type Tipo =
-  (typeof RELATORIOS)[number]['valor'] | (typeof RELATORIOS_DE_ATENDIMENTO)[number]['valor'];
+  (typeof REPORTS)[number]['valor'] | (typeof REPORTS_OF_ATTENDANCE)[number]['valor'];
 
-interface RelatorioGerado {
+interface ReportGenerated {
   id: number;
   tipo: Tipo;
   inicio: string;
   fim: string;
 }
 
-const nomeDoRelatorio = (tipo: Tipo) =>
-  [...RELATORIOS, ...RELATORIOS_DE_ATENDIMENTO].find((item) => item.valor === tipo)?.nome ?? tipo;
+const reportName = (tipo: Tipo) =>
+  [...REPORTS, ...REPORTS_OF_ATTENDANCE].find((item) => item.valor === tipo)?.nome ?? tipo;
 
 const dataPt = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 
-export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: string }) {
+export function ReportsManager({ bot, hoje }: { bot: string; hoje: string }) {
   const [tipo, setTipo] = useState<Tipo | ''>('');
   const [botEscolhido, setBotEscolhido] = useState('');
   const [inicio, setInicio] = useState('');
   const [fim, setFim] = useState('');
-  const [contatoFiltro, setContatoFiltro] = useState('');
-  const [relatorios, setRelatorios] = useState<RelatorioGerado[]>([]);
-  const [erro, setErro] = useState(false);
+  const [contactFilter, setContactFilter] = useState('');
+  const [reports, setReports] = useState<ReportGenerated[]>([]);
+  const [error, setError] = useState(false);
   const [avisoVisivel, setAvisoVisivel] = useState(true);
   const [termoAberto, setTermoAberto] = useState(false);
-  const [ajudaHistoricoAberta, setAjudaHistoricoAberta] = useState(false);
+  const [ajudaHistoryAberta, setAjudaHistoryAberta] = useState(false);
   const [feedbackEnviado, setFeedbackEnviado] = useState(false);
   const minimo = cincoAnosAntes(hoje);
 
@@ -85,14 +85,14 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
     if (
       !botEscolhido ||
       !tipo ||
-      !periodoValido(inicio, fim) ||
-      (tipo === 'thread-transcription' && contatoFiltro.trim().length < 5)
+      !periodValid(inicio, fim) ||
+      (tipo === 'thread-transcription' && contactFilter.trim().length < 5)
     ) {
-      setErro(true);
+      setError(true);
       return;
     }
-    setRelatorios((atuais) => [{ id: Date.now(), tipo, inicio, fim }, ...atuais]);
-    setErro(false);
+    setReports((current) => [{ id: Date.now(), tipo, inicio, fim }, ...current]);
+    setError(false);
   };
 
   return (
@@ -131,20 +131,20 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                 <IconePortal nome="robo" tamanho={20} />
                 <span className="gr-campo-miolo">
                   <span>Bot</span>
-                  <Selecao
+                  <Selection
                     value={botEscolhido}
                     onChange={(e) => setBotEscolhido(e.target.value)}
                     aria-label="Bot"
-                    aria-invalid={erro && !botEscolhido}
+                    aria-invalid={error && !botEscolhido}
                   >
                     <option value="">Selecione...</option>
                     <option value={bot}>{bot}</option>
-                  </Selecao>
+                  </Selection>
                 </span>
                 <IconePortal nome="baixo" tamanho={18} />
               </span>
             </label>
-            {erro && !botEscolhido ? <p className="gr-erro">Campo obrigatório</p> : null}
+            {error && !botEscolhido ? <p className="gr-erro">Campo obrigatório</p> : null}
 
             <div className="gr-divisor" />
 
@@ -163,7 +163,7 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                       max={fim || hoje}
                       onChange={(e) => setInicio(e.target.value)}
                       aria-label="Data Inicial"
-                      aria-invalid={erro && !inicio}
+                      aria-invalid={error && !inicio}
                     />
                   </span>
                 </span>
@@ -180,7 +180,7 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                       max={hoje}
                       onChange={(e) => setFim(e.target.value)}
                       aria-label="Data Final"
-                      aria-invalid={erro && !fim}
+                      aria-invalid={error && !fim}
                     />
                   </span>
                 </span>
@@ -194,14 +194,14 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                   onClick={() => {
                     setFim(hoje);
                     setInicio(inicioDoIntervalo(hoje, dias));
-                    setErro(false);
+                    setError(false);
                   }}
                 >
                   {dias} dias
                 </button>
               ))}
             </div>
-            {erro && inicio && fim && !periodoValido(inicio, fim) ? (
+            {error && inicio && fim && !periodValid(inicio, fim) ? (
               <p className="gr-erro">O período deve ser de no máximo 90 dias</p>
             ) : null}
           </section>
@@ -213,23 +213,23 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
               cada um deles no{' '}
               <a href="../dicionario-de-dados?path=reportManager">Dicionário de Dados.</a>
             </p>
-            <Opcoes itens={RELATORIOS} escolhido={tipo} aoEscolher={setTipo} />
+            <Options itens={REPORTS} escolhido={tipo} aoEscolher={setTipo} />
             {tipo === 'thread-transcription' ? (
               <label className="gr-campo gr-contato">
                 <span className="gr-contato-rotulo">
                   Contato
-                  <button type="button" onClick={() => setAjudaHistoricoAberta(true)}>
+                  <button type="button" onClick={() => setAjudaHistoryAberta(true)}>
                     (Saiba como gerar corretamente)
                   </button>
                 </span>
                 <input
                   type="search"
-                  value={contatoFiltro}
-                  onChange={(e) => setContatoFiltro(e.target.value)}
+                  value={contactFilter}
+                  onChange={(e) => setContactFilter(e.target.value)}
                   placeholder="Informe o nome, telefone, e-mail, BSUID ou ID do contato."
-                  aria-invalid={erro && contatoFiltro.trim().length < 5}
+                  aria-invalid={error && contactFilter.trim().length < 5}
                 />
-                {erro && contatoFiltro.trim().length < 5 ? (
+                {error && contactFilter.trim().length < 5 ? (
                   <span className="gr-erro">
                     O filtro de contato deve ter pelo menos 5 caracteres
                   </span>
@@ -241,8 +241,8 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
 
             <h2>Relatórios de atendimento</h2>
             <p>É necessário selecionar um bot com atendimento ativo para gerar estes relatórios.</p>
-            <Opcoes itens={RELATORIOS_DE_ATENDIMENTO} escolhido={tipo} aoEscolher={setTipo} />
-            {erro && !tipo ? <p className="gr-erro">Campo obrigatório</p> : null}
+            <Options itens={REPORTS_OF_ATTENDANCE} escolhido={tipo} aoEscolher={setTipo} />
+            {error && !tipo ? <p className="gr-erro">Campo obrigatório</p> : null}
           </section>
         </div>
 
@@ -271,21 +271,21 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
               </tr>
             </thead>
             <tbody>
-              {relatorios.length === 0 ? (
+              {reports.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="gr-vazio">
                     Nenhum arquivo gerado nos últimos 7 dias.
                   </td>
                 </tr>
               ) : (
-                relatorios.map((relatorio) => (
-                  <tr key={relatorio.id}>
+                reports.map((report) => (
+                  <tr key={report.id}>
                     <td>agora</td>
-                    <td>{nomeDoRelatorio(relatorio.tipo)}</td>
+                    <td>{reportName(report.tipo)}</td>
                     <td>{botEscolhido}</td>
-                    <td>{diasDoPeriodo(relatorio.inicio, relatorio.fim)} dias</td>
-                    <td>{dataPt(relatorio.inicio)}</td>
-                    <td>{dataPt(relatorio.fim)}</td>
+                    <td>{periodDias(report.inicio, report.fim)} dias</td>
+                    <td>{dataPt(report.inicio)}</td>
+                    <td>{dataPt(report.fim)}</td>
                     <td>
                       <span className="gr-pendente">Pendente...</span>
                     </td>
@@ -370,20 +370,20 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
         </div>
       ) : null}
 
-      {ajudaHistoricoAberta ? (
+      {ajudaHistoryAberta ? (
         <div className="gr-modal" role="dialog" aria-modal="true" aria-labelledby="gr-ajuda-titulo">
           <button
             className="gr-modal-fundo"
             type="button"
             aria-label="Fechar"
-            onClick={() => setAjudaHistoricoAberta(false)}
+            onClick={() => setAjudaHistoryAberta(false)}
           />
           <div className="gr-modal-caixa gr-modal-ajuda">
             <button
               className="gr-modal-fechar"
               type="button"
               aria-label="Fechar"
-              onClick={() => setAjudaHistoricoAberta(false)}
+              onClick={() => setAjudaHistoryAberta(false)}
             >
               ×
             </button>
@@ -416,7 +416,7 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
             <button
               type="button"
               className="an-bds-btn gr-modal-botao"
-              onClick={() => setAjudaHistoricoAberta(false)}
+              onClick={() => setAjudaHistoryAberta(false)}
             >
               Fechar
             </button>
@@ -427,25 +427,25 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
   );
 }
 
-function Opcoes({
+function Options({
   itens,
   escolhido,
   aoEscolher,
 }: {
-  itens: readonly { valor: Tipo; nome: string; dica: string }[];
+  itens: readonly { value: Tipo; nome: string; dica: string }[];
   escolhido: Tipo | '';
   aoEscolher: (tipo: Tipo) => void;
 }) {
   return (
     <div className="gr-opcoes">
       {itens.map((item) => (
-        <label key={item.valor} className="gr-opcao">
+        <label key={item.value} className="gr-opcao">
           <input
             type="radio"
             name="relatorio"
-            value={item.valor}
-            checked={escolhido === item.valor}
-            onChange={() => aoEscolher(item.valor)}
+            value={item.value}
+            checked={escolhido === item.value}
+            onChange={() => aoEscolher(item.value)}
           />
           <span title={item.dica}>{item.nome}</span>
         </label>

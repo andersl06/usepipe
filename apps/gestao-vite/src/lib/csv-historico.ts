@@ -1,4 +1,4 @@
-import type { CartaoHistorico } from '../componentes/lista-historico';
+import type { CardHistory } from '../componentes/lista-historico';
 
 /**
  * O CSV da ação em massa do Histórico.
@@ -26,16 +26,16 @@ export const COLUNAS_CSV = [
   'Etiquetas',
 ] as const;
 
-function valoresDe(c: CartaoHistorico): string[] {
+function valuesOf(c: CardHistory): string[] {
   return [
     c.ticket,
     c.encerrada,
-    c.contato,
-    c.fila,
-    c.atendente,
+    c.contact,
+    c.queue,
+    c.agent,
     c.espera,
-    c.primeiraResposta,
-    c.atendimento,
+    c.firstResposta,
+    c.attendance,
     c.statusTexto,
     c.etiquetas.join(', '),
   ];
@@ -46,14 +46,14 @@ function valoresDe(c: CartaoHistorico): string[] {
  * sobrevive a nome de contato com ponto e vírgula, com aspas ou com quebra de
  * linha — e nome de contato tem os três.
  */
-export function celulaCsv(valor: string): string {
-  return `"${valor.replace(/"/g, '""')}"`;
+export function celulaCsv(value: string): string {
+  return `"${value.replace(/"/g, '""')}"`;
 }
 
-export function montarCsv(cartoes: readonly CartaoHistorico[]): string {
+export function montarCsv(cards: readonly CardHistory[]): string {
   const linhas = [
     COLUNAS_CSV.map(celulaCsv).join(';'),
-    ...cartoes.map((c) => valoresDe(c).map(celulaCsv).join(';')),
+    ...cards.map((c) => valuesOf(c).map(celulaCsv).join(';')),
   ];
   // O BOM na frente é o que faz o Excel em português abrir o acento certo.
   return `\uFEFF${linhas.join('\r\n')}\r\n`;

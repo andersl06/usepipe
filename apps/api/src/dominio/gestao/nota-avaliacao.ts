@@ -21,9 +21,9 @@ export const TETO_ESCALA = 5;
 export const TETO_NOTA = 10;
 
 /** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica ou não foi respondido. */
-export function fracaoRespondida(tipo: string, valor: string | null): number | null {
-  if (valor === null) return null;
-  const bruto = valor.trim().toLowerCase();
+export function fractionAnswered(tipo: string, value: string | null): number | null {
+  if (value === null) return null;
+  const bruto = value.trim().toLowerCase();
   if (bruto === 'nao_se_aplica') return null;
 
   if (tipo === 'conforme') {
@@ -48,6 +48,6 @@ export function fracaoRespondida(tipo: string, valor: string | null): number | n
  */
 export function fatalReprovado(tipo: string, fatal: boolean, valor: string | null): boolean {
   if (!fatal) return false;
-  const fracao = fracaoRespondida(tipo, valor);
-  return fracao !== null && fracao < 1;
+  const fraction = fractionAnswered(tipo, valor);
+  return fraction !== null && fraction < 1;
 }

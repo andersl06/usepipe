@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
-import type { MetricasDoAtendente } from '@pipe/contracts';
+import type { TransactionPipe } from '@pipe/db';
+import type { MetricsOfAgent } from '@pipe/contracts';
 import { data } from './consultas.js';
 
 /**
@@ -28,20 +28,20 @@ import { data } from './consultas.js';
  *    é a única que responde "quanto o cliente esperou por mim".
  */
 
-function inteiro(valor: string | number | null): number {
-  return valor === null ? 0 : Number(valor);
+function integer(value: string | number | null): number {
+  return value === null ? 0 : Number(value);
 }
 
 function segundos(valor: string | number | null): number | null {
   return valor === null ? null : Math.round(Number(valor));
 }
 
-export async function carregarMetricas(
-  tx: TransacaoPipe,
-  atendenteId: string,
+export async function loadMetrics(
+  tx: TransactionPipe,
+  agentId: string,
   inicio: Date,
   fim: Date,
-): Promise<MetricasDoAtendente> {
+): Promise<MetricsOfAgent> {
   /*
    * Uma passada só sobre as conversas do atendente que TOCAM o período — ou
    * porque caíram nele, ou porque fecharam nele. Contar as duas coisas na
@@ -57,8 +57,8 @@ export async function carregarMetricas(
     fechados: string | null;
     finalizados: string | null;
     abandonados: string | null;
-    primeira_resposta: string | null;
-    espera_fila: string | null;
+    firstResponse: string | null;
+    waitQueue: string | null;
     espera_total: string | null;
   }>(sql`
     select
@@ -66,7 +66,7 @@ export async function carregarMetricas(
       count(*) filter (where c.encerrada_em between ${inicio} and ${fim}) as fechados,
       count(*) filter (
         where c.encerrada_em between ${inicio} and ${fim}
-          and c.encerrada_por = ${atendenteId}
+          and c.encerrada_por = ${agentId}
       ) as finalizados,
       count(*) filter (
         where c.encerrada_em between ${inicio} and ${fim}
@@ -82,7 +82,7 @@ export async function carregarMetricas(
       avg(extract(epoch from (c.atribuida_em - c.criada_em)) + c.pausado_seg)
         filter (where c.atribuida_em between ${inicio} and ${fim}) as espera_total
       from conversa c
-     where c.atendente_id = ${atendenteId}
+     where c.atendente_id = ${agentId}
        and (
          c.atribuida_em between ${inicio} and ${fim}
          or c.encerrada_em between ${inicio} and ${fim}
@@ -108,21 +108,21 @@ export async function carregarMetricas(
     select
       d::date as dia,
       (select count(*) from conversa c
-        where c.atendente_id = ${atendenteId}
+        where c.atendente_id = ${agentId}
           and c.atribuida_em >= d and c.atribuida_em < d + interval '1 day') as abertos,
       (select count(*) from conversa c
-        where c.atendente_id = ${atendenteId}
+        where c.atendente_id = ${agentId}
           and c.encerrada_em >= d and c.encerrada_em < d + interval '1 day') as fechados
       from generate_series(date_trunc('day', ${inicio}::timestamptz), ${fim}, interval '1 day') d
      order by d
   `);
 
   return {
-    situacoes: {
-      abertos: inteiro(t?.abertos ?? null),
-      fechados: inteiro(t?.fechados ?? null),
-      finalizados: inteiro(t?.finalizados ?? null),
-      abandonados: inteiro(t?.abandonados ?? null),
+    situations: {
+      abertos: integer(t?.abertos ?? null),
+      fechados: integer(t?.fechados ?? null),
+      finalizados: integer(t?.finalizados ?? null),
+      abandonados: integer(t?.abandonados ?? null),
       // Transferência e perda não existem no nosso domínio: não há coluna que
       // diga que a conversa mudou de atendente nem que ela se perdeu. `null`
       // aqui vira um traço na tela, e não um zero — zero seria mentira.
@@ -130,14 +130,14 @@ export async function carregarMetricas(
       perdidos: null,
     },
     tempos: {
-      primeiraRespostaSeg: segundos(t?.primeira_resposta ?? null),
-      esperaNaFilaSeg: segundos(t?.espera_fila ?? null),
+      firstResponseSeg: segundos(t?.firstResponse ?? null),
+      waitInQueueSeg: segundos(t?.waitQueue ?? null),
       esperaTotalSeg: segundos(t?.espera_total ?? null),
     },
     serie: serie.rows.map((r) => ({
       dia: data(r.dia).toISOString().slice(0, 10),
-      abertos: inteiro(r.abertos),
-      fechados: inteiro(r.fechados),
+      abertos: integer(r.abertos),
+      fechados: integer(r.fechados),
     })),
   };
 }

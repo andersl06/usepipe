@@ -1,13 +1,13 @@
 import Link from '../../componentes/link';
-import { useLeitura } from '../../lib/consulta';
-import type { CanalConfigurado, EtiquetaConfigurada } from '../../lib/configuracoes';
+import { useRead } from '../../lib/consulta';
+import type { ChannelConfigured, EtiquetaConfigurada } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from '../operacao/casca';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from '../operacao/casca';
 
-const ROTULO_ESCOPO_ETIQUETA: Record<string, string> = {
+const ROTULO_SCOPE_TAG: Record<string, string> = {
   conversa: 'Conversa',
-  contato: 'Contato',
+  contact: 'Contato',
   ambos: 'Conversa e contato',
 };
 
@@ -18,14 +18,14 @@ const ROTULO_ESCOPO_ETIQUETA: Record<string, string> = {
  * do encerramento crescer sem informar — e o supervisor só descobre isso
  * contando.
  */
-export function PaginaDados() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const leitura = useLeitura<{ etiquetas: EtiquetaConfigurada[]; canais: CanalConfigurado[] }>(
+export function PageData() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const read = useRead<{ etiquetas: EtiquetaConfigurada[]; channels: ChannelConfigured[] }>(
     '/v1/gestao/configuracoes/dados',
   );
-  if (!leitura.data) return null;
-  const { etiquetas, canais } = leitura.data;
+  if (!read.data) return null;
+  const { etiquetas, channels } = read.data;
 
   return (
     <>
@@ -61,8 +61,8 @@ export function PaginaDados() {
                 {etiquetas.map((e) => (
                   <tr key={e.id}>
                     <td className="who">{e.nome}</td>
-                    <td>{ROTULO_ESCOPO_ETIQUETA[e.escopo] ?? e.escopo}</td>
-                    <td>{e.obrigatoriaNoEncerramento ? 'Sim' : 'Não'}</td>
+                    <td>{ROTULO_SCOPE_TAG[e.scope] ?? e.scope}</td>
+                    <td>{e.requiredInClosure ? 'Sim' : 'Não'}</td>
                     <td className="num">{numero(e.usos)}</td>
                   </tr>
                 ))}
@@ -74,7 +74,7 @@ export function PaginaDados() {
 
       <div className="note">
         Os canais saíram daqui: viraram tela própria, em Preferências.{' '}
-        <Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+        <Link href={`${base}/canais`}>Ver os {numero(channels.length)} canais</Link> — com a caixa de
         entrada de cada um e a fila para onde ela manda.
       </div>
     </>

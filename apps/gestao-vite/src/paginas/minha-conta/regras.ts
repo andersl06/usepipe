@@ -83,7 +83,7 @@ export interface Recusa {
  * para no primeiro campo inválido, e uma tela que acusa sete erros de uma vez
  * não é mais honesta, só mais barulhenta.
  */
-export function conferir(dados: {
+export function conferir(data: {
   nome: string;
   telefone: string;
   site: string;
@@ -94,7 +94,7 @@ export function conferir(dados: {
   idiomas: readonly string[];
   fusos: readonly string[];
 }): Recusa | null {
-  const nome = dados.nome.trim();
+  const nome = data.nome.trim();
   if (nome.length < TAMANHO.nomeMin || nome.length > TAMANHO.nomeMax) {
     return { campo: 'nome', motivo: RECADOS.nome };
   }
@@ -104,12 +104,12 @@ export function conferir(dados: {
      mais e separadores à vontade. Barra o campo vazio e o número truncado, que
      é o que a validação dela pega na prática; não sabe dizer que 21 9 9999 9999
      não existe no Rio. */
-  const digitos = dados.telefone.replace(/\D/g, '');
+  const digitos = data.telefone.replace(/\D/g, '');
   if (digitos.length < 8 || digitos.length > 15) {
     return { campo: 'telefone', motivo: RECADOS.telefone };
   }
 
-  const site = dados.site.trim();
+  const site = data.site.trim();
   if (site.length < TAMANHO.siteMin || site.length > TAMANHO.siteMax) {
     return { campo: 'site', motivo: RECADOS.site };
   }
@@ -120,14 +120,14 @@ export function conferir(dados: {
   /* Listas fechadas: quem mandar texto fora delas é POST por fora da tela. A
      `api` confere de novo, e as três listas vêm de lá — cópia local delas
      envelheceria do lado errado. */
-  const foraDaLista = (valor: string, lista: readonly string[]) => valor && !lista.includes(valor);
-  if (foraDaLista(dados.funcionarios, dados.faixas)) {
+  const foraDaLista = (value: string, lista: readonly string[]) => value && !lista.includes(value);
+  if (foraDaLista(data.funcionarios, data.faixas)) {
     return { campo: 'funcionarios', motivo: RECADOS.funcionarios };
   }
-  if (foraDaLista(dados.idioma, dados.idiomas)) {
+  if (foraDaLista(data.idioma, data.idiomas)) {
     return { campo: 'idioma', motivo: RECADOS.idioma };
   }
-  if (foraDaLista(dados.fuso, dados.fusos)) {
+  if (foraDaLista(data.fuso, data.fusos)) {
     return { campo: 'fuso', motivo: RECADOS.fuso };
   }
 

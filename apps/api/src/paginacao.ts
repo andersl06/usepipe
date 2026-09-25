@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
-import { ErroPipe } from './erros.js';
+import { PipeError } from './erros.js';
 
 /**
  * Paginação por cursor, ordenação e filtro — `apis.md` §5.3.
@@ -18,7 +18,7 @@ export const LIMITE_TETO = 100;
 
 export interface Cursor {
   /** Valor do campo de ordenação, serializado. */
-  valor: string;
+  value: string;
   id: string;
 }
 
@@ -27,7 +27,7 @@ export interface PageInfo {
   end_cursor: string | null;
 }
 
-export interface Pagina<T> {
+export interface Page<T> {
   data: T[];
   page_info: PageInfo;
 }
@@ -36,7 +36,7 @@ export function lerLimite(bruto: unknown): number {
   if (bruto === undefined || bruto === null || bruto === '') return LIMITE_PADRAO;
   const numero = Number(bruto);
   if (!Number.isInteger(numero) || numero < 1) {
-    throw ErroPipe.requisicao('limite_invalido', 'limit precisa ser inteiro maior que zero.');
+    throw PipeError.request('limite_invalido', 'limit precisa ser inteiro maior que zero.');
   }
   // O cliente pode pedir menos, nunca mais.
   return Math.min(numero, LIMITE_TETO);
@@ -50,18 +50,18 @@ export function lerCursor(bruto: unknown): Cursor | null {
   if (bruto === undefined || bruto === null || bruto === '') return null;
   try {
     const objeto = JSON.parse(Buffer.from(String(bruto), 'base64url').toString('utf8')) as Cursor;
-    if (typeof objeto.valor !== 'string' || typeof objeto.id !== 'string') throw new Error();
+    if (typeof objeto.value !== 'string' || typeof objeto.id !== 'string') throw new Error();
     return objeto;
   } catch {
-    throw ErroPipe.requisicao('cursor_invalido', 'cursor não é um cursor desta API.');
+    throw PipeError.request('cursor_invalido', 'cursor não é um cursor desta API.');
   }
 }
 
-export type Direcao = 'asc' | 'desc';
+export type Direction = 'asc' | 'desc';
 
-export interface Ordenacao {
+export interface Sorting {
   campo: string;
-  direcao: Direcao;
+  direction: Direction;
 }
 
 /**
@@ -69,21 +69,21 @@ export interface Ordenacao {
  * fora da lista é erro, não silêncio: ordenar por coluna inexistente devolveria a
  * ordem "natural" do Postgres e ninguém perceberia.
  */
-export function lerOrdenacao(
+export function readSorting(
   bruto: unknown,
   permitidos: readonly string[],
-  padrao: Ordenacao,
-): Ordenacao {
+  padrao: Sorting,
+): Sorting {
   if (bruto === undefined || bruto === null || bruto === '') return padrao;
   const texto = String(bruto).trim();
   const casado = /^([a-z_]+)(?:\[(asc|desc)\])?$/i.exec(texto);
   if (!casado || !casado[1] || !permitidos.includes(casado[1])) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'order_by_invalido',
       `order_by aceita ${permitidos.join(', ')} com [asc] ou [desc].`,
     );
   }
-  return { campo: casado[1], direcao: (casado[2]?.toLowerCase() as Direcao) ?? 'desc' };
+  return { campo: casado[1], direction: (casado[2]?.toLowerCase() as Direction) ?? 'desc' };
 }
 
 /**
@@ -93,31 +93,31 @@ export function lerOrdenacao(
  * and id < id)`: além de ser mais curto, o Postgres usa o índice composto na forma
  * de tupla. `expressao` já vem de uma lista fechada de colunas — nunca do cliente.
  */
-export function condicaoDeCursor(
+export function conditionOfCursor(
   expressao: string,
   tipo: 'timestamptz' | 'text',
-  direcao: Direcao,
+  direcao: Direction,
   cursor: Cursor | null,
-  colunaId = 'id',
+  columnId = 'id',
 ): SQL {
   if (!cursor) return sql`true`;
   const comparador = sql.raw(direcao === 'desc' ? '<' : '>');
-  return sql`(${sql.raw(expressao)}, ${sql.raw(colunaId)}) ${comparador} (${cursor.valor}::${sql.raw(tipo)}, ${cursor.id}::uuid)`;
+  return sql`(${sql.raw(expressao)}, ${sql.raw(columnId)}) ${comparador} (${cursor.value}::${sql.raw(tipo)}, ${cursor.id}::uuid)`;
 }
 
-export function ordemSql(expressao: string, direcao: Direcao, colunaId = 'id'): SQL {
-  return sql`${sql.raw(expressao)} ${sql.raw(direcao)}, ${sql.raw(colunaId)} ${sql.raw(direcao)}`;
+export function orderSql(expressao: string, direction: Direction, colunaId = 'id'): SQL {
+  return sql`${sql.raw(expressao)} ${sql.raw(direction)}, ${sql.raw(colunaId)} ${sql.raw(direction)}`;
 }
 
 /**
  * Monta a página a partir de `limite + 1` linhas lidas: a linha extra é o que prova
  * que existe página seguinte, sem uma segunda consulta de contagem.
  */
-export function montarPagina<T>(
+export function assemblePage<T>(
   linhas: T[],
   limite: number,
-  chave: (linha: T) => Cursor,
-): Pagina<T> {
+  key: (linha: T) => Cursor,
+): Page<T> {
   const temMais = linhas.length > limite;
   const data = temMais ? linhas.slice(0, limite) : linhas;
   const ultima = data[data.length - 1];
@@ -125,7 +125,7 @@ export function montarPagina<T>(
     data,
     page_info: {
       has_next_page: temMais,
-      end_cursor: ultima ? escreverCursor(chave(ultima)) : null,
+      end_cursor: ultima ? escreverCursor(key(ultima)) : null,
     },
   };
 }

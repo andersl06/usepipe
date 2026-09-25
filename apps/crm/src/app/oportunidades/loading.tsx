@@ -1,4 +1,4 @@
-import { AvisoDeCarregamento } from '../../componentes/esqueleto';
+import { LoadingNotice } from '../../componentes/esqueleto';
 import { FASES } from '../../lib/funil';
 
 /**
@@ -20,7 +20,7 @@ export default function CarregandoQuadro() {
       </div>
 
       <div className="tblwrap">
-        <AvisoDeCarregamento>Carregando o funil.</AvisoDeCarregamento>
+        <LoadingNotice>Carregando o funil.</LoadingNotice>
         <div className="lanes" aria-hidden="true">
           {FASES.map((fase, i) => (
             <div className="lane" key={fase}>

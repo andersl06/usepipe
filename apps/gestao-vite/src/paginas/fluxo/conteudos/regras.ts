@@ -24,16 +24,16 @@ export type Categoria = (typeof CATEGORIAS)[number];
  * `template_mensagem` aceita cabeçalho de imagem/vídeo/documento e não modela
  * pagamento nem carrossel — é daí que saem os padrões.
  */
-export interface FlagsDoModelo {
-  midia: boolean;
+export interface TemplateFlags {
+  media: boolean;
   video: boolean;
-  pagamento: boolean;
+  payment: boolean;
   carrossel: boolean;
 }
-export const FLAGS_DO_PIPE: FlagsDoModelo = {
-  midia: true,
+export const FLAGS_DO_PIPE: TemplateFlags = {
+  media: true,
   video: true,
-  pagamento: false,
+  payment: false,
   carrossel: false,
 };
 
@@ -49,13 +49,13 @@ export const FLAGS_DO_PIPE: FlagsDoModelo = {
  */
 export function blocosDoMenu(
   categoria: Categoria | '',
-  flags: FlagsDoModelo = FLAGS_DO_PIPE,
+  flags: TemplateFlags = FLAGS_DO_PIPE,
 ): TipoDeConteudo[][] {
   const linha1: TipoDeConteudo[] = ['texto'];
-  if (flags.midia) linha1.push('imagem', 'documento');
+  if (flags.media) linha1.push('imagem', 'documento');
   const linha2: TipoDeConteudo[] = [];
-  if (flags.midia && flags.video) linha2.push('video');
-  if (flags.pagamento && categoria === 'utilidade') linha2.push('pagamento');
+  if (flags.media && flags.video) linha2.push('video');
+  if (flags.payment && categoria === 'utilidade') linha2.push('pagamento');
   if (flags.carrossel) linha2.push('carrossel');
   return linha2.length ? [linha1, linha2] : [linha1];
 }
@@ -63,13 +63,13 @@ export function blocosDoMenu(
 /** Compatibilidade: a lista achatada dos tipos que o menu oferece. */
 export function tiposDisponiveis(
   categoria: string,
-  flags: FlagsDoModelo = { ...FLAGS_DO_PIPE, pagamento: true, carrossel: true },
+  flags: TemplateFlags = { ...FLAGS_DO_PIPE, payment: true, carrossel: true },
 ): TipoDeConteudo[] {
   return blocosDoMenu(categoria as Categoria, flags).flat();
 }
 
 /** `ng-if="$ctrl.messageTemplateType === 'default' && !isAuthenticationType() && !isEmptyCategory()"` */
-export function mostrarEscolhaDeBloco(tipo: TipoDeConteudo | 'default', categoria: Categoria | '') {
+export function blockMostrarEscolha(tipo: TipoDeConteudo | 'default', categoria: Categoria | '') {
   return tipo === 'default' && categoria !== 'autenticacao' && categoria !== '';
 }
 
@@ -80,13 +80,13 @@ export function mostrarEscolhaDeBloco(tipo: TipoDeConteudo | 'default', categori
 export function mostrarVoltar(
   tipo: TipoDeConteudo | 'default',
   categoria: Categoria | '',
-  totalDeTraducoes: number,
+  translationsTotal: number,
 ) {
-  return tipo !== 'default' && totalDeTraducoes <= 1 && categoria !== 'autenticacao';
+  return tipo !== 'default' && translationsTotal <= 1 && categoria !== 'autenticacao';
 }
 
 /** `isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` e até 512 caracteres. */
-export function erroDoNome(
+export function nameError(
   nome: string,
   existentes: readonly string[] = [],
 ): 'invalido' | 'usado' | 'comprido' | null {
@@ -96,27 +96,27 @@ export function erroDoNome(
   return null;
 }
 
-export interface Traducao {
+export interface Translation {
   idioma: string;
   texto: string;
 }
 
 /** `areTranslationsValid` para os tipos que o Pipe modela (texto e mídia exigem idioma + texto). */
-export function traducoesValidas(
+export function translationsValid(
   tipo: TipoDeConteudo | 'default',
   categoria: Categoria | '',
-  traducoes: readonly Traducao[],
+  translations: readonly Translation[],
 ) {
-  if (categoria === 'autenticacao') return traducoes.every((t) => t.idioma);
+  if (categoria === 'autenticacao') return translations.every((t) => t.idioma);
   if (tipo === 'default') return false;
-  return traducoes.every((t) => t.idioma && t.texto);
+  return translations.every((t) => t.idioma && t.texto);
 }
 
 /** `invalidTranlationLanguages`: idioma repetido em outra tradução. */
-export function idiomasRepetidos(traducoes: readonly Traducao[]): string[] {
+export function idiomasRepetidos(translations: readonly Translation[]): string[] {
   const vistos = new Set<string>();
   const repetidos = new Set<string>();
-  for (const t of traducoes) {
+  for (const t of translations) {
     if (!t.idioma) continue;
     if (vistos.has(t.idioma)) repetidos.add(t.idioma);
     vistos.add(t.idioma);
@@ -125,19 +125,19 @@ export function idiomasRepetidos(traducoes: readonly Traducao[]): string[] {
 }
 
 /** `isMessageTemplateValid`: nome ok, categoria, traduções e idiomas. */
-export function modeloValido(dados: {
+export function templateValid(data: {
   nome: string;
   categoria: Categoria | '';
   tipo: TipoDeConteudo | 'default';
-  traducoes: readonly Traducao[];
+  translations: readonly Translation[];
   existentes?: readonly string[];
 }) {
   return (
-    !!dados.nome &&
-    erroDoNome(dados.nome, dados.existentes) === null &&
-    !!dados.categoria &&
-    traducoesValidas(dados.tipo, dados.categoria, dados.traducoes) &&
-    idiomasRepetidos(dados.traducoes).length === 0
+    !!data.nome &&
+    nameError(data.nome, data.existentes) === null &&
+    !!data.categoria &&
+    translationsValid(data.tipo, data.categoria, data.translations) &&
+    idiomasRepetidos(data.translations).length === 0
   );
 }
 
@@ -145,7 +145,7 @@ export function modeloValido(dados: {
  * O que a lista mostra (`messagetemplate.html`): sem canal WhatsApp é o
  * `unavailable-warning`; com canal e sem modelos, o `no-results`; senão a lista.
  */
-export function estadoDaLista(temWhatsapp: boolean, totalDeModelos: number) {
+export function listaState(temWhatsapp: boolean, totalDeModelos: number) {
   if (!temWhatsapp) return 'indisponivel' as const;
   return totalDeModelos === 0 ? ('vazio' as const) : ('lista' as const);
 }

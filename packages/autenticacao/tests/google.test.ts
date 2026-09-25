@@ -3,24 +3,24 @@ import { SignJWT, generateKeyPair, exportJWK, importJWK } from 'jose';
 import { describe, expect, it } from 'vitest';
 import {
   GOOGLE,
-  LoginErro,
-  criarDesafio,
-  dominioDoEmail,
-  ehDominioPublico,
-  trocarCodigo,
-  urlDeAutorizacao,
+  LoginError,
+  createChallenge,
+  domainOfEmail,
+  ehDomainPublic,
+  exchangeCode,
+  urlOfAuthorization,
   verificarIdToken,
 } from '../src/google.js';
 import type { ConfigDoGoogle } from '../src/google.js';
 
 const config: ConfigDoGoogle = {
   clienteId: 'cliente-de-teste.apps.googleusercontent.com',
-  clienteSegredo: 'segredo-de-teste',
-  urlDeRetorno: 'https://gestao.pipe.com.br/entrar/google',
+  customerSecret: 'segredo-de-teste',
+  urlOfCallback: 'https://gestao.pipe.com.br/entrar/google',
 };
 
 /** Um par de chaves nosso, para assinar `id_token` sem sair para a rede. */
-async function chavesDeTeste() {
+async function keysOfTest() {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const jwk = await exportJWK(publicKey);
   return { privateKey, publica: await importJWK({ ...jwk, alg: 'RS256' }, 'RS256') };
@@ -28,9 +28,9 @@ async function chavesDeTeste() {
 
 async function assinar(
   privateKey: Parameters<SignJWT['sign']>[0],
-  reivindicacoes: Record<string, unknown>,
+  claims: Record<string, unknown>,
 ): Promise<string> {
-  return new SignJWT(reivindicacoes)
+  return new SignJWT(claims)
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuedAt()
     .setExpirationTime('5m')
@@ -39,8 +39,8 @@ async function assinar(
 
 describe('login com Google', () => {
   it('a URL de autorização leva state, nonce e o desafio PKCE derivado', () => {
-    const desafio = criarDesafio('/relatorios');
-    const url = new URL(urlDeAutorizacao(config, desafio));
+    const desafio = createChallenge('/relatorios');
+    const url = new URL(urlOfAuthorization(config, desafio));
 
     expect(url.origin + url.pathname).toBe(GOOGLE.autorizacao);
     expect(url.searchParams.get('state')).toBe(desafio.state);
@@ -54,27 +54,27 @@ describe('login com Google', () => {
   });
 
   it('destino externo vira raiz, para não virar trampolim de phishing', () => {
-    expect(criarDesafio('https://malicioso.example/x').destino).toBe('/');
-    expect(criarDesafio('//malicioso.example').destino).toBe('/');
-    expect(criarDesafio('/historico').destino).toBe('/historico');
+    expect(createChallenge('https://malicioso.example/x').destination).toBe('/');
+    expect(createChallenge('//malicioso.example').destination).toBe('/');
+    expect(createChallenge('/historico').destination).toBe('/historico');
   });
 
   it('recusa a volta com state diferente do que foi enviado', async () => {
-    const desafio = criarDesafio();
+    const desafio = createChallenge();
     await expect(
-      trocarCodigo(config, desafio, { code: 'abc', state: 'outro' }),
+      exchangeCode(config, desafio, { code: 'abc', state: 'outro' }),
     ).rejects.toThrow(/state/);
   });
 
   it('recusa a volta quando o Google devolve erro', async () => {
-    const desafio = criarDesafio();
+    const desafio = createChallenge();
     await expect(
-      trocarCodigo(config, desafio, { error: 'access_denied', state: desafio.state }),
+      exchangeCode(config, desafio, { error: 'access_denied', state: desafio.state }),
     ).rejects.toThrow(/recusou/);
   });
 
   it('aceita o id_token bem formado e devolve emissor, sujeito e e-mail', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: config.clienteId,
@@ -95,7 +95,7 @@ describe('login com Google', () => {
   it('recusa e-mail que o Google não confirmou', async () => {
     // Sem isto, quem cria conta no Google com o endereço de outra pessoa entra
     // como ela — é o caminho de escalada mais barato que existe em OIDC.
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: config.clienteId,
@@ -104,11 +104,11 @@ describe('login com Google', () => {
       email_verified: false,
       nonce: 'n-1',
     });
-    await expect(verificarIdToken(token, config, 'n-1', publica)).rejects.toThrow(LoginErro);
+    await expect(verificarIdToken(token, config, 'n-1', publica)).rejects.toThrow(LoginError);
   });
 
   it('recusa token com nonce de outra tentativa', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: config.clienteId,
@@ -121,7 +121,7 @@ describe('login com Google', () => {
   });
 
   it('recusa token emitido para outro cliente', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: 'app-de-outra-empresa.apps.googleusercontent.com',
@@ -134,8 +134,8 @@ describe('login com Google', () => {
   });
 
   it('recusa token assinado por outra chave', async () => {
-    const { privateKey } = await chavesDeTeste();
-    const { publica: outraPublica } = await chavesDeTeste();
+    const { privateKey } = await keysOfTest();
+    const { publica: outraPublica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: config.clienteId,
@@ -148,8 +148,8 @@ describe('login com Google', () => {
   });
 
   it('a troca do código manda o verificador PKCE e o segredo', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
-    const desafio = criarDesafio();
+    const { privateKey, publica } = await keysOfTest();
+    const desafio = createChallenge();
     const idToken = await assinar(privateKey, {
       iss: GOOGLE.emissor,
       aud: config.clienteId,
@@ -160,8 +160,8 @@ describe('login com Google', () => {
     });
 
     let corpoEnviado = '';
-    const buscar = (async (_url: string, opcoes?: RequestInit) => {
-      corpoEnviado = String(opcoes?.body ?? '');
+    const buscar = (async (_url: string, options?: RequestInit) => {
+      corpoEnviado = String(options?.body ?? '');
       return {
         ok: true,
         status: 200,
@@ -169,7 +169,7 @@ describe('login com Google', () => {
       } as Response;
     }) as unknown as typeof fetch;
 
-    const pessoa = await trocarCodigo(
+    const pessoa = await exchangeCode(
       config,
       desafio,
       { code: 'codigo-do-google', state: desafio.state },
@@ -184,19 +184,19 @@ describe('login com Google', () => {
   });
 
   it('a troca falha alto quando o Google devolve erro HTTP', async () => {
-    const desafio = criarDesafio();
+    const desafio = createChallenge();
     const buscar = (async () => ({ ok: false, status: 400 }) as Response) as unknown as typeof fetch;
     await expect(
-      trocarCodigo(config, desafio, { code: 'c', state: desafio.state }, buscar),
+      exchangeCode(config, desafio, { code: 'c', state: desafio.state }, buscar),
     ).rejects.toThrow(/400/);
   });
 
   it('separa domínio de empresa de domínio pessoal', () => {
-    expect(dominioDoEmail('ana@empresa.com.br')).toBe('empresa.com.br');
-    expect(ehDominioPublico('ana@gmail.com')).toBe(true);
-    expect(ehDominioPublico('ana@empresa.com.br')).toBe(false);
+    expect(domainOfEmail('ana@empresa.com.br')).toBe('empresa.com.br');
+    expect(ehDomainPublic('ana@gmail.com')).toBe(true);
+    expect(ehDomainPublic('ana@empresa.com.br')).toBe(false);
     // Se `gmail.com` fosse cadastrável, o primeiro a registrá-lo levaria todo
     // mundo que usa Gmail para o tenant dele.
-    expect(ehDominioPublico('ana@outlook.com')).toBe(true);
+    expect(ehDomainPublic('ana@outlook.com')).toBe(true);
   });
 });

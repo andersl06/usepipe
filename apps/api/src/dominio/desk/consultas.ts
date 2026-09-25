@@ -1,22 +1,22 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type {
   Colega,
-  ConversaAberta,
-  ConversaDaLista,
-  ConversaDoHistorico,
-  EstadoAtendente,
-  EstadoConversa,
-  EtiquetaDaConversa,
+  ConversationOpen,
+  ConversationOfList,
+  ConversationOfHistory,
+  StateAgent,
+  StateConversation,
+  LabelOfConversation,
   EtiquetaDoDesk,
-  ItemDaConversa,
+  ItemOfConversation,
   MotivoDePausa,
-  PrioridadeDoDesk as Prioridade,
+  PriorityOfDesk as Prioridade,
   RespostaProntaDoDesk,
-  StatusDoAtendente,
+  StatusOfAgent,
   TemplateAprovado,
   TicketAntigo,
-  TipoCanalBanco,
+  TypeChannelDatabase,
 } from '@pipe/contracts';
 
 /**
@@ -47,8 +47,8 @@ type Linha<T> = { [K in keyof T]: T[K] };
  * texto quando alguém carrega uma segunda cópia do parser. Normalizar num lugar só é
  * mais barato do que descobrir isso de novo dentro de um componente.
  */
-export function data(valor: Date | string): Date {
-  return valor instanceof Date ? valor : new Date(valor);
+export function data(value: Date | string): Date {
+  return value instanceof Date ? value : new Date(value);
 }
 
 /** A data como vai no JSON: ISO 8601, sempre em UTC. Quem mostra converte na ponta. */
@@ -60,26 +60,26 @@ export function isoOuNulo(valor: Date | string | null): string | null {
   return valor === null ? null : iso(valor);
 }
 
-export async function listarConversas(
-  tx: TransacaoPipe,
+export async function listConversations(
+  tx: TransactionPipe,
   atendenteId: string,
-): Promise<ConversaDaLista[]> {
+): Promise<ConversationOfList[]> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: EstadoConversa;
+    estado: StateConversation;
     prioridade: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
     ultima_mensagem_em: Date | string | null;
-    ultima_mensagem_de: string | null;
+    lastMessageOf: string | null;
     janela_expira_em: Date | string | null;
     em_espera_desde: Date | string | null;
     contato_nome: string | null;
-    contato_telefone: string | null;
+    contactPhone: string | null;
     fila_nome: string | null;
-    canal_tipo: TipoCanalBanco;
-    ultima_mensagem: string | null;
-    ultima_mensagem_tipo: string | null;
+    canal_tipo: TypeChannelDatabase;
+    lastMessage: string | null;
+    lastMessageType: string | null;
     fixada_em: Date | string | null;
     nao_lida_em: Date | string | null;
   }>(sql`
@@ -114,45 +114,45 @@ export async function listarConversas(
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
     ultimaMensagemEm: isoOuNulo(r.ultima_mensagem_em),
-    ultimaMensagemDe: r.ultima_mensagem_de,
+    ultimaMensagemDe: r.lastMessageOf,
     janelaExpiraEm: isoOuNulo(r.janela_expira_em),
     emEsperaDesde: isoOuNulo(r.em_espera_desde),
     contatoNome: r.contato_nome,
-    contatoTelefone: r.contato_telefone,
+    contatoTelefone: r.contactPhone,
     filaNome: r.fila_nome,
     canalTipo: r.canal_tipo,
-    ultimaMensagem: r.ultima_mensagem,
-    ultimaMensagemTipo: r.ultima_mensagem_tipo,
+    ultimaMensagem: r.lastMessage,
+    ultimaMensagemTipo: r.lastMessageType,
     fixadaEm: isoOuNulo(r.fixada_em),
     naoLidaEm: isoOuNulo(r.nao_lida_em),
   }));
 }
 
-export async function carregarConversa(
-  tx: TransacaoPipe,
-  conversaId: string,
-  atendenteId: string,
-): Promise<ConversaAberta | null> {
+export async function loadConversation(
+  tx: TransactionPipe,
+  conversationId: string,
+  agentId: string,
+): Promise<ConversationOpen | null> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: EstadoConversa;
-    prioridade: Prioridade;
+    state: StateConversation;
+    priority: Prioridade;
     criada_em: Date | string;
-    primeira_resposta_em: Date | string | null;
+    firstResponseAt: Date | string | null;
     em_espera_desde: Date | string | null;
-    janela_expira_em: Date | string | null;
-    fila_nome: string | null;
-    canal_id: string;
-    canal_tipo: TipoCanalBanco;
-    contato_id: string;
-    contato_nome: string | null;
+    windowExpiresAt: Date | string | null;
+    queueName: string | null;
+    channelId: string;
+    channelType: TypeChannelDatabase;
+    contactId: string;
+    contactName: string | null;
     telefone_e164: string | null;
     email: string | null;
-    documento: string | null;
+    document: string | null;
     atributos: Record<string, unknown> | null;
     resumo: string | null;
     resumo_em: Date | string | null;
-    resumo_modelo: string | null;
+    summaryTemplate: string | null;
   }>(sql`
     select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em, c.em_espera_desde,
            c.janela_expira_em, f.nome as fila_nome, ca.id as canal_id, ca.tipo as canal_tipo,
@@ -165,48 +165,48 @@ export async function carregarConversa(
       join canal ca on ca.id = ib.canal_id
       left join fila f on f.id = c.fila_id
       left join classificacao_conversa cl on cl.conversa_id = c.id
-     where c.id = ${conversaId}
-       and c.atendente_id = ${atendenteId}
+     where c.id = ${conversationId}
+       and c.atendente_id = ${agentId}
      limit 1
   `);
   const r = rows[0];
   if (!r) return null;
   return {
     id: r.id,
-    estado: r.estado,
-    prioridade: r.prioridade,
+    state: r.state,
+    priority: r.priority,
     criadaEm: iso(r.criada_em),
-    primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
+    firstResponseAt: isoOuNulo(r.firstResponseAt),
     emEsperaDesde: isoOuNulo(r.em_espera_desde),
-    janelaExpiraEm: isoOuNulo(r.janela_expira_em),
-    filaNome: r.fila_nome,
-    canalId: r.canal_id,
-    canalTipo: r.canal_tipo,
-    contatoId: r.contato_id,
-    contatoNome: r.contato_nome,
-    contatoTelefone: r.telefone_e164,
-    contatoEmail: r.email,
-    contatoDocumento: r.documento,
-    contatoAtributos: r.atributos ?? {},
+    windowExpiresAt: isoOuNulo(r.windowExpiresAt),
+    queueName: r.queueName,
+    channelId: r.channelId,
+    channelType: r.channelType,
+    contactId: r.contactId,
+    contactName: r.contactName,
+    contactPhone: r.telefone_e164,
+    contactEmail: r.email,
+    contactDocument: r.document,
+    contactAtributos: r.atributos ?? {},
     resumo: r.resumo,
     resumoEm: isoOuNulo(r.resumo_em),
-    resumoModelo: r.resumo_modelo,
+    summaryTemplate: r.summaryTemplate,
   };
 }
 
-export async function listarItensDaConversa(
-  tx: TransacaoPipe,
+export async function listItemsOfConversation(
+  tx: TransactionPipe,
   conversaId: string,
-): Promise<ItemDaConversa[]> {
-  const mensagens = await tx.execute<{
+): Promise<ItemOfConversation[]> {
+  const messages = await tx.execute<{
     id: string;
     criada_em: Date | string;
-    direcao: 'entrada' | 'saida' | 'interna';
+    direction: 'entrada' | 'saida' | 'interna';
     tipo: string;
     conteudo: string | null;
-    estado_entrega: string | null;
-    erro_codigo: string | null;
-    erro_texto: string | null;
+    stateDelivery: string | null;
+    errorCode: string | null;
+    errorText: string | null;
     lida_em: Date | string | null;
     entregue_em: Date | string | null;
     resposta_pronta_id: string | null;
@@ -232,23 +232,23 @@ export async function listarItensDaConversa(
      order by n.em
   `);
 
-  const itens: ItemDaConversa[] = [
-    ...mensagens.rows.map((m): ItemDaConversa => ({
+  const itens: ItemOfConversation[] = [
+    ...messages.rows.map((m): ItemOfConversation => ({
       genero: 'mensagem',
       id: m.id,
       criadaEm: iso(m.criada_em),
-      direcao: m.direcao === 'entrada' ? 'entrada' : 'saida',
+      direction: m.direction === 'entrada' ? 'entrada' : 'saida',
       tipo: m.tipo,
       conteudo: m.conteudo,
-      estadoEntrega: m.estado_entrega,
-      erroCodigo: m.erro_codigo,
-      erroTexto: m.erro_texto,
+      stateDelivery: m.stateDelivery,
+      errorCode: m.errorCode,
+      errorText: m.errorText,
       lidaEm: isoOuNulo(m.lida_em),
       entregueEm: isoOuNulo(m.entregue_em),
       deRespostaPronta: m.resposta_pronta_id !== null,
       deTemplate: m.template_id !== null,
     })),
-    ...notas.rows.map((n): ItemDaConversa => ({
+    ...notas.rows.map((n): ItemOfConversation => ({
       genero: 'nota',
       id: n.id,
       criadaEm: iso(n.em),
@@ -261,7 +261,7 @@ export async function listarItensDaConversa(
 }
 
 export async function listarRespostasProntas(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   atendenteId: string,
 ): Promise<RespostaProntaDoDesk[]> {
   const { rows } = await tx.execute<Linha<RespostaProntaDoDesk>>(sql`
@@ -275,25 +275,25 @@ export async function listarRespostasProntas(
 }
 
 export async function listarTemplatesAprovados(
-  tx: TransacaoPipe,
-  canalId: string,
+  tx: TransactionPipe,
+  channelId: string,
 ): Promise<TemplateAprovado[]> {
   const { rows } = await tx.execute<Linha<TemplateAprovado>>(sql`
     select id, nome, categoria, corpo, variaveis
       from template_mensagem
-     where canal_id = ${canalId}
+     where canal_id = ${channelId}
        and status_meta = 'aprovado'
      order by categoria, nome
   `);
   return rows;
 }
 
-export async function listarEtiquetas(tx: TransacaoPipe): Promise<EtiquetaDoDesk[]> {
+export async function listarEtiquetas(tx: TransactionPipe): Promise<EtiquetaDoDesk[]> {
   const { rows } = await tx.execute<{
     id: string;
     nome: string;
     cor: string | null;
-    obrigatoria_no_encerramento: boolean;
+    requiredInClosure: boolean;
   }>(sql`
     select id, nome, cor, obrigatoria_no_encerramento
       from etiqueta
@@ -304,15 +304,15 @@ export async function listarEtiquetas(tx: TransacaoPipe): Promise<EtiquetaDoDesk
     id: r.id,
     nome: r.nome,
     cor: r.cor,
-    obrigatoriaNoEncerramento: r.obrigatoria_no_encerramento,
+    obrigatoriaNoEncerramento: r.requiredInClosure,
   }));
 }
 
-export async function listarEtiquetasDaConversa(
-  tx: TransacaoPipe,
+export async function listLabelsOfConversation(
+  tx: TransactionPipe,
   conversaId: string,
-): Promise<EtiquetaDaConversa[]> {
-  const { rows } = await tx.execute<Linha<EtiquetaDaConversa>>(sql`
+): Promise<LabelOfConversation[]> {
+  const { rows } = await tx.execute<Linha<LabelOfConversation>>(sql`
     select e.id, e.nome
       from conversa_etiqueta ce
       join etiqueta e on e.id = ce.etiqueta_id
@@ -322,11 +322,11 @@ export async function listarEtiquetasDaConversa(
   return rows;
 }
 
-export async function listarMotivosDePausa(tx: TransacaoPipe): Promise<MotivoDePausa[]> {
+export async function listarMotivosDePausa(tx: TransactionPipe): Promise<MotivoDePausa[]> {
   const { rows } = await tx.execute<{
     id: string;
     nome: string;
-    duracao_sugerida_min: number | null;
+    durationSuggestedMin: number | null;
   }>(sql`
     select id, nome, duracao_sugerida_min
       from motivo_pausa
@@ -336,16 +336,16 @@ export async function listarMotivosDePausa(tx: TransacaoPipe): Promise<MotivoDeP
   return rows.map((r) => ({
     id: r.id,
     nome: r.nome,
-    duracaoSugeridaMin: r.duracao_sugerida_min,
+    duracaoSugeridaMin: r.durationSuggestedMin,
   }));
 }
 
 export async function carregarStatus(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   atendenteId: string,
-): Promise<StatusDoAtendente> {
+): Promise<StatusOfAgent> {
   const { rows } = await tx.execute<{
-    estado: EstadoAtendente;
+    estado: StateAgent;
     desde: Date | string;
     motivo: string | null;
   }>(sql`
@@ -362,7 +362,7 @@ export async function carregarStatus(
   return { estado: r.estado, desde: iso(r.desde), motivoPausa: r.motivo };
 }
 
-export async function listarColegas(tx: TransacaoPipe, atendenteId: string): Promise<Colega[]> {
+export async function listarColegas(tx: TransactionPipe, atendenteId: string): Promise<Colega[]> {
   const { rows } = await tx.execute<Linha<Colega>>(sql`
     select id, nome from usuario
      where ativo and id <> ${atendenteId}
@@ -371,23 +371,23 @@ export async function listarColegas(tx: TransacaoPipe, atendenteId: string): Pro
   return rows;
 }
 
-export async function listarHistoricoDoContato(
-  tx: TransacaoPipe,
-  contatoId: string,
+export async function listHistoryOfContact(
+  tx: TransactionPipe,
+  contactId: string,
   /** A conversa aberta, que fica de fora; `null` lista todas (a aba Contatos). */
   exceto: string | null,
-): Promise<ConversaDoHistorico[]> {
+): Promise<ConversationOfHistory[]> {
   const { rows } = await tx.execute<{
     id: string;
     criada_em: Date | string;
     encerrada_em: Date | string | null;
-    estado: EstadoConversa;
+    estado: StateConversation;
     fila_nome: string | null;
   }>(sql`
     select c.id, c.criada_em, c.encerrada_em, c.estado, f.nome as fila_nome
       from conversa c
       left join fila f on f.id = c.fila_id
-     where c.contato_id = ${contatoId}
+     where c.contato_id = ${contactId}
        and (${exceto}::uuid is null or c.id <> ${exceto}::uuid)
      order by c.criada_em desc
      limit ${exceto ? 6 : 200}
@@ -414,27 +414,27 @@ export async function listarHistoricoDoContato(
  * 3f2a…" não responde a pergunta que alguém faz ao abrir um ticket antigo.
  */
 export async function carregarTicketAntigo(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   conversaId: string,
 ): Promise<TicketAntigo | null> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: EstadoConversa;
+    estado: StateConversation;
     prioridade: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
-    ultima_mensagem_em: Date | string | null;
+    lastMessageAt: Date | string | null;
     encerrada_em: Date | string | null;
-    motivo_encerramento: string | null;
+    reasonClosure: string | null;
     pausado_seg: number | string;
     fila_nome: string | null;
-    canal_tipo: TipoCanalBanco;
+    canal_tipo: TypeChannelDatabase;
     contato_id: string;
     contato_nome: string | null;
     telefone_e164: string | null;
-    atendente_nome: string | null;
-    atendente_email: string | null;
-    encerrada_por_nome: string | null;
+    agentName: string | null;
+    agentEmail: string | null;
+    closedByName: string | null;
   }>(sql`
     select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
            c.ultima_mensagem_em, c.encerrada_em, c.motivo_encerramento, c.pausado_seg,
@@ -460,18 +460,18 @@ export async function carregarTicketAntigo(
     prioridade: r.prioridade,
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
-    ultimaMensagemEm: isoOuNulo(r.ultima_mensagem_em),
+    lastMessageAt: isoOuNulo(r.lastMessageAt),
     encerradaEm: isoOuNulo(r.encerrada_em),
-    motivoEncerramento: r.motivo_encerramento,
+    reasonClosure: r.reasonClosure,
     pausadoSeg: Number(r.pausado_seg ?? 0),
     filaNome: r.fila_nome,
     canalTipo: r.canal_tipo,
-    contatoId: r.contato_id,
+    contactId: r.contato_id,
     contatoNome: r.contato_nome,
     contatoTelefone: r.telefone_e164,
-    atendenteNome: r.atendente_nome,
-    atendenteEmail: r.atendente_email,
-    encerradaPorNome: r.encerrada_por_nome,
+    agentName: r.agentName,
+    agentEmail: r.agentEmail,
+    closedByName: r.closedByName,
   };
 }
 
@@ -480,7 +480,7 @@ export async function carregarTicketAntigo(
  * atendente está (ou sem fila). É o `waitingTicketsCount` de `/agents/info` da
  * referência (`~/desk-clone/README.md`), que a coluna mostra ao lado de "Atender".
  */
-export async function contarAguardando(tx: TransacaoPipe, atendenteId: string): Promise<number> {
+export async function contarAguardando(tx: TransactionPipe, atendenteId: string): Promise<number> {
   const { rows } = await tx.execute<{ total: number | string }>(sql`
     select count(*) as total
       from conversa c
@@ -492,7 +492,7 @@ export async function contarAguardando(tx: TransacaoPipe, atendenteId: string): 
 }
 
 /** As filas ativas do cliente — o destino do modal de transferência ("Fila"). */
-export async function listarFilas(tx: TransacaoPipe): Promise<{ id: string; nome: string }[]> {
+export async function listQueues(tx: TransactionPipe): Promise<{ id: string; nome: string }[]> {
   const { rows } = await tx.execute<{ id: string; nome: string }>(sql`
     select id, nome from fila where ativa order by nome
   `);
@@ -501,13 +501,13 @@ export async function listarFilas(tx: TransacaoPipe): Promise<{ id: string; nome
 
 /* ---------------------------------------------------- a aba de Contatos */
 
-export interface ContatoDaLista {
+export interface ContactOfList {
   id: string;
   nome: string | null;
   telefone: string | null;
   email: string | null;
   /** A última mensagem trocada com o contato, em qualquer conversa. */
-  ultimaInteracaoEm: string | null;
+  lastInteractionAt: string | null;
 }
 
 /**
@@ -516,9 +516,9 @@ export interface ContatoDaLista {
  * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11). 20 por página lá; aqui os 200
  * primeiros, porque a lista ainda não tem rolagem infinita.
  */
-export async function listarContatos(tx: TransacaoPipe, busca: string): Promise<ContatoDaLista[]> {
-  const termo = busca.trim();
-  const filtro =
+export async function listContacts(tx: TransactionPipe, search: string): Promise<ContactOfList[]> {
+  const termo = search.trim();
+  const filter =
     termo.length >= 2
       ? sql`and (coalesce(ct.nome, '') ilike ${'%' + termo + '%'}
              or regexp_replace(coalesce(ct.telefone_e164, ''), '[^0-9]', '', 'g') like ${'%' + termo.replace(/[^0-9]/g, '') + '%'})`
@@ -534,7 +534,7 @@ export async function listarContatos(tx: TransacaoPipe, busca: string): Promise<
            (select max(c.ultima_mensagem_em) from conversa c where c.contato_id = ct.id) as ultima_interacao_em
       from contato ct
      where ct.excluido_em is null
-       ${filtro}
+       ${filter}
      order by ct.nome nulls last, ct.telefone_e164
      limit 200
   `);
@@ -547,7 +547,7 @@ export async function listarContatos(tx: TransacaoPipe, busca: string): Promise<
   }));
 }
 
-export interface FichaDoContato {
+export interface RecordOfContact {
   id: string;
   nome: string | null;
   telefone: string | null;
@@ -556,10 +556,10 @@ export interface FichaDoContato {
   atributos: Record<string, unknown>;
 }
 
-export async function carregarContato(
-  tx: TransacaoPipe,
+export async function loadContact(
+  tx: TransactionPipe,
   contatoId: string,
-): Promise<FichaDoContato | null> {
+): Promise<RecordOfContact | null> {
   const { rows } = await tx.execute<{
     id: string;
     nome: string | null;
@@ -586,10 +586,10 @@ export async function carregarContato(
 }
 
 /** Os canais ativos com os seus modelos aprovados — o passo "Escolher modelo" da mensagem ativa. */
-export async function listarCanaisComModelos(
-  tx: TransacaoPipe,
-): Promise<{ id: string; nome: string; tipo: TipoCanalBanco; templates: TemplateAprovado[] }[]> {
-  const { rows } = await tx.execute<{ id: string; nome: string; tipo: TipoCanalBanco }>(sql`
+export async function listChannelsWithTemplates(
+  tx: TransactionPipe,
+): Promise<{ id: string; nome: string; tipo: TypeChannelDatabase; templates: TemplateAprovado[] }[]> {
+  const { rows } = await tx.execute<{ id: string; nome: string; tipo: TypeChannelDatabase }>(sql`
     select id, nome, tipo from canal where ativo order by nome
   `);
   const saida = [];

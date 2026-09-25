@@ -1,11 +1,11 @@
 import { registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
-import { atualizarCanal, lerCanalWhatsApp } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import { PipeError } from '../../erros.js';
+import { atualizarChannel, readChannelWhatsApp } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 
 // A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.
-export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
+export { formatOfPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
 
 /**
  * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
@@ -23,32 +23,32 @@ export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/worker
 
 const LIMITE_EMAILS = 20;
 
-export interface PreferenciasDoCanal {
+export interface PreferencesOfChannel {
   quickReply: boolean;
   menu: boolean;
-  alertaRecategorizacao: { ativo: boolean; emails: string[] };
+  alertRecategorization: { ativo: boolean; emails: string[] };
 }
 
-export function preferenciasDe(canal: { config: Record<string, unknown> }): PreferenciasDoCanal {
-  const guardado = (canal.config['preferencias'] ?? {}) as Partial<PreferenciasDoCanal>;
+export function preferencesOf(channel: { config: Record<string, unknown> }): PreferencesOfChannel {
+  const guardado = (channel.config['preferencias'] ?? {}) as Partial<PreferencesOfChannel>;
   return {
     quickReply: guardado.quickReply ?? true,
     menu: guardado.menu ?? true,
-    alertaRecategorizacao: {
-      ativo: guardado.alertaRecategorizacao?.ativo ?? true,
-      emails: guardado.alertaRecategorizacao?.emails ?? [],
+    alertRecategorization: {
+      ativo: guardado.alertRecategorization?.ativo ?? true,
+      emails: guardado.alertRecategorization?.emails ?? [],
     },
   };
 }
 
-export interface PedidoDePreferencias {
+export interface RequestOfPreferences {
   quickReply?: boolean;
   menu?: boolean;
   alertaRecategorizacao?: { ativo?: boolean; emails?: string[] | string };
 }
 
-function recusa(campo: string, mensagem: string): ErroPipe {
-  return new ErroPipe(422, 'preferencias_invalidas', mensagem, { campo });
+function recusa(campo: string, message: string): PipeError {
+  return new PipeError(422, 'preferencias_invalidas', message, { campo });
 }
 
 /** A tela manda "separados por vírgula"; a API aceita a lista pronta também. */
@@ -63,43 +63,43 @@ function emailsDe(bruto: string[] | string): string[] {
   return unicos;
 }
 
-export function aplicarPedido(atual: PreferenciasDoCanal, pedido: PedidoDePreferencias): PreferenciasDoCanal {
-  const booleano = (valor: unknown, campo: string): boolean | undefined => {
-    if (valor === undefined) return undefined;
-    if (typeof valor !== 'boolean') throw recusa(campo, 'Use ligado ou desligado.');
-    return valor;
+export function aplicarPedido(atual: PreferencesOfChannel, pedido: RequestOfPreferences): PreferencesOfChannel {
+  const booleano = (value: unknown, campo: string): boolean | undefined => {
+    if (value === undefined) return undefined;
+    if (typeof value !== 'boolean') throw recusa(campo, 'Use ligado ou desligado.');
+    return value;
   };
   const alerta = pedido.alertaRecategorizacao;
   return {
     quickReply: booleano(pedido.quickReply, 'quickReply') ?? atual.quickReply,
     menu: booleano(pedido.menu, 'menu') ?? atual.menu,
-    alertaRecategorizacao: {
-      ativo: booleano(alerta?.ativo, 'ativo') ?? atual.alertaRecategorizacao.ativo,
-      emails: alerta?.emails === undefined ? atual.alertaRecategorizacao.emails : emailsDe(alerta.emails),
+    alertRecategorization: {
+      ativo: booleano(alerta?.ativo, 'ativo') ?? atual.alertRecategorization.ativo,
+      emails: alerta?.emails === undefined ? atual.alertRecategorization.emails : emailsDe(alerta.emails),
     },
   };
 }
 
-export async function lerPreferencias(tenantId: string, canalId: string): Promise<PreferenciasDoCanal> {
-  return preferenciasDe(await lerCanalWhatsApp(tenantId, canalId));
+export async function readPreferences(tenantId: string, channelId: string): Promise<PreferencesOfChannel> {
+  return preferencesOf(await readChannelWhatsApp(tenantId, channelId));
 }
 
-export async function gravarPreferencias(
+export async function writePreferences(
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   canalId: string,
-  pedido: PedidoDePreferencias,
-): Promise<PreferenciasDoCanal> {
-  const canal: CanalWhatsApp = await lerCanalWhatsApp(tenantId, canalId);
-  const antes = preferenciasDe(canal);
+  pedido: RequestOfPreferences,
+): Promise<PreferencesOfChannel> {
+  const channel: ChannelWhatsApp = await readChannelWhatsApp(tenantId, canalId);
+  const antes = preferencesOf(channel);
   const depois = aplicarPedido(antes, pedido ?? {});
-  await atualizarCanal(canal, { preferencias: depois });
+  await atualizarChannel(channel, { preferencias: depois });
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
-      objetoId: canal.id,
+      objetoId: channel.id,
       antes: { preferencias: antes },
       depois: { preferencias: depois },
     }),

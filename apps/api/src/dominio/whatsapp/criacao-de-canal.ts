@@ -1,10 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, registrarAuditoria } from '@pipe/db';
-import { chaveiro, noTenant } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
+import { keyring, noTenant } from '../../banco.js';
+import { PipeError } from '../../erros.js';
 import { codigoDoPostgres } from '../dominios.js';
-import { lerCanalWhatsApp, novoVerifyToken, numeroJaConectado } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import { readChannelWhatsApp, novoVerifyToken, numeroJaConectado } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { versaoDaApi } from './cliente-graph.js';
 import type { InfoDoNumero } from './info-do-numero.js';
 
@@ -29,15 +29,15 @@ export interface InfoDaWaba {
   nomeDaEmpresa?: string | undefined;
 }
 
-export type OrigemDoCanal = 'embedded_signup' | 'manual_setup_v2';
+export type OriginOfChannel = 'embedded_signup' | 'manual_setup_v2';
 
-export interface PedidoDeCriacao {
+export interface RequestOfCreation {
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   infoDaWaba: InfoDaWaba | null;
   infoDoNumero: InfoDoNumero | null;
   token: string;
-  origem?: OrigemDoCanal;
+  origem?: OriginOfChannel;
   /** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */
   nome?: string | undefined;
   /** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */
@@ -46,23 +46,23 @@ export interface PedidoDeCriacao {
 }
 
 /** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */
-export function numeroEmUso(numero: string): ErroPipe {
-  return ErroPipe.conflito(
+export function numeroEmUso(numero: string): PipeError {
+  return PipeError.conflito(
     'numero_em_uso',
     `Já existe um canal para este número de telefone: ${numero}. Entre em contato com o suporte se o erro persistir`,
   );
 }
 
-export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp> {
+export async function createChannel(pedido: RequestOfCreation): Promise<ChannelWhatsApp> {
   // `validate_parameters!`
-  if (!pedido.tenantId) throw ErroPipe.requisicao('conta_ausente', 'A conta é obrigatória.');
+  if (!pedido.tenantId) throw PipeError.request('conta_ausente', 'A conta é obrigatória.');
   if (!pedido.infoDaWaba?.wabaId) {
-    throw ErroPipe.requisicao('waba_ausente', 'As informações da WABA são obrigatórias.');
+    throw PipeError.request('waba_ausente', 'As informações da WABA são obrigatórias.');
   }
   if (!pedido.infoDoNumero) {
-    throw ErroPipe.requisicao('numero_ausente', 'As informações do número são obrigatórias.');
+    throw PipeError.request('numero_ausente', 'As informações do número são obrigatórias.');
   }
-  if (!pedido.token) throw ErroPipe.requisicao('token_ausente', 'O token de acesso é obrigatório.');
+  if (!pedido.token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
 
   const info = pedido.infoDoNumero;
   const waba = pedido.infoDaWaba;
@@ -71,7 +71,7 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
   // `build_inbox_name`: "#{business_name} WhatsApp".
   const nomeDaEmpresa = info.nomeDaEmpresa || waba.nomeDaEmpresa || info.numero;
   const nome = pedido.nome?.trim() || `${nomeDaEmpresa} WhatsApp`;
-  const origem: OrigemDoCanal = pedido.origem ?? 'embedded_signup';
+  const origem: OriginOfChannel = pedido.origem ?? 'embedded_signup';
 
   // `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO
   // aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`
@@ -89,12 +89,12 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
       ...(appSecret ? { appSecret } : {}),
       ...(pedido.appId ? { appId: pedido.appId } : {}),
     },
-    chaveiro(),
+    keyring(),
   );
 
-  let canalId: string;
+  let channelId: string;
   try {
-    canalId = await noTenant(pedido.tenantId, async (tx) => {
+    channelId = await noTenant(pedido.tenantId, async (tx) => {
       // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
       // `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.
       const { rows } = await tx.execute<{ id: string }>(sql`
@@ -105,16 +105,16 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
       `);
       const id = rows[0]!.id;
 
-      const { rows: filas } = await tx.execute<{ id: string }>(
+      const { rows: queues } = await tx.execute<{ id: string }>(
         sql`select id from fila where ativa order by ordem, criado_em limit 1`,
       );
       await tx.execute(sql`
         insert into inbox (tenant_id, canal_id, nome, fila_padrao_id)
-        values (${pedido.tenantId}::uuid, ${id}::uuid, ${nome}, ${filas[0]?.id ?? null})
+        values (${pedido.tenantId}::uuid, ${id}::uuid, ${nome}, ${queues[0]?.id ?? null})
       `);
 
       await registrarAuditoria(tx, pedido.tenantId, {
-        ator: { tipo: 'usuario', id: pedido.usuarioId },
+        ator: { tipo: 'usuario', id: pedido.userId },
         acao: 'criou',
         objetoTipo: 'canal',
         objetoId: id,
@@ -122,10 +122,10 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
       });
       return id;
     });
-  } catch (erro) {
-    if (codigoDoPostgres(erro) === '23505') throw numeroEmUso(info.numero);
-    throw erro;
+  } catch (error) {
+    if (codigoDoPostgres(error) === '23505') throw numeroEmUso(info.numero);
+    throw error;
   }
 
-  return lerCanalWhatsApp(pedido.tenantId, canalId);
+  return readChannelWhatsApp(pedido.tenantId, channelId);
 }

@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { useOptimistic, useState, useTransition } from 'react';
-import { moverOportunidade } from '../app/oportunidades/acoes';
+import { moverOpportunity } from '../app/oportunidades/acoes';
 import { Etiqueta, Seletor } from '@pipe/ui';
-import { dinheiroCurto, numero } from '../lib/formato';
+import { moneyCurto, numero } from '../lib/formato';
 
 /**
  * Quadro do funil, com arraste entre fases.
@@ -34,11 +34,11 @@ import { dinheiroCurto, numero } from '../lib/formato';
  * controle que a escrita não tem.
  */
 
-export interface CartaoView {
+export interface CardView {
   id: string;
   nome: string;
-  valorNum: number;
-  valor: string;
+  valueNum: number;
+  value: string;
   detalhe: string;
   fase: string;
   /** Dias de atraso do fechamento previsto, ou `null` quando não venceu. */
@@ -47,18 +47,18 @@ export interface CartaoView {
 
 interface Props {
   fases: readonly string[];
-  cartoes: CartaoView[];
+  cards: CardView[];
 }
 
-export function QuadroFunil({ fases, cartoes }: Props) {
+export function QuadroFunil({ fases, cards }: Props) {
   const [, iniciar] = useTransition();
   const [arrastando, setArrastando] = useState<string | null>(null);
   const [alvo, setAlvo] = useState<string | null>(null);
 
   const [visao, moverOtimista] = useOptimistic(
-    cartoes,
-    (estado: CartaoView[], mov: { id: string; fase: string }) =>
-      estado.map((c) => (c.id === mov.id ? { ...c, fase: mov.fase } : c)),
+    cards,
+    (state: CardView[], mov: { id: string; fase: string }) =>
+      state.map((c) => (c.id === mov.id ? { ...c, fase: mov.fase } : c)),
   );
 
   function mover(id: string, fase: string) {
@@ -66,7 +66,7 @@ export function QuadroFunil({ fases, cartoes }: Props) {
     if (!atual || atual.fase === fase) return;
     iniciar(async () => {
       moverOtimista({ id, fase });
-      await moverOportunidade(id, fase);
+      await moverOpportunity(id, fase);
     });
   }
 
@@ -74,7 +74,7 @@ export function QuadroFunil({ fases, cartoes }: Props) {
     <div className="lanes">
       {fases.map((fase) => {
         const daFase = visao.filter((c) => c.fase === fase);
-        const total = daFase.reduce((s, c) => s + c.valorNum, 0);
+        const total = daFase.reduce((s, c) => s + c.valueNum, 0);
 
         return (
           <div
@@ -99,8 +99,8 @@ export function QuadroFunil({ fases, cartoes }: Props) {
             */}
             <header>
               <span className="fase">{fase}</span>
-              <span className="c" title={`${numero(daFase.length)} oportunidades, ${dinheiroCurto(total)} em jogo`}>
-                {numero(daFase.length)} · {dinheiroCurto(total)}
+              <span className="c" title={`${numero(daFase.length)} oportunidades, ${moneyCurto(total)} em jogo`}>
+                {numero(daFase.length)} · {moneyCurto(total)}
               </span>
             </header>
 
@@ -126,7 +126,7 @@ export function QuadroFunil({ fases, cartoes }: Props) {
                       no chat quando alguém pergunta por esta negociação. */}
                   <Link href={`/oportunidades/${c.id}`}>{c.nome}</Link>
                 </b>
-                <span className="val">{c.valor}</span>
+                <span className="val">{c.value}</span>
                 <span className="ow">{c.detalhe}</span>
                 {/*
                   A única cor do quadro. Fechamento previsto no passado com a

@@ -18,31 +18,31 @@ export interface RegraSlaConfigurada {
   alvo: string;
   prazoSeg: number;
   alertaSeg: number | null;
-  escopoTipo: string;
-  escopoNome: string | null;
-  ativa: boolean;
+  scopeType: string;
+  scopeName: string | null;
+  active: boolean;
 }
 
-export interface FilaConfigurada {
+export interface QueueConfigured {
   id: string;
   nome: string;
-  capacidadePadrao: number;
-  ordem: number;
+  capacityDefault: number;
+  order: number;
   temHorario: boolean;
-  ativa: boolean;
+  active: boolean;
 }
 
 /** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */
 export const ROTULO_ALVO: Record<string, string> = {
-  primeira_resposta: 'Primeira resposta',
+  firstResposta: 'Primeira resposta',
   resposta: 'Tempo de resposta',
-  resolucao: 'Encerramento',
-  espera_fila: 'Espera na fila',
+  resolution: 'Encerramento',
+  esperaQueue: 'Espera na fila',
 };
 
-export const ROTULO_ESCOPO: Record<string, string> = {
+export const ROTULO_SCOPE: Record<string, string> = {
   tenant: 'Toda a operação',
-  fila: 'Fila',
+  queue: 'Fila',
 };
 
 /*
@@ -56,12 +56,12 @@ export const ROTULO_ESCOPO: Record<string, string> = {
 export interface EtiquetaConfigurada {
   id: string;
   nome: string;
-  escopo: string;
-  obrigatoriaNoEncerramento: boolean;
+  scope: string;
+  requiredInClosure: boolean;
   usos: number;
 }
 
-export interface CanalConfigurado {
+export interface ChannelConfigured {
   id: string;
   nome: string;
   tipo: string;
@@ -80,16 +80,16 @@ export interface CanalConfigurado {
  * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
  * ao olhar um canal é se ele está entregando agora.
  */
-export interface CaixaDoCanal {
+export interface ChannelCaixa {
   id: string;
   nome: string;
-  filaPadrao: string | null;
+  queueDefault: string | null;
   abertas: number;
 }
 
-export interface CanalDetalhado extends CanalConfigurado {
+export interface ChannelDetailed extends ChannelConfigured {
   criadoEm: string;
-  caixas: CaixaDoCanal[];
+  caixas: ChannelCaixa[];
 }
 
 /* ============================================ Preferências ├ Configurações gerais
@@ -101,7 +101,7 @@ export interface CanalDetalhado extends CanalConfigurado {
    (`blip-telas-cadastro.md` §3): "em Configurações gerais não há um botão
    Salvar da tela". */
 
-export interface IdentidadeDoTenant {
+export interface TenantIdentity {
   nome: string;
   fuso: string;
   idioma: string;
@@ -115,23 +115,23 @@ export interface PesquisaConfigurada {
   escalaMax: number;
   pergunta: string;
   disparo: string;
-  ativa: boolean;
+  active: boolean;
 }
 
-export interface EtiquetaDeEncerramento {
+export interface ClosureTag {
   id: string;
   nome: string;
   obrigatoria: boolean;
   usos: number;
 }
 
-export interface ConfiguracoesGerais {
-  identidade: IdentidadeDoTenant;
+export interface SettingsGeneral {
+  identity: TenantIdentity;
   /** A pesquisa ativa do tenant, ou `null` quando ninguém configurou nenhuma. */
   pesquisa: PesquisaConfigurada | null;
   /** Quantas pesquisas existem além dessa — a §6 exige uma escala por pesquisa. */
   outrasPesquisas: number;
-  etiquetas: EtiquetaDeEncerramento[];
+  etiquetas: ClosureTag[];
 }
 
 /* ------------------------------------------------- escrita das configurações
@@ -143,11 +143,11 @@ export interface ConfiguracoesGerais {
    `diferenca` guarda só o que mudou: quem lê o log quer saber que o fuso foi de
    São Paulo para Manaus, não reler as colunas que continuaram iguais. */
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };
 
 /* `type` e não `interface`: só o alias ganha índice implícito, e é isso que
    deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */
-export type IdentidadeParaGravar = {
+export type IdentityForGravar = {
   nome: string;
   fuso: string;
   idioma: string;
@@ -161,5 +161,5 @@ export interface PesquisaParaGravar {
   escalaMax: number;
   pergunta: string;
   disparo: string;
-  ativa: boolean;
+  active: boolean;
 }

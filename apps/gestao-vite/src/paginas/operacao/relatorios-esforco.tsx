@@ -1,38 +1,38 @@
 import { useSearchParams } from 'react-router-dom';
-import type { RelatorioEsforco } from '../../lib/esforco';
-import { useLeitura } from '../../lib/consulta';
-import { dataOuNada, duracaoLonga, numero, percentual } from '../../lib/formato';
-import { useContato } from '../fluxo/contato';
-import { baseDoAtendimento } from './casca';
+import type { ReportEffort } from '../../lib/esforco';
+import { useRead } from '../../lib/consulta';
+import { dataOuNada, durationLonga, numero, percentual } from '../../lib/formato';
+import { useContact } from '../fluxo/contato';
+import { attendanceBase } from './casca';
 
-interface RespostaDoEsforco {
+interface EffortResposta {
   fuso: string;
   de: string;
   ate: string;
-  relatorio: RelatorioEsforco;
+  report: ReportEffort;
 }
 
-interface Busca {
+interface Search {
   de?: string;
   ate?: string;
 }
 
-export function PaginaEsforco() {
-  const { contato } = useContato();
-  const base = baseDoAtendimento(contato.tipo, contato.id);
-  const [busca] = useSearchParams();
-  const crus = Object.fromEntries(busca.entries()) as Busca;
+export function PageEffort() {
+  const { contact } = useContact();
+  const base = attendanceBase(contact.tipo, contact.id);
+  const [search] = useSearchParams();
+  const crus = Object.fromEntries(search.entries()) as Search;
   /* Data torta vira "sem filtro": `?de=abc` chegava ao `::date` do Postgres e
      derrubava a tela inteira em 500. */
-  const params: Busca = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
+  const params: Search = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const leitura = useLeitura<RespostaDoEsforco>(`/v1/gestao/relatorios/esforco?${q}`);
-  if (!leitura.data) return null;
-  const { de, ate, relatorio } = leitura.data;
-  const totalEsforco = relatorio.atendentes.reduce((t, a) => t + a.esforcoSeg, 0);
-  const totalTickets = relatorio.atendentes.reduce((t, a) => t + a.tickets, 0);
+  const read = useRead<EffortResposta>(`/v1/gestao/relatorios/esforco?${q}`);
+  if (!read.data) return null;
+  const { de, ate, report } = read.data;
+  const totalEffort = report.agents.reduce((t, a) => t + a.effortSeg, 0);
+  const totalTickets = report.agents.reduce((t, a) => t + a.tickets, 0);
 
   return (
     <>
@@ -67,21 +67,21 @@ export function PaginaEsforco() {
         <div className="bloco-rel-grade" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
           <div className="cartao-rel">
             <span className="r">Esforço somado</span>
-            <span className="v">{duracaoLonga(totalEsforco)}</span>
+            <span className="v">{durationLonga(totalEffort)}</span>
             <span className="den">{numero(totalTickets)} tickets</span>
           </div>
           <div className="cartao-rel">
             <span className="r">Esforço médio por ticket</span>
             <span className="v">
-              {duracaoLonga(totalTickets > 0 ? totalEsforco / totalTickets : null)}
+              {durationLonga(totalTickets > 0 ? totalEffort / totalTickets : null)}
             </span>
             <span className="den">soma ÷ soma, nunca média de médias</span>
           </div>
           <div className="cartao-rel">
             <span className="r">Conversas no período</span>
-            <span className="v">{numero(relatorio.conversasConsideradas)}</span>
+            <span className="v">{numero(report.conversationsConsideradas)}</span>
             <span className="den">
-              {numero(relatorio.conversasSemAtendente)} sem atendente identificado
+              {numero(report.conversationsWithoutAgent)} sem atendente identificado
             </span>
           </div>
         </div>
@@ -98,15 +98,15 @@ export function PaginaEsforco() {
           Por atendente <span className="sub">{`${de} → ${ate}`}</span>
         </h3>
 
-        {relatorio.atendentes.length === 0 ? (
+        {report.agents.length === 0 ? (
           <div className="cartao-rel">
             <div className="vazio">
               <b>
                 Nenhuma conversa encerrada com atendente entre {de} e {ate}.
               </b>
               <p>
-                {relatorio.conversasSemAtendente > 0
-                  ? `${numero(relatorio.conversasSemAtendente)} conversa(s) do período fecharam sem atendente identificado — elas não têm a quem atribuir esforço.`
+                {report.conversationsWithoutAgent > 0
+                  ? `${numero(report.conversationsWithoutAgent)} conversa(s) do período fecharam sem atendente identificado — elas não têm a quem atribuir esforço.`
                   : 'Só entra aqui conversa já encerrada. Alargue o período acima para alcançar o movimento anterior.'}
               </p>
             </div>
@@ -130,21 +130,21 @@ export function PaginaEsforco() {
                 </tr>
               </thead>
               <tbody>
-                {relatorio.atendentes.map((a) => (
+                {report.agents.map((a) => (
                   <tr key={a.id}>
                     <td className="who">{a.nome}</td>
                     <td className="num">{numero(a.tickets)}</td>
-                    <td className="num">{duracaoLonga(a.esforcoSeg)}</td>
-                    <td className="num">{duracaoLonga(a.esforcoPorTicketSeg)}</td>
+                    <td className="num">{durationLonga(a.effortSeg)}</td>
+                    <td className="num">{durationLonga(a.effortByTicketSeg)}</td>
                     <td className="num">{numero(a.charsEscritos)} car.</td>
                     <td className="num">{numero(a.charsLidos)} car.</td>
-                    <td className="num">{duracaoLonga(a.audioOuvidoSeg)}</td>
-                    <td className="num">{duracaoLonga(a.audioGravadoSeg)}</td>
-                    <td className="num">{duracaoLonga(a.sessaoSeg)}</td>
-                    <td className="num">{percentual(a.ocupacao)}</td>
+                    <td className="num">{durationLonga(a.audioOuvidoSeg)}</td>
+                    <td className="num">{durationLonga(a.audioGravadoSeg)}</td>
+                    <td className="num">{durationLonga(a.sessionSeg)}</td>
+                    <td className="num">{percentual(a.occupancy)}</td>
                     <td className="num">
                       {numero(a.charsDeRespostaPronta)} car. ·{' '}
-                      {duracaoLonga(a.esforcoRespostaProntaSeg)} descontados
+                      {durationLonga(a.effortCannedResponseSeg)} descontados
                     </td>
                   </tr>
                 ))}

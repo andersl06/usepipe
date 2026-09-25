@@ -1,20 +1,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import type { ConversaDaLista } from '@pipe/contracts';
+import type { ConversationOfList } from '@pipe/contracts';
 import {
-  aplicarFiltro,
+  aplicarFilter,
   buscar,
   contagens,
   horasRestantes,
-  janelaAberta,
-  nomeDeExibicao,
+  windowAberta,
+  displayName,
   ordenar,
   telefoneInternacional,
 } from '../src/lib/ordem';
 
 const agora = new Date('2026-09-17T12:00:00Z');
 
-function conversa(parte: Partial<ConversaDaLista>): ConversaDaLista {
+function conversation(parte: Partial<ConversationOfList>): ConversationOfList {
   return {
     id: 'a',
     estado: 'em_atendimento',
@@ -22,15 +22,15 @@ function conversa(parte: Partial<ConversaDaLista>): ConversaDaLista {
     criadaEm: '2026-09-17T10:00:00Z',
     primeiraRespostaEm: null,
     ultimaMensagemEm: '2026-09-17T11:00:00Z',
-    ultimaMensagemDe: 'atendente',
+    lastMessageFrom: 'atendente',
     janelaExpiraEm: '2026-09-18T00:00:00Z',
     emEsperaDesde: null,
     contatoNome: 'Maria',
     contatoTelefone: '+5531994714471',
     filaNome: 'Suporte',
     canalTipo: 'whatsapp_cloud',
-    ultimaMensagem: 'oi',
-    ultimaMensagemTipo: 'texto',
+    lastMessage: 'oi',
+    lastMessageType: 'texto',
     fixadaEm: null,
     naoLidaEm: null,
     ...parte,
@@ -39,9 +39,9 @@ function conversa(parte: Partial<ConversaDaLista>): ConversaDaLista {
 
 test('as fichas contam sobre a lista inteira', () => {
   const lista = [
-    conversa({ id: '1', ultimaMensagemDe: 'contato' }),
-    conversa({ id: '2', estado: 'em_espera' }),
-    conversa({ id: '3', janelaExpiraEm: '2026-09-16T00:00:00Z' }),
+    conversation({ id: '1', lastMessageFrom: 'contato' }),
+    conversation({ id: '2', estado: 'em_espera' }),
+    conversation({ id: '3', janelaExpiraEm: '2026-09-16T00:00:00Z' }),
   ];
   assert.deepEqual(contagens(lista, agora), {
     todos: 3,
@@ -50,23 +50,23 @@ test('as fichas contam sobre a lista inteira', () => {
     inativos: 1,
   });
   assert.deepEqual(
-    aplicarFiltro(lista, 'nao-lidos', agora).map((c) => c.id),
+    aplicarFilter(lista, 'nao-lidos', agora).map((c) => c.id),
     ['1'],
   );
   assert.deepEqual(
-    aplicarFiltro(lista, 'inativos', agora).map((c) => c.id),
+    aplicarFilter(lista, 'inativos', agora).map((c) => c.id),
     ['3'],
   );
 });
 
 test('a ordem padrão põe a mensagem mais nova no topo; a de abertura, o ticket mais antigo', () => {
   const lista = [
-    conversa({
+    conversation({
       id: 'velha',
       ultimaMensagemEm: '2026-09-17T09:00:00Z',
       criadaEm: '2026-09-17T08:00:00Z',
     }),
-    conversa({
+    conversation({
       id: 'nova',
       ultimaMensagemEm: '2026-09-17T11:00:00Z',
       criadaEm: '2026-09-17T10:00:00Z',
@@ -84,18 +84,18 @@ test('a ordem padrão põe a mensagem mais nova no topo; a de abertura, o ticket
 
 test('as fixadas ficam no topo, a fixada mais recente por cima, e o resto segue a ordem normal', () => {
   const lista = [
-    conversa({ id: 'nova', ultimaMensagemEm: '2026-09-17T11:00:00Z' }),
-    conversa({
+    conversation({ id: 'nova', ultimaMensagemEm: '2026-09-17T11:00:00Z' }),
+    conversation({
       id: 'fixada-antiga',
       ultimaMensagemEm: '2026-09-17T08:00:00Z',
       fixadaEm: '2026-09-17T09:00:00Z',
     }),
-    conversa({
+    conversation({
       id: 'fixada-recente',
       ultimaMensagemEm: '2026-09-17T07:00:00Z',
       fixadaEm: '2026-09-17T10:00:00Z',
     }),
-    conversa({ id: 'velha', ultimaMensagemEm: '2026-09-17T09:30:00Z' }),
+    conversation({ id: 'velha', ultimaMensagemEm: '2026-09-17T09:30:00Z' }),
   ];
   assert.deepEqual(
     ordenar(lista, 'ultima-mensagem').map((c) => c.id),
@@ -109,11 +109,11 @@ test('as fixadas ficam no topo, a fixada mais recente por cima, e o resto segue 
 
 test('marcada à mão como não lida entra na ficha "Não lidos" mesmo com a última palavra do atendente', () => {
   const lista = [
-    conversa({ id: 'manual', ultimaMensagemDe: 'atendente', naoLidaEm: '2026-09-17T11:30:00Z' }),
-    conversa({ id: 'lida', ultimaMensagemDe: 'atendente' }),
+    conversation({ id: 'manual', lastMessageFrom: 'atendente', naoLidaEm: '2026-09-17T11:30:00Z' }),
+    conversation({ id: 'lida', lastMessageFrom: 'atendente' }),
   ];
   assert.deepEqual(
-    aplicarFiltro(lista, 'nao-lidos', agora).map((c) => c.id),
+    aplicarFilter(lista, 'nao-lidos', agora).map((c) => c.id),
     ['manual'],
   );
   assert.equal(contagens(lista, agora)['nao-lidos'], 1);
@@ -121,8 +121,8 @@ test('marcada à mão como não lida entra na ficha "Não lidos" mesmo com a úl
 
 test('a busca acha por nome sem acento e por dígitos do telefone', () => {
   const lista = [
-    conversa({ id: '1', contatoNome: 'João Álvares' }),
-    conversa({ id: '2', contatoNome: 'Ana' }),
+    conversation({ id: '1', contatoNome: 'João Álvares' }),
+    conversation({ id: '2', contatoNome: 'Ana' }),
   ];
   assert.deepEqual(
     buscar(lista, 'joao').map((c) => c.id),
@@ -136,22 +136,22 @@ test('a busca acha por nome sem acento e por dígitos do telefone', () => {
 });
 
 test('a janela de 24 horas', () => {
-  assert.equal(janelaAberta(null, 'email', agora), true);
-  assert.equal(janelaAberta(null, 'whatsapp_cloud', agora), false);
-  assert.equal(janelaAberta('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
-  assert.equal(janelaAberta('2026-09-17T11:00:00Z', 'whatsapp_cloud', agora), false);
+  assert.equal(windowAberta(null, 'email', agora), true);
+  assert.equal(windowAberta(null, 'whatsapp_cloud', agora), false);
+  assert.equal(windowAberta('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
+  assert.equal(windowAberta('2026-09-17T11:00:00Z', 'whatsapp_cloud', agora), false);
   assert.equal(horasRestantes('2026-09-17T13:30:00Z', agora), 2);
   assert.equal(horasRestantes('2026-09-17T11:00:00Z', agora), null);
 });
 
 test('o nome de exibição nunca fica em branco', () => {
-  assert.equal(nomeDeExibicao({ contatoNome: ' Ana ', contatoTelefone: null }), 'Ana');
+  assert.equal(displayName({ contactName: ' Ana ', contactTelefone: null }), 'Ana');
   assert.equal(
-    nomeDeExibicao({ contatoNome: null, contatoTelefone: '+5531994714471' }),
+    displayName({ contactName: null, contactTelefone: '+5531994714471' }),
     '+55 31 99471-4471',
   );
   assert.equal(
-    nomeDeExibicao({ contatoNome: null, contatoTelefone: null, contatoEmail: 'a@b.c' }),
+    displayName({ contactName: null, contactTelefone: null, contactEmail: 'a@b.c' }),
     'a@b.c',
   );
   assert.equal(telefoneInternacional('+551133334444'), '+55 11 3333-4444');

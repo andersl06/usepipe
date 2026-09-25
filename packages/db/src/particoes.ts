@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { BancoPipe } from './cliente.js';
+import type { DatabasePipe } from './cliente.js';
 
 /**
  * `mensagem` e `evento_atendimento` crescem sem limite e são sempre consultadas por
@@ -13,15 +13,15 @@ export const TABELAS_PARTICIONADAS = ['mensagem', 'evento_atendimento'] as const
 
 export type TabelaParticionada = (typeof TABELAS_PARTICIONADAS)[number];
 
-export function mesesAPartir(referencia: Date, quantidade: number): Date[] {
+export function mesesAPartir(referencia: Date, quantity: number): Date[] {
   const meses: Date[] = [];
-  for (let i = 0; i < quantidade; i += 1) {
+  for (let i = 0; i < quantity; i += 1) {
     meses.push(new Date(Date.UTC(referencia.getUTCFullYear(), referencia.getUTCMonth() + i, 1)));
   }
   return meses;
 }
 
-export function nomeParticao(tabela: TabelaParticionada, mes: Date): string {
+export function namePartition(tabela: TabelaParticionada, mes: Date): string {
   const ano = mes.getUTCFullYear();
   const numeroMes = String(mes.getUTCMonth() + 1).padStart(2, '0');
   return `${tabela}_${ano}_${numeroMes}`;
@@ -31,8 +31,8 @@ export function nomeParticao(tabela: TabelaParticionada, mes: Date): string {
  * Garante as partições do mês corrente e dos `mesesAFrente` seguintes. Idempotente:
  * chamar duas vezes no mesmo dia não faz nada na segunda.
  */
-export async function garantirParticoes(
-  db: BancoPipe,
+export async function garantirPartitions(
+  db: DatabasePipe,
   mesesAFrente = 3,
   referencia = new Date(),
 ): Promise<string[]> {
@@ -41,7 +41,7 @@ export async function garantirParticoes(
     const dia = mes.toISOString().slice(0, 10);
     for (const tabela of TABELAS_PARTICIONADAS) {
       await db.execute(sql`select pipe_criar_particao_mes(${tabela}, ${dia}::date)`);
-      criadas.push(nomeParticao(tabela, mes));
+      criadas.push(namePartition(tabela, mes));
     }
   }
   return criadas;

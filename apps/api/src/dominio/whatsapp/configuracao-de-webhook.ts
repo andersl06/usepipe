@@ -1,7 +1,7 @@
 import { randomInt } from 'node:crypto';
-import { ErroPipe } from '../../erros.js';
-import { atualizarCanal, pedirReautorizacao, texto, urlDoWebhook } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import { PipeError } from '../../erros.js';
+import { atualizarChannel, pedirReauthorization, texto, urlDoWebhook } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { CAMPOS_PADRAO_DO_WEBHOOK, clienteGraph } from './cliente-graph.js';
 import { buscarSaude, numeroPendente } from './saude.js';
 import type { SaudeDoNumero } from './saude.js';
@@ -41,7 +41,7 @@ export const CAMPOS_ASSINADOS = [
 /** Limite da Meta para `override_callback_uri`. */
 const LIMITE_DA_URL = 200;
 
-export interface OpcoesDoWebhook {
+export interface OptionsOfWebhook {
   wabaId?: string | null;
   token?: string | null;
   /**
@@ -53,27 +53,27 @@ export interface OpcoesDoWebhook {
 }
 
 export interface ResultadoDoWebhook {
-  canal: CanalWhatsApp;
-  erroDeRegistro: Error | null;
+  channel: ChannelWhatsApp;
+  errorOfRegistro: Error | null;
 }
 
-function comoErro(erro: unknown): Error {
+function asError(erro: unknown): Error {
   return erro instanceof Error ? erro : new Error(String(erro));
 }
 
 export async function configurarWebhook(
-  canal: CanalWhatsApp,
-  opcoes: OpcoesDoWebhook = {},
+  canal: ChannelWhatsApp,
+  options: OptionsOfWebhook = {},
 ): Promise<ResultadoDoWebhook> {
-  const wabaId = opcoes.wabaId ?? canal.wabaId ?? '';
-  const token = opcoes.token ?? texto(canal.config['tokenAcesso']) ?? '';
+  const wabaId = options.wabaId ?? canal.wabaId ?? '';
+  const token = options.token ?? texto(canal.config['tokenAcesso']) ?? '';
   const numeroId = texto(canal.config['phoneNumberId']);
-  const coexistencia = opcoes.coexistencia === undefined ? null : opcoes.coexistencia;
+  const coexistencia = options.coexistencia === undefined ? null : options.coexistencia;
 
   // `validate_parameters!`
-  if (!wabaId) throw ErroPipe.requisicao('waba_ausente', 'O WABA ID é obrigatório.');
-  if (!token) throw ErroPipe.requisicao('token_ausente', 'O token de acesso é obrigatório.');
-  if (!numeroId) throw ErroPipe.requisicao('numero_ausente', 'O Phone Number ID é obrigatório.');
+  if (!wabaId) throw PipeError.request('waba_ausente', 'O WABA ID é obrigatório.');
+  if (!token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
+  if (!numeroId) throw PipeError.request('numero_ausente', 'O Phone Number ID é obrigatório.');
 
   const cliente = clienteGraph(token);
 
@@ -81,10 +81,10 @@ export async function configurarWebhook(
   const lerSaude = async (): Promise<SaudeDoNumero> => {
     if (saude) return saude;
     try {
-      saude = await buscarSaude({ tokenAcesso: token, numeroId, wabaId });
+      saude = await buscarSaude({ tokenAccess: token, numeroId, wabaId });
     } catch (erro) {
       // Sem saúde, a decisão conservadora do original: não registrar.
-      console.error(`[whatsapp] a checagem de saúde falhou: ${comoErro(erro).message}`);
+      console.error(`[whatsapp] a checagem de saúde falhou: ${asError(erro).message}`);
       saude = {};
     }
     return saude;
@@ -95,7 +95,7 @@ export async function configurarWebhook(
       return await cliente.numeroVerificado(numeroId);
     } catch (erro) {
       // Se a checagem falhar, supõe não verificado — o lado seguro, segundo o original.
-      console.error(`[whatsapp] a checagem de verificação do número falhou: ${comoErro(erro).message}`);
+      console.error(`[whatsapp] a checagem de verificação do número falhou: ${asError(erro).message}`);
       return false;
     }
   };
@@ -108,22 +108,22 @@ export async function configurarWebhook(
   };
 
   let atual = canal;
-  let erroDeRegistro: Error | null = null;
+  let errorOfRegistro: Error | null = null;
   if (await deveRegistrar()) {
     try {
       // `fetch_or_create_pin`: o guardado, ou um novo entre 100000 e 999999.
       const pin = texto(atual.config['pinVerificacao']) ?? String(randomInt(100_000, 1_000_000));
       await cliente.registrarNumero(numeroId, pin);
-      atual = await atualizarCanal(atual, { pinVerificacao: pin });
-    } catch (erro) {
-      erroDeRegistro = comoErro(erro);
-      console.warn(`[whatsapp] o registro do número falhou, seguindo: ${erroDeRegistro.message}`);
+      atual = await atualizarChannel(atual, { pinVerificacao: pin });
+    } catch (error) {
+      errorOfRegistro = asError(error);
+      console.warn(`[whatsapp] o registro do número falhou, seguindo: ${errorOfRegistro.message}`);
     }
   }
 
   const url = urlDoWebhook(atual.id);
   if (url.length > LIMITE_DA_URL) {
-    throw new ErroPipe(
+    throw new PipeError(
       500,
       'url_longa_demais',
       `A URL do webhook tem ${url.length} caracteres e a Meta aceita ${LIMITE_DA_URL}. Encurte PIPE_URL_API.`,
@@ -134,12 +134,12 @@ export async function configurarWebhook(
   try {
     await cliente.assinarWebhookDoNumero(wabaId, numeroId, url, verifyToken, CAMPOS_ASSINADOS);
   } catch (erro) {
-    const mensagem = comoErro(erro).message;
-    console.error(`[whatsapp] a configuração do webhook falhou: ${mensagem}`);
-    throw new ErroPipe(502, 'webhook_falhou', `Falha ao configurar o webhook: ${mensagem}`);
+    const message = asError(erro).message;
+    console.error(`[whatsapp] a configuração do webhook falhou: ${message}`);
+    throw new PipeError(502, 'webhook_falhou', `Falha ao configurar o webhook: ${message}`);
   }
 
-  return { canal: atual, erroDeRegistro };
+  return { channel: atual, errorOfRegistro };
 }
 
 /**
@@ -147,14 +147,14 @@ export async function configurarWebhook(
  * o canal para reautorização, e a tela de Canais passa a pedir que o cliente
  * refaça a conexão.
  */
-export async function configurarWebhooksDoCanal(
-  canal: CanalWhatsApp,
+export async function configureWebhooksOfChannel(
+  channel: ChannelWhatsApp,
   coexistencia: boolean | null = null,
-): Promise<CanalWhatsApp> {
+): Promise<ChannelWhatsApp> {
   try {
-    return (await configurarWebhook(canal, { coexistencia })).canal;
+    return (await configurarWebhook(channel, { coexistencia })).channel;
   } catch (erro) {
-    console.error(`[whatsapp] a configuração do webhook falhou: ${comoErro(erro).message}`);
-    return pedirReautorizacao(canal);
+    console.error(`[whatsapp] a configuração do webhook falhou: ${asError(erro).message}`);
+    return pedirReauthorization(channel);
   }
 }

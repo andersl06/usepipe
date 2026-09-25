@@ -1,10 +1,10 @@
 import { useState, type ChangeEvent } from 'react';
-import { IconeBusca, IconePortal } from '../../../componentes/icones-portal';
-import { Selecao } from '../../../componentes/selecao';
+import { IconeSearch, IconePortal } from '../../../componentes/icones-portal';
+import { Selection } from '../../../componentes/selecao';
 import { Interruptor } from '../integracoes/interruptor';
 
 /** `mensagem.direcao`/`mensagem.tipo` (`@pipe/db/schema`) — os valores que o filtro aceita. */
-const DIRECOES: [string, string][] = [
+const DIRECTIONS: [string, string][] = [
   ['', 'Todas as direções'],
   ['entrada', 'Recebidas'],
   ['saida', 'Enviadas'],
@@ -66,7 +66,7 @@ const TIPOS: [string, string][] = [
  * origem sem configuração — e só esconde o aviso amarelo. O "Id" abre, na
  * origem, o modal de notificações da mensagem; aqui é só o link.
  */
-export interface MensagemDoLog {
+export interface LogMessage {
   id: string;
   data: string;
   de: string;
@@ -77,30 +77,30 @@ export interface MensagemDoLog {
 }
 
 export function TelaDoLog({
-  busca,
+  search,
   de,
   ate,
-  direcao,
+  direction,
   tipo,
-  mensagens,
+  messages,
   temMais = false,
   carregandoMais = false,
   aoCarregarMais,
 }: {
-  busca: string;
+  search: string;
   /** Filtro por período, direção e tipo — item 4 da tarefa: a origem só tinha busca. */
   de?: string;
   ate?: string;
-  direcao?: string;
+  direction?: string;
   tipo?: string;
-  mensagens: MensagemDoLog[];
+  messages: LogMessage[];
   temMais?: boolean;
   carregandoMais?: boolean;
   aoCarregarMais?: () => void;
 }) {
   const [ativo, setAtivo] = useState(false);
-  const filtroAtivo = Boolean(busca || de || ate || direcao || tipo);
-  const mostrarBusca = filtroAtivo || mensagens.length !== 0;
+  const filterActive = Boolean(search || de || ate || direction || tipo);
+  const mostrarSearch = filterActive || messages.length !== 0;
 
   /* Selects e datas mandam de novo o MESMO formulário (GET): assim nenhum
      filtro já escolhido some quando outro muda. `?de=` vazio é inofensivo —
@@ -118,20 +118,20 @@ export function TelaDoLog({
           </div>
           <div className="ph-direita">
             <div className="lg-custom">
-              {mostrarBusca ? (
+              {mostrarSearch ? (
                 <div className="lg-doze">
                   <form id="messagesForm" className="lg-form" method="get">
                     <div className="lg-grupo">
                       <div className="lg-campo">
                         <input
                           name="busca"
-                          defaultValue={busca}
+                          defaultValue={search}
                           autoComplete="off"
                           placeholder="Pesquise por qualquer termo para filtrar as mensagens..."
                         />
                       </div>
                       <button type="submit" className="lg-busca-botao" aria-label="Pesquisar">
-                        <IconeBusca tamanho={24} />
+                        <IconeSearch tamanho={24} />
                       </button>
                     </div>
                     <div className="lg-filtros">
@@ -145,23 +145,23 @@ export function TelaDoLog({
                       </label>
                       <label className="lg-filtro">
                         <span>Direção</span>
-                        <Selecao name="direcao" defaultValue={direcao} onChange={reenviar} aria-label="Direção">
-                          {DIRECOES.map(([valor, rotulo]) => (
-                            <option key={valor} value={valor}>
+                        <Selection name="direcao" defaultValue={direction} onChange={reenviar} aria-label="Direção">
+                          {DIRECTIONS.map(([value, rotulo]) => (
+                            <option key={value} value={value}>
                               {rotulo}
                             </option>
                           ))}
-                        </Selecao>
+                        </Selection>
                       </label>
                       <label className="lg-filtro">
                         <span>Tipo</span>
-                        <Selecao name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
-                          {TIPOS.map(([valor, rotulo]) => (
-                            <option key={valor} value={valor}>
+                        <Selection name="tipo" defaultValue={tipo} onChange={reenviar} aria-label="Tipo">
+                          {TIPOS.map(([value, rotulo]) => (
+                            <option key={value} value={value}>
                               {rotulo}
                             </option>
                           ))}
-                        </Selecao>
+                        </Selection>
                       </label>
                     </div>
                   </form>
@@ -187,37 +187,37 @@ export function TelaDoLog({
           </div>
         ) : null}
 
-        {mensagens.length > 0 ? (
+        {messages.length > 0 ? (
           <div className="lg-fileira">
-            {mensagens.map((mensagem) => (
-              <div key={mensagem.id}>
+            {messages.map((message) => (
+              <div key={message.id}>
                 <article className="lg-papel">
                   <p>
-                    <strong>Date:</strong> {mensagem.data}
+                    <strong>Date:</strong> {message.data}
                   </p>
                   <p>
                     <strong>Id:</strong>
-                    <a className="lg-link"> {mensagem.id}</a>
+                    <a className="lg-link"> {message.id}</a>
                   </p>
                   <p>
-                    <strong>From:</strong> {mensagem.de}
+                    <strong>From:</strong> {message.de}
                   </p>
                   <p>
-                    <strong>To:</strong> {mensagem.para}
+                    <strong>To:</strong> {message.para}
                   </p>
                   <p>
-                    <strong>Type:</strong> {mensagem.tipo}
+                    <strong>Type:</strong> {message.tipo}
                   </p>
                   <p>
                     <strong>Content:</strong>
                   </p>
-                  <pre>{mensagem.conteudo}</pre>
-                  {mensagem.metadata ? (
+                  <pre>{message.conteudo}</pre>
+                  {message.metadata ? (
                     <div>
                       <p>
                         <strong>Metadata:</strong>
                       </p>
-                      <pre>{mensagem.metadata}</pre>
+                      <pre>{message.metadata}</pre>
                     </div>
                   ) : null}
                 </article>
@@ -226,7 +226,7 @@ export function TelaDoLog({
           </div>
         ) : null}
 
-        {mensagens.length > 0 && temMais ? (
+        {messages.length > 0 && temMais ? (
           <div className="lg-mais">
             <button type="button" onClick={aoCarregarMais} disabled={carregandoMais}>
               {carregandoMais ? 'Carregando…' : 'Carregar mais'}
@@ -234,7 +234,7 @@ export function TelaDoLog({
           </div>
         ) : null}
 
-        {filtroAtivo && mensagens.length === 0 ? (
+        {filterActive && messages.length === 0 ? (
           <div className="lg-vazio">
             <div className="lg-vazio-icone">
               <IconePortal nome="erro-contorno" tamanho={56} />
@@ -247,7 +247,7 @@ export function TelaDoLog({
           </div>
         ) : null}
 
-        {!filtroAtivo && mensagens.length === 0 ? (
+        {!filterActive && messages.length === 0 ? (
           <div>
             <div className="lg-vazio">
               <h4 className="lg-h4-apagado">Aguardando a primeira mensagem</h4>

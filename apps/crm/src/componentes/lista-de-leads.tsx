@@ -3,21 +3,21 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react';
-import { Etiqueta, EstadoVazio } from '@pipe/ui';
-import { atribuirEmMassa, desqualificarEmMassa } from '../app/leads/acoes';
+import { Etiqueta, EmptyState } from '@pipe/ui';
+import { assignInBulk, desqualificarInBulk } from '../app/leads/acoes';
 import { CelulaInline } from './celula-inline';
 import {
-  colunaDoAgrupamento,
-  colunaOrdenavel,
-  direcaoInicial,
-  escreverFiltros,
+  groupingColumn,
+  columnOrdenavel,
+  directionInitial,
+  escreverFilters,
   ROTULO_STATUS,
-  type Agrupamento,
-  type Direcao,
-  type Filtros,
+  type Grouping,
+  type Direction,
+  type SFilter,
   type Grupo,
   type LinhaLead,
-  type Ordem,
+  type Order,
   type Proprietario,
 } from '../lib/leads-visao';
 import { desde, numero } from '../lib/formato';
@@ -69,20 +69,20 @@ function ehCampoDeTexto(alvo: EventTarget | null): boolean {
 /** O que a célula sabe além da própria linha. Um objeto, e não três argumentos
  *  posicionais: a terceira coluna que precisar de mais um dado não muda a
  *  assinatura das outras nove. */
-interface Contexto {
-  fuso: string;
-  agora: Date;
-  proprietarios: Proprietario[];
+interface Context {
+  timezone: string;
+  now: Date;
+  owners: Proprietario[];
 }
 
-interface ColunaLead {
-  chave: string;
+interface ColumnLead {
+  key: string;
   rotulo: string;
   /** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */
   numerica?: boolean;
   /** Largura de partida, em px. O usuário muda e a mudança fica guardada. */
   largura: number;
-  celula: (l: LinhaLead, ctx: Contexto) => ReactNode;
+  celula: (l: LinhaLead, ctx: Context) => ReactNode;
 }
 
 /**
@@ -97,15 +97,15 @@ interface ColunaLead {
  * dias, que é o que custa dinheiro, e o lead desqualificado, que é o único
  * estado terminal.
  */
-const COLUNAS: readonly ColunaLead[] = [
+const COLUNAS: readonly ColumnLead[] = [
   {
-    chave: 'lead',
+    key: 'lead',
     rotulo: 'Lead',
     largura: 230,
     celula: (l) => <Link href={`/leads/${l.id}`}>{l.nome}</Link>,
   },
   {
-    chave: 'origem',
+    key: 'origem',
     rotulo: 'Origem',
     largura: 132,
     // Editável na própria lista. A etiqueta continua sendo a forma em repouso —
@@ -114,33 +114,33 @@ const COLUNAS: readonly ColunaLead[] = [
       <CelulaInline
         leadId={l.id}
         campo="origem"
-        valor={l.origem}
-        vazio="—"
+        value={l.origem}
+        empty="—"
         pintar={(t) => <Etiqueta>{t}</Etiqueta>}
       />
     ),
   },
   {
-    chave: 'score',
+    key: 'score',
     rotulo: 'Score',
     numerica: true,
     largura: 86,
     celula: (l) => (l.score === null ? '—' : numero(l.score)),
   },
   {
-    chave: 'faixa',
+    key: 'faixa',
     rotulo: 'Faixa',
     largura: 120,
     celula: (l) => (l.faixa ? <Etiqueta>{l.faixa}</Etiqueta> : '—'),
   },
   {
-    chave: 'fila',
+    key: 'fila',
     rotulo: 'Fila',
     largura: 132,
-    celula: (l) => (l.fila ? <Etiqueta>{l.fila}</Etiqueta> : '—'),
+    celula: (l) => (l.queue ? <Etiqueta>{l.queue}</Etiqueta> : '—'),
   },
   {
-    chave: 'proprietario',
+    key: 'proprietario',
     rotulo: 'Proprietário',
     largura: 160,
     // A troca de dono na própria lista, que é o motivo mais comum de alguém
@@ -149,14 +149,14 @@ const COLUNAS: readonly ColunaLead[] = [
       <CelulaInline
         leadId={l.id}
         campo="proprietario"
-        valor={l.proprietarioId}
-        opcoes={ctx.proprietarios}
-        vazio="—"
+        value={l.proprietarioId}
+        options={ctx.owners}
+        empty="—"
       />
     ),
   },
   {
-    chave: 'fase',
+    key: 'fase',
     rotulo: 'Fase',
     largura: 136,
     celula: (l) =>
@@ -169,7 +169,7 @@ const COLUNAS: readonly ColunaLead[] = [
       ),
   },
   {
-    chave: 'dias',
+    key: 'dias',
     rotulo: 'Dias na fase',
     numerica: true,
     largura: 118,
@@ -183,50 +183,50 @@ const COLUNAS: readonly ColunaLead[] = [
       ),
   },
   {
-    chave: 'atividade',
+    key: 'atividade',
     rotulo: 'Última atividade',
     largura: 190,
     celula: (l, ctx) =>
-      l.ultimaAtividade
-        ? `${l.ultimaAtividadeTipo ?? 'atividade'} · ${desde(l.ultimaAtividade, ctx.fuso, ctx.agora)}`
+      l.ultimaActivity
+        ? `${l.ultimaActivityTipo ?? 'atividade'} · ${desde(l.ultimaActivity, ctx.timezone, ctx.now)}`
         : '—',
   },
 ];
 
-const PADROES = Object.fromEntries(COLUNAS.map((c) => [c.chave, c.largura]));
-const ROTULOS = Object.fromEntries(COLUNAS.map((c) => [c.chave, c.rotulo]));
+const DEFAULTS = Object.fromEntries(COLUNAS.map((c) => [c.key, c.largura]));
+const ROTULOS = Object.fromEntries(COLUNAS.map((c) => [c.key, c.rotulo]));
 
 /**
  * A coluna que não se oculta nem se move. É o `labelIdentifier` do Twenty: a
  * que diz quem é a linha, e a única que leva à ficha.
  */
-const COLUNA_FIXA = 'lead';
+const COLUMN_FIXA = 'lead';
 
 interface Props {
-  grupos: Grupo[];
+  groups: Grupo[];
   fuso: string;
   agora: Date;
   aba: string;
-  busca: string;
-  por: Agrupamento;
-  ordem: Ordem;
-  direcao: Direcao;
-  filtros: Filtros;
+  search: string;
+  by: Grouping;
+  order: Order;
+  direction: Direction;
+  filters: SFilter;
   proprietarios: Proprietario[];
   /** Quantas linhas vieram, para o rodapé da seleção falar em números reais. */
   total: number;
 }
 
 export function ListaDeLeads({
-  grupos,
+  groups,
   fuso,
   agora,
   aba,
-  busca,
-  por,
-  ordem,
-  direcao,
-  filtros,
+  search,
+  by,
+  order,
+  direction,
+  filters,
   proprietarios,
   total,
 }: Props) {
@@ -235,7 +235,7 @@ export function ListaDeLeads({
   const [ancora, setAncora] = useState<number | null>(null);
   const [recado, setRecado] = useState<string | null>(null);
   const [emCurso, iniciar] = useTransition();
-  const larguras = useLarguras('pipe.crm.leads.larguras', PADROES);
+  const larguras = useLarguras('pipe.crm.leads.larguras', DEFAULTS);
   /** A linha sob o cursor do teclado. `null` é "ninguém", que é o estado inicial. */
   const [focada, setFocada] = useState<number | null>(null);
   const tabela = useRef<HTMLTableElement | null>(null);
@@ -244,35 +244,35 @@ export function ListaDeLeads({
   // A coluna que o cabeçalho do grupo já está dizendo sai da tabela: repeti-la
   // em cada linha é gastar largura para dizer o que acabou de ser dito.
   const disponiveis = useMemo(() => {
-    const redundante = colunaDoAgrupamento(por);
-    return redundante ? COLUNAS.filter((c) => c.chave !== redundante) : COLUNAS;
-  }, [por]);
+    const redundante = groupingColumn(by);
+    return redundante ? COLUNAS.filter((c) => c.key !== redundante) : COLUNAS;
+  }, [by]);
 
-  const contexto = useMemo<Contexto>(
-    () => ({ fuso, agora, proprietarios }),
+  const context = useMemo<Context>(
+    () => ({ timezone, now, owners }),
     [fuso, agora, proprietarios],
   );
 
   const arranjo = useColunas(
     'pipe.crm.leads.colunas',
-    useMemo(() => disponiveis.map((c) => c.chave), [disponiveis]),
-    COLUNA_FIXA,
+    useMemo(() => disponiveis.map((c) => c.key), [disponiveis]),
+    COLUMN_FIXA,
   );
 
   // A fixa vem primeiro sempre, e o resto na ordem que a pessoa arrumou. O
   // `<colgroup>`, o cabeçalho e a linha saem daqui, então não há como um
   // desandar em relação ao outro.
   const colunas = useMemo(() => {
-    const porChave = new Map(disponiveis.map((c) => [c.chave, c]));
-    return [COLUNA_FIXA, ...arranjo.visiveis]
-      .map((chave) => porChave.get(chave))
-      .filter((c): c is ColunaLead => c !== undefined);
+    const byKey = new Map(disponiveis.map((c) => [c.key, c]));
+    return [COLUMN_FIXA, ...arranjo.visiveis]
+      .map((key) => byKey.get(key))
+      .filter((c): c is ColumnLead => c !== undefined);
   }, [disponiveis, arranjo.visiveis]);
 
-  const todos = useMemo(() => grupos.flatMap((g) => g.linhas), [grupos]);
+  const todos = useMemo(() => groups.flatMap((g) => g.linhas), [groups]);
   /** Posição de cada lead na lista achatada, para o intervalo do Shift saber
    *  contar através da fronteira dos grupos. */
-  const posicao = useMemo(() => new Map(todos.map((l, i) => [l.id, i])), [todos]);
+  const position = useMemo(() => new Map(todos.map((l, i) => [l.id, i])), [todos]);
   const todosMarcados = todos.length > 0 && marcados.size === todos.length;
 
   /**
@@ -285,11 +285,11 @@ export function ListaDeLeads({
       if (e.metaKey || e.ctrlKey || e.altKey) return;
 
       if (e.key === '/' && !ehCampoDeTexto(e.target)) {
-        const busca = document.querySelector<HTMLInputElement>('input[type="search"][name="q"]');
-        if (!busca) return;
+        const search = document.querySelector<HTMLInputElement>('input[type="search"][name="q"]');
+        if (!search) return;
         e.preventDefault();
-        busca.focus();
-        busca.select();
+        search.focus();
+        search.select();
         return;
       }
 
@@ -380,20 +380,20 @@ export function ListaDeLeads({
 
   /** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
    *  quando a saída é justamente largar o filtro. */
-  function endereco(extra: Record<string, string | null>, comFiltros: Filtros = filtros) {
+  function endereco(extra: Record<string, string | null>, withFilters: SFilter = filters) {
     const p = new URLSearchParams({ aba });
-    if (busca) p.set('q', busca);
-    if (por !== 'nenhum') p.set('agrupar', por);
-    if (ordem !== 'nenhuma') {
-      p.set('ordem', ordem);
-      p.set('dir', direcao);
+    if (search) p.set('q', search);
+    if (by !== 'nenhum') p.set('agrupar', by);
+    if (order !== 'nenhuma') {
+      p.set('ordem', order);
+      p.set('dir', direction);
     }
     // O filtro acompanha: 'Limpar a busca' que apagasse o filtro junto mandaria
     // a pessoa procurar o lead sumido no lugar errado.
-    escreverFiltros(p, comFiltros);
-    for (const [chave, valor] of Object.entries(extra)) {
-      if (valor === null) p.delete(chave);
-      else p.set(chave, valor);
+    escreverFilters(p, withFilters);
+    for (const [key, value] of Object.entries(extra)) {
+      if (value === null) p.delete(key);
+      else p.set(key, value);
     }
     return `/leads?${p.toString()}`;
   }
@@ -404,10 +404,10 @@ export function ListaDeLeads({
    * tela. Três cliques fecham o ciclo, e o terceiro é a única forma de desfazer
    * sem mexer na barra de endereço.
    */
-  function ordenacao(chave: string) {
-    if (ordem !== chave) return endereco({ ordem: chave, dir: direcaoInicial(chave) });
-    if (direcao === direcaoInicial(chave)) {
-      return endereco({ ordem: chave, dir: direcao === 'asc' ? 'desc' : 'asc' });
+  function sorting(key: string) {
+    if (order !== key) return endereco({ order: key, dir: directionInitial(key) });
+    if (direction === directionInitial(key)) {
+      return endereco({ ordem: key, dir: direction === 'asc' ? 'desc' : 'asc' });
     }
     return endereco({ ordem: null, dir: null });
   }
@@ -430,10 +430,10 @@ export function ListaDeLeads({
   // a pessoa procurar o problema no lugar errado — e o filtro é o caso mais
   // traiçoeiro, porque ele fica ativo entre visitas dentro da mesma visão.
   if (total === 0) {
-    const filtrado = Object.keys(filtros).length > 0;
-    if (filtrado && !busca) {
+    const filtrado = Object.keys(filters).length > 0;
+    if (filtrado && !search) {
       return (
-        <EstadoVazio titulo="Nenhum lead para este filtro." ilustracao="busca">
+        <EmptyState titulo="Nenhum lead para este filtro." illustration="busca">
           <span>
             O filtro está ativo e nenhum lead casa com ele. A base não está vazia — o recorte
             está.
@@ -443,24 +443,24 @@ export function ListaDeLeads({
               Limpar o filtro
             </Link>
           </span>
-        </EstadoVazio>
+        </EmptyState>
       );
     }
-    if (busca) {
+    if (search) {
       return (
-        <EstadoVazio titulo="Nenhum lead para esta busca." ilustracao="busca">
-          <span>Nada casou com “{busca}” em nome, CPF, telefone ou e-mail.</span>
+        <EmptyState titulo="Nenhum lead para esta busca." illustration="busca">
+          <span>Nada casou com “{search}” em nome, CPF, telefone ou e-mail.</span>
           <span className="acoes-erro">
             <Link className="btn" href={endereco({ q: null })}>
               Limpar a busca
             </Link>
           </span>
-        </EstadoVazio>
+        </EmptyState>
       );
     }
     if (aba !== 'todos') {
       return (
-        <EstadoVazio titulo="Nenhum lead neste recorte." ilustracao="concluido">
+        <EmptyState titulo="Nenhum lead neste recorte." illustration="concluido">
           <span>
             Este é um recorte vazio, não uma base vazia. Nenhum lead se encaixa nele agora.
           </span>
@@ -469,16 +469,16 @@ export function ListaDeLeads({
               Ver todos os leads
             </Link>
           </span>
-        </EstadoVazio>
+        </EmptyState>
       );
     }
     return (
-      <EstadoVazio titulo="Nenhum lead ainda." ilustracao="vazio">
+      <EmptyState titulo="Nenhum lead ainda." illustration="vazio">
         <span>
           Lead entra por formulário, por importação ou pela API. Assim que o primeiro entrar, ele
           aparece aqui já pontuado.
         </span>
-      </EstadoVazio>
+      </EmptyState>
     );
   }
 
@@ -496,13 +496,13 @@ export function ListaDeLeads({
       <div className="barra-lista">
         <ControleDeColunas
           rotulos={ROTULOS}
-          fixa={COLUNA_FIXA}
+          fixa={COLUMN_FIXA}
           visiveis={arranjo.visiveis}
           ocultas={arranjo.ocultas}
           aoOcultar={arranjo.ocultar}
           aoMostrar={arranjo.mostrar}
           aoMover={arranjo.mover}
-          aoRestaurar={arranjo.restaurar}
+          toRestore={arranjo.restaurar}
         />
       </div>
 
@@ -511,7 +511,7 @@ export function ListaDeLeads({
           <colgroup>
             <col style={{ width: '32px' }} />
             {colunas.map((c) => (
-              <col key={c.chave} style={{ width: `${larguras.largura(c.chave)}px` }} />
+              <col key={c.key} style={{ width: `${larguras.largura(c.key)}px` }} />
             ))}
             {/* Coluna de sobra. Sem ela o navegador estica as outras para
                 preencher a tela larga, e a largura arrastada deixa de valer. */}
@@ -532,18 +532,18 @@ export function ListaDeLeads({
                 />
               </th>
               {colunas.map((c) => {
-                const ativa = ordem === c.chave;
+                const active = order === c.key;
                 return (
                   <th
-                    key={c.chave}
-                    aria-sort={ativa ? (direcao === 'asc' ? 'ascending' : 'descending') : undefined}
-                    className={larguras.colunaEmArraste === c.chave ? 'arrastando' : undefined}
+                    key={c.key}
+                    aria-sort={active ? (direction === 'asc' ? 'ascending' : 'descending') : undefined}
+                    className={larguras.colunaEmArraste === c.key ? 'arrastando' : undefined}
                   >
-                    {colunaOrdenavel(c.chave) ? (
-                      <Link href={ordenacao(c.chave)} className="ord" scroll={false}>
+                    {columnOrdenavel(c.key) ? (
+                      <Link href={sorting(c.key)} className="ord" scroll={false}>
                         {c.rotulo}
                         <span className="seta" aria-hidden="true">
-                          {ativa ? (direcao === 'asc' ? '↑' : '↓') : ''}
+                          {active ? (direction === 'asc' ? '↑' : '↓') : ''}
                         </span>
                       </Link>
                     ) : (
@@ -555,12 +555,12 @@ export function ListaDeLeads({
                       aria-orientation="vertical"
                       aria-label={`Largura da coluna ${c.rotulo}`}
                       tabIndex={0}
-                      onPointerDown={larguras.aoPegar(c.chave)}
+                      onPointerDown={larguras.aoPegar(c.key)}
                       onPointerMove={larguras.aoMover}
                       onPointerUp={larguras.aoSoltar}
                       onPointerCancel={larguras.aoSoltar}
-                      onKeyDown={larguras.aoTeclar(c.chave)}
-                      onDoubleClick={larguras.aoRestaurar(c.chave)}
+                      onKeyDown={larguras.aoTeclar(c.key)}
+                      onDoubleClick={larguras.aoRestaurar(c.key)}
                     />
                   </th>
                 );
@@ -569,7 +569,7 @@ export function ListaDeLeads({
             </tr>
           </thead>
 
-          {grupos.map((grupo) => (
+          {groups.map((grupo) => (
             <tbody key={grupo.titulo || 'todos'}>
               {grupo.titulo ? (
                 <tr className="grupo">
@@ -602,16 +602,16 @@ export function ListaDeLeads({
                       type="checkbox"
                       checked={marcados.has(l.id)}
                       onChange={() => {}}
-                      onClick={(e) => alternar(l.id, posicao.get(l.id) ?? 0, e.shiftKey)}
+                      onClick={(e) => alternar(l.id, position.get(l.id) ?? 0, e.shiftKey)}
                       aria-label={`Selecionar ${l.nome}`}
                     />
                   </td>
                   {colunas.map((c) => (
                     <td
-                      key={c.chave}
-                      className={c.numerica ? 'num' : c.chave === 'lead' ? 'who' : undefined}
+                      key={c.key}
+                      className={c.numerica ? 'num' : c.key === 'lead' ? 'who' : undefined}
                     >
-                      {c.celula(l, contexto)}
+                      {c.celula(l, context)}
                     </td>
                   ))}
                   <td />
@@ -623,16 +623,16 @@ export function ListaDeLeads({
       </div>
 
       {marcados.size > 0 ? (
-        <BarraEmMassa
+        <BarraInBulk
           quantos={marcados.size}
           proprietarios={proprietarios}
           emCurso={emCurso}
           aoLimpar={() => setMarcados(new Set())}
           aoAtribuir={(id) =>
-            executar(() => atribuirEmMassa([...marcados], id), 'leads passaram de proprietário')
+            executar(() => assignInBulk([...marcados], id), 'leads passaram de proprietário')
           }
           aoDesqualificar={() =>
-            executar(() => desqualificarEmMassa([...marcados]), 'leads foram desqualificados')
+            executar(() => desqualificarInBulk([...marcados]), 'leads foram desqualificados')
           }
         />
       ) : null}
@@ -649,7 +649,7 @@ export function ListaDeLeads({
  * perto do polegar de quem usa laptop. Desqualificar pede confirmação porque
  * escreve num campo de estado terminal e não tem desfazer.
  */
-function BarraEmMassa({
+function BarraInBulk({
   quantos,
   proprietarios,
   emCurso,
@@ -683,7 +683,7 @@ function BarraEmMassa({
             <option value="">Passar para</option>
             {proprietarios.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.nome}
+                {p.name}
               </option>
             ))}
           </select>

@@ -1,34 +1,34 @@
 import { Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
 import {
-  FILA_DICIONARIO_CRM,
-  FILA_ENTRADA,
-  FILA_ENTREGA,
-  FILA_ESPELHO_CRM,
-  FILA_MIDIA,
-  FILA_PROCESS_HTTP,
-  FILA_SLA,
+  QUEUE_DICTIONARY_CRM,
+  QUEUE_INBOUND,
+  QUEUE_DELIVERY,
+  QUEUE_MIRROR_CRM,
+  QUEUE_MEDIA,
+  QUEUE_PROCESS_HTTP,
+  QUEUE_SLA,
   conexaoRedis,
 } from '@pipe/workers';
 import type {
-  JobDicionarioCrm,
-  JobEntrada,
-  JobEntrega,
-  JobEspelhoCrm,
-  JobMidia,
+  JobDictionaryCrm,
+  JobInbound,
+  JobDelivery,
+  JobMirrorCrm,
+  JobMedia,
   JobProcessHttp,
   JobSla,
 } from '@pipe/workers';
-import { resolverCanal } from './banco.js';
-import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
+import { resolveChannel } from './banco.js';
+import { SEM_CRM, syncDictionary, tenantsOfDictionary } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
 import { executarProcessHttp } from './dominio/fluxo.js';
 import { renovarTokensInstagram } from './dominio/instagram/renovacao.js';
-import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
-import { baixarMidiaDoAnexo, midiasPendentes } from './dominio/midia.js';
-import { checarSlaDaConversa, conversasParaChecarSla } from './dominio/gestao/sla-motor.js';
-import { FILA_IMPORTACAO, processarImportacao } from '@pipe/workers';
-import type { JobImportacao } from '@pipe/workers';
+import { contactsWithoutMirror, syncContact } from './dominio/espelho-crm.js';
+import { baixarMediaOfAttachment, midiasPendentes } from './dominio/midia.js';
+import { checarSlaOfConversation, conversationsForChecarSla } from './dominio/gestao/sla-motor.js';
+import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
+import type { JobImport } from '@pipe/workers';
 
 /**
  * A API só empurra trabalho para a fila; quem executa é `apps/workers`.
@@ -42,19 +42,19 @@ import type { JobImportacao } from '@pipe/workers';
  * vez de na próxima varredura.
  */
 
-export type ModoFila = 'bullmq' | 'memoria';
+export type ModoQueue = 'bullmq' | 'memoria';
 
-export function modo(): ModoFila {
+export function modo(): ModoQueue {
   return process.env['PIPE_FILAS'] === 'memoria' ? 'memoria' : 'bullmq';
 }
 
 let conexao: IORedis | null = null;
-let filaEntrada: Queue | null = null;
-let filaEntrega: Queue<JobEntrega> | null = null;
-let filaEspelhoCrm: Queue | null = null;
-let filaMidia: Queue<JobMidia> | null = null;
-let filaSla: Queue<JobSla> | null = null;
-let filaProcessHttp: Queue<JobProcessHttp> | null = null;
+let queueInbound: Queue | null = null;
+let queueDelivery: Queue<JobDelivery> | null = null;
+let queueMirrorCrm: Queue | null = null;
+let queueMedia: Queue<JobMedia> | null = null;
+let queueSla: Queue<JobSla> | null = null;
+let queueProcessHttp: Queue<JobProcessHttp> | null = null;
 let consumidorProcessHttp: Worker<JobProcessHttp> | null = null;
 let relogioProcessHttp: ReturnType<typeof setInterval> | null = null;
 const processHttpEmMemoria: JobProcessHttp[] = [];
@@ -68,14 +68,14 @@ function redis(): IORedis {
  * A Meta reenvia o evento se a resposta demorar. Por isso o webhook responde 200 e
  * o processamento vai para a fila — nunca o contrário.
  */
-export async function enfileirarEntrada(canalId: string, payload: unknown): Promise<void> {
+export async function enqueueInbound(channelId: string, payload: unknown): Promise<void> {
   if (modo() === 'memoria') {
-    const canal = await resolverCanal(canalId);
+    const canal = await resolveChannel(channelId);
     if (canal) await processarPayload(canal, payload);
     return;
   }
-  filaEntrada ??= new Queue(FILA_ENTRADA, { connection: redis() });
-  await filaEntrada.add('entrada', { canalId, payload }, { removeOnComplete: 1_000 });
+  queueInbound ??= new Queue(QUEUE_INBOUND, { connection: redis() });
+  await queueInbound.add('entrada', { channelId, payload }, { removeOnComplete: 1_000 });
 }
 
 export async function enfileirarProcessHttp(job: JobProcessHttp): Promise<void> {
@@ -87,8 +87,8 @@ export async function enfileirarProcessHttp(job: JobProcessHttp): Promise<void> 
     else void executarProcessHttp(job.processoId).then(continuar);
     return;
   }
-  filaProcessHttp ??= new Queue(FILA_PROCESS_HTTP, { connection: redis() });
-  await filaProcessHttp.add('chamar', job, {
+  queueProcessHttp ??= new Queue(QUEUE_PROCESS_HTTP, { connection: redis() });
+  await queueProcessHttp.add('chamar', job, {
     jobId: `process-http-${job.processoId}`,
     removeOnComplete: 1_000,
     attempts: 1,
@@ -98,7 +98,7 @@ export async function enfileirarProcessHttp(job: JobProcessHttp): Promise<void> 
 export function consumirProcessHttp(): void {
   if (modo() === 'memoria' || consumidorProcessHttp) return;
   consumidorProcessHttp = new Worker<JobProcessHttp>(
-    FILA_PROCESS_HTTP,
+    QUEUE_PROCESS_HTTP,
     async (job) => {
       for (const processoId of await executarProcessHttp(job.data.processoId)) {
         await enfileirarProcessHttp({ tenantId: job.data.tenantId, processoId });
@@ -108,7 +108,7 @@ export function consumirProcessHttp(): void {
   );
 }
 
-export async function agendarVarreduraProcessHttp(): Promise<void> {
+export async function scheduleSweepProcessHttp(): Promise<void> {
   if (modo() !== 'memoria' || process.env['PIPE_PROCESS_HTTP_EM_MEMORIA'] !== '1' || relogioProcessHttp) return;
   let rodando = false;
   relogioProcessHttp = setInterval(() => {
@@ -128,10 +128,10 @@ export async function agendarVarreduraProcessHttp(): Promise<void> {
   relogioProcessHttp.unref();
 }
 
-export async function enfileirarEntrega(job: JobEntrega): Promise<void> {
+export async function enqueueDelivery(job: JobDelivery): Promise<void> {
   if (modo() === 'memoria') return;
-  filaEntrega ??= new Queue(FILA_ENTREGA, { connection: redis() });
-  await filaEntrega.add('entrega', job, { removeOnComplete: 1_000 });
+  queueDelivery ??= new Queue(QUEUE_DELIVERY, { connection: redis() });
+  await queueDelivery.add('entrega', job, { removeOnComplete: 1_000 });
 }
 
 /**
@@ -144,11 +144,11 @@ export async function enfileirarEntrega(job: JobEntrega): Promise<void> {
  * No modo memória não espelha: a integração fala com um serviço externo, e o modo
  * memória existe justamente para rodar sem serviço externo nenhum.
  */
-export async function enfileirarEspelhoCrm(job: JobEspelhoCrm): Promise<void> {
+export async function enqueueMirrorCrm(job: JobMirrorCrm): Promise<void> {
   if (modo() === 'memoria') return;
   try {
-    filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() });
-    await filaEspelhoCrm.add('espelhar', job, {
+    queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() });
+    await queueMirrorCrm.add('espelhar', job, {
       removeOnComplete: 1_000,
       // Um contato por vez, e o mesmo id de job: se a conversa mudar o contato três
       // vezes em segundos, isso vira UM espelho, não três corridas concorrentes
@@ -157,16 +157,16 @@ export async function enfileirarEspelhoCrm(job: JobEspelhoCrm): Promise<void> {
       // Hífen, NUNCA `:`. O BullMQ 5 recusa id customizado com `:` (só aceita o formato
       // de três partes dos jobs repetidos antigos) — e como o `catch` abaixo engole o
       // erro, `espelho:<uuid>` fazia TODO enfileiramento falhar em silêncio.
-      jobId: `espelho-${job.contatoId}`,
+      jobId: `espelho-${job.contactId}`,
       attempts: 5,
       backoff: { type: 'exponential', delay: 5_000 },
     });
-  } catch (erro) {
-    console.error(`[espelho-crm] não enfileirou ${job.contatoId}: ${(erro as Error).message}`);
+  } catch (error) {
+    console.error(`[espelho-crm] não enfileirou ${job.contactId}: ${(error as Error).message}`);
   }
 }
 
-let consumidorEspelhoCrm: Worker | null = null;
+let consumerMirrorCrm: Worker | null = null;
 
 /**
  * Consome o espelho do CRM — na `api`, e não em `apps/workers`, pelo mesmo motivo da
@@ -176,20 +176,20 @@ let consumidorEspelhoCrm: Worker | null = null;
  * `varredura` reenfileira quem ficou para trás. A varredura existe porque a fila pode
  * perder job e o contato não pode ficar sem link para a ficha.
  */
-export function consumirEspelhoCrm(): void {
-  if (modo() === 'memoria' || consumidorEspelhoCrm) return;
-  consumidorEspelhoCrm = new Worker(
-    FILA_ESPELHO_CRM,
+export function consumeMirrorCrm(): void {
+  if (modo() === 'memoria' || consumerMirrorCrm) return;
+  consumerMirrorCrm = new Worker(
+    QUEUE_MIRROR_CRM,
     async (job) => {
       if (job.name === 'varredura') {
-        const pendentes = await contatosSemEspelho();
+        const pendentes = await contactsWithoutMirror();
         // Em série: o objetivo é reenfileirar, não competir com o próprio consumidor.
-        for (const p of pendentes) await enfileirarEspelhoCrm(p);
+        for (const p of pendentes) await enqueueMirrorCrm(p);
         return pendentes.length;
       }
-      const dados = job.data as JobEspelhoCrm;
-      const r = await sincronizarContato(dados.tenantId, dados.contatoId);
-      return r.estado;
+      const data = job.data as JobMirrorCrm;
+      const r = await syncContact(data.tenantId, data.contactId);
+      return r.state;
     },
     {
       connection: redis(),
@@ -199,10 +199,10 @@ export function consumirEspelhoCrm(): void {
 }
 
 /** A varredura de segurança do espelho. Ver `contatosSemEspelho`. */
-export async function agendarVarreduraEspelhoCrm(): Promise<void> {
+export async function scheduleSweepMirrorCrm(): Promise<void> {
   if (modo() === 'memoria') return;
-  filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() });
-  await filaEspelhoCrm.upsertJobScheduler(
+  queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() });
+  await queueMirrorCrm.upsertJobScheduler(
     'varredura-espelho-crm',
     { every: Number(process.env['PIPE_ESPELHO_CRM_VARREDURA_MS'] ?? 300_000) },
     { name: 'varredura', data: {} },
@@ -220,25 +220,25 @@ export async function agendarVarreduraEspelhoCrm(): Promise<void> {
  * para rodar sem serviço externo nenhum — quem quiser testar o download de verdade
  * chama `baixarMidiaDoAnexo` direto, como faz `tests/midia-recebida.test.ts`.
  */
-export async function enfileirarDownloadMidia(job: JobMidia): Promise<void> {
+export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
   if (modo() === 'memoria') return;
   try {
-    filaMidia ??= new Queue(FILA_MIDIA, { connection: redis() });
-    await filaMidia.add('baixar', job, {
+    queueMedia ??= new Queue(QUEUE_MEDIA, { connection: redis() });
+    await queueMedia.add('baixar', job, {
       removeOnComplete: 1_000,
       // Um por anexo: o empurrão de agora e o da varredura, se se cruzarem, viram UM
       // job — `baixarMidiaDoAnexo` também é idempotente por conta própria (`bytes = 0`
       // na condição do `select`), então isto é só para não gastar chamada à toa.
-      jobId: `midia-${job.anexoId}`,
+      jobId: `midia-${job.attachmentId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[midia] não enfileirou ${job.anexoId}: ${(erro as Error).message}`);
+    console.error(`[midia] não enfileirou ${job.attachmentId}: ${(erro as Error).message}`);
   }
 }
 
-let consumidorMidia: Worker | null = null;
-let relogioMidia: ReturnType<typeof setInterval> | null = null;
+let consumerMedia: Worker | null = null;
+let relogioMedia: ReturnType<typeof setInterval> | null = null;
 
 /**
  * Consome o download de mídia — na `api`, como o espelho e o dicionário: quem já
@@ -248,19 +248,19 @@ let relogioMidia: ReturnType<typeof setInterval> | null = null;
  * por backoff mora dentro de `baixarMidiaDoAnexo`, não aqui, por isso `attempts: 1`
  * acima: o BullMQ nunca precisa tentar de novo por conta própria.
  */
-export function consumirDownloadMidia(): void {
-  if (modo() === 'memoria' || consumidorMidia) return;
-  consumidorMidia = new Worker(
-    FILA_MIDIA,
+export function consumeDownloadMedia(): void {
+  if (modo() === 'memoria' || consumerMedia) return;
+  consumerMedia = new Worker(
+    QUEUE_MEDIA,
     async (job) => {
       if (job.name === 'varredura') {
         const pendentes = await midiasPendentes();
-        for (const p of pendentes) await enfileirarDownloadMidia(p);
+        for (const p of pendentes) await enqueueDownloadMedia(p);
         return pendentes.length;
       }
-      const dados = job.data as JobMidia;
-      const r = await baixarMidiaDoAnexo(dados.tenantId, dados.anexoId);
-      return r.estado;
+      const dados = job.data as JobMedia;
+      const r = await baixarMediaOfAttachment(dados.tenantId, dados.attachmentId);
+      return r.state;
     },
     {
       connection: redis(),
@@ -276,20 +276,20 @@ export function consumirDownloadMidia(): void {
  * `FilaParada` precisar olhar mídia sem baixar, mesma dívida já anotada para a
  * `pipe-importacao` (mais abaixo neste arquivo).
  */
-export async function agendarVarreduraDownloadMidia(): Promise<void> {
+export async function scheduleSweepDownloadMedia(): Promise<void> {
   if (modo() === 'memoria') {
     // Sem Redis (a demonstração na VPS roda assim), a varredura vira um relógio no
     // próprio processo — só com `PIPE_MIDIA_EM_MEMORIA=1`, para o teste continuar
     // vendo o anexo cru logo depois do webhook. O empurrão por anexo não existe
     // aqui: o intervalo curto faz o papel dele.
-    if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || relogioMidia) return;
+    if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || relogioMedia) return;
     let rodando = false;
-    relogioMidia = setInterval(() => {
+    relogioMedia = setInterval(() => {
       if (rodando) return;
       rodando = true;
       void (async () => {
         try {
-          for (const p of await midiasPendentes()) await baixarMidiaDoAnexo(p.tenantId, p.anexoId);
+          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.attachmentId);
         } catch (erro) {
           console.error(`[midia] varredura em memória falhou: ${(erro as Error).message}`);
         } finally {
@@ -297,14 +297,14 @@ export async function agendarVarreduraDownloadMidia(): Promise<void> {
         }
       })();
     }, Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 15_000));
-    relogioMidia.unref();
+    relogioMedia.unref();
     return;
   }
-  filaMidia ??= new Queue(FILA_MIDIA, { connection: redis() });
-  await filaMidia.upsertJobScheduler(
+  queueMedia ??= new Queue(QUEUE_MEDIA, { connection: redis() });
+  await queueMedia.upsertJobScheduler(
     'varredura-midia',
     { every: Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 300_000) },
-    { name: 'varredura', data: {} as JobMidia },
+    { name: 'varredura', data: {} as JobMedia },
   );
 }
 
@@ -319,19 +319,19 @@ export async function agendarVarreduraDownloadMidia(): Promise<void> {
  * `PIPE_SLA_EM_MEMORIA=1` (ver `agendarVarreduraSla`), que varre direto sem fila —
  * mesmo desenho do `PIPE_MIDIA_EM_MEMORIA`.
  */
-export async function enfileirarChecagemSla(job: JobSla): Promise<void> {
+export async function enqueueCheckSla(job: JobSla): Promise<void> {
   if (modo() === 'memoria') return;
   try {
-    filaSla ??= new Queue(FILA_SLA, { connection: redis() });
-    await filaSla.add('checar', job, {
+    queueSla ??= new Queue(QUEUE_SLA, { connection: redis() });
+    await queueSla.add('checar', job, {
       removeOnComplete: 1_000,
       // Uma checagem pendente por conversa: um empurrão a mais enquanto a anterior
       // ainda não rodou vira UM job, não dois competindo pela mesma linha.
-      jobId: `sla-${job.conversaId}`,
+      jobId: `sla-${job.conversationId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[sla] não enfileirou ${job.conversaId}: ${(erro as Error).message}`);
+    console.error(`[sla] não enfileirou ${job.conversationId}: ${(erro as Error).message}`);
   }
 }
 
@@ -345,18 +345,18 @@ let relogioSla: ReturnType<typeof setInterval> | null = null;
  * `checar` decide alerta/estouro de UMA conversa; `varredura` reenfileira quem
  * ficou para trás — mesmos dois nomes de job da mídia.
  */
-export function consumirChecagemSla(): void {
+export function consumeCheckSla(): void {
   if (modo() === 'memoria' || consumidorSla) return;
   consumidorSla = new Worker(
-    FILA_SLA,
+    QUEUE_SLA,
     async (job) => {
       if (job.name === 'varredura') {
-        const pendentes = await conversasParaChecarSla();
-        for (const p of pendentes) await enfileirarChecagemSla(p);
+        const pendentes = await conversationsForChecarSla();
+        for (const p of pendentes) await enqueueCheckSla(p);
         return pendentes.length;
       }
       const dados = job.data as JobSla;
-      await checarSlaDaConversa(dados.tenantId, dados.conversaId);
+      await checarSlaOfConversation(dados.tenantId, dados.conversationId);
     },
     {
       connection: redis(),
@@ -371,7 +371,7 @@ export function consumirChecagemSla(): void {
  * ponytail: a fila não entra em `estadoDasFilas` — mesma dívida já anotada para a
  * `pipe-midia` e a `pipe-importacao` (mais abaixo neste arquivo).
  */
-export async function agendarVarreduraSla(): Promise<void> {
+export async function scheduleSweepSla(): Promise<void> {
   if (modo() === 'memoria') {
     // Sem Redis, a varredura vira um relógio no próprio processo — só com
     // `PIPE_SLA_EM_MEMORIA=1`, para o teste de ponta a ponta ver alerta/estouro
@@ -383,8 +383,8 @@ export async function agendarVarreduraSla(): Promise<void> {
       rodando = true;
       void (async () => {
         try {
-          for (const p of await conversasParaChecarSla()) {
-            await checarSlaDaConversa(p.tenantId, p.conversaId);
+          for (const p of await conversationsForChecarSla()) {
+            await checarSlaOfConversation(p.tenantId, p.conversaId);
           }
         } catch (erro) {
           console.error(`[sla] varredura em memória falhou: ${(erro as Error).message}`);
@@ -396,16 +396,16 @@ export async function agendarVarreduraSla(): Promise<void> {
     relogioSla.unref();
     return;
   }
-  filaSla ??= new Queue(FILA_SLA, { connection: redis() });
-  await filaSla.upsertJobScheduler(
+  queueSla ??= new Queue(QUEUE_SLA, { connection: redis() });
+  await queueSla.upsertJobScheduler(
     'varredura-sla',
     { every: Number(process.env['PIPE_SLA_VARREDURA_MS'] ?? 60_000) },
     { name: 'varredura', data: {} as JobSla },
   );
 }
 
-let filaDicionarioCrm: Queue<JobDicionarioCrm> | null = null;
-let consumidorDicionarioCrm: Worker | null = null;
+let queueDictionaryCrm: Queue<JobDictionaryCrm> | null = null;
+let consumerDictionaryCrm: Worker | null = null;
 
 /**
  * Pede a sincronização do dicionário de um tenant — a varredura, ou o admin logo depois
@@ -415,10 +415,10 @@ let consumidorDicionarioCrm: Worker | null = null;
  * da fila ao terminar (`removeOnComplete: true`), senão o id guardado engoliria o
  * próximo pedido. No modo memória não sincroniza, pelo motivo do espelho.
  */
-export async function enfileirarDicionarioCrm(job: JobDicionarioCrm): Promise<boolean> {
+export async function enqueueDictionaryCrm(job: JobDictionaryCrm): Promise<boolean> {
   if (modo() === 'memoria') return false;
-  filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() });
-  await filaDicionarioCrm.add('sincronizar', job, {
+  queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() });
+  await queueDictionaryCrm.add('sincronizar', job, {
     // Hífen, não `:` — o BullMQ 5 recusa `:` no id customizado ("Custom Id cannot contain :").
     jobId: `dicionario-${job.tenantId}`,
     removeOnComplete: true,
@@ -430,20 +430,20 @@ export async function enfileirarDicionarioCrm(job: JobDicionarioCrm): Promise<bo
 }
 
 /** Consome o dicionário — na `api`, como o espelho: quem fala com o CRM é a `api`. */
-export function consumirDicionarioCrm(): void {
-  if (modo() === 'memoria' || consumidorDicionarioCrm) return;
-  consumidorDicionarioCrm = new Worker(
-    FILA_DICIONARIO_CRM,
+export function consumeDictionaryCrm(): void {
+  if (modo() === 'memoria' || consumerDictionaryCrm) return;
+  consumerDictionaryCrm = new Worker(
+    QUEUE_DICTIONARY_CRM,
     async (job) => {
       if (job.name === 'varredura') {
-        const { comCrm, semCrm } = await tenantsDoDicionario();
+        const { comCrm, semCrm } = await tenantsOfDictionary();
         if (semCrm > 0) console.log(`[dicionario-crm] ${semCrm} tenant(s) sem CRM: pulado(s)`);
-        for (const tenantId of comCrm) await enfileirarDicionarioCrm({ tenantId });
+        for (const tenantId of comCrm) await enqueueDictionaryCrm({ tenantId });
         return comCrm.length;
       }
-      const { tenantId } = job.data as JobDicionarioCrm;
-      const r = await sincronizarDicionario(tenantId);
-      if (r.estado === SEM_CRM) console.log(`[dicionario-crm] tenant ${tenantId} sem CRM: pulado`);
+      const { tenantId } = job.data as JobDictionaryCrm;
+      const r = await syncDictionary(tenantId);
+      if (r.state === SEM_CRM) console.log(`[dicionario-crm] tenant ${tenantId} sem CRM: pulado`);
       return r;
     },
     {
@@ -451,19 +451,19 @@ export function consumirDicionarioCrm(): void {
       concurrency: Number(process.env['PIPE_DICIONARIO_CRM_CONCORRENCIA'] ?? 1),
     },
   );
-  consumidorDicionarioCrm.on('failed', (job, erro) => {
+  consumerDictionaryCrm.on('failed', (job, erro) => {
     console.error(`[dicionario-crm] ${job?.id ?? '?'} falhou: ${erro.message}`);
   });
 }
 
 /** A varredura periódica do dicionário: de hora em hora, todo tenant com CRM. */
-export async function agendarVarreduraDicionarioCrm(): Promise<void> {
+export async function scheduleSweepDictionaryCrm(): Promise<void> {
   if (modo() === 'memoria') return;
-  filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() });
-  await filaDicionarioCrm.upsertJobScheduler(
+  queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() });
+  await queueDictionaryCrm.upsertJobScheduler(
     'varredura-dicionario-crm',
     { every: Number(process.env['PIPE_DICIONARIO_CRM_VARREDURA_MS'] ?? 3_600_000) },
-    { name: 'varredura', data: {} as JobDicionarioCrm },
+    { name: 'varredura', data: {} as JobDictionaryCrm },
   );
 }
 
@@ -472,43 +472,43 @@ export async function agendarVarreduraDicionarioCrm(): Promise<void> {
  * `api`, e não em `apps/workers`, pela regra do espelho: quem fala com a Meta para
  * mexer em credencial é a `api`, e é aqui que mora a regra.
  */
-const FILA_INSTAGRAM_TOKEN = 'pipe-instagram-token';
-let filaInstagramToken: Queue | null = null;
+const QUEUE_INSTAGRAM_TOKEN = 'pipe-instagram-token';
+let queueInstagramToken: Queue | null = null;
 let consumidorInstagramToken: Worker | null = null;
 
-export function consumirRenovacaoInstagram(): void {
+export function consumeRenewalInstagram(): void {
   if (modo() === 'memoria' || consumidorInstagramToken) return;
-  consumidorInstagramToken = new Worker(FILA_INSTAGRAM_TOKEN, () => renovarTokensInstagram(), {
+  consumidorInstagramToken = new Worker(QUEUE_INSTAGRAM_TOKEN, () => renovarTokensInstagram(), {
     connection: redis(),
     concurrency: 1,
   });
 }
 
-export async function agendarRenovacaoInstagram(): Promise<void> {
+export async function scheduleRenewalInstagram(): Promise<void> {
   if (modo() === 'memoria') return;
-  filaInstagramToken ??= new Queue(FILA_INSTAGRAM_TOKEN, { connection: redis() });
-  await filaInstagramToken.upsertJobScheduler(
+  queueInstagramToken ??= new Queue(QUEUE_INSTAGRAM_TOKEN, { connection: redis() });
+  await queueInstagramToken.upsertJobScheduler(
     'renovacao-token-instagram',
     { every: Number(process.env['PIPE_INSTAGRAM_RENOVACAO_MS'] ?? 86_400_000) },
     { name: 'varredura', data: {} },
   );
 }
 
-let consumidorEntrada: Worker<JobEntrada> | null = null;
+let consumerInbound: Worker<JobInbound> | null = null;
 
 /**
  * Quem consome a fila de entrada é a própria `api`, e não `apps/workers`: a regra de
  * domínio mora aqui (§3 da spec, "api … dono das regras de domínio"). A fila serve
  * para desacoplar a **resposta** à Meta do processamento, não para mudar de dono.
  */
-export function consumirEntrada(): void {
-  if (modo() === 'memoria' || consumidorEntrada) return;
-  consumidorEntrada = new Worker<JobEntrada>(
-    FILA_ENTRADA,
+export function consumeInbound(): void {
+  if (modo() === 'memoria' || consumerInbound) return;
+  consumerInbound = new Worker<JobInbound>(
+    QUEUE_INBOUND,
     async (job) => {
-      const canal = await resolverCanal(job.data.canalId);
-      if (!canal) throw new Error(`canal ${job.data.canalId} sumiu entre o webhook e a fila`);
-      return processarPayload(canal, job.data.payload);
+      const channel = await resolveChannel(job.data.channelId);
+      if (!channel) throw new Error(`canal ${job.data.channelId} sumiu entre o webhook e a fila`);
+      return processarPayload(channel, job.data.payload);
     },
     {
       connection: redis(),
@@ -522,12 +522,12 @@ export async function pingRedis(): Promise<string> {
   return redis().ping();
 }
 
-export interface EstadoDaFila {
-  fila: string;
+export interface StateOfQueue {
+  queue: string;
   /** Esperando mais adiado: o que ainda não rodou, sob qualquer motivo. */
-  profundidade: number;
+  depth: number;
   /** Idade do item mais antigo ainda esperando. É o número do alerta `FilaParada`. */
-  idadeSegundos: number;
+  ageSeconds: number;
 }
 
 /**
@@ -539,29 +539,29 @@ export interface EstadoDaFila {
  * No modo memória não há fila: devolve vazio, e a métrica some da coleta em vez de
  * virar um zero que parece "tudo escoando".
  */
-export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
+export async function stateOfQueues(): Promise<StateOfQueue[]> {
   if (modo() === 'memoria') return [];
 
   const agora = Date.now();
   const alvos: [string, Queue][] = [
-    [FILA_ENTRADA, (filaEntrada ??= new Queue(FILA_ENTRADA, { connection: redis() }))],
-    [FILA_ENTREGA, (filaEntrega ??= new Queue(FILA_ENTREGA, { connection: redis() }))],
+    [QUEUE_INBOUND, (queueInbound ??= new Queue(QUEUE_INBOUND, { connection: redis() }))],
+    [QUEUE_DELIVERY, (queueDelivery ??= new Queue(QUEUE_DELIVERY, { connection: redis() }))],
     [
-      FILA_ESPELHO_CRM,
-      (filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() })),
+      QUEUE_MIRROR_CRM,
+      (queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() })),
     ],
     [
-      FILA_DICIONARIO_CRM,
-      (filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() })),
+      QUEUE_DICTIONARY_CRM,
+      (queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() })),
     ],
   ];
 
   return Promise.all(
-    alvos.map(async ([nome, fila]) => {
+    alvos.map(async ([nome, queue]) => {
       const [esperando, adiados, maisVelho] = await Promise.all([
-        fila.getWaitingCount(),
-        fila.getDelayedCount(),
-        fila.getWaiting(0, 0),
+        queue.getWaitingCount(),
+        queue.getDelayedCount(),
+        queue.getWaiting(0, 0),
       ]);
       const carimbo = maisVelho[0]?.timestamp;
       return {
@@ -573,49 +573,49 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
   );
 }
 
-export async function fecharFilas(): Promise<void> {
-  await consumidorEntrada?.close();
+export async function closeQueues(): Promise<void> {
+  await consumerInbound?.close();
   await consumidorProcessHttp?.close();
   if (relogioProcessHttp) clearInterval(relogioProcessHttp);
   relogioProcessHttp = null;
   processHttpEmMemoria.length = 0;
-  await consumidorEspelhoCrm?.close();
-  await consumidorDicionarioCrm?.close();
-  await consumidorMidia?.close();
-  if (relogioMidia) clearInterval(relogioMidia);
-  relogioMidia = null;
+  await consumerMirrorCrm?.close();
+  await consumerDictionaryCrm?.close();
+  await consumerMedia?.close();
+  if (relogioMedia) clearInterval(relogioMedia);
+  relogioMedia = null;
   await consumidorSla?.close();
   if (relogioSla) clearInterval(relogioSla);
   relogioSla = null;
   await consumidorInstagramToken?.close();
-  await filaInstagramToken?.close();
+  await queueInstagramToken?.close();
   consumidorInstagramToken = null;
-  filaInstagramToken = null;
-  await filaEntrada?.close();
-  await filaProcessHttp?.close();
-  await filaEntrega?.close();
-  await filaEspelhoCrm?.close();
-  await filaDicionarioCrm?.close();
-  await filaMidia?.close();
-  await filaSla?.close();
+  queueInstagramToken = null;
+  await queueInbound?.close();
+  await queueProcessHttp?.close();
+  await queueDelivery?.close();
+  await queueMirrorCrm?.close();
+  await queueDictionaryCrm?.close();
+  await queueMedia?.close();
+  await queueSla?.close();
   await conexao?.quit();
-  consumidorEntrada = null;
+  consumerInbound = null;
   consumidorProcessHttp = null;
-  consumidorEspelhoCrm = null;
-  consumidorDicionarioCrm = null;
-  consumidorMidia = null;
+  consumerMirrorCrm = null;
+  consumerDictionaryCrm = null;
+  consumerMedia = null;
   consumidorSla = null;
-  filaEntrada = null;
-  filaProcessHttp = null;
-  filaEntrega = null;
-  filaEspelhoCrm = null;
-  filaDicionarioCrm = null;
-  filaMidia = null;
-  filaSla = null;
+  queueInbound = null;
+  queueProcessHttp = null;
+  queueDelivery = null;
+  queueMirrorCrm = null;
+  queueDictionaryCrm = null;
+  queueMedia = null;
+  queueSla = null;
   conexao = null;
 }
 
-let filaImportacao: Queue<JobImportacao> | null = null;
+let queueImport: Queue<JobImport> | null = null;
 
 /**
  * Empurra uma importação de contatos para os workers
@@ -630,11 +630,11 @@ let filaImportacao: Queue<JobImportacao> | null = null;
  * da conexão já a encerra). Entra quando o alerta `FilaParada` precisar olhar
  * importação parada.
  */
-export async function enfileirarImportacao(job: JobImportacao): Promise<void> {
+export async function enqueueImport(job: JobImport): Promise<void> {
   if (modo() === 'memoria') {
-    await processarImportacao(job);
+    await processarImport(job);
     return;
   }
-  filaImportacao ??= new Queue(FILA_IMPORTACAO, { connection: redis() });
-  await filaImportacao.add('importar', job, { removeOnComplete: 1_000, removeOnFail: 1_000 });
+  queueImport ??= new Queue(QUEUE_IMPORT, { connection: redis() });
+  await queueImport.add('importar', job, { removeOnComplete: 1_000, removeOnFail: 1_000 });
 }

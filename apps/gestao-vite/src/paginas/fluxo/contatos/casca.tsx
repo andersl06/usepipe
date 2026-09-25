@@ -1,11 +1,11 @@
 import { Outlet } from 'react-router-dom';
-import { BarrasDoContato } from '../contato';
+import { ContactBarras } from '../contato';
 import './contatos.css';
 
-export function CascaDeContatos() {
+export function ContactsShell() {
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Contatos" />
+      <ContactBarras ativo="Contatos" />
       <main>
         <Outlet />
       </main>

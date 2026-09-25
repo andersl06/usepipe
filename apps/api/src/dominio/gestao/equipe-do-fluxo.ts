@@ -1,26 +1,26 @@
 import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { fluxo, fluxoMembro, usuario } from '@pipe/db/schema';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { flow, flowMember, user } from '@pipe/db/schema';
 import type {
-  EquipeDoFluxo,
-  MembroDoFluxo,
-  MinhasPermissoesNoFluxo,
-  NivelNoFluxo,
-  PapelNoFluxo,
-  PedidoDeMembroDoFluxo,
-  PermissoesNoFluxo,
-  RecursoDoFluxo,
+  TeamOfFlow,
+  MemberOfFlow,
+  MyPermissionsInFlow,
+  LevelInFlow,
+  RoleInFlow,
+  RequestOfMemberOfFlow,
+  PermissionsInFlow,
+  RecursoOfFlow,
 } from '@pipe/contracts';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
 
 /**
  * O `EDITAR_FLUXO` de `ciclo-de-vida-do-fluxo.ts`, repetido aqui de propósito:
  * aquele arquivo passou a chamar `exigirPermissaoNoFluxo`, e importar a
  * constante de volta fecharia um ciclo entre os dois módulos.
  */
-const EDITAR_FLUXO = 'automacao.fluxo.editar';
+const EDITAR_FLOW = 'automacao.fluxo.editar';
 
 /**
  * A aba "Equipe" do contato — o `/team` da origem, e o RBAC POR FLUXO que ele
@@ -73,25 +73,25 @@ const EDITAR_FLUXO = 'automacao.fluxo.editar';
  * `team` não está no template, mas está no pacote (`permissions.team.title`) e
  * é o recurso que governa esta própria tela.
  */
-export const RECURSOS_DO_FLUXO: readonly RecursoDoFluxo[] = [
-  { chave: 'payments', titulo: 'Integrações' },
-  { chave: 'channels', titulo: 'Canais' },
-  { chave: 'desk', titulo: 'Atendimento' },
-  { chave: 'users', titulo: 'Usuários do bot' },
-  { chave: 'basicConfigurations', titulo: 'Configurações básicas' },
-  { chave: 'connectionInformations', titulo: 'Informações de conexões' },
-  { chave: 'resources', titulo: 'Recursos' },
-  { chave: 'growth', titulo: 'Growth' },
-  { chave: 'logMessages', titulo: 'Log de mensagens' },
-  { chave: 'builder', titulo: 'Builder' },
-  { chave: 'analysis', titulo: 'Análise' },
-  { chave: 'team', titulo: 'Equipe' },
+export const RECURSOS_OF_FLOW: readonly RecursoOfFlow[] = [
+  { key: 'payments', titulo: 'Integrações' },
+  { key: 'channels', titulo: 'Canais' },
+  { key: 'desk', titulo: 'Atendimento' },
+  { key: 'users', titulo: 'Usuários do bot' },
+  { key: 'basicConfigurations', titulo: 'Configurações básicas' },
+  { key: 'connectionInformations', titulo: 'Informações de conexões' },
+  { key: 'resources', titulo: 'Recursos' },
+  { key: 'growth', titulo: 'Growth' },
+  { key: 'logMessages', titulo: 'Log de mensagens' },
+  { key: 'builder', titulo: 'Builder' },
+  { key: 'analysis', titulo: 'Análise' },
+  { key: 'team', titulo: 'Equipe' },
 ];
 
-const CHAVES = new Set(RECURSOS_DO_FLUXO.map((r) => r.chave));
+const CHAVES = new Set(RECURSOS_OF_FLOW.map((r) => r.key));
 
-const PAPEIS: readonly PapelNoFluxo[] = ['visualizar', 'personalizado', 'editar', 'admin'];
-const NIVEIS: readonly NivelNoFluxo[] = ['nenhum', 'ler', 'escrever'];
+const PAPEIS: readonly RoleInFlow[] = ['visualizar', 'personalizado', 'editar', 'admin'];
+const NIVEIS: readonly LevelInFlow[] = ['nenhum', 'ler', 'escrever'];
 
 /**
  * O código de CONTA equivalente a cada recurso do fluxo — o outro lado do duplo
@@ -102,8 +102,8 @@ const NIVEIS: readonly NivelNoFluxo[] = ['nenhum', 'ler', 'escrever'];
  * quando `desk`/`payments` ganharem permissão de conta própria, é aqui que a
  * equivalência muda, e nenhuma rota precisa saber.
  */
-const EQUIVALENTE_NA_CONTA: Readonly<Record<string, string>> = Object.fromEntries(
-  RECURSOS_DO_FLUXO.map((r) => [r.chave, EDITAR_FLUXO]),
+const EQUIVALENTE_IN_ACCOUNT: Readonly<Record<string, string>> = Object.fromEntries(
+  RECURSOS_OF_FLOW.map((r) => [r.key, EDITAR_FLOW]),
 );
 
 /** O recurso que governa a própria aba Equipe. */
@@ -116,87 +116,87 @@ const GERIR_EQUIPE = 'team.escrever';
  * Só `personalizado` lê o que veio da tela — nos outros três o traço manda, e
  * gravar outra coisa deixaria o banco contradizendo o que a pessoa vê.
  */
-export function permissoesDoPapel(
-  papel: PapelNoFluxo,
-  personalizadas: PermissoesNoFluxo = {},
-): PermissoesNoFluxo {
-  if (papel === 'personalizado') {
-    const mapa: PermissoesNoFluxo = {};
-    for (const recurso of RECURSOS_DO_FLUXO) {
-      const nivel = personalizadas[recurso.chave];
-      mapa[recurso.chave] = nivel && NIVEIS.includes(nivel) ? nivel : 'nenhum';
+export function permissionsOfRole(
+  role: RoleInFlow,
+  personalizadas: PermissionsInFlow = {},
+): PermissionsInFlow {
+  if (role === 'personalizado') {
+    const mapa: PermissionsInFlow = {};
+    for (const recurso of RECURSOS_OF_FLOW) {
+      const nivel = personalizadas[recurso.key];
+      mapa[recurso.key] = nivel && NIVEIS.includes(nivel) ? nivel : 'nenhum';
     }
     return mapa;
   }
-  const nivel: NivelNoFluxo = papel === 'visualizar' ? 'ler' : 'escrever';
-  return Object.fromEntries(RECURSOS_DO_FLUXO.map((r) => [r.chave, nivel]));
+  const nivel: LevelInFlow = role === 'visualizar' ? 'ler' : 'escrever';
+  return Object.fromEntries(RECURSOS_OF_FLOW.map((r) => [r.key, nivel]));
 }
 
-function papelConferido(bruto: unknown): PapelNoFluxo {
+function roleChecked(bruto: unknown): RoleInFlow {
   if (typeof bruto === 'string' && (PAPEIS as readonly string[]).includes(bruto)) {
-    return bruto as PapelNoFluxo;
+    return bruto as RoleInFlow;
   }
-  throw ErroPipe.requisicao(
+  throw PipeError.request(
     'papel_no_fluxo_invalido',
     `A permissão precisa ser uma de: ${PAPEIS.join(', ')}.`,
   );
 }
 
 /** Chave que a origem não tem é descartada; nível inválido é recusa, não silêncio. */
-function permissoesConferidas(bruto: unknown): PermissoesNoFluxo {
+function permissionsChecked(bruto: unknown): PermissionsInFlow {
   if (bruto === undefined || bruto === null) return {};
   if (typeof bruto !== 'object') {
-    throw ErroPipe.requisicao('permissoes_invalidas', 'As permissões precisam ser um objeto.');
+    throw PipeError.request('permissoes_invalidas', 'As permissões precisam ser um objeto.');
   }
-  const mapa: PermissoesNoFluxo = {};
-  for (const [chave, valor] of Object.entries(bruto as Record<string, unknown>)) {
-    if (!CHAVES.has(chave)) continue;
-    if (typeof valor !== 'string' || !(NIVEIS as readonly string[]).includes(valor)) {
-      throw ErroPipe.requisicao(
+  const mapa: PermissionsInFlow = {};
+  for (const [key, value] of Object.entries(bruto as Record<string, unknown>)) {
+    if (!CHAVES.has(key)) continue;
+    if (typeof value !== 'string' || !(NIVEIS as readonly string[]).includes(value)) {
+      throw PipeError.request(
         'nivel_invalido',
-        `O nível de "${chave}" precisa ser um de: ${NIVEIS.join(', ')}.`,
+        `O nível de "${key}" precisa ser um de: ${NIVEIS.join(', ')}.`,
       );
     }
-    mapa[chave] = valor as NivelNoFluxo;
+    mapa[key] = value as LevelInFlow;
   }
   return mapa;
 }
 
 /** `ler` se contenta com `escrever`; `escrever` não se contenta com `ler`. */
-function atende(nivel: NivelNoFluxo | undefined, verbo: NivelNoFluxo): boolean {
+function atende(nivel: LevelInFlow | undefined, verbo: LevelInFlow): boolean {
   if (verbo === 'ler') return nivel === 'ler' || nivel === 'escrever';
   return nivel === verbo;
 }
 
 /* ------------------------------------------------------------- A permissão */
 
-interface LinhaDeMembro {
-  papelNoFluxo: string;
-  permissoes: PermissoesNoFluxo;
+interface LineOfMember {
+  roleInFlow: string;
+  permissions: PermissionsInFlow;
 }
 
-async function membro(
-  tx: TransacaoPipe,
-  usuarioId: string,
-  fluxoId: string,
-): Promise<LinhaDeMembro | undefined> {
+async function member(
+  tx: TransactionPipe,
+  userId: string,
+  flowId: string,
+): Promise<LineOfMember | undefined> {
   const [linha] = await tx
-    .select({ papelNoFluxo: fluxoMembro.papelNoFluxo, permissoes: fluxoMembro.permissoes })
-    .from(fluxoMembro)
-    .where(and(eq(fluxoMembro.fluxoId, fluxoId), eq(fluxoMembro.usuarioId, usuarioId)))
+    .select({ papelNoFluxo: flowMember.roleInFlow, permissoes: flowMember.permissions })
+    .from(flowMember)
+    .where(and(eq(flowMember.flowId, flowId), eq(flowMember.userId, userId)))
     .limit(1);
   return linha;
 }
 
 /** `<recurso>.<verbo>` → as duas metades, ou recusa de programação. */
-function separar(codigo: string): { recurso: string; verbo: NivelNoFluxo } {
+function separar(codigo: string): { recurso: string; verbo: LevelInFlow } {
   const corte = codigo.lastIndexOf('.');
   const recurso = corte < 0 ? codigo : codigo.slice(0, corte);
   const verbo = corte < 0 ? '' : codigo.slice(corte + 1);
   if (!CHAVES.has(recurso) || !(NIVEIS as readonly string[]).includes(verbo)) {
     throw new Error(`permissão de fluxo desconhecida: ${codigo}`);
   }
-  return { recurso, verbo: verbo as NivelNoFluxo };
+  return { recurso, verbo: verbo as LevelInFlow };
 }
 
 /**
@@ -214,34 +214,34 @@ function separar(codigo: string): { recurso: string; verbo: NivelNoFluxo } {
  * do fluxo é uma linha por chave única, a da conta é um `exists` com dois
  * joins, e a maioria dos tenants ainda não tem ninguém nesta tabela.
  */
-export async function exigirPermissaoNoFluxo(
-  tx: TransacaoPipe,
+export async function exigirPermissionInFlow(
+  tx: TransactionPipe,
   usuarioId: string,
   fluxoId: string,
   codigo: string,
 ): Promise<void> {
   const { recurso, verbo } = separar(codigo);
-  const linha = await membro(tx, usuarioId, fluxoId);
+  const linha = await member(tx, usuarioId, fluxoId);
   if (linha) {
-    if (linha.papelNoFluxo === 'admin') return;
-    if (atende(linha.permissoes[recurso], verbo)) return;
+    if (linha.roleInFlow === 'admin') return;
+    if (atende(linha.permissions[recurso], verbo)) return;
   }
-  await exigirPermissao(tx, usuarioId, EQUIVALENTE_NA_CONTA[recurso] ?? EDITAR_FLUXO);
+  await exigirPermission(tx, usuarioId, EQUIVALENTE_IN_ACCOUNT[recurso] ?? EDITAR_FLOW);
 }
 
 /** O mesmo teste sem estourar — para a tela decidir o que desenhar. */
-export async function podeNoFluxo(
-  tx: TransacaoPipe,
+export async function canInFlow(
+  tx: TransactionPipe,
   usuarioId: string,
   fluxoId: string,
   codigo: string,
 ): Promise<boolean> {
   try {
-    await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, codigo);
+    await exigirPermissionInFlow(tx, usuarioId, fluxoId, codigo);
     return true;
-  } catch (erro) {
-    if (erro instanceof ErroPipe && erro.status === 403) return false;
-    throw erro;
+  } catch (error) {
+    if (error instanceof PipeError && error.status === 403) return false;
+    throw error;
   }
 }
 
@@ -250,41 +250,41 @@ export async function podeNoFluxo(
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o mesmo `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function fluxoVivo(tx: TransacaoPipe, tenantId: string, fluxoId: string): Promise<string> {
+async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<string> {
   const [atual] = await tx
-    .select({ id: fluxo.id })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, fluxoId), ne(fluxo.estado, 'arquivado')))
+    .select({ id: flow.id })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, fluxoId), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
   return atual.id;
 }
 
-function paraContrato(linha: {
-  usuarioId: string;
+function forContract(linha: {
+  userId: string;
   nome: string;
   email: string;
   papelNoFluxo: string;
-  permissoes: PermissoesNoFluxo;
+  permissoes: PermissionsInFlow;
   criadoEm: Date;
-}): MembroDoFluxo {
+}): MemberOfFlow {
   return {
-    usuarioId: linha.usuarioId,
+    userId: linha.userId,
     nome: linha.nome,
     email: linha.email,
-    papelNoFluxo: linha.papelNoFluxo as PapelNoFluxo,
-    permissoes: linha.permissoes ?? {},
+    roleInFlow: linha.papelNoFluxo as RoleInFlow,
+    permissions: linha.permissoes ?? {},
     criadoEm: linha.criadoEm.toISOString(),
   };
 }
 
 const COLUNAS = {
-  usuarioId: fluxoMembro.usuarioId,
-  nome: usuario.nome,
-  email: usuario.email,
-  papelNoFluxo: fluxoMembro.papelNoFluxo,
-  permissoes: fluxoMembro.permissoes,
-  criadoEm: fluxoMembro.criadoEm,
+  usuarioId: flowMember.userId,
+  nome: user.nome,
+  email: user.email,
+  papelNoFluxo: flowMember.roleInFlow,
+  permissoes: flowMember.permissions,
+  criadoEm: flowMember.criadoEm,
 };
 
 /**
@@ -293,54 +293,54 @@ const COLUNAS = {
  * administra o contato — não de quem só conversa nele.
  */
 export async function listarEquipe(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<EquipeDoFluxo> {
-  await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, 'team.ler');
+): Promise<TeamOfFlow> {
+  await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, 'team.ler');
 
   const linhas = await tx
     .select(COLUNAS)
-    .from(fluxoMembro)
-    .innerJoin(usuario, eq(usuario.id, fluxoMembro.usuarioId))
-    .where(eq(fluxoMembro.fluxoId, fluxoId))
-    .orderBy(asc(usuario.nome));
+    .from(flowMember)
+    .innerJoin(user, eq(user.id, flowMember.userId))
+    .where(eq(flowMember.flowId, fluxoId))
+    .orderBy(asc(user.nome));
 
   return {
-    membros: linhas.map(paraContrato),
-    recursos: [...RECURSOS_DO_FLUXO],
-    podeGerir: await podeNoFluxo(tx, usuarioId, fluxoId, GERIR_EQUIPE),
+    members: linhas.map(forContract),
+    recursos: [...RECURSOS_OF_FLOW],
+    podeGerir: await canInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE),
   };
 }
 
 /** O que o menu do contato peneira — sempre responde, mesmo para quem não é membro. */
-export async function minhasPermissoesNoFluxo(
-  tx: TransacaoPipe,
+export async function myPermissionsInFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-): Promise<MinhasPermissoesNoFluxo> {
-  await fluxoVivo(tx, tenantId, fluxoId);
-  const linha = await membro(tx, usuarioId, fluxoId);
+): Promise<MyPermissionsInFlow> {
+  await flowVivo(tx, tenantId, fluxoId);
+  const linha = await member(tx, usuarioId, fluxoId);
   const { rows } = await tx.execute<{ tem: boolean }>(sql`
     select exists (
       select 1
         from usuario_papel up
         join papel_permissao pp on pp.papel_id = up.papel_id
-       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${EDITAR_FLUXO}
+       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${EDITAR_FLOW}
     ) as tem
   `);
   return {
-    papelNoFluxo: (linha?.papelNoFluxo as PapelNoFluxo | undefined) ?? null,
-    permissoes: linha?.permissoes ?? {},
-    editaPelaConta: rows[0]?.tem === true,
+    papelNoFluxo: (linha?.roleInFlow as RoleInFlow | undefined) ?? null,
+    permissoes: linha?.permissions ?? {},
+    editaByAccount: rows[0]?.tem === true,
   };
 }
 
 /** Quantos administradores este fluxo tem, fora `exceto`. */
-async function outrosAdmins(tx: TransacaoPipe, fluxoId: string, exceto: string): Promise<number> {
+async function outrosAdmins(tx: TransactionPipe, fluxoId: string, exceto: string): Promise<number> {
   const { rows } = await tx.execute<{ n: string }>(sql`
     select count(*)::text as n from fluxo_membro
      where fluxo_id = ${fluxoId}::uuid and papel_no_fluxo = 'admin'
@@ -349,11 +349,11 @@ async function outrosAdmins(tx: TransacaoPipe, fluxoId: string, exceto: string):
   return Number(rows[0]?.n ?? '0');
 }
 
-function ultimoAdmin(): ErroPipe {
+function ultimoAdmin(): PipeError {
   /* A origem esconde as ações do `owner` (`ng-if="!user.owner"`); aqui não há
      dono, então a trava é numérica: um contato sem administrador nenhum é um
      contato que ninguém mais consegue administrar. */
-  return ErroPipe.conflito(
+  return PipeError.conflito(
     'ultimo_admin',
     'Este é o último administrador do fluxo. Promova outra pessoa antes.',
   );
@@ -367,26 +367,26 @@ function ultimoAdmin(): ErroPipe {
  * e-mail. Então a recusa é a frase da própria origem, e a tela oferece o
  * convite em seguida.
  */
-export async function adicionarMembro(
-  tx: TransacaoPipe,
+export async function adicionarMember(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-  pedido: PedidoDeMembroDoFluxo,
-): Promise<MembroDoFluxo> {
-  await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  pedido: RequestOfMemberOfFlow,
+): Promise<MemberOfFlow> {
+  await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const email = (pedido.email ?? '').trim().toLowerCase();
-  if (!email) throw ErroPipe.requisicao('email_ausente', 'Informe o e-mail de quem entra.');
+  if (!email) throw PipeError.request('email_ausente', 'Informe o e-mail de quem entra.');
 
   const [pessoa] = await tx
-    .select({ id: usuario.id, nome: usuario.nome, email: usuario.email })
-    .from(usuario)
-    .where(and(eq(usuario.email, email), eq(usuario.ativo, true)))
+    .select({ id: user.id, nome: user.nome, email: user.email })
+    .from(user)
+    .where(and(eq(user.email, email), eq(user.ativo, true)))
     .limit(1);
   if (!pessoa) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'pessoa_fora_do_contrato',
       'Essa pessoa não faz parte do contrato. O administrador deve incluir a pessoa no ' +
         'contrato antes de adicioná-la ao chatbot.',
@@ -394,23 +394,23 @@ export async function adicionarMembro(
     );
   }
 
-  const papelNoFluxo = papelConferido(pedido.papelNoFluxo ?? 'visualizar');
-  const permissoes = permissoesDoPapel(papelNoFluxo, permissoesConferidas(pedido.permissoes));
+  const roleInFlow = roleChecked(pedido.papelNoFluxo ?? 'visualizar');
+  const permissions = permissionsOfRole(roleInFlow, permissionsChecked(pedido.permissoes));
 
   const [criado] = await tx
-    .insert(fluxoMembro)
+    .insert(flowMember)
     .values({
       tenantId,
       fluxoId,
       usuarioId: pessoa.id,
-      papelNoFluxo,
-      permissoes,
+      roleInFlow,
+      permissions,
       convidadoPor: usuarioId,
     })
-    .onConflictDoNothing({ target: [fluxoMembro.fluxoId, fluxoMembro.usuarioId] })
-    .returning({ criadoEm: fluxoMembro.criadoEm });
+    .onConflictDoNothing({ target: [flowMember.flowId, flowMember.userId] })
+    .returning({ criadoEm: flowMember.criadoEm });
   if (!criado) {
-    throw ErroPipe.conflito('ja_e_membro', `${email} já faz parte da equipe deste fluxo.`);
+    throw PipeError.conflito('ja_e_membro', `${email} já faz parte da equipe deste fluxo.`);
   }
 
   await registrarAuditoria(tx, tenantId, {
@@ -418,41 +418,41 @@ export async function adicionarMembro(
     acao: 'criou',
     objetoTipo: 'fluxo_membro',
     objetoId: pessoa.id,
-    depois: { fluxoId, email, papelNoFluxo, permissoes },
+    depois: { fluxoId, email, roleInFlow, permissions },
   });
 
-  return paraContrato({ ...pessoa, usuarioId: pessoa.id, papelNoFluxo, permissoes, ...criado });
+  return forContract({ ...pessoa, userId: pessoa.id, roleInFlow, permissions, ...criado });
 }
 
 /** O "Salvar alterações" do modal de editar. Nada mudou, nada é gravado. */
-export async function editarMembro(
-  tx: TransacaoPipe,
+export async function editarMember(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   alvoId: string,
-  pedido: PedidoDeMembroDoFluxo,
-): Promise<MembroDoFluxo> {
-  await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  pedido: RequestOfMemberOfFlow,
+): Promise<MemberOfFlow> {
+  await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const [atual] = await tx
     .select(COLUNAS)
-    .from(fluxoMembro)
-    .innerJoin(usuario, eq(usuario.id, fluxoMembro.usuarioId))
-    .where(and(eq(fluxoMembro.fluxoId, fluxoId), eq(fluxoMembro.usuarioId, alvoId)))
+    .from(flowMember)
+    .innerJoin(user, eq(user.id, flowMember.userId))
+    .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('membro');
+  if (!atual) throw PipeError.naoEncontrado('membro');
 
   const papelNoFluxo =
     pedido.papelNoFluxo === undefined
-      ? (atual.papelNoFluxo as PapelNoFluxo)
-      : papelConferido(pedido.papelNoFluxo);
-  const permissoes = permissoesDoPapel(
+      ? (atual.papelNoFluxo as RoleInFlow)
+      : roleChecked(pedido.papelNoFluxo);
+  const permissoes = permissionsOfRole(
     papelNoFluxo,
     pedido.permissoes === undefined
       ? (atual.permissoes ?? {})
-      : permissoesConferidas(pedido.permissoes),
+      : permissionsChecked(pedido.permissoes),
   );
 
   /* Achatado (um campo por recurso) porque `diferenca` compara por `===`: dois
@@ -462,16 +462,16 @@ export async function editarMembro(
     { papelNoFluxo: atual.papelNoFluxo, ...(atual.permissoes ?? {}) },
     { papelNoFluxo, ...permissoes },
   );
-  if (Object.keys(mudanca.depois).length === 0) return paraContrato(atual);
+  if (Object.keys(mudanca.depois).length === 0) return forContract(atual);
 
   if (atual.papelNoFluxo === 'admin' && papelNoFluxo !== 'admin') {
     if ((await outrosAdmins(tx, fluxoId, alvoId)) === 0) throw ultimoAdmin();
   }
 
   await tx
-    .update(fluxoMembro)
+    .update(flowMember)
     .set({ papelNoFluxo, permissoes, atualizadoEm: new Date() })
-    .where(and(eq(fluxoMembro.fluxoId, fluxoId), eq(fluxoMembro.usuarioId, alvoId)));
+    .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
@@ -482,39 +482,39 @@ export async function editarMembro(
     depois: mudanca.depois,
   });
 
-  return paraContrato({ ...atual, papelNoFluxo, permissoes });
+  return forContract({ ...atual, papelNoFluxo, permissoes });
 }
 
 /** `removeUser()` — e a trava do último administrador, que a origem não precisa ter. */
-export async function removerMembro(
-  tx: TransacaoPipe,
+export async function removeMember(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   alvoId: string,
 ): Promise<void> {
-  await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, GERIR_EQUIPE);
+  await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const [atual] = await tx
     .select({
-      papelNoFluxo: fluxoMembro.papelNoFluxo,
-      permissoes: fluxoMembro.permissoes,
-      email: usuario.email,
+      papelNoFluxo: flowMember.roleInFlow,
+      permissoes: flowMember.permissions,
+      email: user.email,
     })
-    .from(fluxoMembro)
-    .innerJoin(usuario, eq(usuario.id, fluxoMembro.usuarioId))
-    .where(and(eq(fluxoMembro.fluxoId, fluxoId), eq(fluxoMembro.usuarioId, alvoId)))
+    .from(flowMember)
+    .innerJoin(user, eq(user.id, flowMember.userId))
+    .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('membro');
+  if (!atual) throw PipeError.naoEncontrado('membro');
 
   if (atual.papelNoFluxo === 'admin' && (await outrosAdmins(tx, fluxoId, alvoId)) === 0) {
     throw ultimoAdmin();
   }
 
   await tx
-    .delete(fluxoMembro)
-    .where(and(eq(fluxoMembro.fluxoId, fluxoId), eq(fluxoMembro.usuarioId, alvoId)));
+    .delete(flowMember)
+    .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),

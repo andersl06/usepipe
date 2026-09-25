@@ -18,8 +18,8 @@
  */
 
 export class CsvMalformado extends Error {
-  constructor(mensagem: string) {
-    super(mensagem);
+  constructor(message: string) {
+    super(message);
     this.name = 'CsvMalformado';
   }
 }
@@ -31,9 +31,9 @@ export interface TabelaCsv {
 
 function detectarSeparador(texto: string): ',' | ';' {
   const fim = texto.search(/\r|\n/);
-  const primeira = fim < 0 ? texto : texto.slice(0, fim);
-  const pontoEVirgula = primeira.split(';').length;
-  const virgula = primeira.split(',').length;
+  const first = fim < 0 ? texto : texto.slice(0, fim);
+  const pontoEVirgula = first.split(';').length;
+  const virgula = first.split(',').length;
   return pontoEVirgula > virgula ? ';' : ',';
 }
 
@@ -98,7 +98,7 @@ export function lerCsv(bruto: string): TabelaCsv {
 
 /** `CSV.generate`: aspas só onde precisa. Vírgula como separador, como o original. */
 export function escreverCsv(registros: readonly (readonly string[])[]): string {
-  const campo = (valor: string) =>
-    /[",\r\n]/.test(valor) ? `"${valor.replace(/"/g, '""')}"` : valor;
+  const campo = (value: string) =>
+    /[",\r\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
   return registros.map((r) => r.map(campo).join(',')).join('\n') + '\n';
 }

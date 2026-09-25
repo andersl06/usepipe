@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Botao, EstadoVazio } from '@pipe/ui';
+import { Botao, EmptyState } from '@pipe/ui';
 import { ConectarWhatsApp } from '../../../../componentes/cadastro-embutido-whatsapp';
 import { IconePortal, LogoPortal } from '../../../../componentes/icones-portal';
 import { rotuloDoMotivo } from '../../../../lib/canais';
 import { numeroParaWaMe } from '../../../../lib/canal-do-fluxo';
 import { ConectarWhatsappManual } from '../../../cadastros/canal-conectar-manual';
-import { AvisoDeOutroCanal, EscolherCanalExistente, ModalDesconectar } from '../conexao';
-import type { ContextoDoCanalWhatsapp, ContextoSemCanal } from './casca';
+import { OtherChannelNotice, EscolherChannelExistente, ModalDesconectar } from '../conexao';
+import type { ChannelWhatsappContext, ContextWithoutChannel } from './casca';
 
 /**
  * Visão Geral do WhatsApp — o `bds-tab-panel group="content-tab-0"` do
@@ -45,26 +45,26 @@ import type { ContextoDoCanalWhatsapp, ContextoSemCanal } from './casca';
 type Passo = 'inicio' | 'conexao' | 'escolher';
 
 export function AbaVisaoGeral() {
-  const contexto = useOutletContext<ContextoDoCanalWhatsapp | ContextoSemCanal>();
-  if ('canal' in contexto) return <Conectado {...contexto} />;
-  return <NaoConectado {...contexto} />;
+  const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();
+  if ('canal' in context) return <Conectado {...context} />;
+  return <NaoConectado {...context} />;
 }
 
-function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
+function Conectado({ flowId, channel, saude }: ChannelWhatsappContext) {
   const [desconectando, setDesconectando] = useState(false);
-  const numero = saude?.numero ?? canal.numero ?? canal.nome;
-  const numeroWa = numeroParaWaMe(saude?.numero ?? canal.numero);
+  const numero = saude?.numero ?? channel.numero ?? channel.nome;
+  const numeroWa = numeroParaWaMe(saude?.numero ?? channel.numero);
 
-  if (saude && saude.estado === 'indisponivel') {
+  if (saude && saude.state === 'indisponivel') {
     return (
       <div className="cb-vazio">
-        <EstadoVazio titulo="Ainda não é possível usar este número" ilustracao="erro">
+        <EmptyState titulo="Ainda não é possível usar este número" illustration="erro">
           <p className="sub">{rotuloDoMotivo(saude.motivo)}</p>
-        </EstadoVazio>
+        </EmptyState>
         <ConectarWhatsappManual
-          fluxoId={fluxoId}
-          canalId={canal.id}
-          valores={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
+          flowId={flowId}
+          channelId={channel.id}
+          values={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
           rotulo="Reconectar número"
           variante="primario"
         />
@@ -73,7 +73,7 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
         </Botao>
         <ModalDesconectar
           aberto={desconectando}
-          fluxoId={fluxoId}
+          flowId={flowId}
           tipo="whatsapp_cloud"
           onFechar={() => setDesconectando(false)}
         />
@@ -109,9 +109,9 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
           Testar no WhatsApp
         </Botao>
         <ConectarWhatsappManual
-          fluxoId={fluxoId}
-          canalId={canal.id}
-          valores={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
+          flowId={flowId}
+          channelId={channel.id}
+          values={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
           rotulo="Reconectar número"
         />
         <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
@@ -120,7 +120,7 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
       </div>
       <ModalDesconectar
         aberto={desconectando}
-        fluxoId={fluxoId}
+        flowId={flowId}
         tipo="whatsapp_cloud"
         onFechar={() => setDesconectando(false)}
       />
@@ -128,20 +128,20 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
   );
 }
 
-function NaoConectado({ fluxoId, situacao, disponiveis }: ContextoSemCanal) {
+function NaoConectado({ flowId, situation, disponiveis }: ContextWithoutChannel) {
   const [passo, setPasso] = useState<Passo>('inicio');
   const temNumeroLivre = disponiveis.some(
-    (c) => c.tipo === 'whatsapp_cloud' && c.ativo && (c.fluxoId === null || c.fluxoId === fluxoId),
+    (c) => c.tipo === 'whatsapp_cloud' && c.ativo && (c.flowId === null || c.flowId === flowId),
   );
 
-  if (situacao.estado === 'outro_canal') {
+  if (situation.state === 'outro_canal') {
     return (
       <div className="cb-linha">
         <div className="cb-icone-coluna">
           <LogoPortal nome="whatsapp" tamanho={64} />
         </div>
         <div className="cb-coluna">
-          <AvisoDeOutroCanal canal={situacao.canal} rotulo="WhatsApp" />
+          <OtherChannelNotice channel={situation.channel} rotulo="WhatsApp" />
         </div>
       </div>
     );
@@ -172,8 +172,8 @@ function NaoConectado({ fluxoId, situacao, disponiveis }: ContextoSemCanal) {
 
   if (passo === 'escolher') {
     return (
-      <EscolherCanalExistente
-        fluxoId={fluxoId}
+      <EscolherChannelExistente
+        flowId={flowId}
         tipo="whatsapp_cloud"
         disponiveis={disponiveis}
         onVoltar={() => setPasso('conexao')}
@@ -200,16 +200,16 @@ function NaoConectado({ fluxoId, situacao, disponiveis }: ContextoSemCanal) {
             Voltar
           </Botao>
           <ConectarWhatsApp
-            fluxoId={fluxoId}
+            flowId={flowId}
             rotulo="Conectar-se ao Facebook"
             className="cb-botao-facebook"
-            prefixo={<LogoDoFacebook />}
+            prefix={<LogoDoFacebook />}
           />
         </div>
         {/* Acréscimos Pipe: sem aplicativo aprovado na Meta, o caminho é o manual; e o
             número que a conta já tem pode ser escolhido em vez de cadastrado de novo. */}
         <div className="cb-acoes-entre" style={{ width: '100%' }}>
-          <ConectarWhatsappManual fluxoId={fluxoId} rotulo="Conectar manualmente" />
+          <ConectarWhatsappManual flowId={flowId} rotulo="Conectar manualmente" />
           {temNumeroLivre ? (
             <Botao type="button" onClick={() => setPasso('escolher')}>
               Usar um número já conectado

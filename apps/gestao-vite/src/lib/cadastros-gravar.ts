@@ -1,4 +1,4 @@
-import { api, ErroDaApi } from './api';
+import { api, ApiError } from './api';
 import { atualizarLeituras } from './acoes';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './regra-fila';
@@ -16,23 +16,23 @@ import type { OperadorDeRegra } from './regra-fila';
  */
 
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */
-export async function alternarFila(id: string, ativa: boolean): Promise<Resultado<void>> {
+export async function alternarQueue(id: string, active: boolean): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/atendentes/filas/${id}`, { ativa: !ativa });
+    await api.patch(`/v1/gestao/atendentes/filas/${id}`, { ativa: !active });
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível alterar a fila.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível alterar a fila.') };
   }
 }
 
-export async function excluirFila(id: string): Promise<Resultado<void>> {
+export async function excluirQueue(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/gestao/atendentes/filas/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a fila.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a fila.') };
   }
 }
 
@@ -46,7 +46,7 @@ export async function excluirFila(id: string): Promise<Resultado<void>> {
  * isso o mapa abaixo cobre o que falta; se um dia a `api` mandar
  * `detalhe.campo`, ele já é lido primeiro.
  */
-export type ResultadoComCampo<T> = { ok: true; valor: T } | { ok: false; erro: string; campo?: string };
+export type ResultadoComCampo<T> = { ok: true; value: T } | { ok: false; error: string; campo?: string };
 
 const CAMPO_DO_CODIGO: Record<string, string> = {
   nome_obrigatorio: 'nome',
@@ -54,24 +54,24 @@ const CAMPO_DO_CODIGO: Record<string, string> = {
   capacidade_invalida: 'capacidadeOverride',
 };
 
-function falhaComCampo<T>(erro: unknown, padrao: string): ResultadoComCampo<T> {
-  if (erro instanceof ErroDaApi) {
-    const corpo = erro.corpo as
-      | { erro?: { codigo?: unknown; mensagem?: unknown; detalhe?: { campo?: unknown } } }
+function falhaComCampo<T>(error: unknown, padrao: string): ResultadoComCampo<T> {
+  if (error instanceof ApiError) {
+    const corpo = error.corpo as
+      | { error?: { codigo?: unknown; message?: unknown; detalhe?: { campo?: unknown } } }
       | null;
-    const codigo = corpo?.erro?.codigo;
-    const mensagem = corpo?.erro?.mensagem;
-    const campoDoDetalhe = corpo?.erro?.detalhe?.campo;
+    const codigo = corpo?.error?.codigo;
+    const message = corpo?.error?.message;
+    const campoDoDetalhe = corpo?.error?.detalhe?.campo;
     const campo =
       (typeof campoDoDetalhe === 'string' ? campoDoDetalhe : undefined) ??
       (typeof codigo === 'string' ? CAMPO_DO_CODIGO[codigo] : undefined);
     return {
       ok: false,
-      erro: typeof mensagem === 'string' && mensagem ? mensagem : padrao,
+      error: typeof message === 'string' && message ? message : padrao,
       ...(campo ? { campo } : {}),
     };
   }
-  return { ok: false, erro: padrao };
+  return { ok: false, error: padrao };
 }
 
 /**
@@ -82,57 +82,57 @@ function falhaComCampo<T>(erro: unknown, padrao: string): ResultadoComCampo<T> {
  * `cadastros.PedidoDeEdicaoDeFila` da `api` já os aceitava, só a tela não os
  * mandava.
  */
-export interface PedidoDeEdicaoDeFila {
+export interface RequestOfEditOfQueue {
   nome?: string;
   cor?: string | null;
   horarioId?: string | null;
-  capacidadePadrao?: number;
-  ordem?: number;
-  ativa?: boolean;
+  capacityDefault?: number;
+  order?: number;
+  active?: boolean;
 }
 
-export async function editarFila(
+export async function editQueue(
   id: string,
-  pedido: PedidoDeEdicaoDeFila,
+  pedido: RequestOfEditOfQueue,
 ): Promise<ResultadoComCampo<void>> {
   try {
     await api.patch(`/v1/gestao/atendentes/filas/${id}`, pedido);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return falhaComCampo(erro, 'Não foi possível renomear a fila.');
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return falhaComCampo(error, 'Não foi possível renomear a fila.');
   }
 }
 
 /** Vincular atendente à fila — `POST .../filas/:id/atendentes`. Capacidade omitida usa a padrão da fila. */
-export async function vincularAtendenteNaFila(
-  filaId: string,
-  atendenteId: string,
-  capacidadeOverride?: number | null,
+export async function vincularAgentInQueue(
+  queueId: string,
+  agentId: string,
+  capacityOverride?: number | null,
 ): Promise<ResultadoComCampo<void>> {
   try {
-    await api.post(`/v1/gestao/atendentes/filas/${filaId}/atendentes`, {
-      usuarioId: atendenteId,
-      ...(capacidadeOverride != null ? { capacidadeOverride } : {}),
+    await api.post(`/v1/gestao/atendentes/filas/${queueId}/atendentes`, {
+      usuarioId: agentId,
+      ...(capacityOverride != null ? { capacityOverride } : {}),
     });
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return falhaComCampo(erro, 'Não foi possível vincular o atendente.');
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return falhaComCampo(error, 'Não foi possível vincular o atendente.');
   }
 }
 
 /** Desvincular atendente da fila — `DELETE .../filas/:id/atendentes/:atendenteId`. */
-export async function desvincularAtendenteDaFila(
-  filaId: string,
-  atendenteId: string,
+export async function queueDesvincularAgent(
+  queueId: string,
+  agentId: string,
 ): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+    await api.delete(`/v1/gestao/atendentes/filas/${queueId}/atendentes/${agentId}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível desvincular o atendente.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível desvincular o atendente.') };
   }
 }
 
@@ -140,9 +140,9 @@ export async function alternarMotivoPausa(id: string, ativo: boolean): Promise<R
   try {
     await api.patch(`/v1/gestao/atendentes/pausas/${id}`, { ativo: !ativo });
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível alterar o motivo.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível alterar o motivo.') };
   }
 }
 
@@ -150,9 +150,9 @@ export async function excluirMotivoPausa(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/gestao/atendentes/pausas/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir o motivo.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir o motivo.') };
   }
 }
 
@@ -163,33 +163,33 @@ export async function excluirMotivoPausa(id: string): Promise<Resultado<void>> {
  * interruptor). REORDENAR não tem função própria: é este mesmo `editarRegraFila`
  * chamado só com `{ ordem }` — a página manda um PATCH por linha movida.
  */
-export interface PedidoDeEdicaoDeRegraFila {
+export interface RequestOfEditOfRuleQueue {
   nome?: string;
-  ordem?: number;
+  order?: number;
   combinador?: 'e' | 'ou';
-  filaDestinoId?: string;
-  condicoes?: { campo: string; operador: OperadorDeRegra; valor: string }[];
+  queueDestinationId?: string;
+  conditions?: { campo: string; operador: OperadorDeRegra; value: string }[];
 }
 
-export async function editarRegraFila(
+export async function editRuleQueue(
   id: string,
-  pedido: PedidoDeEdicaoDeRegraFila,
+  pedido: RequestOfEditOfRuleQueue,
 ): Promise<Resultado<void>> {
   try {
     await api.patch(`/v1/gestao/regras/atendimento/${id}`, pedido);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível editar a regra.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível editar a regra.') };
   }
 }
 
-export async function excluirRegraFila(id: string): Promise<Resultado<void>> {
+export async function excluirRuleQueue(id: string): Promise<Resultado<void>> {
   try {
     await api.delete(`/v1/gestao/regras/atendimento/${id}`);
     atualizarLeituras();
-    return { ok: true, valor: undefined };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a regra.') };
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível excluir a regra.') };
   }
 }

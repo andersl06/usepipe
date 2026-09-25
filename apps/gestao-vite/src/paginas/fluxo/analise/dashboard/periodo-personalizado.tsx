@@ -12,7 +12,7 @@ import { useState } from 'react';
  *
  * Aplicar é um GET com `periodo=custom`: a página relê o período da URL.
  */
-export function PeriodoPersonalizado({ hoje, de, ate }: { hoje: string; de: string; ate: string }) {
+export function PeriodCustom({ hoje, de, ate }: { hoje: string; de: string; ate: string }) {
   const [inicio, setInicio] = useState(de);
   const [fim, setFim] = useState(ate);
   const minimo = new Date(Date.parse(`${hoje}T00:00:00Z`) - 90 * 86_400_000)

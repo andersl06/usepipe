@@ -32,14 +32,14 @@ import { createCipheriv, createDecipheriv, randomBytes, timingSafeEqual } from '
 /** Marca do envelope. Sem ponto no nome: o ponto é o separador do pacote. */
 const MARCA = 'pipev1';
 
-export class SegredoErro extends Error {
-  constructor(mensagem: string) {
-    super(mensagem);
+export class SecretError extends Error {
+  constructor(message: string) {
+    super(message);
     this.name = 'SegredoErro';
   }
 }
 
-export interface Chaveiro {
+export interface Keyring {
   /** id da chave que cifra o que for gravado agora. */
   atual: string;
   /** Todas as chaves conhecidas, inclusive as antigas ainda em uso. */
@@ -50,36 +50,36 @@ export interface Chaveiro {
  * Lê o chaveiro do ambiente. Falha alto: chave ausente em produção é erro de
  * implantação, e seguir sem cifra seria gravar token em texto achando que não.
  */
-export function chaveiroDoAmbiente(env: NodeJS.ProcessEnv = process.env): Chaveiro {
+export function keyringOfAmbiente(env: NodeJS.ProcessEnv = process.env): Keyring {
   const cru = env['PIPE_CHAVES_SEGREDO'];
-  if (!cru) throw new SegredoErro('PIPE_CHAVES_SEGREDO não está definida.');
+  if (!cru) throw new SecretError('PIPE_CHAVES_SEGREDO não está definida.');
 
   const chaves = new Map<string, Buffer>();
   for (const parte of cru.split(',')) {
     const limpo = parte.trim();
     if (!limpo) continue;
     const corte = limpo.indexOf(':');
-    if (corte <= 0) throw new SegredoErro('Chave sem id: use `<id>:<base64>`.');
+    if (corte <= 0) throw new SecretError('Chave sem id: use `<id>:<base64>`.');
     const id = limpo.slice(0, corte);
     const material = Buffer.from(limpo.slice(corte + 1), 'base64');
     if (material.length !== 32) {
-      throw new SegredoErro(`A chave "${id}" não tem 32 bytes: AES-256 exige exatamente isso.`);
+      throw new SecretError(`A chave "${id}" não tem 32 bytes: AES-256 exige exatamente isso.`);
     }
     chaves.set(id, material);
   }
-  if (chaves.size === 0) throw new SegredoErro('PIPE_CHAVES_SEGREDO está vazia.');
+  if (chaves.size === 0) throw new SecretError('PIPE_CHAVES_SEGREDO está vazia.');
 
   const atual = env['PIPE_CHAVE_SEGREDO_ATUAL'] ?? [...chaves.keys()][0]!;
   if (!chaves.has(atual)) {
-    throw new SegredoErro(`PIPE_CHAVE_SEGREDO_ATUAL="${atual}" não está no chaveiro.`);
+    throw new SecretError(`PIPE_CHAVE_SEGREDO_ATUAL="${atual}" não está no chaveiro.`);
   }
   return { atual, chaves };
 }
 
 /** `pipev1.<idChave>.<iv>.<tag>.<cifrado>`, tudo em base64url menos a marca e o id. */
-export function cifrar(texto: string, chaveiro: Chaveiro): string {
+export function cifrar(texto: string, chaveiro: Keyring): string {
   const chave = chaveiro.chaves.get(chaveiro.atual);
-  if (!chave) throw new SegredoErro('A chave atual sumiu do chaveiro.');
+  if (!chave) throw new SecretError('A chave atual sumiu do chaveiro.');
 
   const iv = randomBytes(12); // 96 bits: o tamanho que o GCM espera, e o único seguro com nonce aleatório
   const cifra = createCipheriv('aes-256-gcm', chave, iv);
@@ -96,26 +96,26 @@ export function cifrar(texto: string, chaveiro: Chaveiro): string {
 }
 
 /** Diz se o valor já é um envelope nosso. Serve para migrar sem cifrar duas vezes. */
-export function estaCifrado(valor: string): boolean {
-  return valor.startsWith(`${MARCA}.`);
+export function estaCifrado(value: string): boolean {
+  return value.startsWith(`${MARCA}.`);
 }
 
-export function decifrar(pacote: string, chaveiro: Chaveiro): string {
+export function decifrar(pacote: string, keyring: Keyring): string {
   if (!estaCifrado(pacote)) {
-    throw new SegredoErro('O valor não está cifrado: decifrar texto claro esconderia o defeito.');
+    throw new SecretError('O valor não está cifrado: decifrar texto claro esconderia o defeito.');
   }
   const partes = pacote.split('.');
-  if (partes.length !== 5) throw new SegredoErro('Envelope malformado.');
-  const [, idChave, ivB64, tagB64, dadoB64] = partes as [string, string, string, string, string];
+  if (partes.length !== 5) throw new SecretError('Envelope malformado.');
+  const [, idKey, ivB64, tagB64, dadoB64] = partes as [string, string, string, string, string];
 
-  const chave = chaveiro.chaves.get(idChave);
-  if (!chave) {
-    throw new SegredoErro(
-      `A chave "${idChave}" não está no chaveiro: ela cifrou este dado e não pode ser descartada.`,
+  const key = keyring.chaves.get(idKey);
+  if (!key) {
+    throw new SecretError(
+      `A chave "${idKey}" não está no chaveiro: ela cifrou este dado e não pode ser descartada.`,
     );
   }
 
-  const decifra = createDecipheriv('aes-256-gcm', chave, Buffer.from(ivB64, 'base64url'));
+  const decifra = createDecipheriv('aes-256-gcm', key, Buffer.from(ivB64, 'base64url'));
   decifra.setAuthTag(Buffer.from(tagB64, 'base64url'));
   try {
     return Buffer.concat([
@@ -125,7 +125,7 @@ export function decifrar(pacote: string, chaveiro: Chaveiro): string {
   } catch {
     // `final()` do GCM lança quando a tag não bate. Não repassamos o erro original:
     // detalhe de falha de autenticação é o que alimenta oráculo.
-    throw new SegredoErro('Autenticação falhou: o dado cifrado foi alterado ou a chave é outra.');
+    throw new SecretError('Autenticação falhou: o dado cifrado foi alterado ou a chave é outra.');
   }
 }
 
@@ -137,7 +137,7 @@ export function decifrar(pacote: string, chaveiro: Chaveiro): string {
  * diagnóstico, `apiVersao` em suporte. Cifrar tudo transformaria toda pergunta
  * operacional em decifrar primeiro.
  */
-export const CAMPOS_SECRETOS_DE_CANAL = [
+export const FIELDS_SECRETOS_OF_CHANNEL = [
   'tokenAcesso',
   'appSecret',
   'verifyToken',
@@ -151,12 +151,12 @@ export const CAMPOS_SECRETOS_DE_CANAL = [
 type Config = Record<string, unknown>;
 
 /** Cifra os campos secretos de uma configuração de canal. Idempotente. */
-export function cifrarConfig(config: Config, chaveiro: Chaveiro): Config {
+export function cifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
-  for (const campo of CAMPOS_SECRETOS_DE_CANAL) {
-    const valor = saida[campo];
-    if (typeof valor !== 'string' || valor === '' || estaCifrado(valor)) continue;
-    saida[campo] = cifrar(valor, chaveiro);
+  for (const campo of FIELDS_SECRETOS_OF_CHANNEL) {
+    const value = saida[campo];
+    if (typeof value !== 'string' || value === '' || estaCifrado(value)) continue;
+    saida[campo] = cifrar(value, chaveiro);
   }
   return saida;
 }
@@ -169,9 +169,9 @@ export function cifrarConfig(config: Config, chaveiro: Chaveiro): Config {
  * de escrita não tem essa tolerância — o que for gravado a partir de agora sai
  * cifrado.
  */
-export function decifrarConfig(config: Config, chaveiro: Chaveiro): Config {
+export function decifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
-  for (const campo of CAMPOS_SECRETOS_DE_CANAL) {
+  for (const campo of FIELDS_SECRETOS_OF_CHANNEL) {
     const valor = saida[campo];
     if (typeof valor !== 'string' || !estaCifrado(valor)) continue;
     saida[campo] = decifrar(valor, chaveiro);
@@ -180,7 +180,7 @@ export function decifrarConfig(config: Config, chaveiro: Chaveiro): Config {
 }
 
 /** Comparação em tempo constante, para segredo que chega de fora (verifyToken). */
-export function segredoConfere(a: string, b: string): boolean {
+export function secretConfere(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);
   if (bufferA.length !== bufferB.length) return false;

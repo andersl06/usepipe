@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
-import { Selecao } from './selecao';
+import { Selection } from './selecao';
 
-const TAMANHOS_DE_PAGINA = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+const TAMANHOS_OF_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
 /**
  * A busca isolada abaixo do cabeçalho — `bds-input icon="search"` numa coluna
  * `w-30`: 30% de largura, 54px, lupa de 20 (`dom/rules.html`).
  */
-function BuscaTopo({
-  busca,
-  setBusca,
+function SearchTopo({
+  search,
+  setSearch,
   placeholder,
 }: {
-  busca: string;
-  setBusca: (v: string) => void;
+  search: string;
+  setSearch: (v: string) => void;
   placeholder: string;
 }) {
   return (
@@ -22,8 +22,8 @@ function BuscaTopo({
       <Icone nome="busca" tamanho={20} />
       <input
         type="search"
-        value={busca}
-        onChange={(e) => setBusca(e.target.value)}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
         placeholder={placeholder}
         aria-label={placeholder}
       />
@@ -34,7 +34,7 @@ function BuscaTopo({
 /** Os quatro ícones de navegação do rodapé — `FICHA-rules.md`/`FICHA-queue-
  * management.md` §5 (`arrow-first`, `arrow-left`, `arrow-right`, `arrow-last`).
  * Não existem em `@pipe/ui` nem valem a pena lá: só este rodapé os usa. */
-function SetaDePagina({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
+function PageSeta({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
   const caminhos: Record<typeof tipo, string> = {
     primeira: 'M11 7l-5 5l5 5M17 7l-5 5l5 5',
     anterior: 'M15 6l-6 6l6 6',
@@ -55,18 +55,18 @@ function SetaDePagina({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'u
  * Pagina no navegador, sobre a lista já filtrada pela busca — não há acordo
  * com o servidor, os dados já estão todos carregados.
  */
-function RodapeDePaginacao({
+function PaginationRodape({
   total,
-  pagina,
+  page,
   tamanho,
-  aoMudarPagina,
+  toMudarPage,
   aoMudarTamanho,
   ocultarTamanho = false,
 }: {
   total: number;
-  pagina: number;
+  page: number;
   tamanho: number;
-  aoMudarPagina: (p: number) => void;
+  toMudarPage: (p: number) => void;
   aoMudarTamanho: (t: number) => void;
   /**
    * `personalizedbreaks` NÃO tem `pagination-and-search-results-select`
@@ -74,42 +74,42 @@ function RodapeDePaginacao({
    */
   ocultarTamanho?: boolean;
 }) {
-  const totalPaginas = Math.max(1, Math.ceil(total / tamanho));
-  const inicio = total === 0 ? 0 : (pagina - 1) * tamanho + 1;
-  const fim = Math.min(pagina * tamanho, total);
+  const totalPages = Math.max(1, Math.ceil(total / tamanho));
+  const inicio = total === 0 ? 0 : (page - 1) * tamanho + 1;
+  const fim = Math.min(page * tamanho, total);
   return (
     <div className="rodape-paginacao">
       {ocultarTamanho ? null : (
         <label className="rp-tamanho">
           Resultados por página
-          <Selecao value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))} aria-label="Resultados por página">
-            {TAMANHOS_DE_PAGINA.map((o) => (
+          <Selection value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))} aria-label="Resultados por página">
+            {TAMANHOS_OF_PAGE.map((o) => (
               <option key={o} value={o}>
                 {o}
               </option>
             ))}
-          </Selecao>
+          </Selection>
         </label>
       )}
       <span className="rp-contagem">{`${inicio}-${fim} de ${total}`}</span>
       <div className="rp-nav">
-        <button type="button" disabled={pagina <= 1} onClick={() => aoMudarPagina(1)} aria-label="Primeira página">
-          <SetaDePagina tipo="primeira" />
+        <button type="button" disabled={page <= 1} onClick={() => toMudarPage(1)} aria-label="Primeira página">
+          <PageSeta tipo="primeira" />
         </button>
-        <button type="button" disabled={pagina <= 1} onClick={() => aoMudarPagina(pagina - 1)} aria-label="Página anterior">
-          <SetaDePagina tipo="anterior" />
+        <button type="button" disabled={page <= 1} onClick={() => toMudarPage(page - 1)} aria-label="Página anterior">
+          <PageSeta tipo="anterior" />
         </button>
-        <span className="rp-atual">{pagina}</span>
-        <button type="button" disabled={pagina >= totalPaginas} onClick={() => aoMudarPagina(pagina + 1)} aria-label="Próxima página">
-          <SetaDePagina tipo="proxima" />
+        <span className="rp-atual">{page}</span>
+        <button type="button" disabled={page >= totalPages} onClick={() => toMudarPage(page + 1)} aria-label="Próxima página">
+          <PageSeta tipo="proxima" />
         </button>
         <button
           type="button"
-          disabled={pagina >= totalPaginas}
-          onClick={() => aoMudarPagina(totalPaginas)}
+          disabled={page >= totalPages}
+          onClick={() => toMudarPage(totalPages)}
           aria-label="Última página"
         >
-          <SetaDePagina tipo="ultima" />
+          <PageSeta tipo="ultima" />
         </button>
       </div>
     </div>
@@ -135,12 +135,12 @@ function RodapeDePaginacao({
  * navegador, sem ida ao servidor.
  */
 
-export interface CartaoRegra {
+export interface CardRule {
   id: string;
   /** `titulo` é o que o cursor mostra; sem ele, o próprio valor (para o truncado). */
-  campos: { rotulo: string; valor: string; classe?: string; titulo?: string }[];
-  situacao: string;
-  ativa: boolean;
+  campos: { rotulo: string; value: string; classe?: string; titulo?: string }[];
+  situation: string;
+  active: boolean;
   /**
    * O `bds-chip-tag` NA LINHA do cartão — o "Padrão" da regra de SLA deles,
    * que ocupa uma quarta coluna sem rótulo (`dom/sla-policy.html`), e não o
@@ -177,16 +177,16 @@ export interface CartaoRegra {
   esquerda?: React.ReactNode;
 }
 
-export interface SecaoDeRegras {
+export interface RulesSection {
   titulo: string;
-  vazio: string;
+  empty: string;
   /**
    * A segunda linha do vazio de página deles ("Crie respostas para agilizar
    * seus atendimentos" sob "Você ainda não criou respostas prontas",
    * `FICHA-replies.md` §6). Sem ela, o vazio é uma frase só.
    */
-  vazioDescricao?: string;
-  cartoes: CartaoRegra[];
+  emptyDescription?: string;
+  cards: CardRule[];
 }
 
 /**
@@ -197,39 +197,39 @@ export interface SecaoDeRegras {
  * situação só aparece quando o registro está desligado — o que é dado, e
  * não decoração.
  */
-function Cartao({ cartao }: { cartao: CartaoRegra }) {
-  const colunas = cartao.campos.length + (cartao.selo ? 1 : 0);
+function Card({ card }: { card: CardRule }) {
+  const colunas = card.campos.length + (card.selo ? 1 : 0);
   return (
     <article className="cartao-lista">
-      {cartao.esquerda ?? (cartao.cor ? <span className="sw" style={{ background: cartao.cor }} /> : <span />)}
+      {card.esquerda ?? (card.cor ? <span className="sw" style={{ background: card.cor }} /> : <span />)}
       <div className="cl-campos" style={{ '--cl-colunas': colunas } as React.CSSProperties}>
-        {cartao.campos.map((c) => (
+        {card.campos.map((c) => (
           <div key={c.rotulo} className="cl-campo">
             <span className="r">{c.rotulo}</span>
-            <span className={c.classe ? `v ${c.classe}` : 'v'} title={c.titulo ?? c.valor}>
-              {c.valor}
+            <span className={c.classe ? `v ${c.classe}` : 'v'} title={c.titulo ?? c.value}>
+              {c.value}
             </span>
           </div>
         ))}
-        {cartao.selo ? (
+        {card.selo ? (
           <div className="cl-campo">
             <span className="r" aria-hidden="true">
               &nbsp;
             </span>
-            <span className="etiqueta">{cartao.selo}</span>
+            <span className="etiqueta">{card.selo}</span>
           </div>
         ) : null}
       </div>
       <div className="cl-acoes">
-        {!cartao.acao && !cartao.ativa ? (
-          <span className="etiqueta alerta">{cartao.situacao}</span>
+        {!card.acao && !card.active ? (
+          <span className="etiqueta alerta">{card.situation}</span>
         ) : null}
-        {cartao.acao}
+        {card.acao}
       </div>
 
-      {cartao.rodape && cartao.rodape.length > 0 ? (
+      {card.rodape && card.rodape.length > 0 ? (
         <div className="cl-rodape">
-          {cartao.rodape.map((item) => (
+          {card.rodape.map((item) => (
             <span key={item}>{item}</span>
           ))}
         </div>
@@ -239,16 +239,16 @@ function Cartao({ cartao }: { cartao: CartaoRegra }) {
 }
 
 export function ListaRegras({
-  secoes,
+  sections,
   placeholder = 'Buscar regra, fila ou escopo',
-  ocultarCabecalhoDeSecao = false,
+  sectionOcultarHeader = false,
   paginar = false,
-  tamanhoDePaginaInicial = 10,
-  ocultarBusca = false,
-  filtros,
-  ocultarTamanhoDePagina = false,
+  pageInitialTamanho = 10,
+  ocultarSearch = false,
+  filters,
+  pageOcultarTamanho = false,
 }: {
-  secoes: readonly SecaoDeRegras[];
+  sections: readonly RulesSection[];
   /** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */
   placeholder?: string;
   /**
@@ -257,64 +257,64 @@ export function ListaRegras({
    * telas com mais de uma seção (horários, por exemplo) ainda precisam do
    * rótulo para separar os grupos.
    */
-  ocultarCabecalhoDeSecao?: boolean;
+  sectionOcultarHeader?: boolean;
   /**
    * O rodapé "Resultados por página" que o material capturou em `rules` e
    * em `queue-management` (únicas duas fichas com paginação confirmada). Só
    * funciona com uma seção — as telas que o pedem têm uma só.
    */
   paginar?: boolean;
-  tamanhoDePaginaInicial?: number;
+  pageInitialTamanho?: number;
   /**
    * `personalizedbreaks` não tem busca nem filtro nenhum no material
    * (`FICHA-personalizedbreaks.md` §3) — a lista vem direto depois do
    * cabeçalho. A busca continua ligada por padrão para as telas que a Blip
    * mostra com ela.
    */
-  ocultarBusca?: boolean;
+  ocultarSearch?: boolean;
   /**
    * Controles que dividem a linha com a busca — o "Filtrar por:" com os
    * seletores de "Modelos de mensagens" (`FICHA-message-template.md` §3), à
    * esquerda da busca, que ali ocupa 69% da linha.
    */
-  filtros?: ReactNode;
+  filters?: ReactNode;
   /** Ver `RodapeDePaginacao.ocultarTamanho` — só a tela de Pausas pede isto. */
-  ocultarTamanhoDePagina?: boolean;
+  pageOcultarTamanho?: boolean;
 }) {
-  const [busca, setBusca] = useState('');
-  const [tamanho, setTamanho] = useState(tamanhoDePaginaInicial);
-  const [pagina, setPagina] = useState(1);
+  const [search, setSearch] = useState('');
+  const [tamanho, setTamanho] = useState(pageInitialTamanho);
+  const [page, setPage] = useState(1);
 
   const filtradas = useMemo(() => {
-    const alvo = busca.trim().toLowerCase();
-    if (!alvo) return secoes;
-    return secoes.map((s) => ({
+    const alvo = search.trim().toLowerCase();
+    if (!alvo) return sections;
+    return sections.map((s) => ({
       ...s,
-      cartoes: s.cartoes.filter((c) => c.procura.includes(alvo)),
+      cartoes: s.cards.filter((c) => c.procura.includes(alvo)),
     }));
-  }, [secoes, busca]);
+  }, [sections, search]);
 
-  const nenhuma = filtradas.every((s) => s.cartoes.length === 0);
-  const unicaSecao = filtradas.length === 1 ? filtradas[0] : undefined;
-  const podePaginar = paginar && unicaSecao !== undefined;
-  const totalItens = unicaSecao && podePaginar ? unicaSecao.cartoes.length : 0;
-  const totalPaginas = Math.max(1, Math.ceil(totalItens / tamanho));
-  const paginaAtual = Math.min(pagina, totalPaginas);
+  const nenhuma = filtradas.every((s) => s.cards.length === 0);
+  const unicaSection = filtradas.length === 1 ? filtradas[0] : undefined;
+  const podePaginar = paginar && unicaSection !== undefined;
+  const totalItens = unicaSection && podePaginar ? unicaSection.cards.length : 0;
+  const totalPages = Math.max(1, Math.ceil(totalItens / tamanho));
+  const pageCurrent = Math.min(page, totalPages);
 
   // Busca ou tamanho de página novos voltam para a página 1 — senão a pessoa
   // filtra para 3 itens estando na página 4 e vê uma lista vazia por engano.
   useEffect(() => {
-    setPagina(1);
-  }, [busca, tamanho]);
+    setPage(1);
+  }, [search, tamanho]);
 
-  const secoesExibidas =
-    podePaginar && unicaSecao
+  const sectionsShown =
+    podePaginar && unicaSection
       ? [
           {
-            ...unicaSecao,
-            cartoes: unicaSecao.cartoes.slice(
-              (paginaAtual - 1) * tamanho,
-              (paginaAtual - 1) * tamanho + tamanho,
+            ...unicaSection,
+            cartoes: unicaSection.cards.slice(
+              (pageCurrent - 1) * tamanho,
+              (pageCurrent - 1) * tamanho + tamanho,
             ),
           },
         ]
@@ -322,16 +322,16 @@ export function ListaRegras({
 
   return (
     <>
-      {ocultarBusca ? null : filtros ? (
+      {ocultarSearch ? null : filters ? (
         <div className="filtrar-por">
-          {filtros}
-          <BuscaTopo busca={busca} setBusca={setBusca} placeholder={placeholder} />
+          {filters}
+          <SearchTopo search={search} setSearch={setSearch} placeholder={placeholder} />
         </div>
       ) : (
-        <BuscaTopo busca={busca} setBusca={setBusca} placeholder={placeholder} />
+        <SearchTopo search={search} setSearch={setSearch} placeholder={placeholder} />
       )}
 
-      {nenhuma && busca.trim() ? (
+      {nenhuma && search.trim() ? (
         /* Vazio de BUSCA, com o texto do vazio de busca deles ("Nenhum
            resultado encontrado", `dom/history.html`) e a saída junto: sem
            o botão, a única forma de voltar à lista é apagar o texto na mão. */
@@ -342,40 +342,40 @@ export function ListaRegras({
             <br />
             Que tal refazer a sua busca?
           </p>
-          <button type="button" className="btn contorno-marca" onClick={() => setBusca('')}>
+          <button type="button" className="btn contorno-marca" onClick={() => setSearch('')}>
             Redefinir filtros
           </button>
         </div>
       ) : (
-        secoesExibidas.map((secao) => (
-          <div key={secao.titulo} className="lista-cartoes">
-            {ocultarCabecalhoDeSecao ? null : (
+        sectionsShown.map((section) => (
+          <div key={section.titulo} className="lista-cartoes">
+            {sectionOcultarHeader ? null : (
               <div className="grupo-cartoes">
-                {secao.titulo} <span className="qt">{secao.cartoes.length}</span>
+                {section.titulo} <span className="qt">{section.cards.length}</span>
               </div>
             )}
-            {secao.cartoes.length === 0 ? (
+            {section.cards.length === 0 ? (
               /* O vazio de página deles: título 20/700 e, quando existe, a
                  descrição em 16/400 embaixo. */
               <div className="vazio">
-                <b>{secao.vazio}</b>
-                {secao.vazioDescricao ? <p>{secao.vazioDescricao}</p> : null}
+                <b>{section.empty}</b>
+                {section.emptyDescription ? <p>{section.emptyDescription}</p> : null}
               </div>
             ) : (
-              secao.cartoes.map((c) => <Cartao key={c.id} cartao={c} />)
+              section.cards.map((c) => <Card key={c.id} card={c} />)
             )}
           </div>
         ))
       )}
 
       {podePaginar && !nenhuma ? (
-        <RodapeDePaginacao
+        <PaginationRodape
           total={totalItens}
-          pagina={paginaAtual}
+          page={pageCurrent}
           tamanho={tamanho}
-          aoMudarPagina={setPagina}
+          toMudarPage={setPage}
           aoMudarTamanho={setTamanho}
-          ocultarTamanho={ocultarTamanhoDePagina}
+          ocultarTamanho={pageOcultarTamanho}
         />
       ) : null}
     </>

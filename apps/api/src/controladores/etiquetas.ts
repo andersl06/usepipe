@@ -1,19 +1,19 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
-import { ChaveOuSessao, atorDe } from '../autenticacao.js';
-import type { RequisicaoAutenticada } from '../autenticacao.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { KeyOrSession, atorDe } from '../autenticacao.js';
+import type { RequestAuthenticated } from '../autenticacao.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
-  desetiquetarContato,
-  desetiquetarConversa,
-  etiquetarContato,
-  etiquetarConversa,
-  listarEtiquetasDoContato,
+  unlabelContact,
+  unlabelConversation,
+  labelContact,
+  labelConversation,
+  listLabelsOfContact,
   listarEtiquetasDoTenant,
 } from '../dominio/etiquetas.js';
-import type { EtiquetaDoContato, EtiquetaDoTenant } from '../dominio/etiquetas.js';
-import { ErroPipe } from '../erros.js';
+import type { LabelOfContact, EtiquetaDoTenant } from '../dominio/etiquetas.js';
+import { PipeError } from '../erros.js';
 
 /**
  * Etiquetas — o catálogo do tenant e a aplicação em conversa ABERTA e em contato.
@@ -34,43 +34,43 @@ interface CorpoDeEtiqueta {
 function etiquetaIdDe(corpo: CorpoDeEtiqueta | undefined): string {
   const id = corpo?.etiqueta_id;
   if (!id || typeof id !== 'string') {
-    throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Informe `etiqueta_id`.');
+    throw PipeError.request('etiqueta_obrigatoria', 'Informe `etiqueta_id`.');
   }
   return id;
 }
 
 @Controller('v1/etiquetas')
-export class ControladorEtiquetas {
+export class LabelsController {
   /** `?escopo=conversa|contato` filtra pelas que cabem no alvo (`ambos` entra nos dois). */
   @Get()
-  @ComSessao()
+  @WithSession()
   listar(
-    @Req() requisicao: RequisicaoComSessao,
-    @Query('escopo') escopo?: string,
+    @Req() requisicao: RequestWithSession,
+    @Query('escopo') scope?: string,
   ): Promise<{ etiquetas: EtiquetaDoTenant[] }> {
-    const sessao = sessaoDe(requisicao);
-    if (escopo !== undefined && escopo !== 'conversa' && escopo !== 'contato') {
-      throw ErroPipe.requisicao('escopo_invalido', 'Escopo aceito: conversa ou contato.');
+    const session = sessionOf(requisicao);
+    if (scope !== undefined && scope !== 'conversa' && scope !== 'contato') {
+      throw PipeError.request('escopo_invalido', 'Escopo aceito: conversa ou contato.');
     }
-    return noTenant(sessao.tenantId, async (tx) => ({
-      etiquetas: await listarEtiquetasDoTenant(tx, escopo ?? null),
+    return noTenant(session.tenantId, async (tx) => ({
+      etiquetas: await listarEtiquetasDoTenant(tx, scope ?? null),
     }));
   }
 }
 
 @Controller('v1/conversas/:id/etiquetas')
-export class ControladorEtiquetasDaConversa {
+export class ConversationLabelsController {
   @Post()
   @HttpCode(201)
-  @ChaveOuSessao('conversas:escrever')
+  @KeyOrSession('conversas:escrever')
   async aplicar(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: CorpoDeEtiqueta,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    const r = await etiquetarConversa(
-      { tenantId: ator.tenantId, atendenteId: ator.usuarioId, exigirAtribuicao: ator.viaSessao },
+    const r = await labelConversation(
+      { tenantId: ator.tenantId, agentId: ator.userId, exigirAssignment: ator.viaSession },
       id,
       etiquetaIdDe(corpo),
     );
@@ -79,15 +79,15 @@ export class ControladorEtiquetasDaConversa {
 
   @Delete(':etiquetaId')
   @HttpCode(200)
-  @ChaveOuSessao('conversas:escrever')
+  @KeyOrSession('conversas:escrever')
   async remover(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
     @Param('etiquetaId') etiquetaId: string,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    const r = await desetiquetarConversa(
-      { tenantId: ator.tenantId, atendenteId: ator.usuarioId, exigirAtribuicao: ator.viaSessao },
+    const r = await unlabelConversation(
+      { tenantId: ator.tenantId, agentId: ator.userId, exigirAssignment: ator.viaSession },
       id,
       etiquetaId,
     );
@@ -96,42 +96,42 @@ export class ControladorEtiquetasDaConversa {
 }
 
 @Controller('v1/contatos/:id/etiquetas')
-export class ControladorEtiquetasDoContato {
+export class ContactLabelsController {
   @Get()
-  @ChaveOuSessao('contatos:ler')
+  @KeyOrSession('contatos:ler')
   listar(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() request: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
-  ): Promise<{ etiquetas: EtiquetaDoContato[] }> {
-    const ator = atorDe(requisicao);
+  ): Promise<{ etiquetas: LabelOfContact[] }> {
+    const ator = atorDe(request);
     return noTenant(ator.tenantId, async (tx) => ({
-      etiquetas: await listarEtiquetasDoContato(tx, id),
+      etiquetas: await listLabelsOfContact(tx, id),
     }));
   }
 
   @Post()
   @HttpCode(201)
-  @ChaveOuSessao('contatos:escrever')
+  @KeyOrSession('contatos:escrever')
   async aplicar(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
     @Body() corpo: CorpoDeEtiqueta,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    const r = await etiquetarContato(ator, id, etiquetaIdDe(corpo));
+    const r = await labelContact(ator, id, etiquetaIdDe(corpo));
     return { etiqueta_id: r.etiquetaId, nome: r.nome, aplicada: r.aplicada };
   }
 
   @Delete(':etiquetaId')
   @HttpCode(200)
-  @ChaveOuSessao('contatos:escrever')
+  @KeyOrSession('contatos:escrever')
   async remover(
-    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
     @Param('etiquetaId') etiquetaId: string,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    const r = await desetiquetarContato(ator, id, etiquetaId);
+    const r = await unlabelContact(ator, id, etiquetaId);
     return { removida: r.removida };
   }
 }

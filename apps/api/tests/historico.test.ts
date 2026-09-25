@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { RequisicaoComSessao } from '../src/sessao.js';
+import type { RequestWithSession } from '../src/sessao.js';
 
 const duplos = vi.hoisted(() => ({
   fusoDoTenant: vi.fn(async () => 'UTC'),
@@ -31,9 +31,9 @@ vi.mock('../src/dominio/gestao/atendimento.js', () => ({
   carregarAtendimento: async () => ({}),
 }));
 
-const { ControladorGestaoOperacao } = await import('../src/controladores/gestao-operacao.js');
-const controlador = new ControladorGestaoOperacao();
-const requisicao = { sessao: { tenantId: 'tenant', usuarioId: 'usuario', origem: 'google' } } as unknown as RequisicaoComSessao;
+const { ManagementOperationsController } = await import('../src/controladores/gestao-operacao.js');
+const controller = new ManagementOperationsController();
+const request = { sessao: { tenantId: 'tenant', usuarioId: 'usuario', origem: 'google' } } as unknown as RequestWithSession;
 
 beforeEach(() => {
   duplos.fusoDoTenant.mockResolvedValue('UTC');
@@ -46,7 +46,7 @@ beforeEach(() => {
 
 describe('GET /v1/gestao/historico', () => {
   it('usa os últimos 30 dias, incluindo hoje, quando não recebe datas', async () => {
-    const resposta = await controlador.historico(requisicao);
+    const resposta = await controller.history(request);
     expect([resposta.de, resposta.ate]).toEqual(['2026-08-25', '2026-09-23']);
     expect(duplos.janelaDeDatas).toHaveBeenCalledWith({}, 'UTC', '2026-08-25', '2026-09-23');
   });
@@ -58,13 +58,13 @@ describe('GET /v1/gestao/historico', () => {
       fim: new Date('2026-03-21T04:00:00.000Z'),
     });
 
-    const resposta = await controlador.historico(requisicao);
+    const resposta = await controller.history(request);
     expect([resposta.de, resposta.ate]).toEqual(['2026-02-19', '2026-03-20']);
     expect(duplos.janelaDeDatas).toHaveBeenCalledWith({}, 'America/New_York', '2026-02-19', '2026-03-20');
   });
 
   it('preserva datas explícitas', async () => {
-    const resposta = await controlador.historico(requisicao, undefined, undefined, undefined, '2026-07-01', '2026-07-15');
+    const resposta = await controller.history(request, undefined, undefined, undefined, '2026-07-01', '2026-07-15');
     expect([resposta.de, resposta.ate]).toEqual(['2026-07-01', '2026-07-15']);
     expect(duplos.janelaDeDatas).toHaveBeenLastCalledWith({}, 'UTC', '2026-07-01', '2026-07-15');
   });
@@ -76,7 +76,7 @@ describe('GET /v1/gestao/historico', () => {
       fim: new Date('2026-03-11T04:00:00.000Z'),
     });
 
-    const resposta = await controlador.relatorioDeAtendimento(requisicao);
+    const resposta = await controller.reportOfAttendance(request);
     expect([resposta.de, resposta.ate]).toEqual(['2026-03-03', '2026-03-10']);
     expect(duplos.janelaDeDatas).toHaveBeenCalledWith({}, 'America/New_York', '2026-03-03', '2026-03-10');
   });

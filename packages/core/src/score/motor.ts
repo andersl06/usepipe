@@ -27,26 +27,26 @@ export type Operador =
   | 'existe'
   | 'nao_existe';
 
-export interface Condicao {
+export interface Condition {
   campo: string;
   operador: Operador;
   valor?: unknown;
 }
 
-export interface CondicaoComposta {
+export interface ConditionComposta {
   combinador: 'e' | 'ou';
-  condicoes: readonly (Condicao | CondicaoComposta)[];
+  condicoes: readonly (Condition | ConditionComposta)[];
 }
 
-export type Expressao = Condicao | CondicaoComposta;
+export type Expressao = Condition | ConditionComposta;
 
 export interface RegraScore {
   id: string;
   nome: string;
   versao: number;
   pontos: number;
-  condicao: Expressao;
-  ativa: boolean;
+  condition: Expressao;
+  active: boolean;
 }
 
 export interface FaixaScore {
@@ -56,21 +56,21 @@ export interface FaixaScore {
   maximo: number | null;
 }
 
-export interface ItemExplicacao {
+export interface ItemExplanation {
   regra: string;
   versao: number;
   pontos: number;
 }
 
 export interface ResultadoScore {
-  valor: number;
+  value: number;
   faixa: string | null;
-  explicacao: ItemExplicacao[];
+  explanation: ItemExplanation[];
   /** Versão de regra carimbada no `score_lead`. */
   versaoRegra: number;
 }
 
-export interface OpcoesScore {
+export interface OptionsScore {
   faixas?: readonly FaixaScore[];
   /** Trava o valor num intervalo. Desligado por padrão — peso negativo é legítimo. */
   limites?: { minimo?: number; maximo?: number };
@@ -78,15 +78,15 @@ export interface OpcoesScore {
   versaoRegra?: number;
 }
 
-export type DadosLead = Readonly<Record<string, unknown>>;
+export type DataLead = Readonly<Record<string, unknown>>;
 
-function ehComposta(expressao: Expressao): expressao is CondicaoComposta {
+function ehComposta(expressao: Expressao): expressao is ConditionComposta {
   return 'combinador' in expressao;
 }
 
 /** Lê `campo` com caminho por ponto (contato.email), sem depender de biblioteca. */
-export function lerCampo(dados: DadosLead, caminho: string): unknown {
-  let atual: unknown = dados;
+export function lerCampo(data: DataLead, caminho: string): unknown {
+  let atual: unknown = data;
   for (const parte of caminho.split('.')) {
     if (atual === null || atual === undefined || typeof atual !== 'object') return undefined;
     atual = (atual as Record<string, unknown>)[parte];
@@ -95,25 +95,25 @@ export function lerCampo(dados: DadosLead, caminho: string): unknown {
 }
 
 /** Texto comparável: sem acento, sem caixa, sem espaço nas pontas. */
-function normalizarTexto(valor: unknown): string {
-  return String(valor)
+function normalizarTexto(value: unknown): string {
+  return String(value)
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
     .toLowerCase()
     .trim();
 }
 
-function comparavelNumero(valor: unknown): number | null {
-  if (typeof valor === 'number' && Number.isFinite(valor)) return valor;
-  if (valor instanceof Date) return valor.getTime();
-  if (typeof valor === 'string' && valor.trim() !== '') {
-    const n = Number(valor);
+function comparavelNumero(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'string' && value.trim() !== '') {
+    const n = Number(value);
     return Number.isFinite(n) ? n : null;
   }
   return null;
 }
 
-function iguais(a: unknown, b: unknown): boolean {
+function equal(a: unknown, b: unknown): boolean {
   if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime();
   if (typeof a === 'string' || typeof b === 'string') {
     if (a === null || a === undefined || b === null || b === undefined) return a === b;
@@ -123,29 +123,29 @@ function iguais(a: unknown, b: unknown): boolean {
 }
 
 /** Avalia uma condição folha contra os dados do lead. */
-export function avaliarCondicao(condicao: Condicao, dados: DadosLead): boolean {
-  const atual = lerCampo(dados, condicao.campo);
-  const esperado = condicao.valor;
+export function avaliarCondition(condition: Condition, data: DataLead): boolean {
+  const atual = lerCampo(data, condition.campo);
+  const esperado = condition.valor;
 
-  switch (condicao.operador) {
+  switch (condition.operador) {
     case 'existe':
       return atual !== undefined && atual !== null && atual !== '';
     case 'nao_existe':
       return atual === undefined || atual === null || atual === '';
     case 'igual':
-      return iguais(atual, esperado);
+      return equal(atual, esperado);
     case 'diferente':
-      return !iguais(atual, esperado);
+      return !equal(atual, esperado);
     case 'contem':
-      if (Array.isArray(atual)) return atual.some((item) => iguais(item, esperado));
+      if (Array.isArray(atual)) return atual.some((item) => equal(item, esperado));
       if (atual === undefined || atual === null) return false;
       return normalizarTexto(atual).includes(normalizarTexto(esperado));
     case 'nao_contem':
-      return !avaliarCondicao({ ...condicao, operador: 'contem' }, dados);
+      return !avaliarCondition({ ...condition, operador: 'contem' }, data);
     case 'em':
-      return Array.isArray(esperado) && esperado.some((item) => iguais(atual, item));
+      return Array.isArray(esperado) && esperado.some((item) => equal(atual, item));
     case 'nao_em':
-      return !(Array.isArray(esperado) && esperado.some((item) => iguais(atual, item)));
+      return !(Array.isArray(esperado) && esperado.some((item) => equal(atual, item)));
     case 'maior':
     case 'maior_igual':
     case 'menor':
@@ -153,9 +153,9 @@ export function avaliarCondicao(condicao: Condicao, dados: DadosLead): boolean {
       const a = comparavelNumero(atual);
       const b = comparavelNumero(esperado);
       if (a === null || b === null) return false;
-      if (condicao.operador === 'maior') return a > b;
-      if (condicao.operador === 'maior_igual') return a >= b;
-      if (condicao.operador === 'menor') return a < b;
+      if (condition.operador === 'maior') return a > b;
+      if (condition.operador === 'maior_igual') return a >= b;
+      if (condition.operador === 'menor') return a < b;
       return a <= b;
     }
     default:
@@ -164,20 +164,20 @@ export function avaliarCondicao(condicao: Condicao, dados: DadosLead): boolean {
 }
 
 /** Avalia uma expressão (folha ou composta com E/OU). */
-export function avaliarExpressao(expressao: Expressao, dados: DadosLead): boolean {
-  if (!ehComposta(expressao)) return avaliarCondicao(expressao, dados);
+export function avaliarExpressao(expressao: Expressao, data: DataLead): boolean {
+  if (!ehComposta(expressao)) return avaliarCondition(expressao, data);
   if (expressao.condicoes.length === 0) return false;
   return expressao.combinador === 'e'
-    ? expressao.condicoes.every((c) => avaliarExpressao(c, dados))
-    : expressao.condicoes.some((c) => avaliarExpressao(c, dados));
+    ? expressao.condicoes.every((c) => avaliarExpressao(c, data))
+    : expressao.condicoes.some((c) => avaliarExpressao(c, data));
 }
 
 /** Encontra a faixa do valor. Faixas ordenadas por mínimo; `maximo` é inclusivo. */
-export function faixaDoValor(valor: number, faixas: readonly FaixaScore[]): string | null {
+export function valueTier(value: number, faixas: readonly FaixaScore[]): string | null {
   const ordenadas = [...faixas].sort((a, b) => a.minimo - b.minimo);
   for (const faixa of ordenadas) {
-    const dentroDoPiso = valor >= faixa.minimo;
-    const dentroDoTeto = faixa.maximo === null || valor <= faixa.maximo;
+    const dentroDoPiso = value >= faixa.minimo;
+    const dentroDoTeto = faixa.maximo === null || value <= faixa.maximo;
     if (dentroDoPiso && dentroDoTeto) return faixa.nome;
   }
   return null;
@@ -194,34 +194,34 @@ export function faixaDoValor(valor: number, faixas: readonly FaixaScore[]): stri
  */
 export function calcularScore(
   regras: readonly RegraScore[],
-  dados: DadosLead,
-  opcoes: OpcoesScore = {},
+  data: DataLead,
+  options: OptionsScore = {},
 ): ResultadoScore {
   const ativas = regras
-    .filter((regra) => regra.ativa)
+    .filter((regra) => regra.active)
     .sort((a, b) => compararIdentificador(a.id, b.id));
 
-  const explicacao: ItemExplicacao[] = [];
-  let valor = 0;
+  const explanation: ItemExplanation[] = [];
+  let value = 0;
 
   for (const regra of ativas) {
-    if (!avaliarExpressao(regra.condicao, dados)) continue;
-    valor += regra.pontos;
-    explicacao.push({ regra: regra.id, versao: regra.versao, pontos: regra.pontos });
+    if (!avaliarExpressao(regra.condition, data)) continue;
+    value += regra.pontos;
+    explanation.push({ regra: regra.id, versao: regra.versao, pontos: regra.pontos });
   }
 
-  if (opcoes.limites) {
-    if (opcoes.limites.minimo !== undefined) valor = Math.max(opcoes.limites.minimo, valor);
-    if (opcoes.limites.maximo !== undefined) valor = Math.min(opcoes.limites.maximo, valor);
+  if (options.limites) {
+    if (options.limites.minimo !== undefined) value = Math.max(options.limites.minimo, value);
+    if (options.limites.maximo !== undefined) value = Math.min(options.limites.maximo, value);
   }
 
   const versaoRegra =
-    opcoes.versaoRegra ?? ativas.reduce((maior, regra) => Math.max(maior, regra.versao), 0);
+    options.versaoRegra ?? ativas.reduce((maior, regra) => Math.max(maior, regra.versao), 0);
 
   return {
-    valor,
-    faixa: opcoes.faixas ? faixaDoValor(valor, opcoes.faixas) : null,
-    explicacao,
+    value,
+    faixa: options.faixas ? valueTier(value, options.faixas) : null,
+    explanation,
     versaoRegra,
   };
 }

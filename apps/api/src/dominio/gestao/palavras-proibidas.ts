@@ -1,10 +1,10 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { palavraProibida } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
-import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { CONFIGURACOES_GERAIS_GERENCIAR } from './configuracoes.js';
+import type { TransactionPipe } from '@pipe/db';
+import { PipeError } from '../../erros.js';
+import { exigirPermission } from '../../sessao.js';
+import { SETTINGS_GENERAL_MANAGE } from './configuracoes.js';
 
 /**
  * Palavras proibidas: a lista da conta que barra o envio do atendente.
@@ -50,10 +50,10 @@ import { CONFIGURACOES_GERAIS_GERENCIAR } from './configuracoes.js';
  * ela mora nas configurações do bot (`HasForbiddenWords`,
  * `blip-gestao-regras-tecnicas.md`).
  */
-export const PALAVRA_PROIBIDA_GERENCIAR = CONFIGURACOES_GERAIS_GERENCIAR;
+export const WORD_FORBIDDEN_MANAGE = SETTINGS_GENERAL_MANAGE;
 
 /** `CONFIGURATION_EXPIRATION_FORBIDDEN_WORDS_TIME` da origem: 5 minutos. */
-export const VALIDADE_DO_CACHE_MS = 300_000;
+export const VALIDITY_OF_CACHE_MS = 300_000;
 
 /**
  * O regex de tokenização da origem (app.js:77445), ao pé da letra — sem hífen,
@@ -105,15 +105,15 @@ interface ListaGuardada {
 }
 
 /** Uma lista por tenant. Vive no processo da `api`, como `cacheDeCanal` em `banco.ts`. */
-const cachePorTenant = new Map<string, ListaGuardada>();
+const cacheByTenant = new Map<string, ListaGuardada>();
 
 /**
  * Os termos ATIVOS do tenant, do cache ou do banco. É o que `envio.ts` chama a
  * cada mensagem — e é por isso que existe cache: varrer a tabela a cada envio
  * seria uma consulta por mensagem para uma lista que muda quase nunca.
  */
-export async function termosProibidosDoTenant(tx: TransacaoPipe, tid: string): Promise<string[]> {
-  const guardada = cachePorTenant.get(tid);
+export async function termosProibidosDoTenant(tx: TransactionPipe, tid: string): Promise<string[]> {
+  const guardada = cacheByTenant.get(tid);
   if (guardada && guardada.expiraEm > Date.now()) return guardada.termos;
 
   const linhas = await tx
@@ -121,14 +121,14 @@ export async function termosProibidosDoTenant(tx: TransacaoPipe, tid: string): P
     .from(palavraProibida)
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.ativo, true)));
   const termos = linhas.map((l) => l.termo);
-  cachePorTenant.set(tid, { termos, expiraEm: Date.now() + VALIDADE_DO_CACHE_MS });
+  cacheByTenant.set(tid, { termos, expiraEm: Date.now() + VALIDITY_OF_CACHE_MS });
   return termos;
 }
 
 /** Invalida a lista guardada. Sem tenant, esquece todas — existe para o teste. */
 export function esquecerPalavrasProibidas(tid?: string): void {
-  if (tid) cachePorTenant.delete(tid);
-  else cachePorTenant.clear();
+  if (tid) cacheByTenant.delete(tid);
+  else cacheByTenant.clear();
 }
 
 /**
@@ -137,7 +137,7 @@ export function esquecerPalavrasProibidas(tid?: string): void {
  * o título "Palavras proibidas" e a lista do que foi encontrado, entre aspas.
  */
 export async function exigirSemPalavrasProibidas(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   texto: string,
 ): Promise<void> {
@@ -146,7 +146,7 @@ export async function exigirSemPalavrasProibidas(
   const achadas = encontrarPalavrasProibidas(texto, termos);
   if (achadas.length === 0) return;
   const lista = achadas.map((p) => `"${p}"`).join(', ');
-  throw ErroPipe.requisicao(
+  throw PipeError.request(
     'palavra_proibida',
     `Palavras proibidas: sua mensagem contém ${lista} e não foi enviada. Remova e tente de novo.`,
     { palavras: achadas },
@@ -166,7 +166,7 @@ export interface PedidoDePalavraProibida {
   ativo?: boolean;
 }
 
-export interface PedidoDeEdicaoDePalavraProibida {
+export interface RequestOfEditOfWordForbidden {
   termo?: string;
   ativo?: boolean;
 }
@@ -178,7 +178,7 @@ const COLUNAS = {
 };
 
 export async function carregarPalavrasProibidas(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
 ): Promise<PalavraProibidaListada[]> {
   return tx
@@ -193,7 +193,7 @@ function termoConferido(bruto: unknown): string {
   const termo = String(bruto ?? '')
     .replace(/\s+/g, ' ')
     .trim();
-  if (!termo) throw ErroPipe.requisicao('termo_obrigatorio', 'Informe a palavra ou frase.');
+  if (!termo) throw PipeError.request('termo_obrigatorio', 'Informe a palavra ou frase.');
   return termo;
 }
 
@@ -203,7 +203,7 @@ function termoConferido(bruto: unknown): string {
  * cadastrar os dois só confundiria a lista.
  */
 async function termoEmUso(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   termo: string,
   excetoId?: string,
@@ -216,40 +216,40 @@ async function termoEmUso(
   return linhas.find((l) => normalizarTermo(l.termo) === alvo)?.termo ?? null;
 }
 
-async function palavraViva(tx: TransacaoPipe, tid: string, id: string): Promise<PalavraProibidaListada> {
+async function palavraViva(tx: TransactionPipe, tid: string, id: string): Promise<PalavraProibidaListada> {
   const [atual] = await tx
     .select(COLUNAS)
     .from(palavraProibida)
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('palavra proibida');
+  if (!atual) throw PipeError.naoEncontrado('palavra proibida');
   return atual;
 }
 
-export async function criarPalavraProibida(
-  tx: TransacaoPipe,
+export async function createWordForbidden(
+  tx: TransactionPipe,
   tid: string,
-  usuarioId: string,
+  userId: string,
   pedido: PedidoDePalavraProibida,
 ): Promise<{ id: string }> {
-  await exigirPermissao(tx, usuarioId, PALAVRA_PROIBIDA_GERENCIAR);
+  await exigirPermission(tx, userId, WORD_FORBIDDEN_MANAGE);
 
   const termo = termoConferido(pedido.termo);
   const ativo = pedido.ativo ?? true;
 
   const conflito = await termoEmUso(tx, tid, termo);
   if (conflito) {
-    throw ErroPipe.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
+    throw PipeError.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
   }
 
   const [criada] = await tx
     .insert(palavraProibida)
     .values({ tenantId: tid, termo, ativo })
     .returning({ id: palavraProibida.id });
-  if (!criada) throw ErroPipe.requisicao('palavra_nao_criada', 'Não consegui gravar a palavra.');
+  if (!criada) throw PipeError.request('palavra_nao_criada', 'Não consegui gravar a palavra.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'palavra_proibida',
     objetoId: criada.id,
@@ -260,14 +260,14 @@ export async function criarPalavraProibida(
 }
 
 export async function editarPalavraProibida(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
-  pedido: PedidoDeEdicaoDePalavraProibida,
+  pedido: RequestOfEditOfWordForbidden,
 ): Promise<PalavraProibidaListada> {
   const atual = await palavraViva(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, PALAVRA_PROIBIDA_GERENCIAR);
+  await exigirPermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
   // Sem anotação de tipo — literal fresco aceita `Record<string, unknown>` em `diferenca`.
   const antes = { ...atual };
@@ -282,7 +282,7 @@ export async function editarPalavraProibida(
   if (depois.termo !== antes.termo) {
     const conflito = await termoEmUso(tx, tid, depois.termo, id);
     if (conflito) {
-      throw ErroPipe.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
+      throw PipeError.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
     }
   }
 
@@ -291,7 +291,7 @@ export async function editarPalavraProibida(
     .set({ termo: depois.termo, ativo: depois.ativo, atualizadoEm: new Date() })
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)))
     .returning(COLUNAS);
-  if (!gravada) throw ErroPipe.naoEncontrado('palavra proibida');
+  if (!gravada) throw PipeError.naoEncontrado('palavra proibida');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: usuarioId },
@@ -306,13 +306,13 @@ export async function editarPalavraProibida(
 }
 
 export async function excluirPalavraProibida(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   usuarioId: string,
   id: string,
 ): Promise<void> {
   const atual = await palavraViva(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, PALAVRA_PROIBIDA_GERENCIAR);
+  await exigirPermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
   await tx.delete(palavraProibida).where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)));
 

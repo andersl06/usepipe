@@ -13,11 +13,11 @@ import type { TemplateParaEnvio } from './template.js';
 
 export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template' | 'interativo';
 
-export interface CredenciaisCanal {
+export interface CredentialsChannel {
   /** `WHATSAPP_PHONE_NUMBER_ID` — o número que envia. */
   phoneNumberId: string;
   /** Token do usuário de sistema. Cifrado em `canal.config` (§6 da spec). */
-  tokenAcesso: string;
+  tokenAccess: string;
   /** Padrão `v21.0`. A Meta descontinua versão antiga; por isso é configuração. */
   apiVersao?: string | undefined;
 }
@@ -27,36 +27,36 @@ export interface ConteudoTexto {
   texto: string;
 }
 
-export interface ConteudoMidia {
+export interface ContentMedia {
   tipo: 'imagem' | 'audio' | 'video' | 'documento';
   /** URL pública do storage de objetos. A mídia sobe antes do envio (§4.3). */
   link: string;
   legenda?: string | undefined;
-  nomeArquivo?: string | undefined;
+  nameFile?: string | undefined;
 }
 
 export interface ConteudoTemplate {
   tipo: 'template';
   template: TemplateParaEnvio;
   /** Valores por posição **de disparo**, com o deslocamento de mídia já aplicado. */
-  valores: Record<string, string>;
+  values: Record<string, string>;
 }
 
 /** Pergunta do fluxo em botões ou lista. Ver `interativo.ts`. */
 export interface ConteudoInterativo {
   tipo: 'interativo';
-  formato: 'botoes' | 'lista';
+  format: 'botoes' | 'lista';
   texto: string;
-  opcoes: string[];
+  options: string[];
 }
 
-export type Conteudo = ConteudoTexto | ConteudoMidia | ConteudoTemplate | ConteudoInterativo;
+export type Conteudo = ConteudoTexto | ContentMedia | ConteudoTemplate | ConteudoInterativo;
 
 export interface PedidoEnvio {
   /** Destinatário em E.164 sem o `+`, como a Cloud API exige. */
   para: string;
   conteudo: Conteudo;
-  credenciais: CredenciaisCanal;
+  credentials: CredentialsChannel;
 }
 
 export interface RespostaEnvio {
@@ -69,12 +69,12 @@ export interface RespostaEnvio {
  * `erro_codigo`/`erro_texto` na mensagem; falha temporária volta ao outbox com espera
  * crescente. Confundir as duas é gastar 5 tentativas num número que não existe.
  */
-export class ErroWhatsApp extends Error {
+export class WhatsAppError extends Error {
   readonly codigo: string;
   readonly permanente: boolean;
 
-  constructor(codigo: string, mensagem: string, permanente: boolean) {
-    super(mensagem);
+  constructor(codigo: string, message: string, permanente: boolean) {
+    super(message);
     this.name = 'ErroWhatsApp';
     this.codigo = codigo;
     this.permanente = permanente;

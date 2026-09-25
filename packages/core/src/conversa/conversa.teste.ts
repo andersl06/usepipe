@@ -1,20 +1,20 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  ESTADOS_CONVERSA,
-  TransicaoEntregaInvalidaError,
-  TransicaoInvalidaError,
+  STATES_CONVERSATION,
+  TransitionDeliveryInvalidError,
+  TransitionInvalidError,
   aplicarEvento,
-  estadoAlvoDoEvento,
+  eventStateAlvo,
   reproduzirEventos,
   tentarAplicarEvento,
   tentarTransitar,
-  transicaoEntregaPermitida,
-  transicaoPermitida,
+  transitionDeliveryAllowed,
+  transitionAllowed,
   transitar,
-  transitarEntrega,
-  type EstadoConversa,
-  type EstadoEntrega,
+  transitarDelivery,
+  type StateConversation,
+  type StateDelivery,
 } from './index.js';
 import type { TipoEvento } from '../metricas/eventos.js';
 
@@ -22,7 +22,7 @@ import type { TipoEvento } from '../metricas/eventos.js';
  * Tabela completa das 25 combinações do diagrama da §8.
  * `true` = aresta que existe no desenho; todo o resto tem de ser recusado.
  */
-const PERMITIDAS: [EstadoConversa, EstadoConversa][] = [
+const PERMITIDAS: [StateConversation, StateConversation][] = [
   ['na_fila', 'atribuida'],
   ['na_fila', 'encerrada'],
   ['atribuida', 'em_atendimento'],
@@ -34,30 +34,30 @@ const PERMITIDAS: [EstadoConversa, EstadoConversa][] = [
   ['encerrada', 'na_fila'],
 ];
 
-function ehPermitida(de: EstadoConversa, para: EstadoConversa): boolean {
+function ehPermitida(de: StateConversation, para: StateConversation): boolean {
   return PERMITIDAS.some(([d, p]) => d === de && p === para);
 }
 
 describe('tabela de transições da conversa', () => {
-  for (const de of ESTADOS_CONVERSA) {
-    for (const para of ESTADOS_CONVERSA) {
+  for (const de of STATES_CONVERSATION) {
+    for (const para of STATES_CONVERSATION) {
       const esperado = ehPermitida(de, para);
       it(`${de} → ${para} ${esperado ? 'é permitida' : 'é recusada'}`, () => {
-        expect(transicaoPermitida(de, para)).toBe(esperado);
+        expect(transitionAllowed(de, para)).toBe(esperado);
       });
     }
   }
 
   it('nenhum estado transita para si mesmo', () => {
-    for (const estado of ESTADOS_CONVERSA) {
-      expect(transicaoPermitida(estado, estado)).toBe(false);
+    for (const state of STATES_CONVERSATION) {
+      expect(transitionAllowed(state, state)).toBe(false);
     }
   });
 
   it('transferência não é aresta: sai por encerrada e abre conversa nova', () => {
-    expect(transicaoPermitida('atribuida', 'na_fila')).toBe(false);
-    expect(transicaoPermitida('em_atendimento', 'na_fila')).toBe(false);
-    expect(transicaoPermitida('atribuida', 'encerrada')).toBe(true);
+    expect(transitionAllowed('atribuida', 'na_fila')).toBe(false);
+    expect(transitionAllowed('em_atendimento', 'na_fila')).toBe(false);
+    expect(transitionAllowed('atribuida', 'encerrada')).toBe(true);
   });
 });
 
@@ -67,13 +67,13 @@ describe('transitar', () => {
   });
 
   it('lança erro tipado quando não existe', () => {
-    expect(() => transitar('encerrada', 'em_atendimento')).toThrow(TransicaoInvalidaError);
+    expect(() => transitar('encerrada', 'em_atendimento')).toThrow(TransitionInvalidError);
     try {
       transitar('encerrada', 'em_atendimento');
       expect.unreachable('deveria ter lançado');
-    } catch (erro) {
-      expect(erro).toBeInstanceOf(TransicaoInvalidaError);
-      const tipado = erro as TransicaoInvalidaError;
+    } catch (error) {
+      expect(error).toBeInstanceOf(TransitionInvalidError);
+      const tipado = error as TransitionInvalidError;
       expect(tipado.codigo).toBe('transicao_invalida');
       expect(tipado.de).toBe('encerrada');
       expect(tipado.para).toBe('em_atendimento');
@@ -85,12 +85,12 @@ describe('transitar', () => {
     expect(tentarTransitar('na_fila', 'atribuida')).toEqual({ ok: true, estado: 'atribuida' });
     const recusa = tentarTransitar('na_fila', 'em_espera');
     expect(recusa.ok).toBe(false);
-    if (!recusa.ok) expect(recusa.erro).toBeInstanceOf(TransicaoInvalidaError);
+    if (!recusa.ok) expect(recusa.error).toBeInstanceOf(TransitionInvalidError);
   });
 });
 
 describe('estado alvo de cada evento', () => {
-  const casos: [TipoEvento, EstadoConversa | null][] = [
+  const casos: [TipoEvento, StateConversation | null][] = [
     ['criada', 'na_fila'],
     ['enfileirada', 'na_fila'],
     ['atribuida', 'atribuida'],
@@ -111,13 +111,13 @@ describe('estado alvo de cada evento', () => {
 
   for (const [tipo, esperado] of casos) {
     it(`${tipo} → ${esperado ?? 'não mexe no estado'}`, () => {
-      expect(estadoAlvoDoEvento(tipo)).toBe(esperado);
+      expect(eventStateAlvo(tipo)).toBe(esperado);
     });
   }
 });
 
 describe('aplicar evento', () => {
-  const caminhoFeliz: { de: EstadoConversa; tipo: TipoEvento; para: EstadoConversa }[] = [
+  const caminhoFeliz: { de: StateConversation; tipo: TipoEvento; para: StateConversation }[] = [
     { de: 'na_fila', tipo: 'atribuida', para: 'atribuida' },
     { de: 'atribuida', tipo: 'primeira_resposta', para: 'em_atendimento' },
     { de: 'em_atendimento', tipo: 'espera_iniciada', para: 'em_espera' },
@@ -134,9 +134,9 @@ describe('aplicar evento', () => {
   }
 
   it('evento que não mapeia estado nunca muda estado', () => {
-    for (const estado of ESTADOS_CONVERSA) {
-      expect(aplicarEvento(estado, { tipo: 'mensagem_entrada' })).toEqual({ estado, mudou: false });
-      expect(aplicarEvento(estado, { tipo: 'sla_alertado' })).toEqual({ estado, mudou: false });
+    for (const state of STATES_CONVERSATION) {
+      expect(aplicarEvento(state, { tipo: 'mensagem_entrada' })).toEqual({ state, mudou: false });
+      expect(aplicarEvento(state, { tipo: 'sla_alertado' })).toEqual({ state, mudou: false });
     }
   });
 
@@ -152,7 +152,7 @@ describe('aplicar evento', () => {
   });
 
   describe('evento do cliente não leva a conversa a estado inválido', () => {
-    const recusas: { nome: string; de: EstadoConversa; tipo: TipoEvento }[] = [
+    const recusas: { nome: string; de: StateConversation; tipo: TipoEvento }[] = [
       { nome: 'fluxo tenta pôr em espera uma conversa já encerrada', de: 'encerrada', tipo: 'espera_iniciada' },
       { nome: 'resposta em conversa que ainda está na fila', de: 'na_fila', tipo: 'primeira_resposta' },
       { nome: 'fim de espera em conversa que nunca esteve em atendimento', de: 'na_fila', tipo: 'espera_encerrada' },
@@ -163,12 +163,12 @@ describe('aplicar evento', () => {
 
     for (const caso of recusas) {
       it(caso.nome, () => {
-        expect(() => aplicarEvento(caso.de, { tipo: caso.tipo })).toThrow(TransicaoInvalidaError);
+        expect(() => aplicarEvento(caso.de, { tipo: caso.tipo })).toThrow(TransitionInvalidError);
         const tentativa = tentarAplicarEvento(caso.de, { tipo: caso.tipo });
         expect(tentativa.ok).toBe(false);
         if (!tentativa.ok) {
-          expect(tentativa.erro.de).toBe(caso.de);
-          expect(tentativa.erro.evento).toBe(caso.tipo);
+          expect(tentativa.error.de).toBe(caso.de);
+          expect(tentativa.error.evento).toBe(caso.tipo);
         }
       });
     }
@@ -197,7 +197,7 @@ describe('aplicar evento', () => {
 });
 
 describe('máquina da mensagem de saída', () => {
-  const permitidas: [EstadoEntrega, EstadoEntrega][] = [
+  const permitidas: [StateDelivery, StateDelivery][] = [
     ['pendente', 'enviando'],
     ['enviando', 'enviada'],
     ['enviando', 'falhou'],
@@ -208,22 +208,22 @@ describe('máquina da mensagem de saída', () => {
     ['falhou', 'pendente'],
   ];
 
-  const todos: EstadoEntrega[] = ['pendente', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
+  const todos: StateDelivery[] = ['pendente', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
 
   for (const de of todos) {
     for (const para of todos) {
       const esperado = permitidas.some(([d, p]) => d === de && p === para);
       it(`${de} → ${para} ${esperado ? 'é permitida' : 'é recusada'}`, () => {
-        expect(transicaoEntregaPermitida(de, para)).toBe(esperado);
+        expect(transitionDeliveryAllowed(de, para)).toBe(esperado);
       });
     }
   }
 
   it('reenviar tira do falhou e devolve à fila de saída', () => {
-    expect(transitarEntrega('falhou', 'pendente')).toBe('pendente');
+    expect(transitarDelivery('falhou', 'pendente')).toBe('pendente');
   });
 
   it('lida é terminal', () => {
-    expect(() => transitarEntrega('lida', 'entregue')).toThrow(TransicaoEntregaInvalidaError);
+    expect(() => transitarDelivery('lida', 'entregue')).toThrow(TransitionDeliveryInvalidError);
   });
 });

@@ -1,13 +1,13 @@
 import { createHash } from 'node:crypto';
 import { SignJWT, exportJWK, generateKeyPair, importJWK } from 'jose';
 import { describe, expect, it } from 'vitest';
-import { criarDesafio } from '../src/google.js';
+import { createChallenge } from '../src/google.js';
 import {
   descobrir,
   emailVerificado,
   sujeitoDoToken,
-  trocarCodigoOidc,
-  urlDeAutorizacaoOidc,
+  exchangeCodeOidc,
+  urlOfAuthorizationOidc,
   verificarIdTokenOidc,
 } from '../src/oidc.js';
 import type { ConfigOidc, DescobertaOidc } from '../src/oidc.js';
@@ -25,7 +25,7 @@ const EMISSOR_ENTRA = 'https://login.microsoftonline.com/aaaa1111-2222-3333-4444
 
 const descoberta: DescobertaOidc = {
   emissor: EMISSOR,
-  autorizacao: `${EMISSOR}/oauth2/v1/authorize`,
+  authorization: `${EMISSOR}/oauth2/v1/authorize`,
   token: `${EMISSOR}/oauth2/v1/token`,
   jwks: `${EMISSOR}/oauth2/v1/keys`,
 };
@@ -34,11 +34,11 @@ const config: ConfigOidc = {
   provedor: 'okta',
   emissor: EMISSOR,
   clienteId: 'cliente-do-pipe',
-  clienteSegredo: 'segredo-do-pipe',
-  urlDeRetorno: 'https://api.usepipe.com.br/v1/auth/sso/retorno',
+  customerSecret: 'segredo-do-pipe',
+  urlOfCallback: 'https://api.usepipe.com.br/v1/auth/sso/retorno',
 };
 
-async function chavesDeTeste() {
+async function keysOfTest() {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const jwk = await exportJWK(publicKey);
   return { privateKey, publica: await importJWK({ ...jwk, alg: 'RS256' }, 'RS256') };
@@ -46,9 +46,9 @@ async function chavesDeTeste() {
 
 async function assinar(
   privateKey: Parameters<SignJWT['sign']>[0],
-  reivindicacoes: Record<string, unknown>,
+  claims: Record<string, unknown>,
 ): Promise<string> {
-  return new SignJWT(reivindicacoes)
+  return new SignJWT(claims)
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuedAt()
     .setExpirationTime('5m')
@@ -56,8 +56,8 @@ async function assinar(
 }
 
 /** Um `fetch` que devolve o documento de descoberta pedido, sem sair para a rede. */
-function buscarDescoberta(documento: unknown, ok = true): typeof fetch {
-  return (async () => ({ ok, status: ok ? 200 : 404, json: async () => documento }) as Response) as
+function buscarDescoberta(document: unknown, ok = true): typeof fetch {
+  return (async () => ({ ok, status: ok ? 200 : 404, json: async () => document }) as Response) as
     unknown as typeof fetch;
 }
 
@@ -67,7 +67,7 @@ describe('descoberta por .well-known', () => {
       EMISSOR,
       buscarDescoberta({
         issuer: EMISSOR,
-        authorization_endpoint: descoberta.autorizacao,
+        authorization_endpoint: descoberta.authorization,
         token_endpoint: descoberta.token,
         jwks_uri: descoberta.jwks,
       }),
@@ -89,7 +89,7 @@ describe('descoberta por .well-known', () => {
         EMISSOR,
         buscarDescoberta({
           issuer: 'https://login.microsoftonline.com/outra/v2.0',
-          authorization_endpoint: descoberta.autorizacao,
+          authorization_endpoint: descoberta.authorization,
           token_endpoint: descoberta.token,
           jwks_uri: descoberta.jwks,
         }),
@@ -106,10 +106,10 @@ describe('descoberta por .well-known', () => {
 
 describe('ida ao IdP', () => {
   it('leva state, nonce e o desafio PKCE derivado, nunca o verificador', () => {
-    const desafio = criarDesafio('/relatorios');
-    const url = new URL(urlDeAutorizacaoOidc(config, descoberta, desafio));
+    const desafio = createChallenge('/relatorios');
+    const url = new URL(urlOfAuthorizationOidc(config, descoberta, desafio));
 
-    expect(url.origin + url.pathname).toBe(descoberta.autorizacao);
+    expect(url.origin + url.pathname).toBe(descoberta.authorization);
     expect(url.searchParams.get('state')).toBe(desafio.state);
     expect(url.searchParams.get('nonce')).toBe(desafio.nonce);
     expect(url.searchParams.get('code_challenge')).toBe(
@@ -121,7 +121,7 @@ describe('ida ao IdP', () => {
 
 describe('verificação do id_token', () => {
   it('aceita o token bem formado e devolve emissor, sujeito e e-mail', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
       aud: config.clienteId,
@@ -141,7 +141,7 @@ describe('verificação do id_token', () => {
   it('recusa token emitido para outro aplicativo', async () => {
     // Sem `audience`, uma asserção feita para o app de outro entra aqui — e no
     // Entra basta o atacante ter o próprio registro de aplicativo.
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
       aud: 'app-de-outra-empresa',
@@ -154,7 +154,7 @@ describe('verificação do id_token', () => {
   });
 
   it('com aud de vários valores, exige azp igual ao nosso cliente', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
       aud: [config.clienteId, 'outro-app'],
@@ -170,7 +170,7 @@ describe('verificação do id_token', () => {
   });
 
   it('recusa token de outro emissor', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: 'https://idp-do-atacante.example',
       aud: config.clienteId,
@@ -183,8 +183,8 @@ describe('verificação do id_token', () => {
   });
 
   it('recusa token assinado por outra chave', async () => {
-    const { privateKey } = await chavesDeTeste();
-    const { publica: outra } = await chavesDeTeste();
+    const { privateKey } = await keysOfTest();
+    const { publica: outra } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
       aud: config.clienteId,
@@ -200,7 +200,7 @@ describe('verificação do id_token', () => {
     // A resposta passa pelo navegador e é trivial de capturar. O que impede o
     // reenvio é o `nonce` ser de uma tentativa só, e o cookie do desafio morrer
     // na volta.
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
       aud: config.clienteId,
@@ -218,7 +218,7 @@ describe('verificação do id_token', () => {
 describe('Microsoft Entra ID', () => {
   const descobertaEntra: DescobertaOidc = {
     emissor: EMISSOR_ENTRA,
-    autorizacao: `${EMISSOR_ENTRA}/authorize`,
+    authorization: `${EMISSOR_ENTRA}/authorize`,
     token: `${EMISSOR_ENTRA}/token`,
     jwks: `${EMISSOR_ENTRA}/keys`,
   };
@@ -227,8 +227,8 @@ describe('Microsoft Entra ID', () => {
     provedor: 'entra',
     emissor: EMISSOR_ENTRA,
     clienteId: 'cliente-do-pipe',
-    clienteSegredo: 'segredo',
-    urlDeRetorno: config.urlDeRetorno,
+    customerSecret: 'segredo',
+    urlOfCallback: config.urlOfCallback,
     tenantsEntra: [tid],
   };
 
@@ -253,7 +253,7 @@ describe('Microsoft Entra ID', () => {
   });
 
   it('aceita o token do diretório declarado e monta o sujeito estável', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR_ENTRA,
       aud: configEntra.clienteId,
@@ -273,7 +273,7 @@ describe('Microsoft Entra ID', () => {
   it('recusa token de OUTRO diretório da Microsoft', async () => {
     // Em app multi-tenant, validar só a forma do `iss` deixa entrar qualquer
     // diretório. É o `tid` conferido contra a lista do cliente que fecha.
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR_ENTRA,
       aud: configEntra.clienteId,
@@ -293,7 +293,7 @@ describe('Microsoft Entra ID', () => {
     // A recusa não é aqui: é na hora de casar a identidade com um usuário que já
     // existe (`entrada.ts`). Assim o teste da conexão consegue MOSTRAR ao admin
     // que falta habilitar o claim, em vez de só falhar.
-    const { privateKey, publica } = await chavesDeTeste();
+    const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR_ENTRA,
       aud: configEntra.clienteId,
@@ -310,8 +310,8 @@ describe('Microsoft Entra ID', () => {
 
 describe('troca do código', () => {
   it('manda o verificador PKCE e o segredo, e só na troca', async () => {
-    const { privateKey, publica } = await chavesDeTeste();
-    const desafio = criarDesafio();
+    const { privateKey, publica } = await keysOfTest();
+    const desafio = createChallenge();
     const idToken = await assinar(privateKey, {
       iss: EMISSOR,
       aud: config.clienteId,
@@ -322,12 +322,12 @@ describe('troca do código', () => {
     });
 
     let corpoEnviado = '';
-    const buscar = (async (_url: string, opcoes?: RequestInit) => {
-      corpoEnviado = String(opcoes?.body ?? '');
+    const buscar = (async (_url: string, options?: RequestInit) => {
+      corpoEnviado = String(options?.body ?? '');
       return { ok: true, status: 200, json: async () => ({ id_token: idToken }) } as Response;
     }) as unknown as typeof fetch;
 
-    const pessoa = await trocarCodigoOidc(
+    const pessoa = await exchangeCodeOidc(
       config,
       descoberta,
       desafio,
@@ -343,16 +343,16 @@ describe('troca do código', () => {
 
   it('recusa a volta com state diferente do que foi enviado', async () => {
     // O `state` fecha o CSRF de login: a vítima entrando na conta do atacante.
-    const desafio = criarDesafio();
+    const desafio = createChallenge();
     await expect(
-      trocarCodigoOidc(config, descoberta, desafio, { code: 'abc', state: 'outro' }),
+      exchangeCodeOidc(config, descoberta, desafio, { code: 'abc', state: 'outro' }),
     ).rejects.toThrow(/state/);
   });
 
   it('recusa a volta quando o IdP devolve erro', async () => {
-    const desafio = criarDesafio();
+    const desafio = createChallenge();
     await expect(
-      trocarCodigoOidc(config, descoberta, desafio, {
+      exchangeCodeOidc(config, descoberta, desafio, {
         error: 'access_denied',
         state: desafio.state,
       }),

@@ -1,4 +1,4 @@
-import type { StatusEncerramento } from '@pipe/core';
+import type { StatusClosure } from '@pipe/core';
 
 /**
  * Histórico de conversas encerradas.
@@ -7,34 +7,34 @@ import type { StatusEncerramento } from '@pipe/core';
  * pelo `@pipe/core`, nunca do campo mutável da conversa.
  */
 
-export interface LinhaHistorico {
+export interface LinhaHistory {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaNome: string | null;
-  atendenteNome: string | null;
+  contactName: string;
+  queueName: string | null;
+  agentName: string | null;
   encerradaEm: string | null;
-  status: StatusEncerramento | null;
+  status: StatusClosure | null;
   esperaSeg: number | null;
-  primeiraRespostaSeg: number | null;
-  atendimentoSeg: number | null;
+  firstRespostaSeg: number | null;
+  attendanceSeg: number | null;
   etiquetas: string[];
 }
 
-export interface FiltroHistorico {
-  filaId?: string | undefined;
-  atendenteId?: string | undefined;
+export interface HistoryFilter {
+  queueId?: string | undefined;
+  agentId?: string | undefined;
   etiquetaId?: string | undefined;
 }
 
 export interface Catalogos {
-  filas: { id: string; nome: string }[];
-  atendentes: { id: string; nome: string }[];
+  queues: { id: string; nome: string }[];
+  agents: { id: string; nome: string }[];
   etiquetas: { id: string; nome: string }[];
 }
 
 /** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
-export const LIMITE_HISTORICO = 200;
+export const HISTORY_LIMIT = 200;
 
 /** Descarta seleções que não pertencem mais ao resultado visível. */
 export function reconciliarMarcados(
@@ -51,8 +51,8 @@ export function alternarTodosVisiveis(
   marcados: ReadonlySet<string>,
   idsVisiveis: readonly string[],
 ): ReadonlySet<string> {
-  const atuais = reconciliarMarcados(marcados, idsVisiveis);
-  if (idsVisiveis.length === 0 || idsVisiveis.every((id) => atuais.has(id))) return new Set();
+  const current = reconciliarMarcados(marcados, idsVisiveis);
+  if (idsVisiveis.length === 0 || idsVisiveis.every((id) => current.has(id))) return new Set();
   return new Set(idsVisiveis);
 }
 
@@ -69,7 +69,7 @@ export function alternarTodosVisiveis(
  * já tem teto de LIMITE_HISTORICO linhas: agrupar no banco daria grupos calculados
  * sobre um universo diferente do que a tela mostra, que é pior do que não agrupar.
  */
-export const AGRUPAMENTOS = [
+export const GROUPINGS = [
   { chave: 'nenhum', rotulo: 'Sem agrupamento' },
   { chave: 'fila', rotulo: 'Fila' },
   { chave: 'atendente', rotulo: 'Atendente' },
@@ -77,15 +77,15 @@ export const AGRUPAMENTOS = [
   { chave: 'etiqueta', rotulo: 'Etiqueta' },
 ] as const;
 
-export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
+export type Grouping = (typeof GROUPINGS)[number]['chave'];
 
-export function agrupamentoValido(valor: string | undefined): Agrupamento {
-  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+export function groupingValid(value: string | undefined): Grouping {
+  return (GROUPINGS.find((a) => a.chave === value)?.chave ?? 'nenhum') as Grouping;
 }
 
-export interface GrupoHistorico {
+export interface GroupHistory {
   titulo: string;
-  linhas: LinhaHistorico[];
+  linhas: LinhaHistory[];
 }
 
 const ROTULO_DESFECHO: Record<string, string> = {
@@ -102,27 +102,27 @@ const ROTULO_DESFECHO: Record<string, string> = {
  * passa do total de linhas de propósito, porque a pergunta ali é "quantas
  * conversas encostaram nesta etiqueta", não "como reparto o total".
  */
-export function agruparHistorico(
-  linhas: readonly LinhaHistorico[],
-  por: Agrupamento,
-): GrupoHistorico[] {
-  if (por === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
+export function agruparHistory(
+  linhas: readonly LinhaHistory[],
+  by: Grouping,
+): GroupHistory[] {
+  if (by === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
 
-  const chavesDe = (l: LinhaHistorico): string[] => {
-    if (por === 'fila') return [l.filaNome ?? 'Sem fila'];
-    if (por === 'atendente') return [l.atendenteNome ?? 'Sem atendente'];
-    if (por === 'status') {
+  const chavesDe = (l: LinhaHistory): string[] => {
+    if (by === 'fila') return [l.queueName ?? 'Sem fila'];
+    if (by === 'atendente') return [l.agentName ?? 'Sem atendente'];
+    if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }
     return l.etiquetas.length > 0 ? l.etiquetas : ['Sem etiqueta'];
   };
 
-  const mapa = new Map<string, LinhaHistorico[]>();
+  const mapa = new Map<string, LinhaHistory[]>();
   for (const l of linhas) {
-    for (const chave of chavesDe(l)) {
-      const atual = mapa.get(chave);
+    for (const key of chavesDe(l)) {
+      const atual = mapa.get(key);
       if (atual) atual.push(l);
-      else mapa.set(chave, [l]);
+      else mapa.set(key, [l]);
     }
   }
   return [...mapa.entries()]

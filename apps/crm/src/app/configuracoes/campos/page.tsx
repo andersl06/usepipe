@@ -1,14 +1,14 @@
-import { Botao, Campo, Etiqueta, Seletor, Tabela, type Coluna } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Botao, Campo, Etiqueta, Seletor, Tabela, type Column } from '@pipe/ui';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import {
-  BotaoDeConfirmacao,
+  ConfirmationButton,
   Formulario,
   FormularioDeLinha,
 } from '../../../componentes/configuracoes/formulario';
 import { listarCamposPersonalizados } from '../../../lib/configuracoes-dados';
 import { TIPOS_DE_CAMPO, type CampoPersonalizado } from '../../../lib/configuracoes-comum';
 import { numero } from '../../../lib/formato';
-import { acaoCriarCampo, acaoExcluirCampo, acaoRenomearCampo } from '../acoes';
+import { actionCreateField, acaoExcluirCampo, acaoRenomearCampo } from '../acoes';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,9 +43,9 @@ export const dynamic = 'force-dynamic';
 
 const ROTULO_DO_TIPO = new Map(TIPOS_DE_CAMPO.map((t) => [t.codigo as string, t.rotulo]));
 
-const COLUNAS: readonly Coluna<CampoPersonalizado>[] = [
+const COLUNAS: readonly Column<CampoPersonalizado>[] = [
   {
-    chave: 'rotulo',
+    key: 'rotulo',
     rotulo: 'Campo',
     celula: (c) => (
       <FormularioDeLinha acao={acaoRenomearCampo} campos={{ id: c.id }}>
@@ -55,30 +55,30 @@ const COLUNAS: readonly Coluna<CampoPersonalizado>[] = [
         </label>
         <label>
           <span className="cfg-oculto">Descrição de {c.codigo}</span>
-          <Campo name="descricao" defaultValue={c.descricao ?? ''} placeholder="Descrição" />
+          <Campo name="descricao" defaultValue={c.description ?? ''} placeholder="Descrição" />
         </label>
         <Botao type="submit">Renomear</Botao>
       </FormularioDeLinha>
     ),
   },
-  { chave: 'codigo', rotulo: 'Código', celula: (c) => <span className="mono">{c.codigo}</span> },
+  { key: 'codigo', rotulo: 'Código', celula: (c) => <span className="mono">{c.codigo}</span> },
   {
-    chave: 'tipo',
+    key: 'tipo',
     rotulo: 'Tipo',
     celula: (c) => <Etiqueta>{ROTULO_DO_TIPO.get(c.tipo) ?? c.tipo}</Etiqueta>,
   },
   {
-    chave: 'preenchidos',
+    key: 'preenchidos',
     rotulo: 'Leads preenchidos',
     numerica: true,
     celula: (c) => numero(c.preenchidos),
   },
   {
-    chave: 'acao',
+    key: 'acao',
     rotulo: 'Ação',
     celula: (c) => (
       <FormularioDeLinha acao={acaoExcluirCampo} campos={{ id: c.id }}>
-        <BotaoDeConfirmacao
+        <ConfirmationButton
           rotulo="Excluir"
           pergunta={
             c.preenchidos > 0
@@ -91,34 +91,34 @@ const COLUNAS: readonly Coluna<CampoPersonalizado>[] = [
   },
 ];
 
-export default async function PaginaCampos() {
+export default async function PageFields() {
   const campos = await listarCamposPersonalizados();
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Campos personalizados">
+      <SectionHeader titulo="Campos personalizados">
         Os campos do lead que são seus. O Pipe guarda o valor em <code>lead.customizados</code>;
         aqui você declara o que cada chave significa.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco
+      <Block
         titulo="Campos do lead"
-        descricao="O código é a chave gravada em cada lead e não muda. Rótulo e descrição, sim."
+        description="O código é a chave gravada em cada lead e não muda. Rótulo e descrição, sim."
       >
         <Tabela
           colunas={COLUNAS}
           linhas={campos}
-          chaveDaLinha={(c) => c.id}
+          linhaKey={(c) => c.id}
           larguraMinima={820}
-          vazio="Nenhum campo personalizado ainda. O lead usa só os campos que o Pipe já traz."
+          empty="Nenhum campo personalizado ainda. O lead usa só os campos que o Pipe já traz."
         />
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Novo campo"
-        descricao="Deixe o código em branco e o Pipe deriva do rótulo — sem acento, sem espaço, minúsculo."
+        description="Deixe o código em branco e o Pipe deriva do rótulo — sem acento, sem espaço, minúsculo."
       >
-        <Formulario acao={acaoCriarCampo} rotuloBotao="Criar campo">
+        <Formulario acao={actionCreateField} rotuloBotao="Criar campo">
           <div className="cfg-form-linha">
             <label className="cfg-campo">
               <span>Rótulo</span>
@@ -154,7 +154,7 @@ export default async function PaginaCampos() {
             />
           </label>
         </Formulario>
-      </Bloco>
+      </Block>
     </>
   );
 }

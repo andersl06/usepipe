@@ -8,23 +8,23 @@
 
 // O BullMQ recusa `:` no nome da fila — ele usa o caractere como separador de chave
 // no Redis. Daí o hífen.
-export const FILA_ENTRADA = 'pipe-entrada';
-export const FILA_ENTREGA = 'pipe-entrega';
-export const FILA_AGREGACAO = 'pipe-agregacao';
-export const FILA_ESPELHO_CRM = 'pipe-espelho-crm';
-export const FILA_MIDIA = 'pipe-midia';
-export const FILA_SLA = 'pipe-sla';
-export const FILA_PROCESS_HTTP = 'pipe-process-http';
+export const QUEUE_INBOUND = 'pipe-entrada';
+export const QUEUE_DELIVERY = 'pipe-entrega';
+export const QUEUE_AGGREGATION = 'pipe-agregacao';
+export const QUEUE_MIRROR_CRM = 'pipe-espelho-crm';
+export const QUEUE_MEDIA = 'pipe-midia';
+export const QUEUE_SLA = 'pipe-sla';
+export const QUEUE_PROCESS_HTTP = 'pipe-process-http';
 
-export interface JobEntrega {
+export interface JobDelivery {
   /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
-  mensagemId?: string;
+  messageId?: string;
   /** Valores posicionais do template — ver `parametros_perdidos` em `entrega.ts`. */
   parametros?: Record<string, string>;
 }
 
-export interface JobEntrada {
-  canalId: string;
+export interface JobInbound {
+  channelId: string;
   payload: unknown;
 }
 
@@ -37,9 +37,9 @@ export interface JobEntrada {
  * (`dominio/midia.ts`). O job carrega só os identificadores; o worker relê o anexo
  * (e o canal dele) dentro do `comTenant` daquele tenant.
  */
-export interface JobMidia {
+export interface JobMedia {
   tenantId: string;
-  anexoId: string;
+  attachmentId: string;
 }
 
 /**
@@ -51,7 +51,7 @@ export interface JobMidia {
  */
 export interface JobSla {
   tenantId: string;
-  conversaId: string;
+  conversationId: string;
 }
 
 export interface JobProcessHttp {
@@ -70,9 +70,9 @@ export interface JobProcessHttp {
  * daquele tenant, e é isso que impede um `contatoId` de outro cliente de virar
  * escrita no CRM errado — sem tenant em vigor, a consulta não retorna linha.
  */
-export interface JobEspelhoCrm {
+export interface JobMirrorCrm {
   tenantId: string;
-  contatoId: string;
+  contactId: string;
 }
 
 /**
@@ -81,9 +81,9 @@ export interface JobEspelhoCrm {
  * Mesmo desenho do espelho: quem CONSOME é a `api` (quem fala com o CRM), o job leva só
  * o `tenantId`, e a sincronização relê a configuração dentro do `comTenant` dele.
  */
-export const FILA_DICIONARIO_CRM = 'pipe-dicionario-crm';
+export const QUEUE_DICTIONARY_CRM = 'pipe-dicionario-crm';
 
-export interface JobDicionarioCrm {
+export interface JobDictionaryCrm {
   tenantId: string;
 }
 
@@ -98,9 +98,9 @@ export function conexaoRedis(): { url: string } {
  * serviço externo. O arquivo não viaja no job — mora em `importacao_arquivo` —,
  * e o job leva só os dois ids; o processamento relê tudo no `comTenant` do tenant.
  */
-export const FILA_IMPORTACAO = 'pipe-importacao';
+export const QUEUE_IMPORT = 'pipe-importacao';
 
-export interface JobImportacao {
+export interface JobImport {
   tenantId: string;
-  importacaoId: string;
+  importId: string;
 }

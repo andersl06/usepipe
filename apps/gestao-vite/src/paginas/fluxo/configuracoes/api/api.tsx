@@ -1,4 +1,4 @@
-import { useContato } from '../../contato';
+import { useContact } from '../../contato';
 import { TelaDeConexao } from './tela';
 
 /**
@@ -10,7 +10,7 @@ import { TelaDeConexao } from './tela';
  * (`dominio/gestao/integracoes.ts`): identificador, endpoint, prefixo da
  * chave ativa e as duas URLs do formulário HTTP.
  */
-export function PaginaApiDoBot() {
-  const { contato } = useContato();
-  return <TelaDeConexao fluxoId={contato.id} />;
+export function BotPageApi() {
+  const { contact } = useContact();
+  return <TelaDeConexao flowId={contact.id} />;
 }

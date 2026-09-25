@@ -1,15 +1,15 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Etiqueta, Icone } from '@pipe/ui';
-import { Bloco } from '../../../../componentes/configuracoes/cabecalho';
+import { Block } from '../../../../componentes/configuracoes/cabecalho';
 import {
-  BotaoDeConfirmacao,
+  ConfirmationButton,
   Formulario,
 } from '../../../../componentes/configuracoes/formulario';
-import { lerPapel, listarCatalogoDePermissoes } from '../../../../lib/configuracoes-dados';
-import { ehUuid, type PermissaoDoCatalogo } from '../../../../lib/configuracoes-comum';
+import { readRole, permissionsListarCatalogo } from '../../../../lib/configuracoes-dados';
+import { ehUuid, type CatalogoPermission } from '../../../../lib/configuracoes-comum';
 import { numero } from '../../../../lib/formato';
-import { acaoExcluirPapel, acaoSalvarPermissoes } from '../../acoes';
+import { actionExcluirRole, actionSalvarPermissions } from '../../acoes';
 
 export const dynamic = 'force-dynamic';
 
@@ -41,25 +41,25 @@ const NOME_DO_GRUPO: Record<string, string> = {
   administracao: 'Administração',
 };
 
-function agrupar(catalogo: PermissaoDoCatalogo[]): [string, PermissaoDoCatalogo[]][] {
-  const grupos = new Map<string, PermissaoDoCatalogo[]>();
+function agrupar(catalogo: CatalogoPermission[]): [string, CatalogoPermission[]][] {
+  const groups = new Map<string, CatalogoPermission[]>();
   for (const item of catalogo) {
-    const lista = grupos.get(item.grupo) ?? [];
+    const lista = groups.get(item.grupo) ?? [];
     lista.push(item);
-    grupos.set(item.grupo, lista);
+    groups.set(item.grupo, lista);
   }
-  return [...grupos.entries()];
+  return [...groups.entries()];
 }
 
-export default async function PaginaDoPapel({ params }: { params: Promise<{ id: string }> }) {
+export default async function RolePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   if (!ehUuid(id)) notFound();
 
-  const papel = await lerPapel(id);
-  if (!papel) notFound();
+  const role = await readRole(id);
+  if (!role) notFound();
 
-  const catalogo = await listarCatalogoDePermissoes();
-  const concedidas = new Set(papel.concedidas);
+  const catalogo = await permissionsListarCatalogo();
+  const concedidas = new Set(role.concedidas);
 
   return (
     <>
@@ -69,17 +69,17 @@ export default async function PaginaDoPapel({ params }: { params: Promise<{ id: 
           Papéis e permissões
         </Link>
         <h2>
-          {papel.nome}
-          {papel.deSistema ? <Etiqueta>Sistema</Etiqueta> : null}
+          {role.nome}
+          {role.deSistema ? <Etiqueta>Sistema</Etiqueta> : null}
         </h2>
         <p className="sub">
-          {papel.descricao ? `${papel.descricao} · ` : ''}
-          {numero(papel.permissoes)} de {numero(catalogo.length)} permissões ·{' '}
-          {numero(papel.membros)} pessoa{papel.membros === 1 ? '' : 's'}
+          {role.description ? `${role.description} · ` : ''}
+          {numero(role.permissions)} de {numero(catalogo.length)} permissões ·{' '}
+          {numero(role.members)} pessoa{role.members === 1 ? '' : 's'}
         </p>
       </div>
 
-      {papel.deSistema ? (
+      {role.deSistema ? (
         <p className="cfg-nota" role="note">
           Este é um dos papéis do dia 1. Ele é a base que a semente garante, e mexer nele mudaria o
           Desk e a Gestão de todo mundo aqui dentro. Para uma combinação diferente,{' '}
@@ -87,12 +87,12 @@ export default async function PaginaDoPapel({ params }: { params: Promise<{ id: 
         </p>
       ) : null}
 
-      <Bloco
+      <Block
         titulo="Permissões"
-        descricao="Cada linha é uma capacidade nomeada do produto. Sem marca, o papel não a tem."
+        description="Cada linha é uma capacidade nomeada do produto. Sem marca, o papel não a tem."
       >
-        <Formulario acao={acaoSalvarPermissoes} rotuloBotao="Salvar permissões">
-          <input type="hidden" name="papelId" value={papel.id} />
+        <Formulario acao={actionSalvarPermissions} rotuloBotao="Salvar permissões">
+          <input type="hidden" name="papelId" value={role.id} />
           {agrupar(catalogo).map(([grupo, itens]) => (
             <fieldset className="cfg-permissoes" key={grupo}>
               <legend>{NOME_DO_GRUPO[grupo] ?? grupo}</legend>
@@ -103,10 +103,10 @@ export default async function PaginaDoPapel({ params }: { params: Promise<{ id: 
                     name="permissao"
                     value={item.codigo}
                     defaultChecked={concedidas.has(item.codigo)}
-                    disabled={papel.deSistema}
+                    disabled={role.deSistema}
                   />
                   <span>
-                    <b>{item.descricao}</b>
+                    <b>{item.description}</b>
                     <span className="sub mono">{item.codigo}</span>
                   </span>
                 </label>
@@ -114,43 +114,43 @@ export default async function PaginaDoPapel({ params }: { params: Promise<{ id: 
             </fieldset>
           ))}
         </Formulario>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Quem tem este papel"
-        descricao="Trocar o papel de alguém é na tela de Membros."
+        description="Trocar o papel de alguém é na tela de Membros."
       >
-        {papel.nomesDosMembros.length === 0 ? (
+        {role.membersNames.length === 0 ? (
           <p className="sub">Ninguém ainda.</p>
         ) : (
           <ul className="cfg-pessoas">
-            {papel.nomesDosMembros.map((nome) => (
+            {role.membersNames.map((nome) => (
               <li key={nome}>
                 <Etiqueta>{nome}</Etiqueta>
               </li>
             ))}
           </ul>
         )}
-      </Bloco>
+      </Block>
 
-      {papel.deSistema ? null : (
-        <Bloco
+      {role.deSistema ? null : (
+        <Block
           titulo="Excluir papel"
-          descricao="Só é possível quando ninguém está com ele. Fica registrado no log de auditoria."
+          description="Só é possível quando ninguém está com ele. Fica registrado no log de auditoria."
         >
           <Formulario
-            acao={acaoExcluirPapel}
+            acao={actionExcluirRole}
             botao={
-              <BotaoDeConfirmacao
+              <ConfirmationButton
                 rotulo="Excluir papel"
-                pergunta={`Excluir "${papel.nome}"? Isto não volta.`}
+                pergunta={`Excluir "${role.nome}"? Isto não volta.`}
                 rotuloConfirmar="Excluir mesmo"
               />
             }
           >
-            <input type="hidden" name="papelId" value={papel.id} />
+            <input type="hidden" name="papelId" value={role.id} />
           </Formulario>
-        </Bloco>
+        </Block>
       )}
     </>
   );

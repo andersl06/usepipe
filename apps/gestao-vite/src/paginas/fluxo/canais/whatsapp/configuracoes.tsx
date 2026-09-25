@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Etiqueta } from '@pipe/ui';
-import { useCanalWhatsapp } from './casca';
-import { useLeitura } from '../../../../lib/consulta';
-import { gravarPreferenciasWhatsapp } from '../../../../lib/canais-gravar';
-import type { PreferenciasDoCanal } from '../../../../lib/canais';
+import { useChannelWhatsapp } from './casca';
+import { useRead } from '../../../../lib/consulta';
+import { savePreferencesWhatsapp } from '../../../../lib/canais-gravar';
+import type { ChannelPreferences } from '../../../../lib/canais';
 import { Interruptor } from '../../integracoes/interruptor';
 
 /**
@@ -12,22 +12,22 @@ import { Interruptor } from '../../integracoes/interruptor';
  * de salvar, o toggle já grava (`gravarPreferenciasWhatsapp`). O canal é o do
  * bot (`useCanalWhatsapp`).
  */
-export function AbaConfiguracoes() {
-  const { canal } = useCanalWhatsapp();
-  const leitura = useLeitura<PreferenciasDoCanal>(`/v1/canais/whatsapp/${canal.id}/preferencias`, { retry: false });
+export function AbaSettings() {
+  const { channel } = useChannelWhatsapp();
+  const read = useRead<ChannelPreferences>(`/v1/canais/whatsapp/${channel.id}/preferencias`, { retry: false });
   const [gravando, setGravando] = useState<'quickReply' | 'menu' | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  if (leitura.error) return <p role="alert" className="cb-typo-16">Não foi possível carregar as configurações: {leitura.error.message}</p>;
-  if (!leitura.data) return null;
-  const preferencias = leitura.data;
+  if (read.error) return <p role="alert" className="cb-typo-16">Não foi possível carregar as configurações: {read.error.message}</p>;
+  if (!read.data) return null;
+  const preferences = read.data;
 
-  async function alternar(campo: 'quickReply' | 'menu', valor: boolean) {
+  async function alternar(campo: 'quickReply' | 'menu', value: boolean) {
     setGravando(campo);
-    setErro(null);
-    const resultado = await gravarPreferenciasWhatsapp(canal.id, { [campo]: valor });
+    setError(null);
+    const resultado = await savePreferencesWhatsapp(channel.id, { [campo]: value });
     setGravando(null);
-    if (!resultado.ok) setErro(resultado.erro);
+    if (!resultado.ok) setError(resultado.error);
   }
 
   return (
@@ -36,7 +36,7 @@ export function AbaConfiguracoes() {
         Configure as funcionalidades disponíveis para o seu chatbot no WhatsApp:
       </p>
 
-      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
       <div className="cw-linha-config">
         <div className="cw-linha-config-texto">
@@ -49,7 +49,7 @@ export function AbaConfiguracoes() {
         </div>
         <Interruptor
           id="cw-quick-reply"
-          ligado={preferencias.quickReply}
+          ligado={preferences.quickReply}
           desabilitado={gravando === 'quickReply'}
           rotulo="Quick reply"
           aoMudar={(v) => void alternar('quickReply', v)}
@@ -66,7 +66,7 @@ export function AbaConfiguracoes() {
         </div>
         <Interruptor
           id="cw-menu"
-          ligado={preferencias.menu}
+          ligado={preferences.menu}
           desabilitado={gravando === 'menu'}
           rotulo="Menu"
           aoMudar={(v) => void alternar('menu', v)}

@@ -20,20 +20,20 @@
 import { MINUTO } from '../comum/tempo.js';
 
 /** Caracteres por minuto digitados pelo atendente. */
-export const CARACTERES_POR_MINUTO_ESCRITA = 200;
+export const CARACTERES_BY_MINUTO_ESCRITA = 200;
 
 /** Caracteres por minuto lidos pelo atendente. */
-export const CARACTERES_POR_MINUTO_LEITURA = 1000;
+export const CARACTERES_BY_MINUTO_READ = 1000;
 
 /**
  * Bytes por segundo de áudio Opus a ~16 kbps.
  * 16.000 bits/s ÷ 8 = 2.000 bytes/s. O "2 KB/s" do relatório é decimal, não 2 KiB.
  */
-export const BYTES_POR_SEGUNDO_AUDIO = 2000;
+export const BYTES_BY_SEGUNDO_AUDIO = 2000;
 
-export type AutorMensagem = 'contato' | 'atendente' | 'bot' | 'sistema';
-export type DirecaoMensagem = 'entrada' | 'saida' | 'interna';
-export type TipoMensagem =
+export type AutorMessage = 'contato' | 'atendente' | 'bot' | 'sistema';
+export type DirectionMessage = 'entrada' | 'saida' | 'interna';
+export type TipoMessage =
   | 'texto'
   | 'imagem'
   | 'audio'
@@ -42,32 +42,32 @@ export type TipoMensagem =
   | 'localizacao'
   | 'template';
 
-export interface AnexoEsforco {
+export interface AttachmentEffort {
   /** Duração em segundos vinda do metadado do provedor. `null` quando não veio. */
-  duracaoSeg?: number | null;
+  durationSeg?: number | null;
   /** Tamanho do arquivo, usado para estimar duração quando falta metadado. */
   bytes?: number | null;
 }
 
-export interface MensagemEsforco {
-  conversaId: string;
+export interface MessageEffort {
+  conversationId: string;
   em: Date;
-  autor: AutorMensagem;
-  direcao: DirecaoMensagem;
-  tipo: TipoMensagem;
+  autor: AutorMessage;
+  direction: DirectionMessage;
+  tipo: TipoMessage;
   /** Texto efetivamente trafegado. */
   conteudo?: string | null;
   /** Atendente responsável pela mensagem (mensagem de bot não tem). */
-  usuarioId?: string | null;
+  userId?: string | null;
   /** Preenchido quando o corpo veio de resposta pronta — não foi digitado à mão. */
   respostaProntaId?: string | null;
-  anexo?: AnexoEsforco | null;
+  attachment?: AttachmentEffort | null;
 }
 
 /** Espelha `esforco_conversa` do modelo de dados (§4). */
-export interface EsforcoConversa {
-  conversaId: string;
-  atendenteId: string | null;
+export interface EffortConversation {
+  conversationId: string;
+  agentId: string | null;
   /** Caracteres digitados à mão pelo atendente (já sem resposta pronta). */
   charsEscritos: number;
   /** Caracteres do cliente lidos pelo atendente. */
@@ -77,31 +77,31 @@ export interface EsforcoConversa {
   /** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */
   charsDeRespostaPronta: number;
   /** Esforço total em segundos, sem o que veio de resposta pronta. */
-  esforcoSeg: number;
+  effortSeg: number;
   /** O que a resposta pronta acrescentaria se fosse contada como digitação. */
-  esforcoRespostaProntaSeg: number;
+  effortCannedResponseSeg: number;
   /** Áudios que entraram com duração zero por falta de metadado e de tamanho. */
   audiosSemMetadado: number;
 }
 
 /** Segundos de digitação para uma quantidade de caracteres. */
 export function segundosDeEscrita(caracteres: number): number {
-  return (caracteres * MINUTO) / CARACTERES_POR_MINUTO_ESCRITA;
+  return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_ESCRITA;
 }
 
 /** Segundos de leitura para uma quantidade de caracteres. */
-export function segundosDeLeitura(caracteres: number): number {
-  return (caracteres * MINUTO) / CARACTERES_POR_MINUTO_LEITURA;
+export function readSegundos(caracteres: number): number {
+  return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_READ;
 }
 
 /**
  * Duração de um áudio: metadado quando existe, estimativa por tamanho quando não.
  * Sem nenhum dos dois, devolve `null` — a régua não inventa duração.
  */
-export function duracaoDeAudio(anexo: AnexoEsforco | null | undefined): number | null {
-  if (!anexo) return null;
-  if (typeof anexo.duracaoSeg === 'number' && anexo.duracaoSeg >= 0) return anexo.duracaoSeg;
-  if (typeof anexo.bytes === 'number' && anexo.bytes > 0) return anexo.bytes / BYTES_POR_SEGUNDO_AUDIO;
+export function audioDuration(attachment: AttachmentEffort | null | undefined): number | null {
+  if (!attachment) return null;
+  if (typeof attachment.durationSeg === 'number' && attachment.durationSeg >= 0) return attachment.durationSeg;
+  if (typeof attachment.bytes === 'number' && attachment.bytes > 0) return attachment.bytes / BYTES_BY_SEGUNDO_AUDIO;
   return null;
 }
 
@@ -120,85 +120,85 @@ export function contarCaracteres(texto: string | null | undefined): number {
  *   de leitura, porque ninguém a digitou nem precisou lê-la para atender;
  * - o atendente não "ouve" o próprio áudio: áudio de saída é fala, não escuta.
  */
-export function calcularEsforcoConversa(
-  mensagens: readonly MensagemEsforco[],
-  opcoes: { conversaId?: string; atendenteId?: string | null } = {},
-): EsforcoConversa {
+export function calcularEffortConversation(
+  messages: readonly MessageEffort[],
+  options: { conversationId?: string; agentId?: string | null } = {},
+): EffortConversation {
   let charsEscritos = 0;
   let charsLidos = 0;
   let charsDeRespostaPronta = 0;
   let audioOuvidoSeg = 0;
   let audioGravadoSeg = 0;
   let audiosSemMetadado = 0;
-  let atendenteId: string | null = opcoes.atendenteId ?? null;
+  let agentId: string | null = options.agentId ?? null;
 
-  for (const mensagem of mensagens) {
-    if (mensagem.autor === 'atendente' && !atendenteId && mensagem.usuarioId) {
-      atendenteId = mensagem.usuarioId;
+  for (const message of messages) {
+    if (message.autor === 'atendente' && !agentId && message.userId) {
+      agentId = message.userId;
     }
 
-    if (mensagem.autor === 'atendente') {
-      if (mensagem.tipo === 'audio') {
-        const duracao = duracaoDeAudio(mensagem.anexo);
-        if (duracao === null) audiosSemMetadado += 1;
-        else audioGravadoSeg += duracao;
+    if (message.autor === 'atendente') {
+      if (message.tipo === 'audio') {
+        const duration = audioDuration(message.attachment);
+        if (duration === null) audiosSemMetadado += 1;
+        else audioGravadoSeg += duration;
       } else {
-        const caracteres = contarCaracteres(mensagem.conteudo);
+        const caracteres = contarCaracteres(message.conteudo);
         // Resposta pronta e template não foram digitados à mão: saem do esforço
         // e vão para a coluna separada, como manda a ressalva do relatório.
-        const veioPronto = !!mensagem.respostaProntaId || mensagem.tipo === 'template';
+        const veioPronto = !!message.respostaProntaId || message.tipo === 'template';
         if (veioPronto) charsDeRespostaPronta += caracteres;
         else charsEscritos += caracteres;
       }
       continue;
     }
 
-    if (mensagem.autor === 'contato') {
-      if (mensagem.tipo === 'audio') {
-        const duracao = duracaoDeAudio(mensagem.anexo);
-        if (duracao === null) audiosSemMetadado += 1;
-        else audioOuvidoSeg += duracao;
+    if (message.autor === 'contato') {
+      if (message.tipo === 'audio') {
+        const duration = audioDuration(message.attachment);
+        if (duration === null) audiosSemMetadado += 1;
+        else audioOuvidoSeg += duration;
       } else {
-        charsLidos += contarCaracteres(mensagem.conteudo);
+        charsLidos += contarCaracteres(message.conteudo);
       }
       continue;
     }
     // bot e sistema: fora da régua.
   }
 
-  const esforcoSeg =
+  const effortSeg =
     segundosDeEscrita(charsEscritos) +
-    segundosDeLeitura(charsLidos) +
+    readSegundos(charsLidos) +
     audioOuvidoSeg +
     audioGravadoSeg;
 
   return {
-    conversaId: opcoes.conversaId ?? mensagens[0]?.conversaId ?? '',
-    atendenteId,
+    conversationId: options.conversationId ?? messages[0]?.conversationId ?? '',
+    agentId,
     charsEscritos,
     charsLidos,
     audioOuvidoSeg,
     audioGravadoSeg,
     charsDeRespostaPronta,
-    esforcoSeg,
-    esforcoRespostaProntaSeg: segundosDeEscrita(charsDeRespostaPronta),
+    effortSeg,
+    effortCannedResponseSeg: segundosDeEscrita(charsDeRespostaPronta),
     audiosSemMetadado,
   };
 }
 
 /** Agrupa mensagens por conversa e aplica a régua em cada uma. */
-export function calcularEsforcoPorConversa(
-  mensagens: readonly MensagemEsforco[],
-): EsforcoConversa[] {
-  const grupos = new Map<string, MensagemEsforco[]>();
-  for (const mensagem of mensagens) {
-    const atual = grupos.get(mensagem.conversaId);
-    if (atual) atual.push(mensagem);
-    else grupos.set(mensagem.conversaId, [mensagem]);
+export function calcularEffortByConversation(
+  messages: readonly MessageEffort[],
+): EffortConversation[] {
+  const groups = new Map<string, MessageEffort[]>();
+  for (const message of messages) {
+    const atual = groups.get(message.conversationId);
+    if (atual) atual.push(message);
+    else groups.set(message.conversationId, [message]);
   }
-  return [...grupos.keys()]
+  return [...groups.keys()]
     .sort()
-    .map((conversaId) =>
-      calcularEsforcoConversa(grupos.get(conversaId) as MensagemEsforco[], { conversaId }),
+    .map((conversationId) =>
+      calcularEffortConversation(groups.get(conversationId) as MessageEffort[], { conversationId }),
     );
 }

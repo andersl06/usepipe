@@ -1,6 +1,6 @@
 import { and, gte, isNull, lt, sql } from 'drizzle-orm';
-import { lead, oportunidade } from '@pipe/db/schema';
-import { consultar, type Janela } from './banco';
+import { lead, opportunity } from '@pipe/db/schema';
+import { consultar, type Window } from './banco';
 
 /**
  * Indicadores do painel — os mesmos cinco cartões do mockup aprovado.
@@ -12,16 +12,16 @@ export interface Indicadores {
   leadsNoMes: number;
   leadsNoMesAnterior: number;
   qualificadosNoMes: number;
-  oportunidadesAbertas: number;
+  opportunitiesAbertas: number;
   diasMediosAbertas: number | null;
-  emNegociacao: number;
-  valorPonderado: number;
+  inNegotiation: number;
+  valuePonderado: number;
   fechadoNoMes: number;
   fechadoNoMesAnterior: number;
   perdidoNoMes: number;
 }
 
-export async function carregarIndicadores(mes: Janela, mesAnterior: Janela): Promise<Indicadores> {
+export async function carregarIndicadores(mes: Window, mesAnterior: Window): Promise<Indicadores> {
   return consultar(async (tx) => {
     const [leads] = await tx
       .select({
@@ -45,30 +45,30 @@ export async function carregarIndicadores(mes: Janela, mesAnterior: Janela): Pro
     const [abertas] = await tx
       .select({
         n: sql<number>`count(*)::int`,
-        valor: sql<string>`coalesce(sum(${oportunidade.valor}), 0)`,
-        ponderado: sql<string>`coalesce(sum(${oportunidade.valor} * coalesce(${oportunidade.probabilidade},0) / 100.0), 0)`,
-        diasMedios: sql<string | null>`avg(extract(epoch from (now() - ${oportunidade.criadoEm})) / 86400)`,
+        valor: sql<string>`coalesce(sum(${opportunity.valor}), 0)`,
+        ponderado: sql<string>`coalesce(sum(${opportunity.valor} * coalesce(${opportunity.probabilidade},0) / 100.0), 0)`,
+        diasMedios: sql<string | null>`avg(extract(epoch from (now() - ${opportunity.criadoEm})) / 86400)`,
       })
-      .from(oportunidade)
-      .where(isNull(oportunidade.fechadaEm));
+      .from(opportunity)
+      .where(isNull(opportunity.fechadaEm));
 
     const [fechadas] = await tx
       .select({
-        ganho: sql<string>`coalesce(sum(${oportunidade.valor}) filter (where ${oportunidade.ganha}), 0)`,
-        perdido: sql<string>`coalesce(sum(${oportunidade.valor}) filter (where ${oportunidade.ganha} = false), 0)`,
+        ganho: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha}), 0)`,
+        perdido: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha} = false), 0)`,
       })
-      .from(oportunidade)
-      .where(and(gte(oportunidade.fechadaEm, mes.inicio), lt(oportunidade.fechadaEm, mes.fim)));
+      .from(opportunity)
+      .where(and(gte(opportunity.fechadaEm, mes.inicio), lt(opportunity.fechadaEm, mes.fim)));
 
     const [fechadasAntes] = await tx
       .select({
-        ganho: sql<string>`coalesce(sum(${oportunidade.valor}) filter (where ${oportunidade.ganha}), 0)`,
+        ganho: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha}), 0)`,
       })
-      .from(oportunidade)
+      .from(opportunity)
       .where(
         and(
-          gte(oportunidade.fechadaEm, mesAnterior.inicio),
-          lt(oportunidade.fechadaEm, mesAnterior.fim),
+          gte(opportunity.fechadaEm, mesAnterior.inicio),
+          lt(opportunity.fechadaEm, mesAnterior.fim),
         ),
       );
 
@@ -90,7 +90,7 @@ export async function carregarIndicadores(mes: Janela, mesAnterior: Janela): Pro
 }
 
 /** Volume por origem no mês, que é a leitura que o gestor faz logo depois do total. */
-export async function leadsPorOrigem(mes: Janela): Promise<{ origem: string; n: number }[]> {
+export async function leadsByOrigem(mes: Window): Promise<{ origem: string; n: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({ origem: lead.origem, n: sql<number>`count(*)::int` })
@@ -103,7 +103,7 @@ export async function leadsPorOrigem(mes: Janela): Promise<{ origem: string; n: 
 }
 
 /** Leads por fase, com quantos estão parados há mais de 7 dias — o que custa dinheiro. */
-export async function leadsPorFase(): Promise<{ fase: string; n: number; parados: number }[]> {
+export async function leadsByFase(): Promise<{ fase: string; n: number; parados: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({

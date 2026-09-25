@@ -50,11 +50,11 @@ export function Modal({
  * 1 e 2: toda exclusão nova (regra de atendimento, regra de SLA) passa por
  * aqui, não pelo diálogo nativo do navegador.
  */
-export function ModalConfirmacao({
+export function ModalConfirmation({
   aberto,
   titulo,
-  mensagem,
-  erro,
+  message,
+  error,
   confirmando,
   rotuloConfirmar = 'Excluir',
   onConfirmar,
@@ -62,9 +62,9 @@ export function ModalConfirmacao({
 }: {
   aberto: boolean;
   titulo: string;
-  mensagem: ReactNode;
+  message: ReactNode;
   /** Motivo da recusa, se a última tentativa falhou — a mesma mensagem que iria para `window.alert`. */
-  erro?: string | null;
+  error?: string | null;
   confirmando?: boolean;
   rotuloConfirmar?: string;
   onConfirmar: () => void;
@@ -72,8 +72,8 @@ export function ModalConfirmacao({
 }) {
   return (
     <Modal aberto={aberto} titulo={titulo} onFechar={onCancelar}>
-      <p className="sub">{mensagem}</p>
-      {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+      <p className="sub">{message}</p>
+      {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
       <div className="cl-acoes">
         <Botao type="button" onClick={onCancelar} disabled={confirmando}>
           Cancelar

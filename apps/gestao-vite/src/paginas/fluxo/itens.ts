@@ -32,11 +32,11 @@
  * módulos.
  */
 
-import type { MinhasPermissoesNoFluxo } from '@pipe/contracts';
+import type { MyPermissionsInFlow } from '@pipe/contracts';
 import type { NomeDeIconePortal } from '../../componentes/icones-portal';
 
 /** `fluxo` e `roteador` são o `builder` e o `master` da origem. */
-export type TipoDeContato = 'fluxo' | 'roteador';
+export type ContactTipo = 'fluxo' | 'roteador';
 
 export interface ItemDoMenu {
   /** O rótulo exato da origem, em pt-BR. */
@@ -65,20 +65,20 @@ export const LIMITE_VISIVEL = 5;
  * sexto item disfarçado de quinto, e Growth ficava só no "...".
  */
 const CATALOGO = [
-  { chave: 'builder', rotulo: 'Builder', href: '/builder' },
-  { chave: 'desk', rotulo: 'Atendimento', href: '/monitoramento' },
+  { key: 'builder', rotulo: 'Builder', href: '/builder' },
+  { key: 'desk', rotulo: 'Atendimento', href: '/monitoramento' },
   /* A Análise é DO contato: o destino depende do `id` e sai de `itensDoMenu`. */
-  { chave: 'analysis', rotulo: 'Análise', href: null },
-  { chave: 'growth', rotulo: 'Growth', href: null },
-  { chave: 'channels', rotulo: 'Canais', href: null },
-  { chave: 'users', rotulo: 'Contatos', href: null },
-  { chave: 'contents', rotulo: 'Conteúdos', href: null },
-  { chave: 'logMessages', rotulo: 'Log', href: null },
-  { chave: 'payments', rotulo: 'Pagamentos', href: null },
-] as const satisfies readonly { chave: string; rotulo: string; href: string | null }[];
+  { key: 'analysis', rotulo: 'Análise', href: null },
+  { key: 'growth', rotulo: 'Growth', href: null },
+  { key: 'channels', rotulo: 'Canais', href: null },
+  { key: 'users', rotulo: 'Contatos', href: null },
+  { key: 'contents', rotulo: 'Conteúdos', href: null },
+  { key: 'logMessages', rotulo: 'Log', href: null },
+  { key: 'payments', rotulo: 'Pagamentos', href: null },
+] as const satisfies readonly { key: string; rotulo: string; href: string | null }[];
 
 /** O `hideInTemplate: [… 'master' …]` do mapa de claims, do lado que nos cabe. */
-const ESCONDIDOS_NO_ROTEADOR: readonly string[] = ['builder', 'desk'];
+const HIDDEN_IN_ROUTER: readonly string[] = ['builder', 'desk'];
 
 /**
  * A chave do CATÁLOGO → o recurso do `PermissionsList.html`, onde as duas
@@ -105,18 +105,18 @@ const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources
  * também não chega até aqui — a casca do contato já recusou.
  */
 export function itensDoMenu(
-  tipo: TipoDeContato,
+  tipo: ContactTipo,
   id: string,
-  permissoes?: MinhasPermissoesNoFluxo | undefined,
+  permissions?: MyPermissionsInFlow | undefined,
 ): ItemDoMenu[] {
   const base = `/${tipo}/${id}`;
-  const peneira = permissoes && !permissoes.editaPelaConta ? permissoes.permissoes : null;
+  const sieve = permissions && !permissions.editaByAccount ? permissions.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
-    (item) => tipo === 'fluxo' || !ESCONDIDOS_NO_ROTEADOR.includes(item.chave),
+    (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.chave),
   )
     .filter((item) => {
-      if (!peneira) return true;
-      const nivel = peneira[RECURSO_DO_ITEM[item.chave] ?? item.chave];
+      if (!sieve) return true;
+      const nivel = sieve[RECURSO_DO_ITEM[item.chave] ?? item.chave];
       return nivel === 'ler' || nivel === 'escrever';
     })
     .map((item) => ({
@@ -157,7 +157,7 @@ export function itensDoMenu(
  * tem tela aqui ainda — "Configurações" é do CONTATO, e não a da conta que já
  * existe em `/configuracoes`.
  */
-export const ICONES_DO_CONTATO: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
+export const ICONES_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
   { rotulo: 'Integrações', href: '/integracoes', icone: 'integracoes' },
   { rotulo: 'Configurações', href: '/configuracoes/basicas', icone: 'configuracoes' },
@@ -169,14 +169,14 @@ export const ICONES_DO_CONTATO: readonly (ItemDoMenu & { icone: NomeDeIconePorta
 /* ------------------------------------------------ os dados dos cartões da home */
 
 /** Um membro da equipe do contato, como `loadTeamMembers()` o monta. */
-export interface Membro {
+export interface Member {
   nome: string;
   fotoUrl: string | null;
 }
 
 /** As três contagens do cartão de métricas, desde a criação do contato. */
-export interface Metricas {
-  usuarios: number;
+export interface Metrics {
+  users: number;
   recebidas: number;
   enviadas: number;
 }
@@ -196,10 +196,10 @@ export interface Extensao {
  * foto com o nome `+ N`, e o N para em 9. O `letter-avatar` tira as iniciais
  * dele e desenha "+N".
  */
-export function pilhaDaEquipe(membros: readonly Membro[]): Membro[] {
-  if (membros.length <= 7) return [...membros];
-  const resto = Math.min(membros.length - 7, 9);
-  return [...membros.slice(0, 7), { nome: `+ ${resto}`, fotoUrl: null }];
+export function pilhaDaEquipe(members: readonly Member[]): Member[] {
+  if (members.length <= 7) return [...members];
+  const resto = Math.min(members.length - 7, 9);
+  return [...members.slice(0, 7), { nome: `+ ${resto}`, fotoUrl: null }];
 }
 
 /**

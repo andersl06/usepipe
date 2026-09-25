@@ -1,6 +1,6 @@
 import type { AcaoDoEditor } from './modelo';
-import { LIMITE_DE_ACOES, ROTULOS_DAS_ACOES } from './acoes-do-bloco';
-import type { ListaDeAcoes } from './acoes-do-bloco';
+import { ACTIONS_LIMIT, ROTULOS_OF_ACTIONS } from './acoes-do-bloco';
+import type { ActionsLista } from './acoes-do-bloco';
 
 /**
  * A aba "Ações Globais" do painel "Configuração" (`portal.js`:
@@ -19,57 +19,57 @@ import type { ListaDeAcoes } from './acoes-do-bloco';
  * (`Record<string, unknown>`), não um `Bloco` com `id`.
  */
 
-export interface AcoesGlobais {
+export interface ActionsGlobal {
   $enteringCustomActions?: AcaoDoEditor[];
   $leavingCustomActions?: AcaoDoEditor[];
   [extensao: string]: unknown;
 }
 
-export const listaDeAcoesGlobais = (globais: Record<string, unknown>, lista: ListaDeAcoes): AcaoDoEditor[] => {
-  const acoes = (globais as AcoesGlobais)[lista];
-  return Array.isArray(acoes) ? acoes : [];
+export const actionsGlobalLista = (global: Record<string, unknown>, lista: ActionsLista): AcaoDoEditor[] => {
+  const actions = (global as ActionsGlobal)[lista];
+  return Array.isArray(actions) ? actions : [];
 };
 
-export type ResultadoDeAcaoGlobal = { ok: true; globais: Record<string, unknown> } | { ok: false; erro: string };
+export type ResultadoDeAcaoGlobal = { ok: true; global: Record<string, unknown> } | { ok: false; error: string };
 
 export function adicionarAcaoGlobal(
-  globais: Record<string, unknown>,
-  lista: ListaDeAcoes,
+  global: Record<string, unknown>,
+  lista: ActionsLista,
   acao: AcaoDoEditor,
 ): ResultadoDeAcaoGlobal {
-  const atuais = listaDeAcoesGlobais(globais, lista);
-  if (atuais.length >= LIMITE_DE_ACOES) return { ok: false, erro: ROTULOS_DAS_ACOES.limite };
-  return { ok: true, globais: { ...globais, [lista]: [...atuais, acao] } };
+  const current = actionsGlobalLista(global, lista);
+  if (current.length >= ACTIONS_LIMIT) return { ok: false, error: ROTULOS_OF_ACTIONS.limite };
+  return { ok: true, global: { ...global, [lista]: [...current, acao] } };
 }
 
 export function substituirAcaoGlobal(
-  globais: Record<string, unknown>,
-  lista: ListaDeAcoes,
+  global: Record<string, unknown>,
+  lista: ActionsLista,
   indice: number,
   acao: AcaoDoEditor,
 ): Record<string, unknown> {
-  const atuais = listaDeAcoesGlobais(globais, lista);
-  return { ...globais, [lista]: atuais.map((a, i) => (i === indice ? acao : a)) };
+  const current = actionsGlobalLista(global, lista);
+  return { ...global, [lista]: current.map((a, i) => (i === indice ? acao : a)) };
 }
 
 export function removerAcaoGlobal(
-  globais: Record<string, unknown>,
-  lista: ListaDeAcoes,
+  global: Record<string, unknown>,
+  lista: ActionsLista,
   indice: number,
 ): Record<string, unknown> {
-  const atuais = listaDeAcoesGlobais(globais, lista);
-  return { ...globais, [lista]: atuais.filter((_, i) => i !== indice) };
+  const current = actionsGlobalLista(global, lista);
+  return { ...global, [lista]: current.filter((_, i) => i !== indice) };
 }
 
 export function moverAcaoGlobal(
-  globais: Record<string, unknown>,
-  lista: ListaDeAcoes,
+  global: Record<string, unknown>,
+  lista: ActionsLista,
   de: number,
   para: number,
 ): Record<string, unknown> {
-  const atuais = [...listaDeAcoesGlobais(globais, lista)];
-  if (de < 0 || de >= atuais.length || para < 0 || para >= atuais.length || de === para) return globais;
-  const [acao] = atuais.splice(de, 1);
-  atuais.splice(para, 0, acao!);
-  return { ...globais, [lista]: atuais };
+  const current = [...actionsGlobalLista(global, lista)];
+  if (de < 0 || de >= current.length || para < 0 || para >= current.length || de === para) return global;
+  const [acao] = current.splice(de, 1);
+  current.splice(para, 0, acao!);
+  return { ...global, [lista]: current };
 }

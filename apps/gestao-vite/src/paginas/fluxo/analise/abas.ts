@@ -26,14 +26,14 @@
  * `is-hiding-analytics-tabs`, que está `false`.
  */
 
-export interface FlagsDaAnalise {
-  abaMensagensAtivas: boolean;
+export interface AnalyticsFlags {
+  abaActiveMessages: boolean;
   abaVisaoGeral: boolean;
-  dicionarioDeDados: boolean;
+  dataDictionary: boolean;
   goodData: boolean;
-  suiteDeAnalise: boolean;
+  analyticsSuite: boolean;
   /** `data-extractor-show-tab`: um `isEnabled` por cluster, mais `default`. */
-  gerenciadorPorCluster: Record<string, { isEnabled: boolean }>;
+  managerByCluster: Record<string, { isEnabled: boolean }>;
 }
 
 /**
@@ -43,13 +43,13 @@ export interface FlagsDaAnalise {
  * ponytail: fixos. Aqui não há serviço de flag; o dia em que houver, esta
  * constante vira a leitura dele, e a regra abaixo não muda.
  */
-export const FLAGS_DA_CAPTURA: FlagsDaAnalise = {
-  abaMensagensAtivas: true,
+export const FLAGS_DA_CAPTURA: AnalyticsFlags = {
+  abaActiveMessages: true,
   abaVisaoGeral: true,
-  dicionarioDeDados: true,
+  dataDictionary: true,
   goodData: false,
-  suiteDeAnalise: false,
-  gerenciadorPorCluster: {
+  analyticsSuite: false,
+  managerByCluster: {
     golden: { isEnabled: false },
     default: { isEnabled: true },
     dobermann: { isEnabled: false },
@@ -69,15 +69,15 @@ export const CLUSTER_DA_CAPTURA = 'Beagle';
  * (`{"clusters":"Golden,Doberman"}`) e `show-data-extractor-tab` também
  * existem no contexto, mas quem decide a aba é SÓ esta.
  */
-export function mostraGerenciador(
-  porCluster: FlagsDaAnalise['gerenciadorPorCluster'],
+export function mostraManager(
+  byCluster: AnalyticsFlags['managerByCluster'],
   cluster: string,
 ): boolean {
-  const chave = cluster.toLowerCase();
-  return (porCluster[chave in porCluster ? chave : 'default']?.isEnabled ?? false) === true;
+  const key = cluster.toLowerCase();
+  return (byCluster[key in byCluster ? key : 'default']?.isEnabled ?? false) === true;
 }
 
-export type ChaveDaAba =
+export type AbaKey =
   | 'dashboard'
   | 'activeMessages'
   | 'overview'
@@ -88,11 +88,11 @@ export type ChaveDaAba =
   | 'goodData';
 
 export interface Aba {
-  chave: ChaveDaAba;
+  key: AbaKey;
   /** `analyticsTabs.*` do pacote pt-BR, com a caixa da origem. */
   rotulo: string;
   /** Segmento da rota; nulo quando a tela não existe aqui (vira "em breve"). */
-  segmento: string | null;
+  segment: string | null;
   /**
    * O `ng-show`. Aba escondida CONTINUA na fileira, com `hidden` — é o que
    * `ng-hide` faz, e importa: o `.bds-tab:not(:last-child)` conta a escondida,
@@ -107,49 +107,49 @@ export interface Aba {
  * rota filha `gerenciador-de-relatorios`. GoodData não aparece no contrato.
  */
 const CATALOGO: readonly (Omit<Aba, 'visivel'> & {
-  mostra: (f: FlagsDaAnalise, cluster: string) => boolean;
+  mostra: (f: AnalyticsFlags, cluster: string) => boolean;
 })[] = [
-  { chave: 'dashboard', rotulo: 'Dashboard', segmento: 'dashboard', mostra: () => true },
+  { key: 'dashboard', rotulo: 'Dashboard', segment: 'dashboard', mostra: () => true },
   {
-    chave: 'activeMessages',
+    key: 'activeMessages',
     rotulo: 'Mensagens ativas',
-    segmento: 'mensagens-ativas',
-    mostra: (f) => f.abaMensagensAtivas,
+    segment: 'mensagens-ativas',
+    mostra: (f) => f.abaActiveMessages,
   },
   {
-    chave: 'overview',
+    key: 'overview',
     rotulo: 'Visão Geral',
-    segmento: 'visao-geral',
+    segment: 'visao-geral',
     mostra: (f) => f.abaVisaoGeral,
   },
   {
-    chave: 'reports',
+    key: 'reports',
     rotulo: 'Relatórios Personalizados',
-    segmento: 'relatorios',
+    segment: 'relatorios',
     mostra: () => true,
   },
   {
-    chave: 'contactsJourney',
+    key: 'contactsJourney',
     rotulo: 'Jornada dos Contatos',
-    segmento: 'jornada',
+    segment: 'jornada',
     mostra: () => true,
   },
   {
-    chave: 'dataExtractor',
+    key: 'dataExtractor',
     rotulo: 'Gerenciador de Relatórios',
-    segmento: 'gerenciador-de-relatorios',
-    mostra: (f, cluster) => mostraGerenciador(f.gerenciadorPorCluster, cluster),
+    segment: 'gerenciador-de-relatorios',
+    mostra: (f, cluster) => mostraManager(f.managerByCluster, cluster),
   },
   {
-    chave: 'dataDictionary',
+    key: 'dataDictionary',
     rotulo: 'Dicionário de Dados',
-    segmento: 'dicionario-de-dados',
-    mostra: (f) => f.dicionarioDeDados,
+    segment: 'dicionario-de-dados',
+    mostra: (f) => f.dataDictionary,
   },
-  { chave: 'goodData', rotulo: 'GoodData', segmento: null, mostra: (f) => f.goodData },
+  { key: 'goodData', rotulo: 'GoodData', segment: null, mostra: (f) => f.goodData },
 ];
 
-export function abasDaAnalise(flags: FlagsDaAnalise, cluster: string): Aba[] {
+export function analyticsAbas(flags: AnalyticsFlags, cluster: string): Aba[] {
   return CATALOGO.map(({ mostra, ...aba }) => ({ ...aba, visivel: mostra(flags, cluster) }));
 }
 

@@ -1,4 +1,4 @@
-import type { MensagemDaMeta, ValorDoWebhook } from '../entrada.js';
+import type { MessageOfMeta, ValueOfWebhook } from '../entrada.js';
 
 /**
  * Reconstruído de chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb e
@@ -23,7 +23,7 @@ import type { MensagemDaMeta, ValorDoWebhook } from '../entrada.js';
  *   um app com duas contas manda as duas para a mesma URL.
  */
 
-interface AnexoDoInstagram {
+interface AttachmentOfInstagram {
   type?: string;
   payload?: { url?: string; title?: string };
 }
@@ -35,7 +35,7 @@ interface EventoDoInstagram {
   message?: {
     mid?: string;
     text?: string;
-    attachments?: AnexoDoInstagram[];
+    attachments?: AttachmentOfInstagram[];
     is_echo?: boolean;
     is_deleted?: boolean;
     is_unsupported?: boolean;
@@ -45,7 +45,7 @@ interface EventoDoInstagram {
 }
 
 /** Tipo de anexo do Instagram → campo de mídia da Meta que `../entrada.ts` entende. */
-const MIDIA: Readonly<Record<string, 'image' | 'video' | 'audio' | 'document'>> = {
+const MEDIA: Readonly<Record<string, 'image' | 'video' | 'audio' | 'document'>> = {
   image: 'image',
   video: 'video',
   audio: 'audio',
@@ -61,17 +61,17 @@ function emSegundos(timestamp: number | string | undefined): string | undefined 
   return Number.isFinite(ms) && ms > 0 ? String(Math.floor(ms / 1000)) : undefined;
 }
 
-export function valoresDoInstagram(payload: unknown, igUserId?: string | null): ValorDoWebhook[] {
+export function valuesOfInstagram(payload: unknown, igUserId?: string | null): ValueOfWebhook[] {
   const corpo = payload as { entry?: { id?: string; messaging?: EventoDoInstagram[] }[] };
-  const mensagens: MensagemDaMeta[] = [];
-  const statuses: NonNullable<ValorDoWebhook['statuses']> = [];
+  const messages: MessageOfMeta[] = [];
+  const statuses: NonNullable<ValueOfWebhook['statuses']> = [];
 
-  for (const entrada of corpo?.entry ?? []) {
-    if (igUserId && entrada.id && String(entrada.id) !== igUserId) {
-      console.warn(`[instagram] evento da conta ${entrada.id} chegou no canal da conta ${igUserId}: descartado`);
+  for (const inbound of corpo?.entry ?? []) {
+    if (igUserId && inbound.id && String(inbound.id) !== igUserId) {
+      console.warn(`[instagram] evento da conta ${inbound.id} chegou no canal da conta ${igUserId}: descartado`);
       continue;
     }
-    for (const evento of entrada.messaging ?? []) {
+    for (const evento of inbound.messaging ?? []) {
       const timestamp = emSegundos(evento.timestamp);
       const de = evento.sender?.id;
 
@@ -80,7 +80,7 @@ export function valoresDoInstagram(payload: unknown, igUserId?: string | null): 
         continue;
       }
       if (evento.postback?.mid && de) {
-        mensagens.push({
+        messages.push({
           from: de,
           id: evento.postback.mid,
           timestamp,
@@ -95,13 +95,13 @@ export function valoresDoInstagram(payload: unknown, igUserId?: string | null): 
 
       // ponytail: a mensagem da Pipe tem UM anexo; o Direct pode mandar vários no
       // mesmo `mid`. Fica o primeiro, e os demais viram link no texto.
-      const [primeiro, ...resto] = m.attachments ?? [];
-      const campo = primeiro?.type ? MIDIA[primeiro.type] : undefined;
-      const url = primeiro?.payload?.url;
+      const [first, ...resto] = m.attachments ?? [];
+      const campo = first?.type ? MEDIA[first.type] : undefined;
+      const url = first?.payload?.url;
       const extras = resto.map((a) => a.payload?.url).filter((u): u is string => Boolean(u));
 
       if (campo && url) {
-        mensagens.push({
+        messages.push({
           from: de,
           id: m.mid,
           timestamp,
@@ -113,11 +113,11 @@ export function valoresDoInstagram(payload: unknown, igUserId?: string | null): 
       }
 
       // Texto, ou anexo sem equivalente no Pipe (story_mention, share, ig_reel…): vira texto com o link.
-      const corpoDoTexto = [m.text, primeiro && !campo ? url : undefined, ...extras].filter(Boolean).join('\n');
+      const corpoDoTexto = [m.text, first && !campo ? url : undefined, ...extras].filter(Boolean).join('\n');
       if (!corpoDoTexto) continue;
-      mensagens.push({ from: de, id: m.mid, timestamp, type: 'text', text: { body: corpoDoTexto } });
+      messages.push({ from: de, id: m.mid, timestamp, type: 'text', text: { body: corpoDoTexto } });
     }
   }
 
-  return mensagens.length || statuses.length ? [{ messages: mensagens, statuses }] : [];
+  return messages.length || statuses.length ? [{ messages: messages, statuses }] : [];
 }

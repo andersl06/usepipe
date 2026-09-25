@@ -28,9 +28,9 @@ const PASSO = 16;
 
 export type Larguras = Record<string, number>;
 
-function ler(chave: string): Larguras {
+function ler(key: string): Larguras {
   try {
-    const cru = localStorage.getItem(chave);
+    const cru = localStorage.getItem(key);
     if (!cru) return {};
     const lido: unknown = JSON.parse(cru);
     if (typeof lido !== 'object' || lido === null) return {};
@@ -44,12 +44,12 @@ function ler(chave: string): Larguras {
   }
 }
 
-function limitar(valor: number): number {
-  return Math.min(MAXIMA, Math.max(MINIMA, Math.round(valor)));
+function limitar(value: number): number {
+  return Math.min(MAXIMA, Math.max(MINIMA, Math.round(value)));
 }
 
 interface Arraste {
-  coluna: string;
+  column: string;
   inicioX: number;
   inicioLargura: number;
 }
@@ -61,7 +61,7 @@ interface Arraste {
  * leads e a de contas têm colunas de nomes diferentes, e misturar as duas faria
  * uma herdar a largura da outra.
  */
-export function useLarguras(chaveDeArmazenamento: string, padroes: Larguras) {
+export function useLarguras(storageKey: string, defaults: Larguras) {
   const [ajustadas, setAjustadas] = useState<Larguras>({});
   /**
    * O arraste em curso vive numa referência, não em estado.
@@ -74,54 +74,54 @@ export function useLarguras(chaveDeArmazenamento: string, padroes: Larguras) {
    */
   const arraste = useRef<Arraste | null>(null);
   /** Só para a classe do cabeçalho. Este pode ser estado: é pintura. */
-  const [colunaEmArraste, setColunaEmArraste] = useState<string | null>(null);
+  const [columnInArraste, setColumnInArraste] = useState<string | null>(null);
 
   // Só depois de montar: o servidor não tem `localStorage`, e ler durante a
   // renderização faria os dois desenharem larguras diferentes.
-  useEffect(() => setAjustadas(ler(chaveDeArmazenamento)), [chaveDeArmazenamento]);
+  useEffect(() => setAjustadas(ler(storageKey)), [storageKey]);
 
   const largura = useCallback(
-    (coluna: string) => ajustadas[coluna] ?? padroes[coluna] ?? 160,
-    [ajustadas, padroes],
+    (column: string) => ajustadas[column] ?? defaults[column] ?? 160,
+    [ajustadas, defaults],
   );
 
   const guardar = useCallback(
     (proximas: Larguras) => {
       setAjustadas(proximas);
       try {
-        localStorage.setItem(chaveDeArmazenamento, JSON.stringify(proximas));
+        localStorage.setItem(storageKey, JSON.stringify(proximas));
       } catch {
         // Armazenamento bloqueado: a largura vale para esta sessão e some depois.
       }
     },
-    [chaveDeArmazenamento],
+    [storageKey],
   );
 
   const definir = useCallback(
-    (coluna: string, valor: number) => {
-      guardar({ ...ajustadas, [coluna]: limitar(valor) });
+    (column: string, value: number) => {
+      guardar({ ...ajustadas, [column]: limitar(value) });
     },
     [ajustadas, guardar],
   );
 
-  function aoPegar(coluna: string) {
+  function aoPegar(column: string) {
     return (evento: PointerEvent) => {
       evento.preventDefault();
       (evento.target as HTMLElement).setPointerCapture(evento.pointerId);
-      arraste.current = { coluna, inicioX: evento.clientX, inicioLargura: largura(coluna) };
-      setColunaEmArraste(coluna);
+      arraste.current = { column, inicioX: evento.clientX, inicioLargura: largura(column) };
+      setColumnInArraste(column);
     };
   }
 
   function aoMover(evento: PointerEvent) {
     const atual = arraste.current;
     if (!atual) return;
-    definir(atual.coluna, atual.inicioLargura + (evento.clientX - atual.inicioX));
+    definir(atual.column, atual.inicioLargura + (evento.clientX - atual.inicioX));
   }
 
   function aoSoltar() {
     arraste.current = null;
-    setColunaEmArraste(null);
+    setColumnInArraste(null);
   }
 
   /**
@@ -129,23 +129,23 @@ export function useLarguras(chaveDeArmazenamento: string, padroes: Larguras) {
    * metade do time não alcança, e a régua de 16px chega em qualquer largura
    * útil em poucos toques.
    */
-  function aoTeclar(coluna: string) {
+  function aoTeclar(column: string) {
     return (evento: React.KeyboardEvent) => {
       const passo =
         evento.key === 'ArrowLeft' ? -PASSO : evento.key === 'ArrowRight' ? PASSO : 0;
       if (passo === 0) return;
       evento.preventDefault();
-      definir(coluna, largura(coluna) + passo);
+      definir(column, largura(column) + passo);
     };
   }
 
   /** Volta a coluna ao padrão. É o duplo clique na alça, como em toda planilha. */
-  function aoRestaurar(coluna: string) {
+  function toRestore(column: string) {
     return () => {
       // Apagar a chave, e não gravar o padrão por cima: assim a coluna volta a
       // seguir o padrão da tela se ele mudar num deploy futuro.
       const resto = Object.fromEntries(
-        Object.entries(ajustadas).filter(([chave]) => chave !== coluna),
+        Object.entries(ajustadas).filter(([key]) => key !== column),
       );
       guardar(resto);
     };
@@ -153,12 +153,12 @@ export function useLarguras(chaveDeArmazenamento: string, padroes: Larguras) {
 
   return {
     largura,
-    colunaEmArraste,
+    columnInArraste,
     aoPegar,
     aoMover,
     aoSoltar,
     aoTeclar,
-    aoRestaurar,
+    toRestore,
     MINIMA,
     MAXIMA,
   };

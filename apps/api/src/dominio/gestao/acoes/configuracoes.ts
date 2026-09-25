@@ -1,13 +1,13 @@
-import type { TransacaoPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import type { Campos, Resultado } from './campos.js';
-import { ErroPipe } from '../../../erros.js';
+import { PipeError } from '../../../erros.js';
 import {
-  gravarEtiquetasDeEncerramento,
-  gravarIdentidade,
+  writeLabelsOfClosure,
+  writeIdentity,
   gravarPesquisa,
 } from '../configuracoes.js';
 import {
-  ESCALA_POR_TIPO,
+  ESCALA_BY_TYPE,
   disparoValido,
   tipoDePesquisaValido,
   type TipoDePesquisa,
@@ -29,7 +29,7 @@ import {
 const OK: Resultado = { ok: true };
 
 function falha(erro: string): Resultado {
-  return { ok: false, erro };
+  return { ok: false, error };
 }
 
 /**
@@ -49,8 +49,8 @@ function normalizarFuso(fuso: string): string | null {
 
 // ------------------------------------------------------------- identidade
 
-export async function salvarIdentidade(
-  tx: TransacaoPipe,
+export async function saveIdentity(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
@@ -68,10 +68,10 @@ export async function salvarIdentidade(
   }
 
   try {
-    const gravado = await gravarIdentidade(tx, tid, ator, { nome, fuso, idioma });
-    if (!gravado.ok) return falha(gravado.erro);
+    const gravado = await writeIdentity(tx, tid, ator, { nome, fuso, idioma });
+    if (!gravado.ok) return falha(gravado.error);
   } catch (erro) {
-    if (erro instanceof ErroPipe) return falha(erro.message);
+    if (erro instanceof PipeError) return falha(erro.message);
     throw erro;
   }
 
@@ -90,7 +90,7 @@ export async function salvarIdentidade(
  * reclassifica o passado.
  */
 export async function salvarPesquisa(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
   dados: Campos,
@@ -99,14 +99,14 @@ export async function salvarPesquisa(
   const tipoBruto = String(dados.get('tipo') ?? '').trim();
   const pergunta = String(dados.get('pergunta') ?? '').trim();
   const disparo = String(dados.get('disparo') ?? '').trim();
-  const ativa = dados.get('ativa') !== null;
+  const active = dados.get('ativa') !== null;
 
   if (!tipoDePesquisaValido(tipoBruto)) return falha('Escolha CSAT ou NPS.');
   if (!disparoValido(disparo)) return falha('Escolha quando a pesquisa é disparada.');
   if (!pergunta) return falha('Informe a pergunta que o cliente vai ler.');
 
   const tipo: TipoDePesquisa = tipoBruto;
-  const escala = ESCALA_POR_TIPO[tipo];
+  const escala = ESCALA_BY_TYPE[tipo];
 
   try {
     const gravado = await gravarPesquisa(tx, tid, ator, {
@@ -116,12 +116,12 @@ export async function salvarPesquisa(
       escalaMax: escala.max,
       pergunta,
       disparo,
-      ativa,
+      active,
     });
-    if (!gravado.ok) return falha(gravado.erro);
-  } catch (erro) {
-    if (erro instanceof ErroPipe) return falha(erro.message);
-    throw erro;
+    if (!gravado.ok) return falha(gravado.error);
+  } catch (error) {
+    if (error instanceof PipeError) return falha(error.message);
+    throw error;
   }
   return OK;
 }
@@ -138,14 +138,14 @@ export async function salvarPesquisa(
  * alguma coisa em vez de virar decoração acima de uma lista que continua
  * valendo.
  */
-export async function salvarEtiquetasDeEncerramento(
-  tx: TransacaoPipe,
+export async function saveLabelsOfClosure(
+  tx: TransactionPipe,
   tid: string,
   ator: Ator,
-  dados: Campos,
+  data: Campos,
 ): Promise<Resultado> {
-  const exigir = dados.get('exigir') !== null;
-  const escolhidas = exigir ? dados.getAll('etiqueta').map((v) => String(v)) : [];
+  const exigir = data.get('exigir') !== null;
+  const escolhidas = exigir ? data.getAll('etiqueta').map((v) => String(v)) : [];
 
   if (exigir && escolhidas.length === 0) {
     return falha(
@@ -154,10 +154,10 @@ export async function salvarEtiquetasDeEncerramento(
   }
 
   try {
-    const gravado = await gravarEtiquetasDeEncerramento(tx, tid, ator, escolhidas);
-    if (!gravado.ok) return falha(gravado.erro);
+    const gravado = await writeLabelsOfClosure(tx, tid, ator, escolhidas);
+    if (!gravado.ok) return falha(gravado.error);
   } catch (erro) {
-    if (erro instanceof ErroPipe) return falha(erro.message);
+    if (erro instanceof PipeError) return falha(erro.message);
     throw erro;
   }
   return OK;

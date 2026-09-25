@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Avatar, Campo, Etiqueta } from '@pipe/ui';
-import { Bloco, CabecalhoDaSecao } from '../../../componentes/configuracoes/cabecalho';
+import { Block, SectionHeader } from '../../../componentes/configuracoes/cabecalho';
 import { Formulario } from '../../../componentes/configuracoes/formulario';
 import { SeletorDeTema } from '../../../componentes/configuracoes/seletor-de-tema';
-import { lerEspaco, usuarioAtual } from '../../../lib/configuracoes-dados';
+import { lerEspaco, userCurrent } from '../../../lib/configuracoes-dados';
 import { dataHora } from '../../../lib/formato';
 import { acaoSalvarPerfil } from '../acoes';
 
@@ -31,17 +31,17 @@ export const dynamic = 'force-dynamic';
  *   system e vale igual para os três aplicativos; deixá-la configurável por
  *   pessoa desfaz o que `packages/ui` existe para garantir.
  */
-export default async function PaginaPerfil() {
-  const pessoa = await usuarioAtual();
+export default async function PageProfile() {
+  const pessoa = await userCurrent();
   const espaco = await lerEspaco();
 
   return (
     <>
-      <CabecalhoDaSecao titulo="Perfil">
+      <SectionHeader titulo="Perfil">
         Seu nome e sua foto, como as outras pessoas do espaço veem, e o tema desta tela.
-      </CabecalhoDaSecao>
+      </SectionHeader>
 
-      <Bloco titulo="Foto e nome" descricao="É o que aparece ao lado de cada lead que é seu.">
+      <Block titulo="Foto e nome" description="É o que aparece ao lado de cada lead que é seu.">
         <Formulario acao={acaoSalvarPerfil}>
           <div className="cfg-avatar">
             <Avatar nome={pessoa.nome} />
@@ -71,11 +71,11 @@ export default async function PaginaPerfil() {
             </span>
           </label>
         </Formulario>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Acesso"
-        descricao="O e-mail é a chave da conta: trocar exige refazer o vínculo com o Google."
+        description="O e-mail é a chave da conta: trocar exige refazer o vínculo com o Google."
       >
         <dl className="cfg-lista">
           <div>
@@ -94,21 +94,21 @@ export default async function PaginaPerfil() {
           </div>
           <div>
             <dt>Último acesso</dt>
-            <dd>{dataHora(pessoa.ultimoAcessoEm, espaco.fuso)}</dd>
+            <dd>{dataHora(pessoa.ultimoAccessIn, espaco.fuso)}</dd>
           </div>
         </dl>
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Aparência"
-        descricao="Fica guardado neste navegador. Cada aparelho tem a sua escolha."
+        description="Fica guardado neste navegador. Cada aparelho tem a sua escolha."
       >
         <SeletorDeTema />
-      </Bloco>
+      </Block>
 
-      <Bloco
+      <Block
         titulo="Idioma e fuso"
-        descricao="Os dois são do espaço de trabalho, não da pessoa: relatório e SLA precisam do mesmo dia para todo mundo."
+        description="Os dois são do espaço de trabalho, não da pessoa: relatório e SLA precisam do mesmo dia para todo mundo."
       >
         <dl className="cfg-lista">
           <div>
@@ -123,7 +123,7 @@ export default async function PaginaPerfil() {
         <p className="sub">
           O fuso se muda em <Link href="/configuracoes/espaco">Espaço de trabalho</Link>.
         </p>
-      </Bloco>
+      </Block>
     </>
   );
 }

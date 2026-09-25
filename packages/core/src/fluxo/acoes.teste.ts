@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { criarEntrada, type Contexto } from './contexto.js';
-import { processarEntrada } from './gerenciador.js';
+import { createInbound, type Context } from './contexto.js';
+import { processarInbound } from './gerenciador.js';
 
-function contexto(): Contexto {
-  const chamada: Contexto['servicos']['chamarHttp'] = async (pedido) => {
+function context(): Context {
+  const chamada: Context['services']['callHttp'] = async (pedido) => {
     expect(pedido).toEqual({
       metodo: 'POST',
       url: 'https://api.exemplo.test/clientes/42',
@@ -14,24 +14,24 @@ function contexto(): Contexto {
     return { status: 201, corpo: '{"id":"c-1"}' };
   };
   return {
-    usuario: 'contato-1',
-    fluxo: { id: 'fluxo-1', states: [{ id: 'raiz', root: true, input: {}, outputActions: [], outputs: [] }] },
-    entrada: criarEntrada({ id: 'entrada-1', tipo: 'text/plain', conteudo: 'oi' }),
-    variaveis: { id: '42', token: 'abc' },
-    entradaContexto: new Map(),
-    servicos: {
-      enviar: async () => {},
-      encaminharParaAtendimento: async () => ({ id: 'ticket-1' }),
-      registrarEvento: async () => {},
-      chamarHttp: chamada,
+    user: 'contato-1',
+    flow: { id: 'fluxo-1', states: [{ id: 'raiz', root: true, input: {}, outputActions: [], outputs: [] }] },
+    inbound: createInbound({ id: 'entrada-1', tipo: 'text/plain', conteudo: 'oi' }),
+    variables: { id: '42', token: 'abc' },
+    inboundContext: new Map(),
+    services: {
+      send: async () => {},
+      encaminharForAttendance: async () => ({ id: 'ticket-1' }),
+      registerEvent: async () => {},
+      callHttp: chamada,
     },
   };
 }
 
 describe('ProcessHttp', () => {
   it('interpola a requisição e grava status e corpo nas variáveis configuradas', async () => {
-    const c = contexto();
-    c.fluxo.states[0]!.outputActions = [{
+    const c = context();
+    c.flow.states[0]!.outputActions = [{
       type: 'ProcessHttp',
       settings: {
         method: 'POST',
@@ -42,8 +42,8 @@ describe('ProcessHttp', () => {
         responseBodyVariable: 'http.body',
       },
     }];
-    await processarEntrada(c);
+    await processarInbound(c);
 
-    expect(c.variaveis).toMatchObject({ 'http.status': '201', 'http.body': '{"id":"c-1"}' });
+    expect(c.variables).toMatchObject({ 'http.status': '201', 'http.body': '{"id":"c-1"}' });
   });
 });

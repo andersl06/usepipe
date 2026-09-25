@@ -16,7 +16,7 @@ import { useState } from 'react';
  * clique não faz nada — e por isso o valor ao lado é texto de verdade,
  * selecionável, e não um atributo escondido.
  */
-export function BotaoCopiar({ valor, oQue }: { valor: string; oQue: string }) {
+export function BotaoCopiar({ value, oQue }: { value: string; oQue: string }) {
   const [copiado, setCopiado] = useState(false);
 
   return (
@@ -26,7 +26,7 @@ export function BotaoCopiar({ valor, oQue }: { valor: string; oQue: string }) {
       title="Copiar"
       aria-label={`Copiar ${oQue}`}
       onClick={() => {
-        void navigator.clipboard?.writeText(valor).then(() => {
+        void navigator.clipboard?.writeText(value).then(() => {
           setCopiado(true);
         });
       }}

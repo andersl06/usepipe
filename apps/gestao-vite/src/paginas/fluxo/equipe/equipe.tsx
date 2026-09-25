@@ -1,7 +1,7 @@
-import type { EquipeDoFluxo } from '@pipe/contracts';
-import { ErroDaApi } from '../../../lib/api';
-import { useLeitura } from '../../../lib/consulta';
-import { BarrasDoContato, useContato } from '../contato';
+import type { TeamOfFlow } from '@pipe/contracts';
+import { ApiError } from '../../../lib/api';
+import { useRead } from '../../../lib/consulta';
+import { ContactBarras, useContact } from '../contato';
 import { TelaDeEquipe } from './tela';
 
 /**
@@ -22,28 +22,28 @@ import { TelaDeEquipe } from './tela';
  * já centram em 80% sozinhos, do mesmo jeito que a `fx-coluna` do casco
  * comum — empilhar os dois apertaria o miolo a 64% (80% de 80%).
  */
-export function PaginaDeEquipe() {
-  const { contato } = useContato();
-  const leitura = useLeitura<EquipeDoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe`);
-  const semPermissao = leitura.error instanceof ErroDaApi && leitura.error.status === 403;
+export function TeamPage() {
+  const { contact } = useContact();
+  const read = useRead<TeamOfFlow>(`/v1/gestao/fluxos/${contact.id}/equipe`);
+  const withoutPermission = read.error instanceof ApiError && read.error.status === 403;
 
   return (
     <div className="pt-app">
-      <BarrasDoContato ativo="Equipe" />
+      <ContactBarras ativo="Equipe" />
       <main>
-        {semPermissao ? (
+        {withoutPermission ? (
           <p className="cf-aviso cf-container" role="alert">
             Você não tem permissão para ver a equipe.
           </p>
-        ) : leitura.error ? (
+        ) : read.error ? (
           <p className="cf-aviso cf-container" role="alert">
-            Não foi possível carregar a equipe: {leitura.error.message}
+            Não foi possível carregar a equipe: {read.error.message}
           </p>
-        ) : !leitura.data ? null : (
+        ) : !read.data ? null : (
           <TelaDeEquipe
-            fluxoId={contato.id}
-            podeGerir={leitura.data.podeGerir}
-            membros={leitura.data.membros}
+            flowId={contact.id}
+            podeGerir={read.data.podeGerir}
+            members={read.data.members}
           />
         )}
       </main>

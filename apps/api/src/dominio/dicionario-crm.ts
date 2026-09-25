@@ -1,8 +1,8 @@
 import { asc, getTableColumns, sql } from 'drizzle-orm';
 import { schema } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
-import { bancoDono, noTenant } from '../banco.js';
-import { TwentyErro, chamar, configDoTenant } from './twenty.js';
+import type { TransactionPipe } from '@pipe/db';
+import { databaseOwner, noTenant } from '../banco.js';
+import { TwentyError, chamar, configDoTenant } from './twenty.js';
 import type { ConfigTwenty } from './twenty.js';
 
 /**
@@ -25,7 +25,7 @@ import type { ConfigTwenty } from './twenty.js';
  *    em outro tenant.
  */
 
-const { dicionarioObjeto, dicionarioCampo } = schema;
+const { dictionaryObjectdicionarioObjetodictionaryObject, dictionaryFielddicionarioCampodictionaryField } = schema;
 
 /** Tenant sem CRM configurado. Não é erro: é ausência, e a sincronização é pulada. */
 export const SEM_CRM = 'sem_crm' as const;
@@ -79,10 +79,10 @@ const PROPS_CAMPO = [
 ] as const;
 
 /** A relação no formato da API: `type` é a cardinalidade (`MANY_TO_ONE`/`ONE_TO_MANY`). */
-const RELACAO =
+const RELATION =
   'type targetObjectMetadata { id nameSingular } targetFieldMetadata { id name }';
 
-const PAGINA = 50;
+const PAGE = 50;
 
 export interface CampoTwenty {
   id: string;
@@ -154,13 +154,13 @@ export async function lerMetadados(
   const temObjeto = new Set(tipos.o?.fields.map((c) => c.name));
   const temCampo = new Set(tipos.f?.fields.map((c) => c.name));
   if (!temObjeto.has('nameSingular') || !temCampo.has('name')) {
-    throw new TwentyErro(`CRM em ${config.url} não expõe a Metadata API esperada`, true);
+    throw new TwentyError(`CRM em ${config.url} não expõe a Metadata API esperada`, true);
   }
 
   const camposPedidos = [
     ...PROPS_CAMPO.filter((p) => temCampo.has(p)),
-    ...(temCampo.has('relation') ? [`relation { ${RELACAO} }`] : []),
-    ...(temCampo.has('morphRelations') ? [`morphRelations { ${RELACAO} }`] : []),
+    ...(temCampo.has('relation') ? [`relation { ${RELATION} }`] : []),
+    ...(temCampo.has('morphRelations') ? [`morphRelations { ${RELATION} }`] : []),
   ].join(' ');
   // `fieldsList` é a lista inteira de uma vez; sem ele, a conexão paginada antiga.
   const listaDeCampos = temObjeto.has('fieldsList')
@@ -192,7 +192,7 @@ export async function lerMetadados(
       config,
       '/metadata',
       `query($depois: ConnectionCursor) {
-         objects(paging: { first: ${PAGINA}, after: $depois }) {
+         objects(paging: { first: ${PAGE}, after: $depois }) {
            pageInfo { hasNextPage endCursor }
            edges { node { ${objetoPedido} ${listaDeCampos} } }
          }
@@ -222,29 +222,29 @@ export function ehDoCliente(
   return customApplicationId !== null && no.applicationId === customApplicationId;
 }
 
-export type ResultadoDicionario =
+export type ResultDictionary =
   | {
-      estado: 'sincronizado';
+      state: 'sincronizado';
       objetos: number;
       campos: number;
       doCliente: { objetos: number; campos: number };
       removidos: { objetos: number; campos: number };
     }
-  | { estado: typeof SEM_CRM };
+  | { state: typeof SEM_CRM };
 
-export async function sincronizarDicionario(
+export async function syncDictionary(
   tenantId: string,
   buscar: typeof fetch = fetch,
-): Promise<ResultadoDicionario> {
+): Promise<ResultDictionary> {
   const config = await noTenant(tenantId, (tx) => configDoTenant(tx, tenantId));
-  if (!config) return { estado: SEM_CRM };
+  if (!config) return { state: SEM_CRM };
 
   // Fora da transação, de propósito — ver o cabeçalho.
   const meta = await lerMetadados(config, buscar);
   // Todo workspace tem os objetos de fábrica. Lista vazia é permissão faltando ou
   // instância quebrada, e gravá-la marcaria o dicionário inteiro como removido.
   if (meta.objetos.length === 0) {
-    throw new TwentyErro(`CRM em ${config.url} devolveu zero objetos; nada foi gravado`);
+    throw new TwentyError(`CRM em ${config.url} devolveu zero objetos; nada foi gravado`);
   }
 
   return noTenant(tenantId, (tx) => gravar(tx, tenantId, meta));
@@ -252,10 +252,10 @@ export async function sincronizarDicionario(
 
 /** Upsert por `name` e marca de removido — em série, dentro do `comTenant`. */
 async function gravar(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
   meta: MetadadosTwenty,
-): Promise<ResultadoDicionario> {
+): Promise<ResultDictionary> {
   const agora = new Date();
 
   const objetos = meta.objetos.map((o) => ({
@@ -306,20 +306,20 @@ async function gravar(
 
   for (const lote of emLotes(objetos)) {
     await tx
-      .insert(dicionarioObjeto)
+      .insert(dictionaryObjectdicionarioObjetodictionaryObject)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dicionarioObjeto.tenantId, dicionarioObjeto.codigo],
-        set: doExcluded(dicionarioObjeto, Object.keys(lote[0]!), ['tenantId', 'codigo']),
+        target: [dictionaryObjectdicionarioObjetodictionaryObject.tenantId, dictionaryObjectdicionarioObjetodictionaryObject.codigo],
+        set: doExcluded(dictionaryObjectdicionarioObjetodictionaryObject, Object.keys(lote[0]!), ['tenantId', 'codigo']),
       });
   }
   for (const lote of emLotes(campos)) {
     await tx
-      .insert(dicionarioCampo)
+      .insert(dictionaryFielddicionarioCampodictionaryField)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dicionarioCampo.tenantId, dicionarioCampo.objetoCodigo, dicionarioCampo.codigo],
-        set: doExcluded(dicionarioCampo, Object.keys(lote[0]!), [
+        target: [dictionaryFielddicionarioCampodictionaryField.tenantId, dictionaryFielddicionarioCampodictionaryField.objetoCodigo, dictionaryFielddicionarioCampodictionaryField.codigo],
+        set: doExcluded(dictionaryFielddicionarioCampodictionaryField, Object.keys(lote[0]!), [
           'tenantId',
           'objetoCodigo',
           'codigo',
@@ -345,7 +345,7 @@ async function gravar(
   `);
 
   return {
-    estado: 'sincronizado',
+    state: 'sincronizado',
     objetos: objetos.length,
     campos: campos.length,
     doCliente: {
@@ -358,14 +358,14 @@ async function gravar(
 
 /** `excluded.<coluna>` para cada coluna da linha, menos a chave do conflito. */
 function doExcluded(
-  tabela: typeof dicionarioObjeto | typeof dicionarioCampo,
+  tabela: typeof dictionaryObjectdicionarioObjetodictionaryObject | typeof dictionaryFielddicionarioCampodictionaryField,
   chavesDaLinha: string[],
-  chaveDoConflito: string[],
+  keyOfConflito: string[],
 ) {
   const colunas = getTableColumns(tabela) as Record<string, { name: string }>;
   return Object.fromEntries(
     chavesDaLinha
-      .filter((k) => !chaveDoConflito.includes(k))
+      .filter((k) => !keyOfConflito.includes(k))
       .map((k) => [k, sql.raw(`excluded."${colunas[k]!.name}"`)]),
   );
 }
@@ -377,12 +377,12 @@ function emLotes<T>(linhas: T[], tamanho = 500): T[][] {
   return lotes;
 }
 
-export type CampoDoDicionario = Omit<
-  typeof dicionarioCampo.$inferSelect,
+export type FieldOfDictionary = Omit<
+  typeof dictionaryFielddicionarioCampodictionaryField.$inferSelect,
   'id' | 'tenantId' | 'objetoCodigo'
 >;
-export type ObjetoDoDicionario = Omit<typeof dicionarioObjeto.$inferSelect, 'id' | 'tenantId'> & {
-  campos: CampoDoDicionario[];
+export type ObjectOfDictionary = Omit<typeof dictionaryObjectdicionarioObjetodictionaryObject.$inferSelect, 'id' | 'tenantId'> & {
+  campos: FieldOfDictionary[];
 };
 
 /**
@@ -395,23 +395,23 @@ export type ObjetoDoDicionario = Omit<typeof dicionarioObjeto.$inferSelect, 'id'
  *
  * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
  */
-export async function lerDicionario(tx: TransacaoPipe): Promise<ObjetoDoDicionario[]> {
-  const objetos = await tx.select().from(dicionarioObjeto).orderBy(asc(dicionarioObjeto.codigo));
+export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDictionary[]> {
+  const objetos = await tx.select().from(dictionaryObjectdicionarioObjetodictionaryObject).orderBy(asc(dictionaryObjectdicionarioObjetodictionaryObject.codigo));
   const campos = await tx
     .select()
-    .from(dicionarioCampo)
-    .orderBy(asc(dicionarioCampo.objetoCodigo), asc(dicionarioCampo.codigo));
+    .from(dictionaryFielddicionarioCampodictionaryField)
+    .orderBy(asc(dictionaryFielddicionarioCampodictionaryField.objetoCodigo), asc(dictionaryFielddicionarioCampodictionaryField.codigo));
 
-  const porObjeto = new Map<string, CampoDoDicionario[]>();
+  const byObject = new Map<string, FieldOfDictionary[]>();
   for (const linha of campos) {
     const { objetoCodigo, ...campo } = semIds(linha);
-    const lista = porObjeto.get(objetoCodigo) ?? [];
+    const lista = byObject.get(objetoCodigo) ?? [];
     lista.push(campo);
-    porObjeto.set(objetoCodigo, lista);
+    byObject.set(objetoCodigo, lista);
   }
   return objetos.map((linha) => ({
     ...semIds(linha),
-    campos: porObjeto.get(linha.codigo) ?? [],
+    campos: byObject.get(linha.codigo) ?? [],
   }));
 }
 
@@ -430,8 +430,8 @@ function semIds<T extends { id: string; tenantId: string }>(linha: T): Omit<T, '
  * de haver tenant em vigor. **Só este `select` roda assim**; a sincronização de cada um
  * volta para o `comTenant`.
  */
-export async function tenantsDoDicionario(): Promise<{ comCrm: string[]; semCrm: number }> {
-  const { rows } = await bancoDono().execute<{ id: string; tem_crm: boolean }>(sql`
+export async function tenantsOfDictionary(): Promise<{ comCrm: string[]; semCrm: number }> {
+  const { rows } = await databaseOwner().execute<{ id: string; tem_crm: boolean }>(sql`
     select id, (twenty_url is not null and twenty_chave is not null) as tem_crm
       from tenant
      where ativo

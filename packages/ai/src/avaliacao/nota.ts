@@ -10,30 +10,30 @@
  * pontos aqui" sem recalcular nada.
  */
 
-import { ErroFormatoIa } from '../cliente/erros.js';
-import type { Criterio, Formulario, RespostaAvaliacao, RespostaBruta } from './tipos.js';
+import { FormatIaError } from '../cliente/erros.js';
+import type { Criterio, Formulario, RespostaEvaluation, RespostaBruta } from './tipos.js';
 import { TETO_ESCALA, TETO_NOTA, criteriosDoFormulario } from './tipos.js';
 
 /** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica. */
-export function fracaoDoValor(criterio: Criterio, valor: string): number | null {
-  const bruto = valor.trim().toLowerCase();
+export function valueFraction(criterio: Criterio, value: string): number | null {
+  const bruto = value.trim().toLowerCase();
   if (bruto === 'nao_se_aplica') return null;
 
   if (criterio.tipo === 'conforme') {
     if (bruto === 'conforme') return 1;
     if (bruto === 'nao_conforme') return 0;
-    throw new ErroFormatoIa(
-      `Critério "${criterio.nome}" (${criterio.id}) é do tipo conforme e recebeu "${valor}".`,
-      valor,
+    throw new FormatIaError(
+      `Critério "${criterio.nome}" (${criterio.id}) é do tipo conforme e recebeu "${value}".`,
+      value,
     );
   }
 
   const teto = criterio.tipo === 'escala' ? TETO_ESCALA : TETO_NOTA;
   const numero = Number(bruto.replace(',', '.'));
   if (!Number.isFinite(numero) || numero < 0 || numero > teto) {
-    throw new ErroFormatoIa(
-      `Critério "${criterio.nome}" (${criterio.id}) aceita 0 a ${teto} e recebeu "${valor}".`,
-      valor,
+    throw new FormatIaError(
+      `Critério "${criterio.nome}" (${criterio.id}) aceita 0 a ${teto} e recebeu "${value}".`,
+      value,
     );
   }
   return numero / teto;
@@ -42,13 +42,13 @@ export function fracaoDoValor(criterio: Criterio, valor: string): number | null 
 export interface NotaCalculada {
   nota: number;
   notaAntesDoFatal: number;
-  fataisReprovados: string[];
-  respostas: RespostaAvaliacao[];
+  fatalReprovados: string[];
+  respostas: RespostaEvaluation[];
 }
 
 /** Arredonda para as duas casas de `numeric(6,2)`, sem herdar erro de ponto flutuante. */
-export function duasCasas(valor: number): number {
-  return Math.round((valor + Number.EPSILON) * 100) / 100;
+export function duasCasas(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 /**
@@ -59,57 +59,57 @@ export function duasCasas(valor: number): number {
  */
 export function calcularNota(
   formulario: Formulario,
-  respostas: readonly (RespostaBruta & { evidenciaMensagemId: string | null })[],
+  respostas: readonly (RespostaBruta & { evidenciaMessageId: string | null })[],
 ): NotaCalculada {
-  const porCriterio = new Map(respostas.map((r) => [r.criterioId, r]));
+  const byCriterio = new Map(respostas.map((r) => [r.criterioId, r]));
   const pares = criteriosDoFormulario(formulario);
 
   let pesoTotal = 0;
-  const parciais: {
+  const partial: {
     criterio: Criterio;
     peso: number;
-    fracao: number | null;
-    resposta: RespostaBruta & { evidenciaMensagemId: string | null };
+    fraction: number | null;
+    resposta: RespostaBruta & { evidenciaMessageId: string | null };
   }[] = [];
 
   for (const { grupo, criterio } of pares) {
-    const resposta = porCriterio.get(criterio.id);
+    const resposta = byCriterio.get(criterio.id);
     if (!resposta) {
-      throw new ErroFormatoIa(
+      throw new FormatIaError(
         `O critério "${criterio.nome}" (${criterio.id}) ficou sem resposta.`,
-        [...porCriterio.keys()],
+        [...byCriterio.keys()],
       );
     }
-    const fracao = fracaoDoValor(criterio, resposta.valor);
+    const fraction = valueFraction(criterio, resposta.value);
     const peso = grupo.peso * criterio.peso;
-    if (fracao !== null) pesoTotal += peso;
-    parciais.push({ criterio, peso, fracao, resposta });
+    if (fraction !== null) pesoTotal += peso;
+    partial.push({ criterio, peso, fraction, resposta });
   }
 
   const escala = pesoTotal > 0 ? formulario.notaMaxima / pesoTotal : 0;
 
-  const saida: RespostaAvaliacao[] = [];
-  const fataisReprovados: string[] = [];
+  const saida: RespostaEvaluation[] = [];
+  const fatalRejected: string[] = [];
   let soma = 0;
 
-  for (const { criterio, peso, fracao, resposta } of parciais) {
-    const pontos = fracao === null ? 0 : duasCasas(peso * fracao * escala);
+  for (const { criterio, peso, fraction, resposta } of partial) {
+    const pontos = fraction === null ? 0 : duasCasas(peso * fraction * escala);
     soma += pontos;
-    if (criterio.fatal && fracao !== null && fracao < 1) fataisReprovados.push(criterio.id);
+    if (criterio.fatal && fraction !== null && fraction < 1) fatalRejected.push(criterio.id);
     saida.push({
       criterioId: criterio.id,
-      valor: resposta.valor.trim().toLowerCase(),
+      value: resposta.value.trim().toLowerCase(),
       pontos,
       justificativa: resposta.justificativa,
-      evidenciaMensagemId: resposta.evidenciaMensagemId,
+      evidenciaMessageId: resposta.evidenciaMessageId,
     });
   }
 
   const notaAntesDoFatal = duasCasas(soma);
   return {
-    nota: fataisReprovados.length > 0 ? 0 : notaAntesDoFatal,
+    nota: fatalRejected.length > 0 ? 0 : notaAntesDoFatal,
     notaAntesDoFatal,
-    fataisReprovados,
+    fatalRejected,
     respostas: saida,
   };
 }

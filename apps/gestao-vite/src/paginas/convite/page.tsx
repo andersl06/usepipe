@@ -1,7 +1,7 @@
 import { useParams } from 'react-router-dom';
-import type { ConviteVisivel } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
-import { urlDeEntradaComGoogle } from '../../lib/entrada';
+import type { InvitationVisible } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
+import { inboundWithGoogleUrl } from '../../lib/entrada';
 import { FundoPipe } from '../fundo-pipe';
 
 /**
@@ -20,13 +20,13 @@ import { FundoPipe } from '../fundo-pipe';
  */
 const DATA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long' });
 
-export function PaginaConvite() {
+export function PageInvitation() {
   const { token = '' } = useParams();
-  const leitura = useLeitura<ConviteVisivel>(`/v1/convites/${encodeURIComponent(token)}`, {
+  const read = useRead<InvitationVisible>(`/v1/convites/${encodeURIComponent(token)}`, {
     retry: false,
   });
-  if (leitura.isPending) return null;
-  const convite = leitura.data ?? null;
+  if (read.isPending) return null;
+  const invitation = read.data ?? null;
 
   return (
     <main className="entrar">
@@ -39,24 +39,24 @@ export function PaginaConvite() {
       <div className="entrar-palco">
         <section className="entrar-cartao" aria-labelledby="convite-titulo">
           <img className="entrar-lockup" src="/pipe/lockup.svg" alt="Pipe" />
-          {convite ? (
+          {invitation ? (
             <>
               <h1 id="convite-titulo">Você foi convidado</h1>
               <p className="entrar-sub">
-                {convite.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
+                {invitation.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
                 conta.
               </p>
 
               <dl className="entrar-dados">
                 <dt>Para</dt>
-                <dd>{convite.email}</dd>
+                <dd>{invitation.email}</dd>
                 <dt>Papel</dt>
-                <dd>{convite.papel}</dd>
+                <dd>{invitation.role}</dd>
                 <dt>Vale até</dt>
-                <dd>{DATA.format(new Date(convite.expiraEm))}</dd>
+                <dd>{DATA.format(new Date(invitation.expiraEm))}</dd>
               </dl>
 
-              <a className="entrar-google" href={urlDeEntradaComGoogle({ convite: token })}>
+              <a className="entrar-google" href={inboundWithGoogleUrl({ invitation: token })}>
                 Entrar com Google e aceitar
               </a>
 

@@ -1,6 +1,6 @@
 import type { ClienteWhatsApp, PedidoEnvio, RespostaEnvio } from './cliente.js';
-import { ErroWhatsApp } from './cliente.js';
-import { montarComponentes, ParametroFaltandoErro } from './template.js';
+import { WhatsAppError } from './cliente.js';
+import { assembleComponents, ParametroMissingError } from './template.js';
 
 /**
  * Dublê da Cloud API.
@@ -14,7 +14,7 @@ import { montarComponentes, ParametroFaltandoErro } from './template.js';
  * de deslocamento de parâmetro aparecer no dublê, e não só em produção.
  */
 
-export interface ConfiguracaoDuble {
+export interface ConfigurationDuble {
   /** Atraso artificial por envio, em milissegundos. */
   atrasoMs: number;
   /** Destinatários que sempre falham. Serve para exercitar o caminho de erro. */
@@ -42,7 +42,7 @@ export interface StatusSimulado {
   em: Date;
 }
 
-function daEnv(): ConfiguracaoDuble {
+function daEnv(): ConfigurationDuble {
   return {
     atrasoMs: Number(process.env['PIPE_WHATSAPP_DUBLE_ATRASO_MS'] ?? 0),
     falharPara: (process.env['PIPE_WHATSAPP_DUBLE_FALHAR_PARA'] ?? '')
@@ -60,13 +60,13 @@ function daEnv(): ConfiguracaoDuble {
 export class ClienteWhatsAppDuble implements ClienteWhatsApp {
   readonly nome = 'duble' as const;
 
-  private configuracao: ConfiguracaoDuble = daEnv();
+  private configuration: ConfigurationDuble = daEnv();
   private sequencia = 0;
   private readonly chamadasFeitas: ChamadaDuble[] = [];
   private statusPendentes: StatusSimulado[] = [];
 
-  configurar(parcial: Partial<ConfiguracaoDuble>): void {
-    this.configuracao = { ...this.configuracao, ...parcial };
+  configurar(parcial: Partial<ConfigurationDuble>): void {
+    this.configuration = { ...this.configuration, ...parcial };
   }
 
   /** Chamadas realmente feitas. É o que prova que a Meta **não** foi chamada. */
@@ -79,7 +79,7 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
     this.chamadasFeitas.length = 0;
     this.statusPendentes = [];
     this.sequencia = 0;
-    this.configuracao = daEnv();
+    this.configuration = daEnv();
   }
 
   /** Retira os status acumulados; quem chama posta cada um no webhook de entrada. */
@@ -105,41 +105,41 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
   private ultimoPhoneNumberId = 'duble';
 
   async enviar(pedido: PedidoEnvio): Promise<RespostaEnvio> {
-    this.ultimoPhoneNumberId = pedido.credenciais.phoneNumberId;
-    if (this.configuracao.atrasoMs > 0) {
-      await new Promise((resolver) => setTimeout(resolver, this.configuracao.atrasoMs));
+    this.ultimoPhoneNumberId = pedido.credentials.phoneNumberId;
+    if (this.configuration.atrasoMs > 0) {
+      await new Promise((resolver) => setTimeout(resolver, this.configuration.atrasoMs));
     }
 
     // Monta o template mesmo sem enviar: parâmetro deslocado tem que falhar aqui,
     // não silenciosamente do outro lado.
     if (pedido.conteudo.tipo === 'template') {
       try {
-        montarComponentes(pedido.conteudo.template, pedido.conteudo.valores);
-      } catch (erro) {
-        if (erro instanceof ParametroFaltandoErro) {
+        assembleComponents(pedido.conteudo.template, pedido.conteudo.values);
+      } catch (error) {
+        if (error instanceof ParametroMissingError) {
           this.chamadasFeitas.push({
             para: pedido.para,
             tipo: pedido.conteudo.tipo,
             em: new Date(),
             idProvedor: null,
           });
-          throw new ErroWhatsApp('132000', erro.message, true);
+          throw new WhatsAppError('132000', error.message, true);
         }
-        throw erro;
+        throw error;
       }
     }
 
-    if (this.configuracao.falharPara.includes(pedido.para)) {
+    if (this.configuration.falharPara.includes(pedido.para)) {
       this.chamadasFeitas.push({
         para: pedido.para,
         tipo: pedido.conteudo.tipo,
         em: new Date(),
         idProvedor: null,
       });
-      throw new ErroWhatsApp(
-        this.configuracao.codigoDeFalha,
-        this.configuracao.textoDeFalha,
-        this.configuracao.falhaPermanente,
+      throw new WhatsAppError(
+        this.configuration.codigoDeFalha,
+        this.configuration.textoDeFalha,
+        this.configuration.falhaPermanente,
       );
     }
 
@@ -157,7 +157,7 @@ export class ClienteWhatsAppDuble implements ClienteWhatsApp {
     const agora = new Date();
     for (const status of ['sent', 'delivered'] as const) {
       this.statusPendentes.push({
-        phoneNumberId: pedido.credenciais.phoneNumberId,
+        phoneNumberId: pedido.credentials.phoneNumberId,
         id: idProvedor,
         status,
         recipientId: pedido.para,

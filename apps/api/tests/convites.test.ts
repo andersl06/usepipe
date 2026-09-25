@@ -14,18 +14,18 @@ process.env['GOOGLE_CLIENTE_ID'] = 'cliente-de-teste.apps.googleusercontent.com'
 process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
 process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/retorno';
 
-const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
-const { aceitarConvite, criarConvite, lerConvite } = await import('../src/dominio/convites.js');
-const { normalizarDominio, registrarDominio, verificarDominio } =
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken, hashDoToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
+const { aceitarInvitation, createInvitation, readInvitation } = await import('../src/dominio/convites.js');
+const { normalizeDomain, logDomain, checkDomain } =
   await import('../src/dominio/dominios.js');
-const { comoEntrar, provisionarCliente } = await import('../src/provisionar.js');
+const { asLogin, provisionCustomer } = await import('../src/provisionar.js');
 const { codigoDaRecusa } = await import('../src/controladores/entrar.js');
-const { ErroPipe } = await import('../src/erros.js');
+const { PipeError } = await import('../src/erros.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * Convite e verificação de domínio: as duas portas por onde gente nova entra.
@@ -46,20 +46,20 @@ let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
 /** Sessão de quem administra o tenant A: tem `conta.membros.escrever` e `tenant.configurar`. */
-let sessaoAdmin: string;
+let sessionAdmin: string;
 /** Sessão de quem só atende: prova que a permissão é conferida de verdade. */
-let sessaoSemPoder: string;
+let sessionWithoutPoder: string;
 
-const PERMISSOES_DO_ADMIN = ['conta.membros.escrever', 'usuario.gerenciar', 'tenant.configurar'];
+const PERMISSIONS_OF_ADMIN = ['conta.membros.escrever', 'usuario.gerenciar', 'tenant.configurar'];
 
-async function semearPapeis(
+async function seedPapeis(
   cenario: Cenario,
   nome: string,
-  permissoes: string[],
-  escopo: 'conta' | 'atendimento' = 'atendimento',
+  permissions: string[],
+  scope: 'conta' | 'atendimento' = 'atendimento',
 ): Promise<string> {
   const dono = cenario.dono;
-  for (const codigo of permissoes) {
+  for (const codigo of permissions) {
     await dono.execute(sql`
       insert into permissao (codigo, descricao, grupo)
       values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
@@ -67,24 +67,24 @@ async function semearPapeis(
   }
   const { rows } = await dono.execute<{ id: string }>(sql`
     insert into papel (tenant_id, nome, escopo)
-    values (${cenario.tenantId}, ${nome}, ${escopo}) returning id
+    values (${cenario.tenantId}, ${nome}, ${scope}) returning id
   `);
-  const papelId = rows[0]!.id;
-  for (const codigo of permissoes) {
+  const roleId = rows[0]!.id;
+  for (const codigo of permissions) {
     await dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
-      values (${cenario.tenantId}, ${papelId}, ${codigo})
+      values (${cenario.tenantId}, ${roleId}, ${codigo})
     `);
   }
-  return papelId;
+  return roleId;
 }
 
 /** Grava uma sessão viva para o atendente do cenário e devolve o token do cookie. */
-async function abrirSessao(cenario: Cenario): Promise<string> {
-  const novo = criarToken();
+async function openSession(cenario: Cenario): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -108,20 +108,20 @@ beforeAll(async () => {
   a = await montarCenario(`conv-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`conv-${randomUUID().slice(0, 8)}`);
 
-  const papelAdmin = await semearPapeis(a, 'Administrador e2e', PERMISSOES_DO_ADMIN);
+  const roleAdmin = await seedPapeis(a, 'Administrador e2e', PERMISSIONS_OF_ADMIN);
   await a.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${a.tenantId}, ${a.atendenteId}, ${papelAdmin})
+    values (${a.tenantId}, ${a.agentId}, ${roleAdmin})
   `);
   // O papel de CONTA que os convites vão usar, um em cada tenant — e um de
   // atendimento no A, que o convite tem de recusar.
-  await semearPapeis(a, 'guest', ['conta.resumo.ler'], 'conta');
-  await semearPapeis(b, 'guest', ['conta.resumo.ler'], 'conta');
-  await semearPapeis(a, 'atendente', ['conversa.ver']);
+  await seedPapeis(a, 'guest', ['conta.resumo.ler'], 'conta');
+  await seedPapeis(b, 'guest', ['conta.resumo.ler'], 'conta');
+  await seedPapeis(a, 'atendente', ['conversa.ver']);
 
-  api = await subirApi(0);
-  sessaoAdmin = await abrirSessao(a);
-  sessaoSemPoder = await abrirSessao(b);
+  api = await upApi(0);
+  sessionAdmin = await openSession(a);
+  sessionWithoutPoder = await openSession(b);
 }, 180_000);
 
 /** Tenants nascidos do comando de provisionamento, para a limpeza levar embora. */
@@ -136,9 +136,9 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-async function convidar(email: string, papel = 'guest'): Promise<string> {
-  const convite = await criarConvite(a.tenantId, { email, papel });
-  return convite.token;
+async function convidar(email: string, role = 'guest'): Promise<string> {
+  const invitation = await createInvitation(a.tenantId, { email, role });
+  return invitation.token;
 }
 
 describe('POST /v1/convites', () => {
@@ -146,7 +146,7 @@ describe('POST /v1/convites', () => {
     const email = `ana.${randomUUID().slice(0, 6)}@cliente.teste`;
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
+      headers: comCookie(sessionAdmin),
       body: JSON.stringify({ email, papel: 'guest' }),
     });
     expect(resposta.status).toBe(201);
@@ -154,12 +154,12 @@ describe('POST /v1/convites', () => {
     const corpo = (await resposta.json()) as {
       id: string;
       email: string;
-      papel: string;
+      role: string;
       url: string;
       expiraEm: string;
     };
     expect(corpo.email).toBe(email);
-    expect(corpo.papel).toBe('guest');
+    expect(corpo.role).toBe('guest');
     expect(corpo.url).toContain('http://telas.teste/convite/');
 
     const token = corpo.url.split('/').pop() ?? '';
@@ -180,25 +180,25 @@ describe('POST /v1/convites', () => {
   it('papel que não existe no tenant é recusado antes de gravar', async () => {
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
+      headers: comCookie(sessionAdmin),
       body: JSON.stringify({ email: 'x@cliente.teste', papel: 'imperador' }),
     });
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('papel_invalido');
+    const corpo = (await resposta.json()) as { error: { codigo: string } };
+    expect(corpo.error.codigo).toBe('papel_invalido');
   });
 
   it('papel de atendimento é recusado: o convite só dá papel de conta', async () => {
     const email = `atendente.${randomUUID().slice(0, 6)}@cliente.teste`;
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
+      headers: comCookie(sessionAdmin),
       body: JSON.stringify({ email, papel: 'atendente' }),
     });
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { erro: { codigo: string; mensagem: string } };
+    const corpo = (await resposta.json()) as { erro: { codigo: string; message: string } };
     expect(corpo.erro.codigo).toBe('papel_de_atendimento');
-    expect(corpo.erro.mensagem).toContain('admin, member ou guest');
+    expect(corpo.erro.message).toContain('admin, member ou guest');
 
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from convite where email = ${email}`,
@@ -208,11 +208,11 @@ describe('POST /v1/convites', () => {
 
   it('e-mail que já é membro é conflito, não convite duplicado', async () => {
     const { rows } = await a.dono.execute<{ email: string }>(
-      sql`select email from usuario where id = ${a.atendenteId}::uuid`,
+      sql`select email from usuario where id = ${a.agentId}::uuid`,
     );
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
+      headers: comCookie(sessionAdmin),
       body: JSON.stringify({ email: rows[0]!.email, papel: 'guest' }),
     });
     expect(resposta.status).toBe(409);
@@ -221,7 +221,7 @@ describe('POST /v1/convites', () => {
   it('sem a permissão conta.membros.escrever, 403 — sessão viva não basta', async () => {
     const resposta = await fetch(`${api.url}/v1/convites`, {
       method: 'POST',
-      headers: comCookie(sessaoSemPoder),
+      headers: comCookie(sessionWithoutPoder),
       body: JSON.stringify({ email: 'y@cliente.teste', papel: 'guest' }),
     });
     expect(resposta.status).toBe(403);
@@ -240,11 +240,11 @@ describe('POST /v1/convites', () => {
 
   it('convidar de novo invalida o link anterior', async () => {
     const email = `renovada.${randomUUID().slice(0, 6)}@cliente.teste`;
-    const primeiro = await convidar(email);
+    const first = await convidar(email);
     const segundo = await convidar(email);
 
-    await expect(lerConvite(primeiro)).rejects.toMatchObject({ codigo: 'convite_expirado' });
-    await expect(lerConvite(segundo)).resolves.toMatchObject({ email });
+    await expect(readInvitation(first)).rejects.toMatchObject({ codigo: 'convite_expirado' });
+    await expect(readInvitation(segundo)).resolves.toMatchObject({ email });
   });
 });
 
@@ -293,20 +293,20 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const resposta = await fetch(`${api.url}/v1/convites/${token}/aceitar`, { method: 'POST' });
     expect(resposta.status).toBe(200);
     const corpo = (await resposta.json()) as {
-      usuarioId: string;
+      userId: string;
       email: string;
       papel: string;
-      entrarEm: string;
+      joinedAt: string;
     };
     expect(corpo.email).toBe(email);
-    expect(corpo.entrarEm).toBe(`/v1/auth/google?convite=${encodeURIComponent(token)}`);
+    expect(corpo.joinedAt).toBe(`/v1/auth/google?convite=${encodeURIComponent(token)}`);
 
     const { rows } = await a.dono.execute<{ tenant_id: string; papel: string }>(sql`
       select u.tenant_id, p.nome as papel
         from usuario u
         join usuario_papel up on up.usuario_id = u.id
         join papel p on p.id = up.papel_id
-       where u.id = ${corpo.usuarioId}::uuid
+       where u.id = ${corpo.userId}::uuid
     `);
     expect(rows[0]?.tenant_id).toBe(a.tenantId);
     expect(rows[0]?.papel).toBe('guest');
@@ -314,8 +314,8 @@ describe('POST /v1/convites/:token/aceitar', () => {
     // Uso único: o segundo clique no mesmo link não cria um segundo usuário.
     const repetido = await fetch(`${api.url}/v1/convites/${token}/aceitar`, { method: 'POST' });
     expect(repetido.status).toBe(410);
-    const erro = (await repetido.json()) as { erro: { codigo: string } };
-    expect(erro.erro.codigo).toBe('convite_usado');
+    const error = (await repetido.json()) as { erro: { codigo: string } };
+    expect(error.erro.codigo).toBe('convite_usado');
 
     const { rows: quantos } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from usuario where email = ${email}`,
@@ -342,9 +342,9 @@ describe('POST /v1/convites/:token/aceitar', () => {
 
   it('o convite do tenant B põe a pessoa no B, nunca no A', async () => {
     const email = `daniela.${randomUUID().slice(0, 6)}@outrocliente.teste`;
-    const convite = await criarConvite(b.tenantId, { email, papel: 'guest' });
+    const convite = await createInvitation(b.tenantId, { email, papel: 'guest' });
 
-    const aceito = await aceitarConvite(convite.token);
+    const aceito = await aceitarInvitation(convite.token);
     expect(aceito.tenantId).toBe(b.tenantId);
 
     const { rows } = await a.dono.execute<{ tenant_id: string }>(
@@ -358,14 +358,14 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const token = await convidar(email);
     const pessoa = pessoaDoGoogle(email);
 
-    const aceito = await aceitarConvite(token, pessoa, { ip: '10.0.0.9' });
-    expect(aceito.sessao).toBeDefined();
+    const aceito = await aceitarInvitation(token, pessoa, { ip: '10.0.0.9' });
+    expect(aceito.session).toBeDefined();
 
     // A sessão vale de verdade: é o mesmo cookie que as telas usam.
-    const eu = await fetch(`${api.url}/v1/eu`, { headers: comCookie(aceito.sessao!.token) });
+    const eu = await fetch(`${api.url}/v1/eu`, { headers: comCookie(aceito.session!.token) });
     expect(eu.status).toBe(200);
-    const corpo = (await eu.json()) as { usuario: { email: string }; tenant: { id: string } };
-    expect(corpo.usuario.email).toBe(email);
+    const corpo = (await eu.json()) as { user: { email: string }; tenant: { id: string } };
+    expect(corpo.user.email).toBe(email);
     expect(corpo.tenant.id).toBe(a.tenantId);
 
     // E a conta ficou ligada pelo par (emissor, sujeito) — nunca pelo e-mail.
@@ -379,7 +379,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
   it('entrar com outra conta do Google não vale o convite de alguém', async () => {
     const token = await convidar(`fabiana.${randomUUID().slice(0, 6)}@cliente.teste`);
     await expect(
-      aceitarConvite(token, pessoaDoGoogle('intrusa@cliente.teste')),
+      aceitarInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
     ).rejects.toMatchObject({ codigo: 'convite_de_outro_email' });
   });
 });
@@ -393,11 +393,11 @@ describe('GET /v1/auth/google?convite=', () => {
     expect(resposta.status).toBe(302);
 
     const cookie = resposta.headers.get('set-cookie') ?? '';
-    const valor = /pipe_desafio=([^;]*)/.exec(cookie)?.[1] ?? '';
-    const desafio = JSON.parse(Buffer.from(valor, 'base64url').toString('utf8')) as {
-      convite?: string;
+    const value = /pipe_desafio=([^;]*)/.exec(cookie)?.[1] ?? '';
+    const desafio = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
+      invitation?: string;
     };
-    expect(desafio.convite).toBe(token);
+    expect(desafio.invitation).toBe(token);
 
     // E o token do convite NÃO vaza para o Google junto com o resto do desafio.
     expect(resposta.headers.get('location')).not.toContain(token);
@@ -414,50 +414,50 @@ describe('GET /v1/auth/google?convite=', () => {
 
   it('convite que não serve vira recusa na tela de entrada, nunca 500', () => {
     // O que a volta do Google faz com um convite vencido, usado ou de outro e-mail.
-    expect(codigoDaRecusa(new ErroPipe(410, 'convite_usado', 'já foi'))).toBe('sem_convite');
-    expect(codigoDaRecusa(ErroPipe.naoEncontrado('Convite'))).toBe('sem_convite');
+    expect(codigoDaRecusa(new PipeError(410, 'convite_usado', 'já foi'))).toBe('sem_convite');
+    expect(codigoDaRecusa(PipeError.naoEncontrado('Convite'))).toBe('sem_convite');
     // Erro nosso continua sendo erro nosso: a saída é tentar de novo.
-    expect(codigoDaRecusa(new ErroPipe(500, 'erro_interno', 'caiu'))).toBe('falha_no_provedor');
+    expect(codigoDaRecusa(new PipeError(500, 'erro_interno', 'caiu'))).toBe('falha_no_provedor');
   });
 });
 
 describe('POST /v1/dominios', () => {
   it('registra e diz qual TXT publicar', async () => {
-    const dominio = `acme-${randomUUID().slice(0, 8)}.teste`;
+    const domain = `acme-${randomUUID().slice(0, 8)}.teste`;
     const resposta = await fetch(`${api.url}/v1/dominios`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
-      body: JSON.stringify({ dominio }),
+      headers: comCookie(sessionAdmin),
+      body: JSON.stringify({ domain }),
     });
     expect(resposta.status).toBe(201);
 
     const corpo = (await resposta.json()) as {
       id: string;
-      dominio: string;
+      domain: string;
       verificadoEm: string | null;
-      registro: { nome: string; tipo: string; valor: string };
+      registro: { nome: string; tipo: string; value: string };
     };
-    expect(corpo.dominio).toBe(dominio);
+    expect(corpo.domain).toBe(domain);
     expect(corpo.verificadoEm).toBeNull();
-    expect(corpo.registro.nome).toBe(`_pipe-verificacao.${dominio}`);
-    expect(corpo.registro.valor).toMatch(/^pipe-verificacao=[0-9a-f]{32}$/);
+    expect(corpo.registro.nome).toBe(`_pipe-verificacao.${domain}`);
+    expect(corpo.registro.value).toMatch(/^pipe-verificacao=[0-9a-f]{32}$/);
 
     // Idempotente: chamar de novo devolve o MESMO token, senão quem já publicou
     // veria a verificação falhar sem ter mexido em nada.
     const outra = await fetch(`${api.url}/v1/dominios`, {
       method: 'POST',
-      headers: comCookie(sessaoAdmin),
-      body: JSON.stringify({ dominio }),
+      headers: comCookie(sessionAdmin),
+      body: JSON.stringify({ domain }),
     });
     const segunda = (await outra.json()) as { registro: { valor: string } };
-    expect(segunda.registro.valor).toBe(corpo.registro.valor);
+    expect(segunda.registro.valor).toBe(corpo.registro.value);
   });
 
   it('domínio público é recusado: gmail.com não identifica empresa nenhuma', async () => {
     for (const publico of ['gmail.com', 'Hotmail.com', 'uol.com.br']) {
       const resposta = await fetch(`${api.url}/v1/dominios`, {
         method: 'POST',
-        headers: comCookie(sessaoAdmin),
+        headers: comCookie(sessionAdmin),
         body: JSON.stringify({ dominio: publico }),
       });
       expect(resposta.status).toBe(400);
@@ -468,17 +468,17 @@ describe('POST /v1/dominios', () => {
 
   it('o que não é domínio não entra', async () => {
     for (const cru of ['', 'semponto', 'com espaço.com', '-inicio.com']) {
-      expect(() => normalizarDominio(cru)).toThrowError(/não é um domínio/);
+      expect(() => normalizeDomain(cru)).toThrowError(/não é um domínio/);
     }
     // O que dá para consertar sozinho, conserta.
-    expect(normalizarDominio(' HTTPS://Acme.COM.br/entrar ')).toBe('acme.com.br');
-    expect(normalizarDominio('@acme.com.br.')).toBe('acme.com.br');
+    expect(normalizeDomain(' HTTPS://Acme.COM.br/entrar ')).toBe('acme.com.br');
+    expect(normalizeDomain('@acme.com.br.')).toBe('acme.com.br');
   });
 
   it('domínio de outro tenant é conflito, não sequestro', async () => {
     const dominio = `disputado-${randomUUID().slice(0, 8)}.teste`;
-    await registrarDominio(b.tenantId, dominio);
-    await expect(registrarDominio(a.tenantId, dominio)).rejects.toMatchObject({
+    await logDomain(b.tenantId, dominio);
+    await expect(logDomain(a.tenantId, dominio)).rejects.toMatchObject({
       codigo: 'dominio_em_uso',
     });
   });
@@ -486,7 +486,7 @@ describe('POST /v1/dominios', () => {
   it('sem a permissão tenant.configurar, 403', async () => {
     const resposta = await fetch(`${api.url}/v1/dominios`, {
       method: 'POST',
-      headers: comCookie(sessaoSemPoder),
+      headers: comCookie(sessionWithoutPoder),
       body: JSON.stringify({ dominio: 'qualquer.teste' }),
     });
     expect(resposta.status).toBe(403);
@@ -496,11 +496,11 @@ describe('POST /v1/dominios', () => {
 describe('verificação por TXT', () => {
   it('com o TXT publicado, marca verificado — e o login por domínio passa a valer', async () => {
     const dominio = `verificavel-${randomUUID().slice(0, 8)}.teste`;
-    const registrado = await registrarDominio(a.tenantId, dominio);
+    const registrado = await logDomain(a.tenantId, dominio);
 
     // O DNS parte o TXT em pedaços de 255 bytes; o valor é a concatenação deles.
-    const emPedacos = [registrado.registro.valor.slice(0, 10), registrado.registro.valor.slice(10)];
-    const resultado = await verificarDominio(a.tenantId, registrado.id, async (nome) => {
+    const emPedacos = [registrado.registro.value.slice(0, 10), registrado.registro.value.slice(10)];
+    const resultado = await checkDomain(a.tenantId, registrado.id, async (nome) => {
       expect(nome).toBe(`_pipe-verificacao.${dominio}`);
       return [['pipe-verificacao=de-outra-pessoa'], emPedacos];
     });
@@ -515,15 +515,15 @@ describe('verificação por TXT', () => {
 
   it('sem o TXT, não verifica — e o erro diz o que publicar', async () => {
     const dominio = `pendente-${randomUUID().slice(0, 8)}.teste`;
-    const registrado = await registrarDominio(a.tenantId, dominio);
+    const registrado = await logDomain(a.tenantId, dominio);
 
     await expect(
-      verificarDominio(a.tenantId, registrado.id, async () => [['outra-coisa']]),
+      checkDomain(a.tenantId, registrado.id, async () => [['outra-coisa']]),
     ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
 
     // DNS que nem responde é a mesma coisa: "ainda não", nunca 500.
     await expect(
-      verificarDominio(a.tenantId, registrado.id, () => Promise.reject(new Error('ENOTFOUND'))),
+      checkDomain(a.tenantId, registrado.id, () => Promise.reject(new Error('ENOTFOUND'))),
     ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
 
     const { rows } = await a.dono.execute<{ n: string }>(sql`
@@ -535,20 +535,20 @@ describe('verificação por TXT', () => {
 
   it('token de verificação de um tenant não verifica o domínio do outro', async () => {
     const dominio = `alheio-${randomUUID().slice(0, 8)}.teste`;
-    const registrado = await registrarDominio(b.tenantId, dominio);
+    const registrado = await logDomain(b.tenantId, dominio);
     // O A nem enxerga a linha do B: a RLS filtra antes de qualquer conferência.
-    await expect(verificarDominio(a.tenantId, registrado.id)).rejects.toMatchObject({
+    await expect(checkDomain(a.tenantId, registrado.id)).rejects.toMatchObject({
       codigo: 'nao_encontrado',
     });
   });
 });
 
 describe('provisionar cliente', () => {
-  async function provisionar(extra: Record<string, unknown> = {}) {
+  async function provision(extra: Record<string, unknown> = {}) {
     const marca = randomUUID().slice(0, 8);
     const slug = `acme-${marca}`;
     provisionados.push(slug);
-    return provisionarCliente({
+    return provisionCustomer({
       nome: `Acme ${marca}`,
       slug,
       plano: 'operacao',
@@ -558,14 +558,14 @@ describe('provisionar cliente', () => {
   }
 
   it('cria o tenant inteiro e deixa o administrador pronto para entrar', async () => {
-    const cliente = await provisionar();
+    const cliente = await provision();
 
     expect(cliente.plano).toBe('operacao');
     // O catálogo vem da semente base, não de uma segunda lista escrita aqui.
     // Três de conta (admin, member, guest) e cinco de atendimento.
     expect(cliente.papeis).toBe(8);
-    expect(cliente.permissoes).toBeGreaterThan(40);
-    expect(cliente.filas).toBe(4);
+    expect(cliente.permissions).toBeGreaterThan(40);
+    expect(cliente.queues).toBe(4);
 
     const { rows } = await a.dono.execute<{ plano: string; papel: string; motivos: string }>(sql`
       select t.plano, p.nome as papel,
@@ -583,40 +583,40 @@ describe('provisionar cliente', () => {
     expect(rows[0]?.motivos).toBe(String(cliente.motivosDePausa));
 
     // Domínio nasce pendente: o DNS é do cliente, e o comando não inventa prova.
-    const dominio = cliente.dominio!;
+    const dominio = cliente.domain!;
     expect(dominio.verificado).toBe(false);
     expect(dominio.registro.nome).toBe(`_pipe-verificacao.${dominio.dominio}`);
-    expect(comoEntrar(cliente)).toContain(dominio.registro.valor);
+    expect(asLogin(cliente)).toContain(dominio.registro.value);
   });
 
   it('com --verificar, confere o TXT e o domínio já nasce valendo', async () => {
-    const cliente = await provisionar();
-    const dominio = cliente.dominio!;
-    const verificado = await verificarDominio(cliente.tenantId, dominio.id, async () => [
-      [dominio.registro.valor],
+    const cliente = await provision();
+    const dominio = cliente.domain!;
+    const verificado = await checkDomain(cliente.tenantId, dominio.id, async () => [
+      [dominio.registro.value],
     ]);
     expect(verificado.verificadoEm).toBeInstanceOf(Date);
-    expect(comoEntrar({ ...cliente, dominio: { ...dominio, verificado: true } })).toContain(
+    expect(asLogin({ ...cliente, domain: { ...dominio, verificado: true } })).toContain(
       'VERIFICADO',
     );
   });
 
   it('plano fora do catálogo não passa: franquia não tem onde morar em texto livre', async () => {
-    await expect(provisionar({ plano: 'ilimitado' })).rejects.toMatchObject({
+    await expect(provision({ plano: 'ilimitado' })).rejects.toMatchObject({
       codigo: 'plano_invalido',
     });
   });
 
   it('e-mail pessoal não provisiona: o domínio dele não identifica empresa', async () => {
-    await expect(provisionar({ admin: 'fulano@gmail.com' })).rejects.toMatchObject({
+    await expect(provision({ admin: 'fulano@gmail.com' })).rejects.toMatchObject({
       codigo: 'dominio_publico',
     });
   });
 
   it('slug repetido para o comando, para não juntar dois clientes num tenant só', async () => {
-    const cliente = await provisionar();
+    const cliente = await provision();
     await expect(
-      provisionarCliente({
+      provisionCustomer({
         nome: 'Outra empresa, mesmo slug',
         slug: cliente.slug,
         plano: 'essencial',

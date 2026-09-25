@@ -1,26 +1,26 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
-import type { Ator, TransacaoPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
-  cancelarConvite,
-  carregarMembros,
-  carregarPapeisDaConta,
-  carregarResumoDoContrato,
-  definirPapelDoConvite,
-  definirPapelDoMembro,
-  removerMembro,
-  type Gravacao,
-  type MembroDoContrato,
-  type PapelDaConta,
-  type ResumoDoContrato,
+  cancelarInvitation,
+  loadMembers,
+  loadPapeisOfAccount,
+  loadSummaryOfContract,
+  defineRoleOfInvitation,
+  defineRoleOfMember,
+  removeMember,
+  type Recording,
+  type MemberOfContract,
+  type RoleOfAccount,
+  type SummaryOfContract,
 } from '../dominio/gestao/contrato.js';
-import { carregarImplantacao, type Implantacao } from '../dominio/gestao/implantacao.js';
+import { loadDeployment, type Deployment } from '../dominio/gestao/implantacao.js';
 import {
-  criarCertificado,
+  createCertificate,
   excluirCertificado,
   excluirHostDoCertificado,
   listarCertificados,
@@ -36,29 +36,29 @@ import {
  * A permissão é conferida AQUI, na gravação: tela escondida não é porta
  * trancada. `permissoesDe` é a mesma união de papéis que `GET /v1/eu` devolve.
  */
-async function permissoesDe(tx: TransacaoPipe, usuarioId: string): Promise<string[]> {
+async function permissionsOf(tx: TransactionPipe, userId: string): Promise<string[]> {
   const { rows } = await tx.execute<{ codigo: string }>(sql`
     select distinct pp.permissao_codigo as codigo
       from usuario_papel up
       join papel_permissao pp on pp.papel_id = up.papel_id
-     where up.usuario_id = ${usuarioId}::uuid
+     where up.usuario_id = ${userId}::uuid
      order by 1
   `);
   return rows.map((p) => p.codigo);
 }
 
-const LER_MEMBROS = 'conta.membros.ler';
-const ESCREVER_MEMBROS = 'conta.membros.escrever';
+const READ_MEMBERS = 'conta.membros.ler';
+const ESCREVER_MEMBERS = 'conta.membros.escrever';
 
-export interface AlvoDeMembro {
+export interface TargetOfMember {
   tipo: 'usuario' | 'convite';
   id: string;
 }
 
 /** `usuario:<id>` / `convite:<id>`, como a tela de membros manda. */
-function lerAlvos(valores: readonly string[] | undefined): AlvoDeMembro[] {
-  const lidos: AlvoDeMembro[] = [];
-  for (const cru of valores ?? []) {
+function lerAlvos(values: readonly string[] | undefined): TargetOfMember[] {
+  const lidos: TargetOfMember[] = [];
+  for (const cru of values ?? []) {
     const corte = cru.indexOf(':');
     if (corte < 0) continue;
     const tipo = cru.slice(0, corte);
@@ -70,57 +70,57 @@ function lerAlvos(valores: readonly string[] | undefined): AlvoDeMembro[] {
 
 export interface ResultadoSimples {
   ok: boolean;
-  erro?: string;
+  error?: string;
 }
 
-const falha = (erro: string): ResultadoSimples => ({ ok: false, erro });
-const conferirGravacao = (g: Gravacao): ResultadoSimples => (g.ok ? { ok: true } : falha(g.erro));
+const falha = (error: string): ResultadoSimples => ({ ok: false, error });
+const checkRecording = (g: Recording): ResultadoSimples => (g.ok ? { ok: true } : falha(g.error));
 
 @Controller('v1/gestao')
-export class ControladorGestaoConta {
+export class ManagementAccountController {
   @Get('contrato/resumo')
-  @ComSessao()
-  resumo(@Req() requisicao: RequisicaoComSessao): Promise<ResumoDoContrato> {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => carregarResumoDoContrato(tx, sessao.tenantId));
+  @WithSession()
+  resumo(@Req() requisicao: RequestWithSession): Promise<SummaryOfContract> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => loadSummaryOfContract(tx, sessao.tenantId));
   }
 
   @Get('contrato/membros')
-  @ComSessao()
-  async membros(
-    @Req() requisicao: RequisicaoComSessao,
-  ): Promise<{ membros: MembroDoContrato[]; papeis: PapelDaConta[] }> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async members(
+    @Req() requisicao: RequestWithSession,
+  ): Promise<{ members: MemberOfContract[]; papeis: RoleOfAccount[] }> {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(LER_MEMBROS)) throw ErroPipe.semPermissao(LER_MEMBROS);
-      return { membros: await carregarMembros(tx), papeis: await carregarPapeisDaConta(tx) };
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(READ_MEMBERS)) throw PipeError.withoutPermission(READ_MEMBERS);
+      return { membros: await loadMembers(tx), papeis: await loadPapeisOfAccount(tx) };
     });
   }
 
   @Post('contrato/membros/papel')
   @HttpCode(200)
-  @ComSessao()
-  async trocarPapel(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: { papelId?: string; alvos?: string[] },
+  @WithSession()
+  async exchangeRole(
+    @Req() request: RequestWithSession,
+    @Body() corpo: { roleId?: string; alvos?: string[] },
   ): Promise<ResultadoSimples> {
-    const sessao = sessaoDe(requisicao);
-    const papelId = String(corpo?.papelId ?? '').trim();
-    if (!papelId) return falha('Escolha o papel de quem está sendo alterado.');
+    const session = sessionOf(request);
+    const roleId = String(corpo?.roleId ?? '').trim();
+    if (!roleId) return falha('Escolha o papel de quem está sendo alterado.');
     const alvos = lerAlvos(corpo?.alvos);
     if (alvos.length === 0) return falha('Escolha quem terá o papel alterado.');
-    return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+    return noTenant(session.tenantId, async (tx) => {
+      const permissions = await permissionsOf(tx, session.userId);
+      if (!permissions.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+      const ator: Ator = { tipo: 'usuario', id: session.userId };
       for (const alvo of alvos) {
-        const r = conferirGravacao(
+        const r = checkRecording(
           alvo.tipo === 'convite'
-            ? await definirPapelDoConvite(tx, sessao.tenantId, ator, alvo.id, papelId)
-            : await definirPapelDoMembro(tx, sessao.tenantId, ator, alvo.id, papelId),
+            ? await defineRoleOfInvitation(tx, session.tenantId, ator, alvo.id, roleId)
+            : await defineRoleOfMember(tx, session.tenantId, ator, alvo.id, roleId),
         );
         if (!r.ok) return r;
       }
@@ -130,30 +130,30 @@ export class ControladorGestaoConta {
 
   @Post('contrato/membros/excluir')
   @HttpCode(200)
-  @ComSessao()
-  async excluirMembros(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async deleteMembers(
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: { alvos?: string[] },
   ): Promise<ResultadoSimples> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     const alvos = lerAlvos(corpo?.alvos);
     if (alvos.length === 0) return falha('Escolha quem sai do contrato.');
     /* Ninguém se remove sozinho: quem o fizesse perderia o acesso no clique
        seguinte, e um contrato pode ficar sem nenhum administrador. */
-    if (alvos.some((a) => a.tipo === 'usuario' && a.id === sessao.usuarioId)) {
+    if (alvos.some((a) => a.tipo === 'usuario' && a.id === sessao.userId)) {
       return falha('Você não pode excluir o seu próprio acesso a este contrato.');
     }
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
       for (const alvo of alvos) {
-        const r = conferirGravacao(
+        const r = checkRecording(
           alvo.tipo === 'convite'
-            ? await cancelarConvite(tx, sessao.tenantId, ator, alvo.id)
-            : await removerMembro(tx, sessao.tenantId, ator, alvo.id),
+            ? await cancelarInvitation(tx, sessao.tenantId, ator, alvo.id)
+            : await removeMember(tx, sessao.tenantId, ator, alvo.id),
         );
         if (!r.ok) return r;
       }
@@ -162,10 +162,10 @@ export class ControladorGestaoConta {
   }
 
   @Get('implantacao')
-  @ComSessao()
-  implantacao(@Req() requisicao: RequisicaoComSessao): Promise<Implantacao> {
-    const sessao = sessaoDe(requisicao);
-    return noTenant(sessao.tenantId, (tx) => carregarImplantacao(tx));
+  @WithSession()
+  deployment(@Req() requisicao: RequestWithSession): Promise<Deployment> {
+    const sessao = sessionOf(requisicao);
+    return noTenant(sessao.tenantId, (tx) => loadDeployment(tx));
   }
 
   /**
@@ -174,66 +174,66 @@ export class ControladorGestaoConta {
    * atrás de `tenant-members` (`blip-certificados-mtls.md`).
    */
   @Get('contrato/certificados')
-  @ComSessao()
-  async certificados(@Req() requisicao: RequisicaoComSessao): Promise<CertificadoMtls[]> {
-    const sessao = sessaoDe(requisicao);
+  @WithSession()
+  async certificados(@Req() requisicao: RequestWithSession): Promise<CertificadoMtls[]> {
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(LER_MEMBROS)) throw ErroPipe.semPermissao(LER_MEMBROS);
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(READ_MEMBERS)) throw PipeError.withoutPermission(READ_MEMBERS);
       return listarCertificados(tx, sessao.tenantId);
     });
   }
 
   @Post('contrato/certificados')
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async cadastrarCertificado(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: PedidoDeCertificado,
   ): Promise<CertificadoMtls> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(ESCREVER_MEMBROS)) throw ErroPipe.semPermissao(ESCREVER_MEMBROS);
-      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
-      return criarCertificado(tx, sessao.tenantId, ator, corpo);
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(ESCREVER_MEMBERS)) throw PipeError.withoutPermission(ESCREVER_MEMBERS);
+      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      return createCertificate(tx, sessao.tenantId, ator, corpo);
     });
   }
 
   @Delete('contrato/certificados/:id')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async apagarCertificado(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
   ): Promise<ResultadoSimples> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
-      return conferirGravacao(await excluirCertificado(tx, sessao.tenantId, ator, id));
+      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      return checkRecording(await excluirCertificado(tx, sessao.tenantId, ator, id));
     });
   }
 
   @Delete('contrato/certificados/:id/hosts/:hostId')
   @HttpCode(200)
-  @ComSessao()
+  @WithSession()
   async apagarHostDoCertificado(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('hostId') hostId: string,
   ): Promise<ResultadoSimples> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+      const permissoes = await permissionsOf(tx, sessao.userId);
+      if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
-      return conferirGravacao(await excluirHostDoCertificado(tx, sessao.tenantId, ator, id, hostId));
+      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      return checkRecording(await excluirHostDoCertificado(tx, sessao.tenantId, ator, id, hostId));
     });
   }
 }

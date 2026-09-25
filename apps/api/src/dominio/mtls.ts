@@ -1,7 +1,7 @@
 import https from 'node:https';
 import { sql } from 'drizzle-orm';
 import { decifrar } from '@pipe/db';
-import { chaveiro, noTenant } from '../banco.js';
+import { keyring, noTenant } from '../banco.js';
 
 /**
  * mTLS de saída: a Pipe apresenta o certificado do cliente quando ELA chama os
@@ -49,8 +49,8 @@ interface IndiceDoTenant {
   hosts: HostComCertificado[];
 }
 
-const indicePorTenant = new Map<string, IndiceDoTenant>();
-const agentePorCertificado = new Map<string, https.Agent>();
+const indexByTenant = new Map<string, IndiceDoTenant>();
+const agentByCertificate = new Map<string, https.Agent>();
 
 /** Uma URL cadastrada em `certificado_mtls_host` vira `hostname` + porta; inválida (não devia existir) é ignorada. */
 function hostDe(certificadoId: string, url: string): HostComCertificado | null {
@@ -64,7 +64,7 @@ function hostDe(certificadoId: string, url: string): HostComCertificado | null {
 }
 
 async function indiceDe(tenantId: string): Promise<IndiceDoTenant> {
-  const guardado = indicePorTenant.get(tenantId);
+  const guardado = indexByTenant.get(tenantId);
   if (guardado && Date.now() - guardado.lidoEm < TTL_INDICE_MS) return guardado;
 
   const linhas = await noTenant(tenantId, async (tx) => {
@@ -94,40 +94,40 @@ async function indiceDe(tenantId: string): Promise<IndiceDoTenant> {
   }
 
   const indice = { lidoEm: Date.now(), hosts };
-  indicePorTenant.set(tenantId, indice);
+  indexByTenant.set(tenantId, indice);
   return indice;
 }
 
 function descartarAgente(certificadoId: string): void {
-  const agente = agentePorCertificado.get(certificadoId);
+  const agente = agentByCertificate.get(certificadoId);
   if (!agente) return;
   agente.destroy();
-  agentePorCertificado.delete(certificadoId);
+  agentByCertificate.delete(certificadoId);
 }
 
 async function agenteDoCertificado(tenantId: string, certificadoId: string): Promise<https.Agent | null> {
-  const guardado = agentePorCertificado.get(certificadoId);
+  const guardado = agentByCertificate.get(certificadoId);
   if (guardado) return guardado;
 
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<{ arquivo_cifrado: string | null; senha_cifrada: string | null }>(sql`
+    const { rows } = await tx.execute<{ fileEncrypted: string | null; senha_cifrada: string | null }>(sql`
       select arquivo_cifrado, senha_cifrada from certificado_mtls
        where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid
        limit 1
     `);
     return rows[0] ?? null;
   });
-  if (!linha?.arquivo_cifrado || !linha.senha_cifrada) return null;
+  if (!linha?.fileEncrypted || !linha.senha_cifrada) return null;
 
   // Decifrado aqui e entregue ao Agent; `decifrar` lança `SegredoErro` se a
   // chave saiu do chaveiro — e a entrega registra o erro como qualquer outro.
-  const chaves = chaveiro();
+  const chaves = keyring();
   const agente = new https.Agent({
-    pfx: Buffer.from(decifrar(linha.arquivo_cifrado, chaves), 'base64'),
+    pfx: Buffer.from(decifrar(linha.fileEncrypted, chaves), 'base64'),
     passphrase: decifrar(linha.senha_cifrada, chaves),
     keepAlive: true,
   });
-  agentePorCertificado.set(certificadoId, agente);
+  agentByCertificate.set(certificadoId, agente);
   return agente;
 }
 
@@ -156,18 +156,18 @@ export async function agenteMtlsPara(tenantId: string, url: string): Promise<htt
  */
 export function esquecerCertificadosMtls(tenantId?: string, certificadoId?: string): void {
   if (!tenantId) {
-    for (const id of [...agentePorCertificado.keys()]) descartarAgente(id);
-    indicePorTenant.clear();
+    for (const id of [...agentByCertificate.keys()]) descartarAgente(id);
+    indexByTenant.clear();
     return;
   }
-  const indice = indicePorTenant.get(tenantId);
+  const indice = indexByTenant.get(tenantId);
   if (indice) {
     for (const h of indice.hosts) {
       if (!certificadoId || h.certificadoId === certificadoId) descartarAgente(h.certificadoId);
     }
   }
   if (certificadoId) descartarAgente(certificadoId);
-  indicePorTenant.delete(tenantId);
+  indexByTenant.delete(tenantId);
 }
 
 /* ------------------------------------------------------------- chamada */
@@ -189,7 +189,7 @@ export interface RespostaDeSaida {
 /** `https.request` com o agente: o `fetch` global (undici) não aceita `https.Agent`. */
 function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent): Promise<RespostaDeSaida> {
   return new Promise((resolver, rejeitar) => {
-    const requisicao = https.request(
+    const request = https.request(
       url,
       {
         method: pedido.metodo ?? 'POST',
@@ -211,8 +211,8 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
         });
       },
     );
-    requisicao.on('error', rejeitar);
-    requisicao.end(pedido.body);
+    request.on('error', rejeitar);
+    request.end(pedido.body);
   });
 }
 

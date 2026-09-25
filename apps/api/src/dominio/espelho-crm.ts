@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
-import type { JobEspelhoCrm } from '@pipe/workers';
-import { bancoDono, noTenant } from '../banco.js';
-import { configDoTenant, espelharContato } from './twenty.js';
-import type { ContatoParaEspelhar } from './twenty.js';
+import type { JobMirrorCrm } from '@pipe/workers';
+import { databaseOwner, noTenant } from '../banco.js';
+import { configDoTenant, espelharContact } from './twenty.js';
+import type { ContactForEspelhar } from './twenty.js';
 
 /**
  * Espelhar contato do Pipe como `person` no CRM daquele cliente.
@@ -18,17 +18,17 @@ import type { ContatoParaEspelhar } from './twenty.js';
  */
 
 /** O contato não existe, ou o tenant não tem CRM. Não é erro: é ausência. */
-export const SEM_ESPELHO = 'sem_espelho' as const;
+export const WITHOUT_MIRROR = 'sem_espelho' as const;
 
-export type ResultadoEspelho =
-  | { estado: 'espelhado'; pessoaId: string }
-  | { estado: typeof SEM_ESPELHO };
+export type ResultMirror =
+  | { state: 'espelhado'; pessoaId: string }
+  | { state: typeof WITHOUT_MIRROR };
 
-export async function sincronizarContato(
+export async function syncContact(
   tenantId: string,
-  contatoId: string,
+  contactId: string,
   buscar: typeof fetch = fetch,
-): Promise<ResultadoEspelho> {
+): Promise<ResultMirror> {
   // Leitura e configuração numa transação só, com o tenant fixado. Em SÉRIE: um
   // `Promise.all` aqui derruba o `set_config('pipe.tenant_id')` e o passo seguinte
   // escreve no CRM de um cliente — é o pior lugar do sistema para essa armadilha.
@@ -48,13 +48,13 @@ export async function sincronizarContato(
              a.twenty_empresa_id as empresa_twenty_id
         from contato c
         left join conta a on a.id = c.conta_id
-       where c.id = ${contatoId}::uuid and c.excluido_em is null
+       where c.id = ${contactId}::uuid and c.excluido_em is null
        limit 1
     `);
     const linha = rows[0];
     if (!linha) return null;
 
-    const contato: ContatoParaEspelhar = {
+    const contact: ContactForEspelhar = {
       id: linha.id,
       nome: linha.nome,
       email: linha.email,
@@ -62,26 +62,26 @@ export async function sincronizarContato(
       twentyPessoaId: linha.twenty_pessoa_id,
       empresaTwentyId: linha.empresa_twenty_id,
     };
-    return { config, contato };
+    return { config, contact };
   });
 
-  if (!preparo) return { estado: SEM_ESPELHO };
+  if (!preparo) return { state: WITHOUT_MIRROR };
 
   // A chamada de rede acontece FORA da transação, de propósito: uma conexão de banco
   // presa esperando o CRM de um cliente lento é uma conexão que falta para todos os
   // outros. O `PIPE_TWENTY_TIMEOUT_MS` protege o worker; isto protege o pool.
-  const pessoaId = await espelharContato(preparo.config, preparo.contato, buscar);
+  const pessoaId = await espelharContact(preparo.config, preparo.contato, buscar);
 
   if (pessoaId !== preparo.contato.twentyPessoaId) {
     await noTenant(tenantId, async (tx) => {
       await tx.execute(sql`
         update contato set twenty_pessoa_id = ${pessoaId}, atualizado_em = now()
-         where id = ${contatoId}::uuid
+         where id = ${contactId}::uuid
       `);
     });
   }
 
-  return { estado: 'espelhado', pessoaId };
+  return { state: 'espelhado', pessoaId };
 }
 
 /**
@@ -98,8 +98,8 @@ export async function sincronizarContato(
  *
  * Só olha tenant que TEM CRM configurado. Cliente sem CRM nunca entra na fila.
  */
-export async function contatosSemEspelho(lote = 200): Promise<JobEspelhoCrm[]> {
-  const { rows } = await bancoDono().execute<{ tenant_id: string; contato_id: string }>(sql`
+export async function contactsWithoutMirror(lote = 200): Promise<JobMirrorCrm[]> {
+  const { rows } = await databaseOwner().execute<{ tenant_id: string; contactId: string }>(sql`
     select c.tenant_id, c.id as contato_id
       from contato c
       join tenant t on t.id = c.tenant_id
@@ -111,5 +111,5 @@ export async function contatosSemEspelho(lote = 200): Promise<JobEspelhoCrm[]> {
      order by c.criado_em
      limit ${lote}
   `);
-  return rows.map((l) => ({ tenantId: l.tenant_id, contatoId: l.contato_id }));
+  return rows.map((l) => ({ tenantId: l.tenant_id, contatoId: l.contactId }));
 }

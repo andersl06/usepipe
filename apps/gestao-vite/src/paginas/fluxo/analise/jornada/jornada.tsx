@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { Selecao } from '../../../../componentes/selecao';
+import { Selection } from '../../../../componentes/selecao';
 import type { ArestaDaJornada } from '@pipe/core/analise';
-import { CabecalhoDaPagina, Cartao, SeletorDePeriodo } from '../pecas';
+import { PageHeader, Card, PeriodSeletor } from '../pecas';
 import { desenharSankey } from './sankey';
 
 /**
@@ -18,12 +18,12 @@ function filtrarAPartirDoInicio(
   const alcancados = new Set(
     arestas.filter((a) => a.passo === 1 && a.de.startsWith(`${inicio} [`)).map((a) => a.de),
   );
-  const fila = [...alcancados];
-  for (let i = 0; i < fila.length; i += 1) {
+  const queue = [...alcancados];
+  for (let i = 0; i < queue.length; i += 1) {
     for (const a of arestas) {
-      if (a.de === fila[i] && !alcancados.has(a.para)) {
+      if (a.de === queue[i] && !alcancados.has(a.para)) {
         alcancados.add(a.para);
-        fila.push(a.para);
+        queue.push(a.para);
       }
     }
   }
@@ -44,13 +44,13 @@ function filtrarAPartirDoInicio(
  * a leitura é do servidor e termina antes da tela — não há "carregando" — e o
  * erro não tem de onde vir; ficam o diagrama e o "sem dado".
  */
-export function JornadaDosContatos({
+export function ContactsJourney({
   arestas,
   de,
   ate,
   min,
   max,
-  roteador,
+  router,
 }: {
   arestas: ArestaDaJornada[];
   de: string;
@@ -58,7 +58,7 @@ export function JornadaDosContatos({
   min: string;
   max: string;
   /** `isThisMasterApplication()`: muda a frase do "sem dado". */
-  roteador: boolean;
+  router: boolean;
 }) {
   /* `firstNodeFilterOptions`: os nós de partida, sem "Outros"/"Saída", únicos e
      em ordem alfabética. Vêm de TODAS as arestas — trocar o início não estreita
@@ -77,7 +77,7 @@ export function JornadaDosContatos({
 
   return (
     <div className="jr-vista" id="contacts-journey-view">
-      <CabecalhoDaPagina
+      <PageHeader
         id="contacts-journey-header"
         tituloProprio={
           <div className="jr-titulo">
@@ -99,7 +99,7 @@ export function JornadaDosContatos({
             <span className="an-t16 jr-filtro-rotulo">Começar a partir de</span>
             {/* `<bds-autocomplete placeholder="Início">`. */}
             <label className="jr-autocompletar">
-              <Selecao
+              <Selection
                 value={inicio}
                 onChange={(evento) => setInicio(evento.target.value)}
                 aria-label="Começar a partir de"
@@ -110,16 +110,16 @@ export function JornadaDosContatos({
                     {n}
                   </option>
                 ))}
-              </Selecao>
+              </Selection>
               <IconePortal nome="baixo" tamanho={24} />
             </label>
           </div>
           <div className="jr-periodo">
-            <SeletorDePeriodo de={de} ate={ate} min={min} max={max} />
+            <PeriodSeletor de={de} ate={ate} min={min} max={max} />
           </div>
         </div>
 
-        <Cartao id="contacts-journey-container" className="jr-cartao">
+        <Card id="contacts-journey-container" className="jr-cartao">
           {temDiagrama ? (
             <>
               <div className="jr-cabeca-diagrama">
@@ -142,11 +142,11 @@ export function JornadaDosContatos({
                 selecionado
               </span>
               <span className="an-t16 jr-comunicacao-texto">
-                {roteador
+                {router
                   ? 'Para visualizar como as pessoas têm utilizado o seu chatbot, é necessário ativar o contexto do roteador no fluxo dos seus sub-bots.'
                   : 'É necessário republicar o seu fluxo e aguardar algumas horas para que os dados comecem a aparecer por aqui.'}
               </span>
-              {roteador ? (
+              {router ? (
                 <div className="jr-saiba">
                   <span className="an-t14 jr-saiba-texto">
                     Saiba como ativar o contexto do roteador
@@ -157,10 +157,10 @@ export function JornadaDosContatos({
               ) : null}
             </div>
           )}
-        </Cartao>
+        </Card>
 
         {temDiagrama ? (
-          <Cartao id="contacts-journey-instructions">
+          <Card id="contacts-journey-instructions">
             <div className="jr-instrucoes">
               <div className="jr-instrucoes-cabeca">
                 <span className="an-t16 jr-negrito">Compreendendo o diagrama</span>
@@ -183,7 +183,7 @@ export function JornadaDosContatos({
                 </Legenda>
               </div>
             </div>
-          </Cartao>
+          </Card>
         ) : null}
       </div>
 
@@ -238,7 +238,7 @@ function Diagrama({ arestas }: { arestas: ArestaDaJornada[] }) {
             </path>
           ))}
           {nos.map((n) => {
-            const ultima = n.coluna === colunas - 1;
+            const ultima = n.column === colunas - 1;
             return (
               <g key={n.rotulo}>
                 <rect

@@ -1,11 +1,11 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { exigirPermissao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { exigirPermission } from '../sessao.js';
 import { evento, publicar } from '../tempo-real.js';
-import type { AtorDaConversa } from './conversa.js';
+import type { AtorOfConversation } from './conversa.js';
 
 /**
  * Etiquetar conversa ABERTA e etiquetar CONTATO — fora do encerramento.
@@ -26,20 +26,20 @@ import type { AtorDaConversa } from './conversa.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export type EscopoDeEtiqueta = 'conversa' | 'contato';
+export type ScopeOfLabel = 'conversa' | 'contato';
 
 export interface EtiquetaDoTenant {
   id: string;
   nome: string;
   cor: string | null;
-  escopo: 'conversa' | 'contato' | 'ambos';
-  obrigatoriaNoEncerramento: boolean;
+  scope: 'conversa' | 'contato' | 'ambos';
+  requiredInClosure: boolean;
 }
 
 /** As etiquetas do tenant, todas; `escopo` filtra pelas que cabem em conversa ou contato. */
 export async function listarEtiquetasDoTenant(
-  tx: TransacaoPipe,
-  escopo: EscopoDeEtiqueta | null,
+  tx: TransactionPipe,
+  scope: ScopeOfLabel | null,
 ): Promise<EtiquetaDoTenant[]> {
   const { rows } = await tx.execute<{
     id: string;
@@ -50,7 +50,7 @@ export async function listarEtiquetasDoTenant(
   }>(sql`
     select id, nome, cor, escopo, obrigatoria_no_encerramento
       from etiqueta
-     where ${escopo === null ? sql`true` : sql`escopo in (${escopo}, 'ambos')`}
+     where ${scope === null ? sql`true` : sql`escopo in (${scope}, 'ambos')`}
      order by nome
   `);
   return rows.map((r) => ({
@@ -66,18 +66,18 @@ type LinhaEtiqueta = { id: string; nome: string; escopo: string };
 
 /** A etiqueta existe no tenant e cabe no alvo. */
 async function carregarEtiqueta(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   etiquetaId: string,
-  alvo: EscopoDeEtiqueta,
+  alvo: ScopeOfLabel,
 ): Promise<LinhaEtiqueta> {
-  if (!UUID.test(etiquetaId)) throw ErroPipe.naoEncontrado('Etiqueta');
+  if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
   const { rows } = await tx.execute<LinhaEtiqueta>(
     sql`select id, nome, escopo from etiqueta where id = ${etiquetaId}::uuid limit 1`,
   );
   const etiqueta = rows[0];
-  if (!etiqueta) throw ErroPipe.naoEncontrado('Etiqueta');
+  if (!etiqueta) throw PipeError.naoEncontrado('Etiqueta');
   if (etiqueta.escopo !== alvo && etiqueta.escopo !== 'ambos') {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'etiqueta_de_outro_escopo',
       alvo === 'conversa'
         ? `A etiqueta "${etiqueta.nome}" é de contato, não de conversa.`
@@ -87,40 +87,40 @@ async function carregarEtiqueta(
   return etiqueta;
 }
 
-type LinhaConversa = { id: string; estado: string; atendente_id: string | null };
+type LineConversation = { id: string; state: string; agentId: string | null };
 
 /**
  * A conversa existe, está aberta e — quando quem pede é gente — é do atendente.
  * Encerrada é recusada: tag em ticket fechado é reclassificação, e isso é tela de
  * gestor (histórico), não do Desk.
  */
-async function carregarConversaAberta(
-  tx: TransacaoPipe,
+async function loadConversationOpen(
+  tx: TransactionPipe,
   conversaId: string,
-  ator: AtorDaConversa,
-): Promise<LinhaConversa> {
-  if (!UUID.test(conversaId)) throw ErroPipe.naoEncontrado('Conversa');
-  const { rows } = await tx.execute<LinhaConversa>(
+  ator: AtorOfConversation,
+): Promise<LineConversation> {
+  if (!UUID.test(conversaId)) throw PipeError.naoEncontrado('Conversa');
+  const { rows } = await tx.execute<LineConversation>(
     sql`select id, estado, atendente_id from conversa where id = ${conversaId}::uuid limit 1`,
   );
-  const conversa = rows[0];
-  if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
-  if (conversa.estado === 'encerrada') {
-    throw ErroPipe.conflito(
+  const conversation = rows[0];
+  if (!conversation) throw PipeError.naoEncontrado('Conversa');
+  if (conversation.state === 'encerrada') {
+    throw PipeError.conflito(
       'conversa_encerrada',
       'A conversa está encerrada: a etiqueta de encerramento já foi dada.',
     );
   }
-  if (ator.exigirAtribuicao && conversa.atendente_id !== ator.atendenteId) {
-    throw new ErroPipe(
+  if (ator.exigirAssignment && conversation.agentId !== ator.agentId) {
+    throw new PipeError(
       403,
       'conversa_de_outro_atendente',
-      conversa.atendente_id
+      conversation.agentId
         ? 'Esta conversa está com outro atendente.'
         : 'Esta conversa não está atribuída a você.',
     );
   }
-  return conversa;
+  return conversation;
 }
 
 export interface EtiquetaAplicada {
@@ -130,28 +130,28 @@ export interface EtiquetaAplicada {
   aplicada: boolean;
 }
 
-export async function etiquetarConversa(
-  ator: AtorDaConversa,
-  conversaId: string,
+export async function labelConversation(
+  ator: AtorOfConversation,
+  conversationId: string,
   etiquetaId: string,
 ): Promise<EtiquetaAplicada> {
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    if (ator.exigirAtribuicao) {
-      if (!ator.atendenteId) throw ErroPipe.naoAutorizado();
-      await exigirPermissao(tx, ator.atendenteId, 'conversa.etiquetar');
+    if (ator.exigirAssignment) {
+      if (!ator.agentId) throw PipeError.naoAutorizado();
+      await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
     }
-    const conversa = await carregarConversaAberta(tx, conversaId, ator);
+    const conversa = await loadConversationOpen(tx, conversationId, ator);
     const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversa');
 
     const { rowCount } = await tx.execute(sql`
       insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
-      values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.atendenteId})
+      values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.agentId})
       on conflict do nothing
     `);
     const aplicada = (rowCount ?? 0) > 0;
     if (aplicada) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.atendenteId ? { tipo: 'usuario', id: ator.atendenteId } : { tipo: 'chave' },
+        ator: ator.agentId ? { tipo: 'usuario', id: ator.agentId } : { tipo: 'chave' },
         acao: 'criou',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
@@ -162,22 +162,22 @@ export async function etiquetarConversa(
   });
 
   // Depois do commit: a faixa de etiquetas da conversa mudou.
-  await publicar(ator.tenantId, evento('conversa', conversaId));
+  await publicar(ator.tenantId, evento('conversa', conversationId));
   return resultado;
 }
 
-export async function desetiquetarConversa(
-  ator: AtorDaConversa,
+export async function unlabelConversation(
+  ator: AtorOfConversation,
   conversaId: string,
   etiquetaId: string,
 ): Promise<{ removida: boolean }> {
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    if (ator.exigirAtribuicao) {
-      if (!ator.atendenteId) throw ErroPipe.naoAutorizado();
-      await exigirPermissao(tx, ator.atendenteId, 'conversa.etiquetar');
+    if (ator.exigirAssignment) {
+      if (!ator.agentId) throw PipeError.naoAutorizado();
+      await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
     }
-    const conversa = await carregarConversaAberta(tx, conversaId, ator);
-    if (!UUID.test(etiquetaId)) throw ErroPipe.naoEncontrado('Etiqueta');
+    const conversa = await loadConversationOpen(tx, conversaId, ator);
+    if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
 
     const { rows } = await tx.execute<{ nome: string }>(sql`
       delete from conversa_etiqueta ce
@@ -189,7 +189,7 @@ export async function desetiquetarConversa(
     const removida = rows.length > 0;
     if (removida) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.atendenteId ? { tipo: 'usuario', id: ator.atendenteId } : { tipo: 'chave' },
+        ator: ator.agentId ? { tipo: 'usuario', id: ator.agentId } : { tipo: 'chave' },
         acao: 'excluiu',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
@@ -205,56 +205,56 @@ export async function desetiquetarConversa(
 
 /* ------------------------------------------------------------- contato */
 
-export type EtiquetaDoContato = {
+export type LabelOfContact = {
   id: string;
   nome: string;
   cor: string | null;
 }
 
-export async function listarEtiquetasDoContato(
-  tx: TransacaoPipe,
-  contatoId: string,
-): Promise<EtiquetaDoContato[]> {
-  if (!UUID.test(contatoId)) return [];
-  const { rows } = await tx.execute<EtiquetaDoContato>(sql`
+export async function listLabelsOfContact(
+  tx: TransactionPipe,
+  contactId: string,
+): Promise<LabelOfContact[]> {
+  if (!UUID.test(contactId)) return [];
+  const { rows } = await tx.execute<LabelOfContact>(sql`
     select e.id, e.nome, e.cor
       from contato_etiqueta ce
       join etiqueta e on e.id = ce.etiqueta_id
-     where ce.contato_id = ${contatoId}::uuid
+     where ce.contato_id = ${contactId}::uuid
      order by e.nome
   `);
   return rows;
 }
 
-async function carregarContato(tx: TransacaoPipe, contatoId: string): Promise<{ id: string }> {
-  if (!UUID.test(contatoId)) throw ErroPipe.naoEncontrado('Contato');
+async function loadContact(tx: TransactionPipe, contatoId: string): Promise<{ id: string }> {
+  if (!UUID.test(contatoId)) throw PipeError.naoEncontrado('Contato');
   const { rows } = await tx.execute<{ id: string }>(
     sql`select id from contato where id = ${contatoId}::uuid and excluido_em is null limit 1`,
   );
-  const contato = rows[0];
-  if (!contato) throw ErroPipe.naoEncontrado('Contato');
-  return contato;
+  const contact = rows[0];
+  if (!contact) throw PipeError.naoEncontrado('Contato');
+  return contact;
 }
 
 /** Quem pede: pessoa (com `contato.editar`) ou chave (`contatos:escrever`, sem permissão de pessoa). */
-export interface AtorDoContato {
+export interface AtorOfContact {
   tenantId: string;
-  usuarioId: string | null;
-  viaSessao: boolean;
+  userId: string | null;
+  viaSession: boolean;
 }
 
-export async function etiquetarContato(
-  ator: AtorDoContato,
+export async function labelContact(
+  ator: AtorOfContact,
   contatoId: string,
   etiquetaId: string,
 ): Promise<EtiquetaAplicada> {
   return noTenant(ator.tenantId, async (tx) => {
-    if (ator.viaSessao) {
-      if (!ator.usuarioId) throw ErroPipe.naoAutorizado();
+    if (ator.viaSession) {
+      if (!ator.userId) throw PipeError.naoAutorizado();
       // A etiqueta do contato é dado do contato: a mesma permissão de editar a ficha.
-      await exigirPermissao(tx, ator.usuarioId, 'contato.editar');
+      await exigirPermission(tx, ator.userId, 'contato.editar');
     }
-    const contato = await carregarContato(tx, contatoId);
+    const contato = await loadContact(tx, contatoId);
     const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'contato');
 
     const { rowCount } = await tx.execute(sql`
@@ -265,7 +265,7 @@ export async function etiquetarContato(
     const aplicada = (rowCount ?? 0) > 0;
     if (aplicada) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.usuarioId ? { tipo: 'usuario', id: ator.usuarioId } : { tipo: 'chave' },
+        ator: ator.userId ? { tipo: 'usuario', id: ator.userId } : { tipo: 'chave' },
         acao: 'criou',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,
@@ -276,18 +276,18 @@ export async function etiquetarContato(
   });
 }
 
-export async function desetiquetarContato(
-  ator: AtorDoContato,
+export async function unlabelContact(
+  ator: AtorOfContact,
   contatoId: string,
   etiquetaId: string,
 ): Promise<{ removida: boolean }> {
   return noTenant(ator.tenantId, async (tx) => {
-    if (ator.viaSessao) {
-      if (!ator.usuarioId) throw ErroPipe.naoAutorizado();
-      await exigirPermissao(tx, ator.usuarioId, 'contato.editar');
+    if (ator.viaSession) {
+      if (!ator.userId) throw PipeError.naoAutorizado();
+      await exigirPermission(tx, ator.userId, 'contato.editar');
     }
-    const contato = await carregarContato(tx, contatoId);
-    if (!UUID.test(etiquetaId)) throw ErroPipe.naoEncontrado('Etiqueta');
+    const contato = await loadContact(tx, contatoId);
+    if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
 
     const { rows } = await tx.execute<{ nome: string }>(sql`
       delete from contato_etiqueta ce
@@ -299,7 +299,7 @@ export async function desetiquetarContato(
     const removida = rows.length > 0;
     if (removida) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.usuarioId ? { tipo: 'usuario', id: ator.usuarioId } : { tipo: 'chave' },
+        ator: ator.userId ? { tipo: 'usuario', id: ator.userId } : { tipo: 'chave' },
         acao: 'excluiu',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,

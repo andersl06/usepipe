@@ -1,4 +1,4 @@
-import type { OperadorDeRegra, RegraDeFila } from './regra-fila';
+import type { OperadorDeRegra, QueueRule } from './regra-fila';
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
@@ -22,26 +22,26 @@ import type { OperadorDeRegra, RegraDeFila } from './regra-fila';
 
 // ------------------------------------------------------------------- filas
 
-export interface AtendenteDaFila {
+export interface QueueAgent {
   id: string;
   nome: string;
-  estado: string | null;
+  state: string | null;
   /** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */
-  capacidade: number;
+  capacity: number;
   /** O atendente tem limite próprio, diferente do padrão da fila. */
   temOverride: boolean;
 }
 
-export interface FilaCadastrada {
+export interface QueueRegistered {
   id: string;
   nome: string;
   cor: string | null;
-  capacidadePadrao: number;
-  ordem: number;
-  ativa: boolean;
+  capacityDefault: number;
+  order: number;
+  active: boolean;
   horarioId: string | null;
   horarioNome: string | null;
-  atendentes: AtendenteDaFila[];
+  agents: QueueAgent[];
 }
 
 export interface HorarioParaEscolher {
@@ -54,8 +54,8 @@ export interface HorarioParaEscolher {
 export interface MotivoDePausa {
   id: string;
   nome: string;
-  duracaoSugeridaMin: number | null;
-  contaComoProdutivo: boolean;
+  durationSuggestedMin: number | null;
+  countsAsProductive: boolean;
   ativo: boolean;
   /** Pausas encerradas no período. */
   pausas: number;
@@ -83,7 +83,7 @@ export interface FaixaDoHorario {
   fim: string;
 }
 
-export interface ExcecaoDoHorario {
+export interface HourException {
   id: string;
   data: string;
   fechado: boolean;
@@ -97,9 +97,9 @@ export interface HorarioCadastrado {
   nome: string;
   fuso: string;
   faixas: FaixaDoHorario[];
-  excecoes: ExcecaoDoHorario[];
+  exceptions: HourException[];
   /** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */
-  filas: string[];
+  queues: string[];
   abertoAgora: boolean;
   /** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */
   proximaAberturaEm: string | null;
@@ -110,7 +110,7 @@ export interface HorarioCadastrado {
 export interface Horarios {
   horarios: HorarioCadastrado[];
   /** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */
-  filasSemHorario: string[];
+  queuesWithoutHour: string[];
   agora: string;
 }
 
@@ -128,15 +128,15 @@ export interface Horarios {
  * quando a regra aponta para uma fila desativada — regra que manda conversa
  * para fila desativada é regra que engole conversa.
  */
-export interface FilaParaEscolher {
+export interface QueueForEscolher {
   id: string;
   nome: string;
-  ativa: boolean;
+  active: boolean;
 }
 
 /** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */
-export interface RegraDeFilaCadastrada extends RegraDeFila {
-  filaDestinoAtiva: boolean;
+export interface QueueRegisteredRule extends QueueRule {
+  queueDestinationActive: boolean;
 }
 
 /**
@@ -152,26 +152,26 @@ export interface RegraDeFilaCadastrada extends RegraDeFila {
  * log em transação separada some quando a mudança falha e sobra quando ela é
  * desfeita, e nos dois casos passa a mentir.
  */
-export interface NovaRegraDeFila {
+export interface NewQueueRule {
   nome: string;
-  ordem: number;
+  order: number;
   combinador: 'e' | 'ou';
-  filaDestinoId: string;
-  condicoes: readonly { campo: string; operador: OperadorDeRegra; valor: string }[];
+  queueDestinationId: string;
+  conditions: readonly { campo: string; operador: OperadorDeRegra; value: string }[];
 }
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };
 
 // ------------------------------------------------------- gestão de atendentes
 
-export interface AtendenteCadastrado {
+export interface AgentRegistered {
   id: string;
   nome: string;
   email: string;
   ativo: boolean;
   /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
-  estado: string | null;
-  filas: string[];
+  state: string | null;
+  queues: string[];
   /**
    * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
    * nenhuma — aí não há teto porque não há de onde receber.

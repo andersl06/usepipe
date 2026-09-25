@@ -1,20 +1,20 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
 import type {
-  EquipeDoFluxo,
-  MembroDoFluxo,
-  MinhasPermissoesNoFluxo,
-  PedidoDeMembroDoFluxo,
+  TeamOfFlow,
+  MemberOfFlow,
+  MyPermissionsInFlow,
+  RequestOfMemberOfFlow,
 } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 import {
-  adicionarMembro,
-  editarMembro,
+  adicionarMember,
+  editarMember,
   listarEquipe,
-  minhasPermissoesNoFluxo,
-  removerMembro,
+  myPermissionsInFlow,
+  removeMember,
 } from '../dominio/gestao/equipe-do-fluxo.js';
 
 /**
@@ -38,84 +38,84 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /* Cópia do `uuidOu404` de `gestao-fluxo.ts` para não amarrar este controlador
    àquele arquivo — são três linhas e a regra é a mesma nos dois. */
-function uuidOu404(valor: string, oQue: string): string {
-  if (!UUID.test(valor)) throw ErroPipe.naoEncontrado(oQue);
-  return valor;
+function uuidOu404(value: string, oQue: string): string {
+  if (!UUID.test(value)) throw PipeError.naoEncontrado(oQue);
+  return value;
 }
 
 @Controller('v1/gestao/fluxos')
-export class ControladorGestaoEquipe {
+export class ManagementTeamController {
   @Get(':id/equipe')
-  @ComSessao()
+  @WithSession()
   async listar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<EquipeDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<TeamOfFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      listarEquipe(tx, sessao.tenantId, sessao.usuarioId, id),
+      listarEquipe(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   /** Sem permissão própria: é a resposta sobre QUEM PERGUNTA, e ela é sempre dele. */
   @Get(':id/equipe/eu')
-  @ComSessao()
+  @WithSession()
   async minhas(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<MinhasPermissoesNoFluxo> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<MyPermissionsInFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      minhasPermissoesNoFluxo(tx, sessao.tenantId, sessao.usuarioId, id),
+      myPermissionsInFlow(tx, sessao.tenantId, sessao.userId, id),
     );
   }
 
   @Post(':id/equipe')
   @HttpCode(201)
-  @ComSessao()
+  @WithSession()
   async adicionar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: PedidoDeMembroDoFluxo,
-  ): Promise<MembroDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: RequestOfMemberOfFlow,
+  ): Promise<MemberOfFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
-      adicionarMembro(tx, sessao.tenantId, sessao.usuarioId, id, corpo ?? {}),
+      adicionarMember(tx, sessao.tenantId, sessao.userId, id, corpo ?? {}),
     );
   }
 
   @Patch(':id/equipe/:usuarioId')
-  @ComSessao()
+  @WithSession()
   async editar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Param('usuarioId') usuarioId: string,
-    @Body() corpo: PedidoDeMembroDoFluxo,
-  ): Promise<MembroDoFluxo> {
-    const sessao = sessaoDe(requisicao);
+    @Body() corpo: RequestOfMemberOfFlow,
+  ): Promise<MemberOfFlow> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     uuidOu404(usuarioId, 'membro');
     return noTenant(sessao.tenantId, (tx) =>
-      editarMembro(tx, sessao.tenantId, sessao.usuarioId, id, usuarioId, corpo ?? {}),
+      editarMember(tx, sessao.tenantId, sessao.userId, id, usuarioId, corpo ?? {}),
     );
   }
 
   @Delete(':id/equipe/:usuarioId')
   @HttpCode(204)
-  @ComSessao()
+  @WithSession()
   async remover(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() request: RequestWithSession,
     @Param('id') id: string,
-    @Param('usuarioId') usuarioId: string,
+    @Param('usuarioId') userId: string,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
+    const session = sessionOf(request);
     uuidOu404(id, 'fluxo');
-    uuidOu404(usuarioId, 'membro');
-    await noTenant(sessao.tenantId, (tx) =>
-      removerMembro(tx, sessao.tenantId, sessao.usuarioId, id, usuarioId),
+    uuidOu404(userId, 'membro');
+    await noTenant(session.tenantId, (tx) =>
+      removeMember(tx, session.tenantId, session.userId, id, userId),
     );
   }
 }

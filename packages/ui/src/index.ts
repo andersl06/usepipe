@@ -21,13 +21,13 @@
  */
 
 export { TEMA, espaco } from './tema';
-export type { Tema, NomeDeEstado } from './tema';
+export type { Tema, StateName } from './tema';
 
 export { Icone, Simbolo } from './icones';
 export type { NomeDeIcone, PropsDeIcone } from './icones';
 
-export { Ilustracao } from './ilustracoes';
-export type { NomeDeIlustracao, PropsDeIlustracao } from './ilustracoes';
+export { Illustration } from './ilustracoes';
+export type { IllustrationName, IllustrationProps } from './ilustracoes';
 
 export {
   Botao,
@@ -36,11 +36,11 @@ export {
   Campo,
   Seletor,
   Abas,
-  EstadoVazio,
+  EmptyState,
   Carregando,
   Avatar,
-  Cartao,
-  iniciais,
+  Card,
+  initials,
 } from './componentes/primitivos';
 export type {
   PropsDeBotao,
@@ -55,17 +55,17 @@ export {
   Marca,
   NavModulos,
   Cabecalho,
-  LateralContexto,
-  Aplicacao,
-  AreaConfiguracoes,
+  LateralContext,
+  Application,
+  AreaSettings,
   estaAtivo,
 } from './componentes/estrutura';
-export type { ItemDeNavegacao, ComponenteDeLink } from './componentes/estrutura';
+export type { NavigationItem, LinkComponent } from './componentes/estrutura';
 
 export { Tabela } from './componentes/tabela';
-export type { Coluna } from './componentes/tabela';
+export type { Column } from './componentes/tabela';
 
-export { CartaoEncerramentoTicket } from './componentes/encerramento-ticket';
-export { AvisoEncerramento, avisarTicketFinalizado } from './componentes/aviso-encerramento';
-export { encerramentoPodeConfirmar } from './regras-encerramento';
-export type { EtiquetaDeEncerramento } from './regras-encerramento';
+export { CardClosureTicket } from './componentes/encerramento-ticket';
+export { ClosureNotice, avisarTicketFinalizado } from './componentes/aviso-encerramento';
+export { closureCanConfirm } from './regras-encerramento';
+export type { ClosureTag } from './regras-encerramento';

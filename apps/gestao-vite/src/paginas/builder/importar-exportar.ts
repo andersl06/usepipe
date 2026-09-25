@@ -18,26 +18,26 @@ import { lerDesenho } from './modelo';
  * posição também ganha lugar na grade).
  */
 
-export const MENSAGENS_DE_IMPORTACAO = {
+export const MESSAGES_OF_IMPORT = {
   arquivoInvalido: 'O arquivo especificado não contém uma sequência de importação válida.',
   semRaiz: 'O arquivo especificado não contém uma sequência de importação válida.',
   disclaimer: 'Quando você importar o fluxo, a versão atual será substituída. Deseja continuar?',
 } as const;
 
-export type ResultadoDeImportacao =
-  | { ok: true; mapa: Mapa; globais: Record<string, unknown> }
-  | { ok: false; erro: string };
+export type ImportResult =
+  | { ok: true; mapa: Mapa; global: Record<string, unknown> }
+  | { ok: false; error: string };
 
 /** O texto do `.json` a baixar — `flow`/`globalActions`, como o "Exportar" deles. */
-export function textoDeExportacao(mapa: Mapa, globais: Record<string, unknown>): string {
+export function exportText(mapa: Mapa, global: Record<string, unknown>): string {
   const flow: Record<string, unknown> = {};
-  for (const bloco of Object.values(mapa)) flow[bloco.id] = bloco;
-  return JSON.stringify({ flow, globalActions: globais }, null, 2);
+  for (const block of Object.values(mapa)) flow[block.id] = block;
+  return JSON.stringify({ flow, globalActions: global }, null, 2);
 }
 
 /** `${shortName}.json` — sem caracteres que quebrem o nome do arquivo. */
-export function nomeDoArquivoDeExportacao(nomeDoFluxo: string): string {
-  const seguro = nomeDoFluxo
+export function nameOfFileOfExport(flowName: string): string {
+  const seguro = flowName
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9-_]+/g, '-')
@@ -51,18 +51,18 @@ export function nomeDoArquivoDeExportacao(nomeDoFluxo: string): string {
  * sujo:false e o fluxo importado nunca seria salvo (ver `builder.tsx`, que usa
  * `aplicar`/`aplicarGlobais`, os mesmos gestos de qualquer edição).
  */
-export function validarImportacao(texto: string): ResultadoDeImportacao {
+export function validateImport(texto: string): ImportResult {
   let json: unknown;
   try {
     json = JSON.parse(texto);
   } catch {
-    return { ok: false, erro: MENSAGENS_DE_IMPORTACAO.arquivoInvalido };
+    return { ok: false, error: MESSAGES_OF_IMPORT.arquivoInvalido };
   }
-  if (!ehExportDoEditor(json)) return { ok: false, erro: MENSAGENS_DE_IMPORTACAO.arquivoInvalido };
-  const globais = (json.globalActions as Record<string, unknown> | null) ?? {};
-  const mapa = lerDesenho({ fluxo: json.flow, globais });
-  if (!Object.values(mapa).some((bloco) => bloco.root)) {
-    return { ok: false, erro: MENSAGENS_DE_IMPORTACAO.semRaiz };
+  if (!ehExportDoEditor(json)) return { ok: false, error: MESSAGES_OF_IMPORT.arquivoInvalido };
+  const global = (json.globalActions as Record<string, unknown> | null) ?? {};
+  const mapa = lerDesenho({ flow: json.flow, global });
+  if (!Object.values(mapa).some((block) => block.root)) {
+    return { ok: false, error: MESSAGES_OF_IMPORT.semRaiz };
   }
-  return { ok: true, mapa, globais };
+  return { ok: true, mapa, global };
 }

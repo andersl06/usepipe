@@ -20,11 +20,11 @@ import type { FormEvent } from 'react';
  * `formulario.reset()` que cada uma já tem no `useEffect`.
  */
 export function envioQuePreserva(
-  despachar: (dados: FormData) => void,
+  despachar: (data: FormData) => void,
 ): (evento: FormEvent<HTMLFormElement>) => void {
   return (evento) => {
     evento.preventDefault();
-    const dados = new FormData(evento.currentTarget);
-    startTransition(() => despachar(dados));
+    const data = new FormData(evento.currentTarget);
+    startTransition(() => despachar(data));
   };
 }

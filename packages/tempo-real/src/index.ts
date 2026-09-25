@@ -1,4 +1,4 @@
-import type { Assunto, EventoDoServidor, Inscricao, QuadroDeControle } from '@pipe/contracts';
+import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
 
 /**
  * O cliente do canal de tempo real. **Escrito UMA vez, para os três fronts.**
@@ -52,7 +52,7 @@ const ESPERA_TETO_MS = 30_000;
  */
 const SILENCIO_ATE_MORRER_MS = 35_000;
 
-export type EstadoDaLigacao = 'ligando' | 'ligado' | 'caiu';
+export type StateOfConnection = 'ligando' | 'ligado' | 'caiu';
 
 /** O mínimo de `WebSocket` que este cliente usa. Existe para o teste injetar o seu. */
 export interface SocketMinimo {
@@ -64,7 +64,7 @@ export interface SocketMinimo {
   onerror: ((...args: unknown[]) => void) | null;
 }
 
-export interface OpcoesDaLigacao {
+export interface OptionsOfConnection {
   /** Base da API vista pelo NAVEGADOR. `http` vira `ws`, `https` vira `wss`. */
   urlApi: string;
   assuntos: Assunto[];
@@ -74,18 +74,18 @@ export interface OpcoesDaLigacao {
    */
   aoEvento: (evento: EventoDoServidor) => void;
   /** Para a tela mostrar "reconectando…" quando quiser. Opcional. */
-  aoEstado?: (estado: EstadoDaLigacao) => void;
+  toState?: (state: StateOfConnection) => void;
   /** Só para teste. */
-  criarSocket?: (url: string) => SocketMinimo;
+  createSocket?: (url: string) => SocketMinimo;
 }
 
-export interface Ligacao {
+export interface Connection {
   fechar: () => void;
   /** O estado atual, para a tela que prefere perguntar a ouvir. */
-  estado: () => EstadoDaLigacao;
+  state: () => StateOfConnection;
 }
 
-export function urlDoCanal(urlApi: string): string {
+export function urlOfChannel(urlApi: string): string {
   return `${urlApi.replace(/\/$/, '').replace(/^http/, 'ws')}/v1/eventos`;
 }
 
@@ -101,21 +101,21 @@ export function esperaDaTentativa(tentativa: number, sortear: () => number = Mat
   return Math.round(crescente * (0.8 + sortear() * 0.4));
 }
 
-export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
-  const url = urlDoCanal(opcoes.urlApi);
-  const criar = opcoes.criarSocket ?? padraoCriarSocket;
+export function ligar(options: OptionsOfConnection): Connection {
+  const url = urlOfChannel(options.urlApi);
+  const create = options.createSocket ?? defaultCreateSocket;
 
   let socket: SocketMinimo | null = null;
   let tentativa = 0;
   let fechadoDeProposito = false;
-  let estado: EstadoDaLigacao = 'ligando';
+  let state: StateOfConnection = 'ligando';
   let reconexao: ReturnType<typeof setTimeout> | null = null;
   let vigia: ReturnType<typeof setTimeout> | null = null;
 
-  const mudarEstado = (novo: EstadoDaLigacao): void => {
-    if (estado === novo) return;
-    estado = novo;
-    opcoes.aoEstado?.(novo);
+  const changeState = (novo: StateOfConnection): void => {
+    if (state === novo) return;
+    state = novo;
+    options.toState?.(novo);
   };
 
   /** Qualquer coisa vinda do servidor — evento OU ping — adia a sentença de morte. */
@@ -136,7 +136,7 @@ export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
     if (fechadoDeProposito) return;
     if (reconexao) return; // já há uma tentativa agendada
     socket = null;
-    mudarEstado('caiu');
+    changeState('caiu');
     tentativa += 1;
     reconexao = setTimeout(() => {
       reconexao = null;
@@ -146,10 +146,10 @@ export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
 
   const abrir = (): void => {
     if (fechadoDeProposito) return;
-    mudarEstado('ligando');
+    changeState('ligando');
     let novo: SocketMinimo;
     try {
-      novo = criar(url);
+      novo = create(url);
     } catch {
       aoCair();
       return;
@@ -158,26 +158,26 @@ export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
 
     novo.onopen = () => {
       tentativa = 0;
-      mudarEstado('ligado');
+      changeState('ligado');
       // **A inscrição é reenviada a cada reconexão.** O servidor não guarda nada de
       // quem caiu: socket novo começa sem assunto nenhum e não entrega nada até isto.
-      const inscricao: Inscricao = { assuntos: opcoes.assuntos };
-      novo.send(JSON.stringify(inscricao));
+      const subscription: Subscription = { assuntos: options.assuntos };
+      novo.send(JSON.stringify(subscription));
       respirou();
     };
 
-    novo.onmessage = (mensagem) => {
+    novo.onmessage = (message) => {
       respirou();
       let corpo: EventoDoServidor | QuadroDeControle;
       try {
-        corpo = JSON.parse(String(mensagem.data)) as EventoDoServidor | QuadroDeControle;
+        corpo = JSON.parse(String(message.data)) as EventoDoServidor | QuadroDeControle;
       } catch {
         return;
       }
       // Quadro de controle não é evento: `ping`, `inscrito` e `recusado` não fazem a
       // tela rebuscar nada.
       if ('tipo' in corpo) return;
-      opcoes.aoEvento(corpo);
+      options.aoEvento(corpo);
     };
 
     novo.onclose = aoCair;
@@ -218,7 +218,7 @@ export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
   abrir();
 
   return {
-    estado: () => estado,
+    state: () => state,
     fechar: () => {
       fechadoDeProposito = true;
       if (reconexao) clearTimeout(reconexao);
@@ -235,7 +235,7 @@ export function ligar(opcoes: OpcoesDaLigacao): Ligacao {
   };
 }
 
-function padraoCriarSocket(url: string): SocketMinimo {
+function defaultCreateSocket(url: string): SocketMinimo {
   const WS = globalThis.WebSocket;
   if (!WS) throw new Error('WebSocket não existe neste ambiente');
   // `credentials` não se configura aqui: o navegador manda o cookie de sessão no

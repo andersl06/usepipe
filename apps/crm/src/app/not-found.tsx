@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Ilustracao } from '@pipe/ui';
+import { Illustration } from '@pipe/ui';
 
 /**
  * Registro que não existe, ou endereço que ninguém serve.
@@ -12,7 +12,7 @@ export default function NaoEncontrado() {
   return (
     <div className="tblwrap">
       <div className="vazio">
-        <Ilustracao nome="busca" />
+        <Illustration nome="busca" />
         <b>Não encontramos este registro.</b>
         <span>
           Ou ele foi excluído, ou o endereço veio errado. Registro excluído continua no banco e

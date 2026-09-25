@@ -1,4 +1,4 @@
-import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORIDADE, type NivelPrioridade } from '@pipe/core/conversa';
+import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversa';
 
 /**
  * As regras de priorização como a seção "Regras de Priorização" da página de
@@ -13,32 +13,32 @@ import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORIDADE, type NivelPrioridade } from '@p
  * `tests/regras-prioridade.test.ts` rodar com `node --test` + `tsx`.
  */
 
-export interface RegraDePrioridade {
+export interface PriorityRule {
   id: string;
   nome: string;
   nivel: string;
-  escopoTipo: string;
-  escopoId: string | null;
-  condicao: Record<string, unknown>;
-  ativa: boolean;
+  scopeType: string;
+  scopeId: string | null;
+  condition: Record<string, unknown>;
+  active: boolean;
 }
 
 export { NIVEIS_ATRIBUIVEIS };
 
 /** O degrau em português — `ROTULOS_PRIORIDADE` do core, sem mapa paralelo. */
 export function rotuloDoNivel(nivel: string): string {
-  return ROTULOS_PRIORIDADE[nivel as NivelPrioridade] ?? nivel;
+  return ROTULOS_PRIORITY[nivel as NivelPriority] ?? nivel;
 }
 
 /** Só as regras desta fila, na ordem em que a API já as devolve (por nome). */
-export function regrasDaFila(
-  regras: readonly RegraDePrioridade[],
-  filaId: string,
-): RegraDePrioridade[] {
-  return regras.filter((r) => r.escopoTipo === 'fila' && r.escopoId === filaId);
+export function queueRules(
+  regras: readonly PriorityRule[],
+  queueId: string,
+): PriorityRule[] {
+  return regras.filter((r) => r.scopeType === 'fila' && r.scopeId === queueId);
 }
 
 /** As do tenant — valem para esta fila também, mas não se editam aqui. */
-export function regrasDoTenant(regras: readonly RegraDePrioridade[]): RegraDePrioridade[] {
-  return regras.filter((r) => r.escopoTipo === 'tenant');
+export function regrasDoTenant(regras: readonly PriorityRule[]): PriorityRule[] {
+  return regras.filter((r) => r.scopeType === 'tenant');
 }

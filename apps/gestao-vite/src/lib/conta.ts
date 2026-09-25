@@ -6,15 +6,15 @@
  * mora lá. A tela só mostra e manda salvar.
  */
 
-export interface ContaEmVigor {
+export interface AccountInVigor {
   id: string;
   nome: string;
   slug: string;
   plano: string;
   site: string | null;
   funcionarios: string | null;
-  cidade: string | null;
-  estado: string | null;
+  city: string | null;
+  state: string | null;
   pais: string | null;
   telefone: string | null;
   optinWhatsapp: boolean;
@@ -27,7 +27,7 @@ export interface ContaEmVigor {
   fusos: readonly string[];
 }
 
-export interface ContaNaLista {
+export interface AccountInLista {
   tenantId: string;
   nome: string;
   slug: string;

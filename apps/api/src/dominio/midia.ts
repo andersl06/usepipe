@@ -2,10 +2,10 @@ import { createHash } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrarConfig, estaCifrado } from '@pipe/db';
 import { esperaMs } from '@pipe/workers';
-import type { JobMidia } from '@pipe/workers';
-import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/armazenamento';
-import { bancoDono, chaveiro, noTenant } from '../banco.js';
-import { armazenamento } from './anexo.js';
+import type { JobMedia } from '@pipe/workers';
+import { keyOfAttachment, maxBytesDoMime, mimeParaServir } from '@pipe/armazenamento';
+import { databaseOwner, keyring, noTenant } from '../banco.js';
+import { storage } from './anexo.js';
 
 /**
  * Download da mídia recebida (WhatsApp e Instagram) para o nosso storage.
@@ -43,7 +43,7 @@ const HOSTS_PERMITIDOS: readonly RegExp[] = [
   /(^|\.)cdninstagram\.com$/,
 ];
 
-export function hostDeMidiaPermitido(bruto: string): boolean {
+export function hostOfMediaAllowed(bruto: string): boolean {
   let url: URL;
   try {
     url = new URL(bruto);
@@ -55,48 +55,48 @@ export function hostDeMidiaPermitido(bruto: string): boolean {
 
 /** Busca HTTP injetável — o teste troca por um dublê sem tocar em `cliente-graph.ts`. */
 let buscar: typeof fetch = fetch;
-export function definirBuscadorDeMidia(novo: typeof fetch | null): void {
+export function defineBuscadorOfMedia(novo: typeof fetch | null): void {
   buscar = novo ?? fetch;
 }
 
-interface InfoDaMidia {
+interface InfoOfMedia {
   url?: string;
   mime_type?: string;
   sha256?: string;
 }
 
-type LinhaAnexo = {
+type LineAttachment = {
   id: string;
-  chave_storage: string;
+  keyStorage: string;
   mime: string;
   nome_original: string | null;
   checksum: string | null;
   download_tentativas: number;
-  canal_tipo: string | null;
-  canal_config: Record<string, unknown> | null;
+  channelType: string | null;
+  channelConfig: Record<string, unknown> | null;
 };
 
 export type ResultadoDownload =
-  | { estado: 'ignorado' }
-  | { estado: 'baixado' }
-  | { estado: 'reagendado' }
-  | { estado: 'falhou'; motivo: string };
+  | { state: 'ignorado' }
+  | { state: 'baixado' }
+  | { state: 'reagendado' }
+  | { state: 'falhou'; motivo: string };
 
 type Baixado = { mime: string; bytes: Uint8Array; sha256Esperado?: string | undefined };
-type FalhaPermanente = { erroPermanente: string };
+type FalhaPermanente = { errorPermanente: string };
 
 /**
  * Baixa a mídia de UM anexo. Chamado pelo consumidor da fila (o empurrão logo
  * depois do commit da entrada) e pela varredura periódica.
  */
-export async function baixarMidiaDoAnexo(tenantId: string, anexoId: string): Promise<ResultadoDownload> {
+export async function baixarMediaOfAttachment(tenantId: string, attachmentId: string): Promise<ResultadoDownload> {
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaAnexo>(sql`
+    const { rows } = await tx.execute<LineAttachment>(sql`
       select a.id, a.chave_storage, a.mime, a.nome_original, a.checksum,
              a.download_tentativas, ca.tipo as canal_tipo, ca.config as canal_config
         from anexo a
         left join canal ca on ca.id = a.canal_id
-       where a.id = ${anexoId}::uuid and a.bytes = 0
+       where a.id = ${attachmentId}::uuid and a.bytes = 0
        limit 1
     `);
     return rows[0] ?? null;
@@ -104,17 +104,17 @@ export async function baixarMidiaDoAnexo(tenantId: string, anexoId: string): Pro
 
   // Sumiu, ou já foi baixado por outra tentativa (o empurrão e a varredura podem se
   // cruzar): idempotência sem erro.
-  if (!linha) return { estado: 'ignorado' };
-  if (!linha.canal_tipo) {
+  if (!linha) return { state: 'ignorado' };
+  if (!linha.channelType) {
     return marcarFalha(tenantId, linha, 'Anexo sem canal: não há de onde baixar a mídia.');
   }
 
   try {
     const baixado =
-      linha.canal_tipo === 'whatsapp_cloud'
+      linha.channelType === 'whatsapp_cloud'
         ? await baixarDoWhatsApp(linha)
         : await baixarDoInstagram(linha);
-    if ('erroPermanente' in baixado) return marcarFalha(tenantId, linha, baixado.erroPermanente);
+    if ('erroPermanente' in baixado) return marcarFalha(tenantId, linha, baixado.errorPermanente);
 
     const mimeFinal = mimeParaServir(baixado.mime, baixado.bytes);
     const teto = maxBytesDoMime(mimeFinal);
@@ -131,56 +131,56 @@ export async function baixarMidiaDoAnexo(tenantId: string, anexoId: string): Pro
       return marcarFalha(tenantId, linha, 'O sha256 do arquivo baixado não bate com o que a Meta informou.');
     }
 
-    const chave = chaveDeAnexo(tenantId, linha.nome_original);
-    await armazenamento().guardar(chave, baixado.bytes);
+    const key = keyOfAttachment(tenantId, linha.nome_original);
+    await storage().guardar(key, baixado.bytes);
 
     await noTenant(tenantId, async (tx) => {
       await tx.execute(sql`
         update anexo
-           set chave_storage = ${chave}, mime = ${mimeFinal}, bytes = ${baixado.bytes.byteLength},
+           set chave_storage = ${key}, mime = ${mimeFinal}, bytes = ${baixado.bytes.byteLength},
                checksum = ${checksum}, download_tentativas = 0, download_erro = null,
                download_proxima_tentativa_em = null
-         where id = ${anexoId}::uuid
+         where id = ${attachmentId}::uuid
       `);
     });
-    return { estado: 'baixado' };
-  } catch (erro) {
-    return reagendarOuDesistir(tenantId, linha, (erro as Error).message);
+    return { state: 'baixado' };
+  } catch (error) {
+    return reagendarOuDesistir(tenantId, linha, (error as Error).message);
   }
 }
 
-async function baixarDoWhatsApp(linha: LinhaAnexo): Promise<Baixado | FalhaPermanente> {
-  const mediaId = linha.chave_storage.startsWith('meta:') ? linha.chave_storage.slice(5) : null;
+async function baixarDoWhatsApp(linha: LineAttachment): Promise<Baixado | FalhaPermanente> {
+  const mediaId = linha.keyStorage.startsWith('meta:') ? linha.keyStorage.slice(5) : null;
   if (!mediaId) {
-    return { erroPermanente: `"${linha.chave_storage}" não é uma referência de mídia da Meta.` };
+    return { errorPermanente: `"${linha.keyStorage}" não é uma referência de mídia da Meta.` };
   }
 
-  const config = configDecifrada(linha.canal_config);
+  const config = configDecifrada(linha.channelConfig);
   const token = typeof config['tokenAcesso'] === 'string' ? config['tokenAcesso'] : null;
-  if (!token) return { erroPermanente: 'O canal não tem tokenAcesso em canal.config.' };
+  if (!token) return { errorPermanente: 'O canal não tem tokenAcesso em canal.config.' };
   const versao = typeof config['apiVersao'] === 'string' ? config['apiVersao'] : VERSAO_PADRAO_GRAPH;
 
   // Erro de rede ou HTTP aqui é sempre tratado como TEMPORÁRIO (propaga e quem chama
   // reagenda): a URL de mídia vence em ~5 minutos, e a próxima tentativa pede outra.
-  const info = await pedirJson<InfoDaMidia>(
+  const info = await pedirJson<InfoOfMedia>(
     `${URL_BASE_GRAPH}/${versao}/${mediaId}`,
     token,
     'A busca dos metadados da mídia falhou',
   );
-  if (!info.url) return { erroPermanente: 'A Meta não devolveu a URL de download da mídia.' };
-  if (!hostDeMidiaPermitido(info.url)) {
-    return { erroPermanente: `Host de mídia fora da lista permitida: ${new URL(info.url).hostname}.` };
+  if (!info.url) return { errorPermanente: 'A Meta não devolveu a URL de download da mídia.' };
+  if (!hostOfMediaAllowed(info.url)) {
+    return { errorPermanente: `Host de mídia fora da lista permitida: ${new URL(info.url).hostname}.` };
   }
 
   const bytes = await pedirBytes(info.url, token, 'O download da mídia falhou');
   return { mime: info.mime_type ?? linha.mime, bytes, sha256Esperado: info.sha256 ?? linha.checksum ?? undefined };
 }
 
-async function baixarDoInstagram(linha: LinhaAnexo): Promise<Baixado | FalhaPermanente> {
-  if (!hostDeMidiaPermitido(linha.chave_storage)) {
-    return { erroPermanente: `Host de mídia fora da lista permitida: ${hostnameDe(linha.chave_storage)}.` };
+async function baixarDoInstagram(linha: LineAttachment): Promise<Baixado | FalhaPermanente> {
+  if (!hostOfMediaAllowed(linha.keyStorage)) {
+    return { errorPermanente: `Host de mídia fora da lista permitida: ${hostnameDe(linha.keyStorage)}.` };
   }
-  const bytes = await pedirBytes(linha.chave_storage, undefined, 'O download da mídia falhou');
+  const bytes = await pedirBytes(linha.keyStorage, undefined, 'O download da mídia falhou');
   return { mime: linha.mime, bytes };
 }
 
@@ -197,14 +197,14 @@ function esconder(texto: string, token: string): string {
   return token.length >= 8 ? texto.split(token).join('«segredo»') : texto;
 }
 
-async function pedirJson<T>(url: string, token: string, mensagem: string): Promise<T> {
+async function pedirJson<T>(url: string, token: string, message: string): Promise<T> {
   let resposta: Response;
   try {
     resposta = await buscar(url, { headers: { authorization: `Bearer ${token}` } });
   } catch (erro) {
-    throw new Error(esconder(`${mensagem}: ${(erro as Error).message}`, token));
+    throw new Error(esconder(`${message}: ${(erro as Error).message}`, token));
   }
-  if (!resposta.ok) throw new Error(`${mensagem}: HTTP ${resposta.status}.`);
+  if (!resposta.ok) throw new Error(`${message}: HTTP ${resposta.status}.`);
   return (await resposta.json()) as T;
 }
 
@@ -223,10 +223,10 @@ async function pedirBytes(url: string, token: string | undefined, mensagem: stri
 function configDecifrada(cru: Record<string, unknown> | null): Record<string, unknown> {
   if (!cru) return {};
   const cifrado = Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v));
-  return cifrado ? decifrarConfig(cru, chaveiro()) : cru;
+  return cifrado ? decifrarConfig(cru, keyring()) : cru;
 }
 
-async function marcarFalha(tenantId: string, linha: LinhaAnexo, motivo: string): Promise<ResultadoDownload> {
+async function marcarFalha(tenantId: string, linha: LineAttachment, motivo: string): Promise<ResultadoDownload> {
   await noTenant(tenantId, async (tx) => {
     await tx.execute(sql`
       update anexo
@@ -235,12 +235,12 @@ async function marcarFalha(tenantId: string, linha: LinhaAnexo, motivo: string):
        where id = ${linha.id}::uuid
     `);
   });
-  return { estado: 'falhou', motivo };
+  return { state: 'falhou', motivo };
 }
 
 async function reagendarOuDesistir(
   tenantId: string,
-  linha: LinhaAnexo,
+  linha: LineAttachment,
   motivo: string,
 ): Promise<ResultadoDownload> {
   const tentativas = linha.download_tentativas + 1;
@@ -256,7 +256,7 @@ async function reagendarOuDesistir(
        where id = ${linha.id}::uuid
     `);
   });
-  return { estado: 'reagendado' };
+  return { state: 'reagendado' };
 }
 
 /**
@@ -267,8 +267,8 @@ async function reagendarOuDesistir(
  * `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) é feito para este
  * filtro.
  */
-export async function midiasPendentes(lote = 200): Promise<JobMidia[]> {
-  const { rows } = await bancoDono().execute<{ tenant_id: string; id: string }>(sql`
+export async function midiasPendentes(lote = 200): Promise<JobMedia[]> {
+  const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`
     select tenant_id, id from anexo
      where bytes = 0
        and canal_id is not null

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import type { FilaDoDesk, RespostaDaConversa } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
-import { intervaloDaEntrega } from '../../lib/intervalo-entrega';
+import type { QueueOfDesk, ResponseOfConversation } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
+import { deliveryInterval } from '../../lib/intervalo-entrega';
 import { IconeDesk } from '../../componentes/icones-desk';
-import { Coluna } from './coluna';
-import { Conversa } from './conversa';
-import { Painel } from './painel';
+import { Column } from './coluna';
+import { Conversation } from './conversa';
+import { Panel } from './painel';
 
 /**
  * A tela de Atendimentos — `/` e `/chat/:id` — nas três colunas da
@@ -24,15 +24,15 @@ import { Painel } from './painel';
  */
 const POLLING_INTERVAL = 15_000;
 
-export function PaginaAtendimentos() {
+export function PageAttendances() {
   const { id } = useParams();
   const navegar = useNavigate();
   const [agora, setAgora] = useState(() => new Date());
-  const [painelAberto, setPainelAberto] = useState(true);
+  const [panelAberto, setPanelAberto] = useState(true);
 
-  const fila = useLeitura<FilaDoDesk>('/v1/desk/fila', { refetchInterval: POLLING_INTERVAL });
-  const conversa = useLeitura<RespostaDaConversa>(id ? `/v1/desk/conversas/${id}` : null, {
-    refetchInterval: (query) => intervaloDaEntrega(query.state.data?.aberta?.itens),
+  const queue = useRead<QueueOfDesk>('/v1/desk/fila', { refetchInterval: POLLING_INTERVAL });
+  const conversation = useRead<ResponseOfConversation>(id ? `/v1/desk/conversas/${id}` : null, {
+    refetchInterval: (query) => deliveryInterval(query.state.data?.aberta?.itens),
   });
 
   useEffect(() => {
@@ -42,21 +42,21 @@ export function PaginaAtendimentos() {
 
   /* Conversa que não é do atendente (ou não existe) volta para a lista, como lá. */
   useEffect(() => {
-    if (id && conversa.data && conversa.data.aberta === null) navegar('/', { replace: true });
-  }, [id, conversa.data, navegar]);
+    if (id && conversation.data && conversation.data.aberta === null) navegar('/', { replace: true });
+  }, [id, conversation.data, navegar]);
 
-  const aberta = id ? (conversa.data?.aberta ?? null) : null;
-  const estado = fila.data?.status.estado;
+  const aberta = id ? (conversation.data?.aberta ?? null) : null;
+  const state = queue.data?.status.estado;
 
   return (
     <div
       className="dk-app-colunas"
       style={{ display: 'contents' }}
-      data-painel={painelAberto ? 'aberto' : 'fechado'}
+      data-painel={panelAberto ? 'aberto' : 'fechado'}
     >
-      {fila.data ? (
-        <Coluna
-          fila={fila.data}
+      {queue.data ? (
+        <Column
+          queue={queue.data}
           agora={agora}
           selecionada={id ?? null}
           aoAbrir={(c) => navegar(`/chat/${c}`)}
@@ -72,7 +72,7 @@ export function PaginaAtendimentos() {
         </div>
       )}
 
-      {!fila.data ? (
+      {!queue.data ? (
         <div className="dk-conversa">
           <div className="dk-conversa-vazia">
             <div className="dk-girando" aria-hidden="true" />
@@ -80,23 +80,23 @@ export function PaginaAtendimentos() {
           </div>
         </div>
       ) : aberta ? (
-        <Conversa
+        <Conversation
           aberta={aberta}
-          respostas={fila.data.respostas}
-          etiquetas={fila.data.etiquetas}
-          colegas={fila.data.colegas}
+          respostas={queue.data.respostas}
+          etiquetas={queue.data.etiquetas}
+          colegas={queue.data.colegas}
           agora={agora}
-          painelAberto={painelAberto}
-          aoAlternarPainel={() => setPainelAberto((v) => !v)}
+          panelAberto={panelAberto}
+          toAlternarPanel={() => setPanelAberto((v) => !v)}
           aoFechar={() => navegar('/')}
         />
-      ) : id && conversa.isPending ? (
+      ) : id && conversation.isPending ? (
         <div className="dk-conversa">
           <div className="dk-conversa-vazia">
             <div className="dk-girando" aria-hidden="true" />
           </div>
         </div>
-      ) : (estado === 'invisivel' || estado === 'pausa') && fila.data.conversas.length === 0 ? (
+      ) : (state === 'invisivel' || state === 'pausa') && queue.data.conversations.length === 0 ? (
         <div className="dk-conversa">
           <div className="dk-conversa-vazia">
             <div className="dk-ilustracao" aria-hidden="true">
@@ -104,7 +104,7 @@ export function PaginaAtendimentos() {
             </div>
             <h1 className="dk-conversa-titulo">Fique online para atender</h1>
             <p>
-              {estado === 'pausa'
+              {state === 'pausa'
                 ? 'Você está em pausa.'
                 : 'Você está invisível e não consigo te ver (rimou!)'}
             </p>
@@ -122,7 +122,7 @@ export function PaginaAtendimentos() {
         </div>
       )}
 
-      {painelAberto ? <Painel aberta={aberta} agora={agora} /> : null}
+      {panelAberto ? <Panel aberta={aberta} agora={agora} /> : null}
     </div>
   );
 }

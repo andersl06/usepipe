@@ -2,16 +2,16 @@ import { useSearchParams } from 'react-router-dom';
 import {
   PERIODOS_DE_CALENDARIO,
   PERIODOS_FIXOS,
-  ROTULO_DO_PERIODO,
-  type DadosDeMensagensAtivas,
+  ROTULO_OF_PERIOD,
+  type ActiveMessagesData,
   type Intervalo,
-  type Periodo,
+  type Period,
 } from '@pipe/core/analise';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { useLeitura } from '../../../../lib/consulta';
-import { useContato } from '../../contato';
-import { Filtro } from './filtro';
-import { MioloDeMensagensAtivas } from './miolo';
+import { useRead } from '../../../../lib/consulta';
+import { useContact } from '../../contato';
+import { Filter } from './filtro';
+import { ActiveMessagesMiolo } from './miolo';
 import './mensagens-ativas.css';
 
 /**
@@ -25,29 +25,29 @@ import './mensagens-ativas.css';
  * a cada "Aplicar"/"Atualizar". Aqui o estado mora na URL (`?periodo`, `?de`,
  * `?ate`, `?template`) e a `api` resolve o período no fuso da conta.
  */
-interface RespostaDeMensagensAtivas {
-  periodo: Periodo;
+interface ActiveMessagesResposta {
+  period: Period;
   intervalo: Intervalo;
   hoje: string;
   /** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */
   limite: string;
   template: string | null;
-  dados: DadosDeMensagensAtivas;
+  data: ActiveMessagesData;
 }
 
-export function PaginaDeMensagensAtivas() {
-  const { contato } = useContato();
-  const [busca] = useSearchParams();
+export function ActiveMessagesPage() {
+  const { contact } = useContact();
+  const [search] = useSearchParams();
   const q = new URLSearchParams();
-  for (const chave of ['periodo', 'de', 'ate', 'template']) {
-    const v = busca.get(chave);
-    if (v) q.set(chave, v);
+  for (const key of ['periodo', 'de', 'ate', 'template']) {
+    const v = search.get(key);
+    if (v) q.set(key, v);
   }
-  const leitura = useLeitura<RespostaDeMensagensAtivas>(
-    `/v1/gestao/fluxos/${contato.id}/analise/mensagens-ativas?${q.toString()}`,
+  const read = useRead<ActiveMessagesResposta>(
+    `/v1/gestao/fluxos/${contact.id}/analise/mensagens-ativas?${q.toString()}`,
   );
-  if (!leitura.data) return null;
-  const { periodo, intervalo, hoje, limite, template, dados } = leitura.data;
+  if (!read.data) return null;
+  const { period, intervalo, hoje, limite, template, data } = read.data;
 
   return (
     <div className="ma-tela">
@@ -64,21 +64,21 @@ export function PaginaDeMensagensAtivas() {
           </div>
         </div>
         <div className="ma-filtro-faixa">
-          <Filtro
+          <Filter
             fileiras={[PERIODOS_FIXOS, PERIODOS_DE_CALENDARIO].map((f) =>
-              f.map((chave) => ({ chave, rotulo: ROTULO_DO_PERIODO[chave] })),
+              f.map((key) => ({ key, rotulo: ROTULO_OF_PERIOD[key] })),
             )}
-            periodo={periodo}
-            de={periodo === 'custom' ? intervalo.inicio : ''}
-            ate={periodo === 'custom' ? intervalo.fim : ''}
+            period={period}
+            de={period === 'custom' ? intervalo.inicio : ''}
+            ate={period === 'custom' ? intervalo.fim : ''}
             template={template ?? ''}
-            templates={dados.templates}
+            templates={data.templates}
             hoje={hoje}
             limite={limite}
           />
         </div>
       </div>
-      <MioloDeMensagensAtivas dados={dados} intervalo={intervalo} />
+      <ActiveMessagesMiolo data={data} intervalo={intervalo} />
     </div>
   );
 }

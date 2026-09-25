@@ -16,116 +16,116 @@
  * enquanto o próximo estado não esperar entrada → ações globais de saída.
  */
 
-import { avaliarCondicoes, paraDecimal } from './condicao.js';
+import { avaliarConditions, paraDecimal } from './condicao.js';
 import type {
-  Contexto,
+  Context,
   CursorDeProcessHttp,
-  ListaDeAcoesSuspensa,
+  ActionsSuspensaLista,
   PedidoDeHttp,
   RespostaDeHttp,
 } from './contexto.js';
 import {
-  CHAVE_DO_ESTADO_ATUAL,
-  apagarEstadoId,
-  definirEstadoAnteriorId,
-  definirEstadoId,
-  definirVariavel,
-  obterEstadoId,
-  substituirVariaveis,
+  KEY_OF_STATE_CURRENT,
+  apagarStateId,
+  definirStateAnteriorId,
+  definirStateId,
+  definirVariable,
+  obterStateId,
+  substituirVariables,
 } from './contexto.js';
-import type { Acao, Estado, FluxoBlip, ValidacaoDeEntrada } from './modelos.js';
-import { ehVariavelDeContexto, validarFluxo } from './modelos.js';
-import type { ProvedorDeAcoes } from './acoes.js';
+import type { Acao, State, FlowBlip, InboundValidation } from './modelos.js';
+import { contextEhVariable, validateFlow } from './modelos.js';
+import type { ActionsProvider } from './acoes.js';
 import { PROVEDOR_PADRAO, obterAcao } from './acoes.js';
 
 /** `ConventionsConfiguration`: os números são os do original. */
-export interface ConfiguracaoDoMotor {
+export interface MotorConfiguration {
   /** `MaxTransitionsByInput`: a trava contra laço. */
-  maxTransicoesPorEntrada: number;
+  maxTransitionsByInbound: number;
   /** `InputProcessingTimeout`. */
-  tempoLimiteDaEntradaMs: number;
+  inboundTimeLimitMs: number;
   /** `DefaultActionExecutionTimeout`, quando a ação não diz o seu. */
-  tempoLimitePadraoDaAcaoMs: number;
+  defaultActionTimeLimitMs: number;
 }
 
-export const CONFIGURACAO_PADRAO: ConfiguracaoDoMotor = {
-  maxTransicoesPorEntrada: 10,
-  tempoLimiteDaEntradaMs: 60_000,
-  tempoLimitePadraoDaAcaoMs: 30_000,
+export const CONFIGURATION_DEFAULT: MotorConfiguration = {
+  maxTransitionsByInbound: 10,
+  inboundTimeLimitMs: 60_000,
+  defaultActionTimeLimitMs: 30_000,
 };
 
 /** `ActionTrace`, o que sobrou dele. */
 export interface RastroDeAcao {
   tipo: string;
-  erro?: string;
+  error?: string;
   esquecida?: boolean;
 }
 
 /** `StateTrace`. */
-export interface RastroDeEstado {
-  estadoId: string;
-  acoes: RastroDeAcao[];
-  proximoEstadoId?: string | null;
-  erro?: string;
+export interface StateRastro {
+  stateId: string;
+  actions: RastroDeAcao[];
+  proximoStateId?: string | null;
+  error?: string;
 }
 
 /** `InputTrace`. */
-export interface RastroDaEntrada {
-  estados: RastroDeEstado[];
-  acoesGlobais: RastroDeAcao[];
+export interface InboundRastro {
+  estados: StateRastro[];
+  actionsGlobal: RastroDeAcao[];
   /** Estado em que o usuário ficou; nulo = o próximo contato recomeça na raiz. */
-  estadoFinalId: string | null;
-  erro?: string;
+  stateFinalId: string | null;
+  error?: string;
 }
 
 /** `FlowConstructionException`. */
-export class ErroDeConstrucaoDeFluxo extends Error {
-  constructor(mensagem: string) {
-    super(mensagem);
+export class BuildFlowError extends Error {
+  constructor(message: string) {
+    super(message);
     this.name = 'ErroDeConstrucaoDeFluxo';
   }
 }
 
 /** `ActionProcessingException`. */
-export class ErroDeProcessamentoDeAcao extends Error {
+export class ProcessingActionError extends Error {
   constructor(
-    mensagem: string,
+    message: string,
     readonly tipoDaAcao: string,
     override readonly cause: unknown,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroDeProcessamentoDeAcao';
   }
 }
 
 /** `OutputProcessingException`. */
-export class ErroDeProcessamentoDeSaida extends Error {
+export class ProcessingOutputError extends Error {
   constructor(
-    mensagem: string,
-    readonly estadoDaSaida: string,
+    message: string,
+    readonly outputState: string,
     override readonly cause: unknown,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroDeProcessamentoDeSaida';
   }
 }
 
 /** `BuilderException`: o erro que sai do motor, com o rastro até onde deu. */
-export class ErroDoMotor extends Error {
+export class MotorError extends Error {
   constructor(
-    mensagem: string,
-    readonly estadoId: string | null,
-    readonly rastro: RastroDaEntrada,
+    message: string,
+    readonly stateId: string | null,
+    readonly rastro: InboundRastro,
     override readonly cause: unknown,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'ErroDoMotor';
   }
 }
 
 export class SuspensaoDeProcessHttp extends Error {
   override readonly name = 'SuspensaoDeProcessHttp';
-  rastro?: RastroDaEntrada;
+  rastro?: InboundRastro;
 
   constructor(
     readonly pedido: PedidoDeHttp,
@@ -135,21 +135,21 @@ export class SuspensaoDeProcessHttp extends Error {
   }
 }
 
-class TempoEsgotado extends Error {}
+class TimeExpired extends Error {}
 
-function comTempoLimite<T>(promessa: Promise<T>, ms: number): Promise<T> {
+function withTimeLimit<T>(promessa: Promise<T>, ms: number): Promise<T> {
   let relogio: ReturnType<typeof setTimeout> | undefined;
   const limite = new Promise<never>((_, rejeitar) => {
-    relogio = setTimeout(() => rejeitar(new TempoEsgotado()), ms);
+    relogio = setTimeout(() => rejeitar(new TimeExpired()), ms);
   });
   return Promise.race([promessa, limite]).finally(() => clearTimeout(relogio));
 }
 
-const mensagemDe = (e: unknown): string => (e instanceof Error ? e.message : String(e));
+const messageOf = (e: unknown): string => (e instanceof Error ? e.message : String(e));
 
-export interface OpcoesDoMotor {
-  configuracao?: Partial<ConfiguracaoDoMotor>;
-  acoes?: ProvedorDeAcoes;
+export interface MotorOptions {
+  configuration?: Partial<MotorConfiguration>;
+  actions?: ActionsProvider;
   retomarProcessHttp?: CursorDeProcessHttp;
 }
 
@@ -159,114 +159,114 @@ export interface OpcoesDoMotor {
  * O estado e as variáveis vivem em `contexto.variaveis`, que a `api` carrega e grava.
  * Devolve o rastro; em erro, lança `ErroDoMotor` com o rastro até onde chegou.
  */
-export async function processarEntrada(
-  contexto: Contexto,
-  opcoes: OpcoesDoMotor = {},
-): Promise<RastroDaEntrada> {
-  const configuracao = { ...CONFIGURACAO_PADRAO, ...opcoes.configuracao };
-  const provedor = opcoes.acoes ?? PROVEDOR_PADRAO;
-  const fluxo = contexto.fluxo;
-  const rastro: RastroDaEntrada = { estados: [], acoesGlobais: [], estadoFinalId: null };
-  const prazo = Date.now() + configuracao.tempoLimiteDaEntradaMs;
-  let estado: Estado | null = null;
-  let cursorPendente = opcoes.retomarProcessHttp
-    ? { ...opcoes.retomarProcessHttp, consumido: false }
+export async function processarInbound(
+  context: Context,
+  options: MotorOptions = {},
+): Promise<InboundRastro> {
+  const configuration = { ...CONFIGURATION_DEFAULT, ...options.configuration };
+  const provedor = options.actions ?? PROVEDOR_PADRAO;
+  const flow = context.flow;
+  const rastro: InboundRastro = { estados: [], actionsGlobal: [], stateFinalId: null };
+  const prazo = Date.now() + configuration.inboundTimeLimitMs;
+  let state: State | null = null;
+  let cursorPendente = options.retomarProcessHttp
+    ? { ...options.retomarProcessHttp, consumido: false }
     : null;
 
   try {
-    validarFluxo(fluxo);
+    validateFlow(flow);
 
     // Restaura o estado guardado; sem estado (ou estado que sumiu do fluxo), a raiz.
-    const estadoId = obterEstadoId(contexto);
-    estado = fluxo.states.find((s) => s.id === estadoId) ?? fluxo.states.find((s) => s.root)!;
+    const stateId = obterStateId(context);
+    state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
 
-    let transicoes = 0;
-    if (fluxo.inputActions) {
-      await processarAcoes(
-        contexto,
-        fluxo.inputActions,
-        estado,
+    let transitions = 0;
+    if (flow.inputActions) {
+      await processarActions(
+        context,
+        flow.inputActions,
+        state,
         provedor,
-        configuracao,
-        rastro.acoesGlobais,
+        configuration,
+        rastro.actionsGlobal,
         'entrada',
         null,
         cursorPendente,
       );
     }
 
-    let esperaEntrada = true;
-    let atual: RastroDeEstado = { estadoId: estado.id, acoes: [] };
+    let esperaInbound = true;
+    let atual: StateRastro = { stateId: state.id, actions: [] };
     rastro.estados.push(atual);
 
     do {
       try {
         if (Date.now() > prazo) {
-          throw new TempoEsgotado(
-            `O processamento da entrada excedeu ${configuracao.tempoLimiteDaEntradaMs} ms.`,
+          throw new TimeExpired(
+            `O processamento da entrada excedeu ${configuration.inboundTimeLimitMs} ms.`,
           );
         }
-        const corrente: Estado = estado!;
+        const corrente: State = state!;
 
-        if (esperaEntrada) {
-          if (!(await validarEntradaDoEstado(contexto, corrente))) break;
+        if (esperaInbound) {
+          if (!(await stateValidarInbound(context, corrente))) break;
           if (corrente.input?.variable) {
-            definirVariavel(
-              contexto,
+            definirVariable(
+              context,
               corrente.input.variable,
-              contexto.entrada.conteudoSerializado,
+              context.inbound.serializedContent,
             );
           }
         }
 
         // Prepara a saída do estado atual executando as ações de saída.
-        await processarAcoes(
-          contexto,
+        await processarActions(
+          context,
           corrente.outputActions,
           corrente,
           provedor,
-          configuracao,
-          atual.acoes,
+          configuration,
+          atual.actions,
           'conteudo',
           corrente.id,
           cursorPendente,
         );
 
         let anteriorId = corrente.id;
-        if (ehVariavelDeContexto(anteriorId))
-          anteriorId = await substituirVariaveis(anteriorId, contexto);
+        if (contextEhVariable(anteriorId))
+          anteriorId = await substituirVariables(anteriorId, context);
 
         if (corrente.end) {
           // `RedirectToParentFlowAsync`: sem fluxo pai, o original lança.
-          throw new ErroDeConstrucaoDeFluxo(
+          throw new BuildFlowError(
             `O estado '${corrente.id}' é de fim de subfluxo, e subfluxo não existe no Pipe.`,
           );
         }
 
-        estado = await processarSaidas(contexto, fluxo, corrente);
-        definirEstadoAnteriorId(contexto, anteriorId);
+        state = await processarSaidas(context, flow, corrente);
+        definirStateAnteriorId(context, anteriorId);
 
         // Só roda o "depois de trocar" quando o estado de fato mudou.
-        if (corrente.id !== estado?.id) {
-          await processarAcoes(
-            contexto,
+        if (corrente.id !== state?.id) {
+          await processarActions(
+            context,
             corrente.afterStateChangedActions,
             corrente,
             provedor,
-            configuracao,
-            atual.acoes,
+            configuration,
+            atual.actions,
             'saida',
             corrente.id,
             cursorPendente,
           );
-          if (fluxo.afterStateChangedActions) {
-            await processarAcoes(
-              contexto,
-              fluxo.afterStateChangedActions,
-              estado,
+          if (flow.afterStateChangedActions) {
+            await processarActions(
+              context,
+              flow.afterStateChangedActions,
+              state,
               provedor,
-              configuracao,
-              rastro.acoesGlobais,
+              configuration,
+              rastro.actionsGlobal,
               'saida',
               null,
               cursorPendente,
@@ -274,195 +274,195 @@ export async function processarEntrada(
           }
         }
 
-        if (estado?.id.startsWith('subflow:')) {
-          throw new ErroDeConstrucaoDeFluxo(
-            `O estado '${estado.id}' é subfluxo, e subfluxo não existe no Pipe.`,
+        if (state?.id.startsWith('subflow:')) {
+          throw new BuildFlowError(
+            `O estado '${state.id}' é subfluxo, e subfluxo não existe no Pipe.`,
           );
         }
 
-        atual.proximoEstadoId = estado?.id ?? null;
-        if (estado) {
-          atual = { estadoId: estado.id, acoes: [] };
+        atual.proximoStateId = state?.id ?? null;
+        if (state) {
+          atual = { stateId: state.id, actions: [] };
           rastro.estados.push(atual);
-          definirEstadoId(contexto, estado.id);
+          definirStateId(context, state.id);
         } else {
-          apagarEstadoId(contexto);
+          apagarStateId(context);
         }
 
         // Ações de entrada do próximo estado.
-        await processarAcoes(
-          contexto,
-          estado?.inputActions,
-          estado,
+        await processarActions(
+          context,
+          state?.inputActions,
+          state,
           provedor,
-          configuracao,
-          atual.acoes,
+          configuration,
+          atual.actions,
           'entrada',
-          estado?.id ?? null,
+          state?.id ?? null,
           cursorPendente,
         );
 
         // Trava contra laço no fluxo.
-        if (transicoes++ >= configuracao.maxTransicoesPorEntrada) {
-          throw new ErroDeConstrucaoDeFluxo(
-            `O limite de ${configuracao.maxTransicoesPorEntrada} transições de estado por entrada foi atingido.`,
+        if (transitions++ >= configuration.maxTransitionsByInbound) {
+          throw new BuildFlowError(
+            `O limite de ${configuration.maxTransitionsByInbound} transições de estado por entrada foi atingido.`,
           );
         }
-      } catch (erro) {
-        atual.erro = mensagemDe(erro);
-        throw erro;
+      } catch (error) {
+        atual.error = messageOf(error);
+        throw error;
       } finally {
         // Continua enquanto o próximo estado não esperar entrada.
-        const condicaoDaEntrada =
-          !estado?.input?.conditions ||
-          (await avaliarCondicoes(estado.input.conditions, contexto.entrada, contexto));
-        esperaEntrada =
-          estado === null || (!!estado.input && !estado.input.bypass && condicaoDaEntrada);
+        const inboundCondition =
+          !state?.input?.conditions ||
+          (await avaliarConditions(state.input.conditions, context.inbound, context));
+        esperaInbound =
+          state === null || (!!state.input && !state.input.bypass && inboundCondition);
       }
-    } while (!esperaEntrada);
+    } while (!esperaInbound);
 
-    if (fluxo.outputActions) {
-      await processarAcoes(
-        contexto,
-        fluxo.outputActions,
-        estado,
+    if (flow.outputActions) {
+      await processarActions(
+        context,
+        flow.outputActions,
+        state,
         provedor,
-        configuracao,
-        rastro.acoesGlobais,
+        configuration,
+        rastro.actionsGlobal,
         'conteudo',
         null,
         cursorPendente,
       );
     }
 
-    rastro.estadoFinalId = estado?.id ?? null;
+    rastro.stateFinalId = state?.id ?? null;
     return rastro;
-  } catch (erro) {
-    if (erro instanceof SuspensaoDeProcessHttp) {
-      erro.rastro = rastro;
-      throw erro;
+  } catch (error) {
+    if (error instanceof SuspensaoDeProcessHttp) {
+      error.rastro = rastro;
+      throw error;
     }
-    rastro.erro = mensagemDe(erro);
-    rastro.estadoFinalId = obterEstadoId(contexto);
-    throw new ErroDoMotor(
-      `Erro ao processar a entrada '${contexto.entrada.mensagem.id}' do usuário '${contexto.usuario}' no estado '${estado?.id ?? ''}': ${mensagemDe(erro)}`,
-      estado?.id ?? null,
+    rastro.error = messageOf(error);
+    rastro.stateFinalId = obterStateId(context);
+    throw new MotorError(
+      `Erro ao processar a entrada '${context.inbound.message.id}' do usuário '${context.user}' no estado '${state?.id ?? ''}': ${messageOf(error)}`,
+      state?.id ?? null,
       rastro,
-      erro,
+      error,
     );
   }
 }
 
 /** `ProcessActionsAsync`. */
-async function processarAcoes(
-  contexto: Contexto,
-  acoes: readonly Acao[] | null | undefined,
-  estado: Estado | null,
-  provedor: ProvedorDeAcoes,
-  configuracao: ConfiguracaoDoMotor,
+async function processarActions(
+  context: Context,
+  actions: readonly Acao[] | null | undefined,
+  state: State | null,
+  provedor: ActionsProvider,
+  configuration: MotorConfiguration,
   rastro: RastroDeAcao[],
-  lista: ListaDeAcoesSuspensa,
-  estadoId: string | null,
+  lista: ActionsSuspensaLista,
+  stateId: string | null,
   cursor: (CursorDeProcessHttp & { resposta?: RespostaDeHttp; consumido?: boolean }) | null,
 ): Promise<void> {
-  if (!acoes) return;
+  if (!actions) return;
   // `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.
-  const ordenadas = [...acoes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  const alvo = cursor && cursor.lista === lista && cursor.estadoId === estadoId ? cursor : null;
+  const ordenadas = [...actions].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const alvo = cursor && cursor.lista === lista && cursor.estadoId === stateId ? cursor : null;
   if (cursor && !cursor.consumido && !alvo) return;
-  for (const [indice, acaoDoFluxo] of ordenadas.entries()) {
+  for (const [indice, flowAction] of ordenadas.entries()) {
     if (
-      acaoDoFluxo.conditions &&
-      !(await avaliarCondicoes(acaoDoFluxo.conditions, contexto.entrada, contexto))
+      flowAction.conditions &&
+      !(await avaliarConditions(flowAction.conditions, context.inbound, context))
     ) {
       continue;
     }
 
-    const tipo = acaoDoFluxo.type === 'ExecuteBlipFunction' ? 'ExecuteScriptV2' : acaoDoFluxo.type;
+    const tipo = flowAction.type === 'ExecuteBlipFunction' ? 'ExecuteScriptV2' : flowAction.type;
     const acao = obterAcao(provedor, tipo);
-    const passo: RastroDeAcao = { tipo: acaoDoFluxo.type };
+    const passo: RastroDeAcao = { tipo: flowAction.type };
     rastro.push(passo);
 
-    const tempoLimite =
-      typeof acaoDoFluxo.timeout === 'number'
-        ? acaoDoFluxo.timeout * 1000
-        : configuracao.tempoLimitePadraoDaAcaoMs;
+    const timeLimit =
+      typeof flowAction.timeout === 'number'
+        ? flowAction.timeout * 1000
+        : configuration.defaultActionTimeLimitMs;
 
     try {
-      let configuracoes: Record<string, unknown> | null = null;
-      if (acaoDoFluxo.settings !== undefined && acaoDoFluxo.settings !== null) {
-        let texto = JSON.stringify(acaoDoFluxo.settings);
+      let settings: Record<string, unknown> | null = null;
+      if (flowAction.settings !== undefined && flowAction.settings !== null) {
+        let texto = JSON.stringify(flowAction.settings);
         // `ExecuteTemplate` recebe o modelo cru; as demais, com as variáveis trocadas.
-        if (acao.tipo !== 'ExecuteTemplate') texto = await substituirVariaveis(texto, contexto);
-        configuracoes = JSON.parse(texto) as Record<string, unknown>;
+        if (acao.tipo !== 'ExecuteTemplate') texto = await substituirVariables(texto, context);
+        settings = JSON.parse(texto) as Record<string, unknown>;
       }
-      contexto.entradaContexto.set(CHAVE_DO_ESTADO_ATUAL, estado?.id ?? null);
-      if (acaoDoFluxo.type === 'ProcessHttp' && contexto.servicos.suspenderHttp) {
-        contexto.entradaContexto.set('process-http-cursor', {
+      context.inboundContext.set(KEY_OF_STATE_CURRENT, state?.id ?? null);
+      if (flowAction.type === 'ProcessHttp' && context.services.suspendHttp) {
+        context.inboundContext.set('process-http-cursor', {
           lista,
-          estadoId,
+          stateId,
           indice,
         });
       }
       if (alvo && indice < alvo.indice) continue;
       if (alvo && !cursor?.consumido && indice === alvo.indice) {
         if (!alvo.resposta) throw new Error('A retomada de ProcessHttp não tem resposta.');
-        const status = typeof configuracoes?.['responseStatusVariable'] === 'string'
-          ? configuracoes['responseStatusVariable'].trim() : '';
-        const corpo = typeof configuracoes?.['responseBodyVariable'] === 'string'
-          ? configuracoes['responseBodyVariable'].trim() : '';
-        if (status) definirVariavel(contexto, status, String(alvo.resposta.status));
-        if (corpo) definirVariavel(contexto, corpo, alvo.resposta.corpo);
+        const status = typeof settings?.['responseStatusVariable'] === 'string'
+          ? settings['responseStatusVariable'].trim() : '';
+        const corpo = typeof settings?.['responseBodyVariable'] === 'string'
+          ? settings['responseBodyVariable'].trim() : '';
+        if (status) definirVariable(context, status, String(alvo.resposta.status));
+        if (corpo) definirVariable(context, corpo, alvo.resposta.corpo);
         if (cursor) cursor.consumido = true;
         continue;
       }
-      await comTempoLimite(acao.executar(contexto, configuracoes), tempoLimite);
-    } catch (erro) {
-      if (erro instanceof SuspensaoDeProcessHttp) throw erro;
-      passo.erro = mensagemDe(erro);
-      const mensagem =
-        erro instanceof TempoEsgotado
-          ? `O processamento da ação '${acaoDoFluxo.type}' excedeu o tempo limite de ${tempoLimite} ms.`
-          : `O processamento da ação '${acaoDoFluxo.type}' falhou: ${mensagemDe(erro)}`;
-      if (acaoDoFluxo.continueOnError) {
+      await withTimeLimit(acao.executar(context, settings), timeLimit);
+    } catch (error) {
+      if (error instanceof SuspensaoDeProcessHttp) throw error;
+      passo.error = messageOf(error);
+      const message =
+        error instanceof TimeExpired
+          ? `O processamento da ação '${flowAction.type}' excedeu o tempo limite de ${timeLimit} ms.`
+          : `O processamento da ação '${flowAction.type}' falhou: ${messageOf(error)}`;
+      if (flowAction.continueOnError) {
         passo.esquecida = true;
         continue;
       }
-      throw new ErroDeProcessamentoDeAcao(mensagem, acaoDoFluxo.type, erro);
+      throw new ProcessingActionError(message, flowAction.type, error);
     }
   }
 }
 
 /** `ProcessOutputsAsync`: a primeira saída que casar vence; nenhuma = estado nulo. */
 async function processarSaidas(
-  contexto: Contexto,
-  fluxo: FluxoBlip,
-  estado: Estado,
-): Promise<Estado | null> {
-  const saidas = estado.outputs;
+  context: Context,
+  flow: FlowBlip,
+  state: State,
+): Promise<State | null> {
+  const saidas = state.outputs;
   if (!saidas) return null;
   for (const saida of [...saidas].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))) {
     try {
       if (
         !saida.conditions ||
-        (await avaliarCondicoes(saida.conditions, contexto.entrada, contexto))
+        (await avaliarConditions(saida.conditions, context.inbound, context))
       ) {
         let alvo = saida.stateId;
-        if (ehVariavelDeContexto(alvo)) alvo = await substituirVariaveis(alvo, contexto);
-        const proximo = fluxo.states.find((s) => s.id === alvo);
+        if (contextEhVariable(alvo)) alvo = await substituirVariables(alvo, context);
+        const proximo = flow.states.find((s) => s.id === alvo);
         if (!proximo) {
-          apagarEstadoId(contexto);
+          apagarStateId(context);
           throw new Error(
             `A variável de contexto da saída '${saida.stateId}' está indefinida ou não existe no fluxo.`,
           );
         }
         return proximo;
       }
-    } catch (erro) {
-      throw new ErroDeProcessamentoDeSaida(
-        `Falha ao processar a condição da saída para o estado '${saida.stateId}': ${mensagemDe(erro)}`,
+    } catch (error) {
+      throw new ProcessingOutputError(
+        `Falha ao processar a condição da saída para o estado '${saida.stateId}': ${messageOf(error)}`,
         saida.stateId,
-        erro,
+        error,
       );
     }
   }
@@ -473,17 +473,17 @@ async function processarSaidas(
  * `ValidateInputAsync`: entrada fora da regra manda a mensagem de erro e para — o
  * usuário continua no mesmo estado.
  */
-async function validarEntradaDoEstado(contexto: Contexto, estado: Estado): Promise<boolean> {
-  const validacao = estado.input?.validation;
-  const conteudo = contexto.entrada.conteudoSerializado;
-  if (!validacao || !conteudo || validarDocumento(contexto, validacao)) return true;
-  if (validacao.error) {
+async function stateValidarInbound(context: Context, state: State): Promise<boolean> {
+  const validation = state.input?.validation;
+  const conteudo = context.inbound.serializedContent;
+  if (!validation || !conteudo || validateDocument(context, validation)) return true;
+  if (validation.error) {
     // Na Blip, erro com `{{variável}}` sai com `#message.spinText` e o servidor troca a
     // variável; aqui não há servidor no meio, então a troca é feita antes.
-    const texto = ehVariavelDeContexto(validacao.error)
-      ? await substituirVariaveis(validacao.error, contexto)
-      : validacao.error;
-    await contexto.servicos.enviar({ tipo: 'text/plain', conteudo: texto });
+    const texto = contextEhVariable(validation.error)
+      ? await substituirVariables(validation.error, context)
+      : validation.error;
+    await context.services.send({ tipo: 'text/plain', conteudo: texto });
   }
   return false;
 }
@@ -515,8 +515,8 @@ const TOKENS_DE_DATA: Record<string, string> = {
 };
 
 /** `DateTime.TryParseExact` com espaço permitido, para os formatos acima. */
-function casaData(texto: string, formato: string): boolean {
-  const padrao = formato.replace(
+function casaData(texto: string, format: string): boolean {
+  const padrao = format.replace(
     /yyyy|yy|MM|dd|HH|mm|ss|K|[^A-Za-z]/g,
     (t) => TOKENS_DE_DATA[t] ?? t.replace(/[.*+?^${}()|[\]\\/-]/g, '\\$&'),
   );
@@ -535,20 +535,20 @@ function casaData(texto: string, formato: string): boolean {
 }
 
 /** `ValidateDocument`. */
-function validarDocumento(contexto: Contexto, validacao: ValidacaoDeEntrada): boolean {
-  const conteudo = contexto.entrada.conteudoSerializado;
-  switch (validacao.rule?.toLowerCase()) {
+function validateDocument(context: Context, validation: InboundValidation): boolean {
+  const conteudo = context.inbound.serializedContent;
+  switch (validation.rule?.toLowerCase()) {
     case 'text':
-      return contexto.entrada.mensagem.tipo === 'text/plain';
+      return context.inbound.message.tipo === 'text/plain';
     case 'number':
       return paraDecimal(conteudo) !== null;
     case 'date':
       return FORMATOS_DE_DATA.some((f) => casaData(conteudo, f));
     case 'regex':
-      return new RegExp(validacao.regex ?? '').test(conteudo);
+      return new RegExp(validation.regex ?? '').test(conteudo);
     case 'type':
-      return contexto.entrada.mensagem.tipo === validacao.type;
+      return context.inbound.message.tipo === validation.type;
     default:
-      throw new Error(`Regra de validação desconhecida: '${validacao.rule}'.`);
+      throw new Error(`Regra de validação desconhecida: '${validation.rule}'.`);
   }
 }

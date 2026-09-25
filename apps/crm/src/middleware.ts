@@ -14,12 +14,12 @@ import { NextResponse, type NextRequest } from 'next/server';
  */
 const PUBLICO = /^\/(entrar|convite)(\/|$)/;
 
-export function middleware(requisicao: NextRequest): NextResponse {
-  const { pathname, search } = requisicao.nextUrl;
+export function middleware(request: NextRequest): NextResponse {
+  const { pathname, search } = request.nextUrl;
   if (PUBLICO.test(pathname)) return NextResponse.next();
-  if (requisicao.cookies.has('pipe_sessao')) return NextResponse.next();
+  if (request.cookies.has('pipe_sessao')) return NextResponse.next();
 
-  const url = requisicao.nextUrl.clone();
+  const url = request.nextUrl.clone();
   url.pathname = '/entrar';
   url.search = '';
   // Para onde a pessoa queria ir. A API confere que é caminho interno antes de

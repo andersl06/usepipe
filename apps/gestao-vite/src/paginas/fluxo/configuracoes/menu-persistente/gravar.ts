@@ -1,7 +1,7 @@
 import { api } from '../../../../lib/api';
 import { atualizarLeituras } from '../../../../lib/acoes';
 import { motivoDe } from '../basicas/gravar';
-import type { ConfiguracaoDeMenuPersistente, ItemDoMenuPersistente } from '@pipe/contracts';
+import type { ConfigurationOfMenuPersistent, ItemDoMenuPersistente } from '@pipe/contracts';
 
 /**
  * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente`. A regra (canal
@@ -9,20 +9,20 @@ import type { ConfiguracaoDeMenuPersistente, ItemDoMenuPersistente } from '@pipe
  * (`dominio/gestao/configuracao-do-fluxo.ts`); aqui só a recusa vira texto.
  */
 
-export type Resultado<T> = { ok: true; valor: T } | { ok: false; erro: string };
+export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export async function salvarMenuPersistente(
   id: string,
   itens: ItemDoMenuPersistente[],
-): Promise<Resultado<ConfiguracaoDeMenuPersistente>> {
+): Promise<Resultado<ConfigurationOfMenuPersistent>> {
   try {
-    const valor = await api.patch<ConfiguracaoDeMenuPersistente>(
+    const value = await api.patch<ConfigurationOfMenuPersistent>(
       `/v1/gestao/fluxos/${id}/menu-persistente`,
       { itens },
     );
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Ocorreu um erro ao salvar a configuração') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Ocorreu um erro ao salvar a configuração') };
   }
 }

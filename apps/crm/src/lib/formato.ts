@@ -1,21 +1,21 @@
 /** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */
 
-export function numero(valor: number | null | undefined, casas = 0): string {
-  if (valor === null || valor === undefined || Number.isNaN(valor)) return '—';
-  return valor.toLocaleString('pt-BR', {
+export function numero(value: number | null | undefined, casas = 0): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  return value.toLocaleString('pt-BR', {
     minimumFractionDigits: casas,
     maximumFractionDigits: casas,
   });
 }
 
-export function percentual(fracao: number | null | undefined): string {
-  if (fracao === null || fracao === undefined || Number.isNaN(fracao)) return '—';
-  return `${(fracao * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`;
+export function percentual(fraction: number | null | undefined): string {
+  if (fraction === null || fraction === undefined || Number.isNaN(fraction)) return '—';
+  return `${(fraction * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`;
 }
 
-export function dinheiro(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined || Number.isNaN(valor)) return '—';
-  return valor.toLocaleString('pt-BR', {
+export function money(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  return value.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
     maximumFractionDigits: 0,
@@ -23,11 +23,11 @@ export function dinheiro(valor: number | null | undefined): string {
 }
 
 /** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */
-export function dinheiroCurto(valor: number | null | undefined): string {
-  if (valor === null || valor === undefined || Number.isNaN(valor)) return '—';
-  if (Math.abs(valor) >= 1_000_000) return `R$ ${numero(valor / 1_000_000, 1)} mi`;
-  if (Math.abs(valor) >= 1_000) return `R$ ${numero(valor / 1_000)} mil`;
-  return dinheiro(valor);
+export function moneyCurto(value: number | null | undefined): string {
+  if (value === null || value === undefined || Number.isNaN(value)) return '—';
+  if (Math.abs(value) >= 1_000_000) return `R$ ${numero(value / 1_000_000, 1)} mi`;
+  if (Math.abs(value) >= 1_000) return `R$ ${numero(value / 1_000)} mil`;
+  return money(value);
 }
 
 export function dataHora(instante: Date | null | undefined, fuso: string): string {
@@ -70,17 +70,17 @@ export function desde(instante: Date | null | undefined, fuso: string, agora = n
  * a máscara é da tela e não do banco. Documento com tamanho fora do esperado
  * sai como veio, em vez de sair picado errado.
  */
-export function documento(valor: string | null | undefined): string {
-  if (!valor) return '—';
-  const cru = valor.replace(/[^0-9A-Za-z]/g, '');
+export function document(value: string | null | undefined): string {
+  if (!value) return '—';
+  const cru = value.replace(/[^0-9A-Za-z]/g, '');
   if (cru.length === 11) return cru.replace(/^(.{3})(.{3})(.{3})(.{2})$/, '$1.$2.$3-$4');
   if (cru.length === 14) return cru.replace(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '$1.$2.$3/$4-$5');
-  return valor;
+  return value;
 }
 
 /** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */
-export function pontos(valor: number): string {
-  return valor >= 0 ? `+${valor}` : `−${Math.abs(valor)}`;
+export function pontos(value: number): string {
+  return value >= 0 ? `+${value}` : `−${Math.abs(value)}`;
 }
 
 /*

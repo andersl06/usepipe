@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import { esquecerCanal, noTenant, resolverCanal } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { lerCanalWhatsApp, texto, urlDoWebhook } from './whatsapp/canal.js';
+import { esquecerChannel, noTenant, resolveChannel } from '../banco.js';
+import { PipeError } from '../erros.js';
+import { readChannelWhatsApp, texto, urlDoWebhook } from './whatsapp/canal.js';
 import { desmontarWebhook } from './whatsapp/desmontagem-de-webhook.js';
 import { buscarSaude } from './whatsapp/saude.js';
 
@@ -21,31 +21,31 @@ export { urlDoWebhook };
  *   `…/webhooks/whatsapp/<canalId>`, com `verify_token` próprio do canal.
  */
 
-export interface CanalWhatsAppVisivel {
+export interface ChannelWhatsAppVisible {
   id: string;
   nome: string;
   ativo: boolean;
   wabaId: string | null;
   numeroId: string | null;
   numero: string | null;
-  nomeExibicao: string | null;
+  displayName: string | null;
   /**
    * `conectado` — a Meta respondeu sobre o número.
    * `desligado` — o canal foi desconectado aqui.
    * `indisponivel` — ligado, mas a Meta não respondeu, ou o canal espera
    * reautorização; `motivo` diz qual.
    */
-  estado: 'conectado' | 'desligado' | 'indisponivel';
-  qualidade: string | null;
+  state: 'conectado' | 'desligado' | 'indisponivel';
+  quality: string | null;
   limite: string | null;
   motivo: string | null;
-  reautorizacaoPendente: boolean;
+  reauthorizationPending: boolean;
   webhookUrl: string;
   criadoEm: Date;
 }
 
-interface LinhaCanal {
-  [coluna: string]: unknown;
+interface LineChannel {
+  [column: string]: unknown;
   id: string;
   nome: string;
   ativo: boolean;
@@ -60,9 +60,9 @@ interface LinhaCanal {
  * portada do Chatwoot (`whatsapp/saude.ts`) — mudam sozinhos, sem avisar. Meta
  * fora do ar vira `indisponivel` com o motivo, nunca 502 na tela inteira.
  */
-export async function listarCanaisWhatsApp(tenantId: string): Promise<CanalWhatsAppVisivel[]> {
+export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWhatsAppVisible[]> {
   const linhas = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaCanal>(sql`
+    const { rows } = await tx.execute<LineChannel>(sql`
       select id, nome, ativo, waba_id, numero_id, criado_em, config
         from canal
        where tipo = 'whatsapp_cloud'
@@ -71,46 +71,46 @@ export async function listarCanaisWhatsApp(tenantId: string): Promise<CanalWhats
     return rows;
   });
 
-  const saida: CanalWhatsAppVisivel[] = [];
+  const saida: ChannelWhatsAppVisible[] = [];
   for (const linha of linhas) {
     const base = visivel(linha);
     if (!linha.ativo || !linha.numero_id) {
       saida.push(base);
       continue;
     }
-    if (base.reautorizacaoPendente) {
-      saida.push({ ...base, estado: 'indisponivel', motivo: 'reautorizacao_pendente' });
+    if (base.reauthorizationPending) {
+      saida.push({ ...base, state: 'indisponivel', motivo: 'reautorizacao_pendente' });
       continue;
     }
 
     // O token sai cifrado da consulta acima; decifrar é o `resolverCanal`, que tem cache.
-    const canal = await resolverCanal(linha.id);
+    const canal = await resolveChannel(linha.id);
     const token = texto(canal?.config['tokenAcesso']);
     if (!token) {
-      saida.push({ ...base, estado: 'indisponivel', motivo: 'sem_token' });
+      saida.push({ ...base, state: 'indisponivel', motivo: 'sem_token' });
       continue;
     }
 
     try {
       const saude = await buscarSaude({
-        tokenAcesso: token,
+        tokenAccess: token,
         numeroId: linha.numero_id,
         wabaId: linha.waba_id,
       });
       saida.push({
         ...base,
-        estado: 'conectado',
+        state: 'conectado',
         numero: saude.display_phone_number || base.numero,
-        nomeExibicao: saude.verified_name || base.nomeExibicao,
-        qualidade: saude.quality_rating ?? null,
+        displayName: saude.verified_name || base.displayName,
+        quality: saude.quality_rating ?? null,
         limite: saude.messaging_limit_tier ?? null,
       });
-    } catch (erro) {
+    } catch (error) {
       // O motivo é o CÓDIGO, nunca a mensagem: mensagem da Meta pode ecoar o que recebeu.
       saida.push({
         ...base,
-        estado: 'indisponivel',
-        motivo: erro instanceof ErroPipe ? erro.codigo : 'meta_inacessivel',
+        state: 'indisponivel',
+        motivo: error instanceof PipeError ? error.codigo : 'meta_inacessivel',
       });
     }
   }
@@ -118,20 +118,20 @@ export async function listarCanaisWhatsApp(tenantId: string): Promise<CanalWhats
 }
 
 /** Um canal no formato da tela, sem perguntar à Meta — é o que volta de conectar. */
-export async function lerCanalVisivel(tenantId: string, canalId: string): Promise<CanalWhatsAppVisivel> {
+export async function readChannelVisible(tenantId: string, channelId: string): Promise<ChannelWhatsAppVisible> {
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaCanal>(sql`
+    const { rows } = await tx.execute<LineChannel>(sql`
       select id, nome, ativo, waba_id, numero_id, criado_em, config
-        from canal where id = ${canalId}::uuid limit 1
+        from canal where id = ${channelId}::uuid limit 1
     `);
     return rows[0] ?? null;
   });
-  if (!linha) throw ErroPipe.naoEncontrado('Canal');
+  if (!linha) throw PipeError.naoEncontrado('Canal');
   const base = visivel(linha);
   if (!linha.ativo) return base;
-  return base.reautorizacaoPendente
-    ? { ...base, estado: 'indisponivel', motivo: 'reautorizacao_pendente' }
-    : { ...base, estado: 'conectado' };
+  return base.reauthorizationPending
+    ? { ...base, state: 'indisponivel', motivo: 'reautorizacao_pendente' }
+    : { ...base, state: 'conectado' };
 }
 
 /**
@@ -144,22 +144,22 @@ export async function lerCanalVisivel(tenantId: string, canalId: string): Promis
  */
 export async function desconectarWhatsApp(
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   canalId: string,
-): Promise<CanalWhatsAppVisivel> {
-  const canal = await lerCanalWhatsApp(tenantId, canalId);
-  await desmontarWebhook(canal);
+): Promise<ChannelWhatsAppVisible> {
+  const channel = await readChannelWhatsApp(tenantId, canalId);
+  await desmontarWebhook(channel);
 
   const linha = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<LinhaCanal>(sql`
+    const { rows } = await tx.execute<LineChannel>(sql`
       update canal set ativo = false, atualizado_em = now()
        where id = ${canalId}::uuid
       returning id, nome, ativo, waba_id, numero_id, criado_em, config
     `);
     const gravado = rows[0];
-    if (!gravado) throw ErroPipe.naoEncontrado('Canal');
+    if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,
@@ -168,11 +168,11 @@ export async function desconectarWhatsApp(
     return gravado;
   });
 
-  esquecerCanal(canalId);
+  esquecerChannel(canalId);
   return visivel(linha);
 }
 
-function visivel(linha: LinhaCanal): CanalWhatsAppVisivel {
+function visivel(linha: LineChannel): ChannelWhatsAppVisible {
   // `numero` e `nomeExibicao` não são segredo: ficam legíveis no `config` cifrado.
   const config = linha.config ?? {};
   return {
@@ -182,12 +182,12 @@ function visivel(linha: LinhaCanal): CanalWhatsAppVisivel {
     wabaId: linha.waba_id,
     numeroId: linha.numero_id,
     numero: texto(config['numero']),
-    nomeExibicao: texto(config['nomeExibicao']),
-    estado: linha.ativo ? 'indisponivel' : 'desligado',
-    qualidade: null,
+    displayName: texto(config['nomeExibicao']),
+    state: linha.ativo ? 'indisponivel' : 'desligado',
+    quality: null,
     limite: null,
     motivo: null,
-    reautorizacaoPendente: config['reautorizacaoPendente'] === true,
+    reauthorizationPending: config['reautorizacaoPendente'] === true,
     webhookUrl: urlDoWebhook(linha.id),
     criadoEm: linha.criado_em instanceof Date ? linha.criado_em : new Date(linha.criado_em),
   };

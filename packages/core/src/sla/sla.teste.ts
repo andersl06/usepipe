@@ -6,13 +6,13 @@ import {
   dentroDoExpediente,
   faixasDoDia,
   inicioDoAlvo,
-  cumprimentoDoAlvo,
+  alvoFulfillment,
   minutosDoRelogio,
   proximaAbertura,
   segundosUteisEntre,
   subtrairEsperas,
   type Espera,
-  type HorarioAtendimento,
+  type HourAttendance,
 } from './index.js';
 
 /**
@@ -22,20 +22,20 @@ import {
  * Datas de referência (todas de 2026):
  *   02/03 segunda · 03/03 terça · 04/03 quarta · 07/03 sábado · 08/03 domingo
  */
-const COMERCIAL: HorarioAtendimento = {
+const COMERCIAL: HourAttendance = {
   fuso: 'America/Sao_Paulo',
   faixas: [1, 2, 3, 4, 5].map((diaSemana) => ({ diaSemana, inicio: '09:00', fim: '18:00' })),
-  excecoes: [],
+  exceptions: [],
 };
 
 /** Mesmo expediente, com 03/03 como feriado. */
-const COM_FERIADO: HorarioAtendimento = {
+const COM_FERIADO: HourAttendance = {
   ...COMERCIAL,
-  excecoes: [{ data: '2026-03-03', fechado: true, motivo: 'Feriado municipal' }],
+  exceptions: [{ data: '2026-03-03', fechado: true, motivo: 'Feriado municipal' }],
 };
 
 /** Expediente partido: 09:00–12:00 e 13:00–18:00, com almoço fora. */
-const COM_ALMOCO: HorarioAtendimento = {
+const COM_ALMOCO: HourAttendance = {
   fuso: 'America/Sao_Paulo',
   faixas: [
     { diaSemana: 1, inicio: '09:00', fim: '12:00' },
@@ -64,9 +64,9 @@ describe('relógio local do tenant', () => {
   });
 
   it('exceção com horário próprio manda sobre a faixa semanal', () => {
-    const vespera: HorarioAtendimento = {
+    const vespera: HourAttendance = {
       ...COMERCIAL,
-      excecoes: [{ data: '2026-03-03', fechado: false, inicio: '09:00', fim: '13:00' }],
+      exceptions: [{ data: '2026-03-03', fechado: false, inicio: '09:00', fim: '13:00' }],
     };
     expect(faixasDoDia(vespera, 2026, 3, 3)).toEqual([{ de: 540, ate: 780 }]);
   });
@@ -100,9 +100,9 @@ describe('próxima abertura (§10)', () => {
     // Sábado → abre na segunda seguinte.
     ['2026-03-07T15:00:00Z', '2026-03-09T12:00:00.000Z'],
   ];
-  for (const [entrada, esperado] of casos) {
-    it(`de ${entrada} abre em ${esperado}`, () => {
-      expect(proximaAbertura(utc(entrada), COMERCIAL)?.toISOString()).toBe(esperado);
+  for (const [inbound, esperado] of casos) {
+    it(`de ${inbound} abre em ${esperado}`, () => {
+      expect(proximaAbertura(utc(inbound), COMERCIAL)?.toISOString()).toBe(esperado);
     });
   }
 
@@ -218,12 +218,12 @@ describe('avançar no expediente', () => {
 describe('avaliação de SLA (§11)', () => {
   const regra = { prazoSeg: 3600, alertaSeg: 1800 };
 
-  const casos: { nome: string; agora: string; estado: string; decorrido: number }[] = [
-    { nome: 'dentro do prazo', agora: '2026-03-02T13:15:00Z', estado: 'dentro', decorrido: 900 },
-    { nome: 'no limiar exato do alerta', agora: '2026-03-02T13:30:00Z', estado: 'alerta', decorrido: 1800 },
-    { nome: 'entre o alerta e o estouro', agora: '2026-03-02T13:45:00Z', estado: 'alerta', decorrido: 2700 },
-    { nome: 'no segundo exato do estouro', agora: '2026-03-02T14:00:00Z', estado: 'estourado', decorrido: 3600 },
-    { nome: 'muito depois do estouro', agora: '2026-03-02T16:00:00Z', estado: 'estourado', decorrido: 10_800 },
+  const casos: { nome: string; agora: string; state: string; decorrido: number }[] = [
+    { nome: 'dentro do prazo', agora: '2026-03-02T13:15:00Z', state: 'dentro', decorrido: 900 },
+    { nome: 'no limiar exato do alerta', agora: '2026-03-02T13:30:00Z', state: 'alerta', decorrido: 1800 },
+    { nome: 'entre o alerta e o estouro', agora: '2026-03-02T13:45:00Z', state: 'alerta', decorrido: 2700 },
+    { nome: 'no segundo exato do estouro', agora: '2026-03-02T14:00:00Z', state: 'estourado', decorrido: 3600 },
+    { nome: 'muito depois do estouro', agora: '2026-03-02T16:00:00Z', state: 'estourado', decorrido: 10_800 },
   ];
 
   for (const caso of casos) {
@@ -234,7 +234,7 @@ describe('avaliação de SLA (§11)', () => {
         agora: utc(caso.agora),
         horario: COMERCIAL,
       });
-      expect(saida.estado).toBe(caso.estado);
+      expect(saida.state).toBe(caso.state);
       expect(saida.decorridoSeg).toBe(caso.decorrido);
       expect(saida.prazoEm?.toISOString()).toBe('2026-03-02T14:00:00.000Z');
       expect(saida.alertaEm?.toISOString()).toBe('2026-03-02T13:30:00.000Z');
@@ -250,7 +250,7 @@ describe('avaliação de SLA (§11)', () => {
       horario: COMERCIAL,
     });
     expect(saida.decorridoSeg).toBe(0);
-    expect(saida.estado).toBe('dentro');
+    expect(saida.state).toBe('dentro');
     expect(saida.inicioEfetivo?.toISOString()).toBe('2026-03-03T12:00:00.000Z');
     expect(saida.prazoEm?.toISOString()).toBe('2026-03-03T13:00:00.000Z');
   });
@@ -263,7 +263,7 @@ describe('avaliação de SLA (§11)', () => {
       horario: COMERCIAL,
     });
     expect(saida.decorridoSeg).toBe(1200);
-    expect(saida.estado).toBe('dentro');
+    expect(saida.state).toBe('dentro');
     expect(saida.prazoEm?.toISOString()).toBe('2026-03-03T12:30:00.000Z');
   });
 
@@ -276,7 +276,7 @@ describe('avaliação de SLA (§11)', () => {
       esperas: [{ inicio: utc('2026-03-02T13:10:00Z'), fim: utc('2026-03-02T13:40:00Z') }],
     });
     expect(saida.decorridoSeg).toBe(1800);
-    expect(saida.estado).toBe('alerta');
+    expect(saida.state).toBe('alerta');
     expect(saida.restanteSeg).toBe(1800);
     // O estouro escorrega os 30 minutos da espera.
     expect(saida.prazoEm?.toISOString()).toBe('2026-03-02T14:30:00.000Z');
@@ -291,7 +291,7 @@ describe('avaliação de SLA (§11)', () => {
       esperas: [{ inicio: utc('2026-03-02T13:10:00Z'), fim: null }],
     });
     expect(saida.decorridoSeg).toBe(600);
-    expect(saida.estado).toBe('dentro');
+    expect(saida.state).toBe('dentro');
     expect(saida.prazoEm).toBeNull();
   });
 
@@ -305,7 +305,7 @@ describe('avaliação de SLA (§11)', () => {
     });
     expect(saida.cumprido).toBe(true);
     expect(saida.decorridoSeg).toBe(1200);
-    expect(saida.estado).toBe('dentro');
+    expect(saida.state).toBe('dentro');
   });
 
   it('sem limiar de alerta, pula direto de dentro para estourado', () => {
@@ -315,7 +315,7 @@ describe('avaliação de SLA (§11)', () => {
       agora: utc('2026-03-02T13:59:59Z'),
       horario: COMERCIAL,
     });
-    expect(saida.estado).toBe('dentro');
+    expect(saida.state).toBe('dentro');
     expect(saida.alertaEm).toBeNull();
   });
 
@@ -327,7 +327,7 @@ describe('avaliação de SLA (§11)', () => {
       horario: null,
     });
     expect(saida.decorridoSeg).toBe(3600);
-    expect(saida.estado).toBe('estourado');
+    expect(saida.state).toBe('estourado');
   });
 });
 
@@ -342,7 +342,7 @@ describe('início e cumprimento por alvo', () => {
 
   it('primeira resposta parte da atribuição', () => {
     expect(inicioDoAlvo('primeira_resposta', marcos)).toEqual(marcos.atribuidaEm);
-    expect(cumprimentoDoAlvo('primeira_resposta', marcos)).toEqual(marcos.primeiraRespostaEm);
+    expect(alvoFulfillment('primeira_resposta', marcos)).toEqual(marcos.primeiraRespostaEm);
   });
 
   it('sem atribuição, a primeira resposta parte da criação', () => {
@@ -356,6 +356,6 @@ describe('início e cumprimento por alvo', () => {
 
   it('encerramento parte da criação', () => {
     expect(inicioDoAlvo('encerramento', marcos)).toEqual(marcos.criadaEm);
-    expect(cumprimentoDoAlvo('encerramento', marcos)).toEqual(marcos.encerradaEm);
+    expect(alvoFulfillment('encerramento', marcos)).toEqual(marcos.encerradaEm);
   });
 });

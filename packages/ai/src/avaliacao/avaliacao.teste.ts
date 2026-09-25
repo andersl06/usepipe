@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 
 import type { ChamadaEstruturada } from '../cliente/index.js';
-import { ErroFormatoIa } from '../cliente/index.js';
+import { FormatIaError } from '../cliente/index.js';
 import { consumoDe } from '../consumo/index.js';
-import { montarTranscricao, type MensagemTranscricao } from '../transcricao/index.js';
-import { avaliarConversa, calcularNota, fracaoDoValor, type Formulario } from './index.js';
+import { montarTranscription, type MessageTranscription } from '../transcricao/index.js';
+import { avaliarConversation, calcularNota, valueFraction, type Formulario } from './index.js';
 
 /**
  * Pesos: c1=1×1, c2=1×2, c3=2×2, c4=3×1. Somam 10, então cada ponto de peso vale
@@ -15,7 +15,7 @@ const formulario: Formulario = {
   id: 'form-1',
   nome: 'Formulário de teste',
   notaMaxima: 100,
-  grupos: [
+  groups: [
     {
       id: 'g1',
       nome: 'Abertura',
@@ -41,38 +41,38 @@ const formulario: Formulario = {
 };
 
 const respostas = (
-  valores: Record<string, string>,
+  values: Record<string, string>,
   evidencias: Record<string, string | null> = {},
 ) =>
-  Object.entries(valores).map(([criterioId, valor]) => ({
+  Object.entries(values).map(([criterioId, value]) => ({
     criterioId,
-    valor,
+    value,
     justificativa: 'porque sim',
     evidenciaMensagemId: evidencias[criterioId] ?? null,
   }));
 
 describe('fração do valor', () => {
   it('traduz conforme, não conforme e não se aplica', () => {
-    const c = formulario.grupos[0]!.criterios[0]!;
-    expect(fracaoDoValor(c, 'conforme')).toBe(1);
-    expect(fracaoDoValor(c, 'nao_conforme')).toBe(0);
-    expect(fracaoDoValor(c, 'nao_se_aplica')).toBeNull();
-    expect(fracaoDoValor(c, ' CONFORME ')).toBe(1);
+    const c = formulario.groups[0]!.criterios[0]!;
+    expect(valueFraction(c, 'conforme')).toBe(1);
+    expect(valueFraction(c, 'nao_conforme')).toBe(0);
+    expect(valueFraction(c, 'nao_se_aplica')).toBeNull();
+    expect(valueFraction(c, ' CONFORME ')).toBe(1);
   });
 
   it('divide escala e nota pelos respectivos tetos', () => {
-    const escala = formulario.grupos[1]!.criterios[0]!;
-    expect(fracaoDoValor(escala, '5')).toBe(1);
-    expect(fracaoDoValor(escala, '3')).toBeCloseTo(0.6, 10);
-    expect(fracaoDoValor(escala, '0')).toBe(0);
-    expect(fracaoDoValor({ ...escala, tipo: 'nota' }, '7')).toBeCloseTo(0.7, 10);
+    const escala = formulario.groups[1]!.criterios[0]!;
+    expect(valueFraction(escala, '5')).toBe(1);
+    expect(valueFraction(escala, '3')).toBeCloseTo(0.6, 10);
+    expect(valueFraction(escala, '0')).toBe(0);
+    expect(valueFraction({ ...escala, tipo: 'nota' }, '7')).toBeCloseTo(0.7, 10);
   });
 
   it('recusa valor fora do domínio em vez de chutar', () => {
-    const c = formulario.grupos[0]!.criterios[0]!;
-    expect(() => fracaoDoValor(c, 'mais ou menos')).toThrow(ErroFormatoIa);
-    expect(() => fracaoDoValor(formulario.grupos[1]!.criterios[0]!, '9')).toThrow(ErroFormatoIa);
-    expect(() => fracaoDoValor(formulario.grupos[1]!.criterios[0]!, '-1')).toThrow(ErroFormatoIa);
+    const c = formulario.groups[0]!.criterios[0]!;
+    expect(() => valueFraction(c, 'mais ou menos')).toThrow(FormatIaError);
+    expect(() => valueFraction(formulario.groups[1]!.criterios[0]!, '9')).toThrow(FormatIaError);
+    expect(() => valueFraction(formulario.groups[1]!.criterios[0]!, '-1')).toThrow(FormatIaError);
   });
 });
 
@@ -83,7 +83,7 @@ describe('cálculo da nota', () => {
       respostas({ c1: 'conforme', c2: 'conforme', c3: '5', c4: 'conforme' }),
     );
     expect(r.nota).toBe(100);
-    expect(r.fataisReprovados).toEqual([]);
+    expect(r.fatalReprovados).toEqual([]);
     expect(r.respostas.map((x) => x.pontos)).toEqual([10, 20, 40, 30]);
   });
 
@@ -120,7 +120,7 @@ describe('cálculo da nota', () => {
     );
     expect(r.nota).toBe(0);
     expect(r.notaAntesDoFatal).toBe(70);
-    expect(r.fataisReprovados).toEqual(['c4']);
+    expect(r.fatalReprovados).toEqual(['c4']);
   });
 
   it('critério fatal marcado como não se aplica não zera nada', () => {
@@ -128,7 +128,7 @@ describe('cálculo da nota', () => {
       formulario,
       respostas({ c1: 'conforme', c2: 'conforme', c3: '5', c4: 'nao_se_aplica' }),
     );
-    expect(r.fataisReprovados).toEqual([]);
+    expect(r.fatalReprovados).toEqual([]);
     expect(r.nota).toBe(100);
   });
 
@@ -159,17 +159,17 @@ describe('cálculo da nota', () => {
   it('critério sem resposta é erro, nunca zero silencioso', () => {
     expect(() =>
       calcularNota(formulario, respostas({ c1: 'conforme', c2: 'conforme', c3: '5' })),
-    ).toThrow(ErroFormatoIa);
+    ).toThrow(FormatIaError);
   });
 });
 
 // ——— avaliação com dublê do modelo ———
 
-const conversa: MensagemTranscricao[] = [
+const conversation: MessageTranscription[] = [
   {
     id: 'uuid-a',
     criadaEm: new Date('2026-03-02T13:00:00Z'),
-    direcao: 'entrada',
+    direction: 'entrada',
     autorTipo: 'contato',
     tipo: 'texto',
     conteudo: 'bom dia, preciso da segunda via',
@@ -177,7 +177,7 @@ const conversa: MensagemTranscricao[] = [
   {
     id: 'uuid-b',
     criadaEm: new Date('2026-03-02T13:01:00Z'),
-    direcao: 'saida',
+    direction: 'saida',
     autorTipo: 'atendente',
     autorNome: 'Camila',
     tipo: 'texto',
@@ -188,7 +188,7 @@ const conversa: MensagemTranscricao[] = [
 interface SaidaGravada {
   respostas: {
     criterioId: string;
-    valor: string;
+    value: string;
     justificativa: string;
     evidencia: string | null;
   }[];
@@ -205,27 +205,27 @@ function duble(saida: SaidaGravada): ChamadaEstruturada {
     }) as never;
 }
 
-const transcricao = montarTranscricao(conversa);
+const transcription = montarTranscription(conversation);
 
 describe('avaliarConversa', () => {
   it('resolve o rótulo da evidência para o id da mensagem', async () => {
-    const r = await avaliarConversa({
+    const r = await avaliarConversation({
       formulario,
-      transcricao,
+      transcription,
       chamar: duble({
         confianca: 0.8,
         respostas: [
-          { criterioId: 'c1', valor: 'conforme', justificativa: 'saudou', evidencia: 'm2' },
+          { criterioId: 'c1', value: 'conforme', justificativa: 'saudou', evidencia: 'm2' },
           {
             criterioId: 'c2',
-            valor: 'nao_conforme',
+            value: 'nao_conforme',
             justificativa: 'não confirmou',
             evidencia: 'm2',
           },
-          { criterioId: 'c3', valor: '5', justificativa: 'claro', evidencia: null },
+          { criterioId: 'c3', value: '5', justificativa: 'claro', evidencia: null },
           {
             criterioId: 'c4',
-            valor: 'conforme',
+            value: 'conforme',
             justificativa: 'sem dado exposto',
             evidencia: null,
           },
@@ -233,8 +233,8 @@ describe('avaliarConversa', () => {
       }),
     });
 
-    expect(r.respostas.find((x) => x.criterioId === 'c2')!.evidenciaMensagemId).toBe('uuid-b');
-    expect(r.respostas.find((x) => x.criterioId === 'c3')!.evidenciaMensagemId).toBeNull();
+    expect(r.respostas.find((x) => x.criterioId === 'c2')!.evidenciaMessageId).toBe('uuid-b');
+    expect(r.respostas.find((x) => x.criterioId === 'c3')!.evidenciaMessageId).toBeNull();
     expect(r.nota).toBe(80);
     expect(r.confianca).toBe(0.8);
     expect(r.prompt).toBe('avaliacao@v1');
@@ -243,16 +243,16 @@ describe('avaliarConversa', () => {
 
   it('recusa evidência que não existe na transcrição', async () => {
     await expect(
-      avaliarConversa({
+      avaliarConversation({
         formulario,
-        transcricao,
+        transcription,
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', valor: 'nao_conforme', justificativa: 'x', evidencia: 'm99' },
-            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', valor: '5', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', value: 'nao_conforme', justificativa: 'x', evidencia: 'm99' },
+            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', value: '5', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -261,16 +261,16 @@ describe('avaliarConversa', () => {
 
   it('exige evidência quando o critério não sai conforme', async () => {
     await expect(
-      avaliarConversa({
+      avaliarConversation({
         formulario,
-        transcricao,
+        transcription,
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', valor: 'nao_conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', valor: '5', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', value: 'nao_conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', value: '5', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -279,31 +279,31 @@ describe('avaliarConversa', () => {
 
   it('exige evidência também em escala abaixo do máximo', async () => {
     await expect(
-      avaliarConversa({
+      avaliarConversation({
         formulario,
-        transcricao,
+        transcription,
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c2', valor: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c3', valor: '2', justificativa: 'x', evidencia: null },
-            { criterioId: 'c4', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c2', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c3', value: '2', justificativa: 'x', evidencia: null },
+            { criterioId: 'c4', value: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
-    ).rejects.toThrow(ErroFormatoIa);
+    ).rejects.toThrow(FormatIaError);
   });
 
   it('recusa critério que não existe no formulário', async () => {
     await expect(
-      avaliarConversa({
+      avaliarConversation({
         formulario,
-        transcricao,
+        transcription,
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c-inventado', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c-inventado', value: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),
@@ -312,14 +312,14 @@ describe('avaliarConversa', () => {
 
   it('recusa critério respondido duas vezes', async () => {
     await expect(
-      avaliarConversa({
+      avaliarConversation({
         formulario,
-        transcricao,
+        transcription,
         chamar: duble({
           confianca: 0.9,
           respostas: [
-            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
-            { criterioId: 'c1', valor: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
+            { criterioId: 'c1', value: 'conforme', justificativa: 'x', evidencia: null },
           ],
         }),
       }),

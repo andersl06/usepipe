@@ -45,7 +45,7 @@ const ORIGEM_DESTE_APP = (
 ).replace(/\/$/, '');
 
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
-export const COOKIE_SESSAO = 'pipe_sessao';
+export const COOKIE_SESSION = 'pipe_sessao';
 
 /** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
  *
@@ -54,22 +54,22 @@ export const COOKIE_SESSAO = 'pipe_sessao';
  * é o caminho de todo o resto. Os outros dois nunca vêm da API — são o que
  * ESTA tela precisa dizer quando não houve resposta para rotear.
  */
-export interface EntradaDescoberta {
+export interface InboundDescoberta {
   metodo: 'sso' | 'google' | 'invalido' | 'falha';
   /** Caminho na API, quando `sso`. Falta só a base pública. */
   irPara?: string;
 }
 
 /** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */
-export interface ConviteVisivel {
+export interface InvitationVisivel {
   email: string;
-  papel: string;
+  role: string;
   tenant: { nome: string; slug: string };
   /** ISO-8601, como sai da API. Quem formata é a tela. */
   expiraEm: string;
 }
 
-function cabecalhoDeSessao(cookie: string): HeadersInit {
+function sessionHeader(cookie: string): HeadersInit {
   return { cookie, accept: 'application/json' };
 }
 
@@ -79,7 +79,7 @@ function cabecalhoDeSessao(cookie: string): HeadersInit {
  */
 export async function buscarEu(cookie: string): Promise<Eu | null> {
   const resposta = await fetch(`${URL_API}/v1/eu`, {
-    headers: cabecalhoDeSessao(cookie),
+    headers: sessionHeader(cookie),
     cache: 'no-store',
   });
   if (!resposta.ok) return null;
@@ -96,11 +96,11 @@ export async function buscarEu(cookie: string): Promise<Eu | null> {
  * ponytail: a sessão sobreviveria no banco até vencer sozinha. Se um dia isso
  * importar, a saída é uma fila de revogação, não um `throw` aqui.
  */
-export async function encerrarSessao(cookie: string): Promise<void> {
+export async function encerrarSession(cookie: string): Promise<void> {
   try {
     await fetch(`${URL_API}/v1/auth/sair`, {
       method: 'POST',
-      headers: cabecalhoDeSessao(cookie),
+      headers: sessionHeader(cookie),
       cache: 'no-store',
     });
   } catch {
@@ -115,7 +115,7 @@ export async function encerrarSessao(cookie: string): Promise<void> {
  * domínio verificado com SSO ativo devolve `sso`. Não há o que a tela possa
  * deduzir daqui sobre quem é cliente do Pipe, e é assim que tem de ser.
  */
-export async function descobrirEntrada(email: string): Promise<EntradaDescoberta> {
+export async function descobrirInbound(email: string): Promise<InboundDescoberta> {
   let resposta: Response;
   try {
     resposta = await fetch(`${URL_API}/v1/auth/descobrir`, {
@@ -130,7 +130,7 @@ export async function descobrirEntrada(email: string): Promise<EntradaDescoberta
   // 400 é sempre `email_invalido` nesta rota — a única validação que ela faz.
   if (resposta.status === 400) return { metodo: 'invalido' };
   if (!resposta.ok) return { metodo: 'falha' };
-  return (await resposta.json()) as EntradaDescoberta;
+  return (await resposta.json()) as InboundDescoberta;
 }
 
 /**
@@ -138,13 +138,13 @@ export async function descobrirEntrada(email: string): Promise<EntradaDescoberta
  * quem está do lado de fora os três são a mesma coisa — peça outro — e separar
  * contaria se aquele token um dia existiu.
  */
-export async function verConvite(token: string): Promise<ConviteVisivel | null> {
+export async function verInvitation(token: string): Promise<InvitationVisivel | null> {
   const resposta = await fetch(`${URL_API}/v1/convites/${encodeURIComponent(token)}`, {
     headers: { accept: 'application/json' },
     cache: 'no-store',
   });
   if (!resposta.ok) return null;
-  return (await resposta.json()) as ConviteVisivel;
+  return (await resposta.json()) as InvitationVisivel;
 }
 
 /**
@@ -152,23 +152,23 @@ export async function verConvite(token: string): Promise<ConviteVisivel | null> 
  * phishing usando o nosso domínio de trampolim; a API confere de novo do lado
  * dela, e conferir dos dois lados custa uma linha.
  */
-export function caminhoInterno(destino: string | undefined | null): string {
-  return destino && destino.startsWith('/') && !destino.startsWith('//') ? destino : '/';
+export function caminhoInterno(destination: string | undefined | null): string {
+  return destination && destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
 }
 
 /** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */
-export function urlDeEntradaComGoogle(opcoes: { destino?: string; convite?: string } = {}): string {
+export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(`${URL_API_PUBLICA}/v1/auth/google`);
-  if (opcoes.convite) url.searchParams.set('convite', opcoes.convite);
-  url.searchParams.set('destino', caminhoInterno(opcoes.destino));
+  if (options.invitation) url.searchParams.set('convite', options.invitation);
+  url.searchParams.set('destino', caminhoInterno(options.destination));
   url.searchParams.set('origem', ORIGEM_DESTE_APP);
   return url.toString();
 }
 
 /** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */
-export function urlNaApi(caminho: string, destino?: string): string {
+export function urlNaApi(caminho: string, destination?: string): string {
   const url = new URL(`${URL_API_PUBLICA}${caminho}`);
-  url.searchParams.set('destino', caminhoInterno(destino));
+  url.searchParams.set('destino', caminhoInterno(destination));
   url.searchParams.set('origem', ORIGEM_DESTE_APP);
   return url.toString();
 }

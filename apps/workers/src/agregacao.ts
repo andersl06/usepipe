@@ -1,12 +1,12 @@
 import { sql } from 'drizzle-orm';
 import {
-  contarEncerramentos,
-  tempoAtePrimeiraResposta,
-  tempoDeAtendimento,
-  tempoNaFila,
+  contarClosures,
+  timeAteFirstResposta,
+  attendanceTime,
+  timeInQueue,
 } from '@pipe/core';
-import type { ConversaEventos, EncerradaPor, EventoAtendimento, TipoEvento } from '@pipe/core';
-import { bancoDono, noTenant } from './banco.js';
+import type { ConversationEvents, ClosedBy, EventAttendance, TipoEvento } from '@pipe/core';
+import { databaseOwner, noTenant } from './banco.js';
 
 /**
  * Fila de agregação: fecha `metrica_diaria` do dia anterior.
@@ -23,7 +23,7 @@ import { bancoDono, noTenant } from './banco.js';
 /** Fuso do tenant decide onde o dia começa. Relatório em UTC mente para o cliente. */
 const FUSO_PADRAO = process.env['PIPE_FUSO_PADRAO'] ?? 'America/Sao_Paulo';
 
-export interface ResumoAgregacao {
+export interface SummaryAggregation {
   tenantId: string;
   dia: string;
   linhas: number;
@@ -43,24 +43,24 @@ export function diaAnterior(agora: Date = new Date(), fuso: string = FUSO_PADRAO
 }
 
 type LinhaEvento = {
-  conversa_id: string;
+  conversationId: string;
   tipo: TipoEvento;
   em: Date | string;
-  usuario_id: string | null;
+  userId: string | null;
   fila_id: string | null;
-  dados: { encerradaPor?: EncerradaPor } | null;
+  data: { closedBy?: ClosedBy } | null;
 };
 
 /**
  * Agrega o dia para todos os tenants ativos. Roda de madrugada, uma vez por dia.
  * O `select` de tenants usa o papel dono; toda leitura de negócio, o da aplicação.
  */
-export async function agregarDiaAnterior(agora: Date = new Date()): Promise<ResumoAgregacao[]> {
-  const { rows: tenants } = await bancoDono().execute<{ id: string; fuso: string }>(
+export async function agregarDiaAnterior(agora: Date = new Date()): Promise<SummaryAggregation[]> {
+  const { rows: tenants } = await databaseOwner().execute<{ id: string; fuso: string }>(
     sql`select id, fuso from tenant where ativo`,
   );
 
-  const resumos: ResumoAgregacao[] = [];
+  const resumos: SummaryAggregation[] = [];
   // Em série: cada tenant abre a própria transação.
   for (const tenant of tenants) {
     const dia = diaAnterior(agora, tenant.fuso || FUSO_PADRAO);
@@ -73,7 +73,7 @@ export async function agregarDia(
   tenantId: string,
   dia: string,
   fuso: string = FUSO_PADRAO,
-): Promise<ResumoAgregacao> {
+): Promise<SummaryAggregation> {
   return noTenant(tenantId, async (tx) => {
     const { rows: eventos } = await tx.execute<LinhaEvento>(sql`
       select conversa_id, tipo, em, usuario_id, fila_id, dados
@@ -98,8 +98,8 @@ export async function agregarDia(
        group by c.fila_id, c.atendente_id, m.direcao
     `);
 
-    const porConversa = agruparPorConversa(eventos);
-    const linhas = montarLinhas(porConversa, mensagens);
+    const byConversation = agruparByConversation(eventos);
+    const linhas = montarLinhas(byConversation, mensagens);
 
     // Em série (nunca `Promise.all` dentro da transação — ver README).
     for (const linha of linhas) {
@@ -112,12 +112,12 @@ export async function agregarDia(
           atendimento_seg, atendimento_n, sla_cumpridos, sla_estourados, atualizado_em
         ) values (
           ${tenantId}, ${dia}, ${linha.dimensaoTipo}, ${linha.dimensaoId},
-          ${linha.conversasCriadas}, ${linha.conversasEncerradas},
-          ${linha.conversasPerdidas}, ${linha.conversasAbandonadas},
-          ${linha.mensagensEntrada}, ${linha.mensagensSaida},
-          ${linha.esperaFilaSeg}, ${linha.esperaFilaN},
-          ${linha.primeiraRespostaSeg}, ${linha.primeiraRespostaN},
-          ${linha.atendimentoSeg}, ${linha.atendimentoN},
+          ${linha.conversationsCreated}, ${linha.conversationsCloseds},
+          ${linha.conversationsPerdidas}, ${linha.conversationsAbandonadas},
+          ${linha.messagesInbound}, ${linha.messagesOutput},
+          ${linha.waitQueueSeg}, ${linha.waitQueueN},
+          ${linha.firstResponseSeg}, ${linha.firstResponseN},
+          ${linha.attendanceSeg}, ${linha.attendanceN},
           ${linha.slaCumpridos}, ${linha.slaEstourados}, now()
         )
         on conflict (tenant_id, dia, dimensao_tipo, dimensao_id) do update set
@@ -143,44 +143,44 @@ export async function agregarDia(
   });
 }
 
-interface ConversaDoDia {
-  conversa: ConversaEventos;
-  filaId: string | null;
-  atendenteId: string | null;
+interface ConversationOfDay {
+  conversation: ConversationEvents;
+  queueId: string | null;
+  agentId: string | null;
   slaEstourado: boolean;
   criada: boolean;
   encerrada: boolean;
 }
 
-function agruparPorConversa(eventos: readonly LinhaEvento[]): ConversaDoDia[] {
-  const mapa = new Map<string, ConversaDoDia>();
+function agruparByConversation(eventos: readonly LinhaEvento[]): ConversationOfDay[] {
+  const mapa = new Map<string, ConversationOfDay>();
 
   for (const linha of eventos) {
-    let item = mapa.get(linha.conversa_id);
+    let item = mapa.get(linha.conversationId);
     if (!item) {
       item = {
-        conversa: { conversaId: linha.conversa_id, eventos: [] },
-        filaId: null,
-        atendenteId: null,
+        conversation: { conversationId: linha.conversationId, eventos: [] },
+        queueId: null,
+        agentId: null,
         slaEstourado: false,
         criada: false,
         encerrada: false,
       };
-      mapa.set(linha.conversa_id, item);
+      mapa.set(linha.conversationId, item);
     }
 
-    const evento: EventoAtendimento = {
-      conversaId: linha.conversa_id,
+    const evento: EventAttendance = {
+      conversationId: linha.conversationId,
       tipo: linha.tipo,
       em: linha.em instanceof Date ? linha.em : new Date(linha.em),
-      usuarioId: linha.usuario_id,
-      filaId: linha.fila_id,
-      encerradaPor: linha.dados?.encerradaPor ?? null,
+      userId: linha.userId,
+      queueId: linha.fila_id,
+      encerradaBy: linha.data?.closedBy ?? null,
     };
-    (item.conversa.eventos as EventoAtendimento[]).push(evento);
+    (item.conversation.eventos as EventAttendance[]).push(evento);
 
-    if (linha.fila_id) item.filaId = linha.fila_id;
-    if (linha.usuario_id) item.atendenteId = linha.usuario_id;
+    if (linha.fila_id) item.queueId = linha.fila_id;
+    if (linha.userId) item.agentId = linha.userId;
     if (linha.tipo === 'sla_estourado') item.slaEstourado = true;
     if (linha.tipo === 'criada') item.criada = true;
     if (linha.tipo === 'encerrada') item.encerrada = true;
@@ -192,84 +192,84 @@ function agruparPorConversa(eventos: readonly LinhaEvento[]): ConversaDoDia[] {
 interface LinhaMetrica {
   dimensaoTipo: 'fila' | 'atendente';
   dimensaoId: string;
-  conversasCriadas: number;
-  conversasEncerradas: number;
-  conversasPerdidas: number;
-  conversasAbandonadas: number;
-  mensagensEntrada: number;
-  mensagensSaida: number;
-  esperaFilaSeg: number;
-  esperaFilaN: number;
-  primeiraRespostaSeg: number;
-  primeiraRespostaN: number;
-  atendimentoSeg: number;
-  atendimentoN: number;
+  conversationsCreated: number;
+  conversationsCloseds: number;
+  conversationsPerdidas: number;
+  conversationsAbandonadas: number;
+  messagesInbound: number;
+  messagesOutput: number;
+  waitQueueSeg: number;
+  waitQueueN: number;
+  firstResponseSeg: number;
+  firstResponseN: number;
+  attendanceSeg: number;
+  attendanceN: number;
   slaCumpridos: number;
   slaEstourados: number;
 }
 
 function montarLinhas(
-  conversas: readonly ConversaDoDia[],
-  mensagens: readonly {
+  conversations: readonly ConversationOfDay[],
+  messages: readonly {
     fila_id: string | null;
     atendente_id: string | null;
-    direcao: string;
+    direction: string;
     total: string;
   }[],
 ): LinhaMetrica[] {
   const linhas: LinhaMetrica[] = [];
 
   for (const dimensaoTipo of ['fila', 'atendente'] as const) {
-    const chave = (item: ConversaDoDia) =>
-      dimensaoTipo === 'fila' ? item.filaId : item.atendenteId;
+    const key = (item: ConversationOfDay) =>
+      dimensaoTipo === 'fila' ? item.queueId : item.agentId;
 
-    const grupos = new Map<string | null, ConversaDoDia[]>();
-    for (const item of conversas) {
-      const k = chave(item);
-      const atual = grupos.get(k);
+    const groups = new Map<string | null, ConversationOfDay[]>();
+    for (const item of conversations) {
+      const k = key(item);
+      const atual = groups.get(k);
       if (atual) atual.push(item);
-      else grupos.set(k, [item]);
+      else groups.set(k, [item]);
     }
 
-    for (const [dimensaoId, grupo] of grupos) {
+    for (const [dimensaoId, grupo] of groups) {
       // Sem dimensão não há linha: `metrica_diaria_uk` inclui `dimensao_id`, e no
       // Postgres dois NULL são distintos num índice único — a linha "sem fila" seria
       // inserida de novo a cada reprocessamento em vez de ser sobrescrita.
       if (dimensaoId === null) continue;
-      const eventos = grupo.map((g) => g.conversa);
-      const encerramentos = contarEncerramentos(eventos);
-      const fila = tempoNaFila(eventos);
-      const primeira = tempoAtePrimeiraResposta(eventos);
-      const atendimento = tempoDeAtendimento(eventos);
+      const eventos = grupo.map((g) => g.conversation);
+      const closures = contarClosures(eventos);
+      const queue = timeInQueue(eventos);
+      const first = timeAteFirstResposta(eventos);
+      const attendance = attendanceTime(eventos);
       const estourados = grupo.filter((g) => g.slaEstourado).length;
 
-      const contagem = (direcao: string) =>
-        mensagens
+      const count = (direction: string) =>
+        messages
           .filter(
             (m) =>
               (dimensaoTipo === 'fila' ? m.fila_id : m.atendente_id) === dimensaoId &&
-              m.direcao === direcao,
+              m.direction === direction,
           )
           .reduce((soma, m) => soma + Number(m.total), 0);
 
       linhas.push({
         dimensaoTipo,
         dimensaoId,
-        conversasCriadas: grupo.filter((g) => g.criada).length,
-        conversasEncerradas: encerramentos.fechada,
-        conversasPerdidas: encerramentos.perdida,
-        conversasAbandonadas: encerramentos.abandonada,
-        mensagensEntrada: contagem('entrada'),
-        mensagensSaida: contagem('saida'),
+        conversationsCreated: grupo.filter((g) => g.criada).length,
+        conversationsCloseds: closures.fechada,
+        conversationsPerdidas: closures.perdida,
+        conversationsAbandonadas: closures.abandonada,
+        messagesInbound: count('entrada'),
+        messagesOutput: count('saida'),
         // Soma e denominador viajam juntos: a média é feita na hora de exibir,
         // porque média de médias entre dias mente (spec de métricas §5).
-        esperaFilaSeg: Math.round(fila.soma),
-        esperaFilaN: fila.populacao,
-        primeiraRespostaSeg: Math.round(primeira.soma),
-        primeiraRespostaN: primeira.populacao,
-        atendimentoSeg: Math.round(atendimento.soma),
-        atendimentoN: atendimento.populacao,
-        slaCumpridos: Math.max(0, encerramentos.fechada - estourados),
+        waitQueueSeg: Math.round(queue.soma),
+        waitQueueN: queue.population,
+        firstResponseSeg: Math.round(first.soma),
+        firstResponseN: first.population,
+        attendanceSeg: Math.round(attendance.soma),
+        attendanceN: attendance.population,
+        slaCumpridos: Math.max(0, closures.fechada - estourados),
         slaEstourados: estourados,
       });
     }

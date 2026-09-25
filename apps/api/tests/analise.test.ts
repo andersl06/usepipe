@@ -8,12 +8,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
  * A ANÁLISE do contato — Dashboard, Visão Geral, Jornada e o Log de mensagens
@@ -46,15 +46,15 @@ let cenario: Cenario;
 let outro: Cenario;
 let api: ApiNoAr;
 let cookie: string;
-let fluxoId: string;
-let contatoId: string;
-let conversaId: string;
+let flowId: string;
+let contactId: string;
+let conversationId: string;
 
-async function criarCookieDeSessao(c: Cenario): Promise<string> {
-  const novo = criarToken();
+async function createCookieOfSession(c: Cenario): Promise<string> {
+  const novo = createTokencriarTokencreateToken();
   await c.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${c.tenantId}, ${c.atendenteId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${c.tenantId}, ${c.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
   `);
   return novo.token;
 }
@@ -66,19 +66,19 @@ function cabecalho(token: string): Record<string, string> {
 beforeAll(async () => {
   cenario = await montarCenario(`analise-${randomUUID().slice(0, 8)}`);
   outro = await montarCenario(`analise-outro-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
-  cookie = await criarCookieDeSessao(cenario);
+  api = await upApi(0);
+  cookie = await createCookieOfSession(cenario);
 
-  const fluxo = await cenario.dono.execute<{ id: string }>(sql`
+  const flow = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
-    values (${cenario.tenantId}, 'Bot de teste', 'fluxo', 'publicado', ${cenario.canalId})
+    values (${cenario.tenantId}, 'Bot de teste', 'fluxo', 'publicado', ${cenario.channelId})
     returning id
   `);
-  fluxoId = fluxo.rows[0]!.id;
+  flowId = flow.rows[0]!.id;
 
   const versao = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo_versao (tenant_id, fluxo_id, versao, estado)
-    values (${cenario.tenantId}, ${fluxoId}, 1, 'publicada')
+    values (${cenario.tenantId}, ${flowId}, 1, 'publicada')
     returning id
   `);
   const versaoId = versao.rows[0]!.id;
@@ -92,53 +92,53 @@ beforeAll(async () => {
   const b1 = blocos.rows.find((b) => b.codigo === 'b1')!.id;
   const b2 = blocos.rows.find((b) => b.codigo === 'b2')!.id;
 
-  const contato = await cenario.dono.execute<{ id: string }>(sql`
+  const contact = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${cenario.tenantId}, 'Cliente de teste', '+5511999990000')
     returning id
   `);
-  contatoId = contato.rows[0]!.id;
+  contactId = contact.rows[0]!.id;
 
-  const conversa = await cenario.dono.execute<{ id: string }>(sql`
+  const conversation = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, estado, criada_em)
-    values (${cenario.tenantId}, ${cenario.inboxId}, ${contatoId}, 'em_atendimento', ${`${DIA_1}T15:00:00Z`})
+    values (${cenario.tenantId}, ${cenario.inboxId}, ${contactId}, 'em_atendimento', ${`${DIA_1}T15:00:00Z`})
     returning id
   `);
-  conversaId = conversa.rows[0]!.id;
+  conversationId = conversation.rows[0]!.id;
 
-  const execucao = await cenario.dono.execute<{ id: string }>(sql`
+  const execution = await cenario.dono.execute<{ id: string }>(sql`
     insert into execucao_fluxo (tenant_id, fluxo_versao_id, conversa_id, contato_id, estado, iniciada_em)
-    values (${cenario.tenantId}, ${versaoId}, ${conversaId}, ${contatoId}, 'concluida', ${`${DIA_1}T15:00:00Z`})
+    values (${cenario.tenantId}, ${versaoId}, ${conversationId}, ${contactId}, 'concluida', ${`${DIA_1}T15:00:00Z`})
     returning id
   `);
-  const execucaoId = execucao.rows[0]!.id;
+  const executionId = execution.rows[0]!.id;
 
   // A jornada: entrada -> b1 -> b2 -> saída.
   await cenario.dono.execute(sql`
     insert into execucao_passo (tenant_id, execucao_id, bloco_id, em)
-    values (${cenario.tenantId}, ${execucaoId}, ${b1}, ${`${DIA_1}T15:00:01Z`}),
-           (${cenario.tenantId}, ${execucaoId}, ${b2}, ${`${DIA_1}T15:00:02Z`})
+    values (${cenario.tenantId}, ${executionId}, ${b1}, ${`${DIA_1}T15:00:01Z`}),
+           (${cenario.tenantId}, ${executionId}, ${b2}, ${`${DIA_1}T15:00:02Z`})
   `);
 
   // O transbordo: o evento que o Dashboard soma como "contatos em transbordo".
   await cenario.dono.execute(sql`
     insert into evento_atendimento (tenant_id, conversa_id, tipo, dados, em)
-    values (${cenario.tenantId}, ${conversaId}, 'enfileirada', ${JSON.stringify({ origem: 'fluxo' })}::jsonb, ${`${DIA_1}T15:00:02Z`})
+    values (${cenario.tenantId}, ${conversationId}, 'enfileirada', ${JSON.stringify({ origem: 'fluxo' })}::jsonb, ${`${DIA_1}T15:00:02Z`})
   `);
 
   // Mensagens do DIA_1 (dentro do período): duas recebidas, uma enviada.
   await cenario.dono.execute(sql`
     insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)
     values
-      (gen_random_uuid(), ${cenario.tenantId}, ${conversaId}, 'entrada', 'contato', 'texto', 'Oi, preciso de ajuda', ${`${DIA_1}T15:00:00Z`}),
-      (gen_random_uuid(), ${cenario.tenantId}, ${conversaId}, 'saida', 'bot', 'texto', 'Olá! Como posso ajudar?', ${`${DIA_1}T15:00:01Z`}),
-      (gen_random_uuid(), ${cenario.tenantId}, ${conversaId}, 'entrada', 'contato', 'imagem', 'foto.jpg', ${`${DIA_1}T15:05:00Z`})
+      (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'entrada', 'contato', 'texto', 'Oi, preciso de ajuda', ${`${DIA_1}T15:00:00Z`}),
+      (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'saida', 'bot', 'texto', 'Olá! Como posso ajudar?', ${`${DIA_1}T15:00:01Z`}),
+      (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'entrada', 'contato', 'imagem', 'foto.jpg', ${`${DIA_1}T15:05:00Z`})
   `);
 
   // Uma mensagem do DIA_0 (véspera, fora do período pedido nos testes de filtro).
   await cenario.dono.execute(sql`
     insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)
-    values (gen_random_uuid(), ${cenario.tenantId}, ${conversaId}, 'entrada', 'contato', 'texto', 'Mensagem de ontem', ${`${DIA_0}T15:00:00Z`})
+    values (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'entrada', 'contato', 'texto', 'Mensagem de ontem', ${`${DIA_0}T15:00:00Z`})
   `);
 });
 
@@ -155,22 +155,22 @@ function url(caminho: string): string {
 describe('Dashboard — agregação de dados semeados', () => {
   it('conta contatos e mensagens do período pedido', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${fluxoId}/analise/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/gestao/fluxos/${flowId}/analise/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
     const corpo = (await r.json()) as {
-      dados: {
-        contatos: { total: { atual: number }; comInteracao: { atual: number } };
-        mensagens: { enviadas: { atual: number }; recebidas: { atual: number } };
-        fluxo: { transbordo: { atual: number }; total: { atual: number } };
+      data: {
+        contacts: { total: { atual: number }; withInteraction: { atual: number } };
+        messages: { enviadas: { atual: number }; recebidas: { atual: number } };
+        flow: { transbordo: { atual: number }; total: { atual: number } };
       };
     };
-    expect(corpo.dados.contatos.total.atual).toBe(1);
-    expect(corpo.dados.contatos.comInteracao.atual).toBe(1);
-    expect(corpo.dados.mensagens.enviadas.atual).toBe(1);
-    expect(corpo.dados.mensagens.recebidas.atual).toBe(2);
-    expect(corpo.dados.fluxo.transbordo.atual).toBe(1);
+    expect(corpo.data.contacts.total.atual).toBe(1);
+    expect(corpo.data.contacts.withInteraction.atual).toBe(1);
+    expect(corpo.data.messages.enviadas.atual).toBe(1);
+    expect(corpo.data.messages.recebidas.atual).toBe(2);
+    expect(corpo.data.flow.transbordo.atual).toBe(1);
   });
 
   it('filtro por período: um dia sem mensagem semeada devolve zero, não a mensagem de outro dia', async () => {
@@ -180,7 +180,7 @@ describe('Dashboard — agregação de dados semeados', () => {
     const semDado = iso(new Date(HOJE.getTime() - 3 * 24 * 60 * 60 * 1000));
     const r = await fetch(
       url(
-        `/v1/gestao/fluxos/${fluxoId}/analise/dashboard?periodo=custom&de=${semDado}&ate=${semDado}`,
+        `/v1/gestao/fluxos/${flowId}/analise/dashboard?periodo=custom&de=${semDado}&ate=${semDado}`,
       ),
       { headers: cabecalho(cookie) },
     );
@@ -189,15 +189,15 @@ describe('Dashboard — agregação de dados semeados', () => {
   });
 
   it('isolamento entre tenants: sessão de um tenant não lê o fluxo de outro', async () => {
-    const cookieDoOutro = await criarCookieDeSessao(outro);
-    const r = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/dashboard`), {
+    const cookieDoOutro = await createCookieOfSession(outro);
+    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/dashboard`), {
       headers: cabecalho(cookieDoOutro),
     });
     expect(r.status).toBe(404);
   });
 
   it('permissão: sem cookie de sessão a rota nem chega a ler o banco', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/dashboard`));
+    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/dashboard`));
     expect(r.status).toBe(401);
   });
 
@@ -212,7 +212,7 @@ describe('Dashboard — agregação de dados semeados', () => {
 describe('Visão Geral', () => {
   it('soma ativos, engajados e mensagens do período', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${fluxoId}/analise/visao-geral?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/gestao/fluxos/${flowId}/analise/visao-geral?de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -229,12 +229,12 @@ describe('Visão Geral', () => {
 describe('Jornada dos contatos', () => {
   it('desenha a aresta entrada -> b1 -> b2 -> Saída, no período', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${fluxoId}/analise/jornada?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/gestao/fluxos/${flowId}/analise/jornada?de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
     const corpo = (await r.json()) as {
-      arestas: { de: string; para: string; passo: number; quantidade: number; tipo: string }[];
+      arestas: { de: string; para: string; passo: number; quantity: number; tipo: string }[];
     };
     expect(corpo.arestas.length).toBeGreaterThan(0);
     expect(corpo.arestas.some((a) => a.de.startsWith('Boas-vindas ['))).toBe(true);
@@ -244,7 +244,7 @@ describe('Jornada dos contatos', () => {
   it('fora do período, sem execução, devolve o diagrama vazio', async () => {
     const semDado = '2026-02-01';
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${fluxoId}/analise/jornada?de=${semDado}&ate=${semDado}`),
+      url(`/v1/gestao/fluxos/${flowId}/analise/jornada?de=${semDado}&ate=${semDado}`),
       { headers: cabecalho(cookie) },
     );
     const corpo = (await r.json()) as { arestas: unknown[] };
@@ -254,12 +254,12 @@ describe('Jornada dos contatos', () => {
 
 describe('Log de mensagens', () => {
   it('lista as mensagens do fluxo, mais recente primeiro', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/log?limit=10`), {
+    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=10`), {
       headers: cabecalho(cookie),
     });
     expect(r.status).toBe(200);
     const corpo = (await r.json()) as {
-      data: { id: string; criadaEm: string; direcao: string; tipo: string }[];
+      data: { id: string; criadaEm: string; direction: string; tipo: string }[];
       page_info: { has_next_page: boolean; end_cursor: string | null };
     };
     expect(corpo.data).toHaveLength(4);
@@ -271,7 +271,7 @@ describe('Log de mensagens', () => {
   it('filtra por período, direção e tipo', async () => {
     const r = await fetch(
       url(
-        `/v1/gestao/fluxos/${fluxoId}/analise/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem`,
+        `/v1/gestao/fluxos/${flowId}/analise/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem`,
       ),
       { headers: cabecalho(cookie) },
     );
@@ -281,7 +281,7 @@ describe('Log de mensagens', () => {
   });
 
   it('direção fora da lista é ignorada, não derruba a consulta', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/log?direcao=nao-existe`), {
+    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?direcao=nao-existe`), {
       headers: cabecalho(cookie),
     });
     expect(r.status).toBe(200);
@@ -290,10 +290,10 @@ describe('Log de mensagens', () => {
   });
 
   it('pagina por cursor sem repetir nem pular mensagem', async () => {
-    const primeira = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/log?limit=2`), {
+    const first = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=2`), {
       headers: cabecalho(cookie),
     });
-    const p1 = (await primeira.json()) as {
+    const p1 = (await first.json()) as {
       data: { id: string }[];
       page_info: { has_next_page: boolean; end_cursor: string | null };
     };
@@ -302,7 +302,7 @@ describe('Log de mensagens', () => {
     expect(p1.page_info.end_cursor).not.toBeNull();
 
     const segunda = await fetch(
-      url(`/v1/gestao/fluxos/${fluxoId}/analise/log?limit=2&cursor=${p1.page_info.end_cursor}`),
+      url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=2&cursor=${p1.page_info.end_cursor}`),
       { headers: cabecalho(cookie) },
     );
     const p2 = (await segunda.json()) as { data: { id: string }[]; page_info: { has_next_page: boolean } };
@@ -315,8 +315,8 @@ describe('Log de mensagens', () => {
   });
 
   it('isolamento entre tenants: outro tenant não vê estas mensagens', async () => {
-    const cookieDoOutro = await criarCookieDeSessao(outro);
-    const r = await fetch(url(`/v1/gestao/fluxos/${fluxoId}/analise/log`), {
+    const cookieDoOutro = await createCookieOfSession(outro);
+    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log`), {
       headers: cabecalho(cookieDoOutro),
     });
     expect(r.status).toBe(404);

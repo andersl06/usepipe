@@ -1,10 +1,10 @@
-import type { CanalWhatsApp } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { texto, urlDoWebhook } from './canal.js';
 import { configurarWebhook } from './configuracao-de-webhook.js';
-import { criarCanal } from './criacao-de-canal.js';
-import { validarConfiguracaoManual } from './validacao-da-configuracao-manual.js';
+import { createChannel } from './criacao-de-canal.js';
+import { validateConfigurationManual } from './validacao-da-configuracao-manual.js';
 import { reautorizar } from './reautorizacao.js';
-import { atualizarCanal } from './canal.js';
+import { atualizarChannel } from './canal.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb
@@ -23,10 +23,10 @@ import { atualizarCanal } from './canal.js';
  * app é sempre o da instalação.
  */
 
-export interface ConfiguracaoManual {
-  canal: CanalWhatsApp;
+export interface ConfigurationManual {
+  channel: ChannelWhatsApp;
   /** `webhook_error`. `null` é o `webhook_setup?` verdadeiro. */
-  erroDeWebhook: string | null;
+  webhookError: string | null;
   /**
    * O que o cliente cola no webhook DO APP dele (Painel → WhatsApp → Configuração).
    * Mensagens chegam pelo override do número, que já foi feito; mas status de
@@ -36,9 +36,9 @@ export interface ConfiguracaoManual {
   webhook: { url: string; verifyToken: string };
 }
 
-export async function executarConfiguracaoManual(pedido: {
+export async function executarConfigurationManual(pedido: {
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   wabaId?: string | undefined;
   numeroId?: string | undefined;
   token?: string | undefined;
@@ -51,14 +51,14 @@ export async function executarConfiguracaoManual(pedido: {
    * Aqui o token é do cliente e expira; sem esta porta, trocar o token vira um
    * beco: criar de novo esbarra no próprio número (`numero_em_uso`).
    */
-  canalId?: string | undefined;
-}): Promise<ConfiguracaoManual> {
-  const previa = await validarConfiguracaoManual(pedido);
+  channelId?: string | undefined;
+}): Promise<ConfigurationManual> {
+  const previa = await validateConfigurationManual(pedido);
 
-  if (pedido.canalId) {
+  if (pedido.channelId) {
     const religado = await reautorizar({
       tenantId: pedido.tenantId,
-      canalId: pedido.canalId,
+      channelId: pedido.channelId,
       numeroId: previa.numeroId,
       wabaId: previa.wabaId,
       token: pedido.token ?? '',
@@ -72,27 +72,27 @@ export async function executarConfiguracaoManual(pedido: {
     /* O App Secret é do app DO CLIENTE e pode ter mudado junto com o token —
        sem ele a assinatura do webhook deixa de conferir. A origem volta a ser a
        manual: `reautorizar` nasceu para o cadastro embutido. */
-    const comSegredo = await atualizarCanal(religado, {
+    const withSecret = await atualizarChannel(religado, {
       origem: 'manual_setup_v2',
       ...(pedido.appSecret ? { appSecret: pedido.appSecret } : {}),
       ...(previa.appId ? { appId: previa.appId } : {}),
     });
     const webhookDele = {
-      url: urlDoWebhook(comSegredo.id),
-      verifyToken: texto(comSegredo.config['verifyToken']) ?? '',
+      url: urlDoWebhook(withSecret.id),
+      verifyToken: texto(withSecret.config['verifyToken']) ?? '',
     };
     try {
-      const resultado = await configurarWebhook(comSegredo, { wabaId: previa.wabaId });
-      if (resultado.erroDeRegistro) throw resultado.erroDeRegistro;
-      return { canal: resultado.canal, erroDeWebhook: null, webhook: webhookDele };
+      const resultado = await configurarWebhook(withSecret, { wabaId: previa.wabaId });
+      if (resultado.errorOfRegistro) throw resultado.errorOfRegistro;
+      return { channel: resultado.channel, webhookError: null, webhook: webhookDele };
     } catch (erro) {
-      return { canal: comSegredo, erroDeWebhook: (erro as Error).message, webhook: webhookDele };
+      return { channel: withSecret, webhookError: (erro as Error).message, webhook: webhookDele };
     }
   }
 
-  const canal = await criarCanal({
+  const channel = await createChannel({
     tenantId: pedido.tenantId,
-    usuarioId: pedido.usuarioId,
+    userId: pedido.userId,
     infoDaWaba: { wabaId: previa.wabaId, nomeDaEmpresa: previa.nomeVerificado ?? undefined },
     infoDoNumero: {
       numeroId: previa.numeroId,
@@ -106,14 +106,14 @@ export async function executarConfiguracaoManual(pedido: {
     appSecret: pedido.appSecret,
     appId: previa.appId,
   });
-  const webhook = { url: urlDoWebhook(canal.id), verifyToken: texto(canal.config['verifyToken']) ?? '' };
+  const webhook = { url: urlDoWebhook(channel.id), verifyToken: texto(channel.config['verifyToken']) ?? '' };
 
   // `setup_webhook`: erro de registro também conta como erro de webhook.
   try {
-    const resultado = await configurarWebhook(canal, { wabaId: previa.wabaId });
-    if (resultado.erroDeRegistro) throw resultado.erroDeRegistro;
-    return { canal: resultado.canal, erroDeWebhook: null, webhook };
-  } catch (erro) {
-    return { canal, erroDeWebhook: (erro as Error).message, webhook };
+    const resultado = await configurarWebhook(channel, { wabaId: previa.wabaId });
+    if (resultado.errorOfRegistro) throw resultado.errorOfRegistro;
+    return { channel: resultado.channel, webhookError: null, webhook };
+  } catch (error) {
+    return { channel, webhookError: (error as Error).message, webhook };
   }
 }

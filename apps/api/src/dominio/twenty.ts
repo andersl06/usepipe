@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { chaveiroDoAmbiente, decifrar, estaCifrado } from '@pipe/db';
-import type { TransacaoPipe } from '@pipe/db';
+import { keyringOfAmbiente, decifrar, estaCifrado } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 
 /**
  * O cliente do CRM (Twenty). **A única porta do Pipe para o CRM.**
@@ -29,13 +29,13 @@ export interface ConfigTwenty {
   /** Base pública da instância daquele cliente, sem barra final. */
   url: string;
   /** Chave de API já decifrada. **Nunca** vai para log. */
-  chave: string;
+  key: string;
 }
 
-export class TwentyErro extends Error {
+export class TwentyError extends Error {
   readonly permanente: boolean;
-  constructor(mensagem: string, permanente = false) {
-    super(mensagem);
+  constructor(message: string, permanente = false) {
+    super(message);
     this.name = 'TwentyErro';
     this.permanente = permanente;
   }
@@ -49,20 +49,20 @@ export class TwentyErro extends Error {
  * de isolamento da §5 da spec.
  */
 export async function configDoTenant(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
 ): Promise<ConfigTwenty | null> {
-  const { rows } = await tx.execute<{ twenty_url: string | null; twenty_chave: string | null }>(
+  const { rows } = await tx.execute<{ twenty_url: string | null; twentyKey: string | null }>(
     sql`select twenty_url, twenty_chave from tenant where id = ${tenantId}::uuid limit 1`,
   );
   const linha = rows[0];
-  if (!linha?.twenty_url || !linha.twenty_chave) return null;
+  if (!linha?.twenty_url || !linha.twentyKey) return null;
 
-  const bruta = linha.twenty_chave;
+  const bruta = linha.twentyKey;
   // Tolera chave em texto puro para o ambiente de desenvolvimento, do mesmo jeito
   // que `decifrarConfig` faz com o token da Meta. Em produção ela chega cifrada.
-  const chave = estaCifrado(bruta) ? decifrar(bruta, chaveiroDoAmbiente()) : bruta;
-  return { url: linha.twenty_url.replace(/\/$/, ''), chave };
+  const key = estaCifrado(bruta) ? decifrar(bruta, keyringOfAmbiente()) : bruta;
+  return { url: linha.twenty_url.replace(/\/$/, ''), key };
 }
 
 interface RespostaGraphql<T> {
@@ -83,7 +83,7 @@ export async function chamar<T>(
   config: ConfigTwenty,
   caminho: '/graphql' | '/metadata',
   query: string,
-  variaveis: Record<string, unknown> = {},
+  variables: Record<string, unknown> = {},
   buscar: typeof fetch = fetch,
 ): Promise<T> {
   let resposta: Response;
@@ -92,29 +92,29 @@ export async function chamar<T>(
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        authorization: `Bearer ${config.chave}`,
+        authorization: `Bearer ${config.key}`,
       },
-      body: JSON.stringify({ query, variables: variaveis }),
+      body: JSON.stringify({ query, variables: variables }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
-  } catch (erro) {
+  } catch (error) {
     // Rede: sempre temporário. O CRM pode ter caído, e cai de volta.
-    throw new TwentyErro(`CRM inalcançável em ${config.url}: ${(erro as Error).message}`);
+    throw new TwentyError(`CRM inalcançável em ${config.url}: ${(error as Error).message}`);
   }
 
   if (!resposta.ok) {
     // 401/403 é chave errada ou sem permissão: repetir não conserta.
     const permanente = resposta.status === 401 || resposta.status === 403;
-    throw new TwentyErro(`CRM respondeu ${resposta.status} em ${caminho}`, permanente);
+    throw new TwentyError(`CRM respondeu ${resposta.status} em ${caminho}`, permanente);
   }
 
   const corpo = (await resposta.json()) as RespostaGraphql<T>;
   if (corpo.errors?.length) {
-    const primeiro = corpo.errors[0]!;
-    const permanente = primeiro.extensions?.subCode === 'PERMISSION_DENIED';
-    throw new TwentyErro(`CRM recusou a operação: ${primeiro.message}`, permanente);
+    const first = corpo.errors[0]!;
+    const permanente = first.extensions?.subCode === 'PERMISSION_DENIED';
+    throw new TwentyError(`CRM recusou a operação: ${first.message}`, permanente);
   }
-  if (!corpo.data) throw new TwentyErro('CRM respondeu sem `data`');
+  if (!corpo.data) throw new TwentyError('CRM respondeu sem `data`');
   return corpo.data;
 }
 
@@ -172,7 +172,7 @@ export function linkDaEmpresa(url: string, empresaId: string): string {
   return `${url.replace(/\/$/, '')}/object/company/${empresaId}`;
 }
 
-export interface ContatoParaEspelhar {
+export interface ContactForEspelhar {
   id: string;
   nome: string | null;
   email: string | null;
@@ -183,7 +183,7 @@ export interface ContatoParaEspelhar {
 
 interface NoPessoa {
   id: string;
-  pipeContatoId: string | null;
+  pipeContactId: string | null;
 }
 
 const CAMPOS_PESSOA = 'id pipeContatoId';
@@ -196,20 +196,20 @@ const CAMPOS_PESSOA = 'id pipeContatoId';
  * gravar o id" deixa um registro órfão, e a execução seguinte cria OUTRO. Com ele, a
  * segunda execução acha o órfão e adota.
  */
-export async function espelharContato(
+export async function espelharContact(
   config: ConfigTwenty,
-  contato: ContatoParaEspelhar,
+  contact: ContactForEspelhar,
   buscar: typeof fetch = fetch,
 ): Promise<string> {
-  const nome = partirNome(contato.nome);
-  const telefone = partirTelefone(contato.telefoneE164);
+  const nome = partirNome(contact.nome);
+  const telefone = partirTelefone(contact.telefoneE164);
 
-  const dados: Record<string, unknown> = { name: nome, pipeContatoId: contato.id };
-  if (contato.email) dados['emails'] = { primaryEmail: contato.email };
-  if (telefone) dados['phones'] = telefone;
-  if (contato.empresaTwentyId) dados['companyId'] = contato.empresaTwentyId;
+  const data: Record<string, unknown> = { name: nome, pipeContatoId: contact.id };
+  if (contact.email) data['emails'] = { primaryEmail: contact.email };
+  if (telefone) data['phones'] = telefone;
+  if (contact.empresaTwentyId) data['companyId'] = contact.empresaTwentyId;
 
-  const idConhecido = contato.twentyPessoaId ?? (await acharPessoa(config, contato.id, buscar));
+  const idConhecido = contact.twentyPessoaId ?? (await acharPessoa(config, contact.id, buscar));
 
   if (idConhecido) {
     const r = await chamar<{ updatePerson: NoPessoa }>(
@@ -218,10 +218,10 @@ export async function espelharContato(
       `mutation($id: UUID!, $data: PersonUpdateInput!) {
          updatePerson(id: $id, data: $data) { ${CAMPOS_PESSOA} }
        }`,
-      { id: idConhecido, data: dados },
+      { id: idConhecido, data: data },
       buscar,
     );
-    conferirDono(r.updatePerson, contato.id, config.url);
+    conferirDono(r.updatePerson, contact.id, config.url);
     return r.updatePerson.id;
   }
 
@@ -229,16 +229,16 @@ export async function espelharContato(
     config,
     '/graphql',
     `mutation($data: PersonCreateInput!) { createPerson(data: $data) { ${CAMPOS_PESSOA} } }`,
-    { data: dados },
+    { data: data },
     buscar,
   );
-  conferirDono(r.createPerson, contato.id, config.url);
+  conferirDono(r.createPerson, contact.id, config.url);
   return r.createPerson.id;
 }
 
 async function acharPessoa(
   config: ConfigTwenty,
-  contatoId: string,
+  contactId: string,
   buscar: typeof fetch,
 ): Promise<string | null> {
   const r = await chamar<{ people: { edges: { node: NoPessoa }[] } }>(
@@ -247,7 +247,7 @@ async function acharPessoa(
     `query($f: PersonFilterInput) {
        people(filter: $f, first: 1) { edges { node { ${CAMPOS_PESSOA} } } }
      }`,
-    { f: { pipeContatoId: { eq: contatoId } } },
+    { f: { pipeContatoId: { eq: contactId } } },
     buscar,
   );
   return r.people.edges[0]?.node.id ?? null;
@@ -261,9 +261,9 @@ async function acharPessoa(
  * digitação na implantação, com chave válida. Aborta sem gravar id nenhum.
  */
 function conferirDono(no: NoPessoa, contatoId: string, url: string): void {
-  if (no.pipeContatoId !== contatoId) {
-    throw new TwentyErro(
-      `CRM em ${url} devolveu o contato ${no.pipeContatoId ?? 'sem marca'} para o pedido de ${contatoId}: ` +
+  if (no.pipeContactId !== contatoId) {
+    throw new TwentyError(
+      `CRM em ${url} devolveu o contato ${no.pipeContactId ?? 'sem marca'} para o pedido de ${contatoId}: ` +
         'a URL deste tenant provavelmente aponta para a instância de outro cliente.',
       true,
     );

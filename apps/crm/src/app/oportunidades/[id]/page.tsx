@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Etiqueta, Tabela, type Coluna } from '@pipe/ui';
-import { AbasDaFicha, Campo, Destaque, Secao } from '../../../componentes/ficha';
-import { LinhaDoTempo } from '../../../componentes/linha-do-tempo';
+import { Etiqueta, Tabela, type Column } from '@pipe/ui';
+import { AbasDaFicha, Campo, Destaque, Section } from '../../../componentes/ficha';
+import { TimeLinha } from '../../../componentes/linha-do-tempo';
 import { fusoDoTenant } from '../../../lib/banco';
 import {
-  carregarOportunidade,
-  type FichaOportunidade,
-  type LinhaOportunidade,
+  loadOpportunity,
+  type FichaOpportunity,
+  type LinhaOpportunity,
 } from '../../../lib/funil';
-import { data, desde, dinheiro, numero } from '../../../lib/formato';
+import { data, desde, money, numero } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,23 +35,23 @@ const ABAS = [
   { chave: 'conta', rotulo: 'Na conta' },
 ] as const;
 
-type AbaOportunidade = (typeof ABAS)[number]['chave'];
+type AbaOpportunity = (typeof ABAS)[number]['chave'];
 
-function abaValida(valor: string | undefined): AbaOportunidade {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'historico') as AbaOportunidade;
+function abaValida(value: string | undefined): AbaOpportunity {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'historico') as AbaOpportunity;
 }
 
-function colunasIrmas(hoje: Date, fuso: string): readonly Coluna<LinhaOportunidade>[] {
+function colunasIrmas(hoje: Date, fuso: string): readonly Column<LinhaOpportunity>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Oportunidade',
       celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,
     },
-    { chave: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
-    { chave: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => dinheiro(o.valor) },
+    { key: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
+    { key: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => money(o.value) },
     {
-      chave: 'situacao',
+      key: 'situacao',
       rotulo: 'Situação',
       celula: (o) => {
         if (o.fechadaEm) {
@@ -61,11 +61,11 @@ function colunasIrmas(hoje: Date, fuso: string): readonly Coluna<LinhaOportunida
             </Etiqueta>
           );
         }
-        if (o.fechamentoPrevisto && o.fechamentoPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>;
+        if (o.closingPrevisto && o.closingPrevisto < hoje) {
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
-        return o.fechamentoPrevisto ? (
-          <Etiqueta>fecha em {data(o.fechamentoPrevisto, fuso)}</Etiqueta>
+        return o.closingPrevisto ? (
+          <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
         ) : (
           '—'
         );
@@ -74,19 +74,19 @@ function colunasIrmas(hoje: Date, fuso: string): readonly Coluna<LinhaOportunida
   ];
 }
 
-function DestaqueDaOportunidade({
+function OpportunityDestaque({
   ficha,
   fuso,
   hoje,
 }: {
-  ficha: FichaOportunidade;
+  ficha: FichaOpportunity;
   fuso: string;
   hoje: Date;
 }) {
   const vencida =
     ficha.fechadaEm === null &&
-    ficha.fechamentoPrevisto !== null &&
-    ficha.fechamentoPrevisto < hoje;
+    ficha.closingPrevisto !== null &&
+    ficha.closingPrevisto < hoje;
 
   return (
     <Destaque
@@ -109,28 +109,28 @@ function DestaqueDaOportunidade({
           ) : (
             <Etiqueta>{ficha.fase}</Etiqueta>
           )}
-          {vencida && ficha.fechamentoPrevisto ? (
-            <Etiqueta tom="alerta">venceu em {data(ficha.fechamentoPrevisto, fuso)}</Etiqueta>
+          {vencida && ficha.closingPrevisto ? (
+            <Etiqueta tom="alerta">venceu em {data(ficha.closingPrevisto, fuso)}</Etiqueta>
           ) : null}
         </>
       }
-      principais={[
-        { rotulo: 'Valor', numerico: true, valor: dinheiro(ficha.valor), nota: ficha.moeda },
+      main={[
+        { rotulo: 'Valor', numerico: true, value: money(ficha.value), nota: ficha.moeda },
         {
           rotulo: 'Probabilidade',
           numerico: true,
-          valor: ficha.probabilidade === null ? '—' : `${ficha.probabilidade}%`,
+          value: ficha.probability === null ? '—' : `${ficha.probability}%`,
           nota:
-            ficha.valor !== null && ficha.probabilidade !== null && ficha.fechadaEm === null
-              ? `${dinheiro((ficha.valor * ficha.probabilidade) / 100)} ponderado`
+            ficha.value !== null && ficha.probability !== null && ficha.fechadaEm === null
+              ? `${money((ficha.value * ficha.probability) / 100)} ponderado`
               : null,
         },
-        { rotulo: 'Fase', valor: ficha.fase },
-        { rotulo: 'Proprietário', valor: ficha.proprietario ?? 'sem proprietário' },
+        { rotulo: 'Fase', value: ficha.fase },
+        { rotulo: 'Proprietário', value: ficha.proprietario ?? 'sem proprietário' },
         {
           rotulo: 'Conta',
-          valor: ficha.contaId ? (
-            <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+          value: ficha.accountId ? (
+            <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
           ) : (
             'sem conta'
           ),
@@ -140,7 +140,7 @@ function DestaqueDaOportunidade({
   );
 }
 
-export default async function PaginaOportunidade({
+export default async function PageOpportunity({
   params,
   searchParams,
 }: {
@@ -151,7 +151,7 @@ export default async function PaginaOportunidade({
   const { aba: abaCrua } = await searchParams;
   const aba = abaValida(abaCrua);
 
-  const ficha = await carregarOportunidade(id);
+  const ficha = await loadOpportunity(id);
   if (!ficha) notFound();
 
   const fuso = await fusoDoTenant();
@@ -159,18 +159,18 @@ export default async function PaginaOportunidade({
 
   return (
     <>
-      <DestaqueDaOportunidade ficha={ficha} fuso={fuso} hoje={hoje} />
+      <OpportunityDestaque ficha={ficha} fuso={fuso} hoje={hoje} />
 
       <div className="ficha">
         <aside className="coluna">
           <div className="tblwrap">
-            <Secao titulo="Dados">
+            <Section titulo="Dados">
               <div className="campos">
                 <Campo
                   k="Conta"
                   v={
-                    ficha.contaId ? (
-                      <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+                    ficha.accountId ? (
+                      <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
                     ) : (
                       '—'
                     )
@@ -197,7 +197,7 @@ export default async function PaginaOportunidade({
                 <Campo k="Proprietário" v={ficha.proprietario ?? 'sem proprietário'} />
                 <Campo k="Aberta em" v={data(ficha.criadoEm, fuso)} />
               </div>
-            </Secao>
+            </Section>
           </div>
 
           {/*
@@ -206,9 +206,9 @@ export default async function PaginaOportunidade({
             continua no funil.
           */}
           <div className="tblwrap">
-            <Secao titulo="Fechamento">
+            <Section titulo="Fechamento">
               <div className="campos">
-                <Campo k="Previsto" v={data(ficha.fechamentoPrevisto, fuso)} />
+                <Campo k="Previsto" v={data(ficha.closingPrevisto, fuso)} />
                 <Campo
                   k="Fechada em"
                   v={ficha.fechadaEm ? data(ficha.fechadaEm, fuso) : 'em aberto'}
@@ -229,7 +229,7 @@ export default async function PaginaOportunidade({
                   <Campo k="Motivo da perda" v={ficha.motivoPerda ?? 'não registrado'} />
                 ) : null}
               </div>
-            </Secao>
+            </Section>
           </div>
         </aside>
 
@@ -239,8 +239,8 @@ export default async function PaginaOportunidade({
               base={`/oportunidades/${ficha.id}`}
               aba={aba}
               abas={[
-                { ...ABAS[0], contagem: ficha.linhaDoTempo.length },
-                { ...ABAS[1], contagem: ficha.irmas.length },
+                { ...ABAS[0], count: ficha.timeLinha.length },
+                { ...ABAS[1], count: ficha.irmas.length },
               ]}
               formatar={numero}
             />
@@ -255,7 +255,7 @@ export default async function PaginaOportunidade({
                   </span>
                 </div>
               ) : (
-                <LinhaDoTempo itens={ficha.linhaDoTempo} fuso={fuso} agora={hoje} />
+                <TimeLinha itens={ficha.timeLinha} fuso={fuso} agora={hoje} />
               )
             ) : null}
 
@@ -263,9 +263,9 @@ export default async function PaginaOportunidade({
               <Tabela
                 colunas={colunasIrmas(hoje, fuso)}
                 linhas={ficha.irmas}
-                chaveDaLinha={(o) => o.id}
-                vazio={
-                  ficha.contaId
+                linhaKey={(o) => o.id}
+                empty={
+                  ficha.accountId
                     ? 'Esta é a única oportunidade desta conta.'
                     : 'Sem conta ligada, não há outras oportunidades para comparar.'
                 }

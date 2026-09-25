@@ -2,14 +2,14 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@
 import type { Response } from 'express';
 import { noTenant } from '../banco.js';
 import {
-  criarImportacao,
+  createImport,
   lerFalhas,
-  lerImportacao,
-  listarImportacoes,
+  readImport,
+  listImports,
 } from '../dominio/importacao-de-contatos.js';
-import type { ImportacaoVisivel } from '../dominio/importacao-de-contatos.js';
-import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
+import type { ImportVisible } from '../dominio/importacao-de-contatos.js';
+import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
 
 /**
  * A casca HTTP da importação de contatos. A regra mora em
@@ -23,54 +23,54 @@ import type { RequisicaoComSessao } from '../sessao.js';
  * O tenant é o da sessão; nada no corpo o escolhe.
  */
 @Controller('v1/contatos/importacoes')
-export class ControladorImportacoesDeContatos {
+export class ContactImportsController {
   @Post()
   @HttpCode(201)
-  @ComSessao()
-  async importar(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async import(
+    @Req() request: RequestWithSession,
     @Body() corpo: unknown,
     @Query('nome') nome: string | undefined,
-  ): Promise<ImportacaoVisivel> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId);
-    return criarImportacao(
-      sessao.tenantId,
-      sessao.usuarioId,
+  ): Promise<ImportVisible> {
+    const session = sessionOf(request);
+    await permitido(session.tenantId, session.userId);
+    return createImport(
+      session.tenantId,
+      session.userId,
       typeof corpo === 'string' ? corpo : undefined,
       nome,
     );
   }
 
   @Get()
-  @ComSessao()
-  async listar(@Req() requisicao: RequisicaoComSessao): Promise<{ importacoes: ImportacaoVisivel[] }> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId);
-    return { importacoes: await listarImportacoes(sessao.tenantId) };
+  @WithSession()
+  async listar(@Req() requisicao: RequestWithSession): Promise<{ imports: ImportVisible[] }> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId);
+    return { imports: await listImports(sessao.tenantId) };
   }
 
   @Get(':id')
-  @ComSessao()
+  @WithSession()
   async ler(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<ImportacaoVisivel> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId);
-    return lerImportacao(sessao.tenantId, id);
+  ): Promise<ImportVisible> {
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId);
+    return readImport(sessao.tenantId, id);
   }
 
   /** O relatório das linhas rejeitadas, com a coluna `erros`, para baixar. */
   @Get(':id/falhas')
-  @ComSessao()
+  @WithSession()
   async falhas(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Res() resposta: Response,
   ): Promise<void> {
-    const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId);
+    const sessao = sessionOf(requisicao);
+    await permitido(sessao.tenantId, sessao.userId);
     const csv = await lerFalhas(sessao.tenantId, id);
     resposta.setHeader('content-type', 'text/csv; charset=utf-8');
     resposta.setHeader('content-disposition', `attachment; filename="rejeitadas-${id}.csv"`);
@@ -79,6 +79,6 @@ export class ControladorImportacoesDeContatos {
   }
 }
 
-function permitido(tenantId: string, usuarioId: string): Promise<void> {
-  return noTenant(tenantId, (tx) => exigirPermissao(tx, usuarioId, 'crm.importar'));
+function permitido(tenantId: string, userId: string): Promise<void> {
+  return noTenant(tenantId, (tx) => exigirPermission(tx, userId, 'crm.importar'));
 }

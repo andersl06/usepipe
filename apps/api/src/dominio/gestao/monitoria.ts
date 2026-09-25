@@ -1,25 +1,25 @@
 import { and, asc, desc, eq, gte, lt } from 'drizzle-orm';
-import { resultado, resultadoVazio, type ResultadoMetrica } from '@pipe/core';
+import { resultado, resultEmpty, type ResultadoMetrica } from '@pipe/core';
 import {
-  avaliacao,
-  classificacaoConversa,
-  contato,
-  conversa,
+  evaluation,
+  classificationConversation,
+  contact,
+  conversation,
   criterio,
-  fila,
-  formularioAvaliacao,
+  queue,
+  formEvaluation,
   grupoCriterio,
-  mensagem,
-  respostaAvaliacao,
-  usuario,
+  message,
+  responseEvaluation,
+  user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
-import type { Janela } from './janela.js';
+import type { TransactionPipe } from '@pipe/db';
+import type { Window } from './janela.js';
 import { uuidOuNada } from './formato.js';
 import { fatalReprovado } from './nota-avaliacao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
+const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
@@ -44,7 +44,7 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
 /** Estados em que a nota já vale. Rascunho não conta — ninguém fechou aquilo. */
 const ESTADOS_VALENDO = new Set(['concluida', 'contestada', 'revisada', 'encerrada']);
 
-export const ROTULO_ESTADO_AVALIACAO: Record<string, string> = {
+export const LABEL_STATE_EVALUATION: Record<string, string> = {
   rascunho: 'Rascunho',
   concluida: 'Concluída',
   contestada: 'Contestada',
@@ -58,17 +58,17 @@ export const ROTULO_AVALIADOR: Record<string, string> = {
 };
 
 /** O que a IA respondeu num critério de conformidade. */
-export const ROTULO_VALOR: Record<string, string> = {
+export const LABEL_VALUE: Record<string, string> = {
   conforme: 'Conforme',
   nao_conforme: 'Não conforme',
   nao_se_aplica: 'Não se aplica',
 };
 
-export interface AvaliacaoNaLista {
+export interface EvaluationInList {
   id: string;
-  conversaId: string;
-  contato: string | null;
-  fila: string | null;
+  conversationId: string;
+  contact: string | null;
+  queue: string | null;
   avaliado: string | null;
   formulario: string;
   notaMaxima: number;
@@ -77,35 +77,35 @@ export interface AvaliacaoNaLista {
   conceito: string | null;
   avaliadorTipo: string;
   confiancaIa: number | null;
-  estado: string;
+  state: string;
   avaliadaEm: Date | null;
   /** Categoria e sentimento da classificação da conversa, quando houver. */
   categoria: string | null;
-  sentimento: string | null;
+  sentiment: string | null;
 }
 
-export interface LinhaPorAtendente {
-  atendente: string;
+export interface LineByAgent {
+  agent: string;
   media: ResultadoMetrica;
   /** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */
   zeradas: number;
 }
 
-export interface PainelDeMonitoria {
-  avaliacoes: AvaliacaoNaLista[];
+export interface ApplicationOfQualityReview {
+  evaluations: EvaluationInList[];
   /** Média geral das notas, com população e descartadas ao lado. */
   media: ResultadoMetrica;
-  porAtendente: LinhaPorAtendente[];
+  byAgent: LineByAgent[];
   /** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */
-  porAvaliador: { tipo: string; total: number }[];
+  byEvaluator: { tipo: string; total: number }[];
   /** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */
   confiancaIa: ResultadoMetrica;
   /** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */
   escala: number;
 }
 
-export interface FiltroDeMonitoria {
-  atendenteId?: string | undefined;
+export interface QualityReviewFilter {
+  agentId?: string | undefined;
   avaliadorTipo?: string | undefined;
 }
 
@@ -123,63 +123,63 @@ function numeroOuNulo(bruto: string | null): number | null {
  * excluída volta junto porque a tela é obrigada a mostrá-la — média que esconde
  * o denominador melhora justamente quando o processo piora.
  */
-function mediaDasNotas(itens: readonly AvaliacaoNaLista[]): ResultadoMetrica {
+function mediaDasNotas(itens: readonly EvaluationInList[]): ResultadoMetrica {
   let soma = 0;
-  let populacao = 0;
+  let population = 0;
   let excluidas = 0;
   for (const a of itens) {
-    if (a.nota === null || !ESTADOS_VALENDO.has(a.estado)) {
+    if (a.nota === null || !ESTADOS_VALENDO.has(a.state)) {
       excluidas += 1;
       continue;
     }
     soma += a.nota;
-    populacao += 1;
+    population += 1;
   }
-  return populacao > 0 ? resultado(soma, populacao, excluidas) : resultadoVazio(excluidas);
+  return population > 0 ? resultado(soma, population, excluidas) : resultEmpty(excluidas);
 }
 
-export async function carregarMonitoria(
-  tx: TransacaoPipe,
-  janela: Janela,
-  filtro: FiltroDeMonitoria = {},
-): Promise<PainelDeMonitoria> {
+export async function loadQualityReview(
+  tx: TransactionPipe,
+  window: Window,
+  filter: QualityReviewFilter = {},
+): Promise<ApplicationOfQualityReview> {
   return consultar(tx, async (tx) => {
     const recorte = [
-      gte(avaliacao.avaliadaEm, janela.inicio),
-      lt(avaliacao.avaliadaEm, janela.fim),
-      filtro.atendenteId ? eq(avaliacao.avaliadoId, filtro.atendenteId) : undefined,
-      filtro.avaliadorTipo ? eq(avaliacao.avaliadorTipo, filtro.avaliadorTipo) : undefined,
+      gte(evaluation.avaliadaEm, window.inicio),
+      lt(evaluation.avaliadaEm, window.fim),
+      filter.agentId ? eq(evaluation.avaliadoId, filter.agentId) : undefined,
+      filter.avaliadorTipo ? eq(evaluation.avaliadorTipo, filter.avaliadorTipo) : undefined,
     ].filter((c) => c !== undefined);
 
     const linhas = await tx
       .select({
-        id: avaliacao.id,
-        conversaId: avaliacao.conversaId,
-        contato: contato.nome,
-        fila: fila.nome,
-        avaliado: usuario.nome,
-        formulario: formularioAvaliacao.nome,
-        notaMaxima: formularioAvaliacao.notaMaxima,
-        nota: avaliacao.nota,
-        conceito: avaliacao.conceito,
-        avaliadorTipo: avaliacao.avaliadorTipo,
-        confiancaIa: avaliacao.confiancaIa,
-        estado: avaliacao.estado,
-        avaliadaEm: avaliacao.avaliadaEm,
-        categoria: classificacaoConversa.categoria,
-        sentimento: classificacaoConversa.sentimento,
+        id: evaluation.id,
+        conversaId: evaluation.conversaId,
+        contato: contact.nome,
+        fila: queue.nome,
+        avaliado: user.nome,
+        formulario: formEvaluation.nome,
+        notaMaxima: formEvaluation.notaMaxima,
+        nota: evaluation.nota,
+        conceito: evaluation.conceito,
+        avaliadorTipo: evaluation.avaliadorTipo,
+        confiancaIa: evaluation.confiancaIa,
+        estado: evaluation.state,
+        avaliadaEm: evaluation.avaliadaEm,
+        categoria: classificationConversation.categoria,
+        sentimento: classificationConversation.sentiment,
       })
-      .from(avaliacao)
-      .innerJoin(formularioAvaliacao, eq(formularioAvaliacao.id, avaliacao.formularioId))
-      .innerJoin(conversa, eq(conversa.id, avaliacao.conversaId))
-      .leftJoin(contato, eq(contato.id, conversa.contatoId))
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, avaliacao.avaliadoId))
-      .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, avaliacao.conversaId))
+      .from(evaluation)
+      .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
+      .innerJoin(conversation, eq(conversation.id, evaluation.conversaId))
+      .leftJoin(contact, eq(contact.id, conversation.contatoId))
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, evaluation.avaliadoId))
+      .leftJoin(classificationConversation, eq(classificationConversation.conversaId, evaluation.conversaId))
       .where(and(...recorte))
-      .orderBy(desc(avaliacao.avaliadaEm));
+      .orderBy(desc(evaluation.avaliadaEm));
 
-    const avaliacoes: AvaliacaoNaLista[] = linhas.map((l) => ({
+    const evaluations: EvaluationInList[] = linhas.map((l) => ({
       ...l,
       notaMaxima: Number(l.notaMaxima),
       nota: numeroOuNulo(l.nota),
@@ -189,28 +189,28 @@ export async function carregarMonitoria(
     /* Agrupamento em memória, e não `GROUP BY`: a lista inteira já veio, e a
        média precisa da MESMA regra de exclusão da geral. Duas contas em dois
        lugares é como o número da tabela deixa de bater com o do cartão. */
-    const grupos = new Map<string, AvaliacaoNaLista[]>();
-    for (const a of avaliacoes) {
-      const chave = a.avaliado ?? 'Sem atendente';
-      const atual = grupos.get(chave);
+    const groups = new Map<string, EvaluationInList[]>();
+    for (const a of evaluations) {
+      const key = a.avaliado ?? 'Sem atendente';
+      const atual = groups.get(key);
       if (atual) atual.push(a);
-      else grupos.set(chave, [a]);
+      else groups.set(key, [a]);
     }
 
-    const porAtendente: LinhaPorAtendente[] = [...grupos.keys()].sort().map((atendente) => {
-      const itens = grupos.get(atendente) as AvaliacaoNaLista[];
+    const byAgent: LineByAgent[] = [...groups.keys()].sort().map((agent) => {
+      const itens = groups.get(agent) as EvaluationInList[];
       return {
-        atendente,
+        agent,
         media: mediaDasNotas(itens),
-        zeradas: itens.filter((a) => a.nota === 0 && ESTADOS_VALENDO.has(a.estado)).length,
+        zeradas: itens.filter((a) => a.nota === 0 && ESTADOS_VALENDO.has(a.state)).length,
       };
     });
 
-    const contagem = new Map<string, number>();
-    for (const a of avaliacoes)
-      contagem.set(a.avaliadorTipo, (contagem.get(a.avaliadorTipo) ?? 0) + 1);
+    const count = new Map<string, number>();
+    for (const a of evaluations)
+      count.set(a.avaliadorTipo, (count.get(a.avaliadorTipo) ?? 0) + 1);
 
-    const daIa = avaliacoes.filter((a) => a.avaliadorTipo === 'ia');
+    const daIa = evaluations.filter((a) => a.avaliadorTipo === 'ia');
     const comConfianca = daIa.filter((a) => a.confiancaIa !== null);
     const confiancaIa =
       comConfianca.length > 0
@@ -219,17 +219,17 @@ export async function carregarMonitoria(
             comConfianca.length,
             daIa.length - comConfianca.length,
           )
-        : resultadoVazio(daIa.length);
+        : resultEmpty(daIa.length);
 
     return {
-      avaliacoes,
-      media: mediaDasNotas(avaliacoes),
-      porAtendente,
-      porAvaliador: [...contagem.entries()]
+      evaluations,
+      media: mediaDasNotas(evaluations),
+      byAgent,
+      porAvaliador: [...count.entries()]
         .map(([tipo, total]) => ({ tipo, total }))
         .sort((a, b) => a.tipo.localeCompare(b.tipo)),
       confiancaIa,
-      escala: avaliacoes[0]?.notaMaxima ?? 100,
+      escala: evaluations[0]?.notaMaxima ?? 100,
     };
   });
 }
@@ -239,11 +239,11 @@ export async function carregarMonitoria(
 export interface RespostaDeCriterio {
   criterioId: string;
   criterio: string;
-  descricao: string | null;
+  description: string | null;
   tipo: string;
   fatal: boolean;
   peso: number;
-  valor: string | null;
+  value: string | null;
   /** Pontos já na escala da nota final: é o que permite dizer "perdeu 12 aqui". */
   pontos: number | null;
   justificativa: string | null;
@@ -260,22 +260,22 @@ export interface GrupoDaFicha {
   criterios: RespostaDeCriterio[];
 }
 
-export interface FichaDeAvaliacao {
-  cabecalho: AvaliacaoNaLista;
-  grupos: GrupoDaFicha[];
+export interface RecordOfEvaluation {
+  cabecalho: EvaluationInList;
+  groups: GrupoDaFicha[];
   /** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */
   notaAntesDoFatal: number;
   /** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */
-  fataisReprovados: string[];
+  fatalRejecteds: string[];
   /** O resumo da classificação da conversa, quando a IA também classificou. */
   resumo: string | null;
-  modeloClassificacao: string | null;
+  modelClassification: string | null;
 }
 
 export async function carregarFicha(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   id: string,
-): Promise<FichaDeAvaliacao | null> {
+): Promise<RecordOfEvaluation | null> {
   /* O id vem do caminho da URL, que é entrada de fora. Sem esta linha,
      `/monitoria/abc` chegava ao Postgres como `abc::uuid` e a tela devolvia
      500 — "não existe" é 404, e é isso que o `null` daqui vira lá em cima. */
@@ -284,33 +284,33 @@ export async function carregarFicha(
   return consultar(tx, async (tx) => {
     const [cabeca] = await tx
       .select({
-        id: avaliacao.id,
-        conversaId: avaliacao.conversaId,
-        contato: contato.nome,
-        fila: fila.nome,
-        avaliado: usuario.nome,
-        formulario: formularioAvaliacao.nome,
-        formularioId: formularioAvaliacao.id,
-        notaMaxima: formularioAvaliacao.notaMaxima,
-        nota: avaliacao.nota,
-        conceito: avaliacao.conceito,
-        avaliadorTipo: avaliacao.avaliadorTipo,
-        confiancaIa: avaliacao.confiancaIa,
-        estado: avaliacao.estado,
-        avaliadaEm: avaliacao.avaliadaEm,
-        categoria: classificacaoConversa.categoria,
-        sentimento: classificacaoConversa.sentimento,
-        resumo: classificacaoConversa.resumo,
-        modeloClassificacao: classificacaoConversa.modelo,
+        id: evaluation.id,
+        conversaId: evaluation.conversaId,
+        contato: contact.nome,
+        fila: queue.nome,
+        avaliado: user.nome,
+        formulario: formEvaluation.nome,
+        formularioId: formEvaluation.id,
+        notaMaxima: formEvaluation.notaMaxima,
+        nota: evaluation.nota,
+        conceito: evaluation.conceito,
+        avaliadorTipo: evaluation.avaliadorTipo,
+        confiancaIa: evaluation.confiancaIa,
+        estado: evaluation.state,
+        avaliadaEm: evaluation.avaliadaEm,
+        categoria: classificationConversation.categoria,
+        sentimento: classificationConversation.sentiment,
+        resumo: classificationConversation.resumo,
+        modeloClassificacao: classificationConversation.template,
       })
-      .from(avaliacao)
-      .innerJoin(formularioAvaliacao, eq(formularioAvaliacao.id, avaliacao.formularioId))
-      .innerJoin(conversa, eq(conversa.id, avaliacao.conversaId))
-      .leftJoin(contato, eq(contato.id, conversa.contatoId))
-      .leftJoin(fila, eq(fila.id, conversa.filaId))
-      .leftJoin(usuario, eq(usuario.id, avaliacao.avaliadoId))
-      .leftJoin(classificacaoConversa, eq(classificacaoConversa.conversaId, avaliacao.conversaId))
-      .where(eq(avaliacao.id, id))
+      .from(evaluation)
+      .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
+      .innerJoin(conversation, eq(conversation.id, evaluation.conversaId))
+      .leftJoin(contact, eq(contact.id, conversation.contatoId))
+      .leftJoin(queue, eq(queue.id, conversation.filaId))
+      .leftJoin(user, eq(user.id, evaluation.avaliadoId))
+      .leftJoin(classificationConversation, eq(classificationConversation.conversaId, evaluation.conversaId))
+      .where(eq(evaluation.id, id))
       .limit(1);
 
     if (!cabeca) return null;
@@ -326,22 +326,22 @@ export async function carregarFicha(
         grupoOrdem: grupoCriterio.ordem,
         criterioId: criterio.id,
         criterioNome: criterio.nome,
-        descricao: criterio.descricao,
+        descricao: criterio.description,
         tipo: criterio.tipo,
         fatal: criterio.fatal,
         peso: criterio.peso,
-        valor: respostaAvaliacao.valor,
-        pontos: respostaAvaliacao.pontos,
-        justificativa: respostaAvaliacao.justificativa,
-        evidenciaId: respostaAvaliacao.evidenciaMensagemId,
+        valor: responseEvaluation.value,
+        pontos: responseEvaluation.pontos,
+        justificativa: responseEvaluation.justificativa,
+        evidenciaId: responseEvaluation.evidenceMessageId,
       })
       .from(grupoCriterio)
       .innerJoin(criterio, eq(criterio.grupoId, grupoCriterio.id))
       .leftJoin(
-        respostaAvaliacao,
+        responseEvaluation,
         and(
-          eq(respostaAvaliacao.criterioId, criterio.id),
-          eq(respostaAvaliacao.avaliacaoId, cabeca.id),
+          eq(responseEvaluation.criterioId, criterio.id),
+          eq(responseEvaluation.evaluationId, cabeca.id),
         ),
       )
       .where(eq(grupoCriterio.formularioId, cabeca.formularioId))
@@ -352,15 +352,15 @@ export async function carregarFicha(
        `evidencia_mensagem_id` — a junção é pelo id e basta para exibir. */
     const evidencias = await tx
       .select({
-        id: mensagem.id,
-        conteudo: mensagem.conteudo,
-        autorTipo: mensagem.autorTipo,
-        criadaEm: mensagem.criadaEm,
+        id: message.id,
+        conteudo: message.conteudo,
+        autorTipo: message.autorTipo,
+        criadaEm: message.criadaEm,
       })
-      .from(mensagem)
-      .where(eq(mensagem.conversaId, cabeca.conversaId));
+      .from(message)
+      .where(eq(message.conversationId, cabeca.conversaId));
 
-    const porMensagem = new Map(evidencias.map((m) => [m.id, m]));
+    const byMessage = new Map(evidencias.map((m) => [m.id, m]));
 
     const grupos: GrupoDaFicha[] = [];
     for (const l of linhas) {
@@ -369,15 +369,15 @@ export async function carregarFicha(
         grupo = { id: l.grupoId, nome: l.grupoNome, peso: Number(l.grupoPeso), criterios: [] };
         grupos.push(grupo);
       }
-      const citada = l.evidenciaId ? porMensagem.get(l.evidenciaId) : undefined;
+      const citada = l.evidenciaId ? byMessage.get(l.evidenciaId) : undefined;
       grupo.criterios.push({
         criterioId: l.criterioId,
         criterio: l.criterioNome,
-        descricao: l.descricao,
+        description: l.descricao,
         tipo: l.tipo,
         fatal: l.fatal,
         peso: Number(l.peso),
-        valor: l.valor,
+        value: l.valor,
         pontos: numeroOuNulo(l.pontos),
         justificativa: l.justificativa,
         evidencia: citada?.conteudo ?? null,
@@ -409,7 +409,7 @@ export async function carregarFicha(
       grupos,
       notaAntesDoFatal: todos.reduce((s, c) => s + (c.pontos ?? 0), 0),
       fataisReprovados: todos
-        .filter((c) => fatalReprovado(c.tipo, c.fatal, c.valor))
+        .filter((c) => fatalReprovado(c.tipo, c.fatal, c.value))
         .map((c) => c.criterio),
       resumo: cabeca.resumo,
       modeloClassificacao: cabeca.modeloClassificacao,

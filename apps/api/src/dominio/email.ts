@@ -1,4 +1,4 @@
-import { ErroPipe } from '../erros.js';
+import { PipeError } from '../erros.js';
 
 /**
  * Envio de e-mail — o que o convite e o alerta de recategorização de modelo usam.
@@ -46,7 +46,7 @@ function remetenteDoAmbiente(): { url: string; token: string; de: string; timeou
   const token = process.env['PIPE_EMAIL_TOKEN'] ?? '';
   const de = process.env['PIPE_EMAIL_REMETENTE'] ?? '';
   if (!token || !de) {
-    throw new ErroPipe(
+    throw new PipeError(
       500,
       'email_sem_credencial',
       'Faltam PIPE_EMAIL_TOKEN e PIPE_EMAIL_REMETENTE: sem eles não há como mandar e-mail no modo real.',
@@ -57,8 +57,8 @@ function remetenteDoAmbiente(): { url: string; token: string; de: string; timeou
 }
 
 /** Tira o token de texto que vai virar mensagem de erro. Mesmo cuidado de `cliente-graph.ts`. */
-function esconder(texto: string, segredo: string): string {
-  return segredo.length >= 8 ? texto.split(segredo).join('«segredo»') : texto;
+function esconder(texto: string, secret: string): string {
+  return secret.length >= 8 ? texto.split(secret).join('«segredo»') : texto;
 }
 
 export class RemetenteHttp extends RemetenteDeEmail {
@@ -86,7 +86,7 @@ export class RemetenteHttp extends RemetenteDeEmail {
         signal: AbortSignal.timeout(timeoutMs),
       });
     } catch (erro) {
-      throw new ErroPipe(
+      throw new PipeError(
         502,
         'email_inacessivel',
         `O provedor de e-mail não respondeu: ${esconder(String((erro as Error)?.message ?? erro), token)}`,
@@ -94,7 +94,7 @@ export class RemetenteHttp extends RemetenteDeEmail {
     }
     if (!resposta.ok) {
       const texto = await resposta.text().catch(() => '');
-      throw new ErroPipe(
+      throw new PipeError(
         502,
         'email_recusado',
         `O provedor de e-mail recusou (HTTP ${resposta.status}): ${esconder(texto.slice(0, 200), token)}`,
@@ -140,13 +140,13 @@ export function definirRemetente(novo: RemetenteDeEmail | null): void {
  * Envia sem derrubar quem chamou. Lista vazia é "ninguém para avisar", não erro.
  * `contexto` nomeia o gesto no log (`convite`, `modelo-recategorizado`).
  */
-export async function enviarEmailSemDerrubar(email: Email, contexto: string): Promise<boolean> {
+export async function enviarEmailSemDerrubar(email: Email, context: string): Promise<boolean> {
   if (email.para.length === 0) return false;
   try {
     await remetente().enviar(email);
     return true;
-  } catch (erro) {
-    console.error(`[email] não enviou ${contexto} para ${email.para.join(', ')}: ${(erro as Error).message}`);
+  } catch (error) {
+    console.error(`[email] não enviou ${context} para ${email.para.join(', ')}: ${(error as Error).message}`);
     return false;
   }
 }

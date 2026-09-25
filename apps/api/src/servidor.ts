@@ -6,28 +6,28 @@ import type { Request } from 'express';
 import type { Server } from 'node:http';
 import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
 import { AppModulo } from './app.modulo.js';
-import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';
+import { MAX_BYTES_BY_FILE } from '@pipe/armazenamento';
 import { fecharBancos } from './banco.js';
-import { FiltroDeErro } from './erros.js';
-import { ligarCanalDeEventos } from './eventos-ws.js';
-import { fecharTempoReal } from './tempo-real.js';
+import { ErrorFilter } from './erros.js';
+import { connectChannelOfEvents } from './eventos-ws.js';
+import { closeTimeReal } from './tempo-real.js';
 import {
-  agendarRenovacaoInstagram,
-  agendarVarreduraDicionarioCrm,
-  agendarVarreduraDownloadMidia,
-  agendarVarreduraEspelhoCrm,
-  agendarVarreduraSla,
-  agendarVarreduraProcessHttp,
-  consumirRenovacaoInstagram,
-  consumirChecagemSla,
-  consumirDicionarioCrm,
-  consumirDownloadMidia,
-  consumirEntrada,
+  scheduleRenewalInstagram,
+  scheduleSweepDictionaryCrm,
+  scheduleSweepDownloadMedia,
+  scheduleSweepMirrorCrm,
+  scheduleSweepSla,
+  scheduleSweepProcessHttp,
+  consumeRenewalInstagram,
+  consumeCheckSla,
+  consumeDictionaryCrm,
+  consumeDownloadMedia,
+  consumeInbound,
   consumirProcessHttp,
-  consumirEspelhoCrm,
-  fecharFilas,
+  consumeMirrorCrm,
+  closeQueues,
 } from './filas.js';
-import { medirRequisicao } from './metricas.js';
+import { medirRequest } from './metricas.js';
 
 /**
  * Sobe a aplicação Nest.
@@ -37,7 +37,7 @@ import { medirRequisicao } from './metricas.js';
  * reserializar o objeto muda espaço e ordem de chave. Sem isso a assinatura nunca
  * bate e o webhook fica "misteriosamente" recusando tudo.
  */
-export async function criarAplicacao(): Promise<INestApplication> {
+export async function createApplication(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
 
   /**
@@ -48,7 +48,7 @@ export async function criarAplicacao(): Promise<INestApplication> {
    */
   const permitidas = origensPermitidas();
   app.enableCors({
-    origin: (origem: string | undefined, responder: (erro: Error | null, ok?: boolean) => void) => {
+    origin: (origem: string | undefined, responder: (error: Error | null, ok?: boolean) => void) => {
       // Sem `Origin` é chamada que não veio de navegador (curl, o Prometheus, a
       // integração do cliente). O CORS não a governa; a autenticação, sim.
       responder(null, origem === undefined || origemPermitida(origem, permitidas));
@@ -60,7 +60,7 @@ export async function criarAplicacao(): Promise<INestApplication> {
   });
 
   // Antes de tudo: o que não casa com rota nenhuma também precisa aparecer no gráfico.
-  app.use(medirRequisicao);
+  app.use(medirRequest);
 
   // Upload de anexo entra como corpo CRU, e só nesta rota.
   //
@@ -73,7 +73,7 @@ export async function criarAplicacao(): Promise<INestApplication> {
   // é, aliás, a forma do `PUT Object` do S3.
   app.use(
     '/v1/anexos',
-    express.raw({ type: () => true, limit: MAX_BYTES_POR_ARQUIVO }),
+    express.raw({ type: () => true, limit: MAX_BYTES_BY_FILE }),
   );
 
   // Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo
@@ -115,12 +115,12 @@ export async function criarAplicacao(): Promise<INestApplication> {
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',
-      verify: (requisicao, _resposta, corpo) => {
-        (requisicao as Request & { corpoCru?: Buffer }).corpoCru = Buffer.from(corpo);
+      verify: (request, _resposta, corpo) => {
+        (request as Request & { corpoCru?: Buffer }).corpoCru = Buffer.from(corpo);
       },
     }),
   );
-  app.useGlobalFilters(new FiltroDeErro());
+  app.useGlobalFilters(new ErrorFilter());
 
   return app;
 }
@@ -134,35 +134,35 @@ export interface ApiNoAr {
 // 3000, e não 3100: a Gestão roda em 3100, o Desk em 3200 e o CRM em 3300. Com o
 // padrão antigo, quem subisse a api antes da Gestão tomava a porta dela, e a
 // Gestão morria em EADDRINUSE — que é o que acontecia nesta máquina.
-export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
-  const app = await criarAplicacao();
-  consumirEntrada();
+export async function upApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
+  const app = await createApplication();
+  consumeInbound();
   consumirProcessHttp();
-  await agendarVarreduraProcessHttp();
-  consumirEspelhoCrm();
-  await agendarVarreduraEspelhoCrm();
-  consumirDicionarioCrm();
-  await agendarVarreduraDicionarioCrm();
-  consumirDownloadMidia();
-  await agendarVarreduraDownloadMidia();
-  consumirChecagemSla();
-  await agendarVarreduraSla();
-  consumirRenovacaoInstagram();
-  await agendarRenovacaoInstagram();
+  await scheduleSweepProcessHttp();
+  consumeMirrorCrm();
+  await scheduleSweepMirrorCrm();
+  consumeDictionaryCrm();
+  await scheduleSweepDictionaryCrm();
+  consumeDownloadMedia();
+  await scheduleSweepDownloadMedia();
+  consumeCheckSla();
+  await scheduleSweepSla();
+  consumeRenewalInstagram();
+  await scheduleRenewalInstagram();
   await app.listen(porta);
   // Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está
   // no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.
-  const canal = ligarCanalDeEventos(app.getHttpServer() as Server);
+  const channel = connectChannelOfEvents(app.getHttpServer() as Server);
   const url = (await app.getUrl()).replace('[::1]', '127.0.0.1');
   return {
     url,
     fechar: async () => {
       // O canal primeiro: socket vivo segura o `close` do servidor HTTP e o
       // desligamento pendura até o timeout.
-      await canal.fechar();
-      await fecharTempoReal();
+      await channel.fechar();
+      await closeTimeReal();
       await app.close();
-      await fecharFilas();
+      await closeQueues();
       await fecharBancos();
     },
   };

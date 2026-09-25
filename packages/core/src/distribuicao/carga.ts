@@ -17,23 +17,23 @@
 import { compararIdentificador } from '../comum/tempo.js';
 
 /** `status_atendente.estado` do modelo de dados (§3). Só `online` recebe. */
-export type EstadoAtendente = 'online' | 'pausa' | 'invisivel' | 'offline';
+export type StateAgent = 'online' | 'pausa' | 'invisivel' | 'offline';
 
-export interface AtendenteDisponivel {
+export interface AgentDisponivel {
   id: string;
-  estado: EstadoAtendente;
+  state: StateAgent;
   /** Filas em que o atendente está habilitado. */
-  filas: readonly string[];
+  queues: readonly string[];
   /** `fila_atendente.capacidade_override` ou o padrão da fila/tenant. */
   limiteSimultaneo: number;
   /** Conversas abertas atribuídas a ele agora. */
   ativas: number;
   /** Subconjunto de `ativas` em que a bola está com o atendente. */
-  aguardandoAtendente: number;
+  aguardandoAgent: number;
   /** Conversas atribuídas que ainda não receberam primeira resposta. */
-  semPrimeiraResposta: number;
+  withoutFirstResposta: number;
   /** Quando recebeu a última conversa. `null` = nunca recebeu. */
-  ultimaAtribuicaoEm: Date | null;
+  ultimaAssignmentIn: Date | null;
 }
 
 export type MotivoInelegivel =
@@ -42,29 +42,29 @@ export type MotivoInelegivel =
   | 'sem_vaga'
   | 'teto_sem_primeira_resposta';
 
-export interface OpcoesDistribuicao {
-  filaId: string;
+export interface OptionsDistribution {
+  queueId: string;
   /** Teto de conversas sem 1ª resposta. `null`/ausente desliga o segundo teto. */
-  tetoSemPrimeiraResposta?: number | null;
+  tetoWithoutFirstResposta?: number | null;
   /** Peso da conversa que aguarda o atendente. Padrão 2. */
-  pesoAguardandoAtendente?: number;
+  pesoAguardandoAgent?: number;
   /** Peso da conversa que aguarda o cliente. Padrão 1. */
   pesoAguardandoCliente?: number;
 }
 
-export interface DescarteDistribuicao {
-  atendenteId: string;
+export interface DescarteDistribution {
+  agentId: string;
   motivo: MotivoInelegivel;
 }
 
-export interface EscolhaDistribuicao {
-  escolhido: AtendenteDisponivel | null;
+export interface EscolhaDistribution {
+  escolhido: AgentDisponivel | null;
   /** Elegíveis já na ordem de preferência. */
-  elegiveis: AtendenteDisponivel[];
-  descartados: DescarteDistribuicao[];
+  elegiveis: AgentDisponivel[];
+  descartados: DescarteDistribution[];
 }
 
-export const PESO_AGUARDANDO_ATENDENTE = 2;
+export const PESO_AGUARDANDO_AGENT = 2;
 export const PESO_AGUARDANDO_CLIENTE = 1;
 
 /**
@@ -74,38 +74,38 @@ export const PESO_AGUARDANDO_CLIENTE = 1;
  * gerar carga negativa para o outro termo.
  */
 export function cargaPonderada(
-  atendente: AtendenteDisponivel,
-  opcoes: Pick<OpcoesDistribuicao, 'pesoAguardandoAtendente' | 'pesoAguardandoCliente'> = {},
+  agent: AgentDisponivel,
+  options: Pick<OptionsDistribution, 'pesoAguardandoAtendente' | 'pesoAguardandoCliente'> = {},
 ): number {
-  const pesoAtendente = opcoes.pesoAguardandoAtendente ?? PESO_AGUARDANDO_ATENDENTE;
-  const pesoCliente = opcoes.pesoAguardandoCliente ?? PESO_AGUARDANDO_CLIENTE;
-  const quentes = Math.max(0, Math.min(atendente.aguardandoAtendente, atendente.ativas));
-  const frias = Math.max(0, atendente.ativas - quentes);
-  return quentes * pesoAtendente + frias * pesoCliente;
+  const pesoAgent = options.pesoAguardandoAgent ?? PESO_AGUARDANDO_AGENT;
+  const pesoCliente = options.pesoAguardandoCliente ?? PESO_AGUARDANDO_CLIENTE;
+  const quentes = Math.max(0, Math.min(agent.aguardandoAgent, agent.ativas));
+  const frias = Math.max(0, agent.ativas - quentes);
+  return quentes * pesoAgent + frias * pesoCliente;
 }
 
 /** Vagas restantes. Nunca negativo. */
-export function vagas(atendente: AtendenteDisponivel): number {
-  return Math.max(0, atendente.limiteSimultaneo - atendente.ativas);
+export function vagas(agent: AgentDisponivel): number {
+  return Math.max(0, agent.limiteSimultaneo - agent.ativas);
 }
 
 /** Por que este atendente não pode receber agora — ou `null` se pode. */
 export function motivoInelegivel(
-  atendente: AtendenteDisponivel,
-  opcoes: OpcoesDistribuicao,
+  agent: AgentDisponivel,
+  options: OptionsDistribution,
 ): MotivoInelegivel | null {
-  if (!atendente.filas.includes(opcoes.filaId)) return 'fora_da_fila';
-  if (atendente.estado !== 'online') return 'nao_esta_online';
-  if (vagas(atendente) <= 0) return 'sem_vaga';
-  const teto = opcoes.tetoSemPrimeiraResposta;
-  if (typeof teto === 'number' && atendente.semPrimeiraResposta >= teto) {
+  if (!agent.queues.includes(options.queueId)) return 'fora_da_fila';
+  if (agent.state !== 'online') return 'nao_esta_online';
+  if (vagas(agent) <= 0) return 'sem_vaga';
+  const teto = options.tetoWithoutFirstResposta;
+  if (typeof teto === 'number' && agent.withoutFirstResposta >= teto) {
     return 'teto_sem_primeira_resposta';
   }
   return null;
 }
 
-export function elegivel(atendente: AtendenteDisponivel, opcoes: OpcoesDistribuicao): boolean {
-  return motivoInelegivel(atendente, opcoes) === null;
+export function elegivel(agent: AgentDisponivel, options: OptionsDistribution): boolean {
+  return motivoInelegivel(agent, options) === null;
 }
 
 /**
@@ -115,16 +115,16 @@ export function elegivel(atendente: AtendenteDisponivel, opcoes: OpcoesDistribui
  * sem receber do que qualquer um que já recebeu — vem antes no desempate.
  */
 export function compararPreferencia(
-  a: AtendenteDisponivel,
-  b: AtendenteDisponivel,
-  opcoes: OpcoesDistribuicao,
+  a: AgentDisponivel,
+  b: AgentDisponivel,
+  options: OptionsDistribution,
 ): number {
-  const cargaA = cargaPonderada(a, opcoes);
-  const cargaB = cargaPonderada(b, opcoes);
+  const cargaA = cargaPonderada(a, options);
+  const cargaB = cargaPonderada(b, options);
   if (cargaA !== cargaB) return cargaA - cargaB;
 
-  const ociosoA = a.ultimaAtribuicaoEm === null ? -Infinity : a.ultimaAtribuicaoEm.getTime();
-  const ociosoB = b.ultimaAtribuicaoEm === null ? -Infinity : b.ultimaAtribuicaoEm.getTime();
+  const ociosoA = a.ultimaAssignmentIn === null ? -Infinity : a.ultimaAssignmentIn.getTime();
+  const ociosoB = b.ultimaAssignmentIn === null ? -Infinity : b.ultimaAssignmentIn.getTime();
   if (ociosoA !== ociosoB) return ociosoA - ociosoB;
 
   return compararIdentificador(a.id, b.id);
@@ -136,21 +136,21 @@ export function compararPreferencia(
  * Devolve também a lista de descartados com o motivo: sem isso, "ninguém
  * recebeu" vira um mistério em produção.
  */
-export function escolherAtendente(
-  atendentes: readonly AtendenteDisponivel[],
-  opcoes: OpcoesDistribuicao,
-): EscolhaDistribuicao {
-  const elegiveis: AtendenteDisponivel[] = [];
-  const descartados: DescarteDistribuicao[] = [];
+export function escolherAgent(
+  agents: readonly AgentDisponivel[],
+  options: OptionsDistribution,
+): EscolhaDistribution {
+  const elegiveis: AgentDisponivel[] = [];
+  const descartados: DescarteDistribution[] = [];
 
-  for (const atendente of atendentes) {
-    const motivo = motivoInelegivel(atendente, opcoes);
-    if (motivo === null) elegiveis.push(atendente);
-    else descartados.push({ atendenteId: atendente.id, motivo });
+  for (const agent of agents) {
+    const motivo = motivoInelegivel(agent, options);
+    if (motivo === null) elegiveis.push(agent);
+    else descartados.push({ agentId: agent.id, motivo });
   }
 
-  elegiveis.sort((a, b) => compararPreferencia(a, b, opcoes));
-  descartados.sort((a, b) => compararIdentificador(a.atendenteId, b.atendenteId));
+  elegiveis.sort((a, b) => compararPreferencia(a, b, options));
+  descartados.sort((a, b) => compararIdentificador(a.agentId, b.agentId));
 
   return { escolhido: elegiveis[0] ?? null, elegiveis, descartados };
 }

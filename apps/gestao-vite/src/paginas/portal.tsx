@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Ilustracao } from '@pipe/ui';
-import { POR_PAGINA, type FluxoDoPortal, type GradeDoPortal } from '@pipe/contracts';
+import { Illustration } from '@pipe/ui';
+import { BY_PAGE, type FlowOfPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../componentes/barra-do-portal';
-import { Selecao } from '../componentes/selecao';
-import { IconeBusca, IconePortal, type NomeDeIconePortal } from '../componentes/icones-portal';
+import { Selection } from '../componentes/selecao';
+import { IconeSearch, IconePortal, type NomeDeIconePortal } from '../componentes/icones-portal';
 import Link from '../componentes/link';
-import { useCascaDoPortal, type CascaDoPortal } from '../lib/casca';
-import { useLeitura } from '../lib/consulta';
-import { baseDoContato } from './fluxo/contato';
+import { portalUseShell, type PortalShell } from '../lib/casca';
+import { useRead } from '../lib/consulta';
+import { contactBase } from './fluxo/contato';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,10 +16,10 @@ export const dynamic = 'force-dynamic';
    site que ainda não existe é pior do que menu com dois itens. */
 const URL_AJUDA = (import.meta.env['VITE_PIPE_AJUDA_URL'] as string | undefined) ?? '';
 
-type Fluxo = FluxoDoPortal;
+type Flow = FlowOfPortal;
 
 /** O que a tela mostra: a casca (sessão) mais a grade (`GET /v1/gestao/fluxos`). */
-type DadosDoPortal = CascaDoPortal & GradeDoPortal;
+type PortalData = PortalShell & GradeDoPortal;
 
 /**
  * Portal — a porta da plataforma, e a única tela do produto que muda de forma
@@ -67,82 +67,82 @@ type DadosDoPortal = CascaDoPortal & GradeDoPortal;
  * A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: nenhum hex deles entra, tudo sai
  * dos token `--p-*` e dos `--g-barra-*`. Os ícones e a marca são os nossos.
  */
-export function PaginaPortal() {
-  const [busca, setBusca] = useState('');
-  const [pagina, setPagina] = useState(1);
-  const [porPagina, setPorPagina] = useState<number>(POR_PAGINA[0]);
+export function PagePortal() {
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [byPage, setByPage] = useState<number>(BY_PAGE[0]);
 
-  const aoBuscar = useCallback((valor: string) => {
-    setBusca(valor);
-    setPagina(1);
+  const aoBuscar = useCallback((value: string) => {
+    setSearch(value);
+    setPage(1);
   }, []);
 
   /* Busca, página e quantidade por página ficam em estado React. A URL visível
      do portal permanece limpa; só a chamada à API recebe esses parâmetros. */
-  const casca = useCascaDoPortal();
-  const grade = useLeitura<GradeDoPortal>(
-    `/v1/gestao/fluxos?busca=${encodeURIComponent(busca)}&pagina=${pagina}&porPagina=${porPagina}`,
+  const shell = portalUseShell();
+  const grade = useRead<GradeDoPortal>(
+    `/v1/gestao/fluxos?busca=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
 );
   /* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */
-  const dados: DadosDoPortal = {
-    ...casca,
-    ...(grade.data ?? { fluxos: [], total: 0, encontrados: 0 }),
+  const data: PortalData = {
+    ...shell,
+    ...(grade.data ?? { flows: [], total: 0, encontrados: 0 }),
   };
   if (grade.isPending)
     return (
       <div className="pt-app">
-        <BarraDoPortal dados={casca} />
+        <BarraDoPortal data={shell} />
       </div>
     );
 
   /* Vazio é a conta SEM NENHUM fluxo — não "a busca não achou nada". Confundir
      os dois faz a tela de quem tem trinta fluxos virar tela de conta nova. */
-  const vazio = dados.total === 0;
+  const empty = data.total === 0;
 
   return (
     <div className="pt-app">
-      <BarraDoPortal dados={dados} />
-      <SubBarra dados={dados} busca={busca} onBuscar={aoBuscar} />
+      <BarraDoPortal data={data} />
+      <SubBarra data={data} search={search} onBuscar={aoBuscar} />
 
       <main className="pt-conteudo">
         <div className="pt-coluna">
           {/* O banner de boas-vindas só existe na conta SEM nenhum contato e
               para quem pode criar — é o `welcome-banner` deles
               (`!applications.length && tenant.id && canCreateChatBot`). */}
-          {vazio && dados.podeCriar ? <BoasVindas dados={dados} /> : null}
+          {empty && data.canCreate ? <BoasVindas data={data} /> : null}
 
           {/* A fileira de cartões de ação NÃO é do estado vazio: no DOM da
               conta com onze bots ela está lá, acima da lista. A condição dela
               na origem é `!isCarouselBannerEnabled || !canCreateChatBot` — ou
               seja, nada a ver com a quantidade de contatos. */}
-          <CartoesDeAcao />
+          <ActionCards />
 
           {/* A seção da lista, o `<div id="applications"
               ng-if="applications.length > 0">` deles: só existe quando a conta
               tem contato, e é ela que some na conta nova. */}
-          {vazio ? null : (
+          {empty ? null : (
             <div id="applications">
               <div className="pt-secao">
-                <h2>Fluxos e roteadores em {dados.tenant.nome}</h2>
+                <h2>Fluxos e roteadores em {data.tenant.nome}</h2>
               </div>
 
-              {dados.fluxos.length === 0 ? (
+              {data.flows.length === 0 ? (
                 <p className="pt-nada">
-                  Não foi encontrado nenhum fluxo com o nome &ldquo;{busca}&rdquo;.
+                  Não foi encontrado nenhum fluxo com o nome &ldquo;{search}&rdquo;.
                 </p>
               ) : (
                 <>
                   <div className="pt-grade">
-                    {dados.fluxos.map((f) => (
-                      <CartaoDeFluxo key={f.id} fluxo={f} />
+                    {data.flows.map((f) => (
+                      <FlowCard key={f.id} flow={f} />
                     ))}
                   </div>
-                  <Paginacao
-                    pagina={pagina}
-                    porPagina={porPagina}
-                    encontrados={dados.encontrados}
-                    setPagina={setPagina}
-                    setPorPagina={setPorPagina}
+                  <Pagination
+                    page={page}
+                    byPage={byPage}
+                    encontrados={data.encontrados}
+                    setPage={setPage}
+                    setByPage={setByPage}
                   />
                 </>
               )}
@@ -163,23 +163,23 @@ export function PaginaPortal() {
  * portal não recebe `pagina` nem `por`; esses valores existem apenas na chamada
  * para `GET /v1/gestao/fluxos`.
  */
-function Paginacao({
-  pagina,
-  porPagina,
+function Pagination({
+  page,
+  byPage,
   encontrados,
-  setPagina,
-  setPorPagina,
+  setPage,
+  setByPage,
 }: {
-  pagina: number;
-  porPagina: number;
+  page: number;
+  byPage: number;
   encontrados: number;
-  setPagina: (pagina: number) => void;
-  setPorPagina: (quantidade: number) => void;
+  setPage: (page: number) => void;
+  setByPage: (quantity: number) => void;
 }) {
-  const tamanho = POR_PAGINA.includes(porPagina as never) ? porPagina : POR_PAGINA[0];
-  const paginas = Math.max(1, Math.ceil(encontrados / tamanho));
-  const primeiroItem = encontrados === 0 ? 0 : (pagina - 1) * tamanho + 1;
-  const ultimoItem = Math.min(pagina * tamanho, encontrados);
+  const tamanho = BY_PAGE.includes(byPage as never) ? byPage : BY_PAGE[0];
+  const pages = Math.max(1, Math.ceil(encontrados / tamanho));
+  const firstItem = encontrados === 0 ? 0 : (page - 1) * tamanho + 1;
+  const ultimoItem = Math.min(page * tamanho, encontrados);
 
   /* Aparece SEMPRE, inclusive com uma página só: no DOM da conta de onze
      bots a barra está lá, dizendo "1-11 de 11" e "de 1 páginas". Escondê-la
@@ -190,23 +190,23 @@ function Paginacao({
       <div className="pt-paginacao-esquerda">
         <label>Itens por página:</label>
 
-        <Selecao
+        <Selection
           value={String(tamanho)}
           aria-label="Itens por página"
           onChange={(e) => {
-            setPorPagina(Number(e.target.value));
-            setPagina(1);
+            setByPage(Number(e.target.value));
+            setPage(1);
           }}
         >
-          {POR_PAGINA.map((n) => (
+          {BY_PAGE.map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
-        </Selecao>
+        </Selection>
 
         <span className="pt-paginacao-conta">
-          {primeiroItem}-{ultimoItem} de {encontrados}
+          {firstItem}-{ultimoItem} de {encontrados}
         </span>
       </div>
 
@@ -216,8 +216,8 @@ function Paginacao({
         <button
           type="button"
           className="pt-paginacao-icone"
-          disabled={pagina === 1}
-          onClick={() => setPagina(1)}
+          disabled={page === 1}
+          onClick={() => setPage(1)}
           aria-label="Primeira página"
         >
           «
@@ -227,36 +227,36 @@ function Paginacao({
         <button
           type="button"
           className="pt-paginacao-icone"
-          disabled={pagina === 1}
-          onClick={() => setPagina(pagina - 1)}
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
           aria-label="Página anterior"
         >
           ‹
         </button>
 
         {/* seletor da página atual */}
-        <Selecao
-          value={String(pagina)}
+        <Selection
+          value={String(page)}
           aria-label="Página atual"
-          onChange={(e) => setPagina(Number(e.target.value))}
+          onChange={(e) => setPage(Number(e.target.value))}
         >
-          {Array.from({ length: paginas }, (_, i) => i + 1).map((n) => (
+          {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
-        </Selecao>
+        </Selection>
 
         <span className="pt-paginacao-de">
-          de {paginas} páginas
+          de {pages} páginas
         </span>
 
         {/* próxima página */}
         <button
           type="button"
           className="pt-paginacao-icone"
-          disabled={pagina === paginas}
-          onClick={() => setPagina(pagina + 1)}
+          disabled={page === pages}
+          onClick={() => setPage(page + 1)}
           aria-label="Próxima página"
         >
           ›
@@ -266,8 +266,8 @@ function Paginacao({
         <button
           type="button"
           className="pt-paginacao-icone"
-          disabled={pagina === paginas}
-          onClick={() => setPagina(paginas)}
+          disabled={page === pages}
+          onClick={() => setPage(pages)}
           aria-label="Última página"
         >
           »
@@ -291,32 +291,32 @@ function Paginacao({
  * carrega isso, então o slug precisa estar visível.
  */
 function SubBarra({
-  dados,
-  busca,
+  data,
+  search,
   onBuscar,
 }: {
-  dados: DadosDoPortal;
-  busca: string;
-  onBuscar: (valor: string) => void;
+  data: PortalData;
+  search: string;
+  onBuscar: (value: string) => void;
 }) {
-  const [buscaAberta, setBuscaAberta] = useState(Boolean(busca));
-  const [textoBusca, setTextoBusca] = useState(busca);
-  const campoBusca = useRef<HTMLInputElement>(null);
+  const [searchAberta, setSearchAberta] = useState(Boolean(search));
+  const [textSearch, setTextSearch] = useState(search);
+  const fieldSearch = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const valor = textoBusca.trim();
-    if (valor === busca) return;
+    const value = textSearch.trim();
+    if (value === search) return;
 
     const timer = window.setTimeout(() => {
-      onBuscar(valor);
+      onBuscar(value);
     }, 700);
 
     return () => window.clearTimeout(timer);
-  }, [textoBusca, busca, onBuscar]);
+  }, [textSearch, search, onBuscar]);
 
-  function abrirBusca() {
-    setBuscaAberta(true);
-    requestAnimationFrame(() => campoBusca.current?.focus());
+  function abrirSearch() {
+    setSearchAberta(true);
+    requestAnimationFrame(() => fieldSearch.current?.focus());
   }
 
   return (
@@ -325,7 +325,7 @@ function SubBarra({
         {/* O título deles é uma FRASE, não o nome solto da conta:
             `navbar.subheader.workspaceOf` = "Espaço de trabalho de {conta}",
             num `bds-typo variant="fs-20" bold tag="h2"`. */}
-        <h2 className="pt-subbarra-titulo">Espaço de trabalho de {dados.tenant.nome}</h2>
+        <h2 className="pt-subbarra-titulo">Espaço de trabalho de {data.tenant.nome}</h2>
 
         {/* A ponta direita da barra clara deles (`action-icons`): a busca e,
             quando `canCreateChatbot`, os DOIS botões de criar — "Criar
@@ -338,23 +338,23 @@ function SubBarra({
         <div className="pt-subbarra-acoes">
           {/* A busca segue o comportamento da origem: o texto fica em estado local
               e só atualiza a consulta depois de 700 ms sem digitação. */}
-          <div className={`pt-busca${buscaAberta ? ' pt-busca-aberta' : ''}`} role="search">
-            <button className="pt-busca-botao" type="button" onClick={abrirBusca} aria-label="Abrir busca">
-              <IconeBusca tamanho={32} />
+          <div className={`pt-busca${searchAberta ? ' pt-busca-aberta' : ''}`} role="search">
+            <button className="pt-busca-botao" type="button" onClick={abrirSearch} aria-label="Abrir busca">
+              <IconeSearch tamanho={32} />
             </button>
-            {buscaAberta ? (
+            {searchAberta ? (
               <input
-                ref={campoBusca}
+                ref={fieldSearch}
                 type="search"
-                value={textoBusca}
+                value={textSearch}
                 aria-label="Buscar fluxos"
-                onChange={(e) => setTextoBusca(e.target.value)}
-                onBlur={() => setBuscaAberta(false)}
+                onChange={(e) => setTextSearch(e.target.value)}
+                onBlur={() => setSearchAberta(false)}
               />
             ) : null}
           </div>
 
-          {dados.podeCriar ? (
+          {data.canCreate ? (
             <>
               <Link className="btn" href="/criar/roteador">
                 <IconePortal nome="roteador" tamanho={20} />
@@ -382,14 +382,14 @@ function SubBarra({
  * da conta — é o único lugar da tela em que isso acontece, e é o que faz a
  * tela parecer dirigida a quem abriu.
  */
-function BoasVindas({ dados }: { dados: DadosDoPortal }) {
-  const primeiroNome = dados.usuario.nome.trim().split(/\s+/)[0] ?? dados.usuario.nome;
+function BoasVindas({ data }: { data: PortalData }) {
+  const firstName = data.user.nome.trim().split(/\s+/)[0] ?? data.user.nome;
 
   return (
     <div className="pt-boasvindas">
-      <Ilustracao nome="vazio" tamanho={160} className="pt-boasvindas-desenho" />
+      <Illustration nome="vazio" tamanho={160} className="pt-boasvindas-desenho" />
       <div className="pt-boasvindas-texto">
-        <h2>Olá, {primeiroNome}!</h2>
+        <h2>Olá, {firstName}!</h2>
         <p>
           Esta conta ainda não tem nenhum contato inteligente. Que tal começar criando o primeiro
           fluxo — a conversa que atende antes da pessoa?
@@ -425,12 +425,12 @@ function BoasVindas({ dados }: { dados: DadosDoPortal }) {
  * está configurado — cartão que leva a lugar nenhum é pior do que fileira
  * curta.
  */
-function CartoesDeAcao() {
+function ActionCards() {
   return (
     <div className="pt-acoes">
       {/* Os quatro deles, na mesma ordem: novidades, contrato, ajuda e
           comunidade. A comunidade ainda está sendo feita e entra apagada. */}
-      <CartaoDeAcao
+      <ActionCard
         href="/novidades"
         icone="novidades"
         rotulo="Novidades no Pipe"
@@ -440,14 +440,14 @@ function CartoesDeAcao() {
           \`onContractCardClick\` leva ao painel do contrato (o fragmento
           \`tenant\`), não ao cadastro da pessoa. Estava apontando para o lugar
           errado. */}
-      <CartaoDeAcao
+      <ActionCard
         href="/contrato"
         icone="contrato"
         rotulo="Acompanhe seu contrato"
         texto="Plano, endereço, pessoas com acesso e os dados do contrato."
       />
       {URL_AJUDA ? (
-        <CartaoDeAcao
+        <ActionCard
           href={URL_AJUDA}
           externo
           icone="aprender"
@@ -455,14 +455,14 @@ function CartoesDeAcao() {
           texto="O que é fluxo, o que é roteador e como montar o primeiro atendimento."
         />
       ) : (
-        <CartaoDeAcao
+        <ActionCard
           emObra
           icone="aprender"
           rotulo="Aprenda a usar o Pipe"
           texto="O que é fluxo, o que é roteador e como montar o primeiro atendimento."
         />
       )}
-      <CartaoDeAcao
+      <ActionCard
         emObra
         icone="comunidade"
         rotulo="Converse com a Comunidade"
@@ -472,7 +472,7 @@ function CartoesDeAcao() {
   );
 }
 
-function CartaoDeAcao({
+function ActionCard({
   href,
   icone,
   rotulo,
@@ -534,7 +534,7 @@ function CartaoDeAcao({
  * `chip_tag--text` ao lado. Olhar só o template, sem o shadow root, esconde o
  * ícone — foi o engano de antes.
  */
-const ETIQUETA = { roteador: 'Roteador', fluxo: 'Fluxo' } as const;
+const ETIQUETA = { roteador: 'Roteador', flow: 'Fluxo' } as const;
 
 /**
  * O cartão, nos três andares de altura FIXA da tela deles — avatar de 56,
@@ -554,10 +554,10 @@ const ETIQUETA = { roteador: 'Roteador', fluxo: 'Fluxo' } as const;
  * contrato barrou. Não temos bloqueio por contrato, então não há o que desenhar
  * — está no relatório. `arquivado` nem chega aqui: sai na consulta.
  */
-function CartaoDeFluxo({ fluxo }: { fluxo: Fluxo }) {
-  const etq = fluxo.tipo === 'roteador' ? ETIQUETA.roteador : ETIQUETA.fluxo;
+function FlowCard({ flow }: { flow: Flow }) {
+  const etq = flow.tipo === 'roteador' ? ETIQUETA.roteador : ETIQUETA.flow;
 
-  const naoPublicado = fluxo.estado !== 'publicado';
+  const naoPublicado = flow.estado !== 'publicado';
 
   return (
     <Link
@@ -567,8 +567,8 @@ function CartaoDeFluxo({ fluxo }: { fluxo: Fluxo }) {
          de lá que se escolhe Builder, Atendimento, Canais e o resto. Ir direto
          para o construtor pulava a tela que reúne tudo — e, no roteador, levava
          a um construtor que ele nem liga. */
-      href={baseDoContato(fluxo.tipo, encodeURIComponent(fluxo.id))}
-      title={naoPublicado ? `${fluxo.nome} — ainda não publicado` : fluxo.nome}
+      href={contactBase(flow.tipo, encodeURIComponent(flow.id))}
+      title={naoPublicado ? `${flow.nome} — ainda não publicado` : flow.nome}
     >
       {/* Com foto, ela ocupa o círculo; sem foto, entra o ícone do produto —
           é o `ng-if="!contact.imageUri"` deles. Em nenhum dos dois casos
@@ -577,17 +577,17 @@ function CartaoDeFluxo({ fluxo }: { fluxo: Fluxo }) {
           `<img>` cru e não `next/image`: a foto é uma `data:` URI gravada na
           própria linha, e o otimizador do Next não tem o que otimizar nela. */}
       <span className="pt-cartao-av">
-        {fluxo.imagemUrl ? (
-          <img className="pt-cartao-foto" src={fluxo.imagemUrl} alt="" />
+        {flow.imagemUrl ? (
+          <img className="pt-cartao-foto" src={flow.imagemUrl} alt="" />
         ) : (
           <IconePortal nome="bot" tamanho={32} />
         )}
       </span>
-      <span className="pt-cartao-nome">{fluxo.nome}</span>
+      <span className="pt-cartao-nome">{flow.nome}</span>
       {/* O ícone é enfeite do lado da palavra, que continua visível e é o
           que o leitor de tela lê. */}
       <span className="pt-cartao-etq">
-        <IconePortal nome={fluxo.tipo === 'roteador' ? 'roteador' : 'fluxo'} tamanho={16} />
+        <IconePortal nome={flow.tipo === 'roteador' ? 'roteador' : 'fluxo'} tamanho={16} />
         <span>{etq}</span>
       </span>
     </Link>

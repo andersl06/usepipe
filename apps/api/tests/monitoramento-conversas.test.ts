@@ -8,12 +8,12 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
-const { subirApi } = await import('../src/servidor.js');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
@@ -21,15 +21,15 @@ let gestor: string;
 let semPoder: string;
 let gestorB: string;
 
-async function pessoa(cenario: Cenario, permissoes: string[]): Promise<string> {
+async function pessoa(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email)
     values (${cenario.tenantId}, ${`Gestor ${marca}`}, ${`gestor-${marca}@e2e.pipe.app`}) returning id
   `);
-  const usuarioId = rows[0]!.id;
-  if (permissoes.length === 0) return usuarioId;
-  for (const codigo of permissoes) await cenario.dono.execute(sql`
+  const userId = rows[0]!.id;
+  if (permissions.length === 0) return userId;
+  for (const codigo of permissions) await cenario.dono.execute(sql`
     insert into permissao (codigo, descricao, grupo)
     values (${codigo}, ${codigo}, 'teste') on conflict (codigo) do nothing
   `);
@@ -37,38 +37,38 @@ async function pessoa(cenario: Cenario, permissoes: string[]): Promise<string> {
     insert into papel (tenant_id, nome, escopo)
     values (${cenario.tenantId}, ${`monitoramento ${marca}`}, 'atendimento') returning id
   `);
-  for (const codigo of permissoes) await cenario.dono.execute(sql`
+  for (const codigo of permissions) await cenario.dono.execute(sql`
     insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
     values (${cenario.tenantId}, ${papeis[0]!.id}, ${codigo})
   `);
   await cenario.dono.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
-    values (${cenario.tenantId}, ${usuarioId}, ${papeis[0]!.id})
+    values (${cenario.tenantId}, ${userId}, ${papeis[0]!.id})
   `);
-  return usuarioId;
+  return userId;
 }
 
-async function sessao(cenario: Cenario, usuarioId: string): Promise<string> {
-  const token = criarToken();
+async function session(cenario: Cenario, userId: string): Promise<string> {
+  const token = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${token.hash}, ${token.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiraEm}, 'google')
   `);
   return token.token;
 }
 
 const cabecalho = (token: string) => ({ cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' });
 
-async function conversa(cenario = a): Promise<string> {
+async function conversation(cenario = a): Promise<string> {
   const sufixo = randomUUID().slice(0, 8);
-  const { rows: contatos } = await cenario.dono.execute<{ id: string }>(sql`
+  const { rows: contacts } = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${cenario.tenantId}, ${`Contato ${sufixo}`}, ${`+55119${Math.floor(Math.random() * 1e8)}`}) returning id
   `);
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, atribuida_em)
-    values (${cenario.tenantId}, ${cenario.inboxId}, ${contatos[0]!.id}, ${cenario.filaId},
-            ${cenario.atendenteId}, 'em_atendimento', now()) returning id
+    values (${cenario.tenantId}, ${cenario.inboxId}, ${contacts[0]!.id}, ${cenario.queueId},
+            ${cenario.agentId}, 'em_atendimento', now()) returning id
   `);
   return rows[0]!.id;
 }
@@ -92,35 +92,35 @@ async function pedir(token: string, metodo: string, caminho: string, corpo?: unk
 beforeAll(async () => {
   a = await montarCenario(`mon-${randomUUID().slice(0, 8)}`);
   b = await montarCenario(`mon-${randomUUID().slice(0, 8)}`);
-  const permissoes = ['monitoramento.tempo_real.ver', 'conversa.nota_interna', 'conversa.transferir', 'conversa.encerrar'];
-  gestor = await sessao(a, await pessoa(a, permissoes));
-  semPoder = await sessao(a, await pessoa(a, []));
-  gestorB = await sessao(b, await pessoa(b, permissoes));
-  api = await subirApi(0);
+  const permissions = ['monitoramento.tempo_real.ver', 'conversa.nota_interna', 'conversa.transferir', 'conversa.encerrar'];
+  gestor = await session(a, await pessoa(a, permissions));
+  semPoder = await session(a, await pessoa(a, []));
+  gestorB = await session(b, await pessoa(b, permissions));
+  api = await upApi(0);
 }, 180_000);
 
 afterAll(async () => { await api?.fechar(); await a?.encerrar(); await b?.encerrar(); });
 
 describe('monitoramento/conversas', () => {
   it('consulta várias filas e atendentes sem reduzir a seleção ao último id', async () => {
-    const primeira = await conversa();
-    const segunda = await conversa();
-    const fora = await conversa(b);
+    const first = await conversation();
+    const segunda = await conversation();
+    const fora = await conversation(b);
     const atendente2 = await pessoa(a, []);
-    const { rows: filas } = await a.dono.execute<{ id: string }>(sql`
+    const { rows: queues } = await a.dono.execute<{ id: string }>(sql`
       insert into fila (tenant_id, nome) values (${a.tenantId}, ${`Fila ${randomUUID()}`}) returning id
     `);
-    const fila2 = filas[0]!.id;
+    const fila2 = queues[0]!.id;
     await a.dono.execute(sql`update conversa set fila_id = ${fila2}, atendente_id = ${atendente2} where id = ${segunda}`);
     for (const query of [
-      `fila=${a.filaId},${fila2}&atendente=${a.atendenteId},${atendente2}`,
-      `fila=${a.filaId}&fila=${fila2}&atendente=${a.atendenteId}&atendente=${atendente2}`,
+      `fila=${a.queueId},${fila2}&atendente=${a.agentId},${atendente2}`,
+      `fila=${a.queueId}&fila=${fila2}&atendente=${a.agentId}&atendente=${atendente2}`,
     ]) {
       const resposta = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?${query}`);
       expect(resposta.status).toBe(200);
-      const corpo = await resposta.json() as { dados: { abertas: { id: string }[] } };
-      const ids = corpo.dados.abertas.map(c => c.id);
-      expect(ids).toEqual(expect.arrayContaining([primeira, segunda]));
+      const corpo = await resposta.json() as { data: { abertas: { id: string }[] } };
+      const ids = corpo.data.abertas.map(c => c.id);
+      expect(ids).toEqual(expect.arrayContaining([first, segunda]));
       expect(ids).not.toContain(fora);
     }
     const unica = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?fila=${fila2}`);
@@ -129,7 +129,7 @@ describe('monitoramento/conversas', () => {
   });
 
   it('lê a prévia, grava nota e deixa auditoria', async () => {
-    const id = await conversa();
+    const id = await conversation();
     const previa = await pedir(gestor, 'GET', `/v1/gestao/monitoramento/conversas/${id}`);
     expect(previa.status).toBe(200);
     expect((await previa.json() as { id: string }).id).toBe(id);
@@ -144,15 +144,15 @@ describe('monitoramento/conversas', () => {
   });
 
   it('transfere e finaliza com capacidades próprias e registra auditoria', async () => {
-    const transferida = await conversa();
-    const transferencia = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${transferida}/transferir`, { para_fila_id: a.filaId });
+    const transferida = await conversation();
+    const transferencia = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${transferida}/transferir`, { para_fila_id: a.queueId });
     expect(transferencia.status).toBe(201);
-    expect((await transferencia.json() as { para_conversa_id: string }).para_conversa_id).toMatch(/^[0-9a-f-]{36}$/);
+    expect((await transferencia.json() as { forConversationId: string }).forConversationId).toMatch(/^[0-9a-f-]{36}$/);
 
-    const finalizada = await conversa();
+    const finalizada = await conversation();
     const resposta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${finalizada}/finalizar`, { etiqueta_ids: [await etiqueta()] });
     expect(resposta.status).toBe(201);
-    expect((await resposta.json() as { estado: string }).estado).toBe('encerrada');
+    expect((await resposta.json() as { state: string }).state).toBe('encerrada');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
       select depois from log_auditoria where objeto_tipo = 'conversa' and objeto_id = ${finalizada}::uuid order by em desc limit 1
     `);
@@ -160,14 +160,14 @@ describe('monitoramento/conversas', () => {
   });
 
   it('isola tenant, rejeita uuid malformado, falta de permissão e finalização sem etiqueta', async () => {
-    const id = await conversa();
+    const id = await conversation();
     expect((await pedir(gestorB, 'GET', `/v1/gestao/monitoramento/conversas/${id}`)).status).toBe(404);
     expect((await pedir(gestorB, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(404);
     expect((await pedir(gestor, 'GET', '/v1/gestao/monitoramento/conversas/nao-e-uuid')).status).toBe(404);
-    expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/transferir`, { para_fila_id: a.filaId })).status).toBe(403);
+    expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/transferir`, { para_fila_id: a.queueId })).status).toBe(403);
     expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(403);
     const semEtiqueta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, {});
     expect(semEtiqueta.status).toBe(400);
-    expect((await semEtiqueta.json() as { erro: { codigo: string } }).erro.codigo).toBe('etiqueta_obrigatoria');
+    expect((await semEtiqueta.json() as { error: { codigo: string } }).error.codigo).toBe('etiqueta_obrigatoria');
   });
 });

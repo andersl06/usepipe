@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { bancoDono } from '../../banco.js';
+import { databaseOwner } from '../../banco.js';
 import { texto } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { clienteGraph } from './cliente-graph.js';
 
 /**
@@ -17,21 +17,21 @@ import { clienteGraph } from './cliente-graph.js';
  * 3. tira a assinatura do app da WABA — só no cadastro embutido, e só quando este
  *    é o último canal ligado dela, porque a assinatura é da WABA inteira.
  */
-export async function desmontarWebhook(canal: CanalWhatsApp): Promise<void> {
-  const token = texto(canal.config['tokenAcesso']);
-  const numeroId = texto(canal.config['phoneNumberId']);
-  const embutido = canal.config['origem'] === 'embedded_signup';
+export async function desmontarWebhook(channel: ChannelWhatsApp): Promise<void> {
+  const token = texto(channel.config['tokenAcesso']);
+  const numeroId = texto(channel.config['phoneNumberId']);
+  const embutido = channel.config['origem'] === 'embedded_signup';
 
   // `should_teardown_webhook?`
-  if (!token || (!numeroId && !canal.wabaId)) return;
+  if (!token || (!numeroId && !channel.wabaId)) return;
 
   const cliente = clienteGraph(token);
 
   if (numeroId) {
     try {
       await cliente.limparCallbackDoNumero(numeroId);
-    } catch (erro) {
-      console.error(`[whatsapp] o callback do canal ${canal.id} não foi apagado: ${(erro as Error).message}`);
+    } catch (error) {
+      console.error(`[whatsapp] o callback do canal ${channel.id} não foi apagado: ${(error as Error).message}`);
     }
   }
 
@@ -39,15 +39,15 @@ export async function desmontarWebhook(canal: CanalWhatsApp): Promise<void> {
     try {
       await cliente.descadastrarNumero(numeroId);
     } catch (erro) {
-      console.error(`[whatsapp] o número do canal ${canal.id} não foi descadastrado: ${(erro as Error).message}`);
+      console.error(`[whatsapp] o número do canal ${channel.id} não foi descadastrado: ${(erro as Error).message}`);
     }
   }
 
-  if (embutido && canal.wabaId) {
+  if (embutido && channel.wabaId) {
     try {
-      if (!(await wabaTemOutroCanal(canal))) await cliente.desassinarAppDaWaba(canal.wabaId);
+      if (!(await wabaHasOtherChannel(channel))) await cliente.desassinarAppDaWaba(channel.wabaId);
     } catch (erro) {
-      console.error(`[whatsapp] a WABA do canal ${canal.id} não foi desassinada: ${(erro as Error).message}`);
+      console.error(`[whatsapp] a WABA do canal ${channel.id} não foi desassinada: ${(erro as Error).message}`);
     }
   }
 }
@@ -56,8 +56,8 @@ export async function desmontarWebhook(canal: CanalWhatsApp): Promise<void> {
  * `waba_sibling_exists?`. Papel dono pelo mesmo motivo da unicidade do número: a
  * assinatura é da WABA, e a WABA pode ter número em outro cliente do Pipe.
  */
-async function wabaTemOutroCanal(canal: CanalWhatsApp): Promise<boolean> {
-  const { rows } = await bancoDono().execute<{ tem: boolean }>(sql`
+async function wabaHasOtherChannel(canal: ChannelWhatsApp): Promise<boolean> {
+  const { rows } = await databaseOwner().execute<{ tem: boolean }>(sql`
     select exists (
       select 1 from canal
        where id <> ${canal.id}::uuid and waba_id = ${canal.wabaId} and ativo

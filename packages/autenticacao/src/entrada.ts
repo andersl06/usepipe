@@ -1,11 +1,11 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { comTenant } from '@pipe/db';
-import { conexaoSso, dominioTenant, identidadeExterna, sessao, usuario } from '@pipe/db/schema';
-import type { BancoPipe, TransacaoPipe } from '@pipe/db';
-import { ehDominioPublico, dominioDoEmail } from './google.js';
-import { criarToken, estaValida } from './sessao.js';
+import { conexaoSso, domainTenant, identityExternal, session, user } from '@pipe/db/schema';
+import type { DatabasePipe, TransactionPipe } from '@pipe/db';
+import { ehDomainPublic, domainOfEmail } from './google.js';
+import { createToken, estaValida } from './sessao.js';
 import type { PessoaExterna } from './google.js';
-import type { SessaoAtiva } from './sessao.js';
+import type { SessionActive } from './sessao.js';
 
 /**
  * O que acontece entre "o provedor disse quem é" e "a pessoa está dentro".
@@ -35,7 +35,7 @@ import type { SessaoAtiva } from './sessao.js';
  *    domínio" em "entrei no cliente". Entrada de gente nova é por convite.
  */
 
-export class EntradaRecusada extends Error {
+export class InboundRefused extends Error {
   constructor(
     readonly codigo:
       | 'dominio_publico'
@@ -45,22 +45,22 @@ export class EntradaRecusada extends Error {
       | 'email_nao_verificado'
       | 'sso_obrigatorio'
       | 'outro_tenant',
-    mensagem: string,
+    message: string,
   ) {
-    super(mensagem);
+    super(message);
     this.name = 'EntradaRecusada';
   }
 }
 
-export interface EntradaConcluida {
+export interface InboundCompleted {
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   /** Vai para o cookie. */
   token: string;
   expiraEm: Date;
 }
 
-export interface OpcoesDeEntrada {
+export interface OptionsOfInbound {
   /** Vai para `sessao.origem`. A revogação em massa por política depende dele. */
   origem: 'google' | 'sso';
   /**
@@ -86,11 +86,11 @@ export interface OpcoesDeEntrada {
    * dono para o domínio. Domínio verificado sem convite continua recusando —
    * ali existe um cliente, e entrar sem convite seria entrar na conta dele.
    */
-  criarConta?: ((pessoa: PessoaExterna) => Promise<ContaNova>) | undefined;
+  createAccount?: ((pessoa: PessoaExterna) => Promise<AccountNew>) | undefined;
 }
 
 /** O que o autosserviço devolve: a conta recém-criada e o dono dela. */
-export interface ContaNova {
+export interface AccountNew {
   tenantId: string;
   usuarioId: string;
 }
@@ -104,20 +104,20 @@ export interface ContaNova {
  *
  * Tudo o que vem depois passa por `comTenant`.
  */
-export async function entrarComIdentidade(
-  bancoDono: BancoPipe,
-  bancoApp: BancoPipe,
+export async function loginWithIdentity(
+  databaseOwner: DatabasePipe,
+  databaseApp: DatabasePipe,
   pessoa: PessoaExterna,
-  opcoes: OpcoesDeEntrada,
-  contexto: { ip?: string; agente?: string } = {},
-): Promise<EntradaConcluida> {
-  const ligada = await bancoDono
-    .select({ tenantId: identidadeExterna.tenantId, usuarioId: identidadeExterna.usuarioId })
-    .from(identidadeExterna)
+  options: OptionsOfInbound,
+  context: { ip?: string; agente?: string } = {},
+): Promise<InboundCompleted> {
+  const ligada = await databaseOwner
+    .select({ tenantId: identityExternal.tenantId, usuarioId: identityExternal.usuarioId })
+    .from(identityExternal)
     .where(
       and(
-        eq(identidadeExterna.emissor, pessoa.emissor),
-        eq(identidadeExterna.sujeito, pessoa.sujeito),
+        eq(identityExternal.emissor, pessoa.emissor),
+        eq(identityExternal.sujeito, pessoa.sujeito),
       ),
     )
     .limit(1);
@@ -126,14 +126,14 @@ export async function entrarComIdentidade(
     // Conta já ligada a OUTRO cliente. Reaproveitá-la aqui seria a mesma pessoa
     // entrando em dois tenants com o mesmo login, e a escolha de qual vale
     // ficaria com quem consultasse primeiro.
-    if (opcoes.tenantId && ligada[0].tenantId !== opcoes.tenantId) {
-      throw new EntradaRecusada(
+    if (options.tenantId && ligada[0].tenantId !== options.tenantId) {
+      throw new InboundRefused(
         'outro_tenant',
         'Esta conta do provedor já pertence a outra empresa no Pipe.',
       );
     }
-    await exigirPoliticaCompativel(bancoDono, ligada[0].tenantId, opcoes.origem);
-    return abrirSessao(bancoApp, ligada[0].tenantId, ligada[0].usuarioId, pessoa, opcoes, contexto);
+    await exigirPoliticaCompativel(databaseOwner, ligada[0].tenantId, options.origem);
+    return openSession(databaseApp, ligada[0].tenantId, ligada[0].usuarioId, pessoa, options, context);
   }
 
   /* Antes de recusar por qualquer motivo, uma trava que vale para TODO caminho
@@ -141,67 +141,67 @@ export async function entrarComIdentidade(
      pode casar identidade com conta — nem ligar a um usuário convidado, nem
      abrir conta nova com aquele endereço. */
   if (!pessoa.emailVerificado) {
-    throw new EntradaRecusada(
+    throw new InboundRefused(
       'email_nao_verificado',
       'O provedor não confirmou este e-mail. Peça a quem administra para ligar a conta.',
     );
   }
 
   // Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.
-  if (ehDominioPublico(pessoa.email)) {
+  if (ehDomainPublic(pessoa.email)) {
     /* E-mail pessoal não diz de que empresa a pessoa é — mas no autosserviço ele
        não precisa dizer: a conta que nasce é dela, e o nome da empresa vem
        depois, em "minha conta". */
-    if (opcoes.criarConta && !opcoes.tenantId) {
-      return abrirContaNova(bancoApp, pessoa, opcoes, contexto);
+    if (options.createAccount && !options.tenantId) {
+      return openAccountNew(databaseApp, pessoa, options, context);
     }
-    throw new EntradaRecusada(
+    throw new InboundRefused(
       'dominio_publico',
       'E-mail pessoal não identifica empresa. Entre pelo convite que você recebeu.',
     );
   }
 
-  const dominio = dominioDoEmail(pessoa.email);
-  const dono = await bancoDono
-    .select({ tenantId: dominioTenant.tenantId })
-    .from(dominioTenant)
-    .where(and(eq(dominioTenant.dominio, dominio), sql`${dominioTenant.verificadoEm} is not null`))
+  const domain = domainOfEmail(pessoa.email);
+  const dono = await databaseOwner
+    .select({ tenantId: domainTenant.tenantId })
+    .from(domainTenant)
+    .where(and(eq(domainTenant.domain, domain), sql`${domainTenant.verificadoEm} is not null`))
     .limit(1);
 
   const tenantId = dono[0]?.tenantId;
-  if (!tenantId || (opcoes.tenantId && tenantId !== opcoes.tenantId)) {
+  if (!tenantId || (options.tenantId && tenantId !== options.tenantId)) {
     /* Ninguém reivindicou este domínio. No autosserviço isso não é recusa, é o
        caso comum: é a primeira pessoa daquela empresa chegando. */
-    if (!tenantId && opcoes.criarConta && !opcoes.tenantId) {
-      return abrirContaNova(bancoApp, pessoa, opcoes, contexto);
+    if (!tenantId && options.createAccount && !options.tenantId) {
+      return openAccountNew(databaseApp, pessoa, options, context);
     }
-    throw new EntradaRecusada(
+    throw new InboundRefused(
       'dominio_desconhecido',
-      `Nenhuma conta do Pipe usa o domínio "${dominio}".`,
+      `Nenhuma conta do Pipe usa o domínio "${domain}".`,
     );
   }
 
-  await exigirPoliticaCompativel(bancoDono, tenantId, opcoes.origem);
+  await exigirPoliticaCompativel(databaseOwner, tenantId, options.origem);
 
-  return comTenant(bancoApp, tenantId, async (tx) => {
+  return comTenant(databaseApp, tenantId, async (tx) => {
     const convidado = await tx
-      .select({ id: usuario.id, ativo: usuario.ativo })
-      .from(usuario)
-      .where(eq(usuario.email, pessoa.email))
+      .select({ id: user.id, ativo: user.ativo })
+      .from(user)
+      .where(eq(user.email, pessoa.email))
       .limit(1);
 
     const encontrado = convidado[0];
     if (!encontrado) {
-      throw new EntradaRecusada(
+      throw new InboundRefused(
         'sem_convite',
         'Você ainda não foi convidado para esta conta. Peça a quem administra.',
       );
     }
     if (!encontrado.ativo) {
-      throw new EntradaRecusada('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
     }
 
-    await tx.insert(identidadeExterna).values({
+    await tx.insert(identityExternal).values({
       tenantId,
       usuarioId: encontrado.id,
       emissor: pessoa.emissor,
@@ -210,7 +210,7 @@ export async function entrarComIdentidade(
       ultimoAcessoEm: new Date(),
     });
 
-    return gravarSessao(tx, tenantId, encontrado.id, opcoes.origem, contexto);
+    return writeSession(tx, tenantId, encontrado.id, options.origem, context);
   });
 }
 
@@ -223,51 +223,51 @@ export async function entrarComIdentidade(
  * provisiona não conhece provedor nenhum — é o mesmo caminho do comando que
  * cria cliente pela linha de comando.
  */
-async function abrirContaNova(
-  bancoApp: BancoPipe,
+async function openAccountNew(
+  bancoApp: DatabasePipe,
   pessoa: PessoaExterna,
-  opcoes: OpcoesDeEntrada,
+  opcoes: OptionsOfInbound,
   contexto: { ip?: string; agente?: string },
-): Promise<EntradaConcluida> {
-  const conta = await opcoes.criarConta!(pessoa);
-  return comTenant(bancoApp, conta.tenantId, async (tx) => {
-    await tx.insert(identidadeExterna).values({
-      tenantId: conta.tenantId,
-      usuarioId: conta.usuarioId,
+): Promise<InboundCompleted> {
+  const account = await opcoes.createAccount!(pessoa);
+  return comTenant(bancoApp, account.tenantId, async (tx) => {
+    await tx.insert(identityExternal).values({
+      tenantId: account.tenantId,
+      usuarioId: account.usuarioId,
       emissor: pessoa.emissor,
       sujeito: pessoa.sujeito,
       emailNoProvedor: pessoa.email,
       ultimoAcessoEm: new Date(),
     });
-    return gravarSessao(tx, conta.tenantId, conta.usuarioId, opcoes.origem, contexto);
+    return writeSession(tx, account.tenantId, account.usuarioId, opcoes.origem, contexto);
   });
 }
 
-export function entrarComGoogle(
-  bancoDono: BancoPipe,
-  bancoApp: BancoPipe,
+export function loginWithGoogle(
+  bancoDono: DatabasePipe,
+  bancoApp: DatabasePipe,
   pessoa: PessoaExterna,
   contexto: { ip?: string; agente?: string } = {},
-  criarConta?: (pessoa: PessoaExterna) => Promise<ContaNova>,
-): Promise<EntradaConcluida> {
-  return entrarComIdentidade(
+  createAccount?: (pessoa: PessoaExterna) => Promise<AccountNew>,
+): Promise<InboundCompleted> {
+  return loginWithIdentity(
     bancoDono,
     bancoApp,
     pessoa,
-    { origem: 'google', ...(criarConta ? { criarConta } : {}) },
+    { origem: 'google', ...(createAccount ? { createAccount } : {}) },
     contexto,
   );
 }
 
 /** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */
-export function entrarComSso(
-  bancoDono: BancoPipe,
-  bancoApp: BancoPipe,
+export function loginWithSso(
+  bancoDono: DatabasePipe,
+  bancoApp: DatabasePipe,
   pessoa: PessoaExterna,
   tenantId: string,
   contexto: { ip?: string; agente?: string } = {},
-): Promise<EntradaConcluida> {
-  return entrarComIdentidade(bancoDono, bancoApp, pessoa, { origem: 'sso', tenantId }, contexto);
+): Promise<InboundCompleted> {
+  return loginWithIdentity(bancoDono, bancoApp, pessoa, { origem: 'sso', tenantId }, contexto);
 }
 
 /**
@@ -284,25 +284,25 @@ export function entrarComSso(
  * derrubar a outra aba no meio de um atendimento seria pior do que manter duas
  * sessões vivas com o mesmo prazo.
  */
-export async function abrirSessaoEm(
-  bancoDono: BancoPipe,
-  bancoApp: BancoPipe,
+export async function openSessionAt(
+  bancoDono: DatabasePipe,
+  bancoApp: DatabasePipe,
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   origem: 'google' | 'sso',
   contexto: { ip?: string; agente?: string } = {},
-): Promise<EntradaConcluida> {
+): Promise<InboundCompleted> {
   await exigirPoliticaCompativel(bancoDono, tenantId, origem);
   return comTenant(bancoApp, tenantId, async (tx) => {
     const atual = await tx
-      .select({ ativo: usuario.ativo })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioId))
+      .select({ ativo: user.ativo })
+      .from(user)
+      .where(eq(user.id, userId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new EntradaRecusada('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
     }
-    return gravarSessao(tx, tenantId, usuarioId, origem, contexto);
+    return writeSession(tx, tenantId, userId, origem, contexto);
   });
 }
 
@@ -318,7 +318,7 @@ export async function abrirSessaoEm(
  * link) tem de passar por esta função. É a porta dos fundos clássica.
  */
 export async function exigirPoliticaCompativel(
-  bancoDono: BancoPipe,
+  bancoDono: DatabasePipe,
   tenantId: string,
   origem: string,
 ): Promise<void> {
@@ -331,29 +331,29 @@ export async function exigirPoliticaCompativel(
     .limit(1);
 
   if (linhas[0]?.politica === 'obrigatorio') {
-    throw new EntradaRecusada(
+    throw new InboundRefused(
       'sso_obrigatorio',
       'Esta empresa entra pelo provedor de identidade dela. Use o botão de SSO.',
     );
   }
 }
 
-async function abrirSessao(
-  bancoApp: BancoPipe,
+async function openSession(
+  bancoApp: DatabasePipe,
   tenantId: string,
   usuarioId: string,
   pessoa: PessoaExterna,
-  opcoes: OpcoesDeEntrada,
+  opcoes: OptionsOfInbound,
   contexto: { ip?: string; agente?: string },
-): Promise<EntradaConcluida> {
+): Promise<InboundCompleted> {
   return comTenant(bancoApp, tenantId, async (tx) => {
     const atual = await tx
-      .select({ ativo: usuario.ativo })
-      .from(usuario)
-      .where(eq(usuario.id, usuarioId))
+      .select({ ativo: user.ativo })
+      .from(user)
+      .where(eq(user.id, usuarioId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new EntradaRecusada('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
     }
 
     // Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o
@@ -363,28 +363,28 @@ async function abrirSessao(
     // continua sendo o par (emissor, sujeito). Trocar de endereço não troca de
     // conta, e é por isso que herdar o endereço de quem saiu não herda o acesso.
     await tx
-      .update(identidadeExterna)
+      .update(identityExternal)
       .set({ ultimoAcessoEm: new Date(), emailNoProvedor: pessoa.email })
       .where(
         and(
-          eq(identidadeExterna.emissor, pessoa.emissor),
-          eq(identidadeExterna.sujeito, pessoa.sujeito),
+          eq(identityExternal.emissor, pessoa.emissor),
+          eq(identityExternal.sujeito, pessoa.sujeito),
         ),
       );
 
-    return gravarSessao(tx, tenantId, usuarioId, opcoes.origem, contexto);
+    return writeSession(tx, tenantId, usuarioId, opcoes.origem, contexto);
   });
 }
 
-async function gravarSessao(
-  tx: TransacaoPipe,
+async function writeSession(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   origem: string,
   contexto: { ip?: string; agente?: string },
-): Promise<EntradaConcluida> {
-  const novo = criarToken();
-  await tx.insert(sessao).values({
+): Promise<InboundCompleted> {
+  const novo = createToken();
+  await tx.insert(session).values({
     tenantId,
     usuarioId,
     tokenHash: novo.hash,
@@ -393,9 +393,9 @@ async function gravarSessao(
     ip: contexto.ip ?? null,
     agente: contexto.agente ?? null,
   });
-  await tx.update(usuario).set({ ultimoAcessoEm: new Date() }).where(eq(usuario.id, usuarioId));
+  await tx.update(user).set({ ultimoAcessoEm: new Date() }).where(eq(user.id, usuarioId));
 
-  return { tenantId, usuarioId, token: novo.token, expiraEm: novo.expiraEm };
+  return { tenantId, userId, token: novo.token, expiraEm: novo.expiraEm };
 }
 
 /**
@@ -406,22 +406,22 @@ async function gravarSessao(
  * devolve `null` para qualquer coisa que não seja uma sessão viva — token
  * inexistente, expirado e encerrado dão a mesma resposta, de propósito.
  */
-export async function resolverSessao(
-  bancoDono: BancoPipe,
+export async function resolveSession(
+  bancoDono: DatabasePipe,
   hash: string,
   agora = new Date(),
-): Promise<SessaoAtiva | null> {
+): Promise<SessionActive | null> {
   const linhas = await bancoDono
     .select({
-      id: sessao.id,
-      tenantId: sessao.tenantId,
-      usuarioId: sessao.usuarioId,
-      expiraEm: sessao.expiraEm,
-      origem: sessao.origem,
-      encerradaEm: sessao.encerradaEm,
+      id: session.id,
+      tenantId: session.tenantId,
+      usuarioId: session.usuarioId,
+      expiraEm: session.expiraEm,
+      origem: session.origem,
+      encerradaEm: session.encerradaEm,
     })
-    .from(sessao)
-    .where(eq(sessao.tokenHash, hash))
+    .from(session)
+    .where(eq(session.tokenHash, hash))
     .limit(1);
 
   const linha = linhas[0];
@@ -431,16 +431,16 @@ export async function resolverSessao(
   return {
     id: linha.id,
     tenantId: linha.tenantId,
-    usuarioId: linha.usuarioId,
+    userId: linha.usuarioId,
     expiraEm: linha.expiraEm,
     origem: linha.origem,
   };
 }
 
 /** Encerra a sessão. Idempotente: sair duas vezes não é erro. */
-export async function sair(bancoDono: BancoPipe, hash: string): Promise<void> {
+export async function sair(bancoDono: DatabasePipe, hash: string): Promise<void> {
   await bancoDono
-    .update(sessao)
+    .update(session)
     .set({ encerradaEm: new Date() })
-    .where(and(eq(sessao.tokenHash, hash), isNull(sessao.encerradaEm)));
+    .where(and(eq(session.tokenHash, hash), isNull(session.encerradaEm)));
 }

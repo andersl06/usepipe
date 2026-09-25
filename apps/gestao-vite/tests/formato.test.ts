@@ -6,8 +6,8 @@ import {
   dataIso,
   dataOuNada,
   denominador,
-  duracao,
-  duracaoLonga,
+  duration,
+  durationLonga,
   numero,
   percentual,
   relogio,
@@ -27,37 +27,37 @@ import {
 test('duração passa a mostrar a hora só quando existe hora', () => {
   /* Se a fronteira dos 3.600 escorregar, a lista de conversas abertas mostra
      "59:59" para atendimento de mais de uma hora, e some com o caso crítico. */
-  assert.equal(duracao(3599), '59:59');
-  assert.equal(duracao(3600), '1:00:00');
-  assert.equal(duracao(0), '00:00');
-  assert.equal(duracao(59), '00:59');
+  assert.equal(duration(3599), '59:59');
+  assert.equal(duration(3600), '1:00:00');
+  assert.equal(duration(0), '00:00');
+  assert.equal(duration(59), '00:59');
 });
 
 test('duração nunca vira negativa nem "NaN"', () => {
   /* `segundosEntre` devolve negativo quando o relógio do banco e o do servidor
      discordam. Sem o piso em zero, a tela mostraria "-1:-5" ao vivo. */
-  assert.equal(duracao(-5), '00:00');
-  assert.equal(duracao(NaN), '—');
-  assert.equal(duracao(null), '—');
-  assert.equal(duracao(undefined), '—');
+  assert.equal(duration(-5), '00:00');
+  assert.equal(duration(NaN), '—');
+  assert.equal(duration(null), '—');
+  assert.equal(duration(undefined), '—');
 });
 
 test('duração longa não fabrica "1h 60min"', () => {
   /* Arredondar o resto da hora separado somava 60 minutos sem somar a hora.
      7.190s são 1h59min48s: o relatório de esforço imprimia "1h 60min". */
-  assert.equal(duracaoLonga(7190), '2h 00min');
-  assert.equal(duracaoLonga(3599), '1h 00min');
-  assert.equal(duracaoLonga(15120), '4h 12min');
-  assert.equal(duracaoLonga(90), '2min');
-  assert.equal(duracaoLonga(0), '0min');
+  assert.equal(durationLonga(7190), '2h 00min');
+  assert.equal(durationLonga(3599), '1h 00min');
+  assert.equal(durationLonga(15120), '4h 12min');
+  assert.equal(durationLonga(90), '2min');
+  assert.equal(durationLonga(0), '0min');
 });
 
 test('duração longa devolve travessão para ausência, e não "NaNmin"', () => {
   /* Média sobre população zero volta `NaN` do core. Sem esta guarda, o
      relatório imprime "NaNmin" em vez de admitir que não há dado. */
-  assert.equal(duracaoLonga(NaN), '—');
-  assert.equal(duracaoLonga(null), '—');
-  assert.equal(duracaoLonga(undefined), '—');
+  assert.equal(durationLonga(NaN), '—');
+  assert.equal(durationLonga(null), '—');
+  assert.equal(durationLonga(undefined), '—');
 });
 
 test('número usa a separação brasileira', () => {
@@ -83,15 +83,15 @@ test('o denominador mostra a população e o que ficou de fora', () => {
      quando o atendimento piora, porque as conversas ruins caem da conta. Se
      este texto sumir, o número volta a mentir sem avisar. */
   assert.equal(
-    denominador({ populacao: 289, excluidas: 23, valor: null, soma: 0 }),
+    denominador({ population: 289, excluidas: 23, value: null, soma: 0 }),
     '289 de 312 · 23 sem resposta',
   );
   // Sem exclusão não há sufixo: não se anuncia zero.
-  assert.equal(denominador({ populacao: 10, excluidas: 0, valor: null, soma: 0 }), '10 de 10');
-  assert.equal(denominador({ populacao: 0, excluidas: 0, valor: null, soma: 0 }), '0 de 0');
+  assert.equal(denominador({ population: 10, excluidas: 0, value: null, soma: 0 }), '10 de 10');
+  assert.equal(denominador({ population: 0, excluidas: 0, value: null, soma: 0 }), '0 de 0');
   // O rótulo do que foi excluído muda por métrica.
   assert.equal(
-    denominador({ populacao: 5, excluidas: 2, valor: null, soma: 0 }, 'sem nota'),
+    denominador({ population: 5, excluidas: 2, value: null, soma: 0 }, 'sem nota'),
     '5 de 7 · 2 sem nota',
   );
 });

@@ -1,7 +1,7 @@
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import type { Horarios } from '../../lib/cadastros';
-import { dataHora, duracaoLonga, DIAS_DA_SEMANA, numero } from '../../lib/formato';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { dataHora, durationLonga, DIAS_DA_SEMANA, numero } from '../../lib/formato';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
 import { FormulariosDeHorario } from './regras-horarios-formulario';
 
 /**
@@ -17,20 +17,20 @@ import { FormulariosDeHorario } from './regras-horarios-formulario';
  * (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): o que a tela
  * mostra é o que o cálculo enxerga, incluindo feriado e horário de verão.
  */
-export function PaginaHorarios() {
-  const leitura = useLeitura<Horarios & { fuso: string }>('/v1/gestao/regras/horarios');
-  if (!leitura.data) return null;
-  const { fuso, horarios, filasSemHorario, agora } = leitura.data;
+export function PageHours() {
+  const read = useRead<Horarios & { fuso: string }>('/v1/gestao/regras/horarios');
+  if (!read.data) return null;
+  const { fuso, horarios, queuesWithoutHour, agora } = read.data;
 
-  const semFila = horarios.filter((h) => h.filas.length === 0);
+  const withoutQueue = horarios.filter((h) => h.queues.length === 0);
   const semFaixa = horarios.filter((h) => h.faixas.length === 0);
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Horários',
-      vazio:
+      empty:
         'Nenhum horário cadastrado. Todo SLA conta as 24 horas do dia, e conversa que chega de madrugada já nasce atrasada.',
-      cartoes: horarios.map((h) => ({
+      cards: horarios.map((h) => ({
         id: h.id,
         campos: [
           { rotulo: 'Horário', valor: h.nome },
@@ -43,12 +43,12 @@ export function PaginaHorarios() {
                 ? `Fechado · abre ${dataHora(h.proximaAberturaEm, h.fuso)}`
                 : 'Fechado · sem abertura prevista',
           },
-          { rotulo: 'Próximos 7 dias', valor: duracaoLonga(h.seteDiasSeg), classe: 'num' },
+          { rotulo: 'Próximos 7 dias', valor: durationLonga(h.seteDiasSeg), classe: 'num' },
           { rotulo: 'Faixas', valor: numero(h.faixas.length), classe: 'num' },
-          { rotulo: 'Exceções', valor: numero(h.excecoes.length), classe: 'num' },
+          { rotulo: 'Exceções', valor: numero(h.exceptions.length), classe: 'num' },
           {
             rotulo: 'Filas que usam',
-            valor: h.filas.length > 0 ? h.filas.join(', ') : 'Nenhuma',
+            valor: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma',
           },
         ],
         // A situação do cartão é o USO, não um interruptor: horário sem fila
@@ -56,20 +56,20 @@ export function PaginaHorarios() {
         // nunca ligado. Sai em etiqueta de alerta, que é o que a lista já sabe
         // fazer com `ativa: false`.
         situacao:
-          h.filas.length > 0
-            ? `Em uso por ${numero(h.filas.length)} fila(s)`
+          h.queues.length > 0
+            ? `Em uso por ${numero(h.queues.length)} fila(s)`
             : 'Nenhuma fila usa este horário',
-        ativa: h.filas.length > 0,
+        ativa: h.queues.length > 0,
         rodape: [
           ...h.faixas.map(
             (f) => `${DIAS_DA_SEMANA[f.diaSemana] ?? String(f.diaSemana)} ${f.inicio}–${f.fim}`,
           ),
-          ...h.excecoes.map(
+          ...h.exceptions.map(
             (e) =>
               `${e.data} · ${e.fechado ? 'fechado' : `${e.inicio}–${e.fim}`}${e.motivo ? ` · ${e.motivo}` : ''}`,
           ),
         ],
-        procura: `${h.nome} ${h.fuso} ${h.filas.join(' ')}`.toLowerCase(),
+        procura: `${h.nome} ${h.fuso} ${h.queues.join(' ')}`.toLowerCase(),
       })),
     },
   ];
@@ -115,22 +115,22 @@ export function PaginaHorarios() {
         </div>
       ) : null}
 
-      {semFila.length > 0 ? (
+      {withoutQueue.length > 0 ? (
         <div className="note">
           Cadastrados e sem fila nenhuma apontando para eles:{' '}
-          {semFila.map((h) => h.nome).join(', ')}. Ligue-os em Filas de atendimento, ou eles não
+          {withoutQueue.map((h) => h.nome).join(', ')}. Ligue-os em Filas de atendimento, ou eles não
           mudam o SLA de conversa nenhuma.
         </div>
       ) : null}
 
-      {filasSemHorario.length > 0 ? (
+      {queuesWithoutHour.length > 0 ? (
         <div className="note">
-          Filas ativas sem horário, com o relógio de SLA correndo 24×7: {filasSemHorario.join(', ')}
+          Filas ativas sem horário, com o relógio de SLA correndo 24×7: {queuesWithoutHour.join(', ')}
           .
         </div>
       ) : null}
 
-      <ListaRegras secoes={secoes} placeholder="Buscar por horário, fuso ou fila" />
+      <ListaRegras sections={sections} placeholder="Buscar por horário, fuso ou fila" />
     </>
   );
 }

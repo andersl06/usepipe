@@ -1,4 +1,4 @@
-import { api, ErroDaApi } from '../../../lib/api';
+import { api, ApiError } from '../../../lib/api';
 import { atualizarLeituras } from '../../../lib/acoes';
 import type { CertificadoMtls } from '../../../lib/certificados';
 
@@ -10,7 +10,7 @@ import type { CertificadoMtls } from '../../../lib/certificados';
  */
 interface ResultadoSimples {
   ok: boolean;
-  erro?: string;
+  error?: string;
 }
 
 /**
@@ -19,22 +19,22 @@ interface ResultadoSimples {
  * arquivo só passam por aqui; a `api` os guarda cifrados e nunca os devolve.
  */
 export interface PedidoDeCertificado {
-  descricao: string;
+  description: string;
   hosts: string[];
   senha: string;
   /** Data URL do `.pfx` (`lerArquivoComoDataUrl`). */
-  arquivo: string;
+  file: string;
 }
 
 export async function cadastrarCertificado(
   pedido: PedidoDeCertificado,
-): Promise<{ ok: true; certificado: CertificadoMtls } | { ok: false; erro: string }> {
+): Promise<{ ok: true; certificado: CertificadoMtls } | { ok: false; error: string }> {
   try {
     const certificado = await api.post<CertificadoMtls>('/v1/gestao/contrato/certificados', pedido);
     atualizarLeituras();
     return { ok: true, certificado };
   } catch (e) {
-    return { ok: false, erro: motivoDoErro(e) };
+    return { ok: false, error: errorMotivo(e) };
   }
 }
 
@@ -43,10 +43,10 @@ export async function cadastrarCertificado(
  * incorreta.", "O arquivo não é um .pfx válido…"): é o que a origem mostra no
  * toast em vez do status.
  */
-function motivoDoErro(e: unknown): string {
-  if (e instanceof ErroDaApi) {
-    const corpo = e.corpo as { erro?: { mensagem?: string } } | null;
-    if (corpo?.erro?.mensagem) return corpo.erro.mensagem;
+function errorMotivo(e: unknown): string {
+  if (e instanceof ApiError) {
+    const corpo = e.corpo as { error?: { message?: string } } | null;
+    if (corpo?.error?.message) return corpo.error.message;
     if (e.status === 413) return 'O arquivo deve ter no máximo 10MB';
   }
   return e instanceof Error ? e.message : 'Não foi possível cadastrar.';
@@ -58,7 +58,7 @@ export async function excluirCertificado(id: string): Promise<ResultadoSimples> 
     if (resultado.ok) atualizarLeituras();
     return resultado;
   } catch (e) {
-    return { ok: false, erro: e instanceof Error ? e.message : 'Falha ao tentar deletar certificado.' };
+    return { ok: false, error: e instanceof Error ? e.message : 'Falha ao tentar deletar certificado.' };
   }
 }
 
@@ -73,6 +73,6 @@ export async function excluirHostDoCertificado(
     if (resultado.ok) atualizarLeituras();
     return resultado;
   } catch (e) {
-    return { ok: false, erro: e instanceof Error ? e.message : 'Falha ao tentar deletar host.' };
+    return { ok: false, error: e instanceof Error ? e.message : 'Falha ao tentar deletar host.' };
   }
 }

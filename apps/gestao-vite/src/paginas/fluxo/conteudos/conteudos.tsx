@@ -1,6 +1,6 @@
-import { useLeitura } from '../../../lib/consulta';
-import type { ModeloListado } from '@pipe/contracts';
-import { CascaDoModulo, useContato } from '../contato';
+import { useRead } from '../../../lib/consulta';
+import type { TemplateListed } from '@pipe/contracts';
+import { ModuloShell, useContact } from '../contato';
 import { TelaDeConteudos } from './tela';
 import './conteudos.css';
 
@@ -12,20 +12,20 @@ import './conteudos.css';
  * (`lib/comunicacao.ts`); sem canal WhatsApp a origem mostra o
  * `unavailable-warning` (`isWhatsAppActive()`), e aqui é o mesmo critério.
  */
-export function PaginaConteudos() {
-  const { contato } = useContato();
-  const leitura = useLeitura<{ canalId: string | null; modelos: ModeloListado[] }>(
-    `/v1/gestao/fluxos/${contato.id}/conteudos`,
+export function PageContents() {
+  const { contact } = useContact();
+  const read = useRead<{ channelId: string | null; modelos: TemplateListed[] }>(
+    `/v1/gestao/fluxos/${contact.id}/conteudos`,
   );
   return (
-    <CascaDoModulo ativo="Conteúdos">
-      {leitura.data ? (
+    <ModuloShell ativo="Conteúdos">
+      {read.data ? (
         <TelaDeConteudos
-          modelos={leitura.data.modelos}
-          temWhatsapp={leitura.data.canalId !== null}
-          canalId={leitura.data.canalId}
+          modelos={read.data.modelos}
+          temWhatsapp={read.data.channelId !== null}
+          channelId={read.data.channelId}
         />
       ) : null}
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

@@ -20,7 +20,7 @@ export interface FaixaExpediente {
   fim: string;
 }
 
-export interface ExcecaoExpediente {
+export interface ExceptionExpediente {
   /** `AAAA-MM-DD` no fuso do tenant. */
   data: string;
   fechado: boolean;
@@ -29,11 +29,11 @@ export interface ExcecaoExpediente {
   motivo?: string | null;
 }
 
-export interface HorarioAtendimento {
+export interface HourAttendance {
   /** Identificador IANA, por exemplo `America/Sao_Paulo`. */
   fuso: string;
   faixas: readonly FaixaExpediente[];
-  excecoes?: readonly ExcecaoExpediente[];
+  exceptions?: readonly ExceptionExpediente[];
 }
 
 export interface Intervalo {
@@ -50,9 +50,9 @@ export interface Espera {
 
 const MS_DIA = 86_400_000;
 /** Teto de varredura, para horário sem nenhuma faixa não virar laço infinito. */
-export const LIMITE_DIAS_VARREDURA = 366;
+export const SWEEP_DAYS_LIMIT = 366;
 
-interface PartesLocais {
+interface PartesLocal {
   ano: number;
   mes: number;
   dia: number;
@@ -81,7 +81,7 @@ function formatador(fuso: string): Intl.DateTimeFormat {
 }
 
 /** Quebra um instante nas partes de calendário do fuso do tenant. */
-export function partesNoFuso(instante: Date, fuso: string): PartesLocais {
+export function partesNoFuso(instante: Date, fuso: string): PartesLocal {
   const partes = formatador(fuso).formatToParts(instante);
   const mapa: Record<string, string> = {};
   for (const parte of partes) {
@@ -100,7 +100,7 @@ export function partesNoFuso(instante: Date, fuso: string): PartesLocais {
 }
 
 /** Deslocamento do fuso, em milissegundos, no instante dado. */
-function deslocamentoMs(instante: Date, fuso: string): number {
+function offsetMs(instante: Date, fuso: string): number {
   const p = partesNoFuso(instante, fuso);
   const comoUtc = Date.UTC(p.ano, p.mes - 1, p.dia, p.hora, p.minuto, p.segundo);
   // Zera os milissegundos dos dois lados para o deslocamento sair exato.
@@ -121,8 +121,8 @@ export function instanteDeLocal(
   fuso: string,
 ): Date {
   const alvoUtc = Date.UTC(ano, mes - 1, dia, 0, 0, 0) + minutosDoDia * 60_000;
-  const primeira = new Date(alvoUtc - deslocamentoMs(new Date(alvoUtc), fuso));
-  const segunda = new Date(alvoUtc - deslocamentoMs(primeira, fuso));
+  const firstPass = new Date(alvoUtc - offsetMs(new Date(alvoUtc), fuso));
+  const segunda = new Date(alvoUtc - offsetMs(firstPass, fuso));
   return segunda;
 }
 
@@ -137,7 +137,7 @@ export function minutosDoRelogio(relogio: string): number {
   return horas * 60 + minutos;
 }
 
-function chaveDoDia(ano: number, mes: number, dia: number): string {
+function diaKey(ano: number, mes: number, dia: number): string {
   const mm = String(mes).padStart(2, '0');
   const dd = String(dia).padStart(2, '0');
   return `${ano}-${mm}-${dd}`;
@@ -166,16 +166,16 @@ function mesclar(faixas: { de: number; ate: number }[]): { de: number; ate: numb
  * Exceção do dia manda sobre a faixa semanal — é assim que feriado funciona.
  */
 export function faixasDoDia(
-  horario: HorarioAtendimento,
+  horario: HourAttendance,
   ano: number,
   mes: number,
   dia: number,
 ): { de: number; ate: number }[] {
-  const excecao = horario.excecoes?.find((e) => e.data === chaveDoDia(ano, mes, dia));
-  if (excecao) {
-    if (excecao.fechado) return [];
-    if (excecao.inicio && excecao.fim) {
-      return mesclar([{ de: minutosDoRelogio(excecao.inicio), ate: minutosDoRelogio(excecao.fim) }]);
+  const exception = horario.exceptions?.find((e) => e.data === diaKey(ano, mes, dia));
+  if (exception) {
+    if (exception.fechado) return [];
+    if (exception.inicio && exception.fim) {
+      return mesclar([{ de: minutosDoRelogio(exception.inicio), ate: minutosDoRelogio(exception.fim) }]);
     }
     // Exceção aberta sem horário próprio cai no expediente normal do dia.
   }
@@ -200,7 +200,7 @@ function intersectar(a: Intervalo, de: Date, ate: Date): Intervalo | null {
 export function intervalosUteis(
   de: Date,
   ate: Date,
-  horario: HorarioAtendimento | null | undefined,
+  horario: HourAttendance | null | undefined,
 ): Intervalo[] {
   if (ate.getTime() <= de.getTime()) return [];
   if (!horario) return [{ inicio: de, fim: ate }];
@@ -211,7 +211,7 @@ export function intervalosUteis(
   let cursor = Date.UTC(inicioLocal.ano, inicioLocal.mes - 1, inicioLocal.dia) - MS_DIA;
   const limite = ate.getTime() + MS_DIA;
 
-  for (let passo = 0; passo <= LIMITE_DIAS_VARREDURA + 2; passo += 1) {
+  for (let passo = 0; passo <= SWEEP_DAYS_LIMIT + 2; passo += 1) {
     const dataDoDia = new Date(cursor);
     const ano = dataDoDia.getUTCFullYear();
     const mes = dataDoDia.getUTCMonth() + 1;
@@ -260,7 +260,7 @@ export function subtrairEsperas(
   return atual.sort((a, b) => a.inicio.getTime() - b.inicio.getTime());
 }
 
-export function duracaoTotalSeg(intervalos: readonly Intervalo[]): number {
+export function durationTotalSeg(intervalos: readonly Intervalo[]): number {
   return intervalos.reduce(
     (total, intervalo) => total + (intervalo.fim.getTime() - intervalo.inicio.getTime()) / 1000,
     0,
@@ -274,10 +274,10 @@ export function duracaoTotalSeg(intervalos: readonly Intervalo[]): number {
 export function segundosUteisEntre(
   de: Date,
   ate: Date,
-  horario: HorarioAtendimento | null | undefined,
+  horario: HourAttendance | null | undefined,
   esperas?: readonly Espera[],
 ): number {
-  return duracaoTotalSeg(subtrairEsperas(intervalosUteis(de, ate, horario), esperas));
+  return durationTotalSeg(subtrairEsperas(intervalosUteis(de, ate, horario), esperas));
 }
 
 /**
@@ -291,24 +291,24 @@ export function segundosUteisEntre(
 export function avancarNoExpediente(
   de: Date,
   segundos: number,
-  horario: HorarioAtendimento | null | undefined,
+  horario: HourAttendance | null | undefined,
   esperas?: readonly Espera[],
 ): Date | null {
   if (segundos <= 0) return de;
 
   // Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura
   // de um ano inteiro.
-  for (const dias of [2, 8, 32, 128, LIMITE_DIAS_VARREDURA]) {
+  for (const dias of [2, 8, 32, 128, SWEEP_DAYS_LIMIT]) {
     const limite = new Date(de.getTime() + dias * MS_DIA);
     const disponiveis = subtrairEsperas(intervalosUteis(de, limite, horario), esperas);
 
     let restante = segundos;
     for (const intervalo of disponiveis) {
-      const duracao = (intervalo.fim.getTime() - intervalo.inicio.getTime()) / 1000;
-      if (duracao >= restante) {
+      const duration = (intervalo.fim.getTime() - intervalo.inicio.getTime()) / 1000;
+      if (duration >= restante) {
         return new Date(intervalo.inicio.getTime() + restante * 1000);
       }
-      restante -= duracao;
+      restante -= duration;
     }
   }
   return null;
@@ -320,13 +320,13 @@ export function avancarNoExpediente(
  */
 export function proximaAbertura(
   instante: Date,
-  horario: HorarioAtendimento | null | undefined,
+  horario: HourAttendance | null | undefined,
 ): Date | null {
   if (!horario) return instante;
-  for (const dias of [2, 8, 32, 128, LIMITE_DIAS_VARREDURA]) {
+  for (const dias of [2, 8, 32, 128, SWEEP_DAYS_LIMIT]) {
     const limite = new Date(instante.getTime() + dias * MS_DIA);
-    const primeiro = intervalosUteis(instante, limite, horario)[0];
-    if (primeiro) return primeiro.inicio;
+    const firstMatch = intervalosUteis(instante, limite, horario)[0];
+    if (firstMatch) return firstMatch.inicio;
   }
   return null;
 }
@@ -334,7 +334,7 @@ export function proximaAbertura(
 /** Está dentro do expediente neste instante? */
 export function dentroDoExpediente(
   instante: Date,
-  horario: HorarioAtendimento | null | undefined,
+  horario: HourAttendance | null | undefined,
 ): boolean {
   if (!horario) return true;
   const p = partesNoFuso(instante, horario.fuso);

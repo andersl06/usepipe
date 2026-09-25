@@ -1,9 +1,9 @@
 import Link from '../../../componentes/link';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { Navigate, useSearchParams } from 'react-router-dom';
-import { useCascaDoPortal } from '../../../lib/casca';
-import { CascoDeCriacao, PassoDoNome } from '../casco';
-import { criarFluxo } from './acoes';
+import { portalUseShell } from '../../../lib/casca';
+import { CreationCasco, PassoDoNome } from '../casco';
+import { createFlow } from './acoes';
 import { ROTULOS, RECADOS, TEMPLATE_PADRAO } from './regras';
 import '../criar.css';
 import './criar-fluxo.css';
@@ -59,34 +59,34 @@ import './criar-fluxo.css';
  * `acoes.ts`. "Escolher esse template" cria um fluxo em branco, como
  * "Construir do zero"; só o título do passo do nome muda.
  */
-export function PaginaCriarFluxo() {
-  const casca = useCascaDoPortal();
-  const [busca] = useSearchParams();
+export function PageCreateFlow() {
+  const shell = portalUseShell();
+  const [search] = useSearchParams();
   const parametros = {
-    passo: busca.get('passo') ?? undefined,
-    erro: busca.get('erro') ?? undefined,
-    nome: busca.get('nome') ?? undefined,
-    template: busca.get('template') ?? undefined,
+    passo: search.get('passo') ?? undefined,
+    erro: search.get('erro') ?? undefined,
+    nome: search.get('nome') ?? undefined,
+    template: search.get('template') ?? undefined,
   };
   const veioDoTemplate = parametros.template === TEMPLATE_PADRAO;
 
   /* `canCreateChatbot` deles é conferido no `$onInit` do controlador, ANTES de
      desenhar qualquer passo: quem não pode cai em `$state.go(getReturnState())`,
      que é a lista de contatos. Aqui, `/portal`. */
-  if (!casca.podeCriar) return <Navigate to="/portal" replace />;
+  if (!shell.canCreate) return <Navigate to="/portal" replace />;
 
   return (
-    <CascoDeCriacao>
+    <CreationCasco>
       {parametros.passo === 'nome' ? (
         <PassoDoNome
-          acao={criarFluxo}
+          acao={createFlow}
           voltarPara={veioDoTemplate ? `/criar/fluxo?passo=template` : '/criar/fluxo'}
           rotulos={{
             ...ROTULOS,
             tituloDoNome: veioDoTemplate ? ROTULOS.tituloDoNomeComTemplate : ROTULOS.tituloDoNome,
           }}
-          tituloDoErro={RECADOS.titulo}
-          erro={parametros.erro}
+          errorTitulo={RECADOS.titulo}
+          error={parametros.erro}
           nome={parametros.nome}
           camposOcultos={veioDoTemplate ? { template: TEMPLATE_PADRAO } : undefined}
         />
@@ -95,7 +95,7 @@ export function PaginaCriarFluxo() {
       ) : (
         <PassoDoMarketplace />
       )}
-    </CascoDeCriacao>
+    </CreationCasco>
   );
 }
 
@@ -160,7 +160,7 @@ function PassoDoMarketplace() {
     para avaliação, equipe para atendentes disponíveis. Sem correspondente
     exato na origem: lá cada linha tem o próprio ícone do catálogo deles, que
     não temos; a distinção visual entre as quatro é o que importa aqui. */
-const ICONES_DAS_FUNCIONALIDADES = ['relogio', 'suporte', 'concluido', 'equipe'] as const;
+const ICONES_OF_FEATURES = ['relogio', 'suporte', 'concluido', 'equipe'] as const;
 
 /**
  * `#create-application-test-step` — `auth.application.create.test`.
@@ -183,10 +183,10 @@ function PassoDoTemplate() {
         <p>{ROTULOS.apresentacaoDescricao}</p>
 
         <ul className="cf-lista">
-          {ROTULOS.funcionalidades.map((funcionalidade, indice) => (
-            <li key={funcionalidade}>
-              <IconePortal nome={ICONES_DAS_FUNCIONALIDADES[indice]!} tamanho={20} />
-              {funcionalidade}
+          {ROTULOS.funcionalidades.map((feature, indice) => (
+            <li key={feature}>
+              <IconePortal nome={ICONES_OF_FEATURES[indice]!} tamanho={20} />
+              {feature}
             </li>
           ))}
         </ul>

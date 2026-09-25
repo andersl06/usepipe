@@ -27,7 +27,7 @@ export type StatusDoCertificado = 'valido' | 'expirado' | 'sem_arquivo';
 /** O item de `GET /v1/gestao/contrato/certificados`, com os nomes em português. Nunca traz o arquivo nem a senha. */
 export interface CertificadoMtls {
   id: string;
-  descricao: string;
+  description: string;
   /** ISO 8601. Lida do `.pfx` pela `api`. */
   expiraEm: string;
   /** SHA-256 `AB:CD:…`, lida do `.pfx`. */
@@ -53,7 +53,7 @@ export function etiquetaDoStatus(status: StatusDoCertificado): {
 }
 
 /** A expiração como eles escrevem: `wt.a(data, "pt-BR")`, dia/mês/ano em UTC. */
-export function dataDeExpiracao(iso: string): string {
+export function expirationData(iso: string): string {
   return new Date(iso).toLocaleDateString('pt-BR', {
     year: 'numeric',
     month: '2-digit',
@@ -73,16 +73,16 @@ export interface HostDigitado {
  * precisa ser HTTPS com domínio. A lista comparada é a de ANTES da digitação,
  * como lá.
  */
-export function hostValido(valor: string, hostsAtuais: readonly HostDigitado[]): boolean {
+export function hostValido(value: string, hostsCurrent: readonly HostDigitado[]): boolean {
   return (
-    hostsAtuais.every((h) => h.host !== valor) &&
-    /^https:\/\/[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(:\d+)?(\/.*)?$/.test(valor)
+    hostsCurrent.every((h) => h.host !== value) &&
+    /^https:\/\/[a-zA-Z0-9\-.]+\.[a-zA-Z]{2,}(:\d+)?(\/.*)?$/.test(value)
   );
 }
 
 /** O `ht` deles: descrição preenchida e toda URL preenchida e válida. */
-export function informacoesCompletas(descricao: string, hosts: readonly HostDigitado[]): boolean {
-  return hosts.every((h) => h.valido && h.host !== '') && descricao !== '';
+export function informationCompletas(description: string, hosts: readonly HostDigitado[]): boolean {
+  return hosts.every((h) => h.valido && h.host !== '') && description !== '';
 }
 
 /**
@@ -93,26 +93,26 @@ export function informacoesCompletas(descricao: string, hosts: readonly HostDigi
  * Windows; em outros sistemas ele vem vazio, e aí vale a extensão — a `api`
  * confere os bytes de qualquer jeito.
  */
-export function problemaNoArquivo(
-  arquivo: { name?: string; type: string; size: number } | null,
+export function problemaInFile(
+  file: { name?: string; type: string; size: number } | null,
 ): string | null {
-  if (!arquivo) {
+  if (!file) {
     return 'Ocorreu um erro ao fazer o upload do arquivo, verifique se o certificado e a senha estão corretos';
   }
-  const pelaExtensao = /\.(pfx|p12)$/i.test(arquivo.name ?? '');
-  if (arquivo.type !== 'application/x-pkcs12' && !(arquivo.type === '' && pelaExtensao)) {
+  const pelaExtensao = /\.(pfx|p12)$/i.test(file.name ?? '');
+  if (file.type !== 'application/x-pkcs12' && !(file.type === '' && pelaExtensao)) {
     return 'O arquivo deve ser do tipo .pfx';
   }
-  if (arquivo.size / 1048576 > 10) return 'O arquivo deve ter no máximo 10MB';
+  if (file.size / 1048576 > 10) return 'O arquivo deve ter no máximo 10MB';
   return null;
 }
 
 /** O `.pfx` como data URL (`data:…;base64,…`) — o corpo que a `api` aceita. */
-export function lerArquivoComoDataUrl(arquivo: Blob): Promise<string> {
+export function readFileAsDataUrl(file: Blob): Promise<string> {
   return new Promise((resolver, rejeitar) => {
     const leitor = new FileReader();
     leitor.onload = () => resolver(String(leitor.result));
     leitor.onerror = () => rejeitar(leitor.error ?? new Error('Não foi possível ler o arquivo.'));
-    leitor.readAsDataURL(arquivo);
+    leitor.readAsDataURL(file);
   });
 }

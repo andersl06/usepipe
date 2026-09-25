@@ -1,17 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { useCanalWhatsapp } from './casca';
-import { useLeitura } from '../../../../lib/consulta';
+import { useChannelWhatsapp } from './casca';
+import { useRead } from '../../../../lib/consulta';
 import { gravarPerfilWhatsapp } from '../../../../lib/canais-gravar';
 import { CATEGORIAS_DO_PERFIL, LIMITES_DO_PERFIL, type PerfilVisivel } from '../../../../lib/canais';
 
 /** `data:image/…` — mesmo formato que a foto do fluxo usa para atravessar o JSON. */
-function lerComoDataUrl(arquivo: File): Promise<string | null> {
+function lerComoDataUrl(file: File): Promise<string | null> {
   return new Promise((resolver) => {
     const leitor = new FileReader();
     leitor.onload = () => resolver(typeof leitor.result === 'string' ? leitor.result : null);
     leitor.onerror = () => resolver(null);
-    leitor.readAsDataURL(arquivo);
+    leitor.readAsDataURL(file);
   });
 }
 
@@ -30,7 +30,7 @@ function rotuloDoStatusMeta(status: string | null): string {
 }
 
 /** Acordeão 1: só leitura — a Blip exige aprovação da Meta para trocar; nós ainda não mandamos essa troca. */
-function AcordeaoNomeDeExibicao({ perfil }: { perfil: PerfilVisivel }) {
+function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
   return (
     <details className="cw-acordeao" open>
       <summary>Nome de exibição da empresa</summary>
@@ -40,7 +40,7 @@ function AcordeaoNomeDeExibicao({ perfil }: { perfil: PerfilVisivel }) {
         </p>
         <label style={rotulo}>
           <span className="sub">Nome de exibição da empresa</span>
-          <Campo value={perfil.nome.exibicao ?? ''} readOnly disabled />
+          <Campo value={perfil.nome.display ?? ''} readOnly disabled />
         </label>
         {perfil.nome.status ? (
           <Etiqueta tom={perfil.nome.status === 'APPROVED' ? 'sucesso' : 'alerta'}>
@@ -58,7 +58,7 @@ function AcordeaoNomeDeExibicao({ perfil }: { perfil: PerfilVisivel }) {
 }
 
 /** Acordeão 2: recurso que a Blip tem e a Cloud API que consumimos hoje não expõe — desabilitado, "em breve". */
-function AcordeaoNomeDeUsuario() {
+function UserAcordeaoName() {
   return (
     <details className="cw-acordeao">
       <summary>Nome de usuário da empresa</summary>
@@ -73,13 +73,13 @@ function AcordeaoNomeDeUsuario() {
   );
 }
 
-function AcordeaoDadosDaEmpresa({
-  canalId,
+function EmpresaAcordeaoData({
+  channelId,
   numeroAtivado,
   perfil,
   aoGravar,
 }: {
-  canalId: string;
+  channelId: string;
   numeroAtivado: string;
   perfil: PerfilVisivel;
   aoGravar: (novo: PerfilVisivel) => void;
@@ -87,61 +87,61 @@ function AcordeaoDadosDaEmpresa({
   const [categoria, setCategoria] = useState(perfil.categoria);
   const [endereco, setEndereco] = useState(perfil.endereco);
   const [email, setEmail] = useState(perfil.email);
-  const [descricao, setDescricao] = useState(perfil.descricao);
+  const [description, setDescription] = useState(perfil.description);
   const [foto, setFoto] = useState<File | null>(null);
   const [previaFoto, setPreviaFoto] = useState<string | null>(null);
   const [gravando, setGravando] = useState(false);
   const [gravandoFoto, setGravandoFoto] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     setCategoria(perfil.categoria);
     setEndereco(perfil.endereco);
     setEmail(perfil.email);
-    setDescricao(perfil.descricao);
+    setDescription(perfil.description);
   }, [perfil]);
 
   const mudou =
-    categoria !== perfil.categoria || endereco !== perfil.endereco || email !== perfil.email || descricao !== perfil.descricao;
+    categoria !== perfil.categoria || endereco !== perfil.endereco || email !== perfil.email || description !== perfil.description;
 
   async function salvar() {
     setGravando(true);
-    setErro(null);
-    const resultado = await gravarPerfilWhatsapp(canalId, { categoria, endereco, email, descricao });
+    setError(null);
+    const resultado = await gravarPerfilWhatsapp(channelId, { categoria, endereco, email, description });
     setGravando(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
-    aoGravar(resultado.valor);
+    aoGravar(resultado.value);
   }
 
   async function salvarFoto() {
     if (!foto) return;
     setGravandoFoto(true);
-    setErro(null);
+    setError(null);
     const dataUrl = await lerComoDataUrl(foto);
     if (!dataUrl) {
       setGravandoFoto(false);
-      setErro('Não foi possível ler a imagem.');
+      setError('Não foi possível ler a imagem.');
       return;
     }
-    const resultado = await gravarPerfilWhatsapp(canalId, { foto: dataUrl });
+    const resultado = await gravarPerfilWhatsapp(channelId, { foto: dataUrl });
     setGravandoFoto(false);
     if (!resultado.ok) {
-      setErro(resultado.erro);
+      setError(resultado.error);
       return;
     }
     setFoto(null);
     setPreviaFoto(null);
-    aoGravar(resultado.valor);
+    aoGravar(resultado.value);
   }
 
   return (
     <details className="cw-acordeao" open>
       <summary>Dados da empresa</summary>
       <div className="cw-acordeao-corpo">
-        {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
+        {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
         <div>
           <p className="sub" style={{ marginBottom: '8px' }}>
@@ -157,9 +157,9 @@ function AcordeaoDadosDaEmpresa({
                 accept="image/jpeg,image/png"
                 hidden
                 onChange={(e) => {
-                  const arquivo = e.target.files?.[0] ?? null;
-                  setFoto(arquivo);
-                  setPreviaFoto(arquivo ? URL.createObjectURL(arquivo) : null);
+                  const file = e.target.files?.[0] ?? null;
+                  setFoto(file);
+                  setPreviaFoto(file ? URL.createObjectURL(file) : null);
                 }}
               />
             </label>
@@ -178,7 +178,7 @@ function AcordeaoDadosDaEmpresa({
           <span className="sub">Categoria da empresa</span>
           <Seletor value={categoria} onChange={(e) => setCategoria(e.target.value)} disabled={gravando}>
             {CATEGORIAS_DO_PERFIL.map((c) => (
-              <option key={c.valor} value={c.valor}>
+              <option key={c.value} value={c.value}>
                 {c.rotulo}
               </option>
             ))}
@@ -218,12 +218,12 @@ function AcordeaoDadosDaEmpresa({
             className="campo"
             rows={3}
             maxLength={LIMITES_DO_PERFIL.descricao}
-            value={descricao}
-            onChange={(e) => setDescricao(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
             disabled={gravando}
           />
           <span className="cw-contador">
-            {descricao.length}/{LIMITES_DO_PERFIL.descricao}
+            {description.length}/{LIMITES_DO_PERFIL.descricao}
           </span>
         </label>
 
@@ -237,7 +237,7 @@ function AcordeaoDadosDaEmpresa({
   );
 }
 
-function PainelDePreVisualizacao({ nome, perfil }: { nome: string; perfil: PerfilVisivel }) {
+function PreViewPanel({ nome, perfil }: { nome: string; perfil: PerfilVisivel }) {
   return (
     <aside className="cw-preview">
       <img className="cw-preview-avatar" src={perfil.fotoUrl ?? undefined} alt="" />
@@ -260,15 +260,15 @@ function PainelDePreVisualizacao({ nome, perfil }: { nome: string; perfil: Perfi
  * `canal.gerenciar` na `api` — sem ela, a `api` responde 403 e a aba diz isso.
  */
 export function AbaPerfil() {
-  const { canal, saude } = useCanalWhatsapp();
-  const leitura = useLeitura<PerfilVisivel>(`/v1/canais/whatsapp/${canal.id}/perfil`, { retry: false });
+  const { channel, saude } = useChannelWhatsapp();
+  const read = useRead<PerfilVisivel>(`/v1/canais/whatsapp/${channel.id}/perfil`, { retry: false });
   const [perfil, setPerfil] = useState<PerfilVisivel | null>(null);
 
   useEffect(() => {
-    if (leitura.data) setPerfil(leitura.data);
-  }, [leitura.data]);
+    if (read.data) setPerfil(read.data);
+  }, [read.data]);
 
-  if (leitura.error) return <p role="alert" className="cb-typo-16">Não foi possível carregar o perfil: {leitura.error.message}</p>;
+  if (read.error) return <p role="alert" className="cb-typo-16">Não foi possível carregar o perfil: {read.error.message}</p>;
   if (!perfil) return null;
 
   return (
@@ -278,16 +278,16 @@ export function AbaPerfil() {
 
       <div className="cw-perfil">
         <div className="cw-acordeoes">
-          <AcordeaoNomeDeExibicao perfil={perfil} />
-          <AcordeaoNomeDeUsuario />
-          <AcordeaoDadosDaEmpresa
-            canalId={canal.id}
-            numeroAtivado={saude?.numero ?? canal.numero ?? ''}
+          <DisplayAcordeaoName perfil={perfil} />
+          <UserAcordeaoName />
+          <EmpresaAcordeaoData
+            channelId={channel.id}
+            numeroAtivado={saude?.numero ?? channel.numero ?? ''}
             perfil={perfil}
             aoGravar={setPerfil}
           />
         </div>
-        <PainelDePreVisualizacao nome={saude?.nomeExibicao ?? perfil.nome.exibicao ?? canal.nome} perfil={perfil} />
+        <PreViewPanel nome={saude?.displayName ?? perfil.nome.display ?? channel.nome} perfil={perfil} />
       </div>
     </div>
   );

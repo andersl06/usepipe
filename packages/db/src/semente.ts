@@ -2,10 +2,10 @@ import 'dotenv/config';
 import { and, eq, sql } from 'drizzle-orm';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { criarBanco, fecharBanco } from './cliente.js';
-import type { BancoPipe } from './cliente.js';
-import { fila } from './schema/conversas.js';
-import { papel, papelPermissao, permissao, tenant } from './schema/identidade.js';
+import { createDatabase, closeDatabase } from './cliente.js';
+import type { DatabasePipe } from './cliente.js';
+import { queue } from './schema/conversas.js';
+import { role, rolePermission, permission, tenant } from './schema/identidade.js';
 
 /**
  * Semente mínima: um tenant, os cinco papéis do dia 1, o catálogo de permissões e as
@@ -16,7 +16,7 @@ import { papel, papelPermissao, permissao, tenant } from './schema/identidade.js
  */
 
 /** Permissão é capacidade nomeada, nunca flag booleana espalhada pelo código. */
-export const CATALOGO_PERMISSOES = [
+export const CATALOG_PERMISSIONS = [
   ['conversa.ver', 'conversa', 'Ver conversas das filas em que participa'],
   ['conversa.ver_todas', 'conversa', 'Ver conversas de todas as filas'],
   ['conversa.responder', 'conversa', 'Responder conversa'],
@@ -109,14 +109,14 @@ export const CATALOGO_PERMISSOES = [
  * Tudo, menos as permissões da CONTA: essas vêm só do papel de conta
  * (`PAPEIS_DA_CONTA`), desde a migração 0021.
  */
-const TODAS = CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter(
+const TODAS = CATALOG_PERMISSIONS.map(([codigo]) => codigo).filter(
   (codigo) => !codigo.startsWith('conta.'),
 );
 
 /** O `guest` deles — "Apenas visualiza informações do contrato". */
-const DA_CONTA_EM_LEITURA = ['conta.resumo.ler', 'conta.workspace.ler'];
+const OF_ACCOUNT_IN_READ = ['conta.resumo.ler', 'conta.workspace.ler'];
 
-const DO_ATENDENTE = [
+const OF_AGENT = [
   'conversa.ver',
   'conversa.responder',
   'conversa.transferir',
@@ -143,7 +143,7 @@ const DO_AVALIADOR = [
 ];
 
 const DO_SUPERVISOR = [
-  ...DO_ATENDENTE,
+  ...OF_AGENT,
   'conversa.ver_todas',
   'conversa.reabrir',
   'monitoramento.tempo_real.ver',
@@ -180,12 +180,12 @@ const DO_GESTOR = TODAS.filter(
  * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). "Cria e edita
  * chatbots" é `automacao.fluxo.editar`, a permissão que o portal confere para criar.
  */
-export const PAPEIS_DA_CONTA = [
+export const PAPEIS_OF_ACCOUNT = [
   {
     nome: 'admin',
     descricao: 'Edita todos os dados do contrato, gerencia membros, cria e edita chatbots.',
     permissoes: [
-      ...CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
+      ...CATALOG_PERMISSIONS.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
       'automacao.fluxo.editar',
       /* Quem edita o bot publica o bot: o Builder da origem não separa os dois
          gestos. Migração 0034. */
@@ -198,7 +198,7 @@ export const PAPEIS_DA_CONTA = [
     nome: 'member',
     descricao: 'Cria e edita chatbots, mas não gerencia os membros do contrato.',
     permissoes: [
-      ...DA_CONTA_EM_LEITURA,
+      ...OF_ACCOUNT_IN_READ,
       'conta.workspace.escrever',
       'automacao.fluxo.editar',
       'automacao.fluxo.publicar',
@@ -208,7 +208,7 @@ export const PAPEIS_DA_CONTA = [
   {
     nome: 'guest',
     descricao: 'Apenas visualiza informações do contrato.',
-    permissoes: DA_CONTA_EM_LEITURA,
+    permissoes: OF_ACCOUNT_IN_READ,
   },
 ] as const;
 
@@ -229,7 +229,7 @@ export const PAPEIS_DIA_1 = [
     descricao: 'Acompanha fila, atendente e qualidade',
     permissoes: DO_SUPERVISOR,
   },
-  { nome: 'atendente', descricao: 'Atende conversa no Desk', permissoes: DO_ATENDENTE },
+  { nome: 'atendente', descricao: 'Atende conversa no Desk', permissoes: OF_AGENT },
   {
     nome: 'avaliador',
     descricao: 'Avalia atendimento e decide contestação',
@@ -247,7 +247,7 @@ export const PAPEIS_DIA_1 = [
  * do @pipe/ui proíbe — e foi assim que a etiqueta acabou com nove matizes que
  * ninguém escolheu. A tela de Filas lê estes mesmos nomes.
  */
-export const FILAS_EXEMPLO = [
+export const QUEUES_EXAMPLE = [
   { nome: 'Comercial', cor: 'grafico-1', ordem: 1, capacidadePadrao: 8 },
   { nome: 'Closer', cor: 'grafico-5', ordem: 2, capacidadePadrao: 5 },
   { nome: 'Suporte', cor: 'grafico-2', ordem: 3, capacidadePadrao: 10 },
@@ -270,7 +270,7 @@ export const FILAS_EXEMPLO = [
  * por pessoa, e o `where not exists` não toca em quem já tem. Rodar duas vezes
  * não duplica nem troca papel dado à mão.
  */
-export async function garantirPapelDeConta(db: BancoPipe, tenantId: string): Promise<number> {
+export async function garantirRoleOfAccount(db: DatabasePipe, tenantId: string): Promise<number> {
   const resultado = await db.execute(sql`
     insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
     select u.tenant_id, u.id, c.id, 'conta'
@@ -299,25 +299,25 @@ export async function garantirPapelDeConta(db: BancoPipe, tenantId: string): Pro
   return resultado.rowCount ?? 0;
 }
 
-export interface ResultadoSemente {
+export interface ResultSeed {
   tenantId: string;
   papeis: number;
-  permissoes: number;
-  filas: number;
+  permissions: number;
+  queues: number;
   /** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */
-  papeisDeContaDados: number;
+  papeisOfAccountData: number;
 }
 
-export async function semear(
-  db: BancoPipe,
-  dados: { nome?: string; slug?: string } = {},
-): Promise<ResultadoSemente> {
-  const nome = dados.nome ?? 'Pipe — tenant de demonstração';
-  const slug = dados.slug ?? 'demo';
+export async function seed(
+  db: DatabasePipe,
+  data: { nome?: string; slug?: string } = {},
+): Promise<ResultSeed> {
+  const nome = data.nome ?? 'Pipe — tenant de demonstração';
+  const slug = data.slug ?? 'demo';
 
   await db
-    .insert(permissao)
-    .values(CATALOGO_PERMISSOES.map(([codigo, grupo, descricao]) => ({ codigo, grupo, descricao })))
+    .insert(permission)
+    .values(CATALOG_PERMISSIONS.map(([codigo, grupo, description]) => ({ codigo, grupo, description })))
     .onConflictDoNothing();
 
   await db.insert(tenant).values({ nome, slug }).onConflictDoNothing();
@@ -328,30 +328,30 @@ export async function semear(
   const tenantId = registro.id;
 
   const todosOsPapeis = [
-    ...PAPEIS_DA_CONTA.map((p) => ({ ...p, escopo: 'conta' as const })),
+    ...PAPEIS_OF_ACCOUNT.map((p) => ({ ...p, escopo: 'conta' as const })),
     ...PAPEIS_DIA_1.map((p) => ({ ...p, escopo: 'atendimento' as const })),
   ];
-  for (const definicao of todosOsPapeis) {
+  for (const definition of todosOsPapeis) {
     await db
-      .insert(papel)
+      .insert(role)
       .values({
         tenantId,
-        nome: definicao.nome,
-        descricao: definicao.descricao,
+        nome: definition.nome,
+        descricao: definition.descricao,
         deSistema: true,
-        escopo: definicao.escopo,
+        escopo: definition.escopo,
       })
       .onConflictDoNothing();
     const [gravado] = await db
       .select()
-      .from(papel)
-      .where(and(eq(papel.tenantId, tenantId), eq(papel.nome, definicao.nome)))
+      .from(role)
+      .where(and(eq(role.tenantId, tenantId), eq(role.nome, definition.nome)))
       .limit(1);
     if (!gravado) continue;
     await db
-      .insert(papelPermissao)
+      .insert(rolePermission)
       .values(
-        definicao.permissoes.map((codigo) => ({
+        definition.permissoes.map((codigo) => ({
           tenantId,
           papelId: gravado.id,
           permissaoCodigo: codigo,
@@ -361,20 +361,20 @@ export async function semear(
   }
 
   await db
-    .insert(fila)
-    .values(FILAS_EXEMPLO.map((f) => ({ tenantId, ...f })))
+    .insert(queue)
+    .values(QUEUES_EXAMPLE.map((f) => ({ tenantId, ...f })))
     .onConflictDoNothing();
 
   // Por último, depois de os papéis de conta existirem: quem foi semeado por
   // outra rotina antes desta rodada (ou pela 0021 ter passado) ganha o dele.
-  const papeisDeContaDados = await garantirPapelDeConta(db, tenantId);
+  const papeisOfAccountData = await garantirRoleOfAccount(db, tenantId);
 
   return {
     tenantId,
     papeis: todosOsPapeis.length,
-    permissoes: CATALOGO_PERMISSOES.length,
-    filas: FILAS_EXEMPLO.length,
-    papeisDeContaDados,
+    permissions: CATALOG_PERMISSIONS.length,
+    queues: QUEUES_EXAMPLE.length,
+    papeisOfAccountData,
   };
 }
 
@@ -383,18 +383,18 @@ const executadoDiretamente = process.argv[1]
   : false;
 
 if (executadoDiretamente) {
-  const db = criarBanco({ maxConexoes: 1 });
-  semear(db)
+  const db = createDatabase({ maxConnections: 1 });
+  seed(db)
     .then((resultado) => {
       process.stdout.write(
         `semente aplicada: tenant ${resultado.tenantId}, ${resultado.papeis} papéis, ` +
-          `${resultado.permissoes} permissões, ${resultado.filas} filas, ` +
-          `${resultado.papeisDeContaDados} papéis de conta dados a quem não tinha\n`,
+          `${resultado.permissions} permissões, ${resultado.queues} filas, ` +
+          `${resultado.papeisOfAccountData} papéis de conta dados a quem não tinha\n`,
       );
     })
-    .catch((erro: unknown) => {
-      process.stderr.write(`falha ao semear: ${String(erro)}\n`);
+    .catch((error: unknown) => {
+      process.stderr.write(`falha ao semear: ${String(error)}\n`);
       process.exitCode = 1;
     })
-    .finally(() => fecharBanco(db));
+    .finally(() => closeDatabase(db));
 }

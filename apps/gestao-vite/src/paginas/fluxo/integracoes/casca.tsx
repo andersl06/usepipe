@@ -1,12 +1,12 @@
 import { Outlet } from 'react-router-dom';
-import { CascaDoModulo } from '../contato';
+import { ModuloShell } from '../contato';
 import './cabecalho-de-pagina.css';
 import './integracoes.css';
 
-export function CascaDeIntegracoes() {
+export function IntegrationsShell() {
   return (
-    <CascaDoModulo ativo="Integrações">
+    <ModuloShell ativo="Integrações">
       <Outlet />
-    </CascaDoModulo>
+    </ModuloShell>
   );
 }

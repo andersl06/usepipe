@@ -8,11 +8,11 @@
  * de 2 minutos do original (JS não tem timeout de regex).
  */
 
-import type { Contexto, EntradaPreguicosa } from './contexto.js';
-import { obterVariavel } from './contexto.js';
+import type { Context, InboundPreguicosa } from './contexto.js';
+import { obterVariable } from './contexto.js';
 
 /** `ConditionComparison`. A ordem é a do enum original; o primeiro é o padrão. */
-export const COMPARACOES = [
+export const COMPARISONS = [
   'equals',
   'notEquals',
   'contains',
@@ -27,7 +27,7 @@ export const COMPARACOES = [
   'exists',
   'notExists',
 ] as const;
-export type Comparacao = (typeof COMPARACOES)[number];
+export type Comparison = (typeof COMPARISONS)[number];
 
 /** `ConditionOperator`: `or` é o padrão (o primeiro valor do enum). */
 export const OPERADORES = ['or', 'and'] as const;
@@ -38,7 +38,7 @@ export const FONTES = ['input', 'context', 'intent', 'entity'] as const;
 export type Fonte = (typeof FONTES)[number];
 
 /** `Condition`, com as chaves exatamente como vêm no JSON da Blip. */
-export interface CondicaoBlip {
+export interface ConditionBlip {
   source?: string;
   variable?: string;
   entity?: string;
@@ -47,59 +47,59 @@ export interface CondicaoBlip {
   values?: string[] | null;
 }
 
-export class ErroDeValidacao extends Error {
-  constructor(mensagem: string) {
-    super(mensagem);
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
     this.name = 'ErroDeValidacao';
   }
 }
 
 /** O Newtonsoft lê enum sem diferenciar maiúscula; valor desconhecido é erro de leitura. */
 function lerEnum<T extends string>(
-  valor: string | undefined,
+  value: string | undefined,
   lista: readonly T[],
   campo: string,
 ): T {
-  if (valor === undefined || valor === null) return lista[0] as T;
-  const achado = lista.find((v) => v.toLowerCase() === String(valor).toLowerCase());
-  if (!achado) throw new ErroDeValidacao(`Valor '${valor}' inválido para '${campo}'.`);
+  if (value === undefined || value === null) return lista[0] as T;
+  const achado = lista.find((v) => v.toLowerCase() === String(value).toLowerCase());
+  if (!achado) throw new ValidationError(`Valor '${value}' inválido para '${campo}'.`);
   return achado;
 }
 
-export const fonteDe = (c: CondicaoBlip): Fonte => lerEnum(c.source, FONTES, 'source');
-export const comparacaoDe = (c: CondicaoBlip): Comparacao =>
-  lerEnum(c.comparison, COMPARACOES, 'comparison');
-export const operadorDe = (c: CondicaoBlip): OperadorBlip =>
+export const fonteDe = (c: ConditionBlip): Fonte => lerEnum(c.source, FONTES, 'source');
+export const comparisonOf = (c: ConditionBlip): Comparison =>
+  lerEnum(c.comparison, COMPARISONS, 'comparison');
+export const operadorDe = (c: ConditionBlip): OperadorBlip =>
   lerEnum(c.operator, OPERADORES, 'operator');
 
 /** `GetComparisonType`: só `exists` e `notExists` são unárias. */
-export function ehUnaria(comparacao: Comparacao): boolean {
-  return comparacao === 'exists' || comparacao === 'notExists';
+export function ehUnaria(comparison: Comparison): boolean {
+  return comparison === 'exists' || comparison === 'notExists';
 }
 
 /** `Condition.Validate()`. */
-export function validarCondicao(c: CondicaoBlip): void {
+export function validateCondition(c: ConditionBlip): void {
   const fonte = fonteDe(c);
-  const comparacao = comparacaoDe(c);
+  const comparison = comparisonOf(c);
   operadorDe(c);
   if (fonte === 'context' && !c.variable?.trim()) {
-    throw new ErroDeValidacao(
+    throw new ValidationError(
       'O nome da variável é obrigatório quando a fonte da comparação é o contexto.',
     );
   }
   if (fonte === 'entity' && !c.entity?.trim()) {
-    throw new ErroDeValidacao(
+    throw new ValidationError(
       'O nome da entidade é obrigatório quando a fonte da comparação é entidade.',
     );
   }
-  const temValores = !!c.values && c.values.length > 0;
-  if (ehUnaria(comparacao) && temValores) {
-    throw new ErroDeValidacao(
+  const temValues = !!c.values && c.values.length > 0;
+  if (ehUnaria(comparison) && temValues) {
+    throw new ValidationError(
       'A condição não leva valores quando a comparação é exists ou notExists.',
     );
   }
-  if (!ehUnaria(comparacao) && !temValores) {
-    throw new ErroDeValidacao(
+  if (!ehUnaria(comparison) && !temValues) {
+    throw new ValidationError(
       'A condição precisa de valores quando a comparação não é exists nem notExists.',
     );
   }
@@ -160,27 +160,27 @@ export function distanciaDeLevenshtein(s: string, t: string): number {
 }
 
 /** `ToUnaryDelegate`. */
-export function delegadoUnario(comparacao: Comparacao): (v: string | null) => boolean {
-  switch (comparacao) {
+export function delegadoUnario(comparison: Comparison): (v: string | null) => boolean {
+  switch (comparison) {
     case 'exists':
       return (v) => v !== null && v !== '';
     case 'notExists':
       return (v) => v === null || v === '';
     default:
-      throw new ErroDeValidacao(`'${comparacao}' não é comparação unária.`);
+      throw new ValidationError(`'${comparison}' não é comparação unária.`);
   }
 }
 
 /** `ToBinaryDelegate`. */
 export function delegadoBinario(
-  comparacao: Comparacao,
+  comparison: Comparison,
 ): (v1: string | null, v2: string | null) => boolean {
   const numeros = (v1: string | null, v2: string | null): [number, number] | null => {
     const n1 = paraDecimal(v1);
     const n2 = paraDecimal(v2);
     return n1 === null || n2 === null ? null : [n1, n2];
   };
-  switch (comparacao) {
+  switch (comparison) {
     case 'equals':
       return (v1, v2) => comparaIgual(v1, v2);
     case 'notEquals':
@@ -222,54 +222,54 @@ export function delegadoBinario(
         return n !== null && n[0] <= n[1];
       };
     default:
-      throw new ErroDeValidacao(`'${comparacao}' não é comparação binária.`);
+      throw new ValidationError(`'${comparison}' não é comparação binária.`);
   }
 }
 
 /** `Condition.EvaluateConditionAsync`. */
-export async function avaliarCondicaoBlip(
-  condicao: CondicaoBlip,
-  entrada: EntradaPreguicosa,
-  contexto: Contexto,
+export async function avaliarConditionBlip(
+  condition: ConditionBlip,
+  inbound: InboundPreguicosa,
+  context: Context,
 ): Promise<boolean> {
-  let valor: string | null;
-  switch (fonteDe(condicao)) {
+  let value: string | null;
+  switch (fonteDe(condition)) {
     case 'input':
-      valor = entrada.conteudoSerializado;
+      value = inbound.serializedContent;
       break;
     case 'context':
-      valor = await obterVariavel(contexto, condicao.variable ?? '');
+      value = await obterVariable(context, condition.variable ?? '');
       break;
     case 'intent':
       // Sem provedor de IA no Pipe: é o mesmo que a Blip devolve quando a análise falha.
-      valor = entrada.intencao?.name ?? null;
+      value = inbound.intent?.name ?? null;
       break;
     case 'entity':
-      valor =
-        entrada.entidades?.find((e) => e.name?.toLowerCase() === condicao.entity?.toLowerCase())
+      value =
+        inbound.entities?.find((e) => e.name?.toLowerCase() === condition.entity?.toLowerCase())
           ?.value ?? null;
       break;
   }
 
-  const comparacao = comparacaoDe(condicao);
-  if (ehUnaria(comparacao)) return delegadoUnario(comparacao)(valor);
+  const comparison = comparisonOf(condition);
+  if (ehUnaria(comparison)) return delegadoUnario(comparison)(value);
 
-  const binaria = delegadoBinario(comparacao);
-  const valores = condicao.values ?? [];
-  if (operadorDe(condicao) === 'and') return valores.every((v) => binaria(valor, v));
+  const binaria = delegadoBinario(comparison);
+  const values = condition.values ?? [];
+  if (operadorDe(condition) === 'and') return values.every((v) => binaria(value, v));
   // O original trata `notEquals` com `or` como "diferente de todos", não "de algum".
-  if (comparacao === 'notEquals') return !valores.some((v) => comparaIgual(valor, v));
-  return valores.some((v) => binaria(valor, v));
+  if (comparison === 'notEquals') return !values.some((v) => comparaIgual(value, v));
+  return values.some((v) => binaria(value, v));
 }
 
 /** `ConditionsExtensions.EvaluateConditionsAsync`: todas, em ordem, parando na primeira falsa. */
-export async function avaliarCondicoes(
-  condicoes: readonly CondicaoBlip[],
-  entrada: EntradaPreguicosa,
-  contexto: Contexto,
+export async function avaliarConditions(
+  conditions: readonly ConditionBlip[],
+  inbound: InboundPreguicosa,
+  context: Context,
 ): Promise<boolean> {
-  for (const condicao of condicoes) {
-    if (!(await avaliarCondicaoBlip(condicao, entrada, contexto))) return false;
+  for (const condition of conditions) {
+    if (!(await avaliarConditionBlip(condition, inbound, context))) return false;
   }
   return true;
 }

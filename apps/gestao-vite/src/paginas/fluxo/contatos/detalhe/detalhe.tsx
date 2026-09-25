@@ -1,41 +1,41 @@
 import Link from '../../../../componentes/link';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { ErroDaApi } from '../../../../lib/api';
-import { useLeitura } from '../../../../lib/consulta';
-import type { DetalheDoContato } from '@pipe/contracts';
+import { ApiError } from '../../../../lib/api';
+import { useRead } from '../../../../lib/consulta';
+import type { DetalheOfContact } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';
-import { baseDoContato, useContato } from '../../contato';
+import { contactBase, useContact } from '../../contato';
 import {
-  carimboDaMensagem,
+  messageCarimbo,
   diaEHora,
-  ladoDaMensagem,
+  messageLado,
   rotuloDoStatus,
   ticketAtivo,
 } from '../regras';
-import { InformacoesContato } from './editar';
+import { InformationContact } from './editar';
 
 /* Estrutura do template `details-container` da origem (portal.js, estado
    `auth.application.detail.users.user`): `.history-header` (voltar, avatar 56,
    nome fs-24, recarregar, `.separator`), `.tickets-list-view` com o cartão
    `.user-info-card` (40%) e `.tickets-history` (60%, `expandable-list`), e o
    painel fixo `#user-detail-sidebar` (445px) com `.thread-header` e `.messages`. */
-export function DetalheContatoDoBot() {
-  const { contato: bot } = useContato();
+export function BotDetalheContact() {
+  const { contact: bot } = useContact();
   const id = bot.id;
-  const base = baseDoContato(bot.tipo, id);
-  const { contatoId = '' } = useParams();
+  const base = contactBase(bot.tipo, id);
+  const { contactId = '' } = useParams();
   const [parametros] = useSearchParams();
   const ticketId = parametros.get('ticketId') ?? undefined;
-  const leitura = useLeitura<DetalheDoContato>(
-    `/v1/gestao/fluxos/${id}/contatos/${contatoId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,
+  const read = useRead<DetalheOfContact>(
+    `/v1/gestao/fluxos/${id}/contatos/${contactId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,
   );
-  if (leitura.error instanceof ErroDaApi && leitura.error.status === 404) return <NaoEncontrado />;
-  if (!leitura.data) return null;
-  const dados = leitura.data;
-  const nome = dados.pessoa.nome ?? '-';
-  const ativo = ticketAtivo(dados.conversas, ticketId);
-  const historico = [...dados.historico].reverse();
+  if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
+  if (!read.data) return null;
+  const data = read.data;
+  const nome = data.pessoa.nome ?? '-';
+  const ativo = ticketAtivo(data.conversations, ticketId);
+  const history = [...data.history].reverse();
   return (
     <div className="ct-detalhes">
       <div className="ct-detalhes-conteudo">
@@ -45,8 +45,8 @@ export function DetalheContatoDoBot() {
               <IconePortal nome="esquerda" tamanho={32} />
             </Link>
             <span className="ct-avatar ct-avatar-detalhe">
-              {dados.pessoa.avatarUrl ? (
-                <img src={dados.pessoa.avatarUrl} alt="" width={56} height={56} />
+              {data.pessoa.avatarUrl ? (
+                <img src={data.pessoa.avatarUrl} alt="" width={56} height={56} />
               ) : (
                 <IconePortal nome="avatar" tamanho={32} />
               )}
@@ -66,20 +66,20 @@ export function DetalheContatoDoBot() {
           <div className="ct-separador" />
         </header>
         <div className="ct-tickets-lista">
-          <InformacoesContato
-            contatoId={dados.pessoa.id}
-            nome={dados.pessoa.nome}
-            email={dados.pessoa.email}
-            telefone={dados.pessoa.telefone}
-            documento={dados.pessoa.documento}
-            identidade={dados.identidade}
-            atributos={(dados.pessoa.atributos ?? {}) as Record<string, unknown>}
+          <InformationContact
+            contactId={data.pessoa.id}
+            nome={data.pessoa.nome}
+            email={data.pessoa.email}
+            telefone={data.pessoa.telefone}
+            document={data.pessoa.document}
+            identity={data.identity}
+            atributos={(data.pessoa.atributos ?? {}) as Record<string, unknown>}
           />
           <section className="ct-tickets">
             <span className="ct-tickets-titulo">Tickets</span>
-            {dados.conversas.length > 0 ? (
+            {data.conversations.length > 0 ? (
               <div className="ct-expansivel">
-                {dados.conversas.map((ticket, indice) => {
+                {data.conversations.map((ticket, indice) => {
                   const { dia, hora } = diaEHora(new Date(ticket.criadaEm));
                   return (
                     <details
@@ -100,7 +100,7 @@ export function DetalheContatoDoBot() {
                           <span className="ct-ticket-acoes">
                             <Link
                               className="ct-botao-icone ct-botao-icone--curto"
-                              href={`${base}/contatos/${contatoId}?ticketId=${ticket.id}`}
+                              href={`${base}/contatos/${contactId}?ticketId=${ticket.id}`}
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >
@@ -119,15 +119,15 @@ export function DetalheContatoDoBot() {
                       <ul className="ct-ticket-corpo">
                         <li>
                           <span>Atendente</span>
-                          <span>{ticket.atendente ?? '-'}</span>
+                          <span>{ticket.agent ?? '-'}</span>
                         </li>
                         <li>
                           <span>Email do atendente</span>
-                          <span>{ticket.atendenteEmail ?? '-'}</span>
+                          <span>{ticket.agentEmail ?? '-'}</span>
                         </li>
                         <li>
                           <span>Fila</span>
-                          <span>{ticket.fila ?? '-'}</span>
+                          <span>{ticket.queue ?? '-'}</span>
                         </li>
                         <li>
                           <span>Tags</span>
@@ -142,7 +142,7 @@ export function DetalheContatoDoBot() {
                           <span>
                             {rotuloDoStatus(ticket.estado)}
                             <small>
-                              ({carimboDaMensagem(new Date(ticket.encerradaEm ?? ticket.criadaEm))})
+                              ({messageCarimbo(new Date(ticket.encerradaEm ?? ticket.criadaEm))})
                             </small>
                           </span>
                         </li>
@@ -160,12 +160,12 @@ export function DetalheContatoDoBot() {
       <aside className="ct-historico">
         <span className="ct-historico-titulo">Histórico de Conversa</span>
         <div className="ct-mensagens">
-          {historico.map((mensagem) => {
-            const lado = ladoDaMensagem(mensagem.direcao);
+          {history.map((message) => {
+            const lado = messageLado(message.direction);
             return (
               <div
                 className={`ct-mensagem ct-mensagem--${lado}`}
-                key={`${mensagem.id}-${mensagem.criadaEm}`}
+                key={`${message.id}-${message.criadaEm}`}
               >
                 {lado === 'esquerda' ? (
                   <span className="ct-mensagem-foto">
@@ -173,15 +173,15 @@ export function DetalheContatoDoBot() {
                   </span>
                 ) : null}
                 <div className="ct-mensagem-container">
-                  <div className="ct-balao">{mensagem.texto ?? `[${mensagem.tipo}]`}</div>
+                  <div className="ct-balao">{message.texto ?? `[${message.tipo}]`}</div>
                   <div className="ct-notificacao">
-                    {carimboDaMensagem(new Date(mensagem.criadaEm))}
+                    {messageCarimbo(new Date(message.criadaEm))}
                   </div>
                 </div>
               </div>
             );
           })}
-          {historico.length === 0 ? (
+          {history.length === 0 ? (
             <div className="ct-sem-mensagens">Ainda não há histórico de conversa ):</div>
           ) : null}
         </div>

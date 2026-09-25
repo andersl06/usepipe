@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Selecao } from './selecao';
+import { Selection } from './selecao';
 
 /**
  * Paginação do "Monitoramento detalhado" — o rodapé deles, medido na
@@ -10,50 +10,50 @@ import { Selecao } from './selecao';
  * abertas numa transação só (`useLeitura`), então recortar a página aqui não
  * custa uma ida a mais ao servidor.
  */
-const OPCOES_POR_PAGINA = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+const OPTIONS_BY_PAGE = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
-export interface EstadoPaginacao {
-  pagina: number;
-  totalPaginas: number;
-  porPagina: number;
+export interface StatePagination {
+  page: number;
+  totalPages: number;
+  byPage: number;
   inicio: number;
   fim: number;
   total: number;
-  setPorPagina: (n: number) => void;
-  setPagina: (n: number) => void;
+  setByPage: (n: number) => void;
+  setPage: (n: number) => void;
 }
 
-export function usePagina<T>(
+export function usePage<T>(
   linhas: readonly T[],
-  porPaginaInicial: (typeof OPCOES_POR_PAGINA)[number] = 5,
-): EstadoPaginacao & { visiveis: readonly T[] } {
-  const [porPagina, setPorPaginaBruto] = useState<number>(porPaginaInicial);
-  const [paginaBruta, setPagina] = useState(1);
+  byPageInitial: (typeof OPTIONS_BY_PAGE)[number] = 5,
+): StatePagination & { visiveis: readonly T[] } {
+  const [byPage, setByPageRaw] = useState<number>(byPageInitial);
+  const [pageBruta, setPage] = useState(1);
   const total = linhas.length;
-  const totalPaginas = Math.max(1, Math.ceil(total / porPagina));
-  const pagina = Math.min(paginaBruta, totalPaginas);
-  const inicio = total === 0 ? 0 : (pagina - 1) * porPagina;
-  const fim = Math.min(inicio + porPagina, total);
+  const totalPages = Math.max(1, Math.ceil(total / byPage));
+  const page = Math.min(pageBruta, totalPages);
+  const inicio = total === 0 ? 0 : (page - 1) * byPage;
+  const fim = Math.min(inicio + byPage, total);
   const visiveis = useMemo(() => linhas.slice(inicio, fim), [linhas, inicio, fim]);
 
   return {
     visiveis,
-    pagina,
-    totalPaginas,
-    porPagina,
+    page,
+    totalPages,
+    byPage,
     inicio,
     fim,
     total,
-    setPorPagina: (n: number) => {
-      setPorPaginaBruto(n);
-      setPagina(1);
+    setByPage: (n: number) => {
+      setByPageRaw(n);
+      setPage(1);
     },
-    setPagina,
+    setPage,
   };
 }
 
-export function Paginacao({ estado, grade }: { estado: EstadoPaginacao; grade?: string }) {
-  const { pagina, totalPaginas, porPagina, inicio, fim, total, setPorPagina, setPagina } = estado;
+export function Pagination({ state, grade }: { state: StatePagination; grade?: string }) {
+  const { page, totalPages, byPage, inicio, fim, total, setByPage, setPage } = state;
   if (total === 0) return null;
 
   return (
@@ -63,17 +63,17 @@ export function Paginacao({ estado, grade }: { estado: EstadoPaginacao; grade?: 
     >
       <label className="pg-por-pagina">
         Resultados por página
-        <Selecao
-          value={porPagina}
-          onChange={(e) => setPorPagina(Number(e.currentTarget.value))}
+        <Selection
+          value={byPage}
+          onChange={(e) => setByPage(Number(e.currentTarget.value))}
           aria-label="Resultados por página"
         >
-          {OPCOES_POR_PAGINA.map((n) => (
+          {OPTIONS_BY_PAGE.map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
-        </Selecao>
+        </Selection>
       </label>
 
       <div className="pg-direita">
@@ -85,47 +85,47 @@ export function Paginacao({ estado, grade }: { estado: EstadoPaginacao; grade?: 
         <button
           type="button"
           className="iconbtn"
-          disabled={pagina <= 1}
-          onClick={() => setPagina(1)}
+          disabled={page <= 1}
+          onClick={() => setPage(1)}
           title="Primeira página"
           aria-label="Primeira página"
         >
-          <IconePaginacao tipo="primeira" />
+          <IconePagination tipo="primeira" />
         </button>
         <button
           type="button"
           className="iconbtn"
-          disabled={pagina <= 1}
-          onClick={() => setPagina(pagina - 1)}
+          disabled={page <= 1}
+          onClick={() => setPage(page - 1)}
           title="Página anterior"
           aria-label="Página anterior"
         >
-          <IconePaginacao tipo="anterior" />
+          <IconePagination tipo="anterior" />
         </button>
         {/* O número da página atual entre as setas — `data-testid=
             "current-page-test"` no rodapé deles. */}
         <span className="pg-atual" aria-current="page" data-testid="current-page-test">
-          {pagina}
+          {page}
         </span>
         <button
           type="button"
           className="iconbtn"
-          disabled={pagina >= totalPaginas}
-          onClick={() => setPagina(pagina + 1)}
+          disabled={page >= totalPages}
+          onClick={() => setPage(page + 1)}
           title="Próxima página"
           aria-label="Próxima página"
         >
-          <IconePaginacao tipo="proxima" />
+          <IconePagination tipo="proxima" />
         </button>
         <button
           type="button"
           className="iconbtn"
-          disabled={pagina >= totalPaginas}
-          onClick={() => setPagina(totalPaginas)}
+          disabled={page >= totalPages}
+          onClick={() => setPage(totalPages)}
           title="Última página"
           aria-label="Última página"
         >
-          <IconePaginacao tipo="ultima" />
+          <IconePagination tipo="ultima" />
         </button>
         </div>
       </div>
@@ -133,7 +133,7 @@ export function Paginacao({ estado, grade }: { estado: EstadoPaginacao; grade?: 
   );
 }
 
-function IconePaginacao({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
+function IconePagination({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
   const esquerda = tipo === 'primeira' || tipo === 'anterior';
   const dupla = tipo === 'primeira' || tipo === 'ultima';
   return (

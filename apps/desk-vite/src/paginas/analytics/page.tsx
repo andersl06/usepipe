@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
-import type { RespostaDasMetricas } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
+import type { ResponseOfMetrics } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
 import { useEu } from '../../contexto/sessao';
 import { atualizarLeituras } from '../../lib/acoes';
 import { IconeDesk } from '../../componentes/icones-desk';
@@ -11,7 +11,7 @@ import {
   diaCurto,
   intervaloDoAtalho,
   intervaloPersonalizado,
-  tempoMedio,
+  timeMedio,
   type Atalho,
 } from '../../lib/periodo';
 
@@ -31,7 +31,7 @@ import {
  * atendente. "Transferidos" e "Perdidos" chegam `null` (o domínio ainda não
  * guarda) e aparecem como traço, não como zero.
  */
-export function PaginaMetricas() {
+export function PageMetrics() {
   const eu = useEu();
   const [atalho, setAtalho] = useState<Atalho>('hoje');
   const [de, setDe] = useState('');
@@ -46,32 +46,32 @@ export function PaginaMetricas() {
     return intervaloDoAtalho(atalho, agora);
   }, [atalho, de, ate, agora]);
 
-  const leitura = useLeitura<RespostaDasMetricas>(
+  const read = useRead<ResponseOfMetrics>(
     intervalo
       ? `/v1/desk/metricas?inicio=${encodeURIComponent(intervalo.inicio.toISOString())}&fim=${encodeURIComponent(intervalo.fim.toISOString())}`
       : null,
   );
-  const m = leitura.data?.metricas ?? null;
+  const m = read.data?.metrics ?? null;
   const serie = m?.serie ?? [];
   const maximo = Math.max(1, ...serie.map((d) => Math.max(d.abertos, d.fechados)));
 
-  const cartoes: { rotulo: string; valor: number | null; cor: string }[] = [
-    { rotulo: 'Abertos', valor: m?.situacoes.abertos ?? null, cor: 'var(--p-grafico-1)' },
-    { rotulo: 'Transferidos', valor: m?.situacoes.transferidos ?? null, cor: 'var(--p-grafico-5)' },
-    { rotulo: 'Fechados', valor: m?.situacoes.fechados ?? null, cor: 'var(--p-grafico-2)' },
-    { rotulo: 'Abandonados', valor: m?.situacoes.abandonados ?? null, cor: 'var(--p-grafico-3)' },
-    { rotulo: 'Finalizados', valor: m?.situacoes.finalizados ?? null, cor: 'var(--p-grafico-4)' },
-    { rotulo: 'Perdidos', valor: m?.situacoes.perdidos ?? null, cor: 'var(--p-erro-conteudo)' },
+  const cards: { rotulo: string; value: number | null; cor: string }[] = [
+    { rotulo: 'Abertos', value: m?.situations.abertos ?? null, cor: 'var(--p-grafico-1)' },
+    { rotulo: 'Transferidos', value: m?.situations.transferidos ?? null, cor: 'var(--p-grafico-5)' },
+    { rotulo: 'Fechados', value: m?.situations.fechados ?? null, cor: 'var(--p-grafico-2)' },
+    { rotulo: 'Abandonados', value: m?.situations.abandonados ?? null, cor: 'var(--p-grafico-3)' },
+    { rotulo: 'Finalizados', value: m?.situations.finalizados ?? null, cor: 'var(--p-grafico-4)' },
+    { rotulo: 'Perdidos', value: m?.situations.perdidos ?? null, cor: 'var(--p-erro-conteudo)' },
   ];
-  const total = cartoes.reduce((s, c) => s + (c.valor ?? 0), 0);
+  const total = cards.reduce((s, c) => s + (c.value ?? 0), 0);
 
   return (
     <div className="dk-metricas">
       <div className="dk-metricas-topo">
         <IconeDesk nome="seta-esquerda" />
-        <Avatar nome={eu.usuario.nome} tamanho={56} />
+        <Avatar nome={eu.user.nome} tamanho={56} />
         <div>
-          <div className="dk-metricas-titulo">Minhas métricas: {eu.usuario.nome}</div>
+          <div className="dk-metricas-titulo">Minhas métricas: {eu.user.nome}</div>
           <div className="dk-metricas-sub">
             Confira todas as suas métricas de atendimento nesse painel
           </div>
@@ -111,11 +111,11 @@ export function PaginaMetricas() {
         <div className="dk-metricas-principal">
           <h3>Visão Geral de Tickets</h3>
           <div className="dk-kpis">
-            <Rosca cartoes={cartoes} total={total} />
+            <Rosca cards={cards} total={total} />
             <div className="dk-kpi-grade">
-              {cartoes.map((c) => (
+              {cards.map((c) => (
                 <div key={c.rotulo} className="dk-kpi">
-                  <b>{c.valor === null ? '-' : c.valor}</b>
+                  <b>{c.value === null ? '-' : c.value}</b>
                   <span>
                     <i className="dk-ponto" style={{ background: c.cor }} />
                     {c.rotulo}
@@ -162,15 +162,15 @@ export function PaginaMetricas() {
           <div className="dk-medias">
             <div>
               <span>Primeira Resposta</span>
-              <b>{tempoMedio(m?.tempos.primeiraRespostaSeg ?? null)}</b>
+              <b>{timeMedio(m?.tempos.firstResponseSeg ?? null)}</b>
             </div>
             <div>
               <span>Espera na fila</span>
-              <b>{tempoMedio(m?.tempos.esperaNaFilaSeg ?? null)}</b>
+              <b>{timeMedio(m?.tempos.waitInQueueSeg ?? null)}</b>
             </div>
             <div>
               <span>Espera total</span>
-              <b>{tempoMedio(m?.tempos.esperaTotalSeg ?? null)}</b>
+              <b>{timeMedio(m?.tempos.esperaTotalSeg ?? null)}</b>
             </div>
           </div>
         </div>
@@ -181,13 +181,13 @@ export function PaginaMetricas() {
 
 /** A rosca de seis fatias da referência: 118px, traço 5.5 numa caixa de 42. */
 function Rosca({
-  cartoes,
+  cards,
   total,
 }: {
-  cartoes: { valor: number | null; cor: string }[];
+  cards: { value: number | null; cor: string }[];
   total: number;
 }) {
-  let deslocamento = 0;
+  let offset = 0;
   const raio = 16;
   const circunferencia = 2 * Math.PI * raio;
   return (
@@ -199,22 +199,22 @@ function Rosca({
       style={{ flex: '0 0 118px' }}
     >
       <g fill="none" strokeWidth="5.5" strokeLinecap="round">
-        {cartoes.map((c) => {
+        {cards.map((c) => {
           const fatia =
-            total > 0 ? ((c.valor ?? 0) / total) * circunferencia : circunferencia / cartoes.length;
+            total > 0 ? ((c.value ?? 0) / total) * circunferencia : circunferencia / cards.length;
           const el = (
             <circle
-              key={c.cor + deslocamento}
+              key={c.cor + offset}
               cx="21"
               cy="21"
               r={raio}
               stroke={c.cor}
               strokeDasharray={`${Math.max(0, fatia - 1)} ${circunferencia}`}
-              strokeDashoffset={-deslocamento}
+              strokeDashoffset={-offset}
               transform="rotate(-90 21 21)"
             />
           );
-          deslocamento += fatia;
+          offset += fatia;
           return el;
         })}
       </g>

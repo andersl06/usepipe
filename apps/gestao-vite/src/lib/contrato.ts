@@ -9,7 +9,7 @@
  * A régua da tela é `referencias-blip/pesquisa/blip-painel-do-contrato.md`.
  */
 
-export interface ResumoDoContrato {
+export interface ContractSummary {
   id: string;
   nome: string;
   slug: string;
@@ -19,9 +19,9 @@ export interface ResumoDoContrato {
   /** O fuso da conta: é nele que a data de criação é escrita, não no do servidor. */
   fuso: string;
   /** Os "Chatbots" do cartão deles. Aqui é fluxo e roteador, fora os arquivados. */
-  fluxos: number;
+  flows: number;
   /** Os "Membros". Só conta quem ainda tem acesso. */
-  membros: number;
+  members: number;
 }
 
 /**
@@ -29,12 +29,12 @@ export interface ResumoDoContrato {
  * `nome` é o `roleId` da origem — `admin`, `member`, `guest` — e é por ele que a
  * tela acha o rótulo, a descrição e o ícone (`PAPEIS_DA_ORIGEM`).
  */
-export interface PapelDaConta {
+export interface AccountRole {
   id: string;
   nome: string;
 }
 
-export interface MembroDoContrato {
+export interface ContractMember {
   id: string;
   /**
    * De qual tabela veio a linha. Na origem há uma só (`tenant-user`), e o
@@ -46,8 +46,8 @@ export interface MembroDoContrato {
   nome: string;
   email: string;
   avatarUrl: string | null;
-  papelId: string | null;
-  papelNome: string | null;
+  roleId: string | null;
+  roleName: string | null;
 }
 
-export type Gravacao = { ok: true } | { ok: false; erro: string };
+export type Recording = { ok: true } | { ok: false; error: string };

@@ -30,7 +30,7 @@ export interface NormalizadorDeTelefone {
   /** `variants`: as formas em que o contato pode já estar guardado, a canônica primeiro. */
   variantes(waid: string): string[];
   /** `contact_candidates`: a forma recebida primeiro, para o casamento exato ganhar. */
-  candidatosDeContato(waid: string): string[];
+  contactCandidatos(waid: string): string[];
 }
 
 const TAMANHO_DO_DDI = 2;
@@ -57,7 +57,7 @@ export class NormalizadorBrasil implements NormalizadorDeTelefone {
     return [...new Set(antigo ? [normalizado, antigo] : [normalizado])];
   }
 
-  candidatosDeContato(waid: string): string[] {
+  contactCandidatos(waid: string): string[] {
     return [...new Set([waid, ...this.variantes(waid)])];
   }
 
@@ -83,7 +83,7 @@ function normalizadorDoPais(digitos: string): NormalizadorDeTelefone | null {
 /** `phone_number_candidates`: sem normalizador para o país, só a própria forma. */
 export function candidatosDoTelefone(digitos: string): string[] {
   const normalizador = normalizadorDoPais(digitos);
-  return normalizador ? normalizador.candidatosDeContato(digitos) : [digitos];
+  return normalizador ? normalizador.contactCandidatos(digitos) : [digitos];
 }
 
 export function normalizarWaid(digitos: string): string {
@@ -92,7 +92,7 @@ export function normalizarWaid(digitos: string): string {
 }
 
 /** O formato que o `Contact` do Chatwoot valida: `/\A\+[1-9]\d{1,14}\z/`. */
-export const FORMATO_E164 = /^\+[1-9]\d{1,14}$/;
+export const FORMAT_E164 = /^\+[1-9]\d{1,14}$/;
 
 /**
  * Telefone como gente digita → E.164 canônico. Acréscimo do Pipe.

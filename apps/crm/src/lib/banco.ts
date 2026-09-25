@@ -2,10 +2,10 @@ import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { sql } from 'drizzle-orm';
-import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
+import { createDatabase, comTenant, type Ator, type DatabasePipe, type TransactionPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 import type { Eu } from '@pipe/contracts';
-import { COOKIE_SESSAO, buscarEu } from './sessao';
+import { COOKIE_SESSION, buscarEu } from './sessao';
 
 /**
  * Conexão única do Pipe CRM. Mesma camada da Gestão, de propósito: as três telas
@@ -23,15 +23,15 @@ import { COOKIE_SESSAO, buscarEu } from './sessao';
  * O resultado não é erro: é consulta rodando sem tenant. Aqui é tudo em série.
  */
 const globalComPool = globalThis as unknown as {
-  __pipeCrmBanco?: BancoPipe;
+  pipeCrmDatabase?: DatabasePipe;
 };
 
-export function banco(): BancoPipe {
-  if (!globalComPool.__pipeCrmBanco) {
+export function database(): DatabasePipe {
+  if (!globalComPool.pipeCrmDatabase) {
     const url = process.env['DATABASE_URL_APP'] ?? process.env['DATABASE_URL'];
-    globalComPool.__pipeCrmBanco = criarBanco({ url, maxConexoes: 10 });
+    globalComPool.pipeCrmDatabase = createDatabase({ url, maxConnections: 10 });
   }
-  return globalComPool.__pipeCrmBanco;
+  return globalComPool.pipeCrmDatabase;
 }
 
 /**
@@ -42,9 +42,9 @@ export function banco(): BancoPipe {
  * por requisição, nunca entre requisições.
  */
 const carregarEu = cache(async (): Promise<Eu | null> => {
-  const cookie = (await cookies()).get(COOKIE_SESSAO);
+  const cookie = (await cookies()).get(COOKIE_SESSION);
   if (!cookie) return null;
-  return buscarEu(`${COOKIE_SESSAO}=${cookie.value}`);
+  return buscarEu(`${COOKIE_SESSION}=${cookie.value}`);
 });
 
 /** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */
@@ -70,8 +70,8 @@ export async function tenantId(): Promise<string> {
 }
 
 /** Açúcar: abre a transação já com o tenant desta instância fixado. */
-export async function consultar<T>(fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> {
-  return comTenant(banco(), await tenantId(), fn);
+export async function consultar<T>(fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
+  return comTenant(database(), await tenantId(), fn);
 }
 
 /**
@@ -99,10 +99,10 @@ export const fusoDoTenant = cache(async (): Promise<string> => {
  */
 export async function atorDoCrm(): Promise<Ator> {
   const eu = await exigirEu();
-  return { tipo: 'usuario', id: eu.usuario.id };
+  return { tipo: 'usuario', id: eu.user.id };
 }
 
-export interface Janela {
+export interface Window {
   inicio: Date;
   fim: Date;
 }
@@ -111,7 +111,7 @@ export interface Janela {
  * Mês corrente no fuso do tenant. A conta é do Postgres porque é ele que conhece o
  * banco de fusos — reimplementar horário de verão em JavaScript custa um dia inteiro.
  */
-export async function janelaDoMes(fuso: string, mesesAtras = 0): Promise<Janela> {
+export async function mesWindow(fuso: string, mesesAtras = 0): Promise<Window> {
   return consultar(async (tx) => {
     const base = sql`date_trunc('month', now() at time zone ${fuso}) - make_interval(months => ${mesesAtras})`;
     const r = await tx.execute<{ inicio: unknown; fim: unknown }>(
@@ -128,16 +128,16 @@ export async function janelaDoMes(fuso: string, mesesAtras = 0): Promise<Janela>
  * `timestamptz` volta como **texto** dentro do bundle do Next (armadilha do README).
  * Toda data que sai de consulta passa por aqui antes de virar `Date` na tela.
  */
-export function paraData(valor: unknown): Date | null {
-  if (valor === null || valor === undefined) return null;
-  if (valor instanceof Date) return valor;
-  const d = new Date(String(valor));
+export function paraData(value: unknown): Date | null {
+  if (value === null || value === undefined) return null;
+  if (value instanceof Date) return value;
+  const d = new Date(String(value));
   return Number.isNaN(d.getTime()) ? null : d;
 }
 
 /** `numeric` também volta como texto, e dinheiro nunca deve virar float sem querer. */
-export function paraNumero(valor: unknown): number | null {
-  if (valor === null || valor === undefined) return null;
-  const n = typeof valor === 'number' ? valor : Number(String(valor));
+export function paraNumero(value: unknown): number | null {
+  if (value === null || value === undefined) return null;
+  const n = typeof value === 'number' ? value : Number(String(value));
   return Number.isFinite(n) ? n : null;
 }

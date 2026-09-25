@@ -3,10 +3,10 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import {
-  COOKIE_SESSAO,
+  COOKIE_SESSION,
   caminhoInterno,
-  descobrirEntrada,
-  encerrarSessao,
+  descobrirInbound,
+  encerrarSession,
   urlNaApi,
 } from '../../lib/sessao';
 
@@ -22,20 +22,20 @@ import {
  */
 
 /** O e-mail decide o caminho: IdP da empresa, ou o Google. */
-export async function continuar(dados: FormData): Promise<void> {
-  const email = String(dados.get('email') ?? '').trim();
-  const destino = caminhoInterno(String(dados.get('destino') ?? ''));
-  const entrada = await descobrirEntrada(email);
+export async function continuar(data: FormData): Promise<void> {
+  const email = String(data.get('email') ?? '').trim();
+  const destination = caminhoInterno(String(data.get('destino') ?? ''));
+  const inbound = await descobrirInbound(email);
 
-  if (entrada.metodo === 'sso' && entrada.irPara) {
-    redirect(urlNaApi(entrada.irPara, destino));
+  if (inbound.metodo === 'sso' && inbound.irPara) {
+    redirect(urlNaApi(inbound.irPara, destination));
   }
 
   // Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já
   // digitado. Mandar de volta em branco é fazer quem errou o domínio começar
   // do zero.
-  const volta = new URLSearchParams({ metodo: entrada.metodo, email });
-  if (destino !== '/') volta.set('destino', destino);
+  const volta = new URLSearchParams({ metodo: inbound.metodo, email });
+  if (destination !== '/') volta.set('destino', destination);
   redirect(`/entrar?${volta.toString()}`);
 }
 
@@ -49,11 +49,11 @@ export async function continuar(dados: FormData): Promise<void> {
  */
 export async function sair(): Promise<void> {
   const pote = await cookies();
-  const cookie = pote.get(COOKIE_SESSAO);
-  if (cookie) await encerrarSessao(`${COOKIE_SESSAO}=${cookie.value}`);
+  const cookie = pote.get(COOKIE_SESSION);
+  if (cookie) await encerrarSession(`${COOKIE_SESSION}=${cookie.value}`);
 
   pote.set({
-    name: COOKIE_SESSAO,
+    name: COOKIE_SESSION,
     value: '',
     path: '/',
     maxAge: 0,

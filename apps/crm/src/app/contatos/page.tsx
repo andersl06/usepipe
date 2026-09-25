@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Campo, Etiqueta, EstadoVazio, Tabela, type Coluna } from '@pipe/ui';
+import { Campo, Etiqueta, EmptyState, Tabela, type Column } from '@pipe/ui';
 import { fusoDoTenant } from '../../lib/banco';
-import { listarContatos, LIMITE_LISTA, type LinhaContato } from '../../lib/contatos';
+import { listContacts, LIMITE_LISTA, type LinhaContact } from '../../lib/contatos';
 import { desde, numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -15,23 +15,23 @@ export const dynamic = 'force-dynamic';
  *
  * Sem cor: um contato não tem estado que exija ação.
  */
-function colunas(fuso: string, agora: Date): readonly Coluna<LinhaContato>[] {
+function colunas(fuso: string, agora: Date): readonly Column<LinhaContact>[] {
   return [
     {
-      chave: 'nome',
+      key: 'nome',
       rotulo: 'Contato',
       celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,
     },
     {
-      chave: 'conta',
+      key: 'conta',
       rotulo: 'Conta',
       celula: (c) =>
-        c.contaId ? <Link href={`/contas/${c.contaId}`}>{c.contaNome}</Link> : '—',
+        c.accountId ? <Link href={`/contas/${c.accountId}`}>{c.accountName}</Link> : '—',
     },
-    { chave: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
-    { chave: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },
+    { key: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
+    { key: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },
     {
-      chave: 'lead',
+      key: 'lead',
       rotulo: 'Lead',
       celula: (c) =>
         c.leadId ? (
@@ -43,28 +43,28 @@ function colunas(fuso: string, agora: Date): readonly Coluna<LinhaContato>[] {
         ),
     },
     {
-      chave: 'conversas',
+      key: 'conversas',
       rotulo: 'Conversas',
       numerica: true,
-      celula: (c) => numero(c.conversas),
+      celula: (c) => numero(c.conversations),
     },
     {
-      chave: 'ultima',
+      key: 'ultima',
       rotulo: 'Última conversa',
-      celula: (c) => (c.ultimaConversa ? desde(c.ultimaConversa, fuso, agora) : '—'),
+      celula: (c) => (c.ultimaConversation ? desde(c.ultimaConversation, fuso, agora) : '—'),
     },
   ];
 }
 
-export default async function PaginaContatos({
+export default async function PageContacts({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
   const { q } = await searchParams;
-  const busca = q ?? '';
+  const search = q ?? '';
   const fuso = await fusoDoTenant();
-  const contatos = await listarContatos(busca);
+  const contacts = await listContacts(search);
   const agora = new Date();
 
   return (
@@ -81,7 +81,7 @@ export default async function PaginaContatos({
           <Campo
             type="search"
             name="q"
-            defaultValue={busca}
+            defaultValue={search}
             placeholder="Buscar por nome, CPF, telefone ou e-mail"
             aria-label="Buscar contato"
           />
@@ -89,18 +89,18 @@ export default async function PaginaContatos({
             Aplicar
           </button>
           <span className="sub" style={{ marginLeft: 'auto' }}>
-            {numero(contatos.length)} contatos
-            {contatos.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
+            {numero(contacts.length)} contatos
+            {contacts.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
           </span>
         </form>
 
-        {contatos.length === 0 ? (
-          <EstadoVazio
-            titulo={busca ? 'Nenhum contato com esse termo.' : 'Nenhum contato cadastrado.'}
-            ilustracao={busca ? 'busca' : 'vazio'}
+        {contacts.length === 0 ? (
+          <EmptyState
+            titulo={search ? 'Nenhum contato com esse termo.' : 'Nenhum contato cadastrado.'}
+            illustration={search ? 'busca' : 'vazio'}
           />
         ) : (
-          <Tabela colunas={colunas(fuso, agora)} linhas={contatos} chaveDaLinha={(c) => c.id} />
+          <Tabela colunas={colunas(fuso, agora)} linhas={contacts} linhaKey={(c) => c.id} />
         )}
       </div>
     </>

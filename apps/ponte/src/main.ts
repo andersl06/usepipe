@@ -1,8 +1,8 @@
-import { subirPonte } from './servidor.js';
+import { startBridge } from './servidor.js';
 
-const ponte = await subirPonte();
-console.log(`[ponte] no ar em ${ponte.url} — a cópia manda comando em POST /comandos`);
+const bridge = await startBridge();
+console.log(`[ponte] no ar em ${bridge.url} — a cópia manda comando em POST /comandos`);
 
 for (const sinal of ['SIGINT', 'SIGTERM'] as const) {
-  process.on(sinal, () => void ponte.fechar().then(() => process.exit(0)));
+  process.on(sinal, () => void bridge.fechar().then(() => process.exit(0)));
 }

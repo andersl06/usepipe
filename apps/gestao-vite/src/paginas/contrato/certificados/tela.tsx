@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import type { ReactNode, RefObject } from 'react';
 import { IconePortal } from '../../../componentes/icones-portal';
 import {
-  dataDeExpiracao,
+  expirationData,
   etiquetaDoStatus,
   hostValido,
-  informacoesCompletas,
-  lerArquivoComoDataUrl,
-  problemaNoArquivo,
+  informationCompletas,
+  readFileAsDataUrl,
+  problemaInFile,
   type CertificadoMtls,
   type HostDigitado,
 } from '../../../lib/certificados';
@@ -85,17 +85,17 @@ const TEXTO = {
 const PASSOS = [TEXTO.upload.titulo, TEXTO.info.titulo, TEXTO.conferencia.titulo];
 
 interface Entradas {
-  arquivo: File | null;
+  file: File | null;
   senha: string;
-  descricao: string;
+  description: string;
   hosts: HostDigitado[];
 }
 
 /** O `j` do `zt`: o formulário em branco, com um campo de URL. */
-const VAZIO: Entradas = {
-  arquivo: null,
+const EMPTY: Entradas = {
+  file: null,
   senha: '',
-  descricao: '',
+  description: '',
   hosts: [{ host: '', valido: true }],
 };
 
@@ -106,8 +106,8 @@ export function TelaDeCertificados({
   certificados: CertificadoMtls[];
   podeEscrever: boolean;
 }) {
-  const cadastro = useRef<HTMLDialogElement>(null);
-  const janelaDeHosts = useRef<HTMLDialogElement>(null);
+  const registration = useRef<HTMLDialogElement>(null);
+  const hostsWindow = useRef<HTMLDialogElement>(null);
   const alertaDeCertificado = useRef<HTMLDialogElement>(null);
   const alertaDeHost = useRef<HTMLDialogElement>(null);
 
@@ -123,7 +123,7 @@ export function TelaDeCertificados({
     try {
       const resultado = await cadastrarCertificado(pedido);
       if (!resultado.ok) {
-        avisar(resultado.erro);
+        avisar(resultado.error);
         return false;
       }
       return true;
@@ -138,7 +138,7 @@ export function TelaDeCertificados({
     try {
       const resultado = await excluirCertificado(emMao);
       if (!resultado.ok) {
-        avisar(resultado.erro ?? 'Falha ao tentar deletar certificado.');
+        avisar(resultado.error ?? 'Falha ao tentar deletar certificado.');
         return;
       }
       alertaDeCertificado.current?.close();
@@ -153,7 +153,7 @@ export function TelaDeCertificados({
     try {
       const resultado = await excluirHostDoCertificado(emMao, hostEmMao);
       if (!resultado.ok) {
-        avisar(resultado.erro ?? 'Falha ao tentar deletar host.');
+        avisar(resultado.error ?? 'Falha ao tentar deletar host.');
         return;
       }
       alertaDeHost.current?.close();
@@ -161,7 +161,7 @@ export function TelaDeCertificados({
       // recarrega depois de 1s" — o `excluirHostDoCertificado` do domínio já
       // apaga o certificado junto quando era o último; aqui só se fecha a
       // janela de hosts se ele não existir mais na lista recarregada.
-      if ((certificado?.hosts.length ?? 0) <= 1) janelaDeHosts.current?.close();
+      if ((certificado?.hosts.length ?? 0) <= 1) hostsWindow.current?.close();
     } finally {
       marcarEnviando(false);
     }
@@ -184,14 +184,14 @@ export function TelaDeCertificados({
                 <button
                   type="button"
                   className="cm-botao"
-                  onClick={() => cadastro.current?.showModal()}
+                  onClick={() => registration.current?.showModal()}
                 >
                   {/* `icon="add"`, medium (24): o nosso `mais`. */}
                   <IconePortal nome="mais" tamanho={24} />
                   {TEXTO.apresentacao.botao}
                 </button>
-                <Cadastro
-                  janela={cadastro}
+                <Registration
+                  window={registration}
                   enviando={enviando}
                   aoAvisar={avisar}
                   aoFinalizar={cadastrar}
@@ -216,10 +216,10 @@ export function TelaDeCertificados({
             {certificados.map((c) => {
               return (
                 <tr key={c.id} data-testid={c.id}>
-                  <td className="cm-col-descricao" title={c.descricao}>
-                    {c.descricao}
+                  <td className="cm-col-descricao" title={c.description}>
+                    {c.description}
                   </td>
-                  <td>{dataDeExpiracao(c.expiraEm)}</td>
+                  <td>{expirationData(c.expiraEm)}</td>
                   <td>
                     {/* `bds-chip-tag` pelo `status` — o chip calculado da origem,
                         com a impressão digital e o sujeito na dica. */}
@@ -230,7 +230,7 @@ export function TelaDeCertificados({
                       <span className="cm-acoes">
                         <BotaoDeIcone
                           nome="lixeira"
-                          rotulo={`Deletar ${c.descricao}`}
+                          rotulo={`Deletar ${c.description}`}
                           aoClicar={() => {
                             marcarEmMao(c.id);
                             alertaDeCertificado.current?.showModal();
@@ -238,10 +238,10 @@ export function TelaDeCertificados({
                         />
                         <BotaoDeIcone
                           nome="editar"
-                          rotulo={`Hosts de ${c.descricao}`}
+                          rotulo={`Hosts de ${c.description}`}
                           aoClicar={() => {
                             marcarEmMao(c.id);
-                            janelaDeHosts.current?.showModal();
+                            hostsWindow.current?.showModal();
                           }}
                         />
                       </span>
@@ -253,9 +253,9 @@ export function TelaDeCertificados({
           </Tabela>
 
           <Alerta
-            janela={alertaDeCertificado}
+            window={alertaDeCertificado}
             id="remove-certificate-alert"
-            mensagem={TEXTO.alerta.certificado}
+            message={TEXTO.alerta.certificado}
             enviando={enviando}
             aoDeletar={deletarCertificado}
           />
@@ -263,18 +263,18 @@ export function TelaDeCertificados({
           {/* `bds-modal#hosts-modal title="Hosts do certificado"`: no web
               component o `title` é o atributo do HTML — dica, não cabeçalho. */}
           <dialog
-            ref={janelaDeHosts}
+            ref={hostsWindow}
             id="hosts-modal"
             className="cm-modal"
             title={TEXTO.lista.tituloDosHosts}
           >
-            <FecharJanela janela={janelaDeHosts} />
+            <FecharWindow window={hostsWindow} />
             <div className="cm-papel">
               <div className="cm-lista">
                 <div className="cm-cabeca">
                   <p className="cm-t20">
                     {TEXTO.hosts.titulo}
-                    {certificado?.descricao ?? ''}
+                    {certificado?.description ?? ''}
                   </p>
                 </div>
                 <div className="cm-rolagem">
@@ -301,9 +301,9 @@ export function TelaDeCertificados({
               </div>
             </div>
             <Alerta
-              janela={alertaDeHost}
+              window={alertaDeHost}
               id="remove-host-alert"
-              mensagem={TEXTO.alerta.host}
+              message={TEXTO.alerta.host}
               enviando={enviando}
               aoDeletar={deletarHost}
             />
@@ -383,13 +383,13 @@ function BotaoDeIcone({
 }
 
 /** O `close-button` do `bds-modal`: ícone `close` (medium, 24), o nosso `fechar`. */
-function FecharJanela({ janela }: { janela: RefObject<HTMLDialogElement | null> }) {
+function FecharWindow({ window }: { window: RefObject<HTMLDialogElement | null> }) {
   return (
     <button
       type="button"
       className="cm-fechar"
       aria-label="Fechar"
-      onClick={() => janela.current?.close()}
+      onClick={() => window.current?.close()}
     >
       <IconePortal nome="fechar" tamanho={24} />
     </button>
@@ -397,31 +397,31 @@ function FecharJanela({ janela }: { janela: RefObject<HTMLDialogElement | null> 
 }
 
 function Alerta({
-  janela,
+  window,
   id,
-  mensagem,
+  message,
   enviando,
   aoDeletar,
 }: {
-  janela: RefObject<HTMLDialogElement | null>;
+  window: RefObject<HTMLDialogElement | null>;
   id: string;
-  mensagem: string;
+  message: string;
   enviando: boolean;
   aoDeletar: () => void;
 }) {
   return (
-    <dialog ref={janela} id={id} className="cm-alerta">
+    <dialog ref={window} id={id} className="cm-alerta">
       <div className="cm-alerta-topo">
         <IconePortal nome="alerta" tamanho={32} />
         <b>{TEXTO.alerta.atencao}</b>
       </div>
-      <p className="cm-alerta-corpo">{mensagem}</p>
+      <p className="cm-alerta-corpo">{message}</p>
       <div className="cm-alerta-acoes">
         <button
           type="button"
           className="cm-botao cm-botao--secundario"
           disabled={enviando}
-          onClick={() => janela.current?.close()}
+          onClick={() => window.current?.close()}
         >
           {TEXTO.alerta.cancelar}
         </button>
@@ -477,64 +477,64 @@ function Aviso({ texto, aoSumir }: { texto: string | null; aoSumir: () => void }
  * O que vai para `POST /v1/gestao/contrato/certificados`: arquivo (data URL),
  * senha, descrição e hosts.
  */
-function Cadastro({
-  janela,
+function Registration({
+  window,
   enviando,
   aoAvisar,
   aoFinalizar,
 }: {
-  janela: RefObject<HTMLDialogElement | null>;
+  window: RefObject<HTMLDialogElement | null>;
   enviando: boolean;
   aoAvisar: (texto: string) => void;
   aoFinalizar: (pedido: PedidoDeCertificado) => Promise<boolean>;
 }) {
   const [passo, irPara] = useState(0);
-  const [entradas, preencher] = useState<Entradas>(VAZIO);
+  const [entradas, preencher] = useState<Entradas>(EMPTY);
   const [tocado, marcarTocado] = useState(false);
 
-  const temArquivo = entradas.arquivo !== null && entradas.senha !== '';
-  const infoOk = informacoesCompletas(entradas.descricao, entradas.hosts);
+  const temFile = entradas.file !== null && entradas.senha !== '';
+  const infoOk = informationCompletas(entradas.description, entradas.hosts);
 
-  function trocarHost(indice: number, valor: string) {
+  function switchHost(indice: number, value: string) {
     preencher((antes) => ({
       ...antes,
       hosts: antes.hosts.map((h, i) =>
-        i === indice ? { host: valor, valido: hostValido(valor, antes.hosts) } : h,
+        i === indice ? { host: value, valido: hostValido(value, antes.hosts) } : h,
       ),
     }));
   }
 
   async function finalizar() {
-    if (!temArquivo || !infoOk || !entradas.arquivo) return;
-    const problema = problemaNoArquivo(entradas.arquivo);
+    if (!temFile || !infoOk || !entradas.file) return;
+    const problema = problemaInFile(entradas.file);
     if (problema) return aoAvisar(problema);
 
-    let arquivo: string;
+    let file: string;
     try {
-      arquivo = await lerArquivoComoDataUrl(entradas.arquivo);
+      file = await readFileAsDataUrl(entradas.file);
     } catch {
-      return aoAvisar(problemaNoArquivo(null) ?? '');
+      return aoAvisar(problemaInFile(null) ?? '');
     }
 
     const gravou = await aoFinalizar({
-      descricao: entradas.descricao,
+      description: entradas.description,
       hosts: entradas.hosts.map((h) => h.host),
       senha: entradas.senha,
-      arquivo,
+      file,
     });
     // Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem
     // mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).
     if (gravou) {
-      preencher(VAZIO);
+      preencher(EMPTY);
       marcarTocado(false);
       irPara(0);
-      janela.current?.close();
+      window.current?.close();
     }
   }
 
   return (
-    <dialog ref={janela} id="certificate-modal" className="cm-modal cm-modal--cadastro">
-      <FecharJanela janela={janela} />
+    <dialog ref={window} id="certificate-modal" className="cm-modal cm-modal--cadastro">
+      <FecharWindow window={window} />
 
       <ol className="cm-passos">
         {PASSOS.map((rotulo, i) => (
@@ -566,15 +566,15 @@ function Cadastro({
                   <span className="cm-t14">{TEXTO.upload.subtitulo}</span>
                 </div>
               </div>
-              {entradas.arquivo ? (
+              {entradas.file ? (
                 <div className="cm-upload-previa">
                   {/* `bds-icon size="x-small" name="attach"` (16): o nosso `anexo`. */}
                   <IconePortal nome="anexo" tamanho={16} />
-                  <p>{entradas.arquivo.name}</p>
+                  <p>{entradas.file.name}</p>
                   <BotaoDeIcone
                     nome="lixeira"
-                    rotulo={`Remover ${entradas.arquivo.name}`}
-                    aoClicar={() => preencher((antes) => ({ ...antes, arquivo: null }))}
+                    rotulo={`Remover ${entradas.file.name}`}
+                    aoClicar={() => preencher((antes) => ({ ...antes, file: null }))}
                   />
                 </div>
               ) : null}
@@ -584,8 +584,8 @@ function Cadastro({
                   type="file"
                   accept=".pfx,.p12,application/x-pkcs12"
                   onChange={(e) => {
-                    const arquivo = e.target.files?.[0] ?? null;
-                    preencher((antes) => ({ ...antes, arquivo }));
+                    const file = e.target.files?.[0] ?? null;
+                    preencher((antes) => ({ ...antes, file }));
                   }}
                 />
               </label>
@@ -594,7 +594,7 @@ function Cadastro({
               <Campo
                 rotulo={TEXTO.upload.senha}
                 tipo="password"
-                valor={entradas.senha}
+                value={entradas.senha}
                 dica={TEXTO.upload.senhaDica}
                 aoMudar={(senha) => preencher((antes) => ({ ...antes, senha }))}
               />
@@ -606,23 +606,23 @@ function Cadastro({
           <div className="cm-coluna">
             <Campo
               rotulo={TEXTO.info.descricao}
-              valor={entradas.descricao}
+              value={entradas.description}
               dica={TEXTO.info.descricaoDica}
               maximo={50}
-              erro={tocado && entradas.descricao === '' ? TEXTO.info.descricaoInvalida : null}
+              error={tocado && entradas.description === '' ? TEXTO.info.descricaoInvalida : null}
               aoSair={() => marcarTocado(true)}
-              aoMudar={(descricao) => preencher((antes) => ({ ...antes, descricao }))}
+              aoMudar={(description) => preencher((antes) => ({ ...antes, description }))}
             />
             {entradas.hosts.map((h, i) => (
               <div key={i} className="cm-linha-de-host">
                 <div className="cm-linha-de-host-campo">
                   <Campo
                     rotulo={TEXTO.info.url}
-                    valor={h.host}
+                    value={h.host}
                     dica={TEXTO.info.urlDica}
                     maximo={100}
-                    erro={h.valido ? null : TEXTO.info.urlInvalida}
-                    aoMudar={(valor) => trocarHost(i, valor)}
+                    error={h.valido ? null : TEXTO.info.urlInvalida}
+                    aoMudar={(value) => switchHost(i, value)}
                   />
                 </div>
                 <div className="cm-linha-de-host-botoes">
@@ -664,9 +664,9 @@ function Cadastro({
           <div>
             <p className="cm-t20 cm-t20--forte cm-t20--margem">{TEXTO.conferencia.subtitulo}</p>
             <b className="cm-t16">{TEXTO.conferencia.arquivo}</b>
-            <p className="cm-item">{entradas.arquivo?.name ?? ''}</p>
+            <p className="cm-item">{entradas.file?.name ?? ''}</p>
             <b className="cm-t16">{TEXTO.conferencia.descricao}</b>
-            <p className="cm-item">{entradas.descricao}</p>
+            <p className="cm-item">{entradas.description}</p>
             <b className="cm-t16">{TEXTO.conferencia.url}</b>
             {entradas.hosts.map((h, i) => (
               <p key={i} className="cm-item">
@@ -692,7 +692,7 @@ function Cadastro({
           <button
             type="button"
             className="cm-botao"
-            disabled={passo === 0 ? !temArquivo : !infoOk}
+            disabled={passo === 0 ? !temFile : !infoOk}
             onClick={() => irPara(passo + 1)}
           >
             {TEXTO.passo.proximo}
@@ -701,7 +701,7 @@ function Cadastro({
           <button
             type="button"
             className="cm-botao"
-            disabled={enviando || !temArquivo || !infoOk}
+            disabled={enviando || !temFile || !infoOk}
             onClick={finalizar}
           >
             {enviando ? 'Enviando…' : TEXTO.passo.finalizar}
@@ -715,41 +715,41 @@ function Cadastro({
 /** `bds-input`: o rótulo em cima, dentro da mesma borda, e a mensagem embaixo. */
 function Campo({
   rotulo,
-  valor,
+  value,
   dica,
   tipo = 'text',
   maximo,
-  erro = null,
+  error = null,
   aoMudar,
   aoSair,
 }: {
   rotulo: string;
-  valor: string;
+  value: string;
   dica: string;
   tipo?: 'text' | 'password' | 'date';
   maximo?: number;
-  erro?: string | null;
-  aoMudar: (valor: string) => void;
+  error?: string | null;
+  aoMudar: (value: string) => void;
   aoSair?: () => void;
 }) {
   return (
     <div className="cm-campo-bloco">
-      <label className={`cm-campo${erro ? ' cm-campo--erro' : ''}`}>
+      <label className={`cm-campo${error ? ' cm-campo--erro' : ''}`}>
         <b>{rotulo}</b>
         <input
           type={tipo}
-          value={valor}
+          value={value}
           placeholder={dica}
           maxLength={maximo}
           onChange={(e) => aoMudar(e.target.value)}
           onBlur={aoSair}
         />
       </label>
-      {erro ? (
+      {error ? (
         <p className="cm-campo-erro">
           {/* `bds-icon name="error" size="x-small"`: o nosso `fechar-chip` é o `error`. */}
           <IconePortal nome="fechar-chip" tamanho={16} />
-          {erro}
+          {error}
         </p>
       ) : null}
     </div>

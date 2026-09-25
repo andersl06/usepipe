@@ -1,10 +1,10 @@
 import type {
   DesenhoDoBuilder,
-  ErroDoBloco,
+  BlockError,
   RascunhoGravado,
   VersaoPublicada,
 } from '@pipe/contracts';
-import { api, ErroDaApi } from '../lib/api';
+import { api, ApiError } from '../lib/api';
 import { atualizarLeituras } from '../lib/acoes';
 import { motivoDe, type Resultado } from '../lib/rest';
 
@@ -18,18 +18,18 @@ import { motivoDe, type Resultado } from '../lib/rest';
  */
 
 /** Recusa que traz a lista do motor junto (publicar fluxo inválido). */
-export type Recusa = { ok: false; erro: string; erros: ErroDoBloco[] };
-export type ResultadoDoBuilder<T> = { ok: true; valor: T } | Recusa;
+export type Recusa = { ok: false; error: string; errors: BlockError[] };
+export type ResultadoDoBuilder<T> = { ok: true; value: T } | Recusa;
 
 /** Os erros por bloco que a `api` põe no `detalhe` do 409, se vieram. */
-function errosDe(erro: unknown): ErroDoBloco[] {
-  if (!(erro instanceof ErroDaApi)) return [];
-  const corpo = erro.corpo as { erro?: { detalhe?: { erros?: unknown } } } | null;
-  const lista = corpo?.erro?.detalhe?.erros;
+function errorsOf(error: unknown): BlockError[] {
+  if (!(error instanceof ApiError)) return [];
+  const corpo = error.corpo as { error?: { detalhe?: { errors?: unknown } } } | null;
+  const lista = corpo?.error?.detalhe?.errors;
   return Array.isArray(lista)
     ? lista.filter(
-        (e): e is ErroDoBloco =>
-          !!e && typeof e === 'object' && typeof (e as ErroDoBloco).mensagem === 'string',
+        (e): e is BlockError =>
+          !!e && typeof e === 'object' && typeof (e as BlockError).mensagem === 'string',
       )
     : [];
 }
@@ -39,39 +39,39 @@ export async function salvarRascunho(
   desenho: DesenhoDoBuilder,
 ): Promise<Resultado<RascunhoGravado>> {
   try {
-    const valor = await api.put<RascunhoGravado>(`/v1/gestao/fluxos/${id}/builder`, desenho);
+    const value = await api.put<RascunhoGravado>(`/v1/gestao/fluxos/${id}/builder`, desenho);
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível salvar o rascunho.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível salvar o rascunho.') };
   }
 }
 
-export async function publicarFluxo(id: string): Promise<ResultadoDoBuilder<VersaoPublicada>> {
+export async function publishFlow(id: string): Promise<ResultadoDoBuilder<VersaoPublicada>> {
   try {
-    const valor = await api.post<VersaoPublicada>(`/v1/gestao/fluxos/${id}/builder/publicar`);
+    const value = await api.post<VersaoPublicada>(`/v1/gestao/fluxos/${id}/builder/publicar`);
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
+    return { ok: true, value };
+  } catch (error) {
     return {
       ok: false,
-      erro: motivoDe(erro, 'Não foi possível publicar o fluxo.'),
-      erros: errosDe(erro),
+      error: motivoDe(error, 'Não foi possível publicar o fluxo.'),
+      errors: errorsOf(error),
     };
   }
 }
 
-export async function restaurarVersao(
+export async function restoreVersion(
   id: string,
   versao: number,
 ): Promise<Resultado<RascunhoGravado>> {
   try {
-    const valor = await api.post<RascunhoGravado>(
+    const value = await api.post<RascunhoGravado>(
       `/v1/gestao/fluxos/${id}/builder/versoes/${versao}/restaurar`,
     );
     atualizarLeituras();
-    return { ok: true, valor };
-  } catch (erro) {
-    return { ok: false, erro: motivoDe(erro, 'Não foi possível restaurar a versão.') };
+    return { ok: true, value };
+  } catch (error) {
+    return { ok: false, error: motivoDe(error, 'Não foi possível restaurar a versão.') };
   }
 }

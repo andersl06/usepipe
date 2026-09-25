@@ -1,7 +1,7 @@
 import type { ResultadoMetrica } from '@pipe/core';
 
 /** Duração em `mm:ss`, ou `hh:mm:ss` quando passa de uma hora. Nulo vira travessão. */
-export function duracao(segundos: number | null | undefined): string {
+export function duration(segundos: number | null | undefined): string {
   if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
   const total = Math.max(0, Math.round(segundos));
   const h = Math.floor(total / 3600);
@@ -18,7 +18,7 @@ export function duracao(segundos: number | null | undefined): string {
  * hora: arredondando o resto separado, 7.190 segundos viravam `1h 60min` —
  * 59,8 minutos sobem para 60 e a hora não acompanha.
  */
-export function duracaoLonga(segundos: number | null | undefined): string {
+export function durationLong(segundos: number | null | undefined): string {
   if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
   const minutos = Math.round(Math.max(0, segundos) / 60);
   const h = Math.floor(minutos / 60);
@@ -34,9 +34,9 @@ export function numero(valor: number | null | undefined, casas = 0): string {
   });
 }
 
-export function percentual(fracao: number | null | undefined): string {
-  if (fracao === null || fracao === undefined || Number.isNaN(fracao)) return '—';
-  return `${(fracao * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`;
+export function percentual(fraction: number | null | undefined): string {
+  if (fraction === null || fraction === undefined || Number.isNaN(fraction)) return '—';
+  return `${(fraction * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`;
 }
 
 /**
@@ -47,8 +47,8 @@ export function percentual(fracao: number | null | undefined): string {
  * o atendimento piora.
  */
 export function denominador(r: ResultadoMetrica, rotuloExcluidas = 'sem resposta'): string {
-  const total = r.populacao + r.excluidas;
-  const base = `${numero(r.populacao)} de ${numero(total)}`;
+  const total = r.population + r.excluidas;
+  const base = `${numero(r.population)} de ${numero(total)}`;
   return r.excluidas > 0 ? `${base} · ${numero(r.excluidas)} ${rotuloExcluidas}` : base;
 }
 
@@ -111,8 +111,8 @@ export const DIAS_DA_SEMANA = [
 ] as const;
 
 /** `HH:MM:SS`, que é como o tipo `time` do Postgres volta, vira `HH:MM`. */
-export function relogio(valor: string): string {
-  return valor.slice(0, 5);
+export function relogio(value: string): string {
+  return value.slice(0, 5);
 }
 
 /**

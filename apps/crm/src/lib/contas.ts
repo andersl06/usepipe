@@ -1,5 +1,5 @@
 import { and, asc, desc, eq, isNull, sql } from 'drizzle-orm';
-import { conta, contato, lead, oportunidade, usuario } from '@pipe/db/schema';
+import { account, contact, lead, opportunity, user } from '@pipe/db/schema';
 import { consultar, paraData, paraNumero } from './banco';
 
 /**
@@ -17,74 +17,74 @@ import { consultar, paraData, paraNumero } from './banco';
 /** A listagem é tela de trabalho, não de exportação. Mesmo teto da de leads. */
 export const LIMITE_LISTA = 200;
 
-export interface LinhaConta {
+export interface LinhaAccount {
   id: string;
   nome: string;
-  documento: string | null;
-  dominio: string | null;
+  document: string | null;
+  domain: string | null;
   proprietario: string | null;
-  contatos: number;
+  contacts: number;
   leads: number;
-  oportunidades: number;
-  valorAberto: number;
+  opportunities: number;
+  valueAberto: number;
 }
 
-export async function listarContas(busca = ''): Promise<LinhaConta[]> {
+export async function listAccounts(search = ''): Promise<LinhaAccount[]> {
   return consultar(async (tx) => {
-    const termo = busca.trim();
-    const filtro = termo
-      ? sql`(${conta.nome} ilike ${'%' + termo + '%'}
-             or ${conta.documento} ilike ${'%' + termo + '%'}
-             or ${conta.dominio} ilike ${'%' + termo + '%'})`
+    const termo = search.trim();
+    const filter = termo
+      ? sql`(${account.nome} ilike ${'%' + termo + '%'}
+             or ${account.documento} ilike ${'%' + termo + '%'}
+             or ${account.dominio} ilike ${'%' + termo + '%'})`
       : undefined;
 
-    const contas = await tx
+    const accounts = await tx
       .select({
-        id: conta.id,
-        nome: conta.nome,
-        documento: conta.documento,
-        dominio: conta.dominio,
-        proprietario: usuario.nome,
+        id: account.id,
+        nome: account.nome,
+        documento: account.documento,
+        dominio: account.dominio,
+        proprietario: user.nome,
       })
-      .from(conta)
-      .leftJoin(usuario, eq(usuario.id, conta.proprietarioId))
-      .where(and(isNull(conta.excluidoEm), filtro))
-      .orderBy(asc(conta.nome))
+      .from(account)
+      .leftJoin(user, eq(user.id, account.proprietarioId))
+      .where(and(isNull(account.excluidoEm), filter))
+      .orderBy(asc(account.nome))
       .limit(LIMITE_LISTA);
 
     // Três agregações separadas em vez de subconsulta por linha: o banco lê
     // cada tabela uma vez, e a junção acontece aqui, sobre catorze contas.
-    const porContato = await tx
-      .select({ contaId: contato.contaId, n: sql<number>`count(*)::int` })
-      .from(contato)
-      .where(isNull(contato.excluidoEm))
-      .groupBy(contato.contaId);
+    const byContact = await tx
+      .select({ contaId: contact.accountId, n: sql<number>`count(*)::int` })
+      .from(contact)
+      .where(isNull(contact.excluidoEm))
+      .groupBy(contact.accountId);
 
-    const porLead = await tx
+    const byLead = await tx
       .select({ contaId: lead.contaId, n: sql<number>`count(*)::int` })
       .from(lead)
       .where(isNull(lead.excluidoEm))
       .groupBy(lead.contaId);
 
-    const porOportunidade = await tx
+    const byOpportunity = await tx
       .select({
-        contaId: oportunidade.contaId,
+        contaId: opportunity.contaId,
         n: sql<number>`count(*)::int`,
-        valor: sql<string>`coalesce(sum(${oportunidade.valor}), 0)`,
+        valor: sql<string>`coalesce(sum(${opportunity.valor}), 0)`,
       })
-      .from(oportunidade)
-      .where(isNull(oportunidade.fechadaEm))
-      .groupBy(oportunidade.contaId);
+      .from(opportunity)
+      .where(isNull(opportunity.fechadaEm))
+      .groupBy(opportunity.contaId);
 
-    const contatos = new Map(porContato.map((l) => [l.contaId, l.n]));
-    const leads = new Map(porLead.map((l) => [l.contaId, l.n]));
-    const abertas = new Map(porOportunidade.map((l) => [l.contaId, l]));
+    const contacts = new Map(byContact.map((l) => [l.contaId, l.n]));
+    const leads = new Map(byLead.map((l) => [l.contaId, l.n]));
+    const abertas = new Map(byOpportunity.map((l) => [l.contaId, l]));
 
-    return contas.map((c) => {
+    return accounts.map((c) => {
       const o = abertas.get(c.id);
       return {
         ...c,
-        contatos: contatos.get(c.id) ?? 0,
+        contatos: contacts.get(c.id) ?? 0,
         leads: leads.get(c.id) ?? 0,
         oportunidades: o?.n ?? 0,
         valorAberto: paraNumero(o?.valor) ?? 0,
@@ -95,7 +95,7 @@ export async function listarContas(busca = ''): Promise<LinhaConta[]> {
 
 /* -------------------------------------------------------------- a ficha */
 
-export interface ContatoDaConta {
+export interface AccountContact {
   id: string;
   nome: string;
   email: string | null;
@@ -105,48 +105,48 @@ export interface ContatoDaConta {
   faixa: string | null;
 }
 
-export interface OportunidadeDaConta {
+export interface AccountOpportunity {
   id: string;
   nome: string;
-  valor: number | null;
+  value: number | null;
   fase: string;
-  probabilidade: number | null;
+  probability: number | null;
   proprietario: string | null;
-  fechamentoPrevisto: Date | null;
+  closingPrevisto: Date | null;
   fechadaEm: Date | null;
   ganha: boolean | null;
 }
 
-export interface FichaConta {
+export interface FichaAccount {
   id: string;
   nome: string;
-  documento: string | null;
-  dominio: string | null;
+  document: string | null;
+  domain: string | null;
   proprietario: string | null;
   criadoEm: Date | null;
   /** Campo customizado por tenant, em JSONB. A ficha o mostra na lateral. */
   atributos: Record<string, unknown>;
-  contatos: ContatoDaConta[];
-  oportunidades: OportunidadeDaConta[];
-  valorAberto: number;
-  valorGanho: number;
+  contacts: AccountContact[];
+  opportunities: AccountOpportunity[];
+  valueAberto: number;
+  valueGanho: number;
 }
 
-export async function carregarConta(id: string): Promise<FichaConta | null> {
+export async function loadAccount(id: string): Promise<FichaAccount | null> {
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({
-        id: conta.id,
-        nome: conta.nome,
-        documento: conta.documento,
-        dominio: conta.dominio,
-        proprietario: usuario.nome,
-        criadoEm: conta.criadoEm,
-        atributos: conta.atributos,
+        id: account.id,
+        nome: account.nome,
+        documento: account.documento,
+        dominio: account.dominio,
+        proprietario: user.nome,
+        criadoEm: account.criadoEm,
+        atributos: account.atributos,
       })
-      .from(conta)
-      .leftJoin(usuario, eq(usuario.id, conta.proprietarioId))
-      .where(and(eq(conta.id, id), isNull(conta.excluidoEm)))
+      .from(account)
+      .leftJoin(user, eq(user.id, account.proprietarioId))
+      .where(and(eq(account.id, id), isNull(account.excluidoEm)))
       .limit(1);
 
     if (!cabeca) return null;
@@ -156,40 +156,40 @@ export async function carregarConta(id: string): Promise<FichaConta | null> {
      * falar E o quanto esse alguém já avançou. Duas telas para responder isso
      * seriam uma a mais.
      */
-    const contatos = await tx
+    const contacts = await tx
       .select({
-        id: contato.id,
-        nome: contato.nome,
-        email: contato.email,
-        telefone: contato.telefoneE164,
+        id: contact.id,
+        nome: contact.nome,
+        email: contact.email,
+        telefone: contact.telefoneE164,
         leadId: lead.id,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
       })
-      .from(contato)
-      .leftJoin(lead, and(eq(lead.contatoId, contato.id), isNull(lead.excluidoEm)))
-      .where(and(eq(contato.contaId, id), isNull(contato.excluidoEm)))
-      .orderBy(asc(contato.nome));
+      .from(contact)
+      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .where(and(eq(contact.accountId, id), isNull(contact.excluidoEm)))
+      .orderBy(asc(contact.nome));
 
-    const oportunidades = await tx
+    const opportunities = await tx
       .select({
-        id: oportunidade.id,
-        nome: oportunidade.nome,
-        valor: oportunidade.valor,
-        fase: oportunidade.fase,
-        probabilidade: oportunidade.probabilidade,
-        proprietario: usuario.nome,
-        fechamentoPrevisto: oportunidade.fechamentoPrevisto,
-        fechadaEm: oportunidade.fechadaEm,
-        ganha: oportunidade.ganha,
+        id: opportunity.id,
+        nome: opportunity.nome,
+        valor: opportunity.valor,
+        fase: opportunity.fase,
+        probabilidade: opportunity.probabilidade,
+        proprietario: user.nome,
+        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        fechadaEm: opportunity.fechadaEm,
+        ganha: opportunity.ganha,
       })
-      .from(oportunidade)
-      .leftJoin(usuario, eq(usuario.id, oportunidade.proprietarioId))
-      .where(eq(oportunidade.contaId, id))
+      .from(opportunity)
+      .leftJoin(user, eq(user.id, opportunity.proprietarioId))
+      .where(eq(opportunity.contaId, id))
       // Aberta primeiro: é o que ainda dá para mexer.
-      .orderBy(asc(oportunidade.fechadaEm), desc(oportunidade.valor));
+      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor));
 
-    const linhas: OportunidadeDaConta[] = oportunidades.map((o) => ({
+    const linhas: AccountOpportunity[] = opportunities.map((o) => ({
       id: o.id,
       nome: o.nome,
       valor: paraNumero(o.valor),
@@ -209,12 +209,12 @@ export async function carregarConta(id: string): Promise<FichaConta | null> {
       proprietario: cabeca.proprietario,
       criadoEm: paraData(cabeca.criadoEm),
       atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
-      contatos: contatos.map((c) => ({ ...c, nome: c.nome ?? 'Contato sem nome' })),
+      contatos: contacts.map((c) => ({ ...c, nome: c.nome ?? 'Contato sem nome' })),
       oportunidades: linhas,
       valorAberto: linhas
         .filter((o) => o.fechadaEm === null)
-        .reduce((s, o) => s + (o.valor ?? 0), 0),
-      valorGanho: linhas.filter((o) => o.ganha).reduce((s, o) => s + (o.valor ?? 0), 0),
+        .reduce((s, o) => s + (o.value ?? 0), 0),
+      valorGanho: linhas.filter((o) => o.ganha).reduce((s, o) => s + (o.value ?? 0), 0),
     };
   });
 }

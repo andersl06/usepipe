@@ -1,6 +1,6 @@
 import { Icone, type NomeDeIcone } from '@pipe/ui';
 import { IconeCrm, type NomeDeIconeCrm } from './icones-crm';
-import type { ItemLinhaDoTempo } from '../lib/leads';
+import type { TimeItemLinha } from '../lib/leads';
 import { desde, dataHora } from '../lib/formato';
 
 /**
@@ -27,7 +27,7 @@ import { desde, dataHora } from '../lib/formato';
  * visível dos dois lados na nossa régua de 4px.
  */
 
-const TRILHO = 26;
+const RAIL = 26;
 
 /** Tipo de evento para desenho. O que não casa fica no relógio, que é honesto:
  *  aconteceu, tem hora, e não sabemos dizer mais do que isso. */
@@ -55,7 +55,7 @@ function IconeDoEvento({ tipo }: { tipo: string }) {
 
 interface Mes {
   titulo: string;
-  itens: ItemLinhaDoTempo[];
+  itens: TimeItemLinha[];
 }
 
 /**
@@ -69,8 +69,8 @@ interface Mes {
  * O ano só aparece quando muda em relação ao grupo anterior: repetir "2026"
  * doze vezes não informa nada.
  */
-function porMes(itens: ItemLinhaDoTempo[], fuso: string): Mes[] {
-  const grupos: { ano: number; mes: string; itens: ItemLinhaDoTempo[] }[] = [];
+function byMes(itens: TimeItemLinha[], fuso: string): Mes[] {
+  const groups: { ano: number; mes: string; itens: TimeItemLinha[] }[] = [];
 
   for (const item of itens) {
     const partes = new Intl.DateTimeFormat('pt-BR', {
@@ -81,13 +81,13 @@ function porMes(itens: ItemLinhaDoTempo[], fuso: string): Mes[] {
     const mes = partes.find((p) => p.type === 'month')?.value ?? '';
     const ano = Number(partes.find((p) => p.type === 'year')?.value ?? '0');
 
-    const ultimo = grupos[grupos.length - 1];
+    const ultimo = groups[groups.length - 1];
     if (ultimo && ultimo.ano === ano && ultimo.mes === mes) ultimo.itens.push(item);
-    else grupos.push({ ano, mes, itens: [item] });
+    else groups.push({ ano, mes, itens: [item] });
   }
 
   let anoAnterior: number | null = null;
-  return grupos.map((g) => {
+  return groups.map((g) => {
     const mostrarAno = g.ano !== anoAnterior;
     anoAnterior = g.ano;
     const titulo = mostrarAno ? `${g.mes} de ${g.ano}` : g.mes;
@@ -95,12 +95,12 @@ function porMes(itens: ItemLinhaDoTempo[], fuso: string): Mes[] {
   });
 }
 
-export function LinhaDoTempo({
+export function TimeLinha({
   itens,
   fuso,
   agora,
 }: {
-  itens: ItemLinhaDoTempo[];
+  itens: TimeItemLinha[];
   fuso: string;
   agora: Date;
 }) {
@@ -109,8 +109,8 @@ export function LinhaDoTempo({
   }
 
   return (
-    <div className="tempo" style={{ ['--trilho' as string]: `${TRILHO}px` }}>
-      {porMes(itens, fuso).map((mes) => (
+    <div className="tempo" style={{ ['--trilho' as string]: `${RAIL}px` }}>
+      {byMes(itens, fuso).map((mes) => (
         <section key={mes.titulo}>
           <h4>
             <span>{mes.titulo}</span>

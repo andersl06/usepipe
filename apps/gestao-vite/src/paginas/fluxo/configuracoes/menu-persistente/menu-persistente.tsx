@@ -1,6 +1,6 @@
-import type { ConfiguracaoDeMenuPersistente } from '@pipe/contracts';
-import { useLeitura } from '../../../../lib/consulta';
-import { useContato } from '../../contato';
+import type { ConfigurationOfMenuPersistent } from '@pipe/contracts';
+import { useRead } from '../../../../lib/consulta';
+import { useContact } from '../../contato';
 import { TelaDeMenuPersistente } from './tela';
 
 /**
@@ -10,18 +10,18 @@ import { TelaDeMenuPersistente } from './tela';
  * itens e a trava de "boas-vindas preenchida" vêm de
  * `GET /v1/gestao/fluxos/:id/menu-persistente`.
  */
-export function PaginaDeMenuPersistente() {
-  const { contato } = useContato();
-  const canalCompativel = contato.canalAtivo === true && contato.canalTipo === 'messenger';
-  const leitura = useLeitura<ConfiguracaoDeMenuPersistente>(
-    `/v1/gestao/fluxos/${contato.id}/menu-persistente`,
+export function PersistentMenuPage() {
+  const { contact } = useContact();
+  const channelCompativel = contact.channelActive === true && contact.channelTipo === 'messenger';
+  const read = useRead<ConfigurationOfMenuPersistent>(
+    `/v1/gestao/fluxos/${contact.id}/menu-persistente`,
   );
-  if (!leitura.data) return null;
+  if (!read.data) return null;
   return (
     <TelaDeMenuPersistente
-      id={contato.id}
-      canalCompativel={canalCompativel}
-      inicial={leitura.data}
+      id={contact.id}
+      channelCompativel={channelCompativel}
+      inicial={read.data}
     />
   );
 }

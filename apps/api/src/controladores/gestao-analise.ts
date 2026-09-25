@@ -1,32 +1,32 @@
 import { Controller, Get, Param, Query, Req } from '@nestjs/common';
 import {
   hojeNoFuso,
-  intervaloDoPeriodo,
-  lerPeriodo,
-  type DadosDeMensagensAtivas,
-  type DadosDoDashboard,
+  periodInterval,
+  readPeriod,
+  type ActiveMessagesData,
+  type DashboardData,
   type Intervalo,
-  type Periodo,
+  type Period,
   type ArestaDaJornada,
-  type RelatorioPersonalizado,
+  type ReportCustom,
   type VisaoGeral,
 } from '@pipe/core/analise';
-import { DIRECOES_MENSAGEM, TIPOS_MENSAGEM } from '@pipe/db/schema';
+import { DIRECTIONS_MESSAGE, TYPES_MESSAGE } from '@pipe/db/schema';
 import { noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
-import { lerCursor, lerLimite, type Pagina } from '../paginacao.js';
-import { carregarContato, fusoDoTenant } from '../dominio/gestao-fluxo.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
+import { lerCursor, lerLimite, type Page } from '../paginacao.js';
+import { loadContact, fusoDoTenant } from '../dominio/gestao-fluxo.js';
 import {
   carregarDashboard,
   carregarJornada,
-  carregarListaDeContatos,
-  carregarLogDeMensagens,
-  carregarMensagensAtivas,
-  carregarRelatorios,
+  loadListOfContacts,
+  loadLogOfMessages,
+  loadMessagesActive,
+  loadReports,
   carregarVisaoGeral,
-  janelaDeDatas,
+  windowOfDatas,
   type LinhaDoLog,
 } from '../dominio/gestao-analise.js';
 
@@ -41,9 +41,9 @@ import {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
 
-function uuidOu404(valor: string): string {
-  if (!UUID.test(valor)) throw ErroPipe.naoEncontrado('fluxo');
-  return valor;
+function uuidOu404(value: string): string {
+  if (!UUID.test(value)) throw PipeError.naoEncontrado('fluxo');
+  return value;
 }
 
 /** `moment().add(n, 'days')` sobre uma data sem hora. */
@@ -54,7 +54,7 @@ function somarDias(dia: string, n: number): string {
 }
 
 /** `?de=&ate=` válidos e em ordem, ou o padrão da tela. */
-function periodoDaUrl(
+function periodOfUrl(
   de: string | undefined,
   ate: string | undefined,
   padraoDe: string,
@@ -65,21 +65,21 @@ function periodoDaUrl(
 }
 
 export interface RespostaDoDashboard {
-  periodo: Periodo;
+  period: Period;
   intervalo: Intervalo;
   hoje: string;
-  dados: DadosDoDashboard;
+  data: DashboardData;
   lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
 }
 
-export interface RespostaDeMensagensAtivas {
-  periodo: Periodo;
+export interface ResponseOfMessagesActive {
+  periodo: Period;
   intervalo: Intervalo;
   hoje: string;
   /** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */
   limite: string;
   template: string | null;
-  dados: DadosDeMensagensAtivas;
+  dados: ActiveMessagesData;
 }
 
 export interface RespostaDaVisaoGeral {
@@ -94,135 +94,135 @@ export interface RespostaDaJornada {
   ate: string;
   min: string;
   max: string;
-  roteador: boolean;
+  router: boolean;
 }
 
-export interface RespostaDosRelatorios {
-  relatorios: RelatorioPersonalizado[];
+export interface ResponseOfReports {
+  reports: ReportCustom[];
   fuso: string;
 }
 
 @Controller('v1/gestao/fluxos/:id/analise')
-export class ControladorGestaoAnalise {
+export class ManagementAnalyticsController {
   @Get('dashboard')
-  @ComSessao()
+  @WithSession()
   async dashboard(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() request: RequestWithSession,
     @Param('id') id: string,
-    @Query('periodo') periodoPedido?: string,
+    @Query('periodo') periodRequest?: string,
     @Query('de') de?: string,
     @Query('ate') ate?: string,
-    @Query('contatos') contatos?: string,
+    @Query('contatos') contacts?: string,
   ): Promise<RespostaDoDashboard> {
-    const sessao = sessaoDe(requisicao);
+    const session = sessionOf(request);
     uuidOu404(id);
-    const resposta = await noTenant(sessao.tenantId, async (tx) => {
+    const resposta = await noTenant(session.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
-      let periodo = lerPeriodo(periodoPedido);
-      let intervalo = intervaloDoPeriodo(periodo, hoje, { de, ate, limiteDias: 90 });
+      let period = readPeriod(periodRequest);
+      let intervalo = periodInterval(period, hoje, { de, ate, limiteDias: 90 });
       if (!intervalo) {
-        periodo = 'today';
+        period = 'today';
         intervalo = { inicio: hoje, fim: hoje };
       }
       const tipo: 'interacao' | 'rejeicao' | null =
-        contatos === 'interacao' || contatos === 'rejeicao' ? contatos : null;
-      const dados = await carregarDashboard(tx, id, intervalo, fuso);
-      if (!dados) return null;
-      const nomes = tipo ? await carregarListaDeContatos(tx, id, intervalo, fuso, tipo) : null;
+        contacts === 'interacao' || contacts === 'rejeicao' ? contacts : null;
+      const data = await carregarDashboard(tx, id, intervalo, fuso);
+      if (!data) return null;
+      const nomes = tipo ? await loadListOfContacts(tx, id, intervalo, fuso, tipo) : null;
       const lista: RespostaDoDashboard['lista'] = tipo && nomes ? { tipo, nomes } : null;
-      return { periodo, intervalo, hoje, dados, lista };
+      return { period, intervalo, hoje, data, lista };
     });
-    if (!resposta) throw ErroPipe.naoEncontrado('fluxo');
+    if (!resposta) throw PipeError.naoEncontrado('fluxo');
     return resposta;
   }
 
   @Get('mensagens-ativas')
-  @ComSessao()
-  async mensagensAtivas(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async messagesActive(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Query('periodo') periodoPedido?: string,
     @Query('de') de?: string,
     @Query('ate') ate?: string,
     @Query('template') templatePedido?: string,
-  ): Promise<RespostaDeMensagensAtivas> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ResponseOfMessagesActive> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id);
     return noTenant(sessao.tenantId, async (tx) => {
       const hoje = hojeNoFuso(await fusoDoTenant(tx));
       /* 186 dias é o `startDateLimit` que o `St` põe no `bds-datepicker`. */
-      let periodo = lerPeriodo(periodoPedido);
-      let intervalo = intervaloDoPeriodo(periodo, hoje, { de, ate, limiteDias: 186 });
+      let periodo = readPeriod(periodoPedido);
+      let intervalo = periodInterval(periodo, hoje, { de, ate, limiteDias: 186 });
       if (!intervalo) {
         periodo = 'today';
         intervalo = { inicio: hoje, fim: hoje };
       }
       const template = templatePedido?.trim() || null;
-      const dados = await carregarMensagensAtivas(tx, id, intervalo, template);
+      const dados = await loadMessagesActive(tx, id, intervalo, template);
       return { periodo, intervalo, hoje, limite: somarDias(hoje, -186), template, dados };
     });
   }
 
   @Get('visao-geral')
-  @ComSessao()
+  @WithSession()
   async visaoGeral(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Query('de') dePedido?: string,
     @Query('ate') atePedido?: string,
   ): Promise<RespostaDaVisaoGeral> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(id);
     return noTenant(sessao.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
-      const { de, ate } = periodoDaUrl(dePedido, atePedido, somarDias(hoje, -7), hoje);
-      const dados = await carregarVisaoGeral(tx, id, await janelaDeDatas(tx, fuso, de, ate), fuso);
+      const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -7), hoje);
+      const dados = await carregarVisaoGeral(tx, id, await windowOfDatas(tx, fuso, de, ate), fuso);
       return { dados, de, ate };
     });
   }
 
   @Get('jornada')
-  @ComSessao()
+  @WithSession()
   async jornada(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Query('de') dePedido?: string,
     @Query('ate') atePedido?: string,
   ): Promise<RespostaDaJornada> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(id);
     const resposta = await noTenant(sessao.tenantId, async (tx) => {
-      const contato = await carregarContato(tx, sessao.tenantId, id);
-      if (!contato) return null;
+      const contact = await loadContact(tx, sessao.tenantId, id);
+      if (!contact) return null;
       const fuso = await fusoDoTenant(tx);
       const hoje = hojeNoFuso(fuso);
-      const { de, ate } = periodoDaUrl(dePedido, atePedido, somarDias(hoje, -1), hoje);
-      const arestas = await carregarJornada(tx, id, await janelaDeDatas(tx, fuso, de, ate));
+      const { de, ate } = periodOfUrl(dePedido, atePedido, somarDias(hoje, -1), hoje);
+      const arestas = await carregarJornada(tx, id, await windowOfDatas(tx, fuso, de, ate));
       return {
         arestas,
         de,
         ate,
         min: somarDias(hoje, -30),
         max: somarDias(hoje, 1),
-        roteador: contato.tipo === 'roteador',
+        roteador: contact.tipo === 'roteador',
       };
     });
-    if (!resposta) throw ErroPipe.naoEncontrado('fluxo');
+    if (!resposta) throw PipeError.naoEncontrado('fluxo');
     return resposta;
   }
 
   @Get('relatorios')
-  @ComSessao()
-  async relatorios(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async reports(
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<RespostaDosRelatorios> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<ResponseOfReports> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id);
     return noTenant(sessao.tenantId, async (tx) => ({
-      relatorios: await carregarRelatorios(tx),
+      relatorios: await loadReports(tx),
       fuso: await fusoDoTenant(tx),
     }));
   }
@@ -234,46 +234,46 @@ export class ControladorGestaoAnalise {
    * ignorados, não erro — mesmo trato lenientede `contatos` em `dashboard()`.
    */
   @Get('log')
-  @ComSessao()
+  @WithSession()
   async log(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Query('busca') busca?: string,
+    @Query('busca') search?: string,
     @Query('de') de?: string,
     @Query('ate') ate?: string,
-    @Query('direcao') direcao?: string,
+    @Query('direcao') direction?: string,
     @Query('tipo') tipo?: string,
     @Query('cursor') cursorBruto?: string,
     @Query('limit') limiteBruto?: string,
-  ): Promise<Pagina<LinhaDoLog>> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<Page<LinhaDoLog>> {
+    const sessao = sessionOf(requisicao);
     uuidOu404(id);
     const limite = lerLimite(limiteBruto);
     const cursor = lerCursor(cursorBruto);
     const resposta = await noTenant(sessao.tenantId, async (tx) => {
       // Mesmo trato de `jornada()`: fluxo de outro tenant não existe para a RLS,
       // e "sem fluxo" não pode devolver 200 com lista vazia — vira 404.
-      const contato = await carregarContato(tx, sessao.tenantId, id);
+      const contato = await loadContact(tx, sessao.tenantId, id);
       if (!contato) return null;
       const fuso = await fusoDoTenant(tx);
-      return carregarLogDeMensagens(
+      return loadLogOfMessages(
         tx,
         id,
         fuso,
         {
-          busca,
+          search,
           de: de && DIA.test(de) ? de : undefined,
           ate: ate && DIA.test(ate) ? ate : undefined,
-          direcao: direcao && (DIRECOES_MENSAGEM as readonly string[]).includes(direcao)
-            ? direcao
+          direcao: direction && (DIRECTIONS_MESSAGE as readonly string[]).includes(direction)
+            ? direction
             : undefined,
-          tipo: tipo && (TIPOS_MENSAGEM as readonly string[]).includes(tipo) ? tipo : undefined,
+          tipo: tipo && (TYPES_MESSAGE as readonly string[]).includes(tipo) ? tipo : undefined,
         },
         cursor,
         limite,
       );
     });
-    if (!resposta) throw ErroPipe.naoEncontrado('fluxo');
+    if (!resposta) throw PipeError.naoEncontrado('fluxo');
     return resposta;
   }
 }

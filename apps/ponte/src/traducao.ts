@@ -7,10 +7,10 @@
  * como se fosse dado do cliente.
  */
 
-import type { EstadoConversa } from '@pipe/core';
+import type { StateConversation } from '@pipe/core';
 
 /** Estados do Pipe → `status` que o Desk lê para separar fila de atendimento. */
-const STATUS_POR_ESTADO: Record<EstadoConversa, string> = {
+const STATUS_BY_STATE: Record<StateConversation, string> = {
   na_fila: 'Waiting',
   atribuida: 'Open',
   em_atendimento: 'Open',
@@ -19,7 +19,7 @@ const STATUS_POR_ESTADO: Record<EstadoConversa, string> = {
 };
 
 /** `entrada` é o cliente falando; `saida` é a empresa. `interna` não é conversa. */
-const DIRECAO_BLIP: Record<string, string> = {
+const DIRECTION_BLIP: Record<string, string> = {
   entrada: 'received',
   saida: 'sent',
 };
@@ -35,39 +35,39 @@ const TIPO_BLIP: Record<string, string> = {
 };
 
 /** Estado do atendente no Pipe → o que o seletor de status do Desk espera. */
-const STATUS_ATENDENTE_BLIP: Record<string, string> = {
+const STATUS_AGENT_BLIP: Record<string, string> = {
   online: 'Online',
   pausa: 'Pause',
   invisivel: 'Invisible',
   offline: 'Offline',
 };
 
-export type LinhaConversa = {
+export type LinhaConversation = {
   id: string;
-  estado: string;
-  prioridade: string;
+  state: string;
+  priority: string;
   criada_em: string | Date | null;
   atribuida_em: string | Date | null;
   encerrada_em: string | Date | null;
-  ultima_mensagem_em: string | Date | null;
-  ultima_mensagem_de: string | null;
-  fila_id: string | null;
-  fila_nome: string | null;
-  atendente_id: string | null;
-  atendente_nome: string | null;
-  atendente_email?: string | null;
-  contato_id: string;
-  contato_nome: string | null;
-  contato_telefone: string | null;
-  canal_tipo: string | null;
+  ultimaMessageIn: string | Date | null;
+  ultimaMessageOf: string | null;
+  queueId: string | null;
+  queueName: string | null;
+  agentId: string | null;
+  agentName: string | null;
+  agentEmail?: string | null;
+  contactId: string;
+  contactName: string | null;
+  contactTelefone: string | null;
+  channelTipo: string | null;
   nao_lidas?: number;
-  ultima_mensagem_texto?: string | null;
+  lastMessageText?: string | null;
 }
 
-export type LinhaMensagem = {
+export type LinhaMessage = {
   id: string;
   criada_em: string | Date | null;
-  direcao: string;
+  direction: string;
   autor_tipo: string;
   tipo: string;
   conteudo: string | null;
@@ -84,9 +84,9 @@ export function iso(v: string | Date | null | undefined): string | null {
  * meu?"), então precisa ser estável e única por pessoa — o e-mail serve às duas
  * coisas.
  */
-export function identidade(email: string | null | undefined, dominio = 'pipe.local'): string {
-  if (!email) return `desconhecido@${dominio}`;
-  return `${email.replace('@', '%40')}@${dominio}`;
+export function identity(email: string | null | undefined, domain = 'pipe.local'): string {
+  if (!email) return `desconhecido@${domain}`;
+  return `${email.replace('@', '%40')}@${domain}`;
 }
 
 /**
@@ -105,33 +105,33 @@ export function numeroVisivel(id: string): number {
   return parseInt(hex, 16) % 1_000_000;
 }
 
-export function comoTicket(linha: LinhaConversa, dominio?: string): Record<string, unknown> {
-  const telefone = linha.contato_telefone ?? '';
+export function comoTicket(linha: LinhaConversation, domain?: string): Record<string, unknown> {
+  const telefone = linha.contactTelefone ?? '';
   const abertura = iso(linha.criada_em);
   return {
     id: linha.id,
     sequentialId: numeroVisivel(linha.id),
     // Sem roteador no Pipe: o "dono" do atendimento é o canal por onde ele entrou.
-    ownerIdentity: `${linha.canal_tipo ?? 'canal'}@pipe.local`,
-    customerIdentity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contato_id,
-    customerName: linha.contato_nome ?? 'Sem nome',
+    ownerIdentity: `${linha.channelTipo ?? 'canal'}@pipe.local`,
+    customerIdentity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
+    customerName: linha.contactName ?? 'Sem nome',
     customerPhoneNumber: telefone,
-    agentIdentity: linha.atendente_email ? identidade(linha.atendente_email, dominio) : null,
-    status: STATUS_POR_ESTADO[linha.estado as EstadoConversa] ?? 'Open',
-    team: linha.fila_nome ?? 'Default',
+    agentIdentity: linha.agentEmail ? identity(linha.agentEmail, domain) : null,
+    status: STATUS_BY_STATE[linha.state as StateConversation] ?? 'Open',
+    team: linha.queueName ?? 'Default',
     storageDate: abertura,
     openDate: iso(linha.atribuida_em) ?? abertura,
     closeDate: iso(linha.encerrada_em),
-    lastMessage: linha.ultima_mensagem_em
+    lastMessage: linha.ultimaMessageIn
       ? {
-          content: linha.ultima_mensagem_texto ?? '',
-          direction: linha.ultima_mensagem_de === 'contato' ? 'received' : 'sent',
-          date: iso(linha.ultima_mensagem_em),
+          content: linha.lastMessageText ?? '',
+          direction: linha.ultimaMessageOf === 'contato' ? 'received' : 'sent',
+          date: iso(linha.ultimaMessageIn),
         }
       : null,
-    lastMessageSort: linha.ultima_mensagem_em ? new Date(iso(linha.ultima_mensagem_em)!).getTime() : 0,
+    lastMessageSort: linha.ultimaMessageIn ? new Date(iso(linha.ultimaMessageIn)!).getTime() : 0,
     unreadMessages: Number(linha.nao_lidas ?? 0),
-    isNew: linha.estado === 'na_fila',
+    isNew: linha.state === 'na_fila',
     /* Os três abaixo o Pipe não tem, e ainda assim precisam existir: a lista do
        Desk lê esses campos ao montar cada cartão, e um deles faltando derruba a
        lista inteira — foi o que aconteceu ao ligar a ponte. Valor neutro, nunca
@@ -141,18 +141,18 @@ export function comoTicket(linha: LinhaConversa, dominio?: string): Record<strin
     sequentialSuffix: '',
     tags: [],
     customerAccount: {
-      identity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contato_id,
-      name: linha.contato_nome ?? 'Sem nome',
-      fullName: linha.contato_nome ?? 'Sem nome',
+      identity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contactId,
+      name: linha.contactName ?? 'Sem nome',
+      fullName: linha.contactName ?? 'Sem nome',
       phoneNumber: telefone,
       email: null,
       photoUri: '',
       extras: {
         // A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo
         // vocabulário. Em vez de traduzir por aproximação, ela viaja como está.
-        prioridadePipe: linha.prioridade,
-        canal: linha.canal_tipo ?? '',
-        fila: linha.fila_nome ?? '',
+        prioridadePipe: linha.priority,
+        canal: linha.channelTipo ?? '',
+        fila: linha.queueName ?? '',
       },
     },
   };
@@ -163,60 +163,60 @@ export function comoTicket(linha: LinhaConversa, dominio?: string): Record<strin
  * fora: na Blip ela não é mensagem da conversa, é outro recurso. Entregá-la aqui
  * faria a nota aparecer como se tivesse ido para o cliente.
  */
-export function comoDocumento(linha: LinhaMensagem): Record<string, unknown> | null {
-  const direcao = DIRECAO_BLIP[linha.direcao];
-  if (!direcao) return null;
+export function asDocument(linha: LinhaMessage): Record<string, unknown> | null {
+  const direction = DIRECTION_BLIP[linha.direction];
+  if (!direction) return null;
   return {
     id: linha.id,
-    direction: direcao,
+    direction: direction,
     type: TIPO_BLIP[linha.tipo] ?? 'text/plain',
     content: linha.conteudo ?? '',
     date: iso(linha.criada_em),
     /* `messageEmitter` só existe para o que SAIU: ele diz se quem falou foi gente ou
        o robô. Em mensagem recebida o campo não tem sentido, e mandá-lo fazia a tela
        rotular a fala do próprio cliente como "Bot". */
-    ...(direcao === 'sent'
+    ...(direction === 'sent'
       ? { messageEmitter: linha.autor_tipo === 'atendente' ? 'Human' : 'Bot' }
       : {}),
   };
 }
 
-export function comoDocumentos(linhas: LinhaMensagem[]): Record<string, unknown>[] {
-  return linhas.map(comoDocumento).filter((m): m is Record<string, unknown> => m !== null);
+export function asDocuments(linhas: LinhaMessage[]): Record<string, unknown>[] {
+  return linhas.map(asDocument).filter((m): m is Record<string, unknown> => m !== null);
 }
 
-export type LinhaAtendente = {
+export type LinhaAgent = {
   id: string;
   nome: string | null;
   email: string;
-  estado?: string | null;
+  state?: string | null;
   /** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */
   ehAdministrador?: boolean;
 }
 
 /** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */
-export function comoConta(
-  usuario: LinhaAtendente,
-  filas: string[],
-  dominio?: string,
+export function asAccount(
+  user: LinhaAgent,
+  queues: string[],
+  domain?: string,
 ): Record<string, unknown> {
   return {
-    identity: identidade(usuario.email, dominio),
-    fullName: usuario.nome ?? usuario.email,
-    email: usuario.email,
-    status: STATUS_ATENDENTE_BLIP[usuario.estado ?? 'offline'] ?? 'Offline',
-    isOwner: usuario.ehAdministrador ?? false,
+    identity: identity(user.email, domain),
+    fullName: user.nome ?? user.email,
+    email: user.email,
+    status: STATUS_AGENT_BLIP[user.state ?? 'offline'] ?? 'Offline',
+    isOwner: user.ehAdministrador ?? false,
     isEnabled: true,
     phoneNumber: '',
     photoUri: '',
-    teams: filas,
+    teams: queues,
     culture: 'pt-BR',
     extras: {},
   };
 }
 
-export function comoTime(fila: { id: string; nome: string }): Record<string, unknown> {
-  return { id: fila.id, name: fila.nome };
+export function comoTime(queue: { id: string; nome: string }): Record<string, unknown> {
+  return { id: queue.id, name: queue.nome };
 }
 
-export { STATUS_POR_ESTADO, STATUS_ATENDENTE_BLIP, DIRECAO_BLIP, TIPO_BLIP };
+export { STATUS_BY_STATE, STATUS_AGENT_BLIP, DIRECTION_BLIP, TIPO_BLIP };

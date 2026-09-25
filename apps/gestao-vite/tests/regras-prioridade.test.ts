@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
-  regrasDaFila,
+  queueRules,
   regrasDoTenant,
   rotuloDoNivel,
-  type RegraDePrioridade,
+  type PriorityRule,
 } from '../src/lib/regras-prioridade.ts';
 
 /**
@@ -20,11 +20,11 @@ import {
 function regra(
   id: string,
   nome: string,
-  escopoTipo: string,
-  escopoId: string | null,
+  scopeTipo: string,
+  scopeId: string | null,
   nivel = 'alta',
-): RegraDePrioridade {
-  return { id, nome, nivel, escopoTipo, escopoId, condicao: {}, ativa: true };
+): PriorityRule {
+  return { id, nome, nivel, scopeTipo, scopeId, condition: {}, active: true };
 }
 
 const TODAS = [
@@ -36,15 +36,15 @@ const TODAS = [
 
 test('a seção da fila só enxerga as regras daquela fila', () => {
   assert.deepEqual(
-    regrasDaFila(TODAS, 'fila-suporte').map((r) => r.nome),
+    queueRules(TODAS, 'fila-suporte').map((r) => r.nome),
     ['VIP', 'Fila de segunda'],
   );
-  assert.deepEqual(regrasDaFila(TODAS, 'fila-sem-regra'), []);
+  assert.deepEqual(queueRules(TODAS, 'fila-sem-regra'), []);
 });
 
 test('a regra de escopo tenant não entra na seção da fila', () => {
   assert.equal(
-    regrasDaFila(TODAS, 'fila-suporte').some((r) => r.escopoTipo === 'tenant'),
+    queueRules(TODAS, 'fila-suporte').some((r) => r.scopeType === 'tenant'),
     false,
   );
   assert.deepEqual(

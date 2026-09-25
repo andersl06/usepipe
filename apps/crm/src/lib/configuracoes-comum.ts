@@ -24,18 +24,18 @@
 export const TEMAS = ['sistema', 'claro', 'escuro'] as const;
 export type Tema = (typeof TEMAS)[number];
 
-export const CHAVE_TEMA = 'pipe-tema';
+export const KEY_TEMA = 'pipe-tema';
 
-export function temaValido(valor: unknown): valor is Tema {
-  return typeof valor === 'string' && (TEMAS as readonly string[]).includes(valor);
+export function temaValido(value: unknown): value is Tema {
+  return typeof value === 'string' && (TEMAS as readonly string[]).includes(value);
 }
 
 /* ------------------------------------------------------------ texto e id */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-export function ehUuid(valor: unknown): valor is string {
-  return typeof valor === 'string' && UUID.test(valor);
+export function ehUuid(value: unknown): value is string {
+  return typeof value === 'string' && UUID.test(value);
 }
 
 /** Espaço nas pontas some; em branco vira `null`, que é o que apaga o campo. */
@@ -45,9 +45,9 @@ export function normalizar(bruto: string | null | undefined): string | null {
 }
 
 /** Nome de pessoa, de espaço, de papel: obrigatório e com teto. */
-export function recusarNome(valor: string | null, oQue = 'O nome'): string | null {
-  if (valor === null) return `${oQue} não pode ficar em branco.`;
-  if (valor.length > 120) return `${oQue} passa de 120 caracteres.`;
+export function recusarNome(value: string | null, oQue = 'O nome'): string | null {
+  if (value === null) return `${oQue} não pode ficar em branco.`;
+  if (value.length > 120) return `${oQue} passa de 120 caracteres.`;
   return null;
 }
 
@@ -59,10 +59,10 @@ export function normalizarEmail(bruto: string | null | undefined): string | null
   return limpo === '' ? null : limpo;
 }
 
-export function recusarEmail(valor: string | null): string | null {
-  if (valor === null) return 'Informe um e-mail.';
-  if (!EMAIL.test(valor)) return 'Este e-mail não parece válido.';
-  if (valor.length > 254) return 'Este e-mail passa de 254 caracteres.';
+export function recusarEmail(value: string | null): string | null {
+  if (value === null) return 'Informe um e-mail.';
+  if (!EMAIL.test(value)) return 'Este e-mail não parece válido.';
+  if (value.length > 254) return 'Este e-mail passa de 254 caracteres.';
   return null;
 }
 
@@ -75,13 +75,13 @@ export function recusarEmail(valor: string | null): string | null {
  * `javascript:` e `data:` não, que é o vetor clássico de `<img src>`.
  */
 export function recusarUrl(
-  valor: string | null,
+  value: string | null,
   { exigirHttps = false, obrigatoria = true }: { exigirHttps?: boolean; obrigatoria?: boolean } = {},
 ): string | null {
-  if (valor === null) return obrigatoria ? 'Informe uma URL.' : null;
+  if (value === null) return obrigatoria ? 'Informe uma URL.' : null;
   let url: URL;
   try {
-    url = new URL(valor);
+    url = new URL(value);
   } catch {
     return 'Isto não é uma URL. Comece com https://';
   }
@@ -90,7 +90,7 @@ export function recusarUrl(
   } else if (url.protocol !== 'https:' && url.protocol !== 'http:') {
     return 'A URL precisa começar com http:// ou https://';
   }
-  if (valor.length > 2000) return 'Esta URL passa de 2000 caracteres.';
+  if (value.length > 2000) return 'Esta URL passa de 2000 caracteres.';
   return null;
 }
 
@@ -115,8 +115,8 @@ export const TIPOS_DE_CAMPO = [
 
 export type TipoDeCampo = (typeof TIPOS_DE_CAMPO)[number]['codigo'];
 
-export function tipoDeCampoValido(valor: unknown): valor is TipoDeCampo {
-  return TIPOS_DE_CAMPO.some((t) => t.codigo === valor);
+export function tipoDeCampoValido(value: unknown): value is TipoDeCampo {
+  return TIPOS_DE_CAMPO.some((t) => t.codigo === value);
 }
 
 const CODIGO_DE_CAMPO = /^[a-z][a-z0-9_]{1,39}$/;
@@ -140,9 +140,9 @@ export function sugerirCodigo(rotulo: string): string {
   return comecaBem.slice(0, 40);
 }
 
-export function recusarCodigoDeCampo(valor: string | null): string | null {
-  if (valor === null) return 'Informe o código do campo.';
-  if (!CODIGO_DE_CAMPO.test(valor)) {
+export function recusarCodigoDeCampo(value: string | null): string | null {
+  if (value === null) return 'Informe o código do campo.';
+  if (!CODIGO_DE_CAMPO.test(value)) {
     return 'O código começa com letra e usa só letras minúsculas, números e _ (2 a 40).';
   }
   return null;
@@ -158,7 +158,7 @@ export function recusarCodigoDeCampo(valor: string | null): string | null {
  * `pnpm-workspace` existe para evitar. Quando a lista mudar lá, muda aqui; o
  * teste de baixo é o que faz a divergência aparecer.
  */
-export const CATALOGO_DE_ESCOPOS = [
+export const CATALOGO_OF_SCOPES = [
   { codigo: 'conversas:ler', rotulo: 'Ler conversas' },
   { codigo: 'conversas:escrever', rotulo: 'Criar e alterar conversa' },
   { codigo: 'mensagens:ler', rotulo: 'Ler mensagens' },
@@ -170,8 +170,8 @@ export const CATALOGO_DE_ESCOPOS = [
   { codigo: 'webhooks:escrever', rotulo: 'Gerenciar webhooks' },
 ] as const;
 
-export function escoposValidos(codigos: readonly string[]): string[] {
-  const conhecidos = new Set(CATALOGO_DE_ESCOPOS.map((e) => e.codigo as string));
+export function scopesValid(codigos: readonly string[]): string[] {
+  const conhecidos = new Set(CATALOGO_OF_SCOPES.map((e) => e.codigo as string));
   return [...new Set(codigos)].filter((c) => conhecidos.has(c));
 }
 
@@ -207,9 +207,9 @@ export function eventosValidos(eventos: readonly string[]): string[] {
  * lista escrita à mão: lista à mão envelhece a cada mudança de horário de verão
  * e passa a recusar um fuso que existe.
  */
-export function fusoValido(valor: string): boolean {
+export function fusoValido(value: string): boolean {
   try {
-    new Intl.DateTimeFormat('pt-BR', { timeZone: valor });
+    new Intl.DateTimeFormat('pt-BR', { timeZone: value });
     return true;
   } catch {
     return false;
@@ -223,7 +223,7 @@ export interface Perfil {
   nome: string;
   email: string;
   avatarUrl: string | null;
-  ultimoAcessoEm: Date | null;
+  ultimoAccessIn: Date | null;
   papeis: string[];
 }
 
@@ -235,47 +235,47 @@ export interface Espaco {
   idioma: string;
   logoUrl: string | null;
   plano: string;
-  implantacao: string;
-  membros: number;
-  dominios: { dominio: string; verificado: boolean }[];
+  deployment: string;
+  members: number;
+  dominios: { domain: string; verificado: boolean }[];
 }
 
-export interface Membro {
+export interface Member {
   id: string;
   nome: string;
   email: string;
   ativo: boolean;
-  ultimoAcessoEm: Date | null;
-  papelId: string | null;
-  papel: string | null;
+  ultimoAccessIn: Date | null;
+  roleId: string | null;
+  role: string | null;
 }
 
-export interface ConvitePendente {
+export interface InvitationPendente {
   id: string;
   email: string;
-  papel: string;
+  role: string;
   expiraEm: Date;
-  convidadoPor: string | null;
+  convidadoBy: string | null;
 }
 
-export interface ResumoDePapel {
+export interface RoleSummary {
   id: string;
   nome: string;
-  descricao: string | null;
+  description: string | null;
   deSistema: boolean;
-  permissoes: number;
-  membros: number;
+  permissions: number;
+  members: number;
 }
 
-export interface PermissaoDoCatalogo {
+export interface CatalogoPermission {
   codigo: string;
-  descricao: string;
+  description: string;
   grupo: string;
 }
 
-export interface PapelDetalhado extends ResumoDePapel {
+export interface RoleDetailed extends RoleSummary {
   concedidas: string[];
-  nomesDosMembros: string[];
+  membersNames: string[];
 }
 
 export interface CampoPersonalizado {
@@ -283,16 +283,16 @@ export interface CampoPersonalizado {
   codigo: string;
   rotulo: string;
   tipo: string;
-  descricao: string | null;
+  description: string | null;
   /** Quantos leads têm valor gravado nesta chave. É o que impede excluir às cegas. */
   preenchidos: number;
 }
 
-export interface ChaveDeApi {
+export interface ApiKey {
   id: string;
   nome: string;
-  prefixo: string;
-  escopos: string[];
+  prefix: string;
+  scopes: string[];
   criadoEm: Date | null;
   expiraEm: Date | null;
   ultimoUsoEm: Date | null;
@@ -311,7 +311,7 @@ export interface WebhookDeSaida {
 /** O que a tela devolve de toda escrita. `erro` já vem em português. */
 export interface Resultado {
   ok: boolean;
-  erro?: string;
+  error?: string;
   /** Segredo mostrado UMA vez: token de chave, de convite ou de webhook. */
-  segredo?: string;
+  secret?: string;
 }

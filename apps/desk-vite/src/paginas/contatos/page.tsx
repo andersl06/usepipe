@@ -1,13 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import type { ConversaDoHistorico, TicketDoDesk } from '@pipe/contracts';
-import { useLeitura } from '../../lib/consulta';
+import type { ConversationOfHistory, TicketDoDesk } from '@pipe/contracts';
+import { useRead } from '../../lib/consulta';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
-import { canalDe, numeroDoTicket } from '../../lib/canal';
+import { channelOf, numeroDoTicket } from '../../lib/canal';
 import { dataAbreviada } from '../../lib/formato';
-import { nomeDeExibicao } from '../../lib/ordem';
-import { agruparContatos, type ContatoDaLista, type OrdemDeContatos } from '../../lib/contatos';
+import { displayName } from '../../lib/ordem';
+import { agruparContacts, type ListaContact, type ContactsOrder } from '../../lib/contatos';
 import { Thread } from '../atendimentos/thread';
 
 /**
@@ -29,26 +29,26 @@ import { Thread } from '../atendimentos/thread';
  * Os dados vêm de `GET /v1/desk/contatos?busca=`, `/contatos/:id` e
  * `/tickets/:id`. Tudo de leitura, como lá.
  */
-export function PaginaContatos() {
+export function PageContacts() {
   const { id } = useParams();
   const [parametros, setParametros] = useSearchParams();
   const navegar = useNavigate();
-  const [busca, setBusca] = useState('');
-  const [ordem, setOrdem] = useState<OrdemDeContatos>('alfabetica');
-  const [menuOrdem, setMenuOrdem] = useState(false);
+  const [search, setSearch] = useState('');
+  const [order, setOrder] = useState<ContactsOrder>('alfabetica');
+  const [menuOrder, setMenuOrder] = useState(false);
   const [aba, setAba] = useState<'historico' | 'contato'>('historico');
   const ticketId = parametros.get('ticket');
 
-  const lista = useLeitura<{ contatos: ContatoDaLista[] }>(
-    `/v1/desk/contatos${busca.trim().length >= 2 ? `?busca=${encodeURIComponent(busca.trim())}` : ''}`,
+  const lista = useRead<{ contacts: ListaContact[] }>(
+    `/v1/desk/contatos${search.trim().length >= 2 ? `?busca=${encodeURIComponent(search.trim())}` : ''}`,
   );
-  const contato = useLeitura<{ contato: FichaDoContato; historico: ConversaDoHistorico[] }>(
+  const contact = useRead<{ contact: ContactFicha; history: ConversationOfHistory[] }>(
     id ? `/v1/desk/contatos/${id}` : null,
   );
-  const ticket = useLeitura<TicketDoDesk>(ticketId ? `/v1/desk/tickets/${ticketId}` : null);
-  const grupos = useMemo(
-    () => agruparContatos(lista.data?.contatos ?? [], ordem),
-    [lista.data, ordem],
+  const ticket = useRead<TicketDoDesk>(ticketId ? `/v1/desk/tickets/${ticketId}` : null);
+  const groups = useMemo(
+    () => agruparContacts(lista.data?.contacts ?? [], order),
+    [lista.data, order],
   );
 
   return (
@@ -67,8 +67,8 @@ export function PaginaContatos() {
                 type="search"
                 placeholder="Pesquisar contato"
                 aria-label="Pesquisar contato"
-                value={busca}
-                onChange={(e) => setBusca(e.target.value)}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </label>
             <div className="dk-ficha-menu">
@@ -77,16 +77,16 @@ export function PaginaContatos() {
                 className="dk-botao-icone"
                 title="Ordenar contatos"
                 aria-label="Ordenar contatos"
-                aria-expanded={menuOrdem}
-                onClick={() => setMenuOrdem((v) => !v)}
+                aria-expanded={menuOrder}
+                onClick={() => setMenuOrder((v) => !v)}
               >
                 <IconeDesk nome="ordenar" />
               </button>
-              {menuOrdem ? (
+              {menuOrder ? (
                 <div
                   className="dk-menu dk-contatos-ordem"
                   role="menu"
-                  onMouseLeave={() => setMenuOrdem(false)}
+                  onMouseLeave={() => setMenuOrder(false)}
                 >
                   <div className="dk-contatos-ordem-titulo">Ordenar contatos</div>
                   {(
@@ -94,21 +94,21 @@ export function PaginaContatos() {
                       ['alfabetica', 'Ordem alfabética', 'lista'],
                       ['ultima-interacao', 'Última interação', 'relogio'],
                     ] as const
-                  ).map(([valor, rotulo, icone]) => (
+                  ).map(([value, rotulo, icone]) => (
                     <button
-                      key={valor}
+                      key={value}
                       type="button"
                       role="menuitemradio"
-                      aria-checked={ordem === valor}
+                      aria-checked={order === value}
                       className="dk-contatos-ordem-item"
                       onClick={() => {
-                        setOrdem(valor);
-                        setMenuOrdem(false);
+                        setOrder(value);
+                        setMenuOrder(false);
                       }}
                     >
                       <IconeDesk nome={icone} />
                       <span>{rotulo}</span>
-                      {ordem === valor ? <IconeDesk nome="check" /> : null}
+                      {order === value ? <IconeDesk nome="check" /> : null}
                     </button>
                   ))}
                 </div>
@@ -118,11 +118,11 @@ export function PaginaContatos() {
         </div>
         <div className="dk-contatos-rolagem">
           {lista.isPending ? <div className="dk-girando dk-girando-pequeno" /> : null}
-          {grupos.map((g) => (
+          {groups.map((g) => (
             <div key={g.rotulo}>
               <div className="dk-contatos-grupo">{g.rotulo}</div>
               <ul className="dk-contatos-itens">
-                {g.contatos.map((c) => (
+                {g.contacts.map((c) => (
                   <li key={c.id}>
                     <button
                       type="button"
@@ -135,16 +135,16 @@ export function PaginaContatos() {
                       </span>
                       <span className="dk-contato-texto">
                         <b>
-                          {nomeDeExibicao({
-                            contatoNome: c.nome,
-                            contatoTelefone: c.telefone,
-                            contatoEmail: c.email,
-                            contatoId: c.id,
+                          {displayName({
+                            contactName: c.nome,
+                            contactTelefone: c.telefone,
+                            contactEmail: c.email,
+                            contactId: c.id,
                           })}
                         </b>
                         <small>
                           Última interação :{' '}
-                          {c.ultimaInteracaoEm ? dataCurta(new Date(c.ultimaInteracaoEm)) : '—'}
+                          {c.lastInteractionAt ? dataCurta(new Date(c.lastInteractionAt)) : '—'}
                         </small>
                       </span>
                       <IconeDesk nome="seta-direita" tamanho={20} />
@@ -154,7 +154,7 @@ export function PaginaContatos() {
               </ul>
             </div>
           ))}
-          {lista.data && grupos.length === 0 ? (
+          {lista.data && groups.length === 0 ? (
             <div className="dk-lista-vazia">Nenhum contato encontrado</div>
           ) : null}
         </div>
@@ -163,10 +163,10 @@ export function PaginaContatos() {
       <div className="dk-contatos-meio">
         {ticketId && ticket.data ? (
           <Thread
-            conversaId={ticket.data.ticket.id}
+            conversationId={ticket.data.ticket.id}
             itens={ticket.data.itens}
             agora={new Date()}
-            somenteLeitura
+            somenteRead
           />
         ) : (
           <div className="dk-contatos-vazio">
@@ -182,7 +182,7 @@ export function PaginaContatos() {
             </div>
           </div>
         )}
-        {id && contato.data ? (
+        {id && contact.data ? (
           <div className="dk-contatos-rodape">
             <div className="dk-contatos-rodape-papel">
               <p>Inicie uma nova conversa com este contato enviando uma mensagem ativa.</p>
@@ -207,30 +207,30 @@ export function PaginaContatos() {
                   ['historico', 'Histórico'],
                   ['contato', 'Contato'],
                 ] as const
-              ).map(([valor, rotulo]) => (
+              ).map(([value, rotulo]) => (
                 <button
-                  key={valor}
+                  key={value}
                   type="button"
                   role="tab"
                   className="dk-aba"
-                  aria-selected={aba === valor}
-                  onClick={() => setAba(valor)}
+                  aria-selected={aba === value}
+                  onClick={() => setAba(value)}
                 >
                   {rotulo}
                 </button>
               ))}
             </div>
             <div className="dk-painel-corpo" role="tabpanel">
-              {!contato.data ? (
+              {!contact.data ? (
                 <div className="dk-girando dk-girando-pequeno" />
               ) : aba === 'historico' ? (
                 <section className="dk-papel" style={{ flexBasis: '100%' }}>
-                  {contato.data.historico.length === 0 ? (
+                  {contact.data.history.length === 0 ? (
                     <div className="dk-comentarios-vazio" style={{ minHeight: 120 }}>
                       Não há mensagens nos últimos 90 dias.
                     </div>
                   ) : (
-                    contato.data.historico.map((h) => (
+                    contact.data.history.map((h) => (
                       <button
                         key={h.id}
                         type="button"
@@ -241,7 +241,7 @@ export function PaginaContatos() {
                         <b>Ticket {numeroDoTicket(h.id)}</b>
                         <span>{h.filaNome ?? 'Transferência direta'}</span>
                         <small>
-                          {situacao(h)}
+                          {situation(h)}
                           {h.encerradaEm ? ` · ${dataAbreviada(new Date(h.encerradaEm))}` : ''}
                         </small>
                       </button>
@@ -251,43 +251,43 @@ export function PaginaContatos() {
               ) : (
                 <section className="dk-papel" style={{ flexBasis: '100%' }}>
                   <h3 className="dk-papel-titulo">Contato</h3>
-                  <CampoDoContato
+                  <ContactField
                     rotulo="Nome"
-                    valor={contato.data.contato.nome}
-                    vazio="Nenhum nome cadastrado"
+                    value={contact.data.contact.nome}
+                    empty="Nenhum nome cadastrado"
                   />
-                  <CampoDoContato
+                  <ContactField
                     rotulo="Telefone"
-                    valor={contato.data.contato.telefone}
-                    vazio="Nenhum telefone cadastrado"
+                    value={contact.data.contact.telefone}
+                    empty="Nenhum telefone cadastrado"
                   />
-                  <CampoDoContato
+                  <ContactField
                     rotulo="E-mail"
-                    valor={contato.data.contato.email}
-                    vazio="Nenhum e-mail cadastrado"
+                    value={contact.data.contact.email}
+                    empty="Nenhum e-mail cadastrado"
                   />
-                  <CampoDoContato rotulo="ID do usuário" valor={contato.data.contato.id} vazio="" />
-                  <CampoDoContato
+                  <ContactField rotulo="ID do usuário" value={contact.data.contact.id} empty="" />
+                  <ContactField
                     rotulo="Documento"
-                    valor={contato.data.contato.documento}
-                    vazio="Nenhum documento cadastrado"
+                    value={contact.data.contact.document}
+                    empty="Nenhum documento cadastrado"
                   />
                   {ticket.data ? (
-                    <CampoDoContato
+                    <ContactField
                       rotulo="Canal"
-                      valor={canalDe(ticket.data.ticket.canalTipo).nome}
-                      vazio=""
+                      value={channelOf(ticket.data.ticket.canalTipo).nome}
+                      empty=""
                     />
                   ) : null}
-                  {Object.keys(contato.data.contato.atributos).length > 0 ? (
+                  {Object.keys(contact.data.contact.atributos).length > 0 ? (
                     <>
                       <h3 className="dk-papel-titulo">Dados Extras</h3>
-                      {Object.entries(contato.data.contato.atributos).map(([k, v]) => (
-                        <CampoDoContato
+                      {Object.entries(contact.data.contact.atributos).map(([k, v]) => (
+                        <ContactField
                           key={k}
                           rotulo={k}
-                          valor={v === null || v === undefined ? '' : String(v)}
-                          vazio=""
+                          value={v === null || v === undefined ? '' : String(v)}
+                          empty=""
                         />
                       ))}
                     </>
@@ -330,29 +330,29 @@ export function PaginaContatos() {
   );
 }
 
-interface FichaDoContato {
+interface ContactFicha {
   id: string;
   nome: string | null;
   telefone: string | null;
   email: string | null;
-  documento: string | null;
+  document: string | null;
   atributos: Record<string, unknown>;
 }
 
 /** Quando falta valor a tela escreve a falta, como lá ("Nenhum telefone cadastrado"). */
-function CampoDoContato({
+function ContactField({
   rotulo,
-  valor,
-  vazio,
+  value,
+  empty,
 }: {
   rotulo: string;
-  valor: string | null;
-  vazio: string;
+  value: string | null;
+  empty: string;
 }) {
   return (
     <p className="dk-campo-perfil">
       <b>{rotulo}:</b>
-      <span>{valor || vazio}</span>
+      <span>{value || empty}</span>
     </p>
   );
 }
@@ -369,7 +369,7 @@ function dataCurta(d: Date): string {
 }
 
 /** As situações de encerramento por extenso, as que o domínio distingue. */
-function situacao(h: ConversaDoHistorico): string {
+function situation(h: ConversationOfHistory): string {
   switch (h.estado) {
     case 'encerrada':
       return 'Finalizado pelo atendente';

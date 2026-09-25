@@ -30,17 +30,17 @@ export const CAMPOS_EDITAVEIS = {
   proprietario: { rotulo: 'Proprietário', tipo: 'selecao', maximo: 36 },
 } as const satisfies Record<string, CampoEditavel>;
 
-export type ChaveCampo = keyof typeof CAMPOS_EDITAVEIS;
+export type KeyField = keyof typeof CAMPOS_EDITAVEIS;
 
 const CHAVES: readonly string[] = Object.keys(CAMPOS_EDITAVEIS);
 
-export function campoValido(valor: string): valor is ChaveCampo {
-  return CHAVES.includes(valor);
+export function campoValido(value: string): value is KeyField {
+  return CHAVES.includes(value);
 }
 
 /** Espaço nas pontas fora; campo em branco é nulo, não string vazia. */
-export function normalizar(valor: string): string | null {
-  const limpo = valor.trim();
+export function normalizar(value: string): string | null {
+  const limpo = value.trim();
   return limpo === '' ? null : limpo;
 }
 
@@ -53,15 +53,15 @@ export function normalizar(valor: string): string | null {
  *
  * Devolve a queixa, ou `null` quando está bom.
  */
-export function recusar(campo: ChaveCampo, valor: string | null): string | null {
-  if (valor === null) return null;
-  if (valor.length > CAMPOS_EDITAVEIS[campo].maximo) {
+export function recusar(campo: KeyField, value: string | null): string | null {
+  if (value === null) return null;
+  if (value.length > CAMPOS_EDITAVEIS[campo].maximo) {
     return `Passa de ${CAMPOS_EDITAVEIS[campo].maximo} caracteres.`;
   }
-  if (campo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(valor)) {
+  if (campo === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
     return 'E-mail sem arroba ou sem domínio.';
   }
-  if (campo === 'telefone' && !/^[+\d][\d\s().-]*$/.test(valor)) {
+  if (campo === 'telefone' && !/^[+\d][\d\s().-]*$/.test(value)) {
     return 'Telefone só aceita dígitos, espaço, parênteses, traço e +.';
   }
   return null;

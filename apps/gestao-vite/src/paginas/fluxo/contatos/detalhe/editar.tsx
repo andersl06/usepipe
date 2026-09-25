@@ -1,21 +1,21 @@
 import { useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
-import { Selecao } from '../../../../componentes/selecao';
-import { salvarContato } from './gravar';
+import { Selection } from '../../../../componentes/selecao';
+import { salvarContact } from './gravar';
 
-interface Propriedades {
-  contatoId: string;
+interface Properties {
+  contactId: string;
   nome: string | null;
   email: string | null;
   telefone: string | null;
-  documento: string | null;
-  identidade: string | null;
+  document: string | null;
+  identity: string | null;
   atributos: Record<string, unknown>;
 }
 
 /** `''` (campo limpo na tela) vira `null` (apaga no banco); preenchido vai como veio. */
-function ouNulo(valor: string): string | null {
-  const limpo = valor.trim();
+function ouNulo(value: string): string | null {
+  const limpo = value.trim();
   return limpo === '' ? null : limpo;
 }
 
@@ -23,35 +23,35 @@ function ouNulo(valor: string): string | null {
    "Informações" + lápis (`notes`), linhas rótulo 30% / valor 70% (`mt4`),
    ID do contato com dica, e "Extras" (`mt5`) com as chaves do JSON.
    `PATCH /v1/contatos/:id` — `gravar.ts`. */
-export function InformacoesContato(props: Propriedades) {
+export function InformationContact(props: Properties) {
   const [editando, setEditando] = useState(false);
   const [aviso, setAviso] = useState('');
   const [salvando, setSalvando] = useState(false);
-  const cidade = typeof props.atributos['city'] === 'string' ? props.atributos['city'] : null;
+  const city = typeof props.atributos['city'] === 'string' ? props.atributos['city'] : null;
   const genero = typeof props.atributos['gender'] === 'string' ? props.atributos['gender'] : null;
   const extras = Object.entries(props.atributos).filter(
-    ([chave]) => !['city', 'gender'].includes(chave),
+    ([key]) => !['city', 'gender'].includes(key),
   );
   const generoExibido = genero === 'male' ? 'Masculino' : genero === 'female' ? 'Feminino' : genero;
 
   async function salvar(evento: React.FormEvent<HTMLFormElement>) {
     evento.preventDefault();
-    const dados = new FormData(evento.currentTarget);
+    const data = new FormData(evento.currentTarget);
     setAviso('');
     setSalvando(true);
-    const resultado = await salvarContato(props.contatoId, {
-      nome: ouNulo(String(dados.get('nome') ?? '')),
-      email: ouNulo(String(dados.get('email') ?? '')),
-      telefone_e164: ouNulo(String(dados.get('telefone') ?? '')),
-      documento: ouNulo(String(dados.get('documento') ?? '')),
+    const resultado = await salvarContact(props.contactId, {
+      nome: ouNulo(String(data.get('nome') ?? '')),
+      email: ouNulo(String(data.get('email') ?? '')),
+      telefone_e164: ouNulo(String(data.get('telefone') ?? '')),
+      document: ouNulo(String(data.get('documento') ?? '')),
       atributos: {
-        city: ouNulo(String(dados.get('cidade') ?? '')),
-        gender: ouNulo(String(dados.get('genero') ?? '')),
+        city: ouNulo(String(data.get('cidade') ?? '')),
+        gender: ouNulo(String(data.get('genero') ?? '')),
       },
     });
     setSalvando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
     setEditando(false);
@@ -114,36 +114,36 @@ export function InformacoesContato(props: Propriedades) {
                 <span>Usuário de teste</span>
               </label>
             ) : null}
-            <Linha nome="nome" rotulo="Nome" valor={props.nome} editando={editando} classe="ct-fs-6" primeira />
-            <Linha nome="email" rotulo="E-mail" valor={props.email} editando={editando} classe="ct-fs-6" />
+            <Linha nome="nome" rotulo="Nome" value={props.nome} editando={editando} classe="ct-fs-6" first />
+            <Linha nome="email" rotulo="E-mail" value={props.email} editando={editando} classe="ct-fs-6" />
             <Linha
               nome="telefone"
               rotulo="Telefone"
-              valor={props.telefone}
+              value={props.telefone}
               editando={editando}
               classe="ct-fs-6"
             />
-            <Linha nome="cidade" rotulo="Cidade" valor={cidade} editando={editando} classe="ct-f4" />
+            <Linha nome="cidade" rotulo="Cidade" value={city} editando={editando} classe="ct-f4" />
             <Linha
               nome="documento"
               rotulo="Documento"
-              valor={props.documento}
+              value={props.document}
               editando={editando}
               classe="ct-f4"
             />
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <Selecao className="ct-selecao" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
+                <Selection className="ct-selecao" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
-                </Selecao>
+                </Selection>
               ) : (
                 <span className="ct-valor ct-f4">{generoExibido || '-'}</span>
               )}
             </div>
-            {props.identidade ? (
+            {props.identity ? (
               <div className="ct-linha ct-linha--centro">
                 <span className="ct-rotulo-campo">
                   <span className="ct-f4">ID do contato</span>
@@ -155,8 +155,8 @@ export function InformacoesContato(props: Propriedades) {
                   </span>
                 </span>
                 <span className="ct-valor-container">
-                  <span className="ct-valor-interno" title={props.identidade}>
-                    <span className="ct-valor-texto">{props.identidade}</span>
+                  <span className="ct-valor-interno" title={props.identity}>
+                    <span className="ct-valor-texto">{props.identity}</span>
                   </span>
                 </span>
               </div>
@@ -172,11 +172,11 @@ export function InformacoesContato(props: Propriedades) {
           <div className="ct-linha ct-linha--extras">
             <span className="ct-rotulo ct-fs-6">Extras</span>
           </div>
-          {extras.map(([chave, valor]) => (
-            <div className="ct-linha ct-linha--extra" key={chave}>
-              <span className="ct-chave-extra">{chave}</span>
+          {extras.map(([key, value]) => (
+            <div className="ct-linha ct-linha--extra" key={key}>
+              <span className="ct-chave-extra">{key}</span>
               <span className="ct-valor-extra">
-                {typeof valor === 'string' ? valor : JSON.stringify(valor)}
+                {typeof value === 'string' ? value : JSON.stringify(value)}
               </span>
             </div>
           ))}
@@ -189,25 +189,25 @@ export function InformacoesContato(props: Propriedades) {
 function Linha({
   nome,
   rotulo,
-  valor,
+  value,
   editando,
   classe,
-  primeira,
+  first,
 }: {
   nome: string;
   rotulo: string;
-  valor: string | null;
+  value: string | null;
   editando: boolean;
   classe: string;
-  primeira?: boolean;
+  first?: boolean;
 }) {
   return (
-    <div className={primeira ? 'ct-linha ct-linha--primeira' : 'ct-linha'}>
+    <div className={first ? 'ct-linha ct-linha--primeira' : 'ct-linha'}>
       <span className={`ct-rotulo ${classe}`}>{rotulo}</span>
       {editando ? (
-        <input className="ct-entrada" type="text" name={nome} defaultValue={valor ?? ''} />
+        <input className="ct-entrada" type="text" name={nome} defaultValue={value ?? ''} />
       ) : (
-        <span className={`ct-valor ${classe}`}>{valor || '-'}</span>
+        <span className={`ct-valor ${classe}`}>{value || '-'}</span>
       )}
     </div>
   );

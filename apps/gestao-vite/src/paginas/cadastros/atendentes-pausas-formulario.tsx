@@ -21,10 +21,10 @@ export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(salvarMotivoPausa, { ok: true });
   /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */
-  const estadoInicial = useRef(resultado);
+  const stateInitial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado === estadoInicial.current) return;
+    if (resultado === stateInitial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
       aoSalvar?.();
@@ -60,7 +60,7 @@ export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
 
       <input type="hidden" name="ativo" value="on" />
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="button" onClick={aoSalvar} disabled={enviando}>

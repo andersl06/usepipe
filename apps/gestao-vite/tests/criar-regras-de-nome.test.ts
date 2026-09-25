@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { IMAGEM, conferir, nomeCurto, tipoRealDaImagem } from '../src/paginas/criar/regras-de-nome';
+import { IMAGE, conferir, nomeCurto, imageTipoReal } from '../src/paginas/criar/regras-de-nome';
 import { RECADOS as RECADOS_ROTEADOR } from '../src/paginas/criar/roteador/regras';
 import { RECADOS as RECADOS_FLUXO } from '../src/paginas/criar/fluxo/regras';
 
@@ -20,31 +20,31 @@ const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10]);
 const GIF = new Uint8Array([0x47, 0x49, 0x46, 0x38, 0x39, 0x61]);
 
 test('reconhece os três tipos que a origem aceita', () => {
-  assert.equal(tipoRealDaImagem(PNG), 'image/png');
-  assert.equal(tipoRealDaImagem(JPEG), 'image/jpeg');
-  assert.equal(tipoRealDaImagem(GIF), 'image/gif');
+  assert.equal(imageTipoReal(PNG), 'image/png');
+  assert.equal(imageTipoReal(JPEG), 'image/jpeg');
+  assert.equal(imageTipoReal(GIF), 'image/gif');
 });
 
 test('HTML renomeado para .png não passa', () => {
   // `<!DOCTYPE h` — o começo do arquivo que vira execução de script se for
   // servido com o tipo que o upload prometeu.
   const html = new Uint8Array([...'<!DOCTYPE h'].map((c) => c.charCodeAt(0)));
-  assert.equal(tipoRealDaImagem(html), null);
+  assert.equal(imageTipoReal(html), null);
 });
 
 test('SVG não entra: a origem não o aceita, e ele carrega script', () => {
   const svg = new Uint8Array([...'<svg xmlns='].map((c) => c.charCodeAt(0)));
-  assert.equal(tipoRealDaImagem(svg), null);
+  assert.equal(imageTipoReal(svg), null);
 });
 
 test('arquivo curto demais para ter assinatura não estoura', () => {
-  assert.equal(tipoRealDaImagem(new Uint8Array([0x89, 0x50])), null);
-  assert.equal(tipoRealDaImagem(new Uint8Array()), null);
+  assert.equal(imageTipoReal(new Uint8Array([0x89, 0x50])), null);
+  assert.equal(imageTipoReal(new Uint8Array()), null);
 });
 
 test('o teto cobre um avatar e não cobre uma foto de câmera', () => {
-  assert.equal(IMAGEM.maxBytes, 262_144);
-  assert.deepEqual([...IMAGEM.aceitos], ['.gif', '.png', '.jpeg', '.jpg']);
+  assert.equal(IMAGE.maxBytes, 262_144);
+  assert.deepEqual([...IMAGE.aceitos], ['.gif', '.png', '.jpeg', '.jpg']);
 });
 
 /**

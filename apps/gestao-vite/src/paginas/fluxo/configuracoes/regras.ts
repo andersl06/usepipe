@@ -19,18 +19,18 @@ export function noLimite(totalDeChaves: number) {
  * `createKey()`: com o limite atingido, `tokenLimitReached`; sem nome,
  * `tokenNameRequired`; senão cria.
  */
-export function erroAoCriar(nome: string, totalDeChaves: number): 'limite' | 'nome' | null {
+export function errorToCreate(nome: string, totalDeChaves: number): 'limite' | 'nome' | null {
   if (noLimite(totalDeChaves)) return 'limite';
   if (!nome || nome.trim() === '') return 'nome';
   return null;
 }
 
 /** `deleteKey()`: a chave padrão (`isDefault`, a primeira da lista) não sai. */
-export function podeExcluir(chave: { padrao: boolean }) {
-  return !chave.padrao;
+export function podeExcluir(key: { padrao: boolean }) {
+  return !key.padrao;
 }
 
 /** `parseKeyItem`: a primeira chave da lista é a padrão. */
 export function marcarPadrao<T>(chaves: T[]): (T & { padrao: boolean })[] {
-  return chaves.map((chave, indice) => ({ ...chave, padrao: indice === 0 }));
+  return chaves.map((key, indice) => ({ ...key, padrao: indice === 0 }));
 }

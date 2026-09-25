@@ -11,11 +11,11 @@
  * original lança para fonte sem provedor.
  */
 
-import type { FluxoBlip } from './modelos.js';
-import { CHAVES_DO_ESTADO } from './modelos.js';
+import type { FlowBlip } from './modelos.js';
+import { KEYS_OF_STATE } from './modelos.js';
 
 /** `VariableSource`, na ordem do original. */
-export const FONTES_DE_VARIAVEL = [
+export const FONTES_OF_VARIABLE = [
   'context',
   'contact',
   'calendar',
@@ -33,10 +33,10 @@ export const FONTES_DE_VARIAVEL = [
   'blipfunction',
   'aiagent',
 ] as const;
-export type FonteDeVariavel = (typeof FONTES_DE_VARIAVEL)[number];
+export type VariableFonte = (typeof FONTES_OF_VARIABLE)[number];
 
 /** As fontes que têm provedor no Pipe. As demais lançam, como na Blip sem o provedor. */
-export const FONTES_SUPORTADAS: ReadonlySet<FonteDeVariavel> = new Set([
+export const FONTES_SUPORTADAS: ReadonlySet<VariableFonte> = new Set([
   'context',
   'contact',
   'config',
@@ -46,7 +46,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<FonteDeVariavel> = new Set([
 ]);
 
 /** A mensagem que chegou, no vocabulário LIME: `tipo` é o MIME (`text/plain`…). */
-export interface MensagemDeEntrada {
+export interface InboundMessage {
   id: string;
   tipo: string;
   conteudo: unknown;
@@ -54,46 +54,46 @@ export interface MensagemDeEntrada {
   para?: string;
 }
 
-export interface Intencao {
+export interface Intent {
   id?: string;
   name?: string;
   score?: number;
   answer?: unknown;
 }
 
-export interface Entidade {
+export interface Entity {
   id?: string;
   name?: string;
   value?: string;
 }
 
 /** `LazyInput`. */
-export interface EntradaPreguicosa {
-  mensagem: MensagemDeEntrada;
+export interface InboundPreguicosa {
+  message: InboundMessage;
   /** `SerializedContent`: texto puro como está, documento JSON serializado. */
-  conteudoSerializado: string;
-  intencao?: Intencao | null;
-  entidades?: Entidade[] | null;
+  serializedContent: string;
+  intent?: Intent | null;
+  entities?: Entity[] | null;
 }
 
-export function criarEntrada(
-  mensagem: MensagemDeEntrada,
-  ia?: { intencao?: Intencao | null; entidades?: Entidade[] | null },
-): EntradaPreguicosa {
+export function createInbound(
+  message: InboundMessage,
+  ia?: { intent?: Intent | null; entities?: Entity[] | null },
+): InboundPreguicosa {
   const conteudoSerializado =
-    typeof mensagem.conteudo === 'string'
-      ? mensagem.conteudo
-      : JSON.stringify(mensagem.conteudo ?? null);
+    typeof message.conteudo === 'string'
+      ? message.conteudo
+      : JSON.stringify(message.conteudo ?? null);
   return {
-    mensagem,
-    conteudoSerializado,
-    intencao: ia?.intencao ?? null,
-    entidades: ia?.entidades ?? null,
+    message,
+    serializedContent,
+    intent: ia?.intent ?? null,
+    entities: ia?.entities ?? null,
   };
 }
 
 /** O que o motor manda sair: o `Message` do `ISender.SendMessageAsync`. */
-export interface MensagemDeSaida {
+export interface OutputMessage {
   tipo: string;
   conteudo: unknown;
   metadados?: Record<string, string> | null;
@@ -102,7 +102,7 @@ export interface MensagemDeSaida {
 }
 
 /** O atendimento humano aberto. É o `Ticket` da Blip. */
-export interface Atendimento {
+export interface Attendance {
   id: string;
   [campo: string]: unknown;
 }
@@ -120,10 +120,10 @@ export interface RespostaDeHttp {
   corpo: string;
 }
 
-export type ListaDeAcoesSuspensa = 'entrada' | 'conteudo' | 'saida';
+export type ActionsSuspensaLista = 'entrada' | 'conteudo' | 'saida';
 
 export interface CursorDeProcessHttp {
-  lista: ListaDeAcoesSuspensa;
+  lista: ActionsSuspensaLista;
   estadoId: string | null;
   indice: number;
   resposta?: RespostaDeHttp;
@@ -134,57 +134,57 @@ export interface CursorDeProcessHttp {
  * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
  */
 export interface ServicosDoMotor {
-  enviar(mensagem: MensagemDeSaida): Promise<void>;
-  encaminharParaAtendimento(pedido: {
+  send(message: OutputMessage): Promise<void>;
+  encaminharForAttendance(pedido: {
     origem: string;
     settings: Record<string, unknown> | null;
-  }): Promise<Atendimento>;
-  registrarEvento(evento: Record<string, unknown>): Promise<void>;
+  }): Promise<Attendance>;
+  registerEvent(evento: Record<string, unknown>): Promise<void>;
   /** A api executa isto; o core só descreve a chamada e não faz rede. */
-  chamarHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
+  callHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
   /** A API grava o cursor e chama a rede depois que a transação termina. */
-  suspenderHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
+  suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /**
    * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
    * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — "o
    * redirecionamento funciona apenas no Bot Router" (help.blip.ai).
    */
-  redirecionar?(pedido: { endereco: string; contexto: unknown }): Promise<void>;
+  redirect?(pedido: { endereco: string; context: unknown }): Promise<void>;
 }
 
-export type ProvedorDeVariavel = (
+export type VariableProvider = (
   nome: string,
-  contexto: Contexto,
+  context: Context,
 ) => Promise<string | null> | string | null;
 
 /** `IContext`. */
-export interface Contexto {
+export interface Context {
   /** `UserIdentity`. */
-  usuario: string;
-  fluxo: FluxoBlip;
-  entrada: EntradaPreguicosa;
+  user: string;
+  flow: FlowBlip;
+  inbound: InboundPreguicosa;
   /** O contexto do usuário, persistido. Na Blip, tudo aqui é texto. */
-  variaveis: Record<string, string>;
+  variables: Record<string, string>;
   /** `InputContext`: vale só durante esta entrada (estado atual, ticket criado…). */
-  entradaContexto: Map<string, unknown>;
+  inboundContext: Map<string, unknown>;
   /** O contato no vocabulário da Blip (`name`, `phoneNumber`, `email`, `extras`…). */
-  contato?: Record<string, unknown> | null;
+  contact?: Record<string, unknown> | null;
   /** Provedores extras, ou para trocar os padrão. */
-  provedores?: Partial<Record<FonteDeVariavel, ProvedorDeVariavel>>;
-  servicos: ServicosDoMotor;
+  providers?: Partial<Record<VariableFonte, VariableProvider>>;
+  services: ServicosDoMotor;
 }
 
 // --- ContextExtensions ---
 
-export const CHAVE_DO_TICKET = 'ticket';
-export const CHAVE_DO_ESTADO_ATUAL = 'current-state-id';
+export const KEY_OF_TICKET = 'ticket';
+export const KEY_OF_STATE_CURRENT = 'current-state-id';
 
 // --- IContext: armazenamento ---
 
 /** `GetContextVariableAsync`: o valor cru, sem fonte nem propriedade. */
-export function obterVariavelDeContexto(contexto: Contexto, nome: string): string | null {
-  return Object.prototype.hasOwnProperty.call(contexto.variaveis, nome)
-    ? (contexto.variaveis[nome] ?? null)
+export function contextObterVariable(context: Context, nome: string): string | null {
+  return Object.prototype.hasOwnProperty.call(context.variables, nome)
+    ? (context.variables[nome] ?? null)
     : null;
 }
 
@@ -192,70 +192,70 @@ export function obterVariavelDeContexto(contexto: Contexto, nome: string): strin
  * `SetVariableAsync`. ponytail: a expiração (`expiration`) do original não é guardada —
  * a variável vale até ser apagada ou sobrescrita. Guardar exige carimbo por chave.
  */
-export function definirVariavel(contexto: Contexto, nome: string, valor: string | null): void {
-  contexto.variaveis[nome] = valor ?? '';
+export function definirVariable(context: Context, nome: string, value: string | null): void {
+  context.variables[nome] = value ?? '';
 }
 
-export function apagarVariavel(contexto: Contexto, nome: string): void {
-  delete contexto.variaveis[nome];
+export function apagarVariable(context: Context, nome: string): void {
+  delete context.variables[nome];
 }
 
 // --- StateManager ---
 
-export const chaveDoEstado = (fluxoId: string): string => `stateId@${fluxoId}`;
-const chaveDoEstadoAnterior = (fluxoId: string): string => `previous-stateId@${fluxoId}`;
+export const stateKey = (flowId: string): string => `stateId@${flowId}`;
+const stateAnteriorKey = (flowId: string): string => `previous-stateId@${flowId}`;
 
-export const obterEstadoId = (c: Contexto): string | null =>
-  obterVariavelDeContexto(c, chaveDoEstado(c.fluxo.id));
-export const obterEstadoAnteriorId = (c: Contexto): string | null =>
-  obterVariavelDeContexto(c, chaveDoEstadoAnterior(c.fluxo.id));
-export const definirEstadoId = (c: Contexto, id: string): void =>
-  definirVariavel(c, chaveDoEstado(c.fluxo.id), id);
-export const definirEstadoAnteriorId = (c: Contexto, id: string): void =>
-  definirVariavel(c, chaveDoEstadoAnterior(c.fluxo.id), id);
-export const apagarEstadoId = (c: Contexto): void => apagarVariavel(c, chaveDoEstado(c.fluxo.id));
+export const obterStateId = (c: Context): string | null =>
+  contextObterVariable(c, stateKey(c.flow.id));
+export const obterStateAnteriorId = (c: Context): string | null =>
+  contextObterVariable(c, stateAnteriorKey(c.flow.id));
+export const definirStateId = (c: Context, id: string): void =>
+  definirVariable(c, stateKey(c.flow.id), id);
+export const definirStateAnteriorId = (c: Context, id: string): void =>
+  definirVariable(c, stateAnteriorKey(c.flow.id), id);
+export const apagarStateId = (c: Context): void => apagarVariable(c, stateKey(c.flow.id));
 
 /** Lê o estado guardado num contexto já persistido, sem montar `Contexto`. */
-export const estadoGuardado = (variaveis: Record<string, string>, fluxoId: string): string | null =>
-  variaveis[chaveDoEstado(fluxoId)] ?? null;
+export const stateSaved = (variables: Record<string, string>, flowId: string): string | null =>
+  variables[stateKey(flowId)] ?? null;
 
 // --- ContextBase.GetVariableAsync ---
 
-const NOME_DE_VARIAVEL =
+const NAME_OF_VARIABLE =
   /^(?<fonteOuNome>[\p{L}\p{N}_]+)(\.(?<nome>[\p{L}\p{N}_.]+))?(@(?<propriedade>([\p{L}\p{N}_.](\[(\d+|\$n)\])?)+))?$/iu;
 
 /** `VariableName.Parse`: `fonte.nome@propriedade`; sem fonte, é variável de contexto. */
-export function lerNomeDeVariavel(texto: string): {
-  fonte: FonteDeVariavel;
+export function readVariableName(texto: string): {
+  fonte: VariableFonte;
   nome: string;
-  propriedade: string | null;
+  property: string | null;
 } {
-  const m = NOME_DE_VARIAVEL.exec(texto);
+  const m = NAME_OF_VARIABLE.exec(texto);
   if (!m?.groups) throw new Error(`Nome de variável inválido: '${texto}'.`);
-  const { fonteOuNome = '', nome, propriedade } = m.groups;
+  const { fonteOuNome = '', nome, property } = m.groups;
   if (nome !== undefined) {
-    const fonte = FONTES_DE_VARIAVEL.find((f) => f === fonteOuNome.toLowerCase());
+    const fonte = FONTES_OF_VARIABLE.find((f) => f === fonteOuNome.toLowerCase());
     if (!fonte) throw new Error(`Fonte de variável inválida: '${fonteOuNome}'.`);
-    return { fonte, nome, propriedade: propriedade ?? null };
+    return { fonte, nome, property: property ?? null };
   }
-  return { fonte: 'context', nome: fonteOuNome, propriedade: propriedade ?? null };
+  return { fonte: 'context', nome: fonteOuNome, property: property ?? null };
 }
 
 /** `JToken.ToString(Formatting.None).Trim('"')`. */
-function comoTextoDeToken(valor: unknown): string {
-  return JSON.stringify(valor).replace(/^"+|"+$/g, '');
+function comoTextoDeToken(value: unknown): string {
+  return JSON.stringify(value).replace(/^"+|"+$/g, '');
 }
 
 /** `GetJsonProperty`: a propriedade (com pontos) de um valor que é objeto JSON. */
-function propriedadeJson(valor: string, propriedade: string): string | null {
+function propertyJson(value: string, property: string): string | null {
   let json: unknown;
   try {
-    json = JSON.parse(valor);
+    json = JSON.parse(value);
   } catch {
     return null;
   }
   if (json === null || typeof json !== 'object' || Array.isArray(json)) return null;
-  for (const parte of propriedade.split('.')) {
+  for (const parte of property.split('.')) {
     if (json === null || typeof json !== 'object') return null;
     json = (json as Record<string, unknown>)[parte];
     if (json === undefined) return null;
@@ -264,117 +264,117 @@ function propriedadeJson(valor: string, propriedade: string): string | null {
 }
 
 /** Leitura de propriedade sem diferenciar maiúscula — o `GetProperty` por reflexão. */
-function propriedadeDeObjeto(objeto: unknown, nome: string): string | null {
+function objetoProperty(objeto: unknown, nome: string): string | null {
   if (objeto === null || typeof objeto !== 'object') return null;
-  const chave = Object.keys(objeto).find((k) => k.toLowerCase() === nome.toLowerCase());
-  if (chave === undefined) return null;
-  const valor = (objeto as Record<string, unknown>)[chave];
-  if (valor === null || valor === undefined) return null;
-  return typeof valor === 'object' ? JSON.stringify(valor) : String(valor);
+  const key = Object.keys(objeto).find((k) => k.toLowerCase() === nome.toLowerCase());
+  if (key === undefined) return null;
+  const value = (objeto as Record<string, unknown>)[key];
+  if (value === null || value === undefined) return null;
+  return typeof value === 'object' ? JSON.stringify(value) : String(value);
 }
 
 /** `InputVariableProvider`. */
-function provedorDeEntrada(nome: string, c: Contexto): string | null {
-  const entrada = c.entrada;
+function inboundProvider(nome: string, c: Context): string | null {
+  const inbound = c.inbound;
   const minusculo = nome.toLowerCase();
   switch (minusculo) {
     case 'content':
-      return entrada.conteudoSerializado;
+      return inbound.serializedContent;
     case 'message':
-      return JSON.stringify(entrada.mensagem);
+      return JSON.stringify(inbound.message);
     case 'type':
-      return entrada.mensagem.tipo;
+      return inbound.message.tipo;
     case 'length':
-      return String(entrada.conteudoSerializado.length);
+      return String(inbound.serializedContent.length);
     case 'analysis':
       return null;
   }
   if (minusculo.startsWith('intent.')) {
-    return propriedadeDeObjeto(entrada.intencao, minusculo.split('.')[1] ?? '');
+    return objetoProperty(inbound.intent, minusculo.split('.')[1] ?? '');
   }
   if (minusculo.startsWith('entity.')) {
-    const [, entidade, prop] = minusculo.split('.');
-    if (!entidade || !prop) return null;
-    const achada = entrada.entidades?.find((e) => e.name?.toLowerCase() === entidade);
-    return propriedadeDeObjeto(achada, prop);
+    const [, entity, prop] = minusculo.split('.');
+    if (!entity || !prop) return null;
+    const achada = inbound.entities?.find((e) => e.name?.toLowerCase() === entity);
+    return objetoProperty(achada, prop);
   }
   if (minusculo.startsWith('message.')) {
     const prop = minusculo.split('.')[1];
-    if (prop === 'id') return entrada.mensagem.id;
-    if (prop === 'from' || prop === 'fromidentity') return entrada.mensagem.de ?? null;
-    if (prop === 'to' || prop === 'toidentity') return entrada.mensagem.para ?? null;
+    if (prop === 'id') return inbound.message.id;
+    if (prop === 'from' || prop === 'fromidentity') return inbound.message.de ?? null;
+    if (prop === 'to' || prop === 'toidentity') return inbound.message.para ?? null;
   }
   return null;
 }
 
 /** `StateVariableProvider`. */
-function provedorDeEstado(nome: string, c: Contexto): string | null {
+function stateProvider(nome: string, c: Context): string | null {
   const nomes = nome.toLowerCase().split('.');
-  let estadoId: string | null;
+  let stateId: string | null;
   if (nomes.length > 1) {
-    if (nomes[0] === 'previous') estadoId = obterEstadoAnteriorId(c);
-    else if (nomes[0] === 'current') estadoId = obterEstadoId(c);
+    if (nomes[0] === 'previous') stateId = obterStateAnteriorId(c);
+    else if (nomes[0] === 'current') stateId = obterStateId(c);
     else return null;
     nomes.shift();
   } else {
-    estadoId = obterEstadoId(c);
+    stateId = obterStateId(c);
   }
-  const estado = c.fluxo.states.find((s) => s.id === estadoId);
-  if (!estado) return null;
-  const variavel = nomes[0] ?? '';
-  if (variavel === 'id') return estado.id;
-  if (CHAVES_DO_ESTADO.has(variavel) || !(variavel in estado)) return null;
-  return comoTextoDeToken(estado[variavel]);
+  const state = c.flow.states.find((s) => s.id === stateId);
+  if (!state) return null;
+  const variable = nomes[0] ?? '';
+  if (variable === 'id') return state.id;
+  if (KEYS_OF_STATE.has(variable) || !(variable in state)) return null;
+  return comoTextoDeToken(state[variable]);
 }
 
 /** `ContactVariableProvider`: `extras.x`, `serialized` ou a propriedade do contato. */
-function provedorDeContato(nome: string, c: Contexto): string | null {
-  const contato = c.contato;
-  if (!contato) return null;
+function contactProvider(nome: string, c: Context): string | null {
+  const contact = c.contact;
+  if (!contact) return null;
   if (nome.toLowerCase().startsWith('extras.')) {
-    return propriedadeDeObjeto(contato['extras'], nome.slice('extras.'.length));
+    return objetoProperty(contact['extras'], nome.slice('extras.'.length));
   }
-  if (nome.toLowerCase() === 'serialized') return JSON.stringify(contato);
-  return propriedadeDeObjeto(contato, nome);
+  if (nome.toLowerCase() === 'serialized') return JSON.stringify(contact);
+  return objetoProperty(contact, nome);
 }
 
-const PROVEDORES_PADRAO: Partial<Record<FonteDeVariavel, ProvedorDeVariavel>> = {
-  input: provedorDeEntrada,
-  state: provedorDeEstado,
-  contact: provedorDeContato,
-  config: (nome, c) => c.fluxo.configuration?.[nome] ?? null,
-  ticket: (nome, c) => propriedadeDeObjeto(c.entradaContexto.get(CHAVE_DO_TICKET), nome),
+const PROVEDORES_PADRAO: Partial<Record<VariableFonte, VariableProvider>> = {
+  input: inboundProvider,
+  state: stateProvider,
+  contact: contactProvider,
+  config: (nome, c) => c.flow.configuration?.[nome] ?? null,
+  ticket: (nome, c) => objetoProperty(c.inboundContext.get(KEY_OF_TICKET), nome),
 };
 
 /** `ContextBase.GetVariableAsync`. */
-export async function obterVariavel(contexto: Contexto, nome: string): Promise<string | null> {
-  const variavel = lerNomeDeVariavel(nome);
-  let valor: string | null = '';
-  if (variavel.fonte === 'context') {
-    valor = obterVariavelDeContexto(contexto, variavel.nome);
+export async function obterVariable(context: Context, nome: string): Promise<string | null> {
+  const variable = readVariableName(nome);
+  let value: string | null = '';
+  if (variable.fonte === 'context') {
+    value = contextObterVariable(context, variable.nome);
   } else {
-    const provedor = contexto.provedores?.[variavel.fonte] ?? PROVEDORES_PADRAO[variavel.fonte];
-    if (!provedor) throw new Error(`Não há provedor para a fonte de variável '${variavel.fonte}'.`);
-    valor = await provedor(variavel.nome, contexto);
+    const provedor = context.providers?.[variable.fonte] ?? PROVEDORES_PADRAO[variable.fonte];
+    if (!provedor) throw new Error(`Não há provedor para a fonte de variável '${variable.fonte}'.`);
+    value = await provedor(variable.nome, context);
   }
-  if (!valor?.trim() || !variavel.propriedade?.trim()) return valor;
-  return propriedadeJson(valor, variavel.propriedade);
+  if (!value?.trim() || !variable.property?.trim()) return value;
+  return propertyJson(value, variable.property);
 }
 
 // --- VariableReplacer ---
 
-const VARIAVEIS_NO_TEXTO = /{{([a-zA-Z0-9.@_-]+)}}/g;
+const VARIABLES_IN_TEXT = /{{([a-zA-Z0-9.@_-]+)}}/g;
 
 /** `VariableReplacer.ReplaceAsync`: troca `{{nome}}` pelo valor, escapado para JSON. */
-export async function substituirVariaveis(valor: string, contexto: Contexto): Promise<string> {
-  const valores = new Map<string, string | null>();
-  for (const m of valor.matchAll(VARIAVEIS_NO_TEXTO)) {
+export async function substituirVariables(value: string, context: Context): Promise<string> {
+  const values = new Map<string, string | null>();
+  for (const m of value.matchAll(VARIABLES_IN_TEXT)) {
     const nome = m[1]!;
-    if (valores.has(nome)) continue;
-    valores.set(nome, escaparTexto(await obterVariavel(contexto, nome)));
+    if (values.has(nome)) continue;
+    values.set(nome, escaparTexto(await obterVariable(context, nome)));
   }
-  if (valores.size === 0) return valor;
-  return valor.replace(VARIAVEIS_NO_TEXTO, (_todo, nome: string) => valores.get(nome) ?? '');
+  if (values.size === 0) return value;
+  return value.replace(VARIABLES_IN_TEXT, (_todo, nome: string) => values.get(nome) ?? '');
 }
 
 /** `EscapeString`: o valor entra dentro de uma string JSON e não pode quebrá-la. */

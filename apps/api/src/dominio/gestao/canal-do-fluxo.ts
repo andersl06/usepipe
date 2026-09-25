@@ -1,11 +1,11 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe } from '@pipe/db';
-import { canal, fluxo } from '@pipe/db/schema';
-import type { CanalDoFluxo, CanalDoFluxoNaTela } from '@pipe/contracts';
-import { ErroPipe } from '../../erros.js';
-import { identificadorDoCanal } from '../gestao-fluxo.js';
-import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
+import type { Ator, TransactionPipe } from '@pipe/db';
+import { channel, flow } from '@pipe/db/schema';
+import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
+import { PipeError } from '../../erros.js';
+import { identifierOfChannel } from '../gestao-fluxo.js';
+import { exigirPermissionInFlow } from './equipe-do-fluxo.js';
 
 /**
  * Ligar e desligar o canal DO BOT — o que a página
@@ -35,90 +35,90 @@ import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
  * WhatsApp não pode desligar o Instagram sem avisar.
  */
 
-const CONECTAR_CANAL = 'channels.escrever';
+const CONNECT_CHANNEL = 'channels.escrever';
 
 const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function fluxoVivo(tx: TransacaoPipe, tenantId: string, fluxoId: string) {
+async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string) {
   const [atual] = await tx
-    .select({ id: fluxo.id, nome: fluxo.nome, canalId: fluxo.canalId })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, fluxoId), ne(fluxo.estado, 'arquivado')))
+    .select({ id: flow.id, nome: flow.nome, canalId: flow.channelId })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, fluxoId), ne(flow.estado, 'arquivado')))
     .limit(1);
-  if (!atual) throw ErroPipe.naoEncontrado('fluxo');
+  if (!atual) throw PipeError.naoEncontrado('fluxo');
   return atual;
 }
 
 const COLUNAS = {
-  id: canal.id,
-  tipo: canal.tipo,
-  nome: canal.nome,
-  numero: identificadorDoCanal,
-  ativo: canal.ativo,
+  id: channel.id,
+  tipo: channel.tipo,
+  nome: channel.nome,
+  numero: identifierOfChannel,
+  ativo: channel.ativo,
 };
 
 /** O bot VIVO que está com o canal, se houver — arquivado não segura número. */
-async function botDoCanal(
-  tx: TransacaoPipe,
+async function botOfChannel(
+  tx: TransactionPipe,
   tenantId: string,
   canalId: string,
 ): Promise<{ id: string; nome: string } | null> {
   const [linha] = await tx
-    .select({ id: fluxo.id, nome: fluxo.nome })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.canalId, canalId), ne(fluxo.estado, 'arquivado')))
-    .orderBy(asc(fluxo.criadoEm))
+    .select({ id: flow.id, nome: flow.nome })
+    .from(flow)
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.channelId, canalId), ne(flow.estado, 'arquivado')))
+    .orderBy(asc(flow.criadoEm))
     .limit(1);
   return linha ?? null;
 }
 
 /** Um canal DESTE tenant, ou 404. O tenant vem da sessão, nunca do corpo. */
-async function canalDoTenant(tx: TransacaoPipe, tenantId: string, canalId: string) {
+async function channelOfTenant(tx: TransactionPipe, tenantId: string, canalId: string) {
   const [linha] = await tx
     .select(COLUNAS)
-    .from(canal)
-    .where(and(eq(canal.tenantId, tenantId), eq(canal.id, canalId)))
+    .from(channel)
+    .where(and(eq(channel.tenantId, tenantId), eq(channel.id, canalId)))
     .limit(1);
-  if (!linha) throw ErroPipe.naoEncontrado('canal');
+  if (!linha) throw PipeError.naoEncontrado('canal');
   return linha;
 }
 
-async function paraContrato(
-  tx: TransacaoPipe,
+async function forContract(
+  tx: TransactionPipe,
   tenantId: string,
   linha: { id: string; tipo: string; nome: string; numero: string | null; ativo: boolean },
-): Promise<CanalDoFluxo> {
-  const bot = await botDoCanal(tx, tenantId, linha.id);
-  return { ...linha, fluxoId: bot?.id ?? null, fluxoNome: bot?.nome ?? null };
+): Promise<ChannelOfFlow> {
+  const bot = await botOfChannel(tx, tenantId, linha.id);
+  return { ...linha, flowId: bot?.id ?? null, flowName: bot?.nome ?? null };
 }
 
 /* ------------------------------------------------------------------ Leitura */
 
 /** O que a página do canal precisa: o canal deste bot e os que a conta tem para oferecer. */
-export async function carregarCanalDoFluxoNaTela(
-  tx: TransacaoPipe,
+export async function loadChannelOfFlowInScreen(
+  tx: TransactionPipe,
   tenantId: string,
-  fluxoId: string,
-): Promise<CanalDoFluxoNaTela> {
-  const atual = await fluxoVivo(tx, tenantId, fluxoId);
+  flowId: string,
+): Promise<ChannelOfFlowInScreen> {
+  const atual = await flowVivo(tx, tenantId, flowId);
 
   const linhas = await tx
     .select(COLUNAS)
-    .from(canal)
-    .where(and(eq(canal.tenantId, tenantId), eq(canal.ativo, true)))
-    .orderBy(asc(canal.criadoEm));
-  const disponiveis: CanalDoFluxo[] = [];
-  for (const linha of linhas) disponiveis.push(await paraContrato(tx, tenantId, linha));
+    .from(channel)
+    .where(and(eq(channel.tenantId, tenantId), eq(channel.ativo, true)))
+    .orderBy(asc(channel.criadoEm));
+  const disponiveis: ChannelOfFlow[] = [];
+  for (const linha of linhas) disponiveis.push(await forContract(tx, tenantId, linha));
 
-  let ligado: CanalDoFluxo | null = null;
+  let ligado: ChannelOfFlow | null = null;
   if (atual.canalId) {
-    const canalId = atual.canalId;
+    const channelId = atual.canalId;
     ligado =
-      disponiveis.find((c) => c.id === canalId) ??
-      (await paraContrato(tx, tenantId, await canalDoTenant(tx, tenantId, canalId)));
+      disponiveis.find((c) => c.id === channelId) ??
+      (await forContract(tx, tenantId, await channelOfTenant(tx, tenantId, channelId)));
   }
-  return { canal: ligado, disponiveis };
+  return { channel: ligado, disponiveis };
 }
 
 /* ------------------------------------------------------------------- Gestos */
@@ -130,18 +130,18 @@ export async function carregarCanalDoFluxoNaTela(
  * credencial do cliente não é gravada para depois a ligação ser recusada.
  */
 export async function conferirQuePodeLigar(
-  tx: TransacaoPipe,
+  tx: TransactionPipe,
   tenantId: string,
-  usuarioId: string,
+  userId: string,
   fluxoId: string,
 ): Promise<void> {
-  const atual = await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, CONECTAR_CANAL);
-  if (atual.canalId) throw fluxoJaTemCanal(await canalDoTenant(tx, tenantId, atual.canalId));
+  const atual = await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, userId, fluxoId, CONNECT_CHANNEL);
+  if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
 }
 
-function fluxoJaTemCanal(existente: { id: string; tipo: string; nome: string }): ErroPipe {
-  return ErroPipe.conflito(
+function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: string }): PipeError {
+  return PipeError.conflito(
     'fluxo_ja_tem_canal',
     `Este bot já está conectado ao canal "${existente.nome}". Desconecte-o antes de conectar outro.`,
     { canalId: existente.id, canalTipo: existente.tipo, canalNome: existente.nome },
@@ -149,31 +149,31 @@ function fluxoJaTemCanal(existente: { id: string; tipo: string; nome: string }):
 }
 
 /** "Ativar número": o canal passa a ser deste bot. Ligar o mesmo canal de novo não é erro. */
-export async function ligarCanalAoFluxo(
-  tx: TransacaoPipe,
+export async function connectChannelToFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
-  canalId: string,
-): Promise<CanalDoFluxo> {
-  const atual = await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, CONECTAR_CANAL);
-  const alvo = await canalDoTenant(tx, tenantId, canalId);
+  channelId: string,
+): Promise<ChannelOfFlow> {
+  const atual = await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
+  const alvo = await channelOfTenant(tx, tenantId, channelId);
 
-  if (atual.canalId === alvo.id) return paraContrato(tx, tenantId, alvo);
+  if (atual.canalId === alvo.id) return forContract(tx, tenantId, alvo);
   if (!alvo.ativo) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'canal_inativo',
       'Este canal está desconectado. Reconecte-o antes de ligá-lo a um bot.',
       { canalId: alvo.id },
     );
   }
-  if (atual.canalId) throw fluxoJaTemCanal(await canalDoTenant(tx, tenantId, atual.canalId));
+  if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
 
-  const dono = await botDoCanal(tx, tenantId, alvo.id);
+  const dono = await botOfChannel(tx, tenantId, alvo.id);
   if (dono) {
     /* O título e a mensagem são os da origem (`whatsapp.errorMsg.phoneNumberIsAlreadyConnected`). */
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'numero_em_uso',
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
       { fluxoId: dono.id, fluxoNome: dono.nome },
@@ -181,9 +181,9 @@ export async function ligarCanalAoFluxo(
   }
 
   await tx
-    .update(fluxo)
+    .update(flow)
     .set({ canalId: alvo.id, atualizadoEm: new Date() })
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, atual.id)));
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
@@ -193,7 +193,7 @@ export async function ligarCanalAoFluxo(
     antes: { canalId: null },
     depois: { canalId: alvo.id, canalTipo: alvo.tipo, canalNome: alvo.nome },
   });
-  return { ...alvo, fluxoId: atual.id, fluxoNome: atual.nome };
+  return { ...alvo, flowId: atual.id, flowName: atual.nome };
 }
 
 /**
@@ -205,21 +205,21 @@ export async function ligarCanalAoFluxo(
  * origem (Instagram/Messenger, `FICHA-conectar-canal-no-bot.md` §3.3): lá vai
  * para a analítica deles; aqui fica no log de auditoria.
  */
-export async function desligarCanalDoFluxo(
-  tx: TransacaoPipe,
+export async function disconnectChannelOfFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   motivo?: string,
 ): Promise<void> {
-  const atual = await fluxoVivo(tx, tenantId, fluxoId);
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, CONECTAR_CANAL);
+  const atual = await flowVivo(tx, tenantId, fluxoId);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   if (!atual.canalId) return;
 
   await tx
-    .update(fluxo)
+    .update(flow)
     .set({ canalId: null, atualizadoEm: new Date() })
-    .where(and(eq(fluxo.tenantId, tenantId), eq(fluxo.id, atual.id)));
+    .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
 
   await registrarAuditoria(tx, tenantId, {
     ator: ator(usuarioId),
@@ -236,15 +236,15 @@ export async function desligarCanalDoFluxo(
  * origem isso se faz na página do canal dentro do bot. Devolve `true` quando o
  * canal pedido é mesmo o daquele bot e a pessoa tem poder nele.
  */
-export async function podeReconectarNoFluxo(
-  tx: TransacaoPipe,
+export async function canReconnectInFlow(
+  tx: TransactionPipe,
   tenantId: string,
   usuarioId: string,
   fluxoId: string,
   canalId: string,
 ): Promise<boolean> {
-  const atual = await fluxoVivo(tx, tenantId, fluxoId);
+  const atual = await flowVivo(tx, tenantId, fluxoId);
   if (atual.canalId !== canalId) return false;
-  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, CONECTAR_CANAL);
+  await exigirPermissionInFlow(tx, usuarioId, fluxoId, CONNECT_CHANNEL);
   return true;
 }

@@ -1,37 +1,37 @@
 import { useSearchParams } from 'react-router-dom';
 import { Icone } from '@pipe/ui';
-import { parametrosComFiltros } from '../lib/filtros-monitoramento';
+import { parametrosWithFilters } from '../lib/filtros-monitoramento';
 
-export type Opcao = { id: string; nome: string };
+export type Option = { id: string; nome: string };
 
 type Parametros = {
-  fila?: string;
-  atendente?: string;
-  contato?: string;
+  queue?: string;
+  agent?: string;
+  contact?: string;
   status?: string;
   aba?: string;
-  busca?: string;
+  search?: string;
 };
 
-function PilulaOpcoes({
+function PilulaOptions({
   rotulo,
-  valor,
-  aoAbrirPainel,
-  painelAberto,
+  value,
+  toAbrirPanel,
+  panelAberto,
 }: {
   rotulo: string;
-  valor: string;
-  aoAbrirPainel: () => void;
-  painelAberto: boolean;
+  value: string;
+  toAbrirPanel: () => void;
+  panelAberto: boolean;
 }) {
   return (
     <div className="at-filtro">
       <button
         type="button"
-        className={valor ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
+        className={value ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
         aria-haspopup="dialog"
-        aria-expanded={painelAberto}
-        onClick={aoAbrirPainel}
+        aria-expanded={panelAberto}
+        onClick={toAbrirPanel}
       >
         <span className="pilula-rotulo">{rotulo}</span>
       </button>
@@ -39,15 +39,15 @@ function PilulaOpcoes({
   );
 }
 
-function PilulaContato({ valor, aoAbrirPainel, painelAberto }: { valor: string; aoAbrirPainel: () => void; painelAberto: boolean }) {
+function PilulaContact({ value, toAbrirPanel, panelAberto }: { value: string; toAbrirPanel: () => void; panelAberto: boolean }) {
   return (
     <div className="at-filtro">
       <button
         type="button"
-        className={valor ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
+        className={value ? 'pilula ativa at-filtro-gatilho' : 'pilula at-filtro-gatilho'}
         aria-haspopup="dialog"
-        aria-expanded={painelAberto}
-        onClick={aoAbrirPainel}
+        aria-expanded={panelAberto}
+        onClick={toAbrirPanel}
       >
         <span className="pilula-rotulo">Contato</span>
       </button>
@@ -55,15 +55,15 @@ function PilulaContato({ valor, aoAbrirPainel, painelAberto }: { valor: string; 
   );
 }
 
-function BotaoFiltros({ aoAbrirPainel, aoLimpar, temFiltros }: {
-  aoAbrirPainel: () => void;
+function ButtonFilters({ toAbrirPanel, aoLimpar, temFilters }: {
+  toAbrirPanel: () => void;
   aoLimpar: () => void;
-  temFiltros: boolean;
+  temFilters: boolean;
 }) {
   return (
     <div className="faixa-fim">
-      {temFiltros ? <button type="button" className="btn fantasma" onClick={aoLimpar}>Limpar tudo</button> : null}
-      <button type="button" className="btn" title="Abrir filtros" onClick={aoAbrirPainel}>
+      {temFilters ? <button type="button" className="btn fantasma" onClick={aoLimpar}>Limpar tudo</button> : null}
+      <button type="button" className="btn" title="Abrir filtros" onClick={toAbrirPanel}>
         <Icone nome="funil" tamanho={20} />
         Filtros
       </button>
@@ -72,39 +72,39 @@ function BotaoFiltros({ aoAbrirPainel, aoLimpar, temFiltros }: {
 }
 
 /** A faixa superior recorta a operação e os cartões. */
-export function FiltrosDaOperacao({ atual, aoAbrirPainel, painelAberto }: {
+export function SOperationFilter({ atual, toAbrirPanel, panelAberto }: {
   atual: Parametros;
-  aoAbrirPainel: () => void;
-  painelAberto: boolean;
+  toAbrirPanel: () => void;
+  panelAberto: boolean;
 }) {
   const [query, definirQuery] = useSearchParams();
   return (
     <div className="faixa-filtros">
       <span className="lbl">Filtros rápidos:</span>
-      <PilulaOpcoes rotulo="Filas" valor={atual.fila ?? ''} aoAbrirPainel={aoAbrirPainel} painelAberto={painelAberto} />
-      <BotaoFiltros aoAbrirPainel={aoAbrirPainel} aoLimpar={() => definirQuery(parametrosComFiltros(query, { fila: '' }))} temFiltros={Boolean(atual.fila)} />
+      <PilulaOptions rotulo="Filas" value={atual.queue ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
+      <ButtonFilters toAbrirPanel={toAbrirPanel} aoLimpar={() => definirQuery(parametrosWithFilters(query, { fila: '' }))} temFilters={Boolean(atual.queue)} />
     </div>
   );
 }
 
 /** A faixa inferior recorta somente a lista detalhada. */
-export function FiltrosDaLista({ atual, aoAbrirPainel, painelAberto }: {
+export function SListaFilter({ atual, toAbrirPanel, panelAberto }: {
   atual: Parametros;
-  aoAbrirPainel: () => void;
-  painelAberto: boolean;
+  toAbrirPanel: () => void;
+  panelAberto: boolean;
 }) {
   const [query, definirQuery] = useSearchParams();
-  const temFiltros = Boolean(atual.atendente || atual.contato || atual.status);
+  const temFilters = Boolean(atual.agent || atual.contact || atual.status);
   return (
     <div className="faixa-filtros">
       <span className="lbl">Filtros rápidos:</span>
-      <PilulaOpcoes rotulo="Atendentes" valor={atual.atendente ?? ''} aoAbrirPainel={aoAbrirPainel} painelAberto={painelAberto} />
-      <PilulaContato valor={atual.contato ?? ''} aoAbrirPainel={aoAbrirPainel} painelAberto={painelAberto} />
-      <PilulaOpcoes rotulo="Status do atendente" valor={atual.status ?? ''} aoAbrirPainel={aoAbrirPainel} painelAberto={painelAberto} />
-      <BotaoFiltros
-        aoAbrirPainel={aoAbrirPainel}
-        aoLimpar={() => definirQuery(parametrosComFiltros(query, { atendente: '', contato: '', status: '' }))}
-        temFiltros={temFiltros}
+      <PilulaOptions rotulo="Atendentes" value={atual.agent ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
+      <PilulaContact value={atual.contact ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
+      <PilulaOptions rotulo="Status do atendente" value={atual.status ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
+      <ButtonFilters
+        toAbrirPanel={toAbrirPanel}
+        aoLimpar={() => definirQuery(parametrosWithFilters(query, { atendente: '', contato: '', status: '' }))}
+        temFilters={temFilters}
       />
     </div>
   );

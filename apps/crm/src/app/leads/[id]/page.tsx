@@ -6,10 +6,10 @@ import {
   AbasDaFicha,
   Campo,
   Destaque,
-  Secao,
-  SecaoAtributos,
+  Section,
+  SectionAtributos,
 } from '../../../componentes/ficha';
-import { LinhaDoTempo } from '../../../componentes/linha-do-tempo';
+import { TimeLinha } from '../../../componentes/linha-do-tempo';
 import { fusoDoTenant } from '../../../lib/banco';
 import {
   carregarFicha,
@@ -17,7 +17,7 @@ import {
   ROTULO_STATUS,
   type Ficha,
 } from '../../../lib/leads';
-import { data, dataHora, desde, documento, numero, pontos } from '../../../lib/formato';
+import { data, dataHora, desde, document, numero, pontos } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,8 +54,8 @@ const ABAS = [
 
 type AbaFicha = (typeof ABAS)[number]['chave'];
 
-function abaValida(valor: string | undefined): AbaFicha {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'score') as AbaFicha;
+function abaValida(value: string | undefined): AbaFicha {
+  return (ABAS.find((a) => a.chave === value)?.chave ?? 'score') as AbaFicha;
 }
 
 /** O destaque do lead, montado sobre a peça comum das três fichas. */
@@ -86,26 +86,26 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
           ) : null}
         </>
       }
-      principais={[
+      main={[
         {
           rotulo: 'Score',
           numerico: true,
-          valor: ficha.score ? numero(ficha.score.valor) : '—',
+          value: ficha.score ? numero(ficha.score.value) : '—',
           nota: ficha.score?.faixa,
         },
         {
           rotulo: 'Fase',
-          valor: ficha.fase ?? '—',
+          value: ficha.fase ?? '—',
           nota: ficha.diasNaFase === null ? null : `há ${numero(ficha.diasNaFase)} dias`,
         },
-        { rotulo: 'Proprietário', valor: ficha.proprietario ?? 'sem proprietário' },
-        { rotulo: 'Origem', valor: ficha.origem ?? '—', nota: ficha.campanha },
+        { rotulo: 'Proprietário', value: ficha.proprietario ?? 'sem proprietário' },
+        { rotulo: 'Origem', value: ficha.origem ?? '—', nota: ficha.campanha },
         {
           rotulo: 'Conta',
-          valor: ficha.contaId ? (
-            <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+          value: ficha.accountId ? (
+            <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
           ) : (
-            (ficha.contaNome ?? '—')
+            (ficha.accountName ?? '—')
           ),
         },
       ]}
@@ -113,7 +113,7 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   );
 }
 
-export default async function PaginaFicha({
+export default async function PageFicha({
   params,
   searchParams,
 }: {
@@ -139,10 +139,10 @@ export default async function PaginaFicha({
     ...Object.fromEntries(Object.entries(ficha.utm).map(([k, v]) => [`utm ${k}`, v])),
   };
 
-  const contagem: Record<AbaFicha, number | null> = {
+  const count: Record<AbaFicha, number | null> = {
     score: ficha.score?.itens.length ?? null,
     formularios: ficha.formularios.length,
-    tempo: ficha.linhaDoTempo.length,
+    tempo: ficha.timeLinha.length,
   };
 
   return (
@@ -168,15 +168,15 @@ export default async function PaginaFicha({
               últimos são carimbo do sistema — data que a pessoa digita é data
               que deixa de significar quando a coisa aconteceu.
             */}
-            <Secao titulo="Dados">
+            <Section titulo="Dados">
               <div className="campos">
                 <Campo
                   k="E-mail"
-                  v={<CelulaInline leadId={ficha.id} campo="email" valor={ficha.email} />}
+                  v={<CelulaInline leadId={ficha.id} campo="email" value={ficha.email} />}
                 />
                 <Campo
                   k="Telefone"
-                  v={<CelulaInline leadId={ficha.id} campo="telefone" valor={ficha.telefone} />}
+                  v={<CelulaInline leadId={ficha.id} campo="telefone" value={ficha.telefone} />}
                 />
                 <Campo
                   k="Proprietário"
@@ -184,32 +184,32 @@ export default async function PaginaFicha({
                     <CelulaInline
                       leadId={ficha.id}
                       campo="proprietario"
-                      valor={ficha.proprietarioId}
-                      opcoes={proprietarios}
+                      value={ficha.proprietarioId}
+                      options={proprietarios}
                     />
                   }
                 />
                 <Campo
                   k="Origem"
-                  v={<CelulaInline leadId={ficha.id} campo="origem" valor={ficha.origem} />}
+                  v={<CelulaInline leadId={ficha.id} campo="origem" value={ficha.origem} />}
                 />
                 <Campo
                   k="Campanha"
-                  v={<CelulaInline leadId={ficha.id} campo="campanha" valor={ficha.campanha} />}
+                  v={<CelulaInline leadId={ficha.id} campo="campanha" value={ficha.campanha} />}
                 />
-                <Campo k="Documento" v={documento(ficha.documento)} />
+                <Campo k="Documento" v={document(ficha.document)} />
                 <Campo k="Criado em" v={data(ficha.criadoEm, fuso)} />
                 <Campo k="Fase desde" v={data(ficha.faseDesde, fuso)} />
               </div>
-            </Secao>
+            </Section>
           </div>
 
           <div className="tblwrap">
-            <SecaoAtributos atributos={atributos} />
+            <SectionAtributos atributos={atributos} />
           </div>
 
           <div className="tblwrap">
-            <Secao titulo="Etiquetas" aberta={ficha.etiquetas.length > 0}>
+            <Section titulo="Etiquetas" aberta={ficha.etiquetas.length > 0}>
               {ficha.etiquetas.length === 0 ? (
                 <div className="vazio">Sem etiquetas.</div>
               ) : (
@@ -219,7 +219,7 @@ export default async function PaginaFicha({
                   ))}
                 </div>
               )}
-            </Secao>
+            </Section>
           </div>
         </aside>
 
@@ -228,14 +228,14 @@ export default async function PaginaFicha({
             <AbasDaFicha
               base={`/leads/${ficha.id}`}
               aba={aba}
-              abas={ABAS.map((a) => ({ ...a, contagem: contagem[a.chave] }))}
+              abas={ABAS.map((a) => ({ ...a, contagem: count[a.chave] }))}
               formatar={numero}
             />
 
-            {aba === 'score' ? <PainelScore ficha={ficha} fuso={fuso} /> : null}
+            {aba === 'score' ? <PanelScore ficha={ficha} fuso={fuso} /> : null}
             {aba === 'formularios' ? <Formularios ficha={ficha} fuso={fuso} /> : null}
             {aba === 'tempo' ? (
-              <LinhaDoTempo itens={ficha.linhaDoTempo} fuso={fuso} agora={agora} />
+              <TimeLinha itens={ficha.timeLinha} fuso={fuso} agora={agora} />
             ) : null}
           </div>
         </div>
@@ -253,7 +253,7 @@ export default async function PaginaFicha({
  * verde e o vermelho SÃO a informação, e é a tela que justifica o produto. Por
  * isso é a primeira aba, e não a última.
  */
-function PainelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
+function PanelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   if (!ficha.score) {
     return (
       <div className="vazio">
@@ -270,7 +270,7 @@ function PainelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
     <>
       <header>
         <b>
-          Como {ficha.nome} tirou {numero(ficha.score.valor)}
+          Como {ficha.nome} tirou {numero(ficha.score.value)}
         </b>
         <span className="lbl">
           Regra de score v{ficha.score.versaoRegra} · {dataHora(ficha.score.calculadoEm, fuso)}
@@ -279,7 +279,7 @@ function PainelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
 
       {ficha.score.itens.length === 0 ? (
         <div className="vazio">
-          Nenhuma regra casou com este lead: o score {numero(ficha.score.valor)} é o valor de
+          Nenhuma regra casou com este lead: o score {numero(ficha.score.value)} é o valor de
           partida.
         </div>
       ) : (
@@ -295,12 +295,12 @@ function PainelScore({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
       )}
 
       <div className="tot">
-        <span className="n">{numero(ficha.score.valor)}</span>
+        <span className="n">{numero(ficha.score.value)}</span>
         <div>
           <Etiqueta>Faixa {ficha.score.faixa ?? 'não definida'}</Etiqueta>
           <div className="lbl" style={{ marginTop: '3px' }}>
             {ficha.score.corte !== null ? `corte em ${ficha.score.corte}` : 'sem corte'}
-            {ficha.score.fila ? ` · fila ${ficha.score.fila}` : ' · sem fila'}
+            {ficha.score.queue ? ` · fila ${ficha.score.queue}` : ' · sem fila'}
           </div>
         </div>
       </div>
@@ -330,7 +330,7 @@ function Formularios({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
           </div>
           <div className="campos">
             {f.respostas.map((r) => (
-              <Campo key={r.pergunta} k={r.pergunta} v={r.valor} />
+              <Campo key={r.pergunta} k={r.pergunta} v={r.value} />
             ))}
           </div>
         </div>

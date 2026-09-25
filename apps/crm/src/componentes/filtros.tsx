@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { Icone } from '@pipe/ui';
 import {
   FILTRAVEIS,
-  rotuloDoFiltro,
-  SEM_VALOR,
-  type ChaveDeFiltro,
-  type Filtros,
+  filterRotulo,
+  WITHOUT_VALUE,
+  type FilterKey,
+  type SFilter,
 } from '../lib/leads-visao';
 
 /**
@@ -30,17 +30,17 @@ import {
  * de cá, e um menu de operadores para quatro colunas categóricas seria três
  * cliques para responder o que um resolve.
  */
-export function Filtro({
-  filtros,
-  opcoes,
+export function Filter({
+  filters,
+  options,
   href,
 }: {
-  filtros: Filtros;
-  opcoes: Record<ChaveDeFiltro, string[]>;
+  filters: SFilter;
+  options: Record<FilterKey, string[]>;
   /** O endereço desta mesma listagem com outro conjunto de filtros. */
-  href: (proximos: Filtros) => string;
+  href: (proximos: SFilter) => string;
 }) {
-  const ativos = FILTRAVEIS.filter((f) => filtros[f.chave] !== undefined);
+  const ativos = FILTRAVEIS.filter((f) => filters[f.key] !== undefined);
 
   return (
     <div className="filtros">
@@ -54,21 +54,21 @@ export function Filtro({
             // "Em branco" entra sempre, mesmo que nenhuma linha esteja em
             // branco agora: é a pergunta "quem ficou sem dono?", e ela não pode
             // depender de já haver alguém sem dono para poder ser feita.
-            const valores = [...opcoes[f.chave], SEM_VALOR];
+            const values = [...options[f.key], WITHOUT_VALUE];
             return (
-              <details key={f.chave}>
+              <details key={f.key}>
                 <summary>
                   {f.rotulo}
-                  <span className="qt">{opcoes[f.chave].length}</span>
+                  <span className="qt">{options[f.key].length}</span>
                 </summary>
                 <ul>
-                  {valores.map((v) => (
+                  {values.map((v) => (
                     <li key={v}>
                       <Link
-                        href={href({ ...filtros, [f.chave]: v })}
-                        aria-current={filtros[f.chave] === v ? 'true' : undefined}
+                        href={href({ ...filters, [f.key]: v })}
+                        aria-current={filters[f.key] === v ? 'true' : undefined}
                       >
-                        {v === SEM_VALOR ? 'em branco' : v}
+                        {v === WITHOUT_VALUE ? 'em branco' : v}
                       </Link>
                     </li>
                   ))}
@@ -80,17 +80,17 @@ export function Filtro({
       </details>
 
       {ativos.map((f) => {
-        const valor = filtros[f.chave] ?? '';
-        const semEste = { ...filtros };
-        delete semEste[f.chave];
+        const value = filters[f.key] ?? '';
+        const semEste = { ...filters };
+        delete semEste[f.key];
         return (
           <Link
-            key={f.chave}
+            key={f.key}
             className="filtro-chip"
             href={href(semEste)}
-            title={`Tirar o filtro ${rotuloDoFiltro(f.chave, valor)}`}
+            title={`Tirar o filtro ${filterRotulo(f.key, value)}`}
           >
-            {rotuloDoFiltro(f.chave, valor)}
+            {filterRotulo(f.key, value)}
             <span aria-hidden="true">×</span>
           </Link>
         );

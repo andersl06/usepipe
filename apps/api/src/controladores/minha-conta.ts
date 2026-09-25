@@ -1,12 +1,12 @@
 import { Body, Controller, Get, Patch, Post, Req, Res } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Response } from 'express';
-import { abrirSessaoEm, cookieDeSessao } from '@pipe/autenticacao';
-import { bancoApp, bancoDono, noTenant } from '../banco.js';
-import { ErroPipe } from '../erros.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
-import { opcoesDeCookie } from './entrar.js';
+import { openSessionAt, cookieOfSession } from '@pipe/autenticacao';
+import { databaseApp, databaseOwner, noTenant } from '../banco.js';
+import { PipeError } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
+import { optionsOfCookie } from './entrar.js';
 
 /**
  * "Minha conta" e o seletor de contas — as duas telas que fecham o onboarding
@@ -66,7 +66,7 @@ const FUSOS = [
   'America/Noronha',
 ] as const;
 
-export interface ContaEmVigor {
+export interface AccountInForce {
   id: string;
   nome: string;
   slug: string;
@@ -94,15 +94,15 @@ export interface ContaEmVigor {
   fusos: readonly string[];
 }
 
-type LinhaConta = {
+type LineAccount = {
   id: string;
   nome: string;
   slug: string;
   plano: string;
   site: string | null;
   funcionarios: string | null;
-  cidade: string | null;
-  estado: string | null;
+  city: string | null;
+  state: string | null;
   pais: string | null;
   telefone: string | null;
   optin_whatsapp: boolean;
@@ -111,7 +111,7 @@ type LinhaConta = {
   onboarding_concluido_em: Date | string | null;
 };
 
-function paraContrato(linha: LinhaConta): ContaEmVigor {
+function forContract(linha: LineAccount): AccountInForce {
   const concluido = linha.onboarding_concluido_em;
   return {
     id: linha.id,
@@ -120,8 +120,8 @@ function paraContrato(linha: LinhaConta): ContaEmVigor {
     plano: linha.plano,
     site: linha.site,
     funcionarios: linha.funcionarios,
-    cidade: linha.cidade,
-    estado: linha.estado,
+    cidade: linha.city,
+    estado: linha.state,
     pais: linha.pais,
     telefone: linha.telefone,
     optinWhatsapp: linha.optin_whatsapp,
@@ -134,7 +134,7 @@ function paraContrato(linha: LinhaConta): ContaEmVigor {
   };
 }
 
-export interface ContaNaLista {
+export interface AccountInList {
   tenantId: string;
   nome: string;
   slug: string;
@@ -155,14 +155,14 @@ export interface ContaNaLista {
 
 /** Um valor da lista, ou nulo quando não veio. Fora da lista é recusa. */
 function escolha(
-  valor: unknown,
+  value: unknown,
   lista: readonly string[],
   codigo: string,
   recado: string,
 ): string | null {
-  const limpo = typeof valor === 'string' ? valor.trim() : '';
+  const limpo = typeof value === 'string' ? value.trim() : '';
   if (!limpo) return null;
-  if (!lista.includes(limpo)) throw ErroPipe.requisicao(codigo, recado);
+  if (!lista.includes(limpo)) throw PipeError.request(codigo, recado);
   return limpo;
 }
 
@@ -174,24 +174,24 @@ function texto(valor: unknown, limite: number): string | null {
 }
 
 @Controller('v1')
-export class ControladorMinhaConta {
+export class MyAccountController {
   /** A conta em vigor, com o que o formulário precisa mostrar e oferecer. */
   @Get('conta')
-  @ComSessao()
-  async conta(@Req() requisicao: RequisicaoComSessao): Promise<ContaEmVigor> {
-    const sessao = sessaoDe(requisicao);
-    const linha = await noTenant(sessao.tenantId, async (tx) => {
-      const { rows } = await tx.execute<LinhaConta>(sql`
+  @WithSession()
+  async account(@Req() request: RequestWithSession): Promise<AccountInForce> {
+    const session = sessionOf(request);
+    const linha = await noTenant(session.tenantId, async (tx) => {
+      const { rows } = await tx.execute<LineAccount>(sql`
         select id, nome, slug, plano, site, funcionarios, cidade, estado, pais,
                telefone, optin_whatsapp, idioma, fuso, onboarding_concluido_em
           from tenant
-         where id = ${sessao.tenantId}::uuid
+         where id = ${session.tenantId}::uuid
          limit 1
       `);
       return rows[0] ?? null;
     });
-    if (!linha) throw ErroPipe.naoAutorizado('Sessão ausente ou expirada.');
-    return paraContrato(linha);
+    if (!linha) throw PipeError.naoAutorizado('Sessão ausente ou expirada.');
+    return forContract(linha);
   }
 
   /**
@@ -203,17 +203,17 @@ export class ControladorMinhaConta {
    * e é ela que conta quanto tempo a conta levou para sair do papel.
    */
   @Patch('conta')
-  @ComSessao()
+  @WithSession()
   async salvar(
-    @Req() requisicao: RequisicaoComSessao,
+    @Req() requisicao: RequestWithSession,
     @Body() corpo: Record<string, unknown>,
-  ): Promise<ContaEmVigor> {
-    const sessao = sessaoDe(requisicao);
+  ): Promise<AccountInForce> {
+    const sessao = sessionOf(requisicao);
 
     const nome = texto(corpo['nome'], 120);
     const funcionarios = texto(corpo['funcionarios'], 40);
     if (funcionarios && !FAIXAS_DE_FUNCIONARIOS.includes(funcionarios as never)) {
-      throw ErroPipe.requisicao(
+      throw PipeError.request(
         'funcionarios_invalido',
         `Escolha uma das faixas: ${FAIXAS_DE_FUNCIONARIOS.join(', ')}.`,
       );
@@ -225,7 +225,7 @@ export class ControladorMinhaConta {
     const fuso = escolha(corpo['fuso'], FUSOS, 'fuso_invalido', 'Fuso não suportado.');
 
     const linha = await noTenant(sessao.tenantId, async (tx) => {
-      const { rows } = await tx.execute<LinhaConta>(sql`
+      const { rows } = await tx.execute<LineAccount>(sql`
         update tenant set
           nome = coalesce(${nome}, nome),
           site = ${texto(corpo['site'], 200)},
@@ -245,8 +245,8 @@ export class ControladorMinhaConta {
       `);
       return rows[0] ?? null;
     });
-    if (!linha) throw ErroPipe.naoAutorizado('Sessão ausente ou expirada.');
-    return paraContrato(linha);
+    if (!linha) throw PipeError.naoAutorizado('Sessão ausente ou expirada.');
+    return forContract(linha);
   }
 
   /**
@@ -257,12 +257,12 @@ export class ControladorMinhaConta {
    * é o mesmo critério que a entrada usa para ligar a conta na primeira vez.
    */
   @Get('contas/minhas')
-  @ComSessao()
-  async minhas(@Req() requisicao: RequisicaoComSessao): Promise<ContaNaLista[]> {
-    const sessao = sessaoDe(requisicao);
-    const email = await emailDaSessao(sessao.tenantId, sessao.usuarioId);
+  @WithSession()
+  async minhas(@Req() requisicao: RequestWithSession): Promise<AccountInList[]> {
+    const sessao = sessionOf(requisicao);
+    const email = await emailOfSession(sessao.tenantId, sessao.userId);
 
-    const { rows } = await bancoDono().execute<{
+    const { rows } = await databaseOwner().execute<{
       tenant_id: string;
       nome: string;
       slug: string;
@@ -302,55 +302,55 @@ export class ControladorMinhaConta {
    * meio de um atendimento seria pior.
    */
   @Post('contas/trocar')
-  @ComSessao()
-  async trocar(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async exchange(
+    @Req() requisicao: RequestWithSession,
     @Res({ passthrough: true }) resposta: Response,
     @Body() corpo: { tenantId?: string; slug?: string },
   ): Promise<{ tenantId: string; slug: string }> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     /* Aceita as duas formas porque as duas telas pedem coisas diferentes: o
        seletor tem o id em mãos, e o endereço da conta (o subdomínio) só tem o
        slug — é ele que a URL carrega. */
-    const destino = (corpo?.tenantId ?? '').trim() || (await idDoSlug(corpo?.slug));
-    if (!destino) throw ErroPipe.requisicao('tenant_ausente', 'Informe a conta de destino.');
-    if (destino === sessao.tenantId) {
+    const destination = (corpo?.tenantId ?? '').trim() || (await idDoSlug(corpo?.slug));
+    if (!destination) throw PipeError.request('tenant_ausente', 'Informe a conta de destino.');
+    if (destination === sessao.tenantId) {
       const atual = await noTenant(sessao.tenantId, async (tx) => {
         const { rows } = await tx.execute<{ slug: string }>(
-          sql`select slug from tenant where id = ${destino}::uuid limit 1`,
+          sql`select slug from tenant where id = ${destination}::uuid limit 1`,
         );
         return rows[0]?.slug ?? '';
       });
-      return { tenantId: destino, slug: atual };
+      return { tenantId: destination, slug: atual };
     }
 
-    const email = await emailDaSessao(sessao.tenantId, sessao.usuarioId);
-    const { rows } = await bancoDono().execute<{ usuario_id: string; slug: string }>(sql`
+    const email = await emailOfSession(sessao.tenantId, sessao.userId);
+    const { rows } = await databaseOwner().execute<{ userId: string; slug: string }>(sql`
       select u.id as usuario_id, t.slug
         from usuario u
         join tenant t on t.id = u.tenant_id
-       where u.tenant_id = ${destino}::uuid and lower(u.email) = ${email}
+       where u.tenant_id = ${destination}::uuid and lower(u.email) = ${email}
          and u.ativo and t.ativo
        limit 1
     `);
     const alvo = rows[0];
     // Sem vínculo a resposta é "não existe", e não "você não pode": dizer que a
     // conta existe já conta ao curioso que empresa usa o Pipe.
-    if (!alvo) throw new ErroPipe(404, 'nao_encontrado', 'Não encontrado.');
+    if (!alvo) throw new PipeError(404, 'nao_encontrado', 'Não encontrado.');
 
-    const entrada = await abrirSessaoEm(
-      bancoDono(),
-      bancoApp(),
-      destino,
-      alvo.usuario_id,
+    const inbound = await openSessionAt(
+      databaseOwner(),
+      databaseApp(),
+      destination,
+      alvo.userId,
       sessao.origem === 'sso' ? 'sso' : 'google',
       { ip: requisicao.ip, agente: requisicao.header('user-agent') },
     );
     resposta.setHeader(
       'set-cookie',
-      cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
+      cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
     );
-    return { tenantId: destino, slug: alvo.slug };
+    return { tenantId: destination, slug: alvo.slug };
   }
 }
 
@@ -365,20 +365,20 @@ export class ControladorMinhaConta {
 async function idDoSlug(slug: string | undefined): Promise<string> {
   const limpo = (slug ?? '').trim().toLowerCase();
   if (!limpo) return '';
-  const { rows } = await bancoDono().execute<{ id: string }>(
+  const { rows } = await databaseOwner().execute<{ id: string }>(
     sql`select id from tenant where slug = ${limpo} and ativo limit 1`,
   );
   return rows[0]?.id ?? '';
 }
 
 /** O e-mail de quem está logado. É a chave que liga as contas da mesma pessoa. */
-async function emailDaSessao(tenantId: string, usuarioId: string): Promise<string> {
+async function emailOfSession(tenantId: string, userId: string): Promise<string> {
   const email = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ email: string }>(
-      sql`select lower(email) as email from usuario where id = ${usuarioId}::uuid limit 1`,
+      sql`select lower(email) as email from usuario where id = ${userId}::uuid limit 1`,
     );
     return rows[0]?.email ?? null;
   });
-  if (!email) throw ErroPipe.naoAutorizado('Sessão ausente ou expirada.');
+  if (!email) throw PipeError.naoAutorizado('Sessão ausente ou expirada.');
   return email;
 }

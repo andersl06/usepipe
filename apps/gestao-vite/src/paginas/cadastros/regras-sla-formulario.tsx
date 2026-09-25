@@ -1,8 +1,8 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import type { Resultado } from '../../lib/acoes';
-import { criarRegraSla, editarRegraSla, type PedidoDeRegraSla } from '../../lib/configuracoes-gravar';
-import { ROTULO_ALVO, type FilaConfigurada, type RegraSlaConfigurada } from '../../lib/configuracoes';
+import { createRuleSla, editarRegraSla, type PedidoDeRegraSla } from '../../lib/configuracoes-gravar';
+import { ROTULO_ALVO, type QueueConfigured, type RegraSlaConfigurada } from '../../lib/configuracoes';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
@@ -19,55 +19,55 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
  * prazo/alerta — o que cobre o pedido da tarefa sem alargar a leitura.
  */
 
-function pedidoDoFormulario(dados: FormData): PedidoDeRegraSla {
-  const alertaBruto = String(dados.get('alertaSeg') ?? '').trim();
-  const escopoTipo = String(dados.get('escopoTipo') ?? 'tenant');
+function pedidoDoFormulario(data: FormData): PedidoDeRegraSla {
+  const alertaBruto = String(data.get('alertaSeg') ?? '').trim();
+  const scopeTipo = String(data.get('escopoTipo') ?? 'tenant');
   return {
-    nome: String(dados.get('nome') ?? '').trim(),
-    alvo: String(dados.get('alvo') ?? '').trim(),
-    prazoSeg: Number(dados.get('prazoSeg') ?? 0),
+    nome: String(data.get('nome') ?? '').trim(),
+    alvo: String(data.get('alvo') ?? '').trim(),
+    prazoSeg: Number(data.get('prazoSeg') ?? 0),
     alertaSeg: alertaBruto ? Number(alertaBruto) : null,
-    escopoTipo,
-    escopoId: escopoTipo === 'fila' ? String(dados.get('escopoId') ?? '').trim() : null,
+    scopeTipo,
+    scopeId: scopeTipo === 'fila' ? String(data.get('escopoId') ?? '').trim() : null,
   };
 }
 
-function acaoDeCriacao(_anterior: Resultado, dados: FormData): Promise<Resultado> {
-  return criarRegraSla(pedidoDoFormulario(dados)).then((r) =>
-    r.ok ? { ok: true } : { ok: false, erro: r.erro },
+function creationAction(_anterior: Resultado, data: FormData): Promise<Resultado> {
+  return createRuleSla(pedidoDoFormulario(data)).then((r) =>
+    r.ok ? { ok: true } : { ok: false, erro: r.error },
   );
 }
 
-function acaoDeEdicao(id: string) {
+function editAction(id: string) {
   // Edição não manda escopo — ver "Decisão Pipe" no topo do arquivo.
-  return async (_anterior: Resultado, dados: FormData): Promise<Resultado> => {
+  return async (_anterior: Resultado, data: FormData): Promise<Resultado> => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- descarta escopo de propósito
-    const { escopoTipo, escopoId, ...pedido } = pedidoDoFormulario(dados);
+    const { scopeTipo, scopeId, ...pedido } = pedidoDoFormulario(data);
     const resultado = await editarRegraSla(id, pedido);
-    return resultado.ok ? { ok: true } : { ok: false, erro: resultado.erro };
+    return resultado.ok ? { ok: true } : { ok: false, error: resultado.error };
   };
 }
 
 export function FormularioRegraSla({
-  filas,
+  queues,
   regraExistente,
   aoSalvar,
 }: {
-  filas: readonly FilaConfigurada[];
+  queues: readonly QueueConfigured[];
   regraExistente?: RegraSlaConfigurada;
   aoSalvar?: () => void;
 }) {
   const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
-  const [escopo, setEscopo] = useState(regraExistente?.escopoTipo ?? 'tenant');
+  const [scope, setScope] = useState(regraExistente?.scopeType ?? 'tenant');
   const [resultado, enviar, enviando] = useActionState(
-    regraExistente ? acaoDeEdicao(regraExistente.id) : acaoDeCriacao,
+    regraExistente ? editAction(regraExistente.id) : creationAction,
     { ok: true },
   );
-  const estadoInicial = useRef(resultado);
+  const stateInitial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado === estadoInicial.current) return;
+    if (resultado === stateInitial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
       aoSalvar?.();
@@ -77,7 +77,7 @@ export function FormularioRegraSla({
   return (
     <form
       ref={formRef}
-      onSubmit={envioQuePreserva((dados) => enviar(dados))}
+      onSubmit={envioQuePreserva((data) => enviar(data))}
       className="form-cadastro"
     >
       <div className="form-linha">
@@ -95,8 +95,8 @@ export function FormularioRegraSla({
         <label className="form-campo" style={{ flexBasis: '200px' }}>
           <span className="sub">Alvo</span>
           <Seletor name="alvo" defaultValue={regraExistente?.alvo ?? 'primeira_resposta'} disabled={enviando}>
-            {Object.entries(ROTULO_ALVO).map(([valor, rotulo]) => (
-              <option key={valor} value={valor}>
+            {Object.entries(ROTULO_ALVO).map(([value, rotulo]) => (
+              <option key={value} value={value}>
                 {rotulo}
               </option>
             ))}
@@ -134,8 +134,8 @@ export function FormularioRegraSla({
             <span className="sub">Escopo</span>
             <Seletor
               name="escopoTipo"
-              value={escopo}
-              onChange={(e) => setEscopo(e.target.value)}
+              value={scope}
+              onChange={(e) => setScope(e.target.value)}
               disabled={enviando}
             >
               <option value="tenant">Toda a operação</option>
@@ -143,12 +143,12 @@ export function FormularioRegraSla({
             </Seletor>
           </label>
 
-          {escopo === 'fila' ? (
+          {scope === 'fila' ? (
             <label className="form-campo" style={{ flexBasis: '220px' }}>
               <span className="sub">Fila</span>
               <Seletor name="escopoId" defaultValue="" required disabled={enviando}>
                 <option value="">Escolha a fila</option>
-                {filas.map((f) => (
+                {queues.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.nome}
                   </option>
@@ -159,7 +159,7 @@ export function FormularioRegraSla({
         </div>
       )}
 
-      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+      {resultado.error ? <Etiqueta tom="erro">{resultado.error}</Etiqueta> : null}
 
       <div className="cl-acoes">
         <Botao type="submit" variante="primario" disabled={enviando}>

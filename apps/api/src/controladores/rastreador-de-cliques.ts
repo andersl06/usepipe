@@ -1,13 +1,13 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
-import { ComSessao, sessaoDe } from '../sessao.js';
-import type { RequisicaoComSessao } from '../sessao.js';
-import { ErroPipe } from '../erros.js';
+import { WithSession, sessionOf } from '../sessao.js';
+import type { RequestWithSession } from '../sessao.js';
+import { PipeError } from '../erros.js';
 import {
-  criarLinkRastreado,
+  createLinkTracked,
   listarLinksRastreados,
   type LinkRastreado,
-  type PeriodoDeContagem,
+  type PeriodOfCount,
 } from '../dominio/rastreador-de-cliques.js';
 
 /**
@@ -18,12 +18,12 @@ import {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function uuidOu404(valor: string): string {
-  if (!UUID.test(valor)) throw ErroPipe.naoEncontrado('fluxo');
-  return valor;
+function uuidOu404(value: string): string {
+  if (!UUID.test(value)) throw PipeError.naoEncontrado('fluxo');
+  return value;
 }
 
-function periodoDaQuery(desde: string | undefined, ate: string | undefined): PeriodoDeContagem {
+function periodOfQuery(desde: string | undefined, ate: string | undefined): PeriodOfCount {
   const d = desde ? new Date(desde) : null;
   const a = ate ? new Date(ate) : null;
   return {
@@ -34,44 +34,44 @@ function periodoDaQuery(desde: string | undefined, ate: string | undefined): Per
 
 interface CorpoDeLink {
   nome?: string;
-  destino?: string;
+  destination?: string;
 }
 
 @Controller('v1/gestao/fluxos/:fluxoId/links-rastreados')
-export class ControladorLinksRastreados {
+export class TrackedLinksController {
   @Get()
-  @ComSessao()
+  @WithSession()
   async listar(
-    @Req() requisicao: RequisicaoComSessao,
-    @Param('fluxoId') fluxoId: string,
+    @Req() request: RequestWithSession,
+    @Param('fluxoId') flowId: string,
     @Query('desde') desde: string | undefined,
     @Query('ate') ate: string | undefined,
   ): Promise<{ data: LinkRastreado[] }> {
-    const sessao = sessaoDe(requisicao);
-    uuidOu404(fluxoId);
-    const data = await noTenant(sessao.tenantId, (tx) =>
-      listarLinksRastreados(tx, sessao.tenantId, fluxoId, periodoDaQuery(desde, ate)),
+    const session = sessionOf(request);
+    uuidOu404(flowId);
+    const data = await noTenant(session.tenantId, (tx) =>
+      listarLinksRastreados(tx, session.tenantId, flowId, periodOfQuery(desde, ate)),
     );
     return { data };
   }
 
   @Post()
   @HttpCode(201)
-  @ComSessao()
-  async criar(
-    @Req() requisicao: RequisicaoComSessao,
+  @WithSession()
+  async create(
+    @Req() requisicao: RequestWithSession,
     @Param('fluxoId') fluxoId: string,
     @Body() corpo: CorpoDeLink,
   ): Promise<LinkRastreado> {
-    const sessao = sessaoDe(requisicao);
+    const sessao = sessionOf(requisicao);
     uuidOu404(fluxoId);
-    if (!corpo.destino) {
-      throw ErroPipe.requisicao('destino_obrigatorio', 'Informe a URL de destino.');
+    if (!corpo.destination) {
+      throw PipeError.request('destino_obrigatorio', 'Informe a URL de destino.');
     }
     return noTenant(sessao.tenantId, (tx) =>
-      criarLinkRastreado(tx, sessao.tenantId, fluxoId, {
+      createLinkTracked(tx, sessao.tenantId, fluxoId, {
         nome: corpo.nome ?? '',
-        destino: corpo.destino!,
+        destination: corpo.destination!,
       }),
     );
   }

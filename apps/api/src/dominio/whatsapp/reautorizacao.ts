@@ -1,8 +1,8 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../../banco.js';
-import { ErroPipe } from '../../erros.js';
-import { atualizarCanal, lerCanalWhatsApp, marcarReautorizado, texto } from './canal.js';
-import type { CanalWhatsApp } from './canal.js';
+import { PipeError } from '../../erros.js';
+import { atualizarChannel, readChannelWhatsApp, marcarReautorizado, texto } from './canal.js';
+import type { ChannelWhatsApp } from './canal.js';
 import { sanitizarNumero } from './info-do-numero.js';
 import type { InfoDoNumero } from './info-do-numero.js';
 
@@ -20,21 +20,21 @@ import type { InfoDoNumero } from './info-do-numero.js';
  * novo esbarraria no próprio número.
  */
 
-export interface PedidoDeReautorizacao {
+export interface RequestOfReauthorization {
   tenantId: string;
-  canalId: string;
+  channelId: string;
   numeroId?: string | undefined;
   wabaId: string;
   token: string;
   info: InfoDoNumero;
 }
 
-export async function reautorizar(pedido: PedidoDeReautorizacao): Promise<CanalWhatsApp> {
-  const canal = await lerCanalWhatsApp(pedido.tenantId, pedido.canalId);
+export async function reautorizar(pedido: RequestOfReauthorization): Promise<ChannelWhatsApp> {
+  const channel = await readChannelWhatsApp(pedido.tenantId, pedido.channelId);
 
-  const esperado = `+${sanitizarNumero(texto(canal.config['numero']))}`;
+  const esperado = `+${sanitizarNumero(texto(channel.config['numero']))}`;
   if (pedido.info.numero !== esperado) {
-    throw new ErroPipe(
+    throw new PipeError(
       422,
       'numero_divergente',
       `O número não confere. Esperado ${esperado}, recebido ${pedido.info.numero}`,
@@ -43,8 +43,8 @@ export async function reautorizar(pedido: PedidoDeReautorizacao): Promise<CanalW
 
   // Cliente antigo pode não mandar o `phone_number_id`: cai no que a Meta acabou de devolver.
   const numeroId = pedido.numeroId || pedido.info.numeroId;
-  const atualizado = await atualizarCanal(
-    canal,
+  const atualizado = await atualizarChannel(
+    channel,
     { tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },
     { wabaId: pedido.wabaId, numeroId },
   );
@@ -55,11 +55,11 @@ export async function reautorizar(pedido: PedidoDeReautorizacao): Promise<CanalW
     if (nomeDaEmpresa) {
       await tx.execute(sql`
         update inbox set nome = ${nomeDaEmpresa}, atualizado_em = now()
-         where canal_id = ${canal.id}::uuid
+         where canal_id = ${channel.id}::uuid
       `);
     }
     await tx.execute(sql`
-      update canal set ativo = true, atualizado_em = now() where id = ${canal.id}::uuid
+      update canal set ativo = true, atualizado_em = now() where id = ${channel.id}::uuid
     `);
   });
 

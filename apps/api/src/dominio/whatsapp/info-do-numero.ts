@@ -1,4 +1,4 @@
-import { ErroPipe } from '../../erros.js';
+import { PipeError } from '../../erros.js';
 import { clienteGraph } from './cliente-graph.js';
 import type { NumeroDaWaba } from './cliente-graph.js';
 
@@ -29,17 +29,17 @@ export async function buscarInfoDoNumero(
   token: string | undefined,
   numeroEsperado?: string | null,
 ): Promise<InfoDoNumero> {
-  if (!wabaId) throw ErroPipe.requisicao('waba_ausente', 'O WABA ID é obrigatório.');
-  if (!token) throw ErroPipe.requisicao('token_ausente', 'O token de acesso é obrigatório.');
+  if (!wabaId) throw PipeError.request('waba_ausente', 'O WABA ID é obrigatório.');
+  if (!token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
 
   const numeros = await clienteGraph(token).buscarTodosOsNumeros(wabaId);
   if (numeros.length === 0) {
-    throw new ErroPipe(422, 'waba_sem_numero', `Nenhum número encontrado para a WABA ${wabaId}.`);
+    throw new PipeError(422, 'waba_sem_numero', `Nenhum número encontrado para a WABA ${wabaId}.`);
   }
 
-  const dados = acharNumero(numeros, wabaId, numeroId, numeroEsperado ?? null);
-  if (!dados) {
-    throw new ErroPipe(
+  const data = acharNumero(numeros, wabaId, numeroId, numeroEsperado ?? null);
+  if (!data) {
+    throw new PipeError(
       422,
       'numero_nao_encontrado',
       `Nenhum número correspondente encontrado para a WABA ${wabaId}.`,
@@ -47,10 +47,10 @@ export async function buscarInfoDoNumero(
   }
 
   return {
-    numeroId: dados.id,
-    numero: `+${sanitizarNumero(dados.display_phone_number)}`,
-    verificado: dados.code_verification_status === 'VERIFIED',
-    nomeDaEmpresa: dados.verified_name || dados.display_phone_number || '',
+    numeroId: data.id,
+    numero: `+${sanitizarNumero(data.display_phone_number)}`,
+    verificado: data.code_verification_status === 'VERIFIED',
+    nomeDaEmpresa: data.verified_name || data.display_phone_number || '',
   };
 }
 
@@ -69,7 +69,7 @@ function acharNumero(
   }
   // Sem identificador nenhum, só um número único é inequívoco.
   if (numeros.length > 1) {
-    throw new ErroPipe(
+    throw new PipeError(
       422,
       'numero_ambiguo',
       `Vários números encontrados para a WABA ${wabaId}; não dá para saber qual foi conectado.`,

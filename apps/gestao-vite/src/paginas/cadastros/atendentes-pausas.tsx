@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Botao, BotaoDeIcone } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
+import { useRead } from '../../lib/consulta';
 import type { MotivoDePausa, UsoDePausas } from '../../lib/cadastros';
 import { excluirMotivoPausa } from '../../lib/cadastros-gravar';
 import { numero } from '../../lib/formato';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
 import { FormularioMotivoPausa } from './atendentes-pausas-formulario';
-import { Modal, ModalConfirmacao } from './_modal';
+import { Modal, ModalConfirmation } from './_modal';
 
 /**
  * Só "Excluir" — a origem não tem interruptor nem editar nesta linha, e não
@@ -16,7 +16,7 @@ import { Modal, ModalConfirmacao } from './_modal';
  * (`cadastros-gravar.ts`) fica sem uso nesta tela por isso — não foi apagado
  * porque a rota `PATCH .../pausas/:id` continua válida e testada.
  */
-function AcoesDoMotivo({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
+function MotivoActions({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
   return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />;
 }
 
@@ -35,41 +35,41 @@ function AcoesDoMotivo({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir
  * cabeçalho — informação que não aparece como texto na tela, então não
  * compete com a forma literal.
  */
-export function PaginaPausas() {
+export function PageBreaks() {
   const [modalAberto, setModalAberto] = useState(false);
   const [motivoParaExcluir, setMotivoParaExcluir] = useState<MotivoDePausa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  const leitura = useLeitura<UsoDePausas>('/v1/gestao/atendentes/pausas');
-  if (!leitura.data) return null;
-  const { motivos, dias, semMotivo, abertas } = leitura.data;
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const read = useRead<UsoDePausas>('/v1/gestao/atendentes/pausas');
+  if (!read.data) return null;
+  const { motivos, dias, semMotivo, abertas } = read.data;
 
   async function excluir() {
     if (!motivoParaExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
+    setErrorExclusao(null);
     const resultado = await excluirMotivoPausa(motivoParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setMotivoParaExcluir(null);
-    else setErroExclusao(resultado.erro);
+    else setErrorExclusao(resultado.error);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Pausas personalizadas',
-      vazio: 'Nenhum motivo cadastrado.',
-      cartoes: motivos.map((m) => ({
+      empty: 'Nenhum motivo cadastrado.',
+      cards: motivos.map((m) => ({
         id: m.id,
         campos: [
           { rotulo: 'Nome da pausa', valor: m.nome },
           {
             rotulo: 'Duração',
-            valor: m.duracaoSugeridaMin === null ? '—' : `${numero(m.duracaoSugeridaMin)} minutos`,
+            valor: m.durationSuggestedMin === null ? '—' : `${numero(m.durationSuggestedMin)} minutos`,
           },
         ],
         situacao: m.ativo ? 'Ativo' : 'Desativado',
         ativa: m.ativo,
-        acao: <AcoesDoMotivo motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
+        acao: <MotivoActions motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
         procura: m.nome.toLowerCase(),
       })),
     },
@@ -102,28 +102,28 @@ export function PaginaPausas() {
       </div>
 
       <ListaRegras
-        secoes={secoes}
-        ocultarCabecalhoDeSecao
-        ocultarBusca
+        sections={sections}
+        sectionOcultarHeader
+        ocultarSearch
         paginar
-        tamanhoDePaginaInicial={5}
-        ocultarTamanhoDePagina
+        pageInitialTamanho={5}
+        pageOcultarTamanho
       />
 
       <Modal aberto={modalAberto} titulo="Criar nova pausa personalizada" onFechar={() => setModalAberto(false)}>
         <FormularioMotivoPausa aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={motivoParaExcluir !== null}
         titulo="Excluir motivo"
-        mensagem={<>Excluir o motivo "{motivoParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
-        erro={erroExclusao}
+        message={<>Excluir o motivo "{motivoParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
+        error={errorExclusao}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setMotivoParaExcluir(null);
-          setErroExclusao(null);
+          setErrorExclusao(null);
         }}
       />
     </>

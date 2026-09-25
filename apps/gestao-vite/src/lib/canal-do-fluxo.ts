@@ -1,4 +1,4 @@
-import type { CanalDoFluxo } from '@pipe/contracts';
+import type { ChannelOfFlow } from '@pipe/contracts';
 
 /**
  * O canal DO BOT — regras PURAS do lado da tela (`fluxo/canais/**`), sem
@@ -11,17 +11,17 @@ import type { CanalDoFluxo } from '@pipe/contracts';
  */
 
 /** Os canais que a Pipe tem página própria — os mesmos `tipo` de `canal.tipo`. */
-export type TipoDeCanalDoBot = 'whatsapp_cloud' | 'instagram' | 'messenger';
+export type TipoOfChannelOfBot = 'whatsapp_cloud' | 'instagram' | 'messenger';
 
 /** O segmento da URL de cada canal: `/{tipo}/{id}/canais/{segmento}` (o `/whatsapp-embedded` da origem vira `/whatsapp`). */
-export const SEGMENTO_DO_CANAL: Readonly<Record<TipoDeCanalDoBot, string>> = {
+export const SEGMENT_OF_CHANNEL: Readonly<Record<TipoOfChannelOfBot, string>> = {
   whatsapp_cloud: 'whatsapp',
   instagram: 'instagram',
   messenger: 'messenger',
 };
 
-export function rotaDoCanal(base: string, tipo: TipoDeCanalDoBot): string {
-  return `${base}/canais/${SEGMENTO_DO_CANAL[tipo]}`;
+export function channelRota(base: string, tipo: TipoOfChannelOfBot): string {
+  return `${base}/canais/${SEGMENT_OF_CHANNEL[tipo]}`;
 }
 
 /**
@@ -31,27 +31,27 @@ export function rotaDoCanal(base: string, tipo: TipoDeCanalDoBot): string {
  * - `outro_canal`: o bot já está com um canal de OUTRO tipo — decisão Pipe,
  *   porque `fluxo.canal_id` é uma coluna só (na origem um bot tem vários).
  */
-export type EstadoDoCanalNoBot =
-  | { estado: 'conectado'; canal: CanalDoFluxo }
-  | { estado: 'nao_conectado' }
-  | { estado: 'outro_canal'; canal: CanalDoFluxo };
+export type ChannelInBotState =
+  | { state: 'conectado'; channel: ChannelOfFlow }
+  | { state: 'nao_conectado' }
+  | { state: 'outro_canal'; channel: ChannelOfFlow };
 
-export function estadoDoCanalNoBot(
-  canal: CanalDoFluxo | null,
-  tipo: TipoDeCanalDoBot,
-): EstadoDoCanalNoBot {
-  if (!canal) return { estado: 'nao_conectado' };
-  if (canal.tipo !== tipo) return { estado: 'outro_canal', canal };
-  if (!canal.ativo) return { estado: 'nao_conectado' };
-  return { estado: 'conectado', canal };
+export function channelInBotState(
+  channel: ChannelOfFlow | null,
+  tipo: TipoOfChannelOfBot,
+): ChannelInBotState {
+  if (!channel) return { state: 'nao_conectado' };
+  if (channel.tipo !== tipo) return { state: 'outro_canal', channel };
+  if (!channel.ativo) return { state: 'nao_conectado' };
+  return { state: 'conectado', channel };
 }
 
 /** O cartão da lista: "Conectado" quando o bot está com um canal ATIVO deste tipo. */
-export function cartaoConectado(
-  contato: { canalTipo: string | null; canalAtivo: boolean | null },
+export function cardConnected(
+  contact: { channelTipo: string | null; channelActive: boolean | null },
   tipo: string,
 ): boolean {
-  return contato.canalAtivo === true && contato.canalTipo === tipo;
+  return contact.channelActive === true && contact.channelTipo === tipo;
 }
 
 /**
@@ -60,21 +60,21 @@ export function cartaoConectado(
  * (sem bot vivo), e os que já estão com outro bot, para a tela dizer qual — a
  * origem manda "remover do anterior", e a tela aponta onde.
  */
-export function canaisParaOferecer(
-  disponiveis: readonly CanalDoFluxo[],
-  tipo: TipoDeCanalDoBot,
-  fluxoId: string,
-): { livres: CanalDoFluxo[]; emUso: CanalDoFluxo[] } {
+export function channelsForOferecer(
+  disponiveis: readonly ChannelOfFlow[],
+  tipo: TipoOfChannelOfBot,
+  flowId: string,
+): { livres: ChannelOfFlow[]; emUso: ChannelOfFlow[] } {
   const doTipo = disponiveis.filter((c) => c.tipo === tipo && c.ativo);
   return {
-    livres: doTipo.filter((c) => c.fluxoId === null || c.fluxoId === fluxoId),
-    emUso: doTipo.filter((c) => c.fluxoId !== null && c.fluxoId !== fluxoId),
+    livres: doTipo.filter((c) => c.flowId === null || c.flowId === flowId),
+    emUso: doTipo.filter((c) => c.flowId !== null && c.flowId !== flowId),
   };
 }
 
 /** O rótulo de um canal na lista: o número (ou `@usuário`, ou o id da Página) e, sem ele, o nome. */
-export function rotuloDoCanal(canal: Pick<CanalDoFluxo, 'nome' | 'numero'>): string {
-  return canal.numero ? `${canal.numero} — ${canal.nome}` : canal.nome;
+export function channelRotulo(channel: Pick<ChannelOfFlow, 'nome' | 'numero'>): string {
+  return channel.numero ? `${channel.numero} — ${channel.nome}` : channel.nome;
 }
 
 /** Só dígitos, para o `https://wa.me/{numero}` do "Testar no WhatsApp". */

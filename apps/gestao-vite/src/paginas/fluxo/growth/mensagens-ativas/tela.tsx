@@ -1,91 +1,91 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { IconeBusca, IconePortal } from '../../../../componentes/icones-portal';
-import { Selecao } from '../../../../componentes/selecao';
-import { useLeitura } from '../../../../lib/consulta';
-import type { DadosDeGrowth, EnvioGrowth } from '@pipe/contracts';
+import { IconeSearch, IconePortal } from '../../../../componentes/icones-portal';
+import { Selection } from '../../../../componentes/selecao';
+import { useRead } from '../../../../lib/consulta';
+import type { DataOfGrowth, EnvioGrowth } from '@pipe/contracts';
 import { analisarCsv, filtrarEnvios } from '../regras';
-import type { DestinoCsv } from '../regras';
-import { dispararMensagensAtivas, rotuloDeRecusa } from './disparo';
-import type { DestinoDoDisparo, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
+import type { DestinationCsv } from '../regras';
+import { dispararActiveMessages, rotuloDeRecusa } from './disparo';
+import type { DisparoDestination, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
 
 type Etapa = 1 | 2 | 3 | 4;
 
-export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
+export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
   /* O "Atualizar" da origem recarrega a tela; aqui invalida a leitura do Growth. */
-  const fila = useQueryClient();
-  const [atualizando, iniciarAtualizacao] = useTransition();
-  const [criar, setCriar] = useState(false);
+  const queue = useQueryClient();
+  const [atualizando, iniciarUpdate] = useTransition();
+  const [create, setCreate] = useState(false);
   const [etapa, setEtapa] = useState<Etapa>(1);
-  const [canalId, setCanalId] = useState(dados.canais[0]?.id ?? '');
+  const [channelId, setChannelId] = useState(data.channels[0]?.id ?? '');
   const [categoria, setCategoria] = useState('utilidade');
-  const [modeloId, setModeloId] = useState('');
+  const [templateId, setTemplateId] = useState('');
   const [nome, setNome] = useState('');
   const [tipoAudiencia, setTipoAudiencia] = useState<'massa' | 'individual'>('massa');
-  const [contatoId, setContatoId] = useState('');
-  const [arquivo, setArquivo] = useState('');
-  const [contatosArquivo, setContatosArquivo] = useState<DestinoCsv[]>([]);
+  const [contactId, setContactId] = useState('');
+  const [file, setFile] = useState('');
+  const [contactsFile, setContactsFile] = useState<DestinationCsv[]>([]);
   const [parametrosTexto, setParametrosTexto] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [resultadoEnvio, setResultadoEnvio] = useState<RespostaDoDisparo | null>(null);
   const [aviso, setAviso] = useState('');
-  const [busca, setBusca] = useState('');
-  const [mostrarBusca, setMostrarBusca] = useState(false);
-  const [canalFiltro, setCanalFiltro] = useState('whatsapp');
-  const [tipoMensagem, setTipoMensagem] = useState('todos');
+  const [search, setSearch] = useState('');
+  const [mostrarSearch, setMostrarSearch] = useState(false);
+  const [channelFilter, setChannelFilter] = useState('whatsapp');
+  const [tipoMessage, setTipoMessage] = useState('todos');
   const [tipoCampanha, setTipoCampanha] = useState('todos');
-  const quantidadeArquivo = contatosArquivo.length;
+  const quantityFile = contactsFile.length;
 
   /* GET /v1/mensagens-ativas/limites — o teto de contatos por disparo, para a
      tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */
-  const limites = useLeitura<LimitesDeDisparo>('/v1/mensagens-ativas/limites');
-  const maxContatos = limites.data?.max_contatos_por_disparo ?? 15;
+  const limites = useRead<LimitesDeDisparo>('/v1/mensagens-ativas/limites');
+  const maxContacts = limites.data?.maxContactsByTrigger ?? 15;
 
-  const modelosAprovados = dados.modelos.filter(
-    (modelo) =>
-      modelo.canalId === canalId &&
-      modelo.categoria === categoria &&
-      modelo.statusMeta === 'aprovado',
+  const modelosAprovados = data.modelos.filter(
+    (template) =>
+      template.channelId === channelId &&
+      template.categoria === categoria &&
+      template.statusMeta === 'aprovado',
   );
-  const modeloSelecionado = dados.modelos.find((modelo) => modelo.id === modeloId);
-  const envios = useMemo(() => filtrarEnvios(dados.envios, busca, 'todos'), [dados.envios, busca]);
+  const templateSelected = data.modelos.find((template) => template.id === templateId);
+  const envios = useMemo(() => filtrarEnvios(data.envios, search, 'todos'), [data.envios, search]);
 
-  function abrirCriacao() {
-    setCriar(true);
+  function abrirCreation() {
+    setCreate(true);
     setEtapa(1);
     setAviso('');
     setResultadoEnvio(null);
-    setArquivo('');
-    setContatosArquivo([]);
+    setFile('');
+    setContactsFile([]);
     setParametrosTexto('');
-    setContatoId('');
+    setContactId('');
     setNome('');
   }
 
   function fecharAssistente() {
-    setCriar(false);
+    setCreate(false);
   }
 
-  async function lerArquivo(file?: File) {
+  async function readFile(file?: File) {
     if (!file) return;
     const texto = await file.text();
-    setArquivo(file.name);
-    setContatosArquivo(analisarCsv(texto));
+    setFile(file.name);
+    setContactsFile(analisarCsv(texto));
   }
 
   function avancar() {
-    if (etapa === 1 && !canalId) return setAviso('Selecione um canal.');
-    if (etapa === 2 && !modeloId) return setAviso('Selecione um modelo aprovado.');
-    if (etapa === 3 && tipoAudiencia === 'massa' && !arquivo) {
+    if (etapa === 1 && !channelId) return setAviso('Selecione um canal.');
+    if (etapa === 2 && !templateId) return setAviso('Selecione um modelo aprovado.');
+    if (etapa === 3 && tipoAudiencia === 'massa' && !file) {
       return setAviso('Selecione o arquivo da audiência.');
     }
-    if (etapa === 3 && tipoAudiencia === 'massa' && quantidadeArquivo === 0) {
+    if (etapa === 3 && tipoAudiencia === 'massa' && quantityFile === 0) {
       return setAviso('O arquivo não tem nenhum contato com telefone.');
     }
-    if (etapa === 3 && tipoAudiencia === 'massa' && quantidadeArquivo > maxContatos) {
-      return setAviso(`O limite é de ${maxContatos} contatos por disparo.`);
+    if (etapa === 3 && tipoAudiencia === 'massa' && quantityFile > maxContacts) {
+      return setAviso(`O limite é de ${maxContacts} contatos por disparo.`);
     }
-    if (etapa === 3 && tipoAudiencia === 'individual' && !contatoId) {
+    if (etapa === 3 && tipoAudiencia === 'individual' && !contactId) {
       return setAviso('Selecione um contato.');
     }
     setAviso('');
@@ -95,30 +95,30 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
   async function enviarAgora() {
     setAviso('');
     setEnviando(true);
-    const destinos: DestinoDoDisparo[] =
+    const destinos: DisparoDestination[] =
       tipoAudiencia === 'massa'
-        ? contatosArquivo.map((c) => ({
+        ? contactsFile.map((c) => ({
             telefone: c.telefone,
             ...(c.nome ? { nome: c.nome } : {}),
             ...(c.parametros.length ? { parametros: c.parametros } : {}),
           }))
-        : [{ contato_id: contatoId }];
-    const parametrosGlobais = parametrosTexto.trim()
+        : [{ contactId: contactId }];
+    const parametrosGlobal = parametrosTexto.trim()
       ? parametrosTexto.split(',').map((p) => p.trim())
       : undefined;
 
-    const resultado = await dispararMensagensAtivas({
-      canal_id: canalId,
-      template_id: modeloId,
-      contatos: destinos,
-      ...(parametrosGlobais ? { parametros: parametrosGlobais } : {}),
+    const resultado = await dispararActiveMessages({
+      channelId: channelId,
+      template_id: templateId,
+      contacts: destinos,
+      ...(parametrosGlobal ? { parametros: parametrosGlobal } : {}),
     });
     setEnviando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro);
+      setAviso(resultado.error);
       return;
     }
-    setResultadoEnvio(resultado.valor);
+    setResultadoEnvio(resultado.value);
   }
 
   return (
@@ -137,15 +137,15 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
             type="button"
             disabled={atualizando}
             onClick={() =>
-              iniciarAtualizacao(() => {
-                void fila.invalidateQueries({ queryKey: ['api'] });
+              iniciarUpdate(() => {
+                void queue.invalidateQueries({ queryKey: ['api'] });
               })
             }
           >
             <IconePortal nome="atualizar" tamanho={20} />
             Atualizar
           </button>
-          <button className="gr-botao gr-botao-primario" type="button" onClick={abrirCriacao}>
+          <button className="gr-botao gr-botao-primario" type="button" onClick={abrirCreation}>
             Enviar mensagens ativas
           </button>
         </div>
@@ -161,14 +161,14 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
         <header>
           <h2>Filtros</h2>
           <div>
-            {mostrarBusca ? (
+            {mostrarSearch ? (
               <label>
                 Nome da campanha
                 <input
                   type="search"
                   placeholder="Digite o nome da campanha"
-                  value={busca}
-                  onChange={(evento) => setBusca(evento.target.value)}
+                  value={search}
+                  onChange={(evento) => setSearch(evento.target.value)}
                 />
               </label>
             ) : null}
@@ -176,54 +176,54 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
               className="gr-botao gr-botao-pesquisa"
               type="button"
               aria-label="Pesquisar campanha"
-              onClick={() => setMostrarBusca((atual) => !atual)}
+              onClick={() => setMostrarSearch((atual) => !atual)}
             >
-              <IconeBusca tamanho={22} />
+              <IconeSearch tamanho={22} />
             </button>
           </div>
         </header>
         <div className="gr-filtros-campos">
           <label>
             Canal
-            <Selecao value={canalFiltro} onChange={(evento) => setCanalFiltro(evento.target.value)} aria-label="Canal">
+            <Selection value={channelFilter} onChange={(evento) => setChannelFilter(evento.target.value)} aria-label="Canal">
               <option value="whatsapp">Whatsapp</option>
               <option value="google-rcs">GoogleRCS</option>
               <option value="sms">SMS</option>
               <option value="outros">Outros canais</option>
-            </Selecao>
+            </Selection>
           </label>
           <label>
             Tipo da mensagem
-            <Selecao
-              value={tipoMensagem}
-              onChange={(evento) => setTipoMensagem(evento.target.value)}
+            <Selection
+              value={tipoMessage}
+              onChange={(evento) => setTipoMessage(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="agendadas">Agendadas</option>
               <option value="nao-agendadas">Não agendadas</option>
-            </Selecao>
+            </Selection>
           </label>
           <label>
             Tipo de campanha
-            <Selecao
+            <Selection
               value={tipoCampanha}
               onChange={(evento) => setTipoCampanha(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="individual">Individual</option>
               <option value="massa">Em massa</option>
-            </Selecao>
+            </Selection>
           </label>
         </div>
       </section>
 
       <ListaDeEnvios envios={envios} />
 
-      {criar ? (
+      {create ? (
         <div
           className="gr-sobreposicao"
           role="presentation"
-          onMouseDown={(e) => e.target === e.currentTarget && setCriar(false)}
+          onMouseDown={(e) => e.target === e.currentTarget && setCreate(false)}
         >
           <section
             className="gr-modal gr-assistente"
@@ -242,7 +242,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                 className="gr-icone-botao"
                 type="button"
                 aria-label="Fechar"
-                onClick={() => setCriar(false)}
+                onClick={() => setCreate(false)}
               >
                 <IconePortal nome="fechar" tamanho={20} />
               </button>
@@ -258,16 +258,16 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
               {etapa === 1 ? (
                 <fieldset>
                   <legend>Canal</legend>
-                  {dados.canais.length ? (
-                    dados.canais.map((canal) => (
-                      <label className="gr-escolha" key={canal.id}>
+                  {data.channels.length ? (
+                    data.channels.map((channel) => (
+                      <label className="gr-escolha" key={channel.id}>
                         <input
                           type="radio"
                           name="canal"
-                          checked={canalId === canal.id}
-                          onChange={() => setCanalId(canal.id)}
+                          checked={channelId === channel.id}
+                          onChange={() => setChannelId(channel.id)}
                         />
-                        <span>{canal.nome}</span>
+                        <span>{channel.nome}</span>
                       </label>
                     ))
                   ) : (
@@ -287,40 +287,40 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                   </label>
                   <label>
                     Categoria da campanha
-                    <Selecao
+                    <Selection
                       value={categoria}
                       onChange={(evento) => {
                         setCategoria(evento.target.value);
-                        setModeloId('');
+                        setTemplateId('');
                       }}
                     >
                       <option value="utilidade">Utilidade</option>
                       <option value="marketing">Marketing</option>
                       <option value="autenticacao">Autenticação</option>
-                    </Selecao>
+                    </Selection>
                   </label>
                   <label>
                     Modelo
-                    <Selecao
-                      value={modeloId}
-                      onChange={(evento) => setModeloId(evento.target.value)}
+                    <Selection
+                      value={templateId}
+                      onChange={(evento) => setTemplateId(evento.target.value)}
                     >
                       <option value="">Selecione um modelo aprovado</option>
-                      {modelosAprovados.map((modelo) => (
-                        <option value={modelo.id} key={modelo.id}>
-                          {modelo.nome} · {modelo.idioma}
+                      {modelosAprovados.map((template) => (
+                        <option value={template.id} key={template.id}>
+                          {template.nome} · {template.idioma}
                         </option>
                       ))}
-                    </Selecao>
+                    </Selection>
                   </label>
                   {modelosAprovados.length === 0 ? <p>Nenhum modelo aprovado encontrado.</p> : null}
-                  {modeloSelecionado ? (
+                  {templateSelected ? (
                     <div className="gr-previa">
                       <span>Prévia</span>
-                      <p>{modeloSelecionado.corpo}</p>
+                      <p>{templateSelected.corpo}</p>
                     </div>
                   ) : null}
-                  {modeloSelecionado && modeloSelecionado.variaveis.length > 0 ? (
+                  {templateSelected && templateSelected.variables.length > 0 ? (
                     <label>
                       Parâmetros do modelo
                       <input
@@ -363,32 +363,32 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                       <input
                         type="file"
                         accept=".csv,text/csv"
-                        onChange={(evento) => void lerArquivo(evento.target.files?.[0])}
+                        onChange={(evento) => void readFile(evento.target.files?.[0])}
                       />
-                      {arquivo ? (
+                      {file ? (
                         <span>
-                          {arquivo} · {quantidadeArquivo} contatos
+                          {file} · {quantityFile} contatos
                         </span>
                       ) : null}
                       <small>
                         Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais).
-                        Limite de {maxContatos} contatos por disparo.
+                        Limite de {maxContacts} contatos por disparo.
                       </small>
                     </label>
                   ) : (
                     <label>
                       Contato
-                      <Selecao
-                        value={contatoId}
-                        onChange={(evento) => setContatoId(evento.target.value)}
+                      <Selection
+                        value={contactId}
+                        onChange={(evento) => setContactId(evento.target.value)}
                       >
                         <option value="">Selecione um contato</option>
-                        {dados.contatos.map((contato) => (
-                          <option key={contato.id} value={contato.id}>
-                            {contato.nome ?? contato.telefone} · {contato.telefone}
+                        {data.contacts.map((contact) => (
+                          <option key={contact.id} value={contact.id}>
+                            {contact.nome ?? contact.telefone} · {contact.telefone}
                           </option>
                         ))}
-                      </Selecao>
+                      </Selection>
                     </label>
                   )}
                 </>
@@ -400,7 +400,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                     <dt>Nome da mensagem:</dt>
                     <dd>{nome || '—'}</dd>
                     <dt>Nome do modelo:</dt>
-                    <dd>{modeloSelecionado?.nome ?? '—'}</dd>
+                    <dd>{templateSelected?.nome ?? '—'}</dd>
                     <dt>Categoria do modelo:</dt>
                     <dd>{categoria}</dd>
                     <dt>Tipo de envio:</dt>
@@ -408,8 +408,8 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                     <dt>Audiência:</dt>
                     <dd>
                       {tipoAudiencia === 'massa'
-                        ? `${quantidadeArquivo} contatos · ${arquivo || 'sem arquivo'}`
-                        : (dados.contatos.find((item) => item.id === contatoId)?.nome ??
+                        ? `${quantityFile} contatos · ${file || 'sem arquivo'}`
+                        : (data.contacts.find((item) => item.id === contactId)?.nome ??
                           '1 contato')}
                     </dd>
                   </dl>
@@ -426,8 +426,8 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                           {resultadoEnvio.data
                             .filter((item) => !item.enviada)
                             .map((item, indice) => (
-                              <li key={item.contato_id ?? item.telefone ?? indice}>
-                                {item.telefone ?? item.contato_id ?? 'Contato'} —{' '}
+                              <li key={item.contactId ?? item.telefone ?? indice}>
+                                {item.telefone ?? item.contactId ?? 'Contato'} —{' '}
                                 {rotuloDeRecusa(item.motivo)}
                               </li>
                             ))}
@@ -511,7 +511,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
                   <td>{envio.templateNome ?? '—'}</td>
                   <td>
                     <span className={`gr-status gr-status--${envio.estado ?? 'pendente'}`}>
-                      {rotuloEstado(envio.estado)}
+                      {rotuloState(envio.estado)}
                     </span>
                   </td>
                   <td>Sem agendamento</td>
@@ -537,7 +537,7 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
   );
 }
 
-function rotuloEstado(valor: string | null): string {
+function rotuloState(value: string | null): string {
   const rotulos: Record<string, string> = {
     pendente: 'Aguardando envio',
     enviando: 'Enviando',
@@ -546,5 +546,5 @@ function rotuloEstado(valor: string | null): string {
     lida: 'Lida',
     falhou: 'Falhou',
   };
-  return valor ? (rotulos[valor] ?? valor) : 'Sem status';
+  return value ? (rotulos[value] ?? value) : 'Sem status';
 }

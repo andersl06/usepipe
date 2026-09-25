@@ -1,19 +1,19 @@
 import { useMemo, useState } from 'react';
-import type { EstadoAtendente, FilaDoDesk } from '@pipe/contracts';
+import type { StateAgent, QueueOfDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { executar } from '../../lib/acoes';
 import { cronometro } from '../../lib/formato';
 import {
-  FILTROS,
-  ROTULOS_DE_FILTRO,
-  aplicarFiltro,
+  FILTERS,
+  ROTULOS_OF_FILTER,
+  aplicarFilter,
   buscar,
   contagens,
   ordenar,
-  type Filtro,
+  type Filter,
 } from '../../lib/ordem';
 import { ROTULOS_DE_STATUS } from '../../componentes/trilho';
-import { Cartao } from './cartao';
+import { Card } from './cartao';
 
 /**
  * A coluna de atendimentos — o `.sidenav` da referência
@@ -32,49 +32,49 @@ import { Cartao } from './cartao';
  * `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`,
  * `noOpenTickets`, `allTickets`…).
  */
-export function Coluna({
-  fila,
+export function Column({
+  queue,
   agora,
   selecionada,
   aoAbrir,
 }: {
-  fila: FilaDoDesk;
+  queue: QueueOfDesk;
   agora: Date;
   selecionada: string | null;
   aoAbrir: (id: string) => void;
 }) {
-  const [filtro, setFiltro] = useState<Filtro>('todos');
+  const [filter, setFilter] = useState<Filter>('todos');
   const [termo, setTermo] = useState('');
-  const [menuFiltro, setMenuFiltro] = useState(false);
+  const [menuFilter, setMenuFilter] = useState(false);
   const [menuModo, setMenuModo] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [atendendo, setAtendendo] = useState(false);
 
-  const estado = fila.status.estado;
-  const online = estado === 'online';
-  const totais = useMemo(() => contagens(fila.conversas, agora), [fila.conversas, agora]);
+  const state = queue.status.estado;
+  const online = state === 'online';
+  const totals = useMemo(() => contagens(queue.conversations, agora), [queue.conversations, agora]);
   const visiveis = useMemo(
-    () => ordenar(buscar(aplicarFiltro(fila.conversas, filtro, agora), termo), 'ultima-mensagem'),
-    [fila.conversas, filtro, termo, agora],
+    () => ordenar(buscar(aplicarFilter(queue.conversations, filter, agora), termo), 'ultima-mensagem'),
+    [queue.conversations, filter, termo, agora],
   );
 
   async function atender() {
     setAtendendo(true);
-    setErro(null);
+    setError(null);
     const r = (await executar('atender', {})) as {
       ok: boolean;
-      erro?: string;
-      conversaId?: string;
+      error?: string;
+      conversationId?: string;
     };
     setAtendendo(false);
-    if (!r.ok) setErro(r.erro ?? 'Não foi possível atender.');
-    else if (r.conversaId) aoAbrir(r.conversaId);
+    if (!r.ok) setError(r.error ?? 'Não foi possível atender.');
+    else if (r.conversationId) aoAbrir(r.conversationId);
   }
 
   async function ficarOnline() {
-    setErro(null);
-    const r = await executar('definirStatus', { estado: 'online' });
-    if (!r.ok) setErro(r.erro ?? 'Não foi possível ficar online.');
+    setError(null);
+    const r = await executar('definirStatus', { state: 'online' });
+    if (!r.ok) setError(r.error ?? 'Não foi possível ficar online.');
   }
 
   /**
@@ -84,7 +84,7 @@ export function Coluna({
    */
   function abrir(id: string) {
     aoAbrir(id);
-    const marcada = fila.conversas.find((c) => c.id === id);
+    const marcada = queue.conversations.find((c) => c.id === id);
     if (marcada?.naoLidaEm) void executar('marcarNaoLida', { conversaId: id, naoLida: 'false' });
   }
 
@@ -132,20 +132,20 @@ export function Coluna({
       </div>
 
       <div className="dk-estado">
-        <EstadoDoAtendente
-          estado={estado}
-          motivo={fila.status.motivoPausa}
-          desde={fila.status.desde}
+        <AgentState
+          state={state}
+          motivo={queue.status.motivoPausa}
+          desde={queue.status.desde}
           agora={agora}
-          aguardando={fila.aguardando}
+          aguardando={queue.aguardando}
           atendendo={atendendo}
           aoAtender={() => void atender()}
           aoFicarOnline={() => void ficarOnline()}
         />
       </div>
-      {erro ? (
+      {error ? (
         <p className="dk-erro" style={{ padding: '0 16px' }}>
-          {erro}
+          {error}
         </p>
       ) : null}
 
@@ -172,43 +172,43 @@ export function Coluna({
               className="dk-ficha"
               id="ticket-filter-dropdown"
               aria-haspopup="menu"
-              aria-expanded={menuFiltro}
-              onClick={() => setMenuFiltro((v) => !v)}
+              aria-expanded={menuFilter}
+              onClick={() => setMenuFilter((v) => !v)}
             >
               <IconeDesk nome="seta-baixo" />
-              {ROTULOS_DE_FILTRO[filtro]} ({totais[filtro]})
+              {ROTULOS_OF_FILTER[filter]} ({totals[filter]})
             </button>
-            {menuFiltro ? (
-              <div className="dk-menu" role="menu" onMouseLeave={() => setMenuFiltro(false)}>
-                {FILTROS.map((f) => (
+            {menuFilter ? (
+              <div className="dk-menu" role="menu" onMouseLeave={() => setMenuFilter(false)}>
+                {FILTERS.map((f) => (
                   <button
                     key={f}
                     type="button"
                     role="menuitemradio"
-                    aria-checked={f === filtro}
+                    aria-checked={f === filter}
                     className="dk-menu-item"
                     onClick={() => {
-                      setFiltro(f);
-                      setMenuFiltro(false);
+                      setFilter(f);
+                      setMenuFilter(false);
                     }}
                   >
-                    {ROTULOS_DE_FILTRO[f]} ({totais[f]})
+                    {ROTULOS_OF_FILTER[f]} ({totals[f]})
                   </button>
                 ))}
               </div>
             ) : null}
           </div>
           <div className="dk-fichas-fila" id="ticket-filters-area">
-            {FILTROS.map((f) => (
+            {FILTERS.map((f) => (
               <button
                 key={f}
                 type="button"
                 className="dk-ficha"
-                aria-pressed={f === filtro}
-                title={`Filtrar ${ROTULOS_DE_FILTRO[f]}`}
-                onClick={() => setFiltro(f)}
+                aria-pressed={f === filter}
+                title={`Filtrar ${ROTULOS_OF_FILTER[f]}`}
+                onClick={() => setFilter(f)}
               >
-                {ROTULOS_DE_FILTRO[f]} ({totais[f]})
+                {ROTULOS_OF_FILTER[f]} ({totals[f]})
               </button>
             ))}
           </div>
@@ -238,13 +238,13 @@ export function Coluna({
 
       <main className="dk-lista" role="list" aria-label="Atendimentos">
         {visiveis.map((c) => (
-          <Cartao
+          <Card
             key={c.id}
-            conversa={c}
+            conversation={c}
             selecionada={c.id === selecionada}
             agora={agora}
             aoAbrir={abrir}
-            aoFalhar={setErro}
+            aoFalhar={setError}
           />
         ))}
         {visiveis.length === 0 ? (
@@ -270,8 +270,8 @@ export function Coluna({
  * Offline mostram "Seu status é X" e "Ficar Online"; Em pausa mostra o motivo
  * e o cronômetro (`AgentPauseTimer`).
  */
-function EstadoDoAtendente({
-  estado,
+function AgentState({
+  state,
   motivo,
   desde,
   agora,
@@ -280,7 +280,7 @@ function EstadoDoAtendente({
   aoAtender,
   aoFicarOnline,
 }: {
-  estado: EstadoAtendente;
+  state: StateAgent;
   motivo: string | null;
   desde: string;
   agora: Date;
@@ -289,7 +289,7 @@ function EstadoDoAtendente({
   aoAtender: () => void;
   aoFicarOnline: () => void;
 }) {
-  if (estado === 'online') {
+  if (state === 'online') {
     return (
       <div className="dk-estado-miolo">
         <div className="dk-aguardando" id="waiting-tickets" tabIndex={0}>
@@ -310,7 +310,7 @@ function EstadoDoAtendente({
       </div>
     );
   }
-  if (estado === 'pausa') {
+  if (state === 'pausa') {
     const segundos = (agora.getTime() - new Date(desde).getTime()) / 1000;
     return (
       <div className="dk-estado-miolo">
@@ -326,7 +326,7 @@ function EstadoDoAtendente({
   return (
     <div className="dk-estado-miolo">
       <div className="dk-status-texto">
-        Seu status é <b id={`agent-status-${estado}`}>{ROTULOS_DE_STATUS[estado]}</b>
+        Seu status é <b id={`agent-status-${state}`}>{ROTULOS_DE_STATUS[state]}</b>
       </div>
       <div className="dk-estado-botoes">
         <button type="button" className="dk-botao" id="set-online-btn" onClick={aoFicarOnline}>

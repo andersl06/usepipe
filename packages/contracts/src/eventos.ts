@@ -45,7 +45,7 @@ export interface EventoDoServidor {
  * O `tenant_id` NÃO vem daqui: ele sai da sessão, no servidor. Aceitar tenant do
  * cliente seria deixar quem se inscreve escolher de quem quer ouvir.
  */
-export interface Inscricao {
+export interface Subscription {
   assuntos: Assunto[];
   /** Ids específicos, quando a tela quer só uma conversa em vez de todas. */
   ids?: string[];

@@ -2,14 +2,14 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { sql } from 'drizzle-orm';
-import { semear } from '@pipe/db';
+import { seed } from '@pipe/db';
 import { LIMITES_DO_PLANO, PLANOS } from '@pipe/db/schema';
 import type { Plano } from '@pipe/db/schema';
-import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';
-import { bancoDono, fecharBancos, noTenant } from './banco.js';
-import { ErroPipe } from './erros.js';
-import { registrarDominio, verificarDominio } from './dominio/dominios.js';
-import type { RegistroDeVerificacao } from './dominio/dominios.js';
+import { domainOfEmail, ehDomainPublic } from '@pipe/autenticacao';
+import { databaseOwner, fecharBancos, noTenant } from './banco.js';
+import { PipeError } from './erros.js';
+import { logDomain, checkDomain } from './dominio/dominios.js';
+import type { RegistroOfVerification } from './dominio/dominios.js';
 
 /**
  * Provisionar um cliente: de "vendemos" a "o dono consegue entrar".
@@ -66,7 +66,7 @@ const MOTIVOS_PAUSA_PADRAO = [
 const SLUG_ACEITAVEL = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
-export interface PedidoDeProvisionamento {
+export interface RequestOfProvisioning {
   nome: string;
   slug: string;
   plano: string;
@@ -85,7 +85,7 @@ export interface PedidoDeProvisionamento {
    * domínio de um tenant daria a ele todo mundo que tem Gmail. Domínio ali é
    * assunto de depois, quando a empresa quiser entrada por domínio.
    */
-  semDominio?: boolean | undefined;
+  withoutDomain?: boolean | undefined;
 }
 
 export interface ClienteProvisionado {
@@ -95,37 +95,37 @@ export interface ClienteProvisionado {
   adminId: string;
   adminEmail: string;
   papeis: number;
-  permissoes: number;
-  filas: number;
+  permissions: number;
+  queues: number;
   motivosDePausa: number;
   /** Nulo quando o cliente nasceu sem domínio — ver `semDominio` no pedido. */
-  dominio: {
+  domain: {
     id: string;
     dominio: string;
     verificado: boolean;
-    registro: RegistroDeVerificacao;
+    registro: RegistroOfVerification;
   } | null;
 }
 
-export async function provisionarCliente(
-  pedido: PedidoDeProvisionamento,
+export async function provisionCustomer(
+  pedido: RequestOfProvisioning,
 ): Promise<ClienteProvisionado> {
   const nome = pedido.nome.trim();
   const slug = pedido.slug.trim().toLowerCase();
   const admin = pedido.admin.trim().toLowerCase();
 
-  if (!nome) throw ErroPipe.requisicao('nome_ausente', 'O cliente precisa de nome.');
+  if (!nome) throw PipeError.request('nome_ausente', 'O cliente precisa de nome.');
   if (!SLUG_ACEITAVEL.test(slug)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'slug_invalido',
       `"${slug}" não serve como slug: minúsculas, números e hífen no meio.`,
     );
   }
   if (!EMAIL_ACEITAVEL.test(admin)) {
-    throw ErroPipe.requisicao('admin_invalido', 'Informe o e-mail do primeiro administrador.');
+    throw PipeError.request('admin_invalido', 'Informe o e-mail do primeiro administrador.');
   }
   if (!PLANOS.includes(pedido.plano as Plano)) {
-    throw ErroPipe.requisicao(
+    throw PipeError.request(
       'plano_invalido',
       `Plano "${pedido.plano}" não existe. Os planos são: ${PLANOS.join(', ')}.`,
     );
@@ -134,20 +134,20 @@ export async function provisionarCliente(
 
   // O domínio sai do e-mail do administrador quando não vier explícito — é o caso
   // normal, e digitar duas vezes a mesma coisa é como se erra uma delas.
-  const dominioAlvo = pedido.dominio ?? dominioDoEmail(admin);
-  if (!pedido.semDominio && !pedido.dominio && ehDominioPublico(admin)) {
-    throw ErroPipe.requisicao(
+  const domainTarget = pedido.dominio ?? domainOfEmail(admin);
+  if (!pedido.withoutDomain && !pedido.dominio && ehDomainPublic(admin)) {
+    throw PipeError.request(
       'dominio_publico',
       `${admin} é e-mail pessoal e não identifica empresa. Passe --dominio, ou provisione com o e-mail corporativo do administrador.`,
     );
   }
 
-  const dono = bancoDono();
+  const dono = databaseOwner();
   const { rows: existentes } = await dono.execute<{ id: string }>(
     sql`select id from tenant where slug = ${slug} limit 1`,
   );
   if (existentes[0] && !pedido.reaplicar) {
-    throw ErroPipe.conflito(
+    throw PipeError.conflito(
       'slug_em_uso',
       `Já existe um tenant com o slug "${slug}". Use outro slug, ou --reaplicar se a intenção é completar um provisionamento que falhou no meio.`,
     );
@@ -155,7 +155,7 @@ export async function provisionarCliente(
 
   // A semente base é a fonte única do catálogo mínimo: papéis do dia 1, permissões e
   // filas de exemplo. Repetir aquela lista aqui garantiria que as duas divergissem.
-  const semeado = await semear(dono, { nome, slug });
+  const semeado = await seed(dono, { nome, slug });
 
   const admins = await noTenant(semeado.tenantId, async (tx) => {
     // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
@@ -194,10 +194,10 @@ export async function provisionarCliente(
     return adminId;
   });
 
-  const dominio = pedido.semDominio ? null : await registrarDominio(semeado.tenantId, dominioAlvo);
-  let verificado = dominio ? dominio.verificadoEm !== null : false;
-  if (dominio && pedido.verificar && !verificado) {
-    await verificarDominio(semeado.tenantId, dominio.id);
+  const domain = pedido.withoutDomain ? null : await logDomain(semeado.tenantId, domainTarget);
+  let verificado = domain ? domain.verificadoEm !== null : false;
+  if (domain && pedido.verificar && !verificado) {
+    await checkDomain(semeado.tenantId, domain.id);
     verificado = true;
   }
 
@@ -208,30 +208,30 @@ export async function provisionarCliente(
     adminId: admins,
     adminEmail: admin,
     papeis: semeado.papeis,
-    permissoes: semeado.permissoes,
-    filas: semeado.filas,
+    permissions: semeado.permissions,
+    queues: semeado.queues,
     motivosDePausa: MOTIVOS_PAUSA_PADRAO.length,
-    dominio: dominio
-      ? { id: dominio.id, dominio: dominio.dominio, verificado, registro: dominio.registro }
+    domain: domain
+      ? { id: domain.id, dominio: domain.dominio, verificado, registro: domain.registro }
       : null,
   };
 }
 
 /** O que o dono do cliente precisa para entrar, em texto de terminal. */
-export function comoEntrar(cliente: ClienteProvisionado): string {
+export function asLogin(cliente: ClienteProvisionado): string {
   const app = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
   const limites = LIMITES_DO_PLANO[cliente.plano];
   const linhas = [
     `tenant ${cliente.slug} (${cliente.tenantId}) criado no plano ${cliente.plano}`,
-    `  catálogo: ${cliente.papeis} papéis, ${cliente.permissoes} permissões, ` +
-      `${cliente.filas} filas, ${cliente.motivosDePausa} motivos de pausa`,
-    `  franquia: ${limites.conversasIaPorAtendente} conversas de IA por atendente, ` +
-      `mínimo de ${limites.minimoDeAtendentes} atendentes`,
+    `  catálogo: ${cliente.papeis} papéis, ${cliente.permissions} permissões, ` +
+      `${cliente.queues} filas, ${cliente.motivosDePausa} motivos de pausa`,
+    `  franquia: ${limites.conversationsAiByAgent} conversas de IA por atendente, ` +
+      `mínimo de ${limites.minimumOfAgents} atendentes`,
     `  administrador: ${cliente.adminEmail} (${cliente.adminId})`,
     '',
   ];
 
-  if (!cliente.dominio) {
+  if (!cliente.domain) {
     linhas.push(
       'sem domínio registrado (conta criada no login).',
       `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
@@ -240,21 +240,21 @@ export function comoEntrar(cliente: ClienteProvisionado): string {
     return linhas.join('\n');
   }
 
-  if (cliente.dominio.verificado) {
+  if (cliente.domain.verificado) {
     linhas.push(
-      `domínio ${cliente.dominio.dominio} VERIFICADO.`,
+      `domínio ${cliente.domain.dominio} VERIFICADO.`,
       `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
       'A conta do Google é ligada sozinha na primeira entrada.',
     );
   } else {
-    const r = cliente.dominio.registro;
+    const r = cliente.domain.registro;
     linhas.push(
-      `domínio ${cliente.dominio.dominio} PENDENTE. Peça ao cliente para publicar no DNS:`,
+      `domínio ${cliente.domain.dominio} PENDENTE. Peça ao cliente para publicar no DNS:`,
       '',
-      `  ${r.nome}   ${r.tipo}   "${r.valor}"`,
+      `  ${r.nome}   ${r.tipo}   "${r.value}"`,
       '',
       'Depois de propagar, confira com --verificar, ou pela rota',
-      `POST /v1/dominios/${cliente.dominio.id}/verificar.`,
+      `POST /v1/dominios/${cliente.domain.id}/verificar.`,
       '',
       'Enquanto não estiver verificado, ninguém entra por domínio: use convite.',
       `O administrador já existe — convide-o por POST /v1/convites e mande o link.`,
@@ -288,7 +288,7 @@ if (executadoDiretamente) {
     );
     process.exitCode = 1;
   } else {
-    provisionarCliente({
+    provisionCustomer({
       nome: values.nome ?? '',
       slug: values.slug ?? '',
       plano: values.plano ?? 'essencial',
@@ -298,11 +298,11 @@ if (executadoDiretamente) {
       reaplicar: values.reaplicar,
     })
       .then((cliente) => {
-        process.stdout.write(`${comoEntrar(cliente)}\n`);
+        process.stdout.write(`${asLogin(cliente)}\n`);
       })
-      .catch((erro: unknown) => {
-        const mensagem = erro instanceof Error ? erro.message : String(erro);
-        process.stderr.write(`falha ao provisionar: ${mensagem}\n`);
+      .catch((error: unknown) => {
+        const message = error instanceof Error ? error.message : String(error);
+        process.stderr.write(`falha ao provisionar: ${message}\n`);
         process.exitCode = 1;
       })
       .finally(() => fecharBancos());

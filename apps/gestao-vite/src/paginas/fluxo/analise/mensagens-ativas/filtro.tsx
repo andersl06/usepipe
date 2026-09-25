@@ -12,9 +12,9 @@ import { IconePortal } from '../../../../componentes/icones-portal';
  * Não importa `lib/analise.ts` de propósito: aquele arquivo abre o banco. Os
  * rótulos e os limites de data chegam por prop.
  */
-export function Filtro({
+export function Filter({
   fileiras,
-  periodo,
+  period,
   de,
   ate,
   template,
@@ -23,8 +23,8 @@ export function Filtro({
   limite,
 }: {
   /** As duas fileiras de chip: `vT` sem o personalizado, e `kt`. */
-  fileiras: { chave: string; rotulo: string }[][];
-  periodo: string;
+  fileiras: { key: string; rotulo: string }[][];
+  period: string;
   de: string;
   ate: string;
   template: string;
@@ -35,14 +35,14 @@ export function Filtro({
   limite: string;
 }) {
   const [mudou, setMudou] = useState(false);
-  const [escolhido, setEscolhido] = useState(periodo);
+  const [escolhido, setEscolhido] = useState(period);
   const [datas, setDatas] = useState({ de, ate });
   const [nome, setNome] = useState(template);
   const personalizado = escolhido === 'custom';
 
   /* `D()`: concluir o calendário vira período personalizado e apaga o chip. */
-  const mudarData = (campo: 'de' | 'ate', valor: string) => {
-    setDatas((d) => ({ ...d, [campo]: valor }));
+  const mudarData = (campo: 'de' | 'ate', value: string) => {
+    setDatas((d) => ({ ...d, [campo]: value }));
     setEscolhido('custom');
     setMudou(true);
   };
@@ -56,17 +56,17 @@ export function Filtro({
             <div className="ma-rotulo-caixa">
               <p className="ma-t14 ma-negrito">Selecione o período</p>
             </div>
-            {fileiras.map((fileira) => (
-              <div key={fileira[0]?.chave} className="ma-linha-chips">
-                {fileira.map(({ chave, rotulo }) => (
-                  <label key={chave} className="ma-chip">
+            {fileiras.map((row) => (
+              <div key={row[0]?.key} className="ma-linha-chips">
+                {row.map(({ key, rotulo }) => (
+                  <label key={key} className="ma-chip">
                     <input
                       type="radio"
                       name="periodo"
-                      value={chave}
-                      checked={escolhido === chave}
+                      value={key}
+                      checked={escolhido === key}
                       onChange={() => {
-                        setEscolhido(chave);
+                        setEscolhido(key);
                         setDatas({ de: '', ate: '' });
                         setMudou(true);
                       }}

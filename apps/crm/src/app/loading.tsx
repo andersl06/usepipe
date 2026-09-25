@@ -1,4 +1,4 @@
-import { AvisoDeCarregamento, EsqueletoDeTabela } from '../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeTabela } from '../componentes/esqueleto';
 
 /**
  * O carregamento padrão do CRM. Vale para toda rota que não declara um seu —
@@ -11,7 +11,7 @@ import { AvisoDeCarregamento, EsqueletoDeTabela } from '../componentes/esqueleto
 export default function Carregando() {
   return (
     <div className="tblwrap">
-      <AvisoDeCarregamento>Carregando.</AvisoDeCarregamento>
+      <LoadingNotice>Carregando.</LoadingNotice>
       <EsqueletoDeTabela colunas={6} linhas={8} />
     </div>
   );

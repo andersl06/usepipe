@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import {
-  ErroModeloSemPreco,
-  MODELO_PADRAO,
+  TemplateWithoutPrecoError,
+  TEMPLATE_DEFAULT,
   PRECOS,
   arredondarCentavos,
   calcularCusto,
@@ -12,8 +12,8 @@ import {
 
 describe('tabela de preços', () => {
   it('tem o modelo padrão cadastrado', () => {
-    expect(MODELO_PADRAO).toBe('claude-sonnet-5');
-    expect(PRECOS[MODELO_PADRAO]).toEqual({ entradaUsdPorMilhao: 2, saidaUsdPorMilhao: 10 });
+    expect(TEMPLATE_DEFAULT).toBe('claude-sonnet-5');
+    expect(PRECOS[TEMPLATE_DEFAULT]).toEqual({ entradaUsdPorMilhao: 2, saidaUsdPorMilhao: 10 });
   });
 });
 
@@ -35,15 +35,15 @@ describe('custo', () => {
   });
 
   it('estoura em modelo sem preço em vez de devolver custo zero', () => {
-    expect(() => calcularCusto('modelo-inventado', 1_000, 1_000)).toThrow(ErroModeloSemPreco);
+    expect(() => calcularCusto('modelo-inventado', 1_000, 1_000)).toThrow(TemplateWithoutPrecoError);
   });
 });
 
 describe('consumo', () => {
   it('monta o registro completo da chamada', () => {
     const c = consumoDe('claude-sonnet-5', 10_000, 1_000);
-    expect(c.modelo).toBe('claude-sonnet-5');
-    expect(c.tokensEntrada).toBe(10_000);
+    expect(c.template).toBe('claude-sonnet-5');
+    expect(c.tokensInbound).toBe(10_000);
     expect(c.tokensSaida).toBe(1_000);
     expect(c.custoCentavos).toBeCloseTo(3, 10);
   });
@@ -55,8 +55,8 @@ describe('consumo', () => {
       consumoDe('claude-haiku-4-5', 5_000, 500),
     ]);
     expect(soma).toHaveLength(2);
-    const sonnet = soma.find((c) => c.modelo === 'claude-sonnet-5')!;
-    expect(sonnet.tokensEntrada).toBe(3_000);
+    const sonnet = soma.find((c) => c.template === 'claude-sonnet-5')!;
+    expect(sonnet.tokensInbound).toBe(3_000);
     expect(sonnet.tokensSaida).toBe(300);
     expect(sonnet.custoCentavos).toBeCloseTo(calcularCusto('claude-sonnet-5', 3_000, 300), 10);
   });
@@ -64,7 +64,7 @@ describe('consumo', () => {
   it('não altera os consumos recebidos', () => {
     const original = consumoDe('claude-sonnet-5', 1_000, 100);
     somarConsumo([original, consumoDe('claude-sonnet-5', 1_000, 100)]);
-    expect(original.tokensEntrada).toBe(1_000);
+    expect(original.tokensInbound).toBe(1_000);
   });
 
   it('arredonda só na hora de gravar em `consumo_ia.custo_centavos`', () => {

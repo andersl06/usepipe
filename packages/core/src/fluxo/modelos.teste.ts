@@ -4,38 +4,38 @@
  * — modificado: xUnit/Shouldly → vitest; mensagens em português.
  */
 import { describe, expect, it } from 'vitest';
-import { validarFluxo } from './modelos.js';
-import type { Estado, FluxoBlip } from './modelos.js';
+import { validateFlow } from './modelos.js';
+import type { State, FlowBlip } from './modelos.js';
 
-const fluxo = (states: Estado[], id = '0'): FluxoBlip => ({ id, states });
+const flow = (states: State[], id = '0'): FlowBlip => ({ id, states });
 
 describe('Flow.Validate', () => {
   it('fluxo de um estado válido passa', () => {
-    expect(() => validarFluxo(fluxo([{ id: '0', root: true, input: {} }]))).not.toThrow();
+    expect(() => validateFlow(flow([{ id: '0', root: true, input: {} }]))).not.toThrow();
   });
 
   it('sem id falha', () => {
-    expect(() => validarFluxo(fluxo([{ id: '0', root: true, input: {} }], ''))).toThrow(
+    expect(() => validateFlow(flow([{ id: '0', root: true, input: {} }], ''))).toThrow(
       'O id do fluxo é obrigatório.',
     );
   });
 
   it('sem estado raiz falha', () => {
-    expect(() => validarFluxo(fluxo([{ id: '0', input: {} }]))).toThrow(
+    expect(() => validateFlow(flow([{ id: '0', input: {} }]))).toThrow(
       'O fluxo precisa de exatamente um estado raiz.',
     );
   });
 
   it('raiz sem entrada falha', () => {
-    expect(() => validarFluxo(fluxo([{ id: '0', root: true }]))).toThrow(
+    expect(() => validateFlow(flow([{ id: '0', root: true }]))).toThrow(
       'O estado raiz precisa esperar uma entrada.',
     );
   });
 
   it('duas raízes falham', () => {
     expect(() =>
-      validarFluxo(
-        fluxo([
+      validateFlow(
+        flow([
           { id: '0', root: true, input: {} },
           { id: '1', root: true, input: {} },
         ]),
@@ -45,14 +45,14 @@ describe('Flow.Validate', () => {
 
   it('ids repetidos falham', () => {
     expect(() =>
-      validarFluxo(fluxo([{ id: '0', root: true, input: {} }, { id: '1' }, { id: '1' }])),
+      validateFlow(flow([{ id: '0', root: true, input: {} }, { id: '1' }, { id: '1' }])),
     ).toThrow("O id de estado '1' se repete no fluxo.");
   });
 
   it('laço direto de um passo falha', () => {
     expect(() =>
-      validarFluxo(
-        fluxo([
+      validateFlow(
+        flow([
           { id: '0', root: true, input: {}, outputs: [{ stateId: '1' }] },
           { id: '1', outputs: [{ stateId: '1' }] },
         ]),
@@ -62,8 +62,8 @@ describe('Flow.Validate', () => {
 
   it('laço direto de dois passos falha', () => {
     expect(() =>
-      validarFluxo(
-        fluxo([
+      validateFlow(
+        flow([
           { id: '0', root: true, input: {}, outputs: [{ stateId: '1' }] },
           { id: '1', outputs: [{ stateId: '2' }] },
           { id: '2', outputs: [{ stateId: '1' }] },
@@ -74,8 +74,8 @@ describe('Flow.Validate', () => {
 
   it('laço direto de vários passos falha', () => {
     expect(() =>
-      validarFluxo(
-        fluxo([
+      validateFlow(
+        flow([
           { id: '0', root: true, input: {}, outputs: [{ stateId: '1' }] },
           { id: '1', outputs: [{ stateId: '2' }] },
           { id: '2', outputs: [{ stateId: '3' }] },
@@ -88,8 +88,8 @@ describe('Flow.Validate', () => {
 
   it('vários passos sem laço direto passam', () => {
     expect(() =>
-      validarFluxo(
-        fluxo([
+      validateFlow(
+        flow([
           {
             id: 'onboarding',
             root: true,
@@ -107,11 +107,11 @@ describe('Flow.Validate', () => {
 
   it('destino de saída inexistente falha, e {{variável}} passa', () => {
     expect(() =>
-      validarFluxo(fluxo([{ id: '0', root: true, input: {}, outputs: [{ stateId: 'x' }] }])),
+      validateFlow(flow([{ id: '0', root: true, input: {}, outputs: [{ stateId: 'x' }] }])),
     ).toThrow("O estado de destino 'x' da saída não existe.");
     expect(() =>
-      validarFluxo(
-        fluxo([{ id: '0', root: true, input: {}, outputs: [{ stateId: '{{destino}}' }] }]),
+      validateFlow(
+        flow([{ id: '0', root: true, input: {}, outputs: [{ stateId: '{{destino}}' }] }]),
       ),
     ).not.toThrow();
   });

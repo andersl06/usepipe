@@ -11,15 +11,15 @@ import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones
  * > .row.flex.page-header-content.items-center.mb0`. Título à esquerda (h1 ou
  * `custom-title`), `custom-content` à direita, e embaixo a `additional-info`.
  */
-export function CabecalhoDaPagina({
+export function PageHeader({
   titulo,
-  acoes,
-  descricao,
+  actions,
+  description,
   id,
 }: {
   titulo: ReactNode;
-  acoes?: ReactNode;
-  descricao?: ReactNode;
+  actions?: ReactNode;
+  description?: ReactNode;
   id?: string;
 }) {
   return (
@@ -27,16 +27,16 @@ export function CabecalhoDaPagina({
       <div className="cf-cabecalho-secao">
         <div className="cf-cabecalho-linha">
           <div className="cf-cabecalho-titulo">{titulo}</div>
-          {acoes ? <div className="cf-cabecalho-acoes">{acoes}</div> : null}
+          {actions ? <div className="cf-cabecalho-acoes">{actions}</div> : null}
         </div>
       </div>
-      {descricao ? <div className="cf-cabecalho-info">{descricao}</div> : null}
+      {description ? <div className="cf-cabecalho-info">{description}</div> : null}
     </header>
   );
 }
 
 /** `<bds-paper elevation="static">` — cartão de superfície 1, raio 16, sombra fixa. */
-export function Papel({ className, children }: { className?: string; children: ReactNode }) {
+export function Role({ className, children }: { className?: string; children: ReactNode }) {
   return <section className={className ? `cf-papel ${className}` : 'cf-papel'}>{children}</section>;
 }
 
@@ -53,7 +53,7 @@ export function Interruptor({
   curto,
 }: {
   ligado: boolean;
-  aoMudar: (valor: boolean) => void;
+  aoMudar: (value: boolean) => void;
   rotulo: string;
   desabilitado?: boolean;
   curto?: boolean;
@@ -86,24 +86,24 @@ export function Interruptor({
  */
 export function CampoCopiavel({
   rotulo,
-  valor,
+  value,
   aoCopiar,
 }: {
   rotulo: string;
-  valor: string;
+  value: string;
   aoCopiar?: () => void;
 }) {
   return (
     <div>
       <div className="cf-rotulo-campo">{rotulo}</div>
       <div className="cf-copiavel">
-        <input readOnly value={valor} aria-label={rotulo} />
+        <input readOnly value={value} aria-label={rotulo} />
         <button
           type="button"
           className="cf-copiavel-botao"
           aria-label={`Copiar ${rotulo}`}
           onClick={() => {
-            if (valor) void navigator.clipboard?.writeText(valor);
+            if (value) void navigator.clipboard?.writeText(value);
             aoCopiar?.();
           }}
         >
@@ -126,7 +126,7 @@ export function CampoCopiavel({
 export function CampoBds({
   id,
   rotulo,
-  valor,
+  value,
   aoMudar,
   placeholder,
   desabilitado,
@@ -139,8 +139,8 @@ export function CampoBds({
 }: {
   id?: string;
   rotulo: string;
-  valor: string;
-  aoMudar?: (valor: string) => void;
+  value: string;
+  aoMudar?: (value: string) => void;
   placeholder?: string;
   desabilitado?: boolean;
   senha?: boolean;
@@ -158,14 +158,14 @@ export function CampoBds({
       <span className="cf-campo-cabecalho">
         <span className="cf-campo-rotulo">{rotulo}</span>
         {contador && maxLength != null ? (
-          <span className="cf-campo-contador">{maxLength - valor.length}</span>
+          <span className="cf-campo-contador">{maxLength - value.length}</span>
         ) : null}
       </span>
       <span className="cf-campo-linha">
         {linhas ? (
           <textarea
             id={id}
-            value={valor}
+            value={value}
             onChange={(evento) => aoMudar?.(evento.target.value)}
             placeholder={placeholder}
             disabled={desabilitado}
@@ -177,7 +177,7 @@ export function CampoBds({
           <input
             id={id}
             type={senha && !senhaVisivel ? 'password' : tipo}
-            value={valor}
+            value={value}
             onChange={(evento) => aoMudar?.(evento.target.value)}
             placeholder={placeholder}
             disabled={desabilitado}

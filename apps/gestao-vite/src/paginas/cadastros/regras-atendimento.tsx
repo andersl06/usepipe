@@ -1,18 +1,18 @@
 import { useState } from 'react';
 import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
-import { useLeitura } from '../../lib/consulta';
-import type { FilaParaEscolher, RegraDeFilaCadastrada } from '../../lib/cadastros';
+import { useRead } from '../../lib/consulta';
+import type { QueueForEscolher, QueueRegisteredRule } from '../../lib/cadastros';
 import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/regra-fila';
-import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
-import { alternarRegraFila } from '../../lib/acoes';
-import { editarRegraFila, excluirRegraFila } from '../../lib/cadastros-gravar';
-import { Modal, ModalConfirmacao } from './_modal';
-import { FormularioRegraFila } from './regras-atendimento-formulario';
+import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
+import { alternarRuleQueue } from '../../lib/acoes';
+import { editRuleQueue, excluirRuleQueue } from '../../lib/cadastros-gravar';
+import { Modal, ModalConfirmation } from './_modal';
+import { FormularioRuleQueue } from './regras-atendimento-formulario';
 
-interface RegrasDeFila {
-  regras: RegraDeFilaCadastrada[];
-  filas: FilaParaEscolher[];
-  padroes: { inbox: string; fila: string | null }[];
+interface QueueRules {
+  regras: QueueRegisteredRule[];
+  queues: QueueForEscolher[];
+  defaults: { inbox: string; queue: string | null }[];
 }
 
 /**
@@ -42,17 +42,17 @@ interface RegrasDeFila {
  */
 
 /** O interruptor do cartão. Formulário de um botão: não há nada digitado a preservar. */
-function Interruptor({ id, ativa, nome }: { id: string; ativa: boolean; nome: string }) {
+function Interruptor({ id, active, nome }: { id: string; active: boolean; nome: string }) {
   return (
-    <form action={(dados: FormData) => void alternarRegraFila({ ok: true }, dados)}>
+    <form action={(data: FormData) => void alternarRuleQueue({ ok: true }, data)}>
       <input type="hidden" name="id" value={id} />
       <button
         type="submit"
         className="interruptor"
         role="switch"
-        aria-checked={ativa}
-        aria-label={ativa ? `Desativar a regra ${nome}` : `Ativar a regra ${nome}`}
-        title={ativa ? 'Desativar esta regra' : 'Ativar esta regra'}
+        aria-checked={active}
+        aria-label={active ? `Desativar a regra ${nome}` : `Ativar a regra ${nome}`}
+        title={active ? 'Desativar esta regra' : 'Ativar esta regra'}
       >
         <span className="interruptor-bolinha" />
       </button>
@@ -61,29 +61,29 @@ function Interruptor({ id, ativa, nome }: { id: string; ativa: boolean; nome: st
 }
 
 /** Switch + setas de reordenar + editar/excluir — o slot `acao` do cartão-linha. */
-function AcoesDaRegra({
+function RuleActions({
   regra,
-  primeira,
+  first,
   ultima,
   onMover,
   onEditar,
   onExcluir,
 }: {
-  regra: RegraDeFilaCadastrada;
-  primeira: boolean;
+  regra: QueueRegisteredRule;
+  first: boolean;
   ultima: boolean;
-  onMover: (direcao: -1 | 1) => void;
+  onMover: (direction: -1 | 1) => void;
   onEditar: () => void;
   onExcluir: () => void;
 }) {
   return (
     <>
-      <Interruptor id={regra.id} ativa={regra.ativa} nome={regra.nome} />
+      <Interruptor id={regra.id} active={regra.active} nome={regra.nome} />
       <BotaoDeIcone
         nome="cima"
         rotulo={`Mover "${regra.nome}" para cima — avalia antes`}
         onClick={() => onMover(-1)}
-        disabled={primeira}
+        disabled={first}
       />
       <BotaoDeIcone
         nome="baixo"
@@ -97,16 +97,16 @@ function AcoesDaRegra({
   );
 }
 
-export function PaginaRegrasDeAtendimento() {
+export function AttendancePageRules() {
   const [modalAberto, setModalAberto] = useState(false);
-  const [regraEmEdicao, setRegraEmEdicao] = useState<RegraDeFilaCadastrada | null>(null);
-  const [regraParaExcluir, setRegraParaExcluir] = useState<RegraDeFilaCadastrada | null>(null);
+  const [ruleInEdit, setRuleInEdit] = useState<QueueRegisteredRule | null>(null);
+  const [regraParaExcluir, setRegraParaExcluir] = useState<QueueRegisteredRule | null>(null);
   const [excluindo, setExcluindo] = useState(false);
-  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  const [erroReordenar, setErroReordenar] = useState<string | null>(null);
-  const leitura = useLeitura<RegrasDeFila>('/v1/gestao/regras/atendimento');
-  if (!leitura.data) return null;
-  const { regras, filas, padroes } = leitura.data;
+  const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
+  const [errorReordenar, setErrorReordenar] = useState<string | null>(null);
+  const read = useRead<QueueRules>('/v1/gestao/regras/atendimento');
+  if (!read.data) return null;
+  const { regras, queues, defaults } = read.data;
   const mortas = new Set(regrasInalcancaveis(regras));
 
   // `regras` já vem ordenada por `ordem`/id (mesma ordem que `ordenarRegras`
@@ -114,20 +114,20 @@ export function PaginaRegrasDeAtendimento() {
   // avaliação. Renumera sequencialmente em vez de só trocar `ordem` entre as
   // duas: se as duas empatarem (o padrão de toda regra nova é `ordem: 0`),
   // trocar valores iguais não move nada.
-  async function mover(id: string, direcao: -1 | 1) {
+  async function mover(id: string, direction: -1 | 1) {
     const i = regras.findIndex((r) => r.id === id);
-    const j = i + direcao;
+    const j = i + direction;
     if (i < 0 || j < 0 || j >= regras.length) return;
-    setErroReordenar(null);
+    setErrorReordenar(null);
     const nova = [...regras];
     const tmp = nova[i]!;
     nova[i] = nova[j]!;
     nova[j] = tmp;
     for (const [indice, r] of nova.entries()) {
-      if (r.ordem === indice) continue;
-      const resultado = await editarRegraFila(r.id, { ordem: indice });
+      if (r.order === indice) continue;
+      const resultado = await editRuleQueue(r.id, { order: indice });
       if (!resultado.ok) {
-        setErroReordenar(resultado.erro);
+        setErrorReordenar(resultado.error);
         return;
       }
     }
@@ -136,45 +136,45 @@ export function PaginaRegrasDeAtendimento() {
   async function excluir() {
     if (!regraParaExcluir) return;
     setExcluindo(true);
-    setErroExclusao(null);
-    const resultado = await excluirRegraFila(regraParaExcluir.id);
+    setErrorExclusao(null);
+    const resultado = await excluirRuleQueue(regraParaExcluir.id);
     setExcluindo(false);
     if (resultado.ok) setRegraParaExcluir(null);
-    else setErroExclusao(resultado.erro);
+    else setErrorExclusao(resultado.error);
   }
 
-  const secoes: SecaoDeRegras[] = [
+  const sections: RulesSection[] = [
     {
       titulo: 'Regras de atendimento',
-      vazio:
+      empty:
         'Nenhuma regra de entrada. Toda conversa cai na fila padrão da caixa de entrada por onde ela chegou.',
-      cartoes: regras.map((r, indice) => ({
+      cards: regras.map((r, indice) => ({
         id: r.id,
         campos: [
           { rotulo: 'Nome da Regra', valor: r.nome },
-          { rotulo: 'Fila', valor: r.filaDestinoNome },
+          { rotulo: 'Fila', valor: r.queueDestinationName },
         ],
-        situacao: r.ativa ? 'Ativa' : 'Desativada',
-        ativa: r.ativa,
+        situacao: r.active ? 'Ativa' : 'Desativada',
+        active: r.active,
         acao: (
-          <AcoesDaRegra
+          <RuleActions
             regra={r}
-            primeira={indice === 0}
+            first={indice === 0}
             ultima={indice === regras.length - 1}
-            onMover={(direcao) => void mover(r.id, direcao)}
-            onEditar={() => setRegraEmEdicao(r)}
+            onMover={(direction) => void mover(r.id, direction)}
+            onEditar={() => setRuleInEdit(r)}
             onExcluir={() => setRegraParaExcluir(r)}
           />
         ),
         rodape: [
           descreverRegra(r),
           ...(mortas.has(r.id) ? ['Inalcançável — uma regra acima já casa o mesmo caso'] : []),
-          ...(r.ativa && !r.filaDestinoAtiva
-            ? [`Fila “${r.filaDestinoNome}” está desativada — a conversa cai nela e para`]
+          ...(r.active && !r.queueDestinationActive
+            ? [`Fila “${r.queueDestinationName}” está desativada — a conversa cai nela e para`]
             : []),
         ],
-        procura: `${r.nome} ${r.filaDestinoNome} ${r.condicoes
-          .map((c) => `${rotuloDoCampo(c.campo)} ${c.valor}`)
+        procura: `${r.nome} ${r.queueDestinationName} ${r.conditions
+          .map((c) => `${rotuloDoCampo(c.campo)} ${c.value}`)
           .join(' ')}`.toLowerCase(),
       })),
     },
@@ -194,16 +194,16 @@ export function PaginaRegrasDeAtendimento() {
         </Botao>
       </div>
 
-      {erroReordenar ? <Etiqueta tom="erro">{erroReordenar}</Etiqueta> : null}
+      {errorReordenar ? <Etiqueta tom="erro">{errorReordenar}</Etiqueta> : null}
 
       {/* "Resultados por página" nasce em 5, como o `bds-select value="5"` do
           rodapé deles (`dom/rules.html`). */}
       <ListaRegras
-        secoes={secoes}
+        sections={sections}
         placeholder="Buscar regras de atendimento"
-        ocultarCabecalhoDeSecao
+        sectionOcultarHeader
         paginar
-        tamanhoDePaginaInicial={5}
+        pageInitialTamanho={5}
       />
 
       <Modal aberto={modalAberto} titulo="Nova regra" onFechar={() => setModalAberto(false)}>
@@ -213,42 +213,42 @@ export function PaginaRegrasDeAtendimento() {
           regra, as condições se combinam com <b>E</b> (todas precisam casar) ou com <b>OU</b>
           (basta uma). Não casou nenhuma? A conversa segue para a fila padrão da caixa de entrada
           por onde ela chegou —{' '}
-          {padroes.length === 0
+          {defaults.length === 0
             ? 'e não há caixa de entrada cadastrada.'
-            : padroes.map((p) => `${p.inbox}: ${p.fila ?? 'sem fila padrão'}`).join(' · ')}
+            : defaults.map((p) => `${p.inbox}: ${p.queue ?? 'sem fila padrão'}`).join(' · ')}
           .
         </p>
-        <FormularioRegraFila filas={filas} aoSalvar={() => setModalAberto(false)} />
+        <FormularioRuleQueue queues={queues} aoSalvar={() => setModalAberto(false)} />
       </Modal>
 
       <Modal
-        aberto={regraEmEdicao !== null}
+        aberto={ruleInEdit !== null}
         titulo="Editar regra"
-        onFechar={() => setRegraEmEdicao(null)}
+        onFechar={() => setRuleInEdit(null)}
       >
-        {regraEmEdicao ? (
-          <FormularioRegraFila
-            filas={filas}
-            regraExistente={regraEmEdicao}
-            aoSalvar={() => setRegraEmEdicao(null)}
+        {ruleInEdit ? (
+          <FormularioRuleQueue
+            queues={queues}
+            regraExistente={ruleInEdit}
+            aoSalvar={() => setRuleInEdit(null)}
           />
         ) : null}
       </Modal>
 
-      <ModalConfirmacao
+      <ModalConfirmation
         aberto={regraParaExcluir !== null}
         titulo="Excluir regra"
-        mensagem={
+        message={
           <>
             Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
           </>
         }
-        erro={erroExclusao}
+        error={errorExclusao}
         confirmando={excluindo}
         onConfirmar={() => void excluir()}
         onCancelar={() => {
           setRegraParaExcluir(null);
-          setErroExclusao(null);
+          setErrorExclusao(null);
         }}
       />
     </>

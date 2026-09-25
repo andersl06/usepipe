@@ -19,29 +19,29 @@ export const carimbos = () => ({ criadoEm: criadoEm(), atualizadoEm: atualizadoE
 /** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */
 export const excluidoEm = () => timestamp('excluido_em', { withTimezone: true });
 
-export const momento = (nome: string) => timestamp(nome, { withTimezone: true });
+export const moment = (nome: string) => timestamp(nome, { withTimezone: true });
 
 /** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */
-export const dinheiro = (nome: string) => numeric(nome, { precision: 14, scale: 2 });
+export const money = (nome: string) => numeric(nome, { precision: 14, scale: 2 });
 
 /**
  * Enumeração é `text` com `check`, nunca `enum` nativo: acrescentar valor num enum do
  * Postgres trava a migration em produção, e vamos acrescentar valor o tempo todo.
  */
-export function listaCheck(nome: string, coluna: AnyPgColumn, valores: readonly string[]) {
-  const literais = valores.map((valor) => `'${valor.replace(/'/g, "''")}'`).join(', ');
-  return check(nome, sql.raw(`"${coluna.name}" in (${literais})`));
+export function listaCheck(nome: string, column: AnyPgColumn, values: readonly string[]) {
+  const literals = values.map((value) => `'${value.replace(/'/g, "''")}'`).join(', ');
+  return check(nome, sql.raw(`"${column.name}" in (${literals})`));
 }
 
-export const TIPOS_CANAL = ['whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'] as const;
-export const ESTADOS_CONVERSA = [
+export const TYPES_CHANNEL = ['whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'] as const;
+export const STATES_CONVERSATION = [
   'na_fila',
   'atribuida',
   'em_atendimento',
   'em_espera',
   'encerrada',
 ] as const;
-export const ESTADOS_ENTREGA = [
+export const STATES_DELIVERY = [
   'pendente',
   'enviando',
   'enviada',
@@ -63,7 +63,7 @@ export const CATEGORIAS_TEMPLATE = ['utilidade', 'marketing', 'autenticacao'] as
 export const TIPOS_DIMENSAO = ['fila', 'atendente', 'equipe', 'inbox', 'etiqueta'] as const;
 
 /** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */
-export const TIPOS_EVENTO_ATENDIMENTO = [
+export const TYPES_EVENT_ATTENDANCE = [
   'criada',
   'enfileirada',
   'atribuida',

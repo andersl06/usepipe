@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import type { ConversaDaLista } from '@pipe/contracts';
+import type { ConversationOfList } from '@pipe/contracts';
 import { LogoPortal } from '../../componentes/icones-portal';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
 import { executar } from '../../lib/acoes';
-import { canalDe, numeroDoTicket } from '../../lib/canal';
+import { channelOf, numeroDoTicket } from '../../lib/canal';
 import { cronometro, horarioRelativo } from '../../lib/formato';
-import { fixada, naoLida, nomeDeExibicao } from '../../lib/ordem';
+import { fixada, naoLida, displayName } from '../../lib/ordem';
 
 /**
  * O cartão da lista — o `<article class="chat-list-item">` da referência
@@ -26,61 +26,61 @@ import { fixada, naoLida, nomeDeExibicao } from '../../lib/ordem';
  * por atendente, em `POST /v1/desk/acoes/fixar` e `/marcarNaoLida`. O
  * "Modo de Espera" continua no menu da conversa aberta.
  */
-export function Cartao({
-  conversa,
+export function Card({
+  conversation,
   selecionada,
   agora,
   aoAbrir,
   aoFalhar,
 }: {
-  conversa: ConversaDaLista;
+  conversation: ConversationOfList;
   selecionada: boolean;
   agora: Date;
   aoAbrir: (id: string) => void;
   /** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */
-  aoFalhar?: (erro: string) => void;
+  aoFalhar?: (error: string) => void;
 }) {
   const [menu, setMenu] = useState(false);
-  const canal = canalDe(conversa.canalTipo);
-  const nome = nomeDeExibicao(conversa);
-  const naoLidaAgora = naoLida(conversa);
-  const fixadaAgora = fixada(conversa);
-  const nova = conversa.primeiraRespostaEm === null;
+  const channel = channelOf(conversation.canalTipo);
+  const nome = displayName(conversation);
+  const naoLidaAgora = naoLida(conversation);
+  const fixadaAgora = fixada(conversation);
+  const nova = conversation.primeiraRespostaEm === null;
 
-  async function marcar(acao: 'fixar' | 'marcarNaoLida', valor: boolean) {
+  async function marcar(acao: 'fixar' | 'marcarNaoLida', value: boolean) {
     setMenu(false);
     const campos: Record<string, string> =
       acao === 'fixar'
-        ? { conversaId: conversa.id, fixada: String(valor) }
-        : { conversaId: conversa.id, naoLida: String(valor) };
+        ? { conversaId: conversation.id, fixada: String(value) }
+        : { conversaId: conversation.id, naoLida: String(value) };
     const r = await executar(acao, campos);
-    if (!r.ok) aoFalhar?.(r.erro ?? 'Não foi possível marcar a conversa.');
+    if (!r.ok) aoFalhar?.(r.error ?? 'Não foi possível marcar a conversa.');
   }
-  const emEspera = conversa.estado === 'em_espera';
+  const emEspera = conversation.estado === 'em_espera';
   const segundosEmEspera =
-    emEspera && conversa.emEsperaDesde
-      ? (agora.getTime() - new Date(conversa.emEsperaDesde).getTime()) / 1000
+    emEspera && conversation.emEsperaDesde
+      ? (agora.getTime() - new Date(conversation.emEsperaDesde).getTime()) / 1000
       : 0;
-  const ultima = conversa.ultimaMensagemEm ? new Date(conversa.ultimaMensagemEm) : null;
+  const ultima = conversation.ultimaMensagemEm ? new Date(conversation.ultimaMensagemEm) : null;
 
   return (
     <article
       className="dk-cartao"
       role="listitem"
       tabIndex={0}
-      aria-label={`Ticket ${numeroDoTicket(conversa.id)} - ${nome}`}
+      aria-label={`Ticket ${numeroDoTicket(conversation.id)} - ${nome}`}
       aria-current={selecionada ? 'true' : undefined}
       data-nao-lida={naoLidaAgora ? 'true' : 'false'}
-      onClick={() => aoAbrir(conversa.id)}
+      onClick={() => aoAbrir(conversation.id)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') aoAbrir(conversa.id);
+        if (e.key === 'Enter') aoAbrir(conversation.id);
       }}
     >
       <section className="dk-cartao-conteudo" tabIndex={-1}>
         <div className="dk-cartao-rosto">
           <Avatar />
-          <span className="dk-canal" title={canal.nome}>
-            <LogoPortal nome={canal.logo} tamanho={20} />
+          <span className="dk-canal" title={channel.nome}>
+            <LogoPortal nome={channel.logo} tamanho={20} />
           </span>
         </div>
         <div className="dk-cartao-texto">
@@ -90,7 +90,7 @@ export function Cartao({
             </h1>
             <span className="dk-cartao-hora">
               {ultima ? horarioRelativo(ultima, agora) : ''}
-              {conversa.estado === 'encerrada' ? (
+              {conversation.estado === 'encerrada' ? (
                 <span className="dk-cartao-situacao" title="Cliente encerrou o atendimento">
                   <IconeDesk nome="encerrado-pelo-cliente" />
                 </span>
@@ -99,7 +99,7 @@ export function Cartao({
           </div>
           <div className="dk-cartao-linha">
             <p className="dk-cartao-previa" aria-hidden="true">
-              {previa(conversa)}
+              {previa(conversation)}
             </p>
             <div className="dk-cartao-alertas">
               {fixadaAgora ? (
@@ -129,11 +129,11 @@ export function Cartao({
           <IconeDesk nome="info" />
         </button>
         <span className="dk-cartao-numero" aria-hidden="true">
-          {numeroDoTicket(conversa.id)}
+          {numeroDoTicket(conversation.id)}
         </span>
         <span className="dk-cartao-fila">
           <b>Fila:</b>
-          <span>{conversa.filaNome ?? 'Transferência direta'}</span>
+          <span>{conversation.filaNome ?? 'Transferência direta'}</span>
         </span>
         <div className="dk-cartao-menu-caixa" onClick={(e) => e.stopPropagation()}>
           <button
@@ -166,10 +166,10 @@ export function Cartao({
                 type="button"
                 role="menuitem"
                 className="dk-menu-item"
-                onClick={() => void marcar('marcarNaoLida', conversa.naoLidaEm === null)}
+                onClick={() => void marcar('marcarNaoLida', conversation.naoLidaEm === null)}
               >
                 <IconeDesk nome="notificacao" tamanho={20} />
-                {conversa.naoLidaEm !== null ? 'Marcar como lida' : 'Marcar como não lida'}
+                {conversation.naoLidaEm !== null ? 'Marcar como lida' : 'Marcar como não lida'}
               </button>
             </div>
           ) : null}
@@ -180,16 +180,16 @@ export function Cartao({
 }
 
 /** A prévia (`message-preview`): o texto, ou o tipo por extenso quando é mídia. */
-function previa(c: ConversaDaLista): string {
-  if (c.ultimaMensagemTipo && c.ultimaMensagemTipo !== 'texto') {
+function previa(c: ConversationOfList): string {
+  if (c.lastMessageType && c.lastMessageType !== 'texto') {
     const tipos: Record<string, string> = {
       imagem: 'Imagem',
       audio: 'Áudio',
       video: 'Vídeo',
       documento: 'Arquivo',
-      template: c.ultimaMensagem ?? 'Modelo de mensagem',
+      template: c.lastMessage ?? 'Modelo de mensagem',
     };
-    return tipos[c.ultimaMensagemTipo] ?? c.ultimaMensagem ?? '';
+    return tipos[c.lastMessageType] ?? c.lastMessage ?? '';
   }
-  return c.ultimaMensagem ?? '';
+  return c.lastMessage ?? '';
 }

@@ -39,18 +39,18 @@ import { fileURLToPath } from 'node:url';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { eq, sql } from 'drizzle-orm';
 import { logAuditoria, lead } from '@pipe/db/schema';
-import type { Contexto } from '@pipe/core';
-import { criarEntrada, processarEntrada } from '@pipe/core';
+import type { Context } from '@pipe/core';
+import { createInbound, processarInbound } from '@pipe/core';
 import { dubleWhatsApp, processarOutbox } from '@pipe/workers';
 
 const { montarCenario } = await import('./ajuda.js');
-const { subirApi } = await import('../src/servidor.js');
+const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
-const { carregarFluxo } = await import('../src/dominio/fluxo.js');
+const { loadFlow } = await import('../src/dominio/fluxo.js');
 const { entregarPendentes } = await import('../src/webhooks-saida.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
-type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
+type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 const FIXTURES_DIR = fileURLToPath(new URL('./fixtures/jsonb/', import.meta.url));
 const GOLDEN_DIR = join(FIXTURES_DIR, 'golden');
@@ -186,34 +186,34 @@ async function rodarMotor(
   variaveisIniciais: Record<string, string>,
   textoDeEntrada: string,
 ): Promise<ResultadoDoMotor> {
-  const { fluxo } = await noTenant(cenario.tenantId, (tx) =>
-    carregarFluxo(tx, { fluxoId, versaoId }),
+  const { flow } = await noTenant(cenario.tenantId, (tx) =>
+    loadFlow(tx, { flowId, versaoId }),
   );
   const mensagens: unknown[] = [];
-  const contexto: Contexto = {
-    usuario: `contato-jsonb-compat-${randomUUID().slice(0, 8)}`,
-    fluxo,
-    entrada: criarEntrada({
+  const contexto: Context = {
+    user: `contato-jsonb-compat-${randomUUID().slice(0, 8)}`,
+    flow,
+    inbound: createInbound({
       id: `jsonb-compat-${randomUUID().slice(0, 8)}`,
       tipo: 'text/plain',
       conteudo: textoDeEntrada,
       de: 'jsonb-compat',
     }),
-    variaveis: { ...variaveisIniciais },
-    entradaContexto: new Map(),
-    contato: null,
-    servicos: {
-      enviar: async (m) => {
+    variables: { ...variaveisIniciais },
+    inboundContext: new Map(),
+    contact: null,
+    services: {
+      send: async (m) => {
         mensagens.push(m);
       },
-      encaminharParaAtendimento: async () => {
+      encaminharForAttendance: async () => {
         throw new Error('não usado no teste de compatibilidade jsonb');
       },
-      registrarEvento: async () => {},
+      registerEvent: async () => {},
     },
   };
-  const rastro = await processarEntrada(contexto, {});
-  return { mensagens, estadoFinalId: rastro.estadoFinalId, variaveis: contexto.variaveis };
+  const rastro = await processarInbound(contexto, {});
+  return { mensagens, estadoFinalId: rastro.stateFinalId, variaveis: contexto.variables };
 }
 
 let cenario: Cenario;
@@ -221,7 +221,7 @@ let api: ApiNoAr;
 
 beforeAll(async () => {
   cenario = await montarCenario(`jsonb-compat-${randomUUID().slice(0, 8)}`);
-  api = await subirApi(0);
+  api = await upApi(0);
 }, 180_000);
 
 afterAll(async () => {

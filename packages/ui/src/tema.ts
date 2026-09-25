@@ -171,4 +171,4 @@ export function espaco(...multiplos: number[]): string {
 export type Tema = typeof TEMA;
 
 /** Os quatro estados. É a mesma lista que a `Etiqueta` aceita como tom. */
-export type NomeDeEstado = keyof typeof TEMA.estado;
+export type StateName = keyof typeof TEMA.estado;

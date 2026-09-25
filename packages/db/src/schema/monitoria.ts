@@ -12,9 +12,9 @@ import {
   uuid,
   vector,
 } from 'drizzle-orm/pg-core';
-import { carimbos, id, listaCheck, momento } from './comum.js';
-import { refTenant, usuario } from './identidade.js';
-import { conversa, fila } from './conversas.js';
+import { carimbos, id, listaCheck, moment } from './comum.js';
+import { refTenant, user } from './identidade.js';
+import { conversation, queue } from './conversas.js';
 
 /**
  * Módulo 5 — Monitoria com IA. Formulário (grupo → critério → peso, com critério fatal
@@ -22,7 +22,7 @@ import { conversa, fila } from './conversas.js';
  * calibração → coach).
  */
 
-export const formularioAvaliacao = pgTable(
+export const formEvaluation = pgTable(
   'formulario_avaliacao',
   {
     id: id(),
@@ -30,7 +30,7 @@ export const formularioAvaliacao = pgTable(
     nome: text('nome').notNull(),
     versao: integer('versao').notNull().default(1),
     notaMaxima: numeric('nota_maxima', { precision: 6, scale: 2 }).notNull().default('100'),
-    escopoFilaId: uuid('escopo_fila_id').references(() => fila.id, { onDelete: 'set null' }),
+    scopeQueueId: uuid('escopo_fila_id').references(() => queue.id, { onDelete: 'set null' }),
     ativo: boolean('ativo').notNull().default(true),
     ...carimbos(),
   },
@@ -44,7 +44,7 @@ export const grupoCriterio = pgTable(
     tenantId: refTenant(),
     formularioId: uuid('formulario_id')
       .notNull()
-      .references(() => formularioAvaliacao.id, { onDelete: 'cascade' }),
+      .references(() => formEvaluation.id, { onDelete: 'cascade' }),
     nome: text('nome').notNull(),
     peso: numeric('peso', { precision: 6, scale: 2 }).notNull().default('1'),
     ordem: integer('ordem').notNull().default(0),
@@ -63,7 +63,7 @@ export const criterio = pgTable(
       .notNull()
       .references(() => grupoCriterio.id, { onDelete: 'cascade' }),
     nome: text('nome').notNull(),
-    descricao: text('descricao'),
+    description: text('descricao'),
     peso: numeric('peso', { precision: 6, scale: 2 }).notNull().default('1'),
     tipo: text('tipo').notNull().default('conforme'),
     /** Critério fatal zera a nota da avaliação inteira. */
@@ -77,7 +77,7 @@ export const criterio = pgTable(
 );
 
 export const TIPOS_AVALIADOR = ['humano', 'ia'] as const;
-export const ESTADOS_AVALIACAO = [
+export const STATES_EVALUATION = [
   'rascunho',
   'concluida',
   'contestada',
@@ -85,22 +85,22 @@ export const ESTADOS_AVALIACAO = [
   'encerrada',
 ] as const;
 
-export const avaliacao = pgTable(
+export const evaluation = pgTable(
   'avaliacao',
   {
     id: id(),
     tenantId: refTenant(),
     conversaId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
     formularioId: uuid('formulario_id')
       .notNull()
-      .references(() => formularioAvaliacao.id, { onDelete: 'restrict' }),
+      .references(() => formEvaluation.id, { onDelete: 'restrict' }),
     avaliadoId: uuid('avaliado_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     avaliadorTipo: text('avaliador_tipo').notNull(),
-    avaliadorId: uuid('avaliador_id').references(() => usuario.id, { onDelete: 'set null' }),
+    avaliadorId: uuid('avaliador_id').references(() => user.id, { onDelete: 'set null' }),
     nota: numeric('nota', { precision: 6, scale: 2 }),
     conceito: text('conceito'),
     /**
@@ -108,18 +108,18 @@ export const avaliacao = pgTable(
      * sempre, só acima deste limiar, ou nunca.
      */
     confiancaIa: numeric('confianca_ia', { precision: 5, scale: 4 }),
-    estado: text('estado').notNull().default('rascunho'),
-    avaliadaEm: momento('avaliada_em'),
-    revisadaPor: uuid('revisada_por').references(() => usuario.id, { onDelete: 'set null' }),
-    revisadaEm: momento('revisada_em'),
+    state: text('estado').notNull().default('rascunho'),
+    avaliadaEm: moment('avaliada_em'),
+    reviewedBy: uuid('revisada_por').references(() => user.id, { onDelete: 'set null' }),
+    revisadaEm: moment('revisada_em'),
     ...carimbos(),
   },
   (t) => [
     listaCheck('avaliacao_avaliador_tipo_ck', t.avaliadorTipo, TIPOS_AVALIADOR),
-    listaCheck('avaliacao_estado_ck', t.estado, ESTADOS_AVALIACAO),
+    listaCheck('avaliacao_estado_ck', t.state, STATES_EVALUATION),
     index('avaliacao_avaliado_idx').on(t.tenantId, t.avaliadoId, t.avaliadaEm.desc()),
     index('avaliacao_conversa_idx').on(t.tenantId, t.conversaId),
-    index('avaliacao_estado_idx').on(t.tenantId, t.estado),
+    index('avaliacao_estado_idx').on(t.tenantId, t.state),
   ],
 );
 
@@ -127,82 +127,82 @@ export const avaliacao = pgTable(
  * `evidencia_mensagem_id` é o trecho citado que sustenta a nota. Sem chave estrangeira
  * porque `mensagem` é particionada e sua unicidade é (id, criada_em).
  */
-export const respostaAvaliacao = pgTable(
+export const responseEvaluation = pgTable(
   'resposta_avaliacao',
   {
     id: id(),
     tenantId: refTenant(),
-    avaliacaoId: uuid('avaliacao_id')
+    evaluationId: uuid('avaliacao_id')
       .notNull()
-      .references(() => avaliacao.id, { onDelete: 'cascade' }),
+      .references(() => evaluation.id, { onDelete: 'cascade' }),
     criterioId: uuid('criterio_id')
       .notNull()
       .references(() => criterio.id, { onDelete: 'restrict' }),
-    valor: text('valor'),
+    value: text('valor'),
     pontos: numeric('pontos', { precision: 6, scale: 2 }),
     justificativa: text('justificativa'),
-    evidenciaMensagemId: uuid('evidencia_mensagem_id'),
+    evidenceMessageId: uuid('evidencia_mensagem_id'),
   },
-  (t) => [uniqueIndex('resposta_avaliacao_uk').on(t.avaliacaoId, t.criterioId)],
+  (t) => [uniqueIndex('resposta_avaliacao_uk').on(t.evaluationId, t.criterioId)],
 );
 
-export const ESTADOS_CONTESTACAO = ['aberta', 'aceita', 'recusada'] as const;
+export const STATES_DISPUTE = ['aberta', 'aceita', 'recusada'] as const;
 
-export const contestacao = pgTable(
+export const dispute = pgTable(
   'contestacao',
   {
     id: id(),
     tenantId: refTenant(),
     avaliacaoId: uuid('avaliacao_id')
       .notNull()
-      .references(() => avaliacao.id, { onDelete: 'cascade' }),
-    abertaPor: uuid('aberta_por')
+      .references(() => evaluation.id, { onDelete: 'cascade' }),
+    openBy: uuid('aberta_por')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     motivo: text('motivo').notNull(),
     estado: text('estado').notNull().default('aberta'),
     resposta: text('resposta'),
-    decididaPor: uuid('decidida_por').references(() => usuario.id, { onDelete: 'set null' }),
-    decididaEm: momento('decidida_em'),
+    decididaBy: uuid('decidida_por').references(() => user.id, { onDelete: 'set null' }),
+    decididaEm: moment('decidida_em'),
     ...carimbos(),
   },
-  (t) => [listaCheck('contestacao_estado_ck', t.estado, ESTADOS_CONTESTACAO)],
+  (t) => [listaCheck('contestacao_estado_ck', t.estado, STATES_DISPUTE)],
 );
 
 /** Bancada de medição: mede o desvio entre a nota humana e a da IA, critério a critério. */
-export const calibracao = pgTable('calibracao', {
+export const calibration = pgTable('calibracao', {
   id: id(),
   tenantId: refTenant(),
   nome: text('nome').notNull(),
-  periodoInicio: date('periodo_inicio').notNull(),
-  periodoFim: date('periodo_fim').notNull(),
+  periodStart: date('periodo_inicio').notNull(),
+  periodEnd: date('periodo_fim').notNull(),
   amostraN: integer('amostra_n').notNull().default(0),
   ...carimbos(),
 });
 
-export const calibracaoItem = pgTable(
+export const calibrationItem = pgTable(
   'calibracao_item',
   {
     id: id(),
     tenantId: refTenant(),
-    calibracaoId: uuid('calibracao_id')
+    calibrationId: uuid('calibracao_id')
       .notNull()
-      .references(() => calibracao.id, { onDelete: 'cascade' }),
-    conversaId: uuid('conversa_id')
+      .references(() => calibration.id, { onDelete: 'cascade' }),
+    conversationId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
-    avaliacaoHumanaId: uuid('avaliacao_humana_id').references(() => avaliacao.id, {
+      .references(() => conversation.id, { onDelete: 'cascade' }),
+    evaluationHumanId: uuid('avaliacao_humana_id').references(() => evaluation.id, {
       onDelete: 'set null',
     }),
-    avaliacaoIaId: uuid('avaliacao_ia_id').references(() => avaliacao.id, {
+    evaluationAiId: uuid('avaliacao_ia_id').references(() => evaluation.id, {
       onDelete: 'set null',
     }),
     desvioTotal: numeric('desvio_total', { precision: 6, scale: 2 }),
-    desvioPorCriterio: jsonb('desvio_por_criterio')
+    deviationByCriterion: jsonb('desvio_por_criterio')
       .notNull()
       .default(sql`'{}'::jsonb`),
   },
-  (t) => [uniqueIndex('calibracao_item_uk').on(t.calibracaoId, t.conversaId)],
+  (t) => [uniqueIndex('calibracao_item_uk').on(t.calibrationId, t.conversationId)],
 );
 
 export const feedback = pgTable(
@@ -212,16 +212,16 @@ export const feedback = pgTable(
     tenantId: refTenant(),
     avaliacaoId: uuid('avaliacao_id')
       .notNull()
-      .references(() => avaliacao.id, { onDelete: 'cascade' }),
-    deUsuarioId: uuid('de_usuario_id').references(() => usuario.id, { onDelete: 'set null' }),
-    paraUsuarioId: uuid('para_usuario_id')
+      .references(() => evaluation.id, { onDelete: 'cascade' }),
+    ofUserId: uuid('de_usuario_id').references(() => user.id, { onDelete: 'set null' }),
+    forUserId: uuid('para_usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     corpo: text('corpo').notNull(),
-    lidoEm: momento('lido_em'),
-    criadoEm: momento('criado_em').notNull().defaultNow(),
+    lidoEm: moment('lido_em'),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
   },
-  (t) => [index('feedback_para_idx').on(t.tenantId, t.paraUsuarioId, t.lidoEm)],
+  (t) => [index('feedback_para_idx').on(t.tenantId, t.forUserId, t.lidoEm)],
 );
 
 export const ESTADOS_PLANO_COACH = ['aberto', 'em_andamento', 'concluido', 'cancelado'] as const;
@@ -231,40 +231,40 @@ export const planoCoach = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    usuarioId: uuid('usuario_id')
+    userId: uuid('usuario_id')
       .notNull()
-      .references(() => usuario.id, { onDelete: 'cascade' }),
+      .references(() => user.id, { onDelete: 'cascade' }),
     criterioId: uuid('criterio_id').references(() => criterio.id, { onDelete: 'set null' }),
     meta: text('meta').notNull(),
     prazo: date('prazo'),
     estado: text('estado').notNull().default('aberto'),
-    criadoPor: uuid('criado_por').references(() => usuario.id, { onDelete: 'set null' }),
+    createdBy: uuid('criado_por').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
   (t) => [listaCheck('plano_coach_estado_ck', t.estado, ESTADOS_PLANO_COACH)],
 );
 
-export const SENTIMENTOS = ['positivo', 'neutro', 'negativo'] as const;
+export const SENTIMENTS = ['positivo', 'neutro', 'negativo'] as const;
 
-export const classificacaoConversa = pgTable(
+export const classificationConversation = pgTable(
   'classificacao_conversa',
   {
     id: id(),
     tenantId: refTenant(),
     conversaId: uuid('conversa_id')
       .notNull()
-      .references(() => conversa.id, { onDelete: 'cascade' }),
+      .references(() => conversation.id, { onDelete: 'cascade' }),
     categoria: text('categoria'),
     subcategoria: text('subcategoria'),
     resumo: text('resumo'),
-    intencao: text('intencao'),
-    sentimento: text('sentimento'),
+    intent: text('intencao'),
+    sentiment: text('sentimento'),
     confianca: numeric('confianca', { precision: 5, scale: 4 }),
-    modelo: text('modelo'),
-    criadaEm: momento('criada_em').notNull().defaultNow(),
+    template: text('modelo'),
+    criadaEm: moment('criada_em').notNull().defaultNow(),
   },
   (t) => [
-    listaCheck('classificacao_conversa_sentimento_ck', t.sentimento, SENTIMENTOS),
+    listaCheck('classificacao_conversa_sentimento_ck', t.sentiment, SENTIMENTS),
     uniqueIndex('classificacao_conversa_uk').on(t.conversaId),
     index('classificacao_conversa_categoria_idx').on(t.tenantId, t.categoria, t.criadaEm),
   ],
@@ -280,8 +280,8 @@ export const insight = pgTable(
     periodoFim: date('periodo_fim').notNull(),
     categoria: text('categoria').notNull(),
     volume: integer('volume').notNull().default(0),
-    variacaoPct: numeric('variacao_pct', { precision: 8, scale: 2 }),
-    candidataAutomacao: boolean('candidata_automacao').notNull().default(false),
+    variationPercent: numeric('variacao_pct', { precision: 8, scale: 2 }),
+    candidataAutomation: boolean('candidata_automacao').notNull().default(false),
     exemplos: uuid('exemplos')
       .array()
       .notNull()
@@ -297,23 +297,23 @@ export const consumoIa = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    funcionalidade: text('funcionalidade').notNull(),
+    functionality: text('funcionalidade').notNull(),
     modelo: text('modelo').notNull(),
-    tokensEntrada: integer('tokens_entrada').notNull().default(0),
+    tokensInbound: integer('tokens_entrada').notNull().default(0),
     tokensSaida: integer('tokens_saida').notNull().default(0),
     custoCentavos: integer('custo_centavos').notNull().default(0),
     objetoTipo: text('objeto_tipo'),
     objetoId: uuid('objeto_id'),
-    em: momento('em').notNull().defaultNow(),
+    em: moment('em').notNull().defaultNow(),
   },
-  (t) => [index('consumo_ia_periodo_idx').on(t.tenantId, t.funcionalidade, t.em)],
+  (t) => [index('consumo_ia_periodo_idx').on(t.tenantId, t.functionality, t.em)],
 );
 
-export const baseConhecimento = pgTable('base_conhecimento', {
+export const baseKnowledge = pgTable('base_conhecimento', {
   id: id(),
   tenantId: refTenant(),
   nome: text('nome').notNull(),
-  ativa: boolean('ativa').notNull().default(true),
+  active: boolean('ativa').notNull().default(true),
   ...carimbos(),
 });
 
@@ -321,35 +321,35 @@ export const baseConhecimento = pgTable('base_conhecimento', {
  * Incremental e versionada: documentos independentes, cada trecho rastreável até o
  * documento e a versão. É o que faz a sugestão do copiloto poder citar a fonte.
  */
-export const documentoConhecimento = pgTable(
+export const documentKnowledge = pgTable(
   'documento_conhecimento',
   {
     id: id(),
     tenantId: refTenant(),
     baseId: uuid('base_id')
       .notNull()
-      .references(() => baseConhecimento.id, { onDelete: 'cascade' }),
+      .references(() => baseKnowledge.id, { onDelete: 'cascade' }),
     titulo: text('titulo').notNull(),
     corpo: text('corpo').notNull(),
     versao: integer('versao').notNull().default(1),
-    atualizadoEm: momento('atualizado_em'),
+    atualizadoEm: moment('atualizado_em'),
     ativo: boolean('ativo').notNull().default(true),
-    criadoEm: momento('criado_em').notNull().defaultNow(),
+    criadoEm: moment('criado_em').notNull().defaultNow(),
   },
   (t) => [index('documento_conhecimento_base_idx').on(t.tenantId, t.baseId, t.ativo)],
 );
 
-export const trechoConhecimento = pgTable(
+export const snippetKnowledge = pgTable(
   'trecho_conhecimento',
   {
     id: id(),
     tenantId: refTenant(),
-    documentoId: uuid('documento_id')
+    documentId: uuid('documento_id')
       .notNull()
-      .references(() => documentoConhecimento.id, { onDelete: 'cascade' }),
+      .references(() => documentKnowledge.id, { onDelete: 'cascade' }),
     texto: text('texto').notNull(),
     embedding: vector('embedding', { dimensions: 1536 }),
-    ordem: integer('ordem').notNull().default(0),
+    order: integer('ordem').notNull().default(0),
   },
-  (t) => [index('trecho_conhecimento_documento_idx').on(t.tenantId, t.documentoId, t.ordem)],
+  (t) => [index('trecho_conhecimento_documento_idx').on(t.tenantId, t.documentId, t.order)],
 );
