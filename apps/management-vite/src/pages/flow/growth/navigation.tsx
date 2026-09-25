@@ -25,7 +25,7 @@ import { contactBase, useContact } from '../contact';
  * nosso — não há frase da Blip para copiar aqui.
  */
 const ITENS: { titulo: string; description: string | null; beta?: true; rota: string | null }[] = [
-  { titulo: 'Mensagens ativas', description: null, rota: 'mensagens-ativas' },
+  { titulo: 'Mensagens ativas', description: null, rota: 'active-messages' },
   {
     titulo: 'Click Tracker',
     description: 'Confira os dados das campanhas de Click to WhatsApp',
@@ -35,12 +35,12 @@ const ITENS: { titulo: string; description: string | null; beta?: true; rota: st
     titulo: 'Anúncios',
     description: 'Crie e publique anúncios que se conectam ao seu chatbot',
     beta: true,
-    rota: 'anuncios',
+    rota: 'ads',
   },
   {
     titulo: 'Relatório de Pagamentos',
     description: 'Visualize e analise os pagamentos realizados',
-    rota: 'pagamentos',
+    rota: 'payments',
   },
   {
     titulo: 'Links rastreados',

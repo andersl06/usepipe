@@ -21,25 +21,28 @@ import {
 
 const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
 
+/** O `tipo` de domínio ('roteador'/'fluxo') não é o segmento de URL — ver `contactPrefix`. */
+const prefixOf = (tipo: 'roteador' | 'fluxo') => (tipo === 'roteador' ? 'router' : 'flow');
+
 test('analytics leads to the contact\'s OWN analytics, under its own type prefix', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const analytics = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
-    assert.equal(analytics?.href, `/${tipo}/${ID}/analise`);
+    assert.equal(analytics?.href, `/${prefixOf(tipo)}/${ID}/analytics`);
   }
 });
 
 test('Channels leads to the contact\'s OWN channels, under its own type prefix', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const channels = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
-    assert.equal(channels?.href, `/${tipo}/${ID}/canais`);
+    assert.equal(channels?.href, `/${prefixOf(tipo)}/${ID}/channels`);
   }
 });
 
 test('Contacts and Content open their areas within the contact\'s context', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, ID);
-    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${tipo}/${ID}/contatos`);
-    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/${tipo}/${ID}/conteudos`);
+    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${prefixOf(tipo)}/${ID}/contacts`);
+    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/${prefixOf(tipo)}/${ID}/contents`);
   }
 });
 
@@ -48,9 +51,9 @@ test('Growth and Log open their screens within the contact\'s context', () => {
     const itens = itensDoMenu(tipo, ID);
     assert.equal(
       itens.find((i) => i.rotulo === 'Growth')?.href,
-      `/${tipo}/${ID}/growth/mensagens-ativas`,
+      `/${prefixOf(tipo)}/${ID}/growth/active-messages`,
     );
-    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/${tipo}/${ID}/log`);
+    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/${prefixOf(tipo)}/${ID}/log`);
   }
 });
 
@@ -81,7 +84,7 @@ test('the flow keeps the two the router loses', () => {
 
 test('Attendance still lands on the internal monitoring route', () => {
   const attendance = itensDoMenu('fluxo', ID).find((item) => item.rotulo === 'Atendimento');
-  assert.equal(attendance?.href, `/fluxo/${ID}/atendimento/monitoramento`);
+  assert.equal(attendance?.href, `/flow/${ID}/attendance/monitoring`);
 });
 
 test('the rest of the row is the same in both, and in the same order', () => {
@@ -144,7 +147,7 @@ test('"No permission" disappears from the bar, and the destination stays the sam
     itens.map((i) => i.rotulo),
     ['Canais'],
   );
-  assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);
+  assert.equal(itens[0]?.href, `/flow/${ID}/channels`);
 });
 
 test('"Conteúdos" is the `resources` entry on the permission list, not `contents`', () => {

@@ -45,7 +45,7 @@ export function PageEffort() {
 
       {/* Faixa de filtros de 56px, no lugar e na ordem da faixa deles:
           rótulo e controles à esquerda, período e ação à direita. */}
-      <form className="quickfilters" method="get" action={`${base}/relatorios/esforco`}>
+      <form className="quickfilters" method="get" action={`${base}/reports/effort`}>
         <span className="lbl">Filtros rápidos:</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />

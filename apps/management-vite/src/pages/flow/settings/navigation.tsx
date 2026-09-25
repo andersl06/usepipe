@@ -30,13 +30,13 @@ const ITENS: {
     icone: 'config-basicas',
     titulo: 'Configurações básicas',
     description: 'Defina nome, descrição e a imagem de seu fluxo',
-    rota: 'basicas',
+    rota: 'basic',
   },
   {
     icone: 'boas-vindas',
     titulo: 'Tela de Boas-vindas',
     description: 'Defina a Mensagem de Saudação e o botão Começar',
-    rota: 'boasvindas',
+    rota: 'welcome',
   },
   {
     icone: 'menu-persistente',
@@ -66,7 +66,7 @@ export function NavigationSettings({ id }: { id: string }) {
     <aside className="cf-lateral">
       <nav className="cf-arvore" aria-label="Configurações do fluxo">
         {ITENS.map((item) => {
-          const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
+          const href = item.rota ? `${base}/settings/${item.rota}` : null;
           const atual = href !== null && caminho === href;
           const miolo = (
             <>

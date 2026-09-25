@@ -105,7 +105,7 @@ function Edit({
         permissions,
       });
       atualizarLeituras();
-      navegar(`${base}/equipe`);
+      navegar(`${base}/team`);
     } catch (error) {
       setAviso((error as Error).message || 'Não foi possível salvar as alterações.');
       setEnviando(false);
@@ -121,7 +121,7 @@ function Edit({
               type="button"
               className="cf-equipe-voltar"
               aria-label="Voltar para Equipe"
-              onClick={() => navegar(`${base}/equipe`)}
+              onClick={() => navegar(`${base}/team`)}
             >
               <IconePortal nome="esquerda" tamanho={24} />
             </button>

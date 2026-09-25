@@ -98,21 +98,21 @@ import { PageBuilder } from './pages/builder';
 const contactRotas = (
   <>
     <Route index element={<ContactHome />} />
-    <Route path="canais" element={<ChannelsPage />} />
+    <Route path="channels" element={<ChannelsPage />} />
     {/* Cada canal tem a própria página DENTRO do bot, como
         `application/detail/{bot}/channels/{canal}` da origem
         (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). As
         abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
         módulo errado; o canal agora é o do bot, sem id na URL. */}
-    <Route path="canais/whatsapp" element={<ShellChannelWhatsapp />}>
+    <Route path="channels/whatsapp" element={<ShellChannelWhatsapp />}>
       <Route index element={<AbaVisaoGeral />} />
-      <Route path="perfil" element={<AbaPerfil />} />
-      <Route path="configuracoes" element={<AbaSettings />} />
+      <Route path="profile" element={<AbaPerfil />} />
+      <Route path="settings" element={<AbaSettings />} />
       <Route path="alerta" element={<AbaAlerta />} />
     </Route>
-    <Route path="canais/instagram" element={<PageChannelInstagram />} />
-    <Route path="canais/messenger" element={<PageChannelMessenger />} />
-    <Route path="servicos" element={<ServicesPage />} />
+    <Route path="channels/instagram" element={<PageChannelInstagram />} />
+    <Route path="channels/messenger" element={<PageChannelMessenger />} />
+    <Route path="services" element={<ServicesPage />} />
 
     {/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
         MESMO contato: barra do portal + barra do contato (item "Atendimento"
@@ -120,43 +120,43 @@ const contactRotas = (
         Estas telas viviam soltas em `/monitoramento`, `/historico` etc. e
         desenhavam um segundo portal — ver o mapa completo no relatório da
         tarefa que fez a mudança. */}
-    <Route path="atendimento" element={<AttendanceShell />}>
-      <Route index element={<Navigate to="monitoramento" replace />} />
-      <Route path="monitoramento" element={<PageMonitoring />} />
-      <Route path="historico" element={<PageHistory />} />
-      <Route path="monitoria" element={<PageQualityReview />} />
-      <Route path="monitoria/:id" element={<EvaluationPageFicha />} />
-      <Route path="relatorios/atendimento" element={<PageAttendance />} />
-      <Route path="relatorios/esforco" element={<PageEffort />} />
-      <Route path="relatorios/satisfacao" element={<PageSatisfaction />} />
-      <Route path="atendentes/gestao" element={<AgentsPageManagement />} />
+    <Route path="attendance" element={<AttendanceShell />}>
+      <Route index element={<Navigate to="monitoring" replace />} />
+      <Route path="monitoring" element={<PageMonitoring />} />
+      <Route path="history" element={<PageHistory />} />
+      <Route path="quality-review" element={<PageQualityReview />} />
+      <Route path="quality-review/:id" element={<EvaluationPageFicha />} />
+      <Route path="reports/attendance" element={<PageAttendance />} />
+      <Route path="reports/effort" element={<PageEffort />} />
+      <Route path="reports/satisfaction" element={<PageSatisfaction />} />
+      <Route path="agents/management" element={<AgentsPageManagement />} />
       {/* `/team/create` e `/team/edit` da origem — sem `:id`, a seleção viaja
           em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */}
-      <Route path="atendentes/gestao/adicionar" element={<AgentPageEdit modo="adicionar" />} />
-      <Route path="atendentes/gestao/editar" element={<AgentPageEdit modo="editar" />} />
+      <Route path="agents/management/add" element={<AgentPageEdit modo="adicionar" />} />
+      <Route path="agents/management/edit" element={<AgentPageEdit modo="editar" />} />
       {/* `/team/permission` da origem. */}
-      <Route path="atendentes/gestao/permissoes" element={<AgentPagePermissions />} />
-      <Route path="atendentes/filas" element={<PageQueues />} />
+      <Route path="agents/management/permissions" element={<AgentPagePermissions />} />
+      <Route path="agents/queues" element={<PageQueues />} />
       {/* `/queue-management/edit/:id` da origem — página própria, não modal. */}
-      <Route path="atendentes/filas/:filaId/editar" element={<QueuePageEdit />} />
-      <Route path="atendentes/pausas" element={<PageBreaks />} />
-      <Route path="comunicacao/modelos" element={<PageTemplates />} />
-      <Route path="comunicacao/respostas-prontas" element={<PageCannedResponses />} />
-      <Route path="regras/atendimento" element={<AttendancePageRules />} />
-      <Route path="regras/sla" element={<SlaPageRules />} />
-      <Route path="regras/horarios" element={<PageHours />} />
-      <Route path="preferencias/gerais" element={<PageSettingsGeneral />} />
-      <Route path="preferencias/dados" element={<PageData />} />
-      <Route path="preferencias/regras" element={<PageRules />} />
-      <Route path="canais" element={<PageChannels />} />
+      <Route path="agents/queues/:queueId/edit" element={<QueuePageEdit />} />
+      <Route path="agents/breaks" element={<PageBreaks />} />
+      <Route path="communication/templates" element={<PageTemplates />} />
+      <Route path="communication/canned-responses" element={<PageCannedResponses />} />
+      <Route path="rules/attendance" element={<AttendancePageRules />} />
+      <Route path="rules/sla" element={<SlaPageRules />} />
+      <Route path="rules/hours" element={<PageHours />} />
+      <Route path="preferences/general" element={<PageSettingsGeneral />} />
+      <Route path="preferences/data" element={<PageData />} />
+      <Route path="preferences/rules" element={<PageRules />} />
+      <Route path="channels" element={<PageChannels />} />
     </Route>
 
-    <Route path="contatos" element={<ContactsShell />}>
+    <Route path="contacts" element={<ContactsShell />}>
       <Route index element={<BotListaContacts />} />
-      <Route path=":contatoId" element={<BotDetalheContact />} />
+      <Route path=":contactId" element={<BotDetalheContact />} />
     </Route>
 
-    <Route path="integracoes" element={<IntegrationsShell />}>
+    <Route path="integrations" element={<IntegrationsShell />}>
       <Route index element={<PageIntegrations />} />
       <Route path="webhook" element={<PageWebhook />} />
     </Route>
@@ -164,37 +164,37 @@ const contactRotas = (
     <Route path="log" element={<PageLog />} />
 
     <Route path="growth" element={<GrowthShell />}>
-      <Route index element={<Navigate to="mensagens-ativas" replace />} />
-      <Route path="mensagens-ativas" element={<PageActiveMessages />} />
+      <Route index element={<Navigate to="active-messages" replace />} />
+      <Route path="active-messages" element={<PageActiveMessages />} />
       <Route path="clicktracker" element={<PageClickTracker />} />
-      <Route path="anuncios" element={<PageAds />} />
-      <Route path="pagamentos" element={<PaymentsPageReport />} />
-      <Route path="links-rastreados" element={<PageTrackedLinks />} />
+      <Route path="ads" element={<PageAds />} />
+      <Route path="payments" element={<PaymentsPageReport />} />
+      <Route path="tracked-links" element={<PageTrackedLinks />} />
     </Route>
 
-    <Route path="configuracoes" element={<SettingsShell />}>
-      <Route index element={<Navigate to="basicas" replace />} />
-      <Route path="basicas" element={<SettingsBasicPage />} />
-      <Route path="boasvindas" element={<WelcomePage />} />
-      <Route path="menu-persistente" element={<PersistentMenuPage />} />
+    <Route path="settings" element={<SettingsShell />}>
+      <Route index element={<Navigate to="basic" replace />} />
+      <Route path="basic" element={<SettingsBasicPage />} />
+      <Route path="welcome" element={<WelcomePage />} />
+      <Route path="persistent-menu" element={<PersistentMenuPage />} />
       <Route path="api" element={<BotPageApi />} />
       <Route path="keys" element={<BotPageKeys />} />
     </Route>
 
-    <Route path="equipe" element={<TeamPage />} />
-    <Route path="equipe/editar/:usuarioId" element={<EditMemberPage />} />
+    <Route path="team" element={<TeamPage />} />
+    <Route path="team/edit/:userId" element={<EditMemberPage />} />
 
-    <Route path="conteudos" element={<PageContents />} />
+    <Route path="contents" element={<PageContents />} />
 
-    <Route path="analise" element={<AnalyticsShell />}>
+    <Route path="analytics" element={<AnalyticsShell />}>
       <Route index element={<Navigate to={ABA_PADRAO} replace />} />
       <Route path="dashboard" element={<DashboardPage />} />
-      <Route path="visao-geral" element={<OverviewPage />} />
-      <Route path="jornada" element={<JourneyPage />} />
-      <Route path="relatorios" element={<ReportsPage />} />
-      <Route path="mensagens-ativas" element={<AnaliseMensagensAtivas />} />
-      <Route path="gerenciador-de-relatorios" element={<ManagerPage />} />
-      <Route path="dicionario-de-dados" element={<DictionaryPage />} />
+      <Route path="overview" element={<OverviewPage />} />
+      <Route path="journey" element={<JourneyPage />} />
+      <Route path="reports" element={<ReportsPage />} />
+      <Route path="active-messages" element={<AnaliseMensagensAtivas />} />
+      <Route path="report-manager" element={<ManagerPage />} />
+      <Route path="data-dictionary" element={<DictionaryPage />} />
     </Route>
   </>
 );

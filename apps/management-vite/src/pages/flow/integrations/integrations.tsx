@@ -88,7 +88,7 @@ export function PageIntegrations() {
               <Link
                 className="ig-cartao"
                 id={card.id}
-                href={`${base}/integracoes/${card.rota}`}
+                href={`${base}/integrations/${card.rota}`}
               >
                 {miolo}
               </Link>

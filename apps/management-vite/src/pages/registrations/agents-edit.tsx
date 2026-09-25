@@ -32,7 +32,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
   const navegar = useNavigate();
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const ids = (params.get('atendentes') ?? '').split(',').filter(Boolean);
+  const ids = (params.get('agents') ?? '').split(',').filter(Boolean);
 
   if (modo === 'adicionar') {
     return (
@@ -46,7 +46,7 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
             No Pipe, quem entra na equipe recebe um convite — não há cadastro solto de conta nesta tela. Para
             colocar alguém já cadastrado numa fila, volte e use o ícone <b>Editar</b> na lista.
           </p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/atendentes/gestao`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
             Voltar para Gestão de atendentes
           </button>
         </div>
@@ -75,7 +75,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
       <div className="vazio">
         <b>Nenhum atendente selecionado</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/atendentes/gestao`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
             Voltar para Gestão de atendentes
           </button>
         </p>
@@ -90,7 +90,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
     setError(null);
     const resultado = await aplicarInSelection(ids, queueId, capacity.trim() ? Number(capacity) : null);
     setEnviando(false);
-    if (resultado.ok) navegar(`${base}/atendentes/gestao`);
+    if (resultado.ok) navegar(`${base}/agents/management`);
     else setError(resultado.error);
   }
 
@@ -143,7 +143,7 @@ function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
         {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
         <div className="cl-acoes">
-          <Botao type="button" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={enviando}>
+          <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={enviando}>
             Cancelar
           </Botao>
           <Botao type="submit" variante="primario" disabled={enviando || !queueId}>

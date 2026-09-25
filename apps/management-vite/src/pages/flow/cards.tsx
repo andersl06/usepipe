@@ -278,14 +278,14 @@ export function CardMetrics({ metrics, base }: { metrics: Metrics | null; base: 
           rotulo="Mensagens recebidas"
           dica="Número de mensagens recebidas pelo contato desde a criação"
           value={metrics.recebidas}
-          href={`${base}/atendimento/relatorios/atendimento`}
+          href={`${base}/attendance/reports/attendance`}
         />
         <Metrica
           icone="mensagem-enviada"
           rotulo="Mensagens enviadas"
           dica="Número de mensagens enviadas pelo contato desde a criação"
           value={metrics.enviadas}
-          href={`${base}/atendimento/relatorios/atendimento`}
+          href={`${base}/attendance/reports/attendance`}
         />
       </section>
     </div>

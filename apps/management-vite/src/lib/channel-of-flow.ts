@@ -21,7 +21,7 @@ export const SEGMENT_OF_CHANNEL: Readonly<Record<TipoOfChannelOfBot, string>> = 
 };
 
 export function channelRota(base: string, tipo: TipoOfChannelOfBot): string {
-  return `${base}/canais/${SEGMENT_OF_CHANNEL[tipo]}`;
+  return `${base}/channels/${SEGMENT_OF_CHANNEL[tipo]}`;
 }
 
 /**

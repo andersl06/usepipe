@@ -200,7 +200,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-voltar-caixa">
-            <Link className="ph-voltar" href={`${base}/integracoes`} aria-label="Voltar">
+            <Link className="ph-voltar" href={`${base}/integrations`} aria-label="Voltar">
               <IconePortal nome="voltar" tamanho={22} />
             </Link>
           </div>

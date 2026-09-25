@@ -13,8 +13,8 @@ import './flow.css';
  * origem chama `master`, `fluxo` para o resto (`builder`). É a MESMA
  * distinção de `itens.ts`, aqui do lado de quem monta o caminho, não o menu.
  */
-export function contactPrefix(tipo: string): 'roteador' | 'fluxo' {
-  return tipo === 'roteador' ? 'roteador' : 'fluxo';
+export function contactPrefix(tipo: string): 'router' | 'flow' {
+  return tipo === 'roteador' ? 'router' : 'flow';
 }
 
 export function contactBase(tipo: string, id: string): string {
@@ -68,7 +68,7 @@ export function ContactRota() {
   if (!read.data) return null;
 
   const prefixCerto = contactPrefix(read.data.contact.tipo);
-  const prefixCurrent = local.pathname.startsWith('/roteador/') ? 'roteador' : 'fluxo';
+  const prefixCurrent = local.pathname.startsWith('/router/') ? 'router' : 'flow';
   if (prefixCurrent !== prefixCerto) {
     const resto = local.pathname.slice(`/${prefixCurrent}/${id}`.length);
     return <Navigate to={`/${prefixCerto}/${id}${resto}${local.search}${local.hash}`} replace />;

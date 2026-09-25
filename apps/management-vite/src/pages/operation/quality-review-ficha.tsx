@@ -65,7 +65,7 @@ export function EvaluationPageFicha() {
       </div>
 
       <div className="quickfilters">
-        <Link href={`${base}/monitoria`} className="btn">
+        <Link href={`${base}/quality-review`} className="btn">
           ← Todas as avaliações
         </Link>
         <span className="etiqueta">{ROTULO_STATE_EVALUATION[c.state] ?? c.state}</span>
