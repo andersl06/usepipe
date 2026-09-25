@@ -115,6 +115,8 @@ por
 preferencias
 prefixo
 producao
+provedor
+provedores
 provisionar
 relatorio
 relatorios

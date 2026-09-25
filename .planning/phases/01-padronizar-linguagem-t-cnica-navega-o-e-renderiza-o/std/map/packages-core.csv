@@ -89,7 +89,7 @@ packages-core-symbol-26c62a7d,packages-core,1,symbol,casosLeitura,casosRead,pack
 packages-core-symbol-280d5ea5,packages-core,1,symbol,VARIAVEIS_NO_TEXTO,VARIABLES_IN_TEXTO,packages/core/src/fluxo/contexto.ts:366,3,no,,,proposed,codex2,
 packages-core-symbol-29312b8b,packages-core,1,symbol,EstadoDoEditor,EditorState,packages/core/src/fluxo/editor.ts:34,14,no,,,proposed,codex2,
 packages-core-symbol-2961f075,packages-core,1,symbol,REGRAS_DE_VALIDACAO,RULES_OF_VALIDATION,packages/core/src/fluxo/modelos.ts:27,3,no,,,proposed,codex2,
-packages-core-symbol-2b3e70dc,packages-core,1,symbol,ProvedorDeVariavel,VariableProvedor,packages/core/src/fluxo/contexto.ts:155,3,no,,,proposed,codex2,
+packages-core-symbol-2b3e70dc,packages-core,1,symbol,ProvedorDeVariavel,VariableProvider,packages/core/src/fluxo/contexto.ts:155,3,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was VariableProvedor"
 packages-core-symbol-2b860784,packages-core,1,symbol,transitarEntrega,transitarDelivery,packages/core/src/conversa/maquina.ts:206,4,no,,,proposed,codex2,
 packages-core-symbol-2ddc1890,packages-core,1,symbol,AnexoEsforco,AttachmentEffort,packages/core/src/esforco/regua.ts:45,3,no,,,proposed,codex2,
 packages-core-symbol-2e4c39e8,packages-core,1,symbol,encerradaPor,encerradaBy,packages/core/src/metricas/eventos.ts:90,37,no,,,proposed,codex2,
@@ -272,7 +272,7 @@ packages-core-symbol-afe1eb0a,packages-core,1,symbol,validarEstado,validarState,
 packages-core-symbol-b21ed9cf,packages-core,1,symbol,FonteDeVariavel,VariableFonte,packages/core/src/fluxo/contexto.ts:36,8,no,,,proposed,codex2,
 packages-core-symbol-b3d8f956,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/acoes.ts:63,27,no,,,proposed,codex2,
 packages-core-symbol-b3e498d3,packages-core,1,symbol,globais,global,packages/core/src/fluxo/editor.ts:123,134,no,,,proposed,codex2,
-packages-core-symbol-b517bf02,packages-core,1,symbol,provedorDeEntrada,inboundProvedor,packages/core/src/fluxo/contexto.ts:277,3,no,,,proposed,codex2,
+packages-core-symbol-b517bf02,packages-core,1,symbol,provedorDeEntrada,inboundProvider,packages/core/src/fluxo/contexto.ts:277,3,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was inboundProvedor"
 packages-core-symbol-b531c4ff,packages-core,1,symbol,variaveis,variables,packages/core/src/fluxo/editor.teste.ts:153,134,no,,,proposed,codex2,
 packages-core-symbol-b55f9475,packages-core,1,symbol,mensagemDeValidacao,validationMessage,packages/core/src/fluxo/modelos.ts:221,3,no,,,proposed,codex2,
 packages-core-symbol-b609a043,packages-core,1,symbol,estado,state,packages/core/src/sla/regra.ts:86,1269,no,,,proposed,codex2,
@@ -288,7 +288,7 @@ packages-core-symbol-beaf66b2,packages-core,1,symbol,FORMATO_E164,FORMAT_E164,pa
 packages-core-symbol-bf05cbf5,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/contexto.ts:351,27,no,,,proposed,codex2,
 packages-core-symbol-bf3ea36e,packages-core,1,symbol,transicaoEntregaPermitida,transitionDeliveryPermitida,packages/core/src/conversa/maquina.ts:202,8,no,,,proposed,codex2,
 packages-core-symbol-c012c97c,packages-core,1,symbol,primeira,first,packages/core/src/score/score.teste.ts:278,377,no,,,proposed,codex2,
-packages-core-symbol-c217fa83,packages-core,1,symbol,ProvedorDeAcoes,ActionsProvedor,packages/core/src/fluxo/acoes.ts:26,6,no,,,proposed,codex2,
+packages-core-symbol-c217fa83,packages-core,1,symbol,ProvedorDeAcoes,ActionsProvider,packages/core/src/fluxo/acoes.ts:26,6,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was ActionsProvedor"
 packages-core-symbol-c252d1d8,packages-core,1,symbol,TipoMensagem,TipoMessage,packages/core/src/esforco/regua.ts:36,4,no,,,proposed,codex2,
 packages-core-symbol-c291430a,packages-core,1,symbol,porId,byId,packages/core/src/fluxo/modelos.ts:176,7,no,,,proposed,codex2,
 packages-core-symbol-c2ef09a2,packages-core,1,symbol,pesoAtendente,pesoAgent,packages/core/src/distribuicao/carga.ts:80,2,no,,,proposed,codex2,
@@ -320,7 +320,7 @@ packages-core-symbol-d305f9d3,packages-core,1,symbol,condicaoDaEntrada,inboundCo
 packages-core-symbol-d394902a,packages-core,1,symbol,variaveis,variables,packages/core/src/fluxo/gerenciador.teste.ts:466,134,no,,,proposed,codex2,
 packages-core-symbol-d3a0c199,packages-core,1,symbol,ehVariavelDeContexto,contextEhVariable,packages/core/src/fluxo/modelos.ts:103,11,no,,,proposed,codex2,
 packages-core-symbol-d3c32180,packages-core,1,symbol,ErroDeProcessamentoDeSaida,ProcessingOutputError,packages/core/src/fluxo/gerenciador.ts:102,5,no,,,proposed,codex2,
-packages-core-symbol-d4651d21,packages-core,1,symbol,provedorDeContato,contactProvedor,packages/core/src/fluxo/contexto.ts:331,3,no,,,proposed,codex2,
+packages-core-symbol-d4651d21,packages-core,1,symbol,provedorDeContato,contactProvider,packages/core/src/fluxo/contexto.ts:331,3,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was contactProvedor"
 packages-core-symbol-d70e2fe2,packages-core,1,symbol,CondicaoComposta,ConditionComposta,packages/core/src/score/motor.ts:36,4,no,,,proposed,codex2,
 packages-core-symbol-d72616ed,packages-core,1,symbol,posicao,position,packages/core/src/conversa/prioridade.ts:60,84,no,,,proposed,codex2,
 packages-core-symbol-d7a35d2e,packages-core,1,symbol,processarAcoes,processarActions,packages/core/src/fluxo/gerenciador.ts:357,7,no,,,proposed,codex2,
@@ -367,7 +367,7 @@ packages-core-symbol-f72e9ff0,packages-core,1,symbol,EscopoSla,ScopeSla,packages
 packages-core-symbol-fa101d3a,packages-core,1,symbol,fluxo,flow,packages/core/src/fluxo/editor.teste.ts:152,1172,no,,,proposed,codex2,
 packages-core-symbol-faa14ea4,packages-core,1,symbol,estadoId,stateId,packages/core/src/fluxo/gerenciador.ts:180,22,no,,,proposed,codex2,
 packages-core-symbol-fc2aae3e,packages-core,1,symbol,avaliarCondicoes,avaliarConditions,packages/core/src/fluxo/condicao.ts:266,5,no,,,proposed,codex2,
-packages-core-symbol-fcb19fbf,packages-core,1,symbol,provedorDeEstado,stateProvedor,packages/core/src/fluxo/contexto.ts:311,2,no,,,proposed,codex2,
+packages-core-symbol-fcb19fbf,packages-core,1,symbol,provedorDeEstado,stateProvider,packages/core/src/fluxo/contexto.ts:311,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was stateProvedor"
 packages-core-symbol-fdc5f9ad,packages-core,1,symbol,erro,error,packages/core/src/fluxo/gerenciador.teste.ts:209,1478,no,,,proposed,codex2,
 packages-core-symbol-fe0baeaa,packages-core,1,symbol,escolherAtendente,escolherAgent,packages/core/src/distribuicao/carga.ts:139,13,no,,,proposed,codex2,
 packages-core-symbol-fe493c78,packages-core,1,symbol,calcularEsforcoConversa,calcularEffortConversation,packages/core/src/esforco/regua.ts:123,9,no,,,proposed,codex2,
@@ -829,3 +829,19 @@ packages-core-ts-prop-fba4a0f7,packages-core,1,ts-prop,usuarioId,userId,packages
 packages-core-ts-prop-fce5d0a8,packages-core,1,ts-prop,explicacao,explanation,packages/core/src/score/motor.ts:68,15,no,,,proposed,codex2,
 packages-core-ts-prop-fea7e8f7,packages-core,1,ts-prop,primeiraRespostaEm,firstRespostaIn,packages/core/src/sla/regra.ts:105,26,no,,,proposed,codex2,
 packages-core-ts-prop-ffc99302,packages-core,1,ts-prop,conversaId,conversationId,packages/core/src/esforco/regua.ts:125,523,no,,,proposed,codex2,
+packages-core-ts-prop-956d5de3,packages-core,1,ts-prop,answer,KEEP,packages/core/src/fluxo/contexto.ts:61,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-9c72a8bd,packages-core,1,ts-prop,chamarHttp,callHttp,packages/core/src/fluxo/contexto.ts:144,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-511e9480,packages-core,1,ts-prop,conteudoSerializado,serializedContent,packages/core/src/fluxo/contexto.ts:74,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-e777eb7d,packages-core,1,ts-prop,encaminharParaAtendimento,forwardToAttendance,packages/core/src/fluxo/contexto.ts:138,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-5f250457,packages-core,1,ts-prop,enviar,send,packages/core/src/fluxo/contexto.ts:137,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-650b77c5,packages-core,1,ts-prop,id,KEEP,packages/core/src/fluxo/contexto.ts:58,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-88bba272,packages-core,1,ts-prop,id,KEEP,packages/core/src/fluxo/contexto.ts:65,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-0144be18,packages-core,1,ts-prop,name,KEEP,packages/core/src/fluxo/contexto.ts:59,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-ad02b2dd,packages-core,1,ts-prop,name,KEEP,packages/core/src/fluxo/contexto.ts:66,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-a4c246b7,packages-core,1,ts-prop,provedores,providers,packages/core/src/fluxo/contexto.ts:173,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-3a4bd1ea,packages-core,1,ts-prop,redirecionar,redirect,packages/core/src/fluxo/contexto.ts:152,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-688b44f9,packages-core,1,ts-prop,registrarEvento,registerEvent,packages/core/src/fluxo/contexto.ts:142,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-ab89436e,packages-core,1,ts-prop,score,KEEP,packages/core/src/fluxo/contexto.ts:60,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-ec92aa60,packages-core,1,ts-prop,servicos,services,packages/core/src/fluxo/contexto.ts:174,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-75f56da9,packages-core,1,ts-prop,suspenderHttp,suspendHttp,packages/core/src/fluxo/contexto.ts:146,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
+packages-core-ts-prop-7b48c3d6,packages-core,1,ts-prop,value,KEEP,packages/core/src/fluxo/contexto.ts:67,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"

@@ -1504,7 +1504,7 @@ gestao-vite-symbol-e5cb1ecc,gestao-vite,3,symbol,casca,shell,apps/gestao-vite/sr
 gestao-vite-symbol-e612762a,gestao-vite,3,symbol,AcoesGlobais,ActionsGlobal,apps/gestao-vite/src/paginas/builder/acoes-globais.ts:22,2,no,,,proposed,codex2,
 gestao-vite-symbol-e6aae090,gestao-vite,3,symbol,TAMANHOS_DE_PAGINA,TAMANHOS_OF_PAGE,apps/gestao-vite/src/componentes/lista-regras.tsx:5,1,no,,,proposed,codex2,
 gestao-vite-symbol-e6c3a267,gestao-vite,3,symbol,tagsDoBloco,blockTags,apps/gestao-vite/src/paginas/builder/painel.tsx:30,2,no,,,proposed,codex2,
-gestao-vite-symbol-e710cbcd,gestao-vite,3,symbol,ProvedorDeSessao,SessionProvedor,apps/gestao-vite/src/contexto/sessao.tsx:21,10,no,,,proposed,codex2,
+gestao-vite-symbol-e710cbcd,gestao-vite,3,symbol,ProvedorDeSessao,SessionProvider,apps/gestao-vite/src/contexto/sessao.tsx:21,10,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was SessionProvedor"
 gestao-vite-symbol-e78bb0b6,gestao-vite,3,symbol,erroDestino,errorDestination,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:65,3,no,,,proposed,codex2,
 gestao-vite-symbol-e7a6bb89,gestao-vite,3,symbol,agruparHistorico,agruparHistory,apps/gestao-vite/src/lib/historico.ts:105,12,no,,,proposed,codex2,
 gestao-vite-symbol-e7bc66dc,gestao-vite,3,symbol,RELATORIOS_DE_ATENDIMENTO,REPORTS_OF_ATTENDANCE,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/tela.tsx:35,3,no,,,proposed,codex2,

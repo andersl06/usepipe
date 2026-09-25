@@ -87,7 +87,7 @@ desk-vite-query-param-extra-ticket,desk-vite,3,query-param,ticket,STATE,apps/des
 desk-vite-symbol-039dd9b3,desk-vite,3,symbol,JANELA_HORAS,WINDOW_HORAS,apps/desk-vite/src/lib/ordem.ts:29,5,no,,,proposed,codex2,
 desk-vite-symbol-05c3e730,desk-vite,3,symbol,chave,key,apps/desk-vite/src/lib/contatos.ts:57,1153,no,,,proposed,codex2,
 desk-vite-symbol-05c5391a,desk-vite,3,symbol,leitura,read,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:656,251,no,,,proposed,codex2,
-desk-vite-symbol-0948cace,desk-vite,3,symbol,ProvedorDeSessao,SessionProvedor,apps/desk-vite/src/contexto/sessao.tsx:21,10,no,,,proposed,codex2,
+desk-vite-symbol-0948cace,desk-vite,3,symbol,ProvedorDeSessao,SessionProvider,apps/desk-vite/src/contexto/sessao.tsx:21,10,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was SessionProvedor"
 desk-vite-symbol-157f54e5,desk-vite,3,symbol,GrupoDeContatos,ContactsGroup,apps/desk-vite/src/lib/contatos.ts:18,2,no,,,proposed,codex2,
 desk-vite-symbol-1861695c,desk-vite,3,symbol,filas,queues,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:493,297,no,,,proposed,codex2,
 desk-vite-symbol-19e00705,desk-vite,3,symbol,grupos,groups,apps/desk-vite/src/lib/grupos.ts:16,85,no,,,proposed,codex2,
