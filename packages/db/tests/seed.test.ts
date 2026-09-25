@@ -22,7 +22,7 @@ beforeAll(async () => {
   await migrate(URL_DONO);
   dono = createDatabase({ url: URL_DONO, maxConnections: 2 });
   slug = `semente-${randomUUID().slice(0, 8)}`;
-  tenantId = (await seed(dono, { nome: `Semente ${slug}`, slug })).tenantId;
+  tenantId = (await seed(dono, { name: `Semente ${slug}`, slug })).tenantId;
 }, 120_000);
 
 afterAll(async () => {
@@ -86,7 +86,7 @@ describe('Assign account roles to every seeded user', () => {
     expect(await papeisOfAccount(pessoa)).toEqual(['admin']);
 
     // `semear` de novo, no mesmo tenant: nada duplica.
-    const segunda = await seed(dono, { nome: `Semente ${slug}`, slug });
+    const segunda = await seed(dono, { name: `Semente ${slug}`, slug });
     expect(segunda.tenantId).toBe(tenantId);
     expect(segunda.papeisOfAccountData).toBe(0);
     const { rows } = await dono.execute<{ n: string }>(sql`

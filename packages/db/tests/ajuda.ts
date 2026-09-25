@@ -55,8 +55,8 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
     app,
     tenantA: a.tenantId,
     tenantB: b.tenantId,
-    queueA: a.filaId,
-    queueB: b.filaId,
+    queueA: a.queueId,
+    queueB: b.queueId,
     encerrar: async () => {
       await dono.execute(
         sql`delete from tenant where id in (${a.tenantId}::uuid, ${b.tenantId}::uuid)`,
