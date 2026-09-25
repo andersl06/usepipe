@@ -1,0 +1,6108 @@
+{
+  "rows": [
+    {
+      "id": "crm-dir-c240f0c1",
+      "new": "apps/crm/seed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-e4513886",
+      "new": "apps/crm/src/components/settings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-a1e20795",
+      "new": "apps/crm/src/components",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-96424cd0",
+      "new": "apps/crm/src/app/actions-search.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-94680544",
+      "new": "apps/crm/src/app/settings/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-da82429d",
+      "new": "apps/crm/src/app/login/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-fe8b32d0",
+      "new": "apps/crm/src/app/leads/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-208cc940",
+      "new": "apps/crm/src/app/opportunities/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-d5843ccf",
+      "new": "apps/crm/src/lib/database.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-56ce9ad9",
+      "new": "apps/crm/src/lib/search-tipos.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-dd781318",
+      "new": "apps/crm/src/lib/search.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-6ff65e67",
+      "new": "apps/crm/tests/settings-comum.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-b706005f",
+      "new": "apps/crm/src/lib/settings-comum.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-2e89a74a",
+      "new": "apps/crm/src/lib/settings-data.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-9d503c0d",
+      "new": "apps/crm/src/app/settings/settings.css",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-5d202dec",
+      "new": "apps/crm/src/lib/accounts.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-f97bc38d",
+      "new": "apps/crm/src/lib/contacts.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-e6e81ed4",
+      "new": "apps/crm/src/components/structure-crm.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-b47dcf00",
+      "new": "apps/crm/tests/filters.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-ab490673",
+      "new": "apps/crm/src/components/filters.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-7cccde37",
+      "new": "apps/crm/src/lib/format.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-1dfc3285",
+      "new": "apps/crm/src/app/global.css",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-eafb2892",
+      "new": "apps/crm/src/components/linha-of-time.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-d0826a00",
+      "new": "apps/crm/src/lib/panel.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-ee1b573d",
+      "new": "apps/crm/seed/seed-crm.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-b77ac8d4",
+      "new": "apps/crm/src/lib/session.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-file-0f098198",
+      "new": "apps/crm/src/components/views-salvas.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-25243ccd",
+      "new": "AbaAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c926aa8f",
+      "new": "AbaContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d68b2580",
+      "new": "AbaOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-311c2649",
+      "new": "actionAlternarMember",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ba5e3ddd",
+      "new": "actionCancelarInvitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-43ea75f5",
+      "new": "actionCreateField",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7f55e8b8",
+      "new": "actionCreateKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b3d52072",
+      "new": "actionCreateRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-665d3d61",
+      "new": "actionCreateWebhook",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-72899e49",
+      "new": "actionDefinirRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-96e8c880",
+      "new": "actionExcluirRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-08d9a8c6",
+      "new": "actionRevogarKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7af0e7ed",
+      "new": "actionSalvarPermissions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c4206f68",
+      "new": "Grouping",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3a32bd5e",
+      "new": "GROUPINGS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4b31c20d",
+      "new": "groupingValido",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-505ac29d",
+      "new": "toRestore",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-9bd538d8",
+      "new": "active",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bd426064",
+      "new": "activities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-62d7bd04",
+      "new": "atribuirInBulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a4563b49",
+      "new": "current",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4419197c",
+      "new": "LoadingNotice",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-830404bc",
+      "new": "database",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-85202475",
+      "new": "BarraInBulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f8b50573",
+      "new": "Block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-33767b49",
+      "new": "block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0aa27796",
+      "new": "block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bcd05a90",
+      "new": "BlockRespostas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-18a3ddb8",
+      "new": "ConfirmationButton",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1011c938",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0899f691",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-dec02d4e",
+      "new": "Search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-83ce721e",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-85cd584e",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-152755f5",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d4fca273",
+      "new": "SectionHeader",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a0fae843",
+      "new": "sessionHeader",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f77dc46d",
+      "new": "cancelarInvitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2bf07d1b",
+      "new": "carregarAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1d9c3861",
+      "new": "carregarContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-62bfc8dd",
+      "new": "timeCarregarLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b3201267",
+      "new": "carregarOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1b5f3088",
+      "new": "CardOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-958b096b",
+      "new": "CardView",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5fa5dd16",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e52c59c9",
+      "new": "CATALOGO_OF_SCOPES",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-976b3b05",
+      "new": "KEY_TEMA",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a16183ec",
+      "new": "KEY",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3c053cdf",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ee923882",
+      "new": "KeyField",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c54b78d0",
+      "new": "ApiKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-03e64267",
+      "new": "keyOf",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d183adac",
+      "new": "FilterKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-6ce2ddab",
+      "new": "keyId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-56e8ca79",
+      "new": "COLUMN_FIXA",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-78df981c",
+      "new": "COLUMN_SQL",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-280bf4a4",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-89bee425",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b07cc484",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-dd7f35db",
+      "new": "groupingColumn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b8616682",
+      "new": "ColumnFunil",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c64df08f",
+      "new": "ColumnLead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a4aa347a",
+      "new": "columnOrdenavel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e1043467",
+      "new": "COLUMNS_CONTACT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bf4557cc",
+      "new": "columnsOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-9b714b20",
+      "new": "withConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-08c37ddc",
+      "new": "filterCondition",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-85d095cf",
+      "new": "conditionInTexto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-835aa87d",
+      "new": "conditions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4e005644",
+      "new": "SETTINGS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f85e4783",
+      "new": "query",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a0cb93e4",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c2d1b6f3",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4c6a0197",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-80e329f3",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-112704b2",
+      "new": "ACCOUNTS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b21b0656",
+      "new": "accounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d2a100c7",
+      "new": "accounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f445a1c8",
+      "new": "accounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bf685553",
+      "new": "AccountContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-10bb4136",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b43d3c06",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4414ecf5",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-07f97397",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5eb1d952",
+      "new": "accountContacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-560a514b",
+      "new": "contactsByAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4862a8ba",
+      "new": "context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2098db6f",
+      "new": "Context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3f1b655b",
+      "new": "ContactConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-85f31c79",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8b35fe8d",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5f04f345",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-566dc799",
+      "new": "conversationsForResumir",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fcddccb0",
+      "new": "invitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bfc4f535",
+      "new": "invitationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a5a97af6",
+      "new": "InvitationPendente",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3f844cf5",
+      "new": "InvitationVisivel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d3a2eb13",
+      "new": "COOKIE_SESSION",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bd52b3df",
+      "new": "createFieldPersonalizado",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ef2e05d5",
+      "new": "createKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-af1ed70b",
+      "new": "createRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-04b2da64",
+      "new": "createWebhook",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-011b7e6f",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fde54fca",
+      "new": "memberDefinirActive",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-925372b0",
+      "new": "definirRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-182ff0ac",
+      "new": "descobrirInbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1dff44a1",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1efd6fe8",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-db96fe5b",
+      "new": "desqualificarInBulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c59dfa5a",
+      "new": "AccountDestaque",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7649eaf7",
+      "new": "OpportunityDestaque",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c08b96d2",
+      "new": "ContactDestaque",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0b499e0b",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ae8c757c",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-63ade207",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-6d2d1612",
+      "new": "money",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ad4a7ff4",
+      "new": "moneyCurto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a2daa809",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1b35be54",
+      "new": "Direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-548da512",
+      "new": "directionInitial",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5e7c45a9",
+      "new": "directionValida",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-99fb82c7",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a1c30f3d",
+      "new": "encerrarSession",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c14726e7",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-791ddeaf",
+      "new": "InboundDescoberta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-35962223",
+      "new": "CrmError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c39598a3",
+      "new": "scopes",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7f1f9375",
+      "new": "scopesValidos",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-215e3dea",
+      "new": "escreverFilters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-38dfd96f",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-04a01a96",
+      "new": "StructureCrm",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-efcb2ee2",
+      "new": "excluirRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b97f5ba4",
+      "new": "tierByContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1cb08549",
+      "new": "FichaAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fe4f87cc",
+      "new": "FichaContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ab500246",
+      "new": "FichaOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-dd314b93",
+      "new": "tierQueue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-460bb91b",
+      "new": "queueByName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b20eaffb",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2fc5eb12",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b72a6df6",
+      "new": "queuesByTier",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ced00beb",
+      "new": "Filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5362088d",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-27290b97",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8bbb7dbb",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-001319c1",
+      "new": "filterSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7a4a43b3",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-113226b7",
+      "new": "SFilter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-14be344a",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4aeec506",
+      "new": "filterValido",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5123bb7b",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a50a9460",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-eab3b11d",
+      "new": "GROUPS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-acc5067a",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ca5af953",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-9b01f927",
+      "new": "age",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-20bf4a82",
+      "new": "idsClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-cbe67b2f",
+      "new": "idsAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3fdb4f02",
+      "new": "idsOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d7bcd692",
+      "new": "entire",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bc86e992",
+      "new": "TimeItemLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0695f801",
+      "new": "Window",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2fb399b7",
+      "new": "mesWindow",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fe243b93",
+      "new": "junction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-10431b48",
+      "new": "LayoutSettings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b65798bc",
+      "new": "leadsByFase",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-88fdf5a6",
+      "new": "leadsByOrigem",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d3c5bd3d",
+      "new": "lerFilters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e91d1f55",
+      "new": "lerRole",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-63323b7f",
+      "new": "LinhaAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-57e6aa7f",
+      "new": "LinhaContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-9e7ff576",
+      "new": "TimeLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b3590996",
+      "new": "timeLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7d9393f8",
+      "new": "timeLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7459372d",
+      "new": "LinhaOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ecf585d8",
+      "new": "linhasActivity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-57022df4",
+      "new": "linhasClassification",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b6f704da",
+      "new": "linhasContactTag",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-04d0bf71",
+      "new": "linhasOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-309ead5c",
+      "new": "listaInFile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5c7e2ec8",
+      "new": "permissionsListarCatalogo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-45c8b7b3",
+      "new": "listarAccounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-de3f0b97",
+      "new": "listarContacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-36b417da",
+      "new": "listarMembers",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-00371eae",
+      "new": "listarOpportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5a0058d5",
+      "new": "maiorColumn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-42e67a20",
+      "new": "Member",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e7d7b813",
+      "new": "members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1bfd769a",
+      "new": "members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-68095531",
+      "new": "moverOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8a28524c",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e4750aa7",
+      "new": "filterOptions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-372372d1",
+      "new": "AccountOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-70e2c31d",
+      "new": "opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-931a80f9",
+      "new": "opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4dcd7c4f",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-87ed277c",
+      "new": "Order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-1891b032",
+      "new": "orderValida",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c55a82cd",
+      "new": "sorting",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-713bfaa4",
+      "new": "sortingSql",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-23e20acf",
+      "new": "DEFAULTS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b48bbef9",
+      "new": "PageApi",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0fc44bc2",
+      "new": "PageFields",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e509d36f",
+      "new": "PageSettings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-cfba72a2",
+      "new": "PageAccount",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a6a9180d",
+      "new": "PageAccounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a3c21d64",
+      "new": "PageContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-da6362c8",
+      "new": "PageContacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ab2720aa",
+      "new": "PageInvitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b871a177",
+      "new": "RolePage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8e592d71",
+      "new": "PageLogin",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0ff2b9d5",
+      "new": "PageWorkspace",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e8504155",
+      "new": "PageTiers",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-72f257dc",
+      "new": "PageFicha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fea4ab12",
+      "new": "PageLeads",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ea333a4d",
+      "new": "PageMembers",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-18e5915e",
+      "new": "PageOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3e5df993",
+      "new": "PageOpportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-68bae5d1",
+      "new": "PagePanel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f2eed175",
+      "new": "PageRoles",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-93b85440",
+      "new": "PageProfile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e2dda203",
+      "new": "PageRules",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-52c34fe2",
+      "new": "PanelScore",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-eb5c50f0",
+      "new": "role",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2ec7ae58",
+      "new": "RoleDetalhado",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-490b7edf",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-9a78eb0f",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a65e159b",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c8d5367e",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-08679a81",
+      "new": "perguntasByVersion",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-294abfda",
+      "new": "CatalogoPermission",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d678cd4d",
+      "new": "BY_OBJETO",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-658a05cb",
+      "new": "by",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a883f836",
+      "new": "byKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-6f69e8db",
+      "new": "byContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-769b6fe5",
+      "new": "byContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-15ca4c7f",
+      "new": "byTier",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fc742524",
+      "new": "byLead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-6733f284",
+      "new": "byMes",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5a541b31",
+      "new": "byOpportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f94170da",
+      "new": "byPessoa",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c641aaa7",
+      "new": "position",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ff40abdc",
+      "new": "position",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7af805ce",
+      "new": "PRAZO_INVITATION_MS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b543a978",
+      "new": "prefix",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7c873098",
+      "new": "PROBABILITY_BY_FASE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3274f7b0",
+      "new": "PROBABILITY",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5a2751c2",
+      "new": "quantasActivities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-29287c39",
+      "new": "situationRecorte",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d9bdafe9",
+      "new": "ResultadoInBulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ed69e67a",
+      "new": "RoleSummary",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-876c1d13",
+      "new": "SUMMARIES_ATTENDANCE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-02e48e9b",
+      "new": "revogarKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-30a7479c",
+      "new": "ROTULO_ACTIVITY",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e26065e3",
+      "new": "ROTULO_STATE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-71d32683",
+      "new": "filterRotulo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-3ba7844f",
+      "new": "roleSalvarPermissions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-637f1c21",
+      "new": "Section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-531df6be",
+      "new": "Section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-ade66e67",
+      "new": "SectionAtributos",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-43645023",
+      "new": "SectionLateral",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a91c2474",
+      "new": "SECTIONS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-945afbd8",
+      "new": "Secret",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-f630a6d6",
+      "new": "secret",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2a985535",
+      "new": "secret",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c569cbee",
+      "new": "WITHOUT_VALUE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-98e5268d",
+      "new": "withoutSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b9b5e536",
+      "new": "seedCrm",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bead0f01",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-c2450514",
+      "new": "Situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b815d33f",
+      "new": "situationValida",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7f4f6693",
+      "new": "SITUATIONS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-edb76453",
+      "new": "OpportunitiesTabela",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-297a63fc",
+      "new": "TETO_OF_OPTIONS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-fc16d207",
+      "new": "RAIL",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-2eecd8d3",
+      "new": "ultimaActivityByLead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-76fb6473",
+      "new": "inboundWithGoogleUrl",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5df62826",
+      "new": "invitationUrl",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-dd53b0ab",
+      "new": "usoByKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a46f0cc9",
+      "new": "userCurrent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a5405f17",
+      "new": "userId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-0b159c57",
+      "new": "userId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e1976425",
+      "new": "UserInLateral",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b3b06141",
+      "new": "users",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-36144d25",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-6eb16fe3",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-4b7086fc",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8940bde8",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-dcd2ab2e",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5f1b41c1",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-5655f669",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-b9d38642",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-716cb7f0",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d17d962b",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-e252749e",
+      "new": "values",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-bcb3d4a8",
+      "new": "ValueResposta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-402bf60f",
+      "new": "Variation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-7372f8db",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-a4e8dd44",
+      "new": "verInvitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-d01e1b5f",
+      "new": "versions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-644517fa",
+      "new": "versions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-symbol-8af2572d",
+      "new": "ViewsSalvas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f7b1e9e9",
+      "new": "actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4c6b49fa",
+      "new": "toRestore",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d9b0b3e6",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-461381fe",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-69d5e4a3",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8876304e",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-80a83a44",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-9d409c3d",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c7c2dde6",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c1054bd6",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-2b9325ec",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-64f0bd2c",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8dc9ce8e",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-656ad890",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-390a4bce",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c715cd7d",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3f677224",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d45d2933",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1dd6aed5",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8442b58e",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d00a5e52",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6f76bb86",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-5cc9473a",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e30fc15f",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-82990231",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6927e572",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-11def3d0",
+      "new": "storageKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ecf909ae",
+      "new": "storageKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4070643d",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e2588bba",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-81c80285",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-38090c98",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-0c6d557e",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-5c7ab49a",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-231910cf",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ecbc5f06",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-79ec9dcc",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-cba9936c",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-48ad192b",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-fe7ef20c",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-7491b0bc",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-0273054b",
+      "new": "columnInArraste",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-93bfebe8",
+      "new": "withFilters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a78ed5a2",
+      "new": "withFilters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6f93bdea",
+      "new": "queryCurrent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-bf76add9",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c7ba2192",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8c0ec172",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e45c2685",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ec65f51f",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8c541954",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-51b1d328",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-fd20f6a5",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f3de4b4b",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ddff9ab3",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a78388a4",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c1b1a7d1",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d0027d01",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-7d880486",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-474a034d",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8ec75ffe",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-9626c1ae",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a9fc3e31",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1df6704c",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f3668175",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f82c162d",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1e02ba52",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-efd90ba7",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-daa7e107",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3941e05d",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f82848d2",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-50dad052",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a9a002cf",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-46d4940a",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-605c6870",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-eb9b3822",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-44096ebd",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-26898397",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-23d6c96a",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-57f4c3de",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a56366a9",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3551507c",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-07f77622",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-5abb11e4",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e871b058",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-38377ada",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d6695091",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c74e4fa3",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-9eae3306",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f3865604",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e2c04a27",
+      "new": "scope",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ddd2a6a7",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d130790b",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8c44704e",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-cb13b35b",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-036c8f4b",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-69731c71",
+      "new": "fraction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3c16a3ad",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6e6a4020",
+      "new": "option",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ea0c9bc3",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-9fc3c603",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-75da86bd",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3d88836b",
+      "new": "opportunityId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-b5ad54db",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d7d3fa18",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ccd37959",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-0b55fcd9",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-d81954f1",
+      "new": "defaults",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4afe79be",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-f9ee8f71",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-2782a149",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-144a5618",
+      "new": "by",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1943950f",
+      "new": "by",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-e3e0b01b",
+      "new": "by",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-10ceb404",
+      "new": "main",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-b2f7c2ea",
+      "new": "request",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6baa118a",
+      "new": "section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ffb2694a",
+      "new": "section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-99428609",
+      "new": "seed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-fa813f50",
+      "new": "setColumnInArraste",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-bd49c6af",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-2ac3cf02",
+      "new": "setViews",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-647e2efe",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8c82fc96",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c3283aa9",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-460e80f1",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-477b6a43",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8103c2e1",
+      "new": "userIdAlvo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3ba2fc04",
+      "new": "userIdAlvo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-bc5fc4a0",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-162fe7fa",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3529a435",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-b3c86f95",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-8cf6d77f",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c6be5b21",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4d80c673",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-898498a8",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-10463ca6",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-063c9431",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-93cf7bd6",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-53e154ea",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-7676a018",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-7f42bf15",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-6d03e4ee",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-72d9ce73",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-06d1fbc9",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-52899d55",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1a6f6373",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-91f34a20",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-60935366",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-cd9ddabc",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-9a84a49f",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-19d8cfe3",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-062dca64",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-432bdd9e",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-838cb1ef",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-0c8dc8cb",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1d1a6e98",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-786834d4",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-09db33e7",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1c42fa48",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a76fa163",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-1eb9af82",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4aebf669",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-92457d53",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-cdd7a0a6",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-4dd0f941",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-c8579078",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-3a6197ce",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-836a2ea4",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-a199034d",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-68aaa667",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-ef4daced",
+      "new": "views",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-local-2e62603f",
+      "new": "views",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-430c945d",
+      "new": "pipeCrmDatabase",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-8bac91c9",
+      "new": "actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-8ed1b6dc",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "crm-ts-prop-99e1453a",
+      "new": "toRestore",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-070180ba",
+      "new": "agent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e5dc1618",
+      "new": "active",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-3b648c51",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-96a3d38c",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e4ae5cd3",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ce338957",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-2bcee548",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-70bb2611",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-150a12ed",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-8ff34c9c",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7de1506d",
+      "new": "condition",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-f0ebdd6c",
+      "new": "condition",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e488cffc",
+      "new": "query",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-6f93bdea",
+      "new": "queryCurrent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c3fb74e8",
+      "new": "account",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-4a7ab609",
+      "new": "count",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7cb4d240",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-962d8f20",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-75f156bd",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-de443325",
+      "new": "accountId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-304d5461",
+      "new": "accountName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-0679b05d",
+      "new": "accountName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c6cd0db5",
+      "new": "accountName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-fd773289",
+      "new": "accountName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-65706557",
+      "new": "accountName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-bf466d0f",
+      "new": "contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-460a18b2",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a0d6a752",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e28f89be",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e1f4a463",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-226cd4ac",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-50a915d6",
+      "new": "convidadoBy",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-983ce2a6",
+      "new": "convidadoBy",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a6eb586f",
+      "new": "invitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-230ad73a",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-38125f38",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7635b419",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-cb79959a",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-4896655b",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a6a70122",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-91a8000b",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-1641cd11",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ffe75093",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-bcc401a3",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-898d5165",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-6d55f8e9",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-39923f53",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-acd19bfb",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-971485be",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7e86a084",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-4f49930d",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e41c6c2d",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-f672566d",
+      "new": "domain",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-f7c1c3b8",
+      "new": "inContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-6c0d21f8",
+      "new": "inNegotiation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-1e125d55",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a557ddef",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7b0f5ee5",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-afd45d74",
+      "new": "scopes",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c3aac358",
+      "new": "scopes",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7d761b26",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-79b05912",
+      "new": "closingPrevisto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-9b1a4347",
+      "new": "closingPrevisto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-5331c9e1",
+      "new": "closingPrevisto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c80a3ff3",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c9d68a31",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-4f74fe6b",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e57a75fb",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-6c285543",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-1646ff7b",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-474308b4",
+      "new": "filters",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-74719315",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "crm-ts-prop-96820301",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ae467c1c",
+      "new": "age",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-91efdef0",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "crm-ts-prop-f60bcf5c",
+      "new": "deployment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-24343910",
+      "new": "connection",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-81217700",
+      "new": "timeLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-9abc5c06",
+      "new": "timeLinha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-f1039e18",
+      "new": "members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-816635d4",
+      "new": "members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-7d717c48",
+      "new": "members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-d310bade",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "crm-ts-prop-c1a4a653",
+      "new": "membersNames",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-3b2f0a0a",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-353c235c",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-29020a9f",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-70a35c0e",
+      "new": "opportunity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-96adc8cf",
+      "new": "opportunitiesAbertas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-76b6ef7a",
+      "new": "opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-97c1b894",
+      "new": "opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-567b9159",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-50802ccc",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-29de0d3a",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a1a1ecf3",
+      "new": "role",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-b31cd9be",
+      "new": "role",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-744af41f",
+      "new": "role",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-2f8be370",
+      "new": "role",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-d7e20ba9",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-b352156c",
+      "new": "roleId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-398a42be",
+      "new": "permissions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-46017620",
+      "new": "permissions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ade155ab",
+      "new": "by",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-1237cb89",
+      "new": "prefix",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-b17dc50a",
+      "new": "main",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-deb0b4cc",
+      "new": "probability",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-41235fec",
+      "new": "probability",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-424831b6",
+      "new": "probability",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-87a46b7b",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto"
+    },
+    {
+      "id": "crm-ts-prop-72db42bf",
+      "new": "quantity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-e1dd83a8",
+      "new": "quantityGeneral",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-88540dbc",
+      "new": "sections",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-df1193e6",
+      "new": "secret",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-d4052796",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-be41363a",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-edaeec65",
+      "new": "ultimaActivity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-35731cc9",
+      "new": "ultimaActivityTipo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a35fbcff",
+      "new": "ultimaConversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-cbc2a4f5",
+      "new": "ultimoAccessIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ee569ac5",
+      "new": "ultimoAccessIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-2cd4df48",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-af4504cb",
+      "new": "user",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-83f1b335",
+      "new": "valueAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-b4e631e6",
+      "new": "valueAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a0a84edd",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-056d5a86",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-898498a8",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-20c01ca5",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ce14cdcc",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-087c6c99",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-bfafed8c",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-a735f893",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-cdab89d5",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-f7b6c95f",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-ed3d57af",
+      "new": "valueBool",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c194d32c",
+      "new": "valueBool",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-fc5f8749",
+      "new": "valueData",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-848dc8b3",
+      "new": "valueData",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-c313ec53",
+      "new": "valueGanho",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-37d1f4f2",
+      "new": "valueJson",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-6f59aeb5",
+      "new": "valueNum",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-709a3e26",
+      "new": "valueNum",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-5c1a88dc",
+      "new": "valueNum",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-b6753eed",
+      "new": "valuePonderado",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-98ccbf83",
+      "new": "valueTexto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-074f154d",
+      "new": "valueTexto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-40405340",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-ts-prop-9afd198d",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-literal-value-8af421d4",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-8b6e4e0f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-ec583835",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-2f2faffa",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-88b34d83",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-717e06b7",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-efb2fad3",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-3a1a83c5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-c798058a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-4d82b684",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-e4fbfa3a",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-d59e3e7c",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-754b3bbd",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-8f0e5d64",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-2cd13918",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-064abd46",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-2e5bc53d",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-f3343f6a",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-2d92fe30",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-e0e1eebc",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-d2cf818b",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-357bf3d9",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-f6235ce5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-962cc6fc",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-0d265121",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-6e4194de",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-052ae0ff",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-40",
+      "notes": "stored API-key scope literal"
+    },
+    {
+      "id": "crm-literal-value-ff57c41b",
+      "new": "KEEP",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "glossary-exception: dotted event/path literal (D-10 domain event or dotted property path); no dotted casing style exists in check-map, needs a per-string decision before renaming"
+    },
+    {
+      "id": "crm-literal-value-1804af4e",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-96f76a6e",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-3e291847",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-4205a833",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-61d477a8",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-a495c604",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-9a0fb671",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-49235d5a",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-e874c6df",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-d8dcd6c8",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-39454999",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-63c1e39d",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-75fd81c7",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-543535cc",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-literal-value-aa329789",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "crm-cookie-c60f36ce",
+      "new": "pipe_session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-38",
+      "notes": "cookie rename per D-38; accepted logout at deploy"
+    },
+    {
+      "id": "crm-storage-key-6a668149",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "browser storage key; needs a persisted.csv rename-with-reset decision (STD-06)"
+    },
+    {
+      "id": "crm-storage-key-af5ac3b9",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "",
+      "decision_ref": "D-09",
+      "notes": "browser storage key; needs a persisted.csv rename-with-reset decision (STD-06)"
+    },
+    {
+      "id": "crm-test-title-c061f5dc",
+      "new": "the pinned column is never hidden, even if someone edits storage directly",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-941dea90",
+      "new": "a new column from a deploy is appended at the end, without pushing existing ones",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-acdc2967",
+      "new": "a hidden column keeps its place: showing it again does not push it to the end",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-b9b33f58",
+      "new": "a column removed from the screen disappears from the arrangement without leaving a gap",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-d4516ff6",
+      "new": "email is the key: lowercase and without spaces",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-9e606df8",
+      "new": "an email without an @ or without a domain is rejected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-cf536a1e",
+      "new": "unknown scope and event are discarded individually, not rejected as a whole batch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-6b4d3ae6",
+      "new": "timezone is validated against the runtime's timezone database",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-0ef50146",
+      "new": "a round trip through the URL preserves the filter, including one with a blank value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-a8b29b77",
+      "new": "moving returns the FULL order, with hidden columns anchored to their neighbor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-6ecbb935",
+      "new": "moving down places the column after the one that occupied the destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-9bc814e8",
+      "new": "moving up places the column before the one that occupied the destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-ec172a9e",
+      "new": "null passes for any field: clearing it is a legitimate operation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-12e2f1e4",
+      "new": "the scope catalog has not diverged from apps/api",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-1b54e943",
+      "new": "the chip shows the column and value, and a blank value is labeled in plain language",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-944a25f7",
+      "new": "the field code rejects anything that would break the jsonb key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-bfb6182a",
+      "new": "the field code is derived from the label without accents or spaces, and starting with a letter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-3c830f28",
+      "new": "anything in the list that is not `f.` is ignored when reading",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-e5a8d92e",
+      "new": "repeated parameter: the first one counts, the rest do not become a second filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-93d6ae06",
+      "new": "with nothing saved, the order matches the screen and the pinned column stays out of the movable ones",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-32979667",
+      "new": "phone rejects letters and accepts the Brazilian format written by hand",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-32fd4593",
+      "new": "field type comes from the catalog, not from the request",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-8b5bc36b",
+      "new": "removing a filter deletes its parameter instead of leaving it empty in the URL",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-test-title-d3a67685",
+      "new": "uuid: whatever becomes a `where` clause passes through here first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-07e0e538",
+      "new": "/settings/api",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-689e3425",
+      "new": "/settings/fields",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-cbdcfd55",
+      "new": "/settings/workspace",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-a1049bf7",
+      "new": "/settings/tiers",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-2ea1e404",
+      "new": "/settings/members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-ceb72bcd",
+      "new": "/settings/roles/:id",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-b7d8a8d8",
+      "new": "/settings/roles",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-0d0c5e5b",
+      "new": "/settings/profile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-4fdda532",
+      "new": "/settings/score-rules",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-ecefc767",
+      "new": "/settings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-0736e905",
+      "new": "/settings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-b15f7769",
+      "new": "/accounts/:id",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-09f8e27a",
+      "new": "/accounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-b48d6eae",
+      "new": "/contacts/:id",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-214f19df",
+      "new": "/contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-410a4d50",
+      "new": "/invite/:token",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-14",
+      "notes": "invite route; same value in desk-vite.csv and gestao-vite.csv"
+    },
+    {
+      "id": "crm-front-route-525671ef",
+      "new": "/login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-571e090e",
+      "new": "/opportunities/:id",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-front-route-34d9114c",
+      "new": "/opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-a7a3d892",
+      "new": "apps/crm/src/app/settings/api",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-8ab72315",
+      "new": "apps/crm/src/app/settings/fields",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-1be7d6a6",
+      "new": "apps/crm/src/app/settings/workspace",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-15f590a7",
+      "new": "apps/crm/src/app/settings/tiers",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-52db9eba",
+      "new": "apps/crm/src/app/settings/members",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-383b1209",
+      "new": "apps/crm/src/app/settings/roles/[id]",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-153faccf",
+      "new": "apps/crm/src/app/settings/roles",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-9e1f990c",
+      "new": "apps/crm/src/app/settings/profile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-8f29e313",
+      "new": "apps/crm/src/app/settings/score-rules",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-31c98a40",
+      "new": "apps/crm/src/app/settings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-6dbafdb0",
+      "new": "apps/crm/src/app/accounts/[id]",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-55efeeb8",
+      "new": "apps/crm/src/app/accounts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-5def0c9b",
+      "new": "apps/crm/src/app/contacts/[id]",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-a4f85cbf",
+      "new": "apps/crm/src/app/contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-c4f7e19a",
+      "new": "apps/crm/src/app/invite/[token]",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-ba591664",
+      "new": "apps/crm/src/app/invite",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-a4fdf59f",
+      "new": "apps/crm/src/app/login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-31a0cb70",
+      "new": "apps/crm/src/app/opportunities/[id]",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "crm-dir-8bef5370",
+      "new": "apps/crm/src/app/opportunities",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}
