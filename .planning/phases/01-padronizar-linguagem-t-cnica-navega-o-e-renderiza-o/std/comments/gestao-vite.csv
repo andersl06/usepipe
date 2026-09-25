@@ -8348,17 +8348,19 @@ gestao-vite-comment-dfdd5a1f,gestao-vite,apps/gestao-vite/tests/contrato.test.ts
 
 It's a trust boundary: what comes in are browser strings, and they decide whether to touch `usuario` or `convite`. An unknown prefix that slipped through here would turn into a query with another table's id.",security,apps/gestao-vite/tests/contrato.test.ts:74-80,,proposed
 gestao-vite-comment-0e105f91,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,87,87,line,3,"// Prefixo que não existe, sem prefixo, id vazio e só espaço: nada disso passa.",translate,"// A prefix that doesn't exist, no prefix, an empty id, and just whitespace: none of it gets through.",security,apps/gestao-vite/tests/contrato.test.ts:87,,proposed
-gestao-vite-comment-00d4806c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,90,90,line,0,// O id pode ter dois-pontos; só o PRIMEIRO separa.,,,,,,
-gestao-vite-comment-fc78dc52,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,17,17,jsdoc,3,/** Os primeiros bytes de cada um dos três tipos que a origem aceita. */,,,,,,
-gestao-vite-comment-01193a15,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,29,29,line,1,// `<!DOCTYPE h` — o começo do arquivo que vira execução de script se for,,,,,,
-gestao-vite-comment-fe4b94a6,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,30,30,line,2,// servido com o tipo que o upload prometeu.,,,,,,
+gestao-vite-comment-00d4806c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,90,90,line,0,// O id pode ter dois-pontos; só o PRIMEIRO separa.,translate,The id may contain colons; only the FIRST one splits it from the prefix.,other,apps/gestao-vite/tests/contrato.test.ts:90-90,,proposed
+gestao-vite-comment-fc78dc52,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,17,17,jsdoc,3,/** Os primeiros bytes de cada um dos três tipos que a origem aceita. */,translate,The first bytes of each of the three types the source accepts.,security,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:17-17,,proposed
+gestao-vite-comment-01193a15,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,29,29,line,1,// `<!DOCTYPE h` — o começo do arquivo que vira execução de script se for,translate,`<!DOCTYPE h` — the start of a file that turns into script execution if,security,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:29-29,,proposed
+gestao-vite-comment-fe4b94a6,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,30,30,line,2,// servido com o tipo que o upload prometeu.,translate,served with the type the upload claimed.,security,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:30-30,,proposed
 gestao-vite-comment-8c8e074b,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,50,55,jsdoc,9,"/**
  * O identificador curto, que a migração 0020 passou a gravar.
  *
  * `shortName = name.toLowerCase()` na origem, e é ele que explica a regra de
  * começar com letra: identificador que começa com dígito não vira endereço.
- */",,,,,,
-gestao-vite-comment-1ab722e5,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,59,59,line,2,"// O saneamento tira o que a origem tira, e o acento fica (divergência anotada).",,,,,,
+ */",translate,"The short identifier, which migration 0020 started persisting.
+
+`shortName = name.toLowerCase()` in the source, and it explains the rule requiring a starting letter: an identifier starting with a digit doesn't become a valid address.",other,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:50-55,,proposed
+gestao-vite-comment-1ab722e5,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,59,59,line,2,"// O saneamento tira o que a origem tira, e o acento fica (divergência anotada).",translate,"Sanitization strips what the source strips, and accents remain (documented divergence).",other,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:59-59,,proposed
 gestao-vite-comment-d2a461c3,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,7,15,jsdoc,14,"/**
  * O seletor de imagem do passo do nome.
  *
@@ -8367,7 +8369,9 @@ gestao-vite-comment-d2a461c3,gestao-vite,apps/gestao-vite/tests/criar-regras-de-
  * Errar isso não quebra a tela — o arquivo é gravado, a página carrega, e o
  * `data:` URI que a grade do portal desenha passa a carregar qualquer coisa que
  * alguém tenha renomeado para `.png`.
- */",,,,,,
+ */",translate,"The image picker for the name step.
+
+What this file locks down is the screen's only security decision: the photo's type comes from its BYTES, never from the extension or the browser-reported `type`. Getting this wrong doesn't break the screen — the file still gets saved, the page still loads, and the `data:` URI the portal grid renders starts loading whatever anyone has renamed to `.png`.",security,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:7-15,,proposed
 gestao-vite-comment-83452333,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,70,78,jsdoc,14,"/**
  * A mesma regra, a palavra de cada tela.
  *
@@ -8376,28 +8380,32 @@ gestao-vite-comment-83452333,gestao-vite,apps/gestao-vite/tests/criar-regras-de-
  * rótulo. Este teste trava justamente isso: a recusa tem de ser a mesma nos
  * dois, e a frase tem de ser a da tela — quem criar um fluxo não pode ler
  * ""roteador"", que é o defeito que a origem tem e não copiamos.
- */",,,,,,
-gestao-vite-comment-01b7bed3,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,31,31,jsdoc,4,"/** Linhas do arquivo, já sem o BOM e sem a quebra final. */",,,,,,
+ */",translate,"The same rule, each screen's wording.
+
+In the source the name step is a SINGLE template (module 96904), and what changes between router and flow are three `ng-if=""$ctrl.template != 'master'""` swapping the label. This test locks exactly that: the rejection must be the same in both, and the wording must match the screen — whoever creates a flow must not read ""router"", which is the source's own defect that we don't copy.",architecture,apps/gestao-vite/tests/criar-regras-de-nome.test.ts:70-78,,proposed
+gestao-vite-comment-01b7bed3,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,31,31,jsdoc,4,"/** Linhas do arquivo, já sem o BOM e sem a quebra final. */",translate,"File lines, already stripped of the BOM and the trailing line break.",other,apps/gestao-vite/tests/csv-historico.test.ts:31-31,,proposed
 gestao-vite-comment-ac831ad5,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,37,38,block,1,"/* Sem o BOM, o Excel em português abre o arquivo em latin-1 e todo nome
-     acentuado vira lixo — ""Conceição"" some da planilha inteira. */",,,,,,
+     acentuado vira lixo — ""Conceição"" some da planilha inteira. */",translate,"Without the BOM, Excel in Portuguese opens the file as latin-1 and every accented name turns into garbage — ""Conceição"" disappears from the whole spreadsheet.",other,apps/gestao-vite/tests/csv-historico.test.ts:37-38,,proposed
 gestao-vite-comment-5b9b6175,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,49,50,block,4,"/* Recorte vazio não pode gerar arquivo vazio: o gestor precisa ver as colunas
-     e concluir que o filtro é que não achou nada. */",,,,,,
+     e concluir que o filtro é que não achou nada. */",translate,An empty slice must not produce an empty file: the manager needs to see the columns and conclude the filter simply found nothing.,other,apps/gestao-vite/tests/csv-historico.test.ts:49-50,,proposed
 gestao-vite-comment-666fa800,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,55,57,block,5,"/* O separador é `;` porque é o separador de lista do Excel em português. Sem
      as aspas, ""Silva; Souza"" empurra todas as colunas seguintes uma casa para a
-     direita e o tempo de atendimento aparece na coluna de situação. */",,,,,,
+     direita e o tempo de atendimento aparece na coluna de situação. */",translate,"The separator is `;` because it's Excel's Portuguese-locale list separator. Without quoting, ""Silva; Souza"" would push every following column one slot to the right, and the handling time would land in the status column.",other,apps/gestao-vite/tests/csv-historico.test.ts:55-57,,proposed
 gestao-vite-comment-0304a1dc,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,6,12,jsdoc,5,"/**
  * O CSV que o gestor exporta do Histórico.
  *
  * É o formato mais fácil de quebrar em silêncio do repositório: o arquivo abre,
  * o Excel não reclama, e as colunas estão trocadas porque um nome de contato
  * tinha ponto e vírgula. Ninguém descobre até alguém somar a coluna errada.
- */",,,,,,
+ */",translate,"The CSV the manager exports from History.
+
+It's the repository's easiest format to break silently: the file opens, Excel doesn't complain, and the columns are swapped because a contact name had a semicolon. Nobody notices until someone sums the wrong column.",other,apps/gestao-vite/tests/csv-historico.test.ts:6-12,,proposed
 gestao-vite-comment-6e1152f9,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,70,72,block,7,"/* Nome de contato colado do WhatsApp vem com `\n`. Fora das aspas, ele vira
      uma linha nova no arquivo e a exportação passa a ter mais linhas do que
-     conversas. */",,,,,,
-gestao-vite-comment-8d702af9,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,75,75,line,0,// Só o `\r\n` separa registro; o `\n` solto fica dentro do campo.,,,,,,
-gestao-vite-comment-89a640af,gestao-vite,apps/gestao-vite/tests/desk-url.test.ts,7,7,line,2,"//pipe.exemplo/desk/', 'a9d6625a-8163-4ce5-b316-482089b41426'),",,,,,,
-gestao-vite-comment-81290cdf,gestao-vite,apps/gestao-vite/tests/desk-url.test.ts,8,8,line,2,"//pipe.exemplo/desk/chat/a9d6625a-8163-4ce5-b316-482089b41426',",,,,,,
+     conversas. */",translate,"A contact name pasted from WhatsApp comes with `\n`. Outside quotes, it turns into a new line in the file, and the export ends up with more lines than conversations.",integration,apps/gestao-vite/tests/csv-historico.test.ts:70-72,,proposed
+gestao-vite-comment-8d702af9,gestao-vite,apps/gestao-vite/tests/csv-historico.test.ts,75,75,line,0,// Só o `\r\n` separa registro; o `\n` solto fica dentro do campo.,translate,Only `\r\n` separates a record; a lone `\n` stays inside the field.,other,apps/gestao-vite/tests/csv-historico.test.ts:75-75,,proposed
+gestao-vite-comment-89a640af,gestao-vite,apps/gestao-vite/tests/desk-url.test.ts,7,7,line,2,"//pipe.exemplo/desk/', 'a9d6625a-8163-4ce5-b316-482089b41426'),",keep-original,,other,apps/gestao-vite/tests/desk-url.test.ts:7: fragment of the `https://pipe.exemplo/desk/` URL literal inside the test call is not a comment; scanner false positive,,proposed
+gestao-vite-comment-81290cdf,gestao-vite,apps/gestao-vite/tests/desk-url.test.ts,8,8,line,2,"//pipe.exemplo/desk/chat/a9d6625a-8163-4ce5-b316-482089b41426',",keep-original,,other,apps/gestao-vite/tests/desk-url.test.ts:8: fragment of the `https://pipe.exemplo/desk/chat/...` URL literal inside the test call is not a comment; scanner false positive,,proposed
 gestao-vite-comment-a52e75da,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,10,20,jsdoc,14,"/**
  * A fileira da barra do contato (`/fluxo/{id}`).
  *
@@ -8408,34 +8416,36 @@ gestao-vite-comment-a52e75da,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.te
  * `master`) —, e é exatamente o tipo de regra que volta errada numa refatoração
  * silenciosa: a tela continua carregando, só passa a oferecer ao roteador um
  * construtor que ele não tem.
- */",,,,,,
+ */",translate,"The contact bar's row (`/fluxo/{id}`).
+
+What this file locks down is the screen's only decision: what the ROUTER shows and the FLOW doesn't, and vice versa. In the source this comes from two places far apart from each other — `getTemplateSetupItem()` (which prepends ""Serviços"" for `master`) and the claims map's `hideInTemplate` (which hides `builder` and `desk` in that same `master`) — and it's exactly the kind of rule that comes back wrong in a silent refactor: the screen keeps loading, it just starts offering the router a builder it doesn't have.",architecture,apps/gestao-vite/tests/fluxo-detalhe.test.ts:10-20,,proposed
 gestao-vite-comment-1220b969,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,105,106,block,2,"/* `application-detail-pipeprincipal-configurations-basic.html` (builder) e
-     `roteador-team__pagina.html` (master), a fonte dos dois. */",,,,,,
+     `roteador-team__pagina.html` (master), a fonte dos dois. */",translate,"`application-detail-pipeprincipal-configurations-basic.html` (builder) and `roteador-team__pagina.html` (master), the source of both.",architecture,apps/gestao-vite/tests/fluxo-detalhe.test.ts:105-106,,proposed
 gestao-vite-comment-f96a9bc1,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,116,117,block,6,"/* Se um dia a fileira couber inteira em cinco, o ""…"" some da tela — e é isso
-     que o desenho espera. O teste existe para avisar quando isso mudar. */",,,,,,
+     que o desenho espera. O teste existe para avisar quando isso mudar. */",translate,"If the row ever fits entirely in five, the ""…"" disappears from the screen — and that's what the design expects. The test exists to flag it when that changes.",other,apps/gestao-vite/tests/fluxo-detalhe.test.ts:116-117,,proposed
 gestao-vite-comment-16a88ea8,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,122,126,block,6,"/*
  * O passo 2 da origem (`getUpdatedMenus()`): a fileira peneirada pelas
  * permissões DA PESSOA naquele bot. Sem o argumento nada muda — é o que os
  * testes acima travam, e é o que todo tenant que nunca abriu a Equipe vê.
- */",,,,,,
-gestao-vite-comment-c2165305,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,151,151,block,2,/* É a única chave em que as duas listas da origem discordam de nome. */,,,,,,
+ */",translate,"The source's step 2 (`getUpdatedMenus()`): the row sieved by THIS PERSON's permissions on that bot. Without the argument nothing changes — that's what the tests above lock down, and it's what every tenant that never opened Team sees.",security,apps/gestao-vite/tests/fluxo-detalhe.test.ts:122-126,,proposed
+gestao-vite-comment-c2165305,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,151,151,block,2,/* É a única chave em que as duas listas da origem discordam de nome. */,translate,It's the only key on which the source's two lists disagree by name.,other,apps/gestao-vite/tests/fluxo-detalhe.test.ts:151-151,,proposed
 gestao-vite-comment-40ae8823,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,160,161,block,5,"/* O outro lado do duplo portão: a permissão de conta não é peneirada pela
-     do fluxo, senão a 0035 tiraria acesso de quem já tinha. */",,,,,,
+     do fluxo, senão a 0035 tiraria acesso de quem já tinha. */",translate,"The other side of the double gate: account permission isn't sieved by the flow's permission, otherwise 0035 would strip access from people who already had it.",security,apps/gestao-vite/tests/fluxo-detalhe.test.ts:160-161,,proposed
 gestao-vite-comment-673df28a,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,167,168,block,4,"/* `getTemplateSetupItem()` roda ANTES de `getUpdatedMenus()` e não é do
-     catálogo: ""Serviços"" fica mesmo quando a pessoa não tem recurso nenhum. */",,,,,,
+     catálogo: ""Serviços"" fica mesmo quando a pessoa não tem recurso nenhum. */",translate,"`getTemplateSetupItem()` runs BEFORE `getUpdatedMenus()` and isn't from the catalog: ""Serviços"" stays even when the person has no resource at all.",architecture,apps/gestao-vite/tests/fluxo-detalhe.test.ts:167-168,,proposed
 gestao-vite-comment-b9e19cf9,gestao-vite,apps/gestao-vite/tests/fluxo-detalhe.test.ts,71,72,block,3,"/* E o fluxo não tem item de template nenhum: o `switch` da origem não tem
-     caso para `builder`. */",,,,,,
+     caso para `builder`. */",translate,And the flow has no template item at all: the source's `switch` has no case for `builder`.,architecture,apps/gestao-vite/tests/fluxo-detalhe.test.ts:71-72,,proposed
 gestao-vite-comment-31b6eb87,gestao-vite,apps/gestao-vite/tests/formato.test.ts,100,102,block,4,"/* 02:00 UTC ainda é o dia anterior em São Paulo. Se o fuso for ignorado, o
      filtro de período do histórico pega o dia errado e o gestor vê números de
-     ontem achando que são de hoje. */",,,,,,
+     ontem achando que são de hoje. */",translate,"02:00 UTC is still the previous day in São Paulo. If the timezone is ignored, the History period filter picks the wrong day and the manager sees yesterday's numbers thinking they're today's.",other,apps/gestao-vite/tests/formato.test.ts:100-102,,proposed
 gestao-vite-comment-fddcd91a,gestao-vite,apps/gestao-vite/tests/formato.test.ts,111,112,block,2,"/* O tipo `time` volta `HH:MM:SS`; `<input type=""time"">` e a tela querem
-     `HH:MM`. Com os segundos, o campo do formulário de horário vem vazio. */",,,,,,
+     `HH:MM`. Com os segundos, o campo do formulário de horário vem vazio. */",translate,"The `time` type returns `HH:MM:SS`; `<input type=""time"">` and the screen want `HH:MM`. With the seconds included, the schedule form field comes back empty.",other,apps/gestao-vite/tests/formato.test.ts:111-112,,proposed
 gestao-vite-comment-5b49e6c6,gestao-vite,apps/gestao-vite/tests/formato.test.ts,118,119,block,2,"/* `extract(dow)` do Postgres e `getUTCDay` do core usam 0 = domingo. Se esta
-     lista girar, o horário de atendimento de segunda passa a valer no domingo. */",,,,,,
+     lista girar, o horário de atendimento de segunda passa a valer no domingo. */",translate,"Postgres's `extract(dow)` and core's `getUTCDay` both use 0 = Sunday. If this list is rotated, Monday's business hours start applying on Sunday.",other,apps/gestao-vite/tests/formato.test.ts:118-119,,proposed
 gestao-vite-comment-66e952c7,gestao-vite,apps/gestao-vite/tests/formato.test.ts,126,127,block,2,"/* `?fila=abc` chegava ao Postgres como `abc::uuid` e derrubava a tela em 500.
-     Filtro torto é, no máximo, filtro ignorado — não é erro de servidor. */",,,,,,
-gestao-vite-comment-f4bad1c3,gestao-vite,apps/gestao-vite/tests/formato.test.ts,135,135,line,3,// Quase-UUID: um dígito a mais continua não sendo UUID.,,,,,,
-gestao-vite-comment-3af568d9,gestao-vite,apps/gestao-vite/tests/formato.test.ts,143,143,line,2,// 31 de fevereiro passa no formato e não existe: o `::date` recusaria com 500.,,,,,,
+     Filtro torto é, no máximo, filtro ignorado — não é erro de servidor. */",translate,"`?fila=abc` reached Postgres as `abc::uuid` and brought the screen down with a 500. A malformed filter is, at most, an ignored filter — not a server error.",other,apps/gestao-vite/tests/formato.test.ts:126-127,,proposed
+gestao-vite-comment-f4bad1c3,gestao-vite,apps/gestao-vite/tests/formato.test.ts,135,135,line,3,// Quase-UUID: um dígito a mais continua não sendo UUID.,translate,Near-UUID: one extra digit is still not a UUID.,other,apps/gestao-vite/tests/formato.test.ts:135-135,,proposed
+gestao-vite-comment-3af568d9,gestao-vite,apps/gestao-vite/tests/formato.test.ts,143,143,line,2,// 31 de fevereiro passa no formato e não existe: o `::date` recusaria com 500.,translate,February 31st passes the format check and doesn't exist: `::date` would reject it with a 500.,other,apps/gestao-vite/tests/formato.test.ts:143-143,,proposed
 gestao-vite-comment-e98320e7,gestao-vite,apps/gestao-vite/tests/formato.test.ts,17,25,jsdoc,9,"/**
  * A formatação de todo número que o gestor lê.
  *
@@ -8444,55 +8454,59 @@ gestao-vite-comment-e98320e7,gestao-vite,apps/gestao-vite/tests/formato.test.ts,
  * aqui não derruba o aplicativo — ele imprime um número plausível e errado, que
  * é justamente o tipo de falha que ninguém percebe até alguém tomar decisão
  * sobre gente em cima dele.
- */",,,,,,
+ */",translate,"The formatting for every number the manager reads.
+
+Nothing here touches the database: it's the layer that turns seconds into text, and it's the last thing that runs before the number shows up on the supervisor's screen. A bug here doesn't crash the app — it prints a plausible, wrong number, which is exactly the kind of failure nobody notices until someone makes a decision about people based on it.",other,apps/gestao-vite/tests/formato.test.ts:17-25,,proposed
 gestao-vite-comment-c377f2da,gestao-vite,apps/gestao-vite/tests/formato.test.ts,28,29,block,7,"/* Se a fronteira dos 3.600 escorregar, a lista de conversas abertas mostra
-     ""59:59"" para atendimento de mais de uma hora, e some com o caso crítico. */",,,,,,
+     ""59:59"" para atendimento de mais de uma hora, e some com o caso crítico. */",translate,"If the 3,600 boundary slips, the open-conversations list shows ""59:59"" for an hour-plus conversation, and the critical case disappears.",other,apps/gestao-vite/tests/formato.test.ts:28-29,,proposed
 gestao-vite-comment-49019bea,gestao-vite,apps/gestao-vite/tests/formato.test.ts,37,38,block,3,"/* `segundosEntre` devolve negativo quando o relógio do banco e o do servidor
-     discordam. Sem o piso em zero, a tela mostraria ""-1:-5"" ao vivo. */",,,,,,
+     discordam. Sem o piso em zero, a tela mostraria ""-1:-5"" ao vivo. */",translate,"`segundosEntre` returns negative when the database clock and the server clock disagree. Without the floor at zero, the screen would show ""-1:-5"" live.",other,apps/gestao-vite/tests/formato.test.ts:37-38,,proposed
 gestao-vite-comment-380053e9,gestao-vite,apps/gestao-vite/tests/formato.test.ts,46,47,block,3,"/* Arredondar o resto da hora separado somava 60 minutos sem somar a hora.
-     7.190s são 1h59min48s: o relatório de esforço imprimia ""1h 60min"". */",,,,,,
+     7.190s são 1h59min48s: o relatório de esforço imprimia ""1h 60min"". */",translate,"Rounding the hour's remainder separately added 60 minutes without adding the hour. 7,190s is 1h59min48s: the effort report printed ""1h 60min"".",other,apps/gestao-vite/tests/formato.test.ts:46-47,,proposed
 gestao-vite-comment-947bb5cc,gestao-vite,apps/gestao-vite/tests/formato.test.ts,56,57,block,4,"/* Média sobre população zero volta `NaN` do core. Sem esta guarda, o
-     relatório imprime ""NaNmin"" em vez de admitir que não há dado. */",,,,,,
+     relatório imprime ""NaNmin"" em vez de admitir que não há dado. */",translate,"Averaging over a zero population returns `NaN` from core. Without this guard, the report prints ""NaNmin"" instead of admitting there's no data.",other,apps/gestao-vite/tests/formato.test.ts:56-57,,proposed
 gestao-vite-comment-30ec75b5,gestao-vite,apps/gestao-vite/tests/formato.test.ts,64,65,block,3,"/* Ponto de milhar e vírgula decimal. Com a formatação inglesa, ""1.234""
-     seria lido como mil vezes menor por quem lê a tela. */",,,,,,
+     seria lido como mil vezes menor por quem lê a tela. */",translate,"Thousands dot and decimal comma. With English formatting, ""1.234"" would be read as a thousand times smaller by whoever reads the screen.",other,apps/gestao-vite/tests/formato.test.ts:64-65,,proposed
 gestao-vite-comment-784b8de5,gestao-vite,apps/gestao-vite/tests/formato.test.ts,82,84,block,5,"/* Régua de métricas (§2): média que esconde o denominador melhora justamente
      quando o atendimento piora, porque as conversas ruins caem da conta. Se
-     este texto sumir, o número volta a mentir sem avisar. */",,,,,,
-gestao-vite-comment-0c44fb3f,gestao-vite,apps/gestao-vite/tests/formato.test.ts,89,89,line,3,// Sem exclusão não há sufixo: não se anuncia zero.,,,,,,
-gestao-vite-comment-468c6540,gestao-vite,apps/gestao-vite/tests/formato.test.ts,92,92,line,1,// O rótulo do que foi excluído muda por métrica.,,,,,,
+     este texto sumir, o número volta a mentir sem avisar. */",translate,"Metrics ruler (§2): an average that hides the denominator improves precisely when service quality worsens, because the bad conversations drop out of the count. If this text disappears, the number goes back to lying without warning.",other,apps/gestao-vite/tests/formato.test.ts:82-84,,proposed
+gestao-vite-comment-0c44fb3f,gestao-vite,apps/gestao-vite/tests/formato.test.ts,89,89,line,3,// Sem exclusão não há sufixo: não se anuncia zero.,translate,No exclusion means no suffix: zero isn't announced.,other,apps/gestao-vite/tests/formato.test.ts:89-89,,proposed
+gestao-vite-comment-468c6540,gestao-vite,apps/gestao-vite/tests/formato.test.ts,92,92,line,1,// O rótulo do que foi excluído muda por métrica.,translate,The label for what was excluded changes per metric.,other,apps/gestao-vite/tests/formato.test.ts:92-92,,proposed
 gestao-vite-comment-c180706c,gestao-vite,apps/gestao-vite/tests/historico.test.ts,102,104,block,7,"/* De propósito a soma dos grupos passa do total: a pergunta é ""quantas
      conversas encostaram nesta etiqueta"", não ""como reparto o total"". Se
-     alguém ""consertar"" isso, a contagem por etiqueta passa a subnotificar. */",,,,,,
-gestao-vite-comment-9100577a,gestao-vite,apps/gestao-vite/tests/historico.test.ts,117,117,block,2,/* A mesma lista alimenta a exportação em CSV logo depois. */,,,,,,
+     alguém ""consertar"" isso, a contagem por etiqueta passa a subnotificar. */",translate,"By design the groups' sum exceeds the total: the question is ""how many conversations touched this tag"", not ""how do I split the total"". If someone ""fixes"" this, the per-tag count starts undercounting.",other,apps/gestao-vite/tests/historico.test.ts:102-104,,proposed
+gestao-vite-comment-9100577a,gestao-vite,apps/gestao-vite/tests/historico.test.ts,117,117,block,2,/* A mesma lista alimenta a exportação em CSV logo depois. */,translate,The same list feeds the CSV export right after.,other,apps/gestao-vite/tests/historico.test.ts:117-117,,proposed
 gestao-vite-comment-64150555,gestao-vite,apps/gestao-vite/tests/historico.test.ts,13,19,jsdoc,4,"/**
  * O agrupamento do Histórico e o número do ticket.
  *
  * Os dois são lidos por gente: o agrupamento decide quantas conversas o gestor
  * atribui a cada fila, e o ticket é o que o atendente dita no telefone. Nenhum
  * dos dois toca banco.
- */",,,,,,
+ */",translate,"History's grouping and the ticket number.
+
+Both are read by people: grouping decides how many conversations the manager attributes to each queue, and the ticket is what the agent dictates over the phone. Neither one touches the database.",other,apps/gestao-vite/tests/historico.test.ts:13-19,,proposed
 gestao-vite-comment-1ccfbc22,gestao-vite,apps/gestao-vite/tests/historico.test.ts,139,140,block,4,"/* É o número que o atendente lê em voz alta e o gestor cola na busca. Se a
-     regra mudar, os tickets já ditados deixam de achar a conversa. */",,,,,,
+     regra mudar, os tickets já ditados deixam de achar a conversa. */",translate,"It's the number the agent reads aloud and the manager pastes into search. If the rule changes, already-dictated tickets stop finding the conversation.",other,apps/gestao-vite/tests/historico.test.ts:139-140,,proposed
 gestao-vite-comment-bf75bd25,gestao-vite,apps/gestao-vite/tests/historico.test.ts,37,39,block,5,"/* O valor chega de `searchParams`, ou seja, de qualquer um que digite na
      barra de endereço. Sem esta peneira, um valor estranho passaria adiante e
-     `agruparHistorico` devolveria a lista dobrada por uma chave inexistente. */",,,,,,
+     `agruparHistorico` devolveria a lista dobrada por uma chave inexistente. */",translate,"The value arrives from `searchParams`, meaning from anyone who types into the address bar. Without this filter, a stray value would pass through and `agruparHistorico` would return the list duplicated under a nonexistent key.",security,apps/gestao-vite/tests/historico.test.ts:37-39,,proposed
 gestao-vite-comment-6a235e4b,gestao-vite,apps/gestao-vite/tests/historico.test.ts,57,59,block,6,"/* Conversa perdida na fila raiz tem `filaNome` nulo. Se ela não virar grupo,
      a soma dos grupos fica menor que o total e o gestor conclui que o dia teve
-     menos conversa do que teve. */",,,,,,
-gestao-vite-comment-4c804241,gestao-vite,apps/gestao-vite/tests/historico.test.ts,72,72,block,3,/* A ordem é a resposta da tela: o primeiro grupo é onde o volume está. */,,,,,,
+     menos conversa do que teve. */",translate,"A conversation lost at the root queue has a null `filaNome`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.",other,apps/gestao-vite/tests/historico.test.ts:57-59,,proposed
+gestao-vite-comment-4c804241,gestao-vite,apps/gestao-vite/tests/historico.test.ts,72,72,block,3,/* A ordem é a resposta da tela: o primeiro grupo é onde o volume está. */,translate,The order is the screen's answer: the first group is where the volume is.,other,apps/gestao-vite/tests/historico.test.ts:72-72,,proposed
 gestao-vite-comment-334d3617,gestao-vite,apps/gestao-vite/tests/historico.test.ts,91,92,block,4,"/* Rótulo é o que o gestor lê. Um status novo no banco não pode fazer o grupo
-     desaparecer — ele aparece com o nome técnico, que é feio mas visível. */",,,,,,
+     desaparecer — ele aparece com o nome técnico, que é feio mas visível. */",translate,"The label is what the manager reads. A new status in the database must not make the group disappear — it shows up under its technical name, which is ugly but visible.",other,apps/gestao-vite/tests/historico.test.ts:91-92,,proposed
 gestao-vite-comment-8400d5a3,gestao-vite,apps/gestao-vite/tests/implantacao.test.ts,6,9,jsdoc,5,"/**
  * Os passos do assistente de implantação, a partir dos sinais do banco. Cada
  * passo está feito quando o que ele pede existe — nunca por clique.
- */",,,,,,
+ */",translate,"The deployment wizard's steps, derived from the database signals. Each step is done when what it requires exists — never by a click.",other,apps/gestao-vite/tests/implantacao.test.ts:6-9,,proposed
 gestao-vite-comment-94620ff3,gestao-vite,apps/gestao-vite/tests/links-rastreados.test.ts,5,11,jsdoc,4,"/**
  * `campoDoErroDeLink` decide sob qual campo do formulário (nome/destino) a
  * tela mostra a recusa do `POST /v1/gestao/fluxos/:fluxoId/links-rastreados`
  * — o corpo do erro não manda `detalhe.campo` para este endpoint, só o
  * `codigo` (ver `dominio/rastreador-de-cliques.ts` e
  * `dominio/gestao/integracoes.ts::confirmarUrlSegura`).
- */",,,,,,
+ */",translate,"`campoDoErroDeLink` decides under which form field (name/destination) the screen shows the rejection from `POST /v1/gestao/fluxos/:fluxoId/links-rastreados` — this endpoint's error body doesn't send `detalhe.campo`, only `codigo` (see `dominio/rastreador-de-cliques.ts` and `dominio/gestao/integracoes.ts::confirmarUrlSegura`).",security,apps/gestao-vite/tests/links-rastreados.test.ts:5-11; cross-references dominio/rastreador-de-cliques.ts and dominio/gestao/integracoes.ts::confirmarUrlSegura,,proposed
 gestao-vite-comment-0d3685f6,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,10,17,jsdoc,6,"/**
  * Critério fatal zera a avaliação inteira. Errar aqui é dar zero a quem não
  * merece — ou esconder o zero de quem merece —, e nos dois casos o número vira
@@ -8500,19 +8514,21 @@ gestao-vite-comment-0d3685f6,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.t
  *
  * Os tetos são cópia de `packages/ai/src/avaliacao/tipos.ts`, e o teste existe
  * também para gritar se um dia divergirem.
- */",,,,,,
-gestao-vite-comment-0ab85d59,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,40,40,line,1,// Vírgula é o separador decimal que o modelo devolve escrevendo em português.,,,,,,
-gestao-vite-comment-2276c9a9,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,54,54,line,2,"// Critério não respondido é formulário incompleto, não atendente reprovado.",,,,,,
-gestao-vite-comment-4ab2edb3,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,56,56,line,4,"// E critério que não é fatal nunca reprova, por pior que seja a resposta.",,,,,,
+ */",translate,"A fatal criterion zeroes out the whole evaluation. Getting this wrong means giving a zero to someone who doesn't deserve it — or hiding the zero from someone who does — and in both cases the number becomes a decision about a person.
+
+The caps are copied from `packages/ai/src/avaliacao/tipos.ts`, and the test also exists to flag it if they ever diverge.",other,apps/gestao-vite/tests/nota-avaliacao.test.ts:10-17; cross-references packages/ai/src/avaliacao/tipos.ts,,proposed
+gestao-vite-comment-0ab85d59,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,40,40,line,1,// Vírgula é o separador decimal que o modelo devolve escrevendo em português.,translate,Comma is the decimal separator the model returns when writing in Portuguese.,other,apps/gestao-vite/tests/nota-avaliacao.test.ts:40-40,,proposed
+gestao-vite-comment-2276c9a9,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,54,54,line,2,"// Critério não respondido é formulário incompleto, não atendente reprovado.",translate,"An unanswered criterion means an incomplete form, not a failed agent.",other,apps/gestao-vite/tests/nota-avaliacao.test.ts:54-54,,proposed
+gestao-vite-comment-4ab2edb3,gestao-vite,apps/gestao-vite/tests/nota-avaliacao.test.ts,56,56,line,4,"// E critério que não é fatal nunca reprova, por pior que seja a resposta.",translate,"And a non-fatal criterion never fails the evaluation, no matter how bad the answer.",other,apps/gestao-vite/tests/nota-avaliacao.test.ts:56-56,,proposed
 gestao-vite-comment-eb9b9535,gestao-vite,apps/gestao-vite/tests/pesquisa.test.ts,10,15,jsdoc,5,"/**
  * §6 da spec de métricas: CSAT e NPS são escalas incompatíveis, e a fronteira
  * de cada classe é diferente. Um 4 é promotor no CSAT e detrator no NPS — é
  * exatamente esse par que o teste protege, porque trocar as duas fronteiras
  * inverte o sinal do relatório inteiro sem quebrar nada.
- */",,,,,,
-gestao-vite-comment-5d7d31af,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,15,15,jsdoc,3,/** Linha mínima para a ordenação: é só o que ela lê. */,,,,,,
-gestao-vite-comment-4c6da0da,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,36,36,line,2,"// O defeito antigo mandava o desconhecido para o peso de ""média"", o que dava",,,,,,
-gestao-vite-comment-62366836,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,37,37,line,1,// prioridade de graça a lixo de dado.,,,,,,
+ */",translate,"§6 of the metrics spec: CSAT and NPS are incompatible scales, and each class's boundary differs. A 4 is a promoter on CSAT and a detractor on NPS — this is exactly the pair the test protects, because swapping the two boundaries flips the whole report's signal without anything breaking.",other,apps/gestao-vite/tests/pesquisa.test.ts:10-15,,proposed
+gestao-vite-comment-5d7d31af,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,15,15,jsdoc,3,/** Linha mínima para a ordenação: é só o que ela lê. */,translate,Minimal row for the ordering: it's all it reads.,other,apps/gestao-vite/tests/prioridade.test.ts:15-15,,proposed
+gestao-vite-comment-4c6da0da,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,36,36,line,2,"// O defeito antigo mandava o desconhecido para o peso de ""média"", o que dava",translate,"The old defect sent unknown values to the ""média"" weight, which handed",other,apps/gestao-vite/tests/prioridade.test.ts:36-36,,proposed
+gestao-vite-comment-62366836,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,37,37,line,1,// prioridade de graça a lixo de dado.,translate,free priority to garbage data.,other,apps/gestao-vite/tests/prioridade.test.ts:37-37,,proposed
 gestao-vite-comment-5599cbfb,gestao-vite,apps/gestao-vite/tests/prioridade.test.ts,6,13,jsdoc,9,"/**
  * A régua de prioridade e a ordem da fila de espera.
  *
@@ -8520,8 +8536,10 @@ gestao-vite-comment-5599cbfb,gestao-vite,apps/gestao-vite/tests/prioridade.test.
  * `sem_prioridade`**. É a regra que motivou o quinto degrau, e é a que quebra
  * silenciosamente se alguém reordenar `NIVEIS_PRIORIDADE` ou reintroduzir um
  * mapa paralelo de pesos.
- */",,,,,,
-gestao-vite-comment-33642ad6,gestao-vite,apps/gestao-vite/tests/regra-fila.test.ts,105,105,line,3,// Caixa e acento não contam: a normalização é a do `@pipe/core`.,,,,,,
+ */",translate,"The priority ruler and the waiting-queue order.
+
+The test that matters is the third: **`baixa` cuts ahead of `sem_prioridade`**. It's the rule that motivated the fifth step, and it's the one that breaks silently if someone reorders `NIVEIS_PRIORIDADE` or reintroduces a parallel weight map.",other,apps/gestao-vite/tests/prioridade.test.ts:6-13,,proposed
+gestao-vite-comment-33642ad6,gestao-vite,apps/gestao-vite/tests/regra-fila.test.ts,105,105,line,3,// Caixa e acento não contam: a normalização é a do `@pipe/core`.,translate,Case and accent don't count: normalization is `@pipe/core`'s.,other,apps/gestao-vite/tests/regra-fila.test.ts:105-105,,proposed
 gestao-vite-comment-32b28f64,gestao-vite,apps/gestao-vite/tests/regra-fila.test.ts,12,20,jsdoc,20,"/**
  * A regra de entrada — §8 da spec de métricas.
  *
@@ -8530,7 +8548,9 @@ gestao-vite-comment-32b28f64,gestao-vite,apps/gestao-vite/tests/regra-fila.test.
  * Por isso o teste cobre as duas decisões que a spec toma contra a Blip — a
  * ORDEM de avaliação e a COMPOSIÇÃO com E/OU — e não os operadores, que são do
  * `@pipe/core` e já têm teste lá.
- */",,,,,,
+ */",translate,"The entry rule — §8 of the metrics spec.
+
+What this decides is which queue the conversation falls into, and getting it wrong means silently routing the customer to the wrong team: a rule that doesn't match produces no error. That's why the test covers the two decisions the spec makes against Blip's — evaluation ORDER and AND/OR COMPOSITION — and not the operators, which belong to `@pipe/core` and already have their own test there.",meta-blip,apps/gestao-vite/tests/regra-fila.test.ts:12-20,,proposed
 gestao-vite-comment-c0608b13,gestao-vite,apps/gestao-vite/tests/regras-prioridade.test.ts,10,18,jsdoc,7,"/**
  * O recorte da seção ""Regras de Priorização"" da página de edição de fila
  * (`FICHA-atendentes-filas-pausas.md` §a.3).
@@ -8539,18 +8559,20 @@ gestao-vite-comment-c0608b13,gestao-vite,apps/gestao-vite/tests/regras-prioridad
  * mostra só `escopoTipo === 'fila'` com `escopoId` desta fila. Sem este
  * recorte, editar a fila ""Suporte"" listaria as regras da ""Financeiro"" — e a
  * exclusão ali apagaria a regra da outra fila.
- */",,,,,,
-gestao-vite-comment-26de435e,gestao-vite,apps/gestao-vite/tests/regras-prioridade.test.ts,59,59,block,2,"/* Nível que o banco tenha e o core não conheça sai cru, em vez de sumir. */",,,,,,
+ */",translate,"The ""Regras de Priorização"" section slice from the queue-edit page (`FICHA-atendentes-filas-pausas.md` §a.3).
+
+`GET /v1/gestao/regras/prioridade` returns the whole tenant; the queue section shows only `escopoTipo === 'fila'` with this queue's `escopoId`. Without this slice, editing the ""Suporte"" queue would list ""Financeiro""'s rules — and deleting one there would delete the other queue's rule.",meta-blip,apps/gestao-vite/tests/regras-prioridade.test.ts:10-18,,proposed
+gestao-vite-comment-26de435e,gestao-vite,apps/gestao-vite/tests/regras-prioridade.test.ts,59,59,block,2,"/* Nível que o banco tenha e o core não conheça sai cru, em vez de sumir. */",translate,"A level the database has and core doesn't recognize passes through raw, instead of disappearing.",other,apps/gestao-vite/tests/regras-prioridade.test.ts:59-59,,proposed
 gestao-vite-comment-214b534b,gestao-vite,apps/gestao-vite/tests/sla.test.ts,107,108,block,6,"/* Cumprido é estado final: o relógio para. Sem isso a conversa antiga
-     estouraria mais tarde só porque o tempo continuou passando. */",,,,,,
+     estouraria mais tarde só porque o tempo continuou passando. */",translate,"Fulfilled is a final state: the clock stops. Without this, an old conversation would blow its deadline later just because time kept passing.",other,apps/gestao-vite/tests/sla.test.ts:107-108,,proposed
 gestao-vite-comment-a5d5840f,gestao-vite,apps/gestao-vite/tests/sla.test.ts,120,121,block,4,"/* `tempo_resposta` só começa quando existe mensagem do cliente sem resposta.
-     Sem esse marco, contar o tempo desde a criação inventaria estouro. */",,,,,,
+     Sem esse marco, contar o tempo desde a criação inventaria estouro. */",translate,"`tempo_resposta` only starts once there's an unanswered client message. Without that marker, counting time since creation would fabricate a breach.",other,apps/gestao-vite/tests/sla.test.ts:120-121,,proposed
 gestao-vite-comment-ffd441e9,gestao-vite,apps/gestao-vite/tests/sla.test.ts,41,43,block,8,"/* ""DENTRO"" sem regra configurada seria mentira: afirma que o prazo está sendo
      cumprido quando não existe prazo. O travessão é o que faz o gestor
-     perceber que falta cadastrar a regra. */",,,,,,
+     perceber que falta cadastrar a regra. */",translate,"""DENTRO"" without a configured rule would be a lie: it claims the deadline is being met when no deadline exists. The em dash is what makes the manager notice a rule still needs to be registered.",other,apps/gestao-vite/tests/sla.test.ts:41-43,,proposed
 gestao-vite-comment-213957ad,gestao-vite,apps/gestao-vite/tests/sla.test.ts,50,51,block,5,"/* A específica é a que o gestor configurou de propósito. Se a do tenant
-     ganhasse, a fila de urgência herdaria o prazo frouxo do padrão. */",,,,,,
-gestao-vite-comment-e0c761c0,gestao-vite,apps/gestao-vite/tests/sla.test.ts,58,58,line,2,// Outra fila não é alcançada pela regra específica e cai no padrão do tenant.,,,,,,
+     ganhasse, a fila de urgência herdaria o prazo frouxo do padrão. */",translate,"The specific rule is the one the manager configured on purpose. If the tenant's won instead, the urgent queue would inherit the default's loose deadline.",other,apps/gestao-vite/tests/sla.test.ts:50-51,,proposed
+gestao-vite-comment-e0c761c0,gestao-vite,apps/gestao-vite/tests/sla.test.ts,58,58,line,2,// Outra fila não é alcançada pela regra específica e cai no padrão do tenant.,translate,Another queue isn't reached by the specific rule and falls back to the tenant default.,other,apps/gestao-vite/tests/sla.test.ts:58-58,,proposed
 gestao-vite-comment-17302ec9,gestao-vite,apps/gestao-vite/tests/sla.test.ts,6,13,jsdoc,7,"/**
  * A pastilha de SLA do monitoramento detalhado.
  *
@@ -8558,16 +8580,18 @@ gestao-vite-comment-17302ec9,gestao-vite,apps/gestao-vite/tests/sla.test.ts,6,13
  * tradução para o rótulo da tela. As duas coisas decidem se o supervisor vê
  * ""ESTOUROU"" e vai atrás da conversa, ou vê ""—"" e passa direto. Nenhuma delas
  * toca banco: recebem as regras já carregadas.
- */",,,,,,
+ */",translate,"The SLA pill in detailed monitoring.
+
+The calculation belongs to `@pipe/core`; what lives here is choosing the applicable rule and translating it into the screen's label. Both decide whether the supervisor sees ""ESTOUROU"" and goes after the conversation, or sees ""—"" and moves on. Neither touches the database: they receive the rules already loaded.",other,apps/gestao-vite/tests/sla.test.ts:6-13,,proposed
 gestao-vite-comment-50d05e64,gestao-vite,apps/gestao-vite/tests/sla.test.ts,63,64,block,6,"/* Conversa ainda na raiz tem `filaId` nulo — é justamente a que corre risco
-     de ficar esquecida, e é a que mais precisa do relógio. */",,,,,,
-gestao-vite-comment-6da8f7e1,gestao-vite,apps/gestao-vite/tests/sla.test.ts,74,74,line,1,// O limiar é inclusivo: exatamente no alerta já alerta.,,,,,,
+     de ficar esquecida, e é a que mais precisa do relógio. */",translate,"A conversation still at the root has a null `filaId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.",other,apps/gestao-vite/tests/sla.test.ts:63-64,,proposed
+gestao-vite-comment-6da8f7e1,gestao-vite,apps/gestao-vite/tests/sla.test.ts,74,74,line,1,// O limiar é inclusivo: exatamente no alerta já alerta.,translate,"The threshold is inclusive: exactly at the alert point, it already alerts.",other,apps/gestao-vite/tests/sla.test.ts:74-74,,proposed
 gestao-vite-comment-c1860ae7,gestao-vite,apps/gestao-vite/tests/sla.test.ts,81,82,block,5,"/* É o número que ordena a fila do que precisa de atenção primeiro. Sem ele,
-     ""ESTOUROU"" há 10 segundos e há duas horas parecem a mesma coisa. */",,,,,,
+     ""ESTOUROU"" há 10 segundos e há duas horas parecem a mesma coisa. */",translate,"It's the number that orders the queue of what needs attention first. Without it, ""ESTOUROU"" 10 seconds ago and two hours ago look the same.",other,apps/gestao-vite/tests/sla.test.ts:81-82,,proposed
 gestao-vite-comment-c5465dc7,gestao-vite,apps/gestao-vite/tests/sla.test.ts,94,96,block,4,"/* O relatório de SLA existe para contar o que falhou. Se responder tarde
      apagasse o estouro, bastaria responder atrasado para o indicador ficar
-     limpo — e o estouro sumiria exatamente nos casos que importam. */",,,,,,
-gestao-vite-comment-785c2c16,gestao-vite,apps/gestao-vite/tests/webhook-regras.test.ts,13,13,line,2,"//a.pipe.app']), ['https://a.pipe.app', '']);",,,,,,
+     limpo — e o estouro sumiria exatamente nos casos que importam. */",translate,"The SLA report exists to count what failed. If answering late erased the breach, answering late would be enough to keep the indicator clean — and the breach would disappear exactly in the cases that matter.",other,apps/gestao-vite/tests/sla.test.ts:94-96,,proposed
+gestao-vite-comment-785c2c16,gestao-vite,apps/gestao-vite/tests/webhook-regras.test.ts,13,13,line,2,"//a.pipe.app']), ['https://a.pipe.app', '']);",keep-original,,other,apps/gestao-vite/tests/webhook-regras.test.ts:13: fragment of the `https://a.pipe.app` URL literal inside the test assertion is not a comment; scanner false positive,,proposed
 gestao-vite-comment-082d0f63,gestao-vite,apps/gestao-vite/vite.config.ts,5,16,jsdoc,14,"/**
  * Pipe Gestão como SPA — o desenho de `docs/specs/2026-09-07-arquitetura-de-front.md`:
  * Vite com SWC, front estático, e a `api` NestJS como a única porta para o banco.
@@ -8579,4 +8603,8 @@ gestao-vite-comment-082d0f63,gestao-vite,apps/gestao-vite/vite.config.ts,5,16,js
  *
  * `@pipe/ui` é consumido como fonte, sem passo de build — o mesmo arranjo que
  * o Next fazia com `transpilePackages`.
- */",,,,,,
+ */",translate,"Pipe Gestão as an SPA — the design from `docs/specs/2026-09-07-arquitetura-de-front.md`: Vite with SWC, a static front, and the NestJS `api` as the only gateway to the database.
+
+In development `/v1` is proxied to the `api` (3010), so the `pipe_sessao` (HttpOnly) cookie can travel back and forth on the SAME origin — no CORS, no token in the browser. In production both live under `.usepipe.com.br` and the cookie crosses via `Domain`, as the spec describes.
+
+`@pipe/ui` is consumed as source, with no build step — the same arrangement the Next app used with `transpilePackages`.",architecture,apps/gestao-vite/vite.config.ts:5-16; cites docs/specs/2026-09-07-arquitetura-de-front.md,,proposed
