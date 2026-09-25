@@ -11,7 +11,7 @@ api-comment-df605b88,api,apps/api/src/app.modulo.ts,44,56,jsdoc,14,"/**
  * cuida do que está marcado: `@Escopos(...)` é chave de API (integração), `@ComSessao()`
  * é cookie de navegador (as telas). Rota sem marca nenhuma é pública de propósito —
  * o webhook da Meta, que se autentica pela assinatura, e `/saude`.
- */",,,,,,
+ */",translate,"Root module. Controllers call domain functions directly, as the Desk does with `servidor/consultas.ts`, instead of using constructor type injection. This avoids `emitDecoratorMetadata`, which conflicts with the base tsconfig's `verbatimModuleSyntax`, and lets rules be tested without starting Nest. Guards are registered as ready values for the same reason. The two guards cover distinct markers: `@Escopos(...)` requires an API key for integrations, while `@ComSessao()` requires a browser session. An unmarked route is deliberately public: the Meta webhook authenticates by signature, and `/saude` is public.",security,apps/api/src/app.modulo.ts:44-56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a4716516,api,apps/api/src/autenticacao.ts,115,122,jsdoc,9,"/**
  * O fluxo que a ROTA nomeia, quando nomeia um: o parâmetro `:fluxoId`, ou o
  * `:id` (ou outro nome) logo depois de `/fluxos/` — `/v1/gestao/fluxos/:id/...`.
@@ -19,7 +19,7 @@ api-comment-a4716516,api,apps/api/src/autenticacao.ts,115,122,jsdoc,9,"/**
  * Lê o PADRÃO da rota (`req.route.path`), não a URL: é o padrão que diz qual
  * segmento é o fluxo. Ler a URL casaria `/v1/conversas/<uuid>` por acidente se
  * alguém um dia nomeasse uma conversa com o id de um fluxo.
- */",,,,,,
+ */",translate,"When a route names a flow, use its `:fluxoId` parameter or the parameter immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",security,apps/api/src/autenticacao.ts:123-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-91c56642,api,apps/api/src/autenticacao.ts,12,21,jsdoc,10,"/**
  * Autenticação por `chave_api`, no formato recomendado em `apis.md` §5.2:
  * `Authorization: Bearer <token>`, token **opaco** (não JWT auto-contido) para poder
@@ -29,7 +29,7 @@ api-comment-91c56642,api,apps/api/src/autenticacao.ts,12,21,jsdoc,10,"/**
  * O token é `pipe_<prefixo>_<segredo>`. O banco guarda o `prefixo` em claro (é o que
  * a tela mostra para o cliente reconhecer a chave) e o `sha256` do segredo. Achar a
  * chave pelo prefixo é a única consulta que roda antes de haver tenant em vigor.
- */",,,,,,
+ */",translate,"API key authentication through `chave_api` follows `apis.md` ?5.2: `Authorization: Bearer <token>`. The token is opaque rather than a self-contained JWT so it can be revoked immediately. Resolve `tenant_id` on the server; never accept it from a client payload or header. Tokens have the form `pipe_<prefixo>_<segredo>`. The database stores `prefixo` in clear text so the client can recognize the key, and stores the secret's `sha256` hash. Looking up the key by prefix is the only query performed before a tenant is established.",security,apps/api/src/autenticacao.ts:213-233; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9da8566b,api,apps/api/src/autenticacao.ts,131,147,jsdoc,21,"/**
  * A cerca da chave de fluxo. Chave de conta (`fluxoId` nulo) passa sempre —
  * é o tenant inteiro, como sempre foi.
@@ -46,22 +46,22 @@ api-comment-9da8566b,api,apps/api/src/autenticacao.ts,131,147,jsdoc,21,"/**
  *   espalhada em oito lugares, fácil de esquecer na nona. Recusar é uma
  *   linha, aqui, e nenhuma rota de hoje aceita chave E é por fluxo — quando
  *   uma for aberta a chave, a regra de cima já vale sem mexer em nada.
- */",,,,,,
-api-comment-36bf4f49,api,apps/api/src/autenticacao.ts,179,179,line,1,// Rota sem `@Escopos` é pública de propósito: o webhook da Meta se autentica,,,,,,
-api-comment-8a75d7f3,api,apps/api/src/autenticacao.ts,180,180,line,2,"// pela assinatura `X-Hub-Signature-256`, não por chave nossa.",,,,,,
-api-comment-28495067,api,apps/api/src/autenticacao.ts,185,185,line,2,// Rota que aceita as duas credenciais e NÃO recebeu Bearer: quem confere é o,,,,,,
-api-comment-8f9a65e8,api,apps/api/src/autenticacao.ts,186,186,line,0,// guarda da sessão. Ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.,,,,,,
-api-comment-abe23828,api,apps/api/src/autenticacao.ts,206,206,line,2,"// Depois do escopo: ""o que"" a chave pode fazer é conferido antes de ""onde"".",,,,,,
-api-comment-535facd3,api,apps/api/src/autenticacao.ts,207,207,line,2,"// O guarda roda já dentro da rota casada, então `params` e `route.path` existem.",,,,,,
-api-comment-e1ed87ab,api,apps/api/src/autenticacao.ts,235,235,line,3,"// Marcar o uso não pode derrubar a requisição: é dado de auditoria, não de rota.",,,,,,
-api-comment-7a5f31fb,api,apps/api/src/autenticacao.ts,252,252,jsdoc,2,"/** Comparação sem vazar, pelo tempo de resposta, quantos caracteres bateram. */",,,,,,
+ */",translate,"Account keys (`fluxoId` is null) cover the whole tenant. A flow key may access only its own flow on a flow route (`/…/fluxos/:id/…`); another flow returns 403 because the key and flow exist but the key lacks reach. Reject a flow key on routes without a flow (`/v1/conversas`, `/v1/contatos`, etc.). Pipe chose rejection over filtering related records: a conversation has no `fluxo_id` and belongs to a flow only through the inbox and channel (`fluxo.canal_id`). Repeating that data boundary across conversation, contact, attachment and tag routes would be easy to miss in a new route. The single guard enforces it. No current route both accepts a key and names a flow; when one does, this rule already applies.",security,apps/api/src/autenticacao.ts:148-169; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-36bf4f49,api,apps/api/src/autenticacao.ts,179,179,line,1,// Rota sem `@Escopos` é pública de propósito: o webhook da Meta se autentica,translate,An unmarked `@Escopos` route is deliberately public: the Meta webhook authenticates,security,apps/api/src/autenticacao.ts:175-181; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8a75d7f3,api,apps/api/src/autenticacao.ts,180,180,line,2,"// pela assinatura `X-Hub-Signature-256`, não por chave nossa.",translate,"with `X-Hub-Signature-256`, not with our API key.",security,apps/api/src/autenticacao.ts:179-181; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-28495067,api,apps/api/src/autenticacao.ts,185,185,line,2,// Rota que aceita as duas credenciais e NÃO recebeu Bearer: quem confere é o,translate,"On a route that accepts either credential, if no Bearer token was supplied,",security,apps/api/src/autenticacao.ts:185-191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8f9a65e8,api,apps/api/src/autenticacao.ts,186,186,line,0,// guarda da sessão. Ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.,translate,the session guard checks the request. See `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`.,security,apps/api/src/autenticacao.ts:185-191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-abe23828,api,apps/api/src/autenticacao.ts,206,206,line,2,"// Depois do escopo: ""o que"" a chave pode fazer é conferido antes de ""onde"".",translate,"Check the key's scope before checking its flow: first what it may do, then where.",security,apps/api/src/autenticacao.ts:196-208; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-535facd3,api,apps/api/src/autenticacao.ts,207,207,line,2,"// O guarda roda já dentro da rota casada, então `params` e `route.path` existem.",translate,"The guard runs after route matching, so `params` and `route.path` are available.",security,apps/api/src/autenticacao.ts:174-208; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e1ed87ab,api,apps/api/src/autenticacao.ts,235,235,line,3,"// Marcar o uso não pode derrubar a requisição: é dado de auditoria, não de rota.",translate,"Failure to record last use must not fail the request: this is audit data, not route data.",security,apps/api/src/autenticacao.ts:235-238; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7a5f31fb,api,apps/api/src/autenticacao.ts,252,252,jsdoc,2,"/** Comparação sem vazar, pelo tempo de resposta, quantos caracteres bateram. */",translate,Compare without revealing through response timing how many characters matched.,security,apps/api/src/autenticacao.ts:252-257; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3d38e3d7,api,apps/api/src/autenticacao.ts,41,45,jsdoc,2,"/**
    * O fluxo dono da chave (`chave_api.fluxo_id`, migração 0032), ou `null` na
    * chave de CONTA. É a cerca que `conferirFluxoDaChave` aplica: chave de fluxo
    * só age no fluxo dela.
-   */",,,,,,
-api-comment-70cf3d05,api,apps/api/src/autenticacao.ts,49,49,jsdoc,1,/** A requisição autenticada carrega o contexto; o controlador nunca lê header. */,,,,,,
-api-comment-98c6c379,api,apps/api/src/autenticacao.ts,54,54,jsdoc,3,"/** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */",,,,,,
+   */",translate,"The flow owning this key (`chave_api.fluxo_id`, migration 0032), or null for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",security,apps/api/src/autenticacao.ts:37-46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-70cf3d05,api,apps/api/src/autenticacao.ts,49,49,jsdoc,1,/** A requisição autenticada carrega o contexto; o controlador nunca lê header. */,translate,The authenticated request carries the context; controllers never read the header.,security,apps/api/src/autenticacao.ts:49-50; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-98c6c379,api,apps/api/src/autenticacao.ts,54,54,jsdoc,3,"/** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */",translate,"Marks the scope required by a route. Without the marker, the route is public (for example, the webhook).",security,apps/api/src/autenticacao.ts:54-55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e538f546,api,apps/api/src/autenticacao.ts,57,64,jsdoc,4,"/**
  * A rota serve aos dois clientes: integração por chave de API **ou** gente logada no
  * navegador. Quem se apresentou manda — ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
@@ -69,15 +69,15 @@ api-comment-e538f546,api,apps/api/src/autenticacao.ts,57,64,jsdoc,4,"/**
  * Existe porque `POST /v1/conversas/:id/mensagens` é a MESMA operação nos dois casos, e
  * duplicá-la numa rota `/v1/desk/...` seria duas implementações da regra de janela de
  * 24 horas, de outbox e de evento — ou seja, duas para divergir.
- */",,,,,,
+ */",translate,"This route serves both API key integrations and people signed in through a browser. The presented credential takes precedence; see `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`. `POST /v1/conversas/:id/mensagens` is the same operation for both. Duplicating it under `/v1/desk/...` would duplicate the 24-hour window, outbox and event rules and let the implementations diverge.",security,apps/api/src/autenticacao.ts:57-70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f8369b3e,api,apps/api/src/autenticacao.ts,72,78,jsdoc,5,"/**
  * Quem está pedindo: uma integração ou uma pessoa.
  *
  * O `tenantId` sai da credencial nos dois casos, nunca do corpo nem da URL. O
  * `usuarioId` só existe quando é gente — chave de API não tem dono, e mensagem
  * enviada por integração é do sistema.
- */",,,,,,
-api-comment-372a8000,api,apps/api/src/autenticacao.ts,82,82,jsdoc,2,/** `true` quando veio de navegador. É o que liga as regras de atendente. */,,,,,,
+ */",translate,"The caller may be an integration or a person. In both cases `tenantId` comes from the credential, never from the body or URL. Only a person has `usuarioId`: API keys have no owner, and integration messages are attributed to the system.",security,apps/api/src/autenticacao.ts:72-97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-372a8000,api,apps/api/src/autenticacao.ts,82,82,jsdoc,2,/** `true` quando veio de navegador. É o que liga as regras de atendente. */,translate,`true` for a browser session; enables the attendant rules.,security,apps/api/src/autenticacao.ts:79-83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-854c1ad0,api,apps/api/src/banco.ts,100,111,jsdoc,11,"/**
  * Resolve o canal a partir do PAYLOAD, para a rota guarda-chuva.
  *
@@ -89,13 +89,13 @@ api-comment-854c1ad0,api,apps/api/src/banco.ts,100,111,jsdoc,11,"/**
  * Devolve `null` quando não casa, e quem chama DESCARTA. Evento sem dono é de
  * outro aplicativo ou de canal removido; processar no melhor palpite é como se
  * entrega o dado de um cliente a outro.
- */",,,,,,
+ */",update,"Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return null when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",integration,apps/api/src/banco.ts:112-139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c1930b60,api,apps/api/src/banco.ts,36,41,jsdoc,4,"/**
  * Roda o trabalho com `pipe.tenant_id` fixado.
  *
  * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
  * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
- */",,,,,,
+ */",translate,Run work with `pipe.tenant_id` set. Execute queries inside the callback serially. `Promise.all` here breaks the transaction's `set_config` and a query may then run without a tenant; see the README.,security,apps/api/src/banco.ts:36-43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-67e2c6b0,api,apps/api/src/banco.ts,5,17,jsdoc,18,"/**
  * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.
  *
@@ -108,18 +108,18 @@ api-comment-67e2c6b0,api,apps/api/src/banco.ts,5,17,jsdoc,18,"/**
  *
  * As duas devolvem só o `tenant_id` e o mínimo para autorizar. Nenhuma outra
  * consulta roda com o papel dono; a lacuna está registrada na migration `0001_rls`.
- */",,,,,,
+ */",translate,"Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the Bearer token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",security,apps/api/src/banco.ts:5-17; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-46ab9c1f,api,apps/api/src/banco.ts,56,60,jsdoc,5,"/**
  * O chaveiro é lido do ambiente uma vez e guardado. Ler a cada evento da Meta
  * seria trabalho repetido, e uma chave que muda em tempo de execução é reinício
  * de processo, não recarga.
- */",,,,,,
+ */",translate,"Load and cache the keyring from the environment once. Reading it for every Meta event would repeat work; a key change at runtime requires a process restart, not a reload.",security,apps/api/src/banco.ts:56-65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9cf57756,api,apps/api/src/banco.ts,68,71,jsdoc,4,"/**
  * Resolve o canal do webhook. Guardado em memória porque é lido a cada evento da
  * Meta e muda quase nunca; `esquecerCanal` invalida quando a configuração mudar.
- */",,,,,,
-api-comment-260f97e1,api,apps/api/src/banco.ts,91,91,line,1,"// Decifrado UMA vez, aqui, e o resto do código continua lendo",,,,,,
-api-comment-90f94336,api,apps/api/src/banco.ts,93,93,line,0,// texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.,,,,,,
+ */",translate,Resolve the webhook channel from an in-memory cache because every Meta event reads it and it rarely changes. `esquecerCanal` invalidates the cache when configuration changes.,integration,apps/api/src/banco.ts:68-74; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-260f97e1,api,apps/api/src/banco.ts,91,91,line,1,"// Decifrado UMA vez, aqui, e o resto do código continua lendo",translate,Decrypt only once here; the rest of the code still reads,security,apps/api/src/banco.ts:91-94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-90f94336,api,apps/api/src/banco.ts,93,93,line,0,// texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.,translate,the plaintext only in the memory of code that needs it; see `packages/db/src/segredo.ts`.,security,apps/api/src/banco.ts:91-94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bf5e1916,api,apps/api/src/controladores/anexos.ts,12,22,jsdoc,12,"/**
  * `/v1/anexos` — subir arquivo e servi-lo por link assinado.
  *
@@ -130,39 +130,39 @@ api-comment-bf5e1916,api,apps/api/src/controladores/anexos.ts,12,22,jsdoc,12,"/*
  * assinatura na própria URL. Tem de ser assim porque a Meta baixa a mídia do nosso
  * link e não tem cookie nosso — e é por isso que a validade é curta (15 minutos, o
  * mesmo *file token* da Blip).
- */",,,,,,
-api-comment-d4d080be,api,apps/api/src/controladores/anexos.ts,39,39,line,1,"// O `Content-Type` é só o DECLARADO. Quem decide o tipo são os bytes, dentro de",,,,,,
-api-comment-89f5cf8f,api,apps/api/src/controladores/anexos.ts,71,71,line,3,"// O tenant do anexo é resolvido pelo papel dono, porque a leitura acontece",,,,,,
-api-comment-863b0203,api,apps/api/src/controladores/anexos.ts,72,72,line,1,"// ANTES de haver tenant em vigor — é a mesma lacuna do canal do webhook, e",,,,,,
-api-comment-af5af8e7,api,apps/api/src/controladores/anexos.ts,73,73,line,1,"// devolve só o `tenant_id`, nada mais.",,,,,,
-api-comment-cb607b46,api,apps/api/src/controladores/anexos.ts,83,83,line,1,"// HTML e SVG saem SEMPRE como download, nunca inline: servi-los com o próprio",,,,,,
-api-comment-cba95bb8,api,apps/api/src/controladores/anexos.ts,84,84,line,0,"// tipo, no nosso domínio, é entregar execução de script na sessão de quem abriu.",,,,,,
-api-comment-1972d130,api,apps/api/src/controladores/anexos.ts,91,91,line,1,"// Nunca em cache compartilhado: a URL é assinada e temporária, e um proxy",,,,,,
-api-comment-6962b50d,api,apps/api/src/controladores/canais-instagram.ts,26,26,jsdoc,2,/** O token e o App Secret são do app do cliente; saem daqui cifrados e não voltam. */,,,,,,
+ */",translate,"`/v1/anexos` uploads files and serves them through signed links. Uploads use the raw request body, with the type in `Content-Type` and the name in `?nome=`, like S3 `PUT Object`; this avoids `multer`. Downloads require neither a session nor an API key: the URL signature proves access. Meta downloads media from our links without our cookie, so the link expires after 15 minutes, matching Blip's *file token*.",security,apps/api/src/controladores/anexos.ts:12-22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d4d080be,api,apps/api/src/controladores/anexos.ts,39,39,line,1,"// O `Content-Type` é só o DECLARADO. Quem decide o tipo são os bytes, dentro de",translate,`Content-Type` is only the declared type. `guardarAnexo` determines the type from the bytes;,security,apps/api/src/controladores/anexos.ts:39-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-89f5cf8f,api,apps/api/src/controladores/anexos.ts,71,71,line,3,"// O tenant do anexo é resolvido pelo papel dono, porque a leitura acontece",translate,The attachment's tenant is resolved using the owner role because the read occurs,security,apps/api/src/controladores/anexos.ts:67-80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-863b0203,api,apps/api/src/controladores/anexos.ts,72,72,line,1,"// ANTES de haver tenant em vigor — é a mesma lacuna do canal do webhook, e",translate,"before a tenant is established, as with a webhook channel. The lookup",security,apps/api/src/controladores/anexos.ts:71-80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-af5af8e7,api,apps/api/src/controladores/anexos.ts,73,73,line,1,"// devolve só o `tenant_id`, nada mais.",translate,"returns only `tenant_id`, and nothing else.",security,apps/api/src/controladores/anexos.ts:75-80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cb607b46,api,apps/api/src/controladores/anexos.ts,83,83,line,1,"// HTML e SVG saem SEMPRE como download, nunca inline: servi-los com o próprio",translate,"Always serve HTML and SVG as downloads, never inline: serving them with their own",security,apps/api/src/controladores/anexos.ts:83-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cba95bb8,api,apps/api/src/controladores/anexos.ts,84,84,line,0,"// tipo, no nosso domínio, é entregar execução de script na sessão de quem abriu.",translate,type on our domain would execute scripts in the opener's session.,security,apps/api/src/controladores/anexos.ts:83-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1972d130,api,apps/api/src/controladores/anexos.ts,91,91,line,1,"// Nunca em cache compartilhado: a URL é assinada e temporária, e um proxy",translate,"Never use a shared cache: the signed URL is temporary, and a proxy",security,apps/api/src/controladores/anexos.ts:91-94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6962b50d,api,apps/api/src/controladores/canais-instagram.ts,26,26,jsdoc,2,/** O token e o App Secret são do app do cliente; saem daqui cifrados e não voltam. */,translate,The token and App Secret belong to the customer's app; they leave here encrypted and are not returned.,security,apps/api/src/controladores/canais-instagram.ts:26-45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9aa896cb,api,apps/api/src/controladores/canais-instagram.ts,9,15,jsdoc,7,"/**
  * A casca HTTP de ""conectar o Instagram"" pelo caminho manual. A regra mora em
  * `dominio/instagram/`. Mesmas travas do WhatsApp (`canais.ts`): sessão de navegador,
  * `canal.gerenciar` em toda rota, e o tenant SEMPRE da sessão — canal de outro
  * cliente é 404. Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado
  * a ele (`permitidoConectar`/`ligarAoFluxo`, em `canais.ts`).
- */",,,,,,
-api-comment-811730ef,api,apps/api/src/controladores/canais-messenger.ts,4,4,jsdoc,4,"/** Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado a ele (`conexao-no-fluxo.ts`). */",,,,,,
+ */",update,"HTTP adapter for manual Instagram connection; the rules live in `dominio/instagram/`. Like WhatsApp (`canais.ts`), account-level routes require a browser session and `canal.gerenciar`, and take the tenant from the session. A channel belonging to another customer returns 404. On connection with `fluxo_id`, the bot permission applies instead, and `permitidoConectar` and `ligarAoFluxo` link the new channel to the bot.",integration,apps/api/src/controladores/canais-instagram.ts:9-61; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-811730ef,api,apps/api/src/controladores/canais-messenger.ts,4,4,jsdoc,4,"/** Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado a ele (`conexao-no-fluxo.ts`). */",translate,"With `fluxo_id`, bot permission applies and the channel is linked to that bot (`conexao-no-fluxo.ts`).",integration,apps/api/src/controladores/canais-messenger.ts:4-10; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-adc008c0,api,apps/api/src/controladores/canais.ts,119,124,jsdoc,3,"/**
    * O caminho sem cadastro embutido: WABA ID, Phone Number ID e token de usuário
    * de sistema, validados antes de gravar (porte de `manual_setup_service.rb`).
    * O token vem no corpo porque é o do cliente; ele sai daqui cifrado e não é
    * devolvido.
-   */",,,,,,
+   */",translate,"The path without embedded registration takes a WABA ID, Phone Number ID and system-user token, validating them before storage (ported from `manual_setup_service.rb`). The token is in the body because it belongs to the customer; it is encrypted here and not returned.",security,apps/api/src/controladores/canais.ts:119-170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-263165d2,api,apps/api/src/controladores/canais.ts,144,146,block,4,"/* Reconectar não liga bot nenhum — o canal já tem dono. Mas quem administra
        o bot dono do canal pode reconectá-lo, porque na origem isso se faz na
-       página do canal DENTRO do bot. */",,,,,,
+       página do canal DENTRO do bot. */",translate,Reconnecting does not link a bot: the channel already has an owner. Someone who administers the channel's bot may reconnect it because the source does this on the channel page inside the bot.,integration,apps/api/src/controladores/canais.ts:144-165; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f6c3f489,api,apps/api/src/controladores/canais.ts,173,177,jsdoc,2,"/**
    * O perfil comercial do número (foto, recado, descrição, endereço, e-mail,
    * sites, categoria) e, só para leitura, o nome de exibição com o status da
    * análise da Meta. Ver `dominio/whatsapp/perfil.ts`.
-   */",,,,,,
-api-comment-7fe12621,api,apps/api/src/controladores/canais.ts,198,198,jsdoc,0,"/** Abas ""Configurações"" e ""Configurações de alerta"" do canal. Ver `dominio/whatsapp/preferencias.ts`. */",,,,,,
-api-comment-a11f351d,api,apps/api/src/controladores/canais.ts,235,235,jsdoc,2,/** Cria o modelo na Meta (vai para análise) e grava a cópia `pendente`. */,,,,,,
+   */",translate,"The number's business profile (photo, status message, description, address, email, websites and category), plus read-only display name and Meta review status. See `dominio/whatsapp/perfil.ts`.",integration,apps/api/src/controladores/canais.ts:173-195; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7fe12621,api,apps/api/src/controladores/canais.ts,198,198,jsdoc,0,"/** Abas ""Configurações"" e ""Configurações de alerta"" do canal. Ver `dominio/whatsapp/preferencias.ts`. */",translate,"Channel tabs ""Configurações"" and ""Configurações de alerta"". See `dominio/whatsapp/preferencias.ts`.",integration,apps/api/src/controladores/canais.ts:198-219; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a11f351d,api,apps/api/src/controladores/canais.ts,235,235,jsdoc,2,/** Cria o modelo na Meta (vai para análise) e grava a cópia `pendente`. */,translate,Create the template in Meta for review and store a `pendente` copy.,integration,apps/api/src/controladores/canais.ts:235-245; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1ed1af18,api,apps/api/src/controladores/canais.ts,25,40,jsdoc,14,"/**
  * A casca HTTP de ""conectar o WhatsApp"". A regra mora em `dominio/whatsapp/`.
  *
@@ -178,40 +178,40 @@ api-comment-1ed1af18,api,apps/api/src/controladores/canais.ts,25,40,jsdoc,14,"/*
  * `FICHA-conectar-canal-no-bot.md` §4), a permissão passa a ser a do bot
  * (`channels.escrever`, `canal-do-fluxo.ts`) e o canal nasce já ligado a ele
  * (`conexao-no-fluxo.ts`).
- */",,,,,,
-api-comment-489aa6b1,api,apps/api/src/controladores/canais.ts,43,43,jsdoc,2,"/** O que a tela de Canais mostra: ligado, número, qualidade e limite. */",,,,,,
+ */",translate,"HTTP adapter for connecting WhatsApp; the rules live in `dominio/whatsapp/`. `POST /v1/canais/whatsapp` ports chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb`: it creates a connection or, with `canal_id` (Chatwoot's `inbox_id`), reauthorizes that channel. Every route requires a browser session rather than an API key and `canal.gerenciar`, because it stores a credential that sends messages using the customer's number. The tenant always comes from the session, never the body. With `fluxo_id`, for a connection started inside a bot as in `FICHA-conectar-canal-no-bot.md` §4, the bot's `channels.escrever` permission in `canal-do-fluxo.ts` applies and `conexao-no-fluxo.ts` links the new channel to it.",integration,apps/api/src/controladores/canais.ts:25-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-489aa6b1,api,apps/api/src/controladores/canais.ts,43,43,jsdoc,2,"/** O que a tela de Canais mostra: ligado, número, qualidade e limite. */",remove,,other,apps/api/src/controladores/canais.ts:43-49,codex3,reviewed
 api-comment-e73097f8,api,apps/api/src/controladores/canais.ts,52,56,jsdoc,2,"/**
    * O ponto de partida do cadastro embutido: o `state` desta abertura e o que o
    * SDK da Meta precisa. Acréscimo do Pipe (`estado-de-conexao.ts`); no Chatwoot
    * esses valores vêm de `window.chatwootConfig` e não há `state`.
-   */",,,,,,
+   */",translate,Starts embedded registration by returning the `state` and values needed by the Meta SDK. This is a Pipe addition (`estado-de-conexao.ts`); in Chatwoot the values come from `window.chatwootConfig` and there is no `state`.,integration,apps/api/src/controladores/canais.ts:52-69; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8a232736,api,apps/api/src/controladores/canais.ts,72,76,jsdoc,3,"/**
    * Conclui o cadastro embutido. O `code` vive 30 segundos: o front manda assim
    * que o popup devolve. O `state` é conferido ANTES de qualquer outra coisa — um
    * `code` de outra sessão não chega nem à Meta.
-   */",,,,,,
-api-comment-d69f5084,api,apps/api/src/controladores/canais.ts,95,95,line,2,"// Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.",,,,,,
-api-comment-541bac96,api,apps/api/src/controladores/catalogo.ts,151,151,line,4,// A identidade do canal é o que amarra o contato à conversa que chega da Meta.,,,,,,
+   */",translate,"Finish embedded registration. The `code` lasts 30 seconds, so the front end sends it when the popup returns. Check `state` before anything else; a `code` from another session must never reach Meta.",security,apps/api/src/controladores/canais.ts:72-99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d69f5084,api,apps/api/src/controladores/canais.ts,95,95,line,2,"// Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.",translate,"Reauthorization belongs to the channel, not the bot: `fluxo_id` applies only to a new channel.",integration,apps/api/src/controladores/canais.ts:95-113; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-541bac96,api,apps/api/src/controladores/catalogo.ts,151,151,line,4,// A identidade do canal é o que amarra o contato à conversa que chega da Meta.,translate,The channel identity links a contact to the conversation arriving from Meta.,integration,apps/api/src/controladores/catalogo.ts:151-159; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-acbf88b0,api,apps/api/src/controladores/catalogo.ts,165,171,jsdoc,5,"/**
    * O ""Editar"" de `fluxo/contatos/detalhe/editar.tsx` — sessão, não chave: quem edita
    * é gente da equipe, e a permissão (`contato.editar`) só existe para ator com
    * `usuarioId`. `nome`/`email`/`telefone_e164`/`documento` ausentes não mexem, `null`
    * apaga; `atributos` é MESCLA (`||`) — só as chaves enviadas (`city`, `gender`) mudam,
    * as outras extras do contato continuam como estavam.
-   */",,,,,,
-api-comment-0990644b,api,apps/api/src/controladores/catalogo.ts,26,26,jsdoc,1,"/** Bem básico de propósito: recusa o óbvio errado, não tenta validar RFC 5322 inteiro. */",,,,,,
+   */",translate,"The ""Editar"" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; null clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",security,apps/api/src/controladores/catalogo.ts:165-171; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0990644b,api,apps/api/src/controladores/catalogo.ts,26,26,jsdoc,1,"/** Bem básico de propósito: recusa o óbvio errado, não tenta validar RFC 5322 inteiro. */",translate,Intentionally basic: rejects clearly invalid addresses without attempting full RFC 5322 validation.,other,apps/api/src/controladores/catalogo.ts:26-27,codex3,reviewed
 api-comment-70d1d45b,api,apps/api/src/controladores/catalogo.ts,29,35,jsdoc,4,"/**
  * Contatos, filas e atendentes.
  *
  * Três recursos pequenos num arquivo só: são leituras diretas, com o mesmo padrão de
  * filtro, ordenação e cursor. Separá-los em três arquivos daria três importações e
  * nenhuma clareza a mais.
- */",,,,,,
+ */",translate,"Contacts, queues and attendants share this file because they are small direct reads with the same filtering, ordering and cursor pattern. Splitting them would add imports without improving clarity.",architecture,apps/api/src/controladores/catalogo.ts:29-35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-73d40875,api,apps/api/src/controladores/catalogo.ts,335,338,jsdoc,3,"/**
    * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
    * (a Gestão desconectando quem ficou inativo), e aí exige permissão.
-   */",,,,,,
-api-comment-773608e2,api,apps/api/src/controladores/catalogo.ts,56,56,jsdoc,2,"/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */",,,,,,
+   */",translate,"Change presence status. Without `usuario_id`, this changes the caller's own status. Supplying it is a supervisor action (for example, Management disconnecting an inactive attendant) and requires permission.",security,apps/api/src/controladores/catalogo.ts:335-350; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-773608e2,api,apps/api/src/controladores/catalogo.ts,56,56,jsdoc,2,"/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */",translate,"`PATCH /v1/contatos/:id`: missing fields are unchanged; null clears a field, except `atributos`, which merges.",other,apps/api/src/controladores/catalogo.ts:56-63,codex3,reviewed
 api-comment-875ba0f1,api,apps/api/src/controladores/conexao-no-fluxo.ts,10,20,jsdoc,10,"/**
  * O `fluxo_id` opcional das conexões de canal (`POST /v1/canais/{whatsapp,
  * instagram,messenger}[/manual]`): a conexão feita DE DENTRO do bot, como na
@@ -222,18 +222,18 @@ api-comment-875ba0f1,api,apps/api/src/controladores/conexao-no-fluxo.ts,10,20,js
  *
  * Partilhado pelos três controladores para não importar um controlador de
  * dentro do outro.
- */",,,,,,
-api-comment-ea14c162,api,apps/api/src/controladores/conexao-no-fluxo.ts,24,24,jsdoc,0,"/** `fluxo_id` do corpo, se veio; fora do padrão de uuid é 404 antes de ir ao banco. */",,,,,,
+ */",translate,"Optional `fluxo_id` on channel connections (`POST /v1/canais/{whatsapp,instagram,messenger}[/manual]`) means the connection starts inside a bot, as in `FICHA-conectar-canal-no-bot.md` §4, where the channel belongs to the bot rather than the account. With it, bot permission (`channels.escrever`, `dominio/gestao/canal-do-fluxo.ts`) applies and the channel starts linked. Without it, the account's `canal.gerenciar` applies. Share this helper among the three controllers so they do not import one another.",architecture,apps/api/src/controladores/conexao-no-fluxo.ts:10-20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ea14c162,api,apps/api/src/controladores/conexao-no-fluxo.ts,24,24,jsdoc,0,"/** `fluxo_id` do corpo, se veio; fora do padrão de uuid é 404 antes de ir ao banco. */",translate,Read `fluxo_id` from the body if present; reject a non-UUID value with 404 before querying the database.,security,apps/api/src/controladores/conexao-no-fluxo.ts:24-29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-35a058a9,api,apps/api/src/controladores/conexao-no-fluxo.ts,32,35,jsdoc,9,"/**
  * Com bot, confere também que ele ainda não tem canal — ANTES de gravar a
  * credencial do cliente, para a ligação não ser recusada depois do canal criado.
- */",,,,,,
+ */",translate,"For a bot connection, check that it has no channel before storing the customer credential; otherwise linking could fail after channel creation.",security,apps/api/src/controladores/conexao-no-fluxo.ts:32-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-15e0c94b,api,apps/api/src/controladores/conexao-no-fluxo.ts,47,51,jsdoc,5,"/**
  * RECONECTAR o canal que o bot já tem (token vencido): na origem isso acontece
  * na página do canal DENTRO do bot, então quem administra o bot basta. Só vale
  * para o canal daquele bot — reconectar canal alheio continua sendo da conta.
- */",,,,,,
-api-comment-fd953707,api,apps/api/src/controladores/conexao-no-fluxo.ts,64,64,jsdoc,1,/** O canal recém-criado passa a ser do bot. */,,,,,,
+ */",translate,"Reconnect the channel already owned by a bot when its token expires. In the source this happens on the channel page inside the bot, so bot administration is sufficient, but only for that bot's channel. Reconnecting someone else's channel still requires account permission.",security,apps/api/src/controladores/conexao-no-fluxo.ts:47-61; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fd953707,api,apps/api/src/controladores/conexao-no-fluxo.ts,64,64,jsdoc,1,/** O canal recém-criado passa a ser do bot. */,remove,,other,apps/api/src/controladores/conexao-no-fluxo.ts:64-73,codex3,reviewed
 api-comment-94449b68,api,apps/api/src/controladores/contas.ts,5,17,jsdoc,14,"/**
  * Portado de chatwoot/chatwoot (MIT), a action `create` de
  * app/controllers/api/v1/accounts_controller.rb, com `check_signup_enabled` e
@@ -246,9 +246,9 @@ api-comment-94449b68,api,apps/api/src/controladores/contas.ts,5,17,jsdoc,14,"/**
  *
  * Resposta igual à do cadastro web não autenticado do original: só o e-mail. Não
  * há sessão aqui — a pessoa entra depois, pelo Google, com aquele e-mail.
- */",,,,,,
-api-comment-3caa8c9d,api,apps/api/src/controladores/conversas.ts,130,130,line,1,"// O cursor sai da linha crua, antes da serialização: a chave de ordenação é",,,,,,
-api-comment-458e9425,api,apps/api/src/controladores/conversas.ts,131,131,line,1,// detalhe de paginação e não precisa aparecer no corpo da resposta.,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts_controller.rb`'s `create` action, including `check_signup_enabled` and `ensure_account_name`. Deliberately public like the original, but disabled by default: `ENABLE_ACCOUNT_SIGNUP=false` returns 404, corresponding to the original `RoutingError 'Not Found'`. Assisted sales is specified in `2026-09-07-implantacao.md` §6.1; the remaining enablement work is documented in `dominio/construtor-de-conta.ts`. As with the original unauthenticated web signup, the response contains only the email. This creates no session; the person later signs in with Google using that email.",security,apps/api/src/controladores/contas.ts:5-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3caa8c9d,api,apps/api/src/controladores/conversas.ts,130,130,line,1,"// O cursor sai da linha crua, antes da serialização: a chave de ordenação é",translate,Build the cursor from the raw row before serialization: the sort key is,other,apps/api/src/controladores/conversas.ts:130-136,codex3,reviewed
+api-comment-458e9425,api,apps/api/src/controladores/conversas.ts,131,131,line,1,// detalhe de paginação e não precisa aparecer no corpo da resposta.,translate,a pagination detail and need not appear in the response body.,other,apps/api/src/controladores/conversas.ts:130-136,codex3,reviewed
 api-comment-88b23f50,api,apps/api/src/controladores/conversas.ts,217,224,jsdoc,8,"/**
    * A MESMA rota serve à integração e ao Desk — ver `ChaveOuSessao`.
    *
@@ -256,51 +256,51 @@ api-comment-88b23f50,api,apps/api/src/controladores/conversas.ts,217,224,jsdoc,8
    * gente: com sessão, o autor é o `usuario_id` do cookie, e um `atendente_id` no
    * corpo é ignorado. Aceitá-lo deixaria qualquer pessoa logada mandar mensagem em
    * nome de outra, com o nome do colega na tela do cliente.
-   */",,,,,,
+   */",translate,"The same route serves integrations and the Desk; see `ChaveOuSessao`. What differs is message authorship. For a browser session, the author comes from the cookie's `usuario_id`, and any body `atendente_id` is ignored. Accepting that field would let a signed-in person send a message in a colleague's name, displaying that colleague to the customer.",security,apps/api/src/controladores/conversas.ts:217-246; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6e5ac441,api,apps/api/src/controladores/conversas.ts,23,29,jsdoc,2,"/**
  * `/v1/conversas` — o recurso central da API.
  *
  * Padrão de `apis.md` §5: recurso plural, filtro na query string, ordenação
  * declarada e paginação por cursor. Nenhuma consulta filtra `tenant_id` na mão: a
  * RLS já filtra, e filtrar de novo esconderia um bug de isolamento em vez de expô-lo.
- */",,,,,,
+ */",translate,"`/v1/conversas` is the central API resource. Per `apis.md` §5, it uses a plural resource, query filters, declared ordering and cursor pagination. Queries do not manually filter `tenant_id`: RLS already does, and a duplicate filter would hide rather than expose an isolation bug.",security,apps/api/src/controladores/conversas.ts:23-29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0b3e0c91,api,apps/api/src/controladores/conversas.ts,256,261,jsdoc,7,"/**
    * Vários arquivos de uma vez — uma mensagem por arquivo, em sequência, como a
    * origem (`enviarAnexos`). O lote é validado INTEIRO antes de a primeira sair:
    * mais de 10, anexo inexistente ou fora do limite do tipo recusam tudo, e a
    * resposta diz qual arquivo. As mensagens voltam na ordem em que saíram.
-   */",,,,,,
+   */",translate,"Send multiple files as one message per file, sequentially, as the source `enviarAnexos` does. Validate the whole batch before sending the first: more than 10 files, a missing attachment or an attachment over its type limit rejects all, and the response identifies the file. Return messages in send order.",integration,apps/api/src/controladores/conversas.ts:256-293; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1d126966,api,apps/api/src/controladores/conversas.ts,296,298,jsdoc,1,"/**
    * Encerrar. A lista replica o `blip-tags` da Blip e respeita tags obrigatórias.
-   */",,,,,,
+   */",translate,Close the conversation. The list mirrors Blip's `blip-tags` and enforces required tags.,meta-blip,apps/api/src/controladores/conversas.ts:296-315; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d6a451b6,api,apps/api/src/controladores/conversas.ts,318,324,jsdoc,7,"/**
    * Reenviar uma mensagem que falhou.
    *
    * A tela fazia isto direto no banco e **não funcionava**: devolvia `mensagem` para
    * `pendente` sem tocar em `outbox_mensagem`, e o worker reivindica pelo estado do
    * outbox. Ver `reenviarMensagem`.
-   */",,,,,,
+   */",translate,"Retry a failed message. The former screen changed `mensagem` to `pendente` directly in the database and did not work: it left `outbox_mensagem` unchanged, while the worker claims messages from outbox state. See `reenviarMensagem`.",integration,apps/api/src/controladores/conversas.ts:318-333; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-97655663,api,apps/api/src/controladores/conversas.ts,336,342,jsdoc,10,"/**
    * Transferir para outra fila ou para outro atendente.
    *
    * **Encerra a conversa atual e abre outra no destino** — não é transição de estado.
    * A regra está em `packages/core/src/conversa/maquina.ts` e é a da Blip. Por isso a
    * resposta traz DOIS ids: o que foi encerrado e o novo.
-   */",,,,,,
-api-comment-e0fe2bf3,api,apps/api/src/controladores/conversas.ts,371,371,jsdoc,1,"/** Entra em espera, ou sai dela. A mesma rota nos dois sentidos, como o botão. */",,,,,,
-api-comment-1e1dd54e,api,apps/api/src/controladores/conversas.ts,399,399,jsdoc,3,"/** Filtro `campo=a,b` vira `in (…)`, com os valores conferidos contra a lista. */",,,,,,
-api-comment-a5867809,api,apps/api/src/controladores/conversas.ts,412,412,line,1,// Literal de array montado à mão: o template do drizzle achata array em parâmetros,,,,,,
-api-comment-94ae4426,api,apps/api/src/controladores/conversas.ts,413,413,line,2,"// soltos, e `= any($1::text[])` com um valor só quebraria com ""malformed array"".",,,,,,
-api-comment-e7e710c6,api,apps/api/src/controladores/conversas.ts,414,414,line,4,"// Os valores já passaram pela lista fechada acima, então não há concatenação de",,,,,,
+   */",translate,Transfer to another queue or attendant. This closes the current conversation and opens a new one at the destination; it is not a state transition. The rule in `packages/core/src/conversa/maquina.ts` mirrors Blip. The response therefore contains both IDs: the closed conversation and the new one.,meta-blip,apps/api/src/controladores/conversas.ts:336-368; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e0fe2bf3,api,apps/api/src/controladores/conversas.ts,371,371,jsdoc,1,"/** Entra em espera, ou sai dela. A mesma rota nos dois sentidos, como o botão. */",remove,,other,apps/api/src/controladores/conversas.ts:371-387,codex3,reviewed
+api-comment-1e1dd54e,api,apps/api/src/controladores/conversas.ts,399,399,jsdoc,3,"/** Filtro `campo=a,b` vira `in (…)`, com os valores conferidos contra a lista. */",remove,,other,apps/api/src/controladores/conversas.ts:399-416,codex3,reviewed
+api-comment-a5867809,api,apps/api/src/controladores/conversas.ts,412,412,line,1,// Literal de array montado à mão: o template do drizzle achata array em parâmetros,translate,"Build the array literal explicitly: Drizzle's template flattens arrays into separate parameters,",security,apps/api/src/controladores/conversas.ts:399-416; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-94ae4426,api,apps/api/src/controladores/conversas.ts,413,413,line,2,"// soltos, e `= any($1::text[])` com um valor só quebraria com ""malformed array"".",translate,"and `= any($1::text[])` fails with ""malformed array"" for a single value.",security,apps/api/src/controladores/conversas.ts:412-416; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e7e710c6,api,apps/api/src/controladores/conversas.ts,414,414,line,4,"// Os valores já passaram pela lista fechada acima, então não há concatenação de",translate,"Values already passed the closed allowlist above, so this does not concatenate",security,apps/api/src/controladores/conversas.ts:399-416; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e1be52ee,api,apps/api/src/controladores/conversas.ts,467,471,jsdoc,3,"/**
  * `timestamptz` volta como `Date` ou como texto, dependendo de quantas cópias do
  * driver estão carregadas. Normalizar na borda é mais barato do que descobrir isso
  * de novo dentro de um cliente da API.
- */",,,,,,
-api-comment-1165c4a6,api,apps/api/src/controladores/conversas.ts,98,98,line,3,// `ultima_mensagem_em` é nulo em conversa sem mensagem; sem o `coalesce` a linha,,,,,,
-api-comment-5bf5f1d8,api,apps/api/src/controladores/conversas.ts,99,99,line,0,// sumiria da paginação por cursor em vez de aparecer no fim.,,,,,,
-api-comment-81e5da44,api,apps/api/src/controladores/convites.ts,116,116,jsdoc,0,/** Registra o domínio e diz qual TXT publicar. Verificar é o passo seguinte. */,,,,,,
-api-comment-d5676b62,api,apps/api/src/controladores/convites.ts,136,136,jsdoc,1,/** Confere o TXT no DNS. Sai 400 enquanto não achar — publicar e propagar demora. */,,,,,,
+ */",translate,`timestamptz` may arrive as a `Date` or text depending on how many driver copies are loaded. Normalize at the API boundary so clients do not need to rediscover this difference.,architecture,apps/api/src/controladores/conversas.ts:467-475; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1165c4a6,api,apps/api/src/controladores/conversas.ts,98,98,line,3,// `ultima_mensagem_em` é nulo em conversa sem mensagem; sem o `coalesce` a linha,translate,"`ultima_mensagem_em` is null for conversations without a message; without `coalesce`,",other,apps/api/src/controladores/conversas.ts:98-103,codex3,reviewed
+api-comment-5bf5f1d8,api,apps/api/src/controladores/conversas.ts,99,99,line,0,// sumiria da paginação por cursor em vez de aparecer no fim.,translate,the row would disappear from cursor pagination instead of appearing at the end.,other,apps/api/src/controladores/conversas.ts:98-103,codex3,reviewed
+api-comment-81e5da44,api,apps/api/src/controladores/convites.ts,116,116,jsdoc,0,/** Registra o domínio e diz qual TXT publicar. Verificar é o passo seguinte. */,remove,,other,apps/api/src/controladores/convites.ts:116-135,codex3,reviewed
+api-comment-d5676b62,api,apps/api/src/controladores/convites.ts,136,136,jsdoc,1,/** Confere o TXT no DNS. Sai 400 enquanto não achar — publicar e propagar demora. */,translate,Check the DNS TXT record. Return 400 until it appears because publishing and propagation take time.,integration,apps/api/src/controladores/convites.ts:136-153; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-36d2f1ed,api,apps/api/src/controladores/convites.ts,156,163,jsdoc,11,"/**
  * A permissão é conferida numa transação própria, antes da que escreve.
  *
@@ -308,19 +308,19 @@ api-comment-36d2f1ed,api,apps/api/src/controladores/convites.ts,156,163,jsdoc,11
  * funções de domínio abrem a delas. Custa uma consulta de leitura e mantém o
  * controlador sem saber de transação — e a alternativa, empurrar o `usuarioId`
  * para dentro de cada função de domínio, espalharia a regra de acesso por elas.
- */",,,,,,
-api-comment-793348c8,api,apps/api/src/controladores/convites.ts,25,25,jsdoc,4,/** Convida alguém. Devolve o link com o token — que não volta a aparecer. */,,,,,,
-api-comment-c113f52b,api,apps/api/src/controladores/convites.ts,34,34,line,3,"// O ""gerencia membros"" do `admin` — a mesma permissão que a tela de Membros confere.",,,,,,
+ */",translate,"Check permission in a separate transaction before the write transaction. Permission lives in a tenant table, while domain functions open their own transactions. One additional read keeps transaction handling out of the controller; passing `usuarioId` into every domain function would spread the access rule among them.",architecture,apps/api/src/controladores/convites.ts:156-165; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-793348c8,api,apps/api/src/controladores/convites.ts,25,25,jsdoc,4,/** Convida alguém. Devolve o link com o token — que não volta a aparecer. */,translate,Invite a person and return the link containing the token; that token is not shown again.,security,apps/api/src/controladores/convites.ts:25-49; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c113f52b,api,apps/api/src/controladores/convites.ts,34,34,line,3,"// O ""gerencia membros"" do `admin` — a mesma permissão que a tela de Membros confere.",translate,"The `admin`'s ""manage members"" permission, also checked by the Members screen.",security,apps/api/src/controladores/convites.ts:34-35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-066342d3,api,apps/api/src/controladores/convites.ts,52,56,jsdoc,4,"/**
    * Reenvia um convite em aberto: mesmo e-mail, mesmo papel, link novo — o de
    * antes morre (ver `emitirConvite`). Mesma permissão de convidar; sem ela ou
    * sem o convite (de outro tenant, já aceito, já vencido) sai 403/404.
-   */",,,,,,
+   */",translate,"Resend an open invitation with the same email and role but a new link; the old link is invalidated by `emitirConvite`. Require the same invitation permission. Without it, or when the invitation is from another tenant, accepted or expired, return 403/404.",security,apps/api/src/controladores/convites.ts:52-75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2276f41b,api,apps/api/src/controladores/convites.ts,77,81,jsdoc,6,"/**
    * Para quem é o convite. Sem sessão, e devolvendo o MÍNIMO: o e-mail convidado, o
    * papel e o nome do cliente. Quem tem o link já sabe o e-mail; o resto da conta
    * não é assunto de quem ainda está do lado de fora.
-   */",,,,,,
+   */",translate,"Show who the invitation is for without a session, returning only the invited email, role and customer name. A holder of the link already knows the email; other account data must stay hidden until they join.",security,apps/api/src/controladores/convites.ts:77-91; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9db946b7,api,apps/api/src/controladores/convites.ts,9,21,jsdoc,16,"/**
  * As duas portas por onde gente nova entra num tenant: o convite e o domínio
  * verificado. Ficam no mesmo arquivo porque são a mesma decisão vista de dois
@@ -333,16 +333,16 @@ api-comment-9db946b7,api,apps/api/src/controladores/convites.ts,9,21,jsdoc,16,"/
  * **Rota sem `@ComSessao()` é pública de propósito.** As duas do convite precisam
  * ser: quem abre o link ainda não tem conta, e exigir sessão para ver um convite
  * seria exigir a conta que o convite existe para criar.
- */",,,,,,
+ */",translate,"Invitations and verified domains are two ways a person joins a tenant, so this file keeps the related membership rules together. The HTTP adapter is thin: invitation and domain logic live in `src/dominio/` and can be tested without Nest; this layer handles method, path, permission and response shape. The invitation routes without `@ComSessao()` are deliberately public. Someone opening a link has no account yet, so requiring a session would require the account that the invitation is meant to create.",architecture,apps/api/src/controladores/convites.ts:9-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5446db6e,api,apps/api/src/controladores/convites.ts,93,99,jsdoc,8,"/**
    * Aceita o convite: cria o usuário e queima o token.
    *
    * A conta do Google é ligada quando a pessoa entra — pelo domínio verificado, ou
    * pelo próprio link do convite, que é `entrarEm` aqui embaixo. Esse é o caminho de
    * quem não tem domínio verificado, e por isso ele vem pronto na resposta.
-   */",,,,,,
-api-comment-f0c56133,api,apps/api/src/controladores/crm.ts,100,100,line,1,// O CRM fora do ar não pode quebrar o painel do atendente. O link continua,,,,,,
-api-comment-01beb66c,api,apps/api/src/controladores/crm.ts,101,101,line,1,"// valendo, porque ele é montado do nosso lado.",,,,,,
+   */",translate,"Accept the invitation, create the user and consume the token. The Google account is linked at sign-in through a verified domain or through this invitation link (`entrarEm`). The link is returned because invitees without a verified domain need that path.",security,apps/api/src/controladores/convites.ts:93-110; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f0c56133,api,apps/api/src/controladores/crm.ts,100,100,line,1,// O CRM fora do ar não pode quebrar o painel do atendente. O link continua,translate,A CRM outage must not break the attendant panel. The link remains,integration,apps/api/src/controladores/crm.ts:99-109; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-01beb66c,api,apps/api/src/controladores/crm.ts,101,101,line,1,"// valendo, porque ele é montado do nosso lado.",translate,valid because we construct it on our side.,integration,apps/api/src/controladores/crm.ts:99-109; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ad553a3d,api,apps/api/src/controladores/crm.ts,12,24,jsdoc,15,"/**
  * `/v1/crm` — o que o CRM sabe de um contato.
  *
@@ -355,25 +355,25 @@ api-comment-ad553a3d,api,apps/api/src/controladores/crm.ts,12,24,jsdoc,15,"/**
  * O tenant vem da SESSÃO, nunca da requisição. É o que impede alguém de pedir a ficha
  * de um contato de outro cliente trocando o id na URL: o `contatoId` é resolvido
  * dentro do `comTenant` da sessão e, se não for daquele tenant, não retorna linha.
- */",,,,,,
-api-comment-141e35c5,api,apps/api/src/controladores/crm.ts,27,27,jsdoc,4,"/** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */",,,,,,
+ */",translate,"`/v1/crm` exposes what Twenty knows about a contact. It is Pipe's sole gateway to Twenty: the Desk calls the `api`, not the CRM directly. It is read-only because writes from the Desk would require an audit log, the same unresolved requirement blocking contact editing there. The tenant comes from the session, never the request. `contatoId` is resolved inside the session's `comTenant`; another tenant's contact yields no row even if someone changes the URL ID.",architecture,apps/api/src/controladores/crm.ts:12-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-141e35c5,api,apps/api/src/controladores/crm.ts,27,27,jsdoc,4,"/** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */",translate,Null when the contact has no mirror yet or the tenant has no CRM.,other,apps/api/src/controladores/crm.ts:26-34,codex3,reviewed
 api-comment-62ba8b41,api,apps/api/src/controladores/crm.ts,38,42,jsdoc,4,"/**
    * O dicionário de dados do CRM do tenant da sessão: objetos e campos, no formato dos
    * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
    * sob RLS — não chama o CRM.
-   */",,,,,,
-api-comment-0964e9c8,api,apps/api/src/controladores/crm.ts,52,52,jsdoc,3,/** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */,,,,,,
-api-comment-9ce56a49,api,apps/api/src/controladores/crm.ts,83,83,line,4,"// Sem CRM, sem espelho ou contato de outro tenant: a MESMA resposta. Não é erro,",,,,,,
-api-comment-19023068,api,apps/api/src/controladores/desk.ts,113,113,jsdoc,1,"/** As filas do cliente, para o seletor do modal de transferência. */",,,,,,
-api-comment-981bf1e2,api,apps/api/src/controladores/desk.ts,123,123,jsdoc,3,"/** A aba Contatos: a lista, com busca por nome ou telefone. */",,,,,,
-api-comment-dbeb35bc,api,apps/api/src/controladores/desk.ts,136,136,jsdoc,1,/** Um contato da aba: a ficha e o histórico de atendimentos. */,,,,,,
-api-comment-34b35d2c,api,apps/api/src/controladores/desk.ts,151,151,jsdoc,3,/** Os canais com os modelos aprovados — para a mensagem ativa e as ações em massa. */,,,,,,
-api-comment-a7fb67cc,api,apps/api/src/controladores/desk.ts,163,163,jsdoc,1,"/** Um atendimento antigo, em leitura, aberto pelo histórico do contato. */",,,,,,
+   */",translate,The session tenant's CRM data dictionary contains objects and fields in Twenty metadata format. The flow builder and AI consume it. Read it from our database under RLS without calling the CRM.,integration,apps/api/src/controladores/crm.ts:38-49; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0964e9c8,api,apps/api/src/controladores/crm.ts,52,52,jsdoc,3,/** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */,translate,Request synchronization after an admin creates a field in the CRM.,other,apps/api/src/controladores/crm.ts:52-60,codex3,reviewed
+api-comment-9ce56a49,api,apps/api/src/controladores/crm.ts,83,83,line,4,"// Sem CRM, sem espelho ou contato de outro tenant: a MESMA resposta. Não é erro,",translate,"No CRM, no mirror and a contact belonging to another tenant all return the same response. Distinguishing them would reveal whether another customer's contact ID exists.",security,apps/api/src/controladores/crm.ts:71-86; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-19023068,api,apps/api/src/controladores/desk.ts,113,113,jsdoc,1,"/** As filas do cliente, para o seletor do modal de transferência. */",remove,,other,apps/api/src/controladores/desk.ts:113-121,codex3,reviewed
+api-comment-981bf1e2,api,apps/api/src/controladores/desk.ts,123,123,jsdoc,3,"/** A aba Contatos: a lista, com busca por nome ou telefone. */",remove,,other,apps/api/src/controladores/desk.ts:123-134,codex3,reviewed
+api-comment-dbeb35bc,api,apps/api/src/controladores/desk.ts,136,136,jsdoc,1,/** Um contato da aba: a ficha e o histórico de atendimentos. */,remove,,other,apps/api/src/controladores/desk.ts:136-149,codex3,reviewed
+api-comment-34b35d2c,api,apps/api/src/controladores/desk.ts,151,151,jsdoc,3,/** Os canais com os modelos aprovados — para a mensagem ativa e as ações em massa. */,remove,,other,apps/api/src/controladores/desk.ts:151-161,codex3,reviewed
+api-comment-a7fb67cc,api,apps/api/src/controladores/desk.ts,163,163,jsdoc,1,"/** Um atendimento antigo, em leitura, aberto pelo histórico do contato. */",remove,,other,apps/api/src/controladores/desk.ts:163-178,codex3,reviewed
 api-comment-842dd52f,api,apps/api/src/controladores/desk.ts,180,184,jsdoc,3,"/**
    * ""Minhas métricas"": sempre do próprio atendente. O intervalo vem pronto do
    * navegador; sem os dois instantes (ou com um deles ilegível) vale o dia de
    * hoje, e um recorte maior que o teto da tela é cortado no fim.
-   */",,,,,,
+   */",translate,"""Minhas métricas"" always uses the current attendant. The browser supplies the interval; if either timestamp is missing or unreadable, use today. Clamp a range wider than the screen limit at its start.",other,apps/api/src/controladores/desk.ts:180-210,codex3,reviewed
 api-comment-2fe7c78a,api,apps/api/src/controladores/desk.ts,21,38,jsdoc,18,"/**
  * O DESK por sessão de navegador: as leituras de cada tela e as ações que
  * escreviam direto no banco.
@@ -391,10 +391,10 @@ api-comment-2fe7c78a,api,apps/api/src/controladores/desk.ts,21,38,jsdoc,18,"/**
  *
  * Enviar, reenviar, encerrar e espera NÃO estão aqui: já eram
  * `POST /v1/conversas/…` e o navegador chama essas rotas direto.
- */",,,,,,
-api-comment-4271a6d9,api,apps/api/src/controladores/desk.ts,213,213,block,0,/* --------------------------------------------------------------- ações */,,,,,,
-api-comment-b711aab8,api,apps/api/src/controladores/desk.ts,215,215,jsdoc,0,"/** Um formulário do Desk: `{ campos }` entra, `Resultado` sai. */",,,,,,
-api-comment-17c6d7ee,api,apps/api/src/controladores/desk.ts,39,39,jsdoc,2,/** O atendente é o da sessão — é ele que muda de status e assina a nota. */,,,,,,
+ */",translate,"The browser-session Desk API serves screen reads and actions formerly written directly to the database. Reads moved from the Next Desk into `dominio/desk/consultas.ts` and `metricas.ts`: each screen makes one request for its queue and catalogs, conversation items and panel, old ticket or metrics, in a single transaction with serial queries. The attendant always comes from the session; no parameter can inspect someone else's queue or metrics. Server Actions moved unchanged to `dominio/desk/acoes.ts`: forms send JSON `{ campos }`, `Campos` exposes `get`/`getAll` as `FormData` did, and returns the same `Resultado`. The action-name allowlist is closed; an unknown name returns 404. Send, retry, close and wait use existing `POST /v1/conversas/…` routes directly.",architecture,apps/api/src/controladores/desk.ts:21-38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4271a6d9,api,apps/api/src/controladores/desk.ts,213,213,block,0,/* --------------------------------------------------------------- ações */,remove,,other,apps/api/src/controladores/desk.ts:213-213,codex3,reviewed
+api-comment-b711aab8,api,apps/api/src/controladores/desk.ts,215,215,jsdoc,0,"/** Um formulário do Desk: `{ campos }` entra, `Resultado` sai. */",remove,,other,apps/api/src/controladores/desk.ts:215-229,codex3,reviewed
+api-comment-17c6d7ee,api,apps/api/src/controladores/desk.ts,39,39,jsdoc,2,/** O atendente é o da sessão — é ele que muda de status e assina a nota. */,translate,The attendant comes from the session; that person changes status and signs the note.,security,apps/api/src/controladores/desk.ts:39-55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7ca804a5,api,apps/api/src/controladores/desk.ts,53,53,block,1,"/* O menu ""⋮"" do cartão (`dominio/desk/marcacoes.ts`): fixar e marcar como não lida. */",,,,,,
 api-comment-cf8dbbb8,api,apps/api/src/controladores/desk.ts,58,58,jsdoc,1,"/** Quantos dias, no máximo, um recorte de métricas pode cobrir: os 90 da tela, com folga. */",,,,,,
 api-comment-7a2bc26e,api,apps/api/src/controladores/desk.ts,71,71,jsdoc,1,"/** A fila do atendente e os catálogos da coluna, numa ida só. */",,,,,,

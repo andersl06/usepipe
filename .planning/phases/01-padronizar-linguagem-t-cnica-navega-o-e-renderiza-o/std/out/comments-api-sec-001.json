@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-df605b88",
+      "action": "translate",
+      "new_text": "Root module. Controllers call domain functions directly, as the Desk does with `servidor/consultas.ts`, instead of using constructor type injection. This avoids `emitDecoratorMetadata`, which conflicts with the base tsconfig's `verbatimModuleSyntax`, and lets rules be tested without starting Nest. Guards are registered as ready values for the same reason. The two guards cover distinct markers: `@Escopos(...)` requires an API key for integrations, while `@ComSessao()` requires a browser session. An unmarked route is deliberately public: the Meta webhook authenticates by signature, and `/saude` is public.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/app.modulo.ts:44-56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a4716516",
+      "action": "translate",
+      "new_text": "When a route names a flow, use its `:fluxoId` parameter or the parameter immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:123-128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-91c56642",
+      "action": "translate",
+      "new_text": "API key authentication through `chave_api` follows `apis.md` ?5.2: `Authorization: Bearer <token>`. The token is opaque rather than a self-contained JWT so it can be revoked immediately. Resolve `tenant_id` on the server; never accept it from a client payload or header. Tokens have the form `pipe_<prefixo>_<segredo>`. The database stores `prefixo` in clear text so the client can recognize the key, and stores the secret's `sha256` hash. Looking up the key by prefix is the only query performed before a tenant is established.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:213-233; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9da8566b",
+      "action": "translate",
+      "new_text": "Account keys (`fluxoId` is null) cover the whole tenant. A flow key may access only its own flow on a flow route (`/…/fluxos/:id/…`); another flow returns 403 because the key and flow exist but the key lacks reach. Reject a flow key on routes without a flow (`/v1/conversas`, `/v1/contatos`, etc.). Pipe chose rejection over filtering related records: a conversation has no `fluxo_id` and belongs to a flow only through the inbox and channel (`fluxo.canal_id`). Repeating that data boundary across conversation, contact, attachment and tag routes would be easy to miss in a new route. The single guard enforces it. No current route both accepts a key and names a flow; when one does, this rule already applies.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:148-169; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-36bf4f49",
+      "action": "translate",
+      "new_text": "An unmarked `@Escopos` route is deliberately public: the Meta webhook authenticates",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:175-181; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8a75d7f3",
+      "action": "translate",
+      "new_text": "with `X-Hub-Signature-256`, not with our API key.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:179-181; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-28495067",
+      "action": "translate",
+      "new_text": "On a route that accepts either credential, if no Bearer token was supplied,",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:185-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8f9a65e8",
+      "action": "translate",
+      "new_text": "the session guard checks the request. See `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:185-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-abe23828",
+      "action": "translate",
+      "new_text": "Check the key's scope before checking its flow: first what it may do, then where.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:196-208; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-535facd3",
+      "action": "translate",
+      "new_text": "The guard runs after route matching, so `params` and `route.path` are available.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:174-208; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e1ed87ab",
+      "action": "translate",
+      "new_text": "Failure to record last use must not fail the request: this is audit data, not route data.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:235-238; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7a5f31fb",
+      "action": "translate",
+      "new_text": "Compare without revealing through response timing how many characters matched.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:252-257; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3d38e3d7",
+      "action": "translate",
+      "new_text": "The flow owning this key (`chave_api.fluxo_id`, migration 0032), or null for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:37-46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-70cf3d05",
+      "action": "translate",
+      "new_text": "The authenticated request carries the context; controllers never read the header.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:49-50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-98c6c379",
+      "action": "translate",
+      "new_text": "Marks the scope required by a route. Without the marker, the route is public (for example, the webhook).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:54-55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e538f546",
+      "action": "translate",
+      "new_text": "This route serves both API key integrations and people signed in through a browser. The presented credential takes precedence; see `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`. `POST /v1/conversas/:id/mensagens` is the same operation for both. Duplicating it under `/v1/desk/...` would duplicate the 24-hour window, outbox and event rules and let the implementations diverge.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:57-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f8369b3e",
+      "action": "translate",
+      "new_text": "The caller may be an integration or a person. In both cases `tenantId` comes from the credential, never from the body or URL. Only a person has `usuarioId`: API keys have no owner, and integration messages are attributed to the system.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:72-97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-372a8000",
+      "action": "translate",
+      "new_text": "`true` for a browser session; enables the attendant rules.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/autenticacao.ts:79-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-854c1ad0",
+      "action": "update",
+      "new_text": "Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return null when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/banco.ts:112-139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1930b60",
+      "action": "translate",
+      "new_text": "Run work with `pipe.tenant_id` set. Execute queries inside the callback serially. `Promise.all` here breaks the transaction's `set_config` and a query may then run without a tenant; see the README.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/banco.ts:36-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67e2c6b0",
+      "action": "translate",
+      "new_text": "Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the Bearer token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/banco.ts:5-17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-46ab9c1f",
+      "action": "translate",
+      "new_text": "Load and cache the keyring from the environment once. Reading it for every Meta event would repeat work; a key change at runtime requires a process restart, not a reload.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/banco.ts:56-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9cf57756",
+      "action": "translate",
+      "new_text": "Resolve the webhook channel from an in-memory cache because every Meta event reads it and it rarely changes. `esquecerCanal` invalidates the cache when configuration changes.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/banco.ts:68-74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-260f97e1",
+      "action": "translate",
+      "new_text": "Decrypt only once here; the rest of the code still reads",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/banco.ts:91-94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-90f94336",
+      "action": "translate",
+      "new_text": "the plaintext only in the memory of code that needs it; see `packages/db/src/segredo.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/banco.ts:91-94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

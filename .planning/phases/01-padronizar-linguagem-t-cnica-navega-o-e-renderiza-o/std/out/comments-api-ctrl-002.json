@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-73d40875",
+      "action": "translate",
+      "new_text": "Change presence status. Without `usuario_id`, this changes the caller's own status. Supplying it is a supervisor action (for example, Management disconnecting an inactive attendant) and requires permission.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/catalogo.ts:335-350; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-773608e2",
+      "action": "translate",
+      "new_text": "`PATCH /v1/contatos/:id`: missing fields are unchanged; null clears a field, except `atributos`, which merges.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/catalogo.ts:56-63",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-875ba0f1",
+      "action": "translate",
+      "new_text": "Optional `fluxo_id` on channel connections (`POST /v1/canais/{whatsapp,instagram,messenger}[/manual]`) means the connection starts inside a bot, as in `FICHA-conectar-canal-no-bot.md` §4, where the channel belongs to the bot rather than the account. With it, bot permission (`channels.escrever`, `dominio/gestao/canal-do-fluxo.ts`) applies and the channel starts linked. Without it, the account's `canal.gerenciar` applies. Share this helper among the three controllers so they do not import one another.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/conexao-no-fluxo.ts:10-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ea14c162",
+      "action": "translate",
+      "new_text": "Read `fluxo_id` from the body if present; reject a non-UUID value with 404 before querying the database.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conexao-no-fluxo.ts:24-29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-35a058a9",
+      "action": "translate",
+      "new_text": "For a bot connection, check that it has no channel before storing the customer credential; otherwise linking could fail after channel creation.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conexao-no-fluxo.ts:32-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-15e0c94b",
+      "action": "translate",
+      "new_text": "Reconnect the channel already owned by a bot when its token expires. In the source this happens on the channel page inside the bot, so bot administration is sufficient, but only for that bot's channel. Reconnecting someone else's channel still requires account permission.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conexao-no-fluxo.ts:47-61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fd953707",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conexao-no-fluxo.ts:64-73",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-94449b68",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts_controller.rb`'s `create` action, including `check_signup_enabled` and `ensure_account_name`. Deliberately public like the original, but disabled by default: `ENABLE_ACCOUNT_SIGNUP=false` returns 404, corresponding to the original `RoutingError 'Not Found'`. Assisted sales is specified in `2026-09-07-implantacao.md` §6.1; the remaining enablement work is documented in `dominio/construtor-de-conta.ts`. As with the original unauthenticated web signup, the response contains only the email. This creates no session; the person later signs in with Google using that email.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/contas.ts:5-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3caa8c9d",
+      "action": "translate",
+      "new_text": "Build the cursor from the raw row before serialization: the sort key is",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:130-136",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-458e9425",
+      "action": "translate",
+      "new_text": "a pagination detail and need not appear in the response body.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:130-136",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-88b23f50",
+      "action": "translate",
+      "new_text": "The same route serves integrations and the Desk; see `ChaveOuSessao`. What differs is message authorship. For a browser session, the author comes from the cookie's `usuario_id`, and any body `atendente_id` is ignored. Accepting that field would let a signed-in person send a message in a colleague's name, displaying that colleague to the customer.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conversas.ts:217-246; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6e5ac441",
+      "action": "translate",
+      "new_text": "`/v1/conversas` is the central API resource. Per `apis.md` §5, it uses a plural resource, query filters, declared ordering and cursor pagination. Queries do not manually filter `tenant_id`: RLS already does, and a duplicate filter would hide rather than expose an isolation bug.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conversas.ts:23-29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0b3e0c91",
+      "action": "translate",
+      "new_text": "Send multiple files as one message per file, sequentially, as the source `enviarAnexos` does. Validate the whole batch before sending the first: more than 10 files, a missing attachment or an attachment over its type limit rejects all, and the response identifies the file. Return messages in send order.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/conversas.ts:256-293; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d126966",
+      "action": "translate",
+      "new_text": "Close the conversation. The list mirrors Blip's `blip-tags` and enforces required tags.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/conversas.ts:296-315; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6a451b6",
+      "action": "translate",
+      "new_text": "Retry a failed message. The former screen changed `mensagem` to `pendente` directly in the database and did not work: it left `outbox_mensagem` unchanged, while the worker claims messages from outbox state. See `reenviarMensagem`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/conversas.ts:318-333; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-97655663",
+      "action": "translate",
+      "new_text": "Transfer to another queue or attendant. This closes the current conversation and opens a new one at the destination; it is not a state transition. The rule in `packages/core/src/conversa/maquina.ts` mirrors Blip. The response therefore contains both IDs: the closed conversation and the new one.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/controladores/conversas.ts:336-368; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e0fe2bf3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:371-387",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-1e1dd54e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:399-416",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a5867809",
+      "action": "translate",
+      "new_text": "Build the array literal explicitly: Drizzle's template flattens arrays into separate parameters,",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conversas.ts:399-416; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-94ae4426",
+      "action": "translate",
+      "new_text": "and `= any($1::text[])` fails with \"malformed array\" for a single value.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conversas.ts:412-416; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e7e710c6",
+      "action": "translate",
+      "new_text": "Values already passed the closed allowlist above, so this does not concatenate",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/conversas.ts:399-416; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e1be52ee",
+      "action": "translate",
+      "new_text": "`timestamptz` may arrive as a `Date` or text depending on how many driver copies are loaded. Normalize at the API boundary so clients do not need to rediscover this difference.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/conversas.ts:467-475; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1165c4a6",
+      "action": "translate",
+      "new_text": "`ultima_mensagem_em` is null for conversations without a message; without `coalesce`,",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:98-103",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-5bf5f1d8",
+      "action": "translate",
+      "new_text": "the row would disappear from cursor pagination instead of appearing at the end.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/conversas.ts:98-103",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-81e5da44",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/convites.ts:116-135",
+      "notes": ""
+    }
+  ]
+}
