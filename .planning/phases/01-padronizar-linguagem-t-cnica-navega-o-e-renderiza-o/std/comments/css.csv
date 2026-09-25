@@ -21,33 +21,49 @@ css-comment-33c51fe1,css,apps/crm/src/app/configuracoes/configuracoes.css,1,23,c
    Uma medida é nossa e não deles: `--c-campo` a 420px. O Twenty deixa o campo
    ocupar a largura inteira dos 760px, e um campo de 760px para digitar um nome
    convida a linha de texto de 100 caracteres que ninguém consegue reler.
-   ========================================================================== */",,,,,,
-css-comment-f053ef0c,css,apps/crm/src/app/configuracoes/configuracoes.css,160,160,css,0,/* ============================================================= formulário */,,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe CRM — settings area.
+
+   Only exists here. `globais.css` remains for everyday work; this sheet is loaded by the `/configuracoes` `layout.tsx` and reaches nothing else.
+
+   Like the rest of the CRM, it does NOT declare any color of its own: every value comes from a `--p-*` token in `@pipe/ui`, named by its role. The `--c-*` tokens here are measurements, not paint.
+
+   The measurements are from Twenty, read in the fork on 2026-09-07 — the layout is theirs, the paint is ours, the same method as the sidebar in `globais.css`:
+
+   - settings content with a **760px** max width, centered (`SETTINGS_CONTENT_MAX_WIDTH`);
+   - **32px** between blocks, which is their `spacing[8]` and our `--p-e-8`;
+   - **80px** of breathing room at the footer, so the last block doesn't stick to the fold;
+   - table row height of 32px, which the `@pipe/ui` `Tabela` already provides.
+
+   One measurement is ours, not theirs: `--c-campo` at 420px. Twenty lets the field take the full 760px width, and a 760px field for typing a name invites a 100-character text line that no one can re-read.
+   ==========================================================================",integration,apps/crm/src/app/configuracoes/configuracoes.css:1-23; cites Twenty fork measurements as parity evidence; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f053ef0c,css,apps/crm/src/app/configuracoes/configuracoes.css,160,160,css,0,/* ============================================================= formulário */,translate,============================================================= form,other,apps/crm/src/app/configuracoes/configuracoes.css:160,,proposed
 css-comment-cddc5d3f,css,apps/crm/src/app/configuracoes/configuracoes.css,168,169,css,4,"/* Campos lado a lado (convidar, criar papel, criar campo). Quebra sozinho na
-   janela estreita: `wrap` mais uma base de 220px, sem media query. */",,,,,,
-css-comment-b160ffb2,css,apps/crm/src/app/configuracoes/configuracoes.css,194,194,css,2,/* O primeiro `<span>` do label é o rótulo; os seguintes são a explicação. */,,,,,,
+   janela estreita: `wrap` mais uma base de 220px, sem media query. */",translate,"Fields side by side (invite, create role, create field). Wraps on its own on narrow windows: `wrap` plus a 220px basis, no media query.",other,apps/crm/src/app/configuracoes/configuracoes.css:168-169,,proposed
+css-comment-b160ffb2,css,apps/crm/src/app/configuracoes/configuracoes.css,194,194,css,2,/* O primeiro `<span>` do label é o rótulo; os seguintes são a explicação. */,translate,The first `<span>` in the label is the caption; the following ones are the explanation.,other,apps/crm/src/app/configuracoes/configuracoes.css:194,,proposed
 css-comment-041005c9,css,apps/crm/src/app/configuracoes/configuracoes.css,235,236,css,5,"/* O segredo que aparece uma vez. Fundo de alerta porque a janela é essa: sair
-   da tela sem copiar custa emitir outra chave. */",,,,,,
+   da tela sem copiar custa emitir outra chave. */",translate,The secret that appears once. Alert background because that's the situation: leaving the screen without copying costs having to issue another key.,security,apps/crm/src/app/configuracoes/configuracoes.css:235-236; one-time API key/secret reveal UX rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d60ba8b0,css,apps/crm/src/app/configuracoes/configuracoes.css,266,267,css,1,"/* Formulário dentro de célula de tabela: sem quebra de linha própria, o botão
-   ao lado do controle. */",,,,,,
+   ao lado do controle. */",translate,"Form inside a table cell: no line break of its own, the button next to the control.",other,apps/crm/src/app/configuracoes/configuracoes.css:266-267,,proposed
 css-comment-00ce4741,css,apps/crm/src/app/configuracoes/configuracoes.css,290,293,css,5,"/* `legend` dentro de `fieldset` com `display:flex` ou `grid` vira item do
    contexto e senta ao lado do primeiro controle. As duas declarações abaixo o
    devolvem à própria linha, sem tirá-lo do `fieldset` — que é o que dá o nome
-   acessível ao grupo inteiro. */",,,,,,
+   acessível ao grupo inteiro. */",translate,"`legend` inside `fieldset` with `display:flex` or `grid` becomes an item of that context and sits next to the first control. The two declarations below return it to its own line, without taking it out of the `fieldset` — which is what gives the whole group its accessible name.",other,apps/crm/src/app/configuracoes/configuracoes.css:290-293,,proposed
 css-comment-d175c0fd,css,apps/crm/src/app/configuracoes/configuracoes.css,310,312,css,2,"/* O rádio continua no DOM e continua focável — só sai da vista. Esconder com
    `display:none` o tiraria da ordem de tabulação, que é o defeito clássico do
-   controle segmentado. */",,,,,,
-css-comment-b94a0da6,css,apps/crm/src/app/configuracoes/configuracoes.css,344,344,css,3,"/* O foco tem de aparecer no rótulo, já que o controle está fora da vista. */",,,,,,
-css-comment-b0641bcc,css,apps/crm/src/app/configuracoes/configuracoes.css,350,350,css,0,/* =========================================================== permissões */,,,,,,
-css-comment-8746b7c5,css,apps/crm/src/app/configuracoes/configuracoes.css,38,38,css,0,/* ============================================================== cabeçalho */,,,,,,
+   controle segmentado. */",translate,"The radio stays in the DOM and stays focusable — it just leaves the view. Hiding it with `display:none` would remove it from the tab order, which is the classic flaw of the segmented control.",other,apps/crm/src/app/configuracoes/configuracoes.css:310-312,,proposed
+css-comment-b94a0da6,css,apps/crm/src/app/configuracoes/configuracoes.css,344,344,css,3,"/* O foco tem de aparecer no rótulo, já que o controle está fora da vista. */",translate,"Focus has to appear on the label, since the control itself is out of view.",other,apps/crm/src/app/configuracoes/configuracoes.css:344,,proposed
+css-comment-b0641bcc,css,apps/crm/src/app/configuracoes/configuracoes.css,350,350,css,0,/* =========================================================== permissões */,translate,=========================================================== permissions,other,apps/crm/src/app/configuracoes/configuracoes.css:350,,proposed
+css-comment-8746b7c5,css,apps/crm/src/app/configuracoes/configuracoes.css,38,38,css,0,/* ============================================================== cabeçalho */,translate,============================================================== header,other,apps/crm/src/app/configuracoes/configuracoes.css:38,,proposed
 css-comment-06daf524,css,apps/crm/src/app/configuracoes/configuracoes.css,468,472,css,7,"/* ==================================================== só para leitor de tela
    O rótulo de um controle dentro de célula de tabela: a coluna já diz o que
    é para quem vê, e quem ouve precisa saber de QUEM é a linha. `clip-path`
    em vez de `display:none` porque o segundo tira o elemento da árvore de
-   acessibilidade junto. */",,,,,,
+   acessibilidade junto. */",translate,"==================================================== screen-reader only
+   The label for a control inside a table cell: the column already says what it is for someone who can see, and someone listening needs to know WHOSE row it is. `clip-path` instead of `display:none` because the latter also removes the element from the accessibility tree.",other,apps/crm/src/app/configuracoes/configuracoes.css:468-472,,proposed
 css-comment-20b97cae,css,apps/crm/src/app/configuracoes/configuracoes.css,61,62,css,0,"/* O caminho de volta vem antes do título no DOM: é o primeiro alvo do Tab de
-   quem entrou na seção errada. */",,,,,,
-css-comment-5b6e96e4,css,apps/crm/src/app/configuracoes/configuracoes.css,81,81,css,0,/* ================================================================= índice */,,,,,,
+   quem entrou na seção errada. */",translate,The back link comes before the title in the DOM: it's the first Tab target for whoever entered the wrong section.,other,apps/crm/src/app/configuracoes/configuracoes.css:61-62,,proposed
+css-comment-5b6e96e4,css,apps/crm/src/app/configuracoes/configuracoes.css,81,81,css,0,/* ================================================================= índice */,translate,================================================================= index,other,apps/crm/src/app/configuracoes/configuracoes.css:81,,proposed
 css-comment-0ae0fa28,css,apps/crm/src/app/globais.css,1,22,css,20,"/* ==========================================================================
    Pipe CRM — só o que é do CRM.
 
@@ -69,7 +85,18 @@ css-comment-0ae0fa28,css,apps/crm/src/app/globais.css,1,22,css,20,"/* ==========
      negativo continuam no painel do score, porque ali a cor é a informação.
      Fora dali, quem pinta é o estado: lead parado, fechamento vencido,
      lead desqualificado.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe CRM — only what belongs to the CRM.
+
+   Tokens, resets and primitives (.btn, .etiqueta, .card, .tblwrap, .tblhead, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .num, .p-cabecalho) live in `@pipe/ui`, imported before this sheet in the root layout.
+
+   This sheet does NOT declare **any** color of its own and no longer uses the bridge of old names (`--ground`, `--ink`, `--moss`, `--terracotta`, ...): every value here comes from a package token, named by its role.
+
+   Two rules this sheet exists to enforce, which it was breaking:
+
+   - One family in the body. `'IBM Plex Mono'` used to be hand-written in thirteen rules, several of them in text that isn't a number (phase name, field label, count next to a label). Now it's only where there is a tabular number, and always via `var(--p-fonte-mono)`.
+   - Color is for what demands action. The green of the positive point and the red of the negative stay on the score panel, because there color IS the information. Outside of it, whatever paints is the status: stalled lead, overdue closing, disqualified lead.
+   ==========================================================================",other,apps/crm/src/app/globais.css:1-22,,proposed
 css-comment-95804b41,css,apps/crm/src/app/globais.css,102,118,css,24,"/* ============================================================== o funil
    O quadro rola por dentro, nos dois eixos, e é essa a mudança que faz o
    cabeçalho de fase grudar: `position: sticky` se orienta pelo ancestral que
@@ -86,71 +113,86 @@ css-comment-95804b41,css,apps/crm/src/app/globais.css,102,118,css,24,"/* =======
    medido nesta tela. Se essa faixa mudar, este valor muda junto — não há como
    derivá-lo em CSS sem tornar `.p-conteudo` uma grade de altura fixa, e essa
    folha é do pacote. `min-height` segura o caso da janela baixa, em que o
-   cálculo daria uma faixa menor que um cartão. */",,,,,,
-css-comment-6ca67172,css,apps/crm/src/app/globais.css,1074,1074,css,3,"/* O valor já escolhido. A marca aqui é estado ativo, que é onde ela pode. */",,,,,,
+   cálculo daria uma faixa menor que um cartão. */",translate,"============================================================== the funnel
+   The board scrolls internally, on both axes, and that change is what makes the phase header stick: `position: sticky` orients itself by the scrolling ancestor, and while the PAGE was what scrolled the column header had nothing to cling to. It's the same decision as Twenty's board, which also gives the board its own scroll region.
+
+   The gain isn't just the header: the summary line (39 deals, R$ 669k) stops leaving the screen when someone scrolls down a column of sixteen cards, and that line is the reason the screen exists.
+
+   The height ceiling is the only arbitrary number in this sheet: 19rem is the chrome above the board (app bar, title, summary and card header) measured on this screen. If that band changes, this value changes with it — there's no way to derive it in CSS without turning `.p-conteudo` into a fixed-height grid, and that sheet belongs to the package. `min-height` covers the short-window case, where the calculation would give a band smaller than one card.",integration,apps/crm/src/app/globais.css:102-118; cites Twenty's board scroll-region decision; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-6ca67172,css,apps/crm/src/app/globais.css,1074,1074,css,3,"/* O valor já escolhido. A marca aqui é estado ativo, que é onde ela pode. */",translate,"The already-selected value. The brand color here is the active state, which is where it's allowed to appear.",other,apps/crm/src/app/globais.css:1074,,proposed
 css-comment-8f64e5dc,css,apps/crm/src/app/globais.css,1080,1081,css,1,"/* O chip do filtro ativo é o próprio botão de remover: um alvo, uma ação, e
-   nenhum ""x"" de 8px pedindo pontaria. */",,,,,,
+   nenhum ""x"" de 8px pedindo pontaria. */",translate,"The active filter chip is itself the remove button: one target, one action, and no 8px ""x"" asking for precision aim.",other,apps/crm/src/app/globais.css:1080-1081,,proposed
 css-comment-2cef6286,css,apps/crm/src/app/globais.css,1100,1106,css,6,"/* ------------------------------------------------- painel de colunas
    As medidas são do Twenty, do dropdown de campos: painel de 200px
    (`GenericDropdownContentWidth.Medium`), item de 32px, 4px de recuo lateral,
    8px entre alça, rótulo e botão, e raio concêntrico — o do item é o do painel
    menos o recuo, que é a fórmula deles escrita nos nossos tokens.
 
-   A barra existe só para encostar o botão à direita, acima da tabela. */",,,,,,
+   A barra existe só para encostar o botão à direita, acima da tabela. */",translate,"------------------------------------------------- columns panel
+   The measurements are from Twenty's fields dropdown: a 200px panel (`GenericDropdownContentWidth.Medium`), a 32px item, 4px side indent, 8px between handle, label and button, and a concentric radius — the item's is the panel's minus the indent, which is their formula written in our tokens.
+
+   The bar exists only to push the button to the right, above the table.",integration,apps/crm/src/app/globais.css:1100-1106; cites Twenty's fields dropdown measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ef46ec08,css,apps/crm/src/app/globais.css,1166,1168,css,10,"/* A coluna que não se move nem se oculta. Tom apagado e alça sem cursor de
    arraste: o item continua na lista para dizer que ela É a primeira, e não
-   promete um movimento que não acontece. */",,,,,,
+   promete um movimento que não acontece. */",translate,"The column that doesn't move or hide. Muted tone and a drag handle without the drag cursor: the item stays in the list to say it IS the first, without promising a movement that won't happen.",other,apps/crm/src/app/globais.css:1166-1168,,proposed
 css-comment-b6dd71a4,css,apps/crm/src/app/globais.css,1200,1201,css,3,"/* O olho só aparece no item sob o cursor ou com foco dentro — a mesma regra do
-   lápis da célula inline. Uma coluna de ícones em repouso é ruído. */",,,,,,
+   lápis da célula inline. Uma coluna de ícones em repouso é ruído. */",translate,The eye icon only appears on the item under the cursor or with focus inside — the same rule as the inline cell's pencil. A column of icons at rest is noise.,other,apps/crm/src/app/globais.css:1200-1201,,proposed
 css-comment-ace7d7f2,css,apps/crm/src/app/globais.css,1220,1221,css,2,"/* O item sendo arrastado fica apagado, e o que vai receber ganha um fio em
-   cima: dois sinais diferentes para as duas pontas do movimento. */",,,,,,
+   cima: dois sinais diferentes para as duas pontas do movimento. */",translate,"The item being dragged turns muted, and the one about to receive it gets a rule on top: two different signals for the two ends of the movement.",other,apps/crm/src/app/globais.css:1220-1221,,proposed
 css-comment-183fc418,css,apps/crm/src/app/globais.css,1235,1241,css,11,"/* ================================================== cabeçalho de destaque
    A faixa de identidade e a tira de campos principais. O Salesforce chama de
    ""highlight panel"" e o Twenty de ""identifier bar""; os dois chegaram ao mesmo
    desenho sem se falarem, o que faz disto regra e não gosto.
 
    Sem caixa e sem borda de cartão: o destaque é a primeira coisa da tela, e a
-   primeira coisa da tela não precisa de moldura para ser encontrada. */",,,,,,
+   primeira coisa da tela não precisa de moldura para ser encontrada. */",translate,"================================================== highlight header
+   The identity band and the strip of main fields. Salesforce calls it the ""highlight panel"" and Twenty the ""identifier bar""; the two arrived at the same design without talking to each other, which makes this a rule and not a preference.
+
+   No box and no card border: the highlight is the first thing on the screen, and the first thing on the screen doesn't need a frame to be found.",integration,"apps/crm/src/app/globais.css:1235-1241; cites Salesforce ""highlight panel"" and Twenty ""identifier bar"" as converging parity evidence; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-eacb1cba,css,apps/crm/src/app/globais.css,1287,1290,css,3,"/* A tira. Cinco campos, no máximo: é a régua do destaque do Salesforce, e
    passar disso é deixar de ser destaque. Rótulo em cima, valor embaixo, ao
    contrário da lateral — aqui a leitura é horizontal e o rótulo precisa sair
-   da frente do número. */",,,,,,
+   da frente do número. */",translate,"The strip. Five fields, at most: it's Salesforce's rule for the highlight, and going over that stops being a highlight. Label on top, value below, unlike the sidebar — here the reading is horizontal and the label needs to get out of the number's way.",integration,apps/crm/src/app/globais.css:1287-1290; cites Salesforce's highlight field-count rule; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d6a7b65a,css,apps/crm/src/app/globais.css,130,131,css,3,"/* Sem folga no topo: ela é do cabeçalho grudado, senão sobra uma faixa de
-   fundo da coluna acima dele por onde os cartões passam à mostra. */",,,,,,
+   fundo da coluna acima dele por onde os cartões passam à mostra. */",translate,"No gap at the top: it belongs to the stuck header, otherwise a strip of the column's background above it would show through as cards pass.",other,apps/crm/src/app/globais.css:130-131,,proposed
 css-comment-1d1fadda,css,apps/crm/src/app/globais.css,1322,1323,css,3,"/* O score é número, e número usa a monoespaçada tabular. É o único valor da
-   tira que a recebe. */",,,,,,
+   tira que a recebe. */",translate,"The score is a number, and numbers use tabular monospace. It's the only value in the strip that gets it.",other,apps/crm/src/app/globais.css:1322-1323,,proposed
 css-comment-b7a5a529,css,apps/crm/src/app/globais.css,1331,1332,css,3,"/* O complemento do valor: a faixa ao lado do score, os dias ao lado da fase.
-   Menor e apagado, porque é qualificação e não o dado. */",,,,,,
+   Menor e apagado, porque é qualificação e não o dado. */",translate,"The value's complement: the range next to the score, the days next to the phase. Smaller and muted, because it's context, not the data.",other,apps/crm/src/app/globais.css:1331-1332,,proposed
 css-comment-9a55df0b,css,apps/crm/src/app/globais.css,1341,1344,css,5,"/* ================================================ seção que abre e fecha
    `<details>` nativo. O navegador já sabe abrir, fechar, responder ao teclado
    e contar para o leitor de tela; reescrever isso em React seria trocar zero
-   linha por trinta e perder a busca na página. */",,,,,,
+   linha por trinta e perder a busca na página. */",translate,"================================================ section that opens and closes
+   Native `<details>`. The browser already knows how to open, close, respond to the keyboard and announce it to screen readers; rewriting this in React would trade zero lines for thirty and lose in-page search.",architecture,apps/crm/src/app/globais.css:1341-1344; explicit choice of native <details> over a React reimplementation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-11817942,css,apps/crm/src/app/globais.css,1368,1369,css,6,"/* A seta, desenhada em CSS. Um chevron de 5px que gira ao abrir: um SVG só
-   para isto seria uma requisição a mais por um triângulo. */",,,,,,
+   para isto seria uma requisição a mais por um triângulo. */",translate,"The arrow, drawn in CSS. A 5px chevron that rotates on open: an SVG just for this would be one more request for a triangle.",other,apps/crm/src/app/globais.css:1368-1369,,proposed
 css-comment-55a2cef1,css,apps/crm/src/app/globais.css,1389,1391,css,3,"/* ========================================================= linha do tempo
    Trilho de 26px com o ícone do tipo e um fio ligando um evento ao seguinte.
-   É o que faz a coluna ser lida como sequência em vez de pilha de linhas. */",,,,,,
-css-comment-c6f773ac,css,apps/crm/src/app/globais.css,1400,1400,css,2,/* Separador de mês: o nome à esquerda e uma régua ocupando o resto da linha. */,,,,,,
+   É o que faz a coluna ser lida como sequência em vez de pilha de linhas. */",translate,"========================================================= timeline
+   A 26px rail with the event-type icon and a line connecting one event to the next. It's what makes the column read as a sequence instead of a stack of rows.",other,apps/crm/src/app/globais.css:1389-1391,,proposed
+css-comment-c6f773ac,css,apps/crm/src/app/globais.css,1400,1400,css,2,/* Separador de mês: o nome à esquerda e uma régua ocupando o resto da linha. */,translate,Month separator: the name on the left and a rule filling the rest of the line.,other,apps/crm/src/app/globais.css:1400,,proposed
 css-comment-593aeaac,css,apps/crm/src/app/globais.css,142,143,css,2,"/* O alvo do arraste precisa se anunciar, senão o vendedor solta o cartão no
-   vazio. É estado ativo de uma ação em curso: é onde a marca pode entrar. */",,,,,,
+   vazio. É estado ativo de uma ação em curso: é onde a marca pode entrar. */",translate,"The drop target needs to announce itself, or the salesperson drops the card into the void. It's the active state of an action in progress: it's where the brand color can enter.",other,apps/crm/src/app/globais.css:142-143,,proposed
 css-comment-5bc6bf4a,css,apps/crm/src/app/globais.css,1450,1451,css,7,"/* O fio usa a linha MÉDIA, não a fina. A fina desaparece com 2px de largura
-   no tema escuro, e um trilho invisível é o mesmo que não ter trilho. */",,,,,,
+   no tema escuro, e um trilho invisível é o mesmo que não ter trilho. */",translate,"The rule uses the MEDIUM line, not the thin one. The thin one disappears at 2px width in dark mode, and an invisible rail is the same as having no rail.",other,apps/crm/src/app/globais.css:1450-1451,,proposed
 css-comment-7ef97a7f,css,apps/crm/src/app/globais.css,1485,1487,css,9,"/* A hora relativa fica à direita, e a absoluta no `title`. ""há 3 dias"" é o
    que a pessoa quer saber; a data exata é o que ela confere uma vez a cada
-   vinte. */",,,,,,
-css-comment-3e516607,css,apps/crm/src/app/globais.css,1496,1496,css,1,"/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */",,,,,,
+   vinte. */",translate,"The relative time sits on the right, and the absolute one is in the `title`. ""há 3 dias"" is what the person wants to know; the exact date is what they check once every twenty times.",other,apps/crm/src/app/globais.css:1485-1487; keeps the literal Portuguese product-copy example untranslated,,proposed
+css-comment-3e516607,css,apps/crm/src/app/globais.css,1496,1496,css,1,"/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */",translate,"The attendance summary is indented: it's machine-generated text, not the salesperson's own.",other,apps/crm/src/app/globais.css:1496,,proposed
 css-comment-108f3834,css,apps/crm/src/app/globais.css,150,155,css,10,"/* O cabeçalho gruda ao rolar. Com dezesseis cartões na coluna, o nome da fase
    e o total saíam da tela e o quadro virava uma lista de cartões sem colunas.
 
    `top: 0` porque quem rola é `.lanes`, que já começa abaixo de toda a barra
    do aplicativo. O `z-index` fica em 2: acima dos cartões da própria coluna e
-   bem abaixo da barra do aplicativo, que está em 20. */",,,,,,
+   bem abaixo da barra do aplicativo, que está em 20. */",translate,"The header sticks while scrolling. With sixteen cards in the column, the phase name and the total used to scroll off screen and the board turned into a list of cards with no columns.
+
+   `top: 0` because the scrolling ancestor is `.lanes`, which already starts below the entire app bar. `z-index` is set to 2: above the column's own cards and well below the app bar, which is at 20.",architecture,apps/crm/src/app/globais.css:150-155; sticky-positioning ancestor and z-index stacking rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d01431c2,css,apps/crm/src/app/globais.css,1507,1509,css,6,"/* A contagem ao lado do rótulo da aba precisa de um respiro. O primitivo do
    pacote não declara `gap` no link, e sem ele ""Score"" e ""5"" encostam. Local
-   até o pacote abrir; é uma linha que sobe junto quando abrir. */",,,,,,
+   até o pacote abrir; é uma linha que sobe junto quando abrir. */",translate,"The count next to the tab label needs some breathing room. The package's primitive doesn't declare `gap` on the link, and without it ""Score"" and ""5"" touch. Local until the package adds it; it's a line that goes away when it does.",other,apps/crm/src/app/globais.css:1507-1509,,proposed
 css-comment-dfea012d,css,apps/crm/src/app/globais.css,1516,1518,css,7,"/* O cartão do esqueleto do quadro. Herda a caixa do `.opp` e troca só o que o
    arraste dava: o cursor e o hover, que não existem em algo que ainda não é
-   um cartão. */",,,,,,
+   um cartão. */",translate,"The board skeleton's card. Inherits `.opp`'s box and only swaps what dragging added: the cursor and the hover, which don't exist on something that isn't a card yet.",other,apps/crm/src/app/globais.css:1516-1518,,proposed
 css-comment-7e60dd52,css,apps/crm/src/app/globais.css,1530,1549,css,22,"/* ================================================= o casco do Twenty
    Medido no código de `twenty-front` e `twenty-ui` do fork, em 07/09/2026.
 
@@ -170,25 +212,39 @@ css-comment-7e60dd52,css,apps/crm/src/app/globais.css,1530,1549,css,22,"/* =====
    - título de seção: mesma altura de 28px, com o mesmo padding
    - régua de espaço: múltiplo de 4 — a mesma nossa
    - raio: 2 / 4 / 8 / 16 / 20 / 999
-   - tipografia: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, pesos 400, 500 e 600 */",,,,,,
+   - tipografia: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, pesos 400, 500 e 600 */",translate,"================================================= the Twenty shell
+   Measured in `twenty-front` and `twenty-ui`'s code from the fork, on 2026-09-07.
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS — the same method Gestão and Desk use with Blip, now applied to Twenty.
+
+   What changes from what was here before: out goes the two-bar Lightning chrome, in comes the SIDEBAR. In Twenty navigation is a resizable left column, and there's no tab bar on top — the work screen starts at the top of the window and uses the full height. On a 60-lead listing that's a line and a half more per fold, and it's why they chose it that way.
+
+   Measurements, from their code:
+   - sidebar width: 220px (min 180, max 350)
+   - item: height 28px (`spacing[7]`), padding 4px, radius 8px
+   - section title: same 28px height, with the same padding
+   - spacing scale: multiple of 4 — same as ours
+   - radius: 2 / 4 / 8 / 16 / 20 / 999
+   - typography: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, weights 400, 500 and 600",meta-blip,"apps/crm/src/app/globais.css:1530-1549; cites Twenty fork measurements and, by comparison, the same Blip-parity method used in Gestão/Desk; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-10eb4965,css,apps/crm/src/app/globais.css,1553,1554,css,1,"/* O raio do Twenty é 8px, o mesmo da casa — o 4px do Lightning saiu junto
-     com o cromo dele. */",,,,,,
+     com o cromo dele. */",translate,"Twenty's radius is 8px, same as ours — Lightning's 4px left along with its chrome.",integration,apps/crm/src/app/globais.css:1553-1554; cites Twenty/Lightning radius parity; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c74c9ab3,css,apps/crm/src/app/globais.css,1564,1565,css,5,"/* A lateral. Fundo um degrau acima da página, sem sombra e sem borda forte:
-   no Twenty a separação é de superfície, não de linha. */",,,,,,
+   no Twenty a separação é de superfície, não de linha. */",translate,"The sidebar. Background one step above the page, no shadow and no strong border: in Twenty the separation is surface-based, not a line.",integration,apps/crm/src/app/globais.css:1564-1565; cites Twenty's surface-based separation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3eff7ebd,css,apps/crm/src/app/globais.css,1581,1583,css,3,"/* O cabeçalho da lateral: marca e o atalho de configuração. Onde eles põem o
    seletor de espaço de trabalho, nós pomos o nome do produto — o Pipe resolve
-   o tenant pelo login, e trocar de espaço não é um gesto que exista aqui. */",,,,,,
+   o tenant pelo login, e trocar de espaço não é um gesto que exista aqui. */",translate,"The sidebar header: brand and the settings shortcut. Where they put the workspace switcher, we put the product name — Pipe resolves the tenant at login, and switching workspaces isn't a gesture that exists here.",integration,apps/crm/src/app/globais.css:1581-1583; contrasts with Twenty's workspace switcher; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d1f557c3,css,apps/crm/src/app/globais.css,1604,1605,css,8,"/* Título de seção: 28px de altura, caixa alta, e a cor mais apagada da escala.
-   É rótulo, não item — não clica e não compete com o que está embaixo. */",,,,,,
+   É rótulo, não item — não clica e não compete com o que está embaixo. */",translate,"Section title: 28px height, uppercase, and the scale's most muted color. It's a label, not an item — it doesn't click and doesn't compete with what's below it.",other,apps/crm/src/app/globais.css:1604-1605,,proposed
 css-comment-583b75fe,css,apps/crm/src/app/globais.css,1619,1620,css,3,"/* O item. 28px, ícone à esquerda, raio 8, e o realce do ativo é FUNDO — não
-   sublinhado, que era o do Lightning. */",,,,,,
-css-comment-15f4f146,css,apps/crm/src/app/globais.css,1655,1655,css,5,"/* A contagem à direita do item, quando existe. Tabular para não dançar. */",,,,,,
-css-comment-8ced1087,css,apps/crm/src/app/globais.css,168,168,css,1,"/* Nome de fase é nome, não rótulo de seção: família do corpo, caixa normal. */",,,,,,
-css-comment-89d2a5d6,css,apps/crm/src/app/globais.css,1680,1680,css,0,"/* O rodapé da lateral fica colado embaixo, como o deles. */",,,,,,
-css-comment-a67f65cb,css,apps/crm/src/app/globais.css,1687,1687,css,2,/* A área de trabalho. Sem barra em cima: começa no alto da janela. */,,,,,,
+   sublinhado, que era o do Lightning. */",translate,"The item. 28px, icon on the left, radius 8, and the active highlight is BACKGROUND — not an underline, which was Lightning's.",integration,apps/crm/src/app/globais.css:1619-1620; contrasts with Lightning's underline highlight; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-15f4f146,css,apps/crm/src/app/globais.css,1655,1655,css,5,"/* A contagem à direita do item, quando existe. Tabular para não dançar. */",translate,"The count to the right of the item, when it exists. Tabular so it doesn't jiggle.",other,apps/crm/src/app/globais.css:1655,,proposed
+css-comment-8ced1087,css,apps/crm/src/app/globais.css,168,168,css,1,"/* Nome de fase é nome, não rótulo de seção: família do corpo, caixa normal. */",translate,"Phase name is a name, not a section label: body family, normal case.",other,apps/crm/src/app/globais.css:168,,proposed
+css-comment-89d2a5d6,css,apps/crm/src/app/globais.css,1680,1680,css,0,"/* O rodapé da lateral fica colado embaixo, como o deles. */",translate,"The sidebar's footer sits stuck at the bottom, like theirs.",other,apps/crm/src/app/globais.css:1680,,proposed
+css-comment-a67f65cb,css,apps/crm/src/app/globais.css,1687,1687,css,2,/* A área de trabalho. Sem barra em cima: começa no alto da janela. */,translate,The work area. No bar on top: it starts at the top of the window.,other,apps/crm/src/app/globais.css:1687,,proposed
 css-comment-d73926e9,css,apps/crm/src/app/globais.css,1695,1697,css,7,"/* ------------------------------------------------------ densidade do Twenty
    Linha de 32px e célula de 0.92rem. Mais apertada que a do Lightning (35px /
-   13px) porque a tela ganhou a altura que as duas barras ocupavam. */",,,,,,
+   13px) porque a tela ganhou a altura que as duas barras ocupavam. */",translate,"------------------------------------------------------ Twenty density
+   32px row and 0.92rem cell. Tighter than Lightning's (35px / 13px) because the screen gained the height the two bars used to occupy.",integration,apps/crm/src/app/globais.css:1695-1697; cites Twenty/Lightning density comparison; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bde60ef0,css,apps/crm/src/app/globais.css,1717,1724,css,15,"/* ============================================== o menu de comando (Ctrl+K)
    Medido no `command-menu` do `twenty-front`. É a funcionalidade que mais
    define o produto deles: você não navega até o registro, chama pelo nome — e
@@ -196,18 +252,21 @@ css-comment-bde60ef0,css,apps/crm/src/app/globais.css,1717,1724,css,15,"/* =====
 
    **Painel à direita, altura inteira** (`height: 100%; top: 0`), como o deles,
    e não caixa flutuante no meio. O painel deixa a tela de trás visível, e quem
-   busca costuma estar comparando com o que já está vendo. */",,,,,,
+   busca costuma estar comparando com o que já está vendo. */",translate,"============================================== the command menu (Ctrl+K)
+   Measured in `twenty-front`'s `command-menu`. It's the feature that most defines their product: you don't navigate to the record, you call it by name — and that's why the sidebar can be short.
+
+   **Panel on the right, full height** (`height: 100%; top: 0`), like theirs, not a floating box in the middle. The panel leaves the screen behind it visible, and whoever is searching is usually comparing with what they're already looking at.",integration,apps/crm/src/app/globais.css:1717-1724; cites twenty-front's command-menu design; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b2314daf,css,apps/crm/src/app/globais.css,1729,1730,css,4,"/* Sem tinta: o painel já separa menu de tela, e escurecer tudo esconderia
-     justamente o que a pessoa quer comparar. */",,,,,,
+     justamente o que a pessoa quer comparar. */",translate,"No tint: the panel already separates the menu from the screen, and darkening everything would hide exactly what the person wants to compare.",other,apps/crm/src/app/globais.css:1729-1730,,proposed
 css-comment-b3b5ba75,css,apps/crm/src/app/globais.css,1773,1775,css,4,"/* A mesma tecla desenhada nos dois lugares que anunciam atalho: o menu de
    comando e a régua da listagem. Um desenho só, senão a mesma tecla vira duas
-   coisas diferentes na mesma tela. */",,,,,,
+   coisas diferentes na mesma tela. */",translate,"The same key drawn in both places that announce a shortcut: the command menu and the listing's ruler. One drawing only, or the same key becomes two different things on the same screen.",other,apps/crm/src/app/globais.css:1773-1775,,proposed
 css-comment-f9338f14,css,apps/crm/src/app/globais.css,1810,1811,css,4,"/* O item é `button` e não `a` de propósito: a navegação é do roteador, e um
-   link aqui dispararia recarga completa ao ser clicado com o botão do meio. */",,,,,,
+   link aqui dispararia recarga completa ao ser clicado com o botão do meio. */",translate,"The item is a `button` and not an `a` on purpose: navigation belongs to the router, and a link here would trigger a full page reload when middle-clicked.",architecture,apps/crm/src/app/globais.css:1810-1811; routing-behavior rationale (button vs anchor); pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9de4afd0,css,apps/crm/src/app/globais.css,1838,1839,css,4,"/* O realce segue o TECLADO, não o cursor — por isso é classe e não `:hover`.
-   O `onMouseEnter` do componente move o índice, então os dois concordam. */",,,,,,
+   O `onMouseEnter` do componente move o índice, então os dois concordam. */",translate,"The highlight follows the KEYBOARD, not the cursor — that's why it's a class and not `:hover`. The component's `onMouseEnter` moves the index, so the two stay in sync.",architecture,apps/crm/src/app/globais.css:1838-1839; keyboard/mouse selection-state synchronization rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1e3ea321,css,apps/crm/src/app/globais.css,184,185,css,3,"/* Coluna vazia diz que está vazia. Retângulo em branco se lê como carregando,
-   e não como nada aqui. */",,,,,,
+   e não como nada aqui. */",translate,"Empty column says it's empty. A blank rectangle reads as loading, not as nothing here.",other,apps/crm/src/app/globais.css:184-185,,proposed
 css-comment-99f41404,css,apps/crm/src/app/globais.css,1844,1855,css,17,"/* ============================================ mais medidas do Twenty
    Segunda passada, com o que ficou de fora da primeira. Todas lidas no
    código do fork em 07/09/2026.
@@ -219,17 +278,22 @@ css-comment-99f41404,css,apps/crm/src/app/globais.css,1844,1855,css,17,"/* =====
 
    Divergência anotada: eles usam fonte de 1rem numa altura de 20px. Com
    o IBM Plex, que é mais largo que o Inter, 16px em 20px estoura. Fica
-   12px, que é o nosso `--p-t-sm`. Medida deles, letra nossa. */",,,,,,
+   12px, que é o nosso `--p-t-sm`. Medida deles, letra nossa. */",translate,"============================================ more Twenty measurements
+   Second pass, covering what the first left out. All read from the fork's code on 2026-09-07.
+
+   **Tag** (`Tag.module.scss`): height 20px (`spacing-5`), padding 0 8px, radius 4px (`sm-round`), gap 4px, and NO BORDER — the separation is the background. Ours had a 1px border and vertical padding, which made it 2px taller and visually heavier than theirs.
+
+   Noted divergence: they use a 1rem font at a 20px height. With IBM Plex, which is wider than Inter, 16px at 20px overflows. We keep 12px, which is our `--p-t-sm`. Their measurement, our typeface.",integration,apps/crm/src/app/globais.css:1844-1855; cites Twenty fork Tag component measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-de68ac0a,css,apps/crm/src/app/globais.css,1866,1869,css,3,"/* **Cabeçalho de página** (`PageHeader.tsx` + `PageBarMinHeight.ts`):
    altura mínima 32px, padding 12px, gap 8px, título em `font.size.lg`.
    O nosso `board-head` tinha 40px e margem de 23px — mais alto e mais
-   solto que o deles. */",,,,,,
+   solto que o deles. */",translate,"**Page header** (`PageHeader.tsx` + `PageBarMinHeight.ts`): minimum height 32px, padding 12px, gap 8px, title in `font.size.lg`. Our `board-head` was 40px with a 23px margin — taller and looser than theirs.",integration,apps/crm/src/app/globais.css:1866-1869; cites Twenty's PageHeader.tsx/PageBarMinHeight.ts; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-61738bec,css,apps/crm/src/app/globais.css,1882,1883,css,0,"/* **Coluna da caixa de seleção**: 28px, do
-   `RecordTableColumnCheckboxWidth.ts`. Estava em 32. */",,,,,,
+   `RecordTableColumnCheckboxWidth.ts`. Estava em 32. */",translate,"**Checkbox column**: 28px, from `RecordTableColumnCheckboxWidth.ts`. It was at 32.",integration,apps/crm/src/app/globais.css:1882-1883; cites Twenty's RecordTableColumnCheckboxWidth.ts; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c1e520a8,css,apps/crm/src/app/globais.css,1888,1891,css,7,"/* **A tabela do Twenty não tem moldura.** O `tblwrap` do pacote põe
    borda e raio em volta, e no Twenty a lista encosta na área de
    conteúdo: o que separa uma linha da outra é o fio de 1px, e nada
-   mais. Cartão em volta de lista é peso visual sem informação. */",,,,,,
+   mais. Cartão em volta de lista é peso visual sem informação. */",translate,"**Twenty's table has no frame.** The package's `tblwrap` puts a border and radius around it, and in Twenty the list sits flush against the content area: what separates one row from the next is the 1px rule, nothing else. A card around a list is visual weight without information.",integration,apps/crm/src/app/globais.css:1888-1891; explicit Twenty table-framing comparison; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-379a8aab,css,apps/crm/src/app/globais.css,1903,1911,css,9,"/* ======================================================= tela de entrada
 
    A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
@@ -238,39 +302,48 @@ css-comment-379a8aab,css,apps/crm/src/app/globais.css,1903,1911,css,9,"/* ======
    trilho nem lateral para pintar, e não há nome de cliente para mostrar. Um
    cartão centrado, na largura de leitura, e nada mais.
 
-   Toda cor sai de token, como em todo o resto: nenhum literal entra aqui. */",,,,,,
+   Toda cor sai de token, como em todo o resto: nenhum literal entra aqui. */",translate,"======================================================= sign-in screen
+
+   The ONLY public screen of the application: `/entrar` and `/convite/<token>`.
+
+   No chrome on purpose — whoever lands here has no session, so there's no bar, rail or sidebar to paint, and no tenant name to show. A card centered at reading width, and nothing else.
+
+   Every color comes from a token, like everywhere else: no literal value enters here.",other,apps/crm/src/app/globais.css:1903-1911,,proposed
 css-comment-3bda5a6a,css,apps/crm/src/app/globais.css,1923,1924,css,5,"/* 26rem é a largura de um formulário de uma coluna: mais do que isso e o
-     rótulo perde o campo de vista no fim da linha. */",,,,,,
+     rótulo perde o campo de vista no fim da linha. */",translate,26rem is the width of a single-column form: any more and the label loses sight of the field at the end of the line.,other,apps/crm/src/app/globais.css:1923-1924,,proposed
 css-comment-7478d333,css,apps/crm/src/app/globais.css,1963,1964,css,3,"/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
-   leitura: quem usa leitor de tela precisa do motivo antes da ação. */",,,,,,
-css-comment-95e1a7e3,css,apps/crm/src/app/globais.css,1989,1989,css,3,"/* Ação principal da tela: largura cheia, e não divide a linha com ninguém. */",,,,,,
-css-comment-2e52a9e2,css,apps/crm/src/app/globais.css,2036,2036,css,2,"/* Os dados do convite: rótulo à esquerda, valor à direita. */",,,,,,
-css-comment-620d8e72,css,apps/crm/src/app/globais.css,2053,2053,css,0,/* E-mail longo quebra em vez de esticar o cartão. */,,,,,,
-css-comment-f41dfc5d,css,apps/crm/src/app/globais.css,2064,2064,css,2,"/* A conta em vigor, no menu de quem está logado. Serve às três telas. */",,,,,,
+   leitura: quem usa leitor de tela precisa do motivo antes da ação. */",translate,"The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.",other,apps/crm/src/app/globais.css:1963-1964,,proposed
+css-comment-95e1a7e3,css,apps/crm/src/app/globais.css,1989,1989,css,3,"/* Ação principal da tela: largura cheia, e não divide a linha com ninguém. */",translate,"Screen's main action: full width, doesn't share the line with anything else.",other,apps/crm/src/app/globais.css:1989,,proposed
+css-comment-2e52a9e2,css,apps/crm/src/app/globais.css,2036,2036,css,2,"/* Os dados do convite: rótulo à esquerda, valor à direita. */",translate,"The invitation data: label on the left, value on the right.",other,apps/crm/src/app/globais.css:2036,,proposed
+css-comment-620d8e72,css,apps/crm/src/app/globais.css,2053,2053,css,0,/* E-mail longo quebra em vez de esticar o cartão. */,translate,Long email wraps instead of stretching the card.,other,apps/crm/src/app/globais.css:2053,,proposed
+css-comment-f41dfc5d,css,apps/crm/src/app/globais.css,2064,2064,css,2,"/* A conta em vigor, no menu de quem está logado. Serve às três telas. */",translate,"The active account, in the logged-in menu. Serves all three screens.",other,apps/crm/src/app/globais.css:2064,,proposed
 css-comment-28c6d56c,css,apps/crm/src/app/globais.css,2094,2095,css,6,"/* A conta em vigor, no pé da lateral. `margin-top: auto` empurra para baixo
-   sem precisar que a lateral saiba a altura do resto. */",,,,,,
+   sem precisar que a lateral saiba a altura do resto. */",translate,"The active account, at the bottom of the sidebar. `margin-top: auto` pushes it down without the sidebar needing to know the height of the rest.",other,apps/crm/src/app/globais.css:2094-2095,,proposed
 css-comment-852adf8d,css,apps/crm/src/app/globais.css,231,235,css,3,"/* O seletor de fase, recolhido em repouso.
    Recolhe por altura e opacidade, NUNCA por `display:none` nem `visibility`:
    o elemento precisa continuar no fluxo de foco, senão o Tab pula o único
    caminho de teclado que o quadro tem. `:focus-within` na coluna é o que traz
-   ele de volta quando o foco chega. */",,,,,,
+   ele de volta quando o foco chega. */",translate,"The phase selector, collapsed at rest.
+   Collapses by height and opacity, NEVER by `display:none` or `visibility`: the element needs to stay in the focus flow, or Tab skips the board's only keyboard path. `:focus-within` on the column is what brings it back when focus arrives.",other,apps/crm/src/app/globais.css:231-235,,proposed
 css-comment-7712e98d,css,apps/crm/src/app/globais.css,24,28,css,7,"/* ==================================================== bloco com cabeçalho
    `.tblwrap` do pacote dá a caixa (borda, raio, recorte, superfície). O que
    falta é a divisória do cabeçalho, e é só isso que mora aqui. Antes eram
    quatro caixas locais quase iguais — `.bloco-card`, `.funnel`, `.explain` e
-   `.destaque` — com três raios diferentes entre elas. */",,,,,,
+   `.destaque` — com três raios diferentes entre elas. */",translate,"==================================================== block with header
+   The package's `.tblwrap` gives the box (border, radius, clipping, surface). What's missing is the header divider, and that's all that lives here. There used to be four nearly identical local boxes — `.bloco-card`, `.funnel`, `.explain` and `.destaque` — with three different radii among them.",other,apps/crm/src/app/globais.css:24-28,,proposed
 css-comment-f27e5225,css,apps/crm/src/app/globais.css,251,253,css,4,"/* Quem pediu menos movimento recebe o seletor sempre visível: a alternativa
    seria um controle que aparece sem transição, piscando a cada passada do
-   ponteiro. */",,,,,,
+   ponteiro. */",translate,"Whoever asked for reduced motion gets the selector always visible: the alternative would be a control that appears without a transition, flashing on every pointer pass.",other,apps/crm/src/app/globais.css:251-253,,proposed
 css-comment-b7239372,css,apps/crm/src/app/globais.css,262,266,css,15,"/* ================================================ o painel que explica o score
    A ÚNICA tela do CRM em que a cor não indica ação, e ela fica: aqui o verde
    e o vermelho SÃO a informação — que regra somou e que regra tirou. É a tela
    que justifica o produto, e sem os dois sinais ela vira uma lista de números
-   sem direção. Cor de sucesso e de erro do pacote, não hex solto. */",,,,,,
+   sem direção. Cor de sucesso e de erro do pacote, não hex solto. */",translate,"================================================ the panel that explains the score
+   The ONLY CRM screen where color doesn't indicate an action, and it stays: here green and red ARE the information — which rule added and which subtracted. It's the screen that justifies the product, and without both signals it becomes a list of numbers without direction. Success and error color from the package, not a loose hex.",other,apps/crm/src/app/globais.css:262-266,,proposed
 css-comment-8497b55c,css,apps/crm/src/app/globais.css,316,317,css,3,"/* O total. O número não é colorido: ele é o assunto, e o assunto não precisa
-   de cor para ser encontrado — precisa de tamanho. */",,,,,,
+   de cor para ser encontrado — precisa de tamanho. */",translate,"The total. The number isn't colored: it's the subject, and the subject doesn't need color to be found — it needs size.",other,apps/crm/src/app/globais.css:316-317,,proposed
 css-comment-81cf5974,css,apps/crm/src/app/globais.css,370,371,css,1,"/* Rótulo de campo na família do corpo e em caixa normal. A monoespaçada em
-   caixa alta é assinatura da marca, mas repetida em toda linha vira barulho. */",,,,,,
+   caixa alta é assinatura da marca, mas repetida em toda linha vira barulho. */",translate,"Field label in the body family and normal case. Uppercase monospace is the brand's signature, but repeated on every line it becomes noise.",other,apps/crm/src/app/globais.css:370-371,,proposed
 css-comment-64e0445d,css,apps/crm/src/app/globais.css,386,400,css,7,"/* =========================================== célula que se edita no lugar
    O `record-inline-cell` do Twenty, medido no fork em
    `RecordInlineCellDisplayMode.tsx` e `RecordInlineCellEditMode.tsx`:
@@ -285,12 +358,23 @@ css-comment-64e0445d,css,apps/crm/src/app/globais.css,386,400,css,7,"/* ========
 
    A folga lateral vem com margem negativa do mesmo tamanho: sem ela o texto
    anda 4px ao virar editável, e campo que pula ao ser tocado é o que faz
-   alguém desconfiar de que gravou errado. */",,,,,,
+   alguém desconfiar de que gravou errado. */",translate,"=========================================== cell that edits in place
+   Twenty's `record-inline-cell`, measured in the fork's `RecordInlineCellDisplayMode.tsx` and `RecordInlineCellEditMode.tsx`:
+
+     value side padding      4px   (spacing[1], 4px multiplier)
+     value vertical padding   2px
+     minimum read height     16px
+     edit-mode field height  24px
+     box radius               4px   (radius.sm; our --p-r-sm is 5px)
+     edit-button icon        16px
+     gap between value/icon   4px
+
+   The side padding comes with a negative margin of the same size: without it the text shifts 4px when it becomes editable, and a field that jumps when touched is what makes someone doubt whether it saved correctly.",integration,apps/crm/src/app/globais.css:386-400; cites Twenty's record-inline-cell measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f9e703d8,css,apps/crm/src/app/globais.css,436,437,css,3,"/* Campo vazio: mostra o próprio rótulo em tinta fantasma, que é o
-   ""Empty"" deles. Convite a clicar sem precisar de ícone nenhum. */",,,,,,
+   ""Empty"" deles. Convite a clicar sem precisar de ícone nenhum. */",translate,"Empty field: shows the label itself in ghost ink, which is their ""Empty"". An invitation to click without needing any icon.",integration,"apps/crm/src/app/globais.css:436-437; ""deles"" refers to Twenty's own placeholder term, kept as literal quoted evidence; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-1e22e7e6,css,apps/crm/src/app/globais.css,442,444,css,4,"/* O lápis só aparece no hover da linha. Ele ocupa lugar o tempo todo
    (`visibility`, não `display`) para o valor não encolher quando o ponteiro
-   entra — o mesmo motivo da margem negativa acima. */",,,,,,
+   entra — o mesmo motivo da margem negativa acima. */",translate,"The pencil only appears on row hover. It occupies space at all times (`visibility`, not `display`) so the value doesn't shrink when the pointer enters — same reason as the negative margin above.",other,apps/crm/src/app/globais.css:442-444,,proposed
 css-comment-5d607e14,css,apps/crm/src/app/globais.css,459,466,css,15,"/* A mesma célula dentro da listagem. Duas diferenças, e só duas:
    - a célula da tabela já tem recuo próprio, então o campo de edição ocupa a
      largura toda dela em vez de a do valor;
@@ -298,48 +382,58 @@ css-comment-5d607e14,css,apps/crm/src/app/globais.css,459,466,css,15,"/* A mesma
      por isso ela vira dica sobre a célula seguinte em vez de empurrar a linha.
    O resto (o lápis no hover, o Enter que grava, o Esc que desiste) é o mesmo
    comportamento da ficha, e é de propósito: quem aprendeu num lugar já sabe o
-   outro. */",,,,,,
-css-comment-80780a40,css,apps/crm/src/app/globais.css,484,484,css,4,/* A célula que hospeda edição não pode recortar o `<select>` nem a dica. */,,,,,,
+   outro. */",translate,"The same cell within the listing. Two differences, only two:
+   - the table cell already has its own indent, so the edit field takes its full width instead of the value's;
+   - the error can't break the table row into two different heights, so it becomes a tooltip on the next cell instead of pushing the row.
+   The rest (the hover pencil, Enter to save, Esc to cancel) is the same behavior as the record page, and it's intentional: whoever learned it in one place already knows the other.",other,apps/crm/src/app/globais.css:459-466,,proposed
+css-comment-80780a40,css,apps/crm/src/app/globais.css,484,484,css,4,/* A célula que hospeda edição não pode recortar o `<select>` nem a dica. */,translate,The cell hosting the edit can't clip the `<select>` or the tooltip.,other,apps/crm/src/app/globais.css:484,,proposed
 css-comment-adab49f0,css,apps/crm/src/app/globais.css,489,490,css,9,"/* Gravando: o valor novo já está na tela, e a opacidade diz que ainda não
-   voltou do servidor. Não é bloqueio — só um aviso de que está em curso. */",,,,,,
+   voltou do servidor. Não é bloqueio — só um aviso de que está em curso. */",translate,"Saving: the new value is already on screen, and the opacity says it hasn't come back from the server yet. It's not a lock — just a notice that it's in progress.",other,apps/crm/src/app/globais.css:489-490,,proposed
 css-comment-b46ff60b,css,apps/crm/src/app/globais.css,508,510,css,9,"/* A queixa quebra a linha e fica embaixo, em vermelho. Enquanto ela está na
    tela, o valor ao lado já voltou a ser o anterior: a mensagem explica uma
-   coisa que a pessoa consegue ver. */",,,,,,
-css-comment-f0827203,css,apps/crm/src/app/globais.css,524,524,css,0,"/* Respostas de formulário: agrupadas por formulário e versão, nunca soltas. */",,,,,,
+   coisa que a pessoa consegue ver. */",translate,"The error breaks the line and sits below, in red. While it's on screen, the value next to it has already reverted to the previous one: the message explains something the person can see.",other,apps/crm/src/app/globais.css:508-510,,proposed
+css-comment-f0827203,css,apps/crm/src/app/globais.css,524,524,css,0,"/* Respostas de formulário: agrupadas por formulário e versão, nunca soltas. */",translate,"Form responses: grouped by form and version, never loose.",other,apps/crm/src/app/globais.css:524,,proposed
 css-comment-bbce6193,css,apps/crm/src/app/globais.css,564,568,css,14,"/* ================================================ painel: a linha de resumo
    Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não
    assunto: quando cinco cartões têm o peso do funil, o olho não sabe onde
    começar. A variação contra o mês anterior vem com sinal, não com cor —
-   um mês pior não é um erro que alguém resolva clicando. */",,,,,,
+   um mês pior não é um erro que alguém resolva clicando. */",translate,"================================================ panel: the summary line
+   No box, no border, smaller typography than the funnel's. It's a caption, not the subject: when five cards carry the funnel's weight, the eye doesn't know where to start. The variation against the previous month comes with a sign, not a color — a worse month isn't a mistake for someone to fix by clicking.",other,apps/crm/src/app/globais.css:564-568,,proposed
 css-comment-d5bcff35,css,apps/crm/src/app/globais.css,663,666,css,8,"/* =========================================================== lista: agrupamento
    O cabeçalho do grupo é a resposta: quando a lista está dobrada por uma
    coluna, essa coluna sai da tabela — repeti-la em cada linha é dizer a mesma
-   coisa duas vezes e roubar largura de quem ainda tem algo a dizer. */",,,,,,
+   coisa duas vezes e roubar largura de quem ainda tem algo a dizer. */",translate,"=========================================================== list: grouping
+   The group header is the answer: when the list is grouped by a column, that column leaves the table — repeating it on every row says the same thing twice and steals width from whoever still has something to say.",other,apps/crm/src/app/globais.css:663-666,,proposed
 css-comment-604f398a,css,apps/crm/src/app/globais.css,667,669,css,2,"/* O rótulo do seletor de agrupamento. Nome próprio, e não `.campo`: `.campo` é
    o primitivo de entrada do pacote, e usá-lo num `<label>` dava a ele borda e
-   fundo de caixa de texto. */",,,,,,
-css-comment-9a5b8814,css,apps/crm/src/app/globais.css,691,691,css,1,/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */,,,,,,
+   fundo de caixa de texto. */",translate,"The grouping selector's label. Its own name, not `.campo`: `.campo` is the package's input primitive, and using it on a `<label>` gave it a text-box border and background.",other,apps/crm/src/app/globais.css:667-669,,proposed
+css-comment-9a5b8814,css,apps/crm/src/app/globais.css,691,691,css,1,/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */,translate,Count next to a label. Monospace because it's a number.,other,apps/crm/src/app/globais.css:691,,proposed
 css-comment-df4f63ee,css,apps/crm/src/app/globais.css,699,702,css,10,"/* ============================================================= texto de tela
    `code` é o único lugar da interface com monoespaçada que não é número: é
    comando de terminal literal, e o elemento nativo já diz isso ao leitor de
-   tela. Não existe uma classe `.mono` para tentar a sorte com o resto. */",,,,,,
-css-comment-c11c5931,css,apps/crm/src/app/globais.css,708,708,css,1,/* Primeira coluna de tabela: o nome do registro é o que se procura na varredura. */,,,,,,
+   tela. Não existe uma classe `.mono` para tentar a sorte com o resto. */",translate,"============================================================= screen text
+   `code` is the only place in the interface with monospace that isn't a number: it's a literal terminal command, and the native element already tells the screen reader that. There's no `.mono` class to try its luck with the rest.",other,apps/crm/src/app/globais.css:699-702,,proposed
+css-comment-c11c5931,css,apps/crm/src/app/globais.css,708,708,css,1,/* Primeira coluna de tabela: o nome do registro é o que se procura na varredura. */,translate,First table column: the record's name is what you search for while scanning.,other,apps/crm/src/app/globais.css:708,,proposed
 css-comment-ff6dfe97,css,apps/crm/src/app/globais.css,714,715,css,3,"/* Condição de regra em português. Quebra linha e tem teto de largura, senão
-   uma condição composta empurra as outras seis colunas para a rolagem. */",,,,,,
+   uma condição composta empurra as outras seis colunas para a rolagem. */",translate,"Rule condition in Portuguese. Wraps and has a max width, otherwise a compound condition pushes the other six columns into scrolling.",other,apps/crm/src/app/globais.css:714-715,,proposed
 css-comment-6dc357fd,css,apps/crm/src/app/globais.css,728,734,css,16,"/* ================================================ esqueleto de carregamento
    A tabela com a altura certa antes do dado chegar, para a tela não pular
    quando ele chega. O pulso é lento (1,4s) e de baixo contraste: animação de
    espera que chama atenção compete com o conteúdo que está prestes a entrar.
 
    `.barra` é o único desenho aqui — a estrutura reaproveita `table`, `td` e
-   `.campos`, que já têm a densidade certa. */",,,,,,
+   `.campos`, que já têm a densidade certa. */",translate,"================================================ loading skeleton
+   The table at the right height before the data arrives, so the screen doesn't jump when it does. The pulse is slow (1.4s) and low-contrast: a waiting animation that grabs attention competes with the content about to arrive.
+
+   `.barra` is the only shape drawn here — the structure reuses `table`, `td` and `.campos`, which already have the right density.",other,apps/crm/src/app/globais.css:728-734,,proposed
 css-comment-f809b85d,css,apps/crm/src/app/globais.css,753,754,css,4,"/* Quem pediu menos movimento no sistema não recebe o pulso. A barra continua
-   lá — é ela que segura a altura da tela — só parada. */",,,,,,
+   lá — é ela que segura a altura da tela — só parada. */",translate,Whoever asked for reduced motion in the system doesn't get the pulse. The bar stays — it's what holds the screen's height — just still.,other,apps/crm/src/app/globais.css:753-754,,proposed
 css-comment-d307f6e9,css,apps/crm/src/app/globais.css,761,763,css,1,"/* ================================================================ erro e vazio
    O botão dentro do bloco de estado. Sem isto ele herda o `align-items:center`
-   do `.vazio` e estica na largura toda. */",,,,,,
+   do `.vazio` e estica na largura toda. */",translate,"================================================================ error and empty
+   The button inside the state block. Without this it inherits `align-items:center` from `.vazio` and stretches to full width.",other,apps/crm/src/app/globais.css:761-763,,proposed
 css-comment-1c1e8292,css,apps/crm/src/app/globais.css,770,771,css,5,"/* Texto só para leitor de tela. O esqueleto é `aria-hidden`, então alguém
-   precisa dizer em voz alta que a tela está carregando. */",,,,,,
+   precisa dizer em voz alta que a tela está carregando. */",translate,"Screen-reader-only text. The skeleton is `aria-hidden`, so something needs to announce out loud that the screen is loading.",other,apps/crm/src/app/globais.css:770-771,,proposed
 css-comment-05079a9c,css,apps/crm/src/app/globais.css,784,792,css,12,"/* ==================================================== a lista de registros
    Ordenação por coluna, coluna redimensionável e seleção múltipla. A leitura
    do Twenty deu a mecânica; as medidas continuam sendo as nossas (linha de
@@ -348,22 +442,27 @@ css-comment-05079a9c,css,apps/crm/src/app/globais.css,784,792,css,12,"/* =======
    `table-layout: fixed` é obrigatório: sem ele o navegador ignora a largura
    do `<col>` e negocia sozinho, e a coluna arrastada volta ao lugar. Com ele,
    a última coluna do `<colgroup>` fica sem largura declarada e absorve a
-   sobra da tela larga, para que as outras mantenham o valor arrastado. */",,,,,,
-css-comment-7909dd30,css,apps/crm/src/app/globais.css,803,803,css,1,/* ----------------------------------------------------- cabeçalho que ordena */,,,,,,
+   sobra da tela larga, para que as outras mantenham o valor arrastado. */",translate,"==================================================== the record list
+   Column sorting, resizable columns and multiple selection. Reading Twenty gave the mechanics; the measurements remain ours (36px row, 8px/12px cell, uppercase header in the body family).
+
+   `table-layout: fixed` is mandatory: without it the browser ignores the `<col>` width and negotiates on its own, and the dragged column returns to its place. With it, the last column of the `<colgroup>` is left without a declared width and absorbs the leftover space on wide screens, so the others keep their dragged value.",integration,apps/crm/src/app/globais.css:784-792; cites Twenty for the sorting/resize mechanics; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7909dd30,css,apps/crm/src/app/globais.css,803,803,css,1,/* ----------------------------------------------------- cabeçalho que ordena */,translate,----------------------------------------------------- sortable header,other,apps/crm/src/app/globais.css:803,,proposed
 css-comment-71c9c2b9,css,apps/crm/src/app/globais.css,820,821,css,7,"/* A seta reserva a própria largura mesmo vazia: sem isso o rótulo desliza
-   para o lado a cada clique, e a coluna parece piscar. */",,,,,,
+   para o lado a cada clique, e a coluna parece piscar. */",translate,"The arrow reserves its own width even when empty: without this the label slides sideways on every click, and the column seems to flicker.",other,apps/crm/src/app/globais.css:820-821,,proposed
 css-comment-2f341dda,css,apps/crm/src/app/globais.css,833,835,css,2,"/* --------------------------------------------------------- alça de arraste
    Alvo de 9px encostado na divisa da coluna, com 1px visível. Alvo estreito
-   demais é alça que ninguém pega; larga demais rouba o clique do rótulo. */",,,,,,
+   demais é alça que ninguém pega; larga demais rouba o clique do rótulo. */",translate,"--------------------------------------------------------- drag handle
+   A 9px target flush against the column border, with 1px visible. Too narrow a target is a handle no one can grab; too wide steals the label's click.",other,apps/crm/src/app/globais.css:833-835,,proposed
 css-comment-4679c2ac,css,apps/crm/src/app/globais.css,869,870,css,6,"/* Enquanto arrasta, a coluna inteira se anuncia: sem isso a pessoa perde de
-   vista qual coluna está mudando quando o cursor sai do cabeçalho. */",,,,,,
+   vista qual coluna está mudando quando o cursor sai do cabeçalho. */",translate,"While dragging, the whole column announces itself: without this the person loses track of which column is changing when the cursor leaves the header.",other,apps/crm/src/app/globais.css:869-870,,proposed
 css-comment-3767ba9a,css,apps/crm/src/app/globais.css,875,879,css,7,"/* -------------------------------------------------------- seleção múltipla
    32px é a largura da coluna de caixa no Twenty, e cai bem na nossa linha de
    36px. A caixa some no repouso e volta no hover ou quando marcada: uma
    coluna de caixas vazias é a primeira coisa que o olho tem de aprender a
-   ignorar numa lista. */",,,,,,
+   ignorar numa lista. */",translate,"-------------------------------------------------------- multiple selection
+   32px is the checkbox column's width in Twenty, and it fits well with our 36px row. The checkbox disappears at rest and returns on hover or when checked: a column of empty checkboxes is the first thing the eye has to learn to ignore in a list.",integration,apps/crm/src/app/globais.css:875-879; cites Twenty's checkbox column width; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-99763c59,css,apps/crm/src/app/globais.css,910,911,css,5,"/* A linha marcada usa a marca em versão suave. É estado ativo de uma ação em
-   curso, que é onde a cor de marca pode entrar. */",,,,,,
+   curso, que é onde a cor de marca pode entrar. */",translate,"The marked row uses the brand color in a soft version. It's the active state of an ongoing action, which is where the brand color can enter.",other,apps/crm/src/app/globais.css:910-911,,proposed
 css-comment-175daec3,css,apps/crm/src/app/globais.css,916,926,css,28,"/* A linha sob o cursor do teclado (`j`/`k`). A forma é a deles, medida em
    `record-table-row/components/RecordTableRowDiv.tsx`: fundo mais escuro que o
    repouso, mais um fio de 1px embaixo em linha média. Um fio, e não contorno
@@ -374,7 +473,9 @@ css-comment-175daec3,css,apps/crm/src/app/globais.css,916,926,css,28,"/* A linha
    superfície. Marca aqui colidiria com a linha MARCADA, que já é marca suave, e
    as duas coisas precisam ser distinguíveis — uma é onde o olho está, a outra é
    um compromisso que a pessoa assumiu. O fio embaixo é o que sobrevive quando
-   as duas coincidem. */",,,,,,
+   as duas coincidem. */",translate,"The row under keyboard focus (`j`/`k`). The shape is theirs, measured in `record-table-row/components/RecordTableRowDiv.tsx`: a darker background than at rest, plus a 1px rule at the bottom in the medium line. A single rule, not a full outline, because the table already has horizontal lines — the highlight thickens the one that already exists instead of drawing a new box.
+
+   The color is what changes: they use the brand color (`accent.quaternary`), we use surface. Brand color here would collide with the MARKED row, which is already a soft brand color, and the two need to be distinguishable — one is where the eye is, the other is a commitment the person has made. The bottom rule is what survives when the two coincide.",integration,apps/crm/src/app/globais.css:916-926; cites Twenty's RecordTableRowDiv.tsx and accent.quaternary color choice; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-eeb42d7a,css,apps/crm/src/app/globais.css,936,938,css,5,"/* --------------------------------------------- a barra de ação em massa
    Só existe quando há seleção. Presa embaixo e centrada, longe do texto que
    a pessoa está lendo. */",,,,,,
