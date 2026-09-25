@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-917a6b0d",
+      "action": "translate",
+      "new_text": "/** `XU` (dictionary `qU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1362-1362",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-dc3cf42e",
+      "action": "translate",
+      "new_text": "/** `GU` (dictionary `BU`) + `QU` + `JU` + `PU`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1410-1410",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9b22ae86",
+      "action": "translate",
+      "new_text": "/** `FN`/`xU`: the example comparison indicator, \"-5%\" with a down arrow. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:147-147",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7e017380",
+      "action": "translate",
+      "new_text": "/** Each `QU` tab: divider line, fs-20 title, and the table. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1511-1511",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-81a571bf",
+      "action": "translate",
+      "new_text": "/**\n * The Builder screenshots that `gU` embeds as PNG (164×19 and 88×19). The PNGs\n * are not included: the drawing is redone at the same size, with our own styling.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:157-160",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a8c6be52",
+      "action": "translate",
+      "new_text": "/* ------------------------------------------------------------ common pieces */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:17-17",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6fa4d938",
+      "action": "translate",
+      "new_text": "/** `pV` (dictionary `rV`) + `uV` + `lV` + `iV` + `hV`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1779-1779",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d68cc570",
+      "action": "translate",
+      "new_text": "/** Marks, inside an object-cell, the `important` key that becomes a tag/badge. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:179-179",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2ef02957",
+      "action": "translate",
+      "new_text": "/**\n * `iU`: ghost header, 10 padding, first column at 20%, odd rows in surface-2,\n * and the first cell in bold. An object-cell becomes one paragraph per key\n * (`aU`), and the `important` key becomes the tag/badge.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:183-187",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7854b916",
+      "action": "translate",
+      "new_text": "/** `oV`/`tV`: title, text, \"Importante\" and the table. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1883-1883",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4d5d6788",
+      "action": "translate",
+      "new_text": "/** `lN`: \"Atualizado em\", fs-10 ghost, flush right. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:19-19",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d977ea99",
+      "action": "translate",
+      "new_text": "/** `oV` (dictionary `nV`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1925-1925",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-36835593",
+      "action": "translate",
+      "new_text": "/** `tV` (dictionary `eV`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1982-1982",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a6bc9b1e",
+      "action": "translate",
+      "new_text": "/**\n * The page for each `path` key. Subsection and section share the namespace\n * because the origin also shares it (`selectedSubSection` is a single value).\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:2020-2023",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2ad267c4",
+      "action": "translate",
+      "new_text": "/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: blue title, one line, and the table. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:232-232",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ec6aaba1",
+      "action": "translate",
+      "new_text": "/** `zN` (dictionary `cN`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:255-255",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7c8b994f",
+      "action": "translate",
+      "new_text": "/** `ZN`: attached-report title, in the primary color (`#1E6BF1` in the origin). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-30957259",
+      "action": "translate",
+      "new_text": "/** `vU` (dictionary `bU`): the section's own page. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:293-293",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b0bab804",
+      "action": "translate",
+      "new_text": "/** `SU` (dictionary `yU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:320-320",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-243d580a",
+      "action": "translate",
+      "new_text": "/** `JN` (dictionary `PN`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:386-386",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b4057bd9",
+      "action": "translate",
+      "new_text": "/** `VN`: block `bds-typo`, 5 margin-bottom. Without `variant`, the origin falls back to fs-16. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:39-39",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d3a5b998",
+      "action": "translate",
+      "new_text": "/* `DN`: the same indicator box, empty, to align the example. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:407-407",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e1bb5803",
+      "action": "translate",
+      "new_text": "/** `lU` (dictionary `sU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:423-423",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d2971a6f",
+      "action": "translate",
+      "new_text": "/** `CN`: flex row, 5 margin-bottom. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:44-44",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cea9eca9",
+      "action": "translate",
+      "new_text": "/**\n * `ON`: the highlighted, non-wrapping span. With `variant=\"fs-14\" bold` it's the\n * bold style; called with nothing (`SU`, `VU`) it's fs-16 regular — `solto`.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:49-52",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3da52ef0",
+      "action": "translate",
+      "new_text": "/** `DU` (dictionary `CU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:491-491",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9ebaf7e3",
+      "action": "translate",
+      "new_text": "/* `MU`: label between 83 and 100 width. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:496-496",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-99adfac4",
+      "action": "translate",
+      "new_text": "/**\n * The Data Dictionary pages, one function per page from the origin, with the\n * EXACT pt-BR text from the dictionaries embedded in `analytics-main.js` (the\n * `pt:` of each `translate`). The only text swap is \"Blip\" → \"Pipe\", wherever\n * the brand name is visible to the reader.\n *\n * The common pieces carry the name of the styled-component they came from\n * (`UN`, `VN`, `CN`…), because that name is how the measurement is found in\n * the bundle. The `font-size` each one inherits matters: loose text inside a\n * `VN` inherits the `bds-typo`'s fs-14; loose outside it, the page's 16. See\n * `dicionario.css`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:5-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1ea63083",
+      "action": "translate",
+      "new_text": "/** `VU` (dictionary `UU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:579-579",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2ef05a3b",
+      "action": "translate",
+      "new_text": "/** `gU` (dictionary `hU`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:647-647",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-03671dea",
+      "action": "translate",
+      "new_text": "/** The origin's support link points to `support.blip.ai`: only the text stays here, without a destination. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:67-67",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f9d4ec0a",
+      "action": "translate",
+      "new_text": "/**\n * `NU` → `wU` (dictionary `RU`): the page that the origin already writes as a\n * list of typed sections (`text`, `attentionText`, `chip`, `orderedList`,\n * `table`, `unorderedList`), stacked in a `bds-grid direction=\"column\" gap=\"2\"`.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:767-771",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-75e147f3",
+      "action": "translate",
+      "new_text": "/** `_U` (dictionary `EU`). From the second answer onward, `VN` goes without `variant`: fs-16. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:993-993",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7f1c96d9",
+      "action": "translate",
+      "new_text": "/** `auth.application.detail.analytics.reportManager` — \"today\" is in the account's timezone. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador.tsx:5-5",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4ae134e8",
+      "action": "translate",
+      "new_text": "/** Same calculation as the Data Extractor (`differenceInDays`), capped at 90 days. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts:3-3",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-84fca543",
+      "action": "translate",
+      "new_text": "/* `<bds-autocomplete placeholder=\"Início\">`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:100-100",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d90eb4fa",
+      "action": "translate",
+      "new_text": "/* Disabled until a node is chosen: tooltip \"Primeiro selecione um nó\". */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:126-126",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fe83df12",
+      "action": "translate",
+      "new_text": "/* `/assets/img/clock.svg`, which wasn't included in the capture: the clock\n                  icon from our icon set is used instead. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:137-138",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-50ef40cc",
+      "action": "translate",
+      "new_text": "/** `<labeled-color-card>`: 10px left border in the node type's color. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:195-195",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-65bec342",
+      "action": "translate",
+      "new_text": "/**\n * `#contacts-journey-content > .diagram-body.pv5`: the body width is\n * `23% × steps`, with a 100% floor (`adjustJourneyViewWidth()`); past that,\n * the box scrolls horizontally. The drawing is 500 tall (`Ci.height`).\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:215-219",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9c42e7a3",
+      "action": "translate",
+      "new_text": "/**\n * `showContactsJourneyInfoModalModal()` (template 22616): `bds-modal` with the\n * `sankey-diagram.svg` illustration on the left — not included in the capture,\n * so the column stays empty — and the text from `contactsJourney.infoModal`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:268-272",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6f5e845b",
+      "action": "translate",
+      "new_text": "/**\n * Contacts Journey — the `contactsJourney` component from the\n * `analyticsComponents` module (template 55218, controller `Sn`), with the\n * `sankeyDiagram` (`Oe`) and the `labeledColorCard` (4233).\n *\n * The context flags: `showing-contacts-journey` (without it the screen\n * redirects elsewhere), `contacts-journey-first-node-filter` (the \"Começar a\n * partir de\" filter, which removes the \"Selecione um nó\" phrase from the\n * diagram header), and `contacts-journey-contacts-button` (the \"Listar\n * contatos\" button). All enabled.\n *\n * Template states: diagram, \"carregando\" (loading), no data, and generic\n * error. Here the read happens on the server and finishes before the screen\n * renders — there is no \"loading\" state — and the error has nowhere to come\n * from; only the diagram and \"no data\" states remain.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:33-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-69e58cf8",
+      "action": "translate",
+      "new_text": "/** `isThisMasterApplication()`: changes the \"sem dado\" (no data) phrasing. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:60-60",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-142e73c9",
+      "action": "translate",
+      "new_text": "/* `firstNodeFilterOptions`: the starting nodes, excluding \"Outros\"/\"Saída\",\n     unique and alphabetically ordered. They come from ALL edges — changing the\n     start doesn't narrow the options list, only the diagram. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:63-65",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-92bacf70",
+      "action": "translate",
+      "new_text": "/**\n * `firstNodeFilterOptions`/the \"Começar a partir de\" filter: trims the diagram\n * to the subgraph reachable from the chosen starting node — no new request,\n * it's all client-side, over the edges already received from the server.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:8-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a9045ba0",
+      "action": "translate",
+      "new_text": "/**\n * `auth.application.detail.analytics.contactsJourney` — the\n * `#contactsJourneyContent` panel.\n *\n * Period: `initAndApplyFilter()` passes `UT` `defaultStartFromToday: -1`,\n * `defaultEndFromToday: 0`, `validStartFromToday: -30`, `validEndFromToday: 1`\n * — from yesterday to today, within the last 30 days. The calculation is done\n * in the `api`, in the account's timezone; the response carries the period\n * that was actually used.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx:8-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b51d99fe",
+      "action": "translate",
+      "new_text": "/** `getTooltipSufix()`: this edge's share among all edges leaving the same node. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:133-133",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7119ebe5",
+      "action": "translate",
+      "new_text": "/**\n * `SankeyService.getLabelSufix(nome, i)`: the node's share at step `i` — those\n * who ARRIVED at it over everyone who arrived at that step; for the starting\n * node, those who LEFT it over everyone who left. With `i < 0` or an empty\n * step, it returns the raw count.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:19-24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-498cb2b0",
+      "action": "translate",
+      "new_text": "/**\n * The Journey diagram without a library. In the origin it's the `Sankey` from\n * Google Charts (`sankeyDiagram`, controller `Oe`) with the `Ci` options: 15\n * node width, 30 between nodes, `iterations: 0` — i.e., NO reordering to\n * reduce crossings: nodes stay in the order their edges arrive. That order is\n * what can be reproduced in plain SVG, which is what's done here.\n *\n * Deliberately pure: `tests/analise-jornada.test.ts` locks the label.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:3-11",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bc2d17c2",
+      "action": "translate",
+      "new_text": "/* `loadNodeColors()` pushes the source WITHOUT a type and the destination WITH\n     a type, keeping the first occurrence: a node that was already born as a\n     source is `Regular`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:67-68",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5dda171d",
+      "action": "translate",
+      "new_text": "/* The scale is set by the fullest column: it occupies the entire height. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:85-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-422af675",
+      "action": "translate",
+      "new_text": "/* `.autocomplete-wrapper`: the label says \"campanha\" because the template one\n            is enabled (`y || v`); the Campaign one is hidden by the flag. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:115-116",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d50d4ad2",
+      "action": "translate",
+      "new_text": "/* `.select__icon`: the solid `error` icon only appears with a value (`icon-hidden`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:141-141",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-96c28723",
+      "action": "translate",
+      "new_text": "/** `/active-messages/template-names`: the autocomplete's options. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9cccdedf",
+      "action": "translate",
+      "new_text": "/**\n * The Active Messages filter — `St` (analytics-main.js 33556), dictionary `gt`.\n *\n * It's client-side for ONE visible reason: \"Aplicar\" starts disabled and only\n * lights up when something changes (the `N`/`U()` of `Lx`: chip, date, or\n * template). The rest is a plain GET form — the period, dates, and template go\n * in the URL, and the (server) page reads from there, which is the origin's\n * `K()`.\n *\n * It deliberately does not import `lib/analise.ts`: that file opens the\n * database. Labels and date limits arrive via prop.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:4-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ed0d9c63",
+      "action": "translate",
+      "new_text": "/* `D()`: finishing the calendar turns it into a custom period and clears the chip. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:43-43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2a2f9c3a",
+      "action": "translate",
+      "new_text": "/* `.datepicker-wrapper`: fs-14 semi-bold label and the `bds-datepicker\n            type-of-date=\"period\"` — two \"De\"/\"Até\" `bds-input`s with the\n            `calendar` icon. Their floating calendar becomes the native picker. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:83-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3948c7ee",
+      "action": "translate",
+      "new_text": "/**\n * The Active Messages body — the column of cards and charts from `Lx`\n * (analytics-main.js 56300). Receives the data ready via prop: that's what\n * lets the same markup render both the empty and the filled states.\n *\n * The origin draws the charts with chart.js + chartjs-plugin-datalabels. No\n * library is used here: it's CSS and a line SVG, with the chart.js defaults\n * that show on screen (12px ticks, 3px line, 10% grid).\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:11-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-331f72d8",
+      "action": "translate",
+      "new_text": "/* `D()`: everything as a percentage of sent; with no sends, everything is zero. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:147-147",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d7486ab3",
+      "action": "translate",
+      "new_text": "/* `b()`: one point per day in the period, zero where nothing was sent. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:212-212",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8fe370ce",
+      "action": "translate",
+      "new_text": "/* `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap=\"2\" padding=\"2\"`:\n     the paper-inside-paper is theirs, and the shadow doubles up. The title and\n     description ask for `lineHeight=\"none\"`, which doesn't take (see\n     `.ma-taxa-titulo`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:221-223",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7ee9f362",
+      "action": "translate",
+      "new_text": "/** `f()` + the single-day `options`: three bars, no axis or grid. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:253-253",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1e6fa474",
+      "action": "translate",
+      "new_text": "/* `ne()`: the sum of the `/active-messages/status` rows (`read` is\n     `consumed`, `replied` is `response`). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:27-28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-200640b9",
+      "action": "translate",
+      "new_text": "/**\n * `m()` + the period `options`: three lines, each on its OWN scale (`y`, `y1`,\n * `y2`, the last two hidden), and only the \"sent\" line has an axis.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:274-277",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-facee732",
+      "action": "translate",
+      "new_text": "/* chart.js skips labels that don't fit (`autoSkip`); here, one every N. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:285-285",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e8ab2303",
+      "action": "translate",
+      "new_text": "/* Zero is drawn as 0.5 (the minimum bar) and the axis goes to at least 50. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:392-392",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-204bf85e",
+      "action": "translate",
+      "new_text": "/** `Ct`: label and tooltip for each count. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:84-84",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ea81230c",
+      "action": "translate",
+      "new_text": "/* `Ft`: icon, background, raw number (the origin doesn't format here), and label. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:94-94",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-40946adc",
+      "action": "translate",
+      "new_text": "/**\n * Analytics › Active Messages — the origin's `<analytics-mfe\n * page=\"activeMessages\">`, which `portal-fragment-analytics` resolves to `Lx`\n * (analytics-main.js 56300) when `is-displaying-analytics-active-messages-tab`\n * is enabled (it is, for the capture's router).\n *\n * There, `Lx` keeps period and template in state and requests four commands\n * (`/active-messages/status`, `reply-hour`, `failed-count`, and\n * `template-names`) on every \"Aplicar\"/\"Atualizar\". Here the state lives in\n * the URL (`?periodo`, `?de`, `?ate`, `?template`) and the `api` resolves the\n * period in the account's timezone.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:17-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4b7076d9",
+      "action": "translate",
+      "new_text": "/** The `bds-datepicker`'s `startDateLimit`: 186 days back. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:32-32",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2d170653",
+      "action": "translate",
+      "new_text": "/* `Ix` › `jx` › `Ax` (title) and `Zx` (the secondary \"Atualizar\" button with\n            `refresh`). Atualizar resubmits the filter as-is — that's `te()` →\n            `K()`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:55-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-53365fab",
+      "action": "translate",
+      "new_text": "/**\n * `<card>` — `blipComponents.card`: without `item-title`, just the\n * `div.card-content`; with a title, the `div.card-header` comes first (the\n * `p.card-title` and the `i.icon-info` that only shows up on hover over the\n * card).\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:126-130",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-224da964",
+      "action": "translate",
+      "new_text": "/* ---------------------------------------------------------- the period in the URL */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:163-163",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-33af8760",
+      "action": "translate",
+      "new_text": "/** `moment().add(n, 'days')` over a date without time. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:172-172",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b8b4fecd",
+      "action": "translate",
+      "new_text": "/**\n * `de` and `ate` come from the URL, which is untrusted external text: they\n * only pass through in day format and in order; otherwise, the screen's\n * default period applies.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:179-182",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f9b7845a",
+      "action": "translate",
+      "new_text": "/**\n * The pieces shared by more than one Analytics tab. No state and no data of\n * their own: everything arrives via prop, so the filled-in render comes from\n * the same component.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:4-7",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b79b591b",
+      "action": "translate",
+      "new_text": "/**\n * The abbreviated month from `_setDateOnInput()`. In the origin it comes from\n * `DateHelper.months` in English, because the template doesn't pass `months`;\n * here, by the product owner's decision, it comes out in Portuguese and\n * lowercase. The format is theirs.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:51-55",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-eb86f688",
+      "action": "translate",
+      "new_text": "/**\n * `<blip-daterange-picker>`: the box with the calendar icon and the two dates\n * separated by \"~\"; on open, the `bp-daterange-dropdown` with the calendars\n * and the Cancelar/Aplicar buttons.\n *\n * The origin's two month calendars became two `<input type=\"date\">` inside\n * the same frame: only the panel's inner content changes, and the form sends\n * `de` and `ate` via the URL. \"Cancelar\" reloads the screen as it was.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:64-72",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-120d5ee3",
+      "action": "translate",
+      "new_text": "/**\n * `<page-header>` — the `blipComponents.pageHeader` directive:\n *\n *   div.container > div.full-initial-section >\n *     div.row.flex.page-header-content.items-center.mb0 >\n *       div.flex.items-center.w-100 > (custom-title | h1.mv0.mr2.lh-solid)\n *       div.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100\n *\n * The help icon and the `<page-help>` only exist with `helperTitle`,\n * `helperBody`, AND `helperConfirm`; none of the three tabs pass the third\n * one, so neither shows up.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:9-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d73eab4e",
+      "action": "translate",
+      "new_text": "/**\n * The generic `ModalService` modal (`Rw`, template 84817) with the\n * `reports.modal` texts: `modal-toolbar` with the `close`, fs-32 title, body,\n * and the \"Não\" (secondary) and \"Sim\" buttons. Deleting writes to the\n * database — and here there's no report to delete —, so the \"Sim\" button gets\n * the \"coming soon\" badge.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:127-132",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-49121427",
+      "action": "translate",
+      "new_text": "/* `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, WITHOUT\n          `helper-confirm` — that's why there's no help icon. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:23-24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8b1d5dc3",
+      "action": "translate",
+      "new_text": "/* `<search-input class=\"flex mr3\">`: the 32px magnifying glass and the field,\n                which starts at width 0 and only opens on focus. The `<label>`\n                makes clicking the glass focus the field, which is their\n                `focusInput()`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:29-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-541fe1ef",
+      "action": "translate",
+      "new_text": "/* `goToReport()` opens the report editor, which doesn't exist here. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:36-36",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e6ee443b",
+      "action": "translate",
+      "new_text": "/**\n * Custom Reports — the `customReports` component from the\n * `analyticsComponents` module (template 47754, controller `bi`).\n *\n * Two states, both from the template: the `bds-paper.cards` list, and, with\n * no report, the `bds-typo.no-content-found` \"Nenhum relatório encontrado :(\".\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:5-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-36727623",
+      "action": "translate",
+      "new_text": "/* `.card-icons.card-icons--hidden.w-10`: edit and delete, only for the\n                owner, and only appear on hover over the card. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:62-63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-807c0920",
+      "action": "translate",
+      "new_text": "/* `confirmDelete()` opens the confirmation modal. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:70-70",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6169976a",
+      "action": "translate",
+      "new_text": "/* Outside the row: `.cards` is `white-space: nowrap`, and the `ModalService`\n            modal is born in the `body`, not inside the card. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:80-81",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c25d8eda",
+      "action": "translate",
+      "new_text": "/**\n * `handleReport()`: modified TODAY shows `moment(...).fromNow()`; another day,\n * `DD/MM/YYYY - HH:mm`; no date, `N/A`. \"Today\" is in the account's timezone.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:96-99",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2bb209fa",
+      "action": "translate",
+      "new_text": "/**\n * `auth.application.detail.analytics.overview` — the `#overviewContent` panel.\n *\n * Default period: `getDate()`, with the one-day flag disabled, calls `U4(7)`,\n * which is `moment().subtract(7, 'days')` through `moment()`. The calculation\n * is done by the `api`, in the account's timezone.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx:8-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-325f12c2",
+      "action": "translate",
+      "new_text": "/** `formatNumbers()`: `toLocaleString()` with the comma swapped for a period. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:200-200",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-331698f7",
+      "action": "translate",
+      "new_text": "/** `<counter-child-card>`: bold name with the tooltip, and the value at fs-20. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:205-205",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-172b19b8",
+      "action": "translate",
+      "new_text": "/**\n * The `chart type=\"line\"` from `analyticsChart`, which in the origin is the\n * `LineChart` from Google Charts. No library: axis, grid, two lines, and the\n * legend on the right, which is its default. With no day of data, the\n * `noEnoughData` message.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:222-226",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-91e5f9a2",
+      "action": "translate",
+      "new_text": "/**\n * The `showOverviewModal()` modal (template 6411): the portal's legacy\n * `.modal`, `modal-dialog modal-sm`, the illustration on the left\n * (`Chevalet.svg`, which wasn't included in the capture — the column stays\n * empty), and the text from `metrics.overviewHelp`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:296-300",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f972ec3d",
+      "action": "translate",
+      "new_text": "/**\n * Overview — the `generalDashboard` component from the `analyticsComponents`\n * module (template 7780, controller `ri`), with the `counterChildCard` (14085)\n * and the `analyticsChart` (1920).\n *\n * The context flags that affect this page, all enabled: `analytics-messages-\n * general-info` (the title's help icon), `active-messages-per-domain-table`\n * (the \"Mensagens ativas por canal\" block), and\n * `analytics-general-dashboard-requests-for-user-quantity-enabled` (the user\n * counters). `general-dashboard-initial-period-one-day` is disabled: the\n * period opens at seven days.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:5-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8e0cff48",
+      "action": "translate",
+      "new_text": "/* `bds-tabs` renders: a ← button in a 40px container, the header with the\n          tabs, a → button in another 40px container. Both buttons only appear\n          when the tabs don't fit (`handleHeaderResize`); the containers always\n          stay. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:31-33",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-081fefe0",
+      "action": "translate",
+      "new_text": "/* `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` —\n          the Dashboard is the only panel without the padding that clears the\n          fixed row. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:59-60",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d12775f3",
+      "action": "translate",
+      "new_text": "/**\n * `#analytics-tabs-view`: the `bds-tabs` and the open tab's panel.\n *\n * It's client-side for just one reason — knowing which tab is open. In the\n * origin it's `tabData[aba].active`, which `initilizeTabs()` derives from\n * `$state.current.url`; here it's the path. The layout can't see the path,\n * which is why this piece exists.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:6-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f6ca0a0a",
+      "action": "translate",
+      "new_text": "/* The origin's \"…\" only exists when items OVERFLOW, and shows what overflowed.\n              Same rule as the module row in `estrutura-gestao.tsx`. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:104-105",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-976081f7",
+      "action": "translate",
+      "new_text": "/* `subheader-icons`: Integrações, Configurações, and Equipe navigate to the\n            contact's screens; only Testar still remains \"coming soon\". */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:129-130",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e507d05b",
+      "action": "translate",
+      "new_text": "/** A row item: a link when the screen exists, a grayed-out block when it doesn't. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:157-157",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

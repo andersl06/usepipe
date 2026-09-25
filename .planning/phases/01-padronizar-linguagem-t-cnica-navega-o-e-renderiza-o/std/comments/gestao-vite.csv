@@ -5236,46 +5236,59 @@ gestao-vite-comment-138eddf7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
 gestao-vite-comment-b5561c4f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1154,1154,jsdoc,0,/** `ZU` (dicionário `OU`) + `WU` + `AU`. */,translate,`ZU` (dictionary `OU`) + `WU` + `AU`.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1154,,proposed
 gestao-vite-comment-d1028017,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,120,120,jsdoc,2,/** `jN` + `IN`: passo a passo com ícone ou print ao lado. */,translate,`jN` + `IN`: step by step with an icon or screenshot alongside.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:120,,proposed
 gestao-vite-comment-a4852aab,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,133,133,jsdoc,1,/** `dU`: o círculo escuro com o ícone do Builder. */,translate,`dU`: the dark circle with the Builder icon.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:133,,proposed
-gestao-vite-comment-917a6b0d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1362,1362,jsdoc,0,/** `XU` (dicionário `qU`). */,,,,,,
-gestao-vite-comment-dc3cf42e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1410,1410,jsdoc,0,/** `GU` (dicionário `BU`) + `QU` + `JU` + `PU`. */,,,,,,
-gestao-vite-comment-9b22ae86,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,147,147,jsdoc,2,"/** `FN`/`xU`: o indicador de comparação de exemplo, ""-5%"" com seta para baixo. */",,,,,,
-gestao-vite-comment-7e017380,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1511,1511,jsdoc,1,"/** Cada aba do `QU`: fio, título fs-20 e a tabela. */",,,,,,
+gestao-vite-comment-917a6b0d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1362,1362,jsdoc,0,/** `XU` (dicionário `qU`). */,translate,/** `XU` (dictionary `qU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1362-1362,,proposed
+gestao-vite-comment-dc3cf42e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1410,1410,jsdoc,0,/** `GU` (dicionário `BU`) + `QU` + `JU` + `PU`. */,translate,/** `GU` (dictionary `BU`) + `QU` + `JU` + `PU`. */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1410-1410,,proposed
+gestao-vite-comment-9b22ae86,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,147,147,jsdoc,2,"/** `FN`/`xU`: o indicador de comparação de exemplo, ""-5%"" com seta para baixo. */",translate,"/** `FN`/`xU`: the example comparison indicator, ""-5%"" with a down arrow. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:147-147,,proposed
+gestao-vite-comment-7e017380,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1511,1511,jsdoc,1,"/** Cada aba do `QU`: fio, título fs-20 e a tabela. */",translate,"/** Each `QU` tab: divider line, fs-20 title, and the table. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1511-1511,,proposed
 gestao-vite-comment-81a571bf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,157,160,jsdoc,4,"/**
  * Os prints do Builder que o `gU` embute como PNG (164×19 e 88×19). Não vão os
  * PNGs: o desenho é refeito no mesmo tamanho, com a nossa tinta.
- */",,,,,,
-gestao-vite-comment-a8c6be52,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,17,17,block,0,/* ------------------------------------------------------------ peças comuns */,,,,,,
-gestao-vite-comment-6fa4d938,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1779,1779,jsdoc,0,/** `pV` (dicionário `rV`) + `uV` + `lV` + `iV` + `hV`. */,,,,,,
-gestao-vite-comment-d68cc570,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,179,179,jsdoc,2,"/** Marca, dentro de uma célula-objeto, o `important` que vira etiqueta. */",,,,,,
+ */",translate,"/**
+ * The Builder screenshots that `gU` embeds as PNG (164×19 and 88×19). The PNGs
+ * are not included: the drawing is redone at the same size, with our own styling.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:157-160,,proposed
+gestao-vite-comment-a8c6be52,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,17,17,block,0,/* ------------------------------------------------------------ peças comuns */,translate,/* ------------------------------------------------------------ common pieces */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:17-17,,proposed
+gestao-vite-comment-6fa4d938,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1779,1779,jsdoc,0,/** `pV` (dicionário `rV`) + `uV` + `lV` + `iV` + `hV`. */,translate,/** `pV` (dictionary `rV`) + `uV` + `lV` + `iV` + `hV`. */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1779-1779,,proposed
+gestao-vite-comment-d68cc570,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,179,179,jsdoc,2,"/** Marca, dentro de uma célula-objeto, o `important` que vira etiqueta. */",translate,"/** Marks, inside an object-cell, the `important` key that becomes a tag/badge. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:179-179,,proposed
 gestao-vite-comment-2ef02957,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,183,187,jsdoc,4,"/**
  * `iU`: cabeçalho fantasma, 10 de recheio, primeira coluna com 20%, linhas
  * ímpares em surface-2 e a primeira célula em negrito. Célula-objeto vira um
  * parágrafo por chave (`aU`), e a chave `important` vira a etiqueta.
- */",,,,,,
-gestao-vite-comment-7854b916,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1883,1883,jsdoc,1,"/** `oV`/`tV`: título, texto, ""Importante"" e a tabela. */",,,,,,
-gestao-vite-comment-4d5d6788,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,19,19,jsdoc,1,"/** `lN`: ""Atualizado em"", fs-10 fantasma, encostado à direita. */",,,,,,
-gestao-vite-comment-d977ea99,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1925,1925,jsdoc,0,/** `oV` (dicionário `nV`). */,,,,,,
-gestao-vite-comment-36835593,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1982,1982,jsdoc,0,/** `tV` (dicionário `eV`). */,,,,,,
+ */",translate,"/**
+ * `iU`: ghost header, 10 padding, first column at 20%, odd rows in surface-2,
+ * and the first cell in bold. An object-cell becomes one paragraph per key
+ * (`aU`), and the `important` key becomes the tag/badge.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:183-187,,proposed
+gestao-vite-comment-7854b916,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1883,1883,jsdoc,1,"/** `oV`/`tV`: título, texto, ""Importante"" e a tabela. */",translate,"/** `oV`/`tV`: title, text, ""Importante"" and the table. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1883-1883,,proposed
+gestao-vite-comment-4d5d6788,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,19,19,jsdoc,1,"/** `lN`: ""Atualizado em"", fs-10 fantasma, encostado à direita. */",translate,"/** `lN`: ""Atualizado em"", fs-10 ghost, flush right. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:19-19,,proposed
+gestao-vite-comment-d977ea99,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1925,1925,jsdoc,0,/** `oV` (dicionário `nV`). */,translate,/** `oV` (dictionary `nV`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1925-1925,,proposed
+gestao-vite-comment-36835593,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1982,1982,jsdoc,0,/** `tV` (dicionário `eV`). */,translate,/** `tV` (dictionary `eV`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1982-1982,,proposed
 gestao-vite-comment-a6bc9b1e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,2020,2023,jsdoc,3,"/**
  * A página de cada chave de `path`. Subseção e seção dividem o espaço de nomes
  * porque na origem também dividem (`selectedSubSection` é um só).
- */",,,,,,
-gestao-vite-comment-2ad267c4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,232,232,jsdoc,2,"/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: título azul, uma linha e a tabela. */",,,,,,
-gestao-vite-comment-ec6aaba1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,255,255,jsdoc,0,/** `zN` (dicionário `cN`). */,,,,,,
-gestao-vite-comment-7c8b994f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,29,29,jsdoc,0,"/** `ZN`: título de relatório anexo, na primária (`#1E6BF1` na origem). */",,,,,,
-gestao-vite-comment-30957259,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,293,293,jsdoc,1,/** `vU` (dicionário `bU`): a página da própria seção. */,,,,,,
-gestao-vite-comment-b0bab804,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,320,320,jsdoc,0,/** `SU` (dicionário `yU`). */,,,,,,
-gestao-vite-comment-243d580a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,386,386,jsdoc,0,/** `JN` (dicionário `PN`). */,,,,,,
-gestao-vite-comment-b4057bd9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,39,39,jsdoc,2,"/** `VN`: `bds-typo` em bloco, 5 embaixo. Sem `variant`, a origem cai no fs-16. */",,,,,,
-gestao-vite-comment-d3a5b998,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,407,407,block,2,"/* `DN`: a mesma caixa do indicador, vazia, para alinhar o exemplo. */",,,,,,
-gestao-vite-comment-e1bb5803,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,423,423,jsdoc,0,/** `lU` (dicionário `sU`). */,,,,,,
-gestao-vite-comment-d2971a6f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,44,44,jsdoc,0,"/** `CN`: linha flexível, 5 embaixo. */",,,,,,
+ */",translate,"/**
+ * The page for each `path` key. Subsection and section share the namespace
+ * because the origin also shares it (`selectedSubSection` is a single value).
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:2020-2023,,proposed
+gestao-vite-comment-2ad267c4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,232,232,jsdoc,2,"/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: título azul, uma linha e a tabela. */",translate,"/** `WU`/`AU`/`PU`/`JU`/`uV`/`lV`/`iV`/`hV`: blue title, one line, and the table. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:232-232,,proposed
+gestao-vite-comment-ec6aaba1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,255,255,jsdoc,0,/** `zN` (dicionário `cN`). */,translate,/** `zN` (dictionary `cN`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:255-255,,proposed
+gestao-vite-comment-7c8b994f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,29,29,jsdoc,0,"/** `ZN`: título de relatório anexo, na primária (`#1E6BF1` na origem). */",translate,"/** `ZN`: attached-report title, in the primary color (`#1E6BF1` in the origin). */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:29-29,,proposed
+gestao-vite-comment-30957259,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,293,293,jsdoc,1,/** `vU` (dicionário `bU`): a página da própria seção. */,translate,/** `vU` (dictionary `bU`): the section's own page. */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:293-293,,proposed
+gestao-vite-comment-b0bab804,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,320,320,jsdoc,0,/** `SU` (dicionário `yU`). */,translate,/** `SU` (dictionary `yU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:320-320,,proposed
+gestao-vite-comment-243d580a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,386,386,jsdoc,0,/** `JN` (dicionário `PN`). */,translate,/** `JN` (dictionary `PN`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:386-386,,proposed
+gestao-vite-comment-b4057bd9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,39,39,jsdoc,2,"/** `VN`: `bds-typo` em bloco, 5 embaixo. Sem `variant`, a origem cai no fs-16. */",translate,"/** `VN`: block `bds-typo`, 5 margin-bottom. Without `variant`, the origin falls back to fs-16. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:39-39,,proposed
+gestao-vite-comment-d3a5b998,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,407,407,block,2,"/* `DN`: a mesma caixa do indicador, vazia, para alinhar o exemplo. */",translate,"/* `DN`: the same indicator box, empty, to align the example. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:407-407,,proposed
+gestao-vite-comment-e1bb5803,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,423,423,jsdoc,0,/** `lU` (dicionário `sU`). */,translate,/** `lU` (dictionary `sU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:423-423,,proposed
+gestao-vite-comment-d2971a6f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,44,44,jsdoc,0,"/** `CN`: linha flexível, 5 embaixo. */",translate,"/** `CN`: flex row, 5 margin-bottom. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:44-44,,proposed
 gestao-vite-comment-cea9eca9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,49,52,jsdoc,3,"/**
  * `ON`: o trecho em destaque, sem quebra. Com `variant=""fs-14"" bold` é o negrito;
  * chamado sem nada (`SU`, `VU`) é fs-16 regular — `solto`.
- */",,,,,,
-gestao-vite-comment-3da52ef0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,491,491,jsdoc,0,/** `DU` (dicionário `CU`). */,,,,,,
-gestao-vite-comment-9ebaf7e3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,496,496,block,0,/* `MU`: rótulo entre 83 e 100 de largura. */,,,,,,
+ */",translate,"/**
+ * `ON`: the highlighted, non-wrapping span. With `variant=""fs-14"" bold` it's the
+ * bold style; called with nothing (`SU`, `VU`) it's fs-16 regular — `solto`.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:49-52,,proposed
+gestao-vite-comment-3da52ef0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,491,491,jsdoc,0,/** `DU` (dicionário `CU`). */,translate,/** `DU` (dictionary `CU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:491-491,,proposed
+gestao-vite-comment-9ebaf7e3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,496,496,block,0,/* `MU`: rótulo entre 83 e 100 de largura. */,translate,/* `MU`: label between 83 and 100 width. */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:496-496,,proposed
 gestao-vite-comment-99adfac4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,5,15,jsdoc,11,"/**
  * As páginas do Dicionário de dados, uma função por página da origem, com o
  * texto pt EXATO dos dicionários embutidos no `analytics-main.js` (o `pt:` de
@@ -5286,33 +5299,57 @@ gestao-vite-comment-99adfac4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * `CN`…), porque é por esse nome que se acha a medida no bundle. O `font-size`
  * que cada uma herda importa: texto solto dentro de um `VN` herda o fs-14 do
  * `bds-typo`; solto fora dele, o 16 da página. Ver `dicionario.css`.
- */",,,,,,
-gestao-vite-comment-1ea63083,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,579,579,jsdoc,0,/** `VU` (dicionário `UU`). */,,,,,,
-gestao-vite-comment-2ef05a3b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,647,647,jsdoc,0,/** `gU` (dicionário `hU`). */,,,,,,
-gestao-vite-comment-03671dea,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,67,67,jsdoc,2,"/** O link de suporte da origem vai para `support.blip.ai`: fica o texto, sem destino. */",,,,,,
+ */",translate,"/**
+ * The Data Dictionary pages, one function per page from the origin, with the
+ * EXACT pt-BR text from the dictionaries embedded in `analytics-main.js` (the
+ * `pt:` of each `translate`). The only text swap is ""Blip"" → ""Pipe"", wherever
+ * the brand name is visible to the reader.
+ *
+ * The common pieces carry the name of the styled-component they came from
+ * (`UN`, `VN`, `CN`…), because that name is how the measurement is found in
+ * the bundle. The `font-size` each one inherits matters: loose text inside a
+ * `VN` inherits the `bds-typo`'s fs-14; loose outside it, the page's 16. See
+ * `dicionario.css`.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:5-15,,proposed
+gestao-vite-comment-1ea63083,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,579,579,jsdoc,0,/** `VU` (dicionário `UU`). */,translate,/** `VU` (dictionary `UU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:579-579,,proposed
+gestao-vite-comment-2ef05a3b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,647,647,jsdoc,0,/** `gU` (dicionário `hU`). */,translate,/** `gU` (dictionary `hU`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:647-647,,proposed
+gestao-vite-comment-03671dea,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,67,67,jsdoc,2,"/** O link de suporte da origem vai para `support.blip.ai`: fica o texto, sem destino. */",translate,"/** The origin's support link points to `support.blip.ai`: only the text stays here, without a destination. */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:67-67,,proposed
 gestao-vite-comment-f9d4ec0a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,767,771,jsdoc,4,"/**
  * `NU` → `wU` (dicionário `RU`): a página que a origem já escreve como lista de
  * seções tipadas (`text`, `attentionText`, `chip`, `orderedList`, `table`,
  * `unorderedList`), empilhadas num `bds-grid direction=""column"" gap=""2""`.
- */",,,,,,
-gestao-vite-comment-75e147f3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,993,993,jsdoc,1,/** `_U` (dicionário `EU`). Da segunda resposta em diante o `VN` vai sem `variant`: fs-16. */,,,,,,
-gestao-vite-comment-7f1c96d9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador.tsx,5,5,jsdoc,0,"/** `auth.application.detail.analytics.reportManager` — o ""hoje"" é o do fuso da conta. */",,,,,,
-gestao-vite-comment-4ae134e8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts,3,3,jsdoc,1,"/** Mesma conta do Data Extractor (`differenceInDays`), com no máximo 90 dias. */",,,,,,
-gestao-vite-comment-84fca543,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,100,100,block,0,"/* `<bds-autocomplete placeholder=""Início"">`. */",,,,,,
-gestao-vite-comment-d90eb4fa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,126,126,block,0,"/* Desligado até um nó ser escolhido: dica ""Primeiro selecione um nó"". */",,,,,,
+ */",translate,"/**
+ * `NU` → `wU` (dictionary `RU`): the page that the origin already writes as a
+ * list of typed sections (`text`, `attentionText`, `chip`, `orderedList`,
+ * `table`, `unorderedList`), stacked in a `bds-grid direction=""column"" gap=""2""`.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:767-771,,proposed
+gestao-vite-comment-75e147f3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,993,993,jsdoc,1,/** `_U` (dicionário `EU`). Da segunda resposta em diante o `VN` vai sem `variant`: fs-16. */,translate,"/** `_U` (dictionary `EU`). From the second answer onward, `VN` goes without `variant`: fs-16. */",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:993-993,,proposed
+gestao-vite-comment-7f1c96d9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador.tsx,5,5,jsdoc,0,"/** `auth.application.detail.analytics.reportManager` — o ""hoje"" é o do fuso da conta. */",translate,"/** `auth.application.detail.analytics.reportManager` — ""today"" is in the account's timezone. */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador.tsx:5-5,,proposed
+gestao-vite-comment-4ae134e8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts,3,3,jsdoc,1,"/** Mesma conta do Data Extractor (`differenceInDays`), com no máximo 90 dias. */",translate,"/** Same calculation as the Data Extractor (`differenceInDays`), capped at 90 days. */",other,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts:3-3,,proposed
+gestao-vite-comment-84fca543,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,100,100,block,0,"/* `<bds-autocomplete placeholder=""Início"">`. */",translate,"/* `<bds-autocomplete placeholder=""Início"">`. */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:100-100,,proposed
+gestao-vite-comment-d90eb4fa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,126,126,block,0,"/* Desligado até um nó ser escolhido: dica ""Primeiro selecione um nó"". */",translate,"/* Disabled until a node is chosen: tooltip ""Primeiro selecione um nó"". */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:126-126,,proposed
 gestao-vite-comment-fe83df12,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,137,138,block,2,"/* `/assets/img/clock.svg`, que não veio na captura: no lugar, o
-                  relógio do jogo de ícones. */",,,,,,
-gestao-vite-comment-50ef40cc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,195,195,jsdoc,0,/** `<labeled-color-card>`: borda esquerda de 10px na cor do tipo de nó. */,,,,,,
+                  relógio do jogo de ícones. */",translate,"/* `/assets/img/clock.svg`, which wasn't included in the capture: the clock
+                  icon from our icon set is used instead. */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:137-138,,proposed
+gestao-vite-comment-50ef40cc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,195,195,jsdoc,0,/** `<labeled-color-card>`: borda esquerda de 10px na cor do tipo de nó. */,translate,/** `<labeled-color-card>`: 10px left border in the node type's color. */,other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:195-195,,proposed
 gestao-vite-comment-65bec342,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,215,219,jsdoc,3,"/**
  * `#contacts-journey-content > .diagram-body.pv5`: a largura do corpo é
  * `23% × etapas`, com piso de 100% (`adjustJourneyViewWidth()`); passou disso,
  * a caixa rola na horizontal. O desenho tem 500 de altura (`Ci.height`).
- */",,,,,,
+ */",translate,"/**
+ * `#contacts-journey-content > .diagram-body.pv5`: the body width is
+ * `23% × steps`, with a 100% floor (`adjustJourneyViewWidth()`); past that,
+ * the box scrolls horizontally. The drawing is 500 tall (`Ci.height`).
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:215-219,,proposed
 gestao-vite-comment-9c42e7a3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,268,272,jsdoc,5,"/**
  * `showContactsJourneyInfoModalModal()` (template 22616): `bds-modal` com a
  * ilustração `sankey-diagram.svg` à esquerda — não veio na captura, a coluna
  * fica vazia — e o texto de `contactsJourney.infoModal`.
- */",,,,,,
+ */",translate,"/**
+ * `showContactsJourneyInfoModalModal()` (template 22616): `bds-modal` with the
+ * `sankey-diagram.svg` illustration on the left — not included in the capture,
+ * so the column stays empty — and the text from `contactsJourney.infoModal`.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:268-272,,proposed
 gestao-vite-comment-6f5e845b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,33,46,jsdoc,13,"/**
  * Jornada dos Contatos — o componente `contactsJourney` do módulo
  * `analyticsComponents` (template 55218, controlador `Sn`), com o
@@ -5326,16 +5363,37 @@ gestao-vite-comment-6f5e845b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * Estados do template: diagrama, ""carregando"", sem dado e erro genérico. Aqui
  * a leitura é do servidor e termina antes da tela — não há ""carregando"" — e o
  * erro não tem de onde vir; ficam o diagrama e o ""sem dado"".
- */",,,,,,
-gestao-vite-comment-69e58cf8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,60,60,jsdoc,2,"/** `isThisMasterApplication()`: muda a frase do ""sem dado"". */",,,,,,
+ */",translate,"/**
+ * Contacts Journey — the `contactsJourney` component from the
+ * `analyticsComponents` module (template 55218, controller `Sn`), with the
+ * `sankeyDiagram` (`Oe`) and the `labeledColorCard` (4233).
+ *
+ * The context flags: `showing-contacts-journey` (without it the screen
+ * redirects elsewhere), `contacts-journey-first-node-filter` (the ""Começar a
+ * partir de"" filter, which removes the ""Selecione um nó"" phrase from the
+ * diagram header), and `contacts-journey-contacts-button` (the ""Listar
+ * contatos"" button). All enabled.
+ *
+ * Template states: diagram, ""carregando"" (loading), no data, and generic
+ * error. Here the read happens on the server and finishes before the screen
+ * renders — there is no ""loading"" state — and the error has nowhere to come
+ * from; only the diagram and ""no data"" states remain.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:33-46,,proposed
+gestao-vite-comment-69e58cf8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,60,60,jsdoc,2,"/** `isThisMasterApplication()`: muda a frase do ""sem dado"". */",translate,"/** `isThisMasterApplication()`: changes the ""sem dado"" (no data) phrasing. */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:60-60,,proposed
 gestao-vite-comment-142e73c9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,63,65,block,3,"/* `firstNodeFilterOptions`: os nós de partida, sem ""Outros""/""Saída"", únicos e
      em ordem alfabética. Vêm de TODAS as arestas — trocar o início não estreita
-     a lista de opções, só o diagrama. */",,,,,,
+     a lista de opções, só o diagrama. */",translate,"/* `firstNodeFilterOptions`: the starting nodes, excluding ""Outros""/""Saída"",
+     unique and alphabetically ordered. They come from ALL edges — changing the
+     start doesn't narrow the options list, only the diagram. */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:63-65,,proposed
 gestao-vite-comment-92bacf70,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx,8,12,jsdoc,5,"/**
  * `firstNodeFilterOptions`/o filtro ""Começar a partir de"": recorta o diagrama
  * ao subgrafo alcançável a partir do nó de largada escolhido — sem chamada
  * nova, é tudo cliente, sobre as arestas que já vieram do servidor.
- */",,,,,,
+ */",translate,"/**
+ * `firstNodeFilterOptions`/the ""Começar a partir de"" filter: trims the diagram
+ * to the subgraph reachable from the chosen starting node — no new request,
+ * it's all client-side, over the edges already received from the server.
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.tsx:8-12,,proposed
 gestao-vite-comment-a9045ba0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx,8,16,jsdoc,5,"/**
  * `auth.application.detail.analytics.contactsJourney` — o painel
  * `#contactsJourneyContent`.
@@ -5344,14 +5402,28 @@ gestao-vite-comment-a9045ba0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * `defaultEndFromToday: 0`, `validStartFromToday: -30`, `validEndFromToday: 1`
  * — de ontem a hoje, dentro dos últimos 30 dias. A conta é feita na `api`, no
  * fuso da conta; a resposta traz o período que valeu.
- */",,,,,,
-gestao-vite-comment-b51d99fe,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,133,133,jsdoc,2,/** `getTooltipSufix()`: a fatia desta aresta entre as que saem do mesmo nó. */,,,,,,
+ */",translate,"/**
+ * `auth.application.detail.analytics.contactsJourney` — the
+ * `#contactsJourneyContent` panel.
+ *
+ * Period: `initAndApplyFilter()` passes `UT` `defaultStartFromToday: -1`,
+ * `defaultEndFromToday: 0`, `validStartFromToday: -30`, `validEndFromToday: 1`
+ * — from yesterday to today, within the last 30 days. The calculation is done
+ * in the `api`, in the account's timezone; the response carries the period
+ * that was actually used.
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx:8-16,,proposed
+gestao-vite-comment-b51d99fe,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,133,133,jsdoc,2,/** `getTooltipSufix()`: a fatia desta aresta entre as que saem do mesmo nó. */,translate,/** `getTooltipSufix()`: this edge's share among all edges leaving the same node. */,other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:133-133,,proposed
 gestao-vite-comment-7119ebe5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,19,24,jsdoc,6,"/**
  * `SankeyService.getLabelSufix(nome, i)`: a fatia do nó na etapa `i` — quem
  * CHEGOU nele sobre todos que chegaram na etapa; para o nó de partida, quem
  * SAIU dele sobre todos que saíram. Com `i < 0` ou etapa vazia, devolve a
  * contagem crua.
- */",,,,,,
+ */",translate,"/**
+ * `SankeyService.getLabelSufix(nome, i)`: the node's share at step `i` — those
+ * who ARRIVED at it over everyone who arrived at that step; for the starting
+ * node, those who LEFT it over everyone who left. With `i < 0` or an empty
+ * step, it returns the raw count.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:19-24,,proposed
 gestao-vite-comment-498cb2b0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,3,11,jsdoc,8,"/**
  * O diagrama da Jornada sem biblioteca. Na origem é o `Sankey` do Google Charts
  * (`sankeyDiagram`, controlador `Oe`) com as opções `Ci`: nó de 15 de largura,
@@ -5360,14 +5432,25 @@ gestao-vite-comment-498cb2b0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * reproduzir em SVG puro, e é o que se faz aqui.
  *
  * Puro de propósito: `tests/analise-jornada.test.ts` trava o rótulo.
- */",,,,,,
+ */",translate,"/**
+ * The Journey diagram without a library. In the origin it's the `Sankey` from
+ * Google Charts (`sankeyDiagram`, controller `Oe`) with the `Ci` options: 15
+ * node width, 30 between nodes, `iterations: 0` — i.e., NO reordering to
+ * reduce crossings: nodes stay in the order their edges arrive. That order is
+ * what can be reproduced in plain SVG, which is what's done here.
+ *
+ * Deliberately pure: `tests/analise-jornada.test.ts` locks the label.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:3-11,,proposed
 gestao-vite-comment-bc2d17c2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,67,68,block,7,"/* `loadNodeColors()` empurra a origem SEM tipo e o destino COM tipo, e fica
-     com a primeira aparição: nó que já nasceu como origem é `Regular`. */",,,,,,
-gestao-vite-comment-5dda171d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,85,85,block,4,/* A escala é a da coluna mais cheia: ela ocupa a altura toda. */,,,,,,
+     com a primeira aparição: nó que já nasceu como origem é `Regular`. */",translate,"/* `loadNodeColors()` pushes the source WITHOUT a type and the destination WITH
+     a type, keeping the first occurrence: a node that was already born as a
+     source is `Regular`. */",other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:67-68,,proposed
+gestao-vite-comment-5dda171d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts,85,85,block,4,/* A escala é a da coluna mais cheia: ela ocupa a altura toda. */,translate,/* The scale is set by the fullest column: it occupies the entire height. */,other,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:85-85,,proposed
 gestao-vite-comment-422af675,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,115,116,block,3,"/* `.autocomplete-wrapper`: o rótulo diz ""campanha"" porque o de template
-            está ligado (`y || v`); o de Campanha fica escondido pela flag. */",,,,,,
-gestao-vite-comment-d50d4ad2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,141,141,block,1,/* `.select__icon`: o `error` sólido só aparece com valor (`icon-hidden`). */,,,,,,
-gestao-vite-comment-96c28723,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,31,31,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,,,,,,
+            está ligado (`y || v`); o de Campanha fica escondido pela flag. */",translate,"/* `.autocomplete-wrapper`: the label says ""campanha"" because the template one
+            is enabled (`y || v`); the Campaign one is hidden by the flag. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:115-116,,proposed
+gestao-vite-comment-d50d4ad2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,141,141,block,1,/* `.select__icon`: o `error` sólido só aparece com valor (`icon-hidden`). */,translate,/* `.select__icon`: the solid `error` icon only appears with a value (`icon-hidden`). */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:141-141,,proposed
+gestao-vite-comment-96c28723,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,31,31,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,translate,/** `/active-messages/template-names`: the autocomplete's options. */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:31-31,,proposed
 gestao-vite-comment-9cccdedf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,4,14,jsdoc,5,"/**
  * O filtro de Mensagens ativas — `St` (analytics-main.js 33556), dicionário `gt`.
  *
@@ -5378,11 +5461,24 @@ gestao-vite-comment-9cccdedf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  *
  * Não importa `lib/analise.ts` de propósito: aquele arquivo abre o banco. Os
  * rótulos e os limites de data chegam por prop.
- */",,,,,,
-gestao-vite-comment-ed0d9c63,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,43,43,block,0,/* `D()`: concluir o calendário vira período personalizado e apaga o chip. */,,,,,,
+ */",translate,"/**
+ * The Active Messages filter — `St` (analytics-main.js 33556), dictionary `gt`.
+ *
+ * It's client-side for ONE visible reason: ""Aplicar"" starts disabled and only
+ * lights up when something changes (the `N`/`U()` of `Lx`: chip, date, or
+ * template). The rest is a plain GET form — the period, dates, and template go
+ * in the URL, and the (server) page reads from there, which is the origin's
+ * `K()`.
+ *
+ * It deliberately does not import `lib/analise.ts`: that file opens the
+ * database. Labels and date limits arrive via prop.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:4-14,,proposed
+gestao-vite-comment-ed0d9c63,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,43,43,block,0,/* `D()`: concluir o calendário vira período personalizado e apaga o chip. */,translate,/* `D()`: finishing the calendar turns it into a custom period and clears the chip. */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:43-43,,proposed
 gestao-vite-comment-2a2f9c3a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx,83,85,block,1,"/* `.datepicker-wrapper`: rótulo fs-14 semi-bold e o `bds-datepicker
             type-of-date=""period""` — dois `bds-input` ""De""/""Até"" com o ícone
-            `calendar`. O calendário flutuante deles vira o seletor nativo. */",,,,,,
+            `calendar`. O calendário flutuante deles vira o seletor nativo. */",translate,"/* `.datepicker-wrapper`: fs-14 semi-bold label and the `bds-datepicker
+            type-of-date=""period""` — two ""De""/""Até"" `bds-input`s with the
+            `calendar` icon. Their floating calendar becomes the native picker. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:83-85,,proposed
 gestao-vite-comment-3948c7ee,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,11,19,jsdoc,9,"/**
  * O miolo de Mensagens ativas — a coluna de cartões e gráficos do `Lx`
  * (analytics-main.js 56300). Recebe o dado pronto por prop: é o que deixa a
@@ -5391,23 +5487,38 @@ gestao-vite-comment-3948c7ee,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * A origem desenha os gráficos com chart.js + chartjs-plugin-datalabels. Aqui
  * não entra biblioteca: é CSS e um SVG de linha, com os padrões do chart.js que
  * aparecem na tela (tique 12px, linha de 3px, grade a 10%).
- */",,,,,,
-gestao-vite-comment-331f72d8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,147,147,block,2,"/* `D()`: tudo em porcentagem das enviadas; sem envio, tudo zero. */",,,,,,
-gestao-vite-comment-d7486ab3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,212,212,block,1,"/* `b()`: um ponto por dia do período, zero onde não houve envio. */",,,,,,
+ */",translate,"/**
+ * The Active Messages body — the column of cards and charts from `Lx`
+ * (analytics-main.js 56300). Receives the data ready via prop: that's what
+ * lets the same markup render both the empty and the filled states.
+ *
+ * The origin draws the charts with chart.js + chartjs-plugin-datalabels. No
+ * library is used here: it's CSS and a line SVG, with the chart.js defaults
+ * that show on screen (12px ticks, 3px line, 10% grid).
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:11-19,,proposed
+gestao-vite-comment-331f72d8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,147,147,block,2,"/* `D()`: tudo em porcentagem das enviadas; sem envio, tudo zero. */",translate,"/* `D()`: everything as a percentage of sent; with no sends, everything is zero. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:147-147,,proposed
+gestao-vite-comment-d7486ab3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,212,212,block,1,"/* `b()`: um ponto por dia do período, zero onde não houve envio. */",translate,"/* `b()`: one point per day in the period, zero where nothing was sent. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:212-212,,proposed
 gestao-vite-comment-8fe370ce,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,221,223,block,4,"/* `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap=""2"" padding=""2""`:
      o papel dentro do papel é deles, e a sombra sai dobrada. O título e a
-     descrição pedem `lineHeight=""none""`, que não pega (ver `.ma-taxa-titulo`). */",,,,,,
-gestao-vite-comment-7ee9f362,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,253,253,jsdoc,1,"/** `f()` + as `options` de um dia só: três barras, sem eixo nem grade. */",,,,,,
+     descrição pedem `lineHeight=""none""`, que não pega (ver `.ma-taxa-titulo`). */",translate,"/* `bds-paper style={{ flex: 1 }}` › `bds-paper` › `bds-grid gap=""2"" padding=""2""`:
+     the paper-inside-paper is theirs, and the shadow doubles up. The title and
+     description ask for `lineHeight=""none""`, which doesn't take (see
+     `.ma-taxa-titulo`). */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:221-223,,proposed
+gestao-vite-comment-7ee9f362,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,253,253,jsdoc,1,"/** `f()` + as `options` de um dia só: três barras, sem eixo nem grade. */",translate,"/** `f()` + the single-day `options`: three bars, no axis or grid. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:253-253,,proposed
 gestao-vite-comment-1e6fa474,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,27,28,block,2,"/* `ne()`: a soma das linhas de `/active-messages/status` (`read` é
-     `consumed`, `replied` é `response`). */",,,,,,
+     `consumed`, `replied` é `response`). */",translate,"/* `ne()`: the sum of the `/active-messages/status` rows (`read` is
+     `consumed`, `replied` is `response`). */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:27-28,,proposed
 gestao-vite-comment-200640b9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,274,277,jsdoc,3,"/**
  * `m()` + as `options` de período: três linhas, cada uma na PRÓPRIA escala
  * (`y`, `y1`, `y2`, as duas últimas escondidas) e só a de enviadas com eixo.
- */",,,,,,
-gestao-vite-comment-facee732,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,285,285,block,3,"/* O chart.js pula rótulo que não cabe (`autoSkip`); aqui, um a cada N. */",,,,,,
-gestao-vite-comment-e8ab2303,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,392,392,block,2,"/* Zero é desenhado como 0,5 (a barra mínima) e o eixo vai a 50 no mínimo. */",,,,,,
-gestao-vite-comment-204bf85e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,84,84,jsdoc,0,/** `Ct`: rótulo e dica de cada contagem. */,,,,,,
-gestao-vite-comment-ea81230c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,94,94,block,2,"/* `Ft`: ícone, fundo, número cru (a origem não formata aqui) e rótulo. */",,,,,,
+ */",translate,"/**
+ * `m()` + the period `options`: three lines, each on its OWN scale (`y`, `y1`,
+ * `y2`, the last two hidden), and only the ""sent"" line has an axis.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:274-277,,proposed
+gestao-vite-comment-facee732,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,285,285,block,3,"/* O chart.js pula rótulo que não cabe (`autoSkip`); aqui, um a cada N. */",translate,"/* chart.js skips labels that don't fit (`autoSkip`); here, one every N. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:285-285,,proposed
+gestao-vite-comment-e8ab2303,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,392,392,block,2,"/* Zero é desenhado como 0,5 (a barra mínima) e o eixo vai a 50 no mínimo. */",translate,/* Zero is drawn as 0.5 (the minimum bar) and the axis goes to at least 50. */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:392-392,,proposed
+gestao-vite-comment-204bf85e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,84,84,jsdoc,0,/** `Ct`: rótulo e dica de cada contagem. */,translate,/** `Ct`: label and tooltip for each count. */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:84-84,,proposed
+gestao-vite-comment-ea81230c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx,94,94,block,2,"/* `Ft`: ícone, fundo, número cru (a origem não formata aqui) e rótulo. */",translate,"/* `Ft`: icon, background, raw number (the origin doesn't format here), and label. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:94-94,,proposed
 gestao-vite-comment-40946adc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,17,27,jsdoc,8,"/**
  * Análise › Mensagens ativas — o `<analytics-mfe page=""activeMessages"">` da
  * origem, que o `portal-fragment-analytics` resolve para o `Lx`
@@ -5418,30 +5529,61 @@ gestao-vite-comment-40946adc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * (`/active-messages/status`, `reply-hour`, `failed-count` e `template-names`)
  * a cada ""Aplicar""/""Atualizar"". Aqui o estado mora na URL (`?periodo`, `?de`,
  * `?ate`, `?template`) e a `api` resolve o período no fuso da conta.
- */",,,,,,
-gestao-vite-comment-4b7076d9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,32,32,jsdoc,0,/** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */,,,,,,
+ */",translate,"/**
+ * Analytics › Active Messages — the origin's `<analytics-mfe
+ * page=""activeMessages"">`, which `portal-fragment-analytics` resolves to `Lx`
+ * (analytics-main.js 56300) when `is-displaying-analytics-active-messages-tab`
+ * is enabled (it is, for the capture's router).
+ *
+ * There, `Lx` keeps period and template in state and requests four commands
+ * (`/active-messages/status`, `reply-hour`, `failed-count`, and
+ * `template-names`) on every ""Aplicar""/""Atualizar"". Here the state lives in
+ * the URL (`?periodo`, `?de`, `?ate`, `?template`) and the `api` resolves the
+ * period in the account's timezone.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:17-27,,proposed
+gestao-vite-comment-4b7076d9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,32,32,jsdoc,0,/** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */,translate,/** The `bds-datepicker`'s `startDateLimit`: 186 days back. */,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:32-32,,proposed
 gestao-vite-comment-2d170653,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,55,56,block,2,"/* `Ix` › `jx` › `Ax` (título) e `Zx` (o ""Atualizar"" secundário com
-            `refresh`). Atualizar reenvia o filtro como está — é o `te()` → `K()`. */",,,,,,
+            `refresh`). Atualizar reenvia o filtro como está — é o `te()` → `K()`. */",translate,"/* `Ix` › `jx` › `Ax` (title) and `Zx` (the secondary ""Atualizar"" button with
+            `refresh`). Atualizar resubmits the filter as-is — that's `te()` →
+            `K()`. */",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx:55-56,,proposed
 gestao-vite-comment-53365fab,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,126,130,jsdoc,4,"/**
  * `<card>` — `blipComponents.card`: sem `item-title`, só o `div.card-content`;
  * com título, o `div.card-header` antes (o `p.card-title` e o `i.icon-info`
  * que só aparece com o cursor sobre o cartão).
- */",,,,,,
-gestao-vite-comment-224da964,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,163,163,block,0,/* ---------------------------------------------------------- o período na URL */,,,,,,
-gestao-vite-comment-33af8760,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,172,172,jsdoc,2,"/** `moment().add(n, 'days')` sobre uma data sem hora. */",,,,,,
+ */",translate,"/**
+ * `<card>` — `blipComponents.card`: without `item-title`, just the
+ * `div.card-content`; with a title, the `div.card-header` comes first (the
+ * `p.card-title` and the `i.icon-info` that only shows up on hover over the
+ * card).
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:126-130,,proposed
+gestao-vite-comment-224da964,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,163,163,block,0,/* ---------------------------------------------------------- o período na URL */,translate,/* ---------------------------------------------------------- the period in the URL */,other,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:163-163,,proposed
+gestao-vite-comment-33af8760,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,172,172,jsdoc,2,"/** `moment().add(n, 'days')` sobre uma data sem hora. */",translate,"/** `moment().add(n, 'days')` over a date without time. */",other,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:172-172,,proposed
 gestao-vite-comment-b8b4fecd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,179,182,jsdoc,1,"/**
  * `de` e `ate` vêm da URL, que é texto de fora: só passam no formato de dia e
  * em ordem; senão, vale o período padrão da tela.
- */",,,,,,
+ */",translate,"/**
+ * `de` and `ate` come from the URL, which is untrusted external text: they
+ * only pass through in day format and in order; otherwise, the screen's
+ * default period applies.
+ */",security,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:179-182,,proposed
 gestao-vite-comment-f9b7845a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,4,7,jsdoc,6,"/**
  * As peças que mais de uma aba da Análise usa. Sem estado e sem dado: recebem
  * tudo por prop, para o print preenchido sair do mesmo componente.
- */",,,,,,
+ */",translate,"/**
+ * The pieces shared by more than one Analytics tab. No state and no data of
+ * their own: everything arrives via prop, so the filled-in render comes from
+ * the same component.
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:4-7,,proposed
 gestao-vite-comment-b79b591b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,51,55,jsdoc,2,"/**
  * O mês abreviado do `_setDateOnInput()`. Na origem sai do `DateHelper.months`
  * em inglês, porque o template não passa `months`; aqui, por decisão do dono
  * do produto, sai em português e minúsculo. O formato é o deles.
- */",,,,,,
+ */",translate,"/**
+ * The abbreviated month from `_setDateOnInput()`. In the origin it comes from
+ * `DateHelper.months` in English, because the template doesn't pass `months`;
+ * here, by the product owner's decision, it comes out in Portuguese and
+ * lowercase. The format is theirs.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:51-55,,proposed
 gestao-vite-comment-eb86f688,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,64,72,jsdoc,6,"/**
  * `<blip-daterange-picker>`: a caixa com o ícone de calendário e as duas datas
  * separadas por ""~""; ao abrir, o `bp-daterange-dropdown` com os calendários e
@@ -5450,7 +5592,15 @@ gestao-vite-comment-eb86f688,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * Os dois calendários de mês da origem viraram dois `<input type=""date"">`
  * dentro da mesma moldura: o que muda é só o miolo do painel, e o formulário
  * manda `de` e `ate` pela URL. ""Cancelar"" recarrega a tela como estava.
- */",,,,,,
+ */",translate,"/**
+ * `<blip-daterange-picker>`: the box with the calendar icon and the two dates
+ * separated by ""~""; on open, the `bp-daterange-dropdown` with the calendars
+ * and the Cancelar/Aplicar buttons.
+ *
+ * The origin's two month calendars became two `<input type=""date"">` inside
+ * the same frame: only the panel's inner content changes, and the form sends
+ * `de` and `ate` via the URL. ""Cancelar"" reloads the screen as it was.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:64-72,,proposed
 gestao-vite-comment-120d5ee3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx,9,20,jsdoc,5,"/**
  * `<page-header>` — a diretiva `blipComponents.pageHeader`:
  *
@@ -5462,54 +5612,102 @@ gestao-vite-comment-120d5ee3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * O ícone de ajuda e o `<page-help>` só existem com `helperTitle`,
  * `helperBody` E `helperConfirm`; nenhuma das três abas passa o terceiro, então
  * nenhum dos dois aparece.
- */",,,,,,
+ */",translate,"/**
+ * `<page-header>` — the `blipComponents.pageHeader` directive:
+ *
+ *   div.container > div.full-initial-section >
+ *     div.row.flex.page-header-content.items-center.mb0 >
+ *       div.flex.items-center.w-100 > (custom-title | h1.mv0.mr2.lh-solid)
+ *       div.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100
+ *
+ * The help icon and the `<page-help>` only exist with `helperTitle`,
+ * `helperBody`, AND `helperConfirm`; none of the three tabs pass the third
+ * one, so neither shows up.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:9-20,,proposed
 gestao-vite-comment-d73eab4e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,127,132,jsdoc,6,"/**
  * O modal genérico do `ModalService` (`Rw`, template 84817) com os textos de
  * `reports.modal`: `modal-toolbar` com o `close`, título fs-32, corpo, e os
  * botões ""Não"" (secundário) e ""Sim"". Excluir grava — e aqui não há relatório
  * para excluir —, então o ""Sim"" leva o selo.
- */",,,,,,
+ */",translate,"/**
+ * The generic `ModalService` modal (`Rw`, template 84817) with the
+ * `reports.modal` texts: `modal-toolbar` with the `close`, fs-32 title, body,
+ * and the ""Não"" (secondary) and ""Sim"" buttons. Deleting writes to the
+ * database — and here there's no report to delete —, so the ""Sim"" button gets
+ * the ""coming soon"" badge.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:127-132,,proposed
 gestao-vite-comment-49121427,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,23,24,block,3,"/* `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, SEM
-          `helper-confirm` — por isso não há ícone de ajuda. */",,,,,,
+          `helper-confirm` — por isso não há ícone de ajuda. */",translate,"/* `page-header-title` + `helper-title`/`helper-body`/`helper-doc`, WITHOUT
+          `helper-confirm` — that's why there's no help icon. */",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:23-24,,proposed
 gestao-vite-comment-8b1d5dc3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,29,31,block,4,"/* `<search-input class=""flex mr3"">`: a lupa de 32 e o campo, que
                 nasce com largura 0 e só abre ao focar. O `<label>` faz o clique
-                na lupa focar o campo, que é o `focusInput()` deles. */",,,,,,
-gestao-vite-comment-541fe1ef,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,36,36,block,2,"/* `goToReport()` abre o editor de relatório, que não existe aqui. */",,,,,,
+                na lupa focar o campo, que é o `focusInput()` deles. */",translate,"/* `<search-input class=""flex mr3"">`: the 32px magnifying glass and the field,
+                which starts at width 0 and only opens on focus. The `<label>`
+                makes clicking the glass focus the field, which is their
+                `focusInput()`. */",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:29-31,,proposed
+gestao-vite-comment-541fe1ef,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,36,36,block,2,"/* `goToReport()` abre o editor de relatório, que não existe aqui. */",translate,"/* `goToReport()` opens the report editor, which doesn't exist here. */",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:36-36,,proposed
 gestao-vite-comment-e6ee443b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,5,11,jsdoc,2,"/**
  * Relatórios Personalizados — o componente `customReports` do módulo
  * `analyticsComponents` (template 47754, controlador `bi`).
  *
  * Dois estados, os dois do template: a lista de `bds-paper.cards` e, sem
  * relatório, o `bds-typo.no-content-found` ""Nenhum relatório encontrado :("".
- */",,,,,,
+ */",translate,"/**
+ * Custom Reports — the `customReports` component from the
+ * `analyticsComponents` module (template 47754, controller `bi`).
+ *
+ * Two states, both from the template: the `bds-paper.cards` list, and, with
+ * no report, the `bds-typo.no-content-found` ""Nenhum relatório encontrado :("".
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:5-11,,proposed
 gestao-vite-comment-36727623,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,62,63,block,2,"/* `.card-icons.card-icons--hidden.w-10`: editar e excluir, só
-                para o dono, e só aparecem com o cursor sobre o cartão. */",,,,,,
-gestao-vite-comment-807c0920,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,70,70,block,0,/* `confirmDelete()` abre o modal de confirmação. */,,,,,,
+                para o dono, e só aparecem com o cursor sobre o cartão. */",translate,"/* `.card-icons.card-icons--hidden.w-10`: edit and delete, only for the
+                owner, and only appear on hover over the card. */",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:62-63,,proposed
+gestao-vite-comment-807c0920,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,70,70,block,0,/* `confirmDelete()` abre o modal de confirmação. */,translate,/* `confirmDelete()` opens the confirmation modal. */,other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:70-70,,proposed
 gestao-vite-comment-6169976a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,80,81,block,1,"/* Fora da fileira: o `.cards` é `white-space: nowrap`, e o modal do
-            `ModalService` nasce no `body`, não dentro do cartão. */",,,,,,
+            `ModalService` nasce no `body`, não dentro do cartão. */",translate,"/* Outside the row: `.cards` is `white-space: nowrap`, and the `ModalService`
+            modal is born in the `body`, not inside the card. */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:80-81,,proposed
 gestao-vite-comment-c25d8eda,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx,96,99,jsdoc,2,"/**
  * `handleReport()`: modificado HOJE mostra `moment(...).fromNow()`; outro dia,
  * `DD/MM/YYYY - HH:mm`; sem data, `N/A`. O ""hoje"" é o do fuso da conta.
- */",,,,,,
+ */",translate,"/**
+ * `handleReport()`: modified TODAY shows `moment(...).fromNow()`; another day,
+ * `DD/MM/YYYY - HH:mm`; no date, `N/A`. ""Today"" is in the account's timezone.
+ */",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:96-99,,proposed
 gestao-vite-comment-2bb209fa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx,8,14,jsdoc,4,"/**
  * `auth.application.detail.analytics.overview` — o painel `#overviewContent`.
  *
  * Período padrão: `getDate()` com a flag de um dia desligada chama
  * `U4(7)`, que é `moment().subtract(7, 'days')` até `moment()`. A conta é da
  * `api`, no fuso da conta.
- */",,,,,,
-gestao-vite-comment-325f12c2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,200,200,jsdoc,2,/** `formatNumbers()`: `toLocaleString()` com a vírgula trocada por ponto. */,,,,,,
-gestao-vite-comment-331698f7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,205,205,jsdoc,2,"/** `<counter-child-card>`: nome em negrito com a dica, e o valor em fs-20. */",,,,,,
+ */",translate,"/**
+ * `auth.application.detail.analytics.overview` — the `#overviewContent` panel.
+ *
+ * Default period: `getDate()`, with the one-day flag disabled, calls `U4(7)`,
+ * which is `moment().subtract(7, 'days')` through `moment()`. The calculation
+ * is done by the `api`, in the account's timezone.
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx:8-14,,proposed
+gestao-vite-comment-325f12c2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,200,200,jsdoc,2,/** `formatNumbers()`: `toLocaleString()` com a vírgula trocada por ponto. */,translate,/** `formatNumbers()`: `toLocaleString()` with the comma swapped for a period. */,other,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:200-200,,proposed
+gestao-vite-comment-331698f7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,205,205,jsdoc,2,"/** `<counter-child-card>`: nome em negrito com a dica, e o valor em fs-20. */",translate,"/** `<counter-child-card>`: bold name with the tooltip, and the value at fs-20. */",other,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:205-205,,proposed
 gestao-vite-comment-172b19b8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,222,226,jsdoc,8,"/**
  * O `chart type=""line""` do `analyticsChart`, que na origem é o `LineChart` do
  * Google Charts. Sem biblioteca: eixo, grade, duas linhas e a legenda à
  * direita, que é o padrão dele. Sem dia com dado, a frase `noEnoughData`.
- */",,,,,,
+ */",translate,"/**
+ * The `chart type=""line""` from `analyticsChart`, which in the origin is the
+ * `LineChart` from Google Charts. No library: axis, grid, two lines, and the
+ * legend on the right, which is its default. With no day of data, the
+ * `noEnoughData` message.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:222-226,,proposed
 gestao-vite-comment-91e5f9a2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,296,300,jsdoc,5,"/**
  * O modal do `showOverviewModal()` (template 6411): `.modal` legado do portal,
  * `modal-dialog modal-sm`, a ilustração à esquerda (`Chevalet.svg`, que não
  * veio na captura — a coluna fica vazia) e o texto de `metrics.overviewHelp`.
- */",,,,,,
+ */",translate,"/**
+ * The `showOverviewModal()` modal (template 6411): the portal's legacy
+ * `.modal`, `modal-dialog modal-sm`, the illustration on the left
+ * (`Chevalet.svg`, which wasn't included in the capture — the column stays
+ * empty), and the text from `metrics.overviewHelp`.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:296-300,,proposed
 gestao-vite-comment-f972ec3d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx,5,16,jsdoc,3,"/**
  * Visão Geral — o componente `generalDashboard` do módulo `analyticsComponents`
  * (template 7780, controlador `ri`), com o `counterChildCard` (14085) e o
@@ -5521,24 +5719,49 @@ gestao-vite-comment-f972ec3d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * requests-for-user-quantity-enabled` (os contadores de usuários).
  * `general-dashboard-initial-period-one-day` está desligada: o período abre em
  * sete dias.
- */",,,,,,
+ */",translate,"/**
+ * Overview — the `generalDashboard` component from the `analyticsComponents`
+ * module (template 7780, controller `ri`), with the `counterChildCard` (14085)
+ * and the `analyticsChart` (1920).
+ *
+ * The context flags that affect this page, all enabled: `analytics-messages-
+ * general-info` (the title's help icon), `active-messages-per-domain-table`
+ * (the ""Mensagens ativas por canal"" block), and
+ * `analytics-general-dashboard-requests-for-user-quantity-enabled` (the user
+ * counters). `general-dashboard-initial-period-one-day` is disabled: the
+ * period opens at seven days.
+ */",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:5-16,,proposed
 gestao-vite-comment-8e0cff48,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx,31,33,block,3,"/* `bds-tabs` renderiza: botão ← num contêiner de 40px, o cabeçalho com as
           abas, botão → noutro de 40px. Os dois botões só aparecem quando as
-          abas não cabem (`handleHeaderResize`); os contêineres ficam sempre. */",,,,,,
+          abas não cabem (`handleHeaderResize`); os contêineres ficam sempre. */",translate,"/* `bds-tabs` renders: a ← button in a 40px container, the header with the
+          tabs, a → button in another 40px container. Both buttons only appear
+          when the tabs don't fit (`handleHeaderResize`); the containers always
+          stay. */",other,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:31-33,,proposed
 gestao-vite-comment-081fefe0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx,59,60,block,2,"/* `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` —
-          o Dashboard é o único painel sem o recuo que desvia da fileira fixa. */",,,,,,
+          o Dashboard é o único painel sem o recuo que desvia da fileira fixa. */",translate,"/* `.tabs-content bds-tab-panel:not(#dashboardContent) { padding: 50px 0 0 }` —
+          the Dashboard is the only panel without the padding that clears the
+          fixed row. */",other,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:59-60,,proposed
 gestao-vite-comment-d12775f3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx,6,12,jsdoc,7,"/**
  * `#analytics-tabs-view`: a `bds-tabs` e o painel da aba aberta.
  *
  * É cliente só por um motivo — saber qual aba está aberta. Na origem é o
  * `tabData[aba].active` que `initilizeTabs()` tira de `$state.current.url`;
  * aqui é o caminho. O layout não enxerga o caminho, por isso a peça é esta.
- */",,,,,,
+ */",translate,"/**
+ * `#analytics-tabs-view`: the `bds-tabs` and the open tab's panel.
+ *
+ * It's client-side for just one reason — knowing which tab is open. In the
+ * origin it's `tabData[aba].active`, which `initilizeTabs()` derives from
+ * `$state.current.url`; here it's the path. The layout can't see the path,
+ * which is why this piece exists.
+ */",architecture,apps/gestao-vite/src/paginas/fluxo/analise/vista.tsx:6-12,,proposed
 gestao-vite-comment-f6ca0a0a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,104,105,block,2,"/* O ""…"" da origem só existe quando SOBRA item, e mostra o que sobrou.
-              Mesma regra da fileira de módulos de `estrutura-gestao.tsx`. */",,,,,,
+              Mesma regra da fileira de módulos de `estrutura-gestao.tsx`. */",translate,"/* The origin's ""…"" only exists when items OVERFLOW, and shows what overflowed.
+              Same rule as the module row in `estrutura-gestao.tsx`. */",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:104-105,,proposed
 gestao-vite-comment-976081f7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,129,130,block,2,"/* `subheader-icons`: Integrações, Configurações e Equipe navegam para as
-            telas do contato; só Testar ainda permanece em breve. */",,,,,,
-gestao-vite-comment-e507d05b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,157,157,jsdoc,4,"/** Um item da fileira: link quando a tela existe, bloco apagado quando não. */",,,,,,
+            telas do contato; só Testar ainda permanece em breve. */",translate,"/* `subheader-icons`: Integrações, Configurações, and Equipe navigate to the
+            contact's screens; only Testar still remains ""coming soon"". */",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:129-130,,proposed
+gestao-vite-comment-e507d05b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,157,157,jsdoc,4,"/** Um item da fileira: link quando a tela existe, bloco apagado quando não. */",translate,"/** A row item: a link when the screen exists, a grayed-out block when it doesn't. */",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:157-157,,proposed
 gestao-vite-comment-bc68f8a1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,17,17,jsdoc,1,"/** O `id` vem da URL, e URL é texto de fora: sem isto o Postgres recusa o uuid. */",,,,,,
 gestao-vite-comment-68ac4559,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,20,23,jsdoc,4,"/**
  * O contato e o canal dele — o que `GET /v1/gestao/fluxos/:id` responde
