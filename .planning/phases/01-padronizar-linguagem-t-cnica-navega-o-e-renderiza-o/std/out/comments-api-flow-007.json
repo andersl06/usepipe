@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "api-comment-63427efb",
+      "action": "translate",
+      "new_text": "Overlap is allowed; an identical range only clutters the list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:148-148; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5b64697a",
+      "action": "translate",
+      "new_text": "Rule Server Actions manage business hours, ranges and exceptions. They return `Resultado` like `app/comunicacao/acoes.ts`. Run one transaction per action and queries serially: `Promise.all` inside `comTenant` can clear `set_config('pipe.tenant_id')`, leaving RLS without the tenant filter. Registration is incremental: create the schedule, then add ranges and holidays. Without an audited update, a whole-week form would create duplicates when corrected.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:15-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67c18638",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:168-168",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-bfc65544",
+      "action": "translate",
+      "new_text": "An open exception without its own hours falls back to the normal",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:202-202; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-924b3736",
+      "action": "translate",
+      "new_text": "day through `faixasDoDia`; it would have no effect, so reject it instead of",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:203-203; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bea1aa98",
+      "action": "translate",
+      "new_text": "storing a row that changes nothing.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:204-204; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00402690",
+      "action": "translate",
+      "new_text": "`horario_excecao_uk` really enforces uniqueness on schedule and date. The `select`",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:222-222; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3a278f6c",
+      "action": "translate",
+      "new_text": "provides a useful conflict message; a constraint error otherwise surfaces as a contextless 500.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:223-223; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e89009ba",
+      "action": "translate",
+      "new_text": "Inbound rule, metrics spec §8. This action reads and validates `FormData`, calls `lib/cadastros.ts`, and revalidates the route; database access stays there, separate from Next (README, 'Quem fala com o banco'). Save the rule header and all conditions together: a rule without conditions cannot match in `filaDeDestino`, so incremental registration would briefly activate a rule that does nothing. Conditions arrive as parallel `campo[]`, `operador[]`, and `valor[]` lists, as repeated `FormData` fields.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:246-261; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f4ed77b6",
+      "action": "translate",
+      "new_text": "A blank row is one the user did not fill in, not an error:",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:291-291",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-43afefd6",
+      "action": "translate",
+      "new_text": "the form starts with one and optional added rows need not be used.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:292-292",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-d0f3ef95",
+      "action": "translate",
+      "new_text": "The list-row switch toggles a rule without opening its form, matching the source card control (`blip-telas-cadastro.md` §2). It is available now because audit logging exists, as recorded in `componentes/lista-regras.tsx`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:319-325; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f61eb7ce",
+      "action": "translate",
+      "new_text": "Return the runtime's canonical IANA time-zone spelling or `null` if unknown. Validate with `Intl`, as `packages/core/src/sla/expediente.ts` does for local time conversion; a zone accepted here works for SLA calculation.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:35-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c1fad2d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:60-60",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-8f4bbf5f",
+      "action": "translate",
+      "new_text": "`horario_atendimento` has no unique index on name; uniqueness is enforced by this screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:90-90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2cf6fe36",
+      "action": "translate",
+      "new_text": "Break down by the many-to-one label key. A conversation with three labels appears in three rows, so the row totals exceed the period total. The screen must say so: measuring a billing ticket requires counting a conversation under every topic it had. Unlike Chatwoot, count distinct conversations, not `taggings` without explanation.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:128-138; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-604a4e8a",
+      "action": "translate",
+      "new_text": "Run the two queries IN SERIES: inside `comTenant`, parallel execution can",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:170-170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c843a66f",
+      "action": "translate",
+      "new_text": "lose the transaction's `pipe.tenant_id`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:171-171; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d23048db",
+      "action": "translate",
+      "new_text": "Load events for the same period, not through an ID list: a complete",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:197-197; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2b06bd75",
+      "action": "translate",
+      "new_text": "report can contain thousands of conversations.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:198-198; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4564e114",
+      "action": "translate",
+      "new_text": "Fetch labels for those conversations over the same period in one query,",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:226-226; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d3114fcc",
+      "action": "translate",
+      "new_text": "serially after the others; it is only useful when there are",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:227-227; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-04160fdb",
+      "action": "translate",
+      "new_text": "conversations in the period.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:228-228; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96d7e2e6",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:29-29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-946d0399",
+      "action": "translate",
+      "new_text": "Attendance report, metrics spec §§2 and 4. Fetch conversations closed in the period and their events, then calculate each screen value with `packages/core/src/metricas`. Show each function's `excluidas` count. The population is CLOSED conversations in the closed period (§3); open conversations have not stopped the clock and are excluded.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:33-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8085139e",
+      "action": "translate",
+      "new_text": "Conversations in the selected period, from which the denominators are derived.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:52-52",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-9c40be92",
+      "action": "translate",
+      "new_text": "Break down by inbox and label (`referencias-blip/pesquisa/chatwoot.md`). Chatwoot counts `taggings` rather than distinct conversations and mixes event dates for counts with creation dates for averages. Here both dimensions use the report's population: conversations CLOSED in the selected period.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:64-73; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-651a1284",
+      "action": "translate",
+      "new_text": "Conversations closed in the period without any label.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:76-76",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-9040a5f3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:85-85",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-2a8c4a2c",
+      "action": "translate",
+      "new_text": "Group by key and measure each group. Core's `porDimensao` returns `ResultadoMetrica` per group, but this screen also needs closure counts. Group here, calculate in core, and retain core's deterministic key order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/atendimento.ts:98-106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4d59dc7e",
+      "action": "translate",
+      "new_text": "account-wide equivalent: the dual gate in `equipe-do-fluxo.ts`. Publishing remains",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:100-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-62859e7e",
+      "action": "translate",
+      "new_text": "an account permission because the source has no per-bot publish row.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:101-101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7a40185d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:113-113",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-10dc677d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:156-156",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-529a1316",
+      "action": "translate",
+      "new_text": "Convert engine state back to the editor format, the inverse of `converterEstado` in `@pipe/core`'s `editor.ts`, for blocks without `original`. Restore only stored position and title; the screen redraws `$cardContent` itself.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:182-187; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-135dd964",
+      "action": "translate",
+      "new_text": "Use the editor's saved drawing when available; otherwise reconstruct it from engine state.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:227-227; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-217c09b3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:279-279",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-b2253c54",
+      "action": "translate",
+      "new_text": "Builder lifecycle per flow: edit, save draft, publish. Blip stores the working drawing in `blip_portal:builder_working_flow` and publishes into the running Application. Here draft and published are `fluxo_versao` rows of the SAME flow. Save overwrites the one draft per flow, replacing blocks and transitions without incrementing its version; older `importarFluxoDaBlip` saves created numbered drafts each time. Publish promotes the draft to `publicada`, archives the prior published row, assigns the next version number, and sets `fluxo.estado` to `publicado` for `fluxoPublicadoDoCanal`. Published drawings stay immutable: `execucao_fluxo.fluxo_versao_id` restricts deletion and `execucao_passo.bloco_id` depends on that version's blocks. Editing a published flow starts a new draft; restoring copies an old drawing into a draft without changing its historical version. The engine loads `bloco` and `transicao` through `carregarFluxo`; the editor reads `bloco.conteudo.original` and `fluxo_versao.global.editor`. If `original` is absent, `estadoParaOEditor` reconstructs it. Viewing and saving require `automacao.fluxo.editar`; publishing requires `automacao.fluxo.publicar` (migration 0034). Routers have no Builder and return 409. Publishing does not archive another flow on the same channel; channel binding chooses the serving flow, and archiving requires an explicit deletion gesture.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:28-72; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9fe2b1a3",
+      "action": "translate",
+      "new_text": "Convert the editor drawing to engine format and report engine errors. External JSON must be an object of objects; a state without `id` uses its map key, as in Blip's editor.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:291-295; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-950c91a2",
+      "action": "translate",
+      "new_text": "If `$contentActions` is not a list or an output is not an object,",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:319-319; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-09198f29",
+      "action": "translate",
+      "new_text": "the drawing is invalid; the converter error is not a server fault.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:320-320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5cf1d4c1",
+      "action": "translate",
+      "new_text": "Fields belonging to `Flow` rather than a state, plus saved global editor actions.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:334-334; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8fe6c3a7",
+      "action": "translate",
+      "new_text": "Rebuild a version's blocks and transitions from scratch, as `importarFluxoDaBlip` does.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:343-343; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d3a0626b",
+      "action": "translate",
+      "new_text": "A nonexistent destination remains only in the drawing (`original`) and error list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:377-377; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-de05a2d9",
+      "action": "translate",
+      "new_text": "Write the drawing over the flow's existing draft or into a new version after the greatest version number. Callers already check permission; `restaurarVersao` also passes an older version's drawing here.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:390-394; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2880fdce",
+      "action": "translate",
+      "new_text": "Builder opens the draft, otherwise the published version, otherwise the default flow.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:447-447; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-838791a2",
+      "action": "translate",
+      "new_text": "Builder save persists even an invalid drawing and returns what the engine would reject.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:471-471; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-309dac28",
+      "action": "translate",
+      "new_text": "Publish promotes the draft only if valid; `detalhe` of the 409 lists errors by block for the screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:484-487; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a0f58bc9",
+      "action": "translate",
+      "new_text": "Both validations must pass: the DRAWING visible to the user, where",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:503-503; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a06da136",
+      "action": "translate",
+      "new_text": "an output can target a missing block that `gravarBlocos` never stores, and",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:504-504; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6380f15b",
+      "action": "translate",
+      "new_text": "the stored `bloco`/`transicao` reconstructed as the engine will see them.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:505-505; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-519e99e9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:567-567",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-820a8705",
+      "action": "translate",
+      "new_text": "Copy an old version into the draft; the published version remains live until another publish.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:583-583; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ca29b4a6",
+      "action": "translate",
+      "new_text": "Find this account's live flow with Builder, or return 404, 403, then 409 in that order. A flow outside the account must not reveal its existence before permission checks, and only an authorized user learns that a router has no editor.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:80-84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a3b4495d",
+      "action": "translate",
+      "new_text": "Editing the drawing requires the FLOW permission `builder.escrever` on the Team tab, or the",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/builder-do-fluxo.ts:99-99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-08509c6b",
+      "action": "translate",
+      "new_text": "The two Management top bars show account channels and alerts for pauses exceeding the suggested time. The controller obtains the signed-in user and tenant from the session.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cabecalho.ts:6-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c84f899e",
+      "action": "translate",
+      "new_text": "On `destroy`, `regra_fila_condicao.regra_id` has `ON DELETE CASCADE`, so deleting the rule also deletes its conditions.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1057-1057; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ab3c0312",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1078-1078",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-ab18c3ab",
+      "action": "translate",
+      "new_text": "`null` means the person has never connected, which differs from being offline.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1085-1085",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-64678908",
+      "action": "translate",
+      "new_text": "Concurrent conversation cap. `null` when the agent belongs to no queue: without a queue there is no capacity to receive from.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1088-1091; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-76d55bea",
+      "action": "translate",
+      "new_text": "Agent management shows agent, email, queues and simultaneous tickets (`blip-gestao-medidas.md` §8.3), plus current status and situation from the replaced Operations screen. Capacity is the MAXIMUM of the agent's queue caps, not their sum: joining another queue must not double one person's capacity. Monitoring uses the same `limitePorAtendente` rule. Blip has a per-person cap with a global default and individual override; here each queue supplies `fila.capacidade_padrao` and membership may set `fila_atendente.capacidade_override`. For an agent in queues with different caps, use the maximum applicable cap.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1095-1114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ad9b784c",
+      "action": "translate",
+      "new_text": "Queue writes create, rename, toggle, delete with two required refusals, and link or unlink agents. Unlike form `acoes/*` returning `Resultado` in 200, these REST operations throw `ErroPipe` with real status codes for permission, tenant and ID failures, following `ciclo-de-vida-do-fluxo.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1159-1166; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71c3d1fa",
+      "action": "translate",
+      "new_text": "Only supplied fields change, as in `PedidoDeEdicao` in `ciclo-de-vida-do-fluxo.ts`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1177-1177",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-2eaf71be",
+      "action": "translate",
+      "new_text": "Reuse the cap from `acoes/atendentes.ts::salvarFila` for agent overrides too.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1211-1211; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6131b4cb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1315-1315",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-2eacc769",
+      "action": "translate",
+      "new_text": "Leave `antes` and `depois` without explicit type annotations: inferred literals retain",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1326-1326; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c83e3838",
+      "action": "translate",
+      "new_text": "the implicit index signature required by `diferenca` (`Record<string, unknown>`).",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1327-1327; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0f39e65f",
+      "action": "translate",
+      "new_text": "`destroy` really deletes a free queue. `fila` has no history of its own; `conversa` and `evento_atendimento` do, hence the refusals below. Unlike a flow, an unused queue has no foreign key requiring archival.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1388-1393; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e36ba9d9",
+      "action": "translate",
+      "new_text": "`regra_fila.fila_destino_id` has `ON DELETE CASCADE`: without this refusal,",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1427-1427; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-da304dcb",
+      "action": "translate",
+      "new_text": "deleting the queue would silently delete its inbound rule without the owner's request.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1428-1428; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1b5f6479",
+      "action": "translate",
+      "new_text": "Linking creates queue membership or changes `capacidadeOverride` for an existing member.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1452-1452; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c5606e81",
+      "action": "translate",
+      "new_text": "`Acao` in `@pipe/db` is closed (`'criou'/'alterou'/'excluiu'/'ativou'/'desativou'`);",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1484-1484; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b7b8b3da",
+      "action": "translate",
+      "new_text": "linking and unlinking change queue COMPOSITION, not a separate audit action.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1485-1485; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a9b13972",
+      "action": "translate",
+      "new_text": "Pause-reason writes create, edit, toggle and delete. `pausa.motivo_id` is `ON DELETE SET NULL` for `motivo_pausa.id`, matching `carregarPausas`' grouping of pauses without a reason. Removing an in-use reason preserves pause history as orphaned rows, so it does not need the queue-style in-use refusal.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1527-1532; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c8565585",
+      "action": "translate",
+      "new_text": "`null` means no suggestion; `undefined` during editing means leave unchanged. Callers enforce this.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1571-1571",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-84792638",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:164-164",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-7342a184",
+      "action": "translate",
+      "new_text": "Observed mean duration in seconds; `null` when nobody used it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:166-166",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-d8fcfe10",
+      "action": "translate",
+      "new_text": "No explicit type annotation; see the equivalent comment in `editarFila`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:1663-1663; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7c998ace",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:172-172",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-96db1a35",
+      "action": "translate",
+      "new_text": "Pauses closed in the period whose reason was deleted or never supplied.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:175-175",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-e2d54dc2",
+      "action": "translate",
+      "new_text": "Currently open pauses are excluded from the mean because they have not ended.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:177-177; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e19501c5",
+      "action": "translate",
+      "new_text": "Show pause reasons with observed use beside suggested duration. Compute the mean in SQL, not `@pipe/core`: `packages/core/src/esforco/` measures conversation effort and in-session time, treating pauses only as gaps between agent messages in `calcularTempoEmSessao` (10-minute cutoff). No core function accepts `pausa` or `motivo_pausa`; aggregation by reason is SQL `avg`. Use a rolling window of `dias` calendar days rather than the calendar month, because the screen asks whether recent lunch pauses exceed their 30-minute suggestion.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:181-193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6eb129ab",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:246-246",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-257a2e36",
+      "action": "translate",
+      "new_text": "Names of queues using this schedule; empty means it is unused.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:270-270",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-5417b12e",
+      "action": "translate",
+      "new_text": "`null` means no opening in core's horizon, as when a schedule has no ranges.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:273-273; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0c5afc94",
+      "action": "translate",
+      "new_text": "Business hours for the next seven days, accounting for holidays.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:275-275",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-79790700",
+      "action": "translate",
+      "new_text": "Active queues without a schedule run their SLA clock 24/7.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:281-281; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-421aad74",
+      "action": "translate",
+      "new_text": "Schedules include ranges, exceptions, users, and core-derived status. Compute 'open now', next opening and seven-day business duration with `dentroDoExpediente`, `proximaAbertura`, and `duracaoTotalSeg(intervalosUteis(...))` from `packages/core/src/sla/expediente.ts`, the same functions used by the SLA. Summing ranges independently here would make the screen disagree with its report.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:288-297; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00f4594f",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:32-32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b5eff776",
+      "action": "translate",
+      "new_text": "From the catalog in `packages/db/src/semente.ts`: 'Criar, editar e desativar fila'.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:36-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-05a6b200",
+      "action": "translate",
+      "new_text": "'Gerenciar regras de fila, prioridade e SLA' from the catalog also covers these three operations.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:38-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3a0ae8b5",
+      "action": "translate",
+      "new_text": "Schedule range and exception writes add edit and delete to incremental creation in `acoes/regras.ts` (`salvarFaixa`/`salvarExcecao`). These use REST `ErroPipe` statuses. `horarioId` cannot change on edit: moving a range to another schedule means delete and recreate, as `editarFila` also prevents switching tenants.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:388-396; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a237b452",
+      "action": "translate",
+      "new_text": "Catalog permission: 'Gerenciar horário de atendimento e feriado'.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:40-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-30099ca8",
+      "action": "translate",
+      "new_text": "New in migration 0030: no earlier catalog permission covered pause reasons.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:42-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-34f27d21",
+      "action": "translate",
+      "new_text": "Updating day, start and end is one gesture. Reject start ≥ end or overlap on the same day and schedule with 409. This Pipe edit rule is stricter than creation: `salvarFaixaInterna` in `acoes/regras.ts` intentionally permits overlap because `faixasDoDia` in `@pipe/core` merges ranges. Creation behavior stays to preserve existing tests.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:444-455; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-756d55ea",
+      "action": "translate",
+      "new_text": "`relogio()` converts PostgreSQL `HH:MM:SS` to the API's `HH:MM`",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:466-466; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-13463623",
+      "action": "translate",
+      "new_text": "format; otherwise resubmitting the same time appears to be a change",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:467-467; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-94ba7892",
+      "action": "translate",
+      "new_text": "and pollutes the audit log despite an equal value.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:468-468; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d7c60c79",
+      "action": "translate",
+      "new_text": "Reads for queue, pause-reason and schedule registration forms. Edits now have `registrarAuditoria` in `@pipe/db`, storing actor, prior value and time in the SAME transaction, enabling the inbound-rule switch. This module accepts parameters and returns data without Next, `revalidatePath`, or JSX, so it can become an `apps/api` endpoint by moving code (README, 'Quem fala com o banco'). Run all reads SERIALLY inside one `comTenant`: `Promise.all` on the connection can clear transaction `set_config('pipe.tenant_id')` and stop RLS filtering (README, 'Como o isolamento entre clientes funciona').",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:47-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bf497605",
+      "action": "translate",
+      "new_text": "Update follows `salvarExcecaoInterna`: closed has no own hours, open requires both, start < end, and no conflicting date in the same schedule (`horario_excecao_uk`).",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cadastros.ts:572-576; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
