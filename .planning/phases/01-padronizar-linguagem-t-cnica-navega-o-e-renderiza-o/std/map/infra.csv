@@ -46,7 +46,7 @@ infra-file-df5b25e3,infra,4,file,ponte.csv,map/bridge.csv,.planning/phases/01-pa
 infra-file-dffd3515,infra,4,file,packages-armazenamento.csv,packages-storage.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-armazenamento.csv,4,no,,,proposed,codex1,
 infra-file-e45b95e3,infra,4,file,2026-09-05-metricas-atendimento.md,KEEP,docs/specs/2026-09-05-metricas-atendimento.md,7,no,,,proposed,codex1,
 infra-file-e823de9f,infra,4,file,ponte.csv,bridge.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/ponte.csv,19,no,,,proposed,codex1,
-infra-file-eb2473ec,infra,4,file,implantar.sh,deploy.sh,infra/compose/implantar.sh,16,no,,,proposed,codex1,
+infra-file-eb2473ec,infra,4,file,implantar.sh,bootstrap.sh,infra/compose/implantar.sh,16,no,,,proposed,codex1,"target collision: infra/compose/deploy.sh already exists (the separate subsequent-deploy script implantar.sh's own header comment points to) - renamed to bootstrap.sh (first-time VPS setup) instead"
 infra-file-f91c3162,infra,4,file,2026-09-07-webhook-por-cliente-cc698675.json,KEEP,.planning/intel/classifications/2026-09-07-webhook-por-cliente-cc698675.json,0,no,,,proposed,codex1,
 infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,packages-authentication,tools/std/inventory.ts:30,22,no,,D-11,proposed,codex1,
 infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,management-vite,tools/std/inventory.ts:31,244,no,,D-11,proposed,codex1,
