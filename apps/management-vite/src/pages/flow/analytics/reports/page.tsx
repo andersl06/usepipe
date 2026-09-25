@@ -1,4 +1,4 @@
-import type { ReportCustom } from '@pipe/core/analise';
+import type { ReportCustom } from '@pipe/core/analytics';
 import { useRead } from '../../../../lib/query';
 import { useContact } from '../../contact';
 import { ReportsCustom } from './reports';

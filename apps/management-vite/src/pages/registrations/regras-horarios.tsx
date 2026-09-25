@@ -33,33 +33,33 @@ export function PageHours() {
       cards: horarios.map((h) => ({
         id: h.id,
         campos: [
-          { rotulo: 'Horário', valor: h.nome },
-          { rotulo: 'Fuso', valor: h.fuso },
+          { rotulo: 'Horário', value: h.nome },
+          { rotulo: 'Fuso', value: h.fuso },
           {
             rotulo: 'Agora',
-            valor: h.abertoAgora
+            value: h.abertoAgora
               ? 'Aberto'
               : h.proximaAberturaEm
                 ? `Fechado · abre ${dataHora(h.proximaAberturaEm, h.fuso)}`
                 : 'Fechado · sem abertura prevista',
           },
-          { rotulo: 'Próximos 7 dias', valor: durationLonga(h.seteDiasSeg), classe: 'num' },
-          { rotulo: 'Faixas', valor: numero(h.faixas.length), classe: 'num' },
-          { rotulo: 'Exceções', valor: numero(h.exceptions.length), classe: 'num' },
+          { rotulo: 'Próximos 7 dias', value: durationLonga(h.seteDiasSeg), classe: 'num' },
+          { rotulo: 'Faixas', value: numero(h.faixas.length), classe: 'num' },
+          { rotulo: 'Exceções', value: numero(h.exceptions.length), classe: 'num' },
           {
             rotulo: 'Filas que usam',
-            valor: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma',
+            value: h.queues.length > 0 ? h.queues.join(', ') : 'Nenhuma',
           },
         ],
         // A situação do cartão é o USO, não um interruptor: horário sem fila
         // nenhuma não é erro de dado, é trabalho pela metade — cadastrado e
         // nunca ligado. Sai em etiqueta de alerta, que é o que a lista já sabe
-        // fazer com `ativa: false`.
-        situacao:
+        // fazer com `active: false`.
+        situation:
           h.queues.length > 0
             ? `Em uso por ${numero(h.queues.length)} fila(s)`
             : 'Nenhuma fila usa este horário',
-        ativa: h.queues.length > 0,
+        active: h.queues.length > 0,
         rodape: [
           ...h.faixas.map(
             (f) => `${DIAS_DA_SEMANA[f.diaSemana] ?? String(f.diaSemana)} ${f.inicio}–${f.fim}`,

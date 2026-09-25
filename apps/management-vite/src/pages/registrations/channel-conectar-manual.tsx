@@ -103,7 +103,7 @@ function WebhookPronto({
     <div style={column}>
       <Etiqueta tom="sucesso">Canal conectado.</Etiqueta>
       {webhookError ? (
-        <Etiqueta tom="alert">
+        <Etiqueta tom="alerta">
           A assinatura automática do webhook falhou ({webhookError}). Cole os dados abaixo no painel
           do aplicativo mesmo assim.
         </Etiqueta>

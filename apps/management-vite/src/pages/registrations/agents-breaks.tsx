@@ -61,14 +61,14 @@ export function PageBreaks() {
       cards: motivos.map((m) => ({
         id: m.id,
         campos: [
-          { rotulo: 'Nome da pausa', valor: m.nome },
+          { rotulo: 'Nome da pausa', value: m.nome },
           {
             rotulo: 'Duração',
-            valor: m.durationSuggestedMin === null ? '—' : `${numero(m.durationSuggestedMin)} minutos`,
+            value: m.durationSuggestedMin === null ? '—' : `${numero(m.durationSuggestedMin)} minutos`,
           },
         ],
-        situacao: m.ativo ? 'Ativo' : 'Desativado',
-        ativa: m.ativo,
+        situation: m.ativo ? 'Ativo' : 'Desativado',
+        active: m.ativo,
         acao: <MotivoActions motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
         procura: m.nome.toLowerCase(),
       })),

@@ -1,2 +1,8 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
 workers-symbol-fixup01,workers,typecheck-repair,symbol,import,importJob,apps/workers/src/main.ts,2,no,,,approved,claude-typecheck-repair,reserved word
+management-vite-symbol-fixup01,management-vite,typecheck-repair,symbol,return,retornar,apps/management-vite/src/components/registration-embedded-whatsapp.tsx,1,no,,,approved,claude-typecheck-repair,reserved word (interface method parameter name)
+management-vite-symbol-fixup02,management-vite,typecheck-repair,symbol,switch,substituir,apps/management-vite/src/pages/builder/condition.tsx,2,no,,,approved,claude-typecheck-repair,reserved word
+management-vite-symbol-fixup03,management-vite,typecheck-repair,symbol,switch,atualizar,apps/management-vite/src/pages/builder/panel-content.tsx,7,no,,,approved,claude-typecheck-repair,reserved word
+management-vite-symbol-fixup04,management-vite,typecheck-repair,symbol,import,importarArquivo,apps/management-vite/src/pages/contract/members/convidar.tsx,2,no,,,approved,claude-typecheck-repair,reserved word
+management-vite-symbol-fixup05,management-vite,typecheck-repair,symbol,import,importResult,apps/management-vite/src/pages/deployment/actions.ts,3,no,,,approved,claude-typecheck-repair,reserved word
+management-vite-symbol-fixup06,management-vite,typecheck-repair,symbol,import,importBase,apps/management-vite/tests/deployment.test.ts,1,no,,,approved,claude-typecheck-repair,reserved word

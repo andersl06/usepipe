@@ -10,7 +10,7 @@ import {
   readPeriod,
   rotuloDoIntervalo,
   variation,
-} from '@pipe/core/analise';
+} from '@pipe/core/analytics';
 
 /**
  * As regras da Análise do contato que a origem esconde no navegador

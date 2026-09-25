@@ -8,7 +8,7 @@ import {
   rolePermissions,
 } from '../src/pages/flow/team/permissions.ts';
 
-const RECURSOS = [{ chave: 'builder' }, { chave: 'channels' }, { chave: 'team' }];
+const RECURSOS = [{ key: 'builder' }, { key: 'channels' }, { key: 'team' }];
 
 test('adicionar oferece somente as quatro paradas da barra da Blip', () => {
   assert.equal(acaoDeAdicionar('visualizar'), 'Salvar');

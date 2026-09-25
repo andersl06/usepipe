@@ -398,7 +398,7 @@ function PriorityFormularioRule({ queueId, onFechar }: { queueId: string; onFech
     const resultado = await priorityCreateRule({
       nome: nome.trim(),
       nivel,
-      scopeType: 'queue',
+      scopeType: 'fila',
       scopeId: queueId,
     });
     setEnviando(false);

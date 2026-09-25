@@ -34,7 +34,7 @@ type ItemLateral = { rotulo: string; rota: string; icone: NomeDeIconePortal };
 type GrupoLateral = { rotulo: string; icone: NomeDeIconePortal; filhos: readonly { rotulo: string; rota: string }[] };
 
 const ITENS: readonly ItemLateral[] = [
-  { rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoring' },
+  { rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoramento' },
   { rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },
 ];
 

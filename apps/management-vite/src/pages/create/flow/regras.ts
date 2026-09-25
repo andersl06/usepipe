@@ -93,7 +93,7 @@ export const ROTULOS = {
   /** `createApplication.name.name` */
   rotuloDoNome: 'Nome do fluxo',
   /** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */
-  definirImagem: 'Definir imagem',
+  definirImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
 } as const;
@@ -119,5 +119,5 @@ export const RECADOS = {
    */
   nomeEmUso: 'Houve um erro na criação do seu fluxo. Experimente usar outro nome.',
   /** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */
-  semPermissao: 'Você não tem permissão para criar fluxos nesta conta.',
+  withoutPermission: 'Você não tem permissão para criar fluxos nesta conta.',
 } as const;

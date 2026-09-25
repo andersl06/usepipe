@@ -108,20 +108,20 @@ export function AgentsPageManagement() {
           </span>
         ),
         campos: [
-          { rotulo: 'Atendente', valor: a.nome },
-          { rotulo: 'E-mail', valor: a.email },
-          { rotulo: 'Filas', valor: queuesInCard(a.queues) },
+          { rotulo: 'Atendente', value: a.nome },
+          { rotulo: 'E-mail', value: a.email },
+          { rotulo: 'Filas', value: queuesInCard(a.queues) },
           {
             rotulo: 'Tickets simultâneos',
-            valor: a.limiteSimultaneo === null ? '—' : numero(a.limiteSimultaneo),
+            value: a.limiteSimultaneo === null ? '—' : numero(a.limiteSimultaneo),
             classe: 'num',
           },
         ],
-        situacao: a.ativo ? 'Ativo' : 'Desativado',
+        situation: a.ativo ? 'Ativo' : 'Desativado',
         /* A origem não tem coluna de status (§d.2 da ficha: "voltar para 4
            colunas") — `ativa` só decidiria o selo de `Cartao`, e como as três
            ações sempre existem aqui, ele nunca aparece de qualquer forma. */
-        ativa: a.ativo,
+        active: a.ativo,
         acao: (
           <>
             <BotaoDeIcone nome="lapis" rotulo={`Editar ${a.nome}`} onClick={() => irForEdit([a.id])} />

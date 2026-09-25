@@ -517,7 +517,7 @@ export function PageMonitoring() {
         )}
         {fieldPanel === 'fila' ? (
           <>
-            <PanelField rotulo="Filas" icone="queue" apoio="Selecione uma ou mais filas">
+            <PanelField rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
               <SelectionChips
                 name="fila"
                 rotulo="Filas"

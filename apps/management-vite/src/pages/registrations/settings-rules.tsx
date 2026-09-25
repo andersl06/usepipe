@@ -38,18 +38,18 @@ export function PageRules() {
         return {
           id: r.id,
           campos: [
-            { rotulo: 'Regra', valor: r.nome },
-            { rotulo: 'Alvo', valor: ROTULO_ALVO[r.alvo] ?? r.alvo },
-            { rotulo: 'Prazo', valor: duration(r.prazoSeg), classe: 'num' },
+            { rotulo: 'Regra', value: r.nome },
+            { rotulo: 'Alvo', value: ROTULO_ALVO[r.alvo] ?? r.alvo },
+            { rotulo: 'Prazo', value: duration(r.prazoSeg), classe: 'num' },
             {
               rotulo: 'Alerta',
-              valor: r.alertaSeg === null ? '—' : duration(r.alertaSeg),
+              value: r.alertaSeg === null ? '—' : duration(r.alertaSeg),
               classe: 'num',
             },
-            { rotulo: 'Escopo', valor: scope },
+            { rotulo: 'Escopo', value: scope },
           ],
-          situacao: r.active ? 'Ativa' : 'Desativada',
-          ativa: r.active,
+          situation: r.active ? 'Ativa' : 'Desativada',
+          active: r.active,
           procura: `${r.nome} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${scope}`.toLowerCase(),
         };
       }),
@@ -60,16 +60,16 @@ export function PageRules() {
       cards: queues.map((f) => ({
         id: f.id,
         campos: [
-          { rotulo: 'Fila', valor: f.nome },
-          { rotulo: 'Capacidade padrão', valor: numero(f.capacityDefault), classe: 'num' },
-          { rotulo: 'Ordem', valor: numero(f.order), classe: 'num' },
+          { rotulo: 'Fila', value: f.nome },
+          { rotulo: 'Capacidade padrão', value: numero(f.capacityDefault), classe: 'num' },
+          { rotulo: 'Ordem', value: numero(f.order), classe: 'num' },
           {
             rotulo: 'Horário de atendimento',
-            valor: f.temHorario ? 'Definido' : 'Sem horário, o relógio corre sempre',
+            value: f.temHorario ? 'Definido' : 'Sem horário, o relógio corre sempre',
           },
         ],
-        situacao: f.active ? 'Ativa' : 'Desativada',
-        ativa: f.active,
+        situation: f.active ? 'Ativa' : 'Desativada',
+        active: f.active,
         procura: f.nome.toLowerCase(),
       })),
     },

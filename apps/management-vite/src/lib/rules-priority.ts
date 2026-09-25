@@ -1,4 +1,4 @@
-import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversa';
+import { NIVEIS_ATRIBUIVEIS, ROTULOS_PRIORITY, type NivelPriority } from '@pipe/core/conversation';
 
 /**
  * As regras de priorização como a seção "Regras de Priorização" da página de

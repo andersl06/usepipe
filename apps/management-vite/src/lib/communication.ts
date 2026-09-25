@@ -18,9 +18,9 @@ export const CATEGORIAS_TEMPLATE = ['utilidade', 'marketing', 'autenticacao'] as
 export type CategoriaTemplate = (typeof CATEGORIAS_TEMPLATE)[number];
 
 export const ROTULO_CATEGORIA_TEMPLATE: Record<CategoriaTemplate, string> = {
-  utility: 'Utilidade',
+  utilidade: 'Utilidade',
   marketing: 'Marketing',
-  authentication: 'Autenticação',
+  autenticacao: 'Autenticação',
 };
 
 export const ROTULO_STATUS_META: Record<string, string> = {
@@ -36,9 +36,9 @@ export type CabecalhoTemplate = (typeof CABECALHOS_TEMPLATE)[number];
 export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
   nenhum: 'Sem cabeçalho',
   texto: 'Texto',
-  image: 'Imagem',
+  imagem: 'Imagem',
   video: 'Vídeo',
-  document: 'Documento',
+  documento: 'Documento',
 };
 
 /**

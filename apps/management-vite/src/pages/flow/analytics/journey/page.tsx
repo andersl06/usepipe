@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import type { ArestaDaJornada } from '@pipe/core/analise';
+import type { ArestaDaJornada } from '@pipe/core/analytics';
 import { useRead } from '../../../../lib/query';
 import { useContact } from '../../contact';
 import { ContactsJourney } from './jornada';

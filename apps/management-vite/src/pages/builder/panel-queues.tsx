@@ -28,7 +28,7 @@ export function QueuesPanel({
       </div>
       <hr className="bl-painel-fio" />
       <div className="bl-painel-corpo bl-filas-corpo">
-        <Icone nome="queue" tamanho={32} />
+        <Icone nome="fila" tamanho={32} />
         <p>Gerencie filas, atendentes atribuídos e regras de atendimento.</p>
         <Botao
           type="button"

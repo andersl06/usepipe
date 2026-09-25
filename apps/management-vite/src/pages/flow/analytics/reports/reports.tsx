@@ -1,5 +1,5 @@
 import { IconeSearch, IconePortal } from '../../../../components/icones-portal';
-import type { ReportCustom } from '@pipe/core/analise';
+import type { ReportCustom } from '@pipe/core/analytics';
 import { PageHeader } from '../pecas';
 
 /**

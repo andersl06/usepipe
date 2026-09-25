@@ -37,7 +37,7 @@ export const ROTULOS = {
   /** `createApplication.name.nameRouter` */
   rotuloDoNome: 'Nome do roteador',
   /** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */
-  definirImagem: 'Definir imagem',
+  definirImage: 'Definir imagem',
   /** `createApplication.name.back` */
   voltar: 'Voltar',
 } as const;
@@ -63,5 +63,5 @@ export const RECADOS = {
    */
   nomeEmUso: 'Houve um erro na criação do seu roteador. Experimente usar outro nome.',
   /** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */
-  semPermissao: 'Você não tem permissão para criar roteadores nesta conta.',
+  withoutPermission: 'Você não tem permissão para criar roteadores nesta conta.',
 } as const;

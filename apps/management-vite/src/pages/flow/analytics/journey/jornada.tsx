@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { IconePortal } from '../../../../components/icones-portal';
 import { Selection } from '../../../../components/selection';
-import type { ArestaDaJornada } from '@pipe/core/analise';
+import type { ArestaDaJornada } from '@pipe/core/analytics';
 import { PageHeader, Card, PeriodSeletor } from '../pecas';
 import { desenharSankey } from './sankey';
 

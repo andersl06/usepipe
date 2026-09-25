@@ -123,27 +123,27 @@ export function PageTemplates() {
       cards: modelos.map((m) => ({
         id: m.id,
         campos: [
-          { rotulo: 'Nome', valor: m.nome },
-          { rotulo: 'Idioma', valor: m.idioma },
+          { rotulo: 'Nome', value: m.nome },
+          { rotulo: 'Idioma', value: m.idioma },
           {
             rotulo: 'Categoria',
-            valor: ROTULO_CATEGORIA_TEMPLATE[m.categoria as CategoriaTemplate] ?? m.categoria,
+            value: ROTULO_CATEGORIA_TEMPLATE[m.categoria as CategoriaTemplate] ?? m.categoria,
           },
-          { rotulo: 'Canal', valor: m.channelName },
+          { rotulo: 'Canal', value: m.channelName },
           {
             rotulo: 'Cabeçalho',
-            valor: ROTULO_CABECALHO[m.cabecalhoTipo as CabecalhoTemplate] ?? m.cabecalhoTipo,
+            value: ROTULO_CABECALHO[m.cabecalhoTipo as CabecalhoTemplate] ?? m.cabecalhoTipo,
           },
           {
             rotulo: headerTemMedia(m.cabecalhoTipo)
               ? 'Variáveis (cabeçalho desloca +1)'
               : 'Variáveis',
-            valor: disparoPositions(m.cabecalhoTipo, m.variables.length),
+            value: disparoPositions(m.cabecalhoTipo, m.variables.length),
           },
-          { rotulo: 'Status na Meta', valor: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
+          { rotulo: 'Status na Meta', value: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta },
         ],
-        situacao: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta,
-        ativa: m.statusMeta === 'aprovado',
+        situation: ROTULO_STATUS_META[m.statusMeta] ?? m.statusMeta,
+        active: m.statusMeta === 'aprovado',
         procura: `${m.nome} ${m.idioma} ${m.categoria} ${m.channelName}`.toLowerCase(),
         acao: (
           <BotaoDeIcone nome="x" rotulo={`Excluir o modelo ${m.nome}`} onClick={() => setParaExcluir(m)} />

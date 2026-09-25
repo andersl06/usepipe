@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import type { VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analise';
+import type { VisaoGeral as DadosDaVisaoGeral } from '@pipe/core/analytics';
 import { useRead } from '../../../../lib/query';
 import { useContact } from '../../contact';
 import { VisaoGeral } from './visao-geral';

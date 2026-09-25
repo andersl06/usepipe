@@ -64,19 +64,19 @@ function contactsPasso(
   const ultima = s.ultimaImport;
   if (!ultima) {
     return {
-      state: 'pending',
+      state: 'pendente',
       resumo: 'Opcional: traga a base de clientes de uma planilha CSV.',
     };
   }
   if (ultima.state === 'pronta' || ultima.state === 'executando') {
     return {
-      state: 'progress',
+      state: 'andamento',
       resumo: 'Importação em andamento. Arquivo grande leva alguns minutos.',
     };
   }
   if (ultima.state === 'falhou') {
     return {
-      state: 'pending',
+      state: 'pendente',
       resumo:
         'A última importação falhou: o arquivo tem aspas malformadas. Corrija e envie de novo.',
     };
@@ -86,7 +86,7 @@ function contactsPasso(
       ? `, ${quantos(ultima.rejeitados, 'linha rejeitada', 'linhas rejeitadas')}`
       : '';
   return {
-    state: ultima.aceitos > 0 ? 'done' : 'pending',
+    state: ultima.aceitos > 0 ? 'feito' : 'pendente',
     resumo: `${quantos(ultima.aceitos, 'contato importado', 'contatos importados')}${rejeitadas}.`,
   };
 }
@@ -95,9 +95,9 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
   const temWhatsApp = s.channelsConectados > 0;
   return [
     {
-      id: 'access',
+      id: 'acesso',
       titulo: 'Primeiro acesso do administrador',
-      state: s.adminEntrou ? 'done' : 'pending',
+      state: s.adminEntrou ? 'feito' : 'pendente',
       resumo: s.adminEntrou
         ? 'O administrador já entrou pelo Google.'
         : 'Nenhum administrador entrou ainda. Ele entra pelo Google, com o e-mail provisionado.',
@@ -106,7 +106,7 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
     {
       id: 'whatsapp',
       titulo: 'Conectar o WhatsApp',
-      state: temWhatsApp ? 'done' : s.channelsPendentes > 0 ? 'progress' : 'pending',
+      state: temWhatsApp ? 'feito' : s.channelsPendentes > 0 ? 'andamento' : 'pendente',
       resumo: temWhatsApp
         ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
         : s.channelsPendentes > 0
@@ -119,7 +119,7 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
     {
       id: 'equipe',
       titulo: 'Convidar a equipe',
-      state: s.members > 1 ? 'done' : s.convites > 0 ? 'progress' : 'pending',
+      state: s.members > 1 ? 'feito' : s.convites > 0 ? 'andamento' : 'pendente',
       resumo:
         s.members > 1
           ? `${quantos(s.members, 'pessoa', 'pessoas')} com acesso.`
@@ -129,9 +129,9 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
       acao: { rotulo: 'Convidar', href: '#equipe' },
     },
     {
-      id: 'queue',
+      id: 'fila',
       titulo: 'Criar a primeira fila com atendente',
-      state: s.queuesWithAgent > 0 ? 'done' : 'pending',
+      state: s.queuesWithAgent > 0 ? 'feito' : 'pendente',
       resumo:
         s.queuesWithAgent > 0
           ? `${quantos(s.queuesWithAgent, 'fila', 'filas')} com atendente habilitado.`
@@ -141,15 +141,15 @@ export function montarPassos(s: DeploymentSignals, urlDoDesk: string): Deploymen
       acao: { rotulo: 'Abrir filas', href: '/atendentes/filas' },
     },
     {
-      id: 'contacts',
+      id: 'contatos',
       titulo: 'Importar contatos',
       ...contactsPasso(s),
       acao: { rotulo: 'Importar', href: '#contatos' },
     },
     {
-      id: 'conversation',
+      id: 'conversa',
       titulo: 'Atender a conversa de teste',
-      state: s.conversationAtendida ? 'done' : 'pending',
+      state: s.conversationAtendida ? 'feito' : 'pendente',
       resumo: s.conversationAtendida
         ? 'Uma conversa já foi respondida pelo Desk.'
         : temWhatsApp

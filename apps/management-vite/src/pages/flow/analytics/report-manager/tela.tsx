@@ -11,22 +11,22 @@ import {
 
 const REPORTS = [
   {
-    valor: 'notifications',
+    value: 'notifications',
     nome: 'Mensagens ativas',
     dica: 'Dados sobre mensagens ativas enviadas e as pessoas usuárias que as receberam.',
   },
   {
-    valor: 'event-tracks',
+    value: 'event-tracks',
     nome: 'Rastreamento de eventos',
     dica: 'Mostra todos os trackings da sua operação no Pipe.',
   },
   {
-    valor: 'users-conversations',
+    value: 'users-conversations',
     nome: 'Métricas de chatbots e usuários',
     dica: 'Dados sobre usuários mensais (MAUs) e detalhes das conversas com eles.',
   },
   {
-    valor: 'thread-transcription',
+    value: 'thread-transcription',
     nome: 'Histórico completo de conversa',
     dica: 'Gera o histórico completo de conversas em PDF, ideal para auditorias e documentação jurídica.',
   },
@@ -34,24 +34,24 @@ const REPORTS = [
 
 const REPORTS_OF_ATTENDANCE = [
   {
-    valor: 'attendants',
+    value: 'attendants',
     nome: 'Status dos atendentes',
     dica: 'Dados sobre a atuação dos atendentes no Desk.',
   },
   {
-    valor: 'tickets',
+    value: 'tickets',
     nome: 'Métricas de atendimento',
     dica: 'Dados sobre atendimentos: atendente, data de abertura e encerramento, tempos de resposta etc.',
   },
   {
-    valor: 'desk-messages',
+    value: 'desk-messages',
     nome: 'Histórico de atendimento (Desk)',
     dica: 'Mensagens e dados sobre conversas no Desk. Inclui transcrição dos atendimentos.',
   },
 ] as const;
 
 type Tipo =
-  (typeof REPORTS)[number]['valor'] | (typeof REPORTS_OF_ATTENDANCE)[number]['valor'];
+  (typeof REPORTS)[number]['value'] | (typeof REPORTS_OF_ATTENDANCE)[number]['value'];
 
 interface ReportGenerated {
   id: number;
@@ -61,7 +61,7 @@ interface ReportGenerated {
 }
 
 const reportName = (tipo: Tipo) =>
-  [...REPORTS, ...REPORTS_OF_ATTENDANCE].find((item) => item.valor === tipo)?.nome ?? tipo;
+  [...REPORTS, ...REPORTS_OF_ATTENDANCE].find((item) => item.value === tipo)?.nome ?? tipo;
 
 const dataPt = (iso: string) =>
   new Date(`${iso}T00:00:00Z`).toLocaleDateString('pt-BR', { timeZone: 'UTC' });

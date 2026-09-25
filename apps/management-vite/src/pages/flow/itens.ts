@@ -112,31 +112,31 @@ export function itensDoMenu(
   const base = `/${tipo}/${id}`;
   const sieve = permissions && !permissions.editaByAccount ? permissions.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
-    (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.chave),
+    (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.key),
   )
     .filter((item) => {
       if (!sieve) return true;
-      const nivel = sieve[RECURSO_DO_ITEM[item.chave] ?? item.chave];
+      const nivel = sieve[RECURSO_DO_ITEM[item.key] ?? item.key];
       return nivel === 'ler' || nivel === 'escrever';
     })
     .map((item) => ({
       rotulo: item.rotulo,
       href:
-        item.chave === 'builder'
+        item.key === 'builder'
           ? `${base}/builder`
-          : item.chave === 'desk'
+          : item.key === 'desk'
             ? `${base}/atendimento/monitoramento`
-            : item.chave === 'analysis'
+            : item.key === 'analysis'
               ? `${base}/analise`
-              : item.chave === 'channels'
+              : item.key === 'channels'
                 ? `${base}/canais`
-                : item.chave === 'users'
+                : item.key === 'users'
                   ? `${base}/contatos`
-                  : item.chave === 'growth'
+                  : item.key === 'growth'
                     ? `${base}/growth/mensagens-ativas`
-                    : item.chave === 'contents'
+                    : item.key === 'contents'
                       ? `${base}/conteudos`
-                      : item.chave === 'logMessages'
+                      : item.key === 'logMessages'
                         ? `${base}/log`
                         : item.href,
     }));

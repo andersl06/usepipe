@@ -46,7 +46,7 @@ type Passo = 'inicio' | 'conexao' | 'escolher';
 
 export function AbaVisaoGeral() {
   const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();
-  if ('canal' in context) return <Conectado {...context} />;
+  if ('channel' in context) return <Conectado {...context} />;
   return <NaoConectado {...context} />;
 }
 

@@ -65,7 +65,7 @@ export function PageQualityReview() {
     ate: dataOuNada(crus.ate),
   };
   const q = new URLSearchParams();
-  for (const key of ['atendente', 'avaliador', 'de', 'ate'] as const) {
+  for (const key of ['agent', 'avaliador', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
   const read = useRead<QualityReviewResposta>(`/v1/management/quality-review?${q}`);

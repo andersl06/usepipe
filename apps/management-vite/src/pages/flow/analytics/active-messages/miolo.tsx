@@ -6,7 +6,7 @@ import {
   escalaDoEixo as escala,
   type ActiveMessagesData,
   type Intervalo,
-} from '@pipe/core/analise';
+} from '@pipe/core/analytics';
 
 /**
  * O miolo de Mensagens ativas — a coluna de cartões e gráficos do `Lx`

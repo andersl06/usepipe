@@ -47,7 +47,7 @@ const ROTULO: Record<PassoState, string> = {
 const TOM: Record<PassoState, TomDeEtiqueta> = {
   feito: 'sucesso',
   andamento: 'info',
-  pendente: 'alert',
+  pendente: 'alerta',
 };
 
 export function PageDeployment() {
@@ -63,7 +63,7 @@ export function PageDeployment() {
   }
   const { signals, channels } = read.data;
   const passos = montarPassos(signals, URL_DESK);
-  const feitos = passos.filter((p) => p.state === 'done').length;
+  const feitos = passos.filter((p) => p.state === 'feito').length;
   const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
   const ultima = signals.ultimaImport;
 
@@ -92,7 +92,7 @@ export function PageDeployment() {
                   <span className="v">{passo.titulo}</span>
                 </div>
                 <div className="cl-campo">
-                  <span className="r">{passo.state === 'done' ? 'Situação' : 'O que falta'}</span>
+                  <span className="r">{passo.state === 'feito' ? 'Situação' : 'O que falta'}</span>
                   <span className="v" title={passo.resumo}>
                     {passo.resumo}
                   </span>
@@ -100,7 +100,7 @@ export function PageDeployment() {
               </div>
               <div className="cl-acoes">
                 <Etiqueta tom={TOM[passo.state]}>{ROTULO[passo.state]}</Etiqueta>
-                {passo.acao && passo.state !== 'done' ? (
+                {passo.acao && passo.state !== 'feito' ? (
                   <a
                     className="btn"
                     href={passo.acao.href}
@@ -140,7 +140,7 @@ export function PageDeployment() {
                       </div>
                     </div>
                     <div className="cl-acoes">
-                      <Etiqueta tom={precisaReconectar ? 'alert' : 'sucesso'}>
+                      <Etiqueta tom={precisaReconectar ? 'alerta' : 'sucesso'}>
                         {!c.ativo
                           ? 'Desligado'
                           : c.reauthorizationPending

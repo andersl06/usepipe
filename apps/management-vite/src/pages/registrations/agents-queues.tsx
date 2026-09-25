@@ -103,11 +103,11 @@ export function PageQueues() {
       cards: queues.map((f) => ({
         id: f.id,
         campos: [
-          { rotulo: 'Fila de atendimento', valor: f.nome },
-          { rotulo: 'Atendentes atribuídos', valor: numero(f.agents.length), classe: 'num' },
+          { rotulo: 'Fila de atendimento', value: f.nome },
+          { rotulo: 'Atendentes atribuídos', value: numero(f.agents.length), classe: 'num' },
         ],
-        situacao: f.active ? 'Ativa' : 'Desativada',
-        ativa: f.active,
+        situation: f.active ? 'Ativa' : 'Desativada',
+        active: f.active,
         acao: (
           <QueueActions
             queue={f}

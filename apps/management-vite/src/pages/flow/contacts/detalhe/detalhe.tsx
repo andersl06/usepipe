@@ -104,7 +104,7 @@ export function BotDetalheContact() {
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >
-                              <IconePortal nome="conversation" tamanho={24} />
+                              <IconePortal nome="conversa" tamanho={24} />
                             </Link>
                             {/* ponytail: exportação do histórico do ticket ainda não tem backend. */}
                             <span

@@ -22,7 +22,12 @@ export function ModalFinalizarMonitoring({
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
   const read = useRead<{ etiquetas: EtiquetaDoDesk[] }>('/v1/etiquetas?escopo=conversa');
-  const etiquetas: ClosureTag[] = read.data?.etiquetas ?? [];
+  const etiquetas: ClosureTag[] = (read.data?.etiquetas ?? []).map((e) => ({
+    id: e.id,
+    nome: e.nome,
+    cor: e.cor,
+    obrigatoriaInClosure: e.requiredInClosure,
+  }));
 
   useEffect(() => {
     if (!etiquetas.length) return;
