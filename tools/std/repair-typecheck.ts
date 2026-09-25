@@ -97,6 +97,22 @@ for (const d of diagnostics) {
       continue;
     }
   }
+  if (d.code === 2305 && ts.isImportSpecifier(id.parent)) {
+    const specifier = id.parent;
+    const declaration = specifier.parent.parent.parent;
+    if (ts.isImportDeclaration(declaration)) {
+      const moduleSymbol = checker.getSymbolAtLocation(declaration.moduleSpecifier);
+      const exports = moduleSymbol ? new Set(checker.getExportsOfModule(moduleSymbol).map(symbol => symbol.name)) : new Set<string>();
+      const local = specifier.name.text;
+      const candidates = [local, ...(oldByNew.get(id.text) ?? []), ...(newByOld.get(id.text) ?? [])]
+        .filter(name => exports.has(name));
+      if (candidates.length === 1) {
+        const name = candidates[0]!;
+        add(file, specifier.getStart(), specifier.getEnd(), name === local ? name : `${name} as ${local}`, `TS${d.code}`);
+        continue;
+      }
+    }
+  }
   if (d.code === 2339 || d.code === 2353) {
     const old = proposedOld(id.text, targetType(id));
     if (old) {
