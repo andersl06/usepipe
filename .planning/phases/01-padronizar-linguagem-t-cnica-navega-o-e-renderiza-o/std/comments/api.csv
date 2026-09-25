@@ -1090,14 +1090,14 @@ api-comment-7272fa40,api,apps/api/src/dominio/construtor-de-conta.ts,120,132,jsd
  * segunda entraria numa fila de `-2`, `-3` que denuncia quantas contas existem.
  * Cinco caracteres em base 36 dão 60 milhões de combinações por nome.
  */",translate,"The account address follows the source platform: the email LOCAL PART plus a short suffix, for example `anderson-linhares-oxo7k`. There it becomes the account portal subdomain. It uses the creator's email rather than company name because the company name has not yet been entered when the address is needed. The random suffix prevents people such as `joao.silva` at different companies from colliding or receiving sequential `-2`, `-3` suffixes that reveal account counts. Five base-36 characters provide about 60 million combinations per name.",security,apps/api/src/dominio/construtor-de-conta.ts:120-146; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-fd294909,api,apps/api/src/dominio/construtor-de-conta.ts,149,149,jsdoc,1,"/** `nome`, `nome-2`, `nome-3`… O primeiro que ninguém usou. */",,,,,,
-api-comment-54503dfc,api,apps/api/src/dominio/construtor-de-conta.ts,158,158,line,1,// 50 contas com o mesmo nome é sinal de outra coisa acontecendo; o sufixo de,,,,,,
-api-comment-3984010a,api,apps/api/src/dominio/construtor-de-conta.ts,159,159,line,3,// tempo garante que ninguém fica sem entrar enquanto se descobre o quê.,,,,,,
-api-comment-ce23aab1,api,apps/api/src/dominio/construtor-de-conta.ts,177,177,line,2,"// `validate_user`: e-mail que já é usuário em qualquer cliente. Papel dono,",,,,,,
-api-comment-97a04d98,api,apps/api/src/dominio/construtor-de-conta.ts,178,178,line,3,"// porque a pergunta é global, e só volta sim ou não.",,,,,,
-api-comment-2b553c0b,api,apps/api/src/dominio/construtor-de-conta.ts,195,195,line,1,// `name: user_full_name` — o provisionamento põe a parte local do e-mail.,,,,,,
-api-comment-71b798ae,api,apps/api/src/dominio/construtor-de-conta.ts,31,31,jsdoc,2,/** `GlobalConfigService.account_signup_enabled?`: qualquer valor que não seja `false` liga. */,,,,,,
-api-comment-fa5697b2,api,apps/api/src/dominio/construtor-de-conta.ts,52,52,jsdoc,4,/** O slug do espaço a partir do nome (a sugestão que a Blip faz em `/tenant-valid-id`). */,,,,,,
+api-comment-fd294909,api,apps/api/src/dominio/construtor-de-conta.ts,149,149,jsdoc,1,"/** `nome`, `nome-2`, `nome-3`… O primeiro que ninguém usou. */",translate,"`nome`, `nome-2`, `nome-3`… Return the first unused value.",other,apps/api/src/dominio/construtor-de-conta.ts:149,codex3,reviewed
+api-comment-54503dfc,api,apps/api/src/dominio/construtor-de-conta.ts,158,158,line,1,// 50 contas com o mesmo nome é sinal de outra coisa acontecendo; o sufixo de,translate,Fifty accounts with the same name suggest another issue; the time suffix,architecture,apps/api/src/dominio/construtor-de-conta.ts:158; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3984010a,api,apps/api/src/dominio/construtor-de-conta.ts,159,159,line,3,// tempo garante que ninguém fica sem entrar enquanto se descobre o quê.,translate,ensures sign-in remains available while that issue is investigated.,architecture,apps/api/src/dominio/construtor-de-conta.ts:159; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ce23aab1,api,apps/api/src/dominio/construtor-de-conta.ts,177,177,line,2,"// `validate_user`: e-mail que já é usuário em qualquer cliente. Papel dono,",translate,`validate_user`: check whether the email is already a user in any client. Use the owner role,security,apps/api/src/dominio/construtor-de-conta.ts:177; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-97a04d98,api,apps/api/src/dominio/construtor-de-conta.ts,178,178,line,3,"// porque a pergunta é global, e só volta sim ou não.",translate,"because this is a global question, and return only yes or no.",security,apps/api/src/dominio/construtor-de-conta.ts:178; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2b553c0b,api,apps/api/src/dominio/construtor-de-conta.ts,195,195,line,1,// `name: user_full_name` — o provisionamento põe a parte local do e-mail.,translate,`name: user_full_name`: provisioning uses the email's local part.,integration,apps/api/src/dominio/construtor-de-conta.ts:195; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-71b798ae,api,apps/api/src/dominio/construtor-de-conta.ts,31,31,jsdoc,2,/** `GlobalConfigService.account_signup_enabled?`: qualquer valor que não seja `false` liga. */,translate,`GlobalConfigService.account_signup_enabled?`: any value other than `false` enables signup.,security,apps/api/src/dominio/construtor-de-conta.ts:31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fa5697b2,api,apps/api/src/dominio/construtor-de-conta.ts,52,52,jsdoc,4,/** O slug do espaço a partir do nome (a sugestão que a Blip faz em `/tenant-valid-id`). */,translate,"Derive the workspace slug from the name, as Blip suggests in `/tenant-valid-id`.",meta-blip,apps/api/src/dominio/construtor-de-conta.ts:52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-35e523e7,api,apps/api/src/dominio/construtor-de-conta.ts,63,82,jsdoc,28,"/**
  * A conta que nasce NO LOGIN, sem convite e sem domínio verificado.
  *
@@ -1117,7 +1117,7 @@ api-comment-35e523e7,api,apps/api/src/dominio/construtor-de-conta.ts,63,82,jsdoc
  * O slug ganha sufixo quando bate com um que já existe: são contas de gente
  * diferente com o mesmo nome de empresa, e derrubar o login de quem chegou
  * depois seria o pior jeito de contar isso.
- */",,,,,,
+ */",translate,"An account created AT SIGN-IN without an invitation or verified domain follows the source platform's self-service path: someone with no account receives one immediately, and supplies company details later in ""minha conta"". Unlike `construirConta`, a public email domain is allowed because personal trial accounts are common, and an email already used by another account is allowed because one person may manage several accounts. Since migration 0017, provider identity is unique per tenant, not globally. Provider-verified email remains mandatory and is checked earlier by `entrarComIdentidade` on every sign-in path. Add a suffix on slug collision: different people can have the same company name, and a later user's login must not fail for that reason.",security,apps/api/src/dominio/construtor-de-conta.ts:63; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cf5d5c82,api,apps/api/src/dominio/construtor-de-conta.ts,7,29,jsdoc,24,"/**
  * Portado de chatwoot/chatwoot (MIT), app/builders/account_builder.rb, e a
  * leitura da flag de `account_signup_enabled?` em lib/global_config_service.rb.
@@ -1140,9 +1140,9 @@ api-comment-cf5d5c82,api,apps/api/src/dominio/construtor-de-conta.ts,7,29,jsdoc,
  *
  * O que NÃO é duplicado: criar tenant, catálogo, papéis e administrador é o
  * `provisionarCliente`, o mesmo do comando. Este arquivo só valida e chama.
- */",,,,,,
-api-comment-0849f31b,api,apps/api/src/dominio/construtor-de-conta.ts,90,90,line,1,"// O nome da conta: o da empresa quando o e-mail é corporativo, o da pessoa",,,,,,
-api-comment-1f8dbb1a,api,apps/api/src/dominio/construtor-de-conta.ts,91,91,line,3,"// quando não é. Ambos são provisórios — ""minha conta"" reescreve.",,,,,,
+ */",update,"Ported from chatwoot/chatwoot (MIT), `app/builders/account_builder.rb`, and its `account_signup_enabled?` flag in `lib/global_config_service.rb`. `docs/specs/2026-09-07-implantacao.md` §6.1 chooses assisted sales: tenant creation uses the `provisionar` command, not a route. The Chatwoot flag keeps public signup disabled by default (`ENABLE_ACCOUNT_SIGNUP` defaults to `false` and the route returns 404, as `check_signup_enabled` does there); enabling it requires an owner decision. Before enabling it, Pipe still needs hCaptcha (`validate_captcha`), email confirmation before a session for this signup path, and per-IP rate limiting (Rack::Attack in Chatwoot). The gap recorded in `o-que-falta.md` item 7 has partly changed: Pipe now has an email sender for invitations (`apps/api/src/dominio/email.ts`), but this signup path does not confirm the address. An account created here remains inert: its admin can enter via Google only after Pipe verifies the domain or sends an invitation. Tenant, catalog, roles, and admin creation stay in `provisionarCliente`; this file only validates and calls it.",security,"apps/api/src/dominio/construtor-de-conta.ts:31-48,210-220; apps/api/src/dominio/email.ts:36-52; pre-triage D-40; needs slice-time confirmation",codex3,reviewed
+api-comment-0849f31b,api,apps/api/src/dominio/construtor-de-conta.ts,90,90,line,1,"// O nome da conta: o da empresa quando o e-mail é corporativo, o da pessoa",translate,Use the company name for a corporate email and the person's name for a public email;,other,apps/api/src/dominio/construtor-de-conta.ts:90,codex3,reviewed
+api-comment-1f8dbb1a,api,apps/api/src/dominio/construtor-de-conta.ts,91,91,line,3,"// quando não é. Ambos são provisórios — ""minha conta"" reescreve.",translate,"both are provisional and ""minha conta"" can replace them.",other,apps/api/src/dominio/construtor-de-conta.ts:91,codex3,reviewed
 api-comment-4c3818e4,api,apps/api/src/dominio/conversa.ts,11,22,jsdoc,14,"/**
  * Encerrar e pausar conversa.
  *
@@ -1154,18 +1154,18 @@ api-comment-4c3818e4,api,apps/api/src/dominio/conversa.ts,11,22,jsdoc,14,"/**
  * `evento_atendimento` é a fonte de toda métrica e é imutável (modelo de dados §4).
  * Estado da conversa é cache do que os eventos já dizem; se os dois divergirem, quem
  * está certo é o evento.
- */",,,,,,
-api-comment-eaa86aaa,api,apps/api/src/dominio/conversa.ts,127,127,line,2,"// Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo",,,,,,
-api-comment-990f9a9c,api,apps/api/src/dominio/conversa.ts,128,128,line,1,// pausado fica aberto para sempre e some do relatório de esforço.,,,,,,
-api-comment-d1a0c263,api,apps/api/src/dominio/conversa.ts,161,161,line,1,"// `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.",,,,,,
+ */",translate,"Closing and pausing conversations belong in the domain, not the screen: events must not depend on the screen remembering them. Desk previously wrote state directly and recorded no `evento_atendimento`, leaving TMR, SLA, and effort reports blind to agent actions. Immutable `evento_atendimento` is the source of all metrics (data model §4); conversation state is a cache of those events. If they diverge, trust the event.",architecture,apps/api/src/dominio/conversa.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-eaa86aaa,api,apps/api/src/dominio/conversa.ts,127,127,line,2,"// Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo",translate,Close an open waiting interval before closing its conversation; otherwise the,architecture,apps/api/src/dominio/conversa.ts:127; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-990f9a9c,api,apps/api/src/dominio/conversa.ts,128,128,line,1,// pausado fica aberto para sempre e some do relatório de esforço.,translate,paused interval remains open and disappears from effort reporting.,architecture,apps/api/src/dominio/conversa.ts:128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d1a0c263,api,apps/api/src/dominio/conversa.ts,161,161,line,1,"// `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.",translate,"`encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.",architecture,apps/api/src/dominio/conversa.ts:161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4693837a,api,apps/api/src/dominio/conversa.ts,191,195,jsdoc,5,"/**
  * Modo de espera: pausa a conversa sem que a inatividade do cliente conte.
  *
  * O intervalo em espera vira coluna própria no relatório — some do SLA, não do número.
- */",,,,,,
-api-comment-e6b3418a,api,apps/api/src/dominio/conversa.ts,251,251,line,0,"// Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.",,,,,,
-api-comment-bc970586,api,apps/api/src/dominio/conversa.ts,258,258,jsdoc,3,/** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */,,,,,,
-api-comment-dcf921b3,api,apps/api/src/dominio/conversa.ts,265,265,jsdoc,2,/** A conversa que foi ENCERRADA. */,,,,,,
+ */",translate,"Waiting mode pauses a conversation without counting client inactivity. Waiting time has its own report column; it is excluded from SLA, not from the count.",architecture,apps/api/src/dominio/conversa.ts:191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e6b3418a,api,apps/api/src/dominio/conversa.ts,251,251,line,0,"// Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.",translate,"Publish after commit, as for every domain action. See `tempo-real.ts`.",architecture,apps/api/src/dominio/conversa.ts:251; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bc970586,api,apps/api/src/dominio/conversa.ts,258,258,jsdoc,3,/** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */,translate,Set exactly ONE destination. A queue sends the conversation back to a queue; an agent receives it directly.,architecture,apps/api/src/dominio/conversa.ts:258; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dcf921b3,api,apps/api/src/dominio/conversa.ts,265,265,jsdoc,2,/** A conversa que foi ENCERRADA. */,remove,,other,apps/api/src/dominio/conversa.ts:265,codex3,reviewed
 api-comment-a5b342fc,api,apps/api/src/dominio/conversa.ts,272,299,jsdoc,47,"/**
  * Transferir conversa, para fila ou para atendente.
  *
@@ -1193,42 +1193,42 @@ api-comment-a5b342fc,api,apps/api/src/dominio/conversa.ts,272,299,jsdoc,47,"/**
  * recebe mede quem recebe**, e o tempo de fila da transferência conta de novo. É o
  * preço do modelo da Blip, e o relatório de transferências (`atribuicao`) é o que
  * permite remontar a jornada inteira do cliente.
- */",,,,,,
-api-comment-6edf459f,api,apps/api/src/dominio/conversa.ts,32,32,jsdoc,2,/** Quem está pedindo. `atendenteId` nulo é integração — não é dono de conversa. */,,,,,,
-api-comment-db539268,api,apps/api/src/dominio/conversa.ts,338,338,line,5,"// Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a",,,,,,
-api-comment-ec953325,api,apps/api/src/dominio/conversa.ts,339,339,line,1,// permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a,,,,,,
-api-comment-0a6ae091,api,apps/api/src/dominio/conversa.ts,340,340,line,1,"// própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho",,,,,,
-api-comment-3065e2d1,api,apps/api/src/dominio/conversa.ts,341,341,line,0,// do ticket do próprio atendente.,,,,,,
-api-comment-8131e43d,api,apps/api/src/dominio/conversa.ts,36,36,jsdoc,2,/** Exige que a conversa esteja atribuída ao `atendenteId`. Ver `envio.ts`. */,,,,,,
-api-comment-5639edd1,api,apps/api/src/dominio/conversa.ts,366,366,line,0,"// Espera em aberto fecha ANTES do encerramento, senão o intervalo pausado fica",,,,,,
-api-comment-9b6aab01,api,apps/api/src/dominio/conversa.ts,367,367,line,1,// aberto para sempre e some do relatório de esforço.,,,,,,
-api-comment-34d09969,api,apps/api/src/dominio/conversa.ts,398,398,line,3,"// `encerrada_por = transferencia` é o que separa, no relatório, a conversa que",,,,,,
-api-comment-98a2ee01,api,apps/api/src/dominio/conversa.ts,399,399,line,1,// acabou da que só mudou de mãos.,,,,,,
-api-comment-c488c49c,api,apps/api/src/dominio/conversa.ts,434,434,line,4,// Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.,,,,,,
-api-comment-725c9365,api,apps/api/src/dominio/conversa.ts,442,442,line,2,// `atribuicao` é o que costura as duas conversas: é por ela que o painel de,,,,,,
-api-comment-842e4e40,api,apps/api/src/dominio/conversa.ts,443,443,line,1,// transferências remonta a jornada do cliente depois do encerramento.,,,,,,
-api-comment-c3283ecd,api,apps/api/src/dominio/conversa.ts,470,470,line,4,// Duas conversas mudaram: a que encerrou e a que nasceu no destino.,,,,,,
-api-comment-7947911f,api,apps/api/src/dominio/conversa.ts,68,68,jsdoc,3,"/** Traduz a recusa da máquina de estados em 409, sem vazar `never` para o controlador. */",,,,,,
+ */",translate,"Transfer a conversation to a queue or agent. A transfer is NOT a state transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination. `packages/core/src/conversa/maquina.ts` has no edge from `atribuida` back to `na_fila`, matching Blip's rule that the current ticket closes as transferred and a new one opens (`referencias-blip/pesquisa/blip-desk-funcoes.md` §3). The new conversation inherits the 24-hour window (`janela_expira_em` and the opening message) because the window belongs to the CONTACT, not the ticket; without it, the receiving agent could not send free text. It also inherits priority, as Blip does and as the issue requires, and the last message (`ultima_mensagem_em`/`_de`) so inactivity closing does not treat it as newly started. It does NOT inherit tags (also Blip's rule) or messages; the contact history joins both conversations on screen. The new conversation has `criada_em = agora` and `primeira_resposta_em` starts null: the receiving agent's TMR measures that agent, queue time starts again, and the `atribuicao` transfer report reconstructs the full client journey.",meta-blip,apps/api/src/dominio/conversa.ts:272; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6edf459f,api,apps/api/src/dominio/conversa.ts,32,32,jsdoc,2,/** Quem está pedindo. `atendenteId` nulo é integração — não é dono de conversa. */,translate,"Requester context: null `atendenteId` denotes an integration, which does not own a conversation.",security,apps/api/src/dominio/conversa.ts:32; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-db539268,api,apps/api/src/dominio/conversa.ts,338,338,line,5,"// Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a",translate,Transferring ANOTHER agent's conversation is a supervisor action; that is why,security,apps/api/src/dominio/conversa.ts:338; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ec953325,api,apps/api/src/dominio/conversa.ts,339,339,line,1,// permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a,translate,`conversa.transferir` exists (data model §64). An agent transferring their,security,apps/api/src/dominio/conversa.ts:339; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0a6ae091,api,apps/api/src/dominio/conversa.ts,340,340,line,1,"// própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho",translate,"own conversation does not need it, as in Blip Desk where the action is on",meta-blip,apps/api/src/dominio/conversa.ts:340; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3065e2d1,api,apps/api/src/dominio/conversa.ts,341,341,line,0,// do ticket do próprio atendente.,translate,the agent's own ticket header.,meta-blip,apps/api/src/dominio/conversa.ts:341; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8131e43d,api,apps/api/src/dominio/conversa.ts,36,36,jsdoc,2,/** Exige que a conversa esteja atribuída ao `atendenteId`. Ver `envio.ts`. */,translate,Require the conversation to be assigned to `atendenteId`; see `envio.ts`.,security,apps/api/src/dominio/conversa.ts:36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5639edd1,api,apps/api/src/dominio/conversa.ts,366,366,line,0,"// Espera em aberto fecha ANTES do encerramento, senão o intervalo pausado fica",translate,"Close any open waiting period BEFORE closing the conversation, or the paused",architecture,apps/api/src/dominio/conversa.ts:366; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9b6aab01,api,apps/api/src/dominio/conversa.ts,367,367,line,1,// aberto para sempre e some do relatório de esforço.,translate,interval remains open and disappears from effort reporting.,architecture,apps/api/src/dominio/conversa.ts:367; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-34d09969,api,apps/api/src/dominio/conversa.ts,398,398,line,3,"// `encerrada_por = transferencia` é o que separa, no relatório, a conversa que",translate,"`encerrada_por = transferencia` distinguishes, in reports, a conversation that",architecture,apps/api/src/dominio/conversa.ts:398; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-98a2ee01,api,apps/api/src/dominio/conversa.ts,399,399,line,1,// acabou da que só mudou de mãos.,translate,ended from one that merely changed hands.,architecture,apps/api/src/dominio/conversa.ts:399; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c488c49c,api,apps/api/src/dominio/conversa.ts,434,434,line,4,// Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.,translate,A queue destination uses `transferida_fila`; for an agent the new conversation starts assigned.,architecture,apps/api/src/dominio/conversa.ts:434; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-725c9365,api,apps/api/src/dominio/conversa.ts,442,442,line,2,// `atribuicao` é o que costura as duas conversas: é por ela que o painel de,translate,`atribuicao` links the two conversations so the transfer dashboard can,architecture,apps/api/src/dominio/conversa.ts:442; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-842e4e40,api,apps/api/src/dominio/conversa.ts,443,443,line,1,// transferências remonta a jornada do cliente depois do encerramento.,translate,reconstruct the client's journey after closure.,architecture,apps/api/src/dominio/conversa.ts:443; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c3283ecd,api,apps/api/src/dominio/conversa.ts,470,470,line,4,// Duas conversas mudaram: a que encerrou e a que nasceu no destino.,translate,Two conversations changed: the closed one and the new one at the destination.,architecture,apps/api/src/dominio/conversa.ts:470; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7947911f,api,apps/api/src/dominio/conversa.ts,68,68,jsdoc,3,"/** Traduz a recusa da máquina de estados em 409, sem vazar `never` para o controlador. */",translate,Convert a state-machine rejection to 409 without exposing `never` to the controller.,architecture,apps/api/src/dominio/conversa.ts:68; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-678474f2,api,apps/api/src/dominio/conversa.ts,82,85,jsdoc,5,"/**
    * A Blip (`close-modal-container.js`) envia uma coleção e bloqueia só quando
    * a política exige tags; no Pipe, as etiquetas marcadas na Gestão são essa lista.
-   */",,,,,,
-api-comment-a121bfa6,api,apps/api/src/dominio/conversa.ts,87,87,jsdoc,4,/** Compatibilidade com clientes que ainda enviam a forma antiga. */,,,,,,
+   */",translate,"Blip (`close-modal-container.js`) sends a collection and blocks closure only when policy requires tags; in Pipe, the tags selected in Management are that collection.",meta-blip,apps/api/src/dominio/conversa.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a121bfa6,api,apps/api/src/dominio/conversa.ts,87,87,jsdoc,4,/** Compatibilidade com clientes que ainda enviam a forma antiga. */,translate,Compatibility with clients still sending the old shape.,integration,apps/api/src/dominio/conversa.ts:87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-929dc0c5,api,apps/api/src/dominio/convites.ts,105,109,jsdoc,3,"/**
  * Manda o convite por e-mail DEPOIS do commit, e nunca derruba quem chamou: a
  * resposta segue devolvendo o link, como sempre fez — é o plano B de quem
  * convidou quando o e-mail não chega.
- */",,,,,,
-api-comment-a8c71a5f,api,apps/api/src/dominio/convites.ts,114,114,jsdoc,3,"/** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */",,,,,,
+ */",translate,Email the invitation AFTER commit without failing the caller. Continue returning the link so the inviter can use it if email delivery fails.,integration,apps/api/src/dominio/convites.ts:105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a8c71a5f,api,apps/api/src/dominio/convites.ts,114,114,jsdoc,3,"/** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */",translate,"Current tenant name, used in the email to show which client the person joins.",other,apps/api/src/dominio/convites.ts:114,codex3,reviewed
 api-comment-13748169,api,apps/api/src/dominio/convites.ts,120,126,jsdoc,10,"/**
  * O que `criarConvite` e `reenviarConvite` fazem em comum, dentro da MESMA
  * transação de quem chamou: emite um token novo, invalida qualquer convite
  * aberto para o e-mail e insere a linha. Extraído para as duas nunca
  * divergirem no que conta como ""reenviar"" — hoje é literalmente convidar de
  * novo, e é por isso que reenviar não é uma tabela nem um contador à parte.
- */",,,,,,
-api-comment-4bceea20,api,apps/api/src/dominio/convites.ts,162,162,line,2,"// reenvio deixa mais um link vivo, e cancelar o acesso passaria a exigir",,,,,,
-api-comment-1fa1c024,api,apps/api/src/dominio/convites.ts,163,163,line,0,// caçar todos eles.,,,,,,
+ */",translate,"Shared operation for `criarConvite` and `reenviarConvite` in the caller's SAME transaction: issue a new token, invalidate any open invitation to that email, and insert the row. Keeping this in one helper prevents the two paths from disagreeing on ""resend"": today it literally creates a new invitation, not a separate table or counter.",architecture,apps/api/src/dominio/convites.ts:120; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4bceea20,api,apps/api/src/dominio/convites.ts,162,162,line,2,"// reenvio deixa mais um link vivo, e cancelar o acesso passaria a exigir",translate,"otherwise resending leaves another live link, and revoking access would require",security,apps/api/src/dominio/convites.ts:162; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1fa1c024,api,apps/api/src/dominio/convites.ts,163,163,line,0,// caçar todos eles.,translate,finding every one of them.,security,apps/api/src/dominio/convites.ts:163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2de75f0c,api,apps/api/src/dominio/convites.ts,186,195,jsdoc,14,"/**
  * Cria o convite. O papel vem pelo NOME (`admin`, `member`, `guest`), que é o que
  * quem convida conhece — e a busca acontece com `pipe.tenant_id` fixado, então é
@@ -1238,25 +1238,25 @@ api-comment-2de75f0c,api,apps/api/src/dominio/convites.ts,186,195,jsdoc,14,"/**
  * contrato, e supervisor, atendente e os demais são dados no atendimento, por
  * contato. O banco também recusa (FK composta em `convite.escopo`); a conferência
  * aqui existe para a resposta dizer o porquê em vez de estourar a FK.
- */",,,,,,
-api-comment-11993df7,api,apps/api/src/dominio/convites.ts,210,210,line,2,"// Fora da transação: e-mail não pode prender o commit, nem a falha dele desfazê-lo.",,,,,,
+ */",translate,"Create an invitation. Look up the role by NAME (`admin`, `member`, `guest`), which is what the inviter knows, with `pipe.tenant_id` fixed so a role from another client cannot be selected. Accept only ACCOUNT roles (migration 0021), as in the source: invitation grants a contract role; supervisor and agent roles are assigned later per contact. The database also rejects the wrong scope through the composite FK on `convite.escopo`; checking here provides a useful error instead of an FK failure.",security,apps/api/src/dominio/convites.ts:186; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-11993df7,api,apps/api/src/dominio/convites.ts,210,210,line,2,"// Fora da transação: e-mail não pode prender o commit, nem a falha dele desfazê-lo.",translate,Send email outside the transaction: delivery must not delay commit or roll it back on failure.,integration,apps/api/src/dominio/convites.ts:210; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a72942c6,api,apps/api/src/dominio/convites.ts,215,220,jsdoc,4,"/**
  * Reenvia um convite em aberto: o mesmo e-mail e o mesmo papel, com um link novo
  * — que MATA o link antigo, como todo reenvio (`emitirConvite`). O link novo vai
  * por e-mail (`dominio/email.ts`) e continua na resposta, para quem convidou
  * colar de novo se o e-mail não chegar.
- */",,,,,,
+ */",translate,Resend an open invitation to the same email and role with a new link that INVALIDATES the previous one (`emitirConvite`). Email the new link via `dominio/email.ts` and keep it in the response so the inviter can share it if email delivery fails.,security,apps/api/src/dominio/convites.ts:215; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-67ea2be4,api,apps/api/src/dominio/convites.ts,257,262,jsdoc,4,"/**
  * Acha o convite pelo hash do token.
  *
  * Roda com o papel dono pela mesma razão da resolução de sessão: descobrir o tenant
  * é justamente o que precisa acontecer **antes** de fixar o tenant.
- */",,,,,,
-api-comment-ca9c2cf2,api,apps/api/src/dominio/convites.ts,27,27,jsdoc,2,"/** Sete dias. É prazo de convite, não de sessão: quem não usa, pede outro. */",,,,,,
-api-comment-ee739219,api,apps/api/src/dominio/convites.ts,275,275,line,4,"// Token que não existe é 404 e nada mais: responder ""expirado"" a um palpite",,,,,,
-api-comment-d6e1f4fc,api,apps/api/src/dominio/convites.ts,279,279,line,3,"// Daqui para baixo quem pergunta JÁ tem um token válido, e merece saber por que",,,,,,
-api-comment-8fa5cc94,api,apps/api/src/dominio/convites.ts,280,280,line,3,"// ele não funciona mais — senão o suporte recebe ""o link não faz nada"".",,,,,,
-api-comment-3eaad36f,api,apps/api/src/dominio/convites.ts,306,306,jsdoc,4,/** Só vem quando a pessoa aceitou já autenticada pelo Google. */,,,,,,
+ */",translate,"Find an invitation by token hash. Use the owner role, as for session resolution, because the tenant must be discovered BEFORE it can be set.",security,apps/api/src/dominio/convites.ts:257; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ca9c2cf2,api,apps/api/src/dominio/convites.ts,27,27,jsdoc,2,"/** Sete dias. É prazo de convite, não de sessão: quem não usa, pede outro. */",translate,"Seven days is the invitation lifetime, not the session lifetime; an unused recipient requests another.",security,apps/api/src/dominio/convites.ts:27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ee739219,api,apps/api/src/dominio/convites.ts,275,275,line,4,"// Token que não existe é 404 e nada mais: responder ""expirado"" a um palpite",translate,"An unknown token returns only 404; describing a guessed token as ""expired""",security,apps/api/src/dominio/convites.ts:275; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d6e1f4fc,api,apps/api/src/dominio/convites.ts,279,279,line,3,"// Daqui para baixo quem pergunta JÁ tem um token válido, e merece saber por que",translate,From here the requester HAS a valid token and should learn why it,security,apps/api/src/dominio/convites.ts:279; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8fa5cc94,api,apps/api/src/dominio/convites.ts,280,280,line,3,"// ele não funciona mais — senão o suporte recebe ""o link não faz nada"".",translate,"no longer works, avoiding an opaque ""link does nothing"" support case.",security,apps/api/src/dominio/convites.ts:280; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3eaad36f,api,apps/api/src/dominio/convites.ts,306,306,jsdoc,4,/** Só vem quando a pessoa aceitou já autenticada pelo Google. */,translate,Present only when the person already accepted while authenticated through Google.,security,apps/api/src/dominio/convites.ts:306; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e0af65af,api,apps/api/src/dominio/convites.ts,310,324,jsdoc,22,"/**
  * Aceita o convite: cria o usuário no tenant, dá o papel e queima o token.
  *
@@ -1271,36 +1271,36 @@ api-comment-e0af65af,api,apps/api/src/dominio/convites.ts,310,324,jsdoc,22,"/**
  *
  * O `for update` é o que faz o uso único valer: dois cliques no mesmo link chegam
  * juntos, e sem o bloqueio os dois leem ""não aceito"" e os dois seguem em frente.
- */",,,,,,
-api-comment-13fe5f92,api,apps/api/src/dominio/convites.ts,333,333,line,2,// O convite é para UM endereço. Entrar com outra conta do Google e cair dentro,,,,,,
-api-comment-f28219de,api,apps/api/src/dominio/convites.ts,334,334,line,2,// do cliente seria o link virando porta para quem quer que o receba encaminhado.,,,,,,
-api-comment-323ca221,api,apps/api/src/dominio/convites.ts,354,354,line,0,"// Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o",,,,,,
-api-comment-5f25ccda,api,apps/api/src/dominio/convites.ts,355,355,line,3,// `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.,,,,,,
-api-comment-acac2b06,api,apps/api/src/dominio/convites.ts,36,36,jsdoc,0,"/** Só existe nesta resposta. Depois daqui, no banco só há o hash. */",,,,,,
-api-comment-3fc01fa6,api,apps/api/src/dominio/convites.ts,362,362,line,0,// UM papel de conta por pessoa (índice parcial da 0021). Quem volta,,,,,,
-api-comment-35028983,api,apps/api/src/dominio/convites.ts,363,363,line,1,// desativado e é convidado de novo troca o papel de conta antigo pelo do,,,,,,
-api-comment-f2095d7b,api,apps/api/src/dominio/convites.ts,364,364,line,0,// convite; os papéis de atendimento ficam.,,,,,,
+ */",translate,"Accept an invitation by creating the tenant user, granting the role, and consuming the token. Optional `pessoa` separates two paths. Without `pessoa` (`POST /v1/convites/:token/aceitar`), create the user now; they sign in through Google later if their domain is verified, following the third question in `entrada.ts`. With `pessoa` (Google callback carrying `?convite=`), link the external account and open a session here; this is the path offered to someone without a verified domain. `for update` enforces single use: two concurrent clicks must not both read ""not accepted"" and proceed.",security,apps/api/src/dominio/convites.ts:310; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-13fe5f92,api,apps/api/src/dominio/convites.ts,333,333,line,2,// O convite é para UM endereço. Entrar com outra conta do Google e cair dentro,translate,An invitation targets ONE email. Signing in with another Google account must not let,security,apps/api/src/dominio/convites.ts:333; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f28219de,api,apps/api/src/dominio/convites.ts,334,334,line,2,// do cliente seria o link virando porta para quem quer que o receba encaminhado.,translate,whoever received a forwarded link enter this client.,security,apps/api/src/dominio/convites.ts:334; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-323ca221,api,apps/api/src/dominio/convites.ts,354,354,line,0,"// Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o",translate,"Run in series, never `Promise.all`: parallel queries within the transaction disrupt",security,apps/api/src/dominio/convites.ts:354; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5f25ccda,api,apps/api/src/dominio/convites.ts,355,355,line,3,// `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.,translate,`pipe.tenant_id` and may run without a tenant; see README.,security,apps/api/src/dominio/convites.ts:355; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-acac2b06,api,apps/api/src/dominio/convites.ts,36,36,jsdoc,0,"/** Só existe nesta resposta. Depois daqui, no banco só há o hash. */",translate,The token exists only in this response; the database stores only its hash afterward.,security,apps/api/src/dominio/convites.ts:36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3fc01fa6,api,apps/api/src/dominio/convites.ts,362,362,line,0,// UM papel de conta por pessoa (índice parcial da 0021). Quem volta,translate,One account role per person (migration 0021 partial index). A returning,security,apps/api/src/dominio/convites.ts:362; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-35028983,api,apps/api/src/dominio/convites.ts,363,363,line,1,// desativado e é convidado de novo troca o papel de conta antigo pelo do,translate,inactive user invited again replaces the old account role with the,security,apps/api/src/dominio/convites.ts:363; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f2095d7b,api,apps/api/src/dominio/convites.ts,364,364,line,0,// convite; os papéis de atendimento ficam.,translate,invitation role while keeping attendance roles.,security,apps/api/src/dominio/convites.ts:364; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d3243e64,api,apps/api/src/dominio/convites.ts,395,399,jsdoc,4,"/**
  * O usuário do convite. `on conflict` porque o e-mail pode já existir desativado —
  * quem saiu e voltou é a mesma pessoa, e uma segunda linha esbarraria no único
  * `(tenant_id, email)` de qualquer jeito.
- */",,,,,,
-api-comment-1f8a2d0f,api,apps/api/src/dominio/convites.ts,415,415,jsdoc,2,/** Liga a conta do Google ao usuário do convite e abre a sessão. */,,,,,,
-api-comment-5ebdc5a4,api,apps/api/src/dominio/convites.ts,42,42,jsdoc,2,"/** O que `GET /v1/convites/:token` mostra, sem exigir sessão. */",,,,,,
-api-comment-b6e21ba3,api,apps/api/src/dominio/convites.ts,423,423,line,0,"// O único de `identidade_externa` é por tenant em `(tenant_id, emissor, sujeito)`.",,,,,,
-api-comment-c329821c,api,apps/api/src/dominio/convites.ts,424,424,line,2,"// Se ela já é de outra pessoa no tenant, o convite não pode",,,,,,
-api-comment-a9395d10,api,apps/api/src/dominio/convites.ts,425,425,line,1,"// levá-la em silêncio — falha alto, com o motivo.",,,,,,
-api-comment-fab2ee69,api,apps/api/src/dominio/convites.ts,446,446,line,1,// §6 da pesquisa de SSO: a política é conferida NO SERVIDOR em todo caminho,,,,,,
-api-comment-a68e54c7,api,apps/api/src/dominio/convites.ts,447,447,line,3,"// que emite sessão, e o convite por link é um deles. Sem esta linha, um tenant",,,,,,
-api-comment-12e158c0,api,apps/api/src/dominio/convites.ts,448,448,line,2,// que exige SSO continua entrando pelo Google se alguém tiver um convite na,,,,,,
-api-comment-0b4d28d7,api,apps/api/src/dominio/convites.ts,449,449,line,2,"// mão — é a porta dos fundos clássica, irmã do ""esqueci minha senha"".",,,,,,
-api-comment-e95a5264,api,apps/api/src/dominio/convites.ts,65,65,jsdoc,3,/** O nome que a pessoa carrega até entrar pela primeira vez e o Google dizer o dela. */,,,,,,
-api-comment-233aea83,api,apps/api/src/dominio/convites.ts,75,75,jsdoc,1,/** O rótulo da tela para cada papel de conta (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */,,,,,,
+ */",translate,"Use `on conflict` because the invited email may belong to an inactive user. A returning person is the same user, and a second row would violate `(tenant_id, email)` anyway.",security,apps/api/src/dominio/convites.ts:395; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1f8a2d0f,api,apps/api/src/dominio/convites.ts,415,415,jsdoc,2,/** Liga a conta do Google ao usuário do convite e abre a sessão. */,translate,Link the invited user's Google account and open a session.,security,apps/api/src/dominio/convites.ts:415; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5ebdc5a4,api,apps/api/src/dominio/convites.ts,42,42,jsdoc,2,"/** O que `GET /v1/convites/:token` mostra, sem exigir sessão. */",translate,Fields exposed by `GET /v1/convites/:token` without a session.,security,apps/api/src/dominio/convites.ts:42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b6e21ba3,api,apps/api/src/dominio/convites.ts,423,423,line,0,"// O único de `identidade_externa` é por tenant em `(tenant_id, emissor, sujeito)`.",translate,"`identidade_externa` is unique per tenant on `(tenant_id, emissor, sujeito)`.",security,apps/api/src/dominio/convites.ts:423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c329821c,api,apps/api/src/dominio/convites.ts,424,424,line,2,"// Se ela já é de outra pessoa no tenant, o convite não pode",translate,"If that identity already belongs to someone else in the tenant, the invitation must not",security,apps/api/src/dominio/convites.ts:424; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a9395d10,api,apps/api/src/dominio/convites.ts,425,425,line,1,"// levá-la em silêncio — falha alto, com o motivo.",translate,silently reassign it; fail clearly with the reason.,security,apps/api/src/dominio/convites.ts:425; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fab2ee69,api,apps/api/src/dominio/convites.ts,446,446,line,1,// §6 da pesquisa de SSO: a política é conferida NO SERVIDOR em todo caminho,translate,SSO research §6: enforce policy ON THE SERVER on every path,security,apps/api/src/dominio/convites.ts:446; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a68e54c7,api,apps/api/src/dominio/convites.ts,447,447,line,3,"// que emite sessão, e o convite por link é um deles. Sem esta linha, um tenant",translate,"that issues a session, including invitation links. Otherwise a tenant",security,apps/api/src/dominio/convites.ts:447; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-12e158c0,api,apps/api/src/dominio/convites.ts,448,448,line,2,// que exige SSO continua entrando pelo Google se alguém tiver um convite na,translate,requiring SSO could still admit Google sign-in through an invitation,security,apps/api/src/dominio/convites.ts:448; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0b4d28d7,api,apps/api/src/dominio/convites.ts,449,449,line,2,"// mão — é a porta dos fundos clássica, irmã do ""esqueci minha senha"".",translate,"link: a classic back door, like a password-reset bypass.",security,apps/api/src/dominio/convites.ts:449; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e95a5264,api,apps/api/src/dominio/convites.ts,65,65,jsdoc,3,/** O nome que a pessoa carrega até entrar pela primeira vez e o Google dizer o dela. */,translate,Provisional name until first sign-in provides the person's Google name.,other,apps/api/src/dominio/convites.ts:65,codex3,reviewed
+api-comment-233aea83,api,apps/api/src/dominio/convites.ts,75,75,jsdoc,1,/** O rótulo da tela para cada papel de conta (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */,translate,Screen label for each account role (`referencias-blip/pesquisa/blip-painel-do-contrato.md`).,meta-blip,apps/api/src/dominio/convites.ts:75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ec0d7e83,api,apps/api/src/dominio/convites.ts,82,86,jsdoc,7,"/**
  * O e-mail do convite: o link, quem convidou para onde, com que papel e até
  * quando. Texto puro de propósito — é o que sobrevive a qualquer cliente de
  * e-mail e o que o teste lê.
- */",,,,,,
+ */",translate,"Invitation email contains the link, inviter's destination tenant, role, and expiry. Use plain text intentionally: it survives any email client and is what the test reads.",integration,apps/api/src/dominio/convites.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c849d467,api,apps/api/src/dominio/convites.ts,9,25,jsdoc,18,"/**
  * Convite: a **única** porta de entrada para quem não tem domínio verificado.
  *
@@ -1317,8 +1317,8 @@ api-comment-c849d467,api,apps/api/src/dominio/convites.ts,9,25,jsdoc,18,"/**
  *    permanente esquecida na caixa de entrada de alguém.
  * 3. **Uso único**, garantido por `select ... for update` na hora de aceitar — não
  *    por ""leu, conferiu, depois gravou"", que é onde dois cliques viram dois usuários.
- */",,,,,,
-api-comment-12b36f10,api,apps/api/src/dominio/desk/acoes.ts,12,12,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como no Desk. */",,,,,,
+ */",translate,"Invitation is the ONLY entry path for someone without a verified domain. `packages/autenticacao/src/entrada.ts` rejects people who were not invited: discovering a domain must not imply joining its client. This file records who invited whom. Three safeguards also used for sessions and API keys apply: store the hash, never the token, so reading `convite` cannot redeem links; expire links in seven days so forgotten inbox links do not become permanent credentials; and enforce single use with `select ... for update` on acceptance, not a read followed by an unprotected write that allows two concurrent uses.",security,apps/api/src/dominio/convites.ts:9; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-12b36f10,api,apps/api/src/dominio/desk/acoes.ts,12,12,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como no Desk. */",translate,"The transaction already has its tenant fixed; `consultar` only names the block, as in Desk.",architecture,apps/api/src/dominio/desk/acoes.ts:12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5cfa317e,api,apps/api/src/dominio/desk/acoes.ts,127,134,jsdoc,10,"/**
  * A nota interna — o ramo `modo === 'nota'` do `enviarMensagem` de antes.
  *
@@ -1326,9 +1326,9 @@ api-comment-5cfa317e,api,apps/api/src/dominio/desk/acoes.ts,127,134,jsdoc,10,"/*
  * por isso ela nunca teve rota em `/v1/conversas` e é a única escrita do
  * compositor que continua vindo por aqui. O texto livre e o template vão para
  * `POST /v1/conversas/:id/mensagens`, direto do navegador.
- */",,,,,,
-api-comment-a55c0cfc,api,apps/api/src/dominio/desk/acoes.ts,156,156,line,0,// --- atender (puxar o próximo da fila) ---,,,,,,
-api-comment-ea6f3a1c,api,apps/api/src/dominio/desk/acoes.ts,158,158,jsdoc,1,"/** A mensagem de ""cheio"" — o `code 23 / ""Agent ticket list is full.""` da origem, em português. */",,,,,,
+ */",translate,"Internal notes are the former `modo === 'nota'` branch of `enviarMensagem`. A note is not a conversation message, is never sent to the client, and is outside the 24-hour window. It therefore never had a `/v1/conversas` route and is the only composer write remaining here. Free text and templates go directly from the browser to `POST /v1/conversas/:id/mensagens`.",architecture,apps/api/src/dominio/desk/acoes.ts:127; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a55c0cfc,api,apps/api/src/dominio/desk/acoes.ts,156,156,line,0,// --- atender (puxar o próximo da fila) ---,remove,,other,apps/api/src/dominio/desk/acoes.ts:156,codex3,reviewed
+api-comment-ea6f3a1c,api,apps/api/src/dominio/desk/acoes.ts,158,158,jsdoc,1,"/** A mensagem de ""cheio"" — o `code 23 / ""Agent ticket list is full.""` da origem, em português. */",translate,"The ""full"" message matches source `code 23 / ""Agent ticket list is full.""`, rendered in Portuguese.",meta-blip,apps/api/src/dominio/desk/acoes.ts:158; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-68c73d3c,api,apps/api/src/dominio/desk/acoes.ts,16,29,jsdoc,12,"/**
  * As Server Actions do Desk que ESCREVIAM direto no banco, movidas de
  * `apps/desk/src/app/acoes.ts` com o corpo intacto: o status do atendente, a
@@ -1342,7 +1342,7 @@ api-comment-68c73d3c,api,apps/api/src/dominio/desk/acoes.ts,16,29,jsdoc,12,"/**
  * O `tenantId` e o `atendenteId` vêm da SESSÃO (`sessaoDe` no controlador),
  * nunca do corpo: aceitar um `usuarioId` no corpo deixaria qualquer pessoa
  * logada mudar o status do colega.
- */",,,,,,
+ */",translate,"Desk Server Actions that WROTE directly to the database were moved from `apps/desk/src/app/acoes.ts` unchanged: agent status, inactivity logout, and internal notes. Sending, retrying, closing, and waiting already called `POST /v1/conversas/…` via Next `postNaApi`; now the browser calls it directly with the cookie. No new endpoints duplicate their rules, state transitions, or events. `tenantId` and `atendenteId` come from the SESSION (`sessaoDe` in the controller), never the body: accepting `usuarioId` from the body would let any signed-in person change a colleague's status.",security,apps/api/src/dominio/desk/acoes.ts:16; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c89ae20c,api,apps/api/src/dominio/desk/acoes.ts,169,191,jsdoc,29,"/**
  * O botão ""Atender"" da coluna — o `set /tickets/claim` da referência: o atendente
  * puxa para si a conversa mais antiga da fila, entre as filas em que ele está.
@@ -1365,28 +1365,28 @@ api-comment-c89ae20c,api,apps/api/src/dominio/desk/acoes.ts,169,191,jsdoc,29,"/*
  * atendente rodam em série — o segundo só conta depois de o primeiro ter gravado, e
  * não fura o limite. O `skip locked` da conversa continua resolvendo a disputa
  * entre atendentes DIFERENTES pela mesma linha.
- */",,,,,,
-api-comment-86cc6b9c,api,apps/api/src/dominio/desk/acoes.ts,199,199,line,2,// `for update` é a serialização por atendente descrita acima. Quem está online,,,,,,
-api-comment-f2238e52,api,apps/api/src/dominio/desk/acoes.ts,200,200,line,4,// sempre tem esta linha (é ela que diz que está online).,,,,,,
-api-comment-0519ba55,api,apps/api/src/dominio/desk/acoes.ts,218,218,line,4,"// Sem fila nenhuma com vaga e sem fila nenhuma cadastrada, a recusa é o limite:",,,,,,
-api-comment-aa70d2b4,api,apps/api/src/dominio/desk/acoes.ts,219,219,line,6,// não adianta procurar conversa que a pessoa não pode receber. (Quem não está em,,,,,,
-api-comment-78f6fd4f,api,apps/api/src/dominio/desk/acoes.ts,220,220,line,3,"// fila alguma só puxa conversa sem fila, e para essa não há limite cadastrado.)",,,,,,
-api-comment-26a0464d,api,apps/api/src/dominio/desk/acoes.ts,225,225,line,5,// Conversa sem fila (transferência direta que voltou para a espera) vale para,,,,,,
-api-comment-462b6024,api,apps/api/src/dominio/desk/acoes.ts,226,226,line,2,"// qualquer atendente — desde que ele tenha vaga em alguma fila, ou não esteja em",,,,,,
-api-comment-1f47d2ad,api,apps/api/src/dominio/desk/acoes.ts,227,227,line,2,// fila alguma (aí não há limite que se aplique).,,,,,,
-api-comment-a51318c4,api,apps/api/src/dominio/desk/acoes.ts,251,251,line,2,// Nada nas filas com vaga. Se há gente esperando numa fila em que o atendente,,,,,,
-api-comment-6f5a4e2e,api,apps/api/src/dominio/desk/acoes.ts,252,252,line,5,"// está cheio, a razão é o limite — e é isso que a mensagem tem de dizer.",,,,,,
-api-comment-ed3b3f41,api,apps/api/src/dominio/desk/acoes.ts,283,283,line,0,// --- ações em massa ---,,,,,,
+ */",translate,"The column's ""Atender"" action mirrors source `set /tickets/claim`: the agent claims the oldest conversation among their queues. It calls `assumirConversa` (`dominio/assumir.ts`) without choosing an ID, retaining the same guard (`where estado = 'na_fila'` with `skip locked` for competing claims), `atribuicao`, and event. Only Online agents may claim, as in the source. Capacity limits also apply: the source rejects `/tickets/claim` with `code 23 / ""Agent ticket list is full.""` (`blip-desk-regras-tecnicas.md` §2.2–2.3). `@pipe/core` `motivoInelegivel` evaluates free capacity (`limite − ativas > 0`) and the cap on conversations lacking a first response, using `filasDoAtendente` like `distribuirConversa`; only queues with room enter the `UPDATE`. The check is atomic per agent: lock that agent's `status_atendente` row (`for update`) before counting active conversations, so simultaneous clicks run serially and the second sees the first claim. Conversation `skip locked` separately resolves competition between DIFFERENT agents.",meta-blip,apps/api/src/dominio/desk/acoes.ts:169; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-86cc6b9c,api,apps/api/src/dominio/desk/acoes.ts,199,199,line,2,// `for update` é a serialização por atendente descrita acima. Quem está online,translate,`for update` serializes claims per agent as described above. Online agents,security,apps/api/src/dominio/desk/acoes.ts:199; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f2238e52,api,apps/api/src/dominio/desk/acoes.ts,200,200,line,4,// sempre tem esta linha (é ela que diz que está online).,translate,always have this row; it records that they are online.,security,apps/api/src/dominio/desk/acoes.ts:200; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0519ba55,api,apps/api/src/dominio/desk/acoes.ts,218,218,line,4,"// Sem fila nenhuma com vaga e sem fila nenhuma cadastrada, a recusa é o limite:",translate,"With no queue that has capacity, reject for the capacity limit rather than",security,apps/api/src/dominio/desk/acoes.ts:218; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-aa70d2b4,api,apps/api/src/dominio/desk/acoes.ts,219,219,line,6,// não adianta procurar conversa que a pessoa não pode receber. (Quem não está em,translate,searching for a conversation the agent cannot receive. An agent in no queue,security,apps/api/src/dominio/desk/acoes.ts:219; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-78f6fd4f,api,apps/api/src/dominio/desk/acoes.ts,220,220,line,3,"// fila alguma só puxa conversa sem fila, e para essa não há limite cadastrado.)",translate,"can only claim an unqueued conversation, for which no configured queue limit applies.",security,apps/api/src/dominio/desk/acoes.ts:220; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-26a0464d,api,apps/api/src/dominio/desk/acoes.ts,225,225,line,5,// Conversa sem fila (transferência direta que voltou para a espera) vale para,translate,An unqueued conversation (a direct transfer returned to waiting) is available,security,apps/api/src/dominio/desk/acoes.ts:225; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-462b6024,api,apps/api/src/dominio/desk/acoes.ts,226,226,line,2,"// qualquer atendente — desde que ele tenha vaga em alguma fila, ou não esteja em",translate,"to any agent with capacity in some queue, or to an agent in no queue",security,apps/api/src/dominio/desk/acoes.ts:226; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1f47d2ad,api,apps/api/src/dominio/desk/acoes.ts,227,227,line,2,// fila alguma (aí não há limite que se aplique).,translate,where no queue limit applies.,security,apps/api/src/dominio/desk/acoes.ts:227; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a51318c4,api,apps/api/src/dominio/desk/acoes.ts,251,251,line,2,// Nada nas filas com vaga. Se há gente esperando numa fila em que o atendente,translate,Nothing is available in queues with capacity. If people wait in a queue where,security,apps/api/src/dominio/desk/acoes.ts:251; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6f5a4e2e,api,apps/api/src/dominio/desk/acoes.ts,252,252,line,5,"// está cheio, a razão é o limite — e é isso que a mensagem tem de dizer.",translate,"the agent is full, report the capacity limit as the refusal reason.",security,apps/api/src/dominio/desk/acoes.ts:252; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ed3b3f41,api,apps/api/src/dominio/desk/acoes.ts,283,283,line,0,// --- ações em massa ---,remove,,other,apps/api/src/dominio/desk/acoes.ts:283,codex3,reviewed
 api-comment-5732ff39,api,apps/api/src/dominio/desk/acoes.ts,285,291,jsdoc,9,"/**
  * A tela ""Ações em Massa"" da referência: transferir vários tickets de uma vez
  * para uma fila ou um atendente. É `transferirConversa` (`dominio/conversa.ts`)
  * repetido, em série, uma conversa por vez — cada uma com a sua transação, a
  * mesma regra (encerra e abre outra) e o mesmo evento. O resultado diz quantas
  * foram, e o primeiro motivo de recusa, se houve.
- */",,,,,,
-api-comment-0713538f,api,apps/api/src/dominio/desk/acoes.ts,51,51,line,2,"// Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo",,,,,,
-api-comment-b7099263,api,apps/api/src/dominio/desk/acoes.ts,52,52,line,3,// de pausa não alimenta relatório nenhum — e é exatamente por isso que é obrigatório.,,,,,,
-api-comment-ebca0690,api,apps/api/src/dominio/desk/acoes.ts,67,67,line,0,// o mesmo minuto duas vezes no relatório de ocupação.,,,,,,
+ */",translate,"The source ""Ações em Massa"" screen transfers several tickets to a queue or agent. Call `transferirConversa` (`dominio/conversa.ts`) serially, one conversation and transaction at a time. Each transfer closes and opens a conversation and records its event. Return the transferred count and first refusal reason, if any.",meta-blip,apps/api/src/dominio/desk/acoes.ts:285; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0713538f,api,apps/api/src/dominio/desk/acoes.ts,51,51,line,2,"// Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo",translate,"A break requires a reason from the manager's list; without one, break time",security,apps/api/src/dominio/desk/acoes.ts:51; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b7099263,api,apps/api/src/dominio/desk/acoes.ts,52,52,line,3,// de pausa não alimenta relatório nenhum — e é exatamente por isso que é obrigatório.,translate,"cannot feed a report, which is why it is required.",security,apps/api/src/dominio/desk/acoes.ts:52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ebca0690,api,apps/api/src/dominio/desk/acoes.ts,67,67,line,0,// o mesmo minuto duas vezes no relatório de ocupação.,translate,the same minute twice in the occupancy report.,architecture,apps/api/src/dominio/desk/acoes.ts:67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0378e03f,api,apps/api/src/dominio/desk/acoes.ts,81,98,jsdoc,24,"/**
  * Queda por inatividade: vinte minutos sem nenhum gesto na tela e o atendente
  * sai da distribuição.
@@ -1404,7 +1404,7 @@ api-comment-0378e03f,api,apps/api/src/dominio/desk/acoes.ts,81,98,jsdoc,24,"/**
  *
  * A pausa aberta é encerrada junto, pelo mesmo motivo de `definirStatus`: pausa
  * sem fim conta o mesmo minuto para sempre no relatório de ocupação.
- */",,,,,,
+ */",translate,"Inactivity drops an agent from distribution after twenty minutes without screen activity. This follows the reference screen's ten-minute warning plus ten-minute grace period (`referencias-blip/pesquisa/blip-desk-medidas.md` §9). The browser counts time in `componentes/inatividade`; this action receives only the verdict. It is intentionally narrow and idempotent: it only moves offline and does nothing if already Offline. Otherwise an abandoned second tab could disconnect an agent actively using another tab. Close any open break too, as in `definirStatus`, or an endless break would count the same minute forever in occupancy reports.",meta-blip,apps/api/src/dominio/desk/acoes.ts:81; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-870bceb5,api,apps/api/src/dominio/desk/consultas.ts,22,37,jsdoc,20,"/**
  * Consultas de leitura do Desk — movidas de `apps/desk/src/servidor/consultas.ts`
  * com o SQL intacto. O que mudou foi de onde a transação vem (por parâmetro, do
@@ -1420,9 +1420,9 @@ api-comment-870bceb5,api,apps/api/src/dominio/desk/consultas.ts,22,37,jsdoc,20,"
  *
  * Os tipos de saída são os de `@pipe/contracts` (`desk.ts`): se uma coluna entra
  * ou sai daqui, entra ou sai de lá, e o `tsc` do front acusa.
- */",,,,,,
-api-comment-a5c9f8cb,api,apps/api/src/dominio/desk/consultas.ts,360,360,line,3,"// Sem linha de status, o atendente ainda não entrou: o padrão da spec é Invisível.",,,,,,
-api-comment-545b4d76,api,apps/api/src/dominio/desk/consultas.ts,377,377,jsdoc,3,"/** A conversa aberta, que fica de fora; `null` lista todas (a aba Contatos). */",,,,,,
+ */",translate,Desk read queries were moved from `apps/desk/src/servidor/consultas.ts` with SQL unchanged. The transaction now comes from the controller's `noTenant` parameter and dates cross JSON as ISO. Handwritten SQL is deliberate: four- or five-table joins plus a `lateral` for each conversation's latest message would be longer and less clear in Drizzle. Writes still use the typed schema (`acoes.ts`). Every query runs under `noTenant` with `pipe.tenant_id` and RLS; none manually filters tenant because the database already does. Output types come from `@pipe/contracts` (`desk.ts`); `tsc` reports any front-end contract mismatch when columns change.,architecture,apps/api/src/dominio/desk/consultas.ts:22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a5c9f8cb,api,apps/api/src/dominio/desk/consultas.ts,360,360,line,3,"// Sem linha de status, o atendente ainda não entrou: o padrão da spec é Invisível.",translate,"Without a status row, the agent has not joined yet; the spec's default is Invisível.",other,apps/api/src/dominio/desk/consultas.ts:360,codex3,reviewed
+api-comment-545b4d76,api,apps/api/src/dominio/desk/consultas.ts,377,377,jsdoc,3,"/** A conversa aberta, que fica de fora; `null` lista todas (a aba Contatos). */",translate,"Exclude the open conversation; `null` lists all, as on the Contacts tab.",other,apps/api/src/dominio/desk/consultas.ts:377,codex3,reviewed
 api-comment-d3ebd0e4,api,apps/api/src/dominio/desk/consultas.ts,39,42,jsdoc,4,"/**
  * `execute<T>` pede um tipo com índice implícito, e `interface` do contrato não tem.
  * O mapeamento devolve a mesma forma como tipo de objeto, que tem.
