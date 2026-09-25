@@ -6251,16 +6251,16 @@ api-comment-c31d4209,api,apps/api/tests/cadastros-atendimento.test.ts,889,891,bl
  * ========================================================================= */",translate,"/* =========================================================================
  * Item 3 — edit/delete time-window and schedule exception
  * ========================================================================= */",other,apps/api/tests/cadastros-atendimento.test.ts:889-891,sonnet,reviewed
-api-comment-f5455528,api,apps/api/tests/canais.test.ts,1018,1018,line,2,"// Os outros canais desta WABA, dos testes anteriores, saem para este ser o último.",,,,,,
-api-comment-7d9ad059,api,apps/api/tests/canais.test.ts,105,105,jsdoc,2,"/** Conecta pelo controlador, com um `state` válido desta sessão. */",,,,,,
-api-comment-b49f5080,api,apps/api/tests/canais.test.ts,148,148,line,2,"// A WABA é assinada ANTES do override, com os campos do Chatwoot e os três",,,,,,
-api-comment-44f73e7e,api,apps/api/tests/canais.test.ts,149,149,line,2,// da rota guarda-chuva; o override aponta para a URL DAQUELE canal.,,,,,,
-api-comment-24f53738,api,apps/api/tests/canais.test.ts,156,156,line,2,// Número já verificado e provisionado: não registra (webhook_setup_service_spec).,,,,,,
-api-comment-39fdb37d,api,apps/api/tests/canais.test.ts,159,159,line,1,// Token e verify_token vivem CIFRADOS. Isto é o que um `pg_dump` veria.,,,,,,
-api-comment-2a4faabe,api,apps/api/tests/canais.test.ts,331,331,line,3,"// PIN já guardado: a próxima configuração reaproveita, não sorteia outro.",,,,,,
-api-comment-a0b52319,api,apps/api/tests/canais.test.ts,411,411,line,4,"// Com o `phone_number_id` do outro número, a Meta o acha e a reautorização recusa a troca.",,,,,,
-api-comment-d5643e49,api,apps/api/tests/canais.test.ts,419,419,line,5,"// Sem ele, casa pelo número do canal — que não está naquela WABA.",,,,,,
-api-comment-742cab5e,api,apps/api/tests/canais.test.ts,429,429,jsdoc,0,/** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */,,,,,,
+api-comment-f5455528,api,apps/api/tests/canais.test.ts,1018,1018,line,2,"// Os outros canais desta WABA, dos testes anteriores, saem para este ser o último.",translate,"// The other channels on this WABA, from earlier tests, leave so this one is the last.",other,apps/api/tests/canais.test.ts:1018,sonnet,reviewed
+api-comment-7d9ad059,api,apps/api/tests/canais.test.ts,105,105,jsdoc,2,"/** Conecta pelo controlador, com um `state` válido desta sessão. */",translate,"Connects through the controller, with a valid `state` from this session.",security,apps/api/tests/canais.test.ts:105; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-b49f5080,api,apps/api/tests/canais.test.ts,148,148,line,2,"// A WABA é assinada ANTES do override, com os campos do Chatwoot e os três",translate,"// The WABA is signed BEFORE the override, with the Chatwoot fields and the three",security,apps/api/tests/canais.test.ts:148; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-44f73e7e,api,apps/api/tests/canais.test.ts,149,149,line,2,// da rota guarda-chuva; o override aponta para a URL DAQUELE canal.,translate,// from the umbrella route; the override points to THAT channel's URL.,security,apps/api/tests/canais.test.ts:149; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-24f53738,api,apps/api/tests/canais.test.ts,156,156,line,2,// Número já verificado e provisionado: não registra (webhook_setup_service_spec).,translate,// Number already verified and provisioned: doesn't register (webhook_setup_service_spec).,integration,apps/api/tests/canais.test.ts:156; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-39fdb37d,api,apps/api/tests/canais.test.ts,159,159,line,1,// Token e verify_token vivem CIFRADOS. Isto é o que um `pg_dump` veria.,translate,// Token and verify_token live ENCRYPTED. This is what a `pg_dump` would see.,security,apps/api/tests/canais.test.ts:159; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2a4faabe,api,apps/api/tests/canais.test.ts,331,331,line,3,"// PIN já guardado: a próxima configuração reaproveita, não sorteia outro.",translate,"// PIN already stored: the next setup reuses it, doesn't roll a new one.",security,apps/api/tests/canais.test.ts:331; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a0b52319,api,apps/api/tests/canais.test.ts,411,411,line,4,"// Com o `phone_number_id` do outro número, a Meta o acha e a reautorização recusa a troca.",translate,"// With the other number's `phone_number_id`, Meta finds it and reauthorization rejects the swap.",integration,apps/api/tests/canais.test.ts:411; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-d5643e49,api,apps/api/tests/canais.test.ts,419,419,line,5,"// Sem ele, casa pelo número do canal — que não está naquela WABA.",translate,"// Without it, it matches by the channel's number — which isn't in that WABA.",integration,apps/api/tests/canais.test.ts:419; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-742cab5e,api,apps/api/tests/canais.test.ts,429,429,jsdoc,0,/** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */,translate,The client app's App Secret: 32 hex characters. `bad…` the double treats as belonging to another app.,security,apps/api/tests/canais.test.ts:429; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-92ccae17,api,apps/api/tests/canais.test.ts,46,53,jsdoc,8,"/**
  * Conectar o WhatsApp do cliente, com banco de verdade e sem tocar na Meta.
  *
@@ -6268,29 +6268,31 @@ api-comment-92ccae17,api,apps/api/tests/canais.test.ts,46,53,jsdoc,8,"/**
  * (`spec/services/whatsapp/*_spec.rb`), mais os do Pipe: o `state` contra CSRF, a
  * cifra do token e o isolamento entre clientes. O ""callback"" é exercitado pelo
  * controlador de verdade, com a permissão `canal.gerenciar` conferida no banco.
- */",,,,,,
-api-comment-1a8abac7,api,apps/api/tests/canais.test.ts,472,472,line,3,"// O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.",,,,,,
-api-comment-5e3737b3,api,apps/api/tests/canais.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-715c1229,api,apps/api/tests/canais.test.ts,518,518,line,1,// Campo ausente não é mexido.,,,,,,
-api-comment-46778ed8,api,apps/api/tests/canais.test.ts,608,608,line,0,"// Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.",,,,,,
-api-comment-720a9631,api,apps/api/tests/canais.test.ts,623,623,line,2,// Os nomes dados às variáveis ficam: a quantidade não mudou.,,,,,,
-api-comment-0503efb0,api,apps/api/tests/canais.test.ts,628,628,line,0,// Apagado lá fora: some daqui na próxima sincronização.,,,,,,
-api-comment-5f23a248,api,apps/api/tests/canais.test.ts,649,649,line,1,// Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.,,,,,,
-api-comment-462b296b,api,apps/api/tests/canais.test.ts,697,697,line,3,"// Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.",,,,,,
-api-comment-ef0ca370,api,apps/api/tests/canais.test.ts,707,707,line,1,"// Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.",,,,,,
-api-comment-0f83d814,api,apps/api/tests/canais.test.ts,760,760,line,4,// Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.,,,,,,
-api-comment-1a821475,api,apps/api/tests/canais.test.ts,773,773,line,3,"// Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).",,,,,,
-api-comment-75b3357e,api,apps/api/tests/canais.test.ts,784,784,line,3,"// Não é data URL, está vazio, ou veio junto com cabeçalho de texto.",,,,,,
-api-comment-e89e6333,api,apps/api/tests/canais.test.ts,795,795,line,1,"// Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.",,,,,,
-api-comment-bad36f93,api,apps/api/tests/canais.test.ts,822,822,line,2,// Nenhum texto nosso vai para a Meta nessa categoria.,,,,,,
-api-comment-e61a3ee4,api,apps/api/tests/canais.test.ts,849,849,line,4,"// Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.",,,,,,
-api-comment-3f603c91,api,apps/api/tests/canais.test.ts,862,862,line,4,// A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.,,,,,,
-api-comment-72fc06cd,api,apps/api/tests/canais.test.ts,924,924,line,1,"// O resto do config (token, número) sobrevive à gravação.",,,,,,
-api-comment-532edea3,api,apps/api/tests/canal-do-fluxo.test.ts,107,107,jsdoc,4,"/** Um canal a mais no tenant, sem passar pela Meta. */",,,,,,
-api-comment-8ad87e5e,api,apps/api/tests/canal-do-fluxo.test.ts,225,225,line,1,// Ligar de novo o mesmo canal não é erro nem gera registro.,,,,,,
-api-comment-0ff051ec,api,apps/api/tests/canal-do-fluxo.test.ts,245,245,line,2,"// A tela do segundo vê o canal como ""em uso pelo primeiro"".",,,,,,
-api-comment-77447fe2,api,apps/api/tests/canal-do-fluxo.test.ts,250,250,line,0,"// Trocar de bot é: desligar no anterior, ligar no novo.",,,,,,
-api-comment-fed58318,api,apps/api/tests/canal-do-fluxo.test.ts,256,256,line,1,// Arquivado não segura número: um terceiro liga por cima.,,,,,,
+ */",translate,"Connecting the client's WhatsApp, with a real database and without touching Meta.
+
+The cases follow the Chatwoot specs the connection was ported from (`spec/services/whatsapp/*_spec.rb`), plus Pipe's own: the CSRF `state`, the token cipher, and isolation between customers. The ""callback"" is exercised through the real controller, with the `canal.gerenciar` permission checked in the database.",security,apps/api/tests/canais.test.ts:46-53; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1a8abac7,api,apps/api/tests/canais.test.ts,472,472,line,3,"// O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.",translate,"// This channel's webhook checks the signature with the client app's secret, not ours.",security,apps/api/tests/canais.test.ts:472; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5e3737b3,api,apps/api/tests/canais.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/canais.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-715c1229,api,apps/api/tests/canais.test.ts,518,518,line,1,// Campo ausente não é mexido.,translate,// A missing field isn't touched.,other,apps/api/tests/canais.test.ts:518,sonnet,reviewed
+api-comment-46778ed8,api,apps/api/tests/canais.test.ts,608,608,line,0,"// Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.",translate,"// On Meta: approved, and a second template created out there shows up; a third of unknown category.",meta-blip,apps/api/tests/canais.test.ts:608; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-720a9631,api,apps/api/tests/canais.test.ts,623,623,line,2,// Os nomes dados às variáveis ficam: a quantidade não mudou.,translate,// The variable names stay: the count didn't change.,other,apps/api/tests/canais.test.ts:623,sonnet,reviewed
+api-comment-0503efb0,api,apps/api/tests/canais.test.ts,628,628,line,0,// Apagado lá fora: some daqui na próxima sincronização.,translate,// Deleted out there: disappears here on the next sync.,meta-blip,apps/api/tests/canais.test.ts:628; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5f23a248,api,apps/api/tests/canais.test.ts,649,649,line,1,// Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.,translate,// Authentication category now exists (own describe below); unknown category is still rejected.,other,apps/api/tests/canais.test.ts:649,sonnet,reviewed
+api-comment-462b296b,api,apps/api/tests/canais.test.ts,697,697,line,3,"// Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.",translate,"// Uploaded ONCE, before creating — the order follows the Resumable Upload API: handle first.",integration,apps/api/tests/canais.test.ts:697; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-ef0ca370,api,apps/api/tests/canais.test.ts,707,707,line,1,"// Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.",translate,"// Embedded: the file uploads to OUR app, and the double returns `<app>-<bytes suffix>`.",integration,apps/api/tests/canais.test.ts:707; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0f83d814,api,apps/api/tests/canais.test.ts,760,760,line,4,// Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.,translate,// A type outside each format's list: the message is the one the source shows in the field.,other,apps/api/tests/canais.test.ts:760,sonnet,reviewed
+api-comment-1a821475,api,apps/api/tests/canais.test.ts,773,773,line,3,"// Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).",translate,"// Size: 5 MB for image, 16 MB for video (document is 100 MB — too big for the test).",other,apps/api/tests/canais.test.ts:773,sonnet,reviewed
+api-comment-75b3357e,api,apps/api/tests/canais.test.ts,784,784,line,3,"// Não é data URL, está vazio, ou veio junto com cabeçalho de texto.",translate,"// Not a data URL, is empty, or came with a text header.",other,apps/api/tests/canais.test.ts:784,sonnet,reviewed
+api-comment-e89e6333,api,apps/api/tests/canais.test.ts,795,795,line,1,"// Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.",translate,"// Good media, bad body: the file does NOT upload — everything is checked before the upload.",other,apps/api/tests/canais.test.ts:795,sonnet,reviewed
+api-comment-bad36f93,api,apps/api/tests/canais.test.ts,822,822,line,2,// Nenhum texto nosso vai para a Meta nessa categoria.,translate,// None of our text goes to Meta in this category.,meta-blip,apps/api/tests/canais.test.ts:822; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e61a3ee4,api,apps/api/tests/canais.test.ts,849,849,line,4,"// Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.",translate,"// Off: the field doesn't go out, and the local copy is left without the security phrase.",meta-blip,apps/api/tests/canais.test.ts:849; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-3f603c91,api,apps/api/tests/canais.test.ts,862,862,line,4,// A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.,translate,// Meta approved it and returns the BODY with its own text: the sync replaces the local copy with it.,meta-blip,apps/api/tests/canais.test.ts:862; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-72fc06cd,api,apps/api/tests/canais.test.ts,924,924,line,1,"// O resto do config (token, número) sobrevive à gravação.",translate,"// The rest of the config (token, number) survives the write.",other,apps/api/tests/canais.test.ts:924,sonnet,reviewed
+api-comment-532edea3,api,apps/api/tests/canal-do-fluxo.test.ts,107,107,jsdoc,4,"/** Um canal a mais no tenant, sem passar pela Meta. */",translate,"One more channel on the tenant, without going through Meta.",other,apps/api/tests/canal-do-fluxo.test.ts:107,sonnet,reviewed
+api-comment-8ad87e5e,api,apps/api/tests/canal-do-fluxo.test.ts,225,225,line,1,// Ligar de novo o mesmo canal não é erro nem gera registro.,translate,// Connecting the same channel again isn't an error and doesn't create a record.,other,apps/api/tests/canal-do-fluxo.test.ts:225,sonnet,reviewed
+api-comment-0ff051ec,api,apps/api/tests/canal-do-fluxo.test.ts,245,245,line,2,"// A tela do segundo vê o canal como ""em uso pelo primeiro"".",translate,"// The second one's screen sees the channel as ""in use by the first.""",other,apps/api/tests/canal-do-fluxo.test.ts:245,sonnet,reviewed
+api-comment-77447fe2,api,apps/api/tests/canal-do-fluxo.test.ts,250,250,line,0,"// Trocar de bot é: desligar no anterior, ligar no novo.",translate,"// Switching bots means: disconnect on the old one, connect on the new one.",other,apps/api/tests/canal-do-fluxo.test.ts:250,sonnet,reviewed
+api-comment-fed58318,api,apps/api/tests/canal-do-fluxo.test.ts,256,256,line,1,// Arquivado não segura número: um terceiro liga por cima.,translate,// Archived doesn't hold the number: a third one connects over it.,other,apps/api/tests/canal-do-fluxo.test.ts:256,sonnet,reviewed
 api-comment-7b358841,api,apps/api/tests/canal-do-fluxo.test.ts,27,38,jsdoc,19,"/**
  * O canal DO BOT — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, o `GET` que a
  * página do canal lê, e a conexão manual com `fluxo_id`.
@@ -6302,31 +6304,33 @@ api-comment-7b358841,api,apps/api/tests/canal-do-fluxo.test.ts,27,38,jsdoc,19,"/
  * e, ligado o roteador ao número, a mensagem que chega nesse número cai nele.
  * Mais as travas do Pipe: canal inativo não liga (409), outro tenant e uuid
  * malformado são 404, e um bot tem um canal só (a coluna `fluxo.canal_id`).
- */",,,,,,
-api-comment-cc4e6700,api,apps/api/tests/canal-do-fluxo.test.ts,313,313,line,3,"// No fluxo em que não é membro, continua sem poder.",,,,,,
-api-comment-68a45623,api,apps/api/tests/canal-do-fluxo.test.ts,404,404,jsdoc,1,/** Um principal de uma pergunta só: responde e fica esperando. */,,,,,,
-api-comment-c1014c7f,api,apps/api/tests/canal-do-fluxo.test.ts,425,425,line,2,"// Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.",,,,,,
-api-comment-edecbe64,api,apps/api/tests/canal-do-fluxo.test.ts,432,432,line,2,// Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.,,,,,,
-api-comment-30b23c96,api,apps/api/tests/canal-do-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,,,,,,
-api-comment-1f80ba3f,api,apps/api/tests/canal-do-fluxo.test.ts,461,461,line,3,"// Desligado o roteador do número, a próxima conversa nova já não passa por ele.",,,,,,
-api-comment-d67fb4f2,api,apps/api/tests/canal-do-fluxo.test.ts,47,47,jsdoc,1,"/** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */",,,,,,
+ */",translate,"The BOT'S channel — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, the `GET` the channel page reads, and the manual connection with `fluxo_id`.
+
+What's proven is what the source decides (`referencias-blip/canais/FICHA-conectar-canal-no-bot.md` §4): the channel belongs to the bot and the permission is the bot's `channels`; one bot per number (""Oops… This number is already in use"" — Blip refuses, it doesn't transfer; whoever swaps disconnects the previous bot first); and, once the router is connected to the number, a message arriving on that number lands on it. Plus Pipe's own guards: an inactive channel doesn't connect (409), another tenant and a malformed uuid are 404, and a bot has only one channel (the `fluxo.canal_id` column).",security,apps/api/tests/canal-do-fluxo.test.ts:27-38; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-cc4e6700,api,apps/api/tests/canal-do-fluxo.test.ts,313,313,line,3,"// No fluxo em que não é membro, continua sem poder.",translate,"// On the flow they're not a member of, still no permission.",security,apps/api/tests/canal-do-fluxo.test.ts:313; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-68a45623,api,apps/api/tests/canal-do-fluxo.test.ts,404,404,jsdoc,1,/** Um principal de uma pergunta só: responde e fica esperando. */,translate,A one-question principal: answers and waits.,other,apps/api/tests/canal-do-fluxo.test.ts:404,sonnet,reviewed
+api-comment-c1014c7f,api,apps/api/tests/canal-do-fluxo.test.ts,425,425,line,2,"// Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.",translate,"// Publishing the router isn't this task's gesture: it's born published, but WITHOUT a channel.",other,apps/api/tests/canal-do-fluxo.test.ts:425,sonnet,reviewed
+api-comment-edecbe64,api,apps/api/tests/canal-do-fluxo.test.ts,432,432,line,2,// Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.,translate,// Through the screen: the scenario's channel (the number that receives the webhook) becomes the router's channel.,other,apps/api/tests/canal-do-fluxo.test.ts:432,sonnet,reviewed
+api-comment-30b23c96,api,apps/api/tests/canal-do-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,translate,People from tenant A with no permission at all.,security,apps/api/tests/canal-do-fluxo.test.ts:45; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1f80ba3f,api,apps/api/tests/canal-do-fluxo.test.ts,461,461,line,3,"// Desligado o roteador do número, a próxima conversa nova já não passa por ele.",translate,"// Once the router is disconnected from the number, the next new conversation no longer goes through it.",other,apps/api/tests/canal-do-fluxo.test.ts:461,sonnet,reviewed
+api-comment-d67fb4f2,api,apps/api/tests/canal-do-fluxo.test.ts,47,47,jsdoc,1,"/** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */",translate,"Someone who's only a member of ONE flow, with `channels: write` — nothing at the account level.",security,apps/api/tests/canal-do-fluxo.test.ts:47; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-09c56981,api,apps/api/tests/canal-do-fluxo.test.ts,471,476,jsdoc,4,"/**
    * O token do cliente expira, e na origem a saída é refazer a conexão no mesmo
    * canal — não há desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md`
    * §5). Sem `canal_id`, trocar o token ficava num beco: criar de novo esbarra
    * no próprio número.
-   */",,,,,,
+   */",translate,"The client's token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect on WhatsApp (`FICHA-conectar-canal-no-bot.md` §5). Without `canal_id`, swapping the token was a dead end: creating a new one runs into the same number.",integration,apps/api/tests/canal-do-fluxo.test.ts:471-476; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-88399fdd,api,apps/api/tests/canal-do-fluxo.test.ts,491,492,block,4,"/* Sem `canal_id`: é o beco que o dono encontrou — o número já é de um canal.
-       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */",,,,,,
+       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */",translate,"Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.",integration,apps/api/tests/canal-do-fluxo.test.ts:491-492; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-9cb615e3,api,apps/api/tests/canal-do-fluxo.test.ts,499,500,block,4,"/* O duble da Meta casa token com número, então o token de teste é o mesmo;
-       o que prova a troca é o App Secret novo gravado no canal. */",,,,,,
-api-comment-91e9a187,api,apps/api/tests/canal-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-fcf43251,api,apps/api/tests/canal-do-fluxo.test.ts,509,509,block,1,/* O canal continua ligado ao mesmo bot e não nasceu um segundo. */,,,,,,
-api-comment-6c4fbb4a,api,apps/api/tests/canal-do-fluxo.test.ts,519,519,block,2,"/* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */",,,,,,
-api-comment-731f49de,api,apps/api/tests/chave-de-fluxo.test.ts,126,126,jsdoc,2,"/** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */",,,,,,
-api-comment-1f806582,api,apps/api/tests/chave-de-fluxo.test.ts,133,133,jsdoc,5,/** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */,,,,,,
-api-comment-1c4058d0,api,apps/api/tests/chave-de-fluxo.test.ts,157,157,line,4,// Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.,,,,,,
-api-comment-1a9f71b4,api,apps/api/tests/chave-de-fluxo.test.ts,200,200,line,3,"// `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.",,,,,,
+       o que prova a troca é o App Secret novo gravado no canal. */",translate,"The Meta double matches token to number, so the test token is the same one; what proves the swap is the new App Secret stored on the channel.",integration,apps/api/tests/canal-do-fluxo.test.ts:499-500; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-91e9a187,api,apps/api/tests/canal-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/canal-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-fcf43251,api,apps/api/tests/canal-do-fluxo.test.ts,509,509,block,1,/* O canal continua ligado ao mesmo bot e não nasceu um segundo. */,translate,"The channel stays connected to the same bot, and a second one wasn't born.",other,apps/api/tests/canal-do-fluxo.test.ts:509,sonnet,reviewed
+api-comment-6c4fbb4a,api,apps/api/tests/canal-do-fluxo.test.ts,519,519,block,2,"/* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */",translate,"Encrypted in the database: what matters is that it CHANGED, not the plaintext value.",security,apps/api/tests/canal-do-fluxo.test.ts:519; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-731f49de,api,apps/api/tests/chave-de-fluxo.test.ts,126,126,jsdoc,2,"/** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */",translate,"Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token.",security,apps/api/tests/chave-de-fluxo.test.ts:126; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1f806582,api,apps/api/tests/chave-de-fluxo.test.ts,133,133,jsdoc,5,/** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */,translate,An Express request already matched to the route — what the guard sees.,security,apps/api/tests/chave-de-fluxo.test.ts:133; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1c4058d0,api,apps/api/tests/chave-de-fluxo.test.ts,157,157,line,4,// Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.,translate,// A uuid arrives in different case depending on who wrote it; the fence isn't sensitive to that.,security,apps/api/tests/chave-de-fluxo.test.ts:157; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1a9f71b4,api,apps/api/tests/chave-de-fluxo.test.ts,200,200,line,3,"// `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.",translate,"// A conversation `:id` isn't a flow, even if the value happens to match a flow's id.",security,apps/api/tests/chave-de-fluxo.test.ts:200; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-eddba5e0,api,apps/api/tests/chave-de-fluxo.test.ts,21,36,jsdoc,14,"/**
  * A chave de acesso criada na tela ""Chaves de acesso"" do fluxo
  * (`chave_api.fluxo_id`, migração 0032) é uma credencial CERCADA, não um
@@ -6342,13 +6346,20 @@ api-comment-eddba5e0,api,apps/api/tests/chave-de-fluxo.test.ts,21,36,jsdoc,14,"/
  * A chave é criada pela rota de verdade (`POST /v1/gestao/fluxos/:id/chaves`),
  * com sessão de navegador, para provar que é ESSA chave — a que a tela entrega
  * ao cliente — que sai cercada.
- */",,,,,,
-api-comment-919d5ea5,api,apps/api/tests/chave-de-fluxo.test.ts,227,227,line,4,"// A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.",,,,,,
-api-comment-e9d93a7d,api,apps/api/tests/chave-de-fluxo.test.ts,233,233,line,1,"// Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.",,,,,,
-api-comment-0d9029fb,api,apps/api/tests/chave-de-fluxo.test.ts,244,244,line,0,"// válida, só cercada",,,,,,
-api-comment-f9bf5dc3,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,100,100,jsdoc,4,"/** Um PNG ""de mentira"" que é PNG de verdade para quem lê os bytes: a assinatura e mais nada. */",,,,,,
-api-comment-c48d9b24,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,105,105,jsdoc,0,"/** Rótulo de PNG, bytes de texto: o tipo mente. */",,,,,,
-api-comment-625d4c37,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,155,155,jsdoc,2,"/** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */",,,,,,
+ */",translate,"The access key created on the flow's ""Chaves de acesso"" screen (`chave_api.fluxo_id`, migration 0032) is a FENCED credential, not just a label: the key guard (`conferirFluxoDaChave`, `autenticacao.ts`) carries the key's session `fluxoId` and
+
+- on a route PER FLOW, only lets it act on its own flow (another flow is 403);
+- on a route that is NOT per flow, it refuses (403 `chave_de_fluxo`) — a Pipe decision, explained in the guard itself;
+- an ACCOUNT key (`fluxo_id` null) behaves as always: the whole tenant;
+- revoked is 401, and the scope is still checked before the fence.
+
+The key is created through the real route (`POST /v1/gestao/fluxos/:id/chaves`), with a browser session, to prove it's THIS key — the one the screen hands the client — that comes out fenced.",security,apps/api/tests/chave-de-fluxo.test.ts:21-36; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-919d5ea5,api,apps/api/tests/chave-de-fluxo.test.ts,227,227,line,4,"// A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.",translate,"// The flow key is born without `filas:ler`: the refusal is a SCOPE one, not a flow one.",security,apps/api/tests/chave-de-fluxo.test.ts:227; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e9d93a7d,api,apps/api/tests/chave-de-fluxo.test.ts,233,233,line,1,"// Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.",translate,"// An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.",security,apps/api/tests/chave-de-fluxo.test.ts:233; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0d9029fb,api,apps/api/tests/chave-de-fluxo.test.ts,244,244,line,0,"// válida, só cercada",translate,"// valid, just fenced",security,apps/api/tests/chave-de-fluxo.test.ts:244; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-f9bf5dc3,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,100,100,jsdoc,4,"/** Um PNG ""de mentira"" que é PNG de verdade para quem lê os bytes: a assinatura e mais nada. */",translate,"A ""fake"" PNG that's a real PNG to whoever reads the bytes: the signature and nothing else.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:100,sonnet,reviewed
+api-comment-c48d9b24,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,105,105,jsdoc,0,"/** Rótulo de PNG, bytes de texto: o tipo mente. */",translate,"PNG label, text bytes: the type lies.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:105,sonnet,reviewed
+api-comment-625d4c37,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,155,155,jsdoc,2,"/** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */",translate,"Creates and returns the id, or fails the test — for scenarios that need a ready flow.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:155,sonnet,reviewed
 api-comment-31bb6615,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,19,30,jsdoc,19,"/**
  * O ciclo de vida do contato (fluxo/roteador): `POST`, `PATCH /:id` e
  * `DELETE /:id` em `/v1/gestao/fluxos`.
@@ -6360,19 +6371,21 @@ api-comment-31bb6615,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,19,30,jsd
  * (`automacao.fluxo.excluir`), e a exclusão que ARQUIVA em vez de apagar — o
  * fluxo some da grade, o nome fica livre, e a versão publicada continua no
  * banco para o histórico das conversas que passaram por ela.
- */",,,,,,
-api-comment-8e19490c,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,333,333,line,5,"// A foto não mudou, então não está no registro.",,,,,,
-api-comment-1496cf10,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,347,347,line,3,// criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.,,,,,,
-api-comment-abcf66a9,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,35,35,jsdoc,1,"/** Quem cria e edita, mas não exclui — o `member` deles. */",,,,,,
-api-comment-a94c7fb0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,37,37,jsdoc,1,/** Quem também exclui — o `admin` deles. */,,,,,,
-api-comment-5a553e94,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,386,386,line,1,// O próprio nome não é conflito consigo mesmo.,,,,,,
-api-comment-7f3f8007,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,39,39,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,,,,,,
-api-comment-0c0e2723,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,41,41,jsdoc,1,"/** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */",,,,,,
-api-comment-135c52e0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,480,480,line,1,"// Excluído é ""não existe"": excluir de novo e editar dão 404.",,,,,,
-api-comment-69b2acbe,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,484,484,line,2,// E o nome voltou a estar livre para um contato novo.,,,,,,
-api-comment-74557e70,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-6bae9b96,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,51,51,jsdoc,2,"/** Um usuário novo no tenant, com um papel que carrega estas permissões. */",,,,,,
-api-comment-07f5e018,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,86,86,jsdoc,3,/** Grava uma sessão viva para a pessoa e devolve o token do cookie. */,,,,,,
+ */",translate,"The contact's (flow/router) lifecycle: `POST`, `PATCH /:id` and `DELETE /:id` on `/v1/gestao/fluxos`.
+
+What's worth proving is what the screens' source decides and what Pipe decided on top of it: the name by the creation wizard's rules (2 to 30, starts with a letter, sanitized), the description by the ""Edit Flow"" DOM (2 to 160, optional), the photo by its BYTES, the delete permission for admins only (`automacao.fluxo.excluir`), and the deletion that ARCHIVES instead of erasing — the flow disappears from the grid, the name becomes free, and the published version stays in the database for the history of the conversations that went through it.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:19-30; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-8e19490c,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,333,333,line,5,"// A foto não mudou, então não está no registro.",translate,"// The photo didn't change, so it's not in the record.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:333,sonnet,reviewed
+api-comment-1496cf10,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,347,347,line,3,// criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.,translate,// created plus the description; the empty PATCH and the no-change PATCH don't go in.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:347,sonnet,reviewed
+api-comment-abcf66a9,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,35,35,jsdoc,1,"/** Quem cria e edita, mas não exclui — o `member` deles. */",translate,"Who creates and edits, but doesn't delete — their `member`.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:35; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a94c7fb0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,37,37,jsdoc,1,/** Quem também exclui — o `admin` deles. */,translate,Who also deletes — their `admin`.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:37; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5a553e94,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,386,386,line,1,// O próprio nome não é conflito consigo mesmo.,translate,// Its own name isn't a conflict with itself.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:386,sonnet,reviewed
+api-comment-7f3f8007,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,39,39,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,translate,People from tenant A with no permission at all on the flow.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:39; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0c0e2723,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,41,41,jsdoc,1,"/** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */",translate,"Admin of tenant B: proves the tenant comes from the session, never from the URL.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:41; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-135c52e0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,480,480,line,1,"// Excluído é ""não existe"": excluir de novo e editar dão 404.",translate,"// Deleted means ""doesn't exist"": deleting again and editing both return 404.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:480,sonnet,reviewed
+api-comment-69b2acbe,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,484,484,line,2,// E o nome voltou a estar livre para um contato novo.,translate,// And the name became free again for a new contact.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:484,sonnet,reviewed
+api-comment-74557e70,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-6bae9b96,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,51,51,jsdoc,2,"/** Um usuário novo no tenant, com um papel que carrega estas permissões. */",translate,"A new user on the tenant, with a role carrying these permissions.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:51; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-07f5e018,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,86,86,jsdoc,3,/** Grava uma sessão viva para a pessoa e devolve o token do cookie. */,translate,Writes a live session for the person and returns the cookie's token.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:86; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-3cce12fd,api,apps/api/tests/configuracao-do-fluxo.test.ts,19,29,jsdoc,10,"/**
  * ""Tela de Boas-vindas"" e ""Menu Persistente"" — `GET/PATCH
  * /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}`
@@ -6383,25 +6396,27 @@ api-comment-3cce12fd,api,apps/api/tests/configuracao-do-fluxo.test.ts,19,29,jsdo
  * teste do PATCH do menu prova a RECUSA (a mesma trava que a origem mostra
  * com o Salvar desabilitado), não o sucesso: salvar de verdade só é possível
  * quando o canal Messenger existir no Pipe.
- */",,,,,,
-api-comment-c9ec401c,api,apps/api/tests/configuracao-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
+ */",translate,"""Welcome Screen"" and ""Persistent Menu"" — `GET/PATCH /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}` (`dominio/gestao/configuracao-do-fluxo.ts`).
+
+The persistent menu requires a Messenger channel — and `TIPOS_CANAL` (`packages/db/src/schema/comum.ts`) doesn't have that type yet. That's why the PATCH menu test proves the REFUSAL (the same guard the source shows with Save disabled), not success: actually saving is only possible once the Messenger channel exists in Pipe.",other,apps/api/tests/configuracao-do-fluxo.test.ts:19-29,sonnet,reviewed
+api-comment-c9ec401c,api,apps/api/tests/configuracao-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/configuracao-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-e5323d52,api,apps/api/tests/contas.test.ts,14,18,jsdoc,2,"/**
  * O cadastro de conta, fechado por padrão (`ENABLE_ACCOUNT_SIGNUP=false`), como
  * no Chatwoot de onde a flag foi portada. Aberto, ele provisiona pelo mesmo
  * `provisionarCliente` do comando.
- */",,,,,,
-api-comment-32dd106a,api,apps/api/tests/contas.test.ts,99,99,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,,,,,,
+ */",translate,"Account signup, closed by default (`ENABLE_ACCOUNT_SIGNUP=false`), as in the Chatwoot it was ported from. When open, it provisions through the same `provisionarCliente` as the command.",security,apps/api/tests/contas.test.ts:14-18; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-32dd106a,api,apps/api/tests/contas.test.ts,99,99,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,translate,// `admin` at the account level and `administrador` in attendance (migration 0021).,security,apps/api/tests/contas.test.ts:99; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-457dbbab,api,apps/api/tests/contatos-editar.test.ts,19,25,jsdoc,0,"/**
  * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`,
  * `ControladorContatos.editar`) — o ""Editar"" de
  * `fluxo/contatos/detalhe/editar.tsx`. Sessão, permissão `contato.editar`,
  * telefone em E.164 validado e único no tenant, `atributos` mesclado (nunca
  * substituído por inteiro).
- */",,,,,,
-api-comment-de5b8f4a,api,apps/api/tests/contatos-editar.test.ts,194,194,line,3,// O mesmo telefone que o contato já tem não é conflito consigo mesmo.,,,,,,
-api-comment-8889401d,api,apps/api/tests/contatos-editar.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-4ece7549,api,apps/api/tests/contrato.test.ts,144,144,jsdoc,4,/** Tenant `a` com DOIS admins — para testar troca/remoção sem esbarrar no último. */,,,,,,
-api-comment-e2cff25e,api,apps/api/tests/contrato.test.ts,149,149,jsdoc,3,"/** Tenant à parte, com um ÚNICO admin — só para os dois testes de ""último admin"". */",,,,,,
+ */",translate,"`PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`) — the ""Edit"" of `fluxo/contatos/detalhe/editar.tsx`. Session, `contato.editar` permission, phone in E.164 validated and unique per tenant, `atributos` merged (never replaced wholesale).",security,apps/api/tests/contatos-editar.test.ts:19-25; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-de5b8f4a,api,apps/api/tests/contatos-editar.test.ts,194,194,line,3,// O mesmo telefone que o contato já tem não é conflito consigo mesmo.,translate,// The same phone the contact already has isn't a conflict with itself.,other,apps/api/tests/contatos-editar.test.ts:194,sonnet,reviewed
+api-comment-8889401d,api,apps/api/tests/contatos-editar.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/contatos-editar.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-4ece7549,api,apps/api/tests/contrato.test.ts,144,144,jsdoc,4,/** Tenant `a` com DOIS admins — para testar troca/remoção sem esbarrar no último. */,translate,Tenant `a` with TWO admins — to test swap/removal without hitting the last one.,security,apps/api/tests/contrato.test.ts:144; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e2cff25e,api,apps/api/tests/contrato.test.ts,149,149,jsdoc,3,"/** Tenant à parte, com um ÚNICO admin — só para os dois testes de ""último admin"". */",translate,"A separate tenant, with a SINGLE admin — only for the two ""last admin"" tests.",security,apps/api/tests/contrato.test.ts:149; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-206c2f61,api,apps/api/tests/contrato.test.ts,153,153,jsdoc,1,/** Tem `conta.membros.escrever` mas não é `admin` — ver `usuarioOperador`. */,,,,,,
 api-comment-1adfc762,api,apps/api/tests/contrato.test.ts,155,155,jsdoc,4,"/** Sessão válida do tenant B, para provar que o id de A não é achado nele. */",,,,,,
 api-comment-a27195cb,api,apps/api/tests/contrato.test.ts,224,224,line,3,// o convite original não existe mais (venceu); o novo id é o que vale,,,,,,

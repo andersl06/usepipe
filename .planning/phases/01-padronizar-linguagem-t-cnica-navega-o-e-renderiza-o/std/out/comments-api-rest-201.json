@@ -1,0 +1,644 @@
+{
+  "items": [
+    {
+      "id": "api-comment-f5455528",
+      "action": "translate",
+      "new_text": "// The other channels on this WABA, from earlier tests, leave so this one is the last.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:1018",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7d9ad059",
+      "action": "translate",
+      "new_text": "Connects through the controller, with a valid `state` from this session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b49f5080",
+      "action": "translate",
+      "new_text": "// The WABA is signed BEFORE the override, with the Chatwoot fields and the three",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:148; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-44f73e7e",
+      "action": "translate",
+      "new_text": "// from the umbrella route; the override points to THAT channel's URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-24f53738",
+      "action": "translate",
+      "new_text": "// Number already verified and provisioned: doesn't register (webhook_setup_service_spec).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canais.test.ts:156; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-39fdb37d",
+      "action": "translate",
+      "new_text": "// Token and verify_token live ENCRYPTED. This is what a `pg_dump` would see.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2a4faabe",
+      "action": "translate",
+      "new_text": "// PIN already stored: the next setup reuses it, doesn't roll a new one.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:331; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a0b52319",
+      "action": "translate",
+      "new_text": "// With the other number's `phone_number_id`, Meta finds it and reauthorization rejects the swap.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canais.test.ts:411; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d5643e49",
+      "action": "translate",
+      "new_text": "// Without it, it matches by the channel's number — which isn't in that WABA.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canais.test.ts:419; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-742cab5e",
+      "action": "translate",
+      "new_text": "The client app's App Secret: 32 hex characters. `bad…` the double treats as belonging to another app.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:429; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92ccae17",
+      "action": "translate",
+      "new_text": "Connecting the client's WhatsApp, with a real database and without touching Meta.\n\nThe cases follow the Chatwoot specs the connection was ported from (`spec/services/whatsapp/*_spec.rb`), plus Pipe's own: the CSRF `state`, the token cipher, and isolation between customers. The \"callback\" is exercised through the real controller, with the `canal.gerenciar` permission checked in the database.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:46-53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1a8abac7",
+      "action": "translate",
+      "new_text": "// This channel's webhook checks the signature with the client app's secret, not ours.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canais.test.ts:472; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5e3737b3",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/canais.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-715c1229",
+      "action": "translate",
+      "new_text": "// A missing field isn't touched.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:518",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-46778ed8",
+      "action": "translate",
+      "new_text": "// On Meta: approved, and a second template created out there shows up; a third of unknown category.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/canais.test.ts:608; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-720a9631",
+      "action": "translate",
+      "new_text": "// The variable names stay: the count didn't change.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:623",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-0503efb0",
+      "action": "translate",
+      "new_text": "// Deleted out there: disappears here on the next sync.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/canais.test.ts:628; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5f23a248",
+      "action": "translate",
+      "new_text": "// Authentication category now exists (own describe below); unknown category is still rejected.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:649",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-462b296b",
+      "action": "translate",
+      "new_text": "// Uploaded ONCE, before creating — the order follows the Resumable Upload API: handle first.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canais.test.ts:697; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ef0ca370",
+      "action": "translate",
+      "new_text": "// Embedded: the file uploads to OUR app, and the double returns `<app>-<bytes suffix>`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canais.test.ts:707; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0f83d814",
+      "action": "translate",
+      "new_text": "// A type outside each format's list: the message is the one the source shows in the field.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:760",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-1a821475",
+      "action": "translate",
+      "new_text": "// Size: 5 MB for image, 16 MB for video (document is 100 MB — too big for the test).",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:773",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-75b3357e",
+      "action": "translate",
+      "new_text": "// Not a data URL, is empty, or came with a text header.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:784",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e89e6333",
+      "action": "translate",
+      "new_text": "// Good media, bad body: the file does NOT upload — everything is checked before the upload.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:795",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-bad36f93",
+      "action": "translate",
+      "new_text": "// None of our text goes to Meta in this category.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/canais.test.ts:822; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e61a3ee4",
+      "action": "translate",
+      "new_text": "// Off: the field doesn't go out, and the local copy is left without the security phrase.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/canais.test.ts:849; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3f603c91",
+      "action": "translate",
+      "new_text": "// Meta approved it and returns the BODY with its own text: the sync replaces the local copy with it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/canais.test.ts:862; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-72fc06cd",
+      "action": "translate",
+      "new_text": "// The rest of the config (token, number) survives the write.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canais.test.ts:924",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-532edea3",
+      "action": "translate",
+      "new_text": "One more channel on the tenant, without going through Meta.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:107",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-8ad87e5e",
+      "action": "translate",
+      "new_text": "// Connecting the same channel again isn't an error and doesn't create a record.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:225",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-0ff051ec",
+      "action": "translate",
+      "new_text": "// The second one's screen sees the channel as \"in use by the first.\"",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:245",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-77447fe2",
+      "action": "translate",
+      "new_text": "// Switching bots means: disconnect on the old one, connect on the new one.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:250",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-fed58318",
+      "action": "translate",
+      "new_text": "// Archived doesn't hold the number: a third one connects over it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:256",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7b358841",
+      "action": "translate",
+      "new_text": "The BOT'S channel — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, the `GET` the channel page reads, and the manual connection with `fluxo_id`.\n\nWhat's proven is what the source decides (`referencias-blip/canais/FICHA-conectar-canal-no-bot.md` §4): the channel belongs to the bot and the permission is the bot's `channels`; one bot per number (\"Oops… This number is already in use\" — Blip refuses, it doesn't transfer; whoever swaps disconnects the previous bot first); and, once the router is connected to the number, a message arriving on that number lands on it. Plus Pipe's own guards: an inactive channel doesn't connect (409), another tenant and a malformed uuid are 404, and a bot has only one channel (the `fluxo.canal_id` column).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:27-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc4e6700",
+      "action": "translate",
+      "new_text": "// On the flow they're not a member of, still no permission.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:313; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-68a45623",
+      "action": "translate",
+      "new_text": "A one-question principal: answers and waits.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:404",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c1014c7f",
+      "action": "translate",
+      "new_text": "// Publishing the router isn't this task's gesture: it's born published, but WITHOUT a channel.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:425",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-edecbe64",
+      "action": "translate",
+      "new_text": "// Through the screen: the scenario's channel (the number that receives the webhook) becomes the router's channel.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:432",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-30b23c96",
+      "action": "translate",
+      "new_text": "People from tenant A with no permission at all.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f80ba3f",
+      "action": "translate",
+      "new_text": "// Once the router is disconnected from the number, the next new conversation no longer goes through it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:461",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d67fb4f2",
+      "action": "translate",
+      "new_text": "Someone who's only a member of ONE flow, with `channels: write` — nothing at the account level.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-09c56981",
+      "action": "translate",
+      "new_text": "The client's token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect on WhatsApp (`FICHA-conectar-canal-no-bot.md` §5). Without `canal_id`, swapping the token was a dead end: creating a new one runs into the same number.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:471-476; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-88399fdd",
+      "action": "translate",
+      "new_text": "Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:491-492; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9cb615e3",
+      "action": "translate",
+      "new_text": "The Meta double matches token to number, so the test token is the same one; what proves the swap is the new App Secret stored on the channel.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:499-500; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-91e9a187",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fcf43251",
+      "action": "translate",
+      "new_text": "The channel stays connected to the same bot, and a second one wasn't born.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:509",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-6c4fbb4a",
+      "action": "translate",
+      "new_text": "Encrypted in the database: what matters is that it CHANGED, not the plaintext value.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/canal-do-fluxo.test.ts:519; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-731f49de",
+      "action": "translate",
+      "new_text": "Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:126; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f806582",
+      "action": "translate",
+      "new_text": "An Express request already matched to the route — what the guard sees.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:133; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c4058d0",
+      "action": "translate",
+      "new_text": "// A uuid arrives in different case depending on who wrote it; the fence isn't sensitive to that.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:157; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1a9f71b4",
+      "action": "translate",
+      "new_text": "// A conversation `:id` isn't a flow, even if the value happens to match a flow's id.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eddba5e0",
+      "action": "translate",
+      "new_text": "The access key created on the flow's \"Chaves de acesso\" screen (`chave_api.fluxo_id`, migration 0032) is a FENCED credential, not just a label: the key guard (`conferirFluxoDaChave`, `autenticacao.ts`) carries the key's session `fluxoId` and\n\n- on a route PER FLOW, only lets it act on its own flow (another flow is 403);\n- on a route that is NOT per flow, it refuses (403 `chave_de_fluxo`) — a Pipe decision, explained in the guard itself;\n- an ACCOUNT key (`fluxo_id` null) behaves as always: the whole tenant;\n- revoked is 401, and the scope is still checked before the fence.\n\nThe key is created through the real route (`POST /v1/gestao/fluxos/:id/chaves`), with a browser session, to prove it's THIS key — the one the screen hands the client — that comes out fenced.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:21-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-919d5ea5",
+      "action": "translate",
+      "new_text": "// The flow key is born without `filas:ler`: the refusal is a SCOPE one, not a flow one.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:227; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e9d93a7d",
+      "action": "translate",
+      "new_text": "// An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:233; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0d9029fb",
+      "action": "translate",
+      "new_text": "// valid, just fenced",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/chave-de-fluxo.test.ts:244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f9bf5dc3",
+      "action": "translate",
+      "new_text": "A \"fake\" PNG that's a real PNG to whoever reads the bytes: the signature and nothing else.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:100",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c48d9b24",
+      "action": "translate",
+      "new_text": "PNG label, text bytes: the type lies.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:105",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-625d4c37",
+      "action": "translate",
+      "new_text": "Creates and returns the id, or fails the test — for scenarios that need a ready flow.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:155",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-31bb6615",
+      "action": "translate",
+      "new_text": "The contact's (flow/router) lifecycle: `POST`, `PATCH /:id` and `DELETE /:id` on `/v1/gestao/fluxos`.\n\nWhat's worth proving is what the screens' source decides and what Pipe decided on top of it: the name by the creation wizard's rules (2 to 30, starts with a letter, sanitized), the description by the \"Edit Flow\" DOM (2 to 160, optional), the photo by its BYTES, the delete permission for admins only (`automacao.fluxo.excluir`), and the deletion that ARCHIVES instead of erasing — the flow disappears from the grid, the name becomes free, and the published version stays in the database for the history of the conversations that went through it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:19-30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8e19490c",
+      "action": "translate",
+      "new_text": "// The photo didn't change, so it's not in the record.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:333",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-1496cf10",
+      "action": "translate",
+      "new_text": "// created plus the description; the empty PATCH and the no-change PATCH don't go in.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:347",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-abcf66a9",
+      "action": "translate",
+      "new_text": "Who creates and edits, but doesn't delete — their `member`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a94c7fb0",
+      "action": "translate",
+      "new_text": "Who also deletes — their `admin`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:37; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5a553e94",
+      "action": "translate",
+      "new_text": "// Its own name isn't a conflict with itself.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:386",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7f3f8007",
+      "action": "translate",
+      "new_text": "People from tenant A with no permission at all on the flow.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0c0e2723",
+      "action": "translate",
+      "new_text": "Admin of tenant B: proves the tenant comes from the session, never from the URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-135c52e0",
+      "action": "translate",
+      "new_text": "// Deleted means \"doesn't exist\": deleting again and editing both return 404.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:480",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-69b2acbe",
+      "action": "translate",
+      "new_text": "// And the name became free again for a new contact.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:484",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-74557e70",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6bae9b96",
+      "action": "translate",
+      "new_text": "A new user on the tenant, with a role carrying these permissions.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-07f5e018",
+      "action": "translate",
+      "new_text": "Writes a live session for the person and returns the cookie's token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3cce12fd",
+      "action": "translate",
+      "new_text": "\"Welcome Screen\" and \"Persistent Menu\" — `GET/PATCH /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}` (`dominio/gestao/configuracao-do-fluxo.ts`).\n\nThe persistent menu requires a Messenger channel — and `TIPOS_CANAL` (`packages/db/src/schema/comum.ts`) doesn't have that type yet. That's why the PATCH menu test proves the REFUSAL (the same guard the source shows with Save disabled), not success: actually saving is only possible once the Messenger channel exists in Pipe.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/configuracao-do-fluxo.test.ts:19-29",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c9ec401c",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/configuracao-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e5323d52",
+      "action": "translate",
+      "new_text": "Account signup, closed by default (`ENABLE_ACCOUNT_SIGNUP=false`), as in the Chatwoot it was ported from. When open, it provisions through the same `provisionarCliente` as the command.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contas.test.ts:14-18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-32dd106a",
+      "action": "translate",
+      "new_text": "// `admin` at the account level and `administrador` in attendance (migration 0021).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contas.test.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-457dbbab",
+      "action": "translate",
+      "new_text": "`PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`) — the \"Edit\" of `fluxo/contatos/detalhe/editar.tsx`. Session, `contato.editar` permission, phone in E.164 validated and unique per tenant, `atributos` merged (never replaced wholesale).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contatos-editar.test.ts:19-25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-de5b8f4a",
+      "action": "translate",
+      "new_text": "// The same phone the contact already has isn't a conflict with itself.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/contatos-editar.test.ts:194",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-8889401d",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/contatos-editar.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4ece7549",
+      "action": "translate",
+      "new_text": "Tenant `a` with TWO admins — to test swap/removal without hitting the last one.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e2cff25e",
+      "action": "translate",
+      "new_text": "A separate tenant, with a SINGLE admin — only for the two \"last admin\" tests.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
