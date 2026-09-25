@@ -59,7 +59,7 @@
     {
       "id": "api-comment-bdc4109e",
       "action": "translate",
-      "new_text": "Management form input: former `FormData`, now JSON. Keep `get`/`getAll` so actions read it as they did in Server Actions. A repeated key becomes a list; a checked box sends 'on' and an unchecked box is absent, as with FormData.",
+      "new_text": "Management form input: former `FormData`, now JSON. Keep `get`/`getAll` so actions read it as they did in Server Actions. A repeated key becomes a list; a checked box sends `'on'` and an unchecked box is absent, as with FormData.",
       "sensitivity": "architecture",
       "evidence": "apps/api/src/dominio/gestao/acoes/campos.ts:1; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -99,7 +99,7 @@
     {
       "id": "api-comment-7ae574c6",
       "action": "translate",
-      "new_text": "Communication Server Actions return expected form errors as `Resultado`, following `apps/desk/src/app/acoes.ts`, so client `useActionState` can show them without try/catch. Each action performs ONE transaction, using conflict `selects` before insert. Never use `Promise.all` inside `comTenant`: parallel queries can lose the session `set_config('pipe.tenant_id')`; see README section Banco de dados.",
+      "new_text": "Communication Server Actions return expected form errors as `Resultado`, following `apps/desk/src/app/acoes.ts`, so client `useActionState` can show them without try/catch. Each action performs ONE transaction, using conflict `selects` before `insert`. Never use `Promise.all` inside `comTenant`: parallel queries can lose the session `set_config('pipe.tenant_id')`; see README section Banco de dados.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:12; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
