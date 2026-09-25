@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "packages-core-comment-a850c3e7",
+      "action": "translate",
+      "new_text": "Audio files recorded with zero duration because both duration metadata and size were missing.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:83-83",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e9ecca48",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:87-87",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-fae8dc02",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/regua.ts:92-92",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-5299fc73",
+      "action": "translate",
+      "new_text": "Audio duration comes from metadata when available, otherwise estimated from size. Without either, return null rather than inventing a duration.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/regua.ts:97-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0f62014b",
+      "action": "translate",
+      "new_text": "Supporting session-time measure from Annex B.2. Across all chats, sum gaps between consecutive agent messages sent during a day when each gap is at most 10 minutes; longer gaps are breaks. This and the effort measure converge for handled tickets at the 11–13 minutes observed in production, providing a cross-check.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/sessao.ts:1-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e5863be7",
+      "action": "translate",
+      "new_text": "Default maximum gap between two messages that still counts as active session time.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/sessao.ts:14-14",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-464a775f",
+      "action": "translate",
+      "new_text": "Sum consecutive gaps of at most `limiteSeg`. A single message adds zero seconds: this measures gaps, not mere presence. The conservative choice avoids inflating session time and making an agent seem less occupied than they are.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/sessao.ts:31-37; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-37999f11",
+      "action": "translate",
+      "new_text": "Effort divided by measured session time; null when no session was measured.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/esforco/sessao.ts:87-87",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-db4df82c",
+      "action": "translate",
+      "new_text": "Effort divided by tickets, a weighted average by construction (§5).",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/sessao.ts:89-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b20fe460",
+      "action": "translate",
+      "new_text": "Consolidate an agent's day. The weighted mean is total effort divided by total tickets, never the mean of daily means; a busy day carries more weight.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/esforco/sessao.ts:97-102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-19838e1a",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:1-13; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-70e8d01a",
+      "action": "translate",
+      "new_text": "`TrackEventAction` requires `category` and `action`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:108-108; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1fd3a68f",
+      "action": "translate",
+      "new_text": "Variable tested by the Blip editor's attendance block on entry and exit.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:138-138; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-274c35e4",
+      "action": "translate",
+      "new_text": "Blip server `ForwardToDesk`: the editor attendance block expects entry only when this variable is `Success`, and its default exit is `Error`. A failure therefore becomes a variable value rather than an exception.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:141-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b2553703",
+      "action": "translate",
+      "new_text": "Blip server `LeavingFromDesk`: in Pipe, Desk has already closed the ticket.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:162-162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-356b6756",
+      "action": "translate",
+      "new_text": "`RedirectAction` settings are a LIME `Redirect` document (`application/vnd.lime.redirect+json`). `address` is the router service NAME (`blip-api-schemas.md` §5.4) and `context` accompanies it. `ServicosDoMotor` moves the contact to another service; without a router this fails, as in Blip.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:168-173; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-126c9696",
+      "action": "translate",
+      "new_text": "Blip `ProcessHttpAction`: HTTP status, including 4xx/5xx, becomes a variable rather than failing the action; network failure is represented by a synthetic service response. The injected service performs the call so the engine remains pure.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:187-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6d6b7769",
+      "action": "translate",
+      "new_text": "Default `ActionProvider` containing actions Pipe executes.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:246-246; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9cd7f596",
+      "action": "translate",
+      "new_text": "`ActionProvider.Get` treats an unimplemented type as an error, never an ignored action.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:249-249; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-fa6bbddb",
+      "action": "translate",
+      "new_text": "Newtonsoft matches property names without case sensitivity (`Variable`/`variable`).",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/acoes.ts:28-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4fc1e44e",
+      "action": "translate",
+      "new_text": "`ActionBase.ExecuteAsync` rejects null configuration before any work.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:38-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-715a8275",
+      "action": "translate",
+      "new_text": "ponytail: unlike the source, do not await typing `interval` (`Task.Delay`) here:",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:77-77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-733e6953",
+      "action": "translate",
+      "new_text": "the engine runs inside the inbound transaction, and holding a connection for typing is costly.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/acoes.ts:78-78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-3aa69e75",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs and ConditionTests.cs. Changes: xUnit/Shouldly to vitest; validation messages remain Portuguese.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.teste.ts:1-5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a7abdd28",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs, ValueSource.cs, ConditionsExtensions.cs, and StringExtensions.cs. Changes from C# to TypeScript: enum values become strings from published Blip JSON (Newtonsoft camelCase and case-insensitive reads); error messages remain Portuguese; `decimal.TryParse` becomes `paraDecimal`; JavaScript regex has no original two-minute timeout.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:1-9; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-88f0c542",
+      "action": "translate",
+      "new_text": "Invariant-culture `CompareOptions.IgnoreNonSpace | IgnoreCase` ignores case and accents; JS collator sensitivity `base` is the equivalent.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/condicao.ts:108-111; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-91945080",
+      "action": "translate",
+      "new_text": "`StringComparison.OrdinalIgnoreCase` compares with invariant uppercase without ignoring accents.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/condicao.ts:120-120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e22e8f9e",
+      "action": "translate",
+      "new_text": "Invariant-culture `decimal.TryParse` accepts decimal dots, thousands commas, signs, and surrounding spaces; return null where C# would return false. ponytail: Blip server culture is unknown, so invariant is an assumption. If a real flow expects \"1,5\" to mean 1.5, change parsing here.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:123-129; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0dc29501",
+      "action": "translate",
+      "new_text": "`ConditionComparison` order follows the original enum; its first value is the default.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:14-14; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-12ffc20b",
+      "action": "translate",
+      "new_text": "ponytail: there is no original two-minute timeout. A flow owner's regex runs",
+      "sensitivity": "security",
+      "evidence": "packages/core/src/fluxo/condicao.ts:195-195; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-04ae8a83",
+      "action": "translate",
+      "new_text": "against customer text; move it to a worker if catastrophic backtracking appears.",
+      "sensitivity": "security",
+      "evidence": "packages/core/src/fluxo/condicao.ts:196-196; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6e7ecb61",
+      "action": "translate",
+      "new_text": "Allows a 25% difference in the text.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/condicao.ts:199-199",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e3f5c982",
+      "action": "translate",
+      "new_text": "Pipe has no AI provider here; this matches Blip's result when analysis fails.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:244-244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-93ef0143",
+      "action": "translate",
+      "new_text": "The source treats `notEquals` with `or` as different from every value, not merely from some value.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:260-260; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a7aec575",
+      "action": "translate",
+      "new_text": "`ConditionOperator`: `or` is the default, first enum value.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:32-32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4f186217",
+      "action": "translate",
+      "new_text": "`ValueSource`: `input` is the default.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:36-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9ae1d92e",
+      "action": "translate",
+      "new_text": "`Condition` keys match Blip JSON exactly.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:40-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4f4bcfcd",
+      "action": "translate",
+      "new_text": "Newtonsoft reads enum values case-insensitively; unknown values are parse errors.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/condicao.ts:57-57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-cbe6017b",
+      "action": "translate",
+      "new_text": "`GetComparisonType`: only `exists` and `notExists` are unary.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/condicao.ts:75-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d16814c4",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, resource, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:1-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4e86f53c",
+      "action": "translate",
+      "new_text": "`SendRawMessage`: content is serialized text to deserialize according to its type.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:100-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9da3c849",
+      "action": "translate",
+      "new_text": "Open human ticket, corresponding to Blip `Ticket`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:104-104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-2a59ad74",
+      "action": "translate",
+      "new_text": "External engine dependencies mirror Blip `ISender` and extensions. The `api` implements them; network actions must run outside the inbound transaction.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/contexto.ts:132-135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-cc781b95",
+      "action": "translate",
+      "new_text": "The `api` executes the request; core only describes it and performs no network access.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/contexto.ts:143-143; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-79c3ba8a",
+      "action": "translate",
+      "new_text": "The API stores the cursor and calls the network after the transaction ends.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/contexto.ts:145-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-33719dfc",
+      "action": "translate",
+      "new_text": "`IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: \"o redirecionamento funciona apenas no Bot Router\" (help.blip.ai).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:147-151; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e8643495",
+      "action": "translate",
+      "new_text": "Persisted user context; Blip stores every value here as text.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:166-166; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-60352848",
+      "action": "translate",
+      "new_text": "`InputContext` lasts only for this input, including current state and created ticket.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:168-168; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7effc8e7",
+      "action": "translate",
+      "new_text": "Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:170-170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f065ac5c",
+      "action": "translate",
+      "new_text": "Extra providers or replacements for defaults.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/contexto.ts:172-172; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-43056de7",
+      "action": "translate",
+      "new_text": "`SetVariableAsync`. ponytail: source `expiration` is not persisted, so a variable lasts until deletion or overwrite. Persistence would require a timestamp per key.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:191-194; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-07929566",
+      "action": "translate",
+      "new_text": "Read stored state from already persisted context without constructing `Contexto`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/contexto.ts:218-218; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-926acd4f",
+      "action": "translate",
+      "new_text": "`VariableName.Parse`: `fonte.nome@propriedade`; without a source, this is a context variable.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:227-227; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f772a57e",
+      "action": "translate",
+      "new_text": "`GetJsonProperty`: dotted property path into a JSON object value.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:249-249; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-61967412",
+      "action": "translate",
+      "new_text": "Case-insensitive property access, matching reflection-based `GetProperty`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/contexto.ts:266-266; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-43410222",
+      "action": "translate",
+      "new_text": "`VariableReplacer.ReplaceAsync`: replace `{{nome}}` with its value escaped for JSON.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:368-368; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-763b16c0",
+      "action": "translate",
+      "new_text": "Sources with providers in Pipe; others throw, as in Blip without a provider.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:38-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b10b4811",
+      "action": "translate",
+      "new_text": "`EscapeString`: the inserted value must not break the surrounding JSON string.",
+      "sensitivity": "security",
+      "evidence": "packages/core/src/fluxo/contexto.ts:380-380; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ce26c409",
+      "action": "translate",
+      "new_text": "Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.).",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/contexto.ts:48-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a105e120",
+      "action": "translate",
+      "new_text": "`SerializedContent`: plain text unchanged, JSON document serialized.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/contexto.ts:73-73; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a31b2341",
+      "action": "translate",
+      "new_text": "Unsupported content stays in the flow; conversion silently drops nothing.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.teste.ts:137-137; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0d0939a9",
+      "action": "translate",
+      "new_text": "Synthetic fixture in Builder editor format; contains no customer flow.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.teste.ts:16-16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-abd73263",
+      "action": "translate",
+      "new_text": "`pos-atendimento` → `menu` default exit sends the menu and waits.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.teste.ts:204-204; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8abd7fee",
+      "action": "translate",
+      "new_text": "Importer converts a Blip Builder EDITOR export to the PUBLISHED format read by the engine. This is not a code port: `FlowManager` consumes `{ id, states: [{ inputActions, input, outputActions, outputs }] }`, while Builder \"Exportar\" returns `{ flow: { <id>: estado }, globalActions }` with `$contentActions`, `$conditionOutputs`, etc. Blip's proprietary portal converts between them; behavior here comes from comparing both formats. `$enteringCustomActions` followed by `$contentActions` actions become `inputActions` (before block content); the `input` item becomes `input`; `$leavingCustomActions`, `$afterStateChangedActions`, and `$localCustomActions` map to their matching action arrays; ordered `$conditionOutputs` followed by unconditional `$defaultOutput` become `outputs`; `$title` becomes `name`, while `$position` and `$tags` remain extension data; global entering/leaving actions become flow-global actions. Unsupported content is reported by type, and original editor state is retained in `bloco.conteudo` (see `api`).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:1-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c7047dd3",
+      "action": "translate",
+      "new_text": "Convert editor export to published format; importer supplies the flow `id`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:121-121; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8af9f40d",
+      "action": "translate",
+      "new_text": "Read any Blip flow format: editor export, published `applicationJson` (`{ settings: { flow } }`), `{ flow: { states } }`, or direct `Flow`. Published format passes through unchanged because the engine reads Blip natively.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:133-137; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-947e7573",
+      "action": "translate",
+      "new_text": "Content types currently sent by Pipe channels; typing passes through without effect.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/fluxo/editor.ts:151-151; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d67d6587",
+      "action": "translate",
+      "new_text": "Actions that execute without effect in Pipe, listed explicitly so they do not appear functional.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.ts:154-154; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4fc5dccb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/editor.ts:160-160",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-47e166bf",
+      "action": "translate",
+      "new_text": "Action types Pipe cannot execute; the engine throws at runtime.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.ts:162-162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-29ceb3e8",
+      "action": "translate",
+      "new_text": "Action types that execute without effect in Pipe.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.ts:164-164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-72f5ec63",
+      "action": "translate",
+      "new_text": "Report what Pipe can and cannot execute from a flow, using type names and counts only.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.ts:174-174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-4d4734a1",
+      "action": "translate",
+      "new_text": "Local actions run only through the Builder agent (`ProcessCommandInputAsync`), not normal conversation processing.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:231-231; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0742e82d",
+      "action": "translate",
+      "new_text": "Variable sources lacking a Pipe provider, such as `{{calendar.x}}` and `{{resource.x}}`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/editor.ts:244-244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1ba89cbf",
+      "action": "translate",
+      "new_text": "Editor exports store `flow` as a STATE MAP rather than `states[]`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:54-54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-8c17d24b",
+      "action": "translate",
+      "new_text": "Remove editor-only keys (`$id`, `$invalid`, `$cardContent`, etc.) while retaining model keys.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:65-65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-75e0c0df",
+      "action": "translate",
+      "new_text": "An exit without a destination does not become a transition: Blip Builder stores it in",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:86-86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1114c1fc",
+      "action": "translate",
+      "new_text": "a newly created attendance block (the \"Saídas de atendimento\" have no destination",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:87-87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-18b4a59b",
+      "action": "translate",
+      "new_text": "block yet) or in a draft where the user has not selected \"Direcionar para",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:88-88; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-77e97743",
+      "action": "translate",
+      "new_text": "bloco\". The engine would never take it; the UI flags the missing destination.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/editor.ts:89-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6d0bb689",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` because Pipe has no script action; assertions inspect context and output rather than mock calls.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.teste.ts:1-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ad5d8259",
+      "action": "translate",
+      "new_text": "Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to unsupported `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:1-17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-2fab9c51",
+      "action": "translate",
+      "new_text": "`BuilderException`: engine error carrying the trace up to the failure.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:113-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e72fb8dd",
+      "action": "translate",
+      "new_text": "`FlowManager.ProcessInputAsync` processes ONE user input. The `api` loads and stores state and variables in `contexto.variaveis`. Return the trace, or throw `ErroDoMotor` with the trace up to the error.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:156-161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-93a21268",
+      "action": "translate",
+      "new_text": "Restore stored state; use the root if absent or missing from this flow.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:179-179; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-32ed0dfb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:222-222",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-f9ebe2f2",
+      "action": "translate",
+      "new_text": "`RedirectToParentFlowAsync`: the source throws when there is no parent flow.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:240-240; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-31834aff",
+      "action": "translate",
+      "new_text": "Run after-state-change actions only when the state actually changed.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:249-249; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-79a45754",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:292-292",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-3c9ff46f",
+      "action": "translate",
+      "new_text": "Guard against a flow loop.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:305-305; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-bf905757",
+      "action": "translate",
+      "new_text": "Continue while the next state does not await input.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:315-315; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-7b564ce2",
+      "action": "translate",
+      "new_text": "`OrderBy` is stable, as is `sort`: without `order`, retain file order.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:369-369; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-9d951041",
+      "action": "translate",
+      "new_text": "`ExecuteTemplate` receives the raw template; other actions receive substituted variables.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:395-395; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6fba4d8e",
+      "action": "translate",
+      "new_text": "`ConventionsConfiguration` values match the source.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:41-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a1b95eff",
+      "action": "translate",
+      "new_text": "`MaxTransitionsByInput` guards against loops.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:43-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a12e97f6",
+      "action": "translate",
+      "new_text": "`ProcessOutputsAsync`: the first matching output wins; none produces a null state.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:436-436; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a04d204a",
+      "action": "translate",
+      "new_text": "`DefaultActionExecutionTimeout` applies when an action supplies none.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:47-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-3e4fbb52",
+      "action": "translate",
+      "new_text": "`ValidateInputAsync`: invalid input sends an error message and stops; the user remains in the same state.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:472-475; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-58aec1e8",
+      "action": "translate",
+      "new_text": "In Blip, an error containing `{{variável}}` is sent with `#message.spinText` and the server",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:481-481; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-e8967c55",
+      "action": "translate",
+      "new_text": "substitutes the variable; here no server intervenes, so substitution happens first.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/core/src/fluxo/gerenciador.ts:482-482; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

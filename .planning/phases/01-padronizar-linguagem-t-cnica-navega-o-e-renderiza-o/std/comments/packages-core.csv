@@ -337,13 +337,13 @@ packages-core-comment-725d4bf6,packages-core,packages/core/src/esforco/regua.ts,
 packages-core-comment-1c0babe4,packages-core,packages/core/src/esforco/regua.ts,77,77,jsdoc,1,"/** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */",translate,"Canned-response characters, reported separately and excluded from effort.",other,packages/core/src/esforco/regua.ts:77-77,codex,reviewed
 packages-core-comment-824dd6e1,packages-core,packages/core/src/esforco/regua.ts,79,79,jsdoc,2,"/** Esforço total em segundos, sem o que veio de resposta pronta. */",translate,"Total effort in seconds, excluding canned responses.",other,packages/core/src/esforco/regua.ts:79-79,codex,reviewed
 packages-core-comment-42bc090f,packages-core,packages/core/src/esforco/regua.ts,81,81,jsdoc,2,/** O que a resposta pronta acrescentaria se fosse contada como digitação. */,translate,Effort that canned-response text would add if counted as typing.,other,packages/core/src/esforco/regua.ts:81-81,codex,reviewed
-packages-core-comment-a850c3e7,packages-core,packages/core/src/esforco/regua.ts,83,83,jsdoc,2,/** Áudios que entraram com duração zero por falta de metadado e de tamanho. */,,,,,,
-packages-core-comment-e9ecca48,packages-core,packages/core/src/esforco/regua.ts,87,87,jsdoc,2,/** Segundos de digitação para uma quantidade de caracteres. */,,,,,,
-packages-core-comment-fae8dc02,packages-core,packages/core/src/esforco/regua.ts,92,92,jsdoc,2,/** Segundos de leitura para uma quantidade de caracteres. */,,,,,,
+packages-core-comment-a850c3e7,packages-core,packages/core/src/esforco/regua.ts,83,83,jsdoc,2,/** Áudios que entraram com duração zero por falta de metadado e de tamanho. */,translate,Audio files recorded with zero duration because both duration metadata and size were missing.,other,packages/core/src/esforco/regua.ts:83-83,codex,reviewed
+packages-core-comment-e9ecca48,packages-core,packages/core/src/esforco/regua.ts,87,87,jsdoc,2,/** Segundos de digitação para uma quantidade de caracteres. */,remove,,other,packages/core/src/esforco/regua.ts:87-87,codex,reviewed
+packages-core-comment-fae8dc02,packages-core,packages/core/src/esforco/regua.ts,92,92,jsdoc,2,/** Segundos de leitura para uma quantidade de caracteres. */,remove,,other,packages/core/src/esforco/regua.ts:92-92,codex,reviewed
 packages-core-comment-5299fc73,packages-core,packages/core/src/esforco/regua.ts,97,100,jsdoc,7,"/**
  * Duração de um áudio: metadado quando existe, estimativa por tamanho quando não.
  * Sem nenhum dos dois, devolve `null` — a régua não inventa duração.
- */",,,,,,
+ */",translate,"Audio duration comes from metadata when available, otherwise estimated from size. Without either, return null rather than inventing a duration.",architecture,packages/core/src/esforco/regua.ts:97-100; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-0f62014b,packages-core,packages/core/src/esforco/sessao.ts,1,10,jsdoc,7,"/**
  * Régua de apoio: tempo em sessão (Anexo B.2).
  *
@@ -353,23 +353,23 @@ packages-core-comment-0f62014b,packages-core,packages/core/src/esforco/sessao.ts
  *
  * As duas réguas convergem nos tickets conversados (11–13 min medidos em
  * produção) e uma valida a outra.
- */",,,,,,
-packages-core-comment-e5863be7,packages-core,packages/core/src/esforco/sessao.ts,14,14,jsdoc,1,/** Limite padrão entre duas mensagens para o tempo continuar contando. */,,,,,,
+ */",translate,"Supporting session-time measure from Annex B.2. Across all chats, sum gaps between consecutive agent messages sent during a day when each gap is at most 10 minutes; longer gaps are breaks. This and the effort measure converge for handled tickets at the 11–13 minutes observed in production, providing a cross-check.",architecture,packages/core/src/esforco/sessao.ts:1-10; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-e5863be7,packages-core,packages/core/src/esforco/sessao.ts,14,14,jsdoc,1,/** Limite padrão entre duas mensagens para o tempo continuar contando. */,translate,Default maximum gap between two messages that still counts as active session time.,other,packages/core/src/esforco/sessao.ts:14-14,codex,reviewed
 packages-core-comment-464a775f,packages-core,packages/core/src/esforco/sessao.ts,31,37,jsdoc,7,"/**
  * Soma os intervalos consecutivos de até `limiteSeg`.
  *
  * Uma mensagem sozinha vale zero segundo: o método mede intervalo entre
  * mensagens, não presença. Isso é conservador de propósito — inflar sessão
  * infla a ocupação e faz o atendente parecer mais folgado do que está.
- */",,,,,,
-packages-core-comment-37999f11,packages-core,packages/core/src/esforco/sessao.ts,87,87,jsdoc,2,/** Esforço ÷ sessão. `null` quando não houve sessão medida. */,,,,,,
-packages-core-comment-db4df82c,packages-core,packages/core/src/esforco/sessao.ts,89,89,jsdoc,0,"/** Esforço ÷ tickets, média ponderada por construção (§5). */",,,,,,
+ */",translate,"Sum consecutive gaps of at most `limiteSeg`. A single message adds zero seconds: this measures gaps, not mere presence. The conservative choice avoids inflating session time and making an agent seem less occupied than they are.",architecture,packages/core/src/esforco/sessao.ts:31-37; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-37999f11,packages-core,packages/core/src/esforco/sessao.ts,87,87,jsdoc,2,/** Esforço ÷ sessão. `null` quando não houve sessão medida. */,translate,Effort divided by measured session time; null when no session was measured.,other,packages/core/src/esforco/sessao.ts:87-87,codex,reviewed
+packages-core-comment-db4df82c,packages-core,packages/core/src/esforco/sessao.ts,89,89,jsdoc,0,"/** Esforço ÷ tickets, média ponderada por construção (§5). */",translate,"Effort divided by tickets, a weighted average by construction (§5).",architecture,packages/core/src/esforco/sessao.ts:89-89; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-b20fe460,packages-core,packages/core/src/esforco/sessao.ts,97,102,jsdoc,1,"/**
  * Consolida o dia de um atendente.
  *
  * Média ponderada por construção: soma de todo o esforço ÷ soma de todos os
  * tickets. Nunca média de médias — dia cheio pesa mais.
- */",,,,,,
+ */",translate,"Consolidate an agent's day. The weighted mean is total effort divided by total tickets, never the mean of daily means; a busy day carries more weight.",architecture,packages/core/src/esforco/sessao.ts:97-102; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-19838e1a,packages-core,packages/core/src/fluxo/acoes.ts,1,13,jsdoc,6,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs,
@@ -382,37 +382,37 @@ packages-core-comment-19838e1a,packages-core,packages/core/src/fluxo/acoes.ts,1,
  * entrada); `ForwardToDesk` e `LeavingFromDesk` NÃO estão no SDK — são ações do
  * servidor da Blip usadas pelo bloco de atendimento do editor, e o comportamento foi
  * copiado da forma desse bloco no export (variável `desk_forwardToDeskState_status`).
- */",,,,,,
-packages-core-comment-70e8d01a,packages-core,packages/core/src/fluxo/acoes.ts,108,108,jsdoc,1,/** `TrackEventAction`: `category` e `action` são obrigatórios. */,,,,,,
-packages-core-comment-1fd3a68f,packages-core,packages/core/src/fluxo/acoes.ts,138,138,jsdoc,2,/** A variável que o bloco de atendimento do editor da Blip testa na entrada e na saída. */,,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.",meta-blip,packages/core/src/fluxo/acoes.ts:1-13; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-70e8d01a,packages-core,packages/core/src/fluxo/acoes.ts,108,108,jsdoc,1,/** `TrackEventAction`: `category` e `action` são obrigatórios. */,translate,`TrackEventAction` requires `category` and `action`.,meta-blip,packages/core/src/fluxo/acoes.ts:108-108; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-1fd3a68f,packages-core,packages/core/src/fluxo/acoes.ts,138,138,jsdoc,2,/** A variável que o bloco de atendimento do editor da Blip testa na entrada e na saída. */,translate,Variable tested by the Blip editor's attendance block on entry and exit.,meta-blip,packages/core/src/fluxo/acoes.ts:138-138; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-274c35e4,packages-core,packages/core/src/fluxo/acoes.ts,141,145,jsdoc,6,"/**
  * `ForwardToDesk` (servidor da Blip). No bloco de atendimento do editor, a entrada só é
  * esperada se esta variável for `Success`, e a saída padrão é `Error` — por isso a
  * falha vira valor da variável, e não exceção.
- */",,,,,,
-packages-core-comment-b2553703,packages-core,packages/core/src/fluxo/acoes.ts,162,162,jsdoc,2,/** `LeavingFromDesk` (servidor da Blip): no Pipe o atendimento já foi encerrado pelo Desk. */,,,,,,
+ */",translate,"Blip server `ForwardToDesk`: the editor attendance block expects entry only when this variable is `Success`, and its default exit is `Error`. A failure therefore becomes a variable value rather than an exception.",meta-blip,packages/core/src/fluxo/acoes.ts:141-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-b2553703,packages-core,packages/core/src/fluxo/acoes.ts,162,162,jsdoc,2,/** `LeavingFromDesk` (servidor da Blip): no Pipe o atendimento já foi encerrado pelo Desk. */,translate,"Blip server `LeavingFromDesk`: in Pipe, Desk has already closed the ticket.",meta-blip,packages/core/src/fluxo/acoes.ts:162-162; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-356b6756,packages-core,packages/core/src/fluxo/acoes.ts,168,173,jsdoc,2,"/**
  * `RedirectAction` (Actions/Redirect/RedirectAction.cs): as configurações são o documento
  * `Redirect` do LIME (`application/vnd.lime.redirect+json`) — `address` é o NOME do serviço
  * no roteador (`blip-api-schemas.md` §5.4) e `context` vai junto. Quem muda o contato de
  * serviço é o `ServicosDoMotor`; sem roteador, falha, como na Blip.
- */",,,,,,
+ */",translate,"`RedirectAction` settings are a LIME `Redirect` document (`application/vnd.lime.redirect+json`). `address` is the router service NAME (`blip-api-schemas.md` §5.4) and `context` accompanies it. `ServicosDoMotor` moves the contact to another service; without a router this fails, as in Blip.",meta-blip,packages/core/src/fluxo/acoes.ts:168-173; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-126c9696,packages-core,packages/core/src/fluxo/acoes.ts,187,191,jsdoc,5,"/**
  * `ProcessHttpAction` da Blip: status HTTP, inclusive 4xx/5xx, vira variável e não
  * falha a ação; erro de rede é representado pela resposta sintética do serviço.
  * A chamada fica no serviço injetado para o motor continuar puro.
- */",,,,,,
-packages-core-comment-6d6b7769,packages-core,packages/core/src/fluxo/acoes.ts,246,246,jsdoc,1,/** O `ActionProvider` padrão: as ações que o Pipe executa. */,,,,,,
-packages-core-comment-9cd7f596,packages-core,packages/core/src/fluxo/acoes.ts,249,249,jsdoc,2,"/** `ActionProvider.Get`: tipo sem implementação é erro, não ação ignorada. */",,,,,,
-packages-core-comment-fa6bbddb,packages-core,packages/core/src/fluxo/acoes.ts,28,28,jsdoc,1,/** O Newtonsoft casa propriedade sem diferenciar maiúscula (`Variable`/`variable`). */,,,,,,
-packages-core-comment-4fc1e44e,packages-core,packages/core/src/fluxo/acoes.ts,38,38,jsdoc,0,/** `ActionBase.ExecuteAsync`: configuração nula é erro antes de qualquer coisa. */,,,,,,
-packages-core-comment-715a8275,packages-core,packages/core/src/fluxo/acoes.ts,77,77,line,1,"// ponytail: o original espera o `interval` do ""digitando"" (Task.Delay). Aqui não:",,,,,,
-packages-core-comment-733e6953,packages-core,packages/core/src/fluxo/acoes.ts,78,78,line,1,"// o motor roda dentro da transação da entrada, e segurar conexão por isso é caro.",,,,,,
+ */",translate,"Blip `ProcessHttpAction`: HTTP status, including 4xx/5xx, becomes a variable rather than failing the action; network failure is represented by a synthetic service response. The injected service performs the call so the engine remains pure.",meta-blip,packages/core/src/fluxo/acoes.ts:187-191; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6d6b7769,packages-core,packages/core/src/fluxo/acoes.ts,246,246,jsdoc,1,/** O `ActionProvider` padrão: as ações que o Pipe executa. */,translate,Default `ActionProvider` containing actions Pipe executes.,meta-blip,packages/core/src/fluxo/acoes.ts:246-246; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-9cd7f596,packages-core,packages/core/src/fluxo/acoes.ts,249,249,jsdoc,2,"/** `ActionProvider.Get`: tipo sem implementação é erro, não ação ignorada. */",translate,"`ActionProvider.Get` treats an unimplemented type as an error, never an ignored action.",meta-blip,packages/core/src/fluxo/acoes.ts:249-249; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-fa6bbddb,packages-core,packages/core/src/fluxo/acoes.ts,28,28,jsdoc,1,/** O Newtonsoft casa propriedade sem diferenciar maiúscula (`Variable`/`variable`). */,translate,Newtonsoft matches property names without case sensitivity (`Variable`/`variable`).,integration,packages/core/src/fluxo/acoes.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4fc1e44e,packages-core,packages/core/src/fluxo/acoes.ts,38,38,jsdoc,0,/** `ActionBase.ExecuteAsync`: configuração nula é erro antes de qualquer coisa. */,translate,`ActionBase.ExecuteAsync` rejects null configuration before any work.,meta-blip,packages/core/src/fluxo/acoes.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-715a8275,packages-core,packages/core/src/fluxo/acoes.ts,77,77,line,1,"// ponytail: o original espera o `interval` do ""digitando"" (Task.Delay). Aqui não:",translate,"ponytail: unlike the source, do not await typing `interval` (`Task.Delay`) here:",meta-blip,packages/core/src/fluxo/acoes.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-733e6953,packages-core,packages/core/src/fluxo/acoes.ts,78,78,line,1,"// o motor roda dentro da transação da entrada, e segurar conexão por isso é caro.",translate,"the engine runs inside the inbound transaction, and holding a connection for typing is costly.",meta-blip,packages/core/src/fluxo/acoes.ts:78-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-3aa69e75,packages-core,packages/core/src/fluxo/condicao.teste.ts,1,5,jsdoc,0,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs e ConditionTests.cs
  * — modificado: xUnit/Shouldly → vitest; mensagens de validação em português.
- */",,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs and ConditionTests.cs. Changes: xUnit/Shouldly to vitest; validation messages remain Portuguese.",meta-blip,packages/core/src/fluxo/condicao.teste.ts:1-5; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-a7abdd28,packages-core,packages/core/src/fluxo/condicao.ts,1,9,jsdoc,4,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs,
@@ -421,30 +421,30 @@ packages-core-comment-a7abdd28,packages-core,packages/core/src/fluxo/condicao.ts
  * (camelCase, como o Newtonsoft grava, lidas sem diferenciar maiúscula); mensagens de
  * erro em português; `decimal.TryParse` virou `paraDecimal`; a regex não tem o limite
  * de 2 minutos do original (JS não tem timeout de regex).
- */",,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs, ValueSource.cs, ConditionsExtensions.cs, and StringExtensions.cs. Changes from C# to TypeScript: enum values become strings from published Blip JSON (Newtonsoft camelCase and case-insensitive reads); error messages remain Portuguese; `decimal.TryParse` becomes `paraDecimal`; JavaScript regex has no original two-minute timeout.",meta-blip,packages/core/src/fluxo/condicao.ts:1-9; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-88f0c542,packages-core,packages/core/src/fluxo/condicao.ts,108,111,jsdoc,1,"/**
  * `CompareOptions.IgnoreNonSpace | IgnoreCase` com cultura invariante: ignora
  * maiúscula e acento. O colador em `base` é o equivalente do JS.
- */",,,,,,
-packages-core-comment-91945080,packages-core,packages/core/src/fluxo/condicao.ts,120,120,jsdoc,2,"/** `StringComparison.OrdinalIgnoreCase` compara pela maiúscula invariante, sem ignorar acento. */",,,,,,
+ */",translate,Invariant-culture `CompareOptions.IgnoreNonSpace | IgnoreCase` ignores case and accents; JS collator sensitivity `base` is the equivalent.,integration,packages/core/src/fluxo/condicao.ts:108-111; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-91945080,packages-core,packages/core/src/fluxo/condicao.ts,120,120,jsdoc,2,"/** `StringComparison.OrdinalIgnoreCase` compara pela maiúscula invariante, sem ignorar acento. */",translate,`StringComparison.OrdinalIgnoreCase` compares with invariant uppercase without ignoring accents.,integration,packages/core/src/fluxo/condicao.ts:120-120; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-e22e8f9e,packages-core,packages/core/src/fluxo/condicao.ts,123,129,jsdoc,4,"/**
  * `decimal.TryParse` com cultura invariante: ponto decimal, vírgula de milhar, sinal e
  * espaço nas pontas. Devolve `null` onde o C# devolveria `false`.
  *
  * ponytail: a cultura do servidor da Blip não é conhecida; invariante é o palpite. Se
  * um fluxo real comparar ""1,5"" esperando 1.5, é aqui que muda.
- */",,,,,,
-packages-core-comment-0dc29501,packages-core,packages/core/src/fluxo/condicao.ts,14,14,jsdoc,2,/** `ConditionComparison`. A ordem é a do enum original; o primeiro é o padrão. */,,,,,,
-packages-core-comment-12ffc20b,packages-core,packages/core/src/fluxo/condicao.ts,195,195,line,2,// ponytail: sem o timeout de 2 min do original. Regex escrita pelo dono do fluxo,,,,,,
-packages-core-comment-04ae8a83,packages-core,packages/core/src/fluxo/condicao.ts,196,196,line,0,"// contra texto do cliente; se aparecer backtracking catastrófico, rodar em worker.",,,,,,
-packages-core-comment-6e7ecb61,packages-core,packages/core/src/fluxo/condicao.ts,199,199,line,0,// Aceita diferença de 25% do texto.,,,,,,
-packages-core-comment-e3f5c982,packages-core,packages/core/src/fluxo/condicao.ts,244,244,line,5,// Sem provedor de IA no Pipe: é o mesmo que a Blip devolve quando a análise falha.,,,,,,
-packages-core-comment-93ef0143,packages-core,packages/core/src/fluxo/condicao.ts,260,260,line,2,"// O original trata `notEquals` com `or` como ""diferente de todos"", não ""de algum"".",,,,,,
-packages-core-comment-a7aec575,packages-core,packages/core/src/fluxo/condicao.ts,32,32,jsdoc,0,/** `ConditionOperator`: `or` é o padrão (o primeiro valor do enum). */,,,,,,
-packages-core-comment-4f186217,packages-core,packages/core/src/fluxo/condicao.ts,36,36,jsdoc,0,/** `ValueSource`: `input` é o padrão. */,,,,,,
-packages-core-comment-9ae1d92e,packages-core,packages/core/src/fluxo/condicao.ts,40,40,jsdoc,1,"/** `Condition`, com as chaves exatamente como vêm no JSON da Blip. */",,,,,,
-packages-core-comment-4f4bcfcd,packages-core,packages/core/src/fluxo/condicao.ts,57,57,jsdoc,1,/** O Newtonsoft lê enum sem diferenciar maiúscula; valor desconhecido é erro de leitura. */,,,,,,
-packages-core-comment-cbe6017b,packages-core,packages/core/src/fluxo/condicao.ts,75,75,jsdoc,1,/** `GetComparisonType`: só `exists` e `notExists` são unárias. */,,,,,,
+ */",translate,"Invariant-culture `decimal.TryParse` accepts decimal dots, thousands commas, signs, and surrounding spaces; return null where C# would return false. ponytail: Blip server culture is unknown, so invariant is an assumption. If a real flow expects ""1,5"" to mean 1.5, change parsing here.",meta-blip,packages/core/src/fluxo/condicao.ts:123-129; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-0dc29501,packages-core,packages/core/src/fluxo/condicao.ts,14,14,jsdoc,2,/** `ConditionComparison`. A ordem é a do enum original; o primeiro é o padrão. */,translate,`ConditionComparison` order follows the original enum; its first value is the default.,meta-blip,packages/core/src/fluxo/condicao.ts:14-14; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-12ffc20b,packages-core,packages/core/src/fluxo/condicao.ts,195,195,line,2,// ponytail: sem o timeout de 2 min do original. Regex escrita pelo dono do fluxo,translate,ponytail: there is no original two-minute timeout. A flow owner's regex runs,security,packages/core/src/fluxo/condicao.ts:195-195; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-04ae8a83,packages-core,packages/core/src/fluxo/condicao.ts,196,196,line,0,"// contra texto do cliente; se aparecer backtracking catastrófico, rodar em worker.",translate,against customer text; move it to a worker if catastrophic backtracking appears.,security,packages/core/src/fluxo/condicao.ts:196-196; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6e7ecb61,packages-core,packages/core/src/fluxo/condicao.ts,199,199,line,0,// Aceita diferença de 25% do texto.,translate,Allows a 25% difference in the text.,other,packages/core/src/fluxo/condicao.ts:199-199,codex,reviewed
+packages-core-comment-e3f5c982,packages-core,packages/core/src/fluxo/condicao.ts,244,244,line,5,// Sem provedor de IA no Pipe: é o mesmo que a Blip devolve quando a análise falha.,translate,Pipe has no AI provider here; this matches Blip's result when analysis fails.,meta-blip,packages/core/src/fluxo/condicao.ts:244-244; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-93ef0143,packages-core,packages/core/src/fluxo/condicao.ts,260,260,line,2,"// O original trata `notEquals` com `or` como ""diferente de todos"", não ""de algum"".",translate,"The source treats `notEquals` with `or` as different from every value, not merely from some value.",meta-blip,packages/core/src/fluxo/condicao.ts:260-260; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a7aec575,packages-core,packages/core/src/fluxo/condicao.ts,32,32,jsdoc,0,/** `ConditionOperator`: `or` é o padrão (o primeiro valor do enum). */,translate,"`ConditionOperator`: `or` is the default, first enum value.",meta-blip,packages/core/src/fluxo/condicao.ts:32-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4f186217,packages-core,packages/core/src/fluxo/condicao.ts,36,36,jsdoc,0,/** `ValueSource`: `input` é o padrão. */,translate,`ValueSource`: `input` is the default.,meta-blip,packages/core/src/fluxo/condicao.ts:36-36; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-9ae1d92e,packages-core,packages/core/src/fluxo/condicao.ts,40,40,jsdoc,1,"/** `Condition`, com as chaves exatamente como vêm no JSON da Blip. */",translate,`Condition` keys match Blip JSON exactly.,meta-blip,packages/core/src/fluxo/condicao.ts:40-40; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4f4bcfcd,packages-core,packages/core/src/fluxo/condicao.ts,57,57,jsdoc,1,/** O Newtonsoft lê enum sem diferenciar maiúscula; valor desconhecido é erro de leitura. */,translate,Newtonsoft reads enum values case-insensitively; unknown values are parse errors.,integration,packages/core/src/fluxo/condicao.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-cbe6017b,packages-core,packages/core/src/fluxo/condicao.ts,75,75,jsdoc,1,/** `GetComparisonType`: só `exists` e `notExists` são unárias. */,translate,`GetComparisonType`: only `exists` and `notExists` are unary.,meta-blip,packages/core/src/fluxo/condicao.ts:75-75; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-d16814c4,packages-core,packages/core/src/fluxo/contexto.ts,1,12,jsdoc,9,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs,
@@ -456,40 +456,40 @@ packages-core-comment-d16814c4,packages-core,packages/core/src/fluxo/contexto.ts
  * nulas); a expiração de variável não é guardada; provedores que dependem de serviço da
  * Blip (bucket, resource, tunnel, calendar, secret…) não existem e lançam, como o
  * original lança para fonte sem provedor.
- */",,,,,,
-packages-core-comment-4e86f53c,packages-core,packages/core/src/fluxo/contexto.ts,100,100,jsdoc,2,"/** `SendRawMessage`: o conteúdo é o texto serializado, a desserializar pelo tipo. */",,,,,,
-packages-core-comment-9da3c849,packages-core,packages/core/src/fluxo/contexto.ts,104,104,jsdoc,0,/** O atendimento humano aberto. É o `Ticket` da Blip. */,,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, resource, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider.",meta-blip,packages/core/src/fluxo/contexto.ts:1-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4e86f53c,packages-core,packages/core/src/fluxo/contexto.ts,100,100,jsdoc,2,"/** `SendRawMessage`: o conteúdo é o texto serializado, a desserializar pelo tipo. */",translate,`SendRawMessage`: content is serialized text to deserialize according to its type.,meta-blip,packages/core/src/fluxo/contexto.ts:100-100; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-9da3c849,packages-core,packages/core/src/fluxo/contexto.ts,104,104,jsdoc,0,/** O atendimento humano aberto. É o `Ticket` da Blip. */,translate,"Open human ticket, corresponding to Blip `Ticket`.",meta-blip,packages/core/src/fluxo/contexto.ts:104-104; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-2a59ad74,packages-core,packages/core/src/fluxo/contexto.ts,132,135,jsdoc,2,"/**
  * As dependências externas do motor — o `ISender` e as extensões da Blip. Quem
  * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
- */",,,,,,
-packages-core-comment-cc781b95,packages-core,packages/core/src/fluxo/contexto.ts,143,143,jsdoc,3,/** A api executa isto; o core só descreve a chamada e não faz rede. */,,,,,,
-packages-core-comment-79c3ba8a,packages-core,packages/core/src/fluxo/contexto.ts,145,145,jsdoc,4,/** A API grava o cursor e chama a rede depois que a transação termina. */,,,,,,
+ */",translate,External engine dependencies mirror Blip `ISender` and extensions. The `api` implements them; network actions must run outside the inbound transaction.,architecture,packages/core/src/fluxo/contexto.ts:132-135; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-cc781b95,packages-core,packages/core/src/fluxo/contexto.ts,143,143,jsdoc,3,/** A api executa isto; o core só descreve a chamada e não faz rede. */,translate,The `api` executes the request; core only describes it and performs no network access.,architecture,packages/core/src/fluxo/contexto.ts:143-143; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-79c3ba8a,packages-core,packages/core/src/fluxo/contexto.ts,145,145,jsdoc,4,/** A API grava o cursor e chama a rede depois que a transação termina. */,translate,The API stores the cursor and calls the network after the transaction ends.,architecture,packages/core/src/fluxo/contexto.ts:145-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-33719dfc,packages-core,packages/core/src/fluxo/contexto.ts,147,151,jsdoc,3,"/**
    * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
    * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — ""o
    * redirecionamento funciona apenas no Bot Router"" (help.blip.ai).
-   */",,,,,,
-packages-core-comment-e8643495,packages-core,packages/core/src/fluxo/contexto.ts,166,166,jsdoc,0,"/** O contexto do usuário, persistido. Na Blip, tudo aqui é texto. */",,,,,,
-packages-core-comment-60352848,packages-core,packages/core/src/fluxo/contexto.ts,168,168,jsdoc,1,"/** `InputContext`: vale só durante esta entrada (estado atual, ticket criado…). */",,,,,,
-packages-core-comment-7effc8e7,packages-core,packages/core/src/fluxo/contexto.ts,170,170,jsdoc,0,"/** O contato no vocabulário da Blip (`name`, `phoneNumber`, `email`, `extras`…). */",,,,,,
-packages-core-comment-f065ac5c,packages-core,packages/core/src/fluxo/contexto.ts,172,172,jsdoc,1,"/** Provedores extras, ou para trocar os padrão. */",,,,,,
+   */",translate,"`IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: ""o redirecionamento funciona apenas no Bot Router"" (help.blip.ai).",meta-blip,packages/core/src/fluxo/contexto.ts:147-151; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-e8643495,packages-core,packages/core/src/fluxo/contexto.ts,166,166,jsdoc,0,"/** O contexto do usuário, persistido. Na Blip, tudo aqui é texto. */",translate,Persisted user context; Blip stores every value here as text.,meta-blip,packages/core/src/fluxo/contexto.ts:166-166; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-60352848,packages-core,packages/core/src/fluxo/contexto.ts,168,168,jsdoc,1,"/** `InputContext`: vale só durante esta entrada (estado atual, ticket criado…). */",translate,"`InputContext` lasts only for this input, including current state and created ticket.",meta-blip,packages/core/src/fluxo/contexto.ts:168-168; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7effc8e7,packages-core,packages/core/src/fluxo/contexto.ts,170,170,jsdoc,0,"/** O contato no vocabulário da Blip (`name`, `phoneNumber`, `email`, `extras`…). */",translate,"Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.).",meta-blip,packages/core/src/fluxo/contexto.ts:170-170; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f065ac5c,packages-core,packages/core/src/fluxo/contexto.ts,172,172,jsdoc,1,"/** Provedores extras, ou para trocar os padrão. */",translate,Extra providers or replacements for defaults.,architecture,packages/core/src/fluxo/contexto.ts:172-172; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-43056de7,packages-core,packages/core/src/fluxo/contexto.ts,191,194,jsdoc,3,"/**
  * `SetVariableAsync`. ponytail: a expiração (`expiration`) do original não é guardada —
  * a variável vale até ser apagada ou sobrescrita. Guardar exige carimbo por chave.
- */",,,,,,
-packages-core-comment-07929566,packages-core,packages/core/src/fluxo/contexto.ts,218,218,jsdoc,2,"/** Lê o estado guardado num contexto já persistido, sem montar `Contexto`. */",,,,,,
-packages-core-comment-926acd4f,packages-core,packages/core/src/fluxo/contexto.ts,227,227,jsdoc,1,"/** `VariableName.Parse`: `fonte.nome@propriedade`; sem fonte, é variável de contexto. */",,,,,,
-packages-core-comment-f772a57e,packages-core,packages/core/src/fluxo/contexto.ts,249,249,jsdoc,3,/** `GetJsonProperty`: a propriedade (com pontos) de um valor que é objeto JSON. */,,,,,,
-packages-core-comment-61967412,packages-core,packages/core/src/fluxo/contexto.ts,266,266,jsdoc,1,/** Leitura de propriedade sem diferenciar maiúscula — o `GetProperty` por reflexão. */,,,,,,
-packages-core-comment-43410222,packages-core,packages/core/src/fluxo/contexto.ts,368,368,jsdoc,2,"/** `VariableReplacer.ReplaceAsync`: troca `{{nome}}` pelo valor, escapado para JSON. */",,,,,,
-packages-core-comment-763b16c0,packages-core,packages/core/src/fluxo/contexto.ts,38,38,jsdoc,2,"/** As fontes que têm provedor no Pipe. As demais lançam, como na Blip sem o provedor. */",,,,,,
-packages-core-comment-b10b4811,packages-core,packages/core/src/fluxo/contexto.ts,380,380,jsdoc,2,/** `EscapeString`: o valor entra dentro de uma string JSON e não pode quebrá-la. */,,,,,,
-packages-core-comment-ce26c409,packages-core,packages/core/src/fluxo/contexto.ts,48,48,jsdoc,2,"/** A mensagem que chegou, no vocabulário LIME: `tipo` é o MIME (`text/plain`…). */",,,,,,
-packages-core-comment-a105e120,packages-core,packages/core/src/fluxo/contexto.ts,73,73,jsdoc,1,"/** `SerializedContent`: texto puro como está, documento JSON serializado. */",,,,,,
-packages-core-comment-a31b2341,packages-core,packages/core/src/fluxo/editor.teste.ts,137,137,line,2,// O que não é suportado continua no fluxo: nada some na conversão.,,,,,,
-packages-core-comment-0d0939a9,packages-core,packages/core/src/fluxo/editor.teste.ts,16,16,jsdoc,0,"/** Fixture sintética, no formato do editor do Builder — nada de fluxo de cliente. */",,,,,,
-packages-core-comment-abd73263,packages-core,packages/core/src/fluxo/editor.teste.ts,204,204,line,0,// pos-atendimento → menu (saída padrão) manda o menu e espera.,,,,,,
+ */",translate,"`SetVariableAsync`. ponytail: source `expiration` is not persisted, so a variable lasts until deletion or overwrite. Persistence would require a timestamp per key.",meta-blip,packages/core/src/fluxo/contexto.ts:191-194; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-07929566,packages-core,packages/core/src/fluxo/contexto.ts,218,218,jsdoc,2,"/** Lê o estado guardado num contexto já persistido, sem montar `Contexto`. */",translate,Read stored state from already persisted context without constructing `Contexto`.,architecture,packages/core/src/fluxo/contexto.ts:218-218; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-926acd4f,packages-core,packages/core/src/fluxo/contexto.ts,227,227,jsdoc,1,"/** `VariableName.Parse`: `fonte.nome@propriedade`; sem fonte, é variável de contexto. */",translate,"`VariableName.Parse`: `fonte.nome@propriedade`; without a source, this is a context variable.",meta-blip,packages/core/src/fluxo/contexto.ts:227-227; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f772a57e,packages-core,packages/core/src/fluxo/contexto.ts,249,249,jsdoc,3,/** `GetJsonProperty`: a propriedade (com pontos) de um valor que é objeto JSON. */,translate,`GetJsonProperty`: dotted property path into a JSON object value.,meta-blip,packages/core/src/fluxo/contexto.ts:249-249; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-61967412,packages-core,packages/core/src/fluxo/contexto.ts,266,266,jsdoc,1,/** Leitura de propriedade sem diferenciar maiúscula — o `GetProperty` por reflexão. */,translate,"Case-insensitive property access, matching reflection-based `GetProperty`.",integration,packages/core/src/fluxo/contexto.ts:266-266; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-43410222,packages-core,packages/core/src/fluxo/contexto.ts,368,368,jsdoc,2,"/** `VariableReplacer.ReplaceAsync`: troca `{{nome}}` pelo valor, escapado para JSON. */",translate,`VariableReplacer.ReplaceAsync`: replace `{{nome}}` with its value escaped for JSON.,meta-blip,packages/core/src/fluxo/contexto.ts:368-368; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-763b16c0,packages-core,packages/core/src/fluxo/contexto.ts,38,38,jsdoc,2,"/** As fontes que têm provedor no Pipe. As demais lançam, como na Blip sem o provedor. */",translate,"Sources with providers in Pipe; others throw, as in Blip without a provider.",meta-blip,packages/core/src/fluxo/contexto.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-b10b4811,packages-core,packages/core/src/fluxo/contexto.ts,380,380,jsdoc,2,/** `EscapeString`: o valor entra dentro de uma string JSON e não pode quebrá-la. */,translate,`EscapeString`: the inserted value must not break the surrounding JSON string.,security,packages/core/src/fluxo/contexto.ts:380-380; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-ce26c409,packages-core,packages/core/src/fluxo/contexto.ts,48,48,jsdoc,2,"/** A mensagem que chegou, no vocabulário LIME: `tipo` é o MIME (`text/plain`…). */",translate,"Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.).",integration,packages/core/src/fluxo/contexto.ts:48-48; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a105e120,packages-core,packages/core/src/fluxo/contexto.ts,73,73,jsdoc,1,"/** `SerializedContent`: texto puro como está, documento JSON serializado. */",translate,"`SerializedContent`: plain text unchanged, JSON document serialized.",meta-blip,packages/core/src/fluxo/contexto.ts:73-73; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a31b2341,packages-core,packages/core/src/fluxo/editor.teste.ts,137,137,line,2,// O que não é suportado continua no fluxo: nada some na conversão.,translate,Unsupported content stays in the flow; conversion silently drops nothing.,architecture,packages/core/src/fluxo/editor.teste.ts:137-137; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-0d0939a9,packages-core,packages/core/src/fluxo/editor.teste.ts,16,16,jsdoc,0,"/** Fixture sintética, no formato do editor do Builder — nada de fluxo de cliente. */",translate,Synthetic fixture in Builder editor format; contains no customer flow.,meta-blip,packages/core/src/fluxo/editor.teste.ts:16-16; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-abd73263,packages-core,packages/core/src/fluxo/editor.teste.ts,204,204,line,0,// pos-atendimento → menu (saída padrão) manda o menu e espera.,translate,`pos-atendimento` → `menu` default exit sends the menu and waits.,meta-blip,packages/core/src/fluxo/editor.teste.ts:204-204; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-8abd7fee,packages-core,packages/core/src/fluxo/editor.ts,1,23,jsdoc,9,"/**
  * Importador: o export do EDITOR do Builder da Blip → o formato PUBLICADO que o motor lê.
  *
@@ -512,27 +512,27 @@ packages-core-comment-8abd7fee,packages-core,packages/core/src/fluxo/editor.ts,1
  *
  * Nada é descartado em silêncio: o que o Pipe não executa entra no relatório por tipo,
  * e o estado original do editor vai junto para o `bloco.conteudo` (ver `api`).
- */",,,,,,
-packages-core-comment-c7047dd3,packages-core,packages/core/src/fluxo/editor.ts,121,121,jsdoc,0,/** O export do editor no formato publicado. O `id` do fluxo é de quem importa. */,,,,,,
+ */",translate,"Importer converts a Blip Builder EDITOR export to the PUBLISHED format read by the engine. This is not a code port: `FlowManager` consumes `{ id, states: [{ inputActions, input, outputActions, outputs }] }`, while Builder ""Exportar"" returns `{ flow: { <id>: estado }, globalActions }` with `$contentActions`, `$conditionOutputs`, etc. Blip's proprietary portal converts between them; behavior here comes from comparing both formats. `$enteringCustomActions` followed by `$contentActions` actions become `inputActions` (before block content); the `input` item becomes `input`; `$leavingCustomActions`, `$afterStateChangedActions`, and `$localCustomActions` map to their matching action arrays; ordered `$conditionOutputs` followed by unconditional `$defaultOutput` become `outputs`; `$title` becomes `name`, while `$position` and `$tags` remain extension data; global entering/leaving actions become flow-global actions. Unsupported content is reported by type, and original editor state is retained in `bloco.conteudo` (see `api`).",meta-blip,packages/core/src/fluxo/editor.ts:1-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-c7047dd3,packages-core,packages/core/src/fluxo/editor.ts,121,121,jsdoc,0,/** O export do editor no formato publicado. O `id` do fluxo é de quem importa. */,translate,Convert editor export to published format; importer supplies the flow `id`.,meta-blip,packages/core/src/fluxo/editor.ts:121-121; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-8af9f40d,packages-core,packages/core/src/fluxo/editor.ts,133,137,jsdoc,2,"/**
  * Lê qualquer um dos formatos da Blip: export do editor, `applicationJson` publicado
  * (`{ settings: { flow } }`), `{ flow: { states } }` ou o `Flow` direto. O publicado é
  * identidade: o motor lê a Blip nativamente.
- */",,,,,,
-packages-core-comment-947e7573,packages-core,packages/core/src/fluxo/editor.ts,151,151,jsdoc,2,"/** Os tipos de conteúdo que o canal do Pipe manda hoje. O ""digitando"" passa sem efeito. */",,,,,,
-packages-core-comment-d67d6587,packages-core,packages/core/src/fluxo/editor.ts,154,154,jsdoc,5,"/** Ações que rodam e não fazem nada no Pipe, ditas aqui para não parecer que fazem. */",,,,,,
-packages-core-comment-4fc5dccb,packages-core,packages/core/src/fluxo/editor.ts,160,160,jsdoc,0,"/** Todas as ações, por tipo. */",,,,,,
-packages-core-comment-47e166bf,packages-core,packages/core/src/fluxo/editor.ts,162,162,jsdoc,2,"/** O que o motor do Pipe NÃO executa, por tipo — em tempo de execução, lança. */",,,,,,
-packages-core-comment-29ceb3e8,packages-core,packages/core/src/fluxo/editor.ts,164,164,jsdoc,2,/** O que roda sem efeito no Pipe. */,,,,,,
-packages-core-comment-72f5ec63,packages-core,packages/core/src/fluxo/editor.ts,174,174,jsdoc,3,"/** O que do fluxo o Pipe executa, e o que não. Só contagens e nomes de tipo. */",,,,,,
-packages-core-comment-4d4734a1,packages-core,packages/core/src/fluxo/editor.ts,231,231,line,3,"// Ação local só roda pelo agente do Builder (`ProcessCommandInputAsync`), não pela conversa.",,,,,,
-packages-core-comment-0742e82d,packages-core,packages/core/src/fluxo/editor.ts,244,244,line,1,"// Variáveis de fonte sem provedor no Pipe (`{{calendar.x}}`, `{{resource.x}}`…).",,,,,,
-packages-core-comment-1ba89cbf,packages-core,packages/core/src/fluxo/editor.ts,54,54,jsdoc,1,"/** O export do editor tem `flow` como MAPA de estados, e não `states[]`. */",,,,,,
-packages-core-comment-8c17d24b,packages-core,packages/core/src/fluxo/editor.ts,65,65,jsdoc,0,"/** Tira as chaves de editor (`$id`, `$invalid`, `$cardContent`…) e mantém as do modelo. */",,,,,,
-packages-core-comment-75e0c0df,packages-core,packages/core/src/fluxo/editor.ts,86,86,line,3,// Saída sem destino não vira transição: é o que o editor da Blip guarda no,,,,,,
-packages-core-comment-1114c1fc,packages-core,packages/core/src/fluxo/editor.ts,87,87,line,2,"// bloco de atendimento recém-criado (as ""Saídas de atendimento"" ainda sem",,,,,,
-packages-core-comment-18b4a59b,packages-core,packages/core/src/fluxo/editor.ts,88,88,line,5,"// bloco) e no rascunho em que a pessoa ainda não escolheu o ""Direcionar para",,,,,,
-packages-core-comment-77e97743,packages-core,packages/core/src/fluxo/editor.ts,89,89,line,3,"// bloco"". O motor nunca a tomaria; a tela é quem aponta que falta preencher.",,,,,,
+ */",translate,"Read any Blip flow format: editor export, published `applicationJson` (`{ settings: { flow } }`), `{ flow: { states } }`, or direct `Flow`. Published format passes through unchanged because the engine reads Blip natively.",meta-blip,packages/core/src/fluxo/editor.ts:133-137; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-947e7573,packages-core,packages/core/src/fluxo/editor.ts,151,151,jsdoc,2,"/** Os tipos de conteúdo que o canal do Pipe manda hoje. O ""digitando"" passa sem efeito. */",translate,Content types currently sent by Pipe channels; typing passes through without effect.,integration,packages/core/src/fluxo/editor.ts:151-151; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d67d6587,packages-core,packages/core/src/fluxo/editor.ts,154,154,jsdoc,5,"/** Ações que rodam e não fazem nada no Pipe, ditas aqui para não parecer que fazem. */",translate,"Actions that execute without effect in Pipe, listed explicitly so they do not appear functional.",architecture,packages/core/src/fluxo/editor.ts:154-154; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4fc5dccb,packages-core,packages/core/src/fluxo/editor.ts,160,160,jsdoc,0,"/** Todas as ações, por tipo. */",remove,,other,packages/core/src/fluxo/editor.ts:160-160,codex,reviewed
+packages-core-comment-47e166bf,packages-core,packages/core/src/fluxo/editor.ts,162,162,jsdoc,2,"/** O que o motor do Pipe NÃO executa, por tipo — em tempo de execução, lança. */",translate,Action types Pipe cannot execute; the engine throws at runtime.,architecture,packages/core/src/fluxo/editor.ts:162-162; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-29ceb3e8,packages-core,packages/core/src/fluxo/editor.ts,164,164,jsdoc,2,/** O que roda sem efeito no Pipe. */,translate,Action types that execute without effect in Pipe.,architecture,packages/core/src/fluxo/editor.ts:164-164; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-72f5ec63,packages-core,packages/core/src/fluxo/editor.ts,174,174,jsdoc,3,"/** O que do fluxo o Pipe executa, e o que não. Só contagens e nomes de tipo. */",translate,"Report what Pipe can and cannot execute from a flow, using type names and counts only.",architecture,packages/core/src/fluxo/editor.ts:174-174; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-4d4734a1,packages-core,packages/core/src/fluxo/editor.ts,231,231,line,3,"// Ação local só roda pelo agente do Builder (`ProcessCommandInputAsync`), não pela conversa.",translate,"Local actions run only through the Builder agent (`ProcessCommandInputAsync`), not normal conversation processing.",meta-blip,packages/core/src/fluxo/editor.ts:231-231; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-0742e82d,packages-core,packages/core/src/fluxo/editor.ts,244,244,line,1,"// Variáveis de fonte sem provedor no Pipe (`{{calendar.x}}`, `{{resource.x}}`…).",translate,"Variable sources lacking a Pipe provider, such as `{{calendar.x}}` and `{{resource.x}}`.",architecture,packages/core/src/fluxo/editor.ts:244-244; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-1ba89cbf,packages-core,packages/core/src/fluxo/editor.ts,54,54,jsdoc,1,"/** O export do editor tem `flow` como MAPA de estados, e não `states[]`. */",translate,Editor exports store `flow` as a STATE MAP rather than `states[]`.,meta-blip,packages/core/src/fluxo/editor.ts:54-54; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-8c17d24b,packages-core,packages/core/src/fluxo/editor.ts,65,65,jsdoc,0,"/** Tira as chaves de editor (`$id`, `$invalid`, `$cardContent`…) e mantém as do modelo. */",translate,"Remove editor-only keys (`$id`, `$invalid`, `$cardContent`, etc.) while retaining model keys.",meta-blip,packages/core/src/fluxo/editor.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-75e0c0df,packages-core,packages/core/src/fluxo/editor.ts,86,86,line,3,// Saída sem destino não vira transição: é o que o editor da Blip guarda no,translate,An exit without a destination does not become a transition: Blip Builder stores it in,meta-blip,packages/core/src/fluxo/editor.ts:86-86; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-1114c1fc,packages-core,packages/core/src/fluxo/editor.ts,87,87,line,2,"// bloco de atendimento recém-criado (as ""Saídas de atendimento"" ainda sem",translate,"a newly created attendance block (the ""Saídas de atendimento"" have no destination",meta-blip,packages/core/src/fluxo/editor.ts:87-87; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-18b4a59b,packages-core,packages/core/src/fluxo/editor.ts,88,88,line,5,"// bloco) e no rascunho em que a pessoa ainda não escolheu o ""Direcionar para",translate,"block yet) or in a draft where the user has not selected ""Direcionar para",meta-blip,packages/core/src/fluxo/editor.ts:88-88; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-77e97743,packages-core,packages/core/src/fluxo/editor.ts,89,89,line,3,"// bloco"". O motor nunca a tomaria; a tela é quem aponta que falta preencher.",translate,"bloco"". The engine would never take it; the UI flags the missing destination.",meta-blip,packages/core/src/fluxo/editor.ts:89-89; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-6d0bb689,packages-core,packages/core/src/fluxo/gerenciador.teste.ts,1,8,jsdoc,5,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs
@@ -540,7 +540,7 @@ packages-core-comment-6d0bb689,packages-core,packages/core/src/fluxo/gerenciador
  * — modificado: xUnit/NSubstitute → vitest com um `ServicosDoMotor` falso; onde o
  * original usa `ExecuteScript` para gravar variável, aqui é `SetVariable` (script não
  * existe no Pipe); as asserções olham o contexto e o que saiu, e não chamadas de mock.
- */",,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` because Pipe has no script action; assertions inspect context and output rather than mock calls.",meta-blip,packages/core/src/fluxo/gerenciador.teste.ts:1-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-ad5d8259,packages-core,packages/core/src/fluxo/gerenciador.ts,1,17,jsdoc,18,"/**
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder/FlowManager.cs (ProcessInputAsync, ProcessActionsAsync,
@@ -557,33 +557,33 @@ packages-core-comment-ad5d8259,packages-core,packages/core/src/fluxo/gerenciador
  * saída do estado → condições de saída (a primeira que casar vence) → ações de ""depois
  * de trocar de estado"" → grava o estado → ações de entrada do próximo estado → repete
  * enquanto o próximo estado não esperar entrada → ações globais de saída.
- */",,,,,,
-packages-core-comment-2fab9c51,packages-core,packages/core/src/fluxo/gerenciador.ts,113,113,jsdoc,2,"/** `BuilderException`: o erro que sai do motor, com o rastro até onde deu. */",,,,,,
+ */",translate,"Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to unsupported `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.",meta-blip,packages/core/src/fluxo/gerenciador.ts:1-17; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-2fab9c51,packages-core,packages/core/src/fluxo/gerenciador.ts,113,113,jsdoc,2,"/** `BuilderException`: o erro que sai do motor, com o rastro até onde deu. */",translate,`BuilderException`: engine error carrying the trace up to the failure.,meta-blip,packages/core/src/fluxo/gerenciador.ts:113-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-e72fb8dd,packages-core,packages/core/src/fluxo/gerenciador.ts,156,161,jsdoc,4,"/**
  * `FlowManager.ProcessInputAsync`: processa UMA entrada do usuário no fluxo.
  *
  * O estado e as variáveis vivem em `contexto.variaveis`, que a `api` carrega e grava.
  * Devolve o rastro; em erro, lança `ErroDoMotor` com o rastro até onde chegou.
- */",,,,,,
-packages-core-comment-93a21268,packages-core,packages/core/src/fluxo/gerenciador.ts,179,179,line,3,"// Restaura o estado guardado; sem estado (ou estado que sumiu do fluxo), a raiz.",,,,,,
-packages-core-comment-32ed0dfb,packages-core,packages/core/src/fluxo/gerenciador.ts,222,222,line,1,// Prepara a saída do estado atual executando as ações de saída.,,,,,,
-packages-core-comment-f9ebe2f2,packages-core,packages/core/src/fluxo/gerenciador.ts,240,240,line,1,"// `RedirectToParentFlowAsync`: sem fluxo pai, o original lança.",,,,,,
-packages-core-comment-31834aff,packages-core,packages/core/src/fluxo/gerenciador.ts,249,249,line,1,"// Só roda o ""depois de trocar"" quando o estado de fato mudou.",,,,,,
-packages-core-comment-79a45754,packages-core,packages/core/src/fluxo/gerenciador.ts,292,292,line,0,// Ações de entrada do próximo estado.,,,,,,
-packages-core-comment-3c9ff46f,packages-core,packages/core/src/fluxo/gerenciador.ts,305,305,line,0,// Trava contra laço no fluxo.,,,,,,
-packages-core-comment-bf905757,packages-core,packages/core/src/fluxo/gerenciador.ts,315,315,line,1,// Continua enquanto o próximo estado não esperar entrada.,,,,,,
-packages-core-comment-7b564ce2,packages-core,packages/core/src/fluxo/gerenciador.ts,369,369,line,3,"// `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.",,,,,,
-packages-core-comment-9d951041,packages-core,packages/core/src/fluxo/gerenciador.ts,395,395,line,1,"// `ExecuteTemplate` recebe o modelo cru; as demais, com as variáveis trocadas.",,,,,,
-packages-core-comment-6fba4d8e,packages-core,packages/core/src/fluxo/gerenciador.ts,41,41,jsdoc,1,/** `ConventionsConfiguration`: os números são os do original. */,,,,,,
-packages-core-comment-a1b95eff,packages-core,packages/core/src/fluxo/gerenciador.ts,43,43,jsdoc,1,/** `MaxTransitionsByInput`: a trava contra laço. */,,,,,,
-packages-core-comment-a12e97f6,packages-core,packages/core/src/fluxo/gerenciador.ts,436,436,jsdoc,2,/** `ProcessOutputsAsync`: a primeira saída que casar vence; nenhuma = estado nulo. */,,,,,,
-packages-core-comment-a04d204a,packages-core,packages/core/src/fluxo/gerenciador.ts,47,47,jsdoc,3,"/** `DefaultActionExecutionTimeout`, quando a ação não diz o seu. */",,,,,,
+ */",translate,"`FlowManager.ProcessInputAsync` processes ONE user input. The `api` loads and stores state and variables in `contexto.variaveis`. Return the trace, or throw `ErroDoMotor` with the trace up to the error.",meta-blip,packages/core/src/fluxo/gerenciador.ts:156-161; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-93a21268,packages-core,packages/core/src/fluxo/gerenciador.ts,179,179,line,3,"// Restaura o estado guardado; sem estado (ou estado que sumiu do fluxo), a raiz.",translate,Restore stored state; use the root if absent or missing from this flow.,architecture,packages/core/src/fluxo/gerenciador.ts:179-179; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-32ed0dfb,packages-core,packages/core/src/fluxo/gerenciador.ts,222,222,line,1,// Prepara a saída do estado atual executando as ações de saída.,remove,,other,packages/core/src/fluxo/gerenciador.ts:222-222,codex,reviewed
+packages-core-comment-f9ebe2f2,packages-core,packages/core/src/fluxo/gerenciador.ts,240,240,line,1,"// `RedirectToParentFlowAsync`: sem fluxo pai, o original lança.",translate,`RedirectToParentFlowAsync`: the source throws when there is no parent flow.,meta-blip,packages/core/src/fluxo/gerenciador.ts:240-240; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-31834aff,packages-core,packages/core/src/fluxo/gerenciador.ts,249,249,line,1,"// Só roda o ""depois de trocar"" quando o estado de fato mudou.",translate,Run after-state-change actions only when the state actually changed.,architecture,packages/core/src/fluxo/gerenciador.ts:249-249; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-79a45754,packages-core,packages/core/src/fluxo/gerenciador.ts,292,292,line,0,// Ações de entrada do próximo estado.,remove,,other,packages/core/src/fluxo/gerenciador.ts:292-292,codex,reviewed
+packages-core-comment-3c9ff46f,packages-core,packages/core/src/fluxo/gerenciador.ts,305,305,line,0,// Trava contra laço no fluxo.,translate,Guard against a flow loop.,architecture,packages/core/src/fluxo/gerenciador.ts:305-305; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-bf905757,packages-core,packages/core/src/fluxo/gerenciador.ts,315,315,line,1,// Continua enquanto o próximo estado não esperar entrada.,translate,Continue while the next state does not await input.,architecture,packages/core/src/fluxo/gerenciador.ts:315-315; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7b564ce2,packages-core,packages/core/src/fluxo/gerenciador.ts,369,369,line,3,"// `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.",translate,"`OrderBy` is stable, as is `sort`: without `order`, retain file order.",meta-blip,packages/core/src/fluxo/gerenciador.ts:369-369; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-9d951041,packages-core,packages/core/src/fluxo/gerenciador.ts,395,395,line,1,"// `ExecuteTemplate` recebe o modelo cru; as demais, com as variáveis trocadas.",translate,`ExecuteTemplate` receives the raw template; other actions receive substituted variables.,meta-blip,packages/core/src/fluxo/gerenciador.ts:395-395; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6fba4d8e,packages-core,packages/core/src/fluxo/gerenciador.ts,41,41,jsdoc,1,/** `ConventionsConfiguration`: os números são os do original. */,translate,`ConventionsConfiguration` values match the source.,meta-blip,packages/core/src/fluxo/gerenciador.ts:41-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a1b95eff,packages-core,packages/core/src/fluxo/gerenciador.ts,43,43,jsdoc,1,/** `MaxTransitionsByInput`: a trava contra laço. */,translate,`MaxTransitionsByInput` guards against loops.,meta-blip,packages/core/src/fluxo/gerenciador.ts:43-43; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a12e97f6,packages-core,packages/core/src/fluxo/gerenciador.ts,436,436,jsdoc,2,/** `ProcessOutputsAsync`: a primeira saída que casar vence; nenhuma = estado nulo. */,translate,`ProcessOutputsAsync`: the first matching output wins; none produces a null state.,meta-blip,packages/core/src/fluxo/gerenciador.ts:436-436; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a04d204a,packages-core,packages/core/src/fluxo/gerenciador.ts,47,47,jsdoc,3,"/** `DefaultActionExecutionTimeout`, quando a ação não diz o seu. */",translate,`DefaultActionExecutionTimeout` applies when an action supplies none.,meta-blip,packages/core/src/fluxo/gerenciador.ts:47-47; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-3e4fbb52,packages-core,packages/core/src/fluxo/gerenciador.ts,472,475,jsdoc,2,"/**
  * `ValidateInputAsync`: entrada fora da regra manda a mensagem de erro e para — o
  * usuário continua no mesmo estado.
- */",,,,,,
-packages-core-comment-58aec1e8,packages-core,packages/core/src/fluxo/gerenciador.ts,481,481,line,3,"// Na Blip, erro com `{{variável}}` sai com `#message.spinText` e o servidor troca a",,,,,,
-packages-core-comment-e8967c55,packages-core,packages/core/src/fluxo/gerenciador.ts,482,482,line,3,"// variável; aqui não há servidor no meio, então a troca é feita antes.",,,,,,
+ */",translate,`ValidateInputAsync`: invalid input sends an error message and stops; the user remains in the same state.,meta-blip,packages/core/src/fluxo/gerenciador.ts:472-475; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-58aec1e8,packages-core,packages/core/src/fluxo/gerenciador.ts,481,481,line,3,"// Na Blip, erro com `{{variável}}` sai com `#message.spinText` e o servidor troca a",translate,"In Blip, an error containing `{{variável}}` is sent with `#message.spinText` and the server",meta-blip,packages/core/src/fluxo/gerenciador.ts:481-481; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-e8967c55,packages-core,packages/core/src/fluxo/gerenciador.ts,482,482,line,3,"// variável; aqui não há servidor no meio, então a troca é feita antes.",translate,"substitutes the variable; here no server intervenes, so substitution happens first.",meta-blip,packages/core/src/fluxo/gerenciador.ts:482-482; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-d259c5ae,packages-core,packages/core/src/fluxo/gerenciador.ts,517,517,jsdoc,2,"/** `DateTime.TryParseExact` com espaço permitido, para os formatos acima. */",,,,,,
 packages-core-comment-a2748943,packages-core,packages/core/src/fluxo/gerenciador.ts,76,76,jsdoc,1,/** Estado em que o usuário ficou; nulo = o próximo contato recomeça na raiz. */,,,,,,
 packages-core-comment-60f3fe00,packages-core,packages/core/src/fluxo/index.ts,1,4,jsdoc,1,"/**
