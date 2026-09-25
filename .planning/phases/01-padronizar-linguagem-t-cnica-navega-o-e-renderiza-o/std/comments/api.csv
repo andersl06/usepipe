@@ -3528,10 +3528,10 @@ api-comment-6a8e1151,api,apps/api/src/dominio/gestao/monitoramento.ts,347,360,js
  * mais quem atende.
  */",translate,"Order the WAITING QUEUE by priority, then oldest first. The source requires low priority (`baixa`) before no priority (`sem_prioridade`); when the column defaulted to medium, priority had not been chosen, so the list used creation time alone. Oldest-first ties prevent the queue from becoming a stack. Assigned/in-progress tickets still use creation order because priority no longer changes who serves them.",meta-blip,apps/api/src/dominio/gestao/monitoramento.ts:347-360; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6e24623a,api,apps/api/src/dominio/gestao/monitoramento.ts,367,368,block,9,"/* Sem marco de criação vai para o fim: ela não é ""a mais antiga"", é a que
-       não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */",,,,,,
-api-comment-ec7c11c4,api,apps/api/src/dominio/gestao/monitoramento.ts,384,384,line,1,"// Filtro rápido: entra no `where` das duas populações (abertas e encerradas),",,,,,,
-api-comment-82729bdc,api,apps/api/src/dominio/gestao/monitoramento.ts,385,385,line,4,// para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.,,,,,,
-api-comment-ac02a573,api,apps/api/src/dominio/gestao/monitoramento.ts,42,42,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
+       não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */",translate,"Place a conversation without a creation timestamp last: it is not the oldest, but one whose start is unknown. Match Desk's `null` ordering.",architecture,apps/api/src/dominio/gestao/monitoramento.ts:367-368; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ec7c11c4,api,apps/api/src/dominio/gestao/monitoramento.ts,384,384,line,1,"// Filtro rápido: entra no `where` das duas populações (abertas e encerradas),",translate,Apply the quick filter in `where` for both open and closed populations,architecture,apps/api/src/dominio/gestao/monitoramento.ts:384-384; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-82729bdc,api,apps/api/src/dominio/gestao/monitoramento.ts,385,385,line,4,// para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.,translate,so cards and table describe the same selection.,architecture,apps/api/src/dominio/gestao/monitoramento.ts:385-385; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ac02a573,api,apps/api/src/dominio/gestao/monitoramento.ts,42,42,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/monitoramento.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-034e06b1,api,apps/api/src/dominio/gestao/monitoramento.ts,46,57,jsdoc,6,"/**
  * Consultas do monitoramento.
  *
@@ -3543,36 +3543,36 @@ api-comment-034e06b1,api,apps/api/src/dominio/gestao/monitoramento.ts,46,57,jsdo
  * ponytail: agregação por fila/atendente/etiqueta é feita em memória sobre o
  * conjunto do dia. Vira `group by` no Postgres (ou `metrica_diaria`) quando o
  * tenant passar de alguns milhares de conversas por dia.
- */",,,,,,
-api-comment-372bcb80,api,apps/api/src/dominio/gestao/monitoramento.ts,509,509,line,3,// Pausa aberta que já passou da duração sugerida pelo motivo.,,,,,,
-api-comment-d77bec43,api,apps/api/src/dominio/gestao/monitoramento.ts,521,521,line,0,// ---- 3. cartões de tempo real ---------------------------------------,,,,,,
-api-comment-edf63360,api,apps/api/src/dominio/gestao/monitoramento.ts,539,539,line,0,"// ---- 4. conversas encerradas dentro do período (""hoje"") -------------",,,,,,
-api-comment-bd63546d,api,apps/api/src/dominio/gestao/monitoramento.ts,59,59,jsdoc,2,/** Só volta às partições que interessam: evento de conversa aberta não é antigo. */,,,,,,
-api-comment-a4103fb5,api,apps/api/src/dominio/gestao/monitoramento.ts,673,673,line,3,// A expressão usa um parâmetro para o fuso; referenciá-la pela posição,,,,,,
-api-comment-d193a197,api,apps/api/src/dominio/gestao/monitoramento.ts,674,674,line,1,"// mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.",,,,,,
-api-comment-d6371345,api,apps/api/src/dominio/gestao/monitoramento.ts,699,699,jsdoc,1,/** Contagem de conversas encerradas no período — usada pelo cabeçalho do histórico. */,,,,,,
-api-comment-3af7cc01,api,apps/api/src/dominio/gestao/monitoramento.ts,77,77,jsdoc,4,"/** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */",,,,,,
-api-comment-acce761d,api,apps/api/src/dominio/gestao/monitoramento.ts,84,84,jsdoc,4,"/** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */",,,,,,
+ */",translate,"Monitoring queries only combine database events with calculations from `@pipe/core`; metrics shown on screen come from `2026-09-05-metricas-atendimento.md`. Group by queue, agent and label in memory over the day's rows for now. Move to PostgreSQL `group by` or `metrica_diaria` when a tenant reaches several thousand conversations per day.",architecture,apps/api/src/dominio/gestao/monitoramento.ts:46-57; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-372bcb80,api,apps/api/src/dominio/gestao/monitoramento.ts,509,509,line,3,// Pausa aberta que já passou da duração sugerida pelo motivo.,translate,Open pause exceeding its reason's suggested duration.,architecture,apps/api/src/dominio/gestao/monitoramento.ts:509-509; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d77bec43,api,apps/api/src/dominio/gestao/monitoramento.ts,521,521,line,0,// ---- 3. cartões de tempo real ---------------------------------------,remove,,other,apps/api/src/dominio/gestao/monitoramento.ts:521-521,codex3,reviewed
+api-comment-edf63360,api,apps/api/src/dominio/gestao/monitoramento.ts,539,539,line,0,"// ---- 4. conversas encerradas dentro do período (""hoje"") -------------",remove,,other,apps/api/src/dominio/gestao/monitoramento.ts:539-539,codex3,reviewed
+api-comment-bd63546d,api,apps/api/src/dominio/gestao/monitoramento.ts,59,59,jsdoc,2,/** Só volta às partições que interessam: evento de conversa aberta não é antigo. */,translate,Touch only relevant partitions; an open-conversation event is not historical.,architecture,apps/api/src/dominio/gestao/monitoramento.ts:59-59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a4103fb5,api,apps/api/src/dominio/gestao/monitoramento.ts,673,673,line,3,// A expressão usa um parâmetro para o fuso; referenciá-la pela posição,translate,Parameterize the time-zone expression and refer to it by position,architecture,apps/api/src/dominio/gestao/monitoramento.ts:673-673; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d193a197,api,apps/api/src/dominio/gestao/monitoramento.ts,674,674,line,1,"// mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.",translate,"so PostgreSQL sees identical `SELECT`, `GROUP BY` and `ORDER BY` expressions.",architecture,apps/api/src/dominio/gestao/monitoramento.ts:674-674; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d6371345,api,apps/api/src/dominio/gestao/monitoramento.ts,699,699,jsdoc,1,/** Contagem de conversas encerradas no período — usada pelo cabeçalho do histórico. */,translate,"Closed-conversation count for the period, used by the history header.",other,apps/api/src/dominio/gestao/monitoramento.ts:699-699,codex3,reviewed
+api-comment-3af7cc01,api,apps/api/src/dominio/gestao/monitoramento.ts,77,77,jsdoc,4,"/** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */",translate,"Queue seconds stop on assignment, or continue while unassigned.",architecture,apps/api/src/dominio/gestao/monitoramento.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-acce761d,api,apps/api/src/dominio/gestao/monitoramento.ts,84,84,jsdoc,4,"/** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */",translate,The agent owes the next response: the customer spoke last or nobody has answered yet.,architecture,apps/api/src/dominio/gestao/monitoramento.ts:84-84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7fa66afa,api,apps/api/src/dominio/gestao/monitoramento.ts,93,97,jsdoc,3,"/**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): ""40 minutos""
    * entre duas conversas e entre duzentas pedem reações opostas.
-   */",,,,,,
-api-comment-729ea4d7,api,apps/api/src/dominio/gestao/monitoria.ts,101,101,jsdoc,3,"/** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */",,,,,,
-api-comment-5fa5a9d4,api,apps/api/src/dominio/gestao/monitoria.ts,103,103,jsdoc,4,/** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */,,,,,,
+   */",translate,Report the population behind the maximum. A maximum without population has the same problem as an average without denominator (metrics spec §2): 40 minutes among two conversations calls for a different response than among 200.,architecture,apps/api/src/dominio/gestao/monitoramento.ts:93-97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-729ea4d7,api,apps/api/src/dominio/gestao/monitoria.ts,101,101,jsdoc,3,"/** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */",translate,"Model-reported mean confidence from 0 to 1, for AI evaluations only.",architecture,apps/api/src/dominio/gestao/monitoria.ts:101-101; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5fa5a9d4,api,apps/api/src/dominio/gestao/monitoria.ts,103,103,jsdoc,4,/** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */,translate,"Highest possible score of the most-used form in the period, giving the scale for the mean.",architecture,apps/api/src/dominio/gestao/monitoria.ts:103-103; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-947bdd61,api,apps/api/src/dominio/gestao/monitoria.ts,119,125,jsdoc,10,"/**
  * Média das notas de um conjunto, com a população explícita.
  *
  * Fora da média: avaliação em rascunho e avaliação sem nota. A contagem
  * excluída volta junto porque a tela é obrigada a mostrá-la — média que esconde
  * o denominador melhora justamente quando o processo piora.
- */",,,,,,
+ */",translate,Average scores with explicit population. Exclude draft evaluations and those without a score; return their excluded count so the screen can show a denominator that does not improve invisibly as the process worsens.,architecture,apps/api/src/dominio/gestao/monitoria.ts:119-125; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-487aa11f,api,apps/api/src/dominio/gestao/monitoria.ts,189,191,block,5,"/* Agrupamento em memória, e não `GROUP BY`: a lista inteira já veio, e a
        média precisa da MESMA regra de exclusão da geral. Duas contas em dois
-       lugares é como o número da tabela deixa de bater com o do cartão. */",,,,,,
-api-comment-2cbd7db1,api,apps/api/src/dominio/gestao/monitoria.ts,21,21,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
-api-comment-b777493a,api,apps/api/src/dominio/gestao/monitoria.ts,237,237,block,1,/* ------------------------------------------------------- a ficha da avaliação */,,,,,,
-api-comment-de91483a,api,apps/api/src/dominio/gestao/monitoria.ts,247,247,jsdoc,2,"/** Pontos já na escala da nota final: é o que permite dizer ""perdeu 12 aqui"". */",,,,,,
+       lugares é como o número da tabela deixa de bater com o do cartão. */",translate,"Group the already loaded list in memory, not with `GROUP BY`, using the SAME exclusion rule as the overall average so table and card agree.",architecture,apps/api/src/dominio/gestao/monitoria.ts:189-191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2cbd7db1,api,apps/api/src/dominio/gestao/monitoria.ts,21,21,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/monitoria.ts:21-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b777493a,api,apps/api/src/dominio/gestao/monitoria.ts,237,237,block,1,/* ------------------------------------------------------- a ficha da avaliação */,remove,,other,apps/api/src/dominio/gestao/monitoria.ts:237-237,codex3,reviewed
+api-comment-de91483a,api,apps/api/src/dominio/gestao/monitoria.ts,247,247,jsdoc,2,"/** Pontos já na escala da nota final: é o que permite dizer ""perdeu 12 aqui"". */",translate,"Points on the final-score scale, allowing the screen to say how many points were lost here.",architecture,apps/api/src/dominio/gestao/monitoria.ts:247-247; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-66bd5e9f,api,apps/api/src/dominio/gestao/monitoria.ts,25,42,jsdoc,25,"/**
  * Monitoria com IA — o resultado que ninguém via.
  *
@@ -3590,27 +3590,27 @@ api-comment-66bd5e9f,api,apps/api/src/dominio/gestao/monitoria.ts,25,42,jsdoc,25
  * Nada aqui sabe que o Next existe — recebe parâmetro e devolve dado (README,
  * ""Quem fala com o banco""). Consultas em SÉRIE dentro do `consultar`:
  * `Promise.all` derruba o `pipe.tenant_id` e a RLS deixa de filtrar em silêncio.
- */",,,,,,
-api-comment-d991acdf,api,apps/api/src/dominio/gestao/monitoria.ts,250,250,jsdoc,2,"/** O trecho citado pela IA, resolvido para o texto da mensagem. */",,,,,,
-api-comment-539299ea,api,apps/api/src/dominio/gestao/monitoria.ts,266,266,jsdoc,2,/** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */,,,,,,
-api-comment-e0902329,api,apps/api/src/dominio/gestao/monitoria.ts,268,268,jsdoc,3,/** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,,,,,,
-api-comment-3074e609,api,apps/api/src/dominio/gestao/monitoria.ts,270,270,jsdoc,3,"/** O resumo da classificação da conversa, quando a IA também classificou. */",,,,,,
+ */",translate,"AI quality review displays the evaluation result. `packages/ai` scores each criterion deterministically (`avaliacao/nota.ts`), cites supporting messages and stores `avaliacao` plus `resposta_avaliacao`; supervisors previously had no screen for paid model calls. Display the mean's population and exclusions: drafts and unscored evaluations can otherwise inflate it. Weight by evaluation volume (§5): sum scores divided by evaluation count, never average agent averages. This module accepts data and returns data without Next (README, 'Quem fala com o banco'). Query SERIALly inside `consultar`: `Promise.all` can clear `pipe.tenant_id` and silently disable RLS tenant filtering.",security,apps/api/src/dominio/gestao/monitoria.ts:25-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d991acdf,api,apps/api/src/dominio/gestao/monitoria.ts,250,250,jsdoc,2,"/** O trecho citado pela IA, resolvido para o texto da mensagem. */",translate,Resolve the AI-cited excerpt to its message text.,architecture,apps/api/src/dominio/gestao/monitoria.ts:250-250; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-539299ea,api,apps/api/src/dominio/gestao/monitoria.ts,266,266,jsdoc,2,/** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */,translate,"Sum of points before a fatal criterion zeroes the score, showing the magnitude of the loss.",architecture,apps/api/src/dominio/gestao/monitoria.ts:266-266; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e0902329,api,apps/api/src/dominio/gestao/monitoria.ts,268,268,jsdoc,3,/** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,translate,Names of failed fatal criteria; empty if none zeroed the score.,architecture,apps/api/src/dominio/gestao/monitoria.ts:268-268; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3074e609,api,apps/api/src/dominio/gestao/monitoria.ts,270,270,jsdoc,3,"/** O resumo da classificação da conversa, quando a IA também classificou. */",translate,"Conversation-classification summary, when AI also classified it.",architecture,apps/api/src/dominio/gestao/monitoria.ts:270-270; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ef5fc968,api,apps/api/src/dominio/gestao/monitoria.ts,279,281,block,7,"/* O id vem do caminho da URL, que é entrada de fora. Sem esta linha,
      `/monitoria/abc` chegava ao Postgres como `abc::uuid` e a tela devolvia
-     500 — ""não existe"" é 404, e é isso que o `null` daqui vira lá em cima. */",,,,,,
+     500 — ""não existe"" é 404, e é isso que o `null` daqui vira lá em cima. */",translate,"The URL path ID is untrusted. Without validation, `/monitoria/abc` reaches PostgreSQL as `abc::uuid` and the screen returns 500; `null` here becomes the correct 404 upstream.",security,apps/api/src/dominio/gestao/monitoria.ts:279-281; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6e97bc93,api,apps/api/src/dominio/gestao/monitoria.ts,318,320,block,7,"/* O formulário inteiro, e não só os critérios respondidos: critério sem
        resposta é informação — quer dizer que a avaliação está incompleta, e a
-       ficha precisa mostrar a lacuna em vez de escondê-la. */",,,,,,
+       ficha precisa mostrar a lacuna em vez de escondê-la. */",translate,"Return the whole form, including unanswered criteria: an unanswered criterion means incomplete evaluation and the detail screen must show that gap.",architecture,apps/api/src/dominio/gestao/monitoria.ts:318-320; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-faaf010b,api,apps/api/src/dominio/gestao/monitoria.ts,350,352,block,6,"/* As mensagens citadas, numa consulta só. `mensagem` é particionada e a
        unicidade dela é (id, criada_em), por isso não há chave estrangeira em
-       `evidencia_mensagem_id` — a junção é pelo id e basta para exibir. */",,,,,,
-api-comment-8c3271d0,api,apps/api/src/dominio/gestao/monitoria.ts,44,44,jsdoc,4,/** Estados em que a nota já vale. Rascunho não conta — ninguém fechou aquilo. */,,,,,,
-api-comment-69131027,api,apps/api/src/dominio/gestao/monitoria.ts,60,60,jsdoc,2,/** O que a IA respondeu num critério de conformidade. */,,,,,,
-api-comment-19bba461,api,apps/api/src/dominio/gestao/monitoria.ts,75,75,jsdoc,4,/** `null` quando a avaliação ainda não fechou nota — e aí ela sai da média. */,,,,,,
-api-comment-50eccb84,api,apps/api/src/dominio/gestao/monitoria.ts,82,82,jsdoc,1,"/** Categoria e sentimento da classificação da conversa, quando houver. */",,,,,,
-api-comment-59f52242,api,apps/api/src/dominio/gestao/monitoria.ts,90,90,jsdoc,2,/** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */,,,,,,
-api-comment-762a2396,api,apps/api/src/dominio/gestao/monitoria.ts,96,96,jsdoc,2,"/** Média geral das notas, com população e descartadas ao lado. */",,,,,,
-api-comment-8fc01f02,api,apps/api/src/dominio/gestao/monitoria.ts,99,99,jsdoc,1,/** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */,,,,,,
+       `evidencia_mensagem_id` — a junção é pelo id e basta para exibir. */",translate,"Fetch cited messages in one query. `mensagem` is partitioned with uniqueness on `(id, criada_em)`, so `evidencia_mensagem_id` has no foreign key; joining by ID is enough for display.",architecture,apps/api/src/dominio/gestao/monitoria.ts:350-352; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8c3271d0,api,apps/api/src/dominio/gestao/monitoria.ts,44,44,jsdoc,4,/** Estados em que a nota já vale. Rascunho não conta — ninguém fechou aquilo. */,translate,States with a final usable score; drafts are not counted because nobody finalized them.,architecture,apps/api/src/dominio/gestao/monitoria.ts:44-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-69131027,api,apps/api/src/dominio/gestao/monitoria.ts,60,60,jsdoc,2,/** O que a IA respondeu num critério de conformidade. */,remove,,other,apps/api/src/dominio/gestao/monitoria.ts:60-60,codex3,reviewed
+api-comment-19bba461,api,apps/api/src/dominio/gestao/monitoria.ts,75,75,jsdoc,4,/** `null` quando a avaliação ainda não fechou nota — e aí ela sai da média. */,translate,"`null` while evaluation has no final score, so it is excluded from the mean.",architecture,apps/api/src/dominio/gestao/monitoria.ts:75-75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-50eccb84,api,apps/api/src/dominio/gestao/monitoria.ts,82,82,jsdoc,1,"/** Categoria e sentimento da classificação da conversa, quando houver. */",remove,,other,apps/api/src/dominio/gestao/monitoria.ts:82-82,codex3,reviewed
+api-comment-59f52242,api,apps/api/src/dominio/gestao/monitoria.ts,90,90,jsdoc,2,/** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */,translate,Count zero-scored evaluations caused by a fatal criterion; the mean alone hides them.,architecture,apps/api/src/dominio/gestao/monitoria.ts:90-90; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-762a2396,api,apps/api/src/dominio/gestao/monitoria.ts,96,96,jsdoc,2,"/** Média geral das notas, com população e descartadas ao lado. */",translate,Overall mean score alongside its population and exclusions.,architecture,apps/api/src/dominio/gestao/monitoria.ts:96-96; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8fc01f02,api,apps/api/src/dominio/gestao/monitoria.ts,99,99,jsdoc,1,/** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */,translate,Count AI and human evaluations separately; an AI score remains a suggestion until reviewed.,architecture,apps/api/src/dominio/gestao/monitoria.ts:99-99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-45892c47,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,1,18,jsdoc,20,"/**
  * A leitura da nota de monitoria, do lado da tela.
  *
@@ -3628,8 +3628,8 @@ api-comment-45892c47,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,1,18,jsdo
  * (`TETO_ESCALA` e `TETO_NOTA`). Estão repetidos porque `@pipe/ai` carrega
  * cliente de modelo e não é dependência da Gestão; se um dia divergirem, o teste
  * abaixo é o que mostra.
- */",,,,,,
-api-comment-b9a8eaa7,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,23,23,jsdoc,4,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica ou não foi respondido. */",,,,,,
+ */",translate,Read quality-review scores for the screen without recalculating: `packages/ai/src/avaliacao/nota.ts` already stored per-criterion points in `resposta_avaliacao` on the final-score scale. This layer identifies which fatal criterion failed; `avaliacao.nota` records zero but not its cause. `TETO_ESCALA` and `TETO_NOTA` match `packages/ai/src/avaliacao/tipos.ts` and are duplicated because `@pipe/ai` loads a model client and must not become a Management dependency; the test below detects divergence.,architecture,apps/api/src/dominio/gestao/nota-avaliacao.ts:1-18; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b9a8eaa7,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,23,23,jsdoc,4,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica ou não foi respondido. */",translate,"Fraction of a criterion met, from 0 to 1; `null` when inapplicable or unanswered.",architecture,apps/api/src/dominio/gestao/nota-avaliacao.ts:23-23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-831f414b,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,41,48,jsdoc,11,"/**
  * Critério fatal reprovado zera a avaliação inteira.
  *
@@ -3637,44 +3637,44 @@ api-comment-831f414b,api,apps/api/src/dominio/gestao/nota-avaliacao.ts,41,48,jsd
  * Fatal não respondido, ou marcado como não se aplica, não reprova — ausência
  * não é falha, e tratar as duas como a mesma coisa transformaria formulário
  * incompleto em atendente com nota zero.
- */",,,,,,
+ */",translate,A failed fatal criterion zeroes the whole evaluation. Match `calcularNota`: failure requires a known fraction LESS THAN 1. Unanswered and not-applicable fatal criteria do not fail; treating absence as failure would turn an incomplete form into a zero-scored agent.,architecture,apps/api/src/dominio/gestao/nota-avaliacao.ts:41-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a6d5c70f,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,110,114,jsdoc,10,"/**
  * Os termos ATIVOS do tenant, do cache ou do banco. É o que `envio.ts` chama a
  * cada mensagem — e é por isso que existe cache: varrer a tabela a cada envio
  * seria uma consulta por mensagem para uma lista que muda quase nunca.
- */",,,,,,
-api-comment-dae5770e,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,128,128,jsdoc,3,"/** Invalida a lista guardada. Sem tenant, esquece todas — existe para o teste. */",,,,,,
+ */",translate,Read this tenant's ACTIVE forbidden terms from cache or database on every `envio.ts` message. Cache avoids a database query per send for a rarely changing list.,architecture,apps/api/src/dominio/gestao/palavras-proibidas.ts:110-114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dae5770e,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,128,128,jsdoc,3,"/** Invalida a lista guardada. Sem tenant, esquece todas — existe para o teste. */",translate,"Invalidate the cached list; without a tenant, clear all lists for tests.",architecture,apps/api/src/dominio/gestao/palavras-proibidas.ts:128-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9dc57b78,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,134,138,jsdoc,5,"/**
  * A recusa: confere o texto contra a lista do tenant e lança se achar alguma.
  * A frase segue o toast da origem (`forbiddenWords.title` / `forbiddenWords.text`):
  * o título ""Palavras proibidas"" e a lista do que foi encontrado, entre aspas.
- */",,,,,,
-api-comment-86205bbe,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,191,191,jsdoc,2,"/** Espaços das pontas fora e os de dentro colapsados: ""muito  ruim"" e ""muito ruim"" são o mesmo termo. */",,,,,,
+ */",translate,Check text against the tenant's forbidden terms and throw when matched. Match source toast `forbiddenWords.title`/`forbiddenWords.text`: title 'Palavras proibidas' and matched terms in quotes.,meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:134-138; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-86205bbe,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,191,191,jsdoc,2,"/** Espaços das pontas fora e os de dentro colapsados: ""muito  ruim"" e ""muito ruim"" são o mesmo termo. */",translate,Trim outer whitespace and collapse inner whitespace so equivalent phrases register as one term.,architecture,apps/api/src/dominio/gestao/palavras-proibidas.ts:191-191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8ca6fc26,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,200,204,jsdoc,8,"/**
  * O único do banco é por `lower(termo)`; a conferência aqui é mais estrita — sem
  * acento também — porque para o filtro ""açúcar"" e ""acucar"" são o mesmo termo, e
  * cadastrar os dois só confundiria a lista.
- */",,,,,,
-api-comment-085fb698,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,272,272,line,1,"// Sem anotação de tipo — literal fresco aceita `Record<string, unknown>` em `diferenca`.",,,,,,
+ */",translate,"The database unique key uses `lower(termo)`, but registration also ignores accents: the filter treats 'açúcar' and 'acucar' as one term, so storing both would confuse the list.",architecture,apps/api/src/dominio/gestao/palavras-proibidas.ts:200-204; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-085fb698,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,272,272,line,1,"// Sem anotação de tipo — literal fresco aceita `Record<string, unknown>` em `diferenca`.",translate,"Leave the type unannotated: the inferred literal satisfies `Record<string, unknown>` in `diferenca`.",architecture,apps/api/src/dominio/gestao/palavras-proibidas.ts:272-272; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-76f4260f,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,47,52,jsdoc,1,"/**
  * Reaproveitada do catálogo — a mesma de Configurações gerais. Palavra proibida
  * é configuração do atendimento da conta, como identidade e pesquisa; na origem
  * ela mora nas configurações do bot (`HasForbiddenWords`,
  * `blip-gestao-regras-tecnicas.md`).
- */",,,,,,
+ */",translate,"Reuse the General Settings catalog permission. Forbidden terms are account-wide attendance configuration like identity and survey; Blip stores them in bot settings (`HasForbiddenWords`, `blip-gestao-regras-tecnicas.md`).",meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:47-52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-561bc12b,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,58,61,jsdoc,4,"/**
  * O regex de tokenização da origem (app.js:77445), ao pé da letra — sem hífen,
  * que lá também não separa: ""bem-vindo"" é um token só.
- */",,,,,,
+ */",translate,"Match the source tokenizer regex (`app.js:77445`) exactly, including that hyphens do not split tokens: 'bem-vindo' stays one token.",meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:58-61; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-47024334,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,64,67,jsdoc,2,"/**
  * `StringUtils.normalizeText(texto, lower, diacritics, collapse)` como foi
  * escrito para funcionar: minúsculas, sem acento, espaços colapsados.
- */",,,,,,
+ */",translate,"Implement intended `StringUtils.normalizeText(texto, lower, diacritics, collapse)`: lowercase, remove accents and collapse whitespace.",meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:64-67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0d1160a3,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,77,80,jsdoc,2,"/**
  * `checkForbiddenWords`: devolve os termos da lista encontrados no texto — como
  * estão cadastrados, para a recusa mostrá-los entre aspas. Vazio = pode enviar.
- */",,,,,,
-api-comment-3984900a,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,85,85,line,0,// 1ª passada: frases. `checkForbiddenPhrases` (app.js:77427) é substring pura,,,,,,
+ */",translate,"Like source `checkForbiddenWords`, return matching registered terms in their stored spelling for the quoted refusal; empty means sending is allowed.",meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:77-80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3984900a,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,85,85,line,0,// 1ª passada: frases. `checkForbiddenPhrases` (app.js:77427) é substring pura,translate,First pass checks phrases: `checkForbiddenPhrases` (`app.js:77427`) uses a plain substring,meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:85-85; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9c2b01e3,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,9,45,jsdoc,42,"/**
  * Palavras proibidas: a lista da conta que barra o envio do atendente.
  *
@@ -3711,7 +3711,7 @@ api-comment-9c2b01e3,api,apps/api/src/dominio/gestao/palavras-proibidas.ts,9,45,
  * - O fail-open da origem (exceção no filtro → envia mesmo assim) NÃO é copiado:
  *   aqui o filtro roda no servidor, dentro da transação do envio, e a única falha
  *   possível é a do banco — que já derruba a transação de qualquer jeito.
- */",,,,,,
+ */",translate,"Forbidden terms block agent sends per `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4. Source bucket `lime://<owner>/buckets/blip:desk:forbidden-words` is per bot owner; Pipe uses a tenant table (migration 0042). Filter only agent free text in Desk `sendTextMessage` via `envio.ts`, before delivery; bots and active-message templates bypass it. On match, block, list terms in quotes and leave input intact; Pipe returns `ErroPipe` 400 with matched terms in `detalhe`. Match source `checkForbiddenWords` (app.js:77434-77455): first phrase substrings over the whole text, returning only phrases if any match; otherwise split into `SEPARADORES` tokens and use `token.includes(termo)`. Normalize case, accents and whitespace. Source has a diacritics branch bug that loses lowercase; Pipe follows intended behavior, so `PALAVRA`, `palavra`, and `pálavra` match. Cache per tenant for five minutes (`CONFIGURATION_EXPIRATION_FORBIDDEN_WORDS_TIME`, 300000 ms) and invalidate on CRUD. Pipe fixes source defaults for `exactMatch` and `considerDiacritics` because no screen exposes them. Do not copy source fail-open: this server filter runs in the send transaction, whose database failure already aborts the send.",meta-blip,apps/api/src/dominio/gestao/palavras-proibidas.ts:9-45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6b569a09,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,1,16,jsdoc,21,"/**
  * Os passos do assistente de implantação, a partir do que existe no banco.
  *
@@ -3727,18 +3727,18 @@ api-comment-6b569a09,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,1,
  * diz que alguém passou pela tela; o banco diz se a coisa existe.
  *
  * Puro, sem banco e sem Next, para o `node --test` rodar.
- */",,,,,,
-api-comment-55fd0982,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,21,21,jsdoc,2,"/** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */",,,,,,
-api-comment-9ee49cd6,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,24,24,jsdoc,0,"/** Usuários ativos, o administrador incluído. */",,,,,,
-api-comment-b033a847,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,52,52,jsdoc,4,"/** O que falta, ou o que já existe. Uma frase. */",,,,,,
+ */",translate,"Compute setup-wizard steps from database facts. Chatwoot onboarding (`app/javascript/dashboard/routes/dashboard/onboarding/`, MIT) orders account data, channels (`InboxSetup.vue`, WhatsApp first), then team (`invite_team`). Pipe adds a staffed queue, contacts and a test conversation to reach first service. Chatwoot stores a click-advanced `onboarding_step` cursor; Pipe queries whether each required thing exists, so a visited screen alone cannot mark a step complete. Keep this module pure for `node --test`.",architecture,apps/api/src/dominio/gestao/passos-da-implantacao.ts:1-16; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-55fd0982,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,21,21,jsdoc,2,"/** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */",translate,"Connected channels marked for reauthorization, such as failed webhooks or a number pending at Meta.",integration,apps/api/src/dominio/gestao/passos-da-implantacao.ts:21-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9ee49cd6,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,24,24,jsdoc,0,"/** Usuários ativos, o administrador incluído. */",translate,Active users including the administrator.,security,apps/api/src/dominio/gestao/passos-da-implantacao.ts:24-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b033a847,api,apps/api/src/dominio/gestao/passos-da-implantacao.ts,52,52,jsdoc,4,"/** O que falta, ou o que já existe. Uma frase. */",remove,,other,apps/api/src/dominio/gestao/passos-da-implantacao.ts:52-52,codex3,reviewed
 api-comment-3253b812,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,112,117,jsdoc,4,"/**
  * O catálogo inteiro com o estado de cada linha para os atendentes pedidos.
  *
  * Em SÉRIE, nunca em `Promise.all`: consulta paralela na mesma conexão apaga o
  * `set_config('pipe.tenant_id')` da transação e a RLS para de filtrar.
- */",,,,,,
+ */",translate,"Load the whole catalog with each requested agent's permission state. Run queries SERIALLY, never under `Promise.all`: parallel work on one connection can clear transaction `set_config('pipe.tenant_id')` and stop RLS filtering.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:112-117; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-635f4472,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,130,131,block,3,"/* Uma linha por (pessoa, permissão) que o PAPEL dá. `selectDistinct` porque
-     dois papéis repetem permissão o tempo todo. */",,,,,,
+     dois papéis repetem permissão o tempo todo. */",translate,One row per person and permission granted by a ROLE; use `selectDistinct` because multiple roles often grant the same permission.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:130-131; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-deffe89a,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,14,46,jsdoc,58,"/**
  * A página ""Permissões"" do atendente — `attendance.desk.team.permission` da
  * origem, que é PÁGINA e não modal
@@ -3771,19 +3771,19 @@ api-comment-deffe89a,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,
  * têm e outros não, a linha vem `parcial` — e mexer nela decide para os dois
  * lados. Sem o `parcial`, abrir a tela com dois atendentes diferentes e salvar
  * sem tocar em nada rebaixaria silenciosamente quem tinha mais.
- */",,,,,,
+ */",translate,"The agent Permissions page mirrors source `attendance.desk.team.permission` as a PAGE, not modal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §§a.1/a.4). Keep source literal labels 'Permissões', 'Configure as permissões de …', 'Permissões disponíveis', 'Tipo de permissão', 'Status', and 'Salvar alterações', but populate rows from Pipe's enforced catalog (`packages/db/src/semente.ts`) rather than Blip's ten Desk capabilities (`canSendActiveMessage`, `canCallsVideo`, etc.). Migration 0046 adds per-person `usuario_permissao` override: effective = `COALESCE(override, union of roles)`. Delete an override when the choice matches the role again, avoiding stale copies of RBAC. For multi-agent selection (`single`, `couple`, `multiples`), show a permission on only when ALL have it and `parcial` when mixed; saving without touching a mixed row must not silently revoke anyone.",meta-blip,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:14-46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e2d2f3a9,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,160,163,block,9,"/* Com um atendente só, `dosPapeis`/`override` são o dele; com vários, o
        que a tela precisa é só `ligada`/`parcial`, e os dois campos viram o
        retrato do PRIMEIRO — é o que a coluna ""Status"" desenha ao lado do
-       nome quando a seleção é de um. */",,,,,,
-api-comment-cf55c115,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,181,181,jsdoc,3,/** Só o que a tela MEXEU: código → ligado/desligado. O resto fica como está. */,,,,,,
+       nome quando a seleção é de um. */",translate,"With one agent, `dosPapeis` and `override` describe that agent. With several, the screen needs only `ligada`/`parcial`; those two fields describe the first solely for the single-selection Status column.",architecture,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:160-163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cf55c115,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,181,181,jsdoc,3,/** Só o que a tela MEXEU: código → ligado/desligado. O resto fica como está. */,translate,Only permissions the screen CHANGED: code to enabled/disabled; leave all others as they are.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:181-181; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ca82cdb6,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,185,188,jsdoc,5,"/**
  * ""Salvar alterações"": para cada (pessoa, código) pedido, grava o override —
  * ou o APAGA, quando a escolha já é o que o papel dá.
- */",,,,,,
-api-comment-23138447,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,243,243,block,3,/* Voltou a coincidir com o papel: a exceção deixa de existir. */,,,,,,
-api-comment-c36b66a7,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,276,276,block,2,/* Log só de quem mudou de verdade: salvar sem mexer em nada não é evento. */,,,,,,
-api-comment-4fc17e3b,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,48,48,jsdoc,1,"/** ""Criar, editar e desativar usuário"" — quem manda na permissão dos outros. */",,,,,,
+ */",translate,"On 'Salvar alterações', write an override for each requested person and code, or DELETE it when the selected value already matches the role grant.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:185-188; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-23138447,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,243,243,block,3,/* Voltou a coincidir com o papel: a exceção deixa de existir. */,translate,"The choice matches the role again, so remove the exception.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:243-243; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c36b66a7,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,276,276,block,2,/* Log só de quem mudou de verdade: salvar sem mexer em nada não é evento. */,translate,Audit only actual changes; saving without edits is not an event.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:276-276; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4fc17e3b,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,48,48,jsdoc,1,"/** ""Criar, editar e desativar usuário"" — quem manda na permissão dos outros. */",translate,"Catalog permission 'Criar, editar e desativar usuário' governs changing others' permissions.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:48-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c42a23dc,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,51,58,jsdoc,8,"/**
  * Só as capacidades DO ATENDENTE entram na página. A origem lista dez, todas do
  * Desk (""Transferir tickets"", ""Editar dados do contato"", …); o catálogo inteiro
@@ -3791,13 +3791,13 @@ api-comment-c42a23dc,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,
  * atribuir permissão"" e afins — e esta tela concederia isso a um atendente por
  * exceção, sem passar pelo papel. O que é de conversa e de contato é o que o
  * atendente faz no Desk; o resto continua sendo do papel.
- */",,,,,,
-api-comment-bd1e27c1,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,61,61,jsdoc,2,/** Os rótulos literais da origem onde a capacidade é a mesma. */,,,,,,
-api-comment-2cf4dfde,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,73,73,jsdoc,3,"/** O que a união dos papéis dá, antes de qualquer exceção. */",,,,,,
-api-comment-4d68cdd4,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,75,75,jsdoc,1,"/** `null` = sem exceção, manda o papel. */",,,,,,
-api-comment-dd3008c0,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,77,77,jsdoc,2,/** O que vale hoje para TODOS os atendentes pedidos. */,,,,,,
-api-comment-ccb73a1b,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,79,79,jsdoc,3,"/** Uns têm, outros não — só acontece com mais de um atendente. */",,,,,,
-api-comment-50f54834,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,94,94,jsdoc,3,"/** Ids repetidos, vazios ou fora do tenant não passam: a tela manda o que marcou. */",,,,,,
+ */",translate,"Expose only AGENT capabilities on this page. Blip lists ten Desk actions such as 'Transferir tickets' and 'Editar dados do contato'; including Pipe's whole catalog would let an agent receive API-key issuance or role-management powers through an override, bypassing roles. Conversation and contact capabilities belong here; the rest stay role-controlled.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:51-58; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bd1e27c1,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,61,61,jsdoc,2,/** Os rótulos literais da origem onde a capacidade é a mesma. */,translate,Use literal source labels where the capability is equivalent.,meta-blip,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:61-61; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2cf4dfde,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,73,73,jsdoc,3,"/** O que a união dos papéis dá, antes de qualquer exceção. */",translate,Union of role grants before per-person exceptions.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:73-73; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4d68cdd4,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,75,75,jsdoc,1,"/** `null` = sem exceção, manda o papel. */",translate,`null` means no override; use the role grant.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:75-75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dd3008c0,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,77,77,jsdoc,2,/** O que vale hoje para TODOS os atendentes pedidos. */,translate,Whether the permission is currently effective for ALL requested agents.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ccb73a1b,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,79,79,jsdoc,3,"/** Uns têm, outros não — só acontece com mais de um atendente. */",translate,Some agents have it and others do not; possible only with multiple agents.,security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-50f54834,api,apps/api/src/dominio/gestao/permissoes-do-atendente.ts,94,94,jsdoc,3,"/** Ids repetidos, vazios ou fora do tenant não passam: a tela manda o que marcou. */",translate,"Reject duplicate, empty or out-of-tenant IDs; the screen sends its selected agents.",security,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:94-94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8ddfdd13,api,apps/api/src/dominio/gestao/pesquisa.ts,1,14,jsdoc,15,"/**
  * A escala da pesquisa — §6 da spec de métricas.
  *
@@ -3811,9 +3811,9 @@ api-comment-8ddfdd13,api,apps/api/src/dominio/gestao/pesquisa.ts,1,14,jsdoc,15,"
  * que nenhum relatório sabe classificar.
  *
  * Módulo puro — é o cartão de configuração (`'use client'`) que o importa.
- */",,,,,,
-api-comment-4603d59e,api,apps/api/src/dominio/gestao/pesquisa.ts,22,22,jsdoc,4,"/** Fronteiras da §6, em texto, para a tela não repetir o número à mão. */",,,,,,
-api-comment-3f18c9fe,api,apps/api/src/dominio/gestao/pesquisa.ts,40,40,jsdoc,3,"/** Quando a pesquisa é disparada. O banco aceita texto livre; a tela, estes três. */",,,,,,
+ */",translate,"Survey scale, metrics spec §6. Blip has two incompatible models. Pipe supports both but requires ONE type-derived scale per survey and stores the scale on each response, so a CSAT 4 and NPS 4 cannot be summed together. Do not let the configuration form type an arbitrary scale such as 'CSAT de 0 a 10'. Keep this module pure because the `'use client'` configuration card imports it.",meta-blip,apps/api/src/dominio/gestao/pesquisa.ts:1-14; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4603d59e,api,apps/api/src/dominio/gestao/pesquisa.ts,22,22,jsdoc,4,"/** Fronteiras da §6, em texto, para a tela não repetir o número à mão. */",translate,Expose spec §6 boundaries as text so the screen does not repeat numbers by hand.,architecture,apps/api/src/dominio/gestao/pesquisa.ts:22-22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3f18c9fe,api,apps/api/src/dominio/gestao/pesquisa.ts,40,40,jsdoc,3,"/** Quando a pesquisa é disparada. O banco aceita texto livre; a tela, estes três. */",translate,"Survey trigger: the database accepts free text, but the screen offers these three values.",architecture,apps/api/src/dominio/gestao/pesquisa.ts:40-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0e10cc22,api,apps/api/src/dominio/gestao/pesquisa.ts,54,61,jsdoc,11,"/**
  * A classe de uma nota, na escala do próprio tipo.
  *
@@ -3821,15 +3821,15 @@ api-comment-0e10cc22,api,apps/api/src/dominio/gestao/pesquisa.ts,54,61,jsdoc,11,
  * banco gravou junto da resposta — é o retrato histórico. Esta função é o que a
  * tela de configuração usa para mostrar, antes de salvar, o que cada nota vai
  * significar. Duas funções, dois momentos, e nenhuma reclassifica o passado.
- */",,,,,,
-api-comment-ef7731f4,api,apps/api/src/dominio/gestao/pfx.ts,145,145,jsdoc,2,/** Os PBEs do PKCS#12 que o OpenSSL 3 só tem no provedor `legacy` (o Node não carrega). */,,,,,,
-api-comment-b21e8c84,api,apps/api/src/dominio/gestao/pfx.ts,168,168,block,0,/* ------------------------------------------------------- derivação PKCS#12 */,,,,,,
-api-comment-170ba675,api,apps/api/src/dominio/gestao/pfx.ts,170,170,jsdoc,0,/** Repete `parte` até encher `tamanho` bytes (o passo 2/3 do apêndice B.2). */,,,,,,
+ */",translate,"Classify a score within its survey type's scale. Keep this separate from `satisfacao.ts`, which reads the class stored with historical responses; configuration previews what scores will mean before save, without reclassifying the past.",architecture,apps/api/src/dominio/gestao/pesquisa.ts:54-61; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ef7731f4,api,apps/api/src/dominio/gestao/pfx.ts,145,145,jsdoc,2,/** Os PBEs do PKCS#12 que o OpenSSL 3 só tem no provedor `legacy` (o Node não carrega). */,translate,"PKCS#12 PBEs available in OpenSSL 3 only through the `legacy` provider, which Node does not load.",security,apps/api/src/dominio/gestao/pfx.ts:145-145; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b21e8c84,api,apps/api/src/dominio/gestao/pfx.ts,168,168,block,0,/* ------------------------------------------------------- derivação PKCS#12 */,remove,,other,apps/api/src/dominio/gestao/pfx.ts:168-168,codex3,reviewed
+api-comment-170ba675,api,apps/api/src/dominio/gestao/pfx.ts,170,170,jsdoc,0,/** Repete `parte` até encher `tamanho` bytes (o passo 2/3 do apêndice B.2). */,translate,Repeat `parte` until `tamanho` bytes are filled (appendix B.2 steps 2/3).,security,apps/api/src/dominio/gestao/pfx.ts:170-170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-10006fe3,api,apps/api/src/dominio/gestao/pfx.ts,178,182,jsdoc,3,"/**
  * A senha como o PKCS#12 quer: BMPString — UTF-16 big-endian com o terminador
  * de dois zeros incluído na contagem (é assim que o OpenSSL monta em
  * `OPENSSL_utf82uni`).
- */",,,,,,
+ */",translate,"Encode the password as PKCS#12 BMPString: UTF-16 big-endian including the two-zero terminator in the length, as OpenSSL `OPENSSL_utf82uni` does.",security,apps/api/src/dominio/gestao/pfx.ts:178-182; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-25a2f550,api,apps/api/src/dominio/gestao/pfx.ts,188,196,jsdoc,7,"/**
  * A derivação de chave do PKCS#12 (RFC 7292, apêndice B.2) — o que os PBEs
  * antigos (`pbeWithSHA1And3-KeyTripleDES-CBC`) e o MAC do arquivo usam. O
@@ -3838,33 +3838,33 @@ api-comment-25a2f550,api,apps/api/src/dominio/gestao/pfx.ts,188,196,jsdoc,7,"/**
  * Exportada para o teste montar um `.pfx` de verdade sem arquivo binário no
  * repositório: o MAC do arquivo de teste sai daqui, e o `createSecureContext`
  * (OpenSSL) é quem confere — se a derivação estivesse errada, o teste cairia.
- */",,,,,,
-api-comment-69b65ed6,api,apps/api/src/dominio/gestao/pfx.ts,255,255,line,1,"// `keyLength` (INTEGER) e `prf` (SEQUENCE) são opcionais, nessa ordem.",,,,,,
-api-comment-4b5d6ac8,api,apps/api/src/dominio/gestao/pfx.ts,264,264,line,2,"// No PBES2 a senha entra como os bytes UTF-8, sem o BMPString do PKCS#12",,,,,,
-api-comment-2414d062,api,apps/api/src/dominio/gestao/pfx.ts,265,265,line,1,// (é o que o `PKCS5_PBKDF2_HMAC` do OpenSSL recebe).,,,,,,
-api-comment-dc9f023d,api,apps/api/src/dominio/gestao/pfx.ts,294,294,jsdoc,1,/** O conteúdo de um `[0]` que embrulha um OCTET STRING (o `ContentInfo` de `data`). */,,,,,,
-api-comment-7b85657e,api,apps/api/src/dominio/gestao/pfx.ts,300,300,jsdoc,0,/** O `encryptedContent [0] IMPLICIT OCTET STRING` — primitivo no DER; construído (BER) em raríssimos exportadores. */,,,,,,
-api-comment-90ca2d00,api,apps/api/src/dominio/gestao/pfx.ts,31,31,jsdoc,3,/** `notAfter` do certificado que casa com a chave privada. */,,,,,,
-api-comment-91c82ccc,api,apps/api/src/dominio/gestao/pfx.ts,319,319,line,1,// SDSI e outros: não nos servem,,,,,,
-api-comment-03baa8b5,api,apps/api/src/dominio/gestao/pfx.ts,329,329,jsdoc,0,"/** Abre o PKCS#12 até os sacos: certificados e chaves, em DER. */",,,,,,
-api-comment-9a20402e,api,apps/api/src/dominio/gestao/pfx.ts,34,34,jsdoc,0,/** SHA-256 em hexadecimal maiúsculo separado por `:` — o `fingerprint256` do Node. */,,,,,,
-api-comment-523bf202,api,apps/api/src/dominio/gestao/pfx.ts,359,359,jsdoc,0,/** Junta as linhas `CN=...\nO=...` do `X509Certificate` numa só. */,,,,,,
+ */",translate,"Derive PKCS#12 keys per RFC 7292 appendix B.2 for legacy PBEs (`pbeWithSHA1And3-KeyTripleDES-CBC`) and file MAC. `id` selects purpose: 1 cipher key, 2 IV, 3 MAC key. Exported so tests build a real `.pfx` without a binary fixture; `createSecureContext` in OpenSSL verifies its MAC and would fail on wrong derivation.",security,apps/api/src/dominio/gestao/pfx.ts:188-196; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-69b65ed6,api,apps/api/src/dominio/gestao/pfx.ts,255,255,line,1,"// `keyLength` (INTEGER) e `prf` (SEQUENCE) são opcionais, nessa ordem.",translate,"`keyLength` (INTEGER) and `prf` (SEQUENCE) are optional, in that order.",security,apps/api/src/dominio/gestao/pfx.ts:255-255; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4b5d6ac8,api,apps/api/src/dominio/gestao/pfx.ts,264,264,line,2,"// No PBES2 a senha entra como os bytes UTF-8, sem o BMPString do PKCS#12",translate,"PBES2 uses UTF-8 password bytes, without PKCS#12 BMPString,",security,apps/api/src/dominio/gestao/pfx.ts:264-264; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2414d062,api,apps/api/src/dominio/gestao/pfx.ts,265,265,line,1,// (é o que o `PKCS5_PBKDF2_HMAC` do OpenSSL recebe).,translate,as OpenSSL `PKCS5_PBKDF2_HMAC` does.,security,apps/api/src/dominio/gestao/pfx.ts:265-265; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dc9f023d,api,apps/api/src/dominio/gestao/pfx.ts,294,294,jsdoc,1,/** O conteúdo de um `[0]` que embrulha um OCTET STRING (o `ContentInfo` de `data`). */,translate,Contents of `[0]` wrapping an OCTET STRING (`data` `ContentInfo`).,security,apps/api/src/dominio/gestao/pfx.ts:294-294; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7b85657e,api,apps/api/src/dominio/gestao/pfx.ts,300,300,jsdoc,0,/** O `encryptedContent [0] IMPLICIT OCTET STRING` — primitivo no DER; construído (BER) em raríssimos exportadores. */,translate,"`encryptedContent [0] IMPLICIT OCTET STRING` is primitive in DER, constructed by rare BER exporters.",security,apps/api/src/dominio/gestao/pfx.ts:300-300; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-90ca2d00,api,apps/api/src/dominio/gestao/pfx.ts,31,31,jsdoc,3,/** `notAfter` do certificado que casa com a chave privada. */,translate,`notAfter` of the certificate matching the private key.,security,apps/api/src/dominio/gestao/pfx.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-91c82ccc,api,apps/api/src/dominio/gestao/pfx.ts,319,319,line,1,// SDSI e outros: não nos servem,translate,Ignore SDSI and other unsupported forms.,security,apps/api/src/dominio/gestao/pfx.ts:319-319; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-03baa8b5,api,apps/api/src/dominio/gestao/pfx.ts,329,329,jsdoc,0,"/** Abre o PKCS#12 até os sacos: certificados e chaves, em DER. */",translate,Parse PKCS#12 through the bags containing DER certificates and keys.,security,apps/api/src/dominio/gestao/pfx.ts:329-329; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9a20402e,api,apps/api/src/dominio/gestao/pfx.ts,34,34,jsdoc,0,/** SHA-256 em hexadecimal maiúsculo separado por `:` — o `fingerprint256` do Node. */,translate,"Uppercase colon-separated SHA-256 hex, matching Node's `fingerprint256`.",security,apps/api/src/dominio/gestao/pfx.ts:34-34; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-523bf202,api,apps/api/src/dominio/gestao/pfx.ts,359,359,jsdoc,0,/** Junta as linhas `CN=...\nO=...` do `X509Certificate` numa só. */,translate,Join `X509Certificate` `CN=...\nO=...` lines into one.,security,apps/api/src/dominio/gestao/pfx.ts:359-359; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-12276694,api,apps/api/src/dominio/gestao/pfx.ts,364,367,jsdoc,7,"/**
  * O certificado que casa com a chave privada — o ""próprio"", e não um da
  * cadeia. Sem chave legível, fica o que não emitiu nenhum outro do arquivo.
- */",,,,,,
-api-comment-ec523176,api,apps/api/src/dominio/gestao/pfx.ts,378,378,line,1,"// O Node põe a razão do OpenSSL na mensagem (""mac verify failure"") e o",,,,,,
-api-comment-0bba2ac0,api,apps/api/src/dominio/gestao/pfx.ts,379,379,line,0,// código em `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); olhamos os dois.,,,,,,
-api-comment-9dc54cdd,api,apps/api/src/dominio/gestao/pfx.ts,38,38,jsdoc,1,/** Quantos certificados vieram no arquivo além do próprio (a cadeia). */,,,,,,
-api-comment-0fec6fbd,api,apps/api/src/dominio/gestao/pfx.ts,391,391,line,3,"// Não repassamos a mensagem do OpenSSL: ela descreve a estrutura do arquivo,",,,,,,
-api-comment-84e06cc3,api,apps/api/src/dominio/gestao/pfx.ts,392,392,line,5,// e o que interessa a quem cadastra é que o arquivo não é um .pfx que sirva.,,,,,,
+ */",translate,"Select the certificate matching the private key rather than an intermediate chain certificate. If no readable key exists, choose the certificate that issued no other certificate in the file.",security,apps/api/src/dominio/gestao/pfx.ts:364-367; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ec523176,api,apps/api/src/dominio/gestao/pfx.ts,378,378,line,1,"// O Node põe a razão do OpenSSL na mensagem (""mac verify failure"") e o",translate,Node includes the OpenSSL reason ('mac verify failure') in the message and,security,apps/api/src/dominio/gestao/pfx.ts:378-378; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0bba2ac0,api,apps/api/src/dominio/gestao/pfx.ts,379,379,line,0,// código em `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); olhamos os dois.,translate,the code in `code` (`ERR_OSSL_PKCS12_MAC_VERIFY_FAILURE`); inspect both.,security,apps/api/src/dominio/gestao/pfx.ts:379-379; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9dc54cdd,api,apps/api/src/dominio/gestao/pfx.ts,38,38,jsdoc,1,/** Quantos certificados vieram no arquivo além do próprio (a cadeia). */,translate,Number of additional chain certificates beyond the matching certificate.,security,apps/api/src/dominio/gestao/pfx.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0fec6fbd,api,apps/api/src/dominio/gestao/pfx.ts,391,391,line,3,"// Não repassamos a mensagem do OpenSSL: ela descreve a estrutura do arquivo,",translate,"Do not expose the OpenSSL message: it describes internal file structure,",security,apps/api/src/dominio/gestao/pfx.ts:391-391; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-84e06cc3,api,apps/api/src/dominio/gestao/pfx.ts,392,392,line,5,// e o que interessa a quem cadastra é que o arquivo não é um .pfx que sirva.,translate,while the registrant only needs to know this is not a usable `.pfx`.,security,apps/api/src/dominio/gestao/pfx.ts:392-392; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a7150bd8,api,apps/api/src/dominio/gestao/pfx.ts,399,403,jsdoc,5,"/**
  * Lê o `.pfx` com a senha. Lança `ErroPipe` 400 (`senha_incorreta`,
  * `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) — nunca com a senha
  * nem com bytes do arquivo na mensagem.
- */",,,,,,
-api-comment-d83b0fa8,api,apps/api/src/dominio/gestao/pfx.ts,405,405,line,3,"// 1. O OpenSSL julga: MAC com a senha, chave decifrada, chave casando com o certificado.",,,,,,
-api-comment-6fec09eb,api,apps/api/src/dominio/gestao/pfx.ts,428,428,block,1,/* um certificado corrompido na cadeia não invalida o próprio */,,,,,,
+ */",translate,"Read `.pfx` with its password and throw `ErroPipe` 400 (`senha_incorreta`, `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) without exposing password or file bytes in messages.",security,apps/api/src/dominio/gestao/pfx.ts:399-403; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d83b0fa8,api,apps/api/src/dominio/gestao/pfx.ts,405,405,line,3,"// 1. O OpenSSL julga: MAC com a senha, chave decifrada, chave casando com o certificado.",translate,"First let OpenSSL verify the password MAC, decrypted key and key-certificate match.",security,apps/api/src/dominio/gestao/pfx.ts:405-405; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6fec09eb,api,apps/api/src/dominio/gestao/pfx.ts,428,428,block,1,/* um certificado corrompido na cadeia não invalida o próprio */,translate,A corrupt chain certificate does not invalidate the leaf certificate.,security,apps/api/src/dominio/gestao/pfx.ts:428-428; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3ca7c543,api,apps/api/src/dominio/gestao/pfx.ts,435,435,line,2,// A chave só serve para apontar qual certificado é o próprio: vive nesta,,,,,,
 api-comment-4e0c16c8,api,apps/api/src/dominio/gestao/pfx.ts,436,436,line,1,// função e morre com ela.,,,,,,
 api-comment-efac31e2,api,apps/api/src/dominio/gestao/pfx.ts,443,443,block,2,/* saco de chave em formato que o OpenSSL não abre por aqui: cai na heurística */,,,,,,
