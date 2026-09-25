@@ -1915,74 +1915,97 @@ css-comment-e8102457,css,apps/gestao-vite/src/paginas/contrato/certificados/cert
      sombra do modal, do alerta e do toast           → var(--p-sombra-2)
      véu do modal e do alerta (preto a 70%)          → --cm-veu
      borda #ccc da caixa do passo a passo            → var(--line-strong)
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Authentication certificates (/contrato/certificados)
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is the `/mtls` route of the fragment `{conta}.tenant.fragment.blip.ai`: the `zt` and children (`xt`, `Pt`, `yt`, `kt`, `St`, `Ut`) of `static/js/main.e8593b01.chunk.js`, assembled from blip-ds pieces whose sheets come from the parts the route loads in the capture (6): `49` grid/paper/typo, `29` button, `90/87/88/89/85` table, `20/19/18/17` alert, `68` modal, `80/79` stepper/step, `94` upload, `8` input, `51` illustration. `bds-chip-tag` and `bds-button-icon` don't load with the empty list; they come from the ""personal"" capture (`41.71da2387.chunk.js` and `scratchpad/bdscss/iconButtonCss.css`). The toast comes from the Desk capture's blip-ds (`bds-toast.entry.js`).
+
+   Type scale: fs-24 = 24px/100%, fs-20 = 20px/100%, fs-16 = 16px/150%, fs-14 = 14px/150%, fs-12 = 12px/150%; regular 400, semi-bold 600, bold 700. `typo margin` at fs-20/24 = 22px below.
+
+   The color mapping. Their borders are translucent black at four strengths; here they're OUR content color at the same strengths, via `color-mix`:
+     color-surface-1 (paper, table, modal, alert) → var(--surface)
+     color-surface-3 (disabled chip)                 → var(--surface-3)
+     color-border-1 20% / border-2 16% / border-3 6% → --cm-borda-1/-2/-3
+     color-hover 8%                                  → --cm-passagem
+     color-content-default / -disable / -ghost      → var(--ink) / var(--ink-2) / var(--ink-3)
+     color-content-bright                            → var(--p-conteudo-claro)
+     color-primary / surface-primary                 → var(--p-marca)
+     color-info (focused field ring)              → var(--p-marca-linha)
+     color-success / color-system (chips)            → var(--p-sucesso-fundo) / var(--p-info-fundo)
+     color-warning (alert top)                    → var(--p-alerta-fundo)
+     color-error (toast) / color-delete, -negative   → var(--p-erro-fundo) / var(--p-erro-conteudo)
+     paper elevation static                          → var(--p-sombra-1)
+     modal, alert and toast shadow           → var(--p-sombra-2)
+     modal and alert veil (black at 70%)          → --cm-veu
+     stepper box's #ccc border            → var(--line-strong)
+   ==========================================================================",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:1-36; Blip fragment capture measurements and color mapping; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6c28ddac,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,118,119,css,5,"/* `bds-paper`: raio 16, sem borda, elevação `static` por padrão. Item de flex,
-   então a margem de 40 do filho não vaza para fora dele. */",,,,,,
+   então a margem de 40 do filho não vaza para fora dele. */",translate,"`bds-paper`: radius 16, no border, `static` elevation by default. Flex item, so the child's 40 margin doesn't leak outside it.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:118-119; blip-ds component parity; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ce9f07a9,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,126,127,css,1,"/* `xt`: `bds-grid gap=""8"" margin=""5""` — 64 entre a ilustração e o texto, 40 de
-   respiro em volta. */",,,,,,
-css-comment-57e11717,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,140,140,css,0,"/* `bds-grid direction=""column"" margin=""b-2""`: título e subtítulo, 16 abaixo. */",,,,,,
-css-comment-3c0fc039,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,164,164,css,1,"/* Depois do `margin: 0` das duas, senão ele apaga os 22. */",,,,,,
+   respiro em volta. */",translate,"`xt`: `bds-grid gap=""8"" margin=""5""` — 64 between the illustration and the text, 40 of breathing room around it.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:126-127; Blip capture measurement; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-57e11717,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,140,140,css,0,"/* `bds-grid direction=""column"" margin=""b-2""`: título e subtítulo, 16 abaixo. */",translate,"`bds-grid direction=""column"" margin=""b-2""`: title and subtitle, 16 below.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:140; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3c0fc039,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,164,164,css,1,"/* Depois do `margin: 0` das duas, senão ele apaga os 22. */",translate,"After the `margin: 0` of both, or it erases the 22.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:164; part of the certificados.css Blip-capture parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9724a283,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,181,182,css,2,"/* `Pt`: `bds-grid padding=""3""` (24) com o `xxs=""12""` dentro, que soma 8 de
-   cada lado. */",,,,,,
-css-comment-91903041,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,187,187,css,0,/* ------------------------------------------------------------- botões */,,,,,,
+   cada lado. */",translate,"`Pt`: `bds-grid padding=""3""` (24) with the `xxs=""12""` inside, which adds up to 8 on each side.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:181-182; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-91903041,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,187,187,css,0,/* ------------------------------------------------------------- botões */,translate,------------------------------------------------------------- buttons,meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:187; section divider within the Blip-capture parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4491c1b6,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,189,190,css,0,"/* `bds-button`, o padrão `solid`/`primary`/`medium`: 40 de altura, 16 de lado,
-   raio 8, 4 entre ícone e texto, rótulo fs-14 bold. */",,,,,,
-css-comment-f7cd178b,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,220,220,css,2,"/* `variant=""secondary""`: sem fundo e sem borda, texto na tinta de conteúdo. */",,,,,,
+   raio 8, 4 entre ícone e texto, rótulo fs-14 bold. */",translate,"`bds-button`, the `solid`/`primary`/`medium` default: 40 height, 16 side, radius 8, 4 between icon and text, label fs-14 bold.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:189-190; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f7cd178b,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,220,220,css,2,"/* `variant=""secondary""`: sem fundo e sem borda, texto na tinta de conteúdo. */",translate,"`variant=""secondary""`: no background and no border, text in the content color.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:220; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-23bef96a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,240,241,css,0,"/* `bds-button-icon size=""short"" variant=""secondary""`: 40×40, recheio 8, raio
-   8, ícone `medium` (24). */",,,,,,
-css-comment-f44d0dae,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,260,260,css,0,"/* `bds-table`: raio 8, fundo da superfície 1 e borda de 6%. */",,,,,,
-css-comment-cca746ed,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,275,275,css,0,/* `bds-table-header`: régua de 20% embaixo. */,,,,,,
+   8, ícone `medium` (24). */",translate,"`bds-button-icon size=""short"" variant=""secondary""`: 40×40, 8 padding, radius 8, `medium` icon (24).",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:240-241; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f44d0dae,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,260,260,css,0,"/* `bds-table`: raio 8, fundo da superfície 1 e borda de 6%. */",translate,"`bds-table`: radius 8, surface-1 background and 6% border.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:260; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-cca746ed,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,275,275,css,0,/* `bds-table-header`: régua de 20% embaixo. */,translate,`bds-table-header`: 20% rule below.,meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:275; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-41716d57,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,280,283,css,5,"/* `bds-table-th`: 0 8 de lado (16 nas pontas), `th_cell` de 64 com o rótulo em
    fs-14 semi-bold (a coluna não ordena). O `th` e o `td` globais de `@pipe/ui`
    (caixa alta, espaçamento, tinta fantasma, fio próprio, altura de 32/36) são
-   da tabela densa da Gestão, não desta: zerados aqui. */",,,,,,
-css-comment-e40d339a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,299,299,css,1,"/* `bds-table-row`: 64 de altura e fio de 16%, sem fio na última. */",,,,,,
+   da tabela densa da Gestão, não desta: zerados aqui. */",translate,"`bds-table-th`: 0 8 sideways (16 at the ends), 64 `th_cell` with the label in fs-14 semi-bold (the column doesn't sort). The global `@pipe/ui` `th` and `td` (uppercase, spacing, ghost ink, own rule, 32/36 height) belong to Gestão's dense table, not this one: zeroed here.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:280-283; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-e40d339a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,299,299,css,1,"/* `bds-table-row`: 64 de altura e fio de 16%, sem fio na última. */",translate,"`bds-table-row`: 64 height and 16% rule, no rule on the last one.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:299; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-07632ad0,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,331,332,css,0,"/* `style={{ minWidth: ""20rem"" }}` na descrição e no host; `maxWidth: ""5rem""`
-   nas ações. */",,,,,,
+   nas ações. */",translate,"`style={{ minWidth: ""20rem"" }}` on the description and host; `maxWidth: ""5rem""` on the actions.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:331-332; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d066b279,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,345,346,css,2,"/* `bds-chip-tag`: 24 de altura, raio 12, 4 de lado, texto fs-12 bold sem
-   quebra com 8 de cada lado. */",,,,,,
+   quebra com 8 de cada lado. */",translate,"`bds-chip-tag`: 24 height, radius 12, 4 side, fs-12 bold text with no wrap, 8 on each side.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:345-346; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-19ef56b3,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,380,384,css,7,"/* `bds-modal size=""dynamic""`: largura do conteúdo até 1000, recheio 32, raio
    8, coluna com o botão de fechar no alto à direita. `content-box` de
    propósito: a folha deles vive no shadow DOM, sem o reset da página. A caixa
    é item de flex com `margin: auto` no véu, então encolhe ao conteúdo — o
-   `width: auto` de um `<dialog>` esticaria até os 1000. */",,,,,,
+   `width: auto` de um `<dialog>` esticaria até os 1000. */",translate,"`bds-modal size=""dynamic""`: content width up to 1000, 32 padding, radius 8, column with the close button at the top right. `content-box` on purpose: their sheet lives in the shadow DOM, without the page reset. The box is a flex item with `margin: auto` on the veil, so it shrinks to the content — a `<dialog>`'s `width: auto` would stretch to the 1000.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:380-384; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c6f225d8,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,408,409,css,1,"/* O `yt` reescreve a caixa do `#certificate-modal`: `margin: 0 auto; height:
-   500px`, e o véu `--dynamic` tem 40 de recheio em cima. */",,,,,,
-css-comment-a2212b1c,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,415,415,css,1,"/* `.close-button`: ícone `close` (medium, 24), 16 abaixo, encostado à direita. */",,,,,,
+   500px`, e o véu `--dynamic` tem 40 de recheio em cima. */",translate,"The `yt` rewrites `#certificate-modal`'s box: `margin: 0 auto; height: 500px`, and the `--dynamic` veil has 40 padding on top.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:408-409; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-a2212b1c,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,415,415,css,1,"/* `.close-button`: ícone `close` (medium, 24), 16 abaixo, encostado à direita. */",translate,"`.close-button`: `close` icon (medium, 24), 16 below, flush right.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:415; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-cfca5760,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,439,440,css,3,"/* `bds-alert`: até 424 de largura, raio 8, com o `St`/`Ut` deles empurrando a
-   caixa para 40% da altura (`position:relative;margin:auto;top:40%`). */",,,,,,
+   caixa para 40% da altura (`position:relative;margin:auto;top:40%`). */",translate,"`bds-alert`: up to 424 width, radius 8, with their `St`/`Ut` pushing the box to 40% height (`position:relative;margin:auto;top:40%`).",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:439-440; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8013b52e,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,454,455,css,1,"/* `bds-alert-header variant=""warning"" icon=""warning""`: 64 de altura mínima,
-   12 16 de recheio, ícone x-large (32) e o título fs-16 bold a 8 dele. */",,,,,,
-css-comment-0a72c56a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,483,483,css,1,"/* `bds-alert-actions`: à direita, 12 16, 16 depois do primeiro botão. */",,,,,,
+   12 16 de recheio, ícone x-large (32) e o título fs-16 bold a 8 dele. */",translate,"`bds-alert-header variant=""warning"" icon=""warning""`: 64 minimum height, 12 16 padding, x-large icon (32) and the fs-16 bold title 8 away from it.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:454-455; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0a72c56a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,483,483,css,1,"/* `bds-alert-actions`: à direita, 12 16, 16 depois do primeiro botão. */",translate,"`bds-alert-actions`: on the right, 12 16, 16 after the first button.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:483; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e684075f,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,495,497,css,6,"/* O toast (`bds-toast` com ação de ícone): 440 de largura, 8 16 de recheio com
    mais 8 no conteúdo, raio 8, no canto de cima à direita a 24
-   (`bds-toast-container.top-right`). `popover` já vem por cima de tudo. */",,,,,,
+   (`bds-toast-container.top-right`). `popover` já vem por cima de tudo. */",translate,"The toast (`bds-toast` with an icon action): 440 width, 8 16 padding plus 8 more on the content, radius 8, top right corner at 24 (`bds-toast-container.top-right`). `popover` already sits above everything.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:495-497; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2a37635a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,50,51,css,6,"/* O cabeçalho é o do portal (`setHeaderContent`), com as medidas que a tela de
-   Membros já tirou para a mesma dupla de seta e frase. */",,,,,,
+   Membros já tirou para a mesma dupla de seta e frase. */",translate,"The header is the portal's (`setHeaderContent`), with the measurements the Members screen already took for the same arrow-and-phrase pair.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:50-51; portal setHeaderContent parity; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5b537a02,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,516,517,css,1,"/* `bds-stepper`: 16 de recheio e os passos espalhados, com o divisor de 1,5
-   na tinta desabilitada entre eles (8 de cada lado, mínimo de 24). */",,,,,,
+   na tinta desabilitada entre eles (8 de cada lado, mínimo de 24). */",translate,"`bds-stepper`: 16 padding and the steps spread out, with a 1.5 divider in the disabled ink between them (8 on each side, minimum 24).",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:516-517; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d8b313a5,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,529,530,css,2,"/* `bds-step`: 8 de recheio. O divisor da origem é um irmão entre dois passos;
-   aqui é o `::after` do passo, com a margem da direita descontada do recheio. */",,,,,,
+   aqui é o `::after` do passo, com a margem da direita descontada do recheio. */",translate,"`bds-step`: 8 padding. The source's divider is a sibling between two steps; here it's the step's `::after`, with the right margin subtracted from the padding.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:529-530; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5980f558,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,555,557,css,5,"/* A bola: 24, tinta de conteúdo com o número em branco; a do passo ativo na
    cor de marca; a do concluído na tinta fantasma, com o ícone `true` no lugar do
-   número. */",,,,,,
+   número. */",translate,"The ball: 24, content ink with the number in white; the active step's in brand color; the completed one in ghost ink, with the `true` icon instead of the number.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:555-557; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b6f488f4,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,593,596,css,4,"/* A caixa do `yt`, com o estilo em linha deles: 40rem × 18rem (teto de 20),
    rolagem vertical, 2rem de recheio e de margem, borda de 1 e raio 5. Ela é
    `div` da página, não do shadow DOM, então pega o `*{box-sizing:border-box}`
-   de `main.7b59c603.chunk.css`. */",,,,,,
-css-comment-1a91140a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,617,617,css,2,"/* A fileira de botões: `display: flex`, 8 à direita do ""Voltar"". */",,,,,,
-css-comment-d39e9189,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,628,628,css,1,"/* `bds-upload`: mínimo de 400, coluna com 16 de vão. */",,,,,,
+   de `main.7b59c603.chunk.css`. */",translate,"The `yt` box, with their inline style: 40rem × 18rem (20 ceiling), vertical scroll, 2rem padding and margin, 1 border and radius 5. It's a page `div`, not shadow DOM, so it picks up the `*{box-sizing:border-box}` from `main.7b59c603.chunk.css`.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:593-596; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1a91140a,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,617,617,css,2,"/* A fileira de botões: `display: flex`, 8 à direita do ""Voltar"". */",translate,"The button row: `display: flex`, 8 to the right of ""Voltar"".",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:617; keeps the literal Portuguese button copy untranslated; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d39e9189,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,628,628,css,1,"/* `bds-upload`: mínimo de 400, coluna com 16 de vão. */",translate,"`bds-upload`: 400 minimum, column with 16 gap.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:628; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-17fbaedc,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,658,659,css,1,"/* `.upload__preview`: 16 em cima e embaixo, nome em fs-14 bold cortado com
-   reticências, lixeira ao lado. Antes do nome, o clipe (`attach`, 16). */",,,,,,
+   reticências, lixeira ao lado. Antes do nome, o clipe (`attach`, 16). */",translate,"`.upload__preview`: 16 top and bottom, name in fs-14 bold truncated with ellipsis, trash can next to it. Before the name, the clip (`attach`, 16).",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:658-659; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3fbeafbe,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,720,722,css,3,"/* `bds-input` com rótulo: borda de 20% e raio 8, recheio 7 4 8 12, rótulo
    fs-12 bold a 2 do texto, texto 14/22. Passagem e foco na cor de marca, com
-   anel de 2 no foco. */",,,,,,
-css-comment-efa11247,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,762,762,css,0,/* `--state-danger`: borda e rótulo na tinta de erro. */,,,,,,
-css-comment-f2144012,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,777,777,css,1,"/* `.input__message--danger`: ícone `error` (16) e texto fs-12, a 3.7 2.5. */",,,,,,
+   anel de 2 no foco. */",translate,"`bds-input` with label: 20% border and radius 8, 7 4 8 12 padding, fs-12 bold label 2 from the text, 14/22 text. Hover and focus in brand color, with a 2 ring on focus.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:720-722; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-efa11247,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,762,762,css,0,/* `--state-danger`: borda e rótulo na tinta de erro. */,translate,`--state-danger`: border and label in error ink.,meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:762; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f2144012,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,777,777,css,1,"/* `.input__message--danger`: ícone `error` (16) e texto fs-12, a 3.7 2.5. */",translate,"`.input__message--danger`: `error` icon (16) and fs-12 text, at 3.7 2.5.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:777; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c5deeb72,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,794,795,css,1,"/* `vt`: cada URL numa fileira — o campo em `xxs=""10""`, os botões ""-"" e ""+"" em
-   `xxs=""2""` com 8 em cima. */",,,,,,
+   `xxs=""2""` com 8 em cima. */",translate,"`vt`: each URL in its own row — the field at `xxs=""10""`, the ""-"" and ""+"" buttons at `xxs=""2""` with 8 on top.",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:794-795; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f9d0209e,css,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css,814,815,css,0,"/* `Ot`: rótulos fs-16 bold e cada valor num `bds-list-item` (8 16 de
-   recheio, fs-16 regular). */",,,,,,
+   recheio, fs-16 regular). */",translate,"`Ot`: fs-16 bold labels and each value in a `bds-list-item` (8 16 padding, fs-16 regular).",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:814-815; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fdceb0e6,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1,31,css,23,"/* ==========================================================================
    Painel do contrato (/contrato)
 
@@ -2013,40 +2036,57 @@ css-comment-fdceb0e6,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1,31
    O que esta folha NÃO redesenha são as duas peças que o portal já tem —
    `.pt-obra` e `.pt-obra-selo`, o item em obra com o selo ""em breve"" —,
    reaproveitadas como estão.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Contract panel (/contrato)
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. Every number below was measured from the micro-frontend `{conta}.tenant.fragment.blip.ai` — from the `styled-components` embedded in `static/js/main.e8593b01.chunk.js` and the `static/css/main.7b59c603.chunk.css` sheet. The source selector sits next to each block: `st`, `Re`, `qe`, `ce`… are the components' minified names, and `bds-*` are pieces of their design system (blip-ds), whose measurements come from `49.ab489ac8.chunk.js` (paper, typo) and `vendor-…bds-icon….js` (icon).
+
+   Their type scale, to read the rest: `bds-typo` fs-24 = 24px/100%, fs-16 = 16px/150%, fs-14 = 14px/150%, fs-12 = 12px/150%; `bold` regular=400, semi-bold=600, bold=700. `bds-paper` = 16px radius, no border, with elevation-based shadow. `bds-icon` xx-large = 36px, medium = 24px, x-small = 16px. `bds-avatar` extra-large = 72px.
+
+   None of their hex values: everything comes from `--p-*`/`--g-*`. The color mapping:
+     color-surface-1 (paper background) → var(--surface)
+     color-surface-3 (header rule) → var(--surface-3)
+     paper elevation static → var(--p-sombra-1)
+     paper elevation primary/secondary → var(--p-sombra-2)
+     bg-color-system (icon box) → var(--p-marca-suave)
+     color-primary / -dark → var(--p-marca) / var(--p-marca-forte)
+     color-extend-reds-delete → var(--p-erro-conteudo)
+
+   What this sheet does NOT redesign are the two pieces the portal already has — `.pt-obra` and `.pt-obra-selo`, the work-in-progress item with the ""em breve"" badge —, reused as they are.
+   ==========================================================================",meta-blip,"apps/gestao-vite/src/paginas/contrato/contrato.css:1-31; Blip fragment capture measurements and color mapping; keeps literal ""em breve"" badge copy untranslated; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-beb3d454,css,apps/gestao-vite/src/paginas/contrato/contrato.css,102,103,css,3,"/* A caixa da foto: `.avatar.placeholder` — `width: 92px` com o conteúdo
-   centrado (`tc`). A foto em si é `bds-avatar size=""extra-large""`, 72px. */",,,,,,
+   centrado (`tc`). A foto em si é `bds-avatar size=""extra-large""`, 72px. */",translate,"The photo box: `.avatar.placeholder` — `width: 92px` with centered content (`tc`). The photo itself is `bds-avatar size=""extra-large""`, 72px.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:102-103; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-65ab2be5,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1026,1028,css,3,"/* `.blip-select__options`: `top: 108%`, a largura do campo, fundo branco, borda
    1px #c9dfe4, raio .5rem, sombra `0 .125rem .75rem 0 rgba(0,0,0,.1)`; a `ul`
-   rola a partir de 312px. */",,,,,,
+   rola a partir de 312px. */",translate,"`.blip-select__options`: `top: 108%`, the field's width, white background, 1px #c9dfe4 border, .5rem radius, `0 .125rem .75rem 0 rgba(0,0,0,.1)` shadow; the `ul` scrolls starting at 312px.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1026-1028; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9c6fc8f6,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1056,1058,css,2,"/* `li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`);
    hover, foco e escolhida em #f5f8f9 (→ `--surface-2`). Com o rótulo sozinho
-   na opção, o negrito e o azul (`:not(:only-child)`) não se aplicam. */",,,,,,
+   na opção, o negrito e o azul (`:not(:only-child)`) não se aplicam. */",translate,"`li.blip-select__option`: `padding: .5rem 1.0625rem`, #52636c (→ `--ink-2`); hover, focus and selected in #f5f8f9 (→ `--surface-2`). With only the label in the option, the bold and the blue (`:not(:only-child)`) don't apply.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1056-1058; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1da98375,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1071,1074,css,2,"/* O `Checkbox` da tabela deles: `label.bp-input--check--wrapper` com o `input`
    escondido e um `div.bp-input--checkbox` de 1.0625rem, raio .25rem, borda 1px
    #3f7de8 (→ `--p-marca`) e um ""✓"" transparente; marcado, fundo da marca e o
-   ""✓"" em branco (→ `--p-marca-conteudo`), com `transition: all .5s`. */",,,,,,
+   ""✓"" em branco (→ `--p-marca-conteudo`), com `transition: all .5s`. */",translate,"Their table's `Checkbox`: `label.bp-input--check--wrapper` with the `input` hidden and a `div.bp-input--checkbox` 1.0625rem, .25rem radius, 1px #3f7de8 border (→ `--p-marca`) and a transparent ""✓""; checked, brand background and the ""✓"" in white (→ `--p-marca-conteudo`), with `transition: all .5s`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1071-1074; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6d513be8,css,apps/gestao-vite/src/paginas/contrato/contrato.css,110,111,css,6,"/* Escrito com a caixa à frente para vencer o `.avatar` de 26px do `@pipe/ui`
-   sem `!important`: o componente `Avatar` entra com as duas classes. */",,,,,,
+   sem `!important`: o componente `Avatar` entra com as duas classes. */",translate,Written with the box in front to beat `@pipe/ui`'s 26px `.avatar` without `!important`: the `Avatar` component comes in with both classes.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:110-111; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0856ce58,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1117,1118,css,7,"/* `mt3` — a descrição do papel escolhido. Guarda a altura mesmo vazia, para o
-   cartão não pular quando a escolha muda (na origem, um `<br/>` faz isso). */",,,,,,
-css-comment-69746c2b,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1133,1133,css,0,/* ------------------------------------------------------------- os botões */,,,,,,
+   cartão não pular quando a escolha muda (na origem, um `<br/>` faz isso). */",translate,"`mt3` — the description of the chosen role. Keeps its height even when empty, so the card doesn't jump when the choice changes (in the source, a `<br/>` does this).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1117-1118; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-69746c2b,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1133,1133,css,0,/* ------------------------------------------------------------- os botões */,translate,------------------------------------------------------------- the buttons,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1133; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d910bc69,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1158,1161,css,8,"/* `.bp-btn--text-only`: sem fundo e sem largura mínima. É a forma dos dois
    gatilhos do cabeçalho, que na origem são só um ícone (`edit` e `trash`) —
    sem esses dois desenhos no nosso acervo, fica a palavra, como no ""Copiar""
-   do cartão de resumo. */",,,,,,
+   do cartão de resumo. */",translate,"`.bp-btn--text-only`: no background and no minimum width. It's the shape of the header's two triggers, which in the source are icon-only (`edit` and `trash`) — without those two drawings in our set, the word stays, like ""Copiar"" on the summary card.",meta-blip,"apps/gestao-vite/src/paginas/contrato/contrato.css:1158-1161; keeps the literal Portuguese button copy ""Copiar"" untranslated; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-690311e0,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1171,1172,css,5,"/* `.bp-btn--text-only:disabled`: sem opacidade — a letra vai a #c9dfe4, a cor
-   da régua (→ `--line-strong`). Vence as cores abaixo pela especificidade. */",,,,,,
-css-comment-685e54e9,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1178,1178,css,0,"/* Os dois gatilhos da seleção: só o ícone, na cor `desk` (→ `--ink-2`). */",,,,,,
+   da régua (→ `--line-strong`). Vence as cores abaixo pela especificidade. */",translate,"`.bp-btn--text-only:disabled`: no opacity — the letter goes to #c9dfe4, the rule's color (→ `--line-strong`). Beats the colors below by specificity.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1171-1172; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-685e54e9,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1178,1178,css,0,"/* Os dois gatilhos da seleção: só o ícone, na cor `desk` (→ `--ink-2`). */",translate,"The selection's two triggers: icon only, in the `desk` color (→ `--ink-2`).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1178; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-89ea8e1a,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1184,1187,css,8,"/* Os três do rodapé dos menus. Na origem todos levam também
    `bp-btn--text-only` (`bp-btn bp-btn--bot bp-btn--text-only`): a cor vai para
    a LETRA, e nenhum deles tem fundo. Por isso só pintam o texto, e vêm depois
-   de `--texto` para vencer a cor dele. */",,,,,,
-css-comment-7d299a4f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,120,120,css,1,/* `He`: o corpo do cartão. Só ganha o recuo de 32 quando o cartão deita. */,,,,,,
-css-comment-a6dbfad8,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1204,1204,css,0,"/* `.bp-btn--blip-dark`: o único botão CHEIO da tela, fundo escuro da marca. */",,,,,,
+   de `--texto` para vencer a cor dele. */",translate,"The three at the menus' footer. In the source all of them also carry `bp-btn--text-only` (`bp-btn bp-btn--bot bp-btn--text-only`): the color goes to the LETTER, and none of them has a background. That's why they only paint the text, and come after `--texto` to beat its color.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1184-1187; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7d299a4f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,120,120,css,1,/* `He`: o corpo do cartão. Só ganha o recuo de 32 quando o cartão deita. */,translate,`He`: the card's body. Only gets the 32 indent when the card lies flat.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:120; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-a6dbfad8,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1204,1204,css,0,"/* `.bp-btn--blip-dark`: o único botão CHEIO da tela, fundo escuro da marca. */",translate,"`.bp-btn--blip-dark`: the only FULL button on the screen, dark brand background.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1204; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-10f29e04,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1210,1212,css,3,"/* `bp-btn--small mt20` abaixo da tabela, à direita: `min-width: 120px`,
    `margin-top: 20px`. O botão é irmão da tabela dentro do cartão, que não é
-   flex: quem o encosta na direita é o `margin-left: auto` de um bloco. */",,,,,,
+   flex: quem o encosta na direita é o `margin-left: auto` de um bloco. */",translate,"`bp-btn--small mt20` below the table, on the right: `min-width: 120px`, `margin-top: 20px`. The button is the table's sibling inside the card, which isn't flex: what pushes it to the right is a block's `margin-left: auto`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1210-1212; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d7ee486f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1221,1238,css,6,"/* O `#invite-answer-modal` do shell deles (template 632 do `portal.js`), feito
    com o blip-ds NOVO. As utilidades saem do `portal.css` (lá `mb4` é 1.5rem e
    `ph4` é 1.25rem — não é o tachyons de fábrica); os componentes, das folhas
@@ -2064,92 +2104,105 @@ css-comment-d7ee486f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1221
      tooltip --color-content-default #454545              → var(--ink), letra var(--surface)
      .warning-icon #f6a721                                → var(--p-alerta-conteudo)
      guest rosa #F66689 · member âmbar #F9B42F · admin ciano #2CC3D5
-                                                          → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2) */",,,,,,
+                                                          → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2) */",translate,"Their shell's `#invite-answer-modal` (template 632 of `portal.js`), built with the NEW blip-ds. The utilities come from `portal.css` (there `mb4` is 1.5rem and `ph4` is 1.25rem — not the stock tachyons); the components, from the Stencil sheets of `bds-input-chips`, `bds-select`, `bds-select-option`, `bds-chip-clickable`, `bds-tooltip`, `bds-button` and `bds-icon`. The mapping:
+     bp-bg-white #fff / z-depth-3 0 2px 16px #c6d1de      → var(--surface) / var(--p-sombra-2)
+     .modal-overlay rgba(0,0,0,.6)                        → var(--ink) at 60%
+     .modal h1 #282828 · bp-c-rooftop #738192 · bp-c-cloud #8ca0b3
+                                                          → var(--ink) · var(--ink-2) · var(--ink-3)
+     bp-c-bot #3f7de8 · --color-primary #1e6bf1           → var(--p-marca)
+     --color-surface-1 #F6F6F6 · --color-surface-2 #E0E0E0 → var(--ground) · var(--surface-2)
+     --color-border-1 #B1B1B1                             → var(--p-linha-forte)
+     --color-info #80e3eb (focused field ring)          → var(--p-marca-linha)
+     --color-delete #e60f0f · --color-error #f99f9f       → var(--p-erro-conteudo) · var(--p-erro-linha)
+     tooltip --color-content-default #454545              → var(--ink), letter var(--surface)
+     .warning-icon #f6a721                                → var(--p-alerta-conteudo)
+     guest pink #F66689 · member amber #F9B42F · admin cyan #2CC3D5
+                                                          → var(--p-grafico-4) · var(--p-grafico-3) · var(--p-grafico-2)",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1221-1238; Blip shell/blip-ds color mapping; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0d04d9e6,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1240,1243,css,4,"/* `.modal-dialog.modal-sm` sob `#invite-answer-modal`: `width: max-content`,
    `min-height: 450px`, raio 8px e o conteúdo centrado na vertical; `ph4` dos
    lados e `pb6` (5rem) embaixo. O `mh2` e o `layout-center-y` são o centro da
-   tela, que o `<dialog>` modal já dá. */",,,,,,
+   tela, que o `<dialog>` modal já dá. */",translate,"`.modal-dialog.modal-sm` under `#invite-answer-modal`: `width: max-content`, `min-height: 450px`, 8px radius and content centered vertically; `ph4` on the sides and `pb6` (5rem) below. `mh2` and `layout-center-y` are the screen's center, which the modal `<dialog>` already gives.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1240-1243; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e65c6b7a,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1268,1269,css,2,"/* `div.flex.mb4`: a ilustração (`img.mr4`) e os títulos encostados embaixo,
-   com `max-width: 380px`. */",,,,,,
+   com `max-width: 380px`. */",translate,"`div.flex.mb4`: the illustration (`img.mr4`) and the titles flush below, with `max-width: 380px`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1268-1269; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f294a4a3,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1282,1283,css,3,"/* `h1.bp-fs-4.bp-fw-extra-bold.mb3`. A cor é a de `.modal h1`, que vence o
-   `bp-c-desk` da própria tag. */",,,,,,
-css-comment-9ca21492,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1298,1298,css,1,/* `div.flex`: e-mails e permissão lado a lado. */,,,,,,
+   `bp-c-desk` da própria tag. */",translate,"`h1.bp-fs-4.bp-fw-extra-bold.mb3`. The color is `.modal h1`'s, which beats the tag's own `bp-c-desk`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1282-1283; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-9ca21492,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1298,1298,css,1,/* `div.flex`: e-mails e permissão lado a lado. */,translate,`div.flex`: emails and permission side by side.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1298; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5b384442,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1310,1312,css,1,"/* O `.input.input--label` do blip-ds: o rótulo mora DENTRO da borda.
    `padding: 7px 4px 8px 12px`, fundo surface-1, borda 1px, raio 8px. O cursor
-   pinta a borda de primária; o foco (`--pressed`) soma um anel de 2px. */",,,,,,
+   pinta a borda de primária; o foco (`--pressed`) soma um anel de 2px. */",translate,"blip-ds's `.input.input--label`: the label lives INSIDE the border. `padding: 7px 4px 8px 12px`, surface-1 background, 1px border, 8px radius. The cursor paints the border primary; focus (`--pressed`) adds a 2px ring.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1310-1312; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5d367df8,css,apps/gestao-vite/src/paginas/contrato/contrato.css,132,134,css,1,"/* `qe`: cada bloco do cartão é `margin: 24px 0 8px 0`, e os rótulos e valores
    de dentro se separam por 8. Entre blocos vizinhos as margens se fundem em
-   24, que é o vão deles. */",,,,,,
-css-comment-84f65640,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1350,1350,css,0,"/* `input__container__label`: `bds-typo fs-12 bold`, primária no foco. */",,,,,,
-css-comment-881e127e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,139,139,css,0,"/* O rótulo de cada bloco é `bds-typo variant=""fs-14""`, peso normal. */",,,,,,
-css-comment-53ee0e80,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1417,1417,css,1,/* `chip_clickable--close`: `error` sólido x-small (16px) a 50%. */,,,,,,
+   24, que é o vão deles. */",translate,"`qe`: each card block is `margin: 24px 0 8px 0`, and the labels and values inside it are 8 apart. Between neighboring blocks the margins merge into 24, which is their gap.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:132-134; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-84f65640,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1350,1350,css,0,"/* `input__container__label`: `bds-typo fs-12 bold`, primária no foco. */",translate,"`input__container__label`: `bds-typo fs-12 bold`, primary on focus.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1350; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-881e127e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,139,139,css,0,"/* O rótulo de cada bloco é `bds-typo variant=""fs-14""`, peso normal. */",translate,"Each block's label is `bds-typo variant=""fs-14""`, normal weight.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:139; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-53ee0e80,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1417,1417,css,1,/* `chip_clickable--close`: `error` sólido x-small (16px) a 50%. */,translate,`chip_clickable--close`: solid `error` x-small (16px) at 50%.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1417; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0bd08b94,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1435,1436,css,1,"/* `input__message--danger`: `margin: 3.7px 2.5px`, ícone `error` x-small com
-   `padding: 2px 4px 0 0`, texto fs-12. */",,,,,,
+   `padding: 2px 4px 0 0`, texto fs-12. */",translate,"`input__message--danger`: `margin: 3.7px 2.5px`, x-small `error` icon with `padding: 2px 4px 0 0`, fs-12 text.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1435-1436; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-48645d72,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1452,1454,css,5,"/* `bds-select`, com `margin-left: 8px` neste modal. O host é `display: block`
    num flex, então a largura é a do `<input>` nativo dele (sem `size`, cerca de
-   20 letras) — 12rem. */",,,,,,
+   20 letras) — 12rem. */",translate,"`bds-select`, with `margin-left: 8px` in this modal. The host is `display: block` inside a flex, so its width is its native `<input>`'s (no `size`, about 20 letters) — 12rem.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1452-1454; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ed006d37,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1461,1462,css,3,"/* `.input--label` do select: `padding: 7px 4px 7px 12px`; a seta fica à
-   direita, no meio das duas linhas. */",,,,,,
+   direita, no meio das duas linhas. */",translate,"The select's `.input--label`: `padding: 7px 4px 7px 12px`; the arrow sits on the right, midway between the two lines.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1461-1462; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-72bfac9d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,150,151,css,1,"/* O nome do contrato é `bds-typo variant=""fs-24""` — 24px com entrelinha de
-   100%, o maior texto do cartão. */",,,,,,
+   100%, o maior texto do cartão. */",translate,"The contract name is `bds-typo variant=""fs-24""` — 24px with 100% line height, the card's largest text.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:150-151; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4c2a68e3,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1518,1520,css,0,"/* `bds-select-option`: `padding: 8px 8px 8px 12px`, fundo surface-1, surface-2
    no hover e no escolhido. `slot-align=""flex-start""` sobe o ícone (small,
-   20px, `margin-right: 10px`). */",,,,,,
+   20px, `margin-right: 10px`). */",translate,"`bds-select-option`: `padding: 8px 8px 8px 12px`, surface-1 background, surface-2 on hover and when selected. `slot-align=""flex-start""` raises the icon (small, 20px, `margin-right: 10px`).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1518-1520; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-70b886f4,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1546,1547,css,1,"/* `select-option__container--value`: `bds-typo fs-16 semi-bold`, primária
-   quando escolhido. */",,,,,,
-css-comment-7ad5e900,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1598,1598,css,2,"/* O `<a>` do ""clique aqui"" e o ""Copiar link"": só a letra, na cor de link. */",,,,,,
+   quando escolhido. */",translate,"`select-option__container--value`: `bds-typo fs-16 semi-bold`, primary when selected.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1546-1547; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7ad5e900,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1598,1598,css,2,"/* O `<a>` do ""clique aqui"" e o ""Copiar link"": só a letra, na cor de link. */",translate,"The ""clique aqui"" and ""Copiar link"" `<a>`: just the letter, in link color.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1598; keeps the literal Portuguese link copy untranslated; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-863d5486,css,apps/gestao-vite/src/paginas/contrato/contrato.css,161,163,css,2,"/* `_e`: o `{id}.blip.ai` deles — fileira de 8 de vão, alinhada pelo pé, na cor
    da marca, que escurece ao passar o cursor. `bds-typo fs-14 bold`. O nosso
-   identificador de endereço é o slug da conta. */",,,,,,
+   identificador de endereço é o slug da conta. */",translate,"`_e`: their `{id}.blip.ai` — an 8-gap row, baseline-aligned, in brand color, which darkens on hover. `bds-typo fs-14 bold`. Our address identifier is the account slug.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:161-163; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0fa34aa8,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1656,1658,css,1,"/* `bds-button`: medium tem 40px e `padding: 9px 16px`, short 32px e
    `padding: 5px 16px`; raio 8px, texto `fs-14 bold`, ícone de 24px com 4px de
-   folga. O hover escurece 8% por cima (`--color-hover`); travado, 50%. */",,,,,,
+   folga. O hover escurece 8% por cima (`--color-hover`); travado, 50%. */",translate,"`bds-button`: medium is 40px and `padding: 9px 16px`, short 32px and `padding: 5px 16px`; 8px radius, `fs-14 bold` text, 24px icon with 4px gap. Hover darkens 8% on top (`--color-hover`); locked, 50%.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1656-1658; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-677ad89f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1730,1732,css,5,"/* A página de depois do envio — a única peça que não é deles (ver
    `convidar.tsx`). Fica na forma da `pages.success`: tudo centrado, com o
-   `mt4` (1.5rem) entre as partes. */",,,,,,
-css-comment-6ca2955f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1781,1781,css,1,/* Os `min-width: 400px` deles não cabem num telefone: os campos empilham. */,,,,,,
+   `mt4` (1.5rem) entre as partes. */",translate,"The post-submission page — the only piece that isn't theirs (see `convidar.tsx`). Follows the `pages.success` shape: everything centered, with `mt4` (1.5rem) between the parts.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1730-1732; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-6ca2955f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1781,1781,css,1,/* Os `min-width: 400px` deles não cabem num telefone: os campos empilham. */,translate,Their `min-width: 400px` doesn't fit on a phone: the fields stack.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1781; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-71f2e93d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,1805,1806,css,2,"/* O recheio de 60 e as colunas de 8rem/16rem não cabem num telefone: o cartão
-   encolhe e as duas colunas de serviço passam a ocupar o mínimo. */",,,,,,
+   encolhe e as duas colunas de serviço passam a ocupar o mínimo. */",translate,The 60 padding and the 8rem/16rem columns don't fit on a phone: the card shrinks and the two service columns take the minimum.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:1805-1806; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9ee41cf7,css,apps/gestao-vite/src/paginas/contrato/contrato.css,187,189,css,3,"/* O botão de copiar: palavra, não ícone (ver `copiar.tsx`). Na origem é o
    `bds-icon name=""copy""` de 24 dentro do `ze`; sem esse desenho no nosso
-   acervo, a palavra fica na mesma fileira e na mesma cor do valor. */",,,,,,
-css-comment-3f4a55ea,css,apps/gestao-vite/src/paginas/contrato/contrato.css,206,206,css,1,/* `Ge` só existe no cartão deitado; em pé os pares são blocos empilhados. */,,,,,,
+   acervo, a palavra fica na mesma fileira e na mesma cor do valor. */",translate,"The copy button: a word, not an icon (see `copiar.tsx`). In the source it's the 24px `bds-icon name=""copy""` inside `ze`; without that drawing in our set, the word stays on the same row and in the same color as the value.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:187-189; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3f4a55ea,css,apps/gestao-vite/src/paginas/contrato/contrato.css,206,206,css,1,/* `Ge` só existe no cartão deitado; em pé os pares são blocos empilhados. */,translate,`Ge` only exists on the card lying flat; upright the pairs are stacked blocks.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:206; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f67d65ae,css,apps/gestao-vite/src/paginas/contrato/contrato.css,244,246,css,2,"/* O ID é identificador, e identificador se lê em monoespaçada. Fica em 12 e
    não nos 16 deles porque o nosso é um UUID de 36 caracteres: em 16
-   monoespaçado ele quebraria em três linhas na coluna estreita. */",,,,,,
+   monoespaçado ele quebraria em três linhas na coluna estreita. */",translate,"The ID is an identifier, and identifiers read in monospace. It's at 12, not their 16, because ours is a 36-character UUID: at their 16 monospace it would wrap into three lines in the narrow column.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:244-246; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-992e904b,css,apps/gestao-vite/src/paginas/contrato/contrato.css,254,255,css,2,"/* `xe` + `bds-typo fs-12 bold`: o ""Deixar contrato"" no pé, em vermelho e
-   sublinhado. Sem régua acima — na origem é só mais um bloco de 24. */",,,,,,
-css-comment-754e9c0d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,268,268,css,0,/* ------------------------------------------------------- grupos e cartões */,,,,,,
+   sublinhado. Sem régua acima — na origem é só mais um bloco de 24. */",translate,"`xe` + `bds-typo fs-12 bold`: ""Deixar contrato"" at the footer, in red and underlined. No rule above — in the source it's just one more 24 block.",meta-blip,"apps/gestao-vite/src/paginas/contrato/contrato.css:254-255; keeps the literal Portuguese product copy ""Deixar contrato"" untranslated; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-754e9c0d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,268,268,css,0,/* ------------------------------------------------------- grupos e cartões */,translate,------------------------------------------------------- groups and cards,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:268; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-47f75d9d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,270,271,css,2,"/* `it`: `grid-area: content`, e nada mais — o vão entre grupos vem das
-   margens do cabeçalho. */",,,,,,
+   margens do cabeçalho. */",translate,"`it`: `grid-area: content`, and nothing else — the gap between groups comes from the header's margins.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:270-271; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5df3f45c,css,apps/gestao-vite/src/paginas/contrato/contrato.css,277,278,css,2,"/* O título de 24 semi-negrito. O que é cabeçalho de GRUPO (a régua, o recheio,
-   o vão de 48) mora no seletor de baixo, sob `.ct-secao`. */",,,,,,
+   o vão de 48) mora no seletor de baixo, sob `.ct-secao`. */",translate,"The 24 semi-bold title. What is the GROUP header (the rule, the padding, the 48 gap) lives in the selector below, under `.ct-secao`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:277-278; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8c378ae4,css,apps/gestao-vite/src/paginas/contrato/contrato.css,290,292,css,2,"/* `rt` + a classe `bb-color-surface` da folha deles:
    `padding: 8px 0 16px 0; margin-bottom: 24px` mais
-   `border-bottom: 2px solid var(--color-surface-3)`. */",,,,,,
+   `border-bottom: 2px solid var(--color-surface-3)`. */",translate,`rt` + their sheet's `bb-color-surface` class: `padding: 8px 0 16px 0; margin-bottom: 24px` plus `border-bottom: 2px solid var(--color-surface-3)`.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:290-292; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b64bfc20,css,apps/gestao-vite/src/paginas/contrato/contrato.css,302,303,css,0,"/* `:not(:first-child) { margin-top: 48px }` do próprio cabeçalho: o segundo
-   grupo em diante respira 48 antes de começar. */",,,,,,
-css-comment-542cc661,css,apps/gestao-vite/src/paginas/contrato/contrato.css,305,305,css,1,/* 48px; não há token de 48 */,,,,,,
-css-comment-4a43a1e9,css,apps/gestao-vite/src/paginas/contrato/contrato.css,308,308,css,0,/* `& > bds-typo { margin-right: 8px }` — o vão entre o título e o ícone. */,,,,,,
+   grupo em diante respira 48 antes de começar. */",translate,"The header's own `:not(:first-child) { margin-top: 48px }`: from the second group on, it breathes 48 before starting.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:302-303; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-542cc661,css,apps/gestao-vite/src/paginas/contrato/contrato.css,305,305,css,1,/* 48px; não há token de 48 */,translate,48px; there's no 48 token,other,apps/gestao-vite/src/paginas/contrato/contrato.css:305,,proposed
+css-comment-4a43a1e9,css,apps/gestao-vite/src/paginas/contrato/contrato.css,308,308,css,0,/* `& > bds-typo { margin-right: 8px }` — o vão entre o título e o ícone. */,translate,`& > bds-typo { margin-right: 8px }` — the gap between the title and the icon.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:308; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f782881b,css,apps/gestao-vite/src/paginas/contrato/contrato.css,323,324,css,0,"/* `ce` + `bds-paper`: largura FIXA de 312, recheio de 16, altura cheia da
-   fileira, e o sublinhado do título ao passar o cursor. */",,,,,,
+   fileira, e o sublinhado do título ao passar o cursor. */",translate,"`ce` + `bds-paper`: FIXED width of 312, 16 padding, full row height, and the title underlines on hover.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:323-324; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b5d82c55,css,apps/gestao-vite/src/paginas/contrato/contrato.css,33,34,css,3,"/* `st` = styled(Container): a grade da tela toda, e `nt.a`, o Container, que
-   é só `max-width: 1440px; margin: 0 auto`. */",,,,,,
+   é só `max-width: 1440px; margin: 0 auto`. */",translate,"`st` = styled(Container): the whole screen's grid, and `nt.a`, the Container, which is just `max-width: 1440px; margin: 0 auto`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:33-34; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-66672b4d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,340,341,css,2,"/* `onMouseEnter` troca a elevação de `static` para `secondary`, e o `ce` em si
-   sublinha o texto. */",,,,,,
+   sublinha o texto. */",translate,"`onMouseEnter` swaps the elevation from `static` to `secondary`, and `ce` itself underlines the text.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:340-341; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-67f08594,css,apps/gestao-vite/src/paginas/contrato/contrato.css,347,349,css,5,"/* O cartão em obra usa `.pt-obra` do portal pelo apagado e pelo cursor, mas a
    caixa continua sendo a do cartão: sem isto o recheio do item de menu do
-   portal (8/12) venceria o do cartão (16). */",,,,,,
+   portal (8/12) venceria o do cartão (16). */",translate,"The work-in-progress card uses the portal's `.pt-obra` for the muted look and the cursor, but the box stays the card's: without this, the portal menu item's padding (8/12) would beat the card's (16).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:347-349; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bf8d0dae,css,apps/gestao-vite/src/paginas/contrato/contrato.css,358,359,css,1,"/* `de`: 48 por 48, raio de 8, centrado na vertical do cartão, com o ícone
-   `size=""xx-large""` (36) dentro. */",,,,,,
-css-comment-3aa38421,css,apps/gestao-vite/src/paginas/contrato/contrato.css,382,382,css,3,"/* `div.flex.row.justify-between`: o título à esquerda, a etiqueta à direita. */",,,,,,
-css-comment-d29fc7b3,css,apps/gestao-vite/src/paginas/contrato/contrato.css,397,397,css,1,"/* A descrição: `bds-typo fs-14 bold=""regular""`. */",,,,,,
-css-comment-7ab418cb,css,apps/gestao-vite/src/paginas/contrato/contrato.css,405,405,css,1,/* O rótulo do que esconderia o cartão no mundo real. Só na prévia. */,,,,,,
-css-comment-8edfcf5f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,412,412,css,0,/* ---------------------------------------------------------------- prévia */,,,,,,
+   `size=""xx-large""` (36) dentro. */",translate,"`de`: 48 by 48, 8 radius, vertically centered in the card, with the `size=""xx-large""` icon (36) inside.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:358-359; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3aa38421,css,apps/gestao-vite/src/paginas/contrato/contrato.css,382,382,css,3,"/* `div.flex.row.justify-between`: o título à esquerda, a etiqueta à direita. */",translate,"`div.flex.row.justify-between`: the title on the left, the tag on the right.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:382; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d29fc7b3,css,apps/gestao-vite/src/paginas/contrato/contrato.css,397,397,css,1,"/* A descrição: `bds-typo fs-14 bold=""regular""`. */",translate,"The description: `bds-typo fs-14 bold=""regular""`.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:397; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7ab418cb,css,apps/gestao-vite/src/paginas/contrato/contrato.css,405,405,css,1,/* O rótulo do que esconderia o cartão no mundo real. Só na prévia. */,translate,The label for what would hide the card in the real world. Preview only.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:405; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-8edfcf5f,css,apps/gestao-vite/src/paginas/contrato/contrato.css,412,412,css,0,/* ---------------------------------------------------------------- prévia */,translate,---------------------------------------------------------------- preview,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:412; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3132cd03,css,apps/gestao-vite/src/paginas/contrato/contrato.css,431,433,css,6,"/* O recado de erro que volta das Server Actions (`?erro=`). Não tem par na
    origem: lá a falha vira um toast (`BlipToastService`), que só existe com
-   JavaScript e some sozinho. */",,,,,,
-css-comment-249a9c61,css,apps/gestao-vite/src/paginas/contrato/contrato.css,44,44,css,1,/* 80px: o respiro do pé da tela deles. Não há token de 80; dois de 40 há. */,,,,,,
+   JavaScript e some sozinho. */",translate,"The error message that comes back from Server Actions (`?erro=`). It has no counterpart in the source: there the failure becomes a toast (`BlipToastService`), which only exists with JavaScript and disappears on its own.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:431-433; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-249a9c61,css,apps/gestao-vite/src/paginas/contrato/contrato.css,44,44,css,1,/* 80px: o respiro do pé da tela deles. Não há token de 80; dois de 40 há. */,translate,80px: their screen's footer breathing room. There's no 80 token; there are two of 40.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:44; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b1ba95fe,css,apps/gestao-vite/src/paginas/contrato/contrato.css,443,461,css,8,"/* ==========================================================================
    Membros do contrato (/contrato/membros)
 
@@ -2168,16 +2221,29 @@ css-comment-b1ba95fe,css,apps/gestao-vite/src/paginas/contrato/contrato.css,443,
      .bp-btn--bot #3f7de8                               → var(--p-marca)
      .bp-btn--delete #ff4c4c                            → var(--p-erro-conteudo)
      .bp-divider-h #c9dfe4                              → var(--line)
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Contract members (/contrato/membros)
+
+   A different source sheet: this screen is the same fragment's `/panel` route, but built with the OLD blip-toolkit (the `bp-*` classes), not the panel's `bds-*`. The measurements below come from `static/css/main.7b59c603.chunk.css` (`.bp-card`, `.bp-table`, `.bp-btn`, `.BlipSearch`, `.BlipDropdownButton`) and from `main.e8593b01.chunk.js`'s `styled-components` (`da`, `_t`). This part's color mapping:
+     .bp-card background #fff / shadow rgba(181,205,211,.29) → var(--surface) / var(--p-sombra-2)
+     .bp-table header rule #dee8ec               → var(--line)
+     .bp-table odd row #fff / even #f5f8f9          → var(--surface) / var(--surface-2)
+     .bp-table marked row #d1e3fa                    → var(--p-marca-suave)
+     scrollbar #b9cbd3                          → var(--line-strong)
+     .BlipSearch line #94a3ab / focus #b3d4ff       → var(--line-strong) / var(--p-marca)
+     .bp-btn--bot #3f7de8                               → var(--p-marca)
+     .bp-btn--delete #ff4c4c                            → var(--p-erro-conteudo)
+     .bp-divider-h #c9dfe4                              → var(--line)
+   ==========================================================================",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:443-461; Blip old blip-toolkit fragment capture measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2586816d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,469,472,css,6,"/* O cabeçalho da origem não é da PÁGINA: o fragmento manda
    `setHeaderContent({ redirect: ""/"", text: ""Membros do contrato {nome}"" })` e
    quem desenha é a barra do portal. Sem esse canal na nossa barra, a mesma
-   dupla — a seta e a frase — fica no alto da página. */",,,,,,
+   dupla — a seta e a frase — fica no alto da página. */",translate,"The source's header isn't the PAGE's: the fragment sends `setHeaderContent({ redirect: ""/"", text: ""Membros do contrato {nome}"" })` and the portal bar is what draws it. Without that channel in our bar, the same pair — the arrow and the phrase — stays at the top of the page.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:469-472; keeps the literal setHeaderContent payload untranslated; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e9e09ff1,css,apps/gestao-vite/src/paginas/contrato/contrato.css,49,50,css,0,"/* `animation: fadeIn ease-in 0.5s; animation-iteration-count: 1` — o módulo 25
-   do bundle é só `from { opacity: 0 } to { opacity: 1 }`. */",,,,,,
-css-comment-077987b4,css,apps/gestao-vite/src/paginas/contrato/contrato.css,492,492,css,2,"/* `_t`: o quadro que embrulha o cartão, com o mesmo fadeIn do painel. */",,,,,,
+   do bundle é só `from { opacity: 0 } to { opacity: 1 }`. */",translate,`animation: fadeIn ease-in 0.5s; animation-iteration-count: 1` — bundle module 25 is just `from { opacity: 0 } to { opacity: 1 }`.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:49-50; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-077987b4,css,apps/gestao-vite/src/paginas/contrato/contrato.css,492,492,css,2,"/* `_t`: o quadro que embrulha o cartão, com o mesmo fadeIn do painel. */",translate,"`_t`: the frame wrapping the card, with the same fadeIn as the panel.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:492; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f4d32782,css,apps/gestao-vite/src/paginas/contrato/contrato.css,504,505,css,1,"/* `.bp-card`. O `--left-arrow` é o bico do canto superior esquerdo: um
-   quadrado de .46875rem com duas bordas pintadas, girado -45°. */",,,,,,
+   quadrado de .46875rem com duas bordas pintadas, girado -45°. */",translate,"`.bp-card`. The `--left-arrow` is the top-left corner's notch: a .46875rem square with two painted borders, rotated -45°.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:504-505; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-56778689,css,apps/gestao-vite/src/paginas/contrato/contrato.css,530,534,css,6,"/* `new BlipTabs(""tab-nav"")` põe `.bp-tabs-container`: régua `thin solid #ccc`
    (→ `--line`) sob as abas; cada `li` com `padding: 10px 20px`, `margin: 0 5px`
    e `bottom: -1px`, para a marca da ativa cobrir a régua; texto 15px/600/1.5rem
