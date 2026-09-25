@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "api-comment-52cc0db9",
+      "action": "translate",
+      "new_text": "`subscribe_phone_number_webhook` must subscribe the app to the WABA before any override, as Meta requires (chatwoot#13097). The per-number override wins over the WABA callback, allowing two numbers in one WABA to use different URLs.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:181-185; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-48c60a20",
+      "action": "translate",
+      "new_text": "Strip secrets from text that may become an error message; Pipe addition.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:198; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-40a56ac1",
+      "action": "translate",
+      "new_text": "Pipe rejects missing variables before calling Meta. The original sends an empty string and receives a less specific Meta error.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:211; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f558f062",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:212; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6f16407d",
+      "action": "translate",
+      "new_text": "`handle_response`: a refusal throws with the step's message; success returns JSON.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:247; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0f2b5d82",
+      "action": "translate",
+      "new_text": "Paginate because a WABA can contain more numbers than one Graph page.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:299; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e9d89fde",
+      "action": "translate",
+      "new_text": "Release the number from this app so the customer can move it to another provider.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:352; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-84bee12c",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb. This Graph client serves embedded signup, manual setup, number health, and teardown with the original endpoints, payloads, and order; methods `trocarCodigoPorToken`, `buscarTodosOsNumeros`, `buscarModelos`, `buscarPermissoes`, `buscarNumero`, `registrarNumero`, `descadastrarNumero`, `numeroVerificado`, `assinarWebhookDoNumero`, `assinarAppNaWaba`, `sobrescreverCallbackDoNumero`, `limparCallbackDoNumero`, `desassinarAppDaWaba`, and `pedir` correspond to the Chatwoot operations. Pipe never includes raw response bodies in exceptions: Meta may echo submitted credentials, so only scrubbed error message and code are logged through `esconder`. `buscar` is injectable for network-free tests. `ClienteGraphDuble` enables the full connection path before Meta approves the app; `PIPE_WHATSAPP_CONEXAO=real` uses Graph and other values use the fake. The default API version is v26.0 (Graph changelog, 2026-09-11), versus Chatwoot v22.0; Pipe's former v21.0 expires 2027-01-21.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:4-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-345ecd73",
+      "action": "translate",
+      "new_text": "Unsubscribe the app from the whole WABA only when its last channel leaves.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:403; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-88554249",
+      "action": "translate",
+      "new_text": "Only a Meta refusal means the secret is wrong; a network outage is different.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:428; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-58bf1fd3",
+      "action": "translate",
+      "new_text": "Resumable Upload API takes two calls: open a session on the app and send all bytes with `file_offset: 0`. The session ID includes `?sig=…`; append it to the URL without encoding or the signature will fail.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:455-459; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-468e9fce",
+      "action": "translate",
+      "new_text": "Resend the original `WEBHOOK_DEFAULT_FIELDS` on every subscription so Meta does not reset them to defaults.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ec797f60",
+      "action": "translate",
+      "new_text": "What the fake recorded, deliberately without tokens because tests and logs consume it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:515; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2592d641",
+      "action": "translate",
+      "new_text": "Pipe's Graph fake replaces Chatwoot's WebMock. It deterministically maps each code to a token and each token to a number, enabling full VPS connection tests and proving a number cannot join two tenants. Prefixes exercise failures without an approved app: `invalido…` makes Meta refuse exchange, `sem-token…` returns no `access_token`, and `sem-permissao…` denies WABA access.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:525-535; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0cab0bf9",
+      "action": "translate",
+      "new_text": "Shared across instances: each call has its own token but one recorded call list.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:539; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c2a029b1",
+      "action": "translate",
+      "new_text": "Stable eleven-digit value derived from arbitrary text.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:548; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5120bbac",
+      "action": "translate",
+      "new_text": "Per-number profile shared across instances, like the call log.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:679; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-09831928",
+      "action": "translate",
+      "new_text": "A valid hexadecimal secret starting with `bad` belongs to another app.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:687; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f7f9b66e",
+      "action": "translate",
+      "new_text": "Templates are keyed by WABA; new templates start as `PENDING`, as in Meta.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:715; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9f1c5b54",
+      "action": "translate",
+      "new_text": "Chatwoot `Whatsapp::FacebookApiClient.new(access_token)` uses the fake outside production.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:755; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4bad8c10",
+      "action": "translate",
+      "new_text": "Replace the factory at runtime for tests.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:764; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ee46513c",
+      "action": "translate",
+      "new_text": "Template component accepted and returned by Meta (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`). The last two fields apply only to AUTHENTICATION templates. Meta supplies their text: `BODY.add_security_recommendation` adds \"não compartilhe este código\", and `FOOTER.code_expiration_minutes` (1–90) adds \"este código expira em N minutos\"; see `montarModelo` in `modelos.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:88-95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d5b421a7",
+      "action": "translate",
+      "new_text": "Chatwoot `Channel::Whatsapp#setup_webhooks`: webhook failure does not undo channel creation. Mark it for reauthorization so the Channels screen asks the customer to reconnect.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:145-149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-30fae516",
+      "action": "translate",
+      "new_text": "Template recategorization from the original Alerts Settings tab.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71b45d4a",
+      "action": "translate",
+      "new_text": "`true` means coexistence with WhatsApp Business: the number is already registered, so skip registration without checking health. `null` means manual setup gave no hint; use `is_on_biz_app` to decide.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:47-51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6ab15cbc",
+      "action": "translate",
+      "new_text": "Without health data, follow the original's conservative decision and do not register.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e963ff75",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb and `setup_webhooks` in app/models/channel/whatsapp.rb. First register the number with `POST /{phone}/register` and a six-digit PIN only if not verified/connected or still pending at Meta; a failure is recorded in `erroDeRegistro` and does not stop setup. Next subscribe the app to the WABA and point the number callback at the channel route; failure stops with \"Falha ao configurar o webhook\". Keep the PIN for future reauthorization because Meta rejects a different PIN, but encrypt it (`pinVerificacao` in `CAMPOS_SECRETOS_DE_CANAL`). Pipe also subscribes the three fields without per-number overrides for umbrella routing (webhook-por-cliente spec §7), checks the 200-character override URL limit before calling Meta, and excludes `calls` because Pipe has no voice support.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:9-30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1b8d22f0",
+      "action": "translate",
+      "new_text": "If health checking fails, assume unverified, the safer choice in the original.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fd1c52fe",
+      "action": "translate",
+      "new_text": "`setup_webhook`: registration failure also counts as a webhook error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:111; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e1c005fb",
+      "action": "translate",
+      "new_text": "`webhook_error`; null means `webhook_setup?` succeeded.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-148e72e5",
+      "action": "translate",
+      "new_text": "Customer-entered callback for their app (Dashboard → WhatsApp → Configuration). Messages arrive through the existing number override, but template status, quality, and `account_update` cannot be overridden and arrive only if their app points here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:30-35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f7ae3406",
+      "action": "translate",
+      "new_text": "Reconnect over the existing channel. The original platform-owned token reconnects the same channel when invalidated; WhatsApp has no disconnect button (`FICHA-conectar-canal-no-bot.md` §5). Here the customer-owned token expires, so without this route replacement would fail on its own number (`numero_em_uso`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:47-53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-44a6c379",
+      "action": "translate",
+      "new_text": "The App Secret belongs to the customer's app and may change with the token. Without the new secret, webhook signatures fail. `reautorizar` originated in embedded signup, but manual setup owns this value.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:72-74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0e117b49",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb. Validate, create channel and inbox (`manual_setup_v2`), and configure webhook. A failed webhook leaves the channel and returns `erroDeWebhook` so the UI can explain it; the original runs setup explicitly rather than in a save callback. Unlike embedded signup, the token belongs to the customer's system user, so disconnecting must not deregister the number or unsubscribe its WABA (`desmontagem-de-webhook.ts`). Pipe additionally uses the customer's App Secret to verify Meta signatures, while Chatwoot uses one installation-wide secret.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:9-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-226f58b1",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/channel_creation_service.rb. Validate, reject a number already used by any tenant, and create channel and inbox in one transaction; a channel without an inbox cannot place inbound messages. Pipe encrypts token and `verify_token` with `cifrarConfig`, points the inbox at the first active queue (`fila_padrao_id`), audits the actor in the same transaction, and uses the unique `numero_id` index to close the concurrent-connection race left by `find_by` (one attempt gets `23505`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:11-25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a9be6bb2",
+      "action": "translate",
+      "new_text": "Only manual setup chooses the name; embedded signup uses the company's name.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c888716",
+      "action": "translate",
+      "new_text": "Manual setup supplies the customer's app secret and ID, which sign its webhook.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-55a143e5",
+      "action": "translate",
+      "new_text": "Chatwoot pt_BR error `errors.whatsapp.phone_number_already_exists`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-36e154df",
+      "action": "translate",
+      "new_text": "`build_provider_config`: embedded signup uses Pipe's app secret. If absent, do not store one and verify webhooks with environment `WHATSAPP_APP_SECRET`. Manual setup uses the customer's app secret.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f237c247",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-63d91983",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-64e35951",
+      "action": "translate",
+      "new_text": "Run serially, never with `Promise.all`: parallel queries in one transaction can lose `pipe.tenant_id` and run without a tenant; see the README.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-28d9a675",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-14199b33",
+      "action": "translate",
+      "new_text": "`waba_sibling_exists?` uses the owner role for the same reason as global number uniqueness: WABA subscription spans numbers that may belong to another Pipe tenant.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts:55-58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-02614661",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb. Each teardown step is best effort so even a revoked token cannot prevent channel disconnection. Clear the number callback; deregister the number from Pipe's app only for embedded signup, since doing so for manual setup would disconnect the customer's app; unsubscribe the app from the WABA only for embedded signup and only after its last active channel leaves, because subscription covers the whole WABA.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts:7-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-75eebe57",
+      "action": "translate",
+      "new_text": "Missing, forged, expired, or other-session `state` values all return the same response to avoid revealing which check failed.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/estado-de-conexao.ts:57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f018d7ff",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/estado-de-conexao.ts:58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-02c2958d",
+      "action": "translate",
+      "new_text": "Embedded signup `state` is a Pipe addition. Chatwoot's `FB.login` SDK returns `code` to its own JavaScript and sends an authenticated POST; Blip uses redirect with random per-opening `state`. Pipe also binds `state` to prevent an attacker from making an administrator's browser submit a code for the attacker's WABA, causing the tenant to serve someone else's number. The server issues a ten-minute `state` bound to session user and tenant, encrypted and authenticated by the Meta-token keyring (AES-256-GCM); tampering makes decryption fail without a new table. ponytail: it is not single-use; replay within ten minutes is bound to the same user and tenant, and Meta's `code` is single-use for 30 seconds. Add a spent-state table if single-use state becomes required.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/estado-de-conexao.ts:6-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d3aca371",
+      "action": "translate",
+      "new_text": "Meta's WABA template webhooks update local models without polling: `message_template_status_update` reports approval, rejection, pause, or disablement; `template_category_update` reports recategorization, such as utility to marketing, which can change price and triggers Blip's recategorization alert (`FICHA-canal-whatsapp.md` §4). These fields have no per-number override, so they arrive at the customer's app webhook configured to the channel URL. Update by (channel, name, language), the `template_mensagem` key. Send alert through outbound webhook `modelo.recategorizado` in the transaction, including configured emails, and email those addresses through `dominio/email.ts` after commit. Email failure cannot undo the model update or queued webhook.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:10-26; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-87df6c1b",
+      "action": "translate",
+      "new_text": "Return the number of changed models; ignore unknown local models until synchronization imports them.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00e24ad5",
+      "action": "translate",
+      "new_text": "Send once per event and only when there is something to report.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d16a9a67",
+      "action": "translate",
+      "new_text": "Use addresses configured on the channel; an empty list means all administrators.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:182; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4480803d",
+      "action": "translate",
+      "new_text": "Send after commit without failing the already completed model update and webhook.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:201; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-24187803",
+      "action": "translate",
+      "new_text": "An empty address list means all administrators, as the original screen says (`preferencias.ts`). Pipe defines administrators here as tenant users with `canal.gerenciar`, who manage the channel and can respond to a model price change.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:68-73; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a57a6919",
+      "action": "translate",
+      "new_text": "Plain-text alert email describing the change and where to inspect it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-819dc83f",
+      "action": "translate",
+      "new_text": "`+` followed only by digits, as in the original channel `phone_number`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/info-do-numero.ts:16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-25bdebc4",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/phone_info_service.rb. A supplied identifier is authoritative: if signup's `phone_number_id` is absent from the WABA, fail. Never fall back to its first number, which could silently connect or reauthorize the wrong number in a multi-number WABA.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/info-do-numero.ts:5-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92493112",
+      "action": "translate",
+      "new_text": "Coexistence may omit `phone_number_id`; on reauthorization match the channel's existing number instead of the WABA's first number.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/info-do-numero.ts:64; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-866bd6fc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/info-do-numero.ts:65; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-49edba2e",
+      "action": "translate",
+      "new_text": "Without any identifier, only a single number is unambiguous.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/info-do-numero.ts:70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-50a2ab64",
+      "action": "translate",
+      "new_text": "Manage WhatsApp templates directly through Meta using the channel token. Previously `template_mensagem` was manually registered and stayed `pendente`; now Meta is authoritative. Synchronize all WABA templates into the local copy (status, category, body, header), removing ones missing at Meta. Create by submitting for Meta review and saving a `pendente` copy. Delete at Meta across all languages of a name, then locally. Preserve Pipe's `variaveis` names on sync if the number of `{{n}}` body slots is unchanged. Headers use text or media; media requires a sample file uploaded through Resumable Upload API (`subirFoto`) as `example.header_handle`. AUTHENTICATION components are Meta-defined, not free text; see `montarComponentesDeAutenticacao`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:10-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f3ce2099",
+      "action": "translate",
+      "new_text": "Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:112-120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e58e0ce0",
+      "action": "translate",
+      "new_text": "Text variables in occurrence order: `{{1}}`, `{{2}}`, or named `{{nome}}`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:127; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e4c6885c",
+      "action": "translate",
+      "new_text": "Skip unknown Pipe categories; the table's `check` constraint would reject them.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:148; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-182d4c25",
+      "action": "translate",
+      "new_text": "A newly created authentication template has no `text` because Meta supplies it; keep a local placeholder until synchronization.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cf5ef196",
+      "action": "translate",
+      "new_text": "Templates in categories unknown to Pipe are excluded.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:183; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-205ed98d",
+      "action": "translate",
+      "new_text": "Write serially, as for every write inside `noTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:204; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f9503882",
+      "action": "translate",
+      "new_text": "Meta names and languages cannot contain `|`, so it is a safe separator.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:228; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-39cf3a2b",
+      "action": "translate",
+      "new_text": "`add_security_recommendation` adds Meta's \"não compartilhe este código\" to the body. Default it on, as in the source card (`authenticationMessage`: \"… Para sua segurança, não o compartilhe.\").",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:251-255; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-86151333",
+      "action": "translate",
+      "new_text": "`code_expiration_minutes` (1–90) adds Meta's \"este código expira em N minutos\" footer; absent means no footer.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:257; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-79ae9882",
+      "action": "translate",
+      "new_text": "Copy button label for `OTP`/`COPY_CODE`, up to 25 characters; default is \"Copiar código\".",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:259; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-16502d1a",
+      "action": "translate",
+      "new_text": "Header text; absent or empty means no text header.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:267; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2863092f",
+      "action": "translate",
+      "new_text": "Header sample media in `data:<tipo>;base64,…` form, as for a profile photo: JPG/PNG image, MP4 video, or PDF document. MIME determines header format. Excludes `cabecalho`, since the header is text or media.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:269-273; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3ed7b529",
+      "action": "translate",
+      "new_text": "Meta requires one sample per body variable in occurrence order.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:277; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-363879ef",
+      "action": "translate",
+      "new_text": "Sample for a text header variable, if present.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:279; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0839a097",
+      "action": "translate",
+      "new_text": "Authentication category only; ignored otherwise.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:281; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3228e222",
+      "action": "translate",
+      "new_text": "MIME used as Resumable Upload API `file_type`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:294; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-115f0423",
+      "action": "translate",
+      "new_text": "Validate sample header media type and size before calling Meta.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:298; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-43714dbc",
+      "action": "translate",
+      "new_text": "Build AUTHENTICATION template components per Cloud API \"Authentication Templates › Create authentication template\" (`POST /{waba}/message_templates`, `category: AUTHENTICATION`). `BODY` omits `text`: Meta localizes \"{{1}} é seu código de verificação.\" and can append a no-sharing sentence via `add_security_recommendation: true`. `FOOTER` uses only `code_expiration_minutes`; absence means no footer. `BUTTONS` contains one `{ type: 'OTP', otp_type: 'COPY_CODE', text }` button; `ONE_TAP` and `ZERO_TAP` need Android `package_name` and `signature_hash`, which the UI lacks. Reject free-form body, header, and footer rather than silently dropping input. Verify with a real token the exact GET fields (`BODY.text`, `FOOTER.text`) and whether omitting `add_security_recommendation` means false.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:348-368; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f1765f5e",
+      "action": "translate",
+      "new_text": "Validate the entire request before `subirMidia`: invalid body, media type, or size must fail without a Meta upload.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:408-412; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-952b3bfb",
+      "action": "translate",
+      "new_text": "After validation, only assemble components; upload the file now, when no later validation can reject it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:446; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d3bae3f8",
+      "action": "translate",
+      "new_text": "Media sample is the Resumable Upload API handle in `header_handle`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:453; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ea2120d2",
+      "action": "translate",
+      "new_text": "Upload media to the token-owning app, either the customer's manual app or Pipe's embedded app, as for profile photos.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:467; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0acf910b",
+      "action": "translate",
+      "new_text": "Cloud API Authentication Templates: `OTP`/`COPY_CODE` labels have a 25-character limit, `code_expiration_minutes` is 1–90, and the default button text is Blip's `copyButton` (\"Copiar código\", `blip-conteudos-templates.md`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:62-67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2672e6dc",
+      "action": "translate",
+      "new_text": "Validate header media against Meta formats and the original UI (`blip-conteudos-templates.md`, `attachment`): JPG/JPEG/PNG image up to 5 MB (Cloud API Supported Media Types), PDF document up to 100 MB, or MP4 video up to 16 MB (`regras-blip.md` §1.6). Meta validates again; checking before upload gives the user the screen's specific error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:75-84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71ae9bc3",
+      "action": "translate",
+      "new_text": "Run serially; the second call matters only if the first reached the number.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a79845b5",
+      "action": "translate",
+      "new_text": "Validate and map only supplied fields to Meta names; absent fields remain unchanged.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96793603",
+      "action": "translate",
+      "new_text": "Meta rejects an empty `about`; it can be replaced but not removed.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a9c2869a",
+      "action": "translate",
+      "new_text": "Meta's category list changes; validate only its code format here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:160; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c99ed79",
+      "action": "translate",
+      "new_text": "Log the change without the photo or upload handle; audit records describe changes, not image data.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:214; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-05c2100a",
+      "action": "translate",
+      "new_text": "Meta accepts JPEG or PNG profile photos up to 5 MB.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d217033d",
+      "action": "translate",
+      "new_text": "Read-only display name and Meta review status.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db88eece",
+      "action": "translate",
+      "new_text": "Business profile visible to WhatsApp contacts: photo, about, description, address, email, sites, and category. Pipe adds profile editing absent from Chatwoot, using `/{phone}/whatsapp_business_profile` and `whatsapp_business_management` with either embedded or manual token (`validacao-da-configuracao-manual.ts`). Display name is intentionally read-only because Meta reviews changes; expose its review status. Validate documented Cloud API limits locally so the UI identifies invalid fields before Meta repeats the rejection.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/perfil.ts:9-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ef5d8897",
+      "action": "translate",
+      "new_text": "Blip WhatsApp channel Settings and Alert Settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §§3–4) are Pipe choices in channel `config`, not Meta fields. Quick replies use buttons for at most three choices and numbered text for four or more. Menus use lists for at most ten choices and text otherwise. Template recategorization alerts go to configured emails, or all administrators when empty. Both switches default on as observed in Blip.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/preferencias.ts:10-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6619ec7",
+      "action": "translate",
+      "new_text": "The screen submits comma-separated values; the API also accepts a prepared list.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/preferencias.ts:54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b8b76846",
+      "action": "translate",
+      "new_text": "The worker owns the rule because it assembles the message; reexport it here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/preferencias.ts:7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aaba6770",
+      "action": "translate",
+      "new_text": "An older client may omit `phone_number_id`; fall back to the value Meta just returned.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/reautorizacao.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0d20f74e",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/reauthorization_service.rb. Reauthorize an existing channel, never create another: require the same number and replace its token and possibly WABA. This restores a channel marked for reauthorization or disconnected. Pipe also sets `ativo = true`; Chatwoot deletes disconnected channels, but Pipe keeps history and only disables them, so recreating would collide with the same number.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/reautorizacao.ts:9-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-991232fd",
+      "action": "translate",
+      "new_text": "`platform_type` or `throughput_level` equal to `NOT_APPLICABLE` means provisioning is still underway.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/saude.ts:107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-792eb2fa",
+      "action": "translate",
+      "new_text": "`MINIMUM_HEALTH_API_VERSION`: health fields exist only from v24 onward.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/saude.ts:12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

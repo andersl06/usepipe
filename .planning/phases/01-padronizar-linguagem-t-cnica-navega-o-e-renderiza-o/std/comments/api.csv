@@ -5025,13 +5025,13 @@ api-comment-52cc0db9,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,181,185,
    * `subscribe_phone_number_webhook`: o app na WABA primeiro — a Meta exige isso
    * antes de qualquer override (chatwoot#13097). O override por NÚMERO ganha do
    * da WABA, e é o que deixa dois números da mesma WABA irem para URLs diferentes.
-   */",,,,,,
-api-comment-48c60a20,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,198,198,jsdoc,1,/** Tira segredo de texto que vai virar mensagem de erro. Acréscimo do Pipe. */,,,,,,
-api-comment-40a56ac1,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,211,211,line,1,"// Acréscimo do Pipe: o original manda string vazia e deixa a Meta recusar,",,,,,,
-api-comment-f558f062,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,212,212,line,2,// o que vira um erro dela sem dizer qual variável falta.,,,,,,
-api-comment-6f16407d,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,247,247,jsdoc,2,/** `handle_response`: recusa vira exceção com a mensagem do passo; sucesso devolve o JSON. */,,,,,,
-api-comment-0f2b5d82,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,299,299,jsdoc,4,/** Paginado: uma WABA pode ter mais números que uma página do Graph. */,,,,,,
-api-comment-e9d89fde,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,352,352,jsdoc,2,"/** Solta o número deste app, para o cliente poder levá-lo a outro provedor. */",,,,,,
+   */",translate,"`subscribe_phone_number_webhook` must subscribe the app to the WABA before any override, as Meta requires (chatwoot#13097). The per-number override wins over the WABA callback, allowing two numbers in one WABA to use different URLs.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:181-185; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-48c60a20,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,198,198,jsdoc,1,/** Tira segredo de texto que vai virar mensagem de erro. Acréscimo do Pipe. */,translate,Strip secrets from text that may become an error message; Pipe addition.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:198; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-40a56ac1,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,211,211,line,1,"// Acréscimo do Pipe: o original manda string vazia e deixa a Meta recusar,",translate,Pipe rejects missing variables before calling Meta. The original sends an empty string and receives a less specific Meta error.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:211; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f558f062,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,212,212,line,2,// o que vira um erro dela sem dizer qual variável falta.,remove,,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:212; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6f16407d,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,247,247,jsdoc,2,/** `handle_response`: recusa vira exceção com a mensagem do passo; sucesso devolve o JSON. */,translate,`handle_response`: a refusal throws with the step's message; success returns JSON.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:247; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0f2b5d82,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,299,299,jsdoc,4,/** Paginado: uma WABA pode ter mais números que uma página do Graph. */,translate,Paginate because a WABA can contain more numbers than one Graph page.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:299; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e9d89fde,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,352,352,jsdoc,2,"/** Solta o número deste app, para o cliente poder levá-lo a outro provedor. */",translate,Release the number from this app so the customer can move it to another provider.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:352; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-84bee12c,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,4,42,jsdoc,26,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb
  *
@@ -5070,16 +5070,16 @@ api-comment-84bee12c,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,4,42,jsd
  * - **A versão padrão é a v26.0**, a mais nova do changelog oficial do Graph em
  *   11/09/2026 (o original usa `v22.0`). A v21.0 que o Pipe usava vale só até
  *   21/01/2027.
- */",,,,,,
-api-comment-345ecd73,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,403,403,jsdoc,2,/** Tira a assinatura do app da WABA inteira — só quando o último canal dela sai. */,,,,,,
-api-comment-88554249,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,428,428,line,1,"// Só a recusa da Meta quer dizer ""segredo errado""; rede fora é outro problema.",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb. This Graph client serves embedded signup, manual setup, number health, and teardown with the original endpoints, payloads, and order; methods `trocarCodigoPorToken`, `buscarTodosOsNumeros`, `buscarModelos`, `buscarPermissoes`, `buscarNumero`, `registrarNumero`, `descadastrarNumero`, `numeroVerificado`, `assinarWebhookDoNumero`, `assinarAppNaWaba`, `sobrescreverCallbackDoNumero`, `limparCallbackDoNumero`, `desassinarAppDaWaba`, and `pedir` correspond to the Chatwoot operations. Pipe never includes raw response bodies in exceptions: Meta may echo submitted credentials, so only scrubbed error message and code are logged through `esconder`. `buscar` is injectable for network-free tests. `ClienteGraphDuble` enables the full connection path before Meta approves the app; `PIPE_WHATSAPP_CONEXAO=real` uses Graph and other values use the fake. The default API version is v26.0 (Graph changelog, 2026-09-11), versus Chatwoot v22.0; Pipe's former v21.0 expires 2027-01-21.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:4-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-345ecd73,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,403,403,jsdoc,2,/** Tira a assinatura do app da WABA inteira — só quando o último canal dela sai. */,translate,Unsubscribe the app from the whole WABA only when its last channel leaves.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:403; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-88554249,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,428,428,line,1,"// Só a recusa da Meta quer dizer ""segredo errado""; rede fora é outro problema.",translate,Only a Meta refusal means the secret is wrong; a network outage is different.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:428; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-58bf1fd3,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,455,459,jsdoc,6,"/**
    * Resumable Upload API em duas chamadas: abre a sessão no app e manda os bytes
    * de uma vez (`file_offset: 0`). O id da sessão já vem com `?sig=…` — vai
    * colado na URL, sem codificar, senão a assinatura dela deixa de bater.
-   */",,,,,,
-api-comment-468e9fce,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,46,46,jsdoc,3,/** `WEBHOOK_DEFAULT_FIELDS` do original: reenviados em toda assinatura para a Meta não voltar ao padrão. */,,,,,,
-api-comment-ec797f60,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,515,515,jsdoc,4,"/** O que o dublê registrou. Sem token nenhum, de propósito: isto vai para o teste e para o log. */",,,,,,
+   */",translate,Resumable Upload API takes two calls: open a session on the app and send all bytes with `file_offset: 0`. The session ID includes `?sig=…`; append it to the URL without encoding or the signature will fail.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:455-459; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-468e9fce,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,46,46,jsdoc,3,/** `WEBHOOK_DEFAULT_FIELDS` do original: reenviados em toda assinatura para a Meta não voltar ao padrão. */,translate,Resend the original `WEBHOOK_DEFAULT_FIELDS` on every subscription so Meta does not reset them to defaults.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ec797f60,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,515,515,jsdoc,4,"/** O que o dublê registrou. Sem token nenhum, de propósito: isto vai para o teste e para o log. */",translate,"What the fake recorded, deliberately without tokens because tests and logs consume it.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:515; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2592d641,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,525,535,jsdoc,15,"/**
  * O dublê do Graph. Acréscimo do Pipe — o original testa com WebMock.
  *
@@ -5090,14 +5090,14 @@ api-comment-2592d641,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,525,535,
  * Prefixos de código que exercitam os caminhos de erro sem aplicativo aprovado:
  * `invalido…` (a Meta recusa a troca), `sem-token…` (a troca volta sem
  * `access_token`) e `sem-permissao…` (o token não alcança a WABA).
- */",,,,,,
-api-comment-0cab0bf9,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,539,539,jsdoc,1,"/** Compartilhado entre instâncias: cada chamada nasce com um token, o registro é um só. */",,,,,,
-api-comment-c2a029b1,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,548,548,jsdoc,1,/** Onze dígitos estáveis a partir de um texto qualquer. */,,,,,,
-api-comment-5120bbac,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,679,679,jsdoc,0,"/** Perfil por número, compartilhado entre instâncias como o registro de chamadas. */",,,,,,
-api-comment-09831928,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,687,687,jsdoc,2,/** Segredo que começa com `bad` (hexadecimal válido) é o segredo de outro app. */,,,,,,
-api-comment-f7f9b66e,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,715,715,jsdoc,1,"/** Modelos por WABA. O que é criado nasce `PENDING`, como na Meta. */",,,,,,
-api-comment-9f1c5b54,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,755,755,jsdoc,3,"/** `Whatsapp::FacebookApiClient.new(access_token)`, com o dublê no lugar quando não é produção. */",,,,,,
-api-comment-4bad8c10,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,764,764,jsdoc,2,/** Troca a fábrica em tempo de execução. Existe para o teste. */,,,,,,
+ */",translate,"Pipe's Graph fake replaces Chatwoot's WebMock. It deterministically maps each code to a token and each token to a number, enabling full VPS connection tests and proving a number cannot join two tenants. Prefixes exercise failures without an approved app: `invalido…` makes Meta refuse exchange, `sem-token…` returns no `access_token`, and `sem-permissao…` denies WABA access.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:525-535; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0cab0bf9,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,539,539,jsdoc,1,"/** Compartilhado entre instâncias: cada chamada nasce com um token, o registro é um só. */",translate,Shared across instances: each call has its own token but one recorded call list.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:539; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c2a029b1,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,548,548,jsdoc,1,/** Onze dígitos estáveis a partir de um texto qualquer. */,translate,Stable eleven-digit value derived from arbitrary text.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:548; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5120bbac,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,679,679,jsdoc,0,"/** Perfil por número, compartilhado entre instâncias como o registro de chamadas. */",translate,"Per-number profile shared across instances, like the call log.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:679; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-09831928,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,687,687,jsdoc,2,/** Segredo que começa com `bad` (hexadecimal válido) é o segredo de outro app. */,translate,A valid hexadecimal secret starting with `bad` belongs to another app.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:687; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f7f9b66e,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,715,715,jsdoc,1,"/** Modelos por WABA. O que é criado nasce `PENDING`, como na Meta. */",translate,"Templates are keyed by WABA; new templates start as `PENDING`, as in Meta.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:715; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9f1c5b54,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,755,755,jsdoc,3,"/** `Whatsapp::FacebookApiClient.new(access_token)`, com o dublê no lugar quando não é produção. */",translate,Chatwoot `Whatsapp::FacebookApiClient.new(access_token)` uses the fake outside production.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:755; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4bad8c10,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,764,764,jsdoc,2,/** Troca a fábrica em tempo de execução. Existe para o teste. */,translate,Replace the factory at runtime for tests.,security,apps/api/src/dominio/whatsapp/cliente-graph.ts:764; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ee46513c,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,88,95,jsdoc,5,"/**
  * Um componente de template como a Meta devolve e recebe (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`).
  *
@@ -5105,19 +5105,19 @@ api-comment-ee46513c,api,apps/api/src/dominio/whatsapp/cliente-graph.ts,88,95,js
  * Meta e não nosso: `BODY.add_security_recommendation` acrescenta ""não
  * compartilhe este código"" e `FOOTER.code_expiration_minutes` (1 a 90) põe o
  * ""este código expira em N minutos"" — ver `montarModelo` em `modelos.ts`.
- */",,,,,,
+ */",translate,"Template component accepted and returned by Meta (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`). The last two fields apply only to AUTHENTICATION templates. Meta supplies their text: `BODY.add_security_recommendation` adds ""não compartilhe este código"", and `FOOTER.code_expiration_minutes` (1–90) adds ""este código expira em N minutos""; see `montarModelo` in `modelos.ts`.",security,apps/api/src/dominio/whatsapp/cliente-graph.ts:88-95; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d5b421a7,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,145,149,jsdoc,7,"/**
  * `Channel::Whatsapp#setup_webhooks`: webhook que falha não desfaz o canal — marca
  * o canal para reautorização, e a tela de Canais passa a pedir que o cliente
  * refaça a conexão.
- */",,,,,,
-api-comment-30fae516,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,35,35,line,1,"// A recategorização de modelo (aba ""Configurações de alerta"" da origem).",,,,,,
+ */",translate,Chatwoot `Channel::Whatsapp#setup_webhooks`: webhook failure does not undo channel creation. Mark it for reauthorization so the Channels screen asks the customer to reconnect.,integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:145-149; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-30fae516,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,35,35,line,1,"// A recategorização de modelo (aba ""Configurações de alerta"" da origem).",translate,Template recategorization from the original Alerts Settings tab.,integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-71b45d4a,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,47,51,jsdoc,6,"/**
    * `true`: número em coexistência com o app WhatsApp Business — já vem
    * registrado, e o registro é pulado sem nem perguntar a saúde. `null`: ninguém
    * disse (configuração manual), e a saúde decide pelo `is_on_biz_app`.
-   */",,,,,,
-api-comment-6ab15cbc,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,86,86,line,3,"// Sem saúde, a decisão conservadora do original: não registrar.",,,,,,
+   */",translate,"`true` means coexistence with WhatsApp Business: the number is already registered, so skip registration without checking health. `null` means manual setup gave no hint; use `is_on_biz_app` to decide.",integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:47-51; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6ab15cbc,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,86,86,line,3,"// Sem saúde, a decisão conservadora do original: não registrar.",translate,"Without health data, follow the original's conservative decision and do not register.",integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:86; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e963ff75,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,9,30,jsdoc,21,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb
  * e o `setup_webhooks` de app/models/channel/whatsapp.rb.
@@ -5139,26 +5139,26 @@ api-comment-e963ff75,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.t
  *   aceitam override e caem na rota guarda-chuva (spec webhook-por-cliente §7);
  * - o limite de 200 caracteres da URL de override é conferido antes da chamada;
  * - `calls` não entra: o Pipe não tem voz.
- */",,,,,,
-api-comment-1b8d22f0,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,97,97,line,2,"// Se a checagem falhar, supõe não verificado — o lado seguro, segundo o original.",,,,,,
-api-comment-fd1c52fe,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,111,111,line,1,// `setup_webhook`: erro de registro também conta como erro de webhook.,,,,,,
-api-comment-e1c005fb,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,28,28,jsdoc,0,/** `webhook_error`. `null` é o `webhook_setup?` verdadeiro. */,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb and `setup_webhooks` in app/models/channel/whatsapp.rb. First register the number with `POST /{phone}/register` and a six-digit PIN only if not verified/connected or still pending at Meta; a failure is recorded in `erroDeRegistro` and does not stop setup. Next subscribe the app to the WABA and point the number callback at the channel route; failure stops with ""Falha ao configurar o webhook"". Keep the PIN for future reauthorization because Meta rejects a different PIN, but encrypt it (`pinVerificacao` in `CAMPOS_SECRETOS_DE_CANAL`). Pipe also subscribes the three fields without per-number overrides for umbrella routing (webhook-por-cliente spec §7), checks the 200-character override URL limit before calling Meta, and excludes `calls` because Pipe has no voice support.",integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:9-30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1b8d22f0,api,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts,97,97,line,2,"// Se a checagem falhar, supõe não verificado — o lado seguro, segundo o original.",translate,"If health checking fails, assume unverified, the safer choice in the original.",integration,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fd1c52fe,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,111,111,line,1,// `setup_webhook`: erro de registro também conta como erro de webhook.,translate,`setup_webhook`: registration failure also counts as a webhook error.,integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:111; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e1c005fb,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,28,28,jsdoc,0,/** `webhook_error`. `null` é o `webhook_setup?` verdadeiro. */,translate,`webhook_error`; null means `webhook_setup?` succeeded.,integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-148e72e5,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,30,35,jsdoc,6,"/**
    * O que o cliente cola no webhook DO APP dele (Painel → WhatsApp → Configuração).
    * Mensagens chegam pelo override do número, que já foi feito; mas status de
    * template, qualidade e `account_update` não aceitam override e só chegam se o
    * app do cliente apontar para cá.
-   */",,,,,,
+   */",translate,"Customer-entered callback for their app (Dashboard → WhatsApp → Configuration). Messages arrive through the existing number override, but template status, quality, and `account_update` cannot be overridden and arrive only if their app points here.",integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:30-35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f7ae3406,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,47,53,jsdoc,7,"/**
    * Reconexão POR CIMA do canal que já existe. Na origem o token é da
    * plataforma e, quando ele cai, refaz-se a conexão no mesmo canal — não há
    * botão de desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
    * Aqui o token é do cliente e expira; sem esta porta, trocar o token vira um
    * beco: criar de novo esbarra no próprio número (`numero_em_uso`).
-   */",,,,,,
+   */",translate,"Reconnect over the existing channel. The original platform-owned token reconnects the same channel when invalidated; WhatsApp has no disconnect button (`FICHA-conectar-canal-no-bot.md` §5). Here the customer-owned token expires, so without this route replacement would fail on its own number (`numero_em_uso`).",integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:47-53; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-44a6c379,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,72,74,block,7,"/* O App Secret é do app DO CLIENTE e pode ter mudado junto com o token —
        sem ele a assinatura do webhook deixa de conferir. A origem volta a ser a
-       manual: `reautorizar` nasceu para o cadastro embutido. */",,,,,,
+       manual: `reautorizar` nasceu para o cadastro embutido. */",translate,"The App Secret belongs to the customer's app and may change with the token. Without the new secret, webhook signatures fail. `reautorizar` originated in embedded signup, but manual setup owns this value.",integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:72-74; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0e117b49,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,9,24,jsdoc,19,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb
  *
@@ -5174,7 +5174,7 @@ api-comment-0e117b49,api,apps/api/src/dominio/whatsapp/configuracao-manual.ts,9,
  * Acréscimo do Pipe: o App Secret do app do cliente. É com ele que a Meta assina
  * o que manda para o nosso webhook — o Chatwoot usa um segredo global porque lá o
  * app é sempre o da instalação.
- */",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb. Validate, create channel and inbox (`manual_setup_v2`), and configure webhook. A failed webhook leaves the channel and returns `erroDeWebhook` so the UI can explain it; the original runs setup explicitly rather than in a save callback. Unlike embedded signup, the token belongs to the customer's system user, so disconnecting must not deregister the number or unsubscribe its WABA (`desmontagem-de-webhook.ts`). Pipe additionally uses the customer's App Secret to verify Meta signatures, while Chatwoot uses one installation-wide secret.",integration,apps/api/src/dominio/whatsapp/configuracao-manual.ts:9-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-226f58b1,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,11,25,jsdoc,15,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/channel_creation_service.rb
  *
@@ -5189,19 +5189,19 @@ api-comment-226f58b1,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,11,25
  * - auditoria com o autor, na mesma transação;
  * - o índice único de `numero_id` fecha a corrida que o `find_by` deixa aberta:
  *   duas conexões simultâneas do mesmo número, uma delas cai no `23505`.
- */",,,,,,
-api-comment-a9be6bb2,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,41,41,jsdoc,1,/** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */,,,,,,
-api-comment-1c888716,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,43,43,jsdoc,1,"/** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */",,,,,,
-api-comment-55a143e5,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,48,48,jsdoc,0,"/** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */",,,,,,
-api-comment-36e154df,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,76,76,line,0,// `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO,,,,,,
-api-comment-f237c247,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,77,77,line,1,"// aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`",,,,,,
-api-comment-63d91983,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,78,78,line,0,// do ambiente. Na configuração manual é o do app do cliente.,,,,,,
-api-comment-64e35951,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,98,98,line,0,"// Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o",,,,,,
-api-comment-28d9a675,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,99,99,line,3,// `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/channel_creation_service.rb. Validate, reject a number already used by any tenant, and create channel and inbox in one transaction; a channel without an inbox cannot place inbound messages. Pipe encrypts token and `verify_token` with `cifrarConfig`, points the inbox at the first active queue (`fila_padrao_id`), audits the actor in the same transaction, and uses the unique `numero_id` index to close the concurrent-connection race left by `find_by` (one attempt gets `23505`).",security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:11-25; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a9be6bb2,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,41,41,jsdoc,1,/** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */,translate,Only manual setup chooses the name; embedded signup uses the company's name.,security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c888716,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,43,43,jsdoc,1,"/** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */",translate,"Manual setup supplies the customer's app secret and ID, which sign its webhook.",security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-55a143e5,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,48,48,jsdoc,0,"/** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */",translate,Chatwoot pt_BR error `errors.whatsapp.phone_number_already_exists`.,security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-36e154df,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,76,76,line,0,// `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO,translate,"`build_provider_config`: embedded signup uses Pipe's app secret. If absent, do not store one and verify webhooks with environment `WHATSAPP_APP_SECRET`. Manual setup uses the customer's app secret.",security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:76; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f237c247,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,77,77,line,1,"// aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`",remove,,security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-63d91983,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,78,78,line,0,// do ambiente. Na configuração manual é o do app do cliente.,remove,,security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:78; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-64e35951,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,98,98,line,0,"// Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o",translate,"Run serially, never with `Promise.all`: parallel queries in one transaction can lose `pipe.tenant_id` and run without a tenant; see the README.",security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-28d9a675,api,apps/api/src/dominio/whatsapp/criacao-de-canal.ts,99,99,line,3,// `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.,remove,,security,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-14199b33,api,apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts,55,58,jsdoc,3,"/**
  * `waba_sibling_exists?`. Papel dono pelo mesmo motivo da unicidade do número: a
  * assinatura é da WABA, e a WABA pode ter número em outro cliente do Pipe.
- */",,,,,,
+ */",translate,`waba_sibling_exists?` uses the owner role for the same reason as global number uniqueness: WABA subscription spans numbers that may belong to another Pipe tenant.,integration,apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts:55-58; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-02614661,api,apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts,7,19,jsdoc,12,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb
  *
@@ -5214,9 +5214,9 @@ api-comment-02614661,api,apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts
  *    número conectado à mão, isso o desligaria no app do próprio cliente;
  * 3. tira a assinatura do app da WABA — só no cadastro embutido, e só quando este
  *    é o último canal ligado dela, porque a assinatura é da WABA inteira.
- */",,,,,,
-api-comment-75eebe57,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,57,57,line,1,"// Ausente, forjado, de outra sessão ou vencido dão a MESMA resposta: dizer qual",,,,,,
-api-comment-f018d7ff,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,58,58,line,1,// metade falhou é ensinar a quem tenta.,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb. Each teardown step is best effort so even a revoked token cannot prevent channel disconnection. Clear the number callback; deregister the number from Pipe's app only for embedded signup, since doing so for manual setup would disconnect the customer's app; unsubscribe the app from the WABA only for embedded signup and only after its last active channel leaves, because subscription covers the whole WABA.",integration,apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts:7-19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-75eebe57,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,57,57,line,1,"// Ausente, forjado, de outra sessão ou vencido dão a MESMA resposta: dizer qual",translate,"Missing, forged, expired, or other-session `state` values all return the same response to avoid revealing which check failed.",integration,apps/api/src/dominio/whatsapp/estado-de-conexao.ts:57; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f018d7ff,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,58,58,line,1,// metade falhou é ensinar a quem tenta.,remove,,integration,apps/api/src/dominio/whatsapp/estado-de-conexao.ts:58; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-02c2958d,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,6,24,jsdoc,25,"/**
  * O `state` do cadastro embutido. **Acréscimo do Pipe, não é porte.**
  *
@@ -5235,7 +5235,7 @@ api-comment-02c2958d,api,apps/api/src/dominio/whatsapp/estado-de-conexao.ts,6,24
  * ponytail: não é de uso único. Reapresentado dentro dos dez minutos, só serve à
  * mesma pessoa no mesmo tenant, e o `code` da Meta já é de uso único e vive 30 s.
  * Se virar requisito, é uma tabela de `state` queimado.
- */",,,,,,
+ */",translate,"Embedded signup `state` is a Pipe addition. Chatwoot's `FB.login` SDK returns `code` to its own JavaScript and sends an authenticated POST; Blip uses redirect with random per-opening `state`. Pipe also binds `state` to prevent an attacker from making an administrator's browser submit a code for the attacker's WABA, causing the tenant to serve someone else's number. The server issues a ten-minute `state` bound to session user and tenant, encrypted and authenticated by the Meta-token keyring (AES-256-GCM); tampering makes decryption fail without a new table. ponytail: it is not single-use; replay within ten minutes is bound to the same user and tenant, and Meta's `code` is single-use for 30 seconds. Add a spent-state table if single-use state becomes required.",integration,apps/api/src/dominio/whatsapp/estado-de-conexao.ts:6-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d3aca371,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,10,26,jsdoc,19,"/**
  * O que a Meta avisa sobre os modelos da WABA pelo webhook, sem ninguém sincronizar:
  *
@@ -5252,19 +5252,19 @@ api-comment-d3aca371,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,10,2
  * (na transação, com os e-mails configurados no corpo) e o E-MAIL para esses
  * mesmos endereços (`dominio/email.ts`), depois do commit. Falhar o e-mail não
  * desfaz nada: o modelo já está recategorizado e o webhook já foi enfileirado.
- */",,,,,,
-api-comment-87df6c1b,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,116,116,jsdoc,2,/** Devolve quantos modelos mudaram. Modelo que o Pipe não conhece é ignorado — sincronizar traz. */,,,,,,
-api-comment-00e24ad5,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,158,158,line,2,"// uma vez por evento, e só se houver o que avisar.",,,,,,
-api-comment-d16a9a67,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,182,182,line,2,// O que está configurado no canal; vazio = todos os administradores.,,,,,,
-api-comment-4480803d,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,201,201,line,3,"// Depois do commit, e sem derrubar: o modelo já mudou e o webhook já saiu.",,,,,,
+ */",translate,"Meta's WABA template webhooks update local models without polling: `message_template_status_update` reports approval, rejection, pause, or disablement; `template_category_update` reports recategorization, such as utility to marketing, which can change price and triggers Blip's recategorization alert (`FICHA-canal-whatsapp.md` §4). These fields have no per-number override, so they arrive at the customer's app webhook configured to the channel URL. Update by (channel, name, language), the `template_mensagem` key. Send alert through outbound webhook `modelo.recategorizado` in the transaction, including configured emails, and email those addresses through `dominio/email.ts` after commit. Email failure cannot undo the model update or queued webhook.",integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:10-26; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-87df6c1b,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,116,116,jsdoc,2,/** Devolve quantos modelos mudaram. Modelo que o Pipe não conhece é ignorado — sincronizar traz. */,translate,Return the number of changed models; ignore unknown local models until synchronization imports them.,integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-00e24ad5,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,158,158,line,2,"// uma vez por evento, e só se houver o que avisar.",translate,Send once per event and only when there is something to report.,integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:158; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d16a9a67,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,182,182,line,2,// O que está configurado no canal; vazio = todos os administradores.,translate,Use addresses configured on the channel; an empty list means all administrators.,integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:182; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4480803d,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,201,201,line,3,"// Depois do commit, e sem derrubar: o modelo já mudou e o webhook já saiu.",translate,Send after commit without failing the already completed model update and webhook.,integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:201; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-24187803,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,68,73,jsdoc,5,"/**
  * ""Vazio = todos os administradores"", como diz a tela da origem
  * (`preferencias.ts`). Decisão Pipe sobre quem é ""administrador"" aqui: quem tem
  * `canal.gerenciar` no tenant — a permissão de quem conecta e configura o canal,
  * e portanto de quem decide o que fazer com um modelo que mudou de preço.
- */",,,,,,
-api-comment-a57a6919,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,95,95,jsdoc,2,"/** O e-mail do alerta. Texto puro, com o que muda e onde olhar. */",,,,,,
-api-comment-819dc83f,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,16,16,jsdoc,0,"/** `+` e só dígitos, como o `phone_number` do canal no original. */",,,,,,
+ */",translate,"An empty address list means all administrators, as the original screen says (`preferencias.ts`). Pipe defines administrators here as tenant users with `canal.gerenciar`, who manage the channel and can respond to a model price change.",integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:68-73; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a57a6919,api,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts,95,95,jsdoc,2,"/** O e-mail do alerta. Texto puro, com o que muda e onde olhar. */",translate,Plain-text alert email describing the change and where to inspect it.,integration,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:95; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-819dc83f,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,16,16,jsdoc,0,"/** `+` e só dígitos, como o `phone_number` do canal no original. */",translate,"`+` followed only by digits, as in the original channel `phone_number`.",integration,apps/api/src/dominio/whatsapp/info-do-numero.ts:16; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-25bdebc4,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,5,12,jsdoc,8,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/phone_info_service.rb
  *
@@ -5272,10 +5272,10 @@ api-comment-25bdebc4,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,5,12,js
  * informado é autoritativo.** Se o `phone_number_id` veio do evento do cadastro e
  * não está na WABA, é erro — nunca cair para ""o primeiro número"", que numa WABA
  * com vários conectaria (ou reautorizaria) o número errado em silêncio.
- */",,,,,,
-api-comment-92493112,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,64,64,line,2,"// Coexistência pode chegar sem `phone_number_id`: na reautorização, casa pelo",,,,,,
-api-comment-866bd6fc,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,65,65,line,2,"// número que o canal já tem, em vez de pegar o primeiro da WABA.",,,,,,
-api-comment-49edba2e,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,70,70,line,1,"// Sem identificador nenhum, só um número único é inequívoco.",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/phone_info_service.rb. A supplied identifier is authoritative: if signup's `phone_number_id` is absent from the WABA, fail. Never fall back to its first number, which could silently connect or reauthorize the wrong number in a multi-number WABA.",integration,apps/api/src/dominio/whatsapp/info-do-numero.ts:5-12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-92493112,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,64,64,line,2,"// Coexistência pode chegar sem `phone_number_id`: na reautorização, casa pelo",translate,Coexistence may omit `phone_number_id`; on reauthorization match the channel's existing number instead of the WABA's first number.,integration,apps/api/src/dominio/whatsapp/info-do-numero.ts:64; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-866bd6fc,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,65,65,line,2,"// número que o canal já tem, em vez de pegar o primeiro da WABA.",remove,,integration,apps/api/src/dominio/whatsapp/info-do-numero.ts:65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-49edba2e,api,apps/api/src/dominio/whatsapp/info-do-numero.ts,70,70,line,1,"// Sem identificador nenhum, só um número único é inequívoco.",translate,"Without any identifier, only a single number is unambiguous.",integration,apps/api/src/dominio/whatsapp/info-do-numero.ts:70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-50a2ab64,api,apps/api/src/dominio/whatsapp/modelos.ts,10,31,jsdoc,24,"/**
  * Modelos de mensagem (templates) do WhatsApp direto na Meta, com o token do canal.
  *
@@ -5297,7 +5297,7 @@ api-comment-50a2ab64,api,apps/api/src/dominio/whatsapp/modelos.ts,10,31,jsdoc,24
  * da foto do perfil) e vai em `example.header_handle`. A categoria
  * AUTENTICAÇÃO tem componentes fixos da Meta (corpo com o código, botão de
  * copiar) — não é texto livre; ver `montarComponentesDeAutenticacao`.
- */",,,,,,
+ */",translate,"Manage WhatsApp templates directly through Meta using the channel token. Previously `template_mensagem` was manually registered and stayed `pendente`; now Meta is authoritative. Synchronize all WABA templates into the local copy (status, category, body, header), removing ones missing at Meta. Create by submitting for Meta review and saving a `pendente` copy. Delete at Meta across all languages of a name, then locally. Preserve Pipe's `variaveis` names on sync if the number of `{{n}}` body slots is unchanged. Headers use text or media; media requires a sample file uploaded through Resumable Upload API (`subirFoto`) as `example.header_handle`. AUTHENTICATION components are Meta-defined, not free text; see `montarComponentesDeAutenticacao`.",integration,apps/api/src/dominio/whatsapp/modelos.ts:10-31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f3ce2099,api,apps/api/src/dominio/whatsapp/modelos.ts,112,120,jsdoc,12,"/**
  * O texto que a Meta gera para o corpo de um modelo de autenticação — ela não
  * aceita texto nosso nessa categoria. Fica como cópia local até a primeira
@@ -5306,31 +5306,31 @@ api-comment-f3ce2099,api,apps/api/src/dominio/whatsapp/modelos.ts,112,120,jsdoc,
  * conferir com token real: a frase exata em pt_BR que a Meta devolve. O que
  * importa aqui é ter UM `{{1}}` (o código é o parâmetro 1 no envio), e o
  * complemento de segurança quando `add_security_recommendation` foi ligado.
- */",,,,,,
-api-comment-e58e0ce0,api,apps/api/src/dominio/whatsapp/modelos.ts,127,127,jsdoc,1,"/** As variáveis do texto, na ordem em que aparecem: `{{1}}`, `{{2}}` ou nomeadas `{{nome}}`. */",,,,,,
-api-comment-e4c6885c,api,apps/api/src/dominio/whatsapp/modelos.ts,148,148,line,3,// Categoria que o Pipe não conhece não entra: o `check` da tabela recusaria.,,,,,,
-api-comment-182d4c25,api,apps/api/src/dominio/whatsapp/modelos.ts,152,152,line,2,// Autenticação recém-criada vem sem `text` (o texto é da Meta): cópia local até a sincronização.,,,,,,
-api-comment-cf5ef196,api,apps/api/src/dominio/whatsapp/modelos.ts,183,183,jsdoc,2,"/** Modelos de categoria que o Pipe não conhece, deixados de fora. */",,,,,,
-api-comment-205ed98d,api,apps/api/src/dominio/whatsapp/modelos.ts,204,204,line,0,"// Em série, como toda escrita dentro de `noTenant`.",,,,,,
-api-comment-f9503882,api,apps/api/src/dominio/whatsapp/modelos.ts,228,228,line,1,// Nome e idioma não têm `|` (regras da Meta): serve de separador.,,,,,,
+ */",translate,Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable.,integration,apps/api/src/dominio/whatsapp/modelos.ts:112-120; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e58e0ce0,api,apps/api/src/dominio/whatsapp/modelos.ts,127,127,jsdoc,1,"/** As variáveis do texto, na ordem em que aparecem: `{{1}}`, `{{2}}` ou nomeadas `{{nome}}`. */",translate,"Text variables in occurrence order: `{{1}}`, `{{2}}`, or named `{{nome}}`.",integration,apps/api/src/dominio/whatsapp/modelos.ts:127; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e4c6885c,api,apps/api/src/dominio/whatsapp/modelos.ts,148,148,line,3,// Categoria que o Pipe não conhece não entra: o `check` da tabela recusaria.,translate,Skip unknown Pipe categories; the table's `check` constraint would reject them.,integration,apps/api/src/dominio/whatsapp/modelos.ts:148; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-182d4c25,api,apps/api/src/dominio/whatsapp/modelos.ts,152,152,line,2,// Autenticação recém-criada vem sem `text` (o texto é da Meta): cópia local até a sincronização.,translate,A newly created authentication template has no `text` because Meta supplies it; keep a local placeholder until synchronization.,integration,apps/api/src/dominio/whatsapp/modelos.ts:152; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cf5ef196,api,apps/api/src/dominio/whatsapp/modelos.ts,183,183,jsdoc,2,"/** Modelos de categoria que o Pipe não conhece, deixados de fora. */",translate,Templates in categories unknown to Pipe are excluded.,integration,apps/api/src/dominio/whatsapp/modelos.ts:183; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-205ed98d,api,apps/api/src/dominio/whatsapp/modelos.ts,204,204,line,0,"// Em série, como toda escrita dentro de `noTenant`.",translate,"Write serially, as for every write inside `noTenant`.",integration,apps/api/src/dominio/whatsapp/modelos.ts:204; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f9503882,api,apps/api/src/dominio/whatsapp/modelos.ts,228,228,line,1,// Nome e idioma não têm `|` (regras da Meta): serve de separador.,translate,"Meta names and languages cannot contain `|`, so it is a safe separator.",integration,apps/api/src/dominio/whatsapp/modelos.ts:228; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-39cf3a2b,api,apps/api/src/dominio/whatsapp/modelos.ts,251,255,jsdoc,5,"/**
    * `add_security_recommendation`: acrescenta ""não compartilhe este código"" ao
    * corpo. Nasce LIGADO — é o texto que a origem mostra no cartão
    * (`authenticationMessage`: ""… Para sua segurança, não o compartilhe."").
-   */",,,,,,
-api-comment-86151333,api,apps/api/src/dominio/whatsapp/modelos.ts,257,257,jsdoc,2,"/** `code_expiration_minutes` (1 a 90): o rodapé ""este código expira em N minutos"". Ausente = sem rodapé. */",,,,,,
-api-comment-79ae9882,api,apps/api/src/dominio/whatsapp/modelos.ts,259,259,jsdoc,0,"/** Texto do botão de copiar (`OTP`/`COPY_CODE`, até 25). Padrão ""Copiar código"". */",,,,,,
-api-comment-16502d1a,api,apps/api/src/dominio/whatsapp/modelos.ts,267,267,jsdoc,1,/** Texto do cabeçalho; ausente ou vazio = sem cabeçalho de texto. */,,,,,,
+   */",translate,"`add_security_recommendation` adds Meta's ""não compartilhe este código"" to the body. Default it on, as in the source card (`authenticationMessage`: ""… Para sua segurança, não o compartilhe."").",integration,apps/api/src/dominio/whatsapp/modelos.ts:251-255; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-86151333,api,apps/api/src/dominio/whatsapp/modelos.ts,257,257,jsdoc,2,"/** `code_expiration_minutes` (1 a 90): o rodapé ""este código expira em N minutos"". Ausente = sem rodapé. */",translate,"`code_expiration_minutes` (1–90) adds Meta's ""este código expira em N minutos"" footer; absent means no footer.",integration,apps/api/src/dominio/whatsapp/modelos.ts:257; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-79ae9882,api,apps/api/src/dominio/whatsapp/modelos.ts,259,259,jsdoc,0,"/** Texto do botão de copiar (`OTP`/`COPY_CODE`, até 25). Padrão ""Copiar código"". */",translate,"Copy button label for `OTP`/`COPY_CODE`, up to 25 characters; default is ""Copiar código"".",integration,apps/api/src/dominio/whatsapp/modelos.ts:259; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-16502d1a,api,apps/api/src/dominio/whatsapp/modelos.ts,267,267,jsdoc,1,/** Texto do cabeçalho; ausente ou vazio = sem cabeçalho de texto. */,translate,Header text; absent or empty means no text header.,integration,apps/api/src/dominio/whatsapp/modelos.ts:267; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2863092f,api,apps/api/src/dominio/whatsapp/modelos.ts,269,273,jsdoc,0,"/**
    * Mídia de exemplo do cabeçalho, `data:<tipo>;base64,…` — o mesmo formato da
    * foto do perfil. Imagem (JPG/PNG), vídeo (MP4) ou documento (PDF); o formato
    * do cabeçalho sai do MIME. Exclui `cabecalho` (é texto OU mídia).
-   */",,,,,,
-api-comment-3ed7b529,api,apps/api/src/dominio/whatsapp/modelos.ts,277,277,jsdoc,2,"/** Um exemplo por variável do corpo, na ordem em que aparecem — a Meta exige. */",,,,,,
-api-comment-363879ef,api,apps/api/src/dominio/whatsapp/modelos.ts,279,279,jsdoc,2,"/** Exemplo da variável do cabeçalho de texto, quando ele tem uma. */",,,,,,
-api-comment-0839a097,api,apps/api/src/dominio/whatsapp/modelos.ts,281,281,jsdoc,0,/** Só na categoria autenticação. Ignorado nas outras. */,,,,,,
-api-comment-3228e222,api,apps/api/src/dominio/whatsapp/modelos.ts,294,294,jsdoc,1,"/** O MIME, que é o `file_type` da Resumable Upload API. */",,,,,,
-api-comment-115f0423,api,apps/api/src/dominio/whatsapp/modelos.ts,298,298,jsdoc,2,"/** A mídia de exemplo do cabeçalho, conferida por tipo e tamanho — antes de qualquer chamada à Meta. */",,,,,,
+   */",translate,"Header sample media in `data:<tipo>;base64,…` form, as for a profile photo: JPG/PNG image, MP4 video, or PDF document. MIME determines header format. Excludes `cabecalho`, since the header is text or media.",integration,apps/api/src/dominio/whatsapp/modelos.ts:269-273; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3ed7b529,api,apps/api/src/dominio/whatsapp/modelos.ts,277,277,jsdoc,2,"/** Um exemplo por variável do corpo, na ordem em que aparecem — a Meta exige. */",translate,Meta requires one sample per body variable in occurrence order.,integration,apps/api/src/dominio/whatsapp/modelos.ts:277; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-363879ef,api,apps/api/src/dominio/whatsapp/modelos.ts,279,279,jsdoc,2,"/** Exemplo da variável do cabeçalho de texto, quando ele tem uma. */",translate,"Sample for a text header variable, if present.",integration,apps/api/src/dominio/whatsapp/modelos.ts:279; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0839a097,api,apps/api/src/dominio/whatsapp/modelos.ts,281,281,jsdoc,0,/** Só na categoria autenticação. Ignorado nas outras. */,translate,Authentication category only; ignored otherwise.,integration,apps/api/src/dominio/whatsapp/modelos.ts:281; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3228e222,api,apps/api/src/dominio/whatsapp/modelos.ts,294,294,jsdoc,1,"/** O MIME, que é o `file_type` da Resumable Upload API. */",translate,MIME used as Resumable Upload API `file_type`.,integration,apps/api/src/dominio/whatsapp/modelos.ts:294; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-115f0423,api,apps/api/src/dominio/whatsapp/modelos.ts,298,298,jsdoc,2,"/** A mídia de exemplo do cabeçalho, conferida por tipo e tamanho — antes de qualquer chamada à Meta. */",translate,Validate sample header media type and size before calling Meta.,integration,apps/api/src/dominio/whatsapp/modelos.ts:298; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-43714dbc,api,apps/api/src/dominio/whatsapp/modelos.ts,348,368,jsdoc,19,"/**
  * Os componentes de um modelo de AUTENTICAÇÃO, como a Cloud API documenta em
  * ""Authentication Templates › Create authentication template"" (`POST
@@ -5351,21 +5351,21 @@ api-comment-43714dbc,api,apps/api/src/dominio/whatsapp/modelos.ts,348,368,jsdoc,
  * conferir com token real: o formato exato que a Meta devolve no `GET` (se
  * `BODY.text` vem preenchido, se `FOOTER.text` vem) e se ela aceita
  * `add_security_recommendation` ausente como `false`.
- */",,,,,,
+ */",translate,"Build AUTHENTICATION template components per Cloud API ""Authentication Templates › Create authentication template"" (`POST /{waba}/message_templates`, `category: AUTHENTICATION`). `BODY` omits `text`: Meta localizes ""{{1}} é seu código de verificação."" and can append a no-sharing sentence via `add_security_recommendation: true`. `FOOTER` uses only `code_expiration_minutes`; absence means no footer. `BUTTONS` contains one `{ type: 'OTP', otp_type: 'COPY_CODE', text }` button; `ONE_TAP` and `ZERO_TAP` need Android `package_name` and `signature_hash`, which the UI lacks. Reject free-form body, header, and footer rather than silently dropping input. Verify with a real token the exact GET fields (`BODY.text`, `FOOTER.text`) and whether omitting `add_security_recommendation` means false.",integration,apps/api/src/dominio/whatsapp/modelos.ts:348-368; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f1765f5e,api,apps/api/src/dominio/whatsapp/modelos.ts,408,412,jsdoc,5,"/**
  * Confere o pedido inteiro e monta o que vai para a Meta. TUDO é conferido
  * antes de `subirMidia` ser chamada: um corpo errado não custa um upload, e
  * tipo ou tamanho errado da mídia recusa sem tocar na Meta.
- */",,,,,,
-api-comment-952b3bfb,api,apps/api/src/dominio/whatsapp/modelos.ts,446,446,line,3,"// Daqui para baixo só monta: nada mais recusa, e é só agora que o arquivo sobe.",,,,,,
-api-comment-d3bae3f8,api,apps/api/src/dominio/whatsapp/modelos.ts,453,453,line,0,"// O exemplo de mídia é o handle da Resumable Upload API, em `header_handle`.",,,,,,
-api-comment-ea2120d2,api,apps/api/src/dominio/whatsapp/modelos.ts,467,467,jsdoc,2,"/** O app dono do token, onde a mídia sobe: o do cliente (manual) ou o nosso (embutido) — como a foto do perfil. */",,,,,,
+ */",translate,"Validate the entire request before `subirMidia`: invalid body, media type, or size must fail without a Meta upload.",integration,apps/api/src/dominio/whatsapp/modelos.ts:408-412; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-952b3bfb,api,apps/api/src/dominio/whatsapp/modelos.ts,446,446,line,3,"// Daqui para baixo só monta: nada mais recusa, e é só agora que o arquivo sobe.",translate,"After validation, only assemble components; upload the file now, when no later validation can reject it.",integration,apps/api/src/dominio/whatsapp/modelos.ts:446; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d3bae3f8,api,apps/api/src/dominio/whatsapp/modelos.ts,453,453,line,0,"// O exemplo de mídia é o handle da Resumable Upload API, em `header_handle`.",translate,Media sample is the Resumable Upload API handle in `header_handle`.,integration,apps/api/src/dominio/whatsapp/modelos.ts:453; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ea2120d2,api,apps/api/src/dominio/whatsapp/modelos.ts,467,467,jsdoc,2,"/** O app dono do token, onde a mídia sobe: o do cliente (manual) ou o nosso (embutido) — como a foto do perfil. */",translate,"Upload media to the token-owning app, either the customer's manual app or Pipe's embedded app, as for profile photos.",integration,apps/api/src/dominio/whatsapp/modelos.ts:467; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0acf910b,api,apps/api/src/dominio/whatsapp/modelos.ts,62,67,jsdoc,2,"/**
  * Autenticação, pela Cloud API (""Authentication Templates""): o botão de copiar
  * (`OTP` / `COPY_CODE`) aceita até 25 caracteres, e `code_expiration_minutes`
  * vai de 1 a 90. O texto padrão do botão é o `copyButton` da origem
  * (`blip-conteudos-templates.md`: ""Copiar código"").
- */",,,,,,
+ */",translate,"Cloud API Authentication Templates: `OTP`/`COPY_CODE` labels have a 25-character limit, `code_expiration_minutes` is 1–90, and the default button text is Blip's `copyButton` (""Copiar código"", `blip-conteudos-templates.md`).",integration,apps/api/src/dominio/whatsapp/modelos.ts:62-67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2672e6dc,api,apps/api/src/dominio/whatsapp/modelos.ts,75,84,jsdoc,10,"/**
  * A mídia que o cabeçalho aceita, por formato da Meta.
  *
@@ -5375,14 +5375,14 @@ api-comment-2672e6dc,api,apps/api/src/dominio/whatsapp/modelos.ts,75,84,jsdoc,10
  * API, ""Supported Media Types"" — o mesmo teto da foto do perfil), vídeo 16 MB
  * e documento 100 MB (`regras-blip.md` §1.6). A Meta confere de novo; conferir
  * aqui é para recusar ANTES de subir o arquivo, com a frase da tela.
- */",,,,,,
-api-comment-71ae9bc3,api,apps/api/src/dominio/whatsapp/perfil.ts,104,104,line,2,// Em série: a segunda chamada só faz sentido se a primeira alcançou o número.,,,,,,
-api-comment-a79845b5,api,apps/api/src/dominio/whatsapp/perfil.ts,113,113,jsdoc,3,/** Confere e traduz para os nomes da Meta só o que veio — campo ausente não é mexido. */,,,,,,
-api-comment-96793603,api,apps/api/src/dominio/whatsapp/perfil.ts,131,131,line,2,"// A Meta recusa `about` vazio: o recado existe sempre, só dá para trocar.",,,,,,
-api-comment-a9c2869a,api,apps/api/src/dominio/whatsapp/perfil.ts,160,160,line,1,// A lista de categorias é da Meta e muda; aqui só o formato do código dela.,,,,,,
-api-comment-1c99ed79,api,apps/api/src/dominio/whatsapp/perfil.ts,214,214,line,5,"// Sem a foto nem o handle: o log guarda o que mudou, não a imagem.",,,,,,
-api-comment-05c2100a,api,apps/api/src/dominio/whatsapp/perfil.ts,34,34,jsdoc,2,"/** 5 MB, JPEG ou PNG: o que a Meta aceita como foto de perfil. */",,,,,,
-api-comment-d217033d,api,apps/api/src/dominio/whatsapp/perfil.ts,46,46,jsdoc,0,/** Só leitura: o nome e o estado da análise da Meta. */,,,,,,
+ */",translate,"Validate header media against Meta formats and the original UI (`blip-conteudos-templates.md`, `attachment`): JPG/JPEG/PNG image up to 5 MB (Cloud API Supported Media Types), PDF document up to 100 MB, or MP4 video up to 16 MB (`regras-blip.md` §1.6). Meta validates again; checking before upload gives the user the screen's specific error.",integration,apps/api/src/dominio/whatsapp/modelos.ts:75-84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-71ae9bc3,api,apps/api/src/dominio/whatsapp/perfil.ts,104,104,line,2,// Em série: a segunda chamada só faz sentido se a primeira alcançou o número.,translate,Run serially; the second call matters only if the first reached the number.,integration,apps/api/src/dominio/whatsapp/perfil.ts:104; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a79845b5,api,apps/api/src/dominio/whatsapp/perfil.ts,113,113,jsdoc,3,/** Confere e traduz para os nomes da Meta só o que veio — campo ausente não é mexido. */,translate,Validate and map only supplied fields to Meta names; absent fields remain unchanged.,integration,apps/api/src/dominio/whatsapp/perfil.ts:113; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-96793603,api,apps/api/src/dominio/whatsapp/perfil.ts,131,131,line,2,"// A Meta recusa `about` vazio: o recado existe sempre, só dá para trocar.",translate,Meta rejects an empty `about`; it can be replaced but not removed.,integration,apps/api/src/dominio/whatsapp/perfil.ts:131; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a9c2869a,api,apps/api/src/dominio/whatsapp/perfil.ts,160,160,line,1,// A lista de categorias é da Meta e muda; aqui só o formato do código dela.,translate,Meta's category list changes; validate only its code format here.,integration,apps/api/src/dominio/whatsapp/perfil.ts:160; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c99ed79,api,apps/api/src/dominio/whatsapp/perfil.ts,214,214,line,5,"// Sem a foto nem o handle: o log guarda o que mudou, não a imagem.",translate,"Log the change without the photo or upload handle; audit records describe changes, not image data.",integration,apps/api/src/dominio/whatsapp/perfil.ts:214; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-05c2100a,api,apps/api/src/dominio/whatsapp/perfil.ts,34,34,jsdoc,2,"/** 5 MB, JPEG ou PNG: o que a Meta aceita como foto de perfil. */",translate,Meta accepts JPEG or PNG profile photos up to 5 MB.,integration,apps/api/src/dominio/whatsapp/perfil.ts:34; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d217033d,api,apps/api/src/dominio/whatsapp/perfil.ts,46,46,jsdoc,0,/** Só leitura: o nome e o estado da análise da Meta. */,translate,Read-only display name and Meta review status.,integration,apps/api/src/dominio/whatsapp/perfil.ts:46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-db88eece,api,apps/api/src/dominio/whatsapp/perfil.ts,9,23,jsdoc,15,"/**
  * O perfil comercial do número — o que o cliente do WhatsApp vê ao abrir o
  * contato: foto, recado (""sobre""), descrição, endereço, e-mail, sites e categoria.
@@ -5397,7 +5397,7 @@ api-comment-db88eece,api,apps/api/src/dominio/whatsapp/perfil.ts,9,23,jsdoc,15,"
  *
  * Limites da documentação da Cloud API. A Meta confere de novo; conferir aqui é
  * para a tela dizer qual campo está errado em vez de repetir a recusa dela.
- */",,,,,,
+ */",translate,"Business profile visible to WhatsApp contacts: photo, about, description, address, email, sites, and category. Pipe adds profile editing absent from Chatwoot, using `/{phone}/whatsapp_business_profile` and `whatsapp_business_management` with either embedded or manual token (`validacao-da-configuracao-manual.ts`). Display name is intentionally read-only because Meta reviews changes; expose its review status. Validate documented Cloud API limits locally so the UI identifies invalid fields before Meta repeats the rejection.",integration,apps/api/src/dominio/whatsapp/perfil.ts:9-23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ef5d8897,api,apps/api/src/dominio/whatsapp/preferencias.ts,10,22,jsdoc,10,"/**
  * As abas ""Configurações"" e ""Configurações de alerta"" do canal WhatsApp na Blip
  * (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3 e §4). Nada disto é
@@ -5410,10 +5410,10 @@ api-comment-ef5d8897,api,apps/api/src/dominio/whatsapp/preferencias.ts,10,22,jsd
  *   um modelo, avisa estes e-mails; lista vazia = todos os administradores.
  *
  * Os dois interruptores nascem ligados, que é o estado observado na origem.
- */",,,,,,
-api-comment-d6619ec7,api,apps/api/src/dominio/whatsapp/preferencias.ts,54,54,jsdoc,4,"/** A tela manda ""separados por vírgula""; a API aceita a lista pronta também. */",,,,,,
-api-comment-b8b76846,api,apps/api/src/dominio/whatsapp/preferencias.ts,7,7,line,3,"// A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.",,,,,,
-api-comment-aaba6770,api,apps/api/src/dominio/whatsapp/reautorizacao.ts,44,44,line,3,// Cliente antigo pode não mandar o `phone_number_id`: cai no que a Meta acabou de devolver.,,,,,,
+ */",translate,"Blip WhatsApp channel Settings and Alert Settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §§3–4) are Pipe choices in channel `config`, not Meta fields. Quick replies use buttons for at most three choices and numbered text for four or more. Menus use lists for at most ten choices and text otherwise. Template recategorization alerts go to configured emails, or all administrators when empty. Both switches default on as observed in Blip.",integration,apps/api/src/dominio/whatsapp/preferencias.ts:10-22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d6619ec7,api,apps/api/src/dominio/whatsapp/preferencias.ts,54,54,jsdoc,4,"/** A tela manda ""separados por vírgula""; a API aceita a lista pronta também. */",translate,The screen submits comma-separated values; the API also accepts a prepared list.,integration,apps/api/src/dominio/whatsapp/preferencias.ts:54; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b8b76846,api,apps/api/src/dominio/whatsapp/preferencias.ts,7,7,line,3,"// A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.",translate,The worker owns the rule because it assembles the message; reexport it here.,integration,apps/api/src/dominio/whatsapp/preferencias.ts:7; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-aaba6770,api,apps/api/src/dominio/whatsapp/reautorizacao.ts,44,44,line,3,// Cliente antigo pode não mandar o `phone_number_id`: cai no que a Meta acabou de devolver.,translate,An older client may omit `phone_number_id`; fall back to the value Meta just returned.,integration,apps/api/src/dominio/whatsapp/reautorizacao.ts:44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0d20f74e,api,apps/api/src/dominio/whatsapp/reautorizacao.ts,9,21,jsdoc,12,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/reauthorization_service.rb
  *
@@ -5426,9 +5426,9 @@ api-comment-0d20f74e,api,apps/api/src/dominio/whatsapp/reautorizacao.ts,9,21,jsd
  * desconectar apaga o canal; aqui desconectar só desliga, para o histórico
  * continuar do cliente — e a volta precisa acontecer por aqui, porque criar de
  * novo esbarraria no próprio número.
- */",,,,,,
-api-comment-991232fd,api,apps/api/src/dominio/whatsapp/saude.ts,107,107,jsdoc,2,/** `platform_type`/`throughput_level` em `NOT_APPLICABLE`: o número ainda está sendo provisionado. */,,,,,,
-api-comment-792eb2fa,api,apps/api/src/dominio/whatsapp/saude.ts,12,12,jsdoc,0,/** `MINIMUM_HEALTH_API_VERSION`: os campos de saúde só existem da v24 em diante. */,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/reauthorization_service.rb. Reauthorize an existing channel, never create another: require the same number and replace its token and possibly WABA. This restores a channel marked for reauthorization or disconnected. Pipe also sets `ativo = true`; Chatwoot deletes disconnected channels, but Pipe keeps history and only disables them, so recreating would collide with the same number.",integration,apps/api/src/dominio/whatsapp/reautorizacao.ts:9-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-991232fd,api,apps/api/src/dominio/whatsapp/saude.ts,107,107,jsdoc,2,/** `platform_type`/`throughput_level` em `NOT_APPLICABLE`: o número ainda está sendo provisionado. */,translate,`platform_type` or `throughput_level` equal to `NOT_APPLICABLE` means provisioning is still underway.,integration,apps/api/src/dominio/whatsapp/saude.ts:107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-792eb2fa,api,apps/api/src/dominio/whatsapp/saude.ts,12,12,jsdoc,0,/** `MINIMUM_HEALTH_API_VERSION`: os campos de saúde só existem da v24 em diante. */,translate,`MINIMUM_HEALTH_API_VERSION`: health fields exist only from v24 onward.,integration,apps/api/src/dominio/whatsapp/saude.ts:12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5dffe91e,api,apps/api/src/dominio/whatsapp/saude.ts,3,10,jsdoc,9,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/health_service.rb —
  * só o `fetch_health_status`, com os mesmos campos e a mesma formatação.
