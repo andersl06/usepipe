@@ -3,6 +3,7 @@ apps/api/src/autenticacao.ts
 apps/api/src/banco.ts
 apps/api/src/controladores/anexos.ts
 apps/api/src/controladores/entrar.ts
+apps/api/src/controladores/gestao-conta.ts
 apps/api/src/controladores/sso.ts
 apps/api/src/controladores/webhooks-instagram.ts
 apps/api/src/controladores/webhooks-whatsapp.ts

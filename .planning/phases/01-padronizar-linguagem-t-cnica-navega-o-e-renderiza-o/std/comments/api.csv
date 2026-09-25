@@ -395,51 +395,51 @@ api-comment-2fe7c78a,api,apps/api/src/controladores/desk.ts,21,38,jsdoc,18,"/**
 api-comment-4271a6d9,api,apps/api/src/controladores/desk.ts,213,213,block,0,/* --------------------------------------------------------------- ações */,remove,,other,apps/api/src/controladores/desk.ts:213-213,codex3,reviewed
 api-comment-b711aab8,api,apps/api/src/controladores/desk.ts,215,215,jsdoc,0,"/** Um formulário do Desk: `{ campos }` entra, `Resultado` sai. */",remove,,other,apps/api/src/controladores/desk.ts:215-229,codex3,reviewed
 api-comment-17c6d7ee,api,apps/api/src/controladores/desk.ts,39,39,jsdoc,2,/** O atendente é o da sessão — é ele que muda de status e assina a nota. */,translate,The attendant comes from the session; that person changes status and signs the note.,security,apps/api/src/controladores/desk.ts:39-55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-7ca804a5,api,apps/api/src/controladores/desk.ts,53,53,block,1,"/* O menu ""⋮"" do cartão (`dominio/desk/marcacoes.ts`): fixar e marcar como não lida. */",,,,,,
-api-comment-cf8dbbb8,api,apps/api/src/controladores/desk.ts,58,58,jsdoc,1,"/** Quantos dias, no máximo, um recorte de métricas pode cobrir: os 90 da tela, com folga. */",,,,,,
-api-comment-7a2bc26e,api,apps/api/src/controladores/desk.ts,71,71,jsdoc,1,"/** A fila do atendente e os catálogos da coluna, numa ida só. */",,,,,,
-api-comment-833c53de,api,apps/api/src/controladores/desk.ts,76,76,line,3,"// Em série, e não em `Promise.all`: a transação é uma conexão só, e disparar",,,,,,
-api-comment-73cb08da,api,apps/api/src/controladores/desk.ts,77,77,line,0,// em paralelo na mesma conexão derruba o `set_config` do tenant.,,,,,,
-api-comment-778ef7a8,api,apps/api/src/controladores/desk.ts,89,89,jsdoc,1,"/** A conversa aberta: mensagens e notas, templates do canal, etiquetas e histórico do contato. */",,,,,,
+api-comment-7ca804a5,api,apps/api/src/controladores/desk.ts,53,53,block,1,"/* O menu ""⋮"" do cartão (`dominio/desk/marcacoes.ts`): fixar e marcar como não lida. */",remove,,other,apps/api/src/controladores/desk.ts:53-56,codex3,reviewed
+api-comment-cf8dbbb8,api,apps/api/src/controladores/desk.ts,58,58,jsdoc,1,"/** Quantos dias, no máximo, um recorte de métricas pode cobrir: os 90 da tela, com folga. */",translate,Maximum metrics range: the screen's 90 days plus a little margin.,other,apps/api/src/controladores/desk.ts:58-59,codex3,reviewed
+api-comment-7a2bc26e,api,apps/api/src/controladores/desk.ts,71,71,jsdoc,1,"/** A fila do atendente e os catálogos da coluna, numa ida só. */",remove,,other,apps/api/src/controladores/desk.ts:71-86,codex3,reviewed
+api-comment-833c53de,api,apps/api/src/controladores/desk.ts,76,76,line,3,"// Em série, e não em `Promise.all`: a transação é uma conexão só, e disparar",translate,"Run serially rather than with `Promise.all`: the transaction uses one connection, and",security,apps/api/src/controladores/desk.ts:76-86; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-73cb08da,api,apps/api/src/controladores/desk.ts,77,77,line,0,// em paralelo na mesma conexão derruba o `set_config` do tenant.,translate,parallel queries on it can unset the tenant's `set_config`.,security,apps/api/src/controladores/desk.ts:76-86; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-778ef7a8,api,apps/api/src/controladores/desk.ts,89,89,jsdoc,1,"/** A conversa aberta: mensagens e notas, templates do canal, etiquetas e histórico do contato. */",remove,,other,apps/api/src/controladores/desk.ts:89-110,codex3,reviewed
 api-comment-c7c9e406,api,apps/api/src/controladores/entrar.ts,108,114,jsdoc,10,"/**
  * O desafio do Pipe é o do provedor MAIS o convite, quando a entrada vem de um.
  *
  * O token do convite viaja no mesmo cookie porque ele precisa sobreviver à ida ao
  * Google e voltar: sem isso, a volta não teria como saber que aquela conta acabou
  * de ser convidada, e cairia na recusa por domínio desconhecido.
- */",,,,,,
-api-comment-195a1ccc,api,apps/api/src/controladores/entrar.ts,117,117,jsdoc,4,/** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */,,,,,,
-api-comment-1d37b721,api,apps/api/src/controladores/entrar.ts,119,119,jsdoc,3,/** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */,,,,,,
-api-comment-9209eff8,api,apps/api/src/controladores/entrar.ts,121,121,jsdoc,1,/** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */,,,,,,
-api-comment-c1a8566e,api,apps/api/src/controladores/entrar.ts,132,132,line,2,"// `Lax`, e não `Strict`: a volta do Google é navegação de topo vinda de outro",,,,,,
-api-comment-80dfa9cd,api,apps/api/src/controladores/entrar.ts,133,133,line,2,"// site. Com `Strict` o cookie não acompanha, e o login falha sempre.",,,,,,
+ */",translate,"Pipe's challenge combines the provider challenge with an invitation when login starts from one. The invitation token travels in the same cookie so it survives the Google round trip. Without it, the callback could not know the account was invited and would reject an unknown domain.",security,apps/api/src/controladores/entrar.ts:108-116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-195a1ccc,api,apps/api/src/controladores/entrar.ts,117,117,jsdoc,4,/** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */,translate,The app that started login; the callback returns there.,security,apps/api/src/controladores/entrar.ts:117-118; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1d37b721,api,apps/api/src/controladores/entrar.ts,119,119,jsdoc,3,/** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */,translate,The tenant that initiated SSO determines which customer the person belongs to.,security,apps/api/src/controladores/entrar.ts:119-120; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9209eff8,api,apps/api/src/controladores/entrar.ts,121,121,jsdoc,1,/** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */,translate,Connection test: validate everything without creating a session.,security,apps/api/src/controladores/entrar.ts:121-122; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c1a8566e,api,apps/api/src/controladores/entrar.ts,132,132,line,2,"// `Lax`, e não `Strict`: a volta do Google é navegação de topo vinda de outro",translate,"Use `Lax`, not `Strict`: the Google callback is a top-level navigation from another",security,apps/api/src/controladores/entrar.ts:125-139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-80dfa9cd,api,apps/api/src/controladores/entrar.ts,133,133,line,2,"// site. Com `Strict` o cookie não acompanha, e o login falha sempre.",translate,"site. With `Strict`, the cookie is omitted and login always fails.",security,apps/api/src/controladores/entrar.ts:132-139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6368b613,api,apps/api/src/controladores/entrar.ts,142,148,jsdoc,14,"/**
  * O desafio vai em cookie sem assinatura nossa, e isso é deliberado: ele não afirma
  * nada: é o outro lado do `state`/`nonce`/PKCE que já viajaram para o Google, e a
  * verificação é o cookie bater com o que volta de lá. Assinar protegeria contra o
  * próprio dono do navegador forjar o próprio login — que é o que ele já pode fazer.
  * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
- */",,,,,,
+ */",translate,"The challenge cookie intentionally has no Pipe signature. It asserts nothing by itself: it is the counterpart to the `state`, `nonce` and PKCE values sent to Google, and verification checks that it matches the callback. Signing would only defend against a browser owner forging their own login, which they can already do. `HttpOnly` keeps scripts from reading the value.",security,apps/api/src/controladores/entrar.ts:142-158; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2d577f65,api,apps/api/src/controladores/entrar.ts,150,152,block,7,"/* Cada valor recebido com esse nome, e não só o primeiro: quando o `Domain`
      do cookie muda entre duas versões, o navegador passa a mandar os dois, e o
-     velho costuma vir na frente. Era isso que derrubava o login sem erro. */",,,,,,
-api-comment-e6d718f4,api,apps/api/src/controladores/entrar.ts,160,160,line,0,// valor ilegível: tenta o próximo,,,,,,
-api-comment-e12d4f07,api,apps/api/src/controladores/entrar.ts,166,166,jsdoc,3,/** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */,,,,,,
-api-comment-e162a67c,api,apps/api/src/controladores/entrar.ts,169,169,line,5,// Conta do provedor que já é de outro cliente: para quem está entrando é a,,,,,,
-api-comment-56b7e951,api,apps/api/src/controladores/entrar.ts,170,170,line,4,"// mesma coisa que não ter sido convidado, e dizer mais contaria que aquele",,,,,,
-api-comment-a37a8694,api,apps/api/src/controladores/entrar.ts,177,177,line,3,"// Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de",,,,,,
-api-comment-2c2a135d,api,apps/api/src/controladores/entrar.ts,178,178,line,4,// outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não,,,,,,
-api-comment-eaa6b11f,api,apps/api/src/controladores/entrar.ts,179,179,line,4,"// serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.",,,,,,
-api-comment-1fdfb415,api,apps/api/src/controladores/entrar.ts,181,181,line,0,"// Todo o resto — `state` errado, troca de código falhada, config ausente — é",,,,,,
-api-comment-5631db96,api,apps/api/src/controladores/entrar.ts,182,182,line,4,"// problema nosso ou do provedor, e para quem está entrando a saída é uma só:",,,,,,
-api-comment-78117f41,api,apps/api/src/controladores/entrar.ts,192,192,jsdoc,4,"/** A origem pedida, sem a barra final. Quem a confere é `baseDoApp`. */",,,,,,
+     velho costuma vir na frente. Era isso que derrubava o login sem erro. */",translate,"Inspect every cookie value with this name, not only the first. If `Domain` changed between releases, the browser can send both cookies with the old one first. That previously caused a silent login failure.",security,apps/api/src/controladores/entrar.ts:150-163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e6d718f4,api,apps/api/src/controladores/entrar.ts,160,160,line,0,// valor ilegível: tenta o próximo,translate,Unreadable value: try the next cookie.,security,apps/api/src/controladores/entrar.ts:153-163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e12d4f07,api,apps/api/src/controladores/entrar.ts,166,166,jsdoc,3,/** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */,translate,Map the failure to a contract code the sign-in screen understands.,security,apps/api/src/controladores/entrar.ts:166-184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e162a67c,api,apps/api/src/controladores/entrar.ts,169,169,line,5,// Conta do provedor que já é de outro cliente: para quem está entrando é a,translate,A provider account already owned by another customer must look to the signer-in,security,apps/api/src/controladores/entrar.ts:168-172; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-56b7e951,api,apps/api/src/controladores/entrar.ts,170,170,line,4,"// mesma coisa que não ter sido convidado, e dizer mais contaria que aquele",translate,the same as having no invitation. More detail would reveal that this email exists in another Pipe customer account.,security,apps/api/src/controladores/entrar.ts:168-172; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a37a8694,api,apps/api/src/controladores/entrar.ts,177,177,line,3,"// Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de",translate,"An expired or used invitation, one for another email, or a Google account already",security,apps/api/src/controladores/entrar.ts:174-180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2c2a135d,api,apps/api/src/controladores/entrar.ts,178,178,line,4,// outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não,translate,owned by someone else all mean the invitation is unusable; request another.,security,apps/api/src/controladores/entrar.ts:174-180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-eaa6b11f,api,apps/api/src/controladores/entrar.ts,179,179,line,4,"// serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.",translate,`sem_convite` is the code the screen can explain.,security,apps/api/src/controladores/entrar.ts:177-180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1fdfb415,api,apps/api/src/controladores/entrar.ts,181,181,line,0,"// Todo o resto — `state` errado, troca de código falhada, config ausente — é",translate,"Everything else, including a wrong `state`, failed code exchange or missing config,",security,apps/api/src/controladores/entrar.ts:181-184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5631db96,api,apps/api/src/controladores/entrar.ts,182,182,line,4,"// problema nosso ou do provedor, e para quem está entrando a saída é uma só:",translate,is our or the provider's problem. The user has one recourse: retry.,security,apps/api/src/controladores/entrar.ts:181-184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-78117f41,api,apps/api/src/controladores/entrar.ts,192,192,jsdoc,4,"/** A origem pedida, sem a barra final. Quem a confere é `baseDoApp`. */",translate,Requested origin without a trailing slash; `baseDoApp` validates it.,security,apps/api/src/controladores/entrar.ts:192-195; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1bef3d00,api,apps/api/src/controladores/entrar.ts,198,204,jsdoc,9,"/**
  * Aceita o convite com a identidade do Google em mãos e devolve a sessão.
  *
  * O `if` existe para o tipo, não para o caso: `aceitarConvite` sempre abre sessão
  * quando recebe a pessoa. Virar 500 aqui seria melhor do que redirecionar como se
  * tivesse dado certo.
- */",,,,,,
+ */",translate,"Accept the invitation with the Google identity and return the session. The `if` satisfies the type system, not a real branch: `aceitarConvite` always opens a session for a person. A 500 here would be preferable to redirecting as though login succeeded.",security,apps/api/src/controladores/entrar.ts:198-214; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cffd7c61,api,apps/api/src/controladores/entrar.ts,217,227,jsdoc,11,"/**
    * Login SÓ DE DESENVOLVIMENTO, sem Google.
    *
@@ -450,25 +450,25 @@ api-comment-cffd7c61,api,apps/api/src/controladores/entrar.ts,217,227,jsdoc,11,"
    *
    * Uso: abrir no navegador
    * `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200`.
-   */",,,,,,
+   */",translate,Development-only login without Google. It lets developers inspect screens on `localhost` when OAuth is not configured. Outside development (`NODE_ENV === 'production'`) it returns 404 as if the route did not exist. Real sign-in uses `google` or `sso`; this path issues a real session only for an existing seeded user. Open `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200` in a browser.,security,apps/api/src/controladores/entrar.ts:217-258; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0811ca93,api,apps/api/src/controladores/entrar.ts,260,266,jsdoc,10,"/**
    * Começa o login: cria o desafio, guarda em cookie e manda para o Google.
    *
    * `?convite=<token>` é a entrada de quem foi convidado e cujo domínio ainda não
    * está verificado. Sem ele, esse login morreria em `dominio_desconhecido` — a
    * segunda pergunta da entrada não tem como saber de que cliente é a pessoa.
-   */",,,,,,
-api-comment-3b4364be,api,apps/api/src/controladores/entrar.ts,288,288,jsdoc,3,/** A volta do Google. Daqui a pessoa sai logada ou sai com um código de recusa. */,,,,,,
-api-comment-39dddfc3,api,apps/api/src/controladores/entrar.ts,294,294,line,2,"// Sem cookie o login não tem como ser conferido: pode ser aba velha, cookie",,,,,,
-api-comment-71f5245a,api,apps/api/src/controladores/entrar.ts,295,295,line,1,// bloqueado ou tentativa forjada. Nos três casos a saída é recomeçar.,,,,,,
-api-comment-327e8fea,api,apps/api/src/controladores/entrar.ts,297,297,line,2,"// O log não é ruído: este caminho devolve a MESMA tela de ""falha no",,,,,,
-api-comment-800a97a2,api,apps/api/src/controladores/entrar.ts,298,298,line,5,"// provedor"" que um erro de rede, e sem rastro não dá para saber qual dos",,,,,,
-api-comment-3e92059b,api,apps/api/src/controladores/entrar.ts,299,299,line,1,// dois aconteceu — foi o que atrasou um diagnóstico aqui.,,,,,,
-api-comment-0aaf4cc6,api,apps/api/src/controladores/entrar.ts,316,316,line,3,"// Com convite no desafio, é o convite que decide o tenant e liga a conta do",,,,,,
-api-comment-17279628,api,apps/api/src/controladores/entrar.ts,317,317,line,3,// Google — e não o domínio. É a única porta de quem não tem domínio verificado.,,,,,,
-api-comment-422723be,api,apps/api/src/controladores/entrar.ts,325,325,line,2,"// Com o autosserviço desligado (o padrão), nada muda: quem não tem",,,,,,
-api-comment-91ca35ea,api,apps/api/src/controladores/entrar.ts,326,326,line,1,"// convite nem domínio verificado continua recusado. Ligado, a conta",,,,,,
-api-comment-3cb1b3bc,api,apps/api/src/controladores/entrar.ts,327,327,line,2,// nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.,,,,,,
+   */",translate,"Start sign-in by creating a challenge, storing it in a cookie and redirecting to Google. `?convite=<token>` admits an invitee whose domain has not been verified; without it, sign-in would fail with `dominio_desconhecido` because the second step cannot identify the customer.",security,apps/api/src/controladores/entrar.ts:260-285; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3b4364be,api,apps/api/src/controladores/entrar.ts,288,288,jsdoc,3,/** A volta do Google. Daqui a pessoa sai logada ou sai com um código de recusa. */,translate,Google callback: either establish a session or return a rejection code.,security,apps/api/src/controladores/entrar.ts:288-346; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-39dddfc3,api,apps/api/src/controladores/entrar.ts,294,294,line,2,"// Sem cookie o login não tem como ser conferido: pode ser aba velha, cookie",translate,"Without the challenge cookie, login cannot be verified: it may be an old tab, a blocked cookie",security,apps/api/src/controladores/entrar.ts:291-306; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-71f5245a,api,apps/api/src/controladores/entrar.ts,295,295,line,1,// bloqueado ou tentativa forjada. Nos três casos a saída é recomeçar.,translate,or a forged attempt. In all cases the person must start again.,security,apps/api/src/controladores/entrar.ts:291-306; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-327e8fea,api,apps/api/src/controladores/entrar.ts,297,297,line,2,"// O log não é ruído: este caminho devolve a MESMA tela de ""falha no",translate,"Keep this log: the path shows the same ""provider failure"" screen as",security,apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-800a97a2,api,apps/api/src/controladores/entrar.ts,298,298,line,5,"// provedor"" que um erro de rede, e sem rastro não dá para saber qual dos",translate,"a network error, and without a trace we cannot distinguish the two.",security,apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3e92059b,api,apps/api/src/controladores/entrar.ts,299,299,line,1,// dois aconteceu — foi o que atrasou um diagnóstico aqui.,translate,That ambiguity delayed a previous diagnosis.,security,apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0aaf4cc6,api,apps/api/src/controladores/entrar.ts,316,316,line,3,"// Com convite no desafio, é o convite que decide o tenant e liga a conta do",translate,"When the challenge includes an invitation, it determines the tenant and links the",security,apps/api/src/controladores/entrar.ts:315-320; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-17279628,api,apps/api/src/controladores/entrar.ts,317,317,line,3,// Google — e não o domínio. É a única porta de quem não tem domínio verificado.,translate,Google account instead of relying on the domain; this is the only path for an unverified domain.,security,apps/api/src/controladores/entrar.ts:315-320; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-422723be,api,apps/api/src/controladores/entrar.ts,325,325,line,2,"// Com o autosserviço desligado (o padrão), nada muda: quem não tem",translate,"With self-service disabled by default, people without an invitation or verified",security,apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-91ca35ea,api,apps/api/src/controladores/entrar.ts,326,326,line,1,"// convite nem domínio verificado continua recusado. Ligado, a conta",translate,"domain remain rejected. If enabled, the account is created here and Management",security,apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3cb1b3bc,api,apps/api/src/controladores/entrar.ts,327,327,line,2,// nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.,translate,receives the person on the welcome screen.,security,apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-41efd0a0,api,apps/api/src/controladores/entrar.ts,33,44,jsdoc,13,"/**
  * Entrar, saber quem entrou e sair.
  *
@@ -480,24 +480,24 @@ api-comment-41efd0a0,api,apps/api/src/controladores/entrar.ts,33,44,jsdoc,13,"/*
  * está entrando não tem o que fazer com um stack trace. Toda falha vira um
  * redirecionamento para a tela de entrada com `?erro=<codigo>`, e o código sai do
  * catálogo `RECUSAS_DE_ENTRADA` do contrato — a tela escolhe o texto e a saída.
- */",,,,,,
-api-comment-feb77bb7,api,apps/api/src/controladores/entrar.ts,349,349,jsdoc,2,/** Encerra a sessão e apaga o cookie. Sair duas vezes não é erro. */,,,,,,
-api-comment-e953df39,api,apps/api/src/controladores/entrar.ts,373,373,jsdoc,3,"/** Quem está logado, no formato do contrato `Eu`. É a fonte de verdade das telas. */",,,,,,
-api-comment-72573dc5,api,apps/api/src/controladores/entrar.ts,392,392,line,5,"// As permissões são a UNIÃO dos papéis da pessoa, com a EXCEÇÃO por",,,,,,
-api-comment-07e7c4e5,api,apps/api/src/controladores/entrar.ts,393,393,line,1,"// pessoa por cima (`usuario_permissao`, migração 0046 — a tela",,,,,,
-api-comment-15f880e4,api,apps/api/src/controladores/entrar.ts,394,394,line,3,"// ""Permissões"" do atendente): o `union` traz o que o papel dá mais o que",,,,,,
-api-comment-6b832aef,api,apps/api/src/controladores/entrar.ts,395,395,line,1,"// foi LIGADO na mão, e o `not exists` tira o que foi DESLIGADO na mão.",,,,,,
-api-comment-5707ea9e,api,apps/api/src/controladores/entrar.ts,396,396,line,1,"// É a mesma conta do `coalesce` de `exigirPermissao`, escrita em conjunto",,,,,,
-api-comment-2864e289,api,apps/api/src/controladores/entrar.ts,397,397,line,4,"// porque aqui a resposta é a lista, e não um código de cada vez.",,,,,,
-api-comment-7dcade38,api,apps/api/src/controladores/entrar.ts,398,398,line,2,"// `distinct` porque dois papéis repetem permissão o tempo todo, e a tela",,,,,,
-api-comment-1da74563,api,apps/api/src/controladores/entrar.ts,399,399,line,1,"// não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro",,,,,,
-api-comment-62f5b280,api,apps/api/src/controladores/entrar.ts,400,400,line,3,// da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem,,,,,,
-api-comment-334a141a,api,apps/api/src/controladores/entrar.ts,425,425,line,2,// Sessão viva apontando para usuário que sumiu ou foi desativado entre um,,,,,,
-api-comment-0b9daf25,api,apps/api/src/controladores/entrar.ts,426,426,line,1,"// pedido e outro: é recusa, não 500.",,,,,,
-api-comment-dfd6e00d,api,apps/api/src/controladores/entrar.ts,46,46,jsdoc,2,/** Onde o desafio espera a volta do Google. Cinco minutos é a vida útil de um login. */,,,,,,
-api-comment-e7eb5dbe,api,apps/api/src/controladores/entrar.ts,50,50,jsdoc,1,"/** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */",,,,,,
-api-comment-1fcbd321,api,apps/api/src/controladores/entrar.ts,56,56,line,3,// `Domain=.usepipe.com.br` é o que faz o cookie emitido por `api.usepipe.com.br` valer,,,,,,
-api-comment-6d53889c,api,apps/api/src/controladores/entrar.ts,58,58,line,2,"// invalida o cookie em vários navegadores, e o sintoma é login que ""não faz nada"".",,,,,,
+ */",translate,"Sign in, identify the signed-in person and sign out. Challenge, PKCE, `id_token` verification, tenant resolution and session logic live in `@pipe/autenticacao`; this is the HTTP adapter for cookies, redirects and response format. A sign-in failure never presents a 500 to the person, who cannot use a stack trace. Every failure redirects to the sign-in screen with `?erro=<codigo>` from the contract's `RECUSAS_DE_ENTRADA` catalog; the screen chooses the explanation and next step.",security,apps/api/src/controladores/entrar.ts:33-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-feb77bb7,api,apps/api/src/controladores/entrar.ts,349,349,jsdoc,2,/** Encerra a sessão e apaga o cookie. Sair duas vezes não é erro. */,translate,End the session and clear the cookie. Signing out twice is not an error.,security,apps/api/src/controladores/entrar.ts:349-355; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e953df39,api,apps/api/src/controladores/entrar.ts,373,373,jsdoc,3,"/** Quem está logado, no formato do contrato `Eu`. É a fonte de verdade das telas. */",translate,The signed-in person in contract `Eu` format; source of truth for the screens.,security,apps/api/src/controladores/entrar.ts:371-390; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-72573dc5,api,apps/api/src/controladores/entrar.ts,392,392,line,5,"// As permissões são a UNIÃO dos papéis da pessoa, com a EXCEÇÃO por",translate,"Permissions are the union of the person's roles, with per-person exceptions",security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-07e7c4e5,api,apps/api/src/controladores/entrar.ts,393,393,line,1,"// pessoa por cima (`usuario_permissao`, migração 0046 — a tela",translate,overlaid through `usuario_permissao` (migration 0046; the attendant's,security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-15f880e4,api,apps/api/src/controladores/entrar.ts,394,394,line,3,"// ""Permissões"" do atendente): o `union` traz o que o papel dá mais o que",translate,"""Permissões"" screen). The `union` includes grants from roles and explicit",security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6b832aef,api,apps/api/src/controladores/entrar.ts,395,395,line,1,"// foi LIGADO na mão, e o `not exists` tira o que foi DESLIGADO na mão.",translate,grants; `not exists` removes permissions explicitly denied.,security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5707ea9e,api,apps/api/src/controladores/entrar.ts,396,396,line,1,"// É a mesma conta do `coalesce` de `exigirPermissao`, escrita em conjunto",translate,"This matches the `coalesce` logic in `exigirPermissao`, expressed as a set",security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2864e289,api,apps/api/src/controladores/entrar.ts,397,397,line,4,"// porque aqui a resposta é a lista, e não um código de cada vez.",translate,because this endpoint returns a list rather than testing one code at a time.,security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7dcade38,api,apps/api/src/controladores/entrar.ts,398,398,line,2,"// `distinct` porque dois papéis repetem permissão o tempo todo, e a tela",translate,"Use `distinct` because multiple roles often grant the same permission, and the screen",security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1da74563,api,apps/api/src/controladores/entrar.ts,399,399,line,1,"// não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro",translate,"must not receive duplicates. Run serially, never with `Promise.all`: parallel work",security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-62f5b280,api,apps/api/src/controladores/entrar.ts,400,400,line,3,// da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem,translate,inside this transaction can unset `pipe.tenant_id` and run a query without,security,apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-334a141a,api,apps/api/src/controladores/entrar.ts,425,425,line,2,// Sessão viva apontando para usuário que sumiu ou foi desativado entre um,translate,A live session may point to a user removed or deactivated between,security,apps/api/src/controladores/entrar.ts:425-427; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0b9daf25,api,apps/api/src/controladores/entrar.ts,426,426,line,1,"// pedido e outro: é recusa, não 500.",translate,requests. Reject it rather than returning 500.,security,apps/api/src/controladores/entrar.ts:425-427; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dfd6e00d,api,apps/api/src/controladores/entrar.ts,46,46,jsdoc,2,/** Onde o desafio espera a volta do Google. Cinco minutos é a vida útil de um login. */,translate,The cookie holds the challenge while awaiting the Google callback; a login lasts five minutes.,security,apps/api/src/controladores/entrar.ts:46-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e7eb5dbe,api,apps/api/src/controladores/entrar.ts,50,50,jsdoc,1,"/** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */",translate,Challenge cookie `Path`: it applies only to the two `/v1/auth` routes.,security,apps/api/src/controladores/entrar.ts:50-51; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1fcbd321,api,apps/api/src/controladores/entrar.ts,56,56,line,3,// `Domain=.usepipe.com.br` é o que faz o cookie emitido por `api.usepipe.com.br` valer,translate,"`Domain=.usepipe.com.br` lets a cookie issued by `api.usepipe.com.br` work across `app.`, `gestao.` and `crm.`. Leave Domain unset in development: `Domain=localhost` invalidates the cookie in several browsers, making login appear to do nothing.",security,apps/api/src/controladores/entrar.ts:53-60; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6d53889c,api,apps/api/src/controladores/entrar.ts,58,58,line,2,"// invalida o cookie em vários navegadores, e o sintoma é login que ""não faz nada"".",translate,"invalidates the cookie in several browsers, making login appear to do nothing.",security,apps/api/src/controladores/entrar.ts:53-60; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a5cf51b8,api,apps/api/src/controladores/entrar.ts,68,80,jsdoc,15,"/**
  * De qual dos três aplicativos saiu este login.
  *
@@ -510,14 +510,14 @@ api-comment-a5cf51b8,api,apps/api/src/controladores/entrar.ts,68,80,jsdoc,15,"/*
  * login em redirecionamento aberto: qualquer site mandaria a pessoa ao Google e
  * receberia a volta dela já logada. Origem fora da lista cai em `PIPE_URL_APP`,
  * e o login continua funcionando.
- */",,,,,,
-api-comment-fa7dae0b,api,apps/api/src/controladores/entrar.ts,88,88,line,3,// `PIPE_URL_ENTRADA` só decide quando NÃO se sabe de onde a pessoa veio: fixá-la,,,,,,
+ */",translate,"Identify which of the three applications initiated login. Three front ends have distinct origins but share one API; `PIPE_URL_APP` cannot be the correct return URL for all, so a CRM login would otherwise return to Management. Validate `?origem=` against `PIPE_ORIGENS`, the same closed CORS allowlist. Trusting the query value would create an open redirect: any site could send a person to Google and receive their signed-in return. An unlisted origin falls back to `PIPE_URL_APP`, preserving login.",security,apps/api/src/controladores/entrar.ts:68-84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fa7dae0b,api,apps/api/src/controladores/entrar.ts,88,88,line,3,// `PIPE_URL_ENTRADA` só decide quando NÃO se sabe de onde a pessoa veio: fixá-la,translate,`PIPE_URL_ENTRADA` applies only when the initiating origin is unknown; overriding a,security,apps/api/src/controladores/entrar.ts:86-94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6e8992e5,api,apps/api/src/controladores/entrar.ts,97,102,jsdoc,6,"/**
  * O destino já foi limitado a caminho interno por `criarDesafio`. Conferir de novo
  * custa uma linha e fecha a porta se algum dia alguém montar o desafio à mão:
  * destino absoluto vira redirecionamento aberto, que é phishing usando o nosso
  * domínio como trampolim.
- */",,,,,,
+ */",translate,`criarDesafio` already restricts destinations to internal paths. Check again here so a future caller constructing a challenge by hand cannot turn an absolute destination into an open redirect and use our domain for phishing.,security,apps/api/src/controladores/entrar.ts:97-106; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-76c9a980,api,apps/api/src/controladores/etiquetas.ts,18,28,jsdoc,7,"/**
  * Etiquetas — o catálogo do tenant e a aplicação em conversa ABERTA e em contato.
  *
@@ -528,16 +528,16 @@ api-comment-76c9a980,api,apps/api/src/controladores/etiquetas.ts,18,28,jsdoc,7,"
  * Conversa e contato aceitam chave OU sessão (`ChaveOuSessao`), como o envio: uma
  * integração pode etiquetar por chave com escopo; gente logada passa pela permissão
  * (`conversa.etiquetar` / `contato.editar`) e, na conversa, tem de ser o dono.
- */",,,,,,
-api-comment-e6eececc,api,apps/api/src/controladores/gestao-analise.ts,154,154,block,1,/* 186 dias é o `startDateLimit` que o `St` põe no `bds-datepicker`. */,,,,,,
+ */",translate,"Tenant tag catalog and application to open conversations and contacts. Three small resources share one file, as in `catalogo.ts`, because they expose the same `dominio/etiquetas.ts` rule through three URLs. Closure stays at `POST /v1/conversas/:id/encerrar` with required-tag policy. Conversation and contact tagging accept a key or session (`ChaveOuSessao`): an integration needs a key with scope; a signed-in person needs `conversa.etiquetar` or `contato.editar`, and must own the conversation.",architecture,apps/api/src/controladores/etiquetas.ts:18-28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e6eececc,api,apps/api/src/controladores/gestao-analise.ts,154,154,block,1,/* 186 dias é o `startDateLimit` que o `St` põe no `bds-datepicker`. */,translate,186 days is the `startDateLimit` set by `St` on `bds-datepicker`.,meta-blip,apps/api/src/controladores/gestao-analise.ts:154-156; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6341133f,api,apps/api/src/controladores/gestao-analise.ts,230,235,jsdoc,2,"/**
    * O Log de mensagens (`Growth › Log` na origem) — filtro por período,
    * direção e tipo, paginado por cursor (`?cursor=&limit=`, o mesmo formato
    * de `GET /v1/conversas/:id/mensagens`). `direcao`/`tipo` fora da lista são
    * ignorados, não erro — mesmo trato lenientede `contatos` em `dashboard()`.
-   */",,,,,,
-api-comment-bfbfc562,api,apps/api/src/controladores/gestao-analise.ts,254,254,line,3,"// Mesmo trato de `jornada()`: fluxo de outro tenant não existe para a RLS,",,,,,,
-api-comment-bb13b7b7,api,apps/api/src/controladores/gestao-analise.ts,255,255,line,3,"// e ""sem fluxo"" não pode devolver 200 com lista vazia — vira 404.",,,,,,
+   */",translate,"Message Log (`Growth › Log` in the source): filter by period, direction and type, with cursor pagination (`?cursor=&limit=`, as in `GET /v1/conversas/:id/mensagens`). Ignore `direcao` or `tipo` values outside the allowlist rather than erroring, matching the lenient `contatos` handling in `dashboard()`.",integration,apps/api/src/controladores/gestao-analise.ts:230-270; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bfbfc562,api,apps/api/src/controladores/gestao-analise.ts,254,254,line,3,"// Mesmo trato de `jornada()`: fluxo de outro tenant não existe para a RLS,",translate,"As in `jornada()`, RLS makes another tenant's flow nonexistent,",security,apps/api/src/controladores/gestao-analise.ts:253-257; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bb13b7b7,api,apps/api/src/controladores/gestao-analise.ts,255,255,line,3,"// e ""sem fluxo"" não pode devolver 200 com lista vazia — vira 404.",translate,so a missing flow must return 404 rather than 200 with an empty list.,security,apps/api/src/controladores/gestao-analise.ts:253-257; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f63e5855,api,apps/api/src/controladores/gestao-analise.ts,33,40,jsdoc,6,"/**
  * A ANÁLISE do contato (`/fluxo/:id/analise/**`), por sessão de navegador.
  *
@@ -545,11 +545,11 @@ api-comment-f63e5855,api,apps/api/src/controladores/gestao-analise.ts,33,40,jsdo
  * no servidor: o ""hoje"" é o do tenant, não o do navegador de quem abre. A
  * resposta devolve o período que valeu (o pedido pode cair no padrão), para a
  * tela desenhar o chip certo.
- */",,,,,,
-api-comment-96ae28c0,api,apps/api/src/controladores/gestao-analise.ts,49,49,jsdoc,2,"/** `moment().add(n, 'days')` sobre uma data sem hora. */",,,,,,
-api-comment-6affed4d,api,apps/api/src/controladores/gestao-analise.ts,56,56,jsdoc,0,"/** `?de=&ate=` válidos e em ordem, ou o padrão da tela. */",,,,,,
-api-comment-f9c7d2af,api,apps/api/src/controladores/gestao-analise.ts,79,79,jsdoc,0,/** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */,,,,,,
-api-comment-c40783b2,api,apps/api/src/controladores/gestao-builder.ts,102,102,line,1,"// Número fora do padrão vira NaN, e NaN é ""versão não encontrada"" no domínio.",,,,,,
+ */",translate,"Contact analytics (`/fluxo/:id/analise/**`) uses a browser session. Resolve the period here in the account's timezone, as Next pages did on the server: ""today"" is the tenant's day, not the viewer's browser day. Return the period actually used, since the request may fall back to a default, so the screen shows the correct chip.",architecture,apps/api/src/controladores/gestao-analise.ts:33-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-96ae28c0,api,apps/api/src/controladores/gestao-analise.ts,49,49,jsdoc,2,"/** `moment().add(n, 'days')` sobre uma data sem hora. */",translate,"Apply `moment().add(n, 'days')` semantics to a date without a time.",other,apps/api/src/controladores/gestao-analise.ts:49-53,codex3,reviewed
+api-comment-6affed4d,api,apps/api/src/controladores/gestao-analise.ts,56,56,jsdoc,0,"/** `?de=&ate=` válidos e em ordem, ou o padrão da tela. */",translate,"Use valid, ordered `?de=&ate=` values, or the screen default.",other,apps/api/src/controladores/gestao-analise.ts:56-65,codex3,reviewed
+api-comment-f9c7d2af,api,apps/api/src/controladores/gestao-analise.ts,79,79,jsdoc,0,/** O `startDateLimit` do `bds-datepicker`: 186 dias atrás. */,translate,The `bds-datepicker` `startDateLimit`: 186 days ago.,meta-blip,apps/api/src/controladores/gestao-analise.ts:75-80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c40783b2,api,apps/api/src/controladores/gestao-builder.ts,102,102,line,1,"// Número fora do padrão vira NaN, e NaN é ""versão não encontrada"" no domínio.",translate,"An out-of-pattern number becomes NaN, which the domain treats as ""version not found"".",other,apps/api/src/controladores/gestao-builder.ts:100-105,codex3,reviewed
 api-comment-6219ba9a,api,apps/api/src/controladores/gestao-builder.ts,20,35,jsdoc,10,"/**
  * O Builder do contato (`/fluxo/:id/builder`), por sessão de navegador — a
  * mesma casca de `gestao-fluxo.ts`, num arquivo à parte porque o ciclo
@@ -565,14 +565,14 @@ api-comment-6219ba9a,api,apps/api/src/controladores/gestao-builder.ts,20,35,jsdo
  *
  * Roteador responde 409 em todas (`roteador_sem_builder`). O tenant vem da
  * sessão, nunca da URL; `id` fora do padrão de uuid é 404 antes do banco.
- */",,,,,,
-api-comment-738f6e22,api,apps/api/src/controladores/gestao-cadastros.ts,119,119,block,1,/* Em série: as duas consultas dividem a mesma conexão. */,,,,,,
-api-comment-c5673e3b,api,apps/api/src/controladores/gestao-cadastros.ts,273,273,block,0,/* ------------------------------------------------------- horários (item 3) */,,,,,,
+ */",translate,"The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:versao/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.",architecture,apps/api/src/controladores/gestao-builder.ts:20-35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-738f6e22,api,apps/api/src/controladores/gestao-cadastros.ts,119,119,block,1,/* Em série: as duas consultas dividem a mesma conexão. */,translate,Run serially: both queries share one connection.,security,apps/api/src/controladores/gestao-cadastros.ts:119-119; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c5673e3b,api,apps/api/src/controladores/gestao-cadastros.ts,273,273,block,0,/* ------------------------------------------------------- horários (item 3) */,remove,,other,apps/api/src/controladores/gestao-cadastros.ts:273-273,codex3,reviewed
 api-comment-4e461a98,api,apps/api/src/controladores/gestao-cadastros.ts,33,37,jsdoc,3,"/**
  * `id` de recurso na URL: fora do padrão de uuid a resposta é 404 antes de ir
  * ao banco — mesma regra de `gestao-fluxo.ts` (URL é texto de fora, e o
  * Postgres recusa uuid malformado com 500, não 404).
- */",,,,,,
+ */",translate,"Reject a resource URL `id` outside UUID format with 404 before querying, as in `gestao-fluxo.ts`. URLs are untrusted text; Postgres would return a malformed-UUID 500 instead.",security,apps/api/src/controladores/gestao-cadastros.ts:33-41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f8fa43e6,api,apps/api/src/controladores/gestao-cadastros.ts,43,55,jsdoc,13,"/**
  * Os CADASTROS da Gestão — Regras, Atendentes, Comunicação e Preferências —
  * por sessão de navegador: as leituras de cada tela e as ações dos formulários.
@@ -585,22 +585,22 @@ api-comment-f8fa43e6,api,apps/api/src/controladores/gestao-cadastros.ts,43,55,js
  *
  * A lista de ações é FECHADA: só o que está no mapa abaixo pode ser chamado
  * pelo nome. Nome fora do mapa é 404, não `eval`.
- */",,,,,,
+ */",translate,"Management registrations for Rules, Attendants, Communication and Preferences use browser sessions for screen reads and form actions. The actions are Next Management Server Actions moved unchanged to `dominio/gestao/acoes/*`: the form sends JSON `{ campos }`, `Campos` exposes `get`/`getAll` like `FormData`, and returns the same `Resultado`, either `ok` or a reason shown beside the button. The action-name allowlist is closed: names outside the map return 404 and never reach `eval`.",architecture,apps/api/src/controladores/gestao-cadastros.ts:43-55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8e30185a,api,apps/api/src/controladores/gestao-cadastros.ts,454,459,block,11,"/* ------------------------------------ permissões do atendente (tela própria)
      A origem abre `attendance.desk.team.permission` como PÁGINA, com a tabela
      ""Tipo de permissão"" × ""Status"" e ""Salvar alterações""
      (`FICHA-atendentes-filas-pausas.md` §a.4). A seleção vai por
      `?atendentes=id,id` — a rota da origem também não tem `:id` na URL, porque
-     a página atende vários de uma vez. */",,,,,,
-api-comment-cb217067,api,apps/api/src/controladores/gestao-cadastros.ts,575,575,block,0,/* --------------------------------------------------------------- ações */,,,,,,
-api-comment-9b20ae68,api,apps/api/src/controladores/gestao-cadastros.ts,577,577,jsdoc,0,"/** Um formulário da Gestão: `{ campos }` entra, `Resultado` sai. */",,,,,,
+     a página atende vários de uma vez. */",translate,"Attendant permissions are a separate page in the source: `attendance.desk.team.permission`, with the ""Tipo de permissão"" × ""Status"" table and ""Salvar alterações"" (`FICHA-atendentes-filas-pausas.md` §a.4). Selection uses `?atendentes=id,id`; the source route also has no `:id` because the page handles several attendants at once.",meta-blip,apps/api/src/controladores/gestao-cadastros.ts:454-459; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cb217067,api,apps/api/src/controladores/gestao-cadastros.ts,575,575,block,0,/* --------------------------------------------------------------- ações */,remove,,other,apps/api/src/controladores/gestao-cadastros.ts:575-575,codex3,reviewed
+api-comment-9b20ae68,api,apps/api/src/controladores/gestao-cadastros.ts,577,577,jsdoc,0,"/** Um formulário da Gestão: `{ campos }` entra, `Resultado` sai. */",remove,,other,apps/api/src/controladores/gestao-cadastros.ts:577-590,codex3,reviewed
 api-comment-3af26650,api,apps/api/src/controladores/gestao-conta.ts,141,142,block,1,"/* Ninguém se remove sozinho: quem o fizesse perderia o acesso no clique
-       seguinte, e um contrato pode ficar sem nenhum administrador. */",,,,,,
+       seguinte, e um contrato pode ficar sem nenhum administrador. */",translate,"Do not let someone remove their own membership: they would lose access on the next click, and the account could be left without an administrator.",security,apps/api/src/controladores/gestao-conta.ts:141-145; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b82d3b0e,api,apps/api/src/controladores/gestao-conta.ts,171,175,jsdoc,2,"/**
    * Certificados de autenticação (mTLS) — mesma guarda de Membros
    * (`conta.membros.ler`/`.escrever`): a origem também tranca as duas telas
    * atrás de `tenant-members` (`blip-certificados-mtls.md`).
-   */",,,,,,
+   */",translate,Authentication certificates (mTLS) use the same guard as Members (`conta.membros.ler`/`.escrever`). The source also places both screens behind `tenant-members` (`blip-certificados-mtls.md`).,security,apps/api/src/controladores/gestao-conta.ts:171-180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-89355d91,api,apps/api/src/controladores/gestao-conta.ts,31,38,jsdoc,7,"/**
  * O CONTRATO e a conta na Gestão — o painel do contrato e os membros — por
  * sessão de navegador. A criação de contato (fluxo/roteador) nasceu aqui e
@@ -608,7 +608,7 @@ api-comment-89355d91,api,apps/api/src/controladores/gestao-conta.ts,31,38,jsdoc,
  *
  * A permissão é conferida AQUI, na gravação: tela escondida não é porta
  * trancada. `permissoesDe` é a mesma união de papéis que `GET /v1/eu` devolve.
- */",,,,,,
+ */",update,"The contract panel and members in Management use a browser session. Contact creation (flow/router) moved to `gestao-fluxo.ts` with the rest of its lifecycle. Check permission here when writing: hiding a screen does not secure an endpoint. `permissoesDe` currently reads distinct role grants from `usuario_papel` and `papel_permissao`; unlike `GET /v1/eu`, it does not apply `usuario_permissao` overrides.",security,apps/api/src/controladores/gestao-conta.ts:31-47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-87b87f9b,api,apps/api/src/controladores/gestao-equipe.ts,20,36,jsdoc,13,"/**
  * A aba ""Equipe"" do contato (`/fluxo/:id/equipe`), por sessão de navegador — a
  * mesma casca fina de `gestao-builder.ts`, num arquivo à parte porque a equipe
@@ -625,10 +625,10 @@ api-comment-87b87f9b,api,apps/api/src/controladores/gestao-equipe.ts,20,36,jsdoc
  * O tenant vem da sessão, nunca da URL: fluxo de outro cliente é 404, como
  * fluxo que não existe. `id` fora do padrão de uuid é 404 antes do banco —
  * URL é texto de fora, e o Postgres recusa uuid malformado com 500.
- */",,,,,,
+ */",translate,"The contact's ""Equipe"" tab (`/fluxo/:id/equipe`) uses a browser session. Keep per-flow team logic in `dominio/gestao/equipe-do-fluxo.ts`, with a thin adapter like `gestao-builder.ts`. `GET :id/equipe` loads members, edit-modal resources and caller editability; `GET :id/equipe/eu` supplies `itensDoMenu`; `POST :id/equipe` adds someone already on the contract by email; `PATCH :id/equipe/:usuarioId` saves changes; `DELETE :id/equipe/:usuarioId` returns 204. The tenant comes from the session, never the URL, so another customer's flow looks absent (404). Invalid UUID `id` is rejected with 404 before Postgres can return 500.",architecture,apps/api/src/controladores/gestao-equipe.ts:20-36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-96283a67,api,apps/api/src/controladores/gestao-equipe.ts,39,40,block,5,"/* Cópia do `uuidOu404` de `gestao-fluxo.ts` para não amarrar este controlador
-   àquele arquivo — são três linhas e a regra é a mesma nos dois. */",,,,,,
-api-comment-f605fb2c,api,apps/api/src/controladores/gestao-equipe.ts,61,61,jsdoc,2,"/** Sem permissão própria: é a resposta sobre QUEM PERGUNTA, e ela é sempre dele. */",,,,,,
+   àquele arquivo — são três linhas e a regra é a mesma nos dois. */",translate,Copy `uuidOu404` from `gestao-fluxo.ts` rather than coupling this controller to that file; the three-line rule is the same.,architecture,apps/api/src/controladores/gestao-equipe.ts:39-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f605fb2c,api,apps/api/src/controladores/gestao-equipe.ts,61,61,jsdoc,2,"/** Sem permissão própria: é a resposta sobre QUEM PERGUNTA, e ela é sempre dele. */",translate,No separate permission is needed: this response describes the caller and is always that caller's own data.,security,apps/api/src/controladores/gestao-equipe.ts:61-72; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f64da2d3,api,apps/api/src/controladores/gestao-fluxo.ts,104,111,jsdoc,13,"/**
  * O que a tela de criar manda (`apps/gestao-vite/src/paginas/criar/gravar.ts`).
  *
@@ -636,39 +636,39 @@ api-comment-f64da2d3,api,apps/api/src/controladores/gestao-fluxo.ts,104,111,jsdo
  * criar fluxo e criar roteador: a frase da origem é escrita com ""fluxo"" e a
  * tela do roteador troca o substantivo (`regras-de-nome.ts`). A regra é a
  * mesma; a palavra não.
- */",,,,,,
-api-comment-01f1de35,api,apps/api/src/controladores/gestao-fluxo.ts,115,115,jsdoc,1,"/** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */",,,,,,
+ */",translate,"The create screen in `apps/gestao-vite/src/paginas/criar/gravar.ts` supplies `recados` because those messages are the only rule component that differs between creating a flow and a router. The source phrase says ""fluxo"" and the router screen changes the noun (`regras-de-nome.ts`); the rule itself is shared.",architecture,apps/api/src/controladores/gestao-fluxo.ts:104-117; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-01f1de35,api,apps/api/src/controladores/gestao-fluxo.ts,115,115,jsdoc,1,"/** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */",translate,"Accept `data:image/...;base64,...` or nothing. File bytes determine the type, not the label.",security,apps/api/src/controladores/gestao-fluxo.ts:115-116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-773ae127,api,apps/api/src/controladores/gestao-fluxo.ts,120,126,jsdoc,7,"/**
  * Sucesso é `{ id }`; recusa é `{ erro }` com a frase da tela, em 200 — o
  * contrato que a tela de criar já espera (ela leva o `erro` de volta ao passo
  * do nome pela URL). É a exceção ao padrão `ErroPipe` deste controlador, e
  * fica restrita ao POST: o PATCH e o DELETE respondem status e
  * `{ erro: { codigo, mensagem } }`, como o resto da `api`.
- */",,,,,,
-api-comment-08e2f985,api,apps/api/src/controladores/gestao-fluxo.ts,132,132,jsdoc,1,/** `null` ou vazio apaga; ausente não mexe. */,,,,,,
-api-comment-dfdfa839,api,apps/api/src/controladores/gestao-fluxo.ts,134,134,jsdoc,1,"/** `data:` troca, `null` tira, ausente não mexe. */",,,,,,
+ */",translate,"Success is `{ id }`; rejection is `{ erro }` with the screen's phrase, both with 200. The create screen expects this contract and carries `erro` back to the name step in the URL. This exception to this controller's `ErroPipe` pattern applies only to POST; PATCH and DELETE use status codes and `{ erro: { codigo, mensagem } }` like the rest of the `api`.",integration,apps/api/src/controladores/gestao-fluxo.ts:120-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-08e2f985,api,apps/api/src/controladores/gestao-fluxo.ts,132,132,jsdoc,1,/** `null` ou vazio apaga; ausente não mexe. */,translate,`null` or empty clears the value; absence leaves it unchanged.,other,apps/api/src/controladores/gestao-fluxo.ts:130-135,codex3,reviewed
+api-comment-dfdfa839,api,apps/api/src/controladores/gestao-fluxo.ts,134,134,jsdoc,1,"/** `data:` troca, `null` tira, ausente não mexe. */",translate,"`data:` replaces the image, `null` removes it, and absence leaves it unchanged.",other,apps/api/src/controladores/gestao-fluxo.ts:130-135,codex3,reviewed
 api-comment-c02622c2,api,apps/api/src/controladores/gestao-fluxo.ts,140,144,jsdoc,5,"/**
    * Criar um contato (fluxo ou roteador). A regra inteira — permissão, nome,
    * foto, nome único — mora em `ciclo-de-vida-do-fluxo.ts`; aqui só se traduz
    * cada recusa para a frase que a tela pediu.
-   */",,,,,,
-api-comment-60aaa309,api,apps/api/src/controladores/gestao-fluxo.ts,176,176,jsdoc,0,"/** Editar nome, descrição e imagem — o ""Salvar"" de ""Editar Fluxo"". */",,,,,,
+   */",translate,"Create a contact (flow or router). Permission, name, photo and uniqueness rules live in `ciclo-de-vida-do-fluxo.ts`; this adapter maps each rejection to the phrase requested by the screen.",architecture,apps/api/src/controladores/gestao-fluxo.ts:140-144; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-60aaa309,api,apps/api/src/controladores/gestao-fluxo.ts,176,176,jsdoc,0,"/** Editar nome, descrição e imagem — o ""Salvar"" de ""Editar Fluxo"". */",remove,,other,apps/api/src/controladores/gestao-fluxo.ts:176-183,codex3,reviewed
 api-comment-2e389c46,api,apps/api/src/controladores/gestao-fluxo.ts,186,187,block,3,"/* JSON é texto de fora: o que não for string (ou `null` onde `null` vale)
-       é tratado como ausente, e ausente é ""não mexa"". */",,,,,,
-api-comment-7640fa20,api,apps/api/src/controladores/gestao-fluxo.ts,200,200,jsdoc,2,/** Excluir — arquiva; o porquê está em `ciclo-de-vida-do-fluxo.ts`. */,,,,,,
-api-comment-43828171,api,apps/api/src/controladores/gestao-fluxo.ts,212,212,jsdoc,1,"/** A grade do portal. Fora da lista de tamanhos, cai no primeiro; página inválida vira 1. */",,,,,,
+       é tratado como ausente, e ausente é ""não mexa"". */",translate,"JSON is external input. Treat a value other than a string, or `null` where it is allowed, as absent; absent means leave the field unchanged.",security,apps/api/src/controladores/gestao-fluxo.ts:186-197; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7640fa20,api,apps/api/src/controladores/gestao-fluxo.ts,200,200,jsdoc,2,/** Excluir — arquiva; o porquê está em `ciclo-de-vida-do-fluxo.ts`. */,remove,,other,apps/api/src/controladores/gestao-fluxo.ts:200-209,codex3,reviewed
+api-comment-43828171,api,apps/api/src/controladores/gestao-fluxo.ts,212,212,jsdoc,1,"/** A grade do portal. Fora da lista de tamanhos, cai no primeiro; página inválida vira 1. */",translate,"Portal grid: an unlisted page size falls back to the first allowed size, and an invalid page becomes 1.",other,apps/api/src/controladores/gestao-fluxo.ts:212-246,codex3,reviewed
 api-comment-165a5229,api,apps/api/src/controladores/gestao-fluxo.ts,249,253,jsdoc,3,"/**
    * O canal DO BOT — a página `channels/{canal}` da origem. A regra (um bot por
    * número, canal inativo não liga, permissão `channels.escrever` no fluxo)
    * mora em `dominio/gestao/canal-do-fluxo.ts`.
-   */",,,,,,
-api-comment-9dd381d0,api,apps/api/src/controladores/gestao-fluxo.ts,265,265,jsdoc,1,"/** ""Ativar número"": liga um canal existente da conta a este bot. */",,,,,,
+   */",translate,"The bot's channel is the source `channels/{canal}` page. The rules for one bot per number, refusing inactive channels and `channels.escrever` permission on the flow live in `dominio/gestao/canal-do-fluxo.ts`.",meta-blip,apps/api/src/controladores/gestao-fluxo.ts:249-263; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9dd381d0,api,apps/api/src/controladores/gestao-fluxo.ts,265,265,jsdoc,1,"/** ""Ativar número"": liga um canal existente da conta a este bot. */",remove,,other,apps/api/src/controladores/gestao-fluxo.ts:265-280,codex3,reviewed
 api-comment-69fa2890,api,apps/api/src/controladores/gestao-fluxo.ts,283,286,jsdoc,2,"/**
    * Desliga o canal deste bot. O canal em si continua conectado à Meta. O
    * `motivo` (opcional) é o do modal de desconexão da origem; vai para o log.
-   */",,,,,,
-api-comment-71c4c89a,api,apps/api/src/controladores/gestao-fluxo.ts,409,409,jsdoc,4,"/** O Growth é da CONTA, não do contato — a rota leva o `id` só para ficar sob a mesma casca. */",,,,,,
-api-comment-6030b067,api,apps/api/src/controladores/gestao-fluxo.ts,436,436,jsdoc,0,/** Os serviços do roteador. As regras moram em `dominio/gestao/servicos-do-roteador.ts`. */,,,,,,
+   */",translate,"Disconnect the channel from this bot, leaving the channel itself connected to Meta. Optional `motivo` comes from the source disconnect modal and is written to the log.",integration,apps/api/src/controladores/gestao-fluxo.ts:283-299; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-71c4c89a,api,apps/api/src/controladores/gestao-fluxo.ts,409,409,jsdoc,4,"/** O Growth é da CONTA, não do contato — a rota leva o `id` só para ficar sob a mesma casca. */",translate,"Growth belongs to the account, not the contact; this route carries `id` only to share the adapter.",architecture,apps/api/src/controladores/gestao-fluxo.ts:409-418; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6030b067,api,apps/api/src/controladores/gestao-fluxo.ts,436,436,jsdoc,0,/** Os serviços do roteador. As regras moram em `dominio/gestao/servicos-do-roteador.ts`. */,remove,,other,apps/api/src/controladores/gestao-fluxo.ts:436-445,codex3,reviewed
 api-comment-ef9faf85,api,apps/api/src/controladores/gestao-fluxo.ts,74,89,jsdoc,11,"/**
  * As telas do CONTATO da Gestão (`/fluxo/:id/**`), por sessão de navegador.
  *
@@ -684,8 +684,8 @@ api-comment-ef9faf85,api,apps/api/src/controladores/gestao-fluxo.ts,74,89,jsdoc,
  *
  * `id` é o `fluxo.id`. Fora do padrão de uuid a resposta é 404 antes de ir ao
  * banco: URL é texto de fora, e o Postgres recusa uuid malformado com 500.
- */",,,,,,
-api-comment-fc413b80,api,apps/api/src/controladores/gestao-fluxo.ts,92,92,jsdoc,3,"/** Exportada para o controlador do Builder (`gestao-builder.ts`), que vive sob a mesma casca. */",,,,,,
+ */",translate,"Management contact screens (`/fluxo/:id/**`) use browser sessions. This was the first Next-to-Vite front-end migration (README, ""Quem fala com o banco""): Next Server Component reads became one API route per read, with the same data and tenant from the session, never the URL. Contact creation, editing and deletion share this adapter through `POST`, `PATCH /:id` and `DELETE /:id`; rules live in `dominio/gestao/ciclo-de-vida-do-fluxo.ts`. `id` is `fluxo.id`; reject invalid UUIDs with 404 before Postgres can return 500.",architecture,apps/api/src/controladores/gestao-fluxo.ts:74-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fc413b80,api,apps/api/src/controladores/gestao-fluxo.ts,92,92,jsdoc,3,"/** Exportada para o controlador do Builder (`gestao-builder.ts`), que vive sob a mesma casca. */",remove,,other,apps/api/src/controladores/gestao-fluxo.ts:92-96,codex3,reviewed
 api-comment-8b83c883,api,apps/api/src/controladores/gestao-fluxo.ts,98,98,jsdoc,2,"/** O que a casca do contato precisa: o contato, o canal dele e o fuso da conta. */",,,,,,
 api-comment-c59922bd,api,apps/api/src/controladores/gestao-integracoes.ts,114,114,block,0,/* --------------------------------------------------- Informações de conexão */,,,,,,
 api-comment-7123a233,api,apps/api/src/controladores/gestao-integracoes.ts,30,40,jsdoc,7,"/**
