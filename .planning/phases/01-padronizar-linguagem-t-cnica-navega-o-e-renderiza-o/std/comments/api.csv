@@ -686,8 +686,8 @@ api-comment-ef9faf85,api,apps/api/src/controladores/gestao-fluxo.ts,74,89,jsdoc,
  * banco: URL é texto de fora, e o Postgres recusa uuid malformado com 500.
  */",translate,"Management contact screens (`/fluxo/:id/**`) use browser sessions. This was the first Next-to-Vite front-end migration (README, ""Quem fala com o banco""): Next Server Component reads became one API route per read, with the same data and tenant from the session, never the URL. Contact creation, editing and deletion share this adapter through `POST`, `PATCH /:id` and `DELETE /:id`; rules live in `dominio/gestao/ciclo-de-vida-do-fluxo.ts`. `id` is `fluxo.id`; reject invalid UUIDs with 404 before Postgres can return 500.",architecture,apps/api/src/controladores/gestao-fluxo.ts:74-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-fc413b80,api,apps/api/src/controladores/gestao-fluxo.ts,92,92,jsdoc,3,"/** Exportada para o controlador do Builder (`gestao-builder.ts`), que vive sob a mesma casca. */",remove,,other,apps/api/src/controladores/gestao-fluxo.ts:92-96,codex3,reviewed
-api-comment-8b83c883,api,apps/api/src/controladores/gestao-fluxo.ts,98,98,jsdoc,2,"/** O que a casca do contato precisa: o contato, o canal dele e o fuso da conta. */",,,,,,
-api-comment-c59922bd,api,apps/api/src/controladores/gestao-integracoes.ts,114,114,block,0,/* --------------------------------------------------- Informações de conexão */,,,,,,
+api-comment-8b83c883,api,apps/api/src/controladores/gestao-fluxo.ts,98,98,jsdoc,2,"/** O que a casca do contato precisa: o contato, o canal dele e o fuso da conta. */",remove,,other,apps/api/src/controladores/gestao-fluxo.ts:98-102,codex3,reviewed
+api-comment-c59922bd,api,apps/api/src/controladores/gestao-integracoes.ts,114,114,block,0,/* --------------------------------------------------- Informações de conexão */,remove,,integration,apps/api/src/controladores/gestao-integracoes.ts:114-114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7123a233,api,apps/api/src/controladores/gestao-integracoes.ts,30,40,jsdoc,7,"/**
  * As telas de Integrações do fluxo: chaves de acesso, informações de conexão
  * e webhook de saída. Regra em `dominio/gestao/integracoes.ts`; aqui só
@@ -698,11 +698,11 @@ api-comment-7123a233,api,apps/api/src/controladores/gestao-integracoes.ts,30,40,
  * fluxo; `webhooks` é `/v1/gestao/webhooks` porque `webhook_saida` é da
  * CONTA (ver o comentário no domínio) — colocá-lo sob `:id` fingiria uma
  * coluna que a tabela não tem.
- */",,,,,,
-api-comment-577cfa51,api,apps/api/src/controladores/gestao-integracoes.ts,97,97,jsdoc,2,"/** ""Excluir chave"" da tela — a regra REVOGA (`revogada_em`), nunca apaga a linha. */",,,,,,
-api-comment-3cc36404,api,apps/api/src/controladores/gestao-operacao.ts,122,122,jsdoc,0,/** As duas barras do topo: canais e avisos. Conta e pessoa vêm de `GET /v1/eu`. */,,,,,,
-api-comment-65377212,api,apps/api/src/controladores/gestao-operacao.ts,127,127,block,3,"/* Banco fora do ar não pode apagar a barra: os canais somem, a tela fica. */",,,,,,
-api-comment-420faa81,api,apps/api/src/controladores/gestao-operacao.ts,300,300,block,2,/* Satisfação olha 30 dias por padrão: pesquisa respondida é mais rara que conversa. */,,,,,,
+ */",translate,"Flow integration screens cover access keys, connection information and outbound webhooks. Rules live in `dominio/gestao/integracoes.ts`; this adapter handles sessions, URL UUID validation and body conversion as in `gestao-fluxo.ts`. `chaves` and `conexao` live under `/v1/gestao/fluxos/:id` because they belong to a flow. `webhooks` lives at `/v1/gestao/webhooks` because `webhook_saida` belongs to the account (see the domain comment); putting it under `:id` would imply a table column that does not exist.",integration,apps/api/src/controladores/gestao-integracoes.ts:30-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-577cfa51,api,apps/api/src/controladores/gestao-integracoes.ts,97,97,jsdoc,2,"/** ""Excluir chave"" da tela — a regra REVOGA (`revogada_em`), nunca apaga a linha. */",translate,"The screen says ""Excluir chave"", but the rule revokes by setting `revogada_em`; it never deletes the row.",security,apps/api/src/controladores/gestao-integracoes.ts:97-111; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3cc36404,api,apps/api/src/controladores/gestao-operacao.ts,122,122,jsdoc,0,/** As duas barras do topo: canais e avisos. Conta e pessoa vêm de `GET /v1/eu`. */,translate,The two top bars contain channels and notices; account and person come from `GET /v1/eu`.,other,apps/api/src/controladores/gestao-operacao.ts:122-130,codex3,reviewed
+api-comment-65377212,api,apps/api/src/controladores/gestao-operacao.ts,127,127,block,3,"/* Banco fora do ar não pode apagar a barra: os canais somem, a tela fica. */",translate,"A database outage must not remove the top bar: channels disappear, but the screen remains.",integration,apps/api/src/controladores/gestao-operacao.ts:127-130; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-420faa81,api,apps/api/src/controladores/gestao-operacao.ts,300,300,block,2,/* Satisfação olha 30 dias por padrão: pesquisa respondida é mais rara que conversa. */,translate,Satisfaction defaults to 30 days because completed surveys are rarer than conversations.,other,apps/api/src/controladores/gestao-operacao.ts:297-303,codex3,reviewed
 api-comment-a81b4c5b,api,apps/api/src/controladores/gestao-operacao.ts,35,43,jsdoc,5,"/**
  * A OPERAÇÃO da Gestão — monitoramento, histórico, relatórios e monitoria —
  * por sessão de navegador. As consultas são as de `dominio/gestao/*`, movidas
@@ -711,10 +711,10 @@ api-comment-a81b4c5b,api,apps/api/src/controladores/gestao-operacao.ts,35,43,jsd
  *
  * Todo id de filtro passa por `uuidOuNada` e toda data por `dataOuNada`: link
  * colado com `?fila=abc` vira ""sem filtro"", não 500 no `::uuid` do Postgres.
- */",,,,,,
-api-comment-949bfc31,api,apps/api/src/controladores/gestao-operacao.ts,51,51,jsdoc,0,"/** O período pedido, ou os últimos `dias` dias incluindo hoje. */",,,,,,
-api-comment-afef6bf5,api,apps/api/src/controladores/gestao-operacao.ts,65,65,jsdoc,0,"/** Apenas o Histórico conta 30 datas civis, inclusive em mudança de fuso/DST. */",,,,,,
-api-comment-b59a7c26,api,apps/api/src/controladores/gestao-operacao.ts,83,83,jsdoc,1,"/** O dia de hoje no fuso da conta, para o título. */",,,,,,
+ */",translate,"Management operations (monitoring, history, reports and quality review) use browser sessions. Queries moved from Next Management to `dominio/gestao/*`; this adapter resolves timezone, window and filters as the server pages did. Filter IDs pass through `uuidOuNada` and dates through `dataOuNada`, so a pasted `?fila=abc` becomes no filter rather than a Postgres `::uuid` 500.",architecture,apps/api/src/controladores/gestao-operacao.ts:35-49; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-949bfc31,api,apps/api/src/controladores/gestao-operacao.ts,51,51,jsdoc,0,"/** O período pedido, ou os últimos `dias` dias incluindo hoje. */",translate,"Use the requested period or the last `dias` days, including today.",other,apps/api/src/controladores/gestao-operacao.ts:51-63,codex3,reviewed
+api-comment-afef6bf5,api,apps/api/src/controladores/gestao-operacao.ts,65,65,jsdoc,0,"/** Apenas o Histórico conta 30 datas civis, inclusive em mudança de fuso/DST. */",translate,"Only History counts 30 civil dates, including across timezone or DST changes.",other,apps/api/src/controladores/gestao-operacao.ts:65-78,codex3,reviewed
+api-comment-b59a7c26,api,apps/api/src/controladores/gestao-operacao.ts,83,83,jsdoc,1,"/** O dia de hoje no fuso da conta, para o título. */",translate,"Today in the account timezone, for the title.",other,apps/api/src/controladores/gestao-operacao.ts:81-85,codex3,reviewed
 api-comment-eb854ce4,api,apps/api/src/controladores/importacoes.ts,14,24,jsdoc,6,"/**
  * A casca HTTP da importação de contatos. A regra mora em
  * `dominio/importacao-de-contatos.ts`; o trabalho, no worker.
@@ -725,8 +725,8 @@ api-comment-eb854ce4,api,apps/api/src/controladores/importacoes.ts,14,24,jsdoc,6
  *
  * `crm.importar` (""Importar base de outro CRM""), que é de administrador e gestor.
  * O tenant é o da sessão; nada no corpo o escolhe.
- */",,,,,,
-api-comment-13390489,api,apps/api/src/controladores/importacoes.ts,64,64,jsdoc,4,"/** O relatório das linhas rejeitadas, com a coluna `erros`, para baixar. */",,,,,,
+ */",translate,"HTTP adapter for contact import. The rule lives in `dominio/importacao-de-contatos.ts`; the worker performs the job. Upload CSV as a raw text body: `servidor.ts` installs the parser only on this route, with a 20 MB limit; pass the filename in `?nome=`. As with attachment uploads, one file fits in the request body without `multer`. Require `crm.importar` (""Importar base de outro CRM"") for administrators and managers. The tenant comes from the session, never the body.",integration,apps/api/src/controladores/importacoes.ts:14-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-13390489,api,apps/api/src/controladores/importacoes.ts,64,64,jsdoc,4,"/** O relatório das linhas rejeitadas, com a coluna `erros`, para baixar. */",translate,Download the rejected-row report with its `erros` column.,other,apps/api/src/controladores/importacoes.ts:64-76,codex3,reviewed
 api-comment-0cf64226,api,apps/api/src/controladores/mensagens-ativas.ts,15,23,jsdoc,8,"/**
  * `/v1/mensagens-ativas` — disparo de template para uma lista de contatos.
  *
@@ -735,12 +735,12 @@ api-comment-0cf64226,api,apps/api/src/controladores/mensagens-ativas.ts,15,23,js
  * **A resposta é 207-em-espírito**: 201 com o resultado POR CONTATO. Um número
  * inválido no meio de quinze não derruba os catorze bons, e a tela precisa saber
  * exatamente quem entrou e quem foi recusado — é assim que a tela deles se comporta.
- */",,,,,,
-api-comment-fdc9be54,api,apps/api/src/controladores/mensagens-ativas.ts,34,34,jsdoc,3,"/** Os limites em vigor, para a tela não repetir número mágico. */",,,,,,
-api-comment-9a1272c9,api,apps/api/src/controladores/mensagens-ativas.ts,45,45,jsdoc,0,"/** O painel ""Status geral"": últimas 72 horas, como o deles. */",,,,,,
-api-comment-9e236ab7,api,apps/api/src/controladores/mensagens-ativas.ts,85,85,line,3,"// O canal é resolvido pelo papel dono, então CONFERIR O TENANT aqui não é",,,,,,
-api-comment-cf37e44d,api,apps/api/src/controladores/mensagens-ativas.ts,86,86,line,1,"// paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número",,,,,,
-api-comment-6c270a20,api,apps/api/src/controladores/mensagens-ativas.ts,87,87,line,2,// dele com a nossa credencial.,,,,,,
+ */",translate,"`/v1/mensagens-ativas` sends a template to a contact list. See `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and `dominio/mensagem-ativa.ts`. The response has 207-like semantics with status 201 and a result per contact: one invalid number among fifteen does not reject the other fourteen. The screen needs to show exactly which contacts were accepted and rejected, matching the source behavior.",meta-blip,apps/api/src/controladores/mensagens-ativas.ts:15-23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fdc9be54,api,apps/api/src/controladores/mensagens-ativas.ts,34,34,jsdoc,3,"/** Os limites em vigor, para a tela não repetir número mágico. */",translate,Return the active limits so the screen does not duplicate magic numbers.,other,apps/api/src/controladores/mensagens-ativas.ts:34-42,codex3,reviewed
+api-comment-9a1272c9,api,apps/api/src/controladores/mensagens-ativas.ts,45,45,jsdoc,0,"/** O painel ""Status geral"": últimas 72 horas, como o deles. */",translate,"The ""Status geral"" panel defaults to the last 72 hours, as in the source.",meta-blip,apps/api/src/controladores/mensagens-ativas.ts:45-54; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9e236ab7,api,apps/api/src/controladores/mensagens-ativas.ts,85,85,line,3,"// O canal é resolvido pelo papel dono, então CONFERIR O TENANT aqui não é",translate,"The owner role resolves the channel, so checking the tenant here is essential:",security,apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cf37e44d,api,apps/api/src/controladores/mensagens-ativas.ts,86,86,line,1,"// paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número",translate,"without it, another customer's `canal_id` could send from that customer's number",security,apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6c270a20,api,apps/api/src/controladores/mensagens-ativas.ts,87,87,line,2,// dele com a nossa credencial.,translate,using our credential.,security,apps/api/src/controladores/mensagens-ativas.ts:84-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-79482caa,api,apps/api/src/controladores/minha-conta.ts,11,24,jsdoc,17,"/**
  * ""Minha conta"" e o seletor de contas — as duas telas que fecham o onboarding
  * de quem entrou pelo autosserviço.
@@ -754,8 +754,8 @@ api-comment-79482caa,api,apps/api/src/controladores/minha-conta.ts,11,24,jsdoc,1
  * subdomínio; aqui se troca a sessão). A lista sai do banco do DONO de
  * propósito: é a única consulta que precisa atravessar tenants, e ela responde
  * só sobre contas em que aquele e-mail já tem usuário ativo.
- */",,,,,,
-api-comment-ecf8f1e6,api,apps/api/src/controladores/minha-conta.ts,142,142,jsdoc,3,/** A conta desta sessão. É a que o seletor marca. */,,,,,,
+ */",translate,"""Minha conta"" and the account selector finish self-service onboarding. The source sequence is documented in `referencias-blip/pesquisa/onboarding-blip.md`: login creates an account, the welcome screen announces it, and this form completes it. While `onboardingConcluidoEm` is null, Management sends the person here instead of opening the portal. The selector exists because one email can administer several accounts; the source changes subdomain, while Pipe changes session. Deliberately query the owner database because listing those accounts crosses tenants; return only accounts where this email already has an active user.",security,apps/api/src/controladores/minha-conta.ts:11-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ecf8f1e6,api,apps/api/src/controladores/minha-conta.ts,142,142,jsdoc,3,/** A conta desta sessão. É a que o seletor marca. */,translate,The account for this session; the selector marks it.,security,apps/api/src/controladores/minha-conta.ts:137-144; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-38d01791,api,apps/api/src/controladores/minha-conta.ts,145,152,jsdoc,10,"/**
    * Conta PESSOAL: a que nasceu no login e não provou domínio nenhum.
    *
@@ -763,9 +763,9 @@ api-comment-38d01791,api,apps/api/src/controladores/minha-conta.ts,145,152,jsdoc
    * pessoal (sem id), e o seletor desenha os dois diferente. Aqui a prova é o
    * domínio verificado: quem contrata publica o TXT no DNS da empresa; quem
    * entrou sozinho com o próprio e-mail não publicou nada.
-   */",,,,,,
-api-comment-f525a025,api,apps/api/src/controladores/minha-conta.ts,156,156,jsdoc,2,"/** Um valor da lista, ou nulo quando não veio. Fora da lista é recusa. */",,,,,,
-api-comment-ea4b2e6d,api,apps/api/src/controladores/minha-conta.ts,178,178,jsdoc,3,"/** A conta em vigor, com o que o formulário precisa mostrar e oferecer. */",,,,,,
+   */",translate,"A personal account is created at login without a verified domain. The source distinguishes a company contract (with ID) from a personal space (without ID), and the selector renders them differently. Here the evidence is a verified domain: a subscribing company publishes a DNS TXT record; someone who joined alone with their own email has not.",security,apps/api/src/controladores/minha-conta.ts:145-153; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f525a025,api,apps/api/src/controladores/minha-conta.ts,156,156,jsdoc,2,"/** Um valor da lista, ou nulo quando não veio. Fora da lista é recusa. */",translate,"A value from the allowlist, or null when none was supplied. Reject a value outside the list.",security,apps/api/src/controladores/minha-conta.ts:156-166; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ea4b2e6d,api,apps/api/src/controladores/minha-conta.ts,178,178,jsdoc,3,"/** A conta em vigor, com o que o formulário precisa mostrar e oferecer. */",remove,,security,apps/api/src/controladores/minha-conta.ts:178-195; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-66317bd5,api,apps/api/src/controladores/minha-conta.ts,197,204,jsdoc,11,"/**
    * Salva os dados da empresa e, com isso, conclui o onboarding.
    *
@@ -773,16 +773,16 @@ api-comment-66317bd5,api,apps/api/src/controladores/minha-conta.ts,197,204,jsdoc
    * à parte. Na origem é o mesmo: o `POST /Account` do formulário é o passo.
    * Salvar de novo depois não reabre nem remarca: a data é a da primeira vez,
    * e é ela que conta quanto tempo a conta levou para sair do papel.
-   */",,,,,,
+   */",translate,"Save company data and complete onboarding. Saving sets `onboarding_concluido_em`; there is no separate finish button. In the source, the form's `POST /Account` is that step. Saving again does not reopen onboarding or reset the timestamp: the first save date measures how long the account took to become active.",security,apps/api/src/controladores/minha-conta.ts:197-204; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7dd4e6fa,api,apps/api/src/controladores/minha-conta.ts,222,223,block,6,"/* Lista fechada dos dois lados: idioma que a tela não sabe desenhar e fuso
-       que o Postgres não conhece quebram relatório inteiro, e em silêncio. */",,,,,,
+       que o Postgres não conhece quebram relatório inteiro, e em silêncio. */",translate,Use allowlists at both edges. A language the screen cannot render or a timezone Postgres does not recognize can silently break an entire report.,integration,apps/api/src/controladores/minha-conta.ts:222-225; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9c3988bb,api,apps/api/src/controladores/minha-conta.ts,252,258,jsdoc,14,"/**
    * As contas deste e-mail. É o que o seletor do canto superior esquerdo lista.
    *
    * Pelo e-mail, e não pela identidade do provedor: quem foi convidado para a
    * conta de um cliente e ainda não entrou por lá pelo Google também aparece —
    * é o mesmo critério que a entrada usa para ligar a conta na primeira vez.
-   */",,,,,,
+   */",translate,"List the accounts associated with this email for the upper-left selector. Match by email rather than provider identity: someone invited to another customer's account appears even before signing in there with Google, matching the criterion used to link accounts on first sign-in.",security,apps/api/src/controladores/minha-conta.ts:252-292; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f961b741,api,apps/api/src/controladores/minha-conta.ts,26,33,jsdoc,9,"/**
  * As sete faixas da origem, com os CORTES dela (1–4, 5–19, 20–49, 50–249,
  * 250–999, 1.000–10.000, acima). Antes usávamos cortes redondos nossos — sete
@@ -790,7 +790,7 @@ api-comment-f961b741,api,apps/api/src/controladores/minha-conta.ts,26,33,jsdoc,9
  * nem com o mercado que já responde nesse formato.
  *
  * Faixa, e não número: escala muda, faixa não.
- */",,,,,,
+ */",translate,"Use the source's seven employee-size bands with its exact cutoffs: 1–4, 5–19, 20–49, 50–249, 250–999, 1,000–10,000 and above. Our former seven round-number bands did not align with its data or the market that reports in this format. Store a band rather than an exact count because headcount changes more often than its band.",security,apps/api/src/controladores/minha-conta.ts:26-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ad4e4c93,api,apps/api/src/controladores/minha-conta.ts,295,303,jsdoc,5,"/**
    * Troca a conta em vigor: abre sessão nova na conta de destino e devolve o
    * cookie.
@@ -799,12 +799,12 @@ api-comment-ad4e4c93,api,apps/api/src/controladores/minha-conta.ts,295,303,jsdoc
    * `tenantId` qualquer não serve de nada. A sessão antiga continua válida de
    * propósito: quem troca de conta costuma voltar, e derrubar a outra aba no
    * meio de um atendimento seria pior.
-   */",,,,,,
+   */",translate,"Switch the current account by opening a new session for the destination and returning its cookie. Verify membership here using the email from the current session; an arbitrary `tenantId` in the request grants nothing. Keep the old session valid deliberately, since users switch back and invalidating another tab during a conversation would be worse.",security,apps/api/src/controladores/minha-conta.ts:295-353; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f00198ba,api,apps/api/src/controladores/minha-conta.ts,312,314,block,3,"/* Aceita as duas formas porque as duas telas pedem coisas diferentes: o
        seletor tem o id em mãos, e o endereço da conta (o subdomínio) só tem o
-       slug — é ele que a URL carrega. */",,,,,,
-api-comment-49a625cc,api,apps/api/src/controladores/minha-conta.ts,337,337,line,7,"// Sem vínculo a resposta é ""não existe"", e não ""você não pode"": dizer que a",,,,,,
-api-comment-aa0b0cdd,api,apps/api/src/controladores/minha-conta.ts,338,338,line,2,// conta existe já conta ao curioso que empresa usa o Pipe.,,,,,,
+       slug — é ele que a URL carrega. */",translate,"Accept both forms because the two screens have different inputs: the selector has the account ID, while an account address (subdomain) contains only its slug in the URL.",security,apps/api/src/controladores/minha-conta.ts:312-315; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-49a625cc,api,apps/api/src/controladores/minha-conta.ts,337,337,line,7,"// Sem vínculo a resposta é ""não existe"", e não ""você não pode"": dizer que a",translate,"Without membership, respond ""does not exist"" rather than ""you cannot"": acknowledging that the",security,apps/api/src/controladores/minha-conta.ts:327-339; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-aa0b0cdd,api,apps/api/src/controladores/minha-conta.ts,338,338,line,2,// conta existe já conta ao curioso que empresa usa o Pipe.,translate,account exists would reveal to a curious caller which company uses Pipe.,security,apps/api/src/controladores/minha-conta.ts:327-339; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8cd5622c,api,apps/api/src/controladores/minha-conta.ts,357,364,jsdoc,14,"/**
  * O id da conta a partir do endereço dela.
  *
@@ -812,24 +812,24 @@ api-comment-8cd5622c,api,apps/api/src/controladores/minha-conta.ts,357,364,jsdoc
  * pessoa tem acesso — quem decide isso é a rota, logo depois, pelo e-mail. Um
  * slug que não existe devolve vazio, e a rota trata como ""não encontrado"": não
  * há diferença visível entre conta inexistente e conta que não é sua.
- */",,,,,,
-api-comment-180360a9,api,apps/api/src/controladores/minha-conta.ts,374,374,jsdoc,3,/** O e-mail de quem está logado. É a chave que liga as contas da mesma pessoa. */,,,,,,
-api-comment-6e16b0e7,api,apps/api/src/controladores/minha-conta.ts,44,44,jsdoc,0,/** Os três idiomas da origem. */,,,,,,
+ */",translate,"Resolve an account ID from its address using the owner database because this lookup occurs before knowing whether the person has access. The route then decides access by email. A nonexistent slug returns empty, which the route treats as not found; the response does not distinguish a nonexistent account from one the caller cannot access.",security,apps/api/src/controladores/minha-conta.ts:357-371; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-180360a9,api,apps/api/src/controladores/minha-conta.ts,374,374,jsdoc,3,/** O e-mail de quem está logado. É a chave que liga as contas da mesma pessoa. */,translate,The signed-in person's email links that person's accounts.,security,apps/api/src/controladores/minha-conta.ts:374-383; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6e16b0e7,api,apps/api/src/controladores/minha-conta.ts,44,44,jsdoc,0,/** Os três idiomas da origem. */,translate,The source's three languages.,security,apps/api/src/controladores/minha-conta.ts:44-45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4da162f6,api,apps/api/src/controladores/minha-conta.ts,47,53,jsdoc,8,"/**
  * Os fusos do Brasil, do mais usado para o menos.
  *
  * Lista fechada, e não o catálogo inteiro da IANA: o catálogo tem 400 e poucos
  * nomes, e a tela vira uma caçada. Quando houver cliente fora daqui, a lista
  * cresce — e o banco já aceita qualquer nome válido.
- */",,,,,,
+ */",translate,"Brazilian timezones, ordered from most to least used. Use a closed list rather than all roughly 400 IANA names, which would make the screen hard to scan. Extend it when there is a customer elsewhere; the database already accepts any valid name.",security,apps/api/src/controladores/minha-conta.ts:47-67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-54f13d77,api,apps/api/src/controladores/minha-conta.ts,81,87,jsdoc,5,"/**
    * A aba ""Preferências"" da tela de origem: idioma e fuso.
    *
    * As duas colunas já existiam no tenant e nenhuma tela mexia nelas — e o fuso
    * decide o que é ""hoje"" em todo relatório, então deixá-lo fora da tela é
    * deixar o cliente preso ao fuso que o provisionamento escolheu.
-   */",,,,,,
-api-comment-0995060b,api,apps/api/src/controladores/minha-conta.ts,90,90,jsdoc,1,/** Nulo enquanto o formulário não foi salvo nenhuma vez. */,,,,,,
+   */",translate,"The source screen's ""Preferências"" tab contains language and timezone. Both tenant columns already existed but no screen changed them. Timezone determines ""today"" in every report, so omitting it would leave the customer stuck with the provisioning default.",security,apps/api/src/controladores/minha-conta.ts:81-89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0995060b,api,apps/api/src/controladores/minha-conta.ts,90,90,jsdoc,1,/** Nulo enquanto o formulário não foi salvo nenhuma vez. */,translate,Null until the form has been saved once.,security,apps/api/src/controladores/minha-conta.ts:90-91; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b6b0127f,api,apps/api/src/controladores/operacao.ts,14,28,jsdoc,9,"/**
  * Quem pode ver `/metrics`.
  *
@@ -844,56 +844,56 @@ api-comment-b6b0127f,api,apps/api/src/controladores/operacao.ts,14,28,jsdoc,9,"/
  *
  * Atrás do Traefik o IP visto é o do proxy, que é privado — ou seja, sem token a
  * camada 2 libera qualquer um que chegue pelo proxy. Por isso: **em produção, token.**
- */",,,,,,
-api-comment-1a7f9f93,api,apps/api/src/controladores/operacao.ts,42,42,line,1,// O Node entrega IPv4 mapeado como `::ffff:10.0.0.3` quando o socket é dual-stack.,,,,,,
-api-comment-1c759434,api,apps/api/src/controladores/operacao.ts,47,47,line,0,// fc00::/7 (único local) e fe80::/10 (enlace local).,,,,,,
-api-comment-959b41f7,api,apps/api/src/controladores/operacao.ts,56,56,line,3,// 503 só quando o banco está fora: é o que tira o contêiner de rotação. Redis,,,,,,
-api-comment-e8767b0f,api,apps/api/src/controladores/operacao.ts,57,57,line,5,"// fora degrada a fila, não a resposta — e derrubar tudo por isso é trocar uma",,,,,,
-api-comment-376eba8f,api,apps/api/src/controladores/operacao.ts,58,58,line,1,// degradação por uma queda.,,,,,,
+ */",translate,"Control access to `/metrics`. An open endpoint exposes customer activity: request counts by route and queue depth reveal Pipe's commercial volume. With `PIPE_METRICS_TOKEN`, require `Authorization: Bearer <token>`; production Prometheus sends it through `authorization` in `scrape_config`. Without the token, allow only loopback or private networks for development and neighboring `docker compose` Prometheus. Behind Traefik, the visible proxy IP is private, so that fallback admits anyone who can reach the proxy. Production therefore requires the token.",security,apps/api/src/controladores/operacao.ts:14-28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1a7f9f93,api,apps/api/src/controladores/operacao.ts,42,42,line,1,// O Node entrega IPv4 mapeado como `::ffff:10.0.0.3` quando o socket é dual-stack.,translate,"On dual-stack sockets, Node represents mapped IPv4 as `::ffff:10.0.0.3`.",security,apps/api/src/controladores/operacao.ts:40-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c759434,api,apps/api/src/controladores/operacao.ts,47,47,line,0,// fc00::/7 (único local) e fe80::/10 (enlace local).,translate,`fc00::/7` is unique-local and `fe80::/10` is link-local.,security,apps/api/src/controladores/operacao.ts:40-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-959b41f7,api,apps/api/src/controladores/operacao.ts,56,56,line,3,// 503 só quando o banco está fora: é o que tira o contêiner de rotação. Redis,translate,"Return 503 only when the database is down, so the container leaves rotation. Redis",integration,apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e8767b0f,api,apps/api/src/controladores/operacao.ts,57,57,line,5,"// fora degrada a fila, não a resposta — e derrubar tudo por isso é trocar uma",translate,"failure degrades queue processing, not responses; bringing down everything would turn",integration,apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-376eba8f,api,apps/api/src/controladores/operacao.ts,58,58,line,1,// degradação por uma queda.,translate,degraded service into a full outage.,integration,apps/api/src/controladores/operacao.ts:53-59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-794fecad,api,apps/api/src/controladores/operacao.ts,8,12,jsdoc,6,"/**
  * As duas rotas que não pertencem a ninguém de fora: o healthcheck do orquestrador e
  * a coleta do Prometheus. Nenhuma delas leva `@Escopos` nem `@ComSessao` — são
  * públicas de propósito, e a de métricas tem porteiro próprio, logo abaixo.
- */",,,,,,
+ */",translate,The orchestrator health check and Prometheus collection are deliberately unmarked by `@Escopos` or `@ComSessao`. Both routes are public at the guard layer; `/metrics` applies its own access check below.,security,apps/api/src/controladores/operacao.ts:8-12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-99d5fcbd,api,apps/api/src/controladores/rastreador-de-cliques.ts,13,17,jsdoc,1,"/**
  * `/v1/gestao/fluxos/:fluxoId/links-rastreados` — cadastro e leitura do link
  * curto do rastreador de cliques. Controlador próprio (não `gestao-fluxo.ts`,
  * fora do escopo desta tarefa), no mesmo formato de `mensagens-ativas.ts`.
- */",,,,,,
+ */",translate,`/v1/gestao/fluxos/:fluxoId/links-rastreados` creates and reads short click-tracking links. It has a separate controller from `gestao-fluxo.ts` and follows the `mensagens-ativas.ts` shape.,other,apps/api/src/controladores/rastreador-de-cliques.ts:13-17,codex3,reviewed
 api-comment-6f06bba6,api,apps/api/src/controladores/redirecionamento.ts,6,11,jsdoc,4,"/**
  * `GET /l/:codigo` — a rota PÚBLICA do rastreador de cliques. Sem `@ComSessao()`
  * nem `@Escopos(...)` de propósito: quem clica no anúncio/mensagem não tem
  * cookie nem chave — é público como o webhook da Meta (`sessao.ts`, ""rota sem
  * marca nenhuma é pública de propósito"").
- */",,,,,,
+ */",translate,`GET /l/:codigo` is the public click-tracking redirect. Deliberately omit `@ComSessao()` and `@Escopos(...)`: someone clicking an ad or message has neither a cookie nor an API key. This is public like the Meta webhook; see `sessao.ts` and its unmarked-route rule.,security,apps/api/src/controladores/redirecionamento.ts:6-11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-12494262,api,apps/api/src/controladores/sso.ts,106,112,jsdoc,7,"/**
    * Começa o teste da conexão. Exige sessão: quem clica é o admin do cliente, já
    * logado por senha ou pelo Google, e **a sessão dele não é tocada**.
    *
    * Vem antes de `sso/:slug` de propósito — no Nest a primeira rota que casa
    * ganha, e `:slug` casaria com `testar`.
-   */",,,,,,
-api-comment-f3a3e759,api,apps/api/src/controladores/sso.ts,118,118,line,1,// `exigirAtiva: false`: testar uma conexão em rascunho é exatamente o ponto.,,,,,,
+   */",translate,"Start a connection test with an existing session. The customer admin is already signed in by password or Google, and this test does not alter that session. Register this route before `sso/:slug`: Nest uses the first matching route, and `:slug` would otherwise match `testar`.",security,apps/api/src/controladores/sso.ts:106-126; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f3a3e759,api,apps/api/src/controladores/sso.ts,118,118,line,1,// `exigirAtiva: false`: testar uma conexão em rascunho é exatamente o ponto.,translate,"`exigirAtiva: false` permits testing a draft connection, which is the purpose here.",security,apps/api/src/controladores/sso.ts:118-126; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5ce77508,api,apps/api/src/controladores/sso.ts,129,135,jsdoc,8,"/**
    * A volta do IdP do cliente. Vem antes de `sso/:slug` pelo mesmo motivo do teste.
    *
    * O tenant sai do COOKIE, não da URL: `state` e o cookie são o par que prova
    * que esta volta pertence àquela ida. Aceitar tenant vindo da query seria
    * deixar quem monta a URL escolher em qual cliente entrar.
-   */",,,,,,
-api-comment-69d02ec1,api,apps/api/src/controladores/sso.ts,156,156,line,1,"// O teste para AQUI. Nada de sessão, nada de cookie novo, nada de conta",,,,,,
-api-comment-43b71caf,api,apps/api/src/controladores/sso.ts,157,157,line,3,// criada: só o que chegou e o que casaria. É o que torna seguro apontar,,,,,,
-api-comment-db5e3a62,api,apps/api/src/controladores/sso.ts,158,158,line,3,// um IdP novo para um tenant que já tem gente dentro.,,,,,,
-api-comment-8b5aaa2d,api,apps/api/src/controladores/sso.ts,169,169,line,2,// O aviso que evita o chamado de segunda-feira: sem e-mail verificado,,,,,,
-api-comment-243be9cf,api,apps/api/src/controladores/sso.ts,194,194,line,1,"// No teste o admin precisa do motivo; no login de verdade, não.",,,,,,
+   */",translate,"The customer IdP callback also precedes `sso/:slug` to avoid route capture. Resolve the tenant from the cookie, never the URL: `state` and the cookie together prove this callback belongs to the original request. Taking the tenant from the query would let whoever constructs the URL choose the customer to enter.",security,apps/api/src/controladores/sso.ts:129-153; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-69d02ec1,api,apps/api/src/controladores/sso.ts,156,156,line,1,"// O teste para AQUI. Nada de sessão, nada de cookie novo, nada de conta",translate,"The test stops here: it creates no session, new cookie or account,",security,apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-43b71caf,api,apps/api/src/controladores/sso.ts,157,157,line,3,// criada: só o que chegou e o que casaria. É o que torna seguro apontar,translate,only reports the received claims and what would match. That makes it safe to point,security,apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-db5e3a62,api,apps/api/src/controladores/sso.ts,158,158,line,3,// um IdP novo para um tenant que já tem gente dentro.,translate,a new IdP at a tenant that already has users.,security,apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8b5aaa2d,api,apps/api/src/controladores/sso.ts,169,169,line,2,// O aviso que evita o chamado de segunda-feira: sem e-mail verificado,translate,"Warn before Monday's support call: without a verified email, real login rejects the user even when the test passes.",security,apps/api/src/controladores/sso.ts:167-174; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-243be9cf,api,apps/api/src/controladores/sso.ts,194,194,line,1,"// No teste o admin precisa do motivo; no login de verdade, não.",translate,In a test the admin needs the failure reason; in real login the user must not receive it.,security,apps/api/src/controladores/sso.ts:190-200; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-caed73f7,api,apps/api/src/controladores/sso.ts,203,208,jsdoc,6,"/**
    * O link direto por empresa — `app.usepipe.com.br/e/<slug>` cai aqui.
    *
    * É a mesma descoberta feita pela URL em vez do e-mail, e existe para quem tem
    * e-mail pessoal e por isso nunca é descoberto pelo domínio.
-   */",,,,,,
-api-comment-2202b79c,api,apps/api/src/controladores/sso.ts,237,237,jsdoc,1,"/** Só diz SE casa, e com quem. É o admin do próprio tenant quem lê. */",,,,,,
-api-comment-d297b5eb,api,apps/api/src/controladores/sso.ts,262,262,jsdoc,1,/** Mesma escolha do `convites.ts`: a permissão é conferida numa transação própria. */,,,,,,
+   */",translate,"A company direct link, `app.usepipe.com.br/e/<slug>`, reaches this route. It performs the same discovery by URL rather than email for people with personal email addresses who cannot be discovered by domain.",security,apps/api/src/controladores/sso.ts:203-230; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2202b79c,api,apps/api/src/controladores/sso.ts,237,237,jsdoc,1,"/** Só diz SE casa, e com quem. É o admin do próprio tenant quem lê. */",translate,Report only whether the identity matches and whom; only this tenant's admin reads it.,security,apps/api/src/controladores/sso.ts:237-245; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d297b5eb,api,apps/api/src/controladores/sso.ts,262,262,jsdoc,1,/** Mesma escolha do `convites.ts`: a permissão é conferida numa transação própria. */,translate,"As in `convites.ts`, check permission in a separate transaction.",security,apps/api/src/controladores/sso.ts:262-265; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b405283c,api,apps/api/src/controladores/sso.ts,35,47,jsdoc,16,"/**
  * SSO por tenant: configurar, testar, e entrar.
  *
@@ -906,21 +906,21 @@ api-comment-b405283c,api,apps/api/src/controladores/sso.ts,35,47,jsdoc,16,"/**
  * fluxo inteiro contra o IdP do cliente e **não cria sessão**: devolve os claims
  * que chegaram e o que casou. É o que permite ligar o SSO sem quebrar o login de
  * quem já está dentro — e é a única coisa que destrava o estado `ativa`.
- */",,,,,,
-api-comment-2c44bbf7,api,apps/api/src/controladores/sso.ts,51,51,jsdoc,4,"/** A conexão do tenant, sem segredo nenhum. Mostra também o que colar no IdP. */",,,,,,
-api-comment-7276e853,api,apps/api/src/controladores/sso.ts,61,61,jsdoc,2,/** Salva a configuração. Sempre em `rascunho`: salvar não liga nada. */,,,,,,
+ */",translate,"Tenant SSO covers configuration, testing and sign-in. Discovery, PKCE, `id_token` verification and account resolution live in `@pipe/autenticacao`; this HTTP adapter follows `entrar.ts` and reuses its challenge cookie with two extra fields. `GET /v1/auth/sso/testar` runs the full flow against the customer IdP without creating a session, returning received claims and matches. That lets the customer enable SSO without disrupting existing users and is the only step that unlocks `ativa`.",security,apps/api/src/controladores/sso.ts:35-47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2c44bbf7,api,apps/api/src/controladores/sso.ts,51,51,jsdoc,4,"/** A conexão do tenant, sem segredo nenhum. Mostra também o que colar no IdP. */",translate,"Tenant connection details without secrets, including what to paste into the IdP.",security,apps/api/src/controladores/sso.ts:51-58; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7276e853,api,apps/api/src/controladores/sso.ts,61,61,jsdoc,2,/** Salva a configuração. Sempre em `rascunho`: salvar não liga nada. */,translate,Save configuration in `rascunho`; saving does not activate it.,security,apps/api/src/controladores/sso.ts:61-70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1a5b7d41,api,apps/api/src/controladores/sso.ts,73,77,jsdoc,2,"/**
    * Muda o estado e/ou a política. **São dois campos e dois registros de
    * auditoria**, e é de propósito: ligar o SSO e exigir o SSO nunca podem ser o
    * mesmo botão.
-   */",,,,,,
+   */",translate,Change state and/or policy as separate fields with separate audit records. Enabling SSO and requiring SSO must never be the same button.,security,apps/api/src/controladores/sso.ts:73-87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0f89ba47,api,apps/api/src/controladores/sso.ts,93,99,jsdoc,8,"/**
    * Um campo, um botão: para onde este e-mail vai?
    *
    * A resposta é a mesma para e-mail conhecido e desconhecido — só domínio
    * verificado com SSO ativo devolve `sso`, e isso é público porque o cliente
    * escolheu ligar. Sem essa simetria, o endpoint vira catálogo de clientes.
-   */",,,,,,
+   */",translate,"For an email, discover its sign-in destination. Give the same response for known and unknown email addresses: only a verified domain with active SSO yields `sso`, which is public because the customer enabled it. Without that symmetry, this endpoint would enumerate customers.",security,apps/api/src/controladores/sso.ts:93-104; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7489e999,api,apps/api/src/controladores/webhooks-instagram.ts,11,20,jsdoc,5,"/**
  * Webhook do Instagram (Direct), por canal. Reconstruído de chatwoot/chatwoot (MIT),
  * app/controllers/webhooks/instagram_controller.rb, com as regras do webhook do
@@ -930,8 +930,8 @@ api-comment-7489e999,api,apps/api/src/controladores/webhooks-instagram.ts,11,20,
  *
  * Diferente do WhatsApp, não há segredo do ambiente como reserva: todo canal do
  * Instagram é manual, e sem o segredo do canal a recusa é fechada.
- */",,,,,,
-api-comment-549c5e05,api,apps/api/src/controladores/webhooks-instagram.ts,67,67,jsdoc,4,/** Canal que não é do Instagram é 404 aqui: a URL de um WhatsApp não vira porta de entrada do Direct. */,,,,,,
+ */",translate,"Per-channel Instagram Direct webhook, reconstructed from chatwoot/chatwoot (MIT), `app/controllers/webhooks/instagram_controller.rb`, with Pipe's WhatsApp webhook rules (`webhooks-whatsapp.ts`): constant-time `verify_token` comparison, `X-Hub-Signature-256` over the raw body using the customer app's App Secret stored on the channel, immediate 200, then queued processing. Unlike WhatsApp there is no environment-secret fallback: every Instagram channel is manual, so a missing channel secret fails closed.",integration,apps/api/src/controladores/webhooks-instagram.ts:11-20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-549c5e05,api,apps/api/src/controladores/webhooks-instagram.ts,67,67,jsdoc,4,/** Canal que não é do Instagram é 404 aqui: a URL de um WhatsApp não vira porta de entrada do Direct. */,translate,Return 404 for a channel that is not Instagram; a WhatsApp URL must not accept Direct traffic.,security,apps/api/src/controladores/webhooks-instagram.ts:67-71; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-95e598a8,api,apps/api/src/controladores/webhooks-whatsapp.ts,11,22,jsdoc,14,"/**
  * Webhook da Meta.
  *
@@ -943,8 +943,8 @@ api-comment-95e598a8,api,apps/api/src/controladores/webhooks-whatsapp.ts,11,22,j
  *    reentrega vira mensagem repetida — por isso o processamento vai para a fila.
  * 3. O `verify_token` do desafio de inscrição é comparado em tempo constante, como
  *    a assinatura: os dois são segredo compartilhado.
- */",,,,,,
-api-comment-e4e0ac04,api,apps/api/src/controladores/webhooks-whatsapp.ts,135,135,line,2,"// Sem dono: outro aplicativo, ou canal já removido. Fica no log e morre aqui.",,,,,,
+ */",translate,"Meta webhook invariants: verify `X-Hub-Signature-256` against the raw body because JSON reserialization changes whitespace or key order and breaks the signature. Return 200 promptly because Meta retries delayed deliveries and duplicates messages; queue processing instead. Compare the subscription challenge `verify_token` in constant time, as with the signature, because both are shared secrets.",security,apps/api/src/controladores/webhooks-whatsapp.ts:11-22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e4e0ac04,api,apps/api/src/controladores/webhooks-whatsapp.ts,135,135,line,2,"// Sem dono: outro aplicativo, ou canal já removido. Fica no log e morre aqui.",translate,No owner means another app or a removed channel. Log and discard the event here.,integration,apps/api/src/controladores/webhooks-whatsapp.ts:132-143; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-50ad9ca1,api,apps/api/src/controladores/webhooks-whatsapp.ts,153,160,jsdoc,10,"/**
  * Quebra o payload em uma entrada por `entry`, cada uma com o identificador que
  * permite achar o dono.
@@ -952,13 +952,13 @@ api-comment-50ad9ca1,api,apps/api/src/controladores/webhooks-whatsapp.ts,153,160
  * Um POST da Meta pode trazer várias `entry`, e nada garante que sejam do mesmo
  * cliente nesta rota. Tratar o lote como um só levaria o evento de um cliente
  * para a fila de outro — é exatamente o vazamento que a rota por canal não tem.
- */",,,,,,
-api-comment-15ad6327,api,apps/api/src/controladores/webhooks-whatsapp.ts,175,175,line,3,// Reembrulhado com UMA entry: o processamento a jusante espera o formato da Meta.,,,,,,
-api-comment-5c46a64f,api,apps/api/src/controladores/webhooks-whatsapp.ts,191,191,jsdoc,2,/** Assinar é fácil; comparar sem vazar o tamanho do acerto é o que evita o oráculo. */,,,,,,
-api-comment-5694d9b0,api,apps/api/src/controladores/webhooks-whatsapp.ts,25,25,jsdoc,3,"/** Verificação de inscrição: a Meta chama uma vez, com `hub.challenge`. */",,,,,,
-api-comment-ff4b410d,api,apps/api/src/controladores/webhooks-whatsapp.ts,41,41,line,2,"// A Meta espera o desafio cru, em texto — não JSON.",,,,,,
-api-comment-229e0db6,api,apps/api/src/controladores/webhooks-whatsapp.ts,57,57,line,3,// Sem segredo não há como distinguir a Meta de qualquer um. Recusa fechada.,,,,,,
-api-comment-f03efad8,api,apps/api/src/controladores/webhooks-whatsapp.ts,73,73,line,2,// Enfileira e responde. Processar aqui dentro é o que faz a Meta reenviar.,,,,,,
+ */",translate,"Split a Meta payload into one item per `entry`, each carrying an identifier to find its owner. One POST can contain entries from several customers on this route. Treating the batch as one would enqueue one customer's event for another, a cross-tenant leak that the per-channel route avoids.",security,apps/api/src/controladores/webhooks-whatsapp.ts:153-179; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-15ad6327,api,apps/api/src/controladores/webhooks-whatsapp.ts,175,175,line,3,// Reembrulhado com UMA entry: o processamento a jusante espera o formato da Meta.,translate,Rewrap with exactly one `entry`; downstream processing expects Meta's payload shape.,integration,apps/api/src/controladores/webhooks-whatsapp.ts:165-177; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5c46a64f,api,apps/api/src/controladores/webhooks-whatsapp.ts,191,191,jsdoc,2,/** Assinar é fácil; comparar sem vazar o tamanho do acerto é o que evita o oráculo. */,translate,Signing is straightforward; compare without leaking the matched length through timing to avoid an oracle.,security,apps/api/src/controladores/webhooks-whatsapp.ts:181-197; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5694d9b0,api,apps/api/src/controladores/webhooks-whatsapp.ts,25,25,jsdoc,3,"/** Verificação de inscrição: a Meta chama uma vez, com `hub.challenge`. */",translate,Subscription verification: Meta calls once with `hub.challenge`.,integration,apps/api/src/controladores/webhooks-whatsapp.ts:25-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ff4b410d,api,apps/api/src/controladores/webhooks-whatsapp.ts,41,41,line,2,"// A Meta espera o desafio cru, em texto — não JSON.",translate,"Meta expects the raw challenge as text, not JSON.",integration,apps/api/src/controladores/webhooks-whatsapp.ts:37-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-229e0db6,api,apps/api/src/controladores/webhooks-whatsapp.ts,57,57,line,3,// Sem segredo não há como distinguir a Meta de qualquer um. Recusa fechada.,translate,"Without a secret, we cannot distinguish Meta from anyone else. Fail closed.",security,apps/api/src/controladores/webhooks-whatsapp.ts:55-63; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f03efad8,api,apps/api/src/controladores/webhooks-whatsapp.ts,73,73,line,2,// Enfileira e responde. Processar aqui dentro é o que faz a Meta reenviar.,translate,Enqueue and respond. Processing inside the request would cause Meta to retry.,integration,apps/api/src/controladores/webhooks-whatsapp.ts:73-75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9b6f2baa,api,apps/api/src/controladores/webhooks-whatsapp.ts,78,91,jsdoc,15,"/**
    * A rota guarda-chuva, para o que a Meta NÃO deixa ter URL por cliente.
    *
@@ -972,8 +972,8 @@ api-comment-9b6f2baa,api,apps/api/src/controladores/webhooks-whatsapp.ts,78,91,j
    *    só. Ela prova que veio da Meta — não prova de quem é o evento.
    * 2. O tenant sai do payload, e payload que não casa com canal nenhum é
    *    **descartado**, nunca processado no melhor palpite.
-   */",,,,,,
-api-comment-023055c1,api,apps/api/src/controladores/webhooks-whatsapp.ts,8,8,jsdoc,2,"/** O corpo cru, guardado pelo `verify` do parser de JSON — a assinatura é sobre ele. */",,,,,,
+   */",translate,"The umbrella route handles Meta events that cannot use customer-specific URLs. Template approval or rejection, number quality, limit changes and ban alerts do not accept `override_callback_uri`; all customers reach this route. See `docs/specs/2026-09-07-webhook-por-cliente.md`. Unlike the per-channel route, verify the signature with our app's single `appSecret`: that proves Meta sent the event, not which customer owns it. Resolve the tenant from the payload, and discard any payload with no matching channel rather than guessing.",security,apps/api/src/controladores/webhooks-whatsapp.ts:78-91; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-023055c1,api,apps/api/src/controladores/webhooks-whatsapp.ts,8,8,jsdoc,2,"/** O corpo cru, guardado pelo `verify` do parser de JSON — a assinatura é sobre ele. */",translate,The JSON parser's `verify` hook saves the raw body; the signature covers those bytes.,security,apps/api/src/controladores/webhooks-whatsapp.ts:8-9; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1d315789,api,apps/api/src/controladores/webhooks-whatsapp.ts,92,99,jsdoc,11,"/**
    * O desafio de inscrição da rota guarda-chuva.
    *
@@ -981,16 +981,16 @@ api-comment-1d315789,api,apps/api/src/controladores/webhooks-whatsapp.ts,92,99,j
    * Aqui o token é o do ambiente e não o do canal: não há canal no caminho, e o
    * webhook do aplicativo é um só. Sem esta rota o cadastro do webhook do app não
    * passa, e sem ele não chega template rejeitado nem queda de qualidade.
-   */",,,,,,
-api-comment-8cad1ab6,api,apps/api/src/dominio/anexo.ts,109,109,line,1,// Grava no storage ANTES do banco: linha sem arquivo é anexo quebrado na tela;,,,,,,
-api-comment-e63e730f,api,apps/api/src/dominio/anexo.ts,110,110,line,1,"// arquivo sem linha é só lixo, e o disco aguenta.",,,,,,
+   */",translate,"Subscription challenge for the umbrella route. Meta calls this URL once when registering the webhook on the app. The token comes from the environment, not a channel, because there is no channel in the path and the app has one webhook. Without this route, app webhook registration fails and rejected templates or quality drops never arrive.",integration,apps/api/src/controladores/webhooks-whatsapp.ts:92-112; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8cad1ab6,api,apps/api/src/dominio/anexo.ts,109,109,line,1,// Grava no storage ANTES do banco: linha sem arquivo é anexo quebrado na tela;,translate,Write to storage before the database: a row without a file is a broken attachment on screen;,security,apps/api/src/dominio/anexo.ts:106-123; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e63e730f,api,apps/api/src/dominio/anexo.ts,110,110,line,1,"// arquivo sem linha é só lixo, e o disco aguenta.",translate,a file without a row is only orphaned data that storage can tolerate.,security,apps/api/src/dominio/anexo.ts:106-123; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9528ffc5,api,apps/api/src/dominio/anexo.ts,134,140,jsdoc,14,"/**
  * O link assinado de um anexo, com 15 minutos de validade.
  *
  * É esta URL que a Meta baixa quando mandamos mídia, e é ela que a tela usa. Absoluta
  * porque a Meta busca de fora — `PIPE_STORAGE_URL_BASE` deixa de apontar para um host
  * que não existe e passa a ser a base pública da própria `api`.
- */",,,,,,
+ */",translate,"Create a signed attachment URL valid for 15 minutes. Meta downloads this URL when we send media, and the screen also uses it. It must be absolute because Meta fetches externally. `PIPE_STORAGE_URL_BASE` should point to the public `api` base rather than a nonexistent host.",integration,apps/api/src/dominio/anexo.ts:134-149; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-27aac385,api,apps/api/src/dominio/anexo.ts,160,169,jsdoc,13,"/**
  * Lê um anexo a partir de um link assinado.
  *
@@ -1000,9 +1000,9 @@ api-comment-27aac385,api,apps/api/src/dominio/anexo.ts,160,169,jsdoc,13,"/**
  * O tenant é o do ANEXO, resolvido do banco pelo id — não vem da URL. Assinatura
  * prova que o link saiu de nós; a conferência de prefixo prova que o arquivo é do
  * tenant daquele anexo.
- */",,,,,,
-api-comment-b1239568,api,apps/api/src/dominio/anexo.ts,177,177,line,2,// Link vencido e link forjado dão a MESMA resposta: distinguir contaria a quem,,,,,,
-api-comment-d4d54a45,api,apps/api/src/dominio/anexo.ts,197,197,line,1,// Cinto e suspensório: a chave gravada tem de estar na faixa do tenant dela.,,,,,,
+ */",translate,"Read an attachment through a signed link without requiring a session: Meta must download media but has no Pipe cookie. The short-lived signature for one attachment is the credential. Resolve the tenant from the attachment ID in the database, never from the URL. The signature proves we issued the link; the storage-key prefix check proves the file belongs to that attachment's tenant.",security,apps/api/src/dominio/anexo.ts:160-210; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b1239568,api,apps/api/src/dominio/anexo.ts,177,177,line,2,// Link vencido e link forjado dão a MESMA resposta: distinguir contaria a quem,translate,Expired and forged links return the same response; distinguishing them would tell a guesser which part was correct.,security,apps/api/src/dominio/anexo.ts:176-180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d4d54a45,api,apps/api/src/dominio/anexo.ts,197,197,line,1,// Cinto e suspensório: a chave gravada tem de estar na faixa do tenant dela.,translate,Check again that the stored key lies within its tenant's prefix.,security,apps/api/src/dominio/anexo.ts:195-200; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bde5d045,api,apps/api/src/dominio/anexo.ts,21,32,jsdoc,7,"/**
  * Anexo: subir, ler e montar o link.
  *
@@ -1014,15 +1014,15 @@ api-comment-bde5d045,api,apps/api/src/dominio/anexo.ts,21,32,jsdoc,7,"/**
  *    minutos, o mesmo modelo de *file token* da Blip.
  * 3. **O tipo é carimbado pelos BYTES.** Extensão e `Content-Type` do upload são texto
  *    que o cliente escreveu; um `.png` que é HTML vira XSS na tela de quem abrir.
- */",,,,,,
-api-comment-c3bd9a52,api,apps/api/src/dominio/anexo.ts,41,41,jsdoc,2,/** Só para teste: troca o backend sem subir infra. */,,,,,,
+ */",translate,"Attachment upload, read and link generation follow `docs/specs/2026-09-07-storage-de-anexos.md`. Three invariants: the tenant comes from the credential and is the first storage-key segment, so customers never share a prefix; files are not served from guessable public ID URLs, but through 15-minute signed links like Blip *file tokens*; MIME type is determined from bytes because extension and uploaded `Content-Type` are client claims, and a `.png` containing HTML could execute script for the opener.",security,apps/api/src/dominio/anexo.ts:21-32; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c3bd9a52,api,apps/api/src/dominio/anexo.ts,41,41,jsdoc,2,/** Só para teste: troca o backend sem subir infra. */,translate,Test helper: replace the storage backend without starting infrastructure.,security,apps/api/src/dominio/anexo.ts:41-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3377f352,api,apps/api/src/dominio/anexo.ts,46,51,jsdoc,8,"/**
  * O segredo que assina os links.
  *
  * Reaproveita o chaveiro que já protege o token da Meta — uma chave a menos para
  * rotacionar e um lugar a menos para vazar.
- */",,,,,,
-api-comment-340a4fd2,api,apps/api/src/dominio/anexo.ts,83,83,line,0,"// O tipo real primeiro: o teto de tamanho depende dele, e um vídeo declarado como",,,,,,
+ */",translate,"Use the existing keyring that protects Meta tokens to sign links, avoiding another key to rotate and another place a secret could leak.",security,apps/api/src/dominio/anexo.ts:46-56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-340a4fd2,api,apps/api/src/dominio/anexo.ts,83,83,line,0,"// O tipo real primeiro: o teto de tamanho depende dele, e um vídeo declarado como",translate,Determine the real type before applying the size cap: a video declared as,security,apps/api/src/dominio/anexo.ts:83-85; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c3489cd5,api,apps/api/src/dominio/assumir.ts,6,21,jsdoc,22,"/**
  * O atendente pega para si uma conversa que está na fila.
  *
@@ -1038,8 +1038,8 @@ api-comment-c3489cd5,api,apps/api/src/dominio/assumir.ts,6,21,jsdoc,22,"/**
  * A trava é a mesma da distribuição automática: só sai de `na_fila`. Se duas pessoas
  * clicarem ao mesmo tempo, a segunda não muda nada e recebe recusa — o `where` faz o
  * desempate no banco, sem corrida.
- */",,,,,,
-api-comment-ff275ccd,api,apps/api/src/dominio/canais.ts,109,109,line,2,"// O motivo é o CÓDIGO, nunca a mensagem: mensagem da Meta pode ecoar o que recebeu.",,,,,,
+ */",translate,"Let an attendant claim a queued conversation. Automatic load distribution and transfer existed, but claim did not, even though selecting and taking a conversation from the queue is a common attendant action. Do not reuse `transferirConversa`: the source platform's transfer closes the current conversation and opens another (reason ""Transferida""). Using it to claim would close the customer conversation and create an empty one, as a previous shortcut did. Like automatic distribution, claim only from `na_fila`. If two attendants click together, the second update changes no row and is rejected; the database `where` decides the winner without a race.",architecture,apps/api/src/dominio/assumir.ts:6-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ff275ccd,api,apps/api/src/dominio/canais.ts,109,109,line,2,"// O motivo é o CÓDIGO, nunca a mensagem: mensagem da Meta pode ecoar o que recebeu.",translate,"Record the error CODE, never the message: a Meta message may echo user-supplied content.",integration,apps/api/src/dominio/canais.ts:108-114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d697796d,api,apps/api/src/dominio/canais.ts,11,22,jsdoc,13,"/**
  * O que a tela de Canais lê e o desligar.
  *
@@ -1051,8 +1051,8 @@ api-comment-d697796d,api,apps/api/src/dominio/canais.ts,11,22,jsdoc,13,"/**
  * - `2026-09-05-infraestrutura.md` §5: o cliente é dono do WABA dele;
  * - `2026-09-07-webhook-por-cliente.md`: o webhook do número aponta para
  *   `…/webhooks/whatsapp/<canalId>`, com `verify_token` próprio do canal.
- */",,,,,,
-api-comment-5d88f9d1,api,apps/api/src/dominio/canais.ts,120,120,jsdoc,3,"/** Um canal no formato da tela, sem perguntar à Meta — é o que volta de conectar. */",,,,,,
+ */",translate,"Channel screen reads and disconnection live here. Connection moved to `./whatsapp/`, ported from Chatwoot through `cadastro-embutido.ts` and `configuracao-manual.ts`. This module retains screen connection state and disconnection without deletion, which differ from Chatwoot. Two specs govern this: `2026-09-05-infraestrutura.md` §5 says the customer owns their WABA; `2026-09-07-webhook-por-cliente.md` specifies the number webhook at `…/webhooks/whatsapp/<canalId>` with a channel-specific `verify_token`.",integration,apps/api/src/dominio/canais.ts:11-22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5d88f9d1,api,apps/api/src/dominio/canais.ts,120,120,jsdoc,3,"/** Um canal no formato da tela, sem perguntar à Meta — é o que volta de conectar. */",translate,Return a channel in screen format without querying Meta; this is the connection response.,integration,apps/api/src/dominio/canais.ts:120-135; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e6fdcdaa,api,apps/api/src/dominio/canais.ts,137,144,jsdoc,6,"/**
  * Desconectar: desmonta o webhook na Meta (porte de `webhook_teardown_service.rb`,
  * que nunca impede o desligamento) e desativa o canal.
@@ -1060,23 +1060,23 @@ api-comment-e6fdcdaa,api,apps/api/src/dominio/canais.ts,137,144,jsdoc,6,"/**
  * **Não apaga conversa nem mensagem**, e aqui o Pipe diverge do Chatwoot de
  * propósito: lá, tirar a caixa apaga o canal; aqui o histórico é do cliente. A
  * volta é pela reautorização, com o `canal_id`.
- */",,,,,,
-api-comment-f9c3e509,api,apps/api/src/dominio/canais.ts,176,176,line,2,// `numero` e `nomeExibicao` não são segredo: ficam legíveis no `config` cifrado.,,,,,,
+ */",translate,"Disconnect by tearing down the Meta webhook (ported from `webhook_teardown_service.rb`, whose failure does not block disconnect) and deactivating the channel. Do not delete conversations or messages: Pipe deliberately differs from Chatwoot, where removing the inbox deletes the channel, because history belongs to the customer. Reconnect by reauthorization with `canal_id`.",integration,apps/api/src/dominio/canais.ts:137-173; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f9c3e509,api,apps/api/src/dominio/canais.ts,176,176,line,2,// `numero` e `nomeExibicao` não são segredo: ficam legíveis no `config` cifrado.,translate,`numero` and `nomeExibicao` are not secrets; they remain readable in encrypted `config`.,security,apps/api/src/dominio/canais.ts:175-193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2954de88,api,apps/api/src/dominio/canais.ts,32,37,jsdoc,3,"/**
    * `conectado` — a Meta respondeu sobre o número.
    * `desligado` — o canal foi desconectado aqui.
    * `indisponivel` — ligado, mas a Meta não respondeu, ou o canal espera
    * reautorização; `motivo` diz qual.
-   */",,,,,,
+   */",translate,`conectado` means Meta answered about the number. `desligado` means this channel was disconnected here. `indisponivel` means connected but Meta did not respond or reauthorization is pending; `motivo` identifies which.,integration,apps/api/src/dominio/canais.ts:32-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-57753086,api,apps/api/src/dominio/canais.ts,58,62,jsdoc,4,"/**
  * O estado da ligação. Qualidade e limite vêm da Meta a cada leitura, pela saúde
  * portada do Chatwoot (`whatsapp/saude.ts`) — mudam sozinhos, sem avisar. Meta
  * fora do ar vira `indisponivel` com o motivo, nunca 502 na tela inteira.
- */",,,,,,
-api-comment-f68870f3,api,apps/api/src/dominio/canais.ts,86,86,line,1,"// O token sai cifrado da consulta acima; decifrar é o `resolverCanal`, que tem cache.",,,,,,
-api-comment-3ff66033,api,apps/api/src/dominio/construtor-de-conta.ts,101,101,line,3,"// E-mail pessoal não reivindica domínio; corporativo também não, aqui:",,,,,,
-api-comment-9cc79ff1,api,apps/api/src/dominio/construtor-de-conta.ts,102,102,line,3,"// domínio é o que dá entrada a TODO mundo daquele endereço, e isso se pede",,,,,,
-api-comment-a010acaa,api,apps/api/src/dominio/construtor-de-conta.ts,103,103,line,1,"// depois, com verificação por DNS.",,,,,,
+ */",translate,"Read connection status. Quality and limits come from Meta on each read through health code ported from Chatwoot (`whatsapp/saude.ts`); they can change without notice. A Meta outage yields `indisponivel` with a reason, not a 502 for the whole screen.",integration,apps/api/src/dominio/canais.ts:58-62; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f68870f3,api,apps/api/src/dominio/canais.ts,86,86,line,1,"// O token sai cifrado da consulta acima; decifrar é o `resolverCanal`, que tem cache.",translate,The query above returns an encrypted token; cached `resolverCanal` decrypts it.,security,apps/api/src/dominio/canais.ts:86-91; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3ff66033,api,apps/api/src/dominio/construtor-de-conta.ts,101,101,line,3,"// E-mail pessoal não reivindica domínio; corporativo também não, aqui:",translate,A personal email does not claim a domain; neither does a corporate email here:,security,apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9cc79ff1,api,apps/api/src/dominio/construtor-de-conta.ts,102,102,line,3,"// domínio é o que dá entrada a TODO mundo daquele endereço, e isso se pede",translate,"a domain grants entry to everyone with that address, so it must be requested",security,apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a010acaa,api,apps/api/src/dominio/construtor-de-conta.ts,103,103,line,1,"// depois, com verificação por DNS.",translate,later through DNS verification.,security,apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7272fa40,api,apps/api/src/dominio/construtor-de-conta.ts,120,132,jsdoc,10,"/**
  * O endereço da conta, no formato da plataforma de origem: a PARTE LOCAL DO
  * E-MAIL mais um sufixo curto — `anderson-linhares-oxo7k`.
@@ -1089,7 +1089,7 @@ api-comment-7272fa40,api,apps/api/src/dominio/construtor-de-conta.ts,120,132,jsd
  * `joao.silva` em empresas diferentes brigariam pelo mesmo endereço, e a
  * segunda entraria numa fila de `-2`, `-3` que denuncia quantas contas existem.
  * Cinco caracteres em base 36 dão 60 milhões de combinações por nome.
- */",,,,,,
+ */",translate,"The account address follows the source platform: the email LOCAL PART plus a short suffix, for example `anderson-linhares-oxo7k`. There it becomes the account portal subdomain. It uses the creator's email rather than company name because the company name has not yet been entered when the address is needed. The random suffix prevents people such as `joao.silva` at different companies from colliding or receiving sequential `-2`, `-3` suffixes that reveal account counts. Five base-36 characters provide about 60 million combinations per name.",security,apps/api/src/dominio/construtor-de-conta.ts:120-146; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-fd294909,api,apps/api/src/dominio/construtor-de-conta.ts,149,149,jsdoc,1,"/** `nome`, `nome-2`, `nome-3`… O primeiro que ninguém usou. */",,,,,,
 api-comment-54503dfc,api,apps/api/src/dominio/construtor-de-conta.ts,158,158,line,1,// 50 contas com o mesmo nome é sinal de outra coisa acontecendo; o sufixo de,,,,,,
 api-comment-3984010a,api,apps/api/src/dominio/construtor-de-conta.ts,159,159,line,3,// tempo garante que ninguém fica sem entrar enquanto se descobre o quê.,,,,,,

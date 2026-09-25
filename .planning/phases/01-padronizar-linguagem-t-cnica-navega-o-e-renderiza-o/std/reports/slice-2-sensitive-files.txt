@@ -4,10 +4,15 @@ apps/api/src/banco.ts
 apps/api/src/controladores/anexos.ts
 apps/api/src/controladores/entrar.ts
 apps/api/src/controladores/gestao-conta.ts
+apps/api/src/controladores/gestao-integracoes.ts
+apps/api/src/controladores/minha-conta.ts
+apps/api/src/controladores/operacao.ts
 apps/api/src/controladores/sso.ts
 apps/api/src/controladores/webhooks-instagram.ts
 apps/api/src/controladores/webhooks-whatsapp.ts
 apps/api/src/dominio/anexo.ts
+apps/api/src/dominio/canais.ts
+apps/api/src/dominio/construtor-de-conta.ts
 apps/api/src/dominio/entrada.ts
 apps/api/src/dominio/envio.ts
 apps/api/src/dominio/gestao/certificados.ts

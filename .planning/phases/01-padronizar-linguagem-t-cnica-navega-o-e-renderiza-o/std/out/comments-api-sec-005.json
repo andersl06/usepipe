@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-023055c1",
+      "action": "translate",
+      "new_text": "The JSON parser's `verify` hook saves the raw body; the signature covers those bytes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:8-9; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d315789",
+      "action": "translate",
+      "new_text": "Subscription challenge for the umbrella route. Meta calls this URL once when registering the webhook on the app. The token comes from the environment, not a channel, because there is no channel in the path and the app has one webhook. Without this route, app webhook registration fails and rejected templates or quality drops never arrive.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:92-112; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8cad1ab6",
+      "action": "translate",
+      "new_text": "Write to storage before the database: a row without a file is a broken attachment on screen;",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:106-123; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e63e730f",
+      "action": "translate",
+      "new_text": "a file without a row is only orphaned data that storage can tolerate.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:106-123; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9528ffc5",
+      "action": "translate",
+      "new_text": "Create a signed attachment URL valid for 15 minutes. Meta downloads this URL when we send media, and the screen also uses it. It must be absolute because Meta fetches externally. `PIPE_STORAGE_URL_BASE` should point to the public `api` base rather than a nonexistent host.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/anexo.ts:134-149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-27aac385",
+      "action": "translate",
+      "new_text": "Read an attachment through a signed link without requiring a session: Meta must download media but has no Pipe cookie. The short-lived signature for one attachment is the credential. Resolve the tenant from the attachment ID in the database, never from the URL. The signature proves we issued the link; the storage-key prefix check proves the file belongs to that attachment's tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:160-210; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b1239568",
+      "action": "translate",
+      "new_text": "Expired and forged links return the same response; distinguishing them would tell a guesser which part was correct.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:176-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d4d54a45",
+      "action": "translate",
+      "new_text": "Check again that the stored key lies within its tenant's prefix.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:195-200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bde5d045",
+      "action": "translate",
+      "new_text": "Attachment upload, read and link generation follow `docs/specs/2026-09-07-storage-de-anexos.md`. Three invariants: the tenant comes from the credential and is the first storage-key segment, so customers never share a prefix; files are not served from guessable public ID URLs, but through 15-minute signed links like Blip *file tokens*; MIME type is determined from bytes because extension and uploaded `Content-Type` are client claims, and a `.png` containing HTML could execute script for the opener.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:21-32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c3bd9a52",
+      "action": "translate",
+      "new_text": "Test helper: replace the storage backend without starting infrastructure.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:41-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3377f352",
+      "action": "translate",
+      "new_text": "Use the existing keyring that protects Meta tokens to sign links, avoiding another key to rotate and another place a secret could leak.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:46-56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-340a4fd2",
+      "action": "translate",
+      "new_text": "Determine the real type before applying the size cap: a video declared as",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/anexo.ts:83-85; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c3489cd5",
+      "action": "translate",
+      "new_text": "Let an attendant claim a queued conversation. Automatic load distribution and transfer existed, but claim did not, even though selecting and taking a conversation from the queue is a common attendant action. Do not reuse `transferirConversa`: the source platform's transfer closes the current conversation and opens another (reason \"Transferida\"). Using it to claim would close the customer conversation and create an empty one, as a previous shortcut did. Like automatic distribution, claim only from `na_fila`. If two attendants click together, the second update changes no row and is rejected; the database `where` decides the winner without a race.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/assumir.ts:6-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ff275ccd",
+      "action": "translate",
+      "new_text": "Record the error CODE, never the message: a Meta message may echo user-supplied content.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:108-114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d697796d",
+      "action": "translate",
+      "new_text": "Channel screen reads and disconnection live here. Connection moved to `./whatsapp/`, ported from Chatwoot through `cadastro-embutido.ts` and `configuracao-manual.ts`. This module retains screen connection state and disconnection without deletion, which differ from Chatwoot. Two specs govern this: `2026-09-05-infraestrutura.md` §5 says the customer owns their WABA; `2026-09-07-webhook-por-cliente.md` specifies the number webhook at `…/webhooks/whatsapp/<canalId>` with a channel-specific `verify_token`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:11-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5d88f9d1",
+      "action": "translate",
+      "new_text": "Return a channel in screen format without querying Meta; this is the connection response.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:120-135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6fdcdaa",
+      "action": "translate",
+      "new_text": "Disconnect by tearing down the Meta webhook (ported from `webhook_teardown_service.rb`, whose failure does not block disconnect) and deactivating the channel. Do not delete conversations or messages: Pipe deliberately differs from Chatwoot, where removing the inbox deletes the channel, because history belongs to the customer. Reconnect by reauthorization with `canal_id`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:137-173; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f9c3e509",
+      "action": "translate",
+      "new_text": "`numero` and `nomeExibicao` are not secrets; they remain readable in encrypted `config`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/canais.ts:175-193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2954de88",
+      "action": "translate",
+      "new_text": "`conectado` means Meta answered about the number. `desligado` means this channel was disconnected here. `indisponivel` means connected but Meta did not respond or reauthorization is pending; `motivo` identifies which.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:32-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-57753086",
+      "action": "translate",
+      "new_text": "Read connection status. Quality and limits come from Meta on each read through health code ported from Chatwoot (`whatsapp/saude.ts`); they can change without notice. A Meta outage yields `indisponivel` with a reason, not a 502 for the whole screen.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/canais.ts:58-62; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f68870f3",
+      "action": "translate",
+      "new_text": "The query above returns an encrypted token; cached `resolverCanal` decrypts it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/canais.ts:86-91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3ff66033",
+      "action": "translate",
+      "new_text": "A personal email does not claim a domain; neither does a corporate email here:",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9cc79ff1",
+      "action": "translate",
+      "new_text": "a domain grants entry to everyone with that address, so it must be requested",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a010acaa",
+      "action": "translate",
+      "new_text": "later through DNS verification.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:96-105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7272fa40",
+      "action": "translate",
+      "new_text": "The account address follows the source platform: the email LOCAL PART plus a short suffix, for example `anderson-linhares-oxo7k`. There it becomes the account portal subdomain. It uses the creator's email rather than company name because the company name has not yet been entered when the address is needed. The random suffix prevents people such as `joao.silva` at different companies from colliding or receiving sequential `-2`, `-3` suffixes that reveal account counts. Five base-36 characters provide about 60 million combinations per name.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:120-146; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
