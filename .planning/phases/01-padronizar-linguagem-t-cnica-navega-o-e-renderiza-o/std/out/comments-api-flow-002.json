@@ -316,7 +316,7 @@
       "id": "api-comment-83c66ee7",
       "action": "translate",
       "new_text": "Mirror each tenant's data dictionary from its Twenty CRM metadata. The flow builder and AI read the fields in THAT client's own instance, avoiding guessed field names. Owner rule: copy facts, never invent them. Preserve the Metadata API's `objectMetadata`/`fieldMetadata` property names, literal `type`, and `options`/`defaultValue`/`settings`/`relation` JSON (migration 0015). Do not copy Twenty code: it is AGPL; consume only its API and data shape. Queue, sweep, and isolation follow `espelho-crm.ts`: read `configDoTenant` inside `comTenant` so RLS protects URL and key; call the network OUTSIDE the transaction to free the pool connection; write back inside the job tenant's `comTenant` so RLS prevents cross-tenant records.",
-      "sensitivity": "architecture",
+      "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/dicionario-crm.ts:8; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },

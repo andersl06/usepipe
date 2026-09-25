@@ -13,8 +13,10 @@ apps/api/src/controladores/webhooks-whatsapp.ts
 apps/api/src/dominio/anexo.ts
 apps/api/src/dominio/canais.ts
 apps/api/src/dominio/construtor-de-conta.ts
+apps/api/src/dominio/dicionario-crm.ts
 apps/api/src/dominio/entrada.ts
 apps/api/src/dominio/envio.ts
+apps/api/src/dominio/espelho-crm.ts
 apps/api/src/dominio/gestao/certificados.ts
 apps/api/src/dominio/gestao/integracoes.ts
 apps/api/src/dominio/gestao/pfx.ts
