@@ -55,7 +55,7 @@ async function period(
   de: string | undefined,
   ate: string | undefined,
   dias: number,
-): Promise<{ de: string; ate: string; window: { start: Date; fim: Date } }> {
+): Promise<{ de: string; ate: string; window: { start: Date; end: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
   const ateFinal = ate || dataIso(hoje.start, fuso);
   const deFinal = de || dataIso(new Date(hoje.start.getTime() - (dias - 1) * 86400e3), fuso);
@@ -68,7 +68,7 @@ async function periodHistory(
   fuso: string,
   de: string | undefined,
   ate: string | undefined,
-): Promise<{ de: string; ate: string; janela: { start: Date; fim: Date } }> {
+): Promise<{ de: string; ate: string; janela: { start: Date; end: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
   const hojeLocal = dataIso(hoje.start, fuso);
   const ateFinal = ate || hojeLocal;
@@ -81,7 +81,7 @@ async function periodHistory(
 export interface ResponseOfMonitoring {
   fuso: string;
   /** O dia de hoje no fuso da conta, para o título. */
-  janela: { start: Date; fim: Date };
+  janela: { start: Date; end: Date };
   data: Monitoring;
 }
 
@@ -145,7 +145,7 @@ export class ManagementOperationsController {
         queueIds: uuidsOfFilter(queue),
         agentIds: uuidsOfFilter(agent),
       });
-      return { fuso, window, data };
+      return { fuso, janela: window, data };
     });
   }
 
@@ -198,7 +198,7 @@ export class ManagementOperationsController {
         ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'transferiu_no_monitoramento', para: resultado.forConversationId },
       });
-      return { para_conversa_id: resultado.forConversationId };
+      return { forConversationId: resultado.forConversationId };
     });
   }
 
@@ -222,7 +222,7 @@ export class ManagementOperationsController {
         ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'finalizou_no_monitoramento' },
       });
-      return { estado: resultado.state };
+      return { state: resultado.state };
     });
   }
 
@@ -244,7 +244,7 @@ export class ManagementOperationsController {
       const { linhas, truncado } = await loadHistory(tx, p.janela, {
         queueId: uuidOuNada(fila),
         agentId: uuidOuNada(atendente),
-        etiquetaId: uuidOuNada(etiqueta),
+        labelId: uuidOuNada(etiqueta),
       });
       return { fuso, de: p.de, ate: p.ate, catalogos, linhas, truncado };
     });
@@ -319,7 +319,7 @@ export class ManagementOperationsController {
       const catalogos = await carregarCatalogos(tx);
       const application = await loadQualityReview(tx, p.window, {
         agentId: uuidOuNada(atendente),
-        avaliadorTipo: avaliador || undefined,
+        evaluatorType: avaliador || undefined,
       });
       return { fuso, de: p.de, ate: p.ate, catalogos, application };
     });
@@ -335,7 +335,7 @@ export class ManagementOperationsController {
     if (!UUID.test(id)) throw PipeError.naoEncontrado('avaliação');
     const resposta = await noTenant(sessao.tenantId, async (tx) => {
       const ficha = await carregarFicha(tx, id);
-      return ficha ? { fuso: await fusoDoTenant(tx), ficha } : null;
+      return ficha ? { fuso: await fusoDoTenant(tx), record: ficha } : null;
     });
     if (!resposta) throw PipeError.naoEncontrado('avaliação');
     return resposta;

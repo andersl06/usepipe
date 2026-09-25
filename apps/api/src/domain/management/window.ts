@@ -21,13 +21,13 @@ export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
  * e reimplementar horário de verão em JavaScript é como se perde um dia inteiro.
  */
 export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<Window> {
-  const r = await tx.execute<{ start: Date; end: Date }>(
+  const r = await tx.execute<{ inicio: Date; fim: Date }>(
     sql`select date_trunc('day', now() at time zone ${fuso}) at time zone ${fuso} as inicio,
                (date_trunc('day', now() at time zone ${fuso}) + interval '1 day') at time zone ${fuso} as fim`,
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('não consegui calcular a janela de hoje');
-  return { inicio: new Date(linha.start), fim: new Date(linha.end) };
+  return { start: new Date(linha.inicio), end: new Date(linha.fim) };
 }
 
 /** Do começo de `de` ao fim de `ate` (inclusivo), dias de calendário no fuso da conta. */
@@ -37,13 +37,13 @@ export async function windowOfDatas(
   de: string,
   ate: string,
 ): Promise<Window> {
-  const r = await tx.execute<{ start: Date; end: Date }>(
+  const r = await tx.execute<{ inicio: Date; fim: Date }>(
     sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,
                ((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('período inválido');
-  return { inicio: new Date(linha.start), fim: new Date(linha.end) };
+  return { start: new Date(linha.inicio), end: new Date(linha.fim) };
 }
 
 /** `AAAA-MM-DD` de um instante, no fuso da conta. */
