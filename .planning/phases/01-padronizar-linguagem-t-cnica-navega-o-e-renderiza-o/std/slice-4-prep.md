@@ -1,0 +1,1060 @@
+# Slice 4 preparation -> infra/app rename edit list
+
+Evidence: `git grep -n -I -F` against tracked content in this worktree at gate-2 approved state. `.planning/**` is historical map/plan evidence; `pnpm-lock.yaml` is regenerated, never edited by hand. Each citation is the **old** line number. Proposed lines are candidates for executor review, especially historical docs, fixtures and persisted keys. This preparation made no build or source change.
+
+## Safe order and invariants
+
+1. 01-28: rename one package at a time: `tempo-real -> realtime`, `armazenamento -> storage`, `autenticacao -> authentication`. For each: move dir, rewrite package name and dependents/imports/Dockerfile paths, regenerate lockfile, frozen install/typecheck/build, build affected image(s), commit; only then take next. The explicit auth COPY lines are `apps/api/Dockerfile:29`, `apps/workers/Dockerfile:29`, `apps/crm/Dockerfile:27`, `apps/gestao-vite/Dockerfile:28`. Other two packages are absent from those lists; check filtered install/build before adding COPY lines. Build is execution work, not done here.
+2. 01-29: move `apps/gestao-vite -> apps/management-vite` and change `@pipe/gestao-vite -> @pipe/management-vite` together with Dockerfile/dockerignore, build list, compose service/image, K8s selectors, docs; build image and validate compose. `desk-vite` has no approved rename: KEEP.
+3. 01-30: move `apps/ponte -> apps/bridge`, change `@pipe/ponte -> @pipe/bridge` and root script value. Root script key `ponte -> bridge` is 01-39. Site file/dir work follows `site.csv`; build site.
+4. 01-39: move approved infra files/dirs, update their references, then script keys and shell identifiers. Syntax check scripts, build images, run gate. Keep env var NAMES (D-06/D-36), including `PIPE_VERSAO`, `VITE_PORTA`, `VITE_URL_API`. D-43 permits fresh VPS rebuild.
+
+Check Dockerfile.dockerignore allowlists after each move. `pnpm-workspace.yaml` uses `apps/*` and `packages/*`; `turbo.json` has no old-name hit. No matching tracked old-name content found in `.github/`. Git grep old names after each unit, excluding historical maps and lockfile.
+
+## 01-28 package references
+
+### tempo-real -> realtime
+
+- `packages/tempo-real/package.json:2`
+  - old: `"name": "@pipe/tempo-real",`
+  - proposed: `"name": "@pipe/realtime",`
+- `PROJECT-HANDOFF.md:236`
+  - old: `**`packages/mcp`, `packages/tempo-real`, `packages/ai`** — CORREÇÃO: em uma`
+  - proposed: `**`packages/mcp`, `packages/realtime`, `packages/ai`** — CORREÇÃO: em uma`
+- `PROJECT-HANDOFF.md:250`
+  - old: `- **Tempo real por WebSocket** — cliente escrito (`packages/tempo-real`), sem`
+  - proposed: `- **Tempo real por WebSocket** — cliente escrito (`packages/realtime`), sem`
+
+### armazenamento -> storage
+
+- `apps/api/package.json:49`
+  - old: `"@pipe/armazenamento": "workspace:*",`
+  - proposed: `"@pipe/storage": "workspace:*",`
+- `apps/api/src/controladores/anexos.ts:4`
+  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM } from '@pipe/armazenamento';`
+  - proposed: `import { MAX_ARQUIVOS_POR_MENSAGEM } from '@pipe/storage';`
+- `apps/api/src/dominio/anexo.ts:15`
+  - old: `} from '@pipe/armazenamento';`
+  - proposed: `} from '@pipe/storage';`
+- `apps/api/src/dominio/anexo.ts:16`
+  - old: `import type { Armazenamento } from '@pipe/armazenamento';`
+  - proposed: `import type { Armazenamento } from '@pipe/storage';`
+- `apps/api/src/dominio/envio.ts:2`
+  - old: `import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';`
+  - proposed: `import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';`
+- `apps/api/src/dominio/gestao/regras-de-nome.ts:64`
+  - old: `* quinze formatos do anexo — vive em `packages/armazenamento/src/tipo-real.ts`;`
+  - proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
+- `apps/api/src/dominio/gestao/regras-de-nome.ts:69`
+  - old: `* formato, troque pelo `tipoReal` de `@pipe/armazenamento`.`
+  - proposed: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
+- `apps/api/src/dominio/midia.ts:6`
+  - old: `import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/armazenamento';`
+  - proposed: `import { chaveDeAnexo, maxBytesDoMime, mimeParaServir } from '@pipe/storage';`
+- `apps/api/src/servidor.ts:9`
+  - old: `import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';`
+  - proposed: `import { MAX_BYTES_POR_ARQUIVO } from '@pipe/storage';`
+- `apps/api/tests/anexos-multiplos.test.ts:17`
+  - old: `const { MAX_ARQUIVOS_POR_MENSAGEM, MAX_BYTES_POR_ARQUIVO } = await import('@pipe/armazenamento');`
+  - proposed: `const { MAX_ARQUIVOS_POR_MENSAGEM, MAX_BYTES_POR_ARQUIVO } = await import('@pipe/storage');`
+- `apps/api/tests/anexos.test.ts:14`
+  - old: `const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/armazenamento');`
+  - proposed: `const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/storage');`
+- `apps/desk-vite/src/lib/anexos.ts:9`
+  - old: `* Os números são os de `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`,`
+  - proposed: `* Os números são os de `@pipe/storage` (`MAX_ARQUIVOS_POR_MENSAGEM`,`
+- `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:64`
+  - old: `* quinze formatos do anexo — vive em `packages/armazenamento/src/tipo-real.ts`;`
+  - proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
+- `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:69`
+  - old: `* formato, troque pelo `tipoReal` de `@pipe/armazenamento`.`
+  - proposed: `* formato, troque pelo `tipoReal` de `@pipe/storage`.`
+- `docs/specs/2026-09-07-storage-de-anexos.md:20`
+  - old: `(`packages/armazenamento/src/porta.ts`) é bucket + chave opaca + objeto — a forma do S3. Trocar`
+  - proposed: `(`packages/storage/src/porta.ts`) é bucket + chave opaca + objeto — a forma do S3. Trocar`
+- `packages/armazenamento/package.json:2`
+  - old: `"name": "@pipe/armazenamento",`
+  - proposed: `"name": "@pipe/storage",`
+- `packages/db/drizzle/0044_certificado_mtls_arquivo.sql:19`
+  - old: `-- 10 MB); e o storage de `packages/armazenamento` existe para servir mídia por`
+  - proposed: `-- 10 MB); e o storage de `packages/storage` existe para servir mídia por`
+
+### autenticacao -> authentication
+
+- `.env.example:28`
+  - old: `# --- Entrar com Google (apps/api + packages/autenticacao) ---`
+  - proposed: `# --- Entrar com Google (apps/api + packages/authentication) ---`
+- `apps/api/Dockerfile:29`
+  - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
+  - proposed: `COPY packages/authentication/package.json packages/authentication/`
+- `apps/api/package.json:50`
+  - old: `"@pipe/autenticacao": "workspace:*",`
+  - proposed: `"@pipe/authentication": "workspace:*",`
+- `apps/api/src/controladores/entrar.ts:19`
+  - old: `} from '@pipe/autenticacao';`
+  - proposed: `} from '@pipe/authentication';`
+- `apps/api/src/controladores/entrar.ts:20`
+  - old: `import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/autenticacao';`
+  - proposed: `import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/authentication';`
+- `apps/api/src/controladores/entrar.ts:37`
+  - old: `* mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é só a casca HTTP:`
+  - proposed: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é só a casca HTTP:`
+- `apps/api/src/controladores/minha-conta.ts:4`
+  - old: `import { abrirSessaoEm, cookieDeSessao } from '@pipe/autenticacao';`
+  - proposed: `import { abrirSessaoEm, cookieDeSessao } from '@pipe/authentication';`
+- `apps/api/src/controladores/sso.ts:10`
+  - old: `} from '@pipe/autenticacao';`
+  - proposed: `} from '@pipe/authentication';`
+- `apps/api/src/controladores/sso.ts:39`
+  - old: `* mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é a casca HTTP,`
+  - proposed: `* mora em `@pipe/authentication` e não se repete aqui. Este arquivo é a casca HTTP,`
+- `apps/api/src/dominio/construtor-de-conta.ts:2`
+  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';`
+  - proposed: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
+- `apps/api/src/dominio/convites.ts:2`
+  - old: `import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/autenticacao';`
+  - proposed: `import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/authentication';`
+- `apps/api/src/dominio/convites.ts:3`
+  - old: `import type { PessoaDoGoogle } from '@pipe/autenticacao';`
+  - proposed: `import type { PessoaDoGoogle } from '@pipe/authentication';`
+- `apps/api/src/dominio/convites.ts:12`
+  - old: `* A quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi`
+  - proposed: `* A quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
+- `apps/api/src/dominio/dominios.ts:4`
+  - old: `import { DOMINIOS_PUBLICOS } from '@pipe/autenticacao';`
+  - proposed: `import { DOMINIOS_PUBLICOS } from '@pipe/authentication';`
+- `apps/api/src/dominio/dominios.ts:12`
+  - old: `* É a segunda pergunta da entrada (`packages/autenticacao/src/entrada.ts`), e a`
+  - proposed: `* É a segunda pergunta da entrada (`packages/authentication/src/entrada.ts`), e a`
+- `apps/api/src/dominio/dominios.ts:17`
+  - old: `* **Domínio público nunca é verificável.** A lista está em `@pipe/autenticacao``
+  - proposed: `* **Domínio público nunca é verificável.** A lista está em `@pipe/authentication``
+- `apps/api/src/dominio/gestao/contrato.ts:293`
+  - old: `* `ativo = false` já barra a entrada (`packages/autenticacao/src/entrada.ts`),`
+  - proposed: `* `ativo = false` já barra a entrada (`packages/authentication/src/entrada.ts`),`
+- `apps/api/src/dominio/sso.ts:3`
+  - old: `import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/autenticacao';`
+  - proposed: `import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/authentication';`
+- `apps/api/src/dominio/sso.ts:4`
+  - old: `import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/autenticacao';`
+  - proposed: `import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/authentication';`
+- `apps/api/src/dominio/twenty.ts:77`
+  - old: `* `buscar` é injetável pelo mesmo motivo de `packages/autenticacao`: teste não bate`
+  - proposed: `* `buscar` é injetável pelo mesmo motivo de `packages/authentication`: teste não bate`
+- `apps/api/src/eventos-ws.ts:5`
+  - old: `import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/autenticacao';`
+  - proposed: `import { hashDoToken, origemPermitida, origensPermitidas, resolverSessao } from '@pipe/authentication';`
+- `apps/api/src/provisionar.ts:8`
+  - old: `import { dominioDoEmail, ehDominioPublico } from '@pipe/autenticacao';`
+  - proposed: `import { dominioDoEmail, ehDominioPublico } from '@pipe/authentication';`
+- `apps/api/src/servidor.ts:7`
+  - old: `import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';`
+  - proposed: `import { origemPermitida, origensPermitidas } from '@pipe/authentication';`
+- `apps/api/src/sessao.ts:6`
+  - old: `import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/autenticacao';`
+  - proposed: `import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/authentication';`
+- `apps/api/src/sessao.ts:7`
+  - old: `import type { SessaoAtiva } from '@pipe/autenticacao';`
+  - proposed: `import type { SessaoAtiva } from '@pipe/authentication';`
+- `apps/api/tests/analise.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/anexos-multiplos.test.ts:13`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/builder-por-fluxo.test.ts:13`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/cadastros-atendimento.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/canal-do-fluxo.test.ts:17`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/chave-de-fluxo.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/configuracao-do-fluxo.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/contatos-editar.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/contrato.test.ts:18`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/conversa-eventos.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/convites.test.ts:17`
+  - old: `const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken, hashDoToken } = await import('@pipe/authentication');`
+- `apps/api/tests/convites.test.ts:39`
+  - old: `* dublar o JWKS provaria de novo o que `packages/autenticacao` já prova. A parte`
+  - proposed: `* dublar o JWKS provaria de novo o que `packages/authentication` já prova. A parte`
+- `apps/api/tests/desk-acoes.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/dicionario-crm.test.ts:13`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/entrada.test.ts:20`
+  - old: `await import('@pipe/autenticacao');`
+  - proposed: `await import('@pipe/authentication');`
+- `apps/api/tests/entrada.test.ts:34`
+  - old: `* `entrarComGoogle` já têm teste em `packages/autenticacao`, e repetir a troca de`
+  - proposed: `* `entrarComGoogle` já têm teste em `packages/authentication`, e repetir a troca de`
+- `apps/api/tests/envio-sessao.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/equipe-do-fluxo.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/etiquetas.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/growth.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/integracoes.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/mensagens-ativas.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/monitoramento-conversas.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/palavras-proibidas.test.ts:14`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/permissoes-do-atendente.test.ts:12`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/roteador.test.ts:13`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/sso.test.ts:12`
+  - old: `const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/autenticacao');`
+  - proposed: `const { EntradaRecusada, entrarComGoogle, entrarComSso } = await import('@pipe/authentication');`
+- `apps/api/tests/sso.test.ts:35`
+  - old: `* `packages/autenticacao/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o`
+  - proposed: `* `packages/authentication/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o`
+- `apps/api/tests/tempo-real.test.ts:15`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/api/tests/transferencia.test.ts:11`
+  - old: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');`
+  - proposed: `const { NOME_DO_COOKIE, criarToken } = await import('@pipe/authentication');`
+- `apps/crm/Dockerfile:27`
+  - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
+  - proposed: `COPY packages/authentication/package.json packages/authentication/`
+- `apps/crm/src/lib/configuracoes-dados.ts:85`
+  - old: `* ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o`
+  - proposed: `* ser trocado numa linha quando `packages/authentication` chegar nesta tela: o`
+- `apps/crm/src/lib/configuracoes-dados.ts:297`
+  - old: `* aqui, e não importado de `@pipe/autenticacao`, porque o CRM não depende desse`
+  - proposed: `* aqui, e não importado de `@pipe/authentication`, porque o CRM não depende desse`
+- `apps/gestao-vite/Dockerfile:28`
+  - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
+  - proposed: `COPY packages/authentication/package.json packages/authentication/`
+- `apps/workers/Dockerfile:29`
+  - old: `COPY packages/autenticacao/package.json packages/autenticacao/`
+  - proposed: `COPY packages/authentication/package.json packages/authentication/`
+- `docs/specs/2026-09-07-arquitetura-de-front.md:96`
+  - old: `- **`packages/ui`**, `packages/core`, `packages/db`, `packages/ai`, `packages/autenticacao`.`
+  - proposed: `- **`packages/ui`**, `packages/core`, `packages/db`, `packages/ai`, `packages/authentication`.`
+- `docs/specs/2026-09-07-integracao-twenty.md:46`
+  - old: `O Pipe já entra por Google (`packages/autenticacao/src/google.ts`, OIDC com PKCE). O Twenty também`
+  - proposed: `O Pipe já entra por Google (`packages/authentication/src/google.ts`, OIDC com PKCE). O Twenty também`
+- `packages/autenticacao/package.json:2`
+  - old: `"name": "@pipe/autenticacao",`
+  - proposed: `"name": "@pipe/authentication",`
+- `packages/db/src/schema/identidade.ts:530`
+  - old: `* quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi`
+  - proposed: `* quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
+- `tools/std/map-tools.test.ts:130`
+  - old: `const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/autenticacao', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);`
+  - proposed: `const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/authentication', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);`
+
+## 01-29 management app references
+
+### gestao-vite -> management-vite
+
+- `apps/api/Dockerfile:26`
+  - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
+  - proposed: `COPY apps/management-vite/package.json apps/management-vite/`
+- `apps/api/Dockerfile.dockerignore:31`
+  - old: `apps/gestao-vite`
+  - proposed: `apps/management-vite`
+- `apps/api/Dockerfile.dockerignore:32`
+  - old: `!apps/gestao-vite/package.json`
+  - proposed: `!apps/management-vite/package.json`
+- `apps/api/src/controladores/gestao-fluxo.ts:105`
+  - old: `* O que a tela de criar manda (`apps/gestao-vite/src/paginas/criar/gravar.ts`).`
+  - proposed: `* O que a tela de criar manda (`apps/management-vite/src/paginas/criar/gravar.ts`).`
+- `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71`
+  - old: `* removido do catálogo do menu (`apps/gestao-vite/src/paginas/fluxo/itens.ts`)`
+  - proposed: `* removido do catálogo do menu (`apps/management-vite/src/paginas/fluxo/itens.ts`)`
+- `apps/api/src/dominio/gestao/integracoes.ts:68`
+  - old: `* espelhado em `apps/gestao-vite/.../configuracoes/regras.ts`). Conferido aqui`
+  - proposed: `* espelhado em `apps/management-vite/.../configuracoes/regras.ts`). Conferido aqui`
+- `apps/api/src/dominio/gestao/regras-prioridade.ts:13`
+  - old: `* ficar completa (leitura + escrita), sem página em `apps/gestao-vite`.`
+  - proposed: `* ficar completa (leitura + escrita), sem página em `apps/management-vite`.`
+- `apps/api/src/dominio/gestao/sla-motor.ts:98`
+  - old: `* `packages/db`/`apps/gestao-vite` semeiam hoje).`
+  - proposed: `* `packages/db`/`apps/management-vite` semeiam hoje).`
+- `apps/api/src/dominio/rastreador-de-cliques.ts:13`
+  - old: `* A tela `growth/clicktracker` que já existe (`apps/gestao-vite/.../clicktracker.tsx`)`
+  - proposed: `* A tela `growth/clicktracker` que já existe (`apps/management-vite/.../clicktracker.tsx`)`
+- `apps/crm/Dockerfile:24`
+  - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
+  - proposed: `COPY apps/management-vite/package.json apps/management-vite/`
+- `apps/crm/Dockerfile.dockerignore:35`
+  - old: `apps/gestao-vite`
+  - proposed: `apps/management-vite`
+- `apps/crm/Dockerfile.dockerignore:36`
+  - old: `!apps/gestao-vite/package.json`
+  - proposed: `!apps/management-vite/package.json`
+- `apps/crm/semente/semente-crm.ts:368`
+  - old: `'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/gestao-vite seed:gestao` antes.',`
+  - proposed: `'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/management-vite seed:gestao` antes.',`
+- `apps/desk-vite/src/componentes/exigir-sessao.tsx:5`
+  - old: `* O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para`
+  - proposed: `* O portão das telas do Desk — o mesmo de `apps/management-vite`, sem o desvio para`
+- `apps/desk-vite/src/estilos/globais.css:29`
+  - old: `em `apps/gestao-vite`): cromo que inverte junto com o conteúdo deixa de`
+  - proposed: `em `apps/management-vite`): cromo que inverte junto com o conteúdo deixa de`
+- `apps/desk-vite/src/estilos/globais.css:2502`
+  - old: `Copiada de `apps/gestao-vite/src/estilos/globais.css` — a tela de entrada do`
+  - proposed: `Copiada de `apps/management-vite/src/estilos/globais.css` — a tela de entrada do`
+- `apps/desk-vite/src/lib/acoes.ts:12`
+  - old: `* `apps/gestao-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.`
+  - proposed: `* `apps/management-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.`
+- `apps/desk-vite/src/lib/entrada.ts:5`
+  - old: `* Por onde se entra — copiado de `apps/gestao-vite/src/lib/entrada.ts`; só o`
+  - proposed: `* Por onde se entra — copiado de `apps/management-vite/src/lib/entrada.ts`; só o`
+- `apps/desk-vite/src/paginas/entrar.tsx:8`
+  - old: `* A tela de entrada do Desk — copiada de `apps/gestao-vite/src/paginas/entrar.tsx``
+  - proposed: `* A tela de entrada do Desk — copiada de `apps/management-vite/src/paginas/entrar.tsx``
+- `apps/desk-vite/vite.config.ts:6`
+  - old: `* Pipe Desk como SPA — o mesmo arranjo de `apps/gestao-vite/vite.config.ts`:`
+  - proposed: `* Pipe Desk como SPA — o mesmo arranjo de `apps/management-vite/vite.config.ts`:`
+- `apps/gestao-vite/Dockerfile:2`
+  - old: `#   docker build -f apps/gestao-vite/Dockerfile -t ghcr.io/pipe/gestao-vite:<versao> .`
+  - proposed: `#   docker build -f apps/management-vite/Dockerfile -t ghcr.io/pipe/management-vite:<versao> .`
+- `apps/gestao-vite/Dockerfile:25`
+  - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
+  - proposed: `COPY apps/management-vite/package.json apps/management-vite/`
+- `apps/gestao-vite/Dockerfile:36`
+  - old: `# `@pipe/gestao-vite...` = o aplicativo e as dependências dele no workspace. Os`
+  - proposed: `# `@pipe/management-vite...` = o aplicativo e as dependências dele no workspace. Os`
+- `apps/gestao-vite/Dockerfile:40`
+  - old: `pnpm install --frozen-lockfile --filter "@pipe/gestao-vite..."`
+  - proposed: `pnpm install --frozen-lockfile --filter "@pipe/management-vite..."`
+- `apps/gestao-vite/Dockerfile:46`
+  - old: `COPY apps/gestao-vite apps/gestao-vite`
+  - proposed: `COPY apps/management-vite apps/management-vite`
+- `apps/gestao-vite/Dockerfile:57`
+  - old: `RUN pnpm --filter "@pipe/gestao-vite..." build`
+  - proposed: `RUN pnpm --filter "@pipe/management-vite..." build`
+- `apps/gestao-vite/Dockerfile:64`
+  - old: `COPY apps/gestao-vite/nginx.conf /etc/nginx/conf.d/default.conf`
+  - proposed: `COPY apps/management-vite/nginx.conf /etc/nginx/conf.d/default.conf`
+- `apps/gestao-vite/Dockerfile:65`
+  - old: `COPY --from=build /app/apps/gestao-vite/dist /usr/share/nginx/html`
+  - proposed: `COPY --from=build /app/apps/management-vite/dist /usr/share/nginx/html`
+- `apps/gestao-vite/Dockerfile.dockerignore:1`
+  - old: `# Contexto de build da imagem do gestao-vite. O BuildKit usa este arquivo NO`
+  - proposed: `# Contexto de build da imagem do management-vite. O BuildKit usa este arquivo NO`
+- `apps/gestao-vite/Dockerfile.dockerignore:2`
+  - old: `# LUGAR do .dockerignore da raiz quando o -f aponta para apps/gestao-vite/Dockerfile,`
+  - proposed: `# LUGAR do .dockerignore da raiz quando o -f aponta para apps/management-vite/Dockerfile,`
+- `apps/gestao-vite/package.json:2`
+  - old: `"name": "@pipe/gestao-vite",`
+  - proposed: `"name": "@pipe/management-vite",`
+- `apps/gestao-vite/README.md:13`
+  - old: `pnpm --filter @pipe/gestao-vite dev  # :3110, com proxy de /v1 para a api`
+  - proposed: `pnpm --filter @pipe/management-vite dev  # :3110, com proxy de /v1 para a api`
+- `apps/workers/Dockerfile:26`
+  - old: `COPY apps/gestao-vite/package.json apps/gestao-vite/`
+  - proposed: `COPY apps/management-vite/package.json apps/management-vite/`
+- `apps/workers/Dockerfile.dockerignore:33`
+  - old: `apps/gestao-vite`
+  - proposed: `apps/management-vite`
+- `apps/workers/Dockerfile.dockerignore:34`
+  - old: `!apps/gestao-vite/package.json`
+  - proposed: `!apps/management-vite/package.json`
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:24`
+  - old: `- Modify: `apps/gestao-vite/src/componentes/filtros-rapidos.tsx``
+  - proposed: `- Modify: `apps/management-vite/src/componentes/filtros-rapidos.tsx``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:25`
+  - old: `- Modify: `apps/gestao-vite/src/lib/filtros-monitoramento.ts``
+  - proposed: `- Modify: `apps/management-vite/src/lib/filtros-monitoramento.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26`
+  - old: `- Modify: `apps/gestao-vite/src/paginas/operacao/monitoramento.tsx``
+  - proposed: `- Modify: `apps/management-vite/src/paginas/operacao/monitoramento.tsx``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27`
+  - old: `- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css``
+  - proposed: `- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:28`
+  - old: `- Test: `apps/gestao-vite/tests/filtros-monitoramento.test.ts``
+  - proposed: `- Test: `apps/management-vite/tests/filtros-monitoramento.test.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:48`
+  - old: `Run: `pnpm --filter @pipe/gestao-vite test -- filtros-monitoramento.test.ts``
+  - proposed: `Run: `pnpm --filter @pipe/management-vite test -- filtros-monitoramento.test.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54`
+  - old: `- Modify: `apps/gestao-vite/src/paginas/operacao/historico.tsx``
+  - proposed: `- Modify: `apps/management-vite/src/paginas/operacao/historico.tsx``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:55`
+  - old: `- Modify: `apps/gestao-vite/src/componentes/lista-historico.tsx``
+  - proposed: `- Modify: `apps/management-vite/src/componentes/lista-historico.tsx``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:56`
+  - old: `- Modify: `apps/gestao-vite/src/lib/historico.ts``
+  - proposed: `- Modify: `apps/management-vite/src/lib/historico.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57`
+  - old: `- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css``
+  - proposed: `- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:60`
+  - old: `- Test: `apps/gestao-vite/tests/historico.test.ts``
+  - proposed: `- Test: `apps/management-vite/tests/historico.test.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:61`
+  - old: `- Test: `apps/gestao-vite/tests/csv-historico.test.ts``
+  - proposed: `- Test: `apps/management-vite/tests/csv-historico.test.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:81`
+  - old: `Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/gestao-vite test -- historico.test.ts csv-historico.test.ts``
+  - proposed: `Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/management-vite test -- historico.test.ts csv-historico.test.ts``
+- `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:96`
+  - old: `Run: `pnpm --filter @pipe/gestao-vite test && pnpm --filter @pipe/gestao-vite typecheck && pnpm --filter @pipe/gestao-vite build``
+  - proposed: `Run: `pnpm --filter @pipe/management-vite test && pnpm --filter @pipe/management-vite typecheck && pnpm --filter @pipe/management-vite build``
+- `infra/compose/docker-compose.prod.yml:43`
+  - old: `# consegue renderizar". `gestao-vite` não usa isto: é estático, sem banco para`
+  - proposed: `# consegue renderizar". `management-vite` não usa isto: é estático, sem banco para`
+- `infra/compose/docker-compose.prod.yml:44`
+  - old: `# falhar, e o HEALTHCHECK da própria imagem (`apps/gestao-vite/Dockerfile`) já`
+  - proposed: `# falhar, e o HEALTHCHECK da própria imagem (`apps/management-vite/Dockerfile`) já`
+- `infra/compose/docker-compose.prod.yml:67`
+  - old: `# `api`, `desk` e `crm` estão em DUAS redes (`gestao-vite` não: é estático,`
+  - proposed: `# `api`, `desk` e `crm` estão em DUAS redes (`management-vite` não: é estático,`
+- `infra/compose/docker-compose.prod.yml:182`
+  - old: `gestao-vite:`
+  - proposed: `management-vite:`
+- `infra/compose/docker-compose.prod.yml:184`
+  - old: `image: ghcr.io/pipe/gestao-vite:${PIPE_VERSAO}`
+  - proposed: `image: ghcr.io/pipe/management-vite:${PIPE_VERSAO}`
+- `infra/construir-imagens.sh:19`
+  - old: `[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk-vite gestao-vite crm site)`
+  - proposed: `[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk-vite management-vite crm site)`
+- `infra/construir-imagens.sh:36`
+  - old: `# `NEXT_PUBLIC_*` (Next, em `desk`) e `VITE_*` (Vite, em `gestao-vite`) não são`
+  - proposed: `# `NEXT_PUBLIC_*` (Next, em `desk`) e `VITE_*` (Vite, em `management-vite`) não são`
+- `infra/construir-imagens.sh:61`
+  - old: `gestao-vite)`
+  - proposed: `management-vite)`
+- `infra/construir-imagens.sh:87`
+  - old: `# compartilham. `gestao-vite` e `site` não entram nessa conta — a imagem final`
+  - proposed: `# compartilham. `management-vite` e `site` não entram nessa conta — a imagem final`
+- `infra/construir-imagens.sh:90`
+  - old: `echo "(tamanho descomprimido; a camada base node:22-alpine é compartilhada por api/workers/desk/crm — gestao-vite e site são nginx:1.27-alpine)"`
+  - proposed: `echo "(tamanho descomprimido; a camada base node:22-alpine é compartilhada por api/workers/desk/crm — management-vite e site são nginx:1.27-alpine)"`
+- `infra/k8s/base/rede.yaml:21`
+  - old: `- { key: app, operator: In, values: [api, desk, gestao-vite] }`
+  - proposed: `- { key: app, operator: In, values: [api, desk, management-vite] }`
+- `infra/k8s/base/rotas.yaml:42`
+  - old: `- { path: /, pathType: Prefix, backend: { service: { name: gestao-vite, port: { number: 80 } } } }`
+  - proposed: `- { path: /, pathType: Prefix, backend: { service: { name: management-vite, port: { number: 80 } } } }`
+- `infra/k8s/base/web.yaml:55`
+  - old: `# assadas no bundle pela imagem (`apps/gestao-vite/Dockerfile`, build-arg). A`
+  - proposed: `# assadas no bundle pela imagem (`apps/management-vite/Dockerfile`, build-arg). A`
+- `infra/k8s/base/web.yaml:60`
+  - old: `name: gestao-vite`
+  - proposed: `name: management-vite`
+- `infra/k8s/base/web.yaml:61`
+  - old: `labels: { app: gestao-vite }`
+  - proposed: `labels: { app: management-vite }`
+- `infra/k8s/base/web.yaml:65`
+  - old: `matchLabels: { app: gestao-vite }`
+  - proposed: `matchLabels: { app: management-vite }`
+- `infra/k8s/base/web.yaml:68`
+  - old: `labels: { app: gestao-vite }`
+  - proposed: `labels: { app: management-vite }`
+- `infra/k8s/base/web.yaml:71`
+  - old: `- name: gestao-vite`
+  - proposed: `- name: management-vite`
+- `infra/k8s/base/web.yaml:72`
+  - old: `image: ghcr.io/pipe/gestao-vite:latest`
+  - proposed: `image: ghcr.io/pipe/management-vite:latest`
+- `infra/k8s/base/web.yaml:84`
+  - old: `name: gestao-vite`
+  - proposed: `name: management-vite`
+- `infra/k8s/base/web.yaml:86`
+  - old: `selector: { app: gestao-vite }`
+  - proposed: `selector: { app: management-vite }`
+- `infra/k8s/base/web.yaml:92`
+  - old: `name: gestao-vite`
+  - proposed: `name: management-vite`
+- `infra/k8s/base/web.yaml:96`
+  - old: `matchLabels: { app: gestao-vite }`
+  - proposed: `matchLabels: { app: management-vite }`
+- `infra/k8s/tenants/exemplo-dedicado/kustomization.yaml:24`
+  - old: `- name: ghcr.io/pipe/gestao-vite`
+  - proposed: `- name: ghcr.io/pipe/management-vite`
+- `packages/contracts/src/gestao-cadastros.ts:10`
+  - old: `* `apps/gestao-vite/src/lib/*`, como já era antes desta tarefa.`
+  - proposed: `* `apps/management-vite/src/lib/*`, como já era antes desta tarefa.`
+- `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3`
+  - old: `-- que hoje só existem no front (`apps/gestao-vite/src/paginas/fluxo/configuracoes/`
+  - proposed: `-- que hoje só existem no front (`apps/management-vite/src/paginas/fluxo/configuracoes/`
+- `packages/db/drizzle/0035_equipe_do_fluxo.sql:7`
+  - old: `-- bot e quase nada em outro, dentro da mesma empresa. `apps/gestao-vite/src/paginas/fluxo/`
+  - proposed: `-- bot e quase nada em outro, dentro da mesma empresa. `apps/management-vite/src/paginas/fluxo/`
+- `packages/db/src/semente.ts:262`
+  - old: `* (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) criam`
+  - proposed: `* (`semente-demo.ts`, `apps/management-vite/semente/semente-gestao.ts`) criam`
+- `PROJECT-HANDOFF.md:37`
+  - old: ``apps/gestao-vite` e `apps/desk-vite` — não há mais `apps/gestao` nem`
+  - proposed: ``apps/management-vite` e `apps/desk-vite` — não há mais `apps/gestao` nem`
+- `PROJECT-HANDOFF.md:105`
+  - old: `- **Testes:** `apps/api/tests`, `apps/gestao-vite/tests`, `apps/desk-vite/tests``
+  - proposed: `- **Testes:** `apps/api/tests`, `apps/management-vite/tests`, `apps/desk-vite/tests``
+- `PROJECT-HANDOFF.md:197`
+  - old: `(`apps/gestao-vite/src/paginas/builder/modelo.ts:421`) só lê`
+  - proposed: `(`apps/management-vite/src/paginas/builder/modelo.ts:421`) só lê`
+- `PROJECT-HANDOFF.md:299`
+  - old: `(`pnpm -F @pipe/api typecheck`, `@pipe/gestao-vite`, `@pipe/desk-vite`) NÃO`
+  - proposed: `(`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) NÃO`
+- `PROJECT-HANDOFF.md:320`
+  - old: `(`apps/gestao-vite` e irmãos), não a cópia compilada da Blip — reverteu a`
+  - proposed: `(`apps/management-vite` e irmãos), não a cópia compilada da Blip — reverteu a`
+- `tools/std/check-map.ts:11`
+  - old: `const WIRE_SCOPES = new Set(['packages-contracts', 'api', 'desk-vite', 'gestao-vite', 'crm', 'packages-tempo-real']);`
+  - proposed: `const WIRE_SCOPES = new Set(['packages-contracts', 'api', 'desk-vite', 'management-vite', 'crm', 'packages-tempo-real']);`
+- `tools/std/inventory.test.ts:37`
+  - old: `const result = run({ fileName: 'apps/gestao-vite/src/x.tsx', sourceText: "type Painel = 'aberto' | 'fechado'; export const x = <div data-painel=\"aberto\" />;" });`
+  - proposed: `const result = run({ fileName: 'apps/management-vite/src/x.tsx', sourceText: "type Painel = 'aberto' | 'fechado'; export const x = <div data-painel=\"aberto\" />;" });`
+- `tools/std/inventory.test.ts:45`
+  - old: `{ fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },`
+  - proposed: `{ fileName: 'apps/management-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },`
+- `tools/std/inventory.test.ts:46`
+  - old: `{ fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },`
+  - proposed: `{ fileName: 'apps/management-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },`
+- `tools/std/inventory.test.ts:47`
+  - old: `{ fileName: 'apps/gestao-vite/tests/nav.test.ts', sourceText: "assert.equal(path, '/fluxo/x/contatos');" },`
+  - proposed: `{ fileName: 'apps/management-vite/tests/nav.test.ts', sourceText: "assert.equal(path, '/fluxo/x/contatos');" },`
+- `tools/std/inventory.test.ts:48`
+  - old: `{ fileName: 'apps/gestao-vite/src/unrelated.ts', sourceText: "const root = '/'; const parent = '/fluxo'; const other = '/configuracoes/api';" },`
+  - proposed: `{ fileName: 'apps/management-vite/src/unrelated.ts', sourceText: "const root = '/'; const parent = '/fluxo'; const other = '/configuracoes/api';" },`
+- `tools/std/inventory.test.ts:64`
+  - old: `{ fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },`
+  - proposed: `{ fileName: 'apps/management-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },`
+- `tools/std/inventory.test.ts:65`
+  - old: `{ fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },`
+  - proposed: `{ fileName: 'apps/management-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },`
+- `tools/std/inventory.test.ts:73`
+  - old: `const result = run({ fileName: 'apps/gestao-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });`
+  - proposed: `const result = run({ fileName: 'apps/management-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });`
+- `tools/std/inventory.ts:31`
+  - old: `'workers', 'api', 'ponte', 'desk-vite', 'gestao-vite', 'crm', 'site', 'infra', 'css',`
+  - proposed: `'workers', 'api', 'ponte', 'desk-vite', 'management-vite', 'crm', 'site', 'infra', 'css',`
+- `tools/std/inventory.ts:50`
+  - old: `if (kind === 'test-title') return ['workers', 'api', 'ponte'].includes(scope) -> '2' : ['desk-vite', 'gestao-vite', 'crm'].includes(scope) -> '3' : scope === 'site' -> '4' : '1';`
+  - proposed: `if (kind === 'test-title') return ['workers', 'api', 'ponte'].includes(scope) -> '2' : ['desk-vite', 'management-vite', 'crm'].includes(scope) -> '3' : scope === 'site' -> '4' : '1';`
+- `tools/std/inventory.ts:54`
+  - old: `if (['desk-vite', 'gestao-vite', 'crm', 'css'].includes(scope)) return '3';`
+  - proposed: `if (['desk-vite', 'management-vite', 'crm', 'css'].includes(scope)) return '3';`
+- `tools/std/inventory.ts:238`
+  - old: `for (const input of sources.filter((s) => /apps\/(desk-vite|gestao-vite)\/src\/App\.tsx$/.test(slash(s.fileName)))) {`
+  - proposed: `for (const input of sources.filter((s) => /apps\/(desk-vite|management-vite)\/src\/App\.tsx$/.test(slash(s.fileName)))) {`
+- `tools/std/map-tools.test.ts:80`
+  - old: `row('gestao-invite', { scope: 'gestao-vite', kind: 'front-route', old: '/convite/:*', new: '/invite/:token', declared_at: 'apps/gestao-vite/src/App.tsx:1' }),`
+  - proposed: `row('gestao-invite', { scope: 'management-vite', kind: 'front-route', old: '/convite/:*', new: '/invite/:token', declared_at: 'apps/management-vite/src/App.tsx:1' }),`
+- `tools/std/nav-contract.test.cjs:11`
+  - old: `const key = (tenant, user) => `pipe:gestao-vite:monitoramento:filters:v1:${tenant}:${user}`;`
+  - proposed: `const key = (tenant, user) => `pipe:management-vite:monitoramento:filters:v1:${tenant}:${user}`;`
+- `tools/std/nav-contract.test.cjs:32`
+  - old: `for (const app of ['desk-vite', 'gestao-vite', 'crm']) {`
+  - proposed: `for (const app of ['desk-vite', 'management-vite', 'crm']) {`
+- `tools/std/nav-contract.test.cjs:66`
+  - old: `const row = rows.find((item) => item.app === 'gestao-vite' && item.state_item === '?ticketId=');`
+  - proposed: `const row = rows.find((item) => item.app === 'management-vite' && item.state_item === '?ticketId=');`
+- `tools/std/nav-contract.test.cjs:99`
+  - old: `for (const app of ['desk-vite', 'gestao-vite']) {`
+  - proposed: `for (const app of ['desk-vite', 'management-vite']) {`
+- `tools/std/route-match.ts:597`
+  - old: `const consumerApps = new Set(['desk-vite', 'gestao-vite', 'crm', 'ponte', 'workers']);`
+  - proposed: `const consumerApps = new Set(['desk-vite', 'management-vite', 'crm', 'ponte', 'workers']);`
+
+### Traefik label names, host and port preserved
+
+- `infra/compose/docker-compose.prod.yml:193`
+  - old: `- traefik.http.routers.gestao.rule=Host(`gestao.usepipe.com.br`)`
+  - proposed: `- traefik.http.routers.management.rule=Host(`gestao.usepipe.com.br`)`
+- `infra/compose/docker-compose.prod.yml:194`
+  - old: `- traefik.http.routers.gestao.entrypoints=websec`
+  - proposed: `- traefik.http.routers.management.entrypoints=websec`
+- `infra/compose/docker-compose.prod.yml:195`
+  - old: `- traefik.http.routers.gestao.tls.certresolver=le`
+  - proposed: `- traefik.http.routers.management.tls.certresolver=le`
+- `infra/compose/docker-compose.prod.yml:196`
+  - old: `- traefik.http.services.gestao.loadbalancer.server.port=80`
+  - proposed: `- traefik.http.services.management.loadbalancer.server.port=80`
+
+The compose service line at `infra/compose/docker-compose.prod.yml:182` and image line at `:184` are already in the 01-29 literal list. Host `gestao.usepipe.com.br` remains unchanged until owner confirms actual VPS host routing.
+
+## 01-30 bridge references
+
+### ponte -> bridge, technical paths and package only
+
+- `apps/ponte/package.json:2`
+  - old: `"name": "@pipe/ponte",`
+  - proposed: `"name": "@pipe/bridge",`
+- `docs/specs/2026-09-12-ponte-lime.md:45`
+  - old: `apps/ponte  (novo)`
+  - proposed: `apps/bridge  (novo)`
+- `docs/specs/2026-09-12-ponte-lime.md:57`
+  - old: ``apps/ponte`, app próprio. Não entra na `apps/api` porque tem público diferente`
+  - proposed: ``apps/bridge`, app próprio. Não entra na `apps/api` porque tem público diferente`
+- `docs/specs/2026-09-12-ponte-lime.md:124`
+  - old: `1. **Casca**: `apps/ponte` com `POST /comandos`, roteador por `to` + `uri` no mesmo`
+  - proposed: `1. **Casca**: `apps/bridge` com `POST /comandos`, roteador por `to` + `uri` no mesmo`
+- `package.json:23`
+  - old: `"ponte": "pnpm --filter @pipe/ponte dev"`
+  - proposed: `"ponte": "pnpm --filter @pipe/bridge dev"`
+- `PROJECT-HANDOFF.md:321`
+  - old: `tentativa da manhã do mesmo dia de rodar a cópia com uma ponte (`apps/ponte`,`
+  - proposed: `tentativa da manhã do mesmo dia de rodar a cópia com uma ponte (`apps/bridge`,`
+
+## 01-39 infra references
+
+### build script
+
+- `docs/specs/2026-09-07-implantacao.md:260`
+  - old: `PUBLICAR=1 ./infra/construir-imagens.sh v1.0.0`
+  - proposed: `PUBLICAR=1 ./infra/build-images.sh v1.0.0`
+- `docs/specs/2026-09-07-implantacao.md:555`
+  - old: `Os Dockerfiles do Desk e da Gestão agora aceitam `ARG`, e `construir-imagens.sh` passa os`
+  - proposed: `Os Dockerfiles do Desk e da Gestão agora aceitam `ARG`, e `build-images.sh` passa os`
+- `infra/compose/docker-compose.prod.yml:109`
+  - old: `# Construída por infra/construir-imagens.sh a partir de apps/api/Dockerfile.`
+  - proposed: `# Construída por infra/build-images.sh a partir de apps/api/Dockerfile.`
+- `infra/compose/docker-compose.prod.yml:178`
+  - old: `# embutida no bundle (`VITE_URL_API`, assado por `construir-imagens.sh`), e`
+  - proposed: `# embutida no bundle (`VITE_URL_API`, assado por `build-images.sh`), e`
+- `infra/compose/docker-compose.prod.yml:199`
+  - old: `# e é ele que esta imagem empacota (infra/construir-imagens.sh, apps/crm/Dockerfile).`
+  - proposed: `# e é ele que esta imagem empacota (infra/build-images.sh, apps/crm/Dockerfile).`
+- `infra/compose/implantar.sh:197`
+  - old: `"Confira se elas foram publicadas:  PUBLICAR=1 ./infra/construir-imagens.sh ${VERSAO}" \`
+  - proposed: `"Confira se elas foram publicadas:  PUBLICAR=1 ./infra/build-images.sh ${VERSAO}" \`
+- `infra/construir-imagens.sh:4`
+  - old: `#   ./infra/construir-imagens.sh v1.4.2          # tudo`
+  - proposed: `#   ./infra/build-images.sh v1.4.2          # tudo`
+- `infra/construir-imagens.sh:5`
+  - old: `#   ./infra/construir-imagens.sh v1.4.2 api      # só a API`
+  - proposed: `#   ./infra/build-images.sh v1.4.2 api      # só a API`
+- `infra/construir-imagens.sh:6`
+  - old: `#   PUBLICAR=1 ./infra/construir-imagens.sh v1.4.2`
+  - proposed: `#   PUBLICAR=1 ./infra/build-images.sh v1.4.2`
+- `infra/construir-imagens.sh:13`
+  - old: `VERSAO="${1:?uso: construir-imagens.sh <versao> [app ...]}"`
+  - proposed: `VERSAO="${1:?uso: build-images.sh <versao> [app ...]}"`
+- `infra/README.md:25`
+  - old: `./infra/construir-imagens.sh v1.4.2`
+  - proposed: `./infra/build-images.sh v1.4.2`
+- `infra/README.md:26`
+  - old: `./infra/construir-imagens.sh v1.4.2 api      # só uma`
+  - proposed: `./infra/build-images.sh v1.4.2 api      # só uma`
+- `infra/README.md:27`
+  - old: `PUBLICAR=1 ./infra/construir-imagens.sh v1.4.2`
+  - proposed: `PUBLICAR=1 ./infra/build-images.sh v1.4.2`
+- `infra/README.md:58`
+  - old: `e `crm` têm Dockerfile multi-estágio e `infra/construir-imagens.sh` constrói as seis.`
+  - proposed: `e `crm` têm Dockerfile multi-estágio e `infra/build-images.sh` constrói as seis.`
+- `infra/README.md:77`
+  - old: `cada um dos três, mais `--build-arg` no `construir-imagens.sh`.`
+  - proposed: `cada um dos três, mais `--build-arg` no `build-images.sh`.`
+
+### bootstrap script
+
+- `docs/specs/2026-09-07-implantacao.md:46`
+  - old: `convivem, e o `implantar.sh` para no passo 5 justamente por isso.`
+  - proposed: `convivem, e o `bootstrap.sh` para no passo 5 justamente por isso.`
+- `docs/specs/2026-09-07-implantacao.md:179`
+  - old: `| `PIPE_CHAVES_SEGREDO` | chaveiro AES-256 que cifra `canal.config` — token da Meta, appSecret, senha de SMTP | `node -e "…randomBytes(32)…"` (§1.5a) | **a API SOBE, `/saude` dá 200, e todo webhook do WhatsApp devolve 500.** A chave só é lida na hora de decifrar o canal. É a falha mais cara de diagnosticar da tabela, e por isso o `implantar.sh` recusa subir sem ela |`
+  - proposed: `| `PIPE_CHAVES_SEGREDO` | chaveiro AES-256 que cifra `canal.config` — token da Meta, appSecret, senha de SMTP | `node -e "…randomBytes(32)…"` (§1.5a) | **a API SOBE, `/saude` dá 200, e todo webhook do WhatsApp devolve 500.** A chave só é lida na hora de decifrar o canal. É a falha mais cara de diagnosticar da tabela, e por isso o `bootstrap.sh` recusa subir sem ela |`
+- `docs/specs/2026-09-07-implantacao.md:183`
+  - old: `| `DATABASE_URL` / `DATABASE_URL_APP` | as duas acima, em URL | você escreve | a senha na URL tem que bater com a variável; o `implantar.sh` confere |`
+  - proposed: `| `DATABASE_URL` / `DATABASE_URL_APP` | as duas acima, em URL | você escreve | a senha na URL tem que bater com a variável; o `bootstrap.sh` confere |`
+- `docs/specs/2026-09-07-implantacao.md:250`
+  - old: `O `implantar.sh` confere isto sozinho e **para** se não bater — mas conferir antes economiza uma`
+  - proposed: `O `bootstrap.sh` confere isto sozinho e **para** se não bater — mas conferir antes economiza uma`
+- `docs/specs/2026-09-07-implantacao.md:267`
+  - old: `./infra/compose/implantar.sh v1.0.0`
+  - proposed: `./infra/compose/bootstrap.sh v1.0.0`
+- `docs/specs/2026-09-07-implantacao.md:479`
+  - old: `Sintoma: o `implantar.sh` para no passo 8, ou o `deploy.sh` para antes do `up`.`
+  - proposed: `Sintoma: o `bootstrap.sh` para no passo 8, ou o `deploy.sh` para antes do `up`.`
+- `infra/compose/deploy.sh:5`
+  - old: `# `implantar.sh` — ela tem passos que só acontecem uma vez (papel do banco,`
+  - proposed: `# `bootstrap.sh` — ela tem passos que só acontecem uma vez (papel do banco,`
+- `infra/compose/implantar.sh:5`
+  - old: `#   ./implantar.sh v1.0.0`
+  - proposed: `#   ./bootstrap.sh v1.0.0`
+- `infra/compose/implantar.sh:16`
+  - old: `VERSAO="${1:?uso: implantar.sh <tag da imagem>   (ex.: implantar.sh v1.0.0)}"`
+  - proposed: `VERSAO="${1:?uso: bootstrap.sh <tag da imagem>   (ex.: bootstrap.sh v1.0.0)}"`
+- `infra/compose/implantar.sh:35`
+  - old: `vermelho "Corrija e rode ./implantar.sh ${VERSAO} de novo."`
+  - proposed: `vermelho "Corrija e rode ./bootstrap.sh ${VERSAO} de novo."`
+- `infra/README.md:30`
+  - old: `./compose/implantar.sh v1.4.2`
+  - proposed: `./compose/bootstrap.sh v1.4.2`
+- `infra/terraform/modules/vps-pipe/cloud-init.yaml:80`
+  - old: `# 2) rodar infra/compose/implantar.sh <versao>, que confere o que precisa estar`
+  - proposed: `# 2) rodar infra/compose/bootstrap.sh <versao>, que confere o que precisa estar`
+
+### restore test script
+
+- `infra/terraform/modules/vps-pipe/cloud-init.yaml:48`
+  - old: `ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/restaurar-teste.sh`
+  - proposed: `ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/restore-test.sh`
+
+### secrets dir
+
+- `infra/compose/implantar.sh:107`
+  - old: `"onde nasce e como gerar. Edite com:  cd ../..  &&  sops infra/compose/segredos/producao.enc.env"`
+  - proposed: `"onde nasce e como gerar. Edite com:  cd ../..  &&  sops infra/compose/secrets/producao.enc.env"`
+
+### observability dir
+
+- `apps/api/src/metricas.ts:8`
+  - old: `* Sem `prom-client` de propósito: o que os alertas de `infra/observabilidade/alertas.yml``
+  - proposed: `* Sem `prom-client` de propósito: o que os alertas de `infra/observability/alertas.yml``
+- `docs/specs/2026-09-07-implantacao.md:558`
+  - old: `o alerta `WorkerParado` foram **removidos** de `infra/observabilidade/`: eles ficariam em`
+  - proposed: `o alerta `WorkerParado` foram **removidos** de `infra/observability/`: eles ficariam em`
+- `infra/compose/env.prod.exemplo:91`
+  - old: `# scrape_config de infra/observabilidade/prometheus.yml.`
+  - proposed: `# scrape_config de infra/observability/prometheus.yml.`
+- `infra/k8s/valores/kube-prometheus-stack-values.yaml:44`
+  - old: `# Regras de alerta próprias: o arquivo é o mesmo de infra/observabilidade/alertas.yml,`
+  - proposed: `# Regras de alerta próprias: o arquivo é o mesmo de infra/observability/alertas.yml,`
+
+### K8s values dir
+
+- `infra/terraform/modules/k8s-plataforma/main.tf:10`
+  - old: `# ClusterIssuer ficam em `infra/k8s/valores/` e são aplicados pelo Kustomize.`
+  - proposed: `# ClusterIssuer ficam em `infra/k8s/values/` e são aplicados pelo Kustomize.`
+
+### Terraform staging dir
+
+No literal content hit outside `.planning/` and the lockfile.
+
+
+### Terraform production dir
+
+- `docs/specs/2026-09-07-implantacao.md:54`
+  - old: `disco**, Ubuntu 24.04. É o `hostingercom-vps-kvm4` que o `infra/terraform/ambientes/producao``
+  - proposed: `disco**, Ubuntu 24.04. É o `hostingercom-vps-kvm4` que o `infra/terraform/ambientes/production``
+
+### Other approved infra.csv file moves
+
+- `infra-file-023fb567`: `ferramentas-oportunidades.md` -> `tools-opportunities.md` (`docs/lp/ferramentas-oportunidades.md`).
+  - No literal content hit outside historical planning files.
+- `infra-file-23016a7f`: `packages-tempo-real.csv` -> `packages-time-real.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-tempo-real.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-4cc434b3`: `packages-autenticacao.csv` -> `packages-authentication.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-autenticacao.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-560388dc`: `packages-autenticacao.csv` -> `map/packages-authentication.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-autenticacao.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-693e8026`: `gestao-vite.csv` -> `map/management-vite.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/gestao-vite.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-8465f45d`: `imagens-prompts.md` -> `images-prompts.md` (`docs/lp/imagens-prompts.md`).
+  - No literal content hit outside historical planning files.
+- `infra-file-8deef85c`: `gestao-vite.csv` -> `management-vite.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/gestao-vite.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-9d62383e`: `packages-tempo-real.csv` -> `map/packages-time-real.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-tempo-real.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-d20fc464`: `packages-armazenamento.csv` -> `map/packages-storage.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-armazenamento.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-d84d246a`: `redacao.ts` -> `drafting.ts` (`tools/std/redacao.ts`).
+  - `tools/std/dump-jsonb-fixtures.sh:21` proposed: `REDIGIR="$RAIZ/tools/std/drafting.ts"`
+- `infra-file-df5b25e3`: `ponte.csv` -> `map/bridge.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/ponte.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-dffd3515`: `packages-armazenamento.csv` -> `packages-storage.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-armazenamento.csv`).
+  - No literal content hit outside historical planning files.
+- `infra-file-e823de9f`: `ponte.csv` -> `bridge.csv` (`.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/ponte.csv`).
+  - No literal content hit outside historical planning files.
+
+### Root script keys and command references
+
+- `README.md:11`
+  - old: `pnpm banco:subir      # Postgres 16 na 5433 e Redis na 6380`
+  - proposed: `pnpm db:up      # Postgres 16 na 5433 e Redis na 6380`
+- `README.md:12`
+  - old: `pnpm banco:migrar`
+  - proposed: `pnpm db:migrate`
+- `README.md:13`
+  - old: `pnpm banco:semear`
+  - proposed: `pnpm db:seed`
+- `apps/api/src/controladores/entrar.ts:244`
+  - old: `.end(`sem usuário "${email}" — rode o seed (pnpm banco:semear && pnpm seed:demo)`);`
+  - proposed: `.end(`sem usuário "${email}" — rode o seed (pnpm db:seed && pnpm seed:demo)`);`
+- `apps/crm/semente/semente-crm.ts:338`
+  - old: `if (!tenantLinha) throw new Error('tenant "demo" não existe: rode `pnpm banco:semear` antes.');`
+  - proposed: `if (!tenantLinha) throw new Error('tenant "demo" não existe: rode `pnpm db:seed` antes.');`
+- `apps/crm/src/app/configuracoes/papeis/page.tsx:70`
+  - old: `Nenhum papel cadastrado. Rode <code>pnpm banco:semear</code>.`
+  - proposed: `Nenhum papel cadastrado. Rode <code>pnpm db:seed</code>.`
+- `package.json:17`
+  - old: `"banco:subir": "docker compose up -d postgres redis",`
+  - proposed: `"db:up": "docker compose up -d postgres redis",`
+- `package.json:18`
+  - old: `"banco:descer": "docker compose down",`
+  - proposed: `"db:down": "docker compose down",`
+- `package.json:19`
+  - old: `"banco:migrar": "pnpm --filter @pipe/db migrar",`
+  - proposed: `"db:migrate": "pnpm --filter @pipe/db migrar",`
+- `package.json:20`
+  - old: `"banco:semear": "pnpm --filter @pipe/db semear",`
+  - proposed: `"db:seed": "pnpm --filter @pipe/db semear",`
+- `package.json:23`
+  - old: `"ponte": "pnpm --filter @pipe/ponte dev"`
+  - proposed: `"bridge": "pnpm --filter @pipe/ponte dev"`
+- `packages/db/src/semente-demo.ts:105`
+  - old: `throw new Error(`tenant "${SLUG_DEMO}" não existe: rode "pnpm banco:semear" antes.`);`
+  - proposed: `throw new Error(`tenant "${SLUG_DEMO}" não existe: rode "pnpm db:seed" antes.`);`
+- `packages/db/src/semente-demo.ts:219`
+  - old: `if (!achada) throw new Error(`fila "${nome}" não existe: rode "pnpm banco:semear" antes.`);`
+  - proposed: `if (!achada) throw new Error(`fila "${nome}" não existe: rode "pnpm db:seed" antes.`);`
+- `packages/db/tests/preparar.ts:49`
+  - old: ``Postgres não respondeu em ${URL_DONO}. Suba com "pnpm banco:subir" e rode de novo.`,`
+  - proposed: ``Postgres não respondeu em ${URL_DONO}. Suba com "pnpm db:up" e rode de novo.`,`
+
+`package.json:19-20` script VALUES call `@pipe/db migrar` and `semear`; those package script keys follow approved `packages-db.csv` script rows in 01-39. Review command docs together.
+
+## Nested approved directory rows in requested maps
+
+These belong to earlier source-scope slices. Their parent app/package move occurs in slice 4. Move in source-scope order; avoid moving a nested path twice. Full-path literal hits below were checked with git grep; relative imports follow earlier maps.
+
+- `apps/gestao-vite/public` -> `apps/management-vite/public` (gestao-vite.csv, gestao-vite-dir-0d5e93e4); no literal full-path content hit.
+- `apps/gestao-vite/public/fonts` -> `apps/management-vite/public/fonts` (gestao-vite.csv, gestao-vite-dir-1413aa14); no literal full-path content hit.
+- `apps/gestao-vite/public/pipe` -> `apps/management-vite/public/pipe` (gestao-vite.csv, gestao-vite-dir-993930a0); no literal full-path content hit.
+- `apps/gestao-vite/src` -> `apps/management-vite/src` (gestao-vite.csv, gestao-vite-dir-bcc63dba); `PROJECT-HANDOFF.md:197`, `apps/api/src/controladores/gestao-fluxo.ts:105`, `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71`, `apps/desk-vite/src/estilos/globais.css:2502`, `apps/desk-vite/src/lib/acoes.ts:12`, `apps/desk-vite/src/lib/entrada.ts:5`, `apps/desk-vite/src/paginas/entrar.tsx:8`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:24`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:25`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:55`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:56`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57`, `packages/contracts/src/gestao-cadastros.ts:10`, `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3`, `packages/db/drizzle/0035_equipe_do_fluxo.sql:7`, `tools/std/inventory.test.ts:37`, `tools/std/inventory.test.ts:45`, `tools/std/inventory.test.ts:46`, `tools/std/inventory.test.ts:48`, `tools/std/inventory.test.ts:64`, `tools/std/inventory.test.ts:65`, `tools/std/inventory.test.ts:73`, `tools/std/map-tools.test.ts:80`.
+  - `PROJECT-HANDOFF.md:197` proposed: `(`apps/management-vite/src/paginas/builder/modelo.ts:421`) só lê`
+  - `apps/api/src/controladores/gestao-fluxo.ts:105` proposed: `* O que a tela de criar manda (`apps/management-vite/src/paginas/criar/gravar.ts`).`
+  - `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71` proposed: `* removido do catálogo do menu (`apps/management-vite/src/paginas/fluxo/itens.ts`)`
+  - `apps/desk-vite/src/estilos/globais.css:2502` proposed: `Copiada de `apps/management-vite/src/estilos/globais.css` — a tela de entrada do`
+  - `apps/desk-vite/src/lib/acoes.ts:12` proposed: `* `apps/management-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.`
+  - `apps/desk-vite/src/lib/entrada.ts:5` proposed: `* Por onde se entra — copiado de `apps/management-vite/src/lib/entrada.ts`; só o`
+  - `apps/desk-vite/src/paginas/entrar.tsx:8` proposed: `* A tela de entrada do Desk — copiada de `apps/management-vite/src/paginas/entrar.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:24` proposed: `- Modify: `apps/management-vite/src/componentes/filtros-rapidos.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:25` proposed: `- Modify: `apps/management-vite/src/lib/filtros-monitoramento.ts``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26` proposed: `- Modify: `apps/management-vite/src/paginas/operacao/monitoramento.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27` proposed: `- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54` proposed: `- Modify: `apps/management-vite/src/paginas/operacao/historico.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:55` proposed: `- Modify: `apps/management-vite/src/componentes/lista-historico.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:56` proposed: `- Modify: `apps/management-vite/src/lib/historico.ts``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57` proposed: `- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css``
+  - `packages/contracts/src/gestao-cadastros.ts:10` proposed: `* `apps/management-vite/src/lib/*`, como já era antes desta tarefa.`
+  - `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3` proposed: `-- que hoje só existem no front (`apps/management-vite/src/paginas/fluxo/configuracoes/`
+  - `packages/db/drizzle/0035_equipe_do_fluxo.sql:7` proposed: `-- bot e quase nada em outro, dentro da mesma empresa. `apps/management-vite/src/paginas/fluxo/`
+  - `tools/std/inventory.test.ts:37` proposed: `const result = run({ fileName: 'apps/management-vite/src/x.tsx', sourceText: "type Painel = 'aberto' | 'fechado'; export const x = <div data-painel=\"aberto\" />;" });`
+  - `tools/std/inventory.test.ts:45` proposed: `{ fileName: 'apps/management-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },`
+  - `tools/std/inventory.test.ts:46` proposed: `{ fileName: 'apps/management-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },`
+  - `tools/std/inventory.test.ts:48` proposed: `{ fileName: 'apps/management-vite/src/unrelated.ts', sourceText: "const root = '/'; const parent = '/fluxo'; const other = '/configuracoes/api';" },`
+  - `tools/std/inventory.test.ts:64` proposed: `{ fileName: 'apps/management-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },`
+  - `tools/std/inventory.test.ts:65` proposed: `{ fileName: 'apps/management-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },`
+  - `tools/std/inventory.test.ts:73` proposed: `const result = run({ fileName: 'apps/management-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });`
+  - `tools/std/map-tools.test.ts:80` proposed: `row('gestao-invite', { scope: 'gestao-vite', kind: 'front-route', old: '/convite/:*', new: '/invite/:token', declared_at: 'apps/management-vite/src/App.tsx:1' }),`
+- `apps/gestao-vite/src/componentes` -> `apps/management-vite/src/components` (gestao-vite.csv, gestao-vite-dir-d4c0bb49); `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:24`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:55`.
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:24` proposed: `- Modify: `apps/management-vite/src/components/filtros-rapidos.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:55` proposed: `- Modify: `apps/management-vite/src/components/lista-historico.tsx``
+- `apps/gestao-vite/src/contexto` -> `apps/management-vite/src/context` (gestao-vite.csv, gestao-vite-dir-4ba3c37e); no literal full-path content hit.
+- `apps/gestao-vite/src/estilos` -> `apps/management-vite/src/estilos` (gestao-vite.csv, gestao-vite-dir-07fd29ba); `apps/desk-vite/src/estilos/globais.css:2502`.
+  - `apps/desk-vite/src/estilos/globais.css:2502` proposed: `Copiada de `apps/management-vite/src/estilos/globais.css` — a tela de entrada do`
+- `apps/gestao-vite/src/lib` -> `apps/management-vite/src/lib` (gestao-vite.csv, gestao-vite-dir-3779faaf); `apps/desk-vite/src/lib/acoes.ts:12`, `apps/desk-vite/src/lib/entrada.ts:5`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:25`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:56`, `packages/contracts/src/gestao-cadastros.ts:10`.
+  - `apps/desk-vite/src/lib/acoes.ts:12` proposed: `* `apps/management-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.`
+  - `apps/desk-vite/src/lib/entrada.ts:5` proposed: `* Por onde se entra — copiado de `apps/management-vite/src/lib/entrada.ts`; só o`
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:25` proposed: `- Modify: `apps/management-vite/src/lib/filtros-monitoramento.ts``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:56` proposed: `- Modify: `apps/management-vite/src/lib/historico.ts``
+  - `packages/contracts/src/gestao-cadastros.ts:10` proposed: `* `apps/management-vite/src/lib/*`, como já era antes desta tarefa.`
+- `apps/gestao-vite/src/paginas` -> `apps/management-vite/src/pages` (gestao-vite.csv, gestao-vite-dir-fb18ae1e); `PROJECT-HANDOFF.md:197`, `apps/api/src/controladores/gestao-fluxo.ts:105`, `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71`, `apps/desk-vite/src/paginas/entrar.tsx:8`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57`, `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3`, `packages/db/drizzle/0035_equipe_do_fluxo.sql:7`.
+  - `PROJECT-HANDOFF.md:197` proposed: `(`apps/management-vite/src/pages/builder/modelo.ts:421`) só lê`
+  - `apps/api/src/controladores/gestao-fluxo.ts:105` proposed: `* O que a tela de criar manda (`apps/management-vite/src/pages/criar/gravar.ts`).`
+  - `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71` proposed: `* removido do catálogo do menu (`apps/management-vite/src/pages/fluxo/itens.ts`)`
+  - `apps/desk-vite/src/paginas/entrar.tsx:8` proposed: `* A tela de entrada do Desk — copiada de `apps/management-vite/src/pages/entrar.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26` proposed: `- Modify: `apps/management-vite/src/pages/operacao/monitoramento.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27` proposed: `- Modify: `apps/management-vite/src/pages/operacao/atendimento.css``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54` proposed: `- Modify: `apps/management-vite/src/pages/operacao/historico.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57` proposed: `- Modify: `apps/management-vite/src/pages/operacao/atendimento.css``
+  - `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3` proposed: `-- que hoje só existem no front (`apps/management-vite/src/pages/fluxo/configuracoes/`
+  - `packages/db/drizzle/0035_equipe_do_fluxo.sql:7` proposed: `-- bot e quase nada em outro, dentro da mesma empresa. `apps/management-vite/src/pages/fluxo/`
+- `apps/gestao-vite/src/paginas/bem-vindo` -> `apps/management-vite/src/pages/welcome` (gestao-vite.csv, gestao-vite-dir-25b3e834); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/builder` -> `apps/management-vite/src/pages/builder` (gestao-vite.csv, gestao-vite-dir-002f7a37); `PROJECT-HANDOFF.md:197`.
+  - `PROJECT-HANDOFF.md:197` proposed: `(`apps/management-vite/src/pages/builder/modelo.ts:421`) só lê`
+- `apps/gestao-vite/src/paginas/cadastros` -> `apps/management-vite/src/pages/registrations` (gestao-vite.csv, gestao-vite-dir-95e399c4); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/contrato` -> `apps/management-vite/src/pages/contract` (gestao-vite.csv, gestao-vite-dir-6004aa3c); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/contrato/certificados` -> `apps/management-vite/src/pages/contract/certificates` (gestao-vite.csv, gestao-vite-dir-ab016eb3); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/contrato/membros` -> `apps/management-vite/src/pages/contract/members` (gestao-vite.csv, gestao-vite-dir-69240cf8); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/convite` -> `apps/management-vite/src/pages/invitation` (gestao-vite.csv, gestao-vite-dir-0f6bb74f); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/criar` -> `apps/management-vite/src/pages/create` (gestao-vite.csv, gestao-vite-dir-292f95a0); `apps/api/src/controladores/gestao-fluxo.ts:105`.
+  - `apps/api/src/controladores/gestao-fluxo.ts:105` proposed: `* O que a tela de criar manda (`apps/management-vite/src/pages/create/gravar.ts`).`
+- `apps/gestao-vite/src/paginas/criar/fluxo` -> `apps/management-vite/src/pages/create/flow` (gestao-vite.csv, gestao-vite-dir-9b3f632a); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/criar/roteador` -> `apps/management-vite/src/pages/create/router` (gestao-vite.csv, gestao-vite-dir-4454db78); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo` -> `apps/management-vite/src/pages/flow` (gestao-vite.csv, gestao-vite-dir-b156c28b); `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71`, `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3`, `packages/db/drizzle/0035_equipe_do_fluxo.sql:7`.
+  - `apps/api/src/dominio/gestao/equipe-do-fluxo.ts:71` proposed: `* removido do catálogo do menu (`apps/management-vite/src/pages/flow/itens.ts`)`
+  - `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3` proposed: `-- que hoje só existem no front (`apps/management-vite/src/pages/flow/configuracoes/`
+  - `packages/db/drizzle/0035_equipe_do_fluxo.sql:7` proposed: `-- bot e quase nada em outro, dentro da mesma empresa. `apps/management-vite/src/pages/flow/`
+- `apps/gestao-vite/src/paginas/fluxo/analise` -> `apps/management-vite/src/pages/flow/analytics` (gestao-vite.csv, gestao-vite-dir-324671f5); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/dashboard` -> `apps/management-vite/src/pages/flow/analytics/dashboard` (gestao-vite.csv, gestao-vite-dir-1664b86d); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados` -> `apps/management-vite/src/pages/flow/analytics/data-dictionary` (gestao-vite.csv, gestao-vite-dir-cb025cab); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios` -> `apps/management-vite/src/pages/flow/analytics/report-manager` (gestao-vite.csv, gestao-vite-dir-e5c9818b); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/jornada` -> `apps/management-vite/src/pages/flow/analytics/journey` (gestao-vite.csv, gestao-vite-dir-39275f7a); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas` -> `apps/management-vite/src/pages/flow/analytics/active-messages` (gestao-vite.csv, gestao-vite-dir-342e813a); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/relatorios` -> `apps/management-vite/src/pages/flow/analytics/reports` (gestao-vite.csv, gestao-vite-dir-90c1f364); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/analise/visao-geral` -> `apps/management-vite/src/pages/flow/analytics/overview` (gestao-vite.csv, gestao-vite-dir-ce3777c1); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/canais` -> `apps/management-vite/src/pages/flow/channels` (gestao-vite.csv, gestao-vite-dir-097d25fa); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/canais/instagram` -> `apps/management-vite/src/pages/flow/channels/instagram` (gestao-vite.csv, gestao-vite-dir-c9d5bb84); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/canais/messenger` -> `apps/management-vite/src/pages/flow/channels/messenger` (gestao-vite.csv, gestao-vite-dir-93c94689); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/canais/whatsapp` -> `apps/management-vite/src/pages/flow/channels/whatsapp` (gestao-vite.csv, gestao-vite-dir-b38443c4); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes` -> `apps/management-vite/src/pages/flow/settings` (gestao-vite.csv, gestao-vite-dir-3e53f020); `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3`.
+  - `packages/db/drizzle/0031_configuracao_do_fluxo.sql:3` proposed: `-- que hoje só existem no front (`apps/management-vite/src/pages/flow/settings/`
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes/api` -> `apps/management-vite/src/pages/flow/settings/api` (gestao-vite.csv, gestao-vite-dir-b6a93bdd); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas` -> `apps/management-vite/src/pages/flow/settings/basic` (gestao-vite.csv, gestao-vite-dir-14f82b13); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas` -> `apps/management-vite/src/pages/flow/settings/welcome` (gestao-vite.csv, gestao-vite-dir-9ff0019e); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes/keys` -> `apps/management-vite/src/pages/flow/settings/keys` (gestao-vite.csv, gestao-vite-dir-64e91e40); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente` -> `apps/management-vite/src/pages/flow/settings/persistent-menu` (gestao-vite.csv, gestao-vite-dir-7e145c86); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/contatos` -> `apps/management-vite/src/pages/flow/contacts` (gestao-vite.csv, gestao-vite-dir-c6142e5f); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/contatos/detalhe` -> `apps/management-vite/src/pages/flow/contacts/detalhe` (gestao-vite.csv, gestao-vite-dir-61e7d1e1); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/conteudos` -> `apps/management-vite/src/pages/flow/contents` (gestao-vite.csv, gestao-vite-dir-fa0b6a03); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/equipe` -> `apps/management-vite/src/pages/flow/team` (gestao-vite.csv, gestao-vite-dir-45fbe460); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth` -> `apps/management-vite/src/pages/flow/growth` (gestao-vite.csv, gestao-vite-dir-949a55c3); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth/anuncios` -> `apps/management-vite/src/pages/flow/growth/ads` (gestao-vite.csv, gestao-vite-dir-19797acb); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth/clicktracker` -> `apps/management-vite/src/pages/flow/growth/clicktracker` (gestao-vite.csv, gestao-vite-dir-34de3280); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados` -> `apps/management-vite/src/pages/flow/growth/tracked-links` (gestao-vite.csv, gestao-vite-dir-9d82edb1); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas` -> `apps/management-vite/src/pages/flow/growth/active-messages` (gestao-vite.csv, gestao-vite-dir-98002ab2); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/growth/pagamentos` -> `apps/management-vite/src/pages/flow/growth/payments` (gestao-vite.csv, gestao-vite-dir-a749348a); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/integracoes` -> `apps/management-vite/src/pages/flow/integrations` (gestao-vite.csv, gestao-vite-dir-224f02b7); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/integracoes/webhook` -> `apps/management-vite/src/pages/flow/integrations/webhook` (gestao-vite.csv, gestao-vite-dir-2a26f1a4); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/log` -> `apps/management-vite/src/pages/flow/log` (gestao-vite.csv, gestao-vite-dir-383b04b2); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/fluxo/servicos` -> `apps/management-vite/src/pages/flow/services` (gestao-vite.csv, gestao-vite-dir-ad79857e); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/implantacao` -> `apps/management-vite/src/pages/deployment` (gestao-vite.csv, gestao-vite-dir-94088c9e); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/minha-conta` -> `apps/management-vite/src/pages/my-account` (gestao-vite.csv, gestao-vite-dir-5b8d20b0); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/novidades` -> `apps/management-vite/src/pages/updates` (gestao-vite.csv, gestao-vite-dir-417d060d); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/operacao` -> `apps/management-vite/src/pages/operation` (gestao-vite.csv, gestao-vite-dir-0677db9d); `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57`.
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:26` proposed: `- Modify: `apps/management-vite/src/pages/operation/monitoramento.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:27` proposed: `- Modify: `apps/management-vite/src/pages/operation/atendimento.css``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:54` proposed: `- Modify: `apps/management-vite/src/pages/operation/historico.tsx``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:57` proposed: `- Modify: `apps/management-vite/src/pages/operation/atendimento.css``
+- `apps/gestao-vite/src/paginas/trocar-conta` -> `apps/management-vite/src/pages/switch-account` (gestao-vite.csv, gestao-vite-dir-37af22d5); no literal full-path content hit.
+- `apps/gestao-vite/src/paginas/trocar-conta/sem-acesso` -> `apps/management-vite/src/pages/switch-account/no-access` (gestao-vite.csv, gestao-vite-dir-fc4d05fa); no literal full-path content hit.
+- `apps/gestao-vite/tests` -> `apps/management-vite/tests` (gestao-vite.csv, gestao-vite-dir-975b2a4c); `PROJECT-HANDOFF.md:105`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:28`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:60`, `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:61`, `tools/std/inventory.test.ts:47`.
+  - `PROJECT-HANDOFF.md:105` proposed: `- **Testes:** `apps/api/tests`, `apps/management-vite/tests`, `apps/desk-vite/tests``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:28` proposed: `- Test: `apps/management-vite/tests/filtros-monitoramento.test.ts``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:60` proposed: `- Test: `apps/management-vite/tests/historico.test.ts``
+  - `docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md:61` proposed: `- Test: `apps/management-vite/tests/csv-historico.test.ts``
+  - `tools/std/inventory.test.ts:47` proposed: `{ fileName: 'apps/management-vite/tests/nav.test.ts', sourceText: "assert.equal(path, '/fluxo/x/contatos');" },`
+- `apps/ponte/src` -> `apps/bridge/src` (ponte.csv, ponte-dir-7bc5860a); no literal full-path content hit.
+- `apps/ponte/tests` -> `apps/bridge/tests` (ponte.csv, ponte-dir-b6d73236); no literal full-path content hit.
+- `packages/ai/src/avaliacao` -> `packages/ai/src/evaluation` (packages-ai.csv, packages-ai-dir-c30965c4); `apps/api/src/dominio/gestao/nota-avaliacao.ts:4`, `apps/api/src/dominio/gestao/nota-avaliacao.ts:14`, `apps/gestao-vite/src/lib/nota-avaliacao.ts:4`, `apps/gestao-vite/src/lib/nota-avaliacao.ts:14`, `apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx:200`, `apps/gestao-vite/tests/nota-avaliacao.test.ts:15`.
+  - `apps/api/src/dominio/gestao/nota-avaliacao.ts:4` proposed: `* O CÁLCULO é de `packages/ai/src/evaluation/nota.ts` e não se repete aqui: os`
+  - `apps/api/src/dominio/gestao/nota-avaliacao.ts:14` proposed: `* Os dois tetos de escala são os de `packages/ai/src/evaluation/tipos.ts``
+  - `apps/gestao-vite/src/lib/nota-avaliacao.ts:4` proposed: `* O CÁLCULO é de `packages/ai/src/evaluation/nota.ts` e não se repete aqui: os`
+  - `apps/gestao-vite/src/lib/nota-avaliacao.ts:14` proposed: `* Os dois tetos de escala são os de `packages/ai/src/evaluation/tipos.ts``
+  - `apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx:200` proposed: `critério fatal. É a propriedade que `packages/ai/src/evaluation/nota.ts` garante, e é ela que`
+  - `apps/gestao-vite/tests/nota-avaliacao.test.ts:15` proposed: `* Os tetos são cópia de `packages/ai/src/evaluation/tipos.ts`, e o teste existe`
+- `packages/ai/src/classificacao` -> `packages/ai/src/classification` (packages-ai.csv, packages-ai-dir-3fb27a89); no literal full-path content hit.
+- `packages/ai/src/transcricao` -> `packages/ai/src/transcription` (packages-ai.csv, packages-ai-dir-06e610bd); no literal full-path content hit.
+- `packages/armazenamento/src` -> `packages/storage/src` (packages-armazenamento.csv, packages-armazenamento-dir-b1a19995); `apps/api/src/dominio/gestao/regras-de-nome.ts:64`, `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:64`, `docs/specs/2026-09-07-storage-de-anexos.md:20`.
+  - `apps/api/src/dominio/gestao/regras-de-nome.ts:64` proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
+  - `apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:64` proposed: `* quinze formatos do anexo — vive em `packages/storage/src/tipo-real.ts`;`
+  - `docs/specs/2026-09-07-storage-de-anexos.md:20` proposed: `(`packages/storage/src/porta.ts`) é bucket + chave opaca + objeto — a forma do S3. Trocar`
+- `packages/armazenamento/tests` -> `packages/storage/tests` (packages-armazenamento.csv, packages-armazenamento-dir-dba61104); no literal full-path content hit.
+- `packages/autenticacao/src` -> `packages/authentication/src` (packages-autenticacao.csv, packages-autenticacao-dir-2891b1eb); `apps/api/src/dominio/convites.ts:12`, `apps/api/src/dominio/dominios.ts:12`, `apps/api/src/dominio/gestao/contrato.ts:293`, `docs/specs/2026-09-07-integracao-twenty.md:46`, `packages/db/src/schema/identidade.ts:530`.
+  - `apps/api/src/dominio/convites.ts:12` proposed: `* A quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
+  - `apps/api/src/dominio/dominios.ts:12` proposed: `* É a segunda pergunta da entrada (`packages/authentication/src/entrada.ts`), e a`
+  - `apps/api/src/dominio/gestao/contrato.ts:293` proposed: `* `ativo = false` já barra a entrada (`packages/authentication/src/entrada.ts`),`
+  - `docs/specs/2026-09-07-integracao-twenty.md:46` proposed: `O Pipe já entra por Google (`packages/authentication/src/google.ts`, OIDC com PKCE). O Twenty também`
+  - `packages/db/src/schema/identidade.ts:530` proposed: `* quarta pergunta de `packages/authentication/src/entrada.ts` recusa quem não foi`
+- `packages/autenticacao/tests` -> `packages/authentication/tests` (packages-autenticacao.csv, packages-autenticacao-dir-1b627fe7); `apps/api/tests/sso.test.ts:35`.
+  - `apps/api/tests/sso.test.ts:35` proposed: `* `packages/authentication/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o`
+- `packages/core/src/analise` -> `packages/core/src/analytics` (packages-core.csv, packages-core-dir-115c6353); no literal full-path content hit.
+- `packages/core/src/conversa` -> `packages/core/src/conversation` (packages-core.csv, packages-core-dir-61473a8d); `apps/api/src/controladores/conversas.ts:340`, `apps/api/src/dominio/conversa.ts:277`, `apps/api/src/dominio/gestao/regras-prioridade.ts:26`, `apps/api/tests/transferencia.test.ts:21`, `apps/desk-vite/src/paginas/atendimentos/conversa.tsx:472`.
+  - `apps/api/src/controladores/conversas.ts:340` proposed: `* A regra está em `packages/core/src/conversation/maquina.ts` e é a da Blip. Por isso a`
+  - `apps/api/src/dominio/conversa.ts:277` proposed: `* decidido em `packages/core/src/conversation/maquina.ts`, que por isso não tem aresta de`
+  - `apps/api/src/dominio/gestao/regras-prioridade.ts:26` proposed: `* `conversa.prioridade` (`packages/core/src/conversation/prioridade.ts`) era`
+  - `apps/api/tests/transferencia.test.ts:21` proposed: `* Não é transição de estado — está decidido em `packages/core/src/conversation/maquina.ts``
+  - `apps/desk-vite/src/paginas/atendimentos/conversa.tsx:472` proposed: `* ticket". A regra de lá (e a nossa, `packages/core/src/conversation/maquina.ts`):`
+- `packages/core/src/distribuicao` -> `packages/core/src/distribution` (packages-core.csv, packages-core-dir-f4925d2f); no literal full-path content hit.
+- `packages/core/src/esforco` -> `packages/core/src/effort` (packages-core.csv, packages-core-dir-0047da1b); `apps/api/src/dominio/gestao/cadastros.ts:184`, `apps/api/src/dominio/gestao/esforco.ts:20`, `apps/gestao-vite/src/lib/esforco.ts:10`.
+  - `apps/api/src/dominio/gestao/cadastros.ts:184` proposed: `* A média sai do banco, e não do `@pipe/core`: `packages/core/src/effort/` mede`
+  - `apps/api/src/dominio/gestao/esforco.ts:20` proposed: `* A conta inteira é da régua de `packages/core/src/effort/`: 200 char/min`
+  - `apps/gestao-vite/src/lib/esforco.ts:10` proposed: `* A conta inteira é da régua de `packages/core/src/effort/`: 200 char/min`
+- `packages/core/src/fluxo` -> `packages/core/src/flow` (packages-core.csv, packages-core-dir-d503f8ce); `PROJECT-HANDOFF.md:297`, `THIRD_PARTY_NOTICES.md:5`, `THIRD_PARTY_NOTICES.md:14`, `THIRD_PARTY_NOTICES.md:15`, `THIRD_PARTY_NOTICES.md:16`, `THIRD_PARTY_NOTICES.md:17`, `THIRD_PARTY_NOTICES.md:18`, `THIRD_PARTY_NOTICES.md:19`, `THIRD_PARTY_NOTICES.md:20`, `THIRD_PARTY_NOTICES.md:21`, `THIRD_PARTY_NOTICES.md:25`, `apps/api/tests/fluxo.test.ts:34`, `apps/api/tests/gerar-fixtures-jsonb.helper.ts:20`, `apps/api/tests/jsonb-compat.test.ts:94`, `apps/api/tests/process-http-retomada.test.ts:48`, `apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:10`, `apps/gestao-vite/src/paginas/builder/condicoes.ts:8`, `apps/gestao-vite/src/paginas/builder/conteudo.ts:11`, `docs/specs/2026-09-12-ponte-lime.md:118`, `packages/db/drizzle/0014_motor_de_fluxo.sql:3`, `tools/std/classify-jsonb.test.ts:27`, `tools/std/lib/jsonb-reach.ts:162`, `tools/std/lib/jsonb-reach.ts:163`.
+  - `PROJECT-HANDOFF.md:297` proposed: ``packages/core/src/flow/gerenciador.teste.ts:140` —`
+  - `THIRD_PARTY_NOTICES.md:5` proposed: `O motor de fluxo do Pipe (`packages/core/src/flow/`) é um porte para TypeScript do motor`
+  - `THIRD_PARTY_NOTICES.md:14` proposed: `| `packages/core/src/flow/gerenciador.ts` | `src/Take.Blip.Builder/FlowManager.cs`, `Hosting/ConventionsConfiguration.cs`, `Constants.cs`, `FlowConstructionException.cs`, `ActionProcessingException.cs`, `OutputProcessingException.cs`, `BuilderException.cs` |`
+  - `THIRD_PARTY_NOTICES.md:15` proposed: `| `packages/core/src/flow/modelos.ts` | `src/Take.Blip.Builder/Models/Flow.cs`, `State.cs`, `Input.cs`, `Output.cs`, `Action.cs` |`
+  - `THIRD_PARTY_NOTICES.md:16` proposed: `| `packages/core/src/flow/condicao.ts` | `src/Take.Blip.Builder/Models/Condition.cs`, `ConditionComparison.cs`, `ConditionOperator.cs`, `ValueSource.cs`, `ConditionsExtensions.cs`, `StringExtensions.cs` |`
+  - `THIRD_PARTY_NOTICES.md:17` proposed: `| `packages/core/src/flow/contexto.ts` | `src/Take.Blip.Builder/ContextBase.cs`, `ContextExtensions.cs`, `StateManager.cs`, `LazyInput.cs`, `Utils/VariableReplacer.cs`, `Variables/VariableSource.cs`, `Variables/InputVariableProvider.cs`, `Variables/StateVariableProvider.cs`, `Variables/ContactVariableProvider.cs` |`
+  - `THIRD_PARTY_NOTICES.md:18` proposed: `| `packages/core/src/flow/acoes.ts` | `src/Take.Blip.Builder/Actions/ActionBase.cs`, `ActionProvider.cs`, `SetVariable/*`, `DeleteVariable/*`, `SendMessage/SendMessageAction.cs`, `SendRawMessage/*`, `TrackEvent/TrackEventSettings.cs`, `CreateTicket/CreateTicketAction.cs` |`
+  - `THIRD_PARTY_NOTICES.md:19` proposed: `| `packages/core/src/flow/condicao.teste.ts` | `src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs`, `ConditionTests.cs` |`
+  - `THIRD_PARTY_NOTICES.md:20` proposed: `| `packages/core/src/flow/modelos.teste.ts` | `src/Take.Blip.Builder.UnitTests/Models/FlowTests.cs` |`
+  - `THIRD_PARTY_NOTICES.md:21` proposed: `| `packages/core/src/flow/gerenciador.teste.ts` | `src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs`, `OutputConditions/OutputConditionsTests.cs`, `Actions/ActionConditionsTests.cs` |`
+  - `THIRD_PARTY_NOTICES.md:25` proposed: `- `packages/core/src/flow/editor.ts` — a conversão do export do editor do Builder para o`
+  - `apps/api/tests/fluxo.test.ts:34` proposed: `new URL('../../../packages/core/src/flow/fixtures/editor-sintetico.json', import.meta.url),`
+  - `apps/api/tests/gerar-fixtures-jsonb.helper.ts:20` proposed: `readFileSync(`${RAIZ}packages/core/src/flow/fixtures/editor-sintetico.json`, 'utf8'),`
+  - `apps/api/tests/jsonb-compat.test.ts:94` proposed: `* `packages/core/src/flow/fixtures/editor-sintetico.json` que gerou essas fixtures —`
+  - `apps/api/tests/process-http-retomada.test.ts:48` proposed: `new URL('../../../packages/core/src/flow/fixtures/editor-sintetico.json', import.meta.url),`
+  - `apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:10` proposed: `* que o motor do Pipe EXECUTA (`PROVEDOR_PADRAO` em `packages/core/src/flow/`
+  - `apps/gestao-vite/src/paginas/builder/condicoes.ts:8` proposed: `* motor (`packages/core/src/flow/condicao.ts`) e os rótulos literais da aba`
+  - `apps/gestao-vite/src/paginas/builder/conteudo.ts:11` proposed: `* (`CONTEUDOS_SUPORTADOS` em `packages/core/src/flow/editor.ts`): "Texto"`
+  - `docs/specs/2026-09-12-ponte-lime.md:118` proposed: `em `packages/core/src/flow/editor.ts` já faz metade (editor → publicado).`
+  - `packages/db/drizzle/0014_motor_de_fluxo.sql:3` proposed: `-- banco se ajusta à Blip, não o contrário. Ver `packages/core/src/flow/`.`
+  - `tools/std/classify-jsonb.test.ts:27` proposed: `assert.equal(reach.some((row) => row.declared_at === 'packages/core/src/flow/contexto.ts:167' && row.name === 'variaveis'), false);`
+  - `tools/std/lib/jsonb-reach.ts:162` proposed: `FluxoBlip: 'packages/core/src/flow/modelos.ts', Acao: 'packages/core/src/flow/modelos.ts', Entrada: 'packages/core/src/flow/modelos.ts', Saida: 'packages/core/src/flow/modelos.ts', Estado: 'packages/core/src/flow/modelos.ts',`
+  - `tools/std/lib/jsonb-reach.ts:163` proposed: `MensagemDeEntrada: 'packages/core/src/flow/contexto.ts', MensagemDeSaida: 'packages/core/src/flow/contexto.ts', PedidoDeHttp: 'packages/core/src/flow/contexto.ts', RespostaDeHttp: 'packages/core/src/flow/contexto.ts', CursorDeProcessHttp: 'packages/core/src/flow/contexto.ts', ListaDeAcoesSuspensa: 'packages/core/src/flow/contexto.ts',`
+- `packages/core/src/fluxo/fixtures` -> `packages/core/src/flow/fixtures` (packages-core.csv, packages-core-dir-4f91bf1d); `apps/api/tests/fluxo.test.ts:34`, `apps/api/tests/gerar-fixtures-jsonb.helper.ts:20`, `apps/api/tests/jsonb-compat.test.ts:94`, `apps/api/tests/process-http-retomada.test.ts:48`.
+  - `apps/api/tests/fluxo.test.ts:34` proposed: `new URL('../../../packages/core/src/flow/fixtures/editor-sintetico.json', import.meta.url),`
+  - `apps/api/tests/gerar-fixtures-jsonb.helper.ts:20` proposed: `readFileSync(`${RAIZ}packages/core/src/flow/fixtures/editor-sintetico.json`, 'utf8'),`
+  - `apps/api/tests/jsonb-compat.test.ts:94` proposed: `* `packages/core/src/flow/fixtures/editor-sintetico.json` que gerou essas fixtures —`
+  - `apps/api/tests/process-http-retomada.test.ts:48` proposed: `new URL('../../../packages/core/src/flow/fixtures/editor-sintetico.json', import.meta.url),`
+- `packages/core/src/janela` -> `packages/core/src/window` (packages-core.csv, packages-core-dir-1e86b0ec); `docs/specs/2026-09-06-mensagem-ativa-e-janelas.md:9`, `docs/specs/2026-09-06-mensagem-ativa-e-janelas.md:27`.
+  - `docs/specs/2026-09-06-mensagem-ativa-e-janelas.md:9` proposed: ``packages/core/src/window/`. Ela responde a uma pergunta: *o atendente pode escrever livre agora,`
+  - `docs/specs/2026-09-06-mensagem-ativa-e-janelas.md:27` proposed: `**Regra.** Em `packages/core/src/window/`, ao lado de `JANELA_HORAS`:`
+- `packages/core/src/metricas` -> `packages/core/src/metrics` (packages-core.csv, packages-core-dir-45fd3bfa); `apps/api/src/dominio/gestao/atendimento.ts:38`, `apps/gestao-vite/src/lib/atendimento.ts:8`, `tools/std/engine.test.ts:189`, `tools/std/fixtures/mini/apps/api/vitest.config.ts:1`, `tools/std/fixtures/mini/apps/front/vite.config.ts:1`, `tools/std/fixtures/mini/map/core.csv:4`.
+  - `apps/api/src/dominio/gestao/atendimento.ts:38` proposed: `* `packages/core/src/metrics`. Cada número da tela sai de uma delas, com o`
+  - `apps/gestao-vite/src/lib/atendimento.ts:8` proposed: `* `packages/core/src/metrics`. Cada número da tela sai de uma delas, com o`
+  - `tools/std/engine.test.ts:189` proposed: `assert.ok(fs.existsSync(path.join(root, 'packages/core/src/metrics/index.ts')));`
+  - `tools/std/fixtures/mini/apps/api/vitest.config.ts:1` proposed: `export default { test: { globalSetup: ['../../../packages/core/src/metrics/index.ts'] } };`
+  - `tools/std/fixtures/mini/apps/front/vite.config.ts:1` proposed: `export default { resolve: { alias: { metrics: '../../packages/core/src/metrics/index.ts' } } };`
+  - `tools/std/fixtures/mini/map/core.csv:4` proposed: `MOVE-001,core,1,dir,packages/core/src/metrics,packages/core/src/metrics,,,no,,,approved,sonnet,`
+- `packages/tempo-real/src` -> `packages/realtime/src` (packages-tempo-real.csv, packages-tempo-real-dir-732260a2); no literal full-path content hit.
+- `packages/tempo-real/tests` -> `packages/realtime/tests` (packages-tempo-real.csv, packages-tempo-real-dir-2ca346ea); no literal full-path content hit.
+- `packages/ui/src/componentes` -> `packages/ui/src/components` (packages-ui.csv, packages-ui-dir-121c05f0); `docs/superpowers/plans/2026-09-09-desk-visual-pipe.md:28`.
+  - `docs/superpowers/plans/2026-09-09-desk-visual-pipe.md:28` proposed: `- Read: `packages/ui/src/components/estrutura.tsx``
+
+## Cutover risks and owner actions
+
+- VPS paths: scripts assume `/opt/pipe`, `/opt/pipe-dados/.env`, secret paths and relative compose location. D-43 permits fresh rebuild. Plan 01-33 must replace the draft runbook's backup/drain/rollback steps before use. `infra/terraform/modules/vps-pipe/cloud-init.yaml:48,80` is path-sensitive.
+- Image/tag: build script app list and case arms must match compose `management-vite` image and `PIPE_VERSAO`; K8s has a separate `latest` reference. Owner chooses immutable tag and provides registry credentials.
+- Volumes: keep Postgres/Redis/monitoring volume names stable during rename. Fresh VPS rebuild under D-43 deliberately discards old data; owner confirms at cutover.
+- Healthchecks/ports: management nginx port remains 80; compose service, Traefik router/service label names and K8s selectors must agree. Preserve `VITE_*` build values, Desk `VITE_BASE=/desk/`, API/CRM healthcheck and exposed ports. Validate compose and actual image builds in execution.
+- Owner at cutover: confirm actual VPS compose topology and `pipe.144-217-164-204.sslip.io` routing; current compose uses `*.usepipe.com.br`, while future `usepipe.app` is not live. Owner supplies VPS access, chooses image tag, rebuilds/deploys, changes encrypted `GOOGLE_URL_RETORNO` VALUE while retaining NAME, updates Google OAuth redirect, and signs off VPS smoke.
+
+## Wrong or missing infra.csv rows
+
+- `infra-file-23016a7f` and `infra-file-9d62383e`: `packages-tempo-real.csv -> packages-time-real.csv` conflicts with approved compound `realtime`; expected `packages-realtime.csv` if CSVs follow package name.
+- `infra-file-560388dc`, `infra-file-693e8026`, `infra-file-9d62383e`, `infra-file-d20fc464`, `infra-file-df5b25e3`: declared file is already under `std/map/` but new starts `map/`; check mover convention to avoid `std/map/map/...`. Comments counterparts omit prefix.
+- `infra-app-new-ponte` provenance says `package.json:1`; actual app declaration is `apps/ponte/package.json:2`. Correct provenance or use `ponte-app-d7fe49b5`.
+- Missing consumers on app row: `infra/k8s/base/rede.yaml:21`, `rotas.yaml:42`, `web.yaml:55-96`, `infra/k8s/tenants/exemplo-dedicado/kustomization.yaml:24` name `gestao-vite` but plan 01-29 file list omits K8s.
+- `infra-file-eb2473ec` moves `implantar.sh -> bootstrap.sh`; include the new command in plan 01-33 because `cloud-init.yaml:80` names the old command.
+
+## Executor review notes
+
+`tools/std/*.ts` fixtures and `tools/std/nav-contract.test.cjs` contain scope keys or a persisted localStorage key; decide separately before applying the proposed text. Historical docs/specs may retain old names as evidence. No Docker, DB, network, source or infra operation was run for this prep.
