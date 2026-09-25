@@ -5762,36 +5762,38 @@ gestao-vite-comment-976081f7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barr
             telas do contato; só Testar ainda permanece em breve. */",translate,"/* `subheader-icons`: Integrações, Configurações, and Equipe navigate to the
             contact's screens; only Testar still remains ""coming soon"". */",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:129-130,,proposed
 gestao-vite-comment-e507d05b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,157,157,jsdoc,4,"/** Um item da fileira: link quando a tela existe, bloco apagado quando não. */",translate,"/** A row item: a link when the screen exists, a grayed-out block when it doesn't. */",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:157-157,,proposed
-gestao-vite-comment-bc68f8a1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,17,17,jsdoc,1,"/** O `id` vem da URL, e URL é texto de fora: sem isto o Postgres recusa o uuid. */",,,,,,
+gestao-vite-comment-bc68f8a1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,17,17,jsdoc,1,"/** O `id` vem da URL, e URL é texto de fora: sem isto o Postgres recusa o uuid. */",translate,"The `id` comes from the URL, and a URL is untrusted external input: without this, Postgres rejects the uuid.",other,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:17-17,,proposed
 gestao-vite-comment-68ac4559,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,20,23,jsdoc,4,"/**
  * O contato e o canal dele — o que `GET /v1/gestao/fluxos/:id` responde
  * (`ContatoDoFluxo` na `api`). A consulta mudou de lado; a forma é a mesma.
- */",,,,,,
-gestao-vite-comment-9663d69a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,37,37,jsdoc,0,"/** O número (WhatsApp), o `@usuário` (Instagram) ou o id da Página (Messenger). */",,,,,,
+ */",translate,The contact and its channel — what `GET /v1/gestao/fluxos/:id` returns (`ContatoDoFluxo` in the `api`). The query moved sides; the shape stays the same.,other,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:20-23,,proposed
+gestao-vite-comment-9663d69a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,37,37,jsdoc,0,"/** O número (WhatsApp), o `@usuário` (Instagram) ou o id da Página (Messenger). */",translate,"The number (WhatsApp), the `@username` (Instagram), or the Page id (Messenger).",other,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:37-37,,proposed
 gestao-vite-comment-b9993fe1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,44,48,block,11,"/* O passo 2 da origem (`getUpdatedMenus()`): a barra só mostra o que a pessoa
      pode ver NESTE contato. Enquanto a resposta não chega, `undefined` deixa a
      fileira inteira — piscar a barra completa e depois encolher é pior do que o
      quadro curto de atraso, e quem não pode entrar continua recebendo 403 na
-     tela de destino, que é onde a permissão vale de verdade. */",,,,,,
+     tela de destino, que é onde a permissão vale de verdade. */",translate,"Step 2 of the source (`getUpdatedMenus()`): the bar only shows what the person can see in THIS contact. While the response hasn't arrived, `undefined` hides the whole row — flashing the full bar and then shrinking it is worse than the brief delay window, and anyone without access still gets a 403 on the destination screen, which is where the permission actually applies.",security,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:44-48,,proposed
 gestao-vite-comment-a3125f55,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,56,58,block,7,"/* A `subheader-detail` deles: a barra do CONTATO, escura, logo abaixo da
           barra da conta. É ela que diz ""você está dentro de um contato agora"" —
-          no portal, este degrau é a barra clara com a busca. */",,,,,,
+          no portal, este degrau é a barra clara com a busca. */",translate,"Their `subheader-detail`: the CONTACT bar, dark, right below the account bar. It's what says ""you're inside a contact now"" — in the portal, this step is the light bar with search.",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:56-58,,proposed
 gestao-vite-comment-f39a7ec3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,67,69,block,5,"/* O `u-status-on/off` deles, no vértice do avatar. Lá o sinal é
                 `application.status` (online/offline); aqui é `estado`, que é o
-                mais perto que temos: publicado atende, rascunho ainda não. */",,,,,,
+                mais perto que temos: publicado atende, rascunho ainda não. */",translate,"Their `u-status-on/off`, at the avatar's corner. There the signal is `application.status` (online/offline); here it's `estado`, the closest we have: published serves, draft doesn't yet.",other,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:67-69,,proposed
 gestao-vite-comment-1e5ea3b5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,76,79,block,7,"/* O `<dropdown-item>` do nome: nome + `arrow-down`, e um painel de
               160px com ""Home"", ""Configuração"" e ""Deixar projeto"" (esta em
               vermelho, a `bp-c-delete` deles). Só a primeira tem destino —
-              ""Home"" é a tela do contato, que é para onde o `ui-sref` dela aponta. */",,,,,,
+              ""Home"" é a tela do contato, que é para onde o `ui-sref` dela aponta. */",translate,"The name `<dropdown-item>`: name + `arrow-down`, and a 160px panel with ""Home"", ""Configuração"" and ""Deixar projeto"" (the latter in red, their `bp-c-delete`). Only the first has a destination — ""Home"" is the contact's screen, which is where its `ui-sref` points.",other,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:76-79,,proposed
 gestao-vite-comment-315c0790,gestao-vite,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,9,15,jsdoc,7,"/**
  * A barra do CONTATO — a `subheader-detail` da origem (módulo 80688).
  *
  * Mora fora de `page.tsx` porque na origem ela é do estado-pai
  * `auth.application.detail`: a `home` e a Análise (`/analise`) desenham a
  * MESMA barra, e a segunda só acende o item dela.
- */",,,,,,
-gestao-vite-comment-c428a89c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx,160,160,jsdoc,1,"/** O logo do canal, para as páginas de cada canal reutilizarem o mesmo desenho da lista. */",,,,,,
-gestao-vite-comment-4f206f21,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx,32,32,jsdoc,0,/** Tem página própria no bot: o cartão navega. */,,,,,,
+ */",translate,"The CONTACT bar — the source's `subheader-detail` (module 80688).
+
+Lives outside `page.tsx` because in the source it belongs to the parent state `auth.application.detail`: `home` and the Analysis (`/analise`) screens draw the SAME bar, and the latter only highlights its own item.",architecture,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:9-15,,proposed
+gestao-vite-comment-c428a89c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx,160,160,jsdoc,1,"/** O logo do canal, para as páginas de cada canal reutilizarem o mesmo desenho da lista. */",translate,"The channel logo, so each channel's page can reuse the same artwork as the list.",other,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx:160-160,,proposed
+gestao-vite-comment-4f206f21,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx,32,32,jsdoc,0,/** Tem página própria no bot: o cartão navega. */,translate,Has its own page inside the bot: the card navigates.,other,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx:32-32,,proposed
 gestao-vite-comment-ddde25b8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx,8,23,jsdoc,13,"/**
  * Canais do contato — `auth.application.detail.channels` da captura 8.
  *
@@ -5807,7 +5809,11 @@ gestao-vite-comment-ddde25b8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * Pipe Chat e E-mail sempre ""Conectado""; RCS, Telegram e Apple têm página lá e
  * não têm aqui, então ficam com o rodapé de estado sem levar a lugar nenhum
  * (`aria-disabled`), em vez de fingir uma integração.
- */",,,,,,
+ */",translate,"Contact channels — `auth.application.detail.channels` from capture 8.
+
+The source is the module 27679 template of `portal.js` (line 80819) and the `.channels-list` rules from `portal.css`. There, each card is a `<card ng-click=""$ctrl.goToState('…channels.<canal>')"">` — the click targets the WHOLE CARD, and ""Conectar""/""Conectado"" in the footer only change appearance: both lead to the SAME channel page, inside the bot (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
+
+Here: WhatsApp, Messenger and Instagram (the channels Pipe has) are links to `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. The source keeps Pipe Chat and E-mail always ""Conectado""; RCS, Telegram and Apple have a page there but not here, so they keep the state footer without leading anywhere (`aria-disabled`), instead of faking an integration.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canais.tsx:8-23,,proposed
 gestao-vite-comment-4c382463,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,12,30,jsdoc,25,"/**
  * A moldura de UMA página de canal dentro do bot — o template 79961 de
  * `portal.js` (WhatsApp) e o 230473 (Instagram), que são o mesmo desenho
@@ -5826,10 +5832,19 @@ gestao-vite-comment-4c382463,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * (`whatsapp.documentationLink`). A Pipe não tem esse endereço; o texto e o
  * ícone ficam, sem destino (`aria-disabled`) — inventar uma URL não é
  * reproduzir a tela.
- */",,,,,,
-gestao-vite-comment-a1c1cb2f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,34,34,jsdoc,2,/** Vazio é a aba-índice (a URL da própria página). */,,,,,,
-gestao-vite-comment-4bfffbe2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,36,36,jsdoc,2,/** Só aparece com o canal conectado — o `ng-show` das abas da origem. */,,,,,,
-gestao-vite-comment-a217c12e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,57,57,jsdoc,3,/** A URL desta página; o que vier depois dela é a aba. */,,,,,,
+ */",translate,"The frame for ONE channel page inside the bot — templates 79961 (WhatsApp) and 230473 (Instagram) of `portal.js`, which share the same layout (`FICHA-conectar-canal-no-bot.md` §1.2–1.4):
+
+  <page-header back-button=""…channels"" page-title=""{canal}"">
+  <bds-paper> <bds-grid direction=""column"" padding=""2"">
+    <bds-grid direction=""row""> <bds-tabs …/> <""Documentação"" + external-file/> </bds-grid>
+    <bds-tab-panel class=""mt4 w-100""> … </bds-tab-panel>
+
+The back arrow returns to the bot's channel list. Tabs are links (each has a URL, the way the source's `bds-tab group` has state); `emBreve` draws the tab without a link, with the badge, for the one Pipe doesn't have internally yet.
+
+""Documentação"" in the source opens Blip's help center (`whatsapp.documentationLink`). Pipe has no such address; the text and icon stay, without a destination (`aria-disabled`) — inventing a URL isn't reproducing the screen.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx:12-30,,proposed
+gestao-vite-comment-a1c1cb2f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,34,34,jsdoc,2,/** Vazio é a aba-índice (a URL da própria página). */,translate,Empty is the index tab (the page's own URL).,other,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx:34-34,,proposed
+gestao-vite-comment-4bfffbe2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,36,36,jsdoc,2,/** Só aparece com o canal conectado — o `ng-show` das abas da origem. */,translate,Only appears with the channel connected — the source tabs' `ng-show`.,other,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx:36-36,,proposed
+gestao-vite-comment-a217c12e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx,57,57,jsdoc,3,/** A URL desta página; o que vier depois dela é a aba. */,translate,This page's URL; whatever comes after it is the tab.,other,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx:57-57,,proposed
 gestao-vite-comment-b0b9556a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,14,33,jsdoc,19,"/**
  * As peças de conexão/desconexão que as três páginas de canal dividem.
  *
@@ -5849,14 +5864,18 @@ gestao-vite-comment-b0b9556a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * concordância, ""Voltar"" / ""Desconectar {canal}"". O WhatsApp atual da origem
  * não tem esse modal (FICHA §4.5); os textos usados são os de
  * `whatsapp.overview.deprecated.modal.disconnect`, os únicos que existem.
- */",,,,,,
+ */",translate,"The connect/disconnect pieces the three channel pages share.
+
+`EscolherCanalExistente` is the source's ""Ativação do número"" step (`WhatsAppSelectedNumber.html`: title, ""Escolha qual dos números válidos…"", the ""Escolher número"" select, ""Ativar número""), used here for something the source doesn't need: on Blip the number is born on the bot; on Pipe the channel is its own row (`canal`) and can exist without a bot — created by the old Attendance screen, or detached from a bot. Pipe decision, recorded in FICHA §5. The ""one bot per number"" rule shows up in the select itself: a number already tied to another bot appears disabled, naming which one — the source says to ""remover do anterior"" (remove from the previous one); the screen points to where.
+
+`ModalDesconectar` is the source's Instagram/Messenger modal (`class H`, portal.js 120544; text in `instagram.modals.disconnect` / `messenger.modals.disconnect`): description, mandatory reason, agreement checkbox, ""Voltar"" / ""Desconectar {canal}"". The source's current WhatsApp has no such modal (FICHA §4.5); the text used comes from `whatsapp.overview.deprecated.modal.disconnect`, the only one that exists.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:14-33,,proposed
 gestao-vite-comment-802e52b1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,252,256,jsdoc,11,"/**
  * Decisão Pipe (FICHA §5): `fluxo.canal_id` é uma coluna só, então o bot que
  * já está com um canal de outro tipo não conecta este sem desligar aquele. A
  * origem não tem esta situação — lá um bot tem vários canais.
- */",,,,,,
-gestao-vite-comment-50fa7a56,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,51,51,block,3,"/* Sem prova na origem para os dois abaixo — a mesma etapa, trocando o substantivo. */",,,,,,
-gestao-vite-comment-d2d74d3c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,77,77,jsdoc,1,"/** ""Volte e cadastre agora."" — leva de volta à etapa de conexão. */",,,,,,
+ */",translate,"Pipe decision (FICHA §5): `fluxo.canal_id` is a single column, so a bot already holding a channel of another type can't connect this one without disconnecting that one first. The source doesn't have this situation — there, one bot can have several channels.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:252-256,,proposed
+gestao-vite-comment-50fa7a56,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,51,51,block,3,"/* Sem prova na origem para os dois abaixo — a mesma etapa, trocando o substantivo. */",translate,"No evidence in the source for the two below — the same step, swapping the noun.",other,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:51-51,,proposed
+gestao-vite-comment-d2d74d3c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx,77,77,jsdoc,1,"/** ""Volte e cadastre agora."" — leva de volta à etapa de conexão. */",translate,"""Volte e cadastre agora."" — takes you back to the connection step.",other,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:77-77,,proposed
 gestao-vite-comment-1a368df6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/instagram/pagina.tsx,13,29,jsdoc,19,"/**
  * O Instagram por dentro do BOT — `…channels/instagram` (template 230473,
  * `FICHA-conectar-canal-no-bot.md` §1.4 e §3.3): título ""Instagram"", abas
@@ -5873,7 +5892,11 @@ gestao-vite-comment-1a368df6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * Conectada (`InstagramOverviewConnectedView.html`): ""Seu chatbot está
  * conectado à conta:"", o chip `@usuário`, a descrição e ""Desconectar canal""
  * (`variant=""delete""`, à direita) com o modal de motivo + concordância.
- */",,,,,,
+ */",translate,"Instagram inside the BOT — `…channels/instagram` (template 230473, `FICHA-conectar-canal-no-bot.md` §1.4 and §3.3): title ""Instagram"", tabs ""Visão Geral"" and ""Configurações"" (the latter Pipe doesn't have internally), ""Documentação"" on the right.
+
+Disconnected Overview (`InstagramOverviewDisconnectedView.html`): the icon, the bold description, the admin-permission notice and ""Iniciar conexão"" (button with arrow, on the right). In the source it opens the Facebook login steps (`InstagramSteps.html`); Pipe only has the manual path, so the button opens the manual modal, and ""Usar uma conta já conectada"" (Pipe decision) offers the accounts the account already has.
+
+Connected (`InstagramOverviewConnectedView.html`): ""Seu chatbot está conectado à conta:"", the `@username` chip, the description and ""Desconectar canal"" (`variant=""delete""`, on the right) with the reason + agreement modal.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/instagram/pagina.tsx:13-29,,proposed
 gestao-vite-comment-313d4952,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/messenger/pagina.tsx,13,25,jsdoc,18,"/**
  * O Messenger por dentro do BOT — `…channels/messenger`. A página atual da
  * origem é um micro-front que não está no bundle capturado
@@ -5886,7 +5909,9 @@ gestao-vite-comment-313d4952,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * (chip com a Página + ""Desconectar canal""), dito como decisão Pipe. A conexão
  * é a manual (`ConectarMessengerManual`, com `fluxoId`) e, decisão Pipe, a
  * escolha de uma Página que a conta já tem.
- */",,,,,,
+ */",translate,"Messenger inside the BOT — `…channels/messenger`. The source's current page is a micro-frontend not present in the captured bundle (`FICHA-conectar-canal-no-bot.md` §1.4 and §5); what was read is the legacy `messengerDpr` (template 8080 + `MessengerOverviewTab.html`, 208152): title ""Messenger"", ""Visão Geral"" tab with the icon and text about the Facebook Page, and the disconnect modal (`messenger.modals.disconnect`).
+
+The connected state was NOT captured: here it follows the Instagram layout (chip with the Page + ""Desconectar canal""), stated as a Pipe decision. The connection is the manual one (`ConectarMessengerManual`, with `fluxoId`) and, Pipe decision, picking a Page the account already has.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/messenger/pagina.tsx:13-25,,proposed
 gestao-vite-comment-d10c3956,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/alerta.tsx,10,20,jsdoc,10,"/**
  * Configurações de alerta — `FICHA-canal-whatsapp.md` §4: o switch liga/
  * desliga na hora, como em Configurações; o campo de e-mails (texto livre,
@@ -5897,7 +5922,9 @@ gestao-vite-comment-d10c3956,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * não mostra o que ela faz nesse estado (`FICHA-conectar-canal-no-bot.md`
  * §5). Aqui, sem canal, os controles ficam desabilitados — a forma, sem
  * inventar o comportamento.
- */",,,,,,
+ */",translate,"Alert settings — `FICHA-canal-whatsapp.md` §4: the switch turns on/off immediately, like in Settings; the e-mail field (free text, ""separados por vírgula"") has its own ""Salvar"" — unlike the switch, typing and losing focus isn't the moment to save.
+
+The tab also appears WITHOUT a number (photo `08` from the channel's ficha), but the source doesn't show what it does in that state (`FICHA-conectar-canal-no-bot.md` §5). Here, without a channel, the controls come disabled — the shape, without inventing the behavior.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/alerta.tsx:10-20,,proposed
 gestao-vite-comment-17c88a9e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,11,29,jsdoc,20,"/**
  * O WhatsApp por dentro do BOT — `/application/detail/{bot}/channels/whatsapp-embedded`
  * (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): seta ""‹"" para
@@ -5916,16 +5943,20 @@ gestao-vite-comment-17c88a9e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * alerta precisam além disso — a saúde do número na Meta — continua vindo de
  * `/v1/canais/whatsapp` (que pede `canal.gerenciar`; sem ela, a Visão Geral
  * desenha com o que o bot sabe e as outras abas dizem o que houve).
- */",,,,,,
-gestao-vite-comment-49047aad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,34,34,jsdoc,2,"/** O canal como `/v1/canais/whatsapp` o vê (estado na Meta, qualidade…); nulo se a leitura não veio. */",,,,,,
-gestao-vite-comment-564cb4c9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,50,50,jsdoc,5,/** O que a Visão Geral recebe quando NÃO há canal: a tela decide o passo. */,,,,,,
-gestao-vite-comment-fcfd5e05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,62,62,block,3,/* A saúde só interessa conectado; 403 (sem `canal.gerenciar`) não é falha da página. */,,,,,,
+ */",translate,"WhatsApp inside the BOT — `/application/detail/{bot}/channels/whatsapp-embedded` (`FICHA-conectar-canal-no-bot.md` §1.2–1.3, template 79961): ""‹"" back arrow to the channel list, title ""WhatsApp"", and the tabs Visão Geral | Perfil da empresa | Configurações | Configurações de alerta | Ambiente de testes, with ""Documentação"" on the right.
+
+The two middle tabs only exist with the number connected (`ng-show=""currentActivationStep === VERIFIED""`) — photo `08` from the channel's ficha. ""Ambiente de testes"" Pipe doesn't have internally yet.
+
+These tabs used to live under `cadastros/canal-whatsapp/**`, in the Attendance module, with the channel chosen by the URL (`/canais/whatsapp/:canalId`). In the source the channel belongs TO THE BOT: there's one page per bot, and the channel comes from `GET /v1/gestao/fluxos/:id/canal`. What the profile, settings and alert tabs need beyond that — the number's health on Meta — still comes from `/v1/canais/whatsapp` (which requires `canal.gerenciar`; without it, Visão Geral draws with what the bot knows and the other tabs say what happened).",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:11-29,,proposed
+gestao-vite-comment-49047aad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,34,34,jsdoc,2,"/** O canal como `/v1/canais/whatsapp` o vê (estado na Meta, qualidade…); nulo se a leitura não veio. */",translate,"The channel as `/v1/canais/whatsapp` sees it (state on Meta, quality…); null if the read hasn't come back.",integration,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:34-34,,proposed
+gestao-vite-comment-564cb4c9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,50,50,jsdoc,5,/** O que a Visão Geral recebe quando NÃO há canal: a tela decide o passo. */,translate,What Visão Geral receives when there's NO channel: the screen decides the step.,other,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:50-50,,proposed
+gestao-vite-comment-fcfd5e05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,62,62,block,3,/* A saúde só interessa conectado; 403 (sem `canal.gerenciar`) não é falha da página. */,translate,Health only matters when connected; 403 (without `canal.gerenciar`) isn't a page failure.,security,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:62-62,,proposed
 gestao-vite-comment-312020d6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/configuracoes.tsx,9,14,jsdoc,4,"/**
  * Configurações — `FICHA-canal-whatsapp.md` §3: Quick reply e Menu, cada um
  * um `bds-switch` que ""parece persistir a alteração diretamente"" — sem botão
  * de salvar, o toggle já grava (`gravarPreferenciasWhatsapp`). O canal é o do
  * bot (`useCanalWhatsapp`).
- */",,,,,,
+ */",translate,"Settings — `FICHA-canal-whatsapp.md` §3: Quick reply and Menu, each a `bds-switch` that ""seems to persist the change directly"" — with no save button, the toggle already writes (`gravarPreferenciasWhatsapp`). The channel is the bot's (`useCanalWhatsapp`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/configuracoes.tsx:9-14,,proposed
 gestao-vite-comment-938f83fc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,253,261,jsdoc,9,"/**
  * Perfil da empresa — `FICHA-canal-whatsapp.md` §2. A tabela de campos ali
  * (endereço/e-mail) veio com os VALORES trocados na captura — bug de UI da
@@ -5934,10 +5965,12 @@ gestao-vite-comment-938f83fc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  *
  * O canal é o DO BOT (`useCanalWhatsapp`); a leitura do perfil pede
  * `canal.gerenciar` na `api` — sem ela, a `api` responde 403 e a aba diz isso.
- */",,,,,,
-gestao-vite-comment-1299ace2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,32,32,jsdoc,4,/** Acordeão 1: só leitura — a Blip exige aprovação da Meta para trocar; nós ainda não mandamos essa troca. */,,,,,,
-gestao-vite-comment-7bf4223e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,60,60,jsdoc,5,"/** Acordeão 2: recurso que a Blip tem e a Cloud API que consumimos hoje não expõe — desabilitado, ""em breve"". */",,,,,,
-gestao-vite-comment-f54a2d82,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,8,8,jsdoc,3,/** `data:image/…` — mesmo formato que a foto do fluxo usa para atravessar o JSON. */,,,,,,
+ */",translate,"Company profile — `FICHA-canal-whatsapp.md` §2. The field table there (address/e-mail) came with SWAPPED VALUES in the capture — a Blip UI bug, recorded and not copied (§2, ""Relevant finding""): here Endereço comercial writes to `endereco`, E-mail de contato writes to `email`, without the swap.
+
+The channel is the BOT's (`useCanalWhatsapp`); reading the profile requires `canal.gerenciar` in the `api` — without it, the `api` returns 403 and the tab says so.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx:253-261,,proposed
+gestao-vite-comment-1299ace2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,32,32,jsdoc,4,/** Acordeão 1: só leitura — a Blip exige aprovação da Meta para trocar; nós ainda não mandamos essa troca. */,translate,Accordion 1: read-only — Blip requires Meta approval to change it; we don't yet submit that change.,meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx:32-32,,proposed
+gestao-vite-comment-7bf4223e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,60,60,jsdoc,5,"/** Acordeão 2: recurso que a Blip tem e a Cloud API que consumimos hoje não expõe — desabilitado, ""em breve"". */",translate,"Accordion 2: a feature Blip has that the Cloud API we consume today doesn't expose — disabled, ""em breve"" (coming soon).",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx:60-60,,proposed
+gestao-vite-comment-f54a2d82,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,8,8,jsdoc,3,/** `data:image/…` — mesmo formato que a foto do fluxo usa para atravessar o JSON. */,translate,`data:image/…` — the same format the flow's photo uses to cross the JSON.,other,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx:8-8,,proposed
 gestao-vite-comment-eb0d678e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx,12,43,jsdoc,26,"/**
  * Visão Geral do WhatsApp — o `bds-tab-panel group=""content-tab-0""` do
  * template 79961, que troca o parcial pelo passo de ativação
@@ -5969,10 +6002,21 @@ gestao-vite-comment-eb0d678e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cana
  * canal"" no estado conectado — o WhatsApp atual da origem não tem esse botão
  * (FICHA §4.5), mas sem ele não há como ""remover do anterior"" para trocar de
  * bot. Só desliga DO BOT: o número continua conectado à Meta.
- */",,,,,,
+ */",translate,"WhatsApp Overview — the `bds-tab-panel group=""content-tab-0""` of template 79961, which swaps the partial for the activation step (`FICHA-conectar-canal-no-bot.md` §2):
+
+- `VERIFIED` → `WhatsAppVerified.html` (photo `01`): ""Seu chatbot está conectado ao número:"", the green chip, the two paragraphs and ""Testar no WhatsApp"";
+- `LOGIN` → `WhatsAppStart.html`: the icon, `welcome.instructions` and ""Vamos lá!"" (button with arrow, on the right);
+- `FACEBOOK_CONNECTION` → `WhatsAppFacebookConnectionStep.html`: ""Conecte o Pipe ao Facebook"" (the brand is the only thing that's ours), the two paragraphs, ""Voltar"" and ""Conectar-se ao Facebook"" (Meta's embedded signup, which only works with an approved app — `cadastro-embutido-whatsapp.tsx`);
+- `SELECT_PHONE` → `WhatsAppSelectedNumber.html`, used here to pick a number the account already has (`EscolherCanalExistente`, Pipe decision).
+
+The `AWAIT_CONTAINER`, `ASK_PIN`, `PHONE_NOT_FOUND` steps and the two commercial-block steps don't exist on Pipe: the customer owns their WABA and the number doesn't go through a container or a balance check (FICHA §4.6).
+
+""Reconectar número"" is our door for the expired token: in the source the token belongs to the platform and reconnecting redoes the embedded signup on the SAME channel; here the token belongs to the customer and expires, and without this door, swapping it became a dead end — disconnecting and re-registering runs into the same number.
+
+Pipe additions, stated as such: ""Conectar manualmente"" next to the Facebook button (the path for whoever doesn't have an app approved on Meta) and ""Desconectar canal"" in the connected state — the source's current WhatsApp has no such button (FICHA §4.5), but without it there's no way to ""remove from the previous one"" to switch bots. It only disconnects FROM THE BOT: the number stays connected to Meta.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx:12-43,,proposed
 gestao-vite-comment-1630f7c3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx,209,210,block,4,"/* Acréscimos Pipe: sem aplicativo aprovado na Meta, o caminho é o manual; e o
-            número que a conta já tem pode ser escolhido em vez de cadastrado de novo. */",,,,,,
-gestao-vite-comment-751fde30,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx,227,227,jsdoc,0,"/** O `icon-left=""facebook"" type-icon=""logo""` do botão da origem. */",,,,,,
+            número que a conta já tem pode ser escolhido em vez de cadastrado de novo. */",translate,"Pipe additions: without an app approved on Meta, the path is the manual one; and a number the account already has can be chosen instead of registered again.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx:209-210,,proposed
+gestao-vite-comment-751fde30,gestao-vite,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx,227,227,jsdoc,0,"/** O `icon-left=""facebook"" type-icon=""logo""` do botão da origem. */",translate,"The source button's `icon-left=""facebook"" type-icon=""logo""`.",other,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx:227-227,,proposed
 gestao-vite-comment-3d0060eb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,112,120,jsdoc,10,"/**
  * A fileira de logos, na ordem do template. `blip-chat` e `email` NÃO têm
  * `ng-if` — aparecem sempre; os outros dependem de
@@ -5981,15 +6025,17 @@ gestao-vite-comment-3d0060eb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cart
  *
  * `logo: null` é a vaga do `blip-chat`, que é a marca da Blip e não entra: no
  * lugar vai o símbolo do Pipe, que é a marca do nosso widget de site.
- */",,,,,,
-gestao-vite-comment-1c10847b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,128,128,jsdoc,1,"/** `ng-if=""!showAiCard""` — sem o cartão de IA (flag desligada), é este. */",,,,,,
-gestao-vite-comment-082109e1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,146,146,block,0,"/* Cada vaga é um `bds-icon type=""logo"" size=""large""` (28px). */",,,,,,
+ */",translate,"The channel-logo row, in template order. `blip-chat` and `email` do NOT have `ng-if` — they always show; the others depend on `ChannelsService.activationStatuses`. Messenger, Telegram, Workplace, Apple and Google stay out because Pipe doesn't have those channel types: they could never be active.
+
+`logo: null` is `blip-chat`'s slot, which is Blip's brand and doesn't belong here: in its place goes the Pipe symbol, our site widget's brand.",meta-blip,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:112-120,,proposed
+gestao-vite-comment-1c10847b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,128,128,jsdoc,1,"/** `ng-if=""!showAiCard""` — sem o cartão de IA (flag desligada), é este. */",translate,"`ng-if=""!showAiCard""` — without the AI card (flag off), this is it.",other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:128-128,,proposed
+gestao-vite-comment-082109e1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,146,146,block,0,"/* Cada vaga é um `bds-icon type=""logo"" size=""large""` (28px). */",translate,"Each slot is a `bds-icon type=""logo"" size=""large""` (28px).",other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:146-146,,proposed
 gestao-vite-comment-a6ad0b67,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,17,22,jsdoc,4,"/**
  * `<bds-button size=""short"" variant=""tertiary"">`, ou o bloco apagado com o selo
  * ""em breve"" quando o destino ainda não existe aqui. `alto` é o
  * `size=""standard""` (40px) do botão da loja, e `seta` é o `arrow` do
  * `bds-button`: um `arrow-right` outline depois do rótulo.
- */",,,,,,
+ */",translate,"`<bds-button size=""short"" variant=""tertiary"">`, or the greyed-out block with the ""em breve"" badge when the destination doesn't exist here yet. `alto` is the store button's `size=""standard""` (40px), and `seta` is the `bds-button`'s `arrow`: an outline `arrow-right` after the label.",other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:17-22,,proposed
 gestao-vite-comment-a2673319,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,175,182,jsdoc,11,"/**
  * Dois estados, pelo `teamMembers.length`: mais de um vira a `avatar-array
  * limit=""8""`; um ou nenhum vira a frase de convite.
@@ -5997,35 +6043,37 @@ gestao-vite-comment-a2673319,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cart
  * ""Adicionar equipe"" leva a `auth.application.detail.team`, a equipe DO
  * CONTATO. O RBAC daqui é por conta — falta a tabela que liga pessoa a contato,
  * e até lá a página passa a lista vazia e o botão fica em obra.
- */",,,,,,
-gestao-vite-comment-2a3f1be5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,222,222,block,0,/* ------------------------------------------------------------- preferências */,,,,,,
+ */",translate,"Two states, based on `teamMembers.length`: more than one becomes the `avatar-array limit=""8""`; one or none becomes the invite phrase.
+
+""Adicionar equipe"" leads to `auth.application.detail.team`, the CONTACT's team. RBAC here is per-account — the table linking a person to a contact is missing, and until then the page passes an empty list and the button stays under construction.",security,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:175-182,,proposed
+gestao-vite-comment-2a3f1be5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,222,222,block,0,/* ------------------------------------------------------------- preferências */,translate,/* ------------------------------------------------------------- preferences */,other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:222-222,,proposed
 gestao-vite-comment-2b641bec,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,224,230,jsdoc,9,"/**
  * Cultura e Fuso horário são `bds-autocomplete` com `ng-disabled=""!hasEditPermission""`,
  * e Plano é `bds-input disabled=""true""` com o valor no `placeholder`. Aqui não há
  * permissão de edição — cultura e fuso são da conta e se editam em Minha conta —,
  * então os três chegam desabilitados e o ""Aplicar alterações"" (que só existe com
  * `hasEditPermission`) não entra.
- */",,,,,,
-gestao-vite-comment-b7db5df2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,255,255,block,0,/* ---------------------------------------------------------------- métricas */,,,,,,
+ */",translate,"Cultura and Fuso horário are `bds-autocomplete` with `ng-disabled=""!hasEditPermission""`, and Plano is `bds-input disabled=""true""` with the value in the `placeholder`. Here there's no edit permission — culture and timezone belong to the account and are edited in Minha conta —, so all three arrive disabled and ""Aplicar alterações"" (which only exists with `hasEditPermission`) doesn't show up.",security,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:224-230,,proposed
+gestao-vite-comment-b7db5df2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,255,255,block,0,/* ---------------------------------------------------------------- métricas */,translate,/* ---------------------------------------------------------------- metrics */,other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:255-255,,proposed
 gestao-vite-comment-156c93ca,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,257,262,jsdoc,8,"/**
  * `ng-if=""nUsers != 0 && !isHidingHomeMetrics""`. `null` é o nosso
  * `isHidingHomeMetrics`: não há fonte de contagem por contato — e na captura a
  * flag `is-hiding-home-metrics` está LIGADA, então a origem também não desenha
  * este cartão para o roteador.
- */",,,,,,
-gestao-vite-comment-beda947c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,268,268,block,2,/* `team` é o mesmo desenho que o portal já usa como `comunidade`. */,,,,,,
+ */",translate,"`ng-if=""nUsers != 0 && !isHidingHomeMetrics""`. `null` is our `isHidingHomeMetrics`: there's no per-contact count source — and in the capture the `is-hiding-home-metrics` flag is ON, so the source doesn't draw this card for the router either.",other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:257-262,,proposed
+gestao-vite-comment-beda947c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,268,268,block,2,/* `team` é o mesmo desenho que o portal já usa como `comunidade`. */,translate,`team` is the same design the portal already uses as `comunidade`.,other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:268-268,,proposed
 gestao-vite-comment-20c0a4c6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,295,299,jsdoc,9,"/**
  * Uma coluna: ícone `size=""brand""`, rótulo com a dica `info` (tema solid), o
  * número em `fs-32` e o ""Ver mais"", que só aparece no hover. O de Usuários vai à
  * tela de contatos, que não existe aqui; os de mensagens vão à análise.
- */",,,,,,
-gestao-vite-comment-c3176212,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,56,56,block,0,/* --------------------------------------------------------------- extensões */,,,,,,
+ */",translate,"One column: `size=""brand""` icon, label with the `info` tooltip (solid theme), the number in `fs-32` and ""Ver mais"", which only shows on hover. The Users one goes to the contacts screen, which doesn't exist here; the message ones go to analytics.",other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:295-299,,proposed
+gestao-vite-comment-c3176212,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,56,56,block,0,/* --------------------------------------------------------------- extensões */,translate,/* --------------------------------------------------------------- extensions */,other,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:56-56,,proposed
 gestao-vite-comment-6232055a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,58,63,jsdoc,10,"/**
  * `ng-if=""isBlipStoreHomeBotPluginsRecommendationServicePageEnabled &&
  * extensions.length > 0 && !showAiCard""`. Na captura a flag está ligada e a loja
  * devolveu duas extensões — a origem desenha esta coluna para o roteador. Aqui
  * não há loja: a lista chega vazia e a coluna some, como lá sem recomendação.
- */",,,,,,
+ */",translate,"`ng-if=""isBlipStoreHomeBotPluginsRecommendationServicePageEnabled && extensions.length > 0 && !showAiCard""`. In the capture the flag is on and the store returned two extensions — the source draws this column for the router. Here there's no store: the list arrives empty and the column disappears, same as there with no recommendation.",meta-blip,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:58-63,,proposed
 gestao-vite-comment-a13d98e0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,7,15,jsdoc,11,"/**
  * Os cartões da home do contato — as áreas de `.chatbot-home-content`
  * (template `application.home`, módulo 77021 de `portal.js`).
@@ -6034,9 +6082,11 @@ gestao-vite-comment-a13d98e0,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cart
  * origem para decidir o que aparece. A página passa o que o Pipe tem hoje;
  * quando não tem, passa vazio, e é a regra da origem que esconde ou troca o
  * estado — não uma decisão nossa.
- */",,,,,,
+ */",translate,"The contact home's cards — the `.chatbot-home-content` areas (template `application.home`, module 77021 of `portal.js`).
+
+Each card receives its data via prop and applies the SAME condition as the source template to decide what shows. The page passes what Pipe has today; when it doesn't have it, it passes empty, and it's the source's rule that hides or swaps the state — not a decision of ours.",meta-blip,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:7-15,,proposed
 gestao-vite-comment-57bd6816,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx,76,77,block,5,"/* ""Ir para Blip Store"" com o nome da nossa loja, que na barra do
-                topo também está em obra. */",,,,,,
+                topo também está em obra. */",translate,"""Ir para Blip Store"" with our store's name, which is also under construction in the top bar.",meta-blip,apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:76-77,,proposed
 gestao-vite-comment-2220dd9c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/api.tsx,4,12,jsdoc,1,"/**
  * `/configurations/apikey` — estado `auth.application.detail.configurations.apikey`
  * (portal.js, template do módulo 83981, controlador `iP`). O título e a frase
@@ -6045,15 +6095,17 @@ gestao-vite-comment-2220dd9c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * Leitura e escrita reais via `GET/PUT /v1/gestao/fluxos/:id/conexao`
  * (`dominio/gestao/integracoes.ts`): identificador, endpoint, prefixo da
  * chave ativa e as duas URLs do formulário HTTP.
- */",,,,,,
+ */",translate,"`/configurations/apikey` — state `auth.application.detail.configurations.apikey` (portal.js, module 83981 template, `iP` controller). The title and text come from `modules.application.detail.templates.api.pageTitle/pageDescription`.
+
+Real read and write via `GET/PUT /v1/gestao/fluxos/:id/conexao` (`dominio/gestao/integracoes.ts`): identifier, endpoint, active key prefix and the two HTTP form URLs.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/api.tsx:4-12,,proposed
 gestao-vite-comment-4364994e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/gravar.ts,5,10,jsdoc,2,"/**
  * `GET/PUT /v1/gestao/fluxos/:id/conexao` — a leitura e a única escrita real
  * de ""Informações de conexão"" (`dominio/gestao/integracoes.ts`): as URLs do
  * cartão ""Conectar usando HTTP"" viram `webhook_saida`, um por conjunto de
  * eventos.
- */",,,,,,
+ */",translate,"`GET/PUT /v1/gestao/fluxos/:id/conexao` — the read and the only real write of ""Informações de conexão"" (`dominio/gestao/integracoes.ts`): the ""Conectar usando HTTP"" card URLs become `webhook_saida`, one per event set.",integration,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/gravar.ts:5-10,,proposed
 gestao-vite-comment-b19e062c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx,46,47,block,10,"/* Preenche com o que veio do banco — só enquanto a pessoa não mexeu, para
-     não sobrescrever o que ela está digitando quando a leitura revalida. */",,,,,,
+     não sobrescrever o que ela está digitando quando a leitura revalida. */",translate,"Fills with what came from the database — only while the person hasn't touched it, so as not to overwrite what they're typing when the read revalidates.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx:46-47,,proposed
 gestao-vite-comment-d5374822,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx,6,30,jsdoc,11,"/**
  * O miolo de `/configurations/apikey`, cartão por cartão como no template
  * (portal.js, módulo 83981):
@@ -6078,7 +6130,16 @@ gestao-vite-comment-d5374822,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * servidor de SDK e rotas de envio que o Pipe não tem — ficam vazios, como
  * antes. OAuth 2.0 do cartão HTTP também: campo visual, sem gravação (a
  * origem também não resolve `isCheckedOAuth` no mock).
- */",,,,,,
+ */",translate,"The guts of `/configurations/apikey`, card by card as in the template (portal.js, module 83981):
+
+  bds-paper.ph5.pv4.mb3  usingBuilder  (h1 + p + switch)
+  bds-paper.ph5.pv4.mb3  usingSdk      (h1 + small + p + switch; wsEndpoint/tcpEndpoint fields | identifier in input-clipboard)
+  bds-paper.ph5.pv4.mb3  usingHttp     (h1 + small + p + switch; form#httpForm with urlReceiveMessages/urlReceiveNotifications, OAuth 2.0 bds-paper and the ""Salvar"")
+  bds-paper.ph5.pv4.mb3  httpEndpoints (sendMessagesUrl/sendNotificationsUrl | sendCommandsUrl)
+
+What became REAL (`GET/PUT /v1/gestao/fluxos/:id/conexao`, `dominio/gestao/integracoes.ts`): the identifier (always was), the `api`'s endpoint, the flow's active key prefix (never the secret — the ""Chaves de acesso"" screen is what issues it) and the two HTTP form URLs, which become `webhook_saida`.
+
+ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) and the ""Endpoints HTTP"" below (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) would require an SDK server and send routes that Pipe doesn't have — they stay empty, as before. Same for the HTTP card's OAuth 2.0: a visual field, no write (the source doesn't resolve `isCheckedOAuth` in the mock either).",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx:6-30,,proposed
 gestao-vite-comment-38e140f9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.tsx,5,16,jsdoc,10,"/**
  * `/configurations/basic` — estado `auth.application.detail.configurations.basic`
  * (título real ""Editar Fluxo"", confirmado na cópia rodável, `docs/capturas/regua.md`:
@@ -6090,30 +6151,32 @@ gestao-vite-comment-38e140f9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * que a barra do contato já lê). `podeExcluir` é o `canDeleteBot` deles: a
  * permissão `automacao.fluxo.excluir`, que só o admin tem — a `api` confere de
  * novo no `DELETE`, porque botão desligado não é porta trancada.
- */",,,,,,
-gestao-vite-comment-dc8358c7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,25,25,jsdoc,2,/** `File` novo troca a foto; `null` tira; `undefined` deixa como está. */,,,,,,
+ */",translate,"`/configurations/basic` — state `auth.application.detail.configurations.basic` (real title ""Editar Fluxo"", confirmed in the runnable copy, `docs/capturas/regua.md`: `/application/detail/pipeprincipal/configurations/basic`). It's the FIRST tab of the Settings sidebar (`../navegacao.tsx`), and until now was the only item without a `rota` (`rota: null`) — this file closes that gap.
+
+Name, description and image come from `useContato` (the same `GET /v1/gestao/fluxos/:id` the contact bar already reads). `podeExcluir` is their `canDeleteBot`: the `automacao.fluxo.excluir` permission, which only admins have — the `api` checks it again on `DELETE`, because a disabled button isn't a locked door.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.tsx:5-16,,proposed
+gestao-vite-comment-dc8358c7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,25,25,jsdoc,2,/** `File` novo troca a foto; `null` tira; `undefined` deixa como está. */,translate,A new `File` replaces the photo; `null` removes it; `undefined` leaves it as is.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:25-25,,proposed
 gestao-vite-comment-3adaa638,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,5,11,jsdoc,6,"/**
  * As duas escritas de ""Editar Fluxo"": `PATCH /v1/gestao/fluxos/:id` (o
  * ""Salvar"") e `DELETE /v1/gestao/fluxos/:id` (o ""Excluir fluxo""). A regra
  * mora na `api` (`dominio/gestao/ciclo-de-vida-do-fluxo.ts`); aqui a foto vira
  * `data:` para atravessar o JSON, como em `criar/gravar.ts`, e a recusa vira
  * texto para a tela.
- */",,,,,,
-gestao-vite-comment-df90f87e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,50,50,block,4,"/* `onAdvancedConfigurationError` deles, para quando a `api` não disse o motivo. */",,,,,,
-gestao-vite-comment-0a11eef9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,66,66,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */",,,,,,
-gestao-vite-comment-8b97204a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,76,76,jsdoc,3,"/** O arquivo em `data:`. `null` quando não é arquivo, está vazio ou passou do teto. */",,,,,,
-gestao-vite-comment-646b17be,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,105,105,jsdoc,0,"/** `ng-minlength=""2""` / `ng-maxlength=""30""` do nome; `2` / `160` da descrição. */",,,,,,
-gestao-vite-comment-df9e08dd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,131,131,jsdoc,0,/** `canDeleteBot` deles: só quem tem `automacao.fluxo.excluir`. */,,,,,,
+ */",translate,"The two writes for ""Editar Fluxo"": `PATCH /v1/gestao/fluxos/:id` (""Salvar"") and `DELETE /v1/gestao/fluxos/:id` (""Excluir fluxo""). The rule lives in the `api` (`dominio/gestao/ciclo-de-vida-do-fluxo.ts`); here the photo becomes `data:` to cross the JSON, as in `criar/gravar.ts`, and the rejection becomes text for the screen.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:5-11,,proposed
+gestao-vite-comment-df90f87e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,50,50,block,4,"/* `onAdvancedConfigurationError` deles, para quando a `api` não disse o motivo. */",translate,"Their `onAdvancedConfigurationError`, for when the `api` didn't say why.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:50-50,,proposed
+gestao-vite-comment-0a11eef9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,66,66,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */",translate,"The `erro.mensagem` the `api` puts in the body (`ErroPipe`), or the default text.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:66-66,,proposed
+gestao-vite-comment-8b97204a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,76,76,jsdoc,3,"/** O arquivo em `data:`. `null` quando não é arquivo, está vazio ou passou do teto. */",translate,"The file as `data:`. `null` when it isn't a file, is empty, or exceeds the cap.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:76-76,,proposed
+gestao-vite-comment-646b17be,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,105,105,jsdoc,0,"/** `ng-minlength=""2""` / `ng-maxlength=""30""` do nome; `2` / `160` da descrição. */",translate,"The name's `ng-minlength=""2""` / `ng-maxlength=""30""`; `2` / `160` for the description.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:105-105,,proposed
+gestao-vite-comment-df9e08dd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,131,131,jsdoc,0,/** `canDeleteBot` deles: só quem tem `automacao.fluxo.excluir`. */,translate,Their `canDeleteBot`: only whoever has `automacao.fluxo.excluir`.,security,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:131-131,,proposed
 gestao-vite-comment-ebd472f2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,136,137,block,6,"/* O que a prévia mostra (a URL gravada ou a do arquivo escolhido) e o
-     arquivo em si — `undefined` é ""a foto não foi mexida"". */",,,,,,
-gestao-vite-comment-96301773,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,148,148,block,4,/* A URL de objeto da prévia é liberada quando troca ou quando a tela sai. */,,,,,,
+     arquivo em si — `undefined` é ""a foto não foi mexida"". */",translate,"What the preview shows (the saved URL or the chosen file's) and the file itself — `undefined` means ""the photo hasn't been touched"".",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:136-137,,proposed
+gestao-vite-comment-96301773,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,148,148,block,4,/* A URL de objeto da prévia é liberada quando troca ou quando a tela sai. */,translate,The preview's object URL is released when it changes or when the screen unmounts.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:148-148,,proposed
 gestao-vite-comment-fbad52fa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,177,178,block,6,"/* O que voltou é o que ficou gravado: o nome saneado pela `api`, a foto
-       como `data:`. A partir daqui é o novo ""sem mudança"". */",,,,,,
-gestao-vite-comment-3f591075,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,196,196,block,2,"/* Lá, depois de excluir, `$state.go` para a lista de chatbots. Aqui, o portal. */",,,,,,
+       como `data:`. A partir daqui é o novo ""sem mudança"". */",translate,"What came back is what got saved: the name sanitized by the `api`, the photo as `data:`. From here on, this is the new ""no change"" baseline.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:177-178,,proposed
+gestao-vite-comment-3f591075,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,196,196,block,2,"/* Lá, depois de excluir, `$state.go` para a lista de chatbots. Aqui, o portal. */",translate,"There, after deleting, `$state.go` goes to the chatbot list. Here, the portal.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:196-196,,proposed
 gestao-vite-comment-052d2c4e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,245,246,block,3,"/* Tirar a foto gravada é `imagem: null`; desfazer a
-                         escolha de um arquivo novo é só voltar ao que estava. */",,,,,,
-gestao-vite-comment-3d7976df,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,311,311,block,0,/* `deleteChatbotPermissionDenied` no título do botão desligado. */,,,,,,
-gestao-vite-comment-f4a66ade,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,363,363,block,3,/* `deleteChatBotModalToolTip` enquanto a caixa não está marcada. */,,,,,,
+                         escolha de um arquivo novo é só voltar ao que estava. */",translate,Removing the saved photo is `imagem: null`; undoing the choice of a new file is just going back to what it was.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:245-246,,proposed
+gestao-vite-comment-3d7976df,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,311,311,block,0,/* `deleteChatbotPermissionDenied` no título do botão desligado. */,translate,Their `deleteChatbotPermissionDenied` in the disabled button's title.,security,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:311-311,,proposed
+gestao-vite-comment-f4a66ade,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,363,363,block,3,/* `deleteChatBotModalToolTip` enquanto a caixa não está marcada. */,translate,Their `deleteChatBotModalToolTip` while the checkbox isn't checked.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:363-363,,proposed
 gestao-vite-comment-d6fd2069,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx,8,46,jsdoc,41,"/**
  * `/configurations/basic` (""Editar Fluxo""), medida na cópia rodável
  * (`docs/capturas/regua.md`, `/application/detail/pipeprincipal/configurations/basic`,
@@ -6152,11 +6215,24 @@ gestao-vite-comment-d6fd2069,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * (`deleteChatbot: ""Excluir fluxo""`). O corpo deles diz ""de forma
  * permanente""; aqui a exclusão arquiva (ver `ciclo-de-vida-do-fluxo.ts` na
  * `api`), e a frase não promete o que não faz.
- */",,,,,,
+ */",translate,"`/configurations/basic` (""Editar Fluxo""), measured in the runnable copy (`docs/capturas/regua.md`, `/application/detail/pipeprincipal/configurations/basic`, DOM read with Playwright — `referencias-blip/portal/configurations-basic` only has the SPA shell, with no rendered content, so it wasn't a usable source):
+
+  h1 ""Editar Fluxo"" (no subtitle — the source doesn't have one here either)
+  ── divider (CabecalhoDaPagina already draws it) ──
+  h2 ""Informações básicas""
+  ""Nome do fluxo"" field — required, 2-30 characters, counter (what's MISSING: `30 - valor.length`, not what's already typed)
+  ""Descrição"" field — optional, 2-160 when filled, same counter
+  ""Imagem do avatar (Opcional)"" field — drag/click area with preview and remove button
+  ""Salvar"" (top right) — `ng-disabled=""$ctrl.applicationForm.$invalid || $ctrl.channelForm.$pristine""`: disabled while nothing changed or while the form is invalid
+  ""Clique aqui para acessar as configurações avançadas"" + ""Excluir fluxo"" (same line, opposite ends) — the button is `ng-disabled=""!$ctrl.canDeleteBot""`
+
+""Nome do fluxo"" and ""Descrição"" do NOT use `<CampoBds>` (the bordered box from `pecas.tsx`): in the real DOM this screen is the only one in Settings that still uses `<material-input>` (AngularJS), not `<bds-input>` — `apikey`, `keys`, `boasvindas` and `menu-persistente` are all `bds-input` (checked in each one's DOM). `material-input` is a LINE field: label that rises above when filled (otherwise it's a placeholder), underline across the full width and the `<span counter-for>` at the right edge of the same line — hence `CampoDeLinha`, only here.
+
+The writes: ""Salvar"" is `PATCH /v1/gestao/fluxos/:id` and ""Excluir fluxo"" is `DELETE /v1/gestao/fluxos/:id`, after the confirmation modal (`openDeleteApplicationModal()` → `deleteChatBotModal*` from the pt-BR package: title ""Quer mesmo excluir <shortName>?"", the body, the ""Estou ciente…"" box that unlocks the button, ""Voltar"" and the delete button). The phrasing is the package's; ""chatbot"" becomes ""fluxo"", as the screen's own button already does (`deleteChatbot: ""Excluir fluxo""`). Their body says ""de forma permanente"" (permanently); here deletion archives (see `ciclo-de-vida-do-fluxo.ts` in the `api`), and the phrase doesn't promise what it doesn't do.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/tela.tsx:8-46,,proposed
 gestao-vite-comment-324d155e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/gravar.ts,6,9,jsdoc,2,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas`. A regra mora na `api`
  * (`dominio/gestao/configuracao-do-fluxo.ts`); aqui só a recusa vira texto.
- */",,,,,,
+ */",translate,`GET/PATCH /v1/gestao/fluxos/:id/boas-vindas`. The rule lives in the `api` (`dominio/gestao/configuracao-do-fluxo.ts`); here only the rejection becomes text.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/gravar.ts:6-9,,proposed
 gestao-vite-comment-76109c05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/tela.tsx,8,26,jsdoc,20,"/**
  * `/configurations/welcome` (LEIA.md, Rodada 2, captura 5): o estado real
  * observado no roteador é o interruptor **Desligado** — nesse estado a
@@ -6175,7 +6251,11 @@ gestao-vite-comment-76109c05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * hora (não há formulário para ele submeter, e apagar sem aviso o que já
  * estava escrito seria pior); LIGAR só revela o formulário — quem ativa
  * ainda precisa escrever a mensagem e o texto do botão e clicar Salvar.
- */",,,,,,
+ */",translate,"`/configurations/welcome` (LEIA.md, Round 2, capture 5): the real state observed on the router is the switch **Off** — in that state the source draws NOTHING besides the title and the switch (not even the form's label exists in the DOM). That's the behavior the screen reproduces: the form (Mensagem de saudação + ""Começar"" button text) only appears once someone turns the switch on.
+
+The two inner fields weren't seen turned on in the capture (the ruler didn't activate the production router, to avoid changing its state) — the names come from the menu item's own description (""Defina a Mensagem de Saudação e o botão Começar"", `referencias-blip/pesquisa/blip-portal-telas.md` §6) and from the task's statement.
+
+Two writes, for the same UX reason: turning the switch OFF saves immediately (there's no form for it to submit, and silently erasing what was already written would be worse); turning it ON only reveals the form — whoever enables it still needs to write the message and button text and click Save.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/tela.tsx:8-26,,proposed
 gestao-vite-comment-1d4d208a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/casca.tsx,6,18,jsdoc,9,"/**
  * A casca de `auth.application.detail.configurations` (portal.js, mód. 57475):
  *
@@ -6188,15 +6268,21 @@ gestao-vite-comment-1d4d208a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * (`#main-section.pa0` é `display:flex`). A `CascaDoModulo` (compartilhada) já
  * centra o miolo em `fx-coluna` (80%); `.cf-casca` desfaz esse recuo para
  * abrir a lateral na borda, sem tocar o casco.
- */",,,,,,
-gestao-vite-comment-d1884eca,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts,23,23,jsdoc,1,"/** Só existe na resposta da criação — depois disso, nunca mais volta em claro. */",,,,,,
+ */",translate,"The shell of `auth.application.detail.configurations` (portal.js, mod. 57475):
+
+  <aside class=""detail-aside fl"">  ← the sidebar, filled by the Settings template (bds-nav-tree-group)
+  <section id=""main-content-area"" class=""main-detail-content …"">
+    <div class=""blip-ui-content …""> <page-header/> <div class=""container""/>
+
+The two sit SIDE BY SIDE at full width below the contact bar (`#main-section.pa0` is `display:flex`). The shared `CascaDoModulo` already centers the content in `fx-coluna` (80%); `.cf-casca` undoes that inset to open the sidebar at the edge, without touching the shell.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/casca.tsx:6-18,,proposed
+gestao-vite-comment-d1884eca,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts,23,23,jsdoc,1,"/** Só existe na resposta da criação — depois disso, nunca mais volta em claro. */",translate,"Only exists in the creation response — after that, it never comes back in the clear again.",security,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts:23-23,,proposed
 gestao-vite-comment-2a03df11,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts,5,11,jsdoc,5,"/**
  * As duas escritas de ""Chaves de acesso"": `POST` e `DELETE` (que REVOGA, não
  * apaga — `dominio/gestao/integracoes.ts`) em
  * `/v1/gestao/fluxos/:id/chaves`. O nome da rota é `chaves`/`chaveId`; a tela
  * usa ""excluir"" porque é a palavra da origem (`deleteKey`), mas o gesto por
  * baixo é revogação.
- */",,,,,,
+ */",translate,"The two writes for ""Chaves de acesso"": `POST` and `DELETE` (which REVOKES, not deletes — `dominio/gestao/integracoes.ts`) at `/v1/gestao/fluxos/:id/chaves`. The route's name is `chaves`/`chaveId`; the screen says ""excluir"" because that's the source's word (`deleteKey`), but the actual action underneath is revocation.",security,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts:5-11,,proposed
 gestao-vite-comment-a2068d90,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/keys.tsx,4,12,jsdoc,10,"/**
  * `/configurations/keys` — estado `auth.application.detail.configurations.accessToken`
  * (portal.js, template do módulo 76179, controlador `lP`). Só existe com
@@ -6205,28 +6291,30 @@ gestao-vite-comment-a2068d90,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * No Pipe a chave é do FLUXO (`chave_api.fluxo_id`, migração 0032): a tabela
  * sempre foi da conta, e a tela virou real emitindo/revogando uma chave por
  * fluxo — `GET/POST/DELETE /v1/gestao/fluxos/:id/chaves`.
- */",,,,,,
-gestao-vite-comment-a1d303f1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,15,15,jsdoc,0,"/** `/assets/img/ballons.svg` — os dois balões da ajuda, na tinta da marca suave. */",,,,,,
-gestao-vite-comment-21481e07,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,40,40,jsdoc,2,"/** A data em pt-BR, para o ""Data de criação"" da origem. */",,,,,,
+ */",translate,"`/configurations/keys` — state `auth.application.detail.configurations.accessToken` (portal.js, module 76179 template, `lP` controller). Only exists with `isTokenManagementEnable`; without the flag the source sends you to the bot list.
+
+On Pipe the key belongs to the FLOW (`chave_api.fluxo_id`, migration 0032): the table always belonged to the account, and the screen became real, issuing/revoking one key per flow — `GET/POST/DELETE /v1/gestao/fluxos/:id/chaves`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/keys.tsx:4-12,,proposed
+gestao-vite-comment-a1d303f1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,15,15,jsdoc,0,"/** `/assets/img/ballons.svg` — os dois balões da ajuda, na tinta da marca suave. */",translate,"`/assets/img/ballons.svg` — the two help balloons, in the brand's soft ink.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx:15-15,,proposed
+gestao-vite-comment-21481e07,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,40,40,jsdoc,2,"/** A data em pt-BR, para o ""Data de criação"" da origem. */",translate,"The date in pt-BR, for the source's ""Data de criação"".",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx:40-40,,proposed
 gestao-vite-comment-b5f4451c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,94,100,jsdoc,4,"/**
  * O miolo de `/configurations/keys` (template do módulo 76179), agora real:
  * `GET/POST /v1/gestao/fluxos/:id/chaves` e `DELETE .../chaves/:chaveId`
  * (que revoga — `dominio/gestao/integracoes.ts`). O token em claro
  * (`pipe_<prefixo>_<segredo>`) só existe na resposta do `POST`; a lista
  * seguinte já vem só com o prefixo.
- */",,,,,,
+ */",translate,"The guts of `/configurations/keys` (module 76179 template), now real: `GET/POST /v1/gestao/fluxos/:id/chaves` and `DELETE .../chaves/:chaveId` (which revokes — `dominio/gestao/integracoes.ts`). The plaintext token (`pipe_<prefixo>_<segredo>`) only exists in the `POST` response; the following list already comes with just the prefix.",security,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx:94-100,,proposed
 gestao-vite-comment-10f054f5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/gravar.ts,6,10,jsdoc,2,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente`. A regra (canal
  * Messenger, boas-vindas preenchida, até 3 itens) mora na `api`
  * (`dominio/gestao/configuracao-do-fluxo.ts`); aqui só a recusa vira texto.
- */",,,,,,
+ */",translate,"`GET/PATCH /v1/gestao/fluxos/:id/menu-persistente`. The rule (Messenger channel, boas-vindas filled in, up to 3 items) lives in the `api` (`dominio/gestao/configuracao-do-fluxo.ts`); here only the rejection becomes text.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/gravar.ts:6-10,,proposed
 gestao-vite-comment-8ae0cc16,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/menu-persistente.tsx,6,12,jsdoc,5,"/**
  * `/configurations/persistentMenu`. O canal compatível é o Messenger — o
  * mesmo `canalTipo`/`canalAtivo` que `fluxo/canais/canais.tsx` já lê do
  * contato (`GET /v1/gestao/fluxos/:id`), sem inventar um estado à parte. Os
  * itens e a trava de ""boas-vindas preenchida"" vêm de
  * `GET /v1/gestao/fluxos/:id/menu-persistente`.
- */",,,,,,
+ */",translate,"`/configurations/persistentMenu`. The compatible channel is Messenger — the same `canalTipo`/`canalAtivo` that `fluxo/canais/canais.tsx` already reads from the contact (`GET /v1/gestao/fluxos/:id`), without inventing a separate state. The items and the ""boas-vindas filled in"" lock come from `GET /v1/gestao/fluxos/:id/menu-persistente`.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/menu-persistente.tsx:6-12,,proposed
 gestao-vite-comment-2ae5eeaf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/tela.tsx,25,37,jsdoc,12,"/**
  * `/configurations/persistentMenu` (LEIA.md, Rodada 2, captura 6): 3 linhas em
  * acordeão (ícone ""+"" fechado), cada uma com **Texto** e **Link**; o Salvar
@@ -6239,8 +6327,10 @@ gestao-vite-comment-2ae5eeaf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * `GET /v1/gestao/fluxos/:id/menu-persistente`, e a `api` recusa o PATCH do
  * mesmo jeito se as duas condições não valerem — a tela só reflete o mesmo
  * motivo com antecedência.
- */",,,,,,
-gestao-vite-comment-5fb8ed79,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/tela.tsx,6,6,jsdoc,1,"/** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Rodada 2, captura 6). */",,,,,,
+ */",translate,"`/configurations/persistentMenu` (LEIA.md, Round 2, capture 6): 3 accordion rows (closed ""+"" icon), each with **Texto** and **Link**; the Salvar button arrives `disabled` in the source because this router isn't connected to Messenger — that's the real condition `canalCompativel` checks, not an invented state.
+
+The source's second block (""Antes de salvar... preencher a tela de boas-vindas"") is now real: `boasVindasPreenchida` comes from `GET /v1/gestao/fluxos/:id/menu-persistente`, and the `api` refuses the PATCH the same way if both conditions don't hold — the screen just reflects the same reason ahead of time.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/tela.tsx:25-37,,proposed
+gestao-vite-comment-5fb8ed79,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/tela.tsx,6,6,jsdoc,1,"/** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Rodada 2, captura 6). */",translate,"`Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Round 2, capture 6).",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/tela.tsx:6-6,,proposed
 gestao-vite-comment-88a45620,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,6,22,jsdoc,8,"/**
  * A lateral de Configurações — `<bds-grid padding=""2""><bds-nav-tree-group
  * collapse=""single"">` com um `<bds-nav-tree icon text secondary-text>` por
@@ -6257,8 +6347,18 @@ gestao-vite-comment-88a45620,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  *
  * O sexto (`xml`, ""Mime Types permitidos"") só aparece com
  * `isMimeTypeManagementEnable`, que a régua não tem ligado — não entra.
- */",,,,,,
-gestao-vite-comment-a0d59c74,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,63,63,block,0,/* O prefixo sai do tipo do contato: roteador e fluxo têm árvores separadas. */,,,,,,
+ */",translate,"The Settings sidebar — `<bds-grid padding=""2""><bds-nav-tree-group collapse=""single"">` with one `<bds-nav-tree icon text secondary-text>` per item (portal.js, template for the `auth.application.detail.configurations` state).
+
+The five items, in order and with the pt-BR package text (`modules.application.detail.configs.*` and `.persistentMenu.*`):
+
+  settings-general     configs.basic / basicSubtitle
+  robot-2              configs.welcome.title / subtitle
+  add-persistent-menu  persistentMenu.title / subtitle
+  plugin               configs.apiKey / apiKeySubtitle      → /apikey
+  sso                  configs.keys.title / subtitle        → /keys
+
+The sixth (`xml`, ""Mime Types permitidos"") only appears with `isMimeTypeManagementEnable`, which the ruler doesn't have turned on — it doesn't show up.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx:6-22,,proposed
+gestao-vite-comment-a0d59c74,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx,63,63,block,0,/* O prefixo sai do tipo do contato: roteador e fluxo têm árvores separadas. */,translate,The prefix comes from the contact's type: router and flow have separate trees.,architecture,apps/gestao-vite/src/paginas/fluxo/configuracoes/navegacao.tsx:63-63,,proposed
 gestao-vite-comment-fdc94070,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,117,125,jsdoc,3,"/**
  * `<bds-input>` / `<bds-input-password>` do blip-ds: caixa de borda 1px e raio
  * 8 (`padding: 7px 4px 8px 12px`) com o rótulo (12px/700) DENTRO, em cima do
@@ -6267,8 +6367,10 @@ gestao-vite-comment-fdc94070,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * `contador`: o `<span counter-for>` de `material-input` (origem) — mostra
  * quanto FALTA, não quanto já foi digitado (`maxLength - valor.length`), como
  * em `/configurations/basic` (""Nome do fluxo"": 30 - 16 = ""14"").
- */",,,,,,
-gestao-vite-comment-cb32a259,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,151,151,jsdoc,2,"/** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */",,,,,,
+ */",translate,"blip-ds's `<bds-input>` / `<bds-input-password>`: 1px border box with 8 radius (`padding: 7px 4px 8px 12px`) with the label (12px/700) INSIDE, above the 36px field. `senha` adds `bds-input-password`'s eye icon.
+
+`contador`: `material-input`'s (source) `<span counter-for>` — shows how much is LEFT, not how much has been typed (`maxLength - valor.length`), as in `/configurations/basic` (""Nome do fluxo"": 30 - 16 = ""14"").",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:117-125,,proposed
+gestao-vite-comment-cb32a259,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,151,151,jsdoc,2,"/** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */",translate,"`bds-textarea`: same box as `bds-input`, just with a `<textarea>` inside.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:151-151,,proposed
 gestao-vite-comment-8635e0b9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,206,214,jsdoc,8,"/**
  * `<bds-button>`: 40px de altura, raio 8, `padding: 0 16px`, texto 14/700 e
  * `gap: 4px` até o ícone de 24. `primary` pinta com a marca; `secondary` é só
@@ -6277,49 +6379,49 @@ gestao-vite-comment-8635e0b9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conf
  * ""Salvar"" do formulário HTTP. `perigo` é o `.bp-btn--delete` (""Excluir
  * fluxo"", ""Excluir chave"") — texto/borda na tinta de erro, sem fundo sólido
  * novo pra não inventar par de contraste que a régua não tem.
- */",,,,,,
-gestao-vite-comment-a3c9fa43,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,233,233,jsdoc,0,"/** `<bds-button-icon variant=""secondary"" size=""short"">`: 40×40, raio 8, ícone de 24. */",,,,,,
-gestao-vite-comment-97a98214,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,38,38,jsdoc,0,"/** `<bds-paper elevation=""static"">` — cartão de superfície 1, raio 16, sombra fixa. */",,,,,,
+ */",translate,"`<bds-button>`: 40px tall, 8 radius, `padding: 0 16px`, 14/700 text and `gap: 4px` to the 24px icon. `primary` paints with the brand; `secondary` is text only; `tertiary` has a 1px content-colored border (it's the keys help's ""Ok""); `bot` is the old `.bp-btn.bp-btn--bot.bp-btn--small` (42px, 3 radius) from the HTTP form's ""Salvar"". `perigo` is the `.bp-btn--delete` (""Excluir fluxo"", ""Excluir chave"") — text/border in the error ink, no new solid background so as not to invent a contrast pairing the ruler doesn't have.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:206-214,,proposed
+gestao-vite-comment-a3c9fa43,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,233,233,jsdoc,0,"/** `<bds-button-icon variant=""secondary"" size=""short"">`: 40×40, raio 8, ícone de 24. */",translate,"`<bds-button-icon variant=""secondary"" size=""short"">`: 40×40, 8 radius, 24px icon.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:233-233,,proposed
+gestao-vite-comment-97a98214,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,38,38,jsdoc,0,"/** `<bds-paper elevation=""static"">` — cartão de superfície 1, raio 16, sombra fixa. */",translate,"`<bds-paper elevation=""static"">` — surface-1 card, 16 radius, fixed shadow.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:38-38,,proposed
 gestao-vite-comment-b7045f69,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,4,7,jsdoc,5,"/**
  * As peças que as telas de Configurações repetem, cada uma com o nome do
  * componente da origem no comentário. Só o DESENHO deles: a tinta é a nossa.
- */",,,,,,
+ */",translate,"The pieces the Settings screens repeat, each with the source component's name in the comment. Only their LAYOUT: the paint is ours.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:4-7,,proposed
 gestao-vite-comment-69925641,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,43,47,jsdoc,6,"/**
  * `<switch>` (blipComponents.switch): `<label>` 43×26 com raio 36 e a bolinha
  * 22×22; `disabled` quando já é a conexão ativa (`disabled=""$ctrl.isBuilderActive""`).
  * `curto` é o `<bds-switch size=""short"">` do bloco OAuth (37×31 com `pa1`).
- */",,,,,,
+ */",translate,"`<switch>` (blipComponents.switch): 43×26 `<label>` with 36 radius and the 22×22 dot; `disabled` when it's already the active connection (`disabled=""$ctrl.isBuilderActive""`). `curto` is the OAuth block's `<bds-switch size=""short"">` (37×31 with `pa1`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:43-47,,proposed
 gestao-vite-comment-83227bf3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,82,86,jsdoc,2,"/**
  * `<input-clipboard>` (blipComponents.inputClipboard): `.input-clipboard-container`
  * — pílula de superfície 2 com `<input readonly>` em negrito na cor da marca e
  * o botão `.icon-copy` de 16px à direita.
- */",,,,,,
+ */",translate,"`<input-clipboard>` (blipComponents.inputClipboard): `.input-clipboard-container` — surface-2 pill with a bold, brand-colored `<input readonly>` and the 16px `.icon-copy` button on the right.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:82-86,,proposed
 gestao-vite-comment-b65ffe75,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx,9,13,jsdoc,3,"/**
  * `<page-header>` (blipComponents.pageHeader): `.container > .full-initial-section
  * > .row.flex.page-header-content.items-center.mb0`. Título à esquerda (h1 ou
  * `custom-title`), `custom-content` à direita, e embaixo a `additional-info`.
- */",,,,,,
+ */",translate,"`<page-header>` (blipComponents.pageHeader): `.container > .full-initial-section > .row.flex.page-header-content.items-center.mb0`. Title on the left (h1 or `custom-title`), `custom-content` on the right, and `additional-info` below.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:9-13,,proposed
 gestao-vite-comment-851fd4fe,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,1,5,jsdoc,3,"/**
  * As regras de ""Chaves de acesso"" — o controlador `lP` de portal.js (estado
  * `configurations.accessToken`), sem a tela. `tests/configuracoes-regras.test.ts`
  * trava o que sai daqui.
- */",,,,,,
+ */",translate,"The ""Chaves de acesso"" rules — the `lP` controller from portal.js (`configurations.accessToken` state), without the screen. `tests/configuracoes-regras.test.ts` locks down what comes out of here.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts:1-5,,proposed
 gestao-vite-comment-588ab0c1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,10,13,jsdoc,2,"/**
  * O cabeçalho troca o botão ""Nova chave"" pelo `bds-banner` de limite quando
  * `keys.length >= MAX_TOKENS`.
- */",,,,,,
+ */",translate,"The header swaps the ""Nova chave"" button for the limit `bds-banner` when `keys.length >= MAX_TOKENS`.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts:10-13,,proposed
 gestao-vite-comment-a30d6e89,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,18,21,jsdoc,2,"/**
  * `createKey()`: com o limite atingido, `tokenLimitReached`; sem nome,
  * `tokenNameRequired`; senão cria.
- */",,,,,,
-gestao-vite-comment-87b93c44,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,28,28,jsdoc,3,"/** `deleteKey()`: a chave padrão (`isDefault`, a primeira da lista) não sai. */",,,,,,
-gestao-vite-comment-94e73c2e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,33,33,jsdoc,2,/** `parseKeyItem`: a primeira chave da lista é a padrão. */,,,,,,
-gestao-vite-comment-87ba9830,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,102,102,jsdoc,3,/** As duas barras sem o miolo padronizado — para as telas que desenham o próprio `main`. */,,,,,,
+ */",translate,"`createKey()`: with the limit reached, `tokenLimitReached`; without a name, `tokenNameRequired`; otherwise it creates.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts:18-21,,proposed
+gestao-vite-comment-87b93c44,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,28,28,jsdoc,3,"/** `deleteKey()`: a chave padrão (`isDefault`, a primeira da lista) não sai. */",translate,"`deleteKey()`: the default key (`isDefault`, the first in the list) can't be removed.",security,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts:28-28,,proposed
+gestao-vite-comment-94e73c2e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts,33,33,jsdoc,2,/** `parseKeyItem`: a primeira chave da lista é a padrão. */,translate,`parseKeyItem`: the first key in the list is the default one.,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/regras.ts:33-33,,proposed
+gestao-vite-comment-87ba9830,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,102,102,jsdoc,3,/** As duas barras sem o miolo padronizado — para as telas que desenham o próprio `main`. */,translate,The two bars without the standardized content area — for screens that draw their own `main`.,architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:102-102,,proposed
 gestao-vite-comment-2788b1dd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,11,15,jsdoc,6,"/**
  * O prefixo da URL do contato, conforme o tipo — `roteador` para o que a
  * origem chama `master`, `fluxo` para o resto (`builder`). É a MESMA
  * distinção de `itens.ts`, aqui do lado de quem monta o caminho, não o menu.
- */",,,,,,
+ */",translate,"The contact's URL prefix, based on type — `roteador` for what the source calls `master`, `fluxo` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:11-15,,proposed
 gestao-vite-comment-0a9dba4d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,118,118,jsdoc,7,/** A `api` respondeu erro que não é 404: dizer o que houve vale mais que a tela em branco. */,,,,,,
 gestao-vite-comment-fb8b6a63,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,24,30,jsdoc,4,"/**
  * O contato (o `fluxo`) que TODAS as telas de `/fluxo/:id/**` desenham, lido
