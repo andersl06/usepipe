@@ -127,12 +127,12 @@ function asKey(linha: LineKey): KeyOfFlow {
 
 const COLUMNS_KEY = {
   id: keyApi.id,
-  nome: keyApi.nome,
-  prefixo: keyApi.prefix,
-  escopos: keyApi.scopes,
+  name: keyApi.nome,
+  prefix: keyApi.prefix,
+  scopes: keyApi.scopes,
   criadoEm: keyApi.criadoEm,
   ultimoUsoEm: keyApi.ultimoUsoEm,
-  revogadaEm: keyApi.revogadaEm,
+  revokedAt: keyApi.revogadaEm,
 };
 
 const COLUMNS_KEY_LIST = { ...COLUMNS_KEY, requisitante: user.nome };
@@ -196,12 +196,12 @@ export async function createKeyOfFlow(
     .insert(keyApi)
     .values({
       tenantId,
-      fluxoId,
+      flowId: fluxoId,
       nome: nomeAparado,
       prefix,
       hash: hashOfSecret(secret),
-      escopos: [...SCOPES_OF_KEY_OF_FLOW],
-      criadaPor: usuarioId,
+      scopes: [...SCOPES_OF_KEY_OF_FLOW],
+      createdBy: usuarioId,
     })
     .returning(COLUMNS_KEY);
   if (!criada) throw new Error('não criou a chave de API');
@@ -379,11 +379,11 @@ const COLUNAS_WEBHOOK = {
   id: webhookSaida.id,
   url: webhookSaida.url,
   eventos: webhookSaida.eventos,
-  ativo: webhookSaida.ativo,
+  active: webhookSaida.ativo,
   criadoEm: webhookSaida.criadoEm,
-  tipoAutenticacao: webhookSaida.typeAuthentication,
-  autenticacaoUsuario: webhookSaida.authenticationUser,
-  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAuthorization,
+  typeAuthentication: webhookSaida.typeAuthentication,
+  authenticationUser: webhookSaida.authenticationUser,
+  oauth2UrlAuthorization: webhookSaida.oauth2UrlAuthorization,
   oauth2ClientId: webhookSaida.oauth2ClientId,
   cabecalhos: webhookSaida.cabecalhos,
 };
@@ -502,11 +502,11 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
 /** As colunas que a gravação seta — os dois segredos saem cifrados daqui. */
 function columnsOfAuthentication(authentication: AuthenticationWebhookInbound) {
   return {
-    tipoAutenticacao: authentication.type,
-    autenticacaoUsuario: authentication.type === 'basica' ? authentication.user! : null,
-    autenticacaoSenha:
+    typeAuthentication: authentication.type,
+    authenticationUser: authentication.type === 'basica' ? authentication.user! : null,
+    authenticationPassword:
       authentication.type === 'basica' ? cifrar(authentication.senha!, keyring()) : null,
-    oauth2UrlAutorizacao:
+    oauth2UrlAuthorization:
       authentication.type === 'oauth2_client_credentials' ? authentication.urlAutorizacao! : null,
     oauth2ClientId:
       authentication.type === 'oauth2_client_credentials' ? authentication.clientId! : null,
@@ -575,7 +575,7 @@ export async function createWebhook(
       tenantId,
       url: pedido.url,
       eventos,
-      segredo,
+      secret: segredo,
       ativo: true,
       cabecalhos,
       ...columnsOfAuthentication(authentication),
@@ -615,8 +615,8 @@ async function webhookVivo(
   const [atual] = await tx
     .select({
       ...COLUNAS_WEBHOOK,
-      segredo: webhookSaida.secret,
-      autenticacaoSenha: webhookSaida.authenticationPassword,
+      secret: webhookSaida.secret,
+      authenticationPassword: webhookSaida.authenticationPassword,
       oauth2ClientSecret: webhookSaida.oauth2ClientSecret,
     })
     .from(webhookSaida)
@@ -625,8 +625,8 @@ async function webhookVivo(
   if (!atual) throw PipeError.naoEncontrado('webhook');
   return {
     ...comoWebhook(atual),
-    segredo: atual.segredo,
-    authenticationPassword: atual.autenticacaoSenha,
+    secret: atual.secret,
+    authenticationPassword: atual.authenticationPassword,
     oauth2ClientSecret: atual.oauth2ClientSecret,
   };
 }
@@ -950,7 +950,7 @@ async function createWebhookWithoutPermission(
   const segredo = randomBytes(32).toString('hex');
   const [criado] = await tx
     .insert(webhookSaida)
-    .values({ tenantId, url: pedido.url, eventos: pedido.eventos, segredo, ativo: true })
+    .values({ tenantId, url: pedido.url, eventos: pedido.eventos, secret: segredo, ativo: true })
     .returning({ id: webhookSaida.id });
   if (!criado) throw new Error('não criou o webhook de conexão');
   await registrarAuditoria(tx, tenantId, {
@@ -1006,7 +1006,7 @@ async function deleteWebhookWithoutPermission(
     acao: 'excluiu',
     objetoTipo: 'webhook_saida',
     objetoId: id,
-    antes: { url: atual.url, eventos: atual.eventos, ativo: atual.ativo },
+    antes: { url: atual.url, eventos: atual.eventos, ativo: atual.active },
   });
 }
 
