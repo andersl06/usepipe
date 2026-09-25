@@ -27,7 +27,7 @@ import {
 } from '../domain/builder-of-account.js';
 import type { InboundByInvitation } from '../domain/convites.js';
 import { PipeError } from '../errors.js';
-import { WithSession, lerCookies, sessionOf, tokenOfSession } from '../session.js';
+import { WithSession, lerCookies, sessionCookie, sessionOf, tokenOfSession } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 
 /**
@@ -249,7 +249,7 @@ export class LoginController {
       insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
       values (${u.tenant_id}::uuid, ${u.id}::uuid, ${novo.hash}, ${novo.expiraEm}, 'senha')
     `);
-    resposta.setHeader('set-cookie', cookieOfSession(novo.token, novo.expiraEm, optionsOfCookie()));
+    resposta.setHeader('set-cookie', sessionCookie(cookieOfSession(novo.token, novo.expiraEm, optionsOfCookie())));
     const permitidas = origensPermitidas();
     const origem = origemDaQuery(requisicao);
     const base =
@@ -335,7 +335,7 @@ export class LoginController {
           );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
+        sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
       ]);
       resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
     } catch (erro) {
@@ -351,7 +351,7 @@ export class LoginController {
   async sair(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const token = tokenOfSession(requisicao);
     if (token) await encerrarSessao(databaseOwner(), hashDoToken(token));
-    resposta.setHeader('set-cookie', cookieDeSaida(optionsOfCookie()));
+    resposta.setHeader('set-cookie', sessionCookie(cookieDeSaida(optionsOfCookie())));
     resposta.status(204).end();
   }
 }

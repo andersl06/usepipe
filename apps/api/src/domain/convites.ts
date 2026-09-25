@@ -69,7 +69,7 @@ function nomeProvisorio(email: string): string {
 
 export function urlOfInvitation(token: string): string {
   const base = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
-  return `${base}/convite/${token}`;
+  return `${base}/invite/${token}`;
 }
 
 /** O rótulo da tela para cada papel de conta (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */

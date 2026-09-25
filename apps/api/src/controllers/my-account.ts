@@ -4,7 +4,7 @@ import type { Response } from 'express';
 import { openSessionAt, cookieOfSession } from '@pipe/authentication';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
-import { WithSession, sessionOf } from '../session.js';
+import { WithSession, sessionCookie, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import { optionsOfCookie } from './login.js';
 
@@ -348,7 +348,7 @@ export class MyAccountController {
     );
     resposta.setHeader(
       'set-cookie',
-      cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
+      sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
     );
     return { tenantId: destination, slug: alvo.slug };
   }

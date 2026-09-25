@@ -122,9 +122,9 @@ type LineKey = {
  */
 export function flowOfRoute(requisicao: Request): string | null {
   const parametros = (requisicao.params ?? {}) as Record<string, string | undefined>;
-  if (parametros['fluxoId']) return parametros['fluxoId'];
+  if (parametros['flowId']) return parametros['flowId'];
   const padrao = (requisicao.route as { path?: string } | undefined)?.path ?? '';
-  const nome = /\/fluxos\/:(\w+)(?=\/|$)/.exec(padrao)?.[1];
+  const nome = /\/flows\/:(\w+)(?=\/|$)/.exec(padrao)?.[1];
   return nome ? (parametros[nome] ?? null) : null;
 }
 
