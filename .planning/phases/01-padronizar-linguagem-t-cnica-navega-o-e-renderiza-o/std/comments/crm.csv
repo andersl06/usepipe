@@ -925,9 +925,9 @@ write value**.
 
 The cap of 200 matches the listing. Nobody selects more than the screen shows, so
 a request with 5,000 ids didn't come from the screen.",security,Reviewed apps/crm/src/app/leads/acoes.ts:12-23 — input-validation trust-boundary rule for bulk actions; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
-crm-comment-a777a538,crm,apps/crm/src/app/leads/acoes.ts,65,65,block,0,/* ------------------------------------------------ edição de campo na ficha */,,,,,,
-crm-comment-2a1d4e30,crm,apps/crm/src/app/leads/acoes.ts,69,69,jsdoc,3,"/** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */",,,,,,
-crm-comment-dcb8489e,crm,apps/crm/src/app/leads/acoes.ts,71,71,jsdoc,3,"/** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */",,,,,,
+crm-comment-a777a538,crm,apps/crm/src/app/leads/acoes.ts,65,65,block,0,/* ------------------------------------------------ edição de campo na ficha */,translate,------------------------------------------------ record field editing,other,,,proposed
+crm-comment-2a1d4e30,crm,apps/crm/src/app/leads/acoes.ts,69,69,jsdoc,3,"/** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */",translate,"The value that **actually got saved**. The screen shows this one, never what was typed.",other,,,proposed
+crm-comment-dcb8489e,crm,apps/crm/src/app/leads/acoes.ts,71,71,jsdoc,3,"/** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */",translate,"Only when `ok` is false, and always in Portuguese: it goes straight to the screen.",other,,,proposed
 crm-comment-d3f1136d,crm,apps/crm/src/app/leads/acoes.ts,75,89,jsdoc,26,"/**
  * Gravar um campo da ficha a partir da célula inline.
  *
@@ -942,19 +942,38 @@ crm-comment-d3f1136d,crm,apps/crm/src/app/leads/acoes.ts,75,89,jsdoc,26,"/**
  * Devolve sempre o valor que ficou no banco. Quando não deu, devolve o valor
  * anterior junto com a queixa, e é isso que faz a tela voltar ao que era em vez
  * de ficar mostrando um dado que não existe.
- */",,,,,,
+ */",translate,"Save a record field from the inline cell.
+
+The cell already rejected an email without an @ before this was reached, and it's
+rejected again here — browser validation is a convenience, server validation is
+what counts, because this function is an HTTP address and anyone can reach it.
+
+The `proprietario` is checked against the tenant's list of active users for the
+same reason as `atribuirEmMassa`: **client input never determines a write
+value**. Empty means clearing the owner, which is a legitimate operation.
+
+Always returns the value that ended up in the database. When it fails, it
+returns the previous value along with the complaint, and that's what makes the
+screen go back to how it was instead of showing data that doesn't exist.",security,Reviewed apps/crm/src/app/leads/acoes.ts:75-89 — server-side re-validation trust boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-83434b74,crm,apps/crm/src/app/leads/loading.tsx,3,9,jsdoc,11,"/**
  * O que aparece enquanto a lista carrega. O cabeçalho da página é o mesmo da
  * tela pronta, de propósito: o título não pisca, e só a tabela troca.
  *
  * Nove colunas porque nove é o que a lista sem agrupamento mostra — o
  * esqueleto tem de ter a largura da tabela que vem, senão a tela salta.
- */",,,,,,
+ */",translate,"What shows while the list loads. The page header is the same as the finished
+screen's, on purpose: the title doesn't flash, and only the table swaps.
+
+Nine columns because nine is what the ungrouped list shows — the skeleton has
+to have the width of the table that's coming, otherwise the screen jumps.",other,,,proposed
 crm-comment-7896d462,crm,apps/crm/src/app/leads/page.tsx,110,112,block,2,"/* O filtro sobrevive ao envio da busca. Sem estes campos, digitar no
               campo de busca apagaria o filtro em silêncio — e o formulário GET
-              só manda o que ele mesmo carrega. */",,,,,,
+              só manda o que ele mesmo carrega. */",translate,"The filter survives submitting the search. Without these fields, typing in the
+search box would silently erase the filter — and the GET form only sends what
+it itself carries.",other,,,proposed
 crm-comment-8033871b,crm,apps/crm/src/app/leads/page.tsx,142,143,block,4,"/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
-              escrita ao lado da contagem, na mesma linha, sem ocupar tela. */",,,,,,
+              escrita ao lado da contagem, na mesma linha, sem ocupar tela. */",translate,"A shortcut nobody discovers is a shortcut nobody uses: the hint stays written
+next to the count, on the same line, without taking up screen space.",other,,,proposed
 crm-comment-db29a961,crm,apps/crm/src/app/leads/page.tsx,37,47,jsdoc,13,"/**
  * A listagem de leads.
  *
@@ -965,13 +984,22 @@ crm-comment-db29a961,crm,apps/crm/src/app/leads/page.tsx,37,47,jsdoc,13,"/**
  * A ordenação NÃO acontece sobre as linhas já buscadas. A lista tem teto de 200,
  * e ordenar depois de buscar responderia ""os 200 leads mais novos, dispostos por
  * score"" quando a pergunta é ""os 200 de maior score"".
- */",,,,,,
-crm-comment-c81d0c71,crm,apps/crm/src/app/leads/page.tsx,70,70,line,2,"// O filtro entra por último, e por isso a visão salva o guarda: `consulta()`",,,,,,
-crm-comment-dade3961,crm,apps/crm/src/app/leads/page.tsx,71,71,line,2,// sem argumento é exatamente o endereço da tela como ela está agora.,,,,,,
+ */",translate,"The leads listing.
+
+The screen is server-rendered: the slice, search, and sort all live in the URL
+and become `where` and `order by`. Only what the browser needs (column width,
+selection, saved view) goes down to the client, in a separate component.
+
+Sorting does NOT happen over rows already fetched. The list caps at 200, and
+sorting after fetching would answer ""the 200 newest leads, arranged by score""
+when the question is ""the 200 highest-scoring leads"".",architecture,Reviewed apps/crm/src/app/leads/page.tsx:37-47 — URL-as-state navigation pattern (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-c81d0c71,crm,apps/crm/src/app/leads/page.tsx,70,70,line,2,"// O filtro entra por último, e por isso a visão salva o guarda: `consulta()`",translate,"The filter comes in last, and that's why the saved view keeps it: `consulta()`",architecture,Reviewed apps/crm/src/app/leads/page.tsx:70 — URL-as-state / saved-view mechanism; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-dade3961,crm,apps/crm/src/app/leads/page.tsx,71,71,line,2,// sem argumento é exatamente o endereço da tela como ela está agora.,translate,with no argument is exactly the screen's address as it stands right now.,architecture,Reviewed apps/crm/src/app/leads/page.tsx:71 — URL-as-state / saved-view mechanism; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-e244d143,crm,apps/crm/src/app/leads/page.tsx,98,101,block,4,"/*
           Agrupamento no lugar dos relatórios: ""por proprietário"" e ""origem e campanha""
           eram item de menu e são a mesma lista dobrada por uma coluna.
-        */",,,,,,
+        */",translate,"Grouping instead of reports: ""by owner"" and ""source and campaign"" used to be
+menu items, and they're the same list folded by one column.",other,,,proposed
 crm-comment-9eed9a08,crm,apps/crm/src/app/loading.tsx,3,10,jsdoc,10,"/**
  * O carregamento padrão do CRM. Vale para toda rota que não declara um seu —
  * painel, contas, contatos, oportunidades e configurações.
@@ -979,14 +1007,23 @@ crm-comment-9eed9a08,crm,apps/crm/src/app/loading.tsx,3,10,jsdoc,10,"/**
  * Sem título: o título de cada tela é diferente, e escrever um errado aqui é
  * pior do que não escrever nenhum. As rotas em que a forma da tela importa de
  * verdade (a lista de leads e a ficha) têm o seu próprio.
- */",,,,,,
+ */",translate,"The CRM's default loading state. It applies to every route that doesn't
+declare its own — dashboard, accounts, contacts, opportunities, and settings.
+
+No title: each screen's title is different, and writing the wrong one here is
+worse than writing none. The routes where the screen's shape really matters
+(the leads list and the record) have their own.",other,,,proposed
 crm-comment-15449678,crm,apps/crm/src/app/not-found.tsx,4,10,jsdoc,7,"/**
  * Registro que não existe, ou endereço que ninguém serve.
  *
  * Um caminho de volta, não dois: a lista de leads é de onde se chega a quase
  * tudo neste CRM, e oferecer cinco links aqui é transformar uma parede numa
  * segunda navegação.
- */",,,,,,
+ */",translate,"A record that doesn't exist, or an address nobody serves.
+
+One way back, not two: the leads list is where you reach almost everything in
+this CRM, and offering five links here would turn a wall into a second
+navigation.",other,,,proposed
 crm-comment-a4881a02,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,16,31,jsdoc,26,"/**
  * A ficha da oportunidade, na mesma estrutura das outras três.
  *
@@ -1002,36 +1039,64 @@ crm-comment-a4881a02,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,16,31,jsdo
  * - **Na conta** são as outras oportunidades da mesma conta, que é a pergunta
  *   que aparece toda vez que alguém abre uma: ""já estamos negociando outra
  *   coisa com eles?"".
- */",,,,,,
+ */",translate,"The opportunity record, in the same structure as the other three.
+
+The opportunity had no record: it only existed as a card on the board, and the
+card led to the lead. That meant the deal had no address of its own — you
+couldn't paste ""this deal"" into chat, only ""this deal's lead"".
+
+The heavy content is what belongs to the deal itself:
+
+- **History** is the timeline of the lead that originated it. `atividade` has no
+  opportunity column, and inventing one now would mean building the screen
+  before the data — the deal's history IS that lead's history.
+- **On the account** are the account's other opportunities, which is the
+  question that comes up every time someone opens one: ""are we already
+  negotiating something else with them?"".",architecture,Reviewed apps/crm/src/app/oportunidades/[id]/page.tsx:16-31 — record URL-addressability rationale; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-243ba413,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,203,207,block,5,"/*
             O fechamento em seção própria: previsto, realizado e motivo da perda
             são a mesma conversa, e é a conversa que decide se a negociação
             continua no funil.
-          */",,,,,,
+          */",translate,"Closing gets its own section: expected date, actual date, and loss reason are
+the same conversation, and it's that conversation that decides whether the deal
+stays in the funnel.",other,,,proposed
 crm-comment-83ef58cd,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,98,102,block,4,"/*
             Duas etiquetas podem ter cor, e só duas: a perda, que é o estado
             terminal ruim, e o fechamento vencido, que é o que alguém resolve
             hoje. Fase é categoria, e categoria é neutra.
-          */",,,,,,
+          */",translate,"Two badges can have color, and only two: the loss, which is the bad terminal
+state, and an overdue close date, which is what someone needs to act on today.
+Stage is a category, and categories are neutral.",other,,,proposed
 crm-comment-25977ba5,crm,apps/crm/src/app/oportunidades/acoes.ts,6,11,jsdoc,5,"/**
  * Mover a oportunidade de fase pelo arraste.
  *
  * A fase chega do navegador, então é validada contra o catálogo antes de virar
  * escrita: entrada de cliente não define valor de coluna, nem sendo texto livre.
- */",,,,,,
+ */",translate,"Move the opportunity to a stage by dragging.
+
+The stage comes from the browser, so it's validated against the catalog before
+becoming a write: client input never determines a column value, not even as
+free text.",security,Reviewed apps/crm/src/app/oportunidades/acoes.ts:6-11 — input-validation trust boundary for drag-and-drop stage change; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-6c4de05c,crm,apps/crm/src/app/oportunidades/loading.tsx,30,31,block,4,"/* Menos cartões nas colunas do fim: é a forma de um funil, e um
-                  esqueleto retangular anuncia uma tela que não vai aparecer. */",,,,,,
+                  esqueleto retangular anuncia uma tela que não vai aparecer. */",translate,"Fewer cards in the end columns: that's the shape of a funnel, and a
+rectangular skeleton advertises a screen that isn't coming.",other,,,proposed
 crm-comment-d8b003a6,crm,apps/crm/src/app/oportunidades/loading.tsx,4,10,jsdoc,11,"/**
  * O esqueleto do quadro: as mesmas colunas, com cartões de altura fixa.
  *
  * As fases são catálogo, não dado do banco, então o esqueleto já sabe quantas
  * colunas desenhar. É a diferença entre a tela aparecer inteira de uma vez e
  * ela nascer com uma coluna e crescer para cinco.
- */",,,,,,
+ */",translate,"The board's skeleton: the same columns, with fixed-height cards.
+
+Stages are a catalog, not database data, so the skeleton already knows how
+many columns to draw. That's the difference between the screen appearing whole
+at once and being born with one column and growing to five.",other,,,proposed
 crm-comment-9df4147f,crm,apps/crm/src/app/oportunidades/page.tsx,112,113,block,6,"/* Os números são do funil ABERTO nas duas visões, de propósito: eles
-          respondem ""quanto está em jogo agora"", e o que já fechou não está. */",,,,,,
-crm-comment-f9f10eec,crm,apps/crm/src/app/oportunidades/page.tsx,170,170,line,2,// Fechamento no passado numa oportunidade que continua aberta: é a única,,,,,,
-crm-comment-79b4deee,crm,apps/crm/src/app/oportunidades/page.tsx,171,171,line,3,"// coisa do quadro que exige ação, e é a única que recebe cor.",,,,,,
+          respondem ""quanto está em jogo agora"", e o que já fechou não está. */",translate,"The numbers are for the OPEN funnel in both views, on purpose: they answer
+""how much is at stake right now"", and what's already closed isn't part of
+that.",other,,,proposed
+crm-comment-f9f10eec,crm,apps/crm/src/app/oportunidades/page.tsx,170,170,line,2,// Fechamento no passado numa oportunidade que continua aberta: é a única,translate,An overdue close date on an opportunity that's still open: it's the only,other,,,proposed
+crm-comment-79b4deee,crm,apps/crm/src/app/oportunidades/page.tsx,171,171,line,3,"// coisa do quadro que exige ação, e é a única que recebe cor.",translate,"thing on the board that demands action, and it's the only one that gets color.",other,,,proposed
 crm-comment-ace25199,crm,apps/crm/src/app/oportunidades/page.tsx,18,32,jsdoc,22,"/**
  * Oportunidades: o mesmo objeto em duas visões.
  *
@@ -1046,38 +1111,65 @@ crm-comment-ace25199,crm,apps/crm/src/app/oportunidades/page.tsx,18,32,jsdoc,22,
  *   sentido, e uma coluna com o histórico inteiro deixaria de caber na tela.
  * - **A tabela mostra as fechadas**, em recortes. É ela que responde ""o que
  *   ganhamos"" e ""o que perdemos, e por quê"" — que é a pergunta do fim do mês.
- */",,,,,,
+ */",translate,"Opportunities: the same object in two views.
+
+The board answers **how the funnel looks**; the table answers **which ones
+there are**. They're different questions, and Twenty solves both at the same
+address by swapping the view type — that's what we do with `?vista=`. A screen
+view doesn't deserve its own route: the address belongs to the object, not to
+the layout.
+
+Two content differences between them, and both are deliberate:
+
+- **The board only shows open opportunities.** Dragging a closed one makes no
+  sense, and a column with the entire history would stop fitting on screen.
+- **The table shows the closed ones**, in slices. It's the one that answers
+  ""what did we win"" and ""what did we lose, and why"" — which is the
+  end-of-month question.",architecture,Reviewed apps/crm/src/app/oportunidades/page.tsx:18-32 — URL-encoded view-type pattern (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-19c903aa,crm,apps/crm/src/app/oportunidades/page.tsx,180,184,block,7,"/*
       O vazio do quadro falava em `pnpm seed:crm`, que é comando de quem constrói
       o produto e não de quem o usa. Aqui ele diz de onde vem uma oportunidade,
       que é a única coisa útil quando não há nenhuma.
-    */",,,,,,
-crm-comment-410eb3a4,crm,apps/crm/src/app/oportunidades/page.tsx,65,65,line,3,// A única cor da tabela: o fechamento que venceu numa oportunidade que,,,,,,
-crm-comment-1ee7e961,crm,apps/crm/src/app/oportunidades/page.tsx,66,66,line,1,// continua aberta. É o que exige ação hoje; o resto é categoria.,,,,,,
+    */",translate,"The board's empty state used to mention `pnpm seed:crm`, which is a command
+for whoever builds the product, not whoever uses it. Here it says where an
+opportunity comes from, which is the only useful thing to say when there are
+none.",other,,,proposed
+crm-comment-410eb3a4,crm,apps/crm/src/app/oportunidades/page.tsx,65,65,line,3,// A única cor da tabela: o fechamento que venceu numa oportunidade que,translate,The table's only color: an overdue close date on an opportunity that,other,,,proposed
+crm-comment-1ee7e961,crm,apps/crm/src/app/oportunidades/page.tsx,66,66,line,1,// continua aberta. É o que exige ação hoje; o resto é categoria.,translate,is still open. It's what demands action today; everything else is a category.,other,,,proposed
 crm-comment-4e32d075,crm,apps/crm/src/app/page.tsx,10,16,jsdoc,11,"/**
  * Variação contra o mês anterior. Só aparece quando há base de comparação.
  *
  * Vem com sinal e sem cor: um mês pior que o anterior não é um erro que
  * alguém resolva clicando, e pintar de vermelho o que a pessoa não pode
  * consertar é o que gasta a cor antes da hora.
- */",,,,,,
+ */",translate,"Variation against the previous month. Only shows up when there's a basis for
+comparison.
+
+It comes with a sign and no color: a worse month than the last one isn't an
+error someone fixes by clicking, and painting red something the person can't
+fix is what burns out the color before it matters.",other,,,proposed
 crm-comment-3d475077,crm,apps/crm/src/app/page.tsx,170,174,block,4,"/*
                           A única cor deste cartão. Lead parado é o que custa dinheiro
                           e é o que alguém resolve clicando — o resto da linha é
                           contagem, e contagem não pede ação.
-                        */",,,,,,
+                        */",translate,"This card's only color. A stalled lead is what costs money and is what
+someone fixes by clicking — the rest of the row is a count, and a count
+doesn't call for action.",other,,,proposed
 crm-comment-4fa7a6d7,crm,apps/crm/src/app/page.tsx,53,57,block,7,"/*
         Os indicadores são a legenda do mês, não o assunto: uma linha só, tipografia
         menor, sem caixa. Quando cinco cartões têm o mesmo peso do funil, o olho não
         sabe onde começar.
-      */",,,,,,
-crm-comment-c7f8011a,crm,apps/crm/src/app/page.tsx,91,91,block,4,/* O assunto da tela: como está o mês. Ocupa a largura porque é o que se lê primeiro. */,,,,,,
-crm-comment-2a8f267f,crm,apps/crm/src/componentes/celula-inline.tsx,108,108,line,3,"// A mesma recusa do servidor, antes da viagem: e-mail sem arroba não",,,,,,
-crm-comment-d29f403e,crm,apps/crm/src/componentes/celula-inline.tsx,117,117,line,1,// otimista: a célula mostra o novo enquanto grava.,,,,,,
-crm-comment-d546b842,crm,apps/crm/src/componentes/celula-inline.tsx,142,142,line,2,// Num `<select>` o Enter já fecha a lista; deixar o `blur` gravar evita,,,,,,
-crm-comment-394adf0d,crm,apps/crm/src/componentes/celula-inline.tsx,41,41,jsdoc,1,/** O valor gravado. Para seleção é o id; o rótulo sai de `opcoes`. */,,,,,,
-crm-comment-455f58c0,crm,apps/crm/src/componentes/celula-inline.tsx,43,43,jsdoc,2,"/** Só para `tipo: 'selecao'`. Vazio na lista significa ""sem proprietário"". */",,,,,,
-crm-comment-a4402d60,crm,apps/crm/src/componentes/celula-inline.tsx,45,45,jsdoc,3,/** O que aparece quando não há valor. Padrão: o rótulo do campo. */,,,,,,
+      */",translate,"The indicators are the month's caption, not the main subject: a single line,
+smaller type, no box. When five cards carry the same visual weight as the
+funnel, the eye doesn't know where to start.",other,,,proposed
+crm-comment-c7f8011a,crm,apps/crm/src/app/page.tsx,91,91,block,4,/* O assunto da tela: como está o mês. Ocupa a largura porque é o que se lê primeiro. */,translate,"The screen's subject: how the month is going. It takes the full width because
+it's what gets read first.",other,,,proposed
+crm-comment-2a8f267f,crm,apps/crm/src/componentes/celula-inline.tsx,108,108,line,3,"// A mesma recusa do servidor, antes da viagem: e-mail sem arroba não",translate,"The same rejection the server does, before the round trip: an email without an @ doesn't",other,,,proposed
+crm-comment-d29f403e,crm,apps/crm/src/componentes/celula-inline.tsx,117,117,line,1,// otimista: a célula mostra o novo enquanto grava.,translate,optimistic: the cell shows the new value while it saves.,other,,,proposed
+crm-comment-d546b842,crm,apps/crm/src/componentes/celula-inline.tsx,142,142,line,2,// Num `<select>` o Enter já fecha a lista; deixar o `blur` gravar evita,translate,In a `<select>` Enter already closes the list; letting `blur` save avoids,other,,,proposed
+crm-comment-394adf0d,crm,apps/crm/src/componentes/celula-inline.tsx,41,41,jsdoc,1,/** O valor gravado. Para seleção é o id; o rótulo sai de `opcoes`. */,translate,The saved value. For a selection it's the id; the label comes from `opcoes`.,other,,,proposed
+crm-comment-455f58c0,crm,apps/crm/src/componentes/celula-inline.tsx,43,43,jsdoc,2,"/** Só para `tipo: 'selecao'`. Vazio na lista significa ""sem proprietário"". */",translate,"Only for `tipo: 'selecao'`. Empty in the list means ""no owner"".",other,,,proposed
+crm-comment-a4402d60,crm,apps/crm/src/componentes/celula-inline.tsx,45,45,jsdoc,3,/** O que aparece quando não há valor. Padrão: o rótulo do campo. */,translate,What shows when there's no value. Default: the field's label.,other,,,proposed
 crm-comment-e8c95f37,crm,apps/crm/src/componentes/celula-inline.tsx,47,54,jsdoc,5,"/**
    * Como desenhar o valor em repouso.
    *
@@ -1085,12 +1177,18 @@ crm-comment-e8c95f37,crm,apps/crm/src/componentes/celula-inline.tsx,47,54,jsdoc,
    * texto cru ao tornar a célula editável seria perder informação de forma para
    * ganhar edição. É o que o `record-table-cell` do Twenty faz — o display da
    * célula continua sendo o do campo, e só a edição é comum.
-   */",,,,,,
+   */",translate,"How to draw the value at rest.
+
+It exists because of the listing: there, `origem` is a badge, and swapping it
+for raw text when making the cell editable would trade formatting information
+for editability. It's what Twenty's `record-table-cell` does — the cell's
+display stays the field's own, and only the editing part is shared.",architecture,Reviewed apps/crm/src/componentes/celula-inline.tsx:47-54 — cites Twenty record-table-cell as behavioral source; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-854f90de,crm,apps/crm/src/componentes/celula-inline.tsx,66,67,jsdoc,5,"/** Trava o `blur` quando é o Esc que está fechando: senão ele grava o que a
-   *  pessoa acabou de mandar descartar. */",,,,,,
-crm-comment-981c880a,crm,apps/crm/src/componentes/celula-inline.tsx,70,70,line,2,"// A ficha é servidor: depois do `revalidatePath` ela volta com o valor novo, e",,,,,,
-crm-comment-1fd00f19,crm,apps/crm/src/componentes/celula-inline.tsx,71,71,line,2,"// é ele que vale. Sem isto, editar, sair e voltar mostraria o estado local",,,,,,
-crm-comment-b865fa9c,crm,apps/crm/src/componentes/celula-inline.tsx,72,72,line,0,// velho até um recarregamento completo.,,,,,,
+   *  pessoa acabou de mandar descartar. */",translate,"Locks out `blur` when it's Esc that's closing: otherwise it would save what
+the person just told it to discard.",other,,,proposed
+crm-comment-981c880a,crm,apps/crm/src/componentes/celula-inline.tsx,70,70,line,2,"// A ficha é servidor: depois do `revalidatePath` ela volta com o valor novo, e",translate,"The record is server-rendered: after `revalidatePath` it comes back with the new value, and",other,,,proposed
+crm-comment-1fd00f19,crm,apps/crm/src/componentes/celula-inline.tsx,71,71,line,2,"// é ele que vale. Sem isto, editar, sair e voltar mostraria o estado local",translate,"that's the one that counts. Without this, editing, leaving and coming back would show the old",other,,,proposed
+crm-comment-b865fa9c,crm,apps/crm/src/componentes/celula-inline.tsx,72,72,line,0,// velho até um recarregamento completo.,translate,local state until a full reload.,other,,,proposed
 crm-comment-cfc46498,crm,apps/crm/src/componentes/celula-inline.tsx,9,36,jsdoc,38,"/**
  * O campo que se edita no lugar. É o `record-inline-cell` do Twenty, escrito do
  * zero — `twenty-front` é AGPL e não entra aqui. O que se copiou é medida e
@@ -1118,31 +1216,66 @@ crm-comment-cfc46498,crm,apps/crm/src/componentes/celula-inline.tsx,9,36,jsdoc,3
  * célula mostra o novo (senão parece travada); se falhar, ela **volta ao valor
  * anterior** e diz por quê. É a regra do produto: nunca afirmar sucesso sobre
  * uma linha que não mudou.
- */",,,,,,
-crm-comment-bfffd7b1,crm,apps/crm/src/componentes/colunas.tsx,103,103,line,2,"// Armazenamento bloqueado, ou conteúdo de uma versão anterior. A tabela",,,,,,
-crm-comment-d09d4fff,crm,apps/crm/src/componentes/colunas.tsx,104,104,line,3,"// abre no padrão, que é melhor do que não abrir.",,,,,,
+ */",translate,"The field that's edited in place. It's Twenty's `record-inline-cell`, written
+from scratch — `twenty-front` is AGPL and doesn't go in here. What was copied
+is measurement and behavior, read from
+`object-record/record-inline-cell/components/RecordInlineCell*.tsx`:
+
+- **No form.** Clicking the value swaps the text for a field in the same spot,
+  and the rest of the screen doesn't move. The 4px gap the value already has
+  around it (theirs, `spacing[1]`) is offset with a negative margin: without
+  that the text shifts 4px when it becomes editable, and a field that jumps
+  when touched is what makes someone doubt it saved correctly.
+- **The pencil icon only shows on hover**, and disappears when the field is
+  empty — because an empty field is already an invitation to click, and the
+  icon would only take up width.
+- **Enter and leaving the field save; Esc discards.** That's their contract,
+  and it's what any spreadsheet does.
+
+What we **didn't** copy: they open the editor in a floating portal anchored
+with `floating-ui`, to fit the date picker and the relation picker over the
+narrow sidebar. Here the fields are text and a native select, which fit
+within the row's own width. A portal for a 24px `<input>` would be 200 lines
+to solve a problem we don't have — and the native `<select>` already opens
+over everything on its own.
+
+**The displayed value is always what the server confirmed.** While saving,
+the cell shows the new one (otherwise it looks stuck); if it fails, it
+**reverts to the previous value** and says why. It's the product's rule:
+never claim success on a row that didn't change.",architecture,"Reviewed apps/crm/src/componentes/celula-inline.tsx:9-36 — AGPL license boundary: explicitly written from scratch, not copied from twenty-front; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+crm-comment-bfffd7b1,crm,apps/crm/src/componentes/colunas.tsx,103,103,line,2,"// Armazenamento bloqueado, ou conteúdo de uma versão anterior. A tabela",translate,"Storage blocked, or content from an older version. The table",other,,,proposed
+crm-comment-d09d4fff,crm,apps/crm/src/componentes/colunas.tsx,104,104,line,3,"// abre no padrão, que é melhor do que não abrir.",translate,"opens with the default, which beats not opening at all.",other,,,proposed
 crm-comment-9b221c99,crm,apps/crm/src/componentes/colunas.tsx,109,115,jsdoc,10,"/**
  * Quais colunas a tabela desenha, e em que ordem.
  *
  * `chaves` chega da tela e muda com o agrupamento — a coluna que o cabeçalho do
  * grupo já diz sai da lista. O arranjo é refeito quando ela muda, e a coluna
  * que voltou reencontra o lugar que tinha.
- */",,,,,,
-crm-comment-ae76b4d9,crm,apps/crm/src/componentes/colunas.tsx,119,119,line,2,"// Só depois de montar: o servidor não tem `localStorage`, e ler durante a",,,,,,
-crm-comment-c65c76d4,crm,apps/crm/src/componentes/colunas.tsx,120,120,line,0,// renderização faria os dois desenharem tabelas diferentes.,,,,,,
-crm-comment-55723070,crm,apps/crm/src/componentes/colunas.tsx,123,123,line,3,// A lista de chaves é um array novo a cada renderização da tela; a assinatura,,,,,,
-crm-comment-44f28121,crm,apps/crm/src/componentes/colunas.tsx,124,124,line,2,"// é o que realmente muda de valor, e é dela que o memo depende.",,,,,,
-crm-comment-8e8e497d,crm,apps/crm/src/componentes/colunas.tsx,137,137,line,3,// Sem armazenamento o arranjo vale para esta sessão e some depois.,,,,,,
+ */",translate,"Which columns the table draws, and in what order.
+
+`chaves` comes from the screen and changes with grouping — the column the
+group header already states drops out of the list. The arrangement is rebuilt
+when it changes, and a column that comes back finds the spot it used to have.",other,,,proposed
+crm-comment-ae76b4d9,crm,apps/crm/src/componentes/colunas.tsx,119,119,line,2,"// Só depois de montar: o servidor não tem `localStorage`, e ler durante a",translate,"Only after mounting: the server has no `localStorage`, and reading during the",other,,,proposed
+crm-comment-c65c76d4,crm,apps/crm/src/componentes/colunas.tsx,120,120,line,0,// renderização faria os dois desenharem tabelas diferentes.,translate,render would make the two sides draw different tables.,other,,,proposed
+crm-comment-55723070,crm,apps/crm/src/componentes/colunas.tsx,123,123,line,3,// A lista de chaves é um array novo a cada renderização da tela; a assinatura,translate,The key list is a new array on every render of the screen; the signature,other,,,proposed
+crm-comment-44f28121,crm,apps/crm/src/componentes/colunas.tsx,124,124,line,2,"// é o que realmente muda de valor, e é dela que o memo depende.",translate,"is what actually changes value, and it's what the memo depends on.",other,,,proposed
+crm-comment-8e8e497d,crm,apps/crm/src/componentes/colunas.tsx,137,137,line,3,// Sem armazenamento o arranjo vale para esta sessão e some depois.,translate,Without storage the arrangement is only good for this session and disappears afterward.,other,,,proposed
 crm-comment-67a3ae51,crm,apps/crm/src/componentes/colunas.tsx,151,152,jsdoc,4,"/** Volta ao padrão da tela apagando a chave, não gravando o padrão por
-     *  cima: assim a tabela acompanha um deploy que mude as colunas. */",,,,,,
-crm-comment-96a342bf,crm,apps/crm/src/componentes/colunas.tsx,158,158,line,3,// Sem armazenamento não há o que apagar.,,,,,,
+     *  cima: assim a tabela acompanha um deploy que mude as colunas. */",translate,"Goes back to the screen's default by deleting the key, not by writing the
+default back over it: that way the table stays in step with a deploy that
+changes the columns.",other,,,proposed
+crm-comment-96a342bf,crm,apps/crm/src/componentes/colunas.tsx,158,158,line,3,// Sem armazenamento não há o que apagar.,translate,Without storage there's nothing to delete.,other,,,proposed
 crm-comment-bb969886,crm,apps/crm/src/componentes/colunas.tsx,175,179,jsdoc,7,"/**
  * O botão e o painel. Fecha com Esc e com clique fora, como qualquer menu —
  * painel que só fecha pelo próprio botão é o que fica aberto por cima da tabela
  * enquanto a pessoa tenta ler a tabela.
- */",,,,,,
+ */",translate,"The button and the panel. It closes with Esc and with a click outside, like
+any menu — a panel that only closes via its own button is what stays open on
+top of the table while the person is trying to read it.",other,,,proposed
 crm-comment-5617f556,crm,apps/crm/src/componentes/colunas.tsx,228,229,block,7,"/* A contagem só aparece quando há coluna escondida: é o único jeito de
-            a pessoa saber que a tabela está incompleta sem abrir o painel. */",,,,,,
+            a pessoa saber que a tabela está incompleta sem abrir o painel. */",translate,"The count only shows up when a column is hidden: it's the only way for the
+person to know the table is incomplete without opening the panel.",other,,,proposed
 crm-comment-0d1b4f85,crm,apps/crm/src/componentes/colunas.tsx,3,31,block,40,"/*
  * Colunas ocultáveis e reordenáveis da listagem.
  *
@@ -1171,9 +1304,34 @@ crm-comment-0d1b4f85,crm,apps/crm/src/componentes/colunas.tsx,3,31,block,40,"/*
  * tabela, mesma leitura só depois de montar, mesmo silêncio quando o
  * armazenamento está bloqueado. Coluna que a pessoa escondeu e volta no
  * recarregamento seguinte é trabalho jogado fora, igual à largura.
- */",,,,,,
-crm-comment-8aaa903b,crm,apps/crm/src/componentes/colunas.tsx,37,37,jsdoc,2,"/** Ordem de todas as colunas móveis, visíveis e ocultas. A fixa não entra. */",,,,,,
-crm-comment-850a0b79,crm,apps/crm/src/componentes/colunas.tsx,43,43,jsdoc,1,"/** Todas as móveis, na ordem. É o que se grava de volta em `ordem`. */",,,,,,
+ */",translate,"Hideable, reorderable columns for the listing.
+
+Read from Twenty and written from scratch — `twenty-front` is AGPL and doesn't
+go in here. What came from there is measurement and behavior, from
+`object-record/object-options-dropdown/components/ObjectOptionsDropdownFieldsContent.tsx`
+and `views/components/ViewFieldsVisibleDropdownSection.tsx`:
+
+- **The panel is 200px** (`GenericDropdownContentWidth.Medium`), with 32px-tall
+  items, 4px of side padding, and 8px between handle, label and button
+  (`twenty-ui/src/navigation/MenuItem/parts/StyledMenuItemBase.module.scss`).
+- **Two sections**: the visible, draggable ones, with a closed eye that hides;
+  and the hidden ones, with an eye that brings them back.
+- **The first column doesn't move or hide.** It's their `labelIdentifier`: the
+  column that says WHO the row is. Without it the table turns into a grid of
+  attributes with no subject, and the link to the record disappears along
+  with it. They draw it dimmed with the handle locked, and that's what we do.
+
+What we **didn't** copy: their `react-beautiful-dnd`. Native browser dragging
+solves a list of ten items, and the arrows on the handle give the same
+keyboard movement — which is what their library also gives, at the price of a
+new dependency. The keyboard rule is the same one the width handle uses in
+`redimensionar.ts`: arrow moves, and focus stays where it was.
+
+Persistence is `redimensionar.ts`'s, on purpose: same key per table, same
+read-only-after-mount, same silence when storage is blocked. A column the
+person hid that comes back on the next reload is wasted work, same as width.",architecture,"Reviewed apps/crm/src/componentes/colunas.tsx:3-31 — AGPL license boundary: explicitly written from scratch, not copied from twenty-front; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+crm-comment-8aaa903b,crm,apps/crm/src/componentes/colunas.tsx,37,37,jsdoc,2,"/** Ordem de todas as colunas móveis, visíveis e ocultas. A fixa não entra. */",translate,"Order of all movable columns, visible and hidden. The fixed one isn't included.",other,,,proposed
+crm-comment-850a0b79,crm,apps/crm/src/componentes/colunas.tsx,43,43,jsdoc,1,"/** Todas as móveis, na ordem. É o que se grava de volta em `ordem`. */",translate,"All the movable ones, in order. It's what gets saved back into `ordem`.",other,,,proposed
 crm-comment-f1f1f6b1,crm,apps/crm/src/componentes/colunas.tsx,51,58,jsdoc,13,"/**
  * Casa o que está guardado com as colunas que a tela tem AGORA.
  *
@@ -1181,7 +1339,13 @@ crm-comment-f1f1f6b1,crm,apps/crm/src/componentes/colunas.tsx,51,58,jsdoc,13,"/*
  * quando o agrupamento já diz o que ela diria. O guardado manda na ordem, o
  * atual manda na existência, e a coluna que ninguém conhece entra no fim — é o
  * único lugar onde ela não empurra o que a pessoa arrumou.
- */",,,,,,
+ */",translate,"Matches what's stored against the columns the screen has RIGHT NOW.
+
+The two lists drift apart on their own: a new column arrives in a deploy, a
+column disappears when grouping already says what it would say. The stored
+list decides the order, the current one decides existence, and a column
+nobody knows about goes at the end — the one place where it doesn't push
+around what the person already arranged.",other,,,proposed
 crm-comment-f4cefab9,crm,apps/crm/src/componentes/colunas.tsx,73,80,jsdoc,10,"/**
  * Move uma coluna visível para o lugar de outra, e devolve a ordem COMPLETA.
  *
@@ -1189,7 +1353,13 @@ crm-comment-f4cefab9,crm,apps/crm/src/componentes/colunas.tsx,73,80,jsdoc,10,"/*
  * ocultas também, senão elas perdem o lugar e reaparecem no fim da tabela no
  * dia em que alguém as mostrar de novo. A oculta fica ancorada na vizinha que
  * ela tinha: é o comportamento menos surpreendente dos que testamos.
- */",,,,,,
+ */",translate,"Moves a visible column to another one's spot, and returns the FULL order.
+
+The drag happens among the visible ones, but what gets saved has to include
+the hidden ones too, otherwise they lose their place and reappear at the end
+of the table the day someone shows them again. A hidden column stays anchored
+to the neighbor it had: it's the least surprising behavior of the ones we
+tested.",other,,,proposed
 crm-comment-602ce58d,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,4,18,jsdoc,21,"/**
  * O índice da área de configurações, e o cabeçalho que toda seção usa.
  *
@@ -1204,14 +1374,31 @@ crm-comment-602ce58d,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,4,
  * da PESSOA em cima, o que é do ESPAÇO no meio, o que é de desenvolvedor por
  * último. A diferença é o grupo do CRM, que lá não existe porque lá o CRM é o
  * produto inteiro.
- */",,,,,,
+ */",translate,"The settings area's index, and the header every section uses.
+
+**Why there's an index and not just the sidebar.** The settings sidebar is
+assembled in `componentes/estrutura-crm.tsx`, which belongs to another
+workstream right now. While the new sections aren't in that list yet, the
+index at `/configuracoes` is what makes them reachable — and it stays useful
+afterward too, because it describes what each section does, something a 28px
+menu item can't.
+
+The groups are Twenty's, measured in `useSettingsNavigationItems`: what
+belongs to the PERSON on top, what belongs to the WORKSPACE in the middle,
+what belongs to developers last. The difference is the CRM group, which
+doesn't exist there because there the CRM is the whole product.",architecture,Reviewed apps/crm/src/componentes/configuracoes/cabecalho.tsx:4-18 — cites Twenty useSettingsNavigationItems as structural source; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-8ee37999,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,89,95,jsdoc,6,"/**
  * Cabeçalho de seção: o caminho de volta, o título e uma linha do que a tela faz.
  *
  * O caminho de volta vem primeiro na ordem do DOM, e não flutuando ao lado do
  * título, porque é o primeiro alvo do `Tab` — quem entrou na seção errada sai
  * dela sem atravessar o formulário inteiro.
- */",,,,,,
+ */",translate,"Section header: the way back, the title, and one line about what the screen
+does.
+
+The way back comes first in DOM order, not floating next to the title,
+because it's the first `Tab` target — whoever entered the wrong section
+leaves it without crossing the whole form.",other,,,proposed
 crm-comment-620a9405,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,96,103,jsdoc,5,"/**
  * Um bloco dentro da seção: título, uma linha de explicação, conteúdo.
  *
@@ -1219,7 +1406,12 @@ crm-comment-620a9405,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,96
  * cinza e 32px até o bloco seguinte. O `aria-labelledby` liga o `<section>` ao
  * próprio título, que é o que faz a navegação por regiões do leitor de tela
  * listar ""Foto e nome"" em vez de ""seção"".
- */",,,,,,
+ */",translate,"A block inside the section: title, one line of explanation, content.
+
+It's Twenty's `Section` + `H2Title`, measured in the fork: title, gray
+description, and 32px to the next block. `aria-labelledby` links the
+`<section>` to its own title, which is what makes region navigation in a
+screen reader list ""Photo and name"" instead of ""section"".",architecture,Reviewed apps/crm/src/componentes/configuracoes/cabecalho.tsx:96-103 — cites Twenty Section/H2Title as structural+accessibility source; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-8b6c5e4b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,109,116,jsdoc,12,"/**
  * Confirmação em dois toques, no lugar de um `confirm()` do navegador.
  *
@@ -1227,7 +1419,12 @@ crm-comment-8b6c5e4b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,1
  * quem usa leitor de tela ouça a pergunta em vez de só encontrar um botão novo.
  * O segundo confirma. Sem diálogo modal: modal para uma frase é foco roubado e
  * uma armadilha de teclado a mais para manter.
- */",,,,,,
+ */",translate,"Two-tap confirmation, instead of a browser `confirm()`.
+
+The first click arms it and says what's about to happen, with `role=""alert""` so
+that a screen reader user hears the question instead of just finding a new
+button. The second confirms. No modal dialog: a modal for one sentence is
+stolen focus and one more keyboard trap to maintain.",other,,,proposed
 crm-comment-caa7eb72,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,148,155,jsdoc,9,"/**
  * A resposta do servidor.
  *
@@ -1235,7 +1432,12 @@ crm-comment-caa7eb72,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,1
  * sucesso é `role=""status""` (avisa sem cortar o que estiver sendo lido). Trocar
  * os dois é o erro clássico que faz um leitor de tela anunciar ""salvo"" por cima
  * do que a pessoa estava digitando.
- */",,,,,,
+ */",translate,"The server's response.
+
+Error is `role=""alert""` (interrupts: the person needs to know it didn't save);
+success is `role=""status""` (announces without cutting off what's being read).
+Swapping the two is the classic mistake that makes a screen reader announce
+""saved"" over whatever the person was typing.",other,,,proposed
 crm-comment-72c0a14d,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,176,184,jsdoc,14,"/**
  * O segredo que aparece UMA vez: token de chave de API, link de convite, segredo
  * de webhook. O banco guarda o hash (ou a cifra), então recarregar a página não
@@ -1244,8 +1446,14 @@ crm-comment-72c0a14d,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,1
  *
  * É `readOnly` e não `disabled` de propósito: campo desabilitado não recebe foco
  * e não pode ser copiado com o teclado.
- */",,,,,,
-crm-comment-617654c0,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,37,37,jsdoc,1,/** Substitui o botão padrão — é como a confirmação de exclusão entra. */,,,,,,
+ */",translate,"The secret that shows up ONCE: an API key token, an invite link, a webhook
+secret. The database stores the hash (or the cipher), so reloading the page
+doesn't bring it back — and the box says so, because finding out later costs a
+new key.
+
+It's `readOnly`, not `disabled`, on purpose: a disabled field doesn't receive
+focus and can't be copied with the keyboard.",security,Reviewed apps/crm/src/componentes/configuracoes/formulario.tsx:176-184 — one-time secret display semantics; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-617654c0,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,37,37,jsdoc,1,/** Substitui o botão padrão — é como a confirmação de exclusão entra. */,translate,Replaces the default button — it's how the delete confirmation gets triggered.,other,,,proposed
 crm-comment-20c3169b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,55,66,jsdoc,14,"/**
  * O formulário de UMA linha de tabela: desativar um membro, revogar uma chave,
  * cancelar um convite.
@@ -1257,7 +1465,17 @@ crm-comment-20c3169b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,5
  *
  * O id vai em `<input type=""hidden"">` e é conferido com `ehUuid` do outro lado
  * antes de virar `where`. Campo oculto é sugestão do navegador, não promessa.
- */",,,,,,
+ */",translate,"The form for ONE table row: deactivating a member, revoking a key, canceling
+an invite.
+
+Separate from `Formulario` because its shape is different — no title, no
+""Saved."" and the target comes in a hidden field, not typed. It's still a real
+`form`: each row submits itself, and without JavaScript the page reloads with
+the change applied.
+
+The id goes in `<input type=""hidden"">` and is checked with `ehUuid` on the
+other side before becoming a `where`. A hidden field is a browser suggestion,
+not a promise.",security,Reviewed apps/crm/src/componentes/configuracoes/formulario.tsx:55-66 — hidden-field id still re-validated server-side before write; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-087d3a0f,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,8,26,jsdoc,23,"/**
  * O formulário da área de configurações, e o único.
  *
@@ -1276,11 +1494,27 @@ crm-comment-087d3a0f,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,8
  *   servidor e chegam prontos, então este arquivo — que é o único `'use client'`
  *   da área — não importa nada que puxe `pg`. `Resultado` é `import type`, e
  *   `configuracoes-comum.ts` não toca em banco.
- */",,,,,,
-crm-comment-0bd8832e,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,93,93,jsdoc,1,/** Botão de envio com o estado de espera. `useFormStatus` só funciona aqui dentro. */,,,,,,
-crm-comment-5b75ab83,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,37,37,jsdoc,1,/** Escrever o atributo é tudo o que o tema precisa: o CSS faz o resto. */,,,,,,
-crm-comment-0601ab40,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,45,45,line,2,// Nasce em `sistema` porque o servidor não conhece o `localStorage`: qualquer,,,,,,
-crm-comment-54bbb43b,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,46,46,line,0,// outro palpite daria hidratação divergente e um piscar de tema errado.,,,,,,
+ */",translate,"The settings area's form, and the only one.
+
+Every settings screen is the same thing repeated: fields, a button, and a
+server response that needs to show up in Portuguese. This lives here once
+because writing it again across seven screens is how error messages drift
+apart — three ways to say ""it didn't work"", one of them in English.
+
+Two choices worth explaining:
+
+- **A real `<form action={...}>`, with `useActionState`.** The submit is the
+  browser's; JavaScript only improves it. Without it the page reloads and the
+  setting still works — which is the minimum for a screen where someone can
+  disable their own access by mistake.
+- **The fields come from outside, as `children`.** They're rendered on the
+  server and arrive ready, so this file — the area's only `'use client'` —
+  doesn't import anything that pulls in `pg`. `Resultado` is an `import
+type`, and `configuracoes-comum.ts` never touches the database.",security,Reviewed apps/crm/src/componentes/configuracoes/formulario.tsx:8-26 — client/server boundary keeps db driver out of the client bundle; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-0bd8832e,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,93,93,jsdoc,1,/** Botão de envio com o estado de espera. `useFormStatus` só funciona aqui dentro. */,translate,Submit button with a waiting state. `useFormStatus` only works inside here.,other,,,proposed
+crm-comment-5b75ab83,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,37,37,jsdoc,1,/** Escrever o atributo é tudo o que o tema precisa: o CSS faz o resto. */,translate,Writing the attribute is all the theme needs: the CSS does the rest.,other,,,proposed
+crm-comment-0601ab40,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,45,45,line,2,// Nasce em `sistema` porque o servidor não conhece o `localStorage`: qualquer,translate,Starts at `sistema` because the server doesn't know `localStorage`: any,architecture,Reviewed apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx:45 — SSR/CSR hydration-mismatch prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-54bbb43b,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,46,46,line,0,// outro palpite daria hidratação divergente e um piscar de tema errado.,translate,other guess would cause a hydration mismatch and a flash of the wrong theme.,architecture,Reviewed apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx:46 — SSR/CSR hydration-mismatch prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-3a683e44,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,7,29,jsdoc,24,"/**
  * O seletor de tema.
  *
@@ -1303,7 +1537,27 @@ crm-comment-3a683e44,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.
  * `<fieldset>` com `<legend>`. Setas navegam, espaço escolhe e o leitor de tela
  * anuncia ""3 de 3"" sem uma linha de `aria-` — que é sempre melhor do que
  * reimplementar um grupo de rádio com `div` e `role`.
- */",,,,,,
+ */",translate,"The theme selector.
+
+Pipe already had both themes in `packages/ui/src/estilos/tokens.css` from the
+start, in three blocks: light in `:root`, dark by system preference
+(`@media (prefers-color-scheme: dark)`, scoped to
+`:root:not([data-tema='claro'])`) and dark by choice
+(`:root[data-tema='escuro']`). All that was missing was something to write the
+attribute. That's this file.
+
+That's why there are three modes, not two: **`sistema` is the absence of the
+attribute**, and it's what hands the decision back to the operating system. A
+two-state switch couldn't get back there.
+
+It's stored in `localStorage` because theme is a DEVICE preference — the same
+person wants dark on their laptop at night and light on their desk monitor.
+Storing it on `usuario` would force picking one of the two for the person.
+
+Accessibility: these are real `<input type=""radio"">` inside a `<fieldset>`
+with a `<legend>`. Arrow keys navigate, space selects, and the screen reader
+announces ""3 of 3"" without a single `aria-` line — which is always better than
+reimplementing a radio group with `div` and `role`.",architecture,Reviewed apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx:7-29 — hydration-safe theme persistence design; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-509f00e8,crm,apps/crm/src/componentes/esqueleto.tsx,1,12,jsdoc,17,"/**
  * Esqueleto de carregamento.
  *
@@ -1315,15 +1569,28 @@ crm-comment-509f00e8,crm,apps/crm/src/componentes/esqueleto.tsx,1,12,jsdoc,17,"/
  * A largura de cada barra varia de propósito. Barra toda do mesmo tamanho lê
  * como grade, não como texto, e o olho passa a esperar uma tabela vazia em vez
  * de uma tabela carregando.
- */",,,,,,
+ */",translate,"Loading skeleton.
+
+Twenty draws the row before it has the data — the table is already there, at
+the right height, and the content drops in on top. It's better than a spinner
+in the middle of the screen for a measurable reason: the page doesn't jump in
+height when the data arrives, and whoever is reading the header doesn't lose
+their place.
+
+Each bar's width varies on purpose. A bar that's all the same size reads like
+a grid, not like text, and the eye starts expecting an empty table instead of
+a loading one.",other,,,proposed
 crm-comment-0c2540ec,crm,apps/crm/src/componentes/esqueleto.tsx,14,15,jsdoc,2,"/** Larguras em porcentagem, cíclicas. Nada de aleatório: servidor e cliente
- *  precisam desenhar a mesma coisa, senão a hidratação reclama. */",,,,,,
-crm-comment-5766bc2b,crm,apps/crm/src/componentes/esqueleto.tsx,47,47,jsdoc,0,"/** O esqueleto de um bloco de campos da ficha — rótulo curto, valor longo. */",,,,,,
+ *  precisam desenhar a mesma coisa, senão a hidratação reclama. */",translate,"Widths in percentage, cyclical. Nothing random: server and client need to
+draw the exact same thing, or hydration complains.",architecture,Reviewed apps/crm/src/componentes/esqueleto.tsx:14-15 — SSR/CSR hydration-mismatch prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-5766bc2b,crm,apps/crm/src/componentes/esqueleto.tsx,47,47,jsdoc,0,"/** O esqueleto de um bloco de campos da ficha — rótulo curto, valor longo. */",translate,"The skeleton for a block of record fields — short label, long value.",other,,,proposed
 crm-comment-cd6f5869,crm,apps/crm/src/componentes/esqueleto.tsx,65,69,jsdoc,6,"/**
  * O aviso de carregamento para quem usa leitor de tela. O esqueleto é
  * `aria-hidden` — uma tabela de barras vazias lida em voz alta é ruído — então
  * alguém precisa dizer que a tela está trabalhando.
- */",,,,,,
+ */",translate,"The loading notice for screen reader users. The skeleton is `aria-hidden` — a
+table of empty bars read aloud is noise — so someone needs to say the screen
+is working.",other,,,proposed
 crm-comment-23ebd806,crm,apps/crm/src/componentes/estrutura-crm.tsx,106,125,jsdoc,25,"/**
  * A lateral do Twenty, medida no código de `twenty-front` em 07/09/2026.
  *
@@ -1343,8 +1610,25 @@ crm-comment-23ebd806,crm,apps/crm/src/componentes/estrutura-crm.tsx,106,125,jsdo
  * Onde eles põem o seletor de espaço de trabalho, nós pomos o nome do produto:
  * o Pipe resolve o tenant pelo login, e trocar de espaço não é um gesto que
  * exista aqui.
- */",,,,,,
-crm-comment-e9489384,crm,apps/crm/src/componentes/estrutura-crm.tsx,127,127,jsdoc,0,/** Seção da lateral: um rótulo e os objetos embaixo dele. */,,,,,,
+ */",translate,"Twenty's sidebar, measured against `twenty-front`'s code on 09/07/2026.
+
+THE LAYOUT IS THEIRS, THE PAINT IS OURS — the same method as Gestão and Desk
+used with Blip. What gets copied here:
+
+- **left-column navigation, 220px wide**, and no top bar. The work screen
+  starts at the top of the window and uses the full height; in a 60-lead
+  listing that's a row and a half more per screenful.
+- **28px items** with a left icon, 8px radius, and highlight by BACKGROUND, not
+  underline — the underline was Lightning's and left along with the bars.
+- **uppercase named sections**, which group objects instead of stacking
+  everything into one single list.
+- **a count to the right of the item**, which is what makes the sidebar inform
+  instead of just navigate.
+
+Where they put the workspace switcher, we put the product name: Pipe resolves
+the tenant from the login, and switching workspaces isn't a gesture that
+exists here.",meta-blip,"Reviewed apps/crm/src/componentes/estrutura-crm.tsx:106-125 — explicit Blip-parity-method citation (""mesmo método... com a Blip"") — keep exact; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+crm-comment-e9489384,crm,apps/crm/src/componentes/estrutura-crm.tsx,127,127,jsdoc,0,/** Seção da lateral: um rótulo e os objetos embaixo dele. */,translate,A sidebar section: a label and the objects under it.,other,,,proposed
 crm-comment-3b539475,crm,apps/crm/src/componentes/estrutura-crm.tsx,16,38,jsdoc,37,"/**
  * Estrutura do CRM, em dois modos.
  *
@@ -1367,46 +1651,84 @@ crm-comment-3b539475,crm,apps/crm/src/componentes/estrutura-crm.tsx,16,38,jsdoc,
  * campos personalizados, importação, deduplicação) entram quando tiverem tela:
  * um menu de configuração com seis links mortos é o mesmo problema mudado de
  * lugar.
- */",,,,,,
+ */",translate,"CRM structure, in two modes.
+
+**Work**: a horizontal header with the five objects the person uses day to
+day. No sidebar: the list screen doesn't need one, and Salesforce shows that
+(measured: zero elements pinned to the left with more than 300px of height).
+
+Accounts and Contacts came back to the menu once they got a screen. They were
+out under the rule that an item that doesn't work doesn't appear — which
+still holds, and it's why bringing them back required building both lists
+first.
+
+**Settings**: behind the gear icon, on its own screen, with its own sidebar
+and a clear way back. It's the same split Salesforce makes when it leaves for
+`salesforce-setup.com`, at the scale that makes sense for us. What gets
+configured once stops competing for space with what gets used every day.
+
+The settings sidebar only lists what actually opens. The other six topics
+that will live here (forms, sources and UTM, disqualification reasons, custom
+fields, import, deduplication) come in once they have a screen: a settings
+menu with six dead links is the same problem in a different place.",architecture,Reviewed apps/crm/src/componentes/estrutura-crm.tsx:16-38 — CRM shell/nav structure — analogous to forced Desk nav-code category; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-f329c8c8,crm,apps/crm/src/componentes/estrutura-crm.tsx,188,190,block,5,"/* No RODAPÉ da lateral, e não no topo: quem está logado é referência,
           não navegação — e o topo é do produto. É o mesmo lugar em que o
-          Twenty põe a conta. */",,,,,,
+          Twenty põe a conta. */",translate,"In the FOOTER of the sidebar, not the top: whoever's logged in is a
+reference, not navigation — and the top belongs to the product. It's the same
+spot where Twenty puts the account.",other,,,proposed
 crm-comment-484df9d2,crm,apps/crm/src/componentes/estrutura-crm.tsx,40,46,jsdoc,8,"/**
  * A lateral da área de configuração, na ordem dos grupos do Twenty: o que é da
  * PESSOA primeiro, o que é da EMPRESA depois, e o que se liga a fora por último.
  *
  * Cada item abre tela que existe — a régua contra item apagado vale aqui como
  * vale nas barras da Gestão.
- */",,,,,,
-crm-comment-c6f5a44b,crm,apps/crm/src/componentes/estrutura-crm.tsx,58,58,jsdoc,1,"/** Quem está logado. `null` nas duas rotas públicas, e só nelas. */",,,,,,
+ */",translate,"The settings sidebar, in Twenty's group order: what belongs to the PERSON
+first, what belongs to the COMPANY next, and what connects outward last.
+
+Every item opens a screen that exists — the rule against dead items holds
+here the same way it holds in Gestão's bars.",architecture,Reviewed apps/crm/src/componentes/estrutura-crm.tsx:40-46 — settings nav structure; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-c6f5a44b,crm,apps/crm/src/componentes/estrutura-crm.tsx,58,58,jsdoc,1,"/** Quem está logado. `null` nas duas rotas públicas, e só nelas. */",translate,"Whoever's logged in. `null` on both public routes, and only there.",security,Reviewed apps/crm/src/componentes/estrutura-crm.tsx:58 — session state driving nav rendering; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-309cbedd,crm,apps/crm/src/componentes/estrutura-crm.tsx,65,68,jsdoc,4,"/**
  * As duas rotas públicas do produto. Elas não têm lateral: quem chega nelas não
  * está logado, e a lateral inteira é navegação de dado de tenant.
- */",,,,,,
+ */",translate,"The product's two public routes. They have no sidebar: whoever lands on them
+isn't logged in, and the whole sidebar is tenant-data navigation.",security,Reviewed apps/crm/src/componentes/estrutura-crm.tsx:65-68 — session state driving nav rendering; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-f573fbd4,crm,apps/crm/src/componentes/estrutura-crm.tsx,99,100,block,3,"/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
-          do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */",,,,,,
-crm-comment-10e2a494,crm,apps/crm/src/componentes/ficha.tsx,120,120,jsdoc,1,"/** `null` esconde a contagem. Zero é contagem, e zero é informação. */",,,,,,
+          do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */",translate,"Outside the `<main>` on purpose: the command menu doesn't belong to one
+screen, it belongs to the whole app — it reaches the person wherever they
+are.",other,,,proposed
+crm-comment-10e2a494,crm,apps/crm/src/componentes/ficha.tsx,120,120,jsdoc,1,"/** `null` esconde a contagem. Zero é contagem, e zero é informação. */",translate,"`null` hides the count. Zero is a count, and zero is information.",other,,,proposed
 crm-comment-22e5f935,crm,apps/crm/src/componentes/ficha.tsx,124,128,jsdoc,5,"/**
  * As abas do conteúdo. São LINKS, não estado de cliente: a aba vive na URL, o
  * botão de voltar do navegador desfaz a troca, e a ficha continua sendo
  * servidor inteiro.
- */",,,,,,
-crm-comment-1f671265,crm,apps/crm/src/componentes/ficha.tsx,135,135,jsdoc,2,"/** O endereço da ficha, sem parâmetro. A aba entra como `?aba=`. */",,,,,,
-crm-comment-e7d5ee19,crm,apps/crm/src/componentes/ficha.tsx,139,139,jsdoc,1,/** Como escrever o número. A tela passa o `numero` do formato local. */,,,,,,
+ */",translate,"The content tabs. They are LINKS, not client state: the tab lives in the URL,
+the browser's back button undoes the switch, and the record stays fully
+server-rendered.",architecture,Reviewed apps/crm/src/componentes/ficha.tsx:124-128 — URL-as-state tab pattern (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-1f671265,crm,apps/crm/src/componentes/ficha.tsx,135,135,jsdoc,2,"/** O endereço da ficha, sem parâmetro. A aba entra como `?aba=`. */",translate,"The record's address, with no parameter. The tab comes in as `?aba=`.",architecture,Reviewed apps/crm/src/componentes/ficha.tsx:135 — URL-as-state tab pattern (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-e7d5ee19,crm,apps/crm/src/componentes/ficha.tsx,139,139,jsdoc,1,/** Como escrever o número. A tela passa o `numero` do formato local. */,translate,How to write the number. The screen passes the `numero` in the local format.,other,,,proposed
 crm-comment-afd8f6fe,crm,apps/crm/src/componentes/ficha.tsx,162,168,jsdoc,7,"/**
  * A seção de atributos personalizados da lateral.
  *
  * As três tabelas guardam `atributos` em JSONB — é a decisão do modelo que evita
  * os 304 campos customizados do Lead do Salesforce de hoje. Como a forma é a
  * mesma nas três, a seção também é.
- */",,,,,,
+ */",translate,"The sidebar's custom-attributes section.
+
+All three tables store `atributos` in JSONB — it's the data-model decision
+that avoids today's 304 custom fields on Salesforce's Lead. Since the shape is
+the same across the three, so is this section.",architecture,"Reviewed apps/crm/src/componentes/ficha.tsx:162-168 — no-runtime-DDL data modeling, consistent with configuracoes/campos decision; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-5f840547,crm,apps/crm/src/componentes/ficha.tsx,31,37,jsdoc,5,"/**
  * Uma seção da coluna lateral, que abre e fecha.
  *
  * `<details>` nativo: o navegador já sabe abrir, fechar, responder ao teclado e
  * contar para o leitor de tela. Escrever isso em React seria trocar zero linha
  * por trinta e perder o comportamento de busca na página.
- */",,,,,,
+ */",translate,"A sidebar column section that opens and closes.
+
+Native `<details>`: the browser already knows how to open, close, respond to
+the keyboard, and announce to a screen reader. Writing this in React would be
+trading zero lines for thirty and losing in-page search behavior.",other,,,proposed
 crm-comment-5b612db3,crm,apps/crm/src/componentes/ficha.tsx,5,20,jsdoc,23,"/**
  * As peças da ficha, usadas pelas três: lead, conta e contato.
  *
@@ -1422,17 +1744,36 @@ crm-comment-5b612db3,crm,apps/crm/src/componentes/ficha.tsx,5,20,jsdoc,23,"/**
  * Tudo aqui é componente de SERVIDOR. Nenhuma peça guarda estado, e a aba vive
  * na URL — a ficha inteira funciona sem JavaScript, e é o que permite colar no
  * chat o endereço de uma ficha já aberta na aba certa.
- */",,,,,,
-crm-comment-7e025292,crm,apps/crm/src/componentes/ficha.tsx,60,60,jsdoc,2,"/** A segunda linha, em tom menor: ""há 12 dias"", o nome da campanha, a faixa. */",,,,,,
-crm-comment-1b7835af,crm,apps/crm/src/componentes/ficha.tsx,62,62,jsdoc,3,"/** Número em monoespaçada tabular. Para valor e contagem, não para texto. */",,,,,,
+ */",translate,"The record's building blocks, used by all three: lead, account, and contact.
+
+The shape was measured in Twenty (`record-show`) and in Salesforce, which
+arrived at the same design without talking to each other: an identity strip
+at the top, a short row of the fields that decide what to do, a sidebar
+column with the rest of the data in sections that open and close, and tabs for
+the heavy content.
+
+They used to live inside `leads/[id]/page.tsx`, and the account and the
+contact were two poorer screens for not having them. They're here for the
+usual reason: three copies of the same header become three different headers
+by the third month.
+
+Everything here is a SERVER component. No piece holds state, and the tab
+lives in the URL — the whole record works without JavaScript, which is what
+lets you paste into chat the address of a record already open on the right
+tab.",architecture,Reviewed apps/crm/src/componentes/ficha.tsx:5-20 — cites Twenty record-show + Salesforce as structural source; server-rendered URL-tab architecture; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-7e025292,crm,apps/crm/src/componentes/ficha.tsx,60,60,jsdoc,2,"/** A segunda linha, em tom menor: ""há 12 dias"", o nome da campanha, a faixa. */",translate,"The second line, in a lighter tone: ""12 days ago"", the campaign name, the band.",other,,,proposed
+crm-comment-1b7835af,crm,apps/crm/src/componentes/ficha.tsx,62,62,jsdoc,3,"/** Número em monoespaçada tabular. Para valor e contagem, não para texto. */",translate,"Tabular monospaced number. For values and counts, not for text.",other,,,proposed
 crm-comment-46ed4c30,crm,apps/crm/src/componentes/ficha.tsx,66,71,jsdoc,5,"/**
  * O cabeçalho de destaque: identidade em cima, campos principais embaixo.
  *
  * **Cinco campos principais, no máximo** — é a régua do destaque do Salesforce,
  * e mais do que isso deixa de ser destaque. As três fichas obedecem a mesma.
- */",,,,,,
-crm-comment-4433a5ca,crm,apps/crm/src/componentes/ficha.tsx,81,81,jsdoc,2,"/** As etiquetas de estado, à direita do nome. Cor só no que exige ação. */",,,,,,
-crm-comment-0758785e,crm,apps/crm/src/componentes/ficha.tsx,83,83,jsdoc,0,"/** O carimbo discreto do fim da linha: ""criado há 3 dias"". */",,,,,,
+ */",translate,"The highlight header: identity on top, main fields below.
+
+**Five main fields, at most** — that's Salesforce's highlight rule, and more
+than that stops being a highlight. All three records follow the same one.",other,,,proposed
+crm-comment-4433a5ca,crm,apps/crm/src/componentes/ficha.tsx,81,81,jsdoc,2,"/** As etiquetas de estado, à direita do nome. Cor só no que exige ação. */",translate,"The state badges, to the right of the name. Color only on what demands action.",other,,,proposed
+crm-comment-0758785e,crm,apps/crm/src/componentes/ficha.tsx,83,83,jsdoc,0,"/** O carimbo discreto do fim da linha: ""criado há 3 dias"". */",translate,"The quiet stamp at the end of the row: ""created 3 days ago"".",other,,,proposed
 crm-comment-93145f94,crm,apps/crm/src/componentes/filtros.tsx,11,32,jsdoc,43,"/**
  * O filtro por coluna da listagem.
  *
@@ -1454,9 +1795,29 @@ crm-comment-93145f94,crm,apps/crm/src/componentes/filtros.tsx,11,32,jsdoc,43,"/*
  * um de). Aqui é igualdade, mais ""em branco"". Texto livre já é a busca do lado
  * de cá, e um menu de operadores para quatro colunas categóricas seria três
  * cliques para responder o que um resolve.
- */",,,,,,
-crm-comment-266fc5c2,crm,apps/crm/src/componentes/filtros.tsx,40,40,jsdoc,1,/** O endereço desta mesma listagem com outro conjunto de filtros. */,,,,,,
-crm-comment-461bd3a9,crm,apps/crm/src/componentes/filtros.tsx,55,55,line,3,"// branco agora: é a pergunta ""quem ficou sem dono?"", e ela não pode",,,,,,
+ */",translate,"The listing's per-column filter.
+
+The shape is Twenty's (`object-filter-dropdown`): a button that opens the list
+of FIELDS, and the chosen field opens the list of VALUES. Two steps, not one
+form with four selects — because you almost always filter by a single column,
+and a form would demand attention from the other three every time.
+
+The chosen filter becomes a **chip**, next to the button, and the chip is the
+remove button. That's theirs too, and it's what makes an active filter
+visible from a distance: a filtered list with no on-screen signal is where
+""the lead disappeared from the CRM"" comes from.
+
+**No JavaScript at all.** A native `<details>` opens the menu, and each value
+is a link to the same listing with one more parameter. The consequence is the
+one that matters: the filter is in the URL, so **the saved view keeps it for
+free** — saving a view is still just naming a query that already exists.
+
+What we didn't copy: their operators (contains, starts with, is empty, is one
+of). Here it's equality, plus ""blank"". Free text is already the search on
+this side, and an operator menu for four categorical columns would be three
+clicks to answer what one click already answers.",architecture,Reviewed apps/crm/src/componentes/filtros.tsx:11-32 — URL-as-state filter pattern (nav-contract relevant); cites Twenty object-filter-dropdown as source; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-266fc5c2,crm,apps/crm/src/componentes/filtros.tsx,40,40,jsdoc,1,/** O endereço desta mesma listagem com outro conjunto de filtros. */,translate,This same listing's address with a different set of filters.,other,,,proposed
+crm-comment-461bd3a9,crm,apps/crm/src/componentes/filtros.tsx,55,55,line,3,"// branco agora: é a pergunta ""quem ficou sem dono?"", e ela não pode",translate,"blank right now: it's the question ""who's left without an owner?"", and it can't",other,,,proposed
 crm-comment-08a03f99,crm,apps/crm/src/componentes/filtros.tsx,56,56,line,3,// depender de já haver alguém sem dono para poder ser feita.,,,,,,
 crm-comment-1b2b2038,crm,apps/crm/src/componentes/icones-crm.tsx,1,14,jsdoc,17,"/**
  * Ícones que a ficha do lead pede e o `@pipe/ui` ainda não tem.
