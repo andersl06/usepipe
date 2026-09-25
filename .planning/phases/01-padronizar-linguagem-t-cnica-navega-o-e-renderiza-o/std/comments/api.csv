@@ -1426,7 +1426,7 @@ api-comment-545b4d76,api,apps/api/src/dominio/desk/consultas.ts,377,377,jsdoc,3,
 api-comment-d3ebd0e4,api,apps/api/src/dominio/desk/consultas.ts,39,42,jsdoc,4,"/**
  * `execute<T>` pede um tipo com índice implícito, e `interface` do contrato não tem.
  * O mapeamento devolve a mesma forma como tipo de objeto, que tem.
- */",,,,,,
+ */",translate,"`execute<T>` requires a type with an implicit index signature, which the contract `interface` lacks. Mapping to the same object shape supplies that signature.",architecture,apps/api/src/dominio/desk/consultas.ts:39; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-36496e5d,api,apps/api/src/dominio/desk/consultas.ts,404,415,jsdoc,22,"/**
  * O ticket antigo, aberto em leitura a partir do histórico do contato.
  *
@@ -1438,33 +1438,33 @@ api-comment-36496e5d,api,apps/api/src/dominio/desk/consultas.ts,404,415,jsdoc,22
  *
  * `encerrada_por` vira nome de gente aqui, e não identificador: ""Atendente:
  * 3f2a…"" não responde a pergunta que alguém faz ao abrir um ticket antigo.
- */",,,,,,
+ */",translate,"Read a historical ticket from contact history. Deliberately do not filter by agent: contact history already lists its past tickets regardless of agent, so opening one reveals no more than the list. RLS is the boundary: the query runs with the session's `tenant_id`, so another client's conversation is invisible. Resolve `encerrada_por` to a person's name, not an ID; ""Atendente: 3f2a…"" would not answer who closed it.",security,apps/api/src/dominio/desk/consultas.ts:404; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0a8d7379,api,apps/api/src/dominio/desk/consultas.ts,45,49,jsdoc,7,"/**
  * O driver devolve `timestamptz` como `Date` quando o `pg` é carregado uma vez só, e como
  * texto quando alguém carrega uma segunda cópia do parser. Normalizar num lugar só é
  * mais barato do que descobrir isso de novo dentro de um componente.
- */",,,,,,
+ */",translate,"The driver returns `timestamptz` as `Date` with one loaded `pg` parser, or text if another copy is loaded. Normalize centrally instead of making components rediscover this.",architecture,apps/api/src/dominio/desk/consultas.ts:45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2816b0ca,api,apps/api/src/dominio/desk/consultas.ts,478,482,jsdoc,5,"/**
  * ""Clientes aguardando"": quantas conversas estão na fila, nas filas em que o
  * atendente está (ou sem fila). É o `waitingTicketsCount` de `/agents/info` da
  * referência (`~/desk-clone/README.md`), que a coluna mostra ao lado de ""Atender"".
- */",,,,,,
-api-comment-babbed07,api,apps/api/src/dominio/desk/consultas.ts,494,494,jsdoc,0,"/** As filas ativas do cliente — o destino do modal de transferência (""Fila""). */",,,,,,
-api-comment-c6749114,api,apps/api/src/dominio/desk/consultas.ts,509,509,jsdoc,2,"/** A última mensagem trocada com o contato, em qualquer conversa. */",,,,,,
+ */",translate,"""Clientes aguardando"" counts queued conversations in the agent's queues, or without a queue. This is the source `/agents/info` `waitingTicketsCount` (`~/desk-clone/README.md`), shown beside ""Atender"".",meta-blip,apps/api/src/dominio/desk/consultas.ts:478; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-babbed07,api,apps/api/src/dominio/desk/consultas.ts,494,494,jsdoc,0,"/** As filas ativas do cliente — o destino do modal de transferência (""Fila""). */",remove,,other,apps/api/src/dominio/desk/consultas.ts:494,codex3,reviewed
+api-comment-c6749114,api,apps/api/src/dominio/desk/consultas.ts,509,509,jsdoc,2,"/** A última mensagem trocada com o contato, em qualquer conversa. */",remove,,other,apps/api/src/dominio/desk/consultas.ts:509,codex3,reviewed
 api-comment-ce8beffd,api,apps/api/src/dominio/desk/consultas.ts,513,518,jsdoc,8,"/**
  * A lista da aba Contatos (`desk-contact-history`): nome sem caixa (o acento
  * fica; o banco não tem `unaccent`), ou dígitos do telefone, com o mínimo de 2 caracteres da referência
  * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11). 20 por página lá; aqui os 200
  * primeiros, porque a lista ainda não tem rolagem infinita.
- */",,,,,,
+ */",translate,Contacts-tab list (`desk-contact-history`): search names without case folding away accents (the database has no `unaccent`) or phone digits. The source requires at least two characters (`referencias-blip/pesquisa/blip-desk-medidas.md` §11) and displays 20 per page; this implementation returns the first 200 because infinite scrolling is not yet available.,meta-blip,apps/api/src/dominio/desk/consultas.ts:513; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c44ead5e,api,apps/api/src/dominio/desk/marcacoes.ts,121,126,jsdoc,7,"/**
  * `marcarNaoLida` — campos `conversaId` e `naoLida` (`true`/`false`). ""Lida"" é o
  * que abrir a conversa faz sozinho na tela (a ficha ""Não lidas"" da origem
  * ""remove o ticket automaticamente assim que ele é aberto""); ""não lida"" é o
  * lembrete manual para voltar depois.
- */",,,,,,
-api-comment-fe78b78b,api,apps/api/src/dominio/desk/marcacoes.ts,34,34,line,1,// `on` é como o FormData manda a caixa marcada (ver `campos.ts`).,,,,,,
-api-comment-440d68a7,api,apps/api/src/dominio/desk/marcacoes.ts,42,42,jsdoc,2,"/** A conversa existe, está aberta e é do atendente — senão, o motivo. */",,,,,,
+ */",translate,"`marcarNaoLida` receives `conversaId` and `naoLida` (`true`/`false`). Opening a conversation automatically marks it read on the source screen (the ""Não lidas"" panel removes a ticket when opened); unread is a manual reminder to return later.",meta-blip,apps/api/src/dominio/desk/marcacoes.ts:121; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fe78b78b,api,apps/api/src/dominio/desk/marcacoes.ts,34,34,line,1,// `on` é como o FormData manda a caixa marcada (ver `campos.ts`).,translate,`on` is how `FormData` sends a checked box; see `campos.ts`.,integration,apps/api/src/dominio/desk/marcacoes.ts:34; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-440d68a7,api,apps/api/src/dominio/desk/marcacoes.ts,42,42,jsdoc,2,"/** A conversa existe, está aberta e é do atendente — senão, o motivo. */",translate,"Confirm that the conversation exists, is open, and belongs to this agent; otherwise return the reason.",security,apps/api/src/dominio/desk/marcacoes.ts:42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-61a0ac08,api,apps/api/src/dominio/desk/marcacoes.ts,5,21,jsdoc,17,"/**
  * Fixar e marcar como não lida — o menu ""⋮"" do cartão do Desk, que até aqui só
  * fazia `stopPropagation()`.
@@ -1481,22 +1481,22 @@ api-comment-61a0ac08,api,apps/api/src/dominio/desk/marcacoes.ts,5,21,jsdoc,17,"/
  * aberta; `usuarioId` nunca vem do corpo, como nas outras ações de `acoes.ts`.
  * A linha some quando os dois carimbos ficam nulos: a tabela guarda marcação,
  * não ausência dela.
- */",,,,,,
+ */",translate,"Pinning and marking unread implement the Desk card's ""⋮"" menu, which previously only called `stopPropagation()`. The source `TicketMenuOptions` (`blip-desk-regras-tecnicas.md` §1.8: `PIN`/`UNPIN`, `UNREAD`/`READ`) and `blip-desk-funcoes.md` §3 allow an agent to pin up to 50 own tickets and toggle unread. Both marks are PER AGENT; a transferred conversation starts unmarked for its new agent. Store them in `marcacao_conversa` (migration 0041), never on `conversa`. The SESSION agent may mark only an open conversation assigned to them; `usuarioId` never comes from the body, as in `acoes.ts`. Delete the row when both marks are null because this table stores markings, not their absence.",meta-blip,apps/api/src/dominio/desk/marcacoes.ts:5; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e586f887,api,apps/api/src/dominio/desk/marcacoes.ts,59,64,jsdoc,9,"/**
  * Tira UMA marca: apaga a linha quando ela ia ficar vazia, e só então zera a
  * outra. O `CHECK` (`marcacao_conversa_alguma_ck`) é conferido no próprio
  * `update`, então zerar primeiro e limpar depois estoura antes de chegar na
  * limpeza — era o que acontecia ao desafixar uma conversa sem outra marca.
- */",,,,,,
+ */",translate,"Remove ONE mark by deleting the row if it would become empty, and only otherwise clearing that mark. The `marcacao_conversa_alguma_ck` `CHECK` runs during `update`: clearing first and deleting later fails before cleanup, as happened when unpinning a conversation with no other mark.",architecture,apps/api/src/dominio/desk/marcacoes.ts:59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6c440e6f,api,apps/api/src/dominio/desk/marcacoes.ts,79,83,jsdoc,6,"/**
  * `fixar` — campos `conversaId` e `fixada` (`true`/`false`). Fixar de novo é
  * no-op (mantém o `fixada_em` original, para a ordem no topo não pular);
  * desafixar o que não estava fixado também é no-op.
- */",,,,,,
-api-comment-edb0f39f,api,apps/api/src/dominio/desk/marcacoes.ts,98,98,line,2,// O teto conta as OUTRAS fixadas: refixar a mesma não pode bater no limite.,,,,,,
-api-comment-daed38f5,api,apps/api/src/dominio/desk/metricas.ts,126,126,line,3,// Transferência e perda não existem no nosso domínio: não há coluna que,,,,,,
-api-comment-9b4e8a3e,api,apps/api/src/dominio/desk/metricas.ts,127,127,line,3,// diga que a conversa mudou de atendente nem que ela se perdeu. `null`,,,,,,
-api-comment-c9249387,api,apps/api/src/dominio/desk/metricas.ts,128,128,line,1,"// aqui vira um traço na tela, e não um zero — zero seria mentira.",,,,,,
+ */",translate,"`fixar` receives `conversaId` and `fixada` (`true`/`false`). Pinning an already pinned ticket is a no-op, preserving `fixada_em` and list order; unpinning an unpinned ticket is also a no-op.",meta-blip,apps/api/src/dominio/desk/marcacoes.ts:79; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-edb0f39f,api,apps/api/src/dominio/desk/marcacoes.ts,98,98,line,2,// O teto conta as OUTRAS fixadas: refixar a mesma não pode bater no limite.,translate,The limit counts OTHER pinned tickets; pinning the same one again must not hit the cap.,security,apps/api/src/dominio/desk/marcacoes.ts:98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-daed38f5,api,apps/api/src/dominio/desk/metricas.ts,126,126,line,3,// Transferência e perda não existem no nosso domínio: não há coluna que,update,"Transfers are supported in the domain, but this Desk response does not compute per-agent transfer or loss counters. Return `null` for both so the screen shows a dash instead of an invented zero.",architecture,apps/api/src/dominio/conversa.ts:272-470; apps/api/src/dominio/desk/metricas.ts:126-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9b4e8a3e,api,apps/api/src/dominio/desk/metricas.ts,127,127,line,3,// diga que a conversa mudou de atendente nem que ela se perdeu. `null`,remove,,architecture,apps/api/src/dominio/desk/metricas.ts:126-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c9249387,api,apps/api/src/dominio/desk/metricas.ts,128,128,line,1,"// aqui vira um traço na tela, e não um zero — zero seria mentira.",remove,,other,apps/api/src/dominio/desk/metricas.ts:126-128,codex3,reviewed
 api-comment-f9de1cd2,api,apps/api/src/dominio/desk/metricas.ts,45,54,block,17,"/*
    * Uma passada só sobre as conversas do atendente que TOCAM o período — ou
    * porque caíram nele, ou porque fecharam nele. Contar as duas coisas na
@@ -1506,7 +1506,7 @@ api-comment-f9de1cd2,api,apps/api/src/dominio/desk/metricas.ts,45,54,block,17,"/
    * Cada tempo médio tem a sua própria população, e é por isso que cada um leva
    * o seu `filter`: uma conversa sem primeira resposta não pode puxar a média
    * de primeira resposta para baixo, ela simplesmente não entra na conta.
-   */",,,,,,
+   */",translate,Scan once over this agent's conversations touching the period through arrival or closure. Counting both in one pass avoids a second database query; Postgres `filter` supports it. Each average has its own population and `filter`: a conversation without a first response must not lower the first-response average; it is excluded.,architecture,apps/api/src/dominio/desk/metricas.ts:45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e269174b,api,apps/api/src/dominio/desk/metricas.ts,6,29,jsdoc,37,"/**
  * As métricas do atendente, para a tela de métricas do Desk — movidas de
  * `apps/desk/src/servidor/metricas.ts` com o SQL intacto; a forma da resposta
@@ -1530,7 +1530,7 @@ api-comment-e269174b,api,apps/api/src/dominio/desk/metricas.ts,6,29,jsdoc,37,"/*
  * 2. Lá a média de tempo é a média simples entre robôs, cada um pesando igual
  *    tenha ele 1 ou 500 atendimentos. Aqui a média é sobre os atendimentos, que
  *    é a única que responde ""quanto o cliente esperou por mim"".
- */",,,,,,
+ */",translate,"Agent metrics for the Desk screen, moved from `apps/desk/src/servidor/metricas.ts` with SQL unchanged; return `MetricasDoAtendente` from `@pipe/contracts`. Always show the current agent, never a colleague or another client. Isolation combines `noTenant` RLS with an `atendente_id` filter taken from the session, not the URL. There is no parameter to inspect another agent; supervisor operations belong in Pipe Management. The source screen (`referencias-blip/pesquisa/blip-desk-medidas.md` §10) has six state counts, three averages, and a daily series. Two intentional differences: source queries run in parallel per bot and silently undercount when one fails; this implementation runs one query in one transaction, so failure is visible. The source averages bot averages equally whether a bot handled one or 500 tickets; this implementation averages across tickets to answer how long clients waited for this agent.",meta-blip,apps/api/src/dominio/desk/metricas.ts:6; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-db65a0f3,api,apps/api/src/dominio/desk/metricas.ts,94,102,block,11,"/*
    * A série diária. O `generate_series` garante que dia sem movimento apareça
    * como zero em vez de sumir do gráfico — sem ele, uma semana com dois dias
@@ -1539,33 +1539,33 @@ api-comment-db65a0f3,api,apps/api/src/dominio/desk/metricas.ts,94,102,block,11,"
    * ponytail: duas subconsultas correlacionadas por dia, no máximo 90 dias e
    * sempre com o índice de atendente. Se um dia isto virar visão de operação,
    * troque por um `group by` sobre uma união das duas datas.
-   */",,,,,,
-api-comment-dd531d5a,api,apps/api/src/dominio/dicionario-crm.ts,124,124,jsdoc,2,/** `workspaceCustomApplicationId`: a aplicação dona do que o cliente criou (2.12+). */,,,,,,
+   */",translate,"Daily series uses `generate_series` so inactive days appear as zero rather than disappearing from the chart. It currently uses two correlated subqueries per day for at most 90 indexed days; if this becomes an operations view, replace them with a `group by` over both date sets.",architecture,apps/api/src/dominio/desk/metricas.ts:94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dd531d5a,api,apps/api/src/dominio/dicionario-crm.ts,124,124,jsdoc,2,/** `workspaceCustomApplicationId`: a aplicação dona do que o cliente criou (2.12+). */,translate,`workspaceCustomApplicationId` identifies the app owning customer-created objects (Twenty 2.12+).,integration,apps/api/src/dominio/dicionario-crm.ts:124; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d9872274,api,apps/api/src/dominio/dicionario-crm.ts,134,139,jsdoc,5,"/**
  * Lê objetos e campos da instância. Três passos, em série:
  * 1. introspecção de `Object` e `Field`, para saber o que pedir;
  * 2. `currentWorkspace.workspaceCustomApplicationId`, se a instância é 2.12+;
  * 3. `objects`, página a página, com os campos de cada um.
- */",,,,,,
-api-comment-5777fd38,api,apps/api/src/dominio/dicionario-crm.ts,165,165,line,4,"// `fieldsList` é a lista inteira de uma vez; sem ele, a conexão paginada antiga.",,,,,,
+ */",translate,Read instance objects and fields in three serial steps: introspect `Object` and `Field` to discover available fields; read `currentWorkspace.workspaceCustomApplicationId` on 2.12+; then page through `objects` with each one's fields.,integration,apps/api/src/dominio/dicionario-crm.ts:134; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5777fd38,api,apps/api/src/dominio/dicionario-crm.ts,165,165,line,4,"// `fieldsList` é a lista inteira de uma vez; sem ele, a conexão paginada antiga.",translate,"`fieldsList` returns the whole field list; without it, use the older paginated connection.",integration,apps/api/src/dominio/dicionario-crm.ts:165; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f9355845,api,apps/api/src/dominio/dicionario-crm.ts,213,216,jsdoc,2,"/**
  * Do cliente ou de fábrica? Antes da 2.12 o Twenty dizia direto (`isCustom`); depois,
  * é do cliente o que pertence à aplicação `workspaceCustomApplicationId`.
- */",,,,,,
-api-comment-27f568f5,api,apps/api/src/dominio/dicionario-crm.ts,242,242,line,0,"// Fora da transação, de propósito — ver o cabeçalho.",,,,,,
-api-comment-b8c93f11,api,apps/api/src/dominio/dicionario-crm.ts,244,244,line,0,// Todo workspace tem os objetos de fábrica. Lista vazia é permissão faltando ou,,,,,,
-api-comment-8043548a,api,apps/api/src/dominio/dicionario-crm.ts,245,245,line,0,"// instância quebrada, e gravá-la marcaria o dicionário inteiro como removido.",,,,,,
-api-comment-bacbb8ac,api,apps/api/src/dominio/dicionario-crm.ts,253,253,jsdoc,0,"/** Upsert por `name` e marca de removido — em série, dentro do `comTenant`. */",,,,,,
-api-comment-e1c3059a,api,apps/api/src/dominio/dicionario-crm.ts,30,30,jsdoc,3,"/** Tenant sem CRM configurado. Não é erro: é ausência, e a sincronização é pulada. */",,,,,,
+ */",translate,Determine customer ownership: before Twenty 2.12 use `isCustom`; later compare ownership with `workspaceCustomApplicationId`.,integration,apps/api/src/dominio/dicionario-crm.ts:213; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-27f568f5,api,apps/api/src/dominio/dicionario-crm.ts,242,242,line,0,"// Fora da transação, de propósito — ver o cabeçalho.",translate,Keep the network call outside the transaction; see the file header.,integration,apps/api/src/dominio/dicionario-crm.ts:242; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b8c93f11,api,apps/api/src/dominio/dicionario-crm.ts,244,244,line,0,// Todo workspace tem os objetos de fábrica. Lista vazia é permissão faltando ou,translate,Every workspace has built-in objects. An empty list means missing permission or a broken instance;,integration,apps/api/src/dominio/dicionario-crm.ts:244; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8043548a,api,apps/api/src/dominio/dicionario-crm.ts,245,245,line,0,"// instância quebrada, e gravá-la marcaria o dicionário inteiro como removido.",translate,writing it would mark the entire dictionary removed.,integration,apps/api/src/dominio/dicionario-crm.ts:245; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bacbb8ac,api,apps/api/src/dominio/dicionario-crm.ts,253,253,jsdoc,0,"/** Upsert por `name` e marca de removido — em série, dentro do `comTenant`. */",translate,"Upsert by `name` and mark missing records removed, serially inside `comTenant`.",integration,apps/api/src/dominio/dicionario-crm.ts:253; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e1c3059a,api,apps/api/src/dominio/dicionario-crm.ts,30,30,jsdoc,3,"/** Tenant sem CRM configurado. Não é erro: é ausência, e a sincronização é pulada. */",translate,"A tenant without CRM configuration is an absence, not an error; skip synchronization.",integration,apps/api/src/dominio/dicionario-crm.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-031d9953,api,apps/api/src/dominio/dicionario-crm.ts,33,37,jsdoc,4,"/**
  * Critério do `agregavel`: só tipo que É número. `NUMBER` e `NUMERIC` somam direto;
  * `CURRENCY` soma `amountMicros` dentro da mesma `currencyCode`. Texto não soma, e
  * `RATING` também não — é ordinal guardado como texto (`RATING_1`…`RATING_5`).
- */",,,,,,
-api-comment-cd8c2592,api,apps/api/src/dominio/dicionario-crm.ts,330,330,line,3,"// O que sumiu do Twenty: inativo e com `excluido_em`, nunca apagado. Só linha que",,,,,,
-api-comment-86d70865,api,apps/api/src/dominio/dicionario-crm.ts,331,331,line,3,// veio do Twenty (`twenty_id`) — o que o CRM caseiro declarou à mão não é daqui.,,,,,,
-api-comment-5936ac64,api,apps/api/src/dominio/dicionario-crm.ts,359,359,jsdoc,2,"/** `excluded.<coluna>` para cada coluna da linha, menos a chave do conflito. */",,,,,,
-api-comment-f0d94ae1,api,apps/api/src/dominio/dicionario-crm.ts,373,373,jsdoc,0,"/** 500 linhas por comando: ~25 colunas cada, bem abaixo do teto de 65 535 parâmetros. */",,,,,,
+ */",translate,"`agregavel` applies only to numeric types: `NUMBER` and `NUMERIC` sum directly; `CURRENCY` sums `amountMicros` within one `currencyCode`. Text cannot be summed, and `RATING` is ordinal text (`RATING_1`…`RATING_5`).",integration,apps/api/src/dominio/dicionario-crm.ts:33; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cd8c2592,api,apps/api/src/dominio/dicionario-crm.ts,330,330,line,3,"// O que sumiu do Twenty: inativo e com `excluido_em`, nunca apagado. Só linha que",translate,"What disappeared from Twenty becomes inactive with `excluido_em`, never deleted. Only rows",integration,apps/api/src/dominio/dicionario-crm.ts:330; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-86d70865,api,apps/api/src/dominio/dicionario-crm.ts,331,331,line,3,// veio do Twenty (`twenty_id`) — o que o CRM caseiro declarou à mão não é daqui.,translate,imported from Twenty (`twenty_id`) are ours to mark; leave handmade CRM declarations alone.,integration,apps/api/src/dominio/dicionario-crm.ts:331; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5936ac64,api,apps/api/src/dominio/dicionario-crm.ts,359,359,jsdoc,2,"/** `excluded.<coluna>` para cada coluna da linha, menos a chave do conflito. */",translate,Use `excluded.<coluna>` for each row column except the conflict key.,integration,apps/api/src/dominio/dicionario-crm.ts:359; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f0d94ae1,api,apps/api/src/dominio/dicionario-crm.ts,373,373,jsdoc,0,"/** 500 linhas por comando: ~25 colunas cada, bem abaixo do teto de 65 535 parâmetros. */",translate,"Process 500 rows per statement, about 25 columns each, below Postgres's 65,535 parameter limit.",integration,apps/api/src/dominio/dicionario-crm.ts:373; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ac69097d,api,apps/api/src/dominio/dicionario-crm.ts,388,397,jsdoc,10,"/**
  * O dicionário do tenant em vigor, objeto a objeto com os seus campos. É o que o builder
  * e a IA consomem.
@@ -1575,21 +1575,21 @@ api-comment-ac69097d,api,apps/api/src/dominio/dicionario-crm.ts,388,397,jsdoc,10
  * linha para dizer ""campo removido"" em vez de ""campo desconhecido"".
  *
  * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
- */",,,,,,
-api-comment-c451685c,api,apps/api/src/dominio/dicionario-crm.ts,40,40,jsdoc,1,"/** `TS_VECTOR` é o índice de busca textual do Twenty, não dado de ninguém. */",,,,,,
-api-comment-4cd4ff2f,api,apps/api/src/dominio/dicionario-crm.ts,418,418,jsdoc,2,"/** Id interno e tenant não saem: quem consome casa por `codigo`, e o tenant é a sessão. */",,,,,,
+ */",translate,"Return the current tenant's dictionary with each object and fields for the flow builder and AI. Include inactive and removed records: consumers filter `isActive`/`excluidoEm`, and a block pointing to a removed field must report ""field removed"" rather than ""unknown field"". Run both reads serially in the caller's `noTenant`.",integration,apps/api/src/dominio/dicionario-crm.ts:388; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c451685c,api,apps/api/src/dominio/dicionario-crm.ts,40,40,jsdoc,1,"/** `TS_VECTOR` é o índice de busca textual do Twenty, não dado de ninguém. */",translate,"`TS_VECTOR` is Twenty's full-text search index, not customer data.",integration,apps/api/src/dominio/dicionario-crm.ts:40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4cd4ff2f,api,apps/api/src/dominio/dicionario-crm.ts,418,418,jsdoc,2,"/** Id interno e tenant não saem: quem consome casa por `codigo`, e o tenant é a sessão. */",translate,"Do not expose internal ID or tenant: consumers match by `codigo`, and tenant comes from the session.",security,apps/api/src/dominio/dicionario-crm.ts:418; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-eb73c39f,api,apps/api/src/dominio/dicionario-crm.ts,426,432,jsdoc,5,"/**
  * Quem a varredura periódica sincroniza, e quantos ficam de fora por não ter CRM.
  *
  * Papel dono pelo mesmo motivo de `contatosSemEspelho`: varre todos os tenants, antes
  * de haver tenant em vigor. **Só este `select` roda assim**; a sincronização de cada um
  * volta para o `comTenant`.
- */",,,,,,
+ */",translate,Select tenants for periodic dictionary synchronization and count those without CRM. Use the owner role like `contatosSemEspelho` to scan before any tenant is established. ONLY this `select` uses it; synchronize each tenant under `comTenant`.,security,apps/api/src/dominio/dicionario-crm.ts:426; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-631a0104,api,apps/api/src/dominio/dicionario-crm.ts,43,47,block,10,"/*
  * O que pedimos à Metadata API. Só vai na query o que o schema DAQUELA instância tem —
  * é assim que a mesma chamada serve à 2.39 (que tem `applicationId`) e às anteriores à
  * 2.12 (que tinham `isCustom`), sem tabela de versão.
- */",,,,,,
+ */",translate,"Metadata API selection depends on the schema of THAT instance. Request only available fields, allowing the same call to support Twenty 2.39 with `applicationId` and pre-2.12 versions with `isCustom`, without a version table.",integration,apps/api/src/dominio/dicionario-crm.ts:43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-83c66ee7,api,apps/api/src/dominio/dicionario-crm.ts,8,26,jsdoc,19,"/**
  * O dicionário de dados de cada tenant, espelhado dos metadados do CRM (Twenty) dele.
  *
@@ -1608,14 +1608,14 @@ api-comment-83c66ee7,api,apps/api/src/dominio/dicionario-crm.ts,8,26,jsdoc,19,"/
  * 2. a chamada de rede acontece FORA da transação, para não prender conexão do pool;
  * 3. a escrita volta para o `comTenant` do tenant do job, e a RLS impede a linha de cair
  *    em outro tenant.
- */",,,,,,
-api-comment-72cfd317,api,apps/api/src/dominio/dicionario-crm.ts,81,81,jsdoc,2,/** A relação no formato da API: `type` é a cardinalidade (`MANY_TO_ONE`/`ONE_TO_MANY`). */,,,,,,
+ */",translate,"Mirror each tenant's data dictionary from its Twenty CRM metadata. The flow builder and AI read the fields in THAT client's own instance, avoiding guessed field names. Owner rule: copy facts, never invent them. Preserve the Metadata API's `objectMetadata`/`fieldMetadata` property names, literal `type`, and `options`/`defaultValue`/`settings`/`relation` JSON (migration 0015). Do not copy Twenty code: it is AGPL; consume only its API and data shape. Queue, sweep, and isolation follow `espelho-crm.ts`: read `configDoTenant` inside `comTenant` so RLS protects URL and key; call the network OUTSIDE the transaction to free the pool connection; write back inside the job tenant's `comTenant` so RLS prevents cross-tenant records.",architecture,apps/api/src/dominio/dicionario-crm.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-72cfd317,api,apps/api/src/dominio/dicionario-crm.ts,81,81,jsdoc,2,/** A relação no formato da API: `type` é a cardinalidade (`MANY_TO_ONE`/`ONE_TO_MANY`). */,translate,API relation format: `type` expresses cardinality (`MANY_TO_ONE`/`ONE_TO_MANY`).,integration,apps/api/src/dominio/dicionario-crm.ts:81; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e6130dac,api,apps/api/src/dominio/distribuicao.ts,140,145,jsdoc,8,"/**
  * Tira da fila e atribui ao atendente que a regra escolher, se houver um.
  *
  * Morava em `entrada.ts`; mudou para cá porque agora são dois a chamar — a entrada e o
  * bot, quando transfere.
- */",,,,,,
+ */",translate,"Remove a conversation from its queue and assign it to the agent selected by the rule, if any. This moved from `entrada.ts` because both inbound handling and the bot now call it on transfer.",architecture,apps/api/src/dominio/distribuicao.ts:140; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a06d1b42,api,apps/api/src/dominio/distribuicao.ts,70,79,jsdoc,14,"/**
  * O MESMO levantamento de `candidatosDaFila`, virado ao contrário: UM atendente em
  * TODAS as filas dele, uma linha por fila. É o que a puxada manual (`atender`, em
@@ -1625,7 +1625,7 @@ api-comment-a06d1b42,api,apps/api/src/dominio/distribuicao.ts,70,79,jsdoc,14,"/*
  *
  * `ativas` é o total do atendente, e não por fila: o limite é de quantas conversas
  * a pessoa segura ao mesmo tempo, e a fila só decide qual limite vale.
- */",,,,,,
+ */",translate,"Invert the same lookup as `candidatosDaFila`: one agent across ALL their queues, one row per queue. Manual claim (`atender` in `desk/acoes.ts`) passes this to `@pipe/core` `motivoInelegivel`, so capacity follows the same calculation as automatic distribution; previously manual claims ignored the limit (Desk audit item 8). `ativas` is the agent's total, not per queue: capacity counts all simultaneous conversations, while the queue chooses which limit applies.",architecture,apps/api/src/dominio/distribuicao.ts:70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-41a99911,api,apps/api/src/dominio/distribuicao.ts,8,15,jsdoc,9,"/**
  * Distribuição por carga real (§4.3 da spec, §7 da spec de métricas).
  *
@@ -1633,8 +1633,8 @@ api-comment-41a99911,api,apps/api/src/dominio/distribuicao.ts,8,15,jsdoc,9,"/**
  * levanta o estado dos atendentes da fila e entrega para `escolherAtendente`. Assim
  * o desempate por carga ponderada continua tendo uma implementação só, testada com
  * tabela de casos, e a `api` não vira um segundo lugar onde a regra mora.
- */",,,,,,
-api-comment-6b488ce5,api,apps/api/src/dominio/dominios.ts,100,100,line,2,"// vazio — e a resposta certa é 409, não 500.",,,,,,
+ */",translate,"Distribute by actual load (spec §4.3, metrics spec §7). `@pipe/core` owns the decision; this file collects agent state for `escolherAtendente` rather than reimplementing weighted-load tie breaking in `api`. The core rule has table-driven tests.",architecture,apps/api/src/dominio/distribuicao.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6b488ce5,api,apps/api/src/dominio/dominios.ts,100,100,line,2,"// vazio — e a resposta certa é 409, não 500.",translate,"empty; the correct response is 409, not 500.",security,apps/api/src/dominio/dominios.ts:100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-442b9b79,api,apps/api/src/dominio/dominios.ts,131,140,jsdoc,9,"/**
  * Confere o TXT no DNS e marca como verificado.
  *
@@ -1644,24 +1644,24 @@ api-comment-442b9b79,api,apps/api/src/dominio/dominios.ts,131,140,jsdoc,9,"/**
  * Um registro TXT chega partido em pedaços de até 255 bytes, e o valor é a
  * CONCATENAÇÃO deles; comparar pedaço a pedaço é o erro que faz a verificação
  * falhar só para quem tem token longo.
- */",,,,,,
-api-comment-676e8054,api,apps/api/src/dominio/dominios.ts,163,163,line,2,// `ENOTFOUND`/`ENODATA` é o caso comum: o registro ainda não foi publicado ou,,,,,,
-api-comment-5dc8f9e0,api,apps/api/src/dominio/dominios.ts,164,164,line,4,"// ainda não propagou. Isso é ""tente de novo"", não erro do servidor.",,,,,,
-api-comment-33460ef9,api,apps/api/src/dominio/dominios.ts,184,184,line,2,"// espera `Date`, e converter aqui é o que evita `.toISOString is not a function`",,,,,,
-api-comment-b39753b4,api,apps/api/src/dominio/dominios.ts,185,185,line,2,// aparecer na primeira tela que formatar a data.,,,,,,
+ */",translate,"Verify the DNS TXT record and mark the domain verified. Inject `resolvedor` so tests avoid network, as with `buscar` in `trocarCodigo`; the default uses the system resolver. TXT strings arrive in chunks of at most 255 bytes and must be CONCATENATED before comparison. Comparing chunks separately fails for long tokens.",security,apps/api/src/dominio/dominios.ts:131; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-676e8054,api,apps/api/src/dominio/dominios.ts,163,163,line,2,// `ENOTFOUND`/`ENODATA` é o caso comum: o registro ainda não foi publicado ou,translate,`ENOTFOUND`/`ENODATA` usually means the record is unpublished or,integration,apps/api/src/dominio/dominios.ts:163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5dc8f9e0,api,apps/api/src/dominio/dominios.ts,164,164,line,4,"// ainda não propagou. Isso é ""tente de novo"", não erro do servidor.",translate,not yet propagated. Tell the caller to retry rather than treating it as a server error.,integration,apps/api/src/dominio/dominios.ts:164; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-33460ef9,api,apps/api/src/dominio/dominios.ts,184,184,line,2,"// espera `Date`, e converter aqui é o que evita `.toISOString is not a function`",translate,the consumer expects a `Date`; converting here prevents `.toISOString is not a function`,architecture,apps/api/src/dominio/dominios.ts:184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b39753b4,api,apps/api/src/dominio/dominios.ts,185,185,line,2,// aparecer na primeira tela que formatar a data.,translate,on the first screen that formats it.,architecture,apps/api/src/dominio/dominios.ts:185; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cbe52797,api,apps/api/src/dominio/dominios.ts,194,198,jsdoc,4,"/**
  * O código SQLSTATE do erro. O Drizzle embrulha a falha do driver, então o `code`
  * pode estar uma camada abaixo — e é justamente o caso do `23505` que separa
  * ""domínio de outro cliente"" (409) de erro interno (500).
- */",,,,,,
-api-comment-954bf445,api,apps/api/src/dominio/dominios.ts,22,22,jsdoc,3,/** O nome do registro. Prefixo próprio para não brigar com SPF e afins no apex. */,,,,,,
-api-comment-63c7b021,api,apps/api/src/dominio/dominios.ts,38,38,jsdoc,4,"/** Rótulos de DNS, sem esquema, sem caminho, com pelo menos um ponto. */",,,,,,
-api-comment-84428474,api,apps/api/src/dominio/dominios.ts,49,49,line,1,// Ponto final é FQDN válido no DNS e lixo na comparação com o e-mail.,,,,,,
+ */",translate,"Read SQLSTATE from a Postgres error. Drizzle wraps the driver failure, so `code` may be one layer down; `23505` distinguishes a domain already owned by another client (409) from an internal failure (500).",security,apps/api/src/dominio/dominios.ts:194; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-954bf445,api,apps/api/src/dominio/dominios.ts,22,22,jsdoc,3,/** O nome do registro. Prefixo próprio para não brigar com SPF e afins no apex. */,translate,Use a dedicated TXT record prefix to avoid colliding with SPF and other apex records.,security,apps/api/src/dominio/dominios.ts:22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-63c7b021,api,apps/api/src/dominio/dominios.ts,38,38,jsdoc,4,"/** Rótulos de DNS, sem esquema, sem caminho, com pelo menos um ponto. */",translate,Accept DNS labels with no scheme or path and at least one dot.,security,apps/api/src/dominio/dominios.ts:38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-84428474,api,apps/api/src/dominio/dominios.ts,49,49,line,1,// Ponto final é FQDN válido no DNS e lixo na comparação com o e-mail.,translate,A trailing dot is a valid DNS FQDN but would break comparison with an email domain.,security,apps/api/src/dominio/dominios.ts:49; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-59ec5dc0,api,apps/api/src/dominio/dominios.ts,69,73,jsdoc,5,"/**
  * Registra o domínio e devolve o TXT a publicar. Idempotente: chamar de novo para o
  * mesmo domínio devolve o mesmo token, senão quem já publicou o registro veria a
  * verificação falhar sem ter mexido em nada.
- */",,,,,,
+ */",translate,Register a domain and return the TXT record to publish. Repeat calls are idempotent and return the same token; rotating it would invalidate a record already published by the client.,security,apps/api/src/dominio/dominios.ts:69; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5a0e232c,api,apps/api/src/dominio/dominios.ts,8,20,jsdoc,16,"/**
  * Verificação de domínio: o que transforma ""o e-mail dela termina em @acme.com.br""
  * em ""ela é da Acme"".
@@ -1674,21 +1674,21 @@ api-comment-5a0e232c,api,apps/api/src/dominio/dominios.ts,8,20,jsdoc,16,"/**
  * **Domínio público nunca é verificável.** A lista está em `@pipe/autenticacao`
  * (`DOMINIOS_PUBLICOS`) e é a mesma que a entrada consulta: se `gmail.com` pudesse
  * ser verificado, o primeiro a cadastrá-lo levaria todo mundo para a conta dele.
- */",,,,,,
-api-comment-72ccf2da,api,apps/api/src/dominio/dominios.ts,98,98,line,3,// O único de `dominio` é GLOBAL. Sem tenant em vigor a RLS esconde a linha do,,,,,,
-api-comment-cd2b8dd1,api,apps/api/src/dominio/dominios.ts,99,99,line,3,"// outro cliente, então a colisão chega como violação de único, não como select",,,,,,
+ */",translate,"Domain verification turns ""her email ends in @acme.com.br"" into proof that she belongs to Acme. It is the second sign-in question (`packages/autenticacao/src/entrada.ts`) and requires `verificado_em`: without proof of ownership, someone could register `@banco.com.br` and receive that bank's users into their tenant. Only the DNS zone owner can publish the TXT proof. Public domains can NEVER be verified. `@pipe/autenticacao` `DOMINIOS_PUBLICOS` is the same list used by sign-in; allowing `gmail.com` would let the first registrant claim everyone.",security,apps/api/src/dominio/dominios.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-72ccf2da,api,apps/api/src/dominio/dominios.ts,98,98,line,3,// O único de `dominio` é GLOBAL. Sem tenant em vigor a RLS esconde a linha do,translate,"The unique constraint on `dominio` is GLOBAL. Without a tenant set, RLS hides another",security,apps/api/src/dominio/dominios.ts:98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cd2b8dd1,api,apps/api/src/dominio/dominios.ts,99,99,line,3,"// outro cliente, então a colisão chega como violação de único, não como select",translate,"client's row, so a collision appears as a unique violation rather than a query result.",security,apps/api/src/dominio/dominios.ts:99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-039ffb77,api,apps/api/src/dominio/email.ts,107,111,jsdoc,3,"/**
  * O dublê: guarda o que ""enviou"" numa lista compartilhada, como
  * `ClienteGraphDuble.chamadas`. É o padrão fora de produção — e-mail de
  * desenvolvimento indo para uma caixa real é o jeito de convidar gente por engano.
- */",,,,,,
-api-comment-830290e2,api,apps/api/src/dominio/email.ts,134,134,jsdoc,1,/** Troca o remetente em tempo de execução. Existe para o teste. */,,,,,,
+ */",translate,"The test double records what it ""sent"" in a shared list, like `ClienteGraphDuble.chamadas`. Keep it as the nonproduction default so development email cannot accidentally invite real people.",integration,apps/api/src/dominio/email.ts:107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-830290e2,api,apps/api/src/dominio/email.ts,134,134,jsdoc,1,/** Troca o remetente em tempo de execução. Existe para o teste. */,remove,,other,apps/api/src/dominio/email.ts:134,codex3,reviewed
 api-comment-fc134f01,api,apps/api/src/dominio/email.ts,139,142,jsdoc,3,"/**
  * Envia sem derrubar quem chamou. Lista vazia é ""ninguém para avisar"", não erro.
  * `contexto` nomeia o gesto no log (`convite`, `modelo-recategorizado`).
- */",,,,,,
-api-comment-d62c9a05,api,apps/api/src/dominio/email.ts,26,26,jsdoc,2,"/** Destinatários, já normalizados (minúsculas, sem repetição). */",,,,,,
-api-comment-655e04d0,api,apps/api/src/dominio/email.ts,29,29,jsdoc,3,"/** Corpo em texto puro. É o que vale; `html`, quando vem, é a versão bonita do mesmo texto. */",,,,,,
+ */",translate,"Send email without failing the caller. An empty recipient list means nobody to notify, not an error. `contexto` labels the operation in logs (`convite`, `modelo-recategorizado`).",integration,apps/api/src/dominio/email.ts:139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d62c9a05,api,apps/api/src/dominio/email.ts,26,26,jsdoc,2,"/** Destinatários, já normalizados (minúsculas, sem repetição). */",remove,,other,apps/api/src/dominio/email.ts:26,codex3,reviewed
+api-comment-655e04d0,api,apps/api/src/dominio/email.ts,29,29,jsdoc,3,"/** Corpo em texto puro. É o que vale; `html`, quando vem, é a versão bonita do mesmo texto. */",translate,Plain text is authoritative; optional `html` is a styled rendering of the same content.,integration,apps/api/src/dominio/email.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc194251,api,apps/api/src/dominio/email.ts,3,23,jsdoc,26,"/**
  * Envio de e-mail — o que o convite e o alerta de recategorização de modelo usam.
  *
@@ -1709,45 +1709,45 @@ api-comment-cc194251,api,apps/api/src/dominio/email.ts,3,23,jsdoc,26,"/**
  * porta de uso: registra a falha e devolve `false`, como `enfileirarEspelhoCrm`
  * em `filas.ts` — o convite existe e o modelo foi recategorizado com ou sem o
  * aviso, e a resposta já carrega o link/o webhook para o caso de o e-mail não ir.
- */",,,,,,
-api-comment-29b4a211,api,apps/api/src/dominio/email.ts,43,43,jsdoc,2,/** `PIPE_EMAIL_REMETENTE`: o `from` de todo e-mail. Sem ele o real não sobe. */,,,,,,
-api-comment-022f0321,api,apps/api/src/dominio/email.ts,67,67,jsdoc,2,"/** `buscar` injetável, para o teste exercitar o real sem rede. */",,,,,,
+ */",translate,"Email sending for invitations and template recategorization alerts follows `whatsapp/cliente-graph.ts`: one interface, real and double senders selected by `PIPE_EMAIL_MODO`, and `definirRemetente` for test injection. The real sender uses HTTP, not SMTP: no `nodemailer` client is installed. It posts `{ from, to, subject, text, html }` to configurable `POST <PIPE_EMAIL_URL>` with `Authorization: Bearer <PIPE_EMAIL_TOKEN>`, matching Resend (`https://api.resend.com/emails`); Postmark or SendGrid would need a small adapter, and direct SMTP another sender class. Callers use `enviarEmailSemDerrubar`: it logs failure and returns `false`, as `enfileirarEspelhoCrm` does in `filas.ts`. Invitations and recategorization succeed even if notification fails; the response contains the link or webhook fallback.",security,apps/api/src/dominio/email.ts:3; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-29b4a211,api,apps/api/src/dominio/email.ts,43,43,jsdoc,2,/** `PIPE_EMAIL_REMETENTE`: o `from` de todo e-mail. Sem ele o real não sobe. */,translate,`PIPE_EMAIL_REMETENTE` supplies every email's `from`; the real sender refuses to start without it.,security,apps/api/src/dominio/email.ts:43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-022f0321,api,apps/api/src/dominio/email.ts,67,67,jsdoc,2,"/** `buscar` injetável, para o teste exercitar o real sem rede. */",translate,Inject `buscar` so tests exercise the real sender without network access.,integration,apps/api/src/dominio/email.ts:67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-53a843b9,api,apps/api/src/dominio/entrada.ts,125,130,jsdoc,6,"/**
  * Processa um payload inteiro do webhook.
  *
  * A Meta reenvia se a resposta demorar, então quem chama já respondeu 200 — este
  * trabalho roda em fila. Devolve o resumo para o log e para o teste.
- */",,,,,,
-api-comment-92f48ae9,api,apps/api/src/dominio/entrada.ts,136,136,line,2,// Instagram é traduzido para o formato do WhatsApp e segue pelo mesmo caminho.,,,,,,
-api-comment-a3fc6954,api,apps/api/src/dominio/entrada.ts,14,14,line,2,"// `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM",,,,,,
-api-comment-e344ff7a,api,apps/api/src/dominio/entrada.ts,144,144,line,2,"// As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas",,,,,,
-api-comment-dd9a8d9f,api,apps/api/src/dominio/entrada.ts,145,145,line,1,// mensagens do mesmo cliente no mesmo lote são um aviso só.,,,,,,
-api-comment-f64cf602,api,apps/api/src/dominio/entrada.ts,15,15,line,1,// resolve — nenhuma é chamada durante a avaliação do módulo.,,,,,,
-api-comment-ca2f1c37,api,apps/api/src/dominio/entrada.ts,150,150,line,2,// Em série: cada valor abre a própria transação com tenant fixado.,,,,,,
-api-comment-f4bc4039,api,apps/api/src/dominio/entrada.ts,162,162,line,1,// Depois do commit da transação de entrada (`receberMensagem` já voltou): o,,,,,,
-api-comment-8e2ff50a,api,apps/api/src/dominio/entrada.ts,163,163,line,6,"// download fala com a Meta, e isso não pode acontecer com uma conexão do",,,,,,
-api-comment-4f881c89,api,apps/api/src/dominio/entrada.ts,164,164,line,0,// pool de banco presa numa transação. Ver `dominio/midia.ts`.,,,,,,
-api-comment-5f242cc4,api,apps/api/src/dominio/entrada.ts,179,179,line,3,// Status e categoria de modelo não são conversa: não entram no resumo de mensagens.,,,,,,
-api-comment-057f66d4,api,apps/api/src/dominio/entrada.ts,185,185,line,3,"// Depois do commit: a resposta do bot já está no outbox, e o empurrão faz o worker",,,,,,
-api-comment-6371c334,api,apps/api/src/dominio/entrada.ts,186,186,line,0,// entregar agora em vez de na próxima varredura.,,,,,,
-api-comment-1f1bf2fb,api,apps/api/src/dominio/entrada.ts,189,189,line,1,// **Depois do commit.** Publicar dentro da transação avisaria a tela antes de o,,,,,,
-api-comment-95c969db,api,apps/api/src/dominio/entrada.ts,190,190,line,2,// dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é,,,,,,
-api-comment-e049eeaf,api,apps/api/src/dominio/entrada.ts,191,191,line,2,// o próprio defeito que o tempo real existe para consertar.,,,,,,
-api-comment-426e8871,api,apps/api/src/dominio/entrada.ts,230,230,line,3,// Idempotência. Sem índice único em `id_provedor` (a tabela é particionada e a,,,,,,
-api-comment-c8426c1b,api,apps/api/src/dominio/entrada.ts,231,231,line,2,"// unicidade dela é `(id, criada_em)`), a guarda é esta consulta. Duas entregas",,,,,,
-api-comment-900493a8,api,apps/api/src/dominio/entrada.ts,232,232,line,2,// simultâneas do mesmo evento ainda poderiam passar as duas — a janela é curta e,,,,,,
-api-comment-c6b788d4,api,apps/api/src/dominio/entrada.ts,233,233,line,2,"// o custo seria uma mensagem repetida na tela, não perda de dado.",,,,,,
-api-comment-78bb1eda,api,apps/api/src/dominio/entrada.ts,241,241,line,3,"// Com fluxo (ou roteador) publicado no canal, a conversa nova é do bot: nasce sem fila.",,,,,,
-api-comment-279299eb,api,apps/api/src/dominio/entrada.ts,244,244,line,2,"// texto da primeira mensagem, e `acharOuAbrirConversa` aplica a regra assim que",,,,,,
-api-comment-902c9f99,api,apps/api/src/dominio/entrada.ts,267,267,line,3,// A janela de 24h é recalculada a cada mensagem de entrada do contato — a regra,,,,,,
-api-comment-cf72ba55,api,apps/api/src/dominio/entrada.ts,268,268,line,2,"// está em `@pipe/core`, não aqui.",,,,,,
-api-comment-bcc351a2,api,apps/api/src/dominio/entrada.ts,295,295,line,3,"// O bot fala primeiro. Se ficou com a mensagem, a conversa é dele — ou acabou de",,,,,,
-api-comment-69ed97cb,api,apps/api/src/dominio/entrada.ts,296,296,line,2,"// ser transferida, e a distribuição já rodou lá dentro.",,,,,,
-api-comment-d72626be,api,apps/api/src/dominio/entrada.ts,310,310,line,2,// Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o,,,,,,
-api-comment-a553c2ff,api,apps/api/src/dominio/entrada.ts,345,345,line,0,// Status fora de ordem é rotina na Meta: `delivered` pode chegar depois de `read`.,,,,,,
-api-comment-e36f76ac,api,apps/api/src/dominio/entrada.ts,346,346,line,1,// Transição não permitida é descartada em silêncio — nunca vira erro nem regressão.,,,,,,
-api-comment-f0dea079,api,apps/api/src/dominio/entrada.ts,351,351,line,2,// `coalesce` nos carimbos: `read` que chega antes de `delivered` não pode apagar,,,,,,
-api-comment-8b84c6e1,api,apps/api/src/dominio/entrada.ts,352,352,line,2,// nem reescrever a hora da entrega. Carimbo já gravado é histórico.,,,,,,
+ */",translate,"Process a whole webhook payload after the caller has replied 200. Meta retries slow responses, so processing runs on a queue. Return a summary for logs and tests.",integration,apps/api/src/dominio/entrada.ts:125; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-92f48ae9,api,apps/api/src/dominio/entrada.ts,136,136,line,2,// Instagram é traduzido para o formato do WhatsApp e segue pelo mesmo caminho.,translate,Translate Instagram into WhatsApp shape and follow the shared inbound path.,integration,apps/api/src/dominio/entrada.ts:136; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a3fc6954,api,apps/api/src/dominio/entrada.ts,14,14,line,2,"// `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM",translate,"`enfileirarEspelhoCrm` is also a function declaration, so ESM hoisting",integration,apps/api/src/dominio/entrada.ts:14; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e344ff7a,api,apps/api/src/dominio/entrada.ts,144,144,line,2,"// As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas",translate,Collect touched conversations to notify screens AFTER commit. A `Set` means two,integration,apps/api/src/dominio/entrada.ts:144; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-dd9a8d9f,api,apps/api/src/dominio/entrada.ts,145,145,line,1,// mensagens do mesmo cliente no mesmo lote são um aviso só.,translate,messages from the same client in one batch produce one notification.,integration,apps/api/src/dominio/entrada.ts:145; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f64cf602,api,apps/api/src/dominio/entrada.ts,15,15,line,1,// resolve — nenhuma é chamada durante a avaliação do módulo.,translate,resolves the cycle; neither function runs during module evaluation.,integration,apps/api/src/dominio/entrada.ts:15; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ca2f1c37,api,apps/api/src/dominio/entrada.ts,150,150,line,2,// Em série: cada valor abre a própria transação com tenant fixado.,translate,Run serially: each value opens its own transaction with a fixed tenant.,security,apps/api/src/dominio/entrada.ts:150; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f4bc4039,api,apps/api/src/dominio/entrada.ts,162,162,line,1,// Depois do commit da transação de entrada (`receberMensagem` já voltou): o,translate,"After the inbound transaction commits (`receberMensagem` has returned),",integration,apps/api/src/dominio/entrada.ts:162; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8e2ff50a,api,apps/api/src/dominio/entrada.ts,163,163,line,6,"// download fala com a Meta, e isso não pode acontecer com uma conexão do",translate,media download calls Meta and must not hold a database pool connection,integration,apps/api/src/dominio/entrada.ts:163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4f881c89,api,apps/api/src/dominio/entrada.ts,164,164,line,0,// pool de banco presa numa transação. Ver `dominio/midia.ts`.,translate,inside the transaction; see `dominio/midia.ts`.,integration,apps/api/src/dominio/entrada.ts:164; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5f242cc4,api,apps/api/src/dominio/entrada.ts,179,179,line,3,// Status e categoria de modelo não são conversa: não entram no resumo de mensagens.,translate,Template status and category events are not conversations; exclude them from the message summary.,integration,apps/api/src/dominio/entrada.ts:179; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-057f66d4,api,apps/api/src/dominio/entrada.ts,185,185,line,3,"// Depois do commit: a resposta do bot já está no outbox, e o empurrão faz o worker",translate,"After commit, the bot's response is in the outbox; nudging the worker",integration,apps/api/src/dominio/entrada.ts:185; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6371c334,api,apps/api/src/dominio/entrada.ts,186,186,line,0,// entregar agora em vez de na próxima varredura.,translate,delivers it now instead of waiting for the next sweep.,integration,apps/api/src/dominio/entrada.ts:186; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1f1bf2fb,api,apps/api/src/dominio/entrada.ts,189,189,line,1,// **Depois do commit.** Publicar dentro da transação avisaria a tela antes de o,translate,Publish AFTER commit. Publishing inside the transaction would tell screens,integration,apps/api/src/dominio/entrada.ts:189; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-95c969db,api,apps/api/src/dominio/entrada.ts,190,190,line,2,// dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é,translate,before the data exists; they would fetch the old value and receive no second,integration,apps/api/src/dominio/entrada.ts:190; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e049eeaf,api,apps/api/src/dominio/entrada.ts,191,191,line,2,// o próprio defeito que o tempo real existe para consertar.,translate,"notification, defeating the purpose of realtime updates.",integration,apps/api/src/dominio/entrada.ts:191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-426e8871,api,apps/api/src/dominio/entrada.ts,230,230,line,3,// Idempotência. Sem índice único em `id_provedor` (a tabela é particionada e a,translate,Idempotency relies on this query because partitioned `mensagem` has no unique index on `id_provedor`,integration,apps/api/src/dominio/entrada.ts:230; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c8426c1b,api,apps/api/src/dominio/entrada.ts,231,231,line,2,"// unicidade dela é `(id, criada_em)`), a guarda é esta consulta. Duas entregas",translate,"The table's unique key is `(id, criada_em)`, not `id_provedor`; concurrent deliveries",integration,apps/api/src/dominio/entrada.ts:231; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-900493a8,api,apps/api/src/dominio/entrada.ts,232,232,line,2,// simultâneas do mesmo evento ainda poderiam passar as duas — a janela é curta e,translate,of the same event can still pass; the window is short and the cost is a,integration,apps/api/src/dominio/entrada.ts:232; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c6b788d4,api,apps/api/src/dominio/entrada.ts,233,233,line,2,"// o custo seria uma mensagem repetida na tela, não perda de dado.",translate,duplicate screen message rather than data loss.,integration,apps/api/src/dominio/entrada.ts:233; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-78bb1eda,api,apps/api/src/dominio/entrada.ts,241,241,line,3,"// Com fluxo (ou roteador) publicado no canal, a conversa nova é do bot: nasce sem fila.",translate,"With a published flow or router on the channel, a new conversation belongs to the bot and starts without a queue.",integration,apps/api/src/dominio/entrada.ts:241; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-279299eb,api,apps/api/src/dominio/entrada.ts,244,244,line,2,"// texto da primeira mensagem, e `acharOuAbrirConversa` aplica a regra assim que",translate,the first message text; `acharOuAbrirConversa` applies the rule as soon as,integration,apps/api/src/dominio/entrada.ts:244; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-902c9f99,api,apps/api/src/dominio/entrada.ts,267,267,line,3,// A janela de 24h é recalculada a cada mensagem de entrada do contato — a regra,translate,Recalculate the 24-hour window after every inbound contact message; the rule,integration,apps/api/src/dominio/entrada.ts:267; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cf72ba55,api,apps/api/src/dominio/entrada.ts,268,268,line,2,"// está em `@pipe/core`, não aqui.",translate,"lives in `@pipe/core`, not here.",integration,apps/api/src/dominio/entrada.ts:268; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bcc351a2,api,apps/api/src/dominio/entrada.ts,295,295,line,3,"// O bot fala primeiro. Se ficou com a mensagem, a conversa é dele — ou acabou de",translate,"The bot speaks first. If it handled the message, it owns the conversation, or",integration,apps/api/src/dominio/entrada.ts:295; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-69ed97cb,api,apps/api/src/dominio/entrada.ts,296,296,line,2,"// ser transferida, e a distribuição já rodou lá dentro.",translate,has already transferred it and triggered distribution inside that path.,integration,apps/api/src/dominio/entrada.ts:296; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d72626be,api,apps/api/src/dominio/entrada.ts,310,310,line,2,// Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o,translate,A conversation still queued is eligible for distribution on each new message if,integration,apps/api/src/dominio/entrada.ts:310; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a553c2ff,api,apps/api/src/dominio/entrada.ts,345,345,line,0,// Status fora de ordem é rotina na Meta: `delivered` pode chegar depois de `read`.,translate,Out-of-order Meta statuses are routine: `delivered` may arrive after `read`.,integration,apps/api/src/dominio/entrada.ts:345; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e36f76ac,api,apps/api/src/dominio/entrada.ts,346,346,line,1,// Transição não permitida é descartada em silêncio — nunca vira erro nem regressão.,translate,Discard a disallowed transition quietly; never return an error or regress status.,integration,apps/api/src/dominio/entrada.ts:346; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f0dea079,api,apps/api/src/dominio/entrada.ts,351,351,line,2,// `coalesce` nos carimbos: `read` que chega antes de `delivered` não pode apagar,translate,Use `coalesce` on timestamps: an early `read` must not clear the `delivered` timestamp or,integration,apps/api/src/dominio/entrada.ts:351; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8b84c6e1,api,apps/api/src/dominio/entrada.ts,352,352,line,2,// nem reescrever a hora da entrega. Carimbo já gravado é histórico.,translate,rewrite the delivery time. A stored timestamp is historical evidence.,integration,apps/api/src/dominio/entrada.ts:352; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4dc06f01,api,apps/api/src/dominio/entrada.ts,36,43,jsdoc,10,"/**
  * Entrada vinda da Meta: mensagem recebida, status de entrega e erro.
  *
@@ -1755,9 +1755,9 @@ api-comment-4dc06f01,api,apps/api/src/dominio/entrada.ts,36,43,jsdoc,10,"/**
  * Reentrega de webhook é normal — a Meta repete quando não recebe 200 rápido — então
  * tudo aqui é **idempotente**: mensagem já vista pelo `id_provedor` é ignorada, e
  * status que não avança na máquina de entrega é descartado sem erro.
- */",,,,,,
-api-comment-d704c640,api,apps/api/src/dominio/entrada.ts,369,369,line,3,"// O outbox acompanha, senão a varredura tentaria entregar de novo o que já chegou.",,,,,,
-api-comment-5f13efd6,api,apps/api/src/dominio/entrada.ts,383,383,line,3,// O desfecho da entrega é aqui que vira número: é este webhook que a Meta usa,,,,,,
+ */",translate,"Meta inbound events include received messages, delivery statuses, and errors. Process each event serially in a transaction with `pipe.tenant_id` set. Meta retries webhooks when it does not receive 200 quickly, so this path is idempotent: ignore a message already seen by `id_provedor`, and discard a delivery status that cannot advance the state machine without error.",integration,apps/api/src/dominio/entrada.ts:36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d704c640,api,apps/api/src/dominio/entrada.ts,369,369,line,3,"// O outbox acompanha, senão a varredura tentaria entregar de novo o que já chegou.",translate,"Keep the outbox in sync, or the sweep would resend a message already delivered.",integration,apps/api/src/dominio/entrada.ts:369; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5f13efd6,api,apps/api/src/dominio/entrada.ts,383,383,line,3,// O desfecho da entrega é aqui que vira número: é este webhook que a Meta usa,translate,This webhook turns delivery outcomes into metrics: it is how Meta tells us,integration,apps/api/src/dominio/entrada.ts:383; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b404a520,api,apps/api/src/dominio/entrada.ts,384,384,line,4,"// para dizer se a mensagem chegou. `entregue` conta uma vez, `lida` não conta de",,,,,,
 api-comment-753638be,api,apps/api/src/dominio/entrada.ts,385,385,line,1,// novo — senão a taxa de falha do alerta `EntregaFalhando` seria diluída por,,,,,,
 api-comment-b1a3aa97,api,apps/api/src/dominio/entrada.ts,387,387,line,1,"// ponytail: rótulo `canal` é o id do canal, uma série por número de WhatsApp.",,,,,,
