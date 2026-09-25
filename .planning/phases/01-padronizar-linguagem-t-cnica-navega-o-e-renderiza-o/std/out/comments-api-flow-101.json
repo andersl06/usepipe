@@ -108,25 +108,22 @@
       "id": "api-comment-13fc8524",
       "action": "translate",
       "new_text": "Group by target and select the most specific scope rule in each group.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:68; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:68"
     },
     {
       "id": "api-comment-1d794b3f",
       "action": "translate",
       "new_text": "Raise priority one step (`conversa/prioridade.ts`); do nothing when already at `maxima`.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:87; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:87"
     },
     {
       "id": "api-comment-9be8c6e4",
       "action": "translate",
       "new_text": "A priority of -1 is unknown, and 0 is already `maxima`; neither can be raised.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:90; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:90"
     },
     {
       "id": "api-comment-f6f30433",
@@ -140,9 +137,8 @@
       "id": "api-comment-3084b8fd",
       "action": "translate",
       "new_text": "Seconds past the deadline when breached.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/gestao/sla.ts:35; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:35"
     },
     {
       "id": "api-comment-5cab1ec5",
@@ -156,9 +152,8 @@
       "id": "api-comment-8c8eca07",
       "action": "translate",
       "new_text": "`espera_fila` has no core equivalent and therefore gets no pill.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/gestao/sla.ts:44; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:44"
     },
     {
       "id": "api-comment-5834b127",
@@ -188,17 +183,15 @@
       "id": "api-comment-3c0ac6df",
       "action": "translate",
       "new_text": "CSV of rejected rows (`failed_records`); return 404 when none were rejected.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:140; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:140"
     },
     {
       "id": "api-comment-9da8e7ea",
       "action": "translate",
       "new_text": "Whether a downloadable CSV of rejected rows exists.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:31; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:31"
     },
     {
       "id": "api-comment-8b2cf4e1",
@@ -212,9 +205,8 @@
       "id": "api-comment-30947f52",
       "action": "translate",
       "new_text": "Postgres cannot store a NUL byte in `text`; spreadsheet exports sometimes contain one.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:75; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:75"
     },
     {
       "id": "api-comment-562fc30c",
@@ -419,7 +411,7 @@
     {
       "id": "api-comment-fbdb8b2b",
       "action": "translate",
-      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/* (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) and `Channel::Instagram#subscribe`/`#unsubscribe`. With no network access to inspect the original, the port follows the Instagram Platform API (\"Instagram API with Instagram Login\") at `graph.instagram.com`; unverified behavior is marked \"verify with a real token\". Chatwoot `fetch_instagram_user_details` maps to `buscarConta`, `subscribe`/`unsubscribe` to `assinarWebhook`/`desassinarWebhook`, and `refresh_long_lived_token` to `renovarToken`. As in `../whatsapp/cliente-graph.ts`, raw Meta bodies never enter exceptions, secrets pass through `esconder`, `buscar` is injectable, and `PIPE_WHATSAPP_CONEXAO` selects a deterministic fake. Pipe also adds `conferirSegredoDoApp`: the app belongs to the customer, whose secret signs the webhook.",
+      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/* (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) and `Channel::Instagram#subscribe`/`#unsubscribe`. With no network access to inspect the original, the port follows the Instagram Platform API (\"Instagram API with Instagram Login\") at `graph.instagram.com`; unverified behavior is marked \"verify with a real token\". Chatwoot `fetch_instagram_user_details` maps to `buscarConta`, `subscribe`/`unsubscribe` to `assinarWebhook`/`desassinarWebhook`, and `refresh_long_lived_token` to `renovarToken`. As in `../whatsapp/cliente-graph.ts`, raw Meta bodies never enter exceptions, secrets pass through `esconder`, `buscar` is injectable, and `PIPE_WHATSAPP_CONEXAO` selects a deterministic fake. Pipe also adds `conferirSegredoDoApp`: the app belongs to the customer, whose secret signs the webhook. `buscarConta` calls `/me`; `Channel::Instagram#unsubscribe` maps to `desassinarWebhook`, and `RefreshOauthTokenService#refresh_long_lived_token` maps to `renovarToken`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:5-25; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -467,7 +459,7 @@
     {
       "id": "api-comment-002296de",
       "action": "translate",
-      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb and app/services/instagram/message_text.rb / incoming_message_service. Map Direct events to the same `ValorDoWebhook` format handled by WhatsApp in `../entrada.ts`, reusing contact, conversation, `id_provedor` idempotency, flow, and router logic. In `object: \"instagram\"`, `entry[].id` is the receiving professional account (`igUserId`); `entry[].messaging[]` carries sender.id (IGSID), recipient.id, timestamp in milliseconds, and message/postback/read data. Ignore `is_echo`, including Pipe's own messages, as Chatwoot does. WhatsApp timestamps use seconds. Instagram attachments carry URLs rather than `media_id`. Discard entries for another account: a customer's app may send events for multiple accounts to one webhook URL.",
+      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb and app/services/instagram/message_text.rb / incoming_message_service. Map Direct events to the same `ValorDoWebhook` format handled by WhatsApp in `../entrada.ts`, reusing contact, conversation, `id_provedor` idempotency, flow, and router logic. In `object: \"instagram\"`, `entry[].id` is the receiving professional account (`igUserId`); `entry[].messaging[]` carries sender.id (IGSID), recipient.id, timestamp in milliseconds, and message/postback/read data. Ignore `is_echo`, including Pipe's own messages, as Chatwoot does. WhatsApp timestamps use seconds. Instagram attachments carry URLs rather than `media_id`. Discard entries for another account: a customer's app may send events for multiple accounts to one webhook URL. The webhook's `timestamp` is milliseconds, and `entry` values for other accounts are discarded.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/instagram/entrada.ts:3-24; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -731,7 +723,7 @@
     {
       "id": "api-comment-9ddec0ff",
       "action": "translate",
-      "new_text": "Download inbound WhatsApp and Instagram media to Pipe storage. `dominio/entrada.ts` initially saves WhatsApp `chave_storage = 'meta:<media_id>'` or an Instagram CDN URL with `bytes = 0`; these external references expire, so download outside the webhook. WhatsApp `GET /{versao}/{media_id}` with the channel Bearer returns `{ url, mime_type, file_size, sha256 }`; fetch the roughly five-minute URL with the same Bearer. Instagram CDN URLs download without a token. To prevent SSRF, allow HTTPS and Meta hosts only. Validate both Graph's returned URL and Instagram's webhook URL: each is untrusted external text.",
+      "new_text": "Download inbound WhatsApp and Instagram media to Pipe storage. `dominio/entrada.ts` initially saves WhatsApp `chave_storage = 'meta:<media_id>'` or an Instagram CDN URL with `bytes = 0`; these external references expire, so download outside the webhook. WhatsApp `GET /{versao}/{media_id}` with the channel Bearer returns `{ url, mime_type, file_size, sha256 }`; fetch the roughly five-minute URL with the same Bearer. Instagram CDN URLs download without a token. To prevent SSRF, allow HTTPS and Meta hosts only. Validate both Graph's returned URL and Instagram's webhook URL: each is untrusted external text. Both media URLs must use `https`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/midia.ts:10-25; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

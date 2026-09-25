@@ -59,7 +59,7 @@
     {
       "id": "api-comment-84bee12c",
       "action": "translate",
-      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb. This Graph client serves embedded signup, manual setup, number health, and teardown with the original endpoints, payloads, and order; methods `trocarCodigoPorToken`, `buscarTodosOsNumeros`, `buscarModelos`, `buscarPermissoes`, `buscarNumero`, `registrarNumero`, `descadastrarNumero`, `numeroVerificado`, `assinarWebhookDoNumero`, `assinarAppNaWaba`, `sobrescreverCallbackDoNumero`, `limparCallbackDoNumero`, `desassinarAppDaWaba`, and `pedir` correspond to the Chatwoot operations. Pipe never includes raw response bodies in exceptions: Meta may echo submitted credentials, so only scrubbed error message and code are logged through `esconder`. `buscar` is injectable for network-free tests. `ClienteGraphDuble` enables the full connection path before Meta approves the app; `PIPE_WHATSAPP_CONEXAO=real` uses Graph and other values use the fake. The default API version is v26.0 (Graph changelog, 2026-09-11), versus Chatwoot v22.0; Pipe's former v21.0 expires 2027-01-21.",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb. This Graph client serves embedded signup, manual setup, number health, and teardown with the original endpoints, payloads, and order; methods `trocarCodigoPorToken`, `buscarTodosOsNumeros`, `buscarModelos`, `buscarPermissoes`, `buscarNumero`, `registrarNumero`, `descadastrarNumero`, `numeroVerificado`, `assinarWebhookDoNumero`, `assinarAppNaWaba`, `sobrescreverCallbackDoNumero`, `limparCallbackDoNumero`, `desassinarAppDaWaba`, and `pedir` correspond to the Chatwoot operations. Pipe never includes raw response bodies in exceptions: Meta may echo submitted credentials, so only scrubbed error message and code are logged through `esconder`. `buscar` is injectable for network-free tests. `ClienteGraphDuble` enables the full connection path before Meta approves the app; `PIPE_WHATSAPP_CONEXAO=real` uses Graph and other values use the fake. The default API version is v26.0 (Graph changelog, 2026-09-11), versus Chatwoot v22.0; Pipe's former v21.0 expires 2027-01-21. Method mapping in order: `exchange_code_for_token`→`trocarCodigoPorToken`; `fetch_all_phone_numbers`→`buscarTodosOsNumeros`; `fetch_message_templates`→`buscarModelos`; `fetch_permissions`→`buscarPermissoes`; `fetch_phone_number`→`buscarNumero`; `register_phone_number`→`registrarNumero`; `deregister_phone_number`→`descadastrarNumero`; `phone_number_verified?`→`numeroVerificado`; `subscribe_phone_number_webhook`→`assinarWebhookDoNumero`; `subscribe_app_to_waba`→`assinarAppNaWaba`; `override_phone_number_callback`→`sobrescreverCallbackDoNumero`; `clear_phone_number_callback_override`→`limparCallbackDoNumero`; `unsubscribe_app_from_waba`→`desassinarAppDaWaba`; `handle_response`→`pedir`. Chatwoot exposed `\"#{error_message}: #{response.body}\"`; Pipe logs only scrubbed `error.message`. `PIPE_WHATSAPP_CONEXAO` selects `real` or the fake; Chatwoot uses `v22.0`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:4-42; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -211,7 +211,7 @@
     {
       "id": "api-comment-e963ff75",
       "action": "translate",
-      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb and `setup_webhooks` in app/models/channel/whatsapp.rb. First register the number with `POST /{phone}/register` and a six-digit PIN only if not verified/connected or still pending at Meta; a failure is recorded in `erroDeRegistro` and does not stop setup. Next subscribe the app to the WABA and point the number callback at the channel route; failure stops with \"Falha ao configurar o webhook\". Keep the PIN for future reauthorization because Meta rejects a different PIN, but encrypt it (`pinVerificacao` in `CAMPOS_SECRETOS_DE_CANAL`). Pipe also subscribes the three fields without per-number overrides for umbrella routing (webhook-por-cliente spec §7), checks the 200-character override URL limit before calling Meta, and excludes `calls` because Pipe has no voice support.",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb and `setup_webhooks` in app/models/channel/whatsapp.rb. First register the number with `POST /{phone}/register` and a six-digit PIN only if not verified/connected or still pending at Meta; a failure is recorded in `erroDeRegistro` and does not stop setup. Next subscribe the app to the WABA and point the number callback at the channel route; failure stops with \"Falha ao configurar o webhook\". Keep the PIN for future reauthorization because Meta rejects a different PIN, but encrypt it (`pinVerificacao` in `CAMPOS_SECRETOS_DE_CANAL`). Pipe also subscribes the three fields without per-number overrides for umbrella routing (webhook-por-cliente spec §7), checks the 200-character override URL limit before calling Meta, and excludes `calls` because Pipe has no voice support. Subscribe `messages` and `smb_message_echoes` as well as the umbrella fields.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:9-30; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -235,7 +235,7 @@
     {
       "id": "api-comment-e1c005fb",
       "action": "translate",
-      "new_text": "`webhook_error`; null means `webhook_setup?` succeeded.",
+      "new_text": "`webhook_error`; null means `webhook_setup?` succeeded. A `null` value represents success.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/whatsapp/configuracao-manual.ts:28; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -307,7 +307,7 @@
     {
       "id": "api-comment-36e154df",
       "action": "translate",
-      "new_text": "`build_provider_config`: embedded signup uses Pipe's app secret. If absent, do not store one and verify webhooks with environment `WHATSAPP_APP_SECRET`. Manual setup uses the customer's app secret.",
+      "new_text": "`build_provider_config`: embedded signup uses Pipe's app secret. If absent, do not store one and verify webhooks with environment `WHATSAPP_APP_SECRET`. Manual setup uses the customer's app secret. Embedded signup may omit `appSecret`; manual setup supplies the customer's value.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/whatsapp/criacao-de-canal.ts:76; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -355,7 +355,7 @@
     {
       "id": "api-comment-02614661",
       "action": "translate",
-      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb. Each teardown step is best effort so even a revoked token cannot prevent channel disconnection. Clear the number callback; deregister the number from Pipe's app only for embedded signup, since doing so for manual setup would disconnect the customer's app; unsubscribe the app from the WABA only for embedded signup and only after its last active channel leaves, because subscription covers the whole WABA.",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb. Each teardown step is best effort so even a revoked token cannot prevent channel disconnection. Clear the number callback; deregister the number from Pipe's app only for embedded signup, since doing so for manual setup would disconnect the customer's app; unsubscribe the app from the WABA only for embedded signup and only after its last active channel leaves, because subscription covers the whole WABA. The deregistration step is `deregister`.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts:7-19; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -491,7 +491,7 @@
     {
       "id": "api-comment-f3ce2099",
       "action": "translate",
-      "new_text": "Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable.",
+      "new_text": "Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable. Synchronization also resolves the Meta-owned `add_security_recommendation` text.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:112-120; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -627,7 +627,7 @@
     {
       "id": "api-comment-43714dbc",
       "action": "translate",
-      "new_text": "Build AUTHENTICATION template components per Cloud API \"Authentication Templates › Create authentication template\" (`POST /{waba}/message_templates`, `category: AUTHENTICATION`). `BODY` omits `text`: Meta localizes \"{{1}} é seu código de verificação.\" and can append a no-sharing sentence via `add_security_recommendation: true`. `FOOTER` uses only `code_expiration_minutes`; absence means no footer. `BUTTONS` contains one `{ type: 'OTP', otp_type: 'COPY_CODE', text }` button; `ONE_TAP` and `ZERO_TAP` need Android `package_name` and `signature_hash`, which the UI lacks. Reject free-form body, header, and footer rather than silently dropping input. Verify with a real token the exact GET fields (`BODY.text`, `FOOTER.text`) and whether omitting `add_security_recommendation` means false.",
+      "new_text": "Build AUTHENTICATION template components per Cloud API \"Authentication Templates › Create authentication template\" (`POST /{waba}/message_templates`, `category: AUTHENTICATION`). `BODY` omits `text`: Meta localizes \"{{1}} é seu código de verificação.\" and can append a no-sharing sentence via `add_security_recommendation: true`. `FOOTER` uses only `code_expiration_minutes`; absence means no footer. `BUTTONS` contains one `{ type: 'OTP', otp_type: 'COPY_CODE', text }` button; `ONE_TAP` and `ZERO_TAP` need Android `package_name` and `signature_hash`, which the UI lacks. Reject free-form body, header, and footer rather than silently dropping input. Verify with a real token the exact GET fields (`BODY.text`, `FOOTER.text`) and whether omitting `add_security_recommendation` means false. The endpoint is `POST /{waba}/message_templates`; check the `GET` response with a real token, including the behavior when `add_security_recommendation` is `false`.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/whatsapp/modelos.ts:348-368; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

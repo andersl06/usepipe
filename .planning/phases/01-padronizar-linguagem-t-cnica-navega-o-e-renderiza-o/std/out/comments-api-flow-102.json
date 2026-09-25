@@ -19,7 +19,7 @@
     {
       "id": "api-comment-180df402",
       "action": "translate",
-      "new_text": "Return an `https.Agent` with this URL's client certificate, or null when the host has no certificate or the URL is not HTTPS; then use a normal request.",
+      "new_text": "Return an `https.Agent` with this URL's client certificate, or null when the host has no certificate or the URL is not HTTPS; then use a normal request. Return `null` for the ordinary request path.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/mtls.ts:134-137; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -35,7 +35,7 @@
     {
       "id": "api-comment-f117b8fb",
       "action": "translate",
-      "new_text": "Response subset shared by requests with and without a certificate, as needed for delivery.",
+      "new_text": "Response subset shared by requests with and without a certificate, as needed for delivery. This is the subset of `Response` used by delivery.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/mtls.ts:182; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -59,7 +59,7 @@
     {
       "id": "api-comment-886ed194",
       "action": "translate",
-      "new_text": "An empty string means the default port 443, as in `URL.port`.",
+      "new_text": "An empty string means the default port 443, as in `URL.port`. The stored form is `''` for that default port.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/mtls.ts:43; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -67,7 +67,7 @@
     {
       "id": "api-comment-118c635a",
       "action": "translate",
-      "new_text": "Reduce a registered `certificado_mtls_host` URL to hostname and port; ignore invalid URLs, which should not exist.",
+      "new_text": "Reduce a registered `certificado_mtls_host` URL to hostname and port; ignore invalid URLs, which should not exist. Match the `hostname` and port.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/mtls.ts:55; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -75,7 +75,7 @@
     {
       "id": "api-comment-c171ba60",
       "action": "translate",
-      "new_text": "Outbound mTLS: Pipe presents the customer's certificate when Pipe calls that customer's addresses; Pipe is the TLS client, not a server demanding certificates. This mirrors the `/mtls` setup in `referencias-blip/pesquisa/blip-certificados-mtls.md`: a `.pfx` is bound to hosts and presented on outbound calls. `webhooks-saida.ts` and the Integrations Test button use `chamarComMtls`; a future Builder `ProcessHttp` action can use `chamarComMtls(tenantId, url, ...)` when `dominio/fluxo.ts` supports it. Match hostname and port, ignoring URL path. Without a certificate use a normal call; if two certificates match, use the most recently registered. Cache each tenant's host index for `TTL_INDICE_MS` and each certificate's `https.Agent` until `esquecerCertificadosMtls` invalidates it on create/delete in `gestao/certificados.ts`. Certificates are immutable, so short TTL bounds stale indexes across API instances. Decrypted `.pfx` exists only in the Agent and never in logs.",
+      "new_text": "Outbound mTLS: Pipe presents the customer's certificate when Pipe calls that customer's addresses; Pipe is the TLS client, not a server demanding certificates. This mirrors the `/mtls` setup in `referencias-blip/pesquisa/blip-certificados-mtls.md`: a `.pfx` is bound to hosts and presented on outbound calls. `webhooks-saida.ts` and the Integrations Test button use `chamarComMtls`; a future Builder `ProcessHttp` action can use `chamarComMtls(tenantId, url, ...)` when `dominio/fluxo.ts` supports it. Match hostname and port, ignoring URL path. Without a certificate use a normal call; if two certificates match, use the most recently registered. Cache each tenant's host index for `TTL_INDICE_MS` and each certificate's `https.Agent` until `esquecerCertificadosMtls` invalidates it on create/delete in `gestao/certificados.ts`. Certificates are immutable, so short TTL bounds stale indexes across API instances. Decrypted `.pfx` exists only in the Agent and never in logs. Registered `hosts` may include `https://api.cliente.com.br` or `https://api.cliente.com.br:8443/x`; match `hostname` plus port, and keep decrypted bytes inside the `Agent`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/mtls.ts:6-36; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -92,9 +92,8 @@
       "id": "api-comment-48ce6e4f",
       "action": "translate",
       "new_text": "Screen list with total clicks or clicks in the requested period.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:120; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:120"
     },
     {
       "id": "api-comment-d5efd4b4",
@@ -116,9 +115,8 @@
       "id": "api-comment-3e4b75b4",
       "action": "translate",
       "new_text": "`GET /l/:codigo` is deliberately short for ads and messages.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:58; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:58"
     },
     {
       "id": "api-comment-d61e482d",
@@ -132,7 +130,7 @@
       "id": "api-comment-0fa7fa4e",
       "action": "translate",
       "new_text": "Click tracker (Growth › Click Tracker) registers one short link per flow and counts public clicks. The existing `growth/clicktracker` screen (`apps/gestao-vite/.../clicktracker.tsx`) measures Meta Click-to-WhatsApp ad attribution in Blip, a different feature without link registration (`referencias-blip/pesquisa/blip-produtos-novos.md` line 12). This backend implements link registration, shortening, redirect, and counting without changing that screen. Use raw SQL as in `mensagem-ativa.ts`; `link_rastreado` and `clique_link` (migration 0038) stay out of Drizzle schema to avoid concurrent edits to `identidade`/`automacao`.",
-      "sensitivity": "security",
+      "sensitivity": "meta-blip",
       "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:9-24; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -140,23 +138,21 @@
       "id": "api-comment-c39b87ca",
       "action": "translate",
       "new_text": "A collision among six base64url bytes is very unlikely; retrying covers it without a separate sequence.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:90; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:90"
     },
     {
       "id": "api-comment-bf67141e",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:91; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:91"
     },
     {
       "id": "api-comment-331c266a",
       "action": "translate",
       "new_text": "`Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.",
-      "sensitivity": "integration",
+      "sensitivity": "meta-blip",
       "evidence": "apps/api/src/dominio/roteador.ts:120-125; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -164,7 +160,7 @@
       "id": "api-comment-00a81507",
       "action": "translate",
       "new_text": "Inbound router mirrors Blip's `master` (`referencias-blip/pesquisa/blip-api-schemas.md` §§5.3–5.5): it tracks the contact's current service, while the service supplies content; the first service is Main SubBot. `Redirect` (`content.address`) changes Master-State. Nonpersistent redirects expire after the customer's last interaction, so each inbound message renews the deadline, including those answered by a human. Apply Master-State before Change-User-State; changing service resets the destination block to root unless explicitly supplied, and the block emits only exits on the next reply. Router context (`builder:useTunnelOwnerContext`) belongs to the router/contact pair in `posicao_no_roteador.contexto`. There is no tunnel because the contact is unique within the tenant (migration 0024). Pipe decisions where Blip is silent: expiry returns to the main service at its saved block; unavailable services return to main; if main is unavailable and no valid position remains, queue the conversation without a bot.",
-      "sensitivity": "integration",
+      "sensitivity": "meta-blip",
       "evidence": "apps/api/src/dominio/roteador.ts:5-31; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -172,15 +168,14 @@
       "id": "api-comment-32080a2b",
       "action": "translate",
       "new_text": "Service deadline from now; null means no expiry.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/roteador.ts:50; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/roteador.ts:50"
     },
     {
       "id": "api-comment-5cee8fe3",
       "action": "translate",
       "new_text": "Resolve the contact's current published service and Master-State, renewing or returning to main as needed. Lock the position row until transaction end so two messages from the same contact cannot decide concurrently.",
-      "sensitivity": "integration",
+      "sensitivity": "meta-blip",
       "evidence": "apps/api/src/dominio/roteador.ts:57-61; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -188,9 +183,8 @@
       "id": "api-comment-61cf8194",
       "action": "translate",
       "new_text": "On first interaction or after a redirect expires, use the nonexpiring main service.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/roteador.ts:97; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/roteador.ts:97"
     },
     {
       "id": "api-comment-e1341d71",
@@ -363,7 +357,7 @@
     {
       "id": "api-comment-05624de8",
       "action": "translate",
-      "new_text": "Save the connection and always return it to `rascunho`. Changing an active connection's issuer without resetting and retesting could silently move all logins to another directory.",
+      "new_text": "Save the connection and always return it to `rascunho`. Changing an active connection's issuer without resetting and retesting could silently move all logins to another directory. An `ativa` connection must be retested after this change.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/sso.ts:94-100; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -372,17 +366,15 @@
       "id": "api-comment-61d85d26",
       "action": "translate",
       "new_text": "Requesting actor; null means an integration.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/status-atendente.ts:28; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:28"
     },
     {
       "id": "api-comment-b45bdc8c",
       "action": "translate",
       "new_text": "Agent whose status changes; unlike `porUsuarioId`, this can be a supervisor action.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/status-atendente.ts:30; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:30"
     },
     {
       "id": "api-comment-5c00ef4e",
@@ -484,9 +476,8 @@
       "id": "api-comment-bce36a38",
       "action": "translate",
       "new_text": "Avoid counting the same minute twice in the occupancy report.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/status-atendente.ts:74; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:74"
     },
     {
       "id": "api-comment-8e145f14",
@@ -500,9 +491,8 @@
       "id": "api-comment-6268e4b7",
       "action": "translate",
       "new_text": "Emit only after commit, like other domain actions.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/status-atendente.ts:92; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:92"
     },
     {
       "id": "api-comment-d0b2155f",
@@ -532,9 +522,8 @@
       "id": "api-comment-86ae4200",
       "action": "translate",
       "new_text": "Leaving online status effectively returns conversations to the queue; refresh the list.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/dominio/status-atendente.ts:98; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:98"
     },
     {
       "id": "api-comment-da6ab295",
@@ -556,25 +545,22 @@
       "id": "api-comment-90fd5013",
       "action": "translate",
       "new_text": "Pipe has one name field; Twenty splits names. Split on the first space: \"Maria Clara Souza\" becomes `Maria` and `Clara Souza`. Without a space, leave `lastName` empty, as Twenty expects.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/twenty.ts:121-126; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:121-126"
     },
     {
       "id": "api-comment-2f6b10dd",
       "action": "translate",
-      "new_text": "Map `+5511988887777` to number, +55, and BR. Only Brazil has a country mapping because it is the current market. For numbers outside +55, leave country empty, which Twenty accepts, rather than losing the phone number.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/twenty.ts:141-148; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "new_text": "Map `+5511988887777` to number, +55, and BR. Only Brazil has a country mapping because it is the current market. For numbers outside +55, leave country empty, which Twenty accepts, rather than losing the phone number. The target shape is `{número, +55, BR}`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:141-148"
     },
     {
       "id": "api-comment-bd8cc156",
       "action": "translate",
       "new_text": "Link to the customer's CRM record, never the CRM home page.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/twenty.ts:166; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:166"
     },
     {
       "id": "api-comment-6929794b",
@@ -604,17 +590,15 @@
       "id": "api-comment-a8752ad5",
       "action": "translate",
       "new_text": "Read-only view of what the CRM knows about this customer; Desk does not write there.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/twenty.ts:281; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:281"
     },
     {
       "id": "api-comment-79ac2843",
       "action": "translate",
       "new_text": "Public base URL of this tenant's CRM instance, without a trailing slash.",
-      "sensitivity": "integration",
-      "evidence": "apps/api/src/dominio/twenty.ts:29; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:29"
     },
     {
       "id": "api-comment-44b767f9",
@@ -627,7 +611,7 @@
     {
       "id": "api-comment-d2fd8677",
       "action": "translate",
-      "new_text": "Return this tenant's CRM configuration or null. Run inside `comTenant`: if RLS hides the tenant's row, no URL or key is available and no integration occurs. This is the first of three isolation checks in spec §5.",
+      "new_text": "Return this tenant's CRM configuration or null. Run inside `comTenant`: if RLS hides the tenant's row, no URL or key is available and no integration occurs. This is the first of three isolation checks in spec §5. Return `null` when this tenant has no CRM.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/twenty.ts:44-50; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -635,7 +619,7 @@
     {
       "id": "api-comment-99999d78",
       "action": "translate",
-      "new_text": "Twenty CRM client, Pipe's only CRM access path (`docs/specs/2026-09-07-integracao-twenty.md`). Authenticate via `/metadata`; `/graphql` serves workspace data only and returns `Cannot query field \"getLoginTokenFromCredentials\" on type \"Mutation\"` for login attempts. Match metadata by `name`, never translated `label`: with `x-locale` pt-BR, labels such as `Pessoa` and `Empresa` change while `nameSingular` and field `name` remain English. Each tenant has its own CRM instance, so take URL and key from the tenant, never environment defaults. Without configuration, skip integration; a fallback could send one tenant's data to another's CRM.",
+      "new_text": "Twenty CRM client, Pipe's only CRM access path (`docs/specs/2026-09-07-integracao-twenty.md`). Authenticate via `/metadata`; `/graphql` serves workspace data only and returns `Cannot query field \"getLoginTokenFromCredentials\" on type \"Mutation\"` for login attempts. Match metadata by `name`, never translated `label`: with `x-locale` pt-BR, labels such as `Pessoa` and `Empresa` change while `nameSingular` and field `name` remain English. Each tenant has its own CRM instance, so take URL and key from the tenant, never environment defaults. Without configuration, skip integration; a fallback could send one tenant's data to another's CRM. The configuration is selected from `tenant`.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/dominio/twenty.ts:5-23; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -739,7 +723,7 @@
     {
       "id": "api-comment-fd35babf",
       "action": "translate",
-      "new_text": "Merge and save `channel.provider_config` as in Chatwoot. Reencrypt all of `config` on write; `cifrarConfig` touches only secret fields and is idempotent.",
+      "new_text": "Merge and save `channel.provider_config` as in Chatwoot. Reencrypt all of `config` on write; `cifrarConfig` touches only secret fields and is idempotent. This mirrors `channel.provider_config = …merge(…)` followed by `save!`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/dominio/whatsapp/canal.ts:84-87; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

@@ -100,14 +100,13 @@
       "id": "api-comment-00719e96",
       "action": "translate",
       "new_text": "Companion to `semEscopo` for logged-in people: scope belongs to API keys, permission to people.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/erros.ts:43; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/erros.ts:43"
     },
     {
       "id": "api-comment-4a406ec4",
       "action": "translate",
-      "new_text": "Always return structured errors (`apis.md` §5.6): never HTTP 200 with `status: failure` in the body, a common Blip trap. Use the correct HTTP status and `{ \"erro\": { \"codigo\", \"mensagem\" }` so clients can distinguish failure without inspecting success bodies.",
+      "new_text": "Always return structured errors (`apis.md` §5.6): never HTTP 200 with `status: failure` in the body, a common Blip trap. Use the correct HTTP status and `{ \"erro\": { \"codigo\", \"mensagem\" } }` so clients can distinguish failure without inspecting success bodies.",
       "sensitivity": "security",
       "evidence": "apps/api/src/erros.ts:5-12; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -155,7 +154,7 @@
     {
       "id": "api-comment-34cb242b",
       "action": "translate",
-      "new_text": "Browser realtime channel at `GET /v1/eventos` with `Upgrade: websocket`, using `packages/contracts/src/eventos.ts`: client sends `Inscricao`, server replies `QuadroDeControle`, then sends only `EventoDoServidor` (`{assunto, id, em}`), never full records. Authenticate with the existing `pipe_sessao` cookie through `resolverSessao`, as `GuardaSessao` does; derive tenant from that session and reject missing, expired, or forged sessions with 401 before opening a socket. Check `Origin` against `PIPE_ORIGENS` manually because CORS does not protect WebSocket handshakes: a malicious site could open a socket with the victim's cookie. `SameSite=Lax` also blocks this today, but may change independently; the explicit origin check preserves the boundary.",
+      "new_text": "Browser realtime channel at `GET /v1/eventos` with `Upgrade: websocket`, using `packages/contracts/src/eventos.ts`: client sends `Inscricao`, server replies `QuadroDeControle`, then sends only `EventoDoServidor` (`{assunto, id, em}`), never full records. Authenticate with the existing `pipe_sessao` cookie through `resolverSessao`, as `GuardaSessao` does; derive tenant from that session and reject missing, expired, or forged sessions with 401 before opening a socket. Check `Origin` against `PIPE_ORIGENS` manually because CORS does not protect WebSocket handshakes: a malicious site could open a socket with the victim's cookie. `SameSite=Lax` also blocks this today, but may change independently; the explicit origin check preserves the boundary. Reject an unauthenticated `Upgrade` with `401`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/eventos-ws.ts:13-34; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -259,7 +258,7 @@
     {
       "id": "api-comment-a8fefa9d",
       "action": "translate",
-      "new_text": "Terminate a zombie socket whose client vanished. `close` waits for a handshake this peer will not answer; early termination lets the browser reconnect and refetch instead of displaying a stale but apparently live screen.",
+      "new_text": "Terminate a zombie socket whose client vanished. `close` waits for a handshake this peer will not answer; early termination lets the browser reconnect and refetch instead of displaying a stale but apparently live screen. Use `terminate` for the dead peer.",
       "sensitivity": "security",
       "evidence": "apps/api/src/eventos-ws.ts:199; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -459,7 +458,7 @@
     {
       "id": "api-comment-2eb5ed18",
       "action": "translate",
-      "new_text": "Enqueue one conversation SLA check (`dominio/gestao/sla-motor.ts`). As with CRM and media, enqueue failure cannot interrupt the sender; swallow it and let the periodic sweep find the conversation now or next time. Memory mode skips enqueueing; `PIPE_SLA_EM_MEMORIA=1` enables direct sweeping without a queue, like `PIPE_MIDIA_EM_MEMORIA`.",
+      "new_text": "Enqueue one conversation SLA check (`dominio/gestao/sla-motor.ts`). As with CRM and media, enqueue failure cannot interrupt the sender; swallow it and let the periodic sweep find the conversation now or next time. Memory mode skips enqueueing; `PIPE_SLA_EM_MEMORIA=1` enables direct sweeping without a queue, like `PIPE_MIDIA_EM_MEMORIA`. `agendarVarreduraSla` supplies the memory-mode sweep.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/filas.ts:311-321; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -620,7 +619,7 @@
       "id": "api-comment-185ffeac",
       "action": "translate",
       "new_text": "Import a Blip Builder editor export or published flow. This is a command rather than a route, as in `provisionar.ts`: there is no flow-builder UI, and database access authenticates the operator. To preview counts without a database, run `pnpm --filter @pipe/api importar:fluxo --arquivo fluxo.json`. To write and publish a new version, add `--tenant <uuid> --canal <uuid> --nome \"Atendimento\" --publicar`.",
-      "sensitivity": "architecture",
+      "sensitivity": "meta-blip",
       "evidence": "apps/api/src/importar-fluxo.ts:7-20; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -644,30 +643,27 @@
       "id": "api-comment-259e41bb",
       "action": "translate",
       "new_text": "Read gauges at collection time because their values are instantaneous; do not store them.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/metricas.ts:138; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:138"
     },
     {
       "id": "api-comment-cc6800fc",
       "action": "translate",
       "new_text": "Buckets are seconds; 1 and 2.5 bracket the p95 > 1.5s alert threshold.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/metricas.ts:31; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:31"
     },
     {
       "id": "api-comment-3fb9f800",
       "action": "translate",
       "new_text": "Counts are cumulative across buckets, as Prometheus `le` requires.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/metricas.ts:43; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:43"
     },
     {
       "id": "api-comment-7a46a4b8",
       "action": "translate",
-      "new_text": "Hand-written Prometheus exposition avoids `prom-client` for the two counters, one histogram, and three gauges required by `infra/observabilidade/alertas.yml`. `http_request_duration_seconds` feeds `LatenciaDaApiAlta`; `pipe_http_requisicoes_total{rota,metodo,status}` tracks volume and route errors; `pipe_mensagem_entrega_total{canal,resultado}` feeds `EntregaFalhando`; `pipe_fila_profundidade{fila}` and `pipe_fila_idade_item_mais_velho_segundos{fila}` feed `FilaParada`, which cares about old stuck jobs rather than busy depth; `pipe_migration_pendente` feeds `MigrationPendente`. Label `rota` with the route pattern (`/v1/conversas/:id/mensagens`), never a raw UUID path, which would create unbounded Prometheus series.",
+      "new_text": "Hand-written Prometheus exposition avoids `prom-client` for the two counters, one histogram, and three gauges required by `infra/observabilidade/alertas.yml`. `http_request_duration_seconds` feeds `LatenciaDaApiAlta`; `pipe_http_requisicoes_total{rota,metodo,status}` tracks volume and route errors; `pipe_mensagem_entrega_total{canal,resultado}` feeds `EntregaFalhando`; `pipe_fila_profundidade{fila}` and `pipe_fila_idade_item_mais_velho_segundos{fila}` feed `FilaParada`, which cares about old stuck jobs rather than busy depth; `pipe_migration_pendente` feeds `MigrationPendente`. Label `rota` with the route pattern (`/v1/conversas/:id/mensagens`), never a raw UUID path, which would create unbounded Prometheus series. The latency alert reads `http_request_duration_seconds_bucket`.",
       "sensitivity": "architecture",
       "evidence": "apps/api/src/metricas.ts:5-27; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -676,17 +672,15 @@
       "id": "api-comment-92768228",
       "action": "translate",
       "new_text": "Increment every bucket whose upper bound includes the value, producing cumulative counts for Prometheus `le`.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/metricas.ts:84; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:84"
     },
     {
       "id": "api-comment-1c662fcb",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/metricas.ts:85; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:85"
     },
     {
       "id": "api-comment-cb376343",
@@ -700,17 +694,15 @@
       "id": "api-comment-fbab8874",
       "action": "translate",
       "new_text": "Read `limite + 1` rows; the extra row proves another page exists without a count query.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/paginacao.ts:112-115; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/paginacao.ts:112-115"
     },
     {
       "id": "api-comment-fa05ae4a",
       "action": "translate",
       "new_text": "Serialized sort-field value.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/paginacao.ts:20; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/paginacao.ts:20"
     },
     {
       "id": "api-comment-47e7f57f",
@@ -740,31 +732,28 @@
       "id": "api-comment-63d5533b",
       "action": "translate",
       "new_text": "Null when the tenant was created without a domain; see `semDominio` in the request.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/provisionar.ts:101; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:101"
     },
     {
       "id": "api-comment-5a676b18",
       "action": "translate",
       "new_text": "If no domain is supplied, derive it from the administrator email; entering the same value twice invites a mismatch.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/provisionar.ts:135; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:135"
     },
     {
       "id": "api-comment-e5052938",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/provisionar.ts:136; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:136"
     },
     {
       "id": "api-comment-b3a5971c",
       "action": "translate",
       "new_text": "Provision a tenant, first administrator, and verified domain through a command, not an HTTP route. Together these grant full tenant access; a route would require a master secret vulnerable to logs, screenshots, or `curl` shell history, plus rotation, rate limits, and caller audit. The command instead uses existing production database access, whose holder could already insert these records, and adds no Internet-facing surface. When a Pipe admin UI exists, it can call `provisionarCliente` through a session-authenticated route with a dedicated role and audit. Usage: `pnpm --filter @pipe/api provisionar --nome \"Acme Atendimento\" --slug acme --plano operacao --admin ana@acme.com.br [--dominio acme.com.br] [--verificar] [--reaplicar]`. Without `--verificar`, print the TXT record and leave the customer-owned DNS domain pending; staff can enter through invitations (`POST /v1/convites`) meanwhile.",
-      "sensitivity": "architecture",
+      "sensitivity": "security",
       "evidence": "apps/api/src/provisionar.ts:14-48; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -772,15 +761,14 @@
       "id": "api-comment-eb50d07b",
       "action": "translate",
       "new_text": "The base seed is the single source for initial roles, permissions, and catalog.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/provisionar.ts:156; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:156"
     },
     {
       "id": "api-comment-00760f95",
       "action": "translate",
       "new_text": "Run serially, never with `Promise.all`: parallel operations inside this transaction can lose `pipe.tenant_id` and run without a tenant; see the README.",
-      "sensitivity": "architecture",
+      "sensitivity": "security",
       "evidence": "apps/api/src/provisionar.ts:161; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -788,7 +776,7 @@
       "id": "api-comment-1559d2f1",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "architecture",
+      "sensitivity": "security",
       "evidence": "apps/api/src/provisionar.ts:162; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -796,9 +784,8 @@
       "id": "api-comment-aec738cf",
       "action": "translate",
       "new_text": "Assign two roles: `admin` at account scope (their only account role) and `administrador` at attendance scope (migration 0021).",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/provisionar.ts:185; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:185"
     }
   ]
 }

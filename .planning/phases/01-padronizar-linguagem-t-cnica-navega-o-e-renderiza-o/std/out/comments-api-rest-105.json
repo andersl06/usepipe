@@ -4,49 +4,43 @@
       "id": "api-comment-3731f813",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:186; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:186"
     },
     {
       "id": "api-comment-0b988b3c",
       "action": "translate",
       "new_text": "Terminal text giving the tenant owner what they need to sign in.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:220; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:220"
     },
     {
       "id": "api-comment-5388f818",
       "action": "remove",
       "new_text": "",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:50-57; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:50-57"
     },
     {
       "id": "api-comment-a124b251",
       "action": "translate",
       "new_text": "First administrator's email; its domain is the tenant default.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:73; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:73"
     },
     {
       "id": "api-comment-45f6cc90",
       "action": "translate",
       "new_text": "Check the TXT record now, only after the customer has published it.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:76; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:76"
     },
     {
       "id": "api-comment-24a45152",
       "action": "translate",
       "new_text": "Allow reapplying to an existing slug; otherwise a duplicate slug stops.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/provisionar.ts:78; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:78"
     },
     {
       "id": "api-comment-cc8040ad",
@@ -60,14 +54,13 @@
       "id": "api-comment-0c3bd90b",
       "action": "translate",
       "new_text": "The image stamps `PIPE_VERSAO` at build time; outside it, use the package version.",
-      "sensitivity": "architecture",
-      "evidence": "apps/api/src/saude.ts:19; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/saude.ts:19"
     },
     {
       "id": "api-comment-3af90b5c",
       "action": "translate",
-      "new_text": "Race probes against a deadline. Catch the losing promise too: if it rejects after timeout without a handler, `unhandledRejection` could crash the service that the healthcheck is meant to monitor.",
+      "new_text": "Race probes against a deadline. Catch the losing promise too: if it rejects after timeout without a handler, `unhandledRejection` could crash the service that the healthcheck is meant to monitor. The losing promise needs its own `catch`.",
       "sensitivity": "architecture",
       "evidence": "apps/api/src/saude.ts:31-37; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -107,7 +100,7 @@
     {
       "id": "api-comment-98e53ffd",
       "action": "translate",
-      "new_text": "Count repository migrations not yet applied. Return null when unknowable (image lacks `drizzle`, database is down, or migration table is missing); omit that metric rather than emit a false zero that would silence `MigrationPendente`.",
+      "new_text": "Count repository migrations not yet applied. Return null when unknowable (image lacks `drizzle`, database is down, or migration table is missing); omit that metric rather than emit a false zero that would silence `MigrationPendente`. The unknown value is `null`, not zero.",
       "sensitivity": "architecture",
       "evidence": "apps/api/src/saude.ts:70-76; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -147,7 +140,7 @@
     {
       "id": "api-comment-aee1daf4",
       "action": "translate",
-      "new_text": "Start listening; port 0 lets the OS choose, as tests require.",
+      "new_text": "Start listening; port 0 lets the OS choose, as tests require. Tests pass `porta = 0`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/servidor.ts:133; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -267,7 +260,7 @@
     {
       "id": "api-comment-7f3067ec",
       "action": "translate",
-      "new_text": "Use one raw POST body with the file's own `Content-Type`, as S3 `PUT Object` does. Multipart would require `multer` for a single file.",
+      "new_text": "Use one raw POST body with the file's own `Content-Type`, as S3 `PUT Object` does. Multipart would require `multer` for a single file. This avoids `multipart/form-data`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/servidor.ts:71; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -347,7 +340,7 @@
     {
       "id": "api-comment-8e568b1a",
       "action": "translate",
-      "new_text": "Check a person's permission inside `noTenant` before writing. A separate guard before `pipe.tenant_id` is set would need an owner-role lookup duplicating what the transaction can answer. Effective permission is `COALESCE` of that person's `usuario_permissao` override (migration 0046) and the union of their roles, as in `GET /v1/eu`. A per-person row explicitly grants or denies the capability; without one, roles decide. One query combines both.",
+      "new_text": "Check a person's permission inside `noTenant` before writing. A separate guard before `pipe.tenant_id` is set would need an owner-role lookup duplicating what the transaction can answer. Effective permission is `COALESCE` of that person's `usuario_permissao` override (migration 0046) and the union of their roles, as in `GET /v1/eu`. A per-person row explicitly grants or denies the capability; without one, roles decide. One query combines both. SQL `coalesce` combines the override and role result.",
       "sensitivity": "security",
       "evidence": "apps/api/src/sessao.ts:100-116; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -355,7 +348,7 @@
     {
       "id": "api-comment-a52e8a19",
       "action": "translate",
-      "new_text": "Browser session authentication complements API-key authentication in `autenticacao.ts`. Controllers read neither headers nor cookies and derive `tenant_id` server-side. Integrations use `Authorization: Bearer pipe_...`; people use browser cookie `pipe_sessao`. Routes declare `@Escopos(...)` or `@ComSessao()`; unmarked routes such as webhooks and `/saude` are intentionally public. Parse the cookie directly with semicolon splitting instead of adding `cookie-parser`.",
+      "new_text": "Browser session authentication complements API-key authentication in `autenticacao.ts`. Controllers read neither headers nor cookies and derive `tenant_id` server-side. Integrations use `Authorization: Bearer pipe_...`; people use browser cookie `pipe_sessao`. Routes declare `@Escopos(...)` or `@ComSessao()`; unmarked routes such as webhooks and `/saude` are intentionally public. Parse the cookie directly with semicolon splitting instead of adding `cookie-parser`. The cookie parser is a semicolon `split`.",
       "sensitivity": "security",
       "evidence": "apps/api/src/sessao.ts:12-24; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -420,9 +413,8 @@
       "id": "api-comment-452e2620",
       "action": "translate",
       "new_text": "Shortcut for publishing that conversation X changed.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:114; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:114"
     },
     {
       "id": "api-comment-3fc15bb2",
@@ -436,25 +428,22 @@
       "id": "api-comment-68ad4ac3",
       "action": "translate",
       "new_text": "Live connection count in this process, used by `/metrics` and tests.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:154; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:154"
     },
     {
       "id": "api-comment-7215cde6",
       "action": "translate",
       "new_text": "Redis envelope: the contract event plus its recipient.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:27; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:27"
     },
     {
       "id": "api-comment-e58d6f73",
       "action": "translate",
       "new_text": "When set, deliver only to this person's connections.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:29; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:29"
     },
     {
       "id": "api-comment-7fa1f5e6",
@@ -476,17 +465,15 @@
       "id": "api-comment-027ab526",
       "action": "translate",
       "new_text": "Live connections in this process, grouped by tenant.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:56; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:56"
     },
     {
       "id": "api-comment-2d318d64",
       "action": "translate",
       "new_text": "An unreadable channel message must not crash the process.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:68; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:68"
     },
     {
       "id": "api-comment-1bc93945",
@@ -508,9 +495,8 @@
       "id": "api-comment-a311e391",
       "action": "translate",
       "new_text": "One dying client socket must not prevent delivery to other clients.",
-      "sensitivity": "security",
-      "evidence": "apps/api/src/tempo-real.ts:90; pre-triage D-40; needs slice-time confirmation",
-      "notes": "pre-triage D-40; needs slice-time confirmation"
+      "sensitivity": "other",
+      "evidence": "apps/api/src/tempo-real.ts:90"
     },
     {
       "id": "api-comment-c7459479",
@@ -523,7 +509,7 @@
     {
       "id": "api-comment-2f6d2de0",
       "action": "translate",
-      "new_text": "Null means no `Authorization` header (`nenhuma` authentication).",
+      "new_text": "Null means no `Authorization` header (`nenhuma` authentication). The sentinel is `null`.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/webhooks-saida.ts:110; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -539,7 +525,7 @@
     {
       "id": "api-comment-e6da9eb9",
       "action": "translate",
-      "new_text": "Decrypt a `webhook_saida` secret field. Pass null, empty, or non-Pipe-envelope text through, as in tolerant `dominio/twenty.ts`, so data written directly to the database does not break delivery.",
+      "new_text": "Decrypt a `webhook_saida` secret field. Pass null, empty, or non-Pipe-envelope text through, as in tolerant `dominio/twenty.ts`, so data written directly to the database does not break delivery. Pass `null` through unchanged.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/webhooks-saida.ts:145-149; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
