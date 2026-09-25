@@ -11,11 +11,11 @@ import {
   conexaoRedis,
 } from '@pipe/workers';
 import type {
-  JobDicionarioCrm as JobDictionaryCrm,
+  JobDictionaryCrm,
   JobInbound,
   JobDelivery,
   JobMirrorCrm,
-  JobMidia as JobMedia,
+  JobMedia,
   JobProcessHttp,
   JobSla,
 } from '@pipe/workers';
@@ -27,7 +27,7 @@ import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
 import { baixarMediaOfAttachment, midiasPendentes } from './domain/media.js';
 import { checarSlaOfConversation, conversationsForChecarSla } from './domain/management/sla-motor.js';
-import { QUEUE_IMPORT, processarImportacao as processarImport } from '@pipe/workers';
+import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
 
 /**
@@ -229,11 +229,11 @@ export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
       // Um por anexo: o empurrão de agora e o da varredura, se se cruzarem, viram UM
       // job — `baixarMidiaDoAnexo` também é idempotente por conta própria (`bytes = 0`
       // na condição do `select`), então isto é só para não gastar chamada à toa.
-      jobId: `midia-${job.anexoId}`,
+      jobId: `midia-${job.attachmentId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[midia] não enfileirou ${job.anexoId}: ${(erro as Error).message}`);
+    console.error(`[midia] não enfileirou ${job.attachmentId}: ${(erro as Error).message}`);
   }
 }
 
@@ -259,7 +259,7 @@ export function consumeDownloadMedia(): void {
         return pendentes.length;
       }
       const dados = job.data as JobMedia;
-      const r = await baixarMediaOfAttachment(dados.tenantId, dados.anexoId);
+      const r = await baixarMediaOfAttachment(dados.tenantId, dados.attachmentId);
       return r.state;
     },
     {
@@ -289,7 +289,7 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
       rodando = true;
       void (async () => {
         try {
-          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.anexoId);
+          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.attachmentId);
         } catch (erro) {
           console.error(`[midia] varredura em memória falhou: ${(erro as Error).message}`);
         } finally {
@@ -327,11 +327,11 @@ export async function enqueueCheckSla(job: JobSla): Promise<void> {
       removeOnComplete: 1_000,
       // Uma checagem pendente por conversa: um empurrão a mais enquanto a anterior
       // ainda não rodou vira UM job, não dois competindo pela mesma linha.
-      jobId: `sla-${job.conversaId}`,
+      jobId: `sla-${job.conversationId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[sla] não enfileirou ${job.conversaId}: ${(erro as Error).message}`);
+    console.error(`[sla] não enfileirou ${job.conversationId}: ${(erro as Error).message}`);
   }
 }
 
@@ -356,7 +356,7 @@ export function consumeCheckSla(): void {
         return pendentes.length;
       }
       const dados = job.data as JobSla;
-      await checarSlaOfConversation(dados.tenantId, dados.conversaId);
+      await checarSlaOfConversation(dados.tenantId, dados.conversationId);
     },
     {
       connection: redis(),
@@ -565,9 +565,9 @@ export async function stateOfQueues(): Promise<StateOfQueue[]> {
       ]);
       const carimbo = maisVelho[0]?.timestamp;
       return {
-        fila: nome,
-        profundidade: esperando + adiados,
-        idadeSegundos: carimbo ? Math.max(0, (agora - carimbo) / 1000) : 0,
+        queue: nome,
+        depth: esperando + adiados,
+        ageSeconds: carimbo ? Math.max(0, (agora - carimbo) / 1000) : 0,
       };
     }),
   );
