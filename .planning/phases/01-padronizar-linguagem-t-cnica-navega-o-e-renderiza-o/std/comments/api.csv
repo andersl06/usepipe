@@ -4311,24 +4311,24 @@ api-comment-f0d1ff10,api,apps/api/src/dominio/gestao/sla-motor.ts,17,56,jsdoc,62
  */",,,,,,
 api-comment-3743dbf2,api,apps/api/src/dominio/gestao/sla-motor.ts,170,170,line,1,// `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do,,,,,,
 api-comment-858801f4,api,apps/api/src/dominio/gestao/sla-motor.ts,171,171,line,3,"// contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.",,,,,,
-api-comment-1a4d1ea7,api,apps/api/src/dominio/gestao/sla-motor.ts,177,177,line,3,"// Sem início hoje. Se havia uma linha correndo, o fim da espera (resposta que",,,,,,
-api-comment-1c25b6c0,api,apps/api/src/dominio/gestao/sla-motor.ts,178,178,line,1,"// chegou) fecha o ciclo como cumprido — senão ela travaria ""correndo"" para",,,,,,
-api-comment-0ff7d6e6,api,apps/api/src/dominio/gestao/sla-motor.ts,182,182,line,1,"// `sla_conversa` só tem uma chave (conversa, regra). Se um dia for preciso o",,,,,,
-api-comment-96630567,api,apps/api/src/dominio/gestao/sla-motor.ts,183,183,line,2,"// histórico de CADA ciclo de resposta (não só o último), isso vira tabela",,,,,,
-api-comment-ccbe6e89,api,apps/api/src/dominio/gestao/sla-motor.ts,184,184,line,0,// própria; hoje ninguém pediu esse histórico.,,,,,,
-api-comment-b45ca61d,api,apps/api/src/dominio/gestao/sla-motor.ts,196,196,line,0,// O relógio congela em `encerradaEm` — ver decisão Pipe no topo do arquivo.,,,,,,
-api-comment-2a2f1059,api,apps/api/src/dominio/gestao/sla-motor.ts,230,230,line,3,// Encerrou sem cumprir o alvo e sem ter estourado antes de fechar: não fica,,,,,,
-api-comment-4a9f8fff,api,apps/api/src/dominio/gestao/sla-motor.ts,231,231,line,5,"// ""correndo""/""alertado"" para sempre — é isso que garante que fechar cedo não",,,,,,
+api-comment-1a4d1ea7,api,apps/api/src/dominio/gestao/sla-motor.ts,177,177,line,3,"// Sem início hoje. Se havia uma linha correndo, o fim da espera (resposta que",translate,"No start time today. If a row was running, the reply that ended the wait closes the cycle as met; otherwise it would remain running indefinitely.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:177; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c25b6c0,api,apps/api/src/dominio/gestao/sla-motor.ts,178,178,line,1,"// chegou) fecha o ciclo como cumprido — senão ela travaria ""correndo"" para",remove,,architecture,apps/api/src/dominio/gestao/sla-motor.ts:178; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0ff7d6e6,api,apps/api/src/dominio/gestao/sla-motor.ts,182,182,line,1,"// `sla_conversa` só tem uma chave (conversa, regra). Se um dia for preciso o",translate,"`sla_conversa` has one key per conversation and rule. Keeping every response cycle, rather than only the latest, would require a separate table; that history is not currently needed.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:182; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-96630567,api,apps/api/src/dominio/gestao/sla-motor.ts,183,183,line,2,"// histórico de CADA ciclo de resposta (não só o último), isso vira tabela",remove,,architecture,apps/api/src/dominio/gestao/sla-motor.ts:183; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ccbe6e89,api,apps/api/src/dominio/gestao/sla-motor.ts,184,184,line,0,// própria; hoje ninguém pediu esse histórico.,remove,,architecture,apps/api/src/dominio/gestao/sla-motor.ts:184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b45ca61d,api,apps/api/src/dominio/gestao/sla-motor.ts,196,196,line,0,// O relógio congela em `encerradaEm` — ver decisão Pipe no topo do arquivo.,translate,The clock stops at `encerradaEm`; see the Pipe decision at the top of this file.,architecture,apps/api/src/dominio/gestao/sla-motor.ts:196; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2a2f1059,api,apps/api/src/dominio/gestao/sla-motor.ts,230,230,line,3,// Encerrou sem cumprir o alvo e sem ter estourado antes de fechar: não fica,translate,"If the conversation closes without meeting the target or breaching it first, mark the cycle complete so it does not remain `correndo` or `alertado` forever. Closing early must not count as a breach.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:230; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4a9f8fff,api,apps/api/src/dominio/gestao/sla-motor.ts,231,231,line,5,"// ""correndo""/""alertado"" para sempre — é isso que garante que fechar cedo não",remove,,architecture,apps/api/src/dominio/gestao/sla-motor.ts:231; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e0995eb6,api,apps/api/src/dominio/gestao/sla-motor.ts,284,290,jsdoc,7,"/**
  * Checa o SLA de UMA conversa — o que o consumidor da fila `pipe-sla` chama por
  * job, e o que o modo em memória chama direto por conversa pendente.
  *
  * Tudo dentro de `noTenant`: a RLS decide o que `carregarRegrasSla` enxerga, a
  * mesma garantia de isolamento entre tenants que o resto da `api` usa.
- */",,,,,,
-api-comment-1af2ef50,api,apps/api/src/dominio/gestao/sla-motor.ts,312,312,line,1,// A conversa sumiu entre o enfileirar e o processar (mesma tolerância do,,,,,,
-api-comment-4141b94a,api,apps/api/src/dominio/gestao/sla-motor.ts,313,313,line,3,"// download de mídia): nada a fazer, a próxima varredura nem vai mais achá-la.",,,,,,
-api-comment-7f78167b,api,apps/api/src/dominio/gestao/sla-motor.ts,318,318,line,4,"// Sem regra cadastrada para esta fila/tenant: não muda nada, como pedido.",,,,,,
+ */",translate,"Check one conversation's SLA, called by each `pipe-sla` queue job or directly for each pending conversation in memory mode. Run entirely inside `noTenant`: RLS controls what `carregarRegrasSla` can see and provides the same tenant isolation as the rest of the `api`.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:284-290; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1af2ef50,api,apps/api/src/dominio/gestao/sla-motor.ts,312,312,line,1,// A conversa sumiu entre o enfileirar e o processar (mesma tolerância do,translate,"The conversation disappeared between enqueue and processing. As with media downloads, do nothing; the next sweep will no longer find it.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:312; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4141b94a,api,apps/api/src/dominio/gestao/sla-motor.ts,313,313,line,3,"// download de mídia): nada a fazer, a próxima varredura nem vai mais achá-la.",remove,,architecture,apps/api/src/dominio/gestao/sla-motor.ts:313; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7f78167b,api,apps/api/src/dominio/gestao/sla-motor.ts,318,318,line,4,"// Sem regra cadastrada para esta fila/tenant: não muda nada, como pedido.",translate,"If this queue and tenant have no configured rule, leave the conversation unchanged.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:318; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-204a7f84,api,apps/api/src/dominio/gestao/sla-motor.ts,352,360,jsdoc,10,"/**
  * Candidatas à varredura: conversas ainda abertas, OU já encerradas mas com
  * `sla_conversa` ainda `correndo`/`alertado` — que é a última passada que as
@@ -4337,10 +4337,10 @@ api-comment-204a7f84,api,apps/api/src/dominio/gestao/sla-motor.ts,352,360,jsdoc,
  * `bancoDono()`, como `midiasPendentes`/`contatosSemEspelho`: a varredura
  * atravessa tenant para achar QUEM precisa de trabalho; o trabalho em si
  * (`checarSlaDaConversa`) roda depois, um tenant de cada vez, sob RLS.
- */",,,,,,
-api-comment-13fc8524,api,apps/api/src/dominio/gestao/sla-motor.ts,68,68,jsdoc,2,"/** Agrupa por alvo e escolhe, em cada grupo, a regra de escopo mais específico. */",,,,,,
-api-comment-1d794b3f,api,apps/api/src/dominio/gestao/sla-motor.ts,87,87,jsdoc,2,"/** Sobe um degrau na régua de prioridade (§`conversa/prioridade.ts`). Já em `maxima`, não faz nada. */",,,,,,
-api-comment-9be8c6e4,api,apps/api/src/dominio/gestao/sla-motor.ts,90,90,line,2,// -1 (valor desconhecido) ou 0 (já é `maxima`): nada a elevar.,,,,,,
+ */",translate,"Sweep open conversations and closed ones whose `sla_conversa` is still `correndo` or `alertado`. That final pass closes the cycle as met, canceled, or breached, as in `processarRegra`. `bancoDono()` crosses tenants only to find candidates, like `midiasPendentes` and `contatosSemEspelho`; `checarSlaDaConversa` then processes one tenant at a time under RLS.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:352-360; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-13fc8524,api,apps/api/src/dominio/gestao/sla-motor.ts,68,68,jsdoc,2,"/** Agrupa por alvo e escolhe, em cada grupo, a regra de escopo mais específico. */",translate,Group by target and select the most specific scope rule in each group.,architecture,apps/api/src/dominio/gestao/sla-motor.ts:68; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1d794b3f,api,apps/api/src/dominio/gestao/sla-motor.ts,87,87,jsdoc,2,"/** Sobe um degrau na régua de prioridade (§`conversa/prioridade.ts`). Já em `maxima`, não faz nada. */",translate,Raise priority one step (`conversa/prioridade.ts`); do nothing when already at `maxima`.,architecture,apps/api/src/dominio/gestao/sla-motor.ts:87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9be8c6e4,api,apps/api/src/dominio/gestao/sla-motor.ts,90,90,line,2,// -1 (valor desconhecido) ou 0 (já é `maxima`): nada a elevar.,translate,"A priority of -1 is unknown, and 0 is already `maxima`; neither can be raised.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:90; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f6f30433,api,apps/api/src/dominio/gestao/sla-motor.ts,95,108,jsdoc,8,"/**
  * Executa a ação configurada (`regra_sla.acao_alerta`/`acao_estouro`, formato
  * `{ tipo: 'notificar_supervisor' | 'elevar_prioridade' }` — é o que
@@ -4354,10 +4354,10 @@ api-comment-f6f30433,api,apps/api/src/dominio/gestao/sla-motor.ts,95,108,jsdoc,8
  *
  * Tipo desconhecido é ignorado em silêncio: um valor de `jsonb` mal digitado
  * não pode derrubar o relógio de SLA de todas as outras conversas.
- */",,,,,,
-api-comment-3084b8fd,api,apps/api/src/dominio/gestao/sla.ts,35,35,jsdoc,1,"/** Segundos além do prazo, quando estourou. */",,,,,,
-api-comment-5cab1ec5,api,apps/api/src/dominio/gestao/sla.ts,39,39,jsdoc,0,/** `regra_sla.alvo` do banco → alvo do `@pipe/core`. Nomes divergem por história. */,,,,,,
-api-comment-8c8eca07,api,apps/api/src/dominio/gestao/sla.ts,44,44,line,3,// `espera_fila` não tem equivalente no core e por isso não vira pill.,,,,,,
+ */",translate,"Run the configured `regra_sla.acao_alerta` or `acao_estouro` action, currently seeded by `packages/db` and `apps/gestao-vite` as `{ tipo: 'notificar_supervisor' | 'elevar_prioridade' }`. The caller has already written `sla_alertado` or `sla_estourado` to `evento_atendimento` unconditionally; that raw event can later feed `metrica_diaria.sla_estourados`. This action is additional behavior. An empty `{}` rule does nothing beyond the event. Ignore unknown action types so a mistyped `jsonb` value cannot stop SLA clocks for other conversations.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:95-108; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3084b8fd,api,apps/api/src/dominio/gestao/sla.ts,35,35,jsdoc,1,"/** Segundos além do prazo, quando estourou. */",translate,Seconds past the deadline when breached.,architecture,apps/api/src/dominio/gestao/sla.ts:35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5cab1ec5,api,apps/api/src/dominio/gestao/sla.ts,39,39,jsdoc,0,/** `regra_sla.alvo` do banco → alvo do `@pipe/core`. Nomes divergem por história. */,translate,Map database `regra_sla.alvo` to the `@pipe/core` target; names differ for historical reasons.,architecture,apps/api/src/dominio/gestao/sla.ts:39; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8c8eca07,api,apps/api/src/dominio/gestao/sla.ts,44,44,line,3,// `espera_fila` não tem equivalente no core e por isso não vira pill.,translate,`espera_fila` has no core equivalent and therefore gets no pill.,architecture,apps/api/src/dominio/gestao/sla.ts:44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5834b127,api,apps/api/src/dominio/gestao/sla.ts,6,15,jsdoc,9,"/**
  * Coluna SLA do monitoramento detalhado.
  *
@@ -4367,14 +4367,14 @@ api-comment-5834b127,api,apps/api/src/dominio/gestao/sla.ts,6,15,jsdoc,9,"/**
  * ponytail: o relógio roda sem expediente — `horario_atendimento` ainda não é
  * semeado, então nenhuma fila tem horário para respeitar. `avaliarSla` já aceita
  * o expediente; basta passar o horário da fila quando ele existir.
- */",,,,,,
+ */",translate,"SLA column for detailed monitoring. `@pipe/core` computes the SLA through `avaliarSla` (spec §11); this layer selects the applicable rule and maps the result to the screen label. ponytail: the clock currently runs outside business hours because `horario_atendimento` is not seeded. Once queues have schedules, pass the queue schedule to `avaliarSla`, which already supports it.",architecture,apps/api/src/dominio/gestao/sla.ts:6-15; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f4d68d60,api,apps/api/src/dominio/gestao/sla.ts,81,84,jsdoc,7,"/**
  * Regra aplicável: a de escopo de fila vence a de escopo do tenant, porque a mais
  * específica é a que o gestor configurou de propósito.
- */",,,,,,
-api-comment-92ef5fe0,api,apps/api/src/dominio/importacao-de-contatos.ts,100,100,line,2,// o worker precisa enxergar a linha que acabou de ser gravada.,,,,,,
-api-comment-3c0ac6df,api,apps/api/src/dominio/importacao-de-contatos.ts,140,140,jsdoc,2,/** O CSV das linhas rejeitadas (`failed_records`). 404 quando nada foi rejeitado. */,,,,,,
-api-comment-9da8e7ea,api,apps/api/src/dominio/importacao-de-contatos.ts,31,31,jsdoc,1,/** Há CSV de linhas rejeitadas para baixar. */,,,,,,
+ */",translate,A queue-scoped rule overrides a tenant-scoped rule because it is the more specific rule deliberately configured by the manager.,architecture,apps/api/src/dominio/gestao/sla.ts:81-84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-92ef5fe0,api,apps/api/src/dominio/importacao-de-contatos.ts,100,100,line,2,// o worker precisa enxergar a linha que acabou de ser gravada.,translate,"The worker must see the row just written, so enqueue only after commit.",integration,apps/api/src/dominio/importacao-de-contatos.ts:100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3c0ac6df,api,apps/api/src/dominio/importacao-de-contatos.ts,140,140,jsdoc,2,/** O CSV das linhas rejeitadas (`failed_records`). 404 quando nada foi rejeitado. */,translate,CSV of rejected rows (`failed_records`); return 404 when none were rejected.,integration,apps/api/src/dominio/importacao-de-contatos.ts:140; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9da8e7ea,api,apps/api/src/dominio/importacao-de-contatos.ts,31,31,jsdoc,1,/** Há CSV de linhas rejeitadas para baixar. */,translate,Whether a downloadable CSV of rejected rows exists.,integration,apps/api/src/dominio/importacao-de-contatos.ts:31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8b2cf4e1,api,apps/api/src/dominio/importacao-de-contatos.ts,7,19,jsdoc,10,"/**
  * Portado de chatwoot/chatwoot (MIT): a action `import` de
  * app/controllers/api/v1/accounts/contacts_controller.rb e o `DataImport` de
@@ -4387,15 +4387,15 @@ api-comment-8b2cf4e1,api,apps/api/src/dominio/importacao-de-contatos.ts,7,19,jsd
  * Diferença do original: lá o job espera um minuto porque o arquivo ainda está
  * subindo para o storage; aqui o arquivo mora no banco (`importacao_arquivo`) e
  * já está lá quando o job nasce.
- */",,,,,,
-api-comment-30947f52,api,apps/api/src/dominio/importacao-de-contatos.ts,75,75,line,1,"// O Postgres não guarda o byte nulo em `text`, e planilha exportada às vezes traz um.",,,,,,
-api-comment-562fc30c,api,apps/api/src/dominio/instagram/canal.ts,101,101,jsdoc,0,"/** Grava o `config` inteiro de novo, cifrado. `cifrarConfig` é idempotente. */",,,,,,
-api-comment-58d279df,api,apps/api/src/dominio/instagram/canal.ts,119,119,line,3,// `username` e a validade não são segredo: ficam legíveis no `config` cifrado.,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT): the `import` action in app/controllers/api/v1/accounts/contacts_controller.rb and `DataImport` in app/models/data_import.rb (`set_default_name` and `process_data_import`). As in the original, the API rejects an empty file, writes the import and file in the same transaction, then queues the job after commit. The worker reads the CSV (`apps/workers/src/importacao-de-contatos.ts`). Unlike Chatwoot's one-minute delay while storage upload finishes, this file is in `importacao_arquivo` and is available when the job is created.",integration,apps/api/src/dominio/importacao-de-contatos.ts:7-19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-30947f52,api,apps/api/src/dominio/importacao-de-contatos.ts,75,75,line,1,"// O Postgres não guarda o byte nulo em `text`, e planilha exportada às vezes traz um.",translate,Postgres cannot store a NUL byte in `text`; spreadsheet exports sometimes contain one.,integration,apps/api/src/dominio/importacao-de-contatos.ts:75; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-562fc30c,api,apps/api/src/dominio/instagram/canal.ts,101,101,jsdoc,0,"/** Grava o `config` inteiro de novo, cifrado. `cifrarConfig` é idempotente. */",translate,Rewrite the entire encrypted `config`; `cifrarConfig` is idempotent.,security,apps/api/src/dominio/instagram/canal.ts:101; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-58d279df,api,apps/api/src/dominio/instagram/canal.ts,119,119,line,3,// `username` e a validade não são segredo: ficam legíveis no `config` cifrado.,translate,`username` and expiry are not secrets and stay readable in encrypted `config`.,security,apps/api/src/dominio/instagram/canal.ts:119; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e7de4faf,api,apps/api/src/dominio/instagram/canal.ts,136,140,jsdoc,9,"/**
  * ponytail: a lista não pergunta nada à Meta (o WhatsApp lê a saúde a cada vez).
  * `conectado` quer dizer ""ligado e sem reautorização pendente""; a renovação diária do
  * token é quem descobre token revogado. Perguntar ao `/me` aqui, quando a tela pedir.
- */",,,,,,
+ */",translate,"ponytail: listing does not query Meta, unlike the WhatsApp health check. `conectado` means enabled with no pending reauthorization; daily token renewal detects revocation. Query `/me` here if the screen needs live health.",security,apps/api/src/dominio/instagram/canal.ts:136-140; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2c904a1e,api,apps/api/src/dominio/instagram/canal.ts,163,170,jsdoc,6,"/**
  * Valida o token lendo `/me`, confere o App Secret pelo `appsecret_proof`, recusa
  * conta já conectada em QUALQUER cliente, cria canal e caixa na mesma transação,
@@ -4403,18 +4403,18 @@ api-comment-2c904a1e,api,apps/api/src/dominio/instagram/canal.ts,163,170,jsdoc,6
  *
  * A mesma conta, desligada, no MESMO cliente é religada com o token novo — é o
  * ""reconectar"" do Instagram (o WhatsApp tem a reautorização por `canal_id`).
- */",,,,,,
-api-comment-0fa672f1,api,apps/api/src/dominio/instagram/canal.ts,202,202,line,2,"// Unicidade GLOBAL, com o papel dono: a RLS esconderia justamente o canal do outro",,,,,,
-api-comment-c13aa455,api,apps/api/src/dominio/instagram/canal.ts,203,203,line,1,// cliente. Devolve só o necessário para decidir.,,,,,,
-api-comment-d026fb96,api,apps/api/src/dominio/instagram/canal.ts,223,223,line,3,// Não sabemos a idade real do token colado: conta a partir de agora.,,,,,,
-api-comment-d7164bcc,api,apps/api/src/dominio/instagram/canal.ts,248,248,line,0,"// Em série, nunca em `Promise.all` — ver `../whatsapp/criacao-de-canal.ts`.",,,,,,
+ */",translate,"Validate the token with `/me` and verify the App Secret through `appsecret_proof`. Reject an account already connected to any tenant; create channel and inbox in one transaction, subscribe the webhook, and return `{ url, verifyToken }` for the customer's app. An inactive account in the same tenant is reconnected with the new token, unlike WhatsApp's reauthorization by `canal_id`.",security,apps/api/src/dominio/instagram/canal.ts:163-170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0fa672f1,api,apps/api/src/dominio/instagram/canal.ts,202,202,line,2,"// Unicidade GLOBAL, com o papel dono: a RLS esconderia justamente o canal do outro",translate,Check global uniqueness with the owner role: RLS would hide another tenant's channel. Return only the information needed to decide.,security,apps/api/src/dominio/instagram/canal.ts:202; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c13aa455,api,apps/api/src/dominio/instagram/canal.ts,203,203,line,1,// cliente. Devolve só o necessário para decidir.,remove,,security,apps/api/src/dominio/instagram/canal.ts:203; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d026fb96,api,apps/api/src/dominio/instagram/canal.ts,223,223,line,3,// Não sabemos a idade real do token colado: conta a partir de agora.,translate,The pasted token's real age is unknown; start counting now.,security,apps/api/src/dominio/instagram/canal.ts:223; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d7164bcc,api,apps/api/src/dominio/instagram/canal.ts,248,248,line,0,"// Em série, nunca em `Promise.all` — ver `../whatsapp/criacao-de-canal.ts`.",translate,"Run serially, never with `Promise.all`; see `../whatsapp/criacao-de-canal.ts`.",security,apps/api/src/dominio/instagram/canal.ts:248; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3df33a26,api,apps/api/src/dominio/instagram/canal.ts,283,286,jsdoc,4,"/**
  * Desliga sem apagar conversa nem mensagem, como o WhatsApp. Tirar a assinatura do
  * webhook é tentativa: token já revogado não pode prender o canal ligado.
- */",,,,,,
-api-comment-b639ae93,api,apps/api/src/dominio/instagram/canal.ts,29,29,jsdoc,0,/** Decifrado. Só em memória. */,,,,,,
-api-comment-409a06b3,api,apps/api/src/dominio/instagram/canal.ts,48,48,jsdoc,3,"/** A assinatura do webhook falhou; o canal fica, e a tela diz o que houve. */",,,,,,
-api-comment-4d1f4f9e,api,apps/api/src/dominio/instagram/canal.ts,56,56,jsdoc,0,/** O token de longa duração do Instagram vale 60 dias. */,,,,,,
+ */",translate,"Disable the channel without deleting conversations or messages, as for WhatsApp. Unsubscribing the webhook is best effort: an already revoked token must not prevent disablement.",security,apps/api/src/dominio/instagram/canal.ts:283-286; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b639ae93,api,apps/api/src/dominio/instagram/canal.ts,29,29,jsdoc,0,/** Decifrado. Só em memória. */,translate,Decrypted; memory only.,security,apps/api/src/dominio/instagram/canal.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-409a06b3,api,apps/api/src/dominio/instagram/canal.ts,48,48,jsdoc,3,"/** A assinatura do webhook falhou; o canal fica, e a tela diz o que houve. */",translate,Webhook subscription failed; keep the channel and report the failure to the screen.,security,apps/api/src/dominio/instagram/canal.ts:48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4d1f4f9e,api,apps/api/src/dominio/instagram/canal.ts,56,56,jsdoc,0,/** O token de longa duração do Instagram vale 60 dias. */,translate,Instagram long-lived tokens are valid for 60 days.,security,apps/api/src/dominio/instagram/canal.ts:56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bf5b5605,api,apps/api/src/dominio/instagram/canal.ts,9,21,jsdoc,7,"/**
  * O canal do Instagram (Direct) pelo caminho MANUAL. Reconstruído de
  * chatwoot/chatwoot (MIT), `Channel::Instagram` e
@@ -4427,32 +4427,32 @@ api-comment-bf5b5605,api,apps/api/src/dominio/instagram/canal.ts,9,21,jsdoc,7,"/
  * O id da conta profissional (`user_id` do `/me`) mora em `canal.numero_id`: o índice
  * único GLOBAL daquela coluna (migration 0008) é o que barra a mesma conta em dois
  * clientes, inclusive na corrida — sem migration nova.
- */",,,,,,
-api-comment-9462a73b,api,apps/api/src/dominio/instagram/cliente-graph.ts,103,103,jsdoc,2,/** Conferir com token real: o `graph.instagram.com` aceita o token em `Authorization: Bearer`. */,,,,,,
-api-comment-74cff9d4,api,apps/api/src/dominio/instagram/cliente-graph.ts,146,146,jsdoc,3,/** Conferir com token real: que o `graph.instagram.com` confere `appsecret_proof` como o Graph do Facebook. */,,,,,,
-api-comment-98ff414c,api,apps/api/src/dominio/instagram/cliente-graph.ts,172,172,jsdoc,2,/** Conferir com token real: o `DELETE /{ig-user-id}/subscribed_apps` existe no `graph.instagram.com`. */,,,,,,
+ */",translate,"Manual Instagram Direct channel, reconstructed from chatwoot/chatwoot (MIT) `Channel::Instagram` and app/controllers/api/v1/accounts/instagram/authorizations_controller.rb. Chatwoot obtains the token through its installation app's OAuth; Pipe has no Meta-approved app, so the customer creates their own ""Instagram API with Instagram Login"" app and pastes its long-lived token and App Secret, as in manual WhatsApp setup (`../whatsapp/configuracao-manual.ts`). Store the professional account ID (`user_id` from `/me`) in `canal.numero_id`. Its global unique index (migration 0008) prevents an account from joining two tenants, including races, without another migration.",security,apps/api/src/dominio/instagram/canal.ts:9-21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9462a73b,api,apps/api/src/dominio/instagram/cliente-graph.ts,103,103,jsdoc,2,/** Conferir com token real: o `graph.instagram.com` aceita o token em `Authorization: Bearer`. */,translate,Verify with a real token that `graph.instagram.com` accepts `Authorization: Bearer`.,security,apps/api/src/dominio/instagram/cliente-graph.ts:103; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-74cff9d4,api,apps/api/src/dominio/instagram/cliente-graph.ts,146,146,jsdoc,3,/** Conferir com token real: que o `graph.instagram.com` confere `appsecret_proof` como o Graph do Facebook. */,translate,Verify with a real token that `graph.instagram.com` validates `appsecret_proof` as Facebook Graph does.,security,apps/api/src/dominio/instagram/cliente-graph.ts:146; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-98ff414c,api,apps/api/src/dominio/instagram/cliente-graph.ts,172,172,jsdoc,2,/** Conferir com token real: o `DELETE /{ig-user-id}/subscribed_apps` existe no `graph.instagram.com`. */,translate,Verify with a real token that `DELETE /{ig-user-id}/subscribed_apps` exists on `graph.instagram.com`.,security,apps/api/src/dominio/instagram/cliente-graph.ts:172; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-55fcb936,api,apps/api/src/dominio/instagram/cliente-graph.ts,181,184,jsdoc,4,"/**
    * `GET /refresh_access_token?grant_type=ig_refresh_token` — sem versão no caminho e
    * com o token na consulta, como a documentação mostra. Conferir com token real.
-   */",,,,,,
+   */",translate,"`GET /refresh_access_token?grant_type=ig_refresh_token` has no version in the path and passes the token in the query, as documented. Verify with a real token.",security,apps/api/src/dominio/instagram/cliente-graph.ts:181-184; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc3c01f2,api,apps/api/src/dominio/instagram/cliente-graph.ts,199,205,jsdoc,12,"/**
  * O dublê. Determinístico a partir do token: o mesmo token dá sempre a mesma conta,
  * e é isso que prova que a mesma conta não entra em dois clientes.
  *
  * Tokens que exercitam os caminhos de erro: `invalido…` (a Meta recusa o token) e
  * `expirado…` (recusa a renovação). Segredo que começa com `bad` é de outro app.
- */",,,,,,
-api-comment-ab4f1ee2,api,apps/api/src/dominio/instagram/cliente-graph.ts,216,216,jsdoc,0,"/** Dezessete dígitos estáveis, no formato do id de conta profissional. */",,,,,,
-api-comment-5da8f83b,api,apps/api/src/dominio/instagram/cliente-graph.ts,265,265,line,1,"// O token renovado mantém o prefixo do original: a conta do dublê sai do token,",,,,,,
-api-comment-16ea4c30,api,apps/api/src/dominio/instagram/cliente-graph.ts,266,266,line,2,// mas o canal já guardou o `igUserId` — é ele que vale depois de conectar.,,,,,,
-api-comment-7effc453,api,apps/api/src/dominio/instagram/cliente-graph.ts,286,286,jsdoc,2,/** Troca a fábrica em tempo de execução. Existe para o teste. */,,,,,,
-api-comment-ddf7f7d1,api,apps/api/src/dominio/instagram/cliente-graph.ts,29,29,jsdoc,3,/** Os campos que o webhook do Instagram entrega para a Pipe. */,,,,,,
+ */",translate,"Deterministic fake based on the token: the same token always identifies the same account, proving that one account cannot be added to two tenants. Tokens starting `invalido…` simulate Meta rejecting the token; `expirado…` rejects renewal. A secret starting `bad` belongs to another app.",security,apps/api/src/dominio/instagram/cliente-graph.ts:199-205; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ab4f1ee2,api,apps/api/src/dominio/instagram/cliente-graph.ts,216,216,jsdoc,0,"/** Dezessete dígitos estáveis, no formato do id de conta profissional. */",translate,Stable 17-digit professional account ID.,security,apps/api/src/dominio/instagram/cliente-graph.ts:216; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5da8f83b,api,apps/api/src/dominio/instagram/cliente-graph.ts,265,265,line,1,"// O token renovado mantém o prefixo do original: a conta do dublê sai do token,",translate,"The renewed token keeps the original prefix, so the fake derives the same account. After connection, the stored `igUserId` is authoritative.",security,apps/api/src/dominio/instagram/cliente-graph.ts:265; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-16ea4c30,api,apps/api/src/dominio/instagram/cliente-graph.ts,266,266,line,2,// mas o canal já guardou o `igUserId` — é ele que vale depois de conectar.,remove,,security,apps/api/src/dominio/instagram/cliente-graph.ts:266; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7effc453,api,apps/api/src/dominio/instagram/cliente-graph.ts,286,286,jsdoc,2,/** Troca a fábrica em tempo de execução. Existe para o teste. */,translate,Replace the factory at runtime for tests.,security,apps/api/src/dominio/instagram/cliente-graph.ts:286; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ddf7f7d1,api,apps/api/src/dominio/instagram/cliente-graph.ts,29,29,jsdoc,3,/** Os campos que o webhook do Instagram entrega para a Pipe. */,translate,Fields delivered to Pipe by the Instagram webhook.,security,apps/api/src/dominio/instagram/cliente-graph.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-46cdb5de,api,apps/api/src/dominio/instagram/cliente-graph.ts,37,41,jsdoc,9,"/**
  * A mesma versão do WhatsApp, sobreponível por `INSTAGRAM_API_VERSAO`.
  * Conferir com token real: o `graph.instagram.com` segue a numeração do Graph,
  * mas não há garantia de que a versão mais nova do WhatsApp já exista lá.
- */",,,,,,
-api-comment-4c5fc330,api,apps/api/src/dominio/instagram/cliente-graph.ts,48,48,jsdoc,0,"/** O id ""app-scoped"" do usuário. */",,,,,,
+ */",translate,"Use the WhatsApp version, overridable by `INSTAGRAM_API_VERSAO`. Verify with a real token that `graph.instagram.com` supports the same Graph version; the latest WhatsApp version may not be available there.",security,apps/api/src/dominio/instagram/cliente-graph.ts:37-41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4c5fc330,api,apps/api/src/dominio/instagram/cliente-graph.ts,48,48,jsdoc,0,"/** O id ""app-scoped"" do usuário. */",translate,App-scoped user ID.,security,apps/api/src/dominio/instagram/cliente-graph.ts:48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-fbdb8b2b,api,apps/api/src/dominio/instagram/cliente-graph.ts,5,25,jsdoc,15,"/**
  * Reconstruído a partir de chatwoot/chatwoot (MIT), app/services/instagram/*
  * (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) e do
@@ -4473,15 +4473,15 @@ api-comment-fbdb8b2b,api,apps/api/src/dominio/instagram/cliente-graph.ts,5,25,js
  * `buscar` injetável; dublê determinístico escolhido por `PIPE_WHATSAPP_CONEXAO`.
  * E um que o Chatwoot não tem: `conferirSegredoDoApp`, porque aqui o app é o do
  * CLIENTE e é o segredo dele que assina o webhook.
- */",,,,,,
-api-comment-2f1cd7b0,api,apps/api/src/dominio/instagram/cliente-graph.ts,50,50,jsdoc,0,/** O id da conta profissional: é o `entry[].id` e o `recipient.id` do webhook. */,,,,,,
-api-comment-11781c9d,api,apps/api/src/dominio/instagram/cliente-graph.ts,60,60,jsdoc,0,/** Segundos. O token de longa duração vale 60 dias. */,,,,,,
-api-comment-27da3610,api,apps/api/src/dominio/instagram/cliente-graph.ts,67,67,jsdoc,2,/** Prova que o App Secret colado é do app que gerou o token (`appsecret_proof`). */,,,,,,
+ */",translate,"Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/* (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) and `Channel::Instagram#subscribe`/`#unsubscribe`. With no network access to inspect the original, the port follows the Instagram Platform API (""Instagram API with Instagram Login"") at `graph.instagram.com`; unverified behavior is marked ""verify with a real token"". Chatwoot `fetch_instagram_user_details` maps to `buscarConta`, `subscribe`/`unsubscribe` to `assinarWebhook`/`desassinarWebhook`, and `refresh_long_lived_token` to `renovarToken`. As in `../whatsapp/cliente-graph.ts`, raw Meta bodies never enter exceptions, secrets pass through `esconder`, `buscar` is injectable, and `PIPE_WHATSAPP_CONEXAO` selects a deterministic fake. Pipe also adds `conferirSegredoDoApp`: the app belongs to the customer, whose secret signs the webhook.",security,apps/api/src/dominio/instagram/cliente-graph.ts:5-25; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2f1cd7b0,api,apps/api/src/dominio/instagram/cliente-graph.ts,50,50,jsdoc,0,/** O id da conta profissional: é o `entry[].id` e o `recipient.id` do webhook. */,translate,"Professional account ID, used as webhook `entry[].id` and `recipient.id`.",security,apps/api/src/dominio/instagram/cliente-graph.ts:50; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-11781c9d,api,apps/api/src/dominio/instagram/cliente-graph.ts,60,60,jsdoc,0,/** Segundos. O token de longa duração vale 60 dias. */,translate,Seconds; the long-lived token is valid for 60 days.,security,apps/api/src/dominio/instagram/cliente-graph.ts:60; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-27da3610,api,apps/api/src/dominio/instagram/cliente-graph.ts,67,67,jsdoc,2,/** Prova que o App Secret colado é do app que gerou o token (`appsecret_proof`). */,translate,Prove that the pasted App Secret belongs to the app that issued the token (`appsecret_proof`).,security,apps/api/src/dominio/instagram/cliente-graph.ts:67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-796da752,api,apps/api/src/dominio/instagram/cliente-graph.ts,74,77,jsdoc,3,"/**
  * Tira segredo de texto que vai virar mensagem de erro. Cópia do `esconder` de
  * `../whatsapp/cliente-graph.ts`, que não é exportado lá.
- */",,,,,,
-api-comment-87df3ac5,api,apps/api/src/dominio/instagram/entrada.ts,115,115,line,2,"// Texto, ou anexo sem equivalente no Pipe (story_mention, share, ig_reel…): vira texto com o link.",,,,,,
+ */",translate,Remove secrets from text that may become an error message. This copies the unexported `esconder` from `../whatsapp/cliente-graph.ts`.,security,apps/api/src/dominio/instagram/cliente-graph.ts:74-77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-87df3ac5,api,apps/api/src/dominio/instagram/entrada.ts,115,115,line,2,"// Texto, ou anexo sem equivalente no Pipe (story_mention, share, ig_reel…): vira texto com o link.",translate,"Text or an unsupported attachment (`story_mention`, share, `ig_reel`): convert to text with the link.",integration,apps/api/src/dominio/instagram/entrada.ts:115; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-002296de,api,apps/api/src/dominio/instagram/entrada.ts,3,24,jsdoc,22,"/**
  * Reconstruído de chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb e
  * app/services/instagram/message_text.rb / incoming_message_service: o evento do
@@ -4503,15 +4503,15 @@ api-comment-002296de,api,apps/api/src/dominio/instagram/entrada.ts,3,24,jsdoc,22
  * - anexo vem com URL, não com `media_id`.
  * - `entry` de outra conta é descartada: o webhook do app do cliente é UM por app, e
  *   um app com duas contas manda as duas para a mesma URL.
- */",,,,,,
-api-comment-3efbdaa9,api,apps/api/src/dominio/instagram/entrada.ts,47,47,jsdoc,1,/** Tipo de anexo do Instagram → campo de mídia da Meta que `../entrada.ts` entende. */,,,,,,
-api-comment-67abf23a,api,apps/api/src/dominio/instagram/entrada.ts,96,96,line,1,// ponytail: a mensagem da Pipe tem UM anexo; o Direct pode mandar vários no,,,,,,
-api-comment-51583ce0,api,apps/api/src/dominio/instagram/renovacao.ts,26,26,jsdoc,3,/** `token_eligible_for_refresh?`: mais de 24h de vida e ainda não vencido. */,,,,,,
-api-comment-f61490b9,api,apps/api/src/dominio/instagram/renovacao.ts,59,59,line,1,// Só a recusa da Meta marca reautorização; rede fora tenta de novo amanhã.,,,,,,
+ */",translate,"Reconstructed from chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb and app/services/instagram/message_text.rb / incoming_message_service. Map Direct events to the same `ValorDoWebhook` format handled by WhatsApp in `../entrada.ts`, reusing contact, conversation, `id_provedor` idempotency, flow, and router logic. In `object: ""instagram""`, `entry[].id` is the receiving professional account (`igUserId`); `entry[].messaging[]` carries sender.id (IGSID), recipient.id, timestamp in milliseconds, and message/postback/read data. Ignore `is_echo`, including Pipe's own messages, as Chatwoot does. WhatsApp timestamps use seconds. Instagram attachments carry URLs rather than `media_id`. Discard entries for another account: a customer's app may send events for multiple accounts to one webhook URL.",integration,apps/api/src/dominio/instagram/entrada.ts:3-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3efbdaa9,api,apps/api/src/dominio/instagram/entrada.ts,47,47,jsdoc,1,/** Tipo de anexo do Instagram → campo de mídia da Meta que `../entrada.ts` entende. */,translate,Map an Instagram attachment type to the Meta media field understood by `../entrada.ts`.,integration,apps/api/src/dominio/instagram/entrada.ts:47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-67abf23a,api,apps/api/src/dominio/instagram/entrada.ts,96,96,line,1,// ponytail: a mensagem da Pipe tem UM anexo; o Direct pode mandar vários no,translate,"ponytail: Pipe messages support one attachment, while Direct may send several under the same `mid`. Keep the first attachment and put links to the others in the text until the message model supports multiples.",integration,apps/api/src/dominio/instagram/entrada.ts:96; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-51583ce0,api,apps/api/src/dominio/instagram/renovacao.ts,26,26,jsdoc,3,/** `token_eligible_for_refresh?`: mais de 24h de vida e ainda não vencido. */,translate,`token_eligible_for_refresh?`: older than 24 hours and not expired.,integration,apps/api/src/dominio/instagram/renovacao.ts:26; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f61490b9,api,apps/api/src/dominio/instagram/renovacao.ts,59,59,line,1,// Só a recusa da Meta marca reautorização; rede fora tenta de novo amanhã.,translate,Only a Meta refusal marks reauthorization pending; a network failure retries tomorrow.,integration,apps/api/src/dominio/instagram/renovacao.ts:59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-689d0d83,api,apps/api/src/dominio/instagram/renovacao.ts,67,70,jsdoc,5,"/**
  * A varredura diária. Papel dono só para listar QUAIS canais (id e tenant); cada
  * canal é relido e gravado dentro do tenant dele. Um canal que falha não para os outros.
- */",,,,,,
+ */",translate,Daily sweep: use the owner role only to list channel IDs and tenants; reread and update each channel inside its tenant. One failure must not stop the others.,integration,apps/api/src/dominio/instagram/renovacao.ts:67-70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-30c09702,api,apps/api/src/dominio/instagram/renovacao.ts,9,20,jsdoc,10,"/**
  * Reconstruído de chatwoot/chatwoot (MIT), app/services/instagram/refresh_oauth_token_service.rb.
  *
@@ -4523,7 +4523,7 @@ api-comment-30c09702,api,apps/api/src/dominio/instagram/renovacao.ts,9,20,jsdoc,
  * Token que a Meta recusa (revogado, vencido, senha trocada) não tem conserto aqui:
  * o canal é marcado com `reautorizacaoPendente`, a lista mostra `indisponivel`, e o
  * cliente cola um token novo pelo mesmo `POST /v1/canais/instagram/manual`.
- */",,,,,,
+ */",translate,"Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/refresh_oauth_token_service.rb. A long-lived token lasts 60 days, can be renewed after 24 hours and before expiry, and renewal grants another 60 days. `agendarRenovacaoInstagram` in `filas.ts` sweeps daily and renews eligible channels. If Meta rejects a revoked, expired, or password-invalidated token, mark `reautorizacaoPendente`, show `indisponivel`, and let the customer paste a new token through `POST /v1/canais/instagram/manual`.",integration,apps/api/src/dominio/instagram/renovacao.ts:9-20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3b45a6e5,api,apps/api/src/dominio/mensagem-ativa.ts,10,23,jsdoc,13,"/**
  * Mensagem ativa: disparar template para uma LISTA de contatos.
  *
@@ -4537,18 +4537,18 @@ api-comment-3b45a6e5,api,apps/api/src/dominio/mensagem-ativa.ts,10,23,jsdoc,13,"
  *
  * **Nunca é tudo-ou-nada.** Um número inválido no meio de quinze não pode derrubar os
  * catorze bons — cada contato tem o próprio resultado, como na tela deles.
- */",,,,,,
-api-comment-c6bd6a62,api,apps/api/src/dominio/mensagem-ativa.ts,114,114,line,2,"// Em SÉRIE, e não `Promise.all`: cada destino abre a própria transação, e paralelo",,,,,,
-api-comment-0af489ca,api,apps/api/src/dominio/mensagem-ativa.ts,115,115,line,1,// na mesma conexão derruba o `set_config('pipe.tenant_id')`. Aqui isso escreveria,,,,,,
-api-comment-37563a0f,api,apps/api/src/dominio/mensagem-ativa.ts,116,116,line,0,// mensagem no tenant errado — o pior lugar possível.,,,,,,
-api-comment-9448a0e8,api,apps/api/src/dominio/mensagem-ativa.ts,141,141,line,1,"// Preparo e recusas numa transação; o envio vai em outra, pela mesma razão de",,,,,,
-api-comment-b6ae99e3,api,apps/api/src/dominio/mensagem-ativa.ts,142,142,line,2,// sempre: não segurar conexão enquanto se fala com serviço externo.,,,,,,
-api-comment-91a00cbd,api,apps/api/src/dominio/mensagem-ativa.ts,151,151,line,1,"// Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —",,,,,,
-api-comment-b1c42211,api,apps/api/src/dominio/mensagem-ativa.ts,152,152,line,2,// e `enviarMensagem` já manda template fora da janela quando preciso.,,,,,,
-api-comment-661d8baa,api,apps/api/src/dominio/mensagem-ativa.ts,193,193,line,0,"// Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do",,,,,,
-api-comment-80003883,api,apps/api/src/dominio/mensagem-ativa.ts,194,194,line,1,"// disparo, não daquele contato. Qualquer outra falha fica no contato.",,,,,,
-api-comment-ec98524c,api,apps/api/src/dominio/mensagem-ativa.ts,213,213,line,3,// O identificador do WhatsApp é o telefone SEM o `+` — a mesma forma que,,,,,,
-api-comment-3eacc85d,api,apps/api/src/dominio/mensagem-ativa.ts,215,215,line,3,// paralelo para a mesma pessoa na primeira mensagem que ela respondesse.,,,,,,
+ */",translate,"Active message sends a template to a list of contacts, following `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and Blip's limits. Reuse `enviarMensagem` for the 24-hour window, outbox, template variable positions, event, and webhook; this module adds contact resolution, rejection, and batch cap. Results are per contact: one invalid number must not reject the other valid contacts.",integration,apps/api/src/dominio/mensagem-ativa.ts:10-23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c6bd6a62,api,apps/api/src/dominio/mensagem-ativa.ts,114,114,line,2,"// Em SÉRIE, e não `Promise.all`: cada destino abre a própria transação, e paralelo",translate,"Run serially, never with `Promise.all`: each destination opens its own transaction. Parallel work on one connection can lose `set_config('pipe.tenant_id')` and write a message under the wrong tenant.",integration,apps/api/src/dominio/mensagem-ativa.ts:114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0af489ca,api,apps/api/src/dominio/mensagem-ativa.ts,115,115,line,1,// na mesma conexão derruba o `set_config('pipe.tenant_id')`. Aqui isso escreveria,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:115; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-37563a0f,api,apps/api/src/dominio/mensagem-ativa.ts,116,116,line,0,// mensagem no tenant errado — o pior lugar possível.,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9448a0e8,api,apps/api/src/dominio/mensagem-ativa.ts,141,141,line,1,"// Preparo e recusas numa transação; o envio vai em outra, pela mesma razão de",translate,Prepare and validate in one transaction; send in another so the database connection is not held during an external call.,integration,apps/api/src/dominio/mensagem-ativa.ts:141; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b6ae99e3,api,apps/api/src/dominio/mensagem-ativa.ts,142,142,line,2,// sempre: não segurar conexão enquanto se fala com serviço externo.,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:142; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-91a00cbd,api,apps/api/src/dominio/mensagem-ativa.ts,151,151,line,1,"// Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —",translate,"Blip code 1602: an open conversation uses the normal send path, not active messaging. `enviarMensagem` already uses a template outside the window when needed.",integration,apps/api/src/dominio/mensagem-ativa.ts:151; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b1c42211,api,apps/api/src/dominio/mensagem-ativa.ts,152,152,line,2,// e `enviarMensagem` já manda template fora da janela quando preciso.,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:152; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-661d8baa,api,apps/api/src/dominio/mensagem-ativa.ts,193,193,line,0,"// Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do",translate,"A rejected or missing template fails the entire batch because it is a send configuration error, not a contact error. Keep other failures on their individual contacts.",integration,apps/api/src/dominio/mensagem-ativa.ts:193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-80003883,api,apps/api/src/dominio/mensagem-ativa.ts,194,194,line,1,"// disparo, não daquele contato. Qualquer outra falha fica no contato.",remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:194; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ec98524c,api,apps/api/src/dominio/mensagem-ativa.ts,213,213,line,3,// O identificador do WhatsApp é o telefone SEM o `+` — a mesma forma que,translate,The WhatsApp identifier is the phone number without `+`; keep that canonical form to avoid parallel conversations for the same person when their first reply arrives.,integration,apps/api/src/dominio/mensagem-ativa.ts:213; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3eacc85d,api,apps/api/src/dominio/mensagem-ativa.ts,215,215,line,3,// paralelo para a mesma pessoa na primeira mensagem que ela respondesse.,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:215; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4537b24f,api,apps/api/src/dominio/mensagem-ativa.ts,246,256,jsdoc,17,"/**
  * A conversa que a mensagem ativa abre.
  *
@@ -4559,35 +4559,35 @@ api-comment-4537b24f,api,apps/api/src/dominio/mensagem-ativa.ts,246,256,jsdoc,17
  * `janela_expira_em` fica NULO de propósito: quem abre a janela de 24h é a resposta do
  * cliente, não o nosso disparo. Marcar a janela aqui faria o Desk oferecer texto livre
  * antes de o cliente ter respondido — e a Meta recusaria.
- */",,,,,,
+ */",translate,"Conversation opened by an active message. Assign it to the initiating agent when a person triggers the send, so that agent receives the reply, as in Blip Desk. API-key sends have no owner and go to the queue for distribution. Leave `janela_expira_em` null deliberately: the customer's reply opens the 24-hour window, not our outbound send. Setting it now would offer free-form text before the customer replies and Meta would reject it.",integration,apps/api/src/dominio/mensagem-ativa.ts:246-256; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2d84184a,api,apps/api/src/dominio/mensagem-ativa.ts,30,33,jsdoc,0,"/**
  * `ActiveMessageLimitCount`, quantas ativas o MESMO contato pode receber por dia.
  * Zero desliga o limite — é o padrão deles.
- */",,,,,,
+ */",translate,"`ActiveMessageLimitCount` caps active messages to the same contact per day; zero disables the limit, as in Blip's default.",integration,apps/api/src/dominio/mensagem-ativa.ts:30-33; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-20353e9b,api,apps/api/src/dominio/mensagem-ativa.ts,321,327,jsdoc,8,"/**
  * O painel de status das mensagens ativas: **últimas 72 horas**, como o deles.
  *
  * Sai de `mensagem`, e não de tabela própria: o disparo já é um conjunto de mensagens
  * com `template_id`, e uma segunda tabela dizendo a mesma coisa seria uma segunda
  * verdade para divergir.
- */",,,,,,
-api-comment-6ce1d584,api,apps/api/src/dominio/mensagem-ativa.ts,45,45,jsdoc,3,"/** Um dos dois: contato já cadastrado, ou telefone para achar/cadastrar. */",,,,,,
-api-comment-557baad7,api,apps/api/src/dominio/mensagem-ativa.ts,49,49,jsdoc,1,"/** Variáveis do corpo só deste contato. Sem elas, valem as do lote. */",,,,,,
-api-comment-675b2003,api,apps/api/src/dominio/mensagem-ativa.ts,69,69,jsdoc,2,"/** Quem disparou. A conversa criada nasce com essa pessoa, como no Desk deles. */",,,,,,
+ */",translate,"Active-message status panel covers the last 72 hours, as in Blip. Derive it from `mensagem`: a send already produces messages with `template_id`, and a second table would create another source of truth.",integration,apps/api/src/dominio/mensagem-ativa.ts:321-327; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6ce1d584,api,apps/api/src/dominio/mensagem-ativa.ts,45,45,jsdoc,3,"/** Um dos dois: contato já cadastrado, ou telefone para achar/cadastrar. */",translate,Either an existing contact or a phone number to find or register.,integration,apps/api/src/dominio/mensagem-ativa.ts:45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-557baad7,api,apps/api/src/dominio/mensagem-ativa.ts,49,49,jsdoc,1,"/** Variáveis do corpo só deste contato. Sem elas, valem as do lote. */",translate,Body variables for this contact; fall back to batch variables when absent.,integration,apps/api/src/dominio/mensagem-ativa.ts:49; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-675b2003,api,apps/api/src/dominio/mensagem-ativa.ts,69,69,jsdoc,2,"/** Quem disparou. A conversa criada nasce com essa pessoa, como no Desk deles. */",translate,"Initiating agent; assign the new conversation to that person, as in Blip Desk.",integration,apps/api/src/dominio/mensagem-ativa.ts:69; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a66dfa1d,api,apps/api/src/dominio/mensagem-ativa.ts,73,79,jsdoc,7,"/**
  * E.164: `+` e de 8 a 15 dígitos. Para o Brasil, exige DDI 55 + DDD + 8 ou 9 dígitos.
  *
  * A Blip mostra ""Número de telefone pode ser inválido"" e, com
  * `active-message-block-invalid-phonenumber`, bloqueia. Aqui bloqueia sempre: mandar
  * template para número inválido gasta a conversa cobrada da Meta e não entrega nada.
- */",,,,,,
-api-comment-58e3f72d,api,apps/api/src/dominio/mensagem-ativa.ts,81,81,line,1,"// Só a PONTUAÇÃO de formatação sai: espaço, parênteses, traço e ponto. Letra e",,,,,,
-api-comment-a58a1dc3,api,apps/api/src/dominio/mensagem-ativa.ts,82,82,line,0,// qualquer outro caractere reprovam o número em vez de serem apagados — jogar fora,,,,,,
-api-comment-2b72d323,api,apps/api/src/dominio/mensagem-ativa.ts,83,83,line,2,// o que não se entende transformaria um telefone digitado errado em outro telefone,,,,,,
-api-comment-3cb97708,api,apps/api/src/dominio/mensagem-ativa.ts,84,84,line,3,"// válido, e o template sairia (cobrado pela Meta) para a pessoa errada.",,,,,,
-api-comment-52d853cc,api,apps/api/src/dominio/messenger/cliente-graph.ts,44,44,line,3,// conferir com token real: a Página aceita me/messenger_profile com token de página.,,,,,,
-api-comment-6742cf67,api,apps/api/src/dominio/messenger/cliente-graph.ts,5,5,jsdoc,3,"/** Cliente do Messenger. A API de Página usa o Graph principal, não graph.instagram.com. */",,,,,,
-api-comment-99a7599a,api,apps/api/src/dominio/messenger/entrada.ts,3,3,jsdoc,3,"/** `page` usa PSID, sem telefone; a forma normalizada é a mesma da entrada WhatsApp. */",,,,,,
+ */",translate,"E.164 requires `+` and 8–15 digits; for Brazil require country code 55, area code, and an 8- or 9-digit number. Blip displays ""Número de telefone pode ser inválido"" and blocks with `active-message-block-invalid-phonenumber`. Always block here: an invalid number incurs Meta's charged conversation without delivering the template.",integration,apps/api/src/dominio/mensagem-ativa.ts:73-79; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-58e3f72d,api,apps/api/src/dominio/mensagem-ativa.ts,81,81,line,1,"// Só a PONTUAÇÃO de formatação sai: espaço, parênteses, traço e ponto. Letra e",translate,"Strip formatting punctuation only: spaces, parentheses, hyphens, and periods. Reject letters and all other characters instead of deleting them; otherwise a mistyped number could become a different valid number and send a Meta-billed template to the wrong person.",integration,apps/api/src/dominio/mensagem-ativa.ts:81; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a58a1dc3,api,apps/api/src/dominio/mensagem-ativa.ts,82,82,line,0,// qualquer outro caractere reprovam o número em vez de serem apagados — jogar fora,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2b72d323,api,apps/api/src/dominio/mensagem-ativa.ts,83,83,line,2,// o que não se entende transformaria um telefone digitado errado em outro telefone,remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3cb97708,api,apps/api/src/dominio/mensagem-ativa.ts,84,84,line,3,"// válido, e o template sairia (cobrado pela Meta) para a pessoa errada.",remove,,integration,apps/api/src/dominio/mensagem-ativa.ts:84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-52d853cc,api,apps/api/src/dominio/messenger/cliente-graph.ts,44,44,line,3,// conferir com token real: a Página aceita me/messenger_profile com token de página.,translate,Verify with a real token that the Page accepts `me/messenger_profile` with a Page token.,security,apps/api/src/dominio/messenger/cliente-graph.ts:44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6742cf67,api,apps/api/src/dominio/messenger/cliente-graph.ts,5,5,jsdoc,3,"/** Cliente do Messenger. A API de Página usa o Graph principal, não graph.instagram.com. */",translate,"Messenger client uses the main Graph API for Pages, not `graph.instagram.com`.",security,apps/api/src/dominio/messenger/cliente-graph.ts:5; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-99a7599a,api,apps/api/src/dominio/messenger/entrada.ts,3,3,jsdoc,3,"/** `page` usa PSID, sem telefone; a forma normalizada é a mesma da entrada WhatsApp. */",translate,`page` uses PSID rather than phone; its normalized form matches WhatsApp inbound data.,integration,apps/api/src/dominio/messenger/entrada.ts:3; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9ddec0ff,api,apps/api/src/dominio/midia.ts,10,25,jsdoc,19,"/**
  * Download da mídia recebida (WhatsApp e Instagram) para o nosso storage.
  *
@@ -4603,12 +4603,12 @@ api-comment-9ddec0ff,api,apps/api/src/dominio/midia.ts,10,25,jsdoc,19,"/**
  * e a URL do payload do Instagram são as duas conferidas — nenhuma delas é confiável
  * só porque ""veio da Meta"": o payload do webhook e a resposta do Graph são texto que
  * chegou de fora.
- */",,,,,,
-api-comment-70ce5b3d,api,apps/api/src/dominio/midia.ts,105,105,line,2,"// Sumiu, ou já foi baixado por outra tentativa (o empurrão e a varredura podem se",,,,,,
-api-comment-ccaac099,api,apps/api/src/dominio/midia.ts,106,106,line,1,// cruzar): idempotência sem erro.,,,,,,
-api-comment-3b7e3e3d,api,apps/api/src/dominio/midia.ts,163,163,line,0,// Erro de rede ou HTTP aqui é sempre tratado como TEMPORÁRIO (propaga e quem chama,,,,,,
-api-comment-8e6105d8,api,apps/api/src/dominio/midia.ts,164,164,line,2,"// reagenda): a URL de mídia vence em ~5 minutos, e a próxima tentativa pede outra.",,,,,,
-api-comment-36896596,api,apps/api/src/dominio/midia.ts,222,222,jsdoc,0,/** `canal.config` cifrado (`cifrarConfig` na criação do canal); texto puro nos testes. */,,,,,,
+ */",translate,"Download inbound WhatsApp and Instagram media to Pipe storage. `dominio/entrada.ts` initially saves WhatsApp `chave_storage = 'meta:<media_id>'` or an Instagram CDN URL with `bytes = 0`; these external references expire, so download outside the webhook. WhatsApp `GET /{versao}/{media_id}` with the channel Bearer returns `{ url, mime_type, file_size, sha256 }`; fetch the roughly five-minute URL with the same Bearer. Instagram CDN URLs download without a token. To prevent SSRF, allow HTTPS and Meta hosts only. Validate both Graph's returned URL and Instagram's webhook URL: each is untrusted external text.",security,apps/api/src/dominio/midia.ts:10-25; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-70ce5b3d,api,apps/api/src/dominio/midia.ts,105,105,line,2,"// Sumiu, ou já foi baixado por outra tentativa (o empurrão e a varredura podem se",translate,"The attachment disappeared or another attempt already downloaded it; enqueue and sweep may race, so treat this as an idempotent no-op.",security,apps/api/src/dominio/midia.ts:105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ccaac099,api,apps/api/src/dominio/midia.ts,106,106,line,1,// cruzar): idempotência sem erro.,remove,,security,apps/api/src/dominio/midia.ts:106; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3b7e3e3d,api,apps/api/src/dominio/midia.ts,163,163,line,0,// Erro de rede ou HTTP aqui é sempre tratado como TEMPORÁRIO (propaga e quem chama,translate,"Treat network and HTTP errors as temporary and let the caller reschedule. The media URL expires in about five minutes, so the next attempt obtains a fresh URL.",security,apps/api/src/dominio/midia.ts:163; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8e6105d8,api,apps/api/src/dominio/midia.ts,164,164,line,2,"// reagenda): a URL de mídia vence em ~5 minutos, e a próxima tentativa pede outra.",remove,,security,apps/api/src/dominio/midia.ts:164; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-36896596,api,apps/api/src/dominio/midia.ts,222,222,jsdoc,0,/** `canal.config` cifrado (`cifrarConfig` na criação do canal); texto puro nos testes. */,translate,`canal.config` is encrypted by `cifrarConfig` at channel creation; tests use plaintext.,security,apps/api/src/dominio/midia.ts:222; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-28947824,api,apps/api/src/dominio/midia.ts,262,269,jsdoc,10,"/**
  * A varredura de segurança: anexo que ficou sem baixar volta para a fila.
  *
@@ -4616,15 +4616,15 @@ api-comment-28947824,api,apps/api/src/dominio/midia.ts,262,269,jsdoc,10,"/**
  * tenants, e só olha quem ainda não esgotou as tentativas — o índice parcial
  * `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) é feito para este
  * filtro.
- */",,,,,,
+ */",translate,"Safety sweep requeues attachments left undownloaded. Like `contatosSemEspelho`, use the owner role to cross tenants, and include only rows below the attempt limit. The partial index `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) supports this filter.",security,apps/api/src/dominio/midia.ts:262-269; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4ea52c7e,api,apps/api/src/dominio/midia.ts,32,38,jsdoc,5,"/**
  * Hosts de onde a mídia da Meta pode ser baixada:
  * - `graph.facebook.com` — a chamada de metadado do WhatsApp;
  * - `lookaside.fbsbx.com` — o CDN de mídia do WhatsApp Cloud API;
  * - `*.fbcdn.net` — CDN geral da Meta (cobre `scontent*.xx.fbcdn.net`);
  * - `*.cdninstagram.com` — CDN do Direct do Instagram.
- */",,,,,,
-api-comment-9b20be95,api,apps/api/src/dominio/midia.ts,56,56,jsdoc,1,/** Busca HTTP injetável — o teste troca por um dublê sem tocar em `cliente-graph.ts`. */,,,,,,
+ */",translate,"Permitted Meta media hosts: `graph.facebook.com` for WhatsApp metadata, `lookaside.fbsbx.com` for WhatsApp Cloud API media, `*.fbcdn.net` for Meta CDN including `scontent*.xx.fbcdn.net`, and `*.cdninstagram.com` for Instagram Direct CDN.",security,apps/api/src/dominio/midia.ts:32-38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9b20be95,api,apps/api/src/dominio/midia.ts,56,56,jsdoc,1,/** Busca HTTP injetável — o teste troca por um dublê sem tocar em `cliente-graph.ts`. */,translate,Injectable HTTP fetch so tests use a fake without touching `cliente-graph.ts`.,security,apps/api/src/dominio/midia.ts:56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9b8d4b68,api,apps/api/src/dominio/midia.ts,88,91,jsdoc,3,"/**
  * Baixa a mídia de UM anexo. Chamado pelo consumidor da fila (o empurrão logo
  * depois do commit da entrada) e pela varredura periódica.

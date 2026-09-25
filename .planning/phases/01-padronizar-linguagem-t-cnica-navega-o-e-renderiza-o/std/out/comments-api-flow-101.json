@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "api-comment-1a4d1ea7",
+      "action": "translate",
+      "new_text": "No start time today. If a row was running, the reply that ended the wait closes the cycle as met; otherwise it would remain running indefinitely.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:177; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c25b6c0",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:178; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0ff7d6e6",
+      "action": "translate",
+      "new_text": "`sla_conversa` has one key per conversation and rule. Keeping every response cycle, rather than only the latest, would require a separate table; that history is not currently needed.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:182; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96630567",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:183; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ccbe6e89",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b45ca61d",
+      "action": "translate",
+      "new_text": "The clock stops at `encerradaEm`; see the Pipe decision at the top of this file.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:196; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2a2f1059",
+      "action": "translate",
+      "new_text": "If the conversation closes without meeting the target or breaching it first, mark the cycle complete so it does not remain `correndo` or `alertado` forever. Closing early must not count as a breach.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:230; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4a9f8fff",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:231; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e0995eb6",
+      "action": "translate",
+      "new_text": "Check one conversation's SLA, called by each `pipe-sla` queue job or directly for each pending conversation in memory mode. Run entirely inside `noTenant`: RLS controls what `carregarRegrasSla` can see and provides the same tenant isolation as the rest of the `api`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:284-290; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1af2ef50",
+      "action": "translate",
+      "new_text": "The conversation disappeared between enqueue and processing. As with media downloads, do nothing; the next sweep will no longer find it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:312; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4141b94a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:313; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7f78167b",
+      "action": "translate",
+      "new_text": "If this queue and tenant have no configured rule, leave the conversation unchanged.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:318; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-204a7f84",
+      "action": "translate",
+      "new_text": "Sweep open conversations and closed ones whose `sla_conversa` is still `correndo` or `alertado`. That final pass closes the cycle as met, canceled, or breached, as in `processarRegra`. `bancoDono()` crosses tenants only to find candidates, like `midiasPendentes` and `contatosSemEspelho`; `checarSlaDaConversa` then processes one tenant at a time under RLS.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:352-360; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-13fc8524",
+      "action": "translate",
+      "new_text": "Group by target and select the most specific scope rule in each group.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:68; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d794b3f",
+      "action": "translate",
+      "new_text": "Raise priority one step (`conversa/prioridade.ts`); do nothing when already at `maxima`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9be8c6e4",
+      "action": "translate",
+      "new_text": "A priority of -1 is unknown, and 0 is already `maxima`; neither can be raised.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f6f30433",
+      "action": "translate",
+      "new_text": "Run the configured `regra_sla.acao_alerta` or `acao_estouro` action, currently seeded by `packages/db` and `apps/gestao-vite` as `{ tipo: 'notificar_supervisor' | 'elevar_prioridade' }`. The caller has already written `sla_alertado` or `sla_estourado` to `evento_atendimento` unconditionally; that raw event can later feed `metrica_diaria.sla_estourados`. This action is additional behavior. An empty `{}` rule does nothing beyond the event. Ignore unknown action types so a mistyped `jsonb` value cannot stop SLA clocks for other conversations.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:95-108; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3084b8fd",
+      "action": "translate",
+      "new_text": "Seconds past the deadline when breached.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5cab1ec5",
+      "action": "translate",
+      "new_text": "Map database `regra_sla.alvo` to the `@pipe/core` target; names differ for historical reasons.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8c8eca07",
+      "action": "translate",
+      "new_text": "`espera_fila` has no core equivalent and therefore gets no pill.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5834b127",
+      "action": "translate",
+      "new_text": "SLA column for detailed monitoring. `@pipe/core` computes the SLA through `avaliarSla` (spec §11); this layer selects the applicable rule and maps the result to the screen label. ponytail: the clock currently runs outside business hours because `horario_atendimento` is not seeded. Once queues have schedules, pass the queue schedule to `avaliarSla`, which already supports it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:6-15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f4d68d60",
+      "action": "translate",
+      "new_text": "A queue-scoped rule overrides a tenant-scoped rule because it is the more specific rule deliberately configured by the manager.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla.ts:81-84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92ef5fe0",
+      "action": "translate",
+      "new_text": "The worker must see the row just written, so enqueue only after commit.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3c0ac6df",
+      "action": "translate",
+      "new_text": "CSV of rejected rows (`failed_records`); return 404 when none were rejected.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:140; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9da8e7ea",
+      "action": "translate",
+      "new_text": "Whether a downloadable CSV of rejected rows exists.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8b2cf4e1",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT): the `import` action in app/controllers/api/v1/accounts/contacts_controller.rb and `DataImport` in app/models/data_import.rb (`set_default_name` and `process_data_import`). As in the original, the API rejects an empty file, writes the import and file in the same transaction, then queues the job after commit. The worker reads the CSV (`apps/workers/src/importacao-de-contatos.ts`). Unlike Chatwoot's one-minute delay while storage upload finishes, this file is in `importacao_arquivo` and is available when the job is created.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:7-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-30947f52",
+      "action": "translate",
+      "new_text": "Postgres cannot store a NUL byte in `text`; spreadsheet exports sometimes contain one.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/importacao-de-contatos.ts:75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-562fc30c",
+      "action": "translate",
+      "new_text": "Rewrite the entire encrypted `config`; `cifrarConfig` is idempotent.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-58d279df",
+      "action": "translate",
+      "new_text": "`username` and expiry are not secrets and stay readable in encrypted `config`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e7de4faf",
+      "action": "translate",
+      "new_text": "ponytail: listing does not query Meta, unlike the WhatsApp health check. `conectado` means enabled with no pending reauthorization; daily token renewal detects revocation. Query `/me` here if the screen needs live health.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:136-140; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2c904a1e",
+      "action": "translate",
+      "new_text": "Validate the token with `/me` and verify the App Secret through `appsecret_proof`. Reject an account already connected to any tenant; create channel and inbox in one transaction, subscribe the webhook, and return `{ url, verifyToken }` for the customer's app. An inactive account in the same tenant is reconnected with the new token, unlike WhatsApp's reauthorization by `canal_id`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:163-170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0fa672f1",
+      "action": "translate",
+      "new_text": "Check global uniqueness with the owner role: RLS would hide another tenant's channel. Return only the information needed to decide.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:202; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c13aa455",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:203; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d026fb96",
+      "action": "translate",
+      "new_text": "The pasted token's real age is unknown; start counting now.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:223; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d7164bcc",
+      "action": "translate",
+      "new_text": "Run serially, never with `Promise.all`; see `../whatsapp/criacao-de-canal.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:248; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3df33a26",
+      "action": "translate",
+      "new_text": "Disable the channel without deleting conversations or messages, as for WhatsApp. Unsubscribing the webhook is best effort: an already revoked token must not prevent disablement.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:283-286; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b639ae93",
+      "action": "translate",
+      "new_text": "Decrypted; memory only.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-409a06b3",
+      "action": "translate",
+      "new_text": "Webhook subscription failed; keep the channel and report the failure to the screen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4d1f4f9e",
+      "action": "translate",
+      "new_text": "Instagram long-lived tokens are valid for 60 days.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bf5b5605",
+      "action": "translate",
+      "new_text": "Manual Instagram Direct channel, reconstructed from chatwoot/chatwoot (MIT) `Channel::Instagram` and app/controllers/api/v1/accounts/instagram/authorizations_controller.rb. Chatwoot obtains the token through its installation app's OAuth; Pipe has no Meta-approved app, so the customer creates their own \"Instagram API with Instagram Login\" app and pastes its long-lived token and App Secret, as in manual WhatsApp setup (`../whatsapp/configuracao-manual.ts`). Store the professional account ID (`user_id` from `/me`) in `canal.numero_id`. Its global unique index (migration 0008) prevents an account from joining two tenants, including races, without another migration.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/canal.ts:9-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9462a73b",
+      "action": "translate",
+      "new_text": "Verify with a real token that `graph.instagram.com` accepts `Authorization: Bearer`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:103; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-74cff9d4",
+      "action": "translate",
+      "new_text": "Verify with a real token that `graph.instagram.com` validates `appsecret_proof` as Facebook Graph does.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:146; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-98ff414c",
+      "action": "translate",
+      "new_text": "Verify with a real token that `DELETE /{ig-user-id}/subscribed_apps` exists on `graph.instagram.com`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:172; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-55fcb936",
+      "action": "translate",
+      "new_text": "`GET /refresh_access_token?grant_type=ig_refresh_token` has no version in the path and passes the token in the query, as documented. Verify with a real token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:181-184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc3c01f2",
+      "action": "translate",
+      "new_text": "Deterministic fake based on the token: the same token always identifies the same account, proving that one account cannot be added to two tenants. Tokens starting `invalido…` simulate Meta rejecting the token; `expirado…` rejects renewal. A secret starting `bad` belongs to another app.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:199-205; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ab4f1ee2",
+      "action": "translate",
+      "new_text": "Stable 17-digit professional account ID.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:216; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5da8f83b",
+      "action": "translate",
+      "new_text": "The renewed token keeps the original prefix, so the fake derives the same account. After connection, the stored `igUserId` is authoritative.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:265; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-16ea4c30",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:266; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7effc453",
+      "action": "translate",
+      "new_text": "Replace the factory at runtime for tests.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:286; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ddf7f7d1",
+      "action": "translate",
+      "new_text": "Fields delivered to Pipe by the Instagram webhook.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-46cdb5de",
+      "action": "translate",
+      "new_text": "Use the WhatsApp version, overridable by `INSTAGRAM_API_VERSAO`. Verify with a real token that `graph.instagram.com` supports the same Graph version; the latest WhatsApp version may not be available there.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:37-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4c5fc330",
+      "action": "translate",
+      "new_text": "App-scoped user ID.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fbdb8b2b",
+      "action": "translate",
+      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/* (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) and `Channel::Instagram#subscribe`/`#unsubscribe`. With no network access to inspect the original, the port follows the Instagram Platform API (\"Instagram API with Instagram Login\") at `graph.instagram.com`; unverified behavior is marked \"verify with a real token\". Chatwoot `fetch_instagram_user_details` maps to `buscarConta`, `subscribe`/`unsubscribe` to `assinarWebhook`/`desassinarWebhook`, and `refresh_long_lived_token` to `renovarToken`. As in `../whatsapp/cliente-graph.ts`, raw Meta bodies never enter exceptions, secrets pass through `esconder`, `buscar` is injectable, and `PIPE_WHATSAPP_CONEXAO` selects a deterministic fake. Pipe also adds `conferirSegredoDoApp`: the app belongs to the customer, whose secret signs the webhook.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:5-25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2f1cd7b0",
+      "action": "translate",
+      "new_text": "Professional account ID, used as webhook `entry[].id` and `recipient.id`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-11781c9d",
+      "action": "translate",
+      "new_text": "Seconds; the long-lived token is valid for 60 days.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-27da3610",
+      "action": "translate",
+      "new_text": "Prove that the pasted App Secret belongs to the app that issued the token (`appsecret_proof`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-796da752",
+      "action": "translate",
+      "new_text": "Remove secrets from text that may become an error message. This copies the unexported `esconder` from `../whatsapp/cliente-graph.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/instagram/cliente-graph.ts:74-77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-87df3ac5",
+      "action": "translate",
+      "new_text": "Text or an unsupported attachment (`story_mention`, share, `ig_reel`): convert to text with the link.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/entrada.ts:115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-002296de",
+      "action": "translate",
+      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb and app/services/instagram/message_text.rb / incoming_message_service. Map Direct events to the same `ValorDoWebhook` format handled by WhatsApp in `../entrada.ts`, reusing contact, conversation, `id_provedor` idempotency, flow, and router logic. In `object: \"instagram\"`, `entry[].id` is the receiving professional account (`igUserId`); `entry[].messaging[]` carries sender.id (IGSID), recipient.id, timestamp in milliseconds, and message/postback/read data. Ignore `is_echo`, including Pipe's own messages, as Chatwoot does. WhatsApp timestamps use seconds. Instagram attachments carry URLs rather than `media_id`. Discard entries for another account: a customer's app may send events for multiple accounts to one webhook URL.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/entrada.ts:3-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3efbdaa9",
+      "action": "translate",
+      "new_text": "Map an Instagram attachment type to the Meta media field understood by `../entrada.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/entrada.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67abf23a",
+      "action": "translate",
+      "new_text": "ponytail: Pipe messages support one attachment, while Direct may send several under the same `mid`. Keep the first attachment and put links to the others in the text until the message model supports multiples.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/entrada.ts:96; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-51583ce0",
+      "action": "translate",
+      "new_text": "`token_eligible_for_refresh?`: older than 24 hours and not expired.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/renovacao.ts:26; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f61490b9",
+      "action": "translate",
+      "new_text": "Only a Meta refusal marks reauthorization pending; a network failure retries tomorrow.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/renovacao.ts:59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-689d0d83",
+      "action": "translate",
+      "new_text": "Daily sweep: use the owner role only to list channel IDs and tenants; reread and update each channel inside its tenant. One failure must not stop the others.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/renovacao.ts:67-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-30c09702",
+      "action": "translate",
+      "new_text": "Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/refresh_oauth_token_service.rb. A long-lived token lasts 60 days, can be renewed after 24 hours and before expiry, and renewal grants another 60 days. `agendarRenovacaoInstagram` in `filas.ts` sweeps daily and renews eligible channels. If Meta rejects a revoked, expired, or password-invalidated token, mark `reautorizacaoPendente`, show `indisponivel`, and let the customer paste a new token through `POST /v1/canais/instagram/manual`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/instagram/renovacao.ts:9-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3b45a6e5",
+      "action": "translate",
+      "new_text": "Active message sends a template to a list of contacts, following `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and Blip's limits. Reuse `enviarMensagem` for the 24-hour window, outbox, template variable positions, event, and webhook; this module adds contact resolution, rejection, and batch cap. Results are per contact: one invalid number must not reject the other valid contacts.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:10-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c6bd6a62",
+      "action": "translate",
+      "new_text": "Run serially, never with `Promise.all`: each destination opens its own transaction. Parallel work on one connection can lose `set_config('pipe.tenant_id')` and write a message under the wrong tenant.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0af489ca",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-37563a0f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9448a0e8",
+      "action": "translate",
+      "new_text": "Prepare and validate in one transaction; send in another so the database connection is not held during an external call.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:141; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b6ae99e3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:142; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-91a00cbd",
+      "action": "translate",
+      "new_text": "Blip code 1602: an open conversation uses the normal send path, not active messaging. `enviarMensagem` already uses a template outside the window when needed.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:151; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b1c42211",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-661d8baa",
+      "action": "translate",
+      "new_text": "A rejected or missing template fails the entire batch because it is a send configuration error, not a contact error. Keep other failures on their individual contacts.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-80003883",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:194; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ec98524c",
+      "action": "translate",
+      "new_text": "The WhatsApp identifier is the phone number without `+`; keep that canonical form to avoid parallel conversations for the same person when their first reply arrives.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:213; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3eacc85d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:215; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4537b24f",
+      "action": "translate",
+      "new_text": "Conversation opened by an active message. Assign it to the initiating agent when a person triggers the send, so that agent receives the reply, as in Blip Desk. API-key sends have no owner and go to the queue for distribution. Leave `janela_expira_em` null deliberately: the customer's reply opens the 24-hour window, not our outbound send. Setting it now would offer free-form text before the customer replies and Meta would reject it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:246-256; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2d84184a",
+      "action": "translate",
+      "new_text": "`ActiveMessageLimitCount` caps active messages to the same contact per day; zero disables the limit, as in Blip's default.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:30-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-20353e9b",
+      "action": "translate",
+      "new_text": "Active-message status panel covers the last 72 hours, as in Blip. Derive it from `mensagem`: a send already produces messages with `template_id`, and a second table would create another source of truth.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:321-327; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6ce1d584",
+      "action": "translate",
+      "new_text": "Either an existing contact or a phone number to find or register.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-557baad7",
+      "action": "translate",
+      "new_text": "Body variables for this contact; fall back to batch variables when absent.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-675b2003",
+      "action": "translate",
+      "new_text": "Initiating agent; assign the new conversation to that person, as in Blip Desk.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:69; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a66dfa1d",
+      "action": "translate",
+      "new_text": "E.164 requires `+` and 8–15 digits; for Brazil require country code 55, area code, and an 8- or 9-digit number. Blip displays \"Número de telefone pode ser inválido\" and blocks with `active-message-block-invalid-phonenumber`. Always block here: an invalid number incurs Meta's charged conversation without delivering the template.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:73-79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-58e3f72d",
+      "action": "translate",
+      "new_text": "Strip formatting punctuation only: spaces, parentheses, hyphens, and periods. Reject letters and all other characters instead of deleting them; otherwise a mistyped number could become a different valid number and send a Meta-billed template to the wrong person.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a58a1dc3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2b72d323",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3cb97708",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/mensagem-ativa.ts:84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-52d853cc",
+      "action": "translate",
+      "new_text": "Verify with a real token that the Page accepts `me/messenger_profile` with a Page token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/messenger/cliente-graph.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6742cf67",
+      "action": "translate",
+      "new_text": "Messenger client uses the main Graph API for Pages, not `graph.instagram.com`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/messenger/cliente-graph.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-99a7599a",
+      "action": "translate",
+      "new_text": "`page` uses PSID rather than phone; its normalized form matches WhatsApp inbound data.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/messenger/entrada.ts:3; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9ddec0ff",
+      "action": "translate",
+      "new_text": "Download inbound WhatsApp and Instagram media to Pipe storage. `dominio/entrada.ts` initially saves WhatsApp `chave_storage = 'meta:<media_id>'` or an Instagram CDN URL with `bytes = 0`; these external references expire, so download outside the webhook. WhatsApp `GET /{versao}/{media_id}` with the channel Bearer returns `{ url, mime_type, file_size, sha256 }`; fetch the roughly five-minute URL with the same Bearer. Instagram CDN URLs download without a token. To prevent SSRF, allow HTTPS and Meta hosts only. Validate both Graph's returned URL and Instagram's webhook URL: each is untrusted external text.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:10-25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-70ce5b3d",
+      "action": "translate",
+      "new_text": "The attachment disappeared or another attempt already downloaded it; enqueue and sweep may race, so treat this as an idempotent no-op.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ccaac099",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3b7e3e3d",
+      "action": "translate",
+      "new_text": "Treat network and HTTP errors as temporary and let the caller reschedule. The media URL expires in about five minutes, so the next attempt obtains a fresh URL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8e6105d8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-36896596",
+      "action": "translate",
+      "new_text": "`canal.config` is encrypted by `cifrarConfig` at channel creation; tests use plaintext.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:222; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-28947824",
+      "action": "translate",
+      "new_text": "Safety sweep requeues attachments left undownloaded. Like `contatosSemEspelho`, use the owner role to cross tenants, and include only rows below the attempt limit. The partial index `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) supports this filter.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:262-269; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4ea52c7e",
+      "action": "translate",
+      "new_text": "Permitted Meta media hosts: `graph.facebook.com` for WhatsApp metadata, `lookaside.fbsbx.com` for WhatsApp Cloud API media, `*.fbcdn.net` for Meta CDN including `scontent*.xx.fbcdn.net`, and `*.cdninstagram.com` for Instagram Direct CDN.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:32-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9b20be95",
+      "action": "translate",
+      "new_text": "Injectable HTTP fetch so tests use a fake without touching `cliente-graph.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
