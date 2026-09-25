@@ -121,7 +121,7 @@ function forContract(linha: LineAccount): AccountInForce {
     site: linha.site,
     employees: linha.employees,
     city: linha.city,
-    estado: linha.state,
+    state: linha.state,
     pais: linha.pais,
     telefone: linha.phone,
     optinWhatsapp: linha.optin_whatsapp,

@@ -309,7 +309,7 @@ async function gravar(
       .insert(dictionaryObject)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryObject.tenantId, dictionaryObject.code],
+        target: [dictionaryObject.tenantId, dictionaryObject.codigo],
         set: doExcluded(dictionaryObject, Object.keys(lote[0]!), ['tenantId', 'codigo']),
       });
   }
@@ -318,7 +318,7 @@ async function gravar(
       .insert(dictionaryField)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryField.tenantId, dictionaryField.objetoCodigo, dictionaryField.code],
+        target: [dictionaryField.tenantId, dictionaryField.objetoCodigo, dictionaryField.codigo],
         set: doExcluded(dictionaryField, Object.keys(lote[0]!), [
           'tenantId',
           'objetoCodigo',
@@ -396,11 +396,11 @@ export type ObjectOfDictionary = Omit<typeof dictionaryObject.$inferSelect, 'id'
  * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
  */
 export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDictionary[]> {
-  const objetos = await tx.select().from(dictionaryObject).orderBy(asc(dictionaryObject.code));
+  const objetos = await tx.select().from(dictionaryObject).orderBy(asc(dictionaryObject.codigo));
   const campos = await tx
     .select()
     .from(dictionaryField)
-    .orderBy(asc(dictionaryField.objetoCodigo), asc(dictionaryField.code));
+    .orderBy(asc(dictionaryField.objetoCodigo), asc(dictionaryField.codigo));
 
   const byObject = new Map<string, FieldOfDictionary[]>();
   for (const linha of campos) {
@@ -411,7 +411,7 @@ export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDicti
   }
   return objetos.map((linha) => ({
     ...semIds(linha),
-    campos: byObject.get(linha.code) ?? [],
+    campos: byObject.get(linha.codigo) ?? [],
   }));
 }
 
