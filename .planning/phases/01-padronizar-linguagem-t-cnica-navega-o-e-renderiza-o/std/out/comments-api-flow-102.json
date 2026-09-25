@@ -1,0 +1,788 @@
+{
+  "items": [
+    {
+      "id": "api-comment-9b8d4b68",
+      "action": "translate",
+      "new_text": "Download one attachment's media, called by the queue consumer after inbound commit and by the periodic sweep.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/midia.ts:88-91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8be3cf48",
+      "action": "translate",
+      "new_text": "Decrypt here and pass to the Agent. If the key was removed from the keyring, `decifrar` throws `SegredoErro`, which delivery records like any other error.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:122; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-180df402",
+      "action": "translate",
+      "new_text": "Return an `https.Agent` with this URL's client certificate, or null when the host has no certificate or the URL is not HTTPS; then use a normal request. Return `null` for the ordinary request path.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:134-137; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a9c02288",
+      "action": "translate",
+      "new_text": "Forget a tenant's host index and all or one of its certificate agents; without a tenant, clear everything.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:153-156; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f117b8fb",
+      "action": "translate",
+      "new_text": "Response subset shared by requests with and without a certificate, as needed for delivery. This is the subset of `Response` used by delivery.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:182; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6439c6b5",
+      "action": "translate",
+      "new_text": "Use `https.request` with the agent; global `fetch` (undici) does not accept `https.Agent`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:189; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b120c7d0",
+      "action": "translate",
+      "new_text": "Call a customer URL for the tenant, presenting its certificate if the host has one and using ordinary `fetch` otherwise. This is the single outbound path for webhooks and future Builder `ProcessHttp` calls.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:219-223; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-886ed194",
+      "action": "translate",
+      "new_text": "An empty string means the default port 443, as in `URL.port`. The stored form is `''` for that default port.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-118c635a",
+      "action": "translate",
+      "new_text": "Reduce a registered `certificado_mtls_host` URL to hostname and port; ignore invalid URLs, which should not exist. Match the `hostname` and port.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c171ba60",
+      "action": "translate",
+      "new_text": "Outbound mTLS: Pipe presents the customer's certificate when Pipe calls that customer's addresses; Pipe is the TLS client, not a server demanding certificates. This mirrors the `/mtls` setup in `referencias-blip/pesquisa/blip-certificados-mtls.md`: a `.pfx` is bound to hosts and presented on outbound calls. `webhooks-saida.ts` and the Integrations Test button use `chamarComMtls`; a future Builder `ProcessHttp` action can use `chamarComMtls(tenantId, url, ...)` when `dominio/fluxo.ts` supports it. Match hostname and port, ignoring URL path. Without a certificate use a normal call; if two certificates match, use the most recently registered. Cache each tenant's host index for `TTL_INDICE_MS` and each certificate's `https.Agent` until `esquecerCertificadosMtls` invalidates it on create/delete in `gestao/certificados.ts`. Certificates are immutable, so short TTL bounds stale indexes across API instances. Decrypted `.pfx` exists only in the Agent and never in logs. Registered `hosts` may include `https://api.cliente.com.br` or `https://api.cliente.com.br:8443/x`; match `hostname` plus port, and keep decrypted bytes inside the `Agent`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:6-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2cb0aeb3",
+      "action": "translate",
+      "new_text": "Discard an agent whose certificate disappeared from the host index, possibly deleted in another instance.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/mtls.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-48ce6e4f",
+      "action": "translate",
+      "new_text": "Screen list with total clicks or clicks in the requested period.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:120"
+    },
+    {
+      "id": "api-comment-d5efd4b4",
+      "action": "translate",
+      "new_text": "Simple public-route rate limit of N clicks per IP per minute. ponytail: this fixed window is process-local and resets on deployment; if the `api` gains replicas, use a distributed limiter such as Redis.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:163-169; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-472562c0",
+      "action": "translate",
+      "new_text": "Public route: resolve the code, record the click, and return the 302 destination. `null` means not found; the controller returns the same 404 for missing codes and links from another tenant. This query intentionally has no tenant filter because no tenant is established yet, like `resolverCanal` in Meta webhooks. It reveals only existence, not another tenant's data.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:181-187; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3e4b75b4",
+      "action": "translate",
+      "new_text": "`GET /l/:codigo` is deliberately short for ads and messages.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:58"
+    },
+    {
+      "id": "api-comment-d61e482d",
+      "action": "translate",
+      "new_text": "Register a link and generate its short code. `confirmarUrlSegura` applies the same SSRF barrier as the Webhook screen (`dominio/gestao/integracoes.ts`): HTTPS only, no localhost or private IPs. The registrant may differ from the visitor, and the public redirect would otherwise expose unsafe destinations to anyone.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:70-78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0fa7fa4e",
+      "action": "translate",
+      "new_text": "Click tracker (Growth › Click Tracker) registers one short link per flow and counts public clicks. The existing `growth/clicktracker` screen (`apps/gestao-vite/.../clicktracker.tsx`) measures Meta Click-to-WhatsApp ad attribution in Blip, a different feature without link registration (`referencias-blip/pesquisa/blip-produtos-novos.md` line 12). This backend implements link registration, shortening, redirect, and counting without changing that screen. Use raw SQL as in `mensagem-ativa.ts`; `link_rastreado` and `clique_link` (migration 0038) stay out of Drizzle schema to avoid concurrent edits to `identidade`/`automacao`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:9-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c39b87ca",
+      "action": "translate",
+      "new_text": "A collision among six base64url bytes is very unlikely; retrying covers it without a separate sequence.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:90"
+    },
+    {
+      "id": "api-comment-bf67141e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/rastreador-de-cliques.ts:91"
+    },
+    {
+      "id": "api-comment-331c266a",
+      "action": "translate",
+      "new_text": "`Redirect` moves the contact to this router's service named `nome`. It must match a registered Services name (help.blip.ai); an unknown name fails the action. `blocoInicial` is the subsequent Change-User-State; without it, the destination starts at its root. This takes effect on the next message.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/roteador.ts:120-125; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00a81507",
+      "action": "translate",
+      "new_text": "Inbound router mirrors Blip's `master` (`referencias-blip/pesquisa/blip-api-schemas.md` §§5.3–5.5): it tracks the contact's current service, while the service supplies content; the first service is Main SubBot. `Redirect` (`content.address`) changes Master-State. Nonpersistent redirects expire after the customer's last interaction, so each inbound message renews the deadline, including those answered by a human. Apply Master-State before Change-User-State; changing service resets the destination block to root unless explicitly supplied, and the block emits only exits on the next reply. Router context (`builder:useTunnelOwnerContext`) belongs to the router/contact pair in `posicao_no_roteador.contexto`. There is no tunnel because the contact is unique within the tenant (migration 0024). Pipe decisions where Blip is silent: expiry returns to the main service at its saved block; unavailable services return to main; if main is unavailable and no valid position remains, queue the conversation without a bot.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/roteador.ts:5-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-32080a2b",
+      "action": "translate",
+      "new_text": "Service deadline from now; null means no expiry.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/roteador.ts:50"
+    },
+    {
+      "id": "api-comment-5cee8fe3",
+      "action": "translate",
+      "new_text": "Resolve the contact's current published service and Master-State, renewing or returning to main as needed. Lock the position row until transaction end so two messages from the same contact cannot decide concurrently.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/roteador.ts:57-61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-61cf8194",
+      "action": "translate",
+      "new_text": "On first interaction or after a redirect expires, use the nonexpiring main service.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/roteador.ts:97"
+    },
+    {
+      "id": "api-comment-e1341d71",
+      "action": "translate",
+      "new_text": "Do not change policy here: reconfiguring the IdP must neither reopen passwords for an SSO-required tenant nor disable them without an explicit action.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1d61e7ec",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:132; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c406d451",
+      "action": "translate",
+      "new_text": "`registrarAuditoria` itself excludes `config` from logs, so passing the full row is safe.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:154; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c47369e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:155; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-56517ca0",
+      "action": "translate",
+      "new_text": "Change SSO connection state and/or policy with two safeguards. `ativa` requires a successful test within 30 days; otherwise enabling could send every user to an IdP that never answered. `obrigatorio` requires an active connection; requiring a disabled SSO connection locks out the whole tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:182-190; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-03702826",
+      "action": "translate",
+      "new_text": "Record a successful test; only the test-flow callback calls this.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:251; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f16bbfea",
+      "action": "translate",
+      "new_text": "Ready IdP connection with decrypted secret and discovery metadata. `buscar` is injectable so tests avoid the network. `exigirAtiva` separates real login, which requires an active connection, from testing a draft connection.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:270-276; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ddd617ea",
+      "action": "translate",
+      "new_text": "A successful test is valid for 30 days; a test from last year proves nothing now.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-198d0138",
+      "action": "translate",
+      "new_text": "Derive the accepted `tid` from the registered issuer. `https://login.microsoftonline.com/<tid>/v2.0` pins the directory. `common` or `organizations` yields no `tid`, so a token's `iss` could belong to any Microsoft directory; reject that unpinned issuer (spec §8).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:308-315; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6e936eab",
+      "action": "translate",
+      "new_text": "The type lives in @pipe/contracts so all three login screens share the same response format; duplicate definitions would diverge when a field changes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:328; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6468b773",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:329; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d5746523",
+      "action": "translate",
+      "new_text": "Login discovery accepts an email and returns the same response for known and unknown addresses, except a verified domain with active SSO, which the tenant chose to make public. Otherwise the endpoint would reveal which companies use Pipe. Query public domains through the same path and discard after lookup to avoid a timing difference.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:332-342; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3d214d6f",
+      "action": "translate",
+      "new_text": "Discard after lookup so `gmail.com` takes roughly the same time as a company domain. Public domains never route to SSO.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:363; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c33b7fc9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:364; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6fef1d55",
+      "action": "translate",
+      "new_text": "Return `google`, not `senha`: Pipe stores no passwords, and promising a nonexistent password field would mislead the screen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:367; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e44038ca",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:368; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-34ca047a",
+      "action": "translate",
+      "new_text": "`/e/<slug>` performs the same discovery by URL for personal-email users whom domain discovery cannot find, such as agency owners, contractors, and consultants on `@gmail.com`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:373-378; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8111c1f8",
+      "action": "translate",
+      "new_text": "Screen-facing type excludes secrets; that is why it is separate.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d5bd6ae2",
+      "action": "translate",
+      "new_text": "Drizzle `execute` requires an indexable shape; the columns above remain typed.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-40ee4cf5",
+      "action": "translate",
+      "new_text": "Use one callback URL for every tenant; `state`, not the URL, identifies the tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-35eac116",
+      "action": "translate",
+      "new_text": "Tenant SSO connection and activation follow `referencias-blip/pesquisa/sso-multi-tenant.md`. Saving creates `rascunho`; a real test moves it to `testada`, and only then can it become `ativa`, preventing an untested IdP from breaking login. `estado` controls whether the connection works, while `politica` controls whether passwords remain allowed; enabling SSO must be separate from requiring it to avoid tenant-wide lockout. Never store or return `clientSecret` in plaintext: `cifrarConfig` (`packages/db/src/segredo.ts`) encrypts it, and only the IdP call path decrypts it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:9-26; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-05624de8",
+      "action": "translate",
+      "new_text": "Save the connection and always return it to `rascunho`. Changing an active connection's issuer without resetting and retesting could silently move all logins to another directory. An `ativa` connection must be retested after this change.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/sso.ts:94-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-61d85d26",
+      "action": "translate",
+      "new_text": "Requesting actor; null means an integration.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:28"
+    },
+    {
+      "id": "api-comment-b45bdc8c",
+      "action": "translate",
+      "new_text": "Agent whose status changes; unlike `porUsuarioId`, this can be a supervisor action.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:30"
+    },
+    {
+      "id": "api-comment-5c00ef4e",
+      "action": "translate",
+      "new_text": "A pause requires a reason from the manager's list so pause time can feed reports.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:37; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b9629cae",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5a0af942",
+      "action": "translate",
+      "new_text": "Changing another agent's status requires supervision permission, as when Management disconnects an inactive agent. Agents may change their own status without that permission.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7b3e4e8c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7327431c",
+      "action": "translate",
+      "new_text": "Reuse `monitoramento.tempo_real.ver`, already granted to `supervisor` and used by the screen initiating this action.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e978c721",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ad4cbeda",
+      "action": "translate",
+      "new_text": "ponytail: this borrows `monitoramento.tempo_real.ver`; a dedicated `atendente.gerenciar` permission would require adding it to `CATALOGO_PERMISSOES` in `packages/db/src/semente.ts`, assigning it to supervisors, and changing this check. Until then, anyone allowed to monitor can disconnect an agent. That audience overlaps today by coincidence rather than design.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e18ed706",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00324334",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f4a9de47",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e5b51332",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f3559eca",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bce36a38",
+      "action": "translate",
+      "new_text": "Avoid counting the same minute twice in the occupancy report.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:74"
+    },
+    {
+      "id": "api-comment-8e145f14",
+      "action": "translate",
+      "new_text": "Agent status is online, paused, invisible, or offline. Keep this transition in the API domain, as with closing and pausing conversations: the event cannot depend on a screen remembering to emit it. Otherwise Management learns of exits only on refresh, and disconnecting an inactive agent could not change another person's status safely through the screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:8-16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6268e4b7",
+      "action": "translate",
+      "new_text": "Emit only after commit, like other domain actions.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:92"
+    },
+    {
+      "id": "api-comment-d0b2155f",
+      "action": "translate",
+      "new_text": "Omit `usuarioId` deliberately: status changes concern the whole team. Management updates presence and Desk knows who can receive transfers; this is not private user data.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f831b11f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aa306a43",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:96; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-86ae4200",
+      "action": "translate",
+      "new_text": "Leaving online status effectively returns conversations to the queue; refresh the list.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/status-atendente.ts:98"
+    },
+    {
+      "id": "api-comment-da6ab295",
+      "action": "translate",
+      "new_text": "Treat network failures as temporary; the CRM may be down and recover.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8263dd59",
+      "action": "translate",
+      "new_text": "HTTP 401/403 means an invalid or unauthorized key; retrying cannot fix it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:106; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-90fd5013",
+      "action": "translate",
+      "new_text": "Pipe has one name field; Twenty splits names. Split on the first space: \"Maria Clara Souza\" becomes `Maria` and `Clara Souza`. Without a space, leave `lastName` empty, as Twenty expects.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:121-126"
+    },
+    {
+      "id": "api-comment-2f6b10dd",
+      "action": "translate",
+      "new_text": "Map `+5511988887777` to number, +55, and BR. Only Brazil has a country mapping because it is the current market. For numbers outside +55, leave country empty, which Twenty accepts, rather than losing the phone number. The target shape is `{número, +55, BR}`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:141-148"
+    },
+    {
+      "id": "api-comment-bd8cc156",
+      "action": "translate",
+      "new_text": "Link to the customer's CRM record, never the CRM home page.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:166"
+    },
+    {
+      "id": "api-comment-6929794b",
+      "action": "translate",
+      "new_text": "Create or update the matching Twenty `person` and return its ID. Look up `pipeContatoId` before creating to avoid duplicates when CRM creation succeeds but the Pipe transaction fails before saving the ID; the next run adopts the orphaned CRM record.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:191-198; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e34dc59a",
+      "action": "translate",
+      "new_text": "A CRM outage must not hang the worker.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4530e52f",
+      "action": "translate",
+      "new_text": "Third tenant-isolation check from spec §5: if the CRM response contains a `pipeContatoId` different from the originating contact, this tenant's URL points to another tenant's CRM instance despite a valid key. Abort without storing an ID.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:256-262; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a8752ad5",
+      "action": "translate",
+      "new_text": "Read-only view of what the CRM knows about this customer; Desk does not write there.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:281"
+    },
+    {
+      "id": "api-comment-79ac2843",
+      "action": "translate",
+      "new_text": "Public base URL of this tenant's CRM instance, without a trailing slash.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/twenty.ts:29"
+    },
+    {
+      "id": "api-comment-44b767f9",
+      "action": "translate",
+      "new_text": "Already decrypted API key; never log it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d2fd8677",
+      "action": "translate",
+      "new_text": "Return this tenant's CRM configuration or null. Run inside `comTenant`: if RLS hides the tenant's row, no URL or key is available and no integration occurs. This is the first of three isolation checks in spec §5. Return `null` when this tenant has no CRM.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:44-50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-99999d78",
+      "action": "translate",
+      "new_text": "Twenty CRM client, Pipe's only CRM access path (`docs/specs/2026-09-07-integracao-twenty.md`). Authenticate via `/metadata`; `/graphql` serves workspace data only and returns `Cannot query field \"getLoginTokenFromCredentials\" on type \"Mutation\"` for login attempts. Match metadata by `name`, never translated `label`: with `x-locale` pt-BR, labels such as `Pessoa` and `Empresa` change while `nameSingular` and field `name` remain English. Each tenant has its own CRM instance, so take URL and key from the tenant, never environment defaults. Without configuration, skip integration; a fallback could send one tenant's data to another's CRM. The configuration is selected from `tenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:5-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7db1fcfa",
+      "action": "translate",
+      "new_text": "Accept plaintext CRM keys in development, as `decifrarConfig` does for Meta tokens; production supplies an encrypted key.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:63; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d85f9761",
+      "action": "translate",
+      "new_text": "Call the CRM at `caminho`: `/graphql` for data, `/metadata` for authentication and metadata. Inject `buscar` so tests avoid network calls, as in `packages/autenticacao`. Log URL and error message, never the `Authorization` header.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/twenty.ts:73-81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5416eb3d",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/embedded_signup_service.rb. After the customer closes Meta's popup, exchange `code` for a customer token (`troca-de-token.ts`), find the number in the WABA (`info-do-numero.ts`), create or reauthorize the channel if `canalId` is supplied, register the number and configure the webhook (`configuracao-de-webhook.ts`). Webhook failure marks reauthorization rather than undoing the channel. Check a new number's health and mark pending if Meta still reports it pending; skip this on reauthorization and coexistence to avoid false alarms from Meta's delayed status. The controller (`estado-de-conexao.ts`) checks CSRF `state` before this service; Pipe added that guard beyond the original.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/cadastro-embutido.ts:11-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6bbd7b6",
+      "action": "translate",
+      "new_text": "Original `inbox_id`: when present, reauthorize that channel.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/cadastro-embutido.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bf4b2653",
+      "action": "translate",
+      "new_text": "Chatwoot `validate_parameters!` service and `validate_embedded_signup_params!` controller checks.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/cadastro-embutido.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bcc7fd91",
+      "action": "translate",
+      "new_text": "`check_channel_health_and_prompt_reauth`: log health-check failures only.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/cadastro-embutido.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2c9f1a08",
+      "action": "translate",
+      "new_text": "Chatwoot `prompt_reauthorization!` is a channel column; here it is a marker in `config`, where connection state already lives, avoiding a migration.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:119-122; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e94946c5",
+      "action": "translate",
+      "new_text": "Chatwoot `Channel::Whatsapp.find_by(phone_number:)` requires global uniqueness across tenants. Use the owner role because RLS would hide the other tenant's channel; return only yes/no. Check both indexed `phone_number_id` and the number itself, as in Chatwoot.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:136-143; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6f361d05",
+      "action": "translate",
+      "new_text": "Decrypted in memory only; never write this form back to the database.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c8fe1c0e",
+      "action": "translate",
+      "new_text": "Meta webhook URL is not secret; the signature protects it. Unlike Chatwoot's `/webhooks/whatsapp/+5511…`, use `canalId` as specified for per-customer webhooks.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:34-39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-164372d2",
+      "action": "translate",
+      "new_text": "Return this tenant's channel with decrypted `config`; another tenant's channel is 404, not 403.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2abb4f8d",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/models/channel/whatsapp.rb: `ensure_webhook_verify_token`, `prompt_reauthorization!`, `reauthorized!`, and global phone uniqueness (`validates :phone_number, uniqueness: true`). `setup_webhooks` lives in `configuracao-de-webhook.ts` beside its caller. Unlike Chatwoot's single `provider_config` column, Pipe encrypts `canal.config` secret fields (`packages/db/src/segredo.ts`) and stores WABA and phone in columns for umbrella webhook routing (`docs/specs/2026-09-07-webhook-por-cliente.md` §4).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:7-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fd35babf",
+      "action": "translate",
+      "new_text": "Merge and save `channel.provider_config` as in Chatwoot. Reencrypt all of `config` on write; `cifrarConfig` touches only secret fields and is idempotent. This mirrors `channel.provider_config = …merge(…)` followed by `save!`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/canal.ts:84-87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bb912d65",
+      "action": "translate",
+      "new_text": "Pipe additions for manual setup and phone profile, which Chatwoot does not edit: Cloud API `GET /app`, `GET|POST /{phone}/whatsapp_business_profile`, and Resumable Upload API `POST /{app}/uploads` plus `POST /{upload}`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:145-150; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e49c5995",
+      "action": "translate",
+      "new_text": "`GET /app` identifies the token-owning app, which belongs to the customer in manual setup.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-37e01881",
+      "action": "translate",
+      "new_text": "Prove the pasted `appSecret` belongs to the token-owning app: Meta validates `appsecret_proof`, an HMAC-SHA256 of the token using that secret.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:154-157; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7f734f46",
+      "action": "translate",
+      "new_text": "Upload through the Resumable Upload API and return handle `h`, used by `profile_picture_handle` and template `example.header_handle`. The name predates support for non-photo files; `tipo` is MIME for any media.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:161-166; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6d6a0776",
+      "action": "translate",
+      "new_text": "Fetch all pages of `GET /{waba}/message_templates`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:168; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bad67601",
+      "action": "translate",
+      "new_text": "Submit `POST /{waba}/message_templates` for Meta review.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2ab4d470",
+      "action": "translate",
+      "new_text": "`phone_number_verified?`: a connected number is registered even if its verification code expired.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/whatsapp/cliente-graph.ts:175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

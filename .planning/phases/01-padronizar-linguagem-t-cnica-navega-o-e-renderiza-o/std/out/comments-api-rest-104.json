@@ -1,0 +1,791 @@
+{
+  "items": [
+    {
+      "id": "api-comment-5dffe91e",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/health_service.rb: only `fetch_health_status`, with matching fields and formatting. Omit `sync_health_status!` and `phone_number_health` persistence because Pipe's Channels screen asks Meta on each read; storing unused health would become stale.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/saude.ts:3-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7cc0b57d",
+      "action": "translate",
+      "new_text": "As in the original, if only the WABA check fails, return the number health already fetched.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/saude.ts:94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1e031953",
+      "action": "translate",
+      "new_text": "Unlike the original, do not include the entire response in the error message; see `cliente-graph.ts` for the credential-leak rationale.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/troca-de-token.ts:18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c173d9f7",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/troca-de-token.ts:19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b7092fb3",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/token_exchange_service.rb. Embedded Signup v4 `code` lasts 30 seconds, so exchange it before any database lookup.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/troca-de-token.ts:4-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f98ab2a5",
+      "action": "translate",
+      "new_text": "Pipe addition: the secret must belong to the app that issued the token.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:132; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2f794110",
+      "action": "translate",
+      "new_text": "Token-owning app, where `subirFoto` uploads the profile photo.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-250be5fd",
+      "action": "translate",
+      "new_text": "On reconnection, the channel already owning this number does not conflict with itself.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4af34caf",
+      "action": "translate",
+      "new_text": "The token belongs to the customer's app, and Meta signs its webhook with that app's secret. Require it or every inbound message will fail with 401.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-084ab209",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_validation_service.rb. Without embedded signup, the customer (or Pipe owner during testing; `docs/specs/2026-09-07-implantacao.md` §1.4) supplies WABA ID, Phone Number ID, and a system-user token. Before writing, verify the number belongs to the WABA, is verified and unused by another channel, and the token can read templates and send messages. Return the original Portuguese rejection messages as 422 `configuracao_invalida`, corresponding to Chatwoot's `ArgumentError`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:6-17; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1f2fd2a",
+      "action": "translate",
+      "new_text": "`verify_uniqueness!` checks globally across tenants with the owner role, returning only yes/no.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3bdbe6eb",
+      "action": "translate",
+      "new_text": "During reconnection, the current channel owns the number and must not conflict with itself, or replacing an expired token would be impossible.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:89-90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00719e96",
+      "action": "translate",
+      "new_text": "Companion to `semEscopo` for logged-in people: scope belongs to API keys, permission to people.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/erros.ts:43"
+    },
+    {
+      "id": "api-comment-4a406ec4",
+      "action": "translate",
+      "new_text": "Always return structured errors (`apis.md` §5.6): never HTTP 200 with `status: failure` in the body, a common Blip trap. Use the correct HTTP status and `{ \"erro\": { \"codigo\", \"mensagem\" } }` so clients can distinguish failure without inspecting success bodies.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/erros.ts:5-12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b13d5baa",
+      "action": "translate",
+      "new_text": "`body-parser` rejects oversized bodies before Nest; report a client error, not 500.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/erros.ts:86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bcaadf9e",
+      "action": "translate",
+      "new_text": "Do not expose unexpected stack traces to clients; log the full error internally.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/erros.ts:92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fb5b0399",
+      "action": "translate",
+      "new_text": "Start with no subscriptions: the socket exists but delivers nothing until `Inscricao` arrives. Subscribing to all by default would reveal subjects the screen did not request.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:110; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-21ce2f75",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:111; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6d35040a",
+      "action": "translate",
+      "new_text": "Attach listeners before any `await`. `registrar` talks to Redis, and awaiting it before `on('message')` creates a gap in which the browser's immediate `Inscricao` is lost. `ws` does not buffer events without listeners, leaving a live socket with no events or error log.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:127-135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-34cb242b",
+      "action": "translate",
+      "new_text": "Browser realtime channel at `GET /v1/eventos` with `Upgrade: websocket`, using `packages/contracts/src/eventos.ts`: client sends `Inscricao`, server replies `QuadroDeControle`, then sends only `EventoDoServidor` (`{assunto, id, em}`), never full records. Authenticate with the existing `pipe_sessao` cookie through `resolverSessao`, as `GuardaSessao` does; derive tenant from that session and reject missing, expired, or forged sessions with 401 before opening a socket. Check `Origin` against `PIPE_ORIGENS` manually because CORS does not protect WebSocket handshakes: a malicious site could open a socket with the victim's cookie. `SameSite=Lax` also blocks this today, but may change independently; the explicit origin check preserves the boundary. Reject an unauthenticated `Upgrade` with `401`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:13-34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ea8d2467",
+      "action": "translate",
+      "new_text": "Wait until this process is subscribed to the tenant's Redis channel before acknowledging the client; otherwise the screen could appear connected while an event published in that gap is lost.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:136; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bb4fd177",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:138; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b8bf0617",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ce91663c",
+      "action": "translate",
+      "new_text": "Treat every client message as activity: a browser that speaks is alive.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dc2c7e22",
+      "action": "translate",
+      "new_text": "Never take `tenant_id` from `Inscricao`; it was derived from the session. The client chooses only the subject, not whose events it receives.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0df745b9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-010b0259",
+      "action": "translate",
+      "new_text": "Event delivery begins here, but confirm only after registration.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:167; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-913e3842",
+      "action": "translate",
+      "new_text": "The socket may have died during the Redis `await`; remove it from registration so the process does not keep writing to a departed client.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8bd90006",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:181; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6dddf14f",
+      "action": "translate",
+      "new_text": "Use two pings: protocol ping keeps proxies and the socket alive, while contract ping lets the screen detect liveness without low-level APIs.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:189; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67f4a488",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:190; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-978fe7cf",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a8fefa9d",
+      "action": "translate",
+      "new_text": "Terminate a zombie socket whose client vanished. `close` waits for a handshake this peer will not answer; early termination lets the browser reconnect and refetch instead of displaying a stale but apparently live screen. Use `terminate` for the dead peer.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:199; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-809acae7",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7db185f1",
+      "action": "translate",
+      "new_text": "Blip `CONNECTION_TEST_INTERVAL`: check the connection every 15 seconds.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-53d7d99c",
+      "action": "translate",
+      "new_text": "Blip `MAX_PING_RETRIES` is 1: tolerate one unanswered ping and drop on the second. The browser can reconnect and refetch quickly; a zombie socket makes the screen appear live but frozen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:40-45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc744ecf",
+      "action": "translate",
+      "new_text": "Use `void` because `upgrade` does not await a promise; convert every failure into an explicit refusal.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:71; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-911c156b",
+      "action": "translate",
+      "new_text": "No `Origin` means a non-browser client, such as a test or integration. The cookie is still required below, so this does not bypass authentication.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-20173703",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/eventos-ws.ts:79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a44b888a",
+      "action": "translate",
+      "new_text": "Enqueue contact mirroring to CRM. Failure must not interrupt attendance: the received message matters more than its CRM mirror, and the sweep recovers missed jobs. Log and swallow enqueue errors. Memory mode skips mirroring because it runs without external services.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:137-146; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9f51a096",
+      "action": "translate",
+      "new_text": "Use one job ID per contact: three rapid changes to a conversation's contact should coalesce into one mirror job, not concurrent races.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f27e53f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:154; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-87219824",
+      "action": "translate",
+      "new_text": "Use a hyphen, never `:`, in custom job IDs. BullMQ 5 rejects colons except in legacy three-part repeat IDs; because the catch below swallows errors, `espelho:<uuid>` made every enqueue fail silently.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:157; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3d28211a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f79eae45",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0c1c67cc",
+      "action": "translate",
+      "new_text": "Consume CRM mirroring in the `api`, not `apps/workers`, as for `pipe-entrada`: the API owns calls to external services. The queue has `espelhar` for one contact and `varredura` to requeue missed work, since lost jobs must not leave contacts without CRM links.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:171-178; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8aa07545",
+      "action": "translate",
+      "new_text": "Run serially: requeueing should not compete with its own consumer.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:186; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c20719ab",
+      "action": "translate",
+      "new_text": "Safety sweep for CRM mirroring; see `contatosSemEspelho`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:201; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-693e065a",
+      "action": "translate",
+      "new_text": "Enqueue inbound attachment media download (`dominio/midia.ts`). Failure must not interrupt attendance: the message is already visible, and a periodic sweep recovers missed downloads. Memory mode skips Meta calls; tests can call `baixarMidiaDoAnexo` directly (`tests/midia-recebida.test.ts`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:212-222; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1ae79430",
+      "action": "translate",
+      "new_text": "Use one job per attachment so immediate enqueue and sweep coalesce. `baixarMidiaDoAnexo` also checks `bytes = 0` for idempotency; this only avoids unnecessary calls.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:229; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f6c3bf86",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:230; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e13a43b6",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:231; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1bbdf584",
+      "action": "translate",
+      "new_text": "Consume media downloads in `api`, which already decrypts channel tokens (`chaveiro`, `dominio/banco.ts`). `baixar` handles one attachment and `varredura` requeues missed ones. `baixarMidiaDoAnexo` owns backoff rescheduling, so BullMQ uses `attempts: 1` and never retries independently.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:243-250; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f3ef5dd5",
+      "action": "translate",
+      "new_text": "Safety sweep for media downloads; see `midiasPendentes`. ponytail: this queue is absent from `estadoDasFilas` until `FilaParada` needs stalled-media monitoring, as already noted for `pipe-importacao` below.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:272-278; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2c98f9f8",
+      "action": "translate",
+      "new_text": "Without Redis, run the sweep on an in-process timer only when `PIPE_MIDIA_EM_MEMORIA=1`, so tests still see the raw attachment immediately after the webhook; there is no per-attachment enqueue in this mode.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:281; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-34a0b185",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:282; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8df3fbf3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:283; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2eb5ed18",
+      "action": "translate",
+      "new_text": "Enqueue one conversation SLA check (`dominio/gestao/sla-motor.ts`). As with CRM and media, enqueue failure cannot interrupt the sender; swallow it and let the periodic sweep find the conversation now or next time. Memory mode skips enqueueing; `PIPE_SLA_EM_MEMORIA=1` enables direct sweeping without a queue, like `PIPE_MIDIA_EM_MEMORIA`. `agendarVarreduraSla` supplies the memory-mode sweep.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:311-321; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-54ea3ba2",
+      "action": "translate",
+      "new_text": "One pending check per conversation: an extra push before processing coalesces instead of racing on the same row.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:328; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c15831fc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:329; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9dccac36",
+      "action": "translate",
+      "new_text": "The API enqueues work and `apps/workers` executes it. With `PIPE_FILAS=memoria`, inbound processing runs inline without Redis for development and end-to-end tests, following the same path minus Redis. Delivery never runs inline, even in memory mode: `outbox_mensagem` is authoritative, and the queue only prompts a worker to look before the next sweep.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:33-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f03e8bb0",
+      "action": "translate",
+      "new_text": "Consume SLA checks in `api`, which owns `sla-motor.ts` domain rules and outbound webhooks. `checar` decides alert or breach for one conversation; `varredura` requeues missed work, as with media.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:341-347; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-762aa9f5",
+      "action": "translate",
+      "new_text": "Safety sweep for SLA; see `conversasParaChecarSla`. ponytail: omit this queue from `estadoDasFilas` until stalled-SLA monitoring is needed, like `pipe-midia` and `pipe-importacao`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:368-373; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-14d9cf6e",
+      "action": "translate",
+      "new_text": "Without Redis, run the SLA sweep on an in-process timer only with `PIPE_SLA_EM_MEMORIA=1` so end-to-end tests can observe alerts and breaches.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:376; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-146c3a0b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:377; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-52c2dd13",
+      "action": "translate",
+      "new_text": "Queue one tenant's dictionary sync after a sweep or admin CRM-field creation. A tenant-specific `jobId` coalesces repeated requests; `removeOnComplete: true` clears the ID so future syncs are not swallowed. Memory mode skips sync because CRM is external.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:410-417; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-132e1523",
+      "action": "translate",
+      "new_text": "Use hyphen rather than `:`; BullMQ 5 rejects `:` in custom IDs (\"Custom Id cannot contain :\").",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:422; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8509feaf",
+      "action": "translate",
+      "new_text": "Consume dictionary sync in `api`, which owns CRM calls, as with mirroring.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:432; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3bd3a8cf",
+      "action": "translate",
+      "new_text": "Hourly dictionary sweep for every tenant with CRM.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:459; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4d1b04bf",
+      "action": "translate",
+      "new_text": "Daily Instagram token renewal (`dominio/instagram/renovacao.ts`) belongs in `api`, not `apps/workers`, because the API owns Meta credential calls and their domain rules.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:470-474; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2b3722f6",
+      "action": "translate",
+      "new_text": "The `api` consumes inbound jobs rather than `apps/workers` because domain rules live here (spec §3). The queue decouples the response to Meta from processing; it does not transfer ownership.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:499-503; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b11ab5a6",
+      "action": "translate",
+      "new_text": "`/saude` probe uses the same connection as normal work; a separate connection could report false health.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:520; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c40d7bff",
+      "action": "translate",
+      "new_text": "Waiting plus delayed jobs: all work not yet run, for any reason.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:527; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ffe50680",
+      "action": "translate",
+      "new_text": "Age of the oldest waiting job, used by `FilaParada`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:529; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2b656a25",
+      "action": "translate",
+      "new_text": "Queue state at collection time. Depth alone is misleading: a large draining queue is normal at peak, while an old unmoving item indicates a stall. In memory mode return no queue metric rather than zero, which would falsely imply healthy drainage.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:533-541; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6018aab4",
+      "action": "translate",
+      "new_text": "Enqueue contact import for workers (`apps/workers/src/importacao-de-contatos.ts`). Memory mode runs inline through the same path without Redis. Otherwise the `importacao` row is authoritative: a lost job leaves a visible `pronta` import, and resubmitting does not duplicate contacts. ponytail: omit this queue from `estadoDasFilas` and `fecharFilas` (connection `quit` closes it) until `FilaParada` needs stalled-import monitoring.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:620-632; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-902c2fcf",
+      "action": "translate",
+      "new_text": "Meta retries events when the response is slow, so acknowledge the webhook with 200 and process from the queue afterward.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/filas.ts:67-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-185ffeac",
+      "action": "translate",
+      "new_text": "Import a Blip Builder editor export or published flow. This is a command rather than a route, as in `provisionar.ts`: there is no flow-builder UI, and database access authenticates the operator. To preview counts without a database, run `pnpm --filter @pipe/api importar:fluxo --arquivo fluxo.json`. To write and publish a new version, add `--tenant <uuid> --canal <uuid> --nome \"Atendimento\" --publicar`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/importar-fluxo.ts:7-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ed525567",
+      "action": "translate",
+      "new_text": "Use `desconhecida` rather than raw path when no route matches. The path is client input; as a metric label it would create unbounded cardinality.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/metricas.ts:119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-72cf005b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/metricas.ts:120; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-259e41bb",
+      "action": "translate",
+      "new_text": "Read gauges at collection time because their values are instantaneous; do not store them.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:138"
+    },
+    {
+      "id": "api-comment-cc6800fc",
+      "action": "translate",
+      "new_text": "Buckets are seconds; 1 and 2.5 bracket the p95 > 1.5s alert threshold.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:31"
+    },
+    {
+      "id": "api-comment-3fb9f800",
+      "action": "translate",
+      "new_text": "Counts are cumulative across buckets, as Prometheus `le` requires.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:43"
+    },
+    {
+      "id": "api-comment-7a46a4b8",
+      "action": "translate",
+      "new_text": "Hand-written Prometheus exposition avoids `prom-client` for the two counters, one histogram, and three gauges required by `infra/observabilidade/alertas.yml`. `http_request_duration_seconds` feeds `LatenciaDaApiAlta`; `pipe_http_requisicoes_total{rota,metodo,status}` tracks volume and route errors; `pipe_mensagem_entrega_total{canal,resultado}` feeds `EntregaFalhando`; `pipe_fila_profundidade{fila}` and `pipe_fila_idade_item_mais_velho_segundos{fila}` feed `FilaParada`, which cares about old stuck jobs rather than busy depth; `pipe_migration_pendente` feeds `MigrationPendente`. Label `rota` with the route pattern (`/v1/conversas/:id/mensagens`), never a raw UUID path, which would create unbounded Prometheus series. The latency alert reads `http_request_duration_seconds_bucket`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/metricas.ts:5-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92768228",
+      "action": "translate",
+      "new_text": "Increment every bucket whose upper bound includes the value, producing cumulative counts for Prometheus `le`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:84"
+    },
+    {
+      "id": "api-comment-1c662fcb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/metricas.ts:85"
+    },
+    {
+      "id": "api-comment-cb376343",
+      "action": "translate",
+      "new_text": "Measure every request, including unmatched routes. Middleware rather than a Nest interceptor observes 404s and oversized bodies before they reach a controller; both should appear in metrics.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/metricas.ts:91-97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fbab8874",
+      "action": "translate",
+      "new_text": "Read `limite + 1` rows; the extra row proves another page exists without a count query.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/paginacao.ts:112-115"
+    },
+    {
+      "id": "api-comment-fa05ae4a",
+      "action": "translate",
+      "new_text": "Serialized sort-field value.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/paginacao.ts:20"
+    },
+    {
+      "id": "api-comment-47e7f57f",
+      "action": "translate",
+      "new_text": "Cursor pagination, sorting, and filtering (`apis.md` §5.3) use the previous page's last key rather than `offset`, which skips or repeats items under concurrent writes. Break ties with `id` for a total order. Keep `page_info.has_next_page` explicit because `data.length < limit` is false at an exact end boundary.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/paginacao.ts:5-14; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e053edf7",
+      "action": "translate",
+      "new_text": "Parse `order_by=criada_em[desc]` against each route's allowed fields. Reject unknown fields rather than silently falling back to Postgres's natural order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/paginacao.ts:67-71; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-06f9eabc",
+      "action": "translate",
+      "new_text": "Use keyset tuple comparison `(campo, id) < (valor, id)` so Postgres can use a composite index, rather than an expanded OR condition. `expressao` comes from a closed column list, never client input.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/paginacao.ts:89-95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-63d5533b",
+      "action": "translate",
+      "new_text": "Null when the tenant was created without a domain; see `semDominio` in the request.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:101"
+    },
+    {
+      "id": "api-comment-5a676b18",
+      "action": "translate",
+      "new_text": "If no domain is supplied, derive it from the administrator email; entering the same value twice invites a mismatch.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:135"
+    },
+    {
+      "id": "api-comment-e5052938",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:136"
+    },
+    {
+      "id": "api-comment-b3a5971c",
+      "action": "translate",
+      "new_text": "Provision a tenant, first administrator, and verified domain through a command, not an HTTP route. Together these grant full tenant access; a route would require a master secret vulnerable to logs, screenshots, or `curl` shell history, plus rotation, rate limits, and caller audit. The command instead uses existing production database access, whose holder could already insert these records, and adds no Internet-facing surface. When a Pipe admin UI exists, it can call `provisionarCliente` through a session-authenticated route with a dedicated role and audit. Usage: `pnpm --filter @pipe/api provisionar --nome \"Acme Atendimento\" --slug acme --plano operacao --admin ana@acme.com.br [--dominio acme.com.br] [--verificar] [--reaplicar]`. Without `--verificar`, print the TXT record and leave the customer-owned DNS domain pending; staff can enter through invitations (`POST /v1/convites`) meanwhile.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/provisionar.ts:14-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eb50d07b",
+      "action": "translate",
+      "new_text": "The base seed is the single source for initial roles, permissions, and catalog.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:156"
+    },
+    {
+      "id": "api-comment-00760f95",
+      "action": "translate",
+      "new_text": "Run serially, never with `Promise.all`: parallel operations inside this transaction can lose `pipe.tenant_id` and run without a tenant; see the README.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/provisionar.ts:161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1559d2f1",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/provisionar.ts:162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aec738cf",
+      "action": "translate",
+      "new_text": "Assign two roles: `admin` at account scope (their only account role) and `administrador` at attendance scope (migration 0021).",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/provisionar.ts:185"
+    }
+  ]
+}
