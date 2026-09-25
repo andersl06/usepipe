@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-cffd7c61",
+      "action": "translate",
+      "new_text": "Development-only login without Google. It lets developers inspect screens on `localhost` when OAuth is not configured. Outside development (`NODE_ENV === 'production'`) it returns 404 as if the route did not exist. Real sign-in uses `google` or `sso`; this path issues a real session only for an existing seeded user. Open `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200` in a browser.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:217-258; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0811ca93",
+      "action": "translate",
+      "new_text": "Start sign-in by creating a challenge, storing it in a cookie and redirecting to Google. `?convite=<token>` admits an invitee whose domain has not been verified; without it, sign-in would fail with `dominio_desconhecido` because the second step cannot identify the customer.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:260-285; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3b4364be",
+      "action": "translate",
+      "new_text": "Google callback: either establish a session or return a rejection code.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:288-346; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-39dddfc3",
+      "action": "translate",
+      "new_text": "Without the challenge cookie, login cannot be verified: it may be an old tab, a blocked cookie",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:291-306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-71f5245a",
+      "action": "translate",
+      "new_text": "or a forged attempt. In all cases the person must start again.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:291-306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-327e8fea",
+      "action": "translate",
+      "new_text": "Keep this log: the path shows the same \"provider failure\" screen as",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-800a97a2",
+      "action": "translate",
+      "new_text": "a network error, and without a trace we cannot distinguish the two.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3e92059b",
+      "action": "translate",
+      "new_text": "That ambiguity delayed a previous diagnosis.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:297-305; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0aaf4cc6",
+      "action": "translate",
+      "new_text": "When the challenge includes an invitation, it determines the tenant and links the",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:315-320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-17279628",
+      "action": "translate",
+      "new_text": "Google account instead of relying on the domain; this is the only path for an unverified domain.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:315-320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-422723be",
+      "action": "translate",
+      "new_text": "With self-service disabled by default, people without an invitation or verified",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-91ca35ea",
+      "action": "translate",
+      "new_text": "domain remain rejected. If enabled, the account is created here and Management",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3cb1b3bc",
+      "action": "translate",
+      "new_text": "receives the person on the welcome screen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:325-335; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-41efd0a0",
+      "action": "translate",
+      "new_text": "Sign in, identify the signed-in person and sign out. Challenge, PKCE, `id_token` verification, tenant resolution and session logic live in `@pipe/autenticacao`; this is the HTTP adapter for cookies, redirects and response format. A sign-in failure never presents a 500 to the person, who cannot use a stack trace. Every failure redirects to the sign-in screen with `?erro=<codigo>` from the contract's `RECUSAS_DE_ENTRADA` catalog; the screen chooses the explanation and next step.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:33-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-feb77bb7",
+      "action": "translate",
+      "new_text": "End the session and clear the cookie. Signing out twice is not an error.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:349-355; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e953df39",
+      "action": "translate",
+      "new_text": "The signed-in person in contract `Eu` format; source of truth for the screens.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:371-390; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-72573dc5",
+      "action": "translate",
+      "new_text": "Permissions are the union of the person's roles, with per-person exceptions",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-07e7c4e5",
+      "action": "translate",
+      "new_text": "overlaid through `usuario_permissao` (migration 0046; the attendant's",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-15f880e4",
+      "action": "translate",
+      "new_text": "\"Permissões\" screen). The `union` includes grants from roles and explicit",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6b832aef",
+      "action": "translate",
+      "new_text": "grants; `not exists` removes permissions explicitly denied.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5707ea9e",
+      "action": "translate",
+      "new_text": "This matches the `coalesce` logic in `exigirPermissao`, expressed as a set",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2864e289",
+      "action": "translate",
+      "new_text": "because this endpoint returns a list rather than testing one code at a time.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7dcade38",
+      "action": "translate",
+      "new_text": "Use `distinct` because multiple roles often grant the same permission, and the screen",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1da74563",
+      "action": "translate",
+      "new_text": "must not receive duplicates. Run serially, never with `Promise.all`: parallel work",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-62f5b280",
+      "action": "translate",
+      "new_text": "inside this transaction can unset `pipe.tenant_id` and run a query without",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/entrar.ts:392-423; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

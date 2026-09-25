@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-58287f55",
+      "action": "translate",
+      "new_text": "Source rule: network failure or timeout must not abort ProcessHttp; the flow receives a synthetic status.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:357; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-164cabf7",
+      "action": "translate",
+      "new_text": "The Redirect `context` is not delivered as the destination's first input;",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:392; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3d010160",
+      "action": "translate",
+      "new_text": "the destination starts on the next customer message. Delivering it immediately would require running the destination flow engine here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:393; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4f542c6e",
+      "action": "translate",
+      "new_text": "The automated flow (bot) connected to WhatsApp intake uses the Blip `FlowManager` port in `@pipe/core`. This module handles Pipe-specific work: load the channel's published flow, store context in `execucao_fluxo`, record visited states in `execucao_passo`, put replies in the outbox, and hand a conversation to a queue. Run inside the transaction that records the incoming message, in the `pipe-entrada` consumer; the webhook only responds 200 and enqueues. Keeping input and bot reply in one transaction makes them commit together, while Meta redelivery is caught by `id_provedor` and `execucao_passo_entrada_uk`. `ProcessHttp` uses the same HTTPS/SSRF and mTLS outbound boundary, but persists a cursor and leaves the transaction before contacting the client API. Human ownership takes precedence: Blip parks a user in `desk:`, while Pipe lets the conversation own this decision. With an agent or queue, the bot stays silent; it responds only when neither is assigned. After attendance closes, the next message opens a new conversation with the bot context, which belongs to the contact as in Blip. If paused in `desk:`, feed the closed `Ticket` to the engine first so the attendance block's outputs determine the next state (the Blip editor's \"bloco configur?vel\"). For a channel with a published router, run the contact's current SERVICE from `roteador.ts`. Changing service closes the old execution and starts a new one; returning from human attendance resumes in the contact's service, because position belongs to the contact.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7cd62182",
+      "action": "translate",
+      "new_text": "Run one engine input. A flow failure must not abort the message; route it to a queue.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:409; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bcc9ccc7",
+      "action": "translate",
+      "new_text": "Blip would leave the user waiting without a reply; here the conversation goes to the queue.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:477; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1e356a0c",
+      "action": "translate",
+      "new_text": "The bot stopped after replying to the customer; the next customer message wakes it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:499; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b69b19a8",
+      "action": "translate",
+      "new_text": "After returning to the root or leaving the flow, treat this message as the first input, as Blip does.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:500; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f4574bb5",
+      "action": "translate",
+      "new_text": "Perform HTTP outside the transaction, then resume the saved cursor in a second transaction.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:528; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d735cca5",
+      "action": "translate",
+      "new_text": "Map Pipe `mensagem.tipo` to the MIME value Blip places in `{{input.type}}`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:657; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-034e1c0e",
+      "action": "translate",
+      "new_text": "Without saved state, the next contact starts at the root; after transfer, the conversation belongs to a human.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:677; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1cd72e7d",
+      "action": "translate",
+      "new_text": "Move the conversation from bot control into a queue. This is when attendance begins: write `criada` and `enfileirada` NOW, not when the bot started. Queue time and first-response time start at `criada` (`@pipe/core`, `marcosDaConversa`); including bot time would charge the team for the robot conversation. In Blip too, the ticket is created only at handoff.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:722; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7010c7c5",
+      "action": "translate",
+      "new_text": "Present when the channel belongs to a router: the flow above is the current service.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-74368b01",
+      "action": "translate",
+      "new_text": "The conversation has just entered the queue; the `update` above changes a row only once",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:747; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0e26c222",
+      "action": "translate",
+      "new_text": "because its condition requires `fila_id is null`. This is the only time",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:748; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bf2bbe1a",
+      "action": "translate",
+      "new_text": "to assess its priority. See the Pipe decision in `gestao/prioridade-motor.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:749; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1a1c590",
+      "action": "translate",
+      "new_text": "This service uses the router context (`usa_contexto_do_roteador`).",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fa94e2c4",
+      "action": "translate",
+      "new_text": "Give the agent what the bot collected about the customer in the note shown by Desk.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:780; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f58158d1",
+      "action": "translate",
+      "new_text": "The emergency fallback must not abort the incoming message.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:793; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ff97a069",
+      "action": "translate",
+      "new_text": "Variables collected by the bot, excluding engine control keys.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:807; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-32be1156",
+      "action": "translate",
+      "new_text": "Pending Change-User-State from the last `Redirect`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3b23ca1c",
+      "action": "translate",
+      "new_text": "Bot reply: pending `mensagem` plus an outbox row, like every Pipe outbound message. The worker delivers it. The bot always speaks inside the service window because it replies only to the customer.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:819; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-09dd6f29",
+      "action": "translate",
+      "new_text": "Use `{ pergunta }` for a menu; the worker chooses buttons, a list, or text.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:829; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-efad4159",
+      "action": "translate",
+      "new_text": "A null `usuarioId` distinguishes bot output from agent output in metrics.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:856; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-15e19b61",
+      "action": "translate",
+      "new_text": "Convert LIME content emitted by the flow into the text Pipe sends on WhatsApp today. A `select` menu becomes numbered options; the typing indicator is omitted. An unsupported type is an error: the engine action fails rather than sending a partial message.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:867; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

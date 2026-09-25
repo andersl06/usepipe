@@ -1,0 +1,252 @@
+{
+  "items": [
+    {
+      "id": "api-comment-ea0b4832",
+      "action": "translate",
+      "new_text": "Tag an OPEN conversation or a CONTACT outside closing. Previously a conversation could be tagged only through `POST /encerrar`, which also closed it. The source distinguishes `ModalType.ADD_TAGS` from `CLOSE_TICKET` (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §1.8): an open ticket's tag is a work note, while the closing tag is final classification. Both use `conversa_etiqueta`, so a tag added here appears selected in the close modal. `contato_etiqueta` already existed without read or write routes. Enforce scope (`conversa` | `contato` | `ambos`) on the server: conversation-only tags cannot go on contacts and vice versa. Record `registrarAuditoria` in the SAME transaction as every catalog write.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/etiquetas.ts:10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-97fbb952",
+      "action": "translate",
+      "new_text": "Return `false` if already present; repeated application is a no-op, not an error.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/etiquetas.ts:129",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-bb177884",
+      "action": "translate",
+      "new_text": "Requester is a person with `contato.editar` or an API key with `contatos:escrever` and no person permission.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/etiquetas.ts:239; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4ef28914",
+      "action": "translate",
+      "new_text": "Contact tags are contact data, so require the same permission as editing the profile.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/etiquetas.ts:254; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-76167cce",
+      "action": "translate",
+      "new_text": "The conversation must exist and be open; for a person, it must be assigned to that agent. Reject closed tickets: retagging them is a manager's history operation, not a Desk action.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/etiquetas.ts:92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-219395a3",
+      "action": "translate",
+      "new_text": "Immutable `evento_atendimento` is the source of all metrics (data model §4). Writing an event is data, not a log: tomorrow's report is recalculated from it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/eventos.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dd7ec057",
+      "action": "translate",
+      "new_text": "Store a Blip flow, exported from the editor or published, as a new version. Preserve the editor's original state in `bloco.conteudo.original`, and report unsupported engine features by type. Publishing archives the previous published version and any other published flow on the same channel: one bot per number.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:1004; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7caf8c7f",
+      "action": "translate",
+      "new_text": "These belong to `Flow`, not a state: global actions, `configuration`, and version.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:1062; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4261da3b",
+      "action": "translate",
+      "new_text": "ID and outputs have their own column and table (`codigo`, `transicao`); the remaining fields are state data.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:1079; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-53ea3825",
+      "action": "translate",
+      "new_text": "An unknown destination is allowed only for an unpublished flow and already appears in validation errors.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:1102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-27466c58",
+      "action": "translate",
+      "new_text": "Rebuild Blip `Flow` from `bloco` and `transicao`. Current cost is three queries per inbound message; a published version does not change, so cache by `versaoId` if profiling justifies it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:127; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1ef26646",
+      "action": "translate",
+      "new_text": "`original` is the editor state saved during import; the engine does not read it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:165; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-29ba5bbe",
+      "action": "translate",
+      "new_text": "Created by this message; only a new conversation starts a flow.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f2e2f608",
+      "action": "translate",
+      "new_text": "The bot handled the message; `false` follows the normal queue path.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dee093f8",
+      "action": "translate",
+      "new_text": "Number of replies written to the outbox, used to nudge delivery after commit.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6b08506e",
+      "action": "translate",
+      "new_text": "Map Pipe's closing actor to Blip `Ticket.Status`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:207; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-652a1d06",
+      "action": "translate",
+      "new_text": "Human ownership wins: the bot does not speak while an agent is assigned.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:222; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-df818ecd",
+      "action": "translate",
+      "new_text": "Pipe decision: while HTTP is pending, the message remains stored and waits",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:242; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-40451199",
+      "action": "translate",
+      "new_text": "for resumption so one conversation never runs two engine executions concurrently.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:243; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7c52b6ee",
+      "action": "translate",
+      "new_text": "Already queued and waiting for a person is also human-owned.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:247; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d5688703",
+      "action": "translate",
+      "new_text": "If the conversation belonged to the bot but its flow was unpublished, move it to the queue rather than leave it silent.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:252; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6594b194",
+      "action": "translate",
+      "new_text": "The router sent the contact to another service; end the prior execution here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:259; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-66e20ed5",
+      "action": "translate",
+      "new_text": "Only a new conversation receives the `Ticket` from the closed attendance session.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:266; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9bd1a9ea",
+      "action": "translate",
+      "new_text": "Context belongs to the CONTACT, as in Blip: the new conversation inherits what the bot knew.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:269; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-00c04841",
+      "action": "translate",
+      "new_text": "If a new version is published during a conversation, retain the same context. A state",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:287; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6fbda16e",
+      "action": "translate",
+      "new_text": "that no longer exists falls back to root, as `FlowManager` does.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:288; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-68739b4d",
+      "action": "translate",
+      "new_text": "With shared router context, variables are scoped to the router-contact pair.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:296; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a6b0d7e5",
+      "action": "translate",
+      "new_text": "Apply Change-User-State after Master-State: the destination starts at the requested block or at root.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:301; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6534a10",
+      "action": "translate",
+      "new_text": "Persist router context whenever the execution is saved.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:309; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-90f51710",
+      "action": "translate",
+      "new_text": "Future work: this call still runs INSIDE the inbound transaction, holding a",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:349; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8ce99f4d",
+      "action": "translate",
+      "new_text": "database connection; outside the transaction, the source `requestTimeout` is 60 s.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:350; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

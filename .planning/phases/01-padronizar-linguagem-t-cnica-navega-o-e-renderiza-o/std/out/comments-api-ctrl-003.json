@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-d5676b62",
+      "action": "translate",
+      "new_text": "Check the DNS TXT record. Return 400 until it appears because publishing and propagation take time.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/convites.ts:136-153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-36d2f1ed",
+      "action": "translate",
+      "new_text": "Check permission in a separate transaction before the write transaction. Permission lives in a tenant table, while domain functions open their own transactions. One additional read keeps transaction handling out of the controller; passing `usuarioId` into every domain function would spread the access rule among them.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/convites.ts:156-165; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-793348c8",
+      "action": "translate",
+      "new_text": "Invite a person and return the link containing the token; that token is not shown again.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/convites.ts:25-49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c113f52b",
+      "action": "translate",
+      "new_text": "The `admin`'s \"manage members\" permission, also checked by the Members screen.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/convites.ts:34-35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-066342d3",
+      "action": "translate",
+      "new_text": "Resend an open invitation with the same email and role but a new link; the old link is invalidated by `emitirConvite`. Require the same invitation permission. Without it, or when the invitation is from another tenant, accepted or expired, return 403/404.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/convites.ts:52-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2276f41b",
+      "action": "translate",
+      "new_text": "Show who the invitation is for without a session, returning only the invited email, role and customer name. A holder of the link already knows the email; other account data must stay hidden until they join.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/convites.ts:77-91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9db946b7",
+      "action": "translate",
+      "new_text": "Invitations and verified domains are two ways a person joins a tenant, so this file keeps the related membership rules together. The HTTP adapter is thin: invitation and domain logic live in `src/dominio/` and can be tested without Nest; this layer handles method, path, permission and response shape. The invitation routes without `@ComSessao()` are deliberately public. Someone opening a link has no account yet, so requiring a session would require the account that the invitation is meant to create.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/convites.ts:9-21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5446db6e",
+      "action": "translate",
+      "new_text": "Accept the invitation, create the user and consume the token. The Google account is linked at sign-in through a verified domain or through this invitation link (`entrarEm`). The link is returned because invitees without a verified domain need that path.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/convites.ts:93-110; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f0c56133",
+      "action": "translate",
+      "new_text": "A CRM outage must not break the attendant panel. The link remains",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/crm.ts:99-109; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-01beb66c",
+      "action": "translate",
+      "new_text": "valid because we construct it on our side.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/crm.ts:99-109; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ad553a3d",
+      "action": "translate",
+      "new_text": "`/v1/crm` exposes what Twenty knows about a contact. It is Pipe's sole gateway to Twenty: the Desk calls the `api`, not the CRM directly. It is read-only because writes from the Desk would require an audit log, the same unresolved requirement blocking contact editing there. The tenant comes from the session, never the request. `contatoId` is resolved inside the session's `comTenant`; another tenant's contact yields no row even if someone changes the URL ID.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/crm.ts:12-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-141e35c5",
+      "action": "translate",
+      "new_text": "`null` when the contact has no mirror yet or the tenant has no CRM.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/crm.ts:26-34",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-62ba8b41",
+      "action": "translate",
+      "new_text": "The session tenant's CRM data dictionary contains objects and fields in Twenty metadata format. The flow builder and AI consume it. Read it from our database under RLS without calling the CRM.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/crm.ts:38-49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0964e9c8",
+      "action": "translate",
+      "new_text": "Request synchronization after an admin creates a field in the CRM.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/crm.ts:52-60",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-9ce56a49",
+      "action": "translate",
+      "new_text": "No CRM, no mirror and a contact belonging to another tenant all return the same response. Distinguishing them would reveal whether another customer's contact ID exists.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/crm.ts:71-86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-19023068",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:113-121",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-981bf1e2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:123-134",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-dbeb35bc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:136-149",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-34b35d2c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:151-161",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a7fb67cc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:163-178",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-842dd52f",
+      "action": "translate",
+      "new_text": "\"Minhas métricas\" always uses the current attendant. The browser supplies the interval; if either timestamp is missing or unreadable, use today. Clamp a range wider than the screen limit at its start.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:180-210",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-2fe7c78a",
+      "action": "translate",
+      "new_text": "The browser-session Desk API serves screen reads and actions formerly written directly to the database. Reads moved from the Next Desk into `dominio/desk/consultas.ts` and `metricas.ts`: each screen makes one request for its queue and catalogs, conversation items and panel, old ticket or metrics, in a single transaction with serial queries. The attendant always comes from the session; no parameter can inspect someone else's queue or metrics. Server Actions moved unchanged to `dominio/desk/acoes.ts`: forms send JSON `{ campos }`, `Campos` exposes `get`/`getAll` as `FormData` did, and returns the same `Resultado`. The action-name allowlist is closed; an unknown name returns 404. Send, retry, close and wait use existing `POST /v1/conversas/…` routes directly.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/desk.ts:21-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4271a6d9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:213-213",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-b711aab8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/desk.ts:215-229",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-17c6d7ee",
+      "action": "translate",
+      "new_text": "The attendant comes from the session; that person changes status and signs the note.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/desk.ts:39-55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

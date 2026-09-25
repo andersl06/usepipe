@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-69d02ec1",
+      "action": "translate",
+      "new_text": "The test stops here: it creates no session, new cookie or account,",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-43b71caf",
+      "action": "translate",
+      "new_text": "only reports the received claims and what would match. That makes it safe to point",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db5e3a62",
+      "action": "translate",
+      "new_text": "a new IdP at a tenant that already has users.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:154-175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8b5aaa2d",
+      "action": "translate",
+      "new_text": "Warn before Monday's support call: without a verified email, real login rejects the user even when the test passes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:167-174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-243be9cf",
+      "action": "translate",
+      "new_text": "In a test the admin needs the failure reason; in real login the user must not receive it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:190-200; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-caed73f7",
+      "action": "translate",
+      "new_text": "A company direct link, `app.usepipe.com.br/e/<slug>`, reaches this route. It performs the same discovery by URL rather than email for people with personal email addresses who cannot be discovered by domain.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:203-230; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2202b79c",
+      "action": "translate",
+      "new_text": "Report only whether the identity matches and whom; only this tenant's admin reads it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:237-245; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d297b5eb",
+      "action": "translate",
+      "new_text": "As in `convites.ts`, check permission in a separate transaction.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:262-265; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b405283c",
+      "action": "translate",
+      "new_text": "Tenant SSO covers configuration, testing and sign-in. Discovery, PKCE, `id_token` verification and account resolution live in `@pipe/autenticacao`; this HTTP adapter follows `entrar.ts` and reuses its challenge cookie with two extra fields. `GET /v1/auth/sso/testar` runs the full flow against the customer IdP without creating a session, returning received claims and matches. That lets the customer enable SSO without disrupting existing users and is the only step that unlocks `ativa`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:35-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2c44bbf7",
+      "action": "translate",
+      "new_text": "Tenant connection details without secrets, including what to paste into the IdP.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:51-58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7276e853",
+      "action": "translate",
+      "new_text": "Save configuration in `rascunho`; saving does not activate it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:61-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1a5b7d41",
+      "action": "translate",
+      "new_text": "Change state and/or policy as separate fields with separate audit records. Enabling SSO and requiring SSO must never be the same button.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:73-87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0f89ba47",
+      "action": "translate",
+      "new_text": "For an email, discover its sign-in destination. Give the same response for known and unknown email addresses: only a verified domain with active SSO yields `sso`, which is public because the customer enabled it. Without that symmetry, this endpoint would enumerate customers.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/sso.ts:93-104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7489e999",
+      "action": "translate",
+      "new_text": "Per-channel Instagram Direct webhook, reconstructed from chatwoot/chatwoot (MIT), `app/controllers/webhooks/instagram_controller.rb`, with Pipe's WhatsApp webhook rules (`webhooks-whatsapp.ts`): constant-time `verify_token` comparison, `X-Hub-Signature-256` over the raw body using the customer app's App Secret stored on the channel, immediate 200, then queued processing. Unlike WhatsApp there is no environment-secret fallback: every Instagram channel is manual, so a missing channel secret fails closed.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-instagram.ts:11-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-549c5e05",
+      "action": "translate",
+      "new_text": "Return 404 for a channel that is not Instagram; a WhatsApp URL must not accept Direct traffic.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-instagram.ts:67-71; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-95e598a8",
+      "action": "translate",
+      "new_text": "Meta webhook invariants: verify `X-Hub-Signature-256` against the raw body because JSON reserialization changes whitespace or key order and breaks the signature. Return 200 promptly because Meta retries delayed deliveries and duplicates messages; queue processing instead. Compare the subscription challenge `verify_token` in constant time, as with the signature, because both are shared secrets.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:11-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e4e0ac04",
+      "action": "translate",
+      "new_text": "No owner means another app or a removed channel. Log and discard the event here.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:132-143; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-50ad9ca1",
+      "action": "translate",
+      "new_text": "Split a Meta payload into one item per `entry`, each carrying an identifier to find its owner. One POST can contain entries from several customers on this route. Treating the batch as one would enqueue one customer's event for another, a cross-tenant leak that the per-channel route avoids.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:153-179; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-15ad6327",
+      "action": "translate",
+      "new_text": "Rewrap with exactly one `entry`; downstream processing expects Meta's payload shape.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:165-177; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5c46a64f",
+      "action": "translate",
+      "new_text": "Signing is straightforward; compare without leaking the matched length through timing to avoid an oracle.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:181-197; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5694d9b0",
+      "action": "translate",
+      "new_text": "Subscription verification: Meta calls once with `hub.challenge`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:25-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ff4b410d",
+      "action": "translate",
+      "new_text": "Meta expects the raw challenge as text, not JSON.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:37-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-229e0db6",
+      "action": "translate",
+      "new_text": "Without a secret, we cannot distinguish Meta from anyone else. Fail closed.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:55-63; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f03efad8",
+      "action": "translate",
+      "new_text": "Enqueue and respond. Processing inside the request would cause Meta to retry.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:73-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9b6f2baa",
+      "action": "translate",
+      "new_text": "The umbrella route handles Meta events that cannot use customer-specific URLs. Template approval or rejection, number quality, limit changes and ban alerts do not accept `override_callback_uri`; all customers reach this route. See `docs/specs/2026-09-07-webhook-por-cliente.md`. Unlike the per-channel route, verify the signature with our app's single `appSecret`: that proves Meta sent the event, not which customer owns it. Resolve the tenant from the payload, and discard any payload with no matching channel rather than guessing.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/webhooks-whatsapp.ts:78-91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

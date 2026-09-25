@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-720b26a8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:388",
+      "notes": "redundant divider"
+    },
+    {
+      "id": "api-comment-33aca499",
+      "action": "translate",
+      "new_text": "`variaveis` is `jsonb` without a `check`; one corrupt row must not break the whole list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:403; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-68d6340a",
+      "action": "translate",
+      "new_text": "Page the portal grid in the database: the source expects hundreds of bots per account. Exclude `arquivado` because archiving removes a bot from circulation without deleting it. Sort newest first, as in the source.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:448; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3f74586b",
+      "action": "translate",
+      "new_text": "Run ONE query at a time: the transaction has a single connection.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:460; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fde279f5",
+      "action": "translate",
+      "new_text": "Use the tenant time zone so \"today\" and \"created at\" do not use the server time zone.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:66; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e870ce11",
+      "action": "translate",
+      "new_text": "Convert `ErroPipe` validation, permission, and conflict failures into the screen message; let other errors propagate.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/atendentes.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7601e999",
+      "action": "translate",
+      "new_text": "Agent Server Actions manage queues and pause reasons. Follow `Resultado` from `app/comunicacao/acoes.ts`: an expected form error is returned as a value so `useActionState` can display it without try/catch. These actions wrap `criarFila` and `criarMotivoPausa` in `cadastros.ts`, which the new REST routes (`POST /v1/gestao/atendentes/filas`, `POST /v1/gestao/atendentes/pausas`) also call. Previously each action validated and wrote here without permission checks, creating duplicate implementations. Only at this form boundary convert `ErroPipe` from `exigirPermissao`, `nomeDeFilaConferido`, etc. into `Resultado`; REST retains real status codes.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/atendentes.ts:6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bdc4109e",
+      "action": "translate",
+      "new_text": "Management form input: former `FormData`, now JSON. Keep `get`/`getAll` so actions read it as they did in Server Actions. A repeated key becomes a list; a checked box sends `'on'` and an unchecked box is absent, as with FormData.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/campos.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bbe73266",
+      "action": "translate",
+      "new_text": "Every action returns success or a text reason for the screen.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/campos.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cd23e9e1",
+      "action": "translate",
+      "new_text": "`template_mensagem_uk` is a real `uniqueIndex` on tenant, channel, name, and language,",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ba3d41d8",
+      "action": "translate",
+      "new_text": "but check for conflict here anyway: a database constraint error becomes",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5c9d7c11",
+      "action": "translate",
+      "new_text": "an unexplained 500, and the user needs to know WHICH template exists.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7ae574c6",
+      "action": "translate",
+      "new_text": "Communication Server Actions return expected form errors as `Resultado`, following `apps/desk/src/app/acoes.ts`, so client `useActionState` can show them without try/catch. Each action performs ONE transaction, using conflict `selects` before `insert`. Never use `Promise.all` inside `comTenant`: parallel queries can lose the session `set_config('pipe.tenant_id')`; see README section Banco de dados.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3eb1e1cc",
+      "action": "translate",
+      "new_text": "A template always starts pending: Meta approves it, not this screen. See the `status_meta` comment in `packages/db/src/schema/conversas.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:141; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4211309f",
+      "action": "translate",
+      "new_text": "Convert `ErroPipe` validation, permission, and conflict failures into the screen message; let other errors propagate.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4bb43a84",
+      "action": "translate",
+      "new_text": "Thin wrapper around `criarRespostaPronta` in `comunicacao.ts`, also used by `POST /v1/gestao/comunicacao/respostas-prontas`. Previously this action validated and wrote here without permission checks.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4b54fece",
+      "action": "translate",
+      "new_text": "The transaction already has its tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/comunicacao.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8c43688a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:129",
+      "notes": "redundant divider"
+    },
+    {
+      "id": "api-comment-641368da",
+      "action": "translate",
+      "new_text": "The source setting (\"Tornar obrigatória a inclusão de tags em atendimentos finalizados manualmente\"; `blip-telas-cadastro.md` §3) maps to our `etiqueta.obrigatoria_no_encerramento`. The section switch enables the requirement; the body chooses WHICH tags qualify. Disabling the section clears them all, so the switch has effect instead of sitting above a still-active list.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d7e0cc88",
+      "action": "translate",
+      "new_text": "`Configurações gerais` preference Server Actions operate one CARD at a time. In source Blip General Settings, \"não há um botão Salvar da tela — cada cartão tem o seu\" (`blip-telas-cadastro.md` §1 and §3). Thus three actions are independent: an error in the survey card does not undo a saved identity card. These actions only read fields and validate; Postgres writes and audit logging live in `lib/configuracoes.ts`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5a2cb3e4",
+      "action": "translate",
+      "new_text": "Return the runtime's canonical IANA time-zone spelling, or `null` if unknown. Use `Intl` for validation, just as `packages/core/src/sla/expediente.ts` does when converting instants to local time; a zone accepted here will work in SLA calculations.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a03455f0",
+      "action": "translate",
+      "new_text": "The time zone defines \"today\" for every card and report; changing only one screen is insufficient.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:78; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-08281892",
+      "action": "translate",
+      "new_text": "Satisfaction survey, section 6 of the metrics spec. The scale is derived from the survey type, not submitted in the form; this prevents a \"CSAT de 0 a 10\" that no report can classify. `resposta_pesquisa` stores the scale with each response, so changing this setting does not reclassify history.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/configuracoes.ts:84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-48c81230",
+      "action": "translate",
+      "new_text": "The transaction already has its tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b345e509",
+      "action": "translate",
+      "new_text": "`faixasDoDia` merges overlapping ranges itself, so",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/acoes/regras.ts:147; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

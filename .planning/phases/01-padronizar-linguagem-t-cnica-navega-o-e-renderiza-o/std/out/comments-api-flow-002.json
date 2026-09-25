@@ -1,0 +1,532 @@
+{
+  "items": [
+    {
+      "id": "api-comment-d3ebd0e4",
+      "action": "translate",
+      "new_text": "`execute<T>` requires a type with an implicit index signature, which the contract `interface` lacks. Mapping to the same object shape supplies that signature.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-36496e5d",
+      "action": "translate",
+      "new_text": "Read a historical ticket from contact history. Deliberately do not filter by agent: contact history already lists its past tickets regardless of agent, so opening one reveals no more than the list. RLS is the boundary: the query runs with the session's `tenant_id`, so another client's conversation is invisible. Resolve `encerrada_por` to a person's name, not an ID; \"Atendente: 3f2a…\" would not answer who closed it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:404; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0a8d7379",
+      "action": "translate",
+      "new_text": "The driver returns `timestamptz` as `Date` with one loaded `pg` parser, or text if another copy is loaded. Normalize centrally instead of making components rediscover this.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2816b0ca",
+      "action": "translate",
+      "new_text": "\"Clientes aguardando\" counts queued conversations in the agent's queues, or without a queue. This is the source `/agents/info` `waitingTicketsCount` (`~/desk-clone/README.md`), shown beside \"Atender\".",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:478; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-babbed07",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:494",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c6749114",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:509",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-ce8beffd",
+      "action": "translate",
+      "new_text": "Contacts-tab list (`desk-contact-history`): search names without case folding away accents (the database has no `unaccent`) or phone digits. The source requires at least two characters (`referencias-blip/pesquisa/blip-desk-medidas.md` §11) and displays 20 per page; this implementation returns the first 200 because infinite scrolling is not yet available.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/consultas.ts:513; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c44ead5e",
+      "action": "translate",
+      "new_text": "`marcarNaoLida` receives `conversaId` and `naoLida` (`true`/`false`). Opening a conversation automatically marks it read on the source screen (the \"Não lidas\" panel removes a ticket when opened); unread is a manual reminder to return later.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:121; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fe78b78b",
+      "action": "translate",
+      "new_text": "`on` is how `FormData` sends a checked box; see `campos.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-440d68a7",
+      "action": "translate",
+      "new_text": "Confirm that the conversation exists, is open, and belongs to this agent; otherwise return the reason.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-61a0ac08",
+      "action": "translate",
+      "new_text": "Pinning and marking unread implement the Desk card's \"⋮\" menu, which previously only called `stopPropagation()`. The source `TicketMenuOptions` (`blip-desk-regras-tecnicas.md` §1.8: `PIN`/`UNPIN`, `UNREAD`/`READ`) and `blip-desk-funcoes.md` §3 allow an agent to pin up to 50 own tickets and toggle unread. Both marks are PER AGENT; a transferred conversation starts unmarked for its new agent. Store them in `marcacao_conversa` (migration 0041), never on `conversa`. The SESSION agent may mark only an open conversation assigned to them; `usuarioId` never comes from the body, as in `acoes.ts`. Delete the row when both marks are null because this table stores markings, not their absence. Source wording: \"o próprio atendente pode fixar manualmente até 50 tickets no topo da sua lista, e também marcar/desmarcar qualquer ticket como 'não lido'\".",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e586f887",
+      "action": "translate",
+      "new_text": "Remove ONE mark by deleting the row if it would become empty, and only otherwise clearing that mark. The `marcacao_conversa_alguma_ck` `CHECK` runs during `update`: clearing first and deleting later fails before cleanup, as happened when unpinning a conversation with no other mark.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6c440e6f",
+      "action": "translate",
+      "new_text": "`fixar` receives `conversaId` and `fixada` (`true`/`false`). Pinning an already pinned ticket is a no-op, preserving `fixada_em` and list order; unpinning an unpinned ticket is also a no-op.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-edb0f39f",
+      "action": "translate",
+      "new_text": "The limit counts OTHER pinned tickets; pinning the same one again must not hit the cap.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/desk/marcacoes.ts:98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-daed38f5",
+      "action": "update",
+      "new_text": "Transfers are supported in the domain, but this Desk response does not compute per-agent transfer or loss counters. Return `null` for both so the screen shows a dash instead of an invented zero.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/conversa.ts:272-470; apps/api/src/dominio/desk/metricas.ts:126-128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9b4e8a3e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/metricas.ts:126-128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c9249387",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/desk/metricas.ts:126-128",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-f9de1cd2",
+      "action": "translate",
+      "new_text": "Scan once over this agent's conversations touching the period through arrival or closure. Counting both in one pass avoids a second database query; Postgres `filter` supports it. Each average has its own population and `filter`: a conversation without a first response must not lower the first-response average; it is excluded.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/metricas.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e269174b",
+      "action": "translate",
+      "new_text": "Agent metrics for the Desk screen, moved from `apps/desk/src/servidor/metricas.ts` with SQL unchanged; return `MetricasDoAtendente` from `@pipe/contracts`. Always show the current agent, never a colleague or another client. Isolation combines `noTenant` RLS with an `atendente_id` filter taken from the session, not the URL. There is no parameter to inspect another agent; supervisor operations belong in Pipe Management. The source screen (`referencias-blip/pesquisa/blip-desk-medidas.md` §10) has six state counts, three averages, and a daily series. Two intentional differences: source queries run in parallel per bot and silently undercount when one fails; this implementation runs one query in one transaction, so failure is visible. The source averages bot averages equally whether a bot handled one or 500 tickets; this implementation averages across tickets to answer how long clients waited for this agent.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/desk/metricas.ts:6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db65a0f3",
+      "action": "translate",
+      "new_text": "Daily series uses `generate_series` so inactive days appear as zero rather than disappearing from the chart. It currently uses two correlated subqueries per day for at most 90 indexed days; if this becomes an operations view, replace them with a `group by` over both date sets.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/desk/metricas.ts:94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-dd531d5a",
+      "action": "translate",
+      "new_text": "`workspaceCustomApplicationId` identifies the app owning customer-created objects (Twenty 2.12+).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:124; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d9872274",
+      "action": "translate",
+      "new_text": "Read instance objects and fields in three serial steps: introspect `Object` and `Field` to discover available fields; read `currentWorkspace.workspaceCustomApplicationId` on 2.12+; then page through `objects` with each one's fields.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:134; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5777fd38",
+      "action": "translate",
+      "new_text": "`fieldsList` returns the whole field list; without it, use the older paginated connection.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:165; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f9355845",
+      "action": "translate",
+      "new_text": "Determine customer ownership: before Twenty 2.12 use `isCustom`; later compare ownership with `workspaceCustomApplicationId`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:213; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-27f568f5",
+      "action": "translate",
+      "new_text": "Keep the network call outside the transaction; see the file header.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:242; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b8c93f11",
+      "action": "translate",
+      "new_text": "Every workspace has built-in objects. An empty list means missing permission or a broken instance;",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8043548a",
+      "action": "translate",
+      "new_text": "writing it would mark the entire dictionary removed.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:245; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bacbb8ac",
+      "action": "translate",
+      "new_text": "Upsert by `name` and mark missing records removed, serially inside `comTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:253; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e1c3059a",
+      "action": "translate",
+      "new_text": "A tenant without CRM configuration is an absence, not an error; skip synchronization.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-031d9953",
+      "action": "translate",
+      "new_text": "`agregavel` applies only to numeric types: `NUMBER` and `NUMERIC` sum directly; `CURRENCY` sums `amountMicros` within one `currencyCode`. Text cannot be summed, and `RATING` is ordinal text (`RATING_1`…`RATING_5`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cd8c2592",
+      "action": "translate",
+      "new_text": "What disappeared from Twenty becomes inactive with `excluido_em`, never deleted. Only rows",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:330; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-86d70865",
+      "action": "translate",
+      "new_text": "imported from Twenty (`twenty_id`) are ours to mark; leave handmade CRM declarations alone.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:331; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5936ac64",
+      "action": "translate",
+      "new_text": "Use `excluded.<coluna>` for each row column except the conflict key.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:359; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f0d94ae1",
+      "action": "translate",
+      "new_text": "Process 500 rows per statement, about 25 columns each, below Postgres's 65,535 parameter limit.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:373; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ac69097d",
+      "action": "translate",
+      "new_text": "Return the current tenant's dictionary with each object and fields for the flow builder and AI. Include inactive and removed records: consumers filter `isActive`/`excluidoEm`, and a block pointing to a removed field must report \"field removed\" rather than \"unknown field\". Run both reads serially in the caller's `noTenant`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:388; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c451685c",
+      "action": "translate",
+      "new_text": "`TS_VECTOR` is Twenty's full-text search index, not customer data.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4cd4ff2f",
+      "action": "translate",
+      "new_text": "Do not expose internal ID or tenant: consumers match by `codigo`, and tenant comes from the session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:418; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eb73c39f",
+      "action": "translate",
+      "new_text": "Select tenants for periodic dictionary synchronization and count those without CRM. Use the owner role like `contatosSemEspelho` to scan before any tenant is established. ONLY this `select` uses it; synchronize each tenant under `comTenant`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:426; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-631a0104",
+      "action": "translate",
+      "new_text": "Metadata API selection depends on the schema of THAT instance. Request only available fields, allowing the same call to support Twenty 2.39 with `applicationId` and pre-2.12 versions with `isCustom`, without a version table.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-83c66ee7",
+      "action": "translate",
+      "new_text": "Mirror each tenant's data dictionary from its Twenty CRM metadata. The flow builder and AI read the fields in THAT client's own instance, avoiding guessed field names. Owner rule: copy facts, never invent them. Preserve the Metadata API's `objectMetadata`/`fieldMetadata` property names, literal `type`, and `options`/`defaultValue`/`settings`/`relation` JSON (migration 0015). Do not copy Twenty code: it is AGPL; consume only its API and data shape. Queue, sweep, and isolation follow `espelho-crm.ts`: read `configDoTenant` inside `comTenant` so RLS protects URL and key; call the network OUTSIDE the transaction to free the pool connection; write back inside the job tenant's `comTenant` so RLS prevents cross-tenant records.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-72cfd317",
+      "action": "translate",
+      "new_text": "API relation format: `type` expresses cardinality (`MANY_TO_ONE`/`ONE_TO_MANY`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dicionario-crm.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e6130dac",
+      "action": "translate",
+      "new_text": "Remove a conversation from its queue and assign it to the agent selected by the rule, if any. This moved from `entrada.ts` because both inbound handling and the bot now call it on transfer.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/distribuicao.ts:140; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a06d1b42",
+      "action": "translate",
+      "new_text": "Invert the same lookup as `candidatosDaFila`: one agent across ALL their queues, one row per queue. Manual claim (`atender` in `desk/acoes.ts`) passes this to `@pipe/core` `motivoInelegivel`, so capacity follows the same calculation as automatic distribution; previously manual claims ignored the limit (Desk audit item 8). `ativas` is the agent's total, not per queue: capacity counts all simultaneous conversations, while the queue chooses which limit applies.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/distribuicao.ts:70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-41a99911",
+      "action": "translate",
+      "new_text": "Distribute by actual load (spec §4.3, metrics spec §7). `@pipe/core` owns the decision; this file collects agent state for `escolherAtendente` rather than reimplementing weighted-load tie breaking in `api`. The core rule has table-driven tests.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/distribuicao.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6b488ce5",
+      "action": "translate",
+      "new_text": "empty; the correct response is 409, not 500.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-442b9b79",
+      "action": "translate",
+      "new_text": "Verify the DNS TXT record and mark the domain verified. Inject `resolvedor` so tests avoid network, as with `buscar` in `trocarCodigo`; the default uses the system resolver. TXT strings arrive in chunks of at most 255 bytes and must be CONCATENATED before comparison. Comparing chunks separately fails for long tokens.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-676e8054",
+      "action": "translate",
+      "new_text": "`ENOTFOUND`/`ENODATA` usually means the record is unpublished or",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dominios.ts:163; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5dc8f9e0",
+      "action": "translate",
+      "new_text": "not yet propagated. Tell the caller to retry rather than treating it as a server error.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/dominios.ts:164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-33460ef9",
+      "action": "translate",
+      "new_text": "the consumer expects a `Date`; converting here prevents `.toISOString is not a function`",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/dominios.ts:184; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b39753b4",
+      "action": "translate",
+      "new_text": "on the first screen that formats it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/dominios.ts:185; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cbe52797",
+      "action": "translate",
+      "new_text": "Read SQLSTATE from a Postgres error. Drizzle wraps the driver failure, so `code` may be one layer down; `23505` distinguishes a domain already owned by another client (409) from an internal failure (500).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:194; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-954bf445",
+      "action": "translate",
+      "new_text": "Use a dedicated TXT record prefix to avoid colliding with SPF and other apex records.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-63c7b021",
+      "action": "translate",
+      "new_text": "Accept DNS labels with no scheme or path and at least one dot.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-84428474",
+      "action": "translate",
+      "new_text": "A trailing dot is a valid DNS FQDN but would break comparison with an email domain.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-59ec5dc0",
+      "action": "translate",
+      "new_text": "Register a domain and return the TXT record to publish. Repeat calls are idempotent and return the same token; rotating it would invalidate a record already published by the client.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:69; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5a0e232c",
+      "action": "translate",
+      "new_text": "Domain verification turns \"her email ends in @acme.com.br\" into proof that she belongs to Acme. It is the second sign-in question (`packages/autenticacao/src/entrada.ts`) and requires `verificado_em`: without proof of ownership, someone could register `@banco.com.br` and receive that bank's users into their tenant. Only the DNS zone owner can publish the TXT proof. Public domains can NEVER be verified. `@pipe/autenticacao` `DOMINIOS_PUBLICOS` is the same list used by sign-in; allowing `gmail.com` would let the first registrant claim everyone.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-72ccf2da",
+      "action": "translate",
+      "new_text": "The unique constraint on `dominio` is GLOBAL. Without a tenant set, RLS hides another",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cd2b8dd1",
+      "action": "translate",
+      "new_text": "client's row, so a collision appears as a unique violation rather than a query result.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/dominios.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-039ffb77",
+      "action": "translate",
+      "new_text": "The test double records what it \"sent\" in a shared list, like `ClienteGraphDuble.chamadas`. Keep it as the nonproduction default so development email cannot accidentally invite real people.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/email.ts:107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-830290e2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/email.ts:134",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-fc134f01",
+      "action": "translate",
+      "new_text": "Send email without failing the caller. An empty recipient list means nobody to notify, not an error. `contexto` labels the operation in logs (`convite`, `modelo-recategorizado`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/email.ts:139; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d62c9a05",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/email.ts:26",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-655e04d0",
+      "action": "translate",
+      "new_text": "Plain text is authoritative; optional `html` is a styled rendering of the same content.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/email.ts:29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc194251",
+      "action": "translate",
+      "new_text": "Email sending for invitations and template recategorization alerts follows `whatsapp/cliente-graph.ts`: one interface, real and double senders selected by `PIPE_EMAIL_MODO`, and `definirRemetente` for test injection. The real sender uses HTTP, not SMTP: no `nodemailer` client is installed. It posts `{ from, to, subject, text, html }` to configurable `POST <PIPE_EMAIL_URL>` with `Authorization: Bearer <PIPE_EMAIL_TOKEN>`, matching Resend (`https://api.resend.com/emails`); Postmark or SendGrid would need a small adapter, and direct SMTP another sender class. Callers use `enviarEmailSemDerrubar`: it logs failure and returns `false`, as `enfileirarEspelhoCrm` does in `filas.ts`. Invitations and recategorization succeed even if notification fails; the response contains the link or webhook fallback.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/email.ts:3; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-29b4a211",
+      "action": "translate",
+      "new_text": "`PIPE_EMAIL_REMETENTE` supplies every email's `from`; the real sender refuses to start without it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/email.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-022f0321",
+      "action": "translate",
+      "new_text": "Inject `buscar` so tests exercise the real sender without network access.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/email.ts:67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

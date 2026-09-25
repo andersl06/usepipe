@@ -1,0 +1,52 @@
+{
+  "items": [
+    {
+      "id": "ponte-comment-91b8497a",
+      "action": "translate",
+      "new_text": "Run work with the tenant fixed. Queries inside the callback must run in series: `Promise.all` disrupts the transaction's `set_config`, allowing a query to run without a tenant. This is the same trap documented in `apps/api`.",
+      "sensitivity": "security",
+      "evidence": "apps/ponte/src/banco.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-c6ffaf7d",
+      "action": "translate",
+      "new_text": "Two connections and roles, as in `apps/api`. All business data goes through `noTenant`, with `pipe.tenant_id` fixed and RLS active. The owner role has one purpose: resolving the cookie session before a tenant is established. No other query uses it.",
+      "sensitivity": "security",
+      "evidence": "apps/ponte/src/banco.ts:4; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-1e843bea",
+      "action": "translate",
+      "new_text": "The bridge exposes one address for LIME commands and returns Pipe data. HTTP fits the lab's existing seam: `boot-mock.js` already disconnected the copy from Blip WebSocket and constructs a fake client whose `processCommand` returns a promise. An HTTP call works there without changing the copied bundle.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/servidor.ts:10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-ce7339a9",
+      "action": "translate",
+      "new_text": "Lab authentication only. The copy has no login; while it remains a copy, access is restricted to a closed network and the bridge trusts an environment key. THIS MUST NOT BE EXPOSED TO THE INTERNET. When the screen is ours, use the session issued by `apps/api`.",
+      "sensitivity": "security",
+      "evidence": "apps/ponte/src/servidor.ts:18; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-d11cda91",
+      "action": "translate",
+      "new_text": "The copy runs at 127.0.0.1:8787 (Desk) and :8790 (Management). Allowed origins come from the environment and are never wildcarded: even in a lab, wildcard origins with credentials create a dangerous production habit.",
+      "sensitivity": "security",
+      "evidence": "apps/ponte/src/servidor.ts:59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-46349bc9",
+      "action": "translate",
+      "new_text": "The command arrives exactly as the screen built it. HTTP `204` is the lab convention for \"cannot answer; use the mock\". Real errors return a LIME failure for the screen's existing error handling.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/servidor.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

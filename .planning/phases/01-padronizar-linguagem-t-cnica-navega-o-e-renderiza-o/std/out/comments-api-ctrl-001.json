@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-bf5e1916",
+      "action": "translate",
+      "new_text": "`/v1/anexos` uploads files and serves them through signed links. Uploads use the raw request body, with the type in `Content-Type` and the name in `?nome=`, like S3 `PUT Object`; this avoids `multer`. Downloads require neither a session nor an API key: the URL signature proves access. Meta downloads media from our links without our cookie, so the link expires after 15 minutes, matching Blip's *file token*.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:12-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d4d080be",
+      "action": "translate",
+      "new_text": "`Content-Type` is only the declared type. `guardarAnexo` determines the type from the bytes;",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:39-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-89f5cf8f",
+      "action": "translate",
+      "new_text": "The attachment's tenant is resolved using the owner role because the read occurs",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:67-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-863b0203",
+      "action": "translate",
+      "new_text": "before a tenant is established, as with a webhook channel. The lookup",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:71-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-af5af8e7",
+      "action": "translate",
+      "new_text": "returns only `tenant_id`, and nothing else.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:75-80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cb607b46",
+      "action": "translate",
+      "new_text": "Always serve HTML and SVG as downloads, never inline: serving them with their own",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:83-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cba95bb8",
+      "action": "translate",
+      "new_text": "type on our domain would execute scripts in the opener's session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:83-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1972d130",
+      "action": "translate",
+      "new_text": "Never use a shared cache: the signed URL is temporary, and a proxy",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/anexos.ts:91-94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6962b50d",
+      "action": "translate",
+      "new_text": "The token and App Secret belong to the customer's app; they leave here encrypted and are not returned.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/canais-instagram.ts:26-45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9aa896cb",
+      "action": "update",
+      "new_text": "HTTP adapter for manual Instagram connection; the rules live in `dominio/instagram/`. Like WhatsApp (`canais.ts`), account-level routes require a browser session and `canal.gerenciar`, and take the tenant from the session. A channel belonging to another customer returns 404. On connection with `fluxo_id`, the bot permission applies instead, and `permitidoConectar` and `ligarAoFluxo` link the new channel to the bot.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais-instagram.ts:9-61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-811730ef",
+      "action": "translate",
+      "new_text": "With `fluxo_id`, bot permission applies and the channel is linked to that bot (`conexao-no-fluxo.ts`).",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais-messenger.ts:4-10; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-adc008c0",
+      "action": "translate",
+      "new_text": "The path without embedded registration takes a WABA ID, Phone Number ID and system-user token, validating them before storage (ported from `manual_setup_service.rb`). The token is in the body because it belongs to the customer; it is encrypted here and not returned.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/canais.ts:119-170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-263165d2",
+      "action": "translate",
+      "new_text": "Reconnecting does not link a bot: the channel already has an owner. Someone who administers the channel's bot may reconnect it because the source does this on the channel page inside the bot.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:144-165; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f6c3f489",
+      "action": "translate",
+      "new_text": "The number's business profile (photo, status message, description, address, email, websites and category), plus read-only display name and Meta review status. See `dominio/whatsapp/perfil.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:173-195; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7fe12621",
+      "action": "translate",
+      "new_text": "Channel tabs \"Configurações\" and \"Configurações de alerta\". See `dominio/whatsapp/preferencias.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:198-219; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a11f351d",
+      "action": "translate",
+      "new_text": "Create the template in Meta for review and store a `pendente` copy.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:235-245; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1ed1af18",
+      "action": "translate",
+      "new_text": "HTTP adapter for connecting WhatsApp; the rules live in `dominio/whatsapp/`. `POST /v1/canais/whatsapp` ports chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb`: it creates a connection or, with `canal_id` (Chatwoot's `inbox_id`), reauthorizes that channel. Every route requires a browser session rather than an API key and `canal.gerenciar`, because it stores a credential that sends messages using the customer's number. The tenant always comes from the session, never the body. With `fluxo_id`, for a connection started inside a bot as in `FICHA-conectar-canal-no-bot.md` §4, the bot's `channels.escrever` permission in `canal-do-fluxo.ts` applies and `conexao-no-fluxo.ts` links the new channel to it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:25-40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-489aa6b1",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/canais.ts:43-49",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-e73097f8",
+      "action": "translate",
+      "new_text": "Starts embedded registration by returning the `state` and values needed by the Meta SDK. This is a Pipe addition (`estado-de-conexao.ts`); in Chatwoot the values come from `window.chatwootConfig` and there is no `state`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:52-69; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8a232736",
+      "action": "translate",
+      "new_text": "Finish embedded registration. The `code` lasts 30 seconds, so the front end sends it when the popup returns. Check `state` before anything else; a `code` from another session must never reach Meta.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/canais.ts:72-99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d69f5084",
+      "action": "translate",
+      "new_text": "Reauthorization belongs to the channel, not the bot: `fluxo_id` applies only to a new channel.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/canais.ts:95-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-541bac96",
+      "action": "translate",
+      "new_text": "The channel identity links a contact to the conversation arriving from Meta.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/controladores/catalogo.ts:151-159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-acbf88b0",
+      "action": "translate",
+      "new_text": "The \"Editar\" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; `null` clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/controladores/catalogo.ts:165-171; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0990644b",
+      "action": "translate",
+      "new_text": "Intentionally basic: rejects clearly invalid addresses without attempting full RFC 5322 validation.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/controladores/catalogo.ts:26-27",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-70d1d45b",
+      "action": "translate",
+      "new_text": "Contacts, queues and attendants share this file because they are small direct reads with the same filtering, ordering and cursor pattern. Splitting them would add imports without improving clarity.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/controladores/catalogo.ts:29-35; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
