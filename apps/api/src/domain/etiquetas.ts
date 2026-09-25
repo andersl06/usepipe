@@ -48,17 +48,18 @@ export async function listarEtiquetasDoTenant(
     scope: 'conversa' | 'contato' | 'ambos';
     requiredInClosure: boolean;
   }>(sql`
-    select id, nome, cor, escopo, obrigatoria_no_encerramento
+    select id, nome as name, cor as color, escopo as scope,
+           obrigatoria_no_encerramento as "requiredInClosure"
       from etiqueta
      where ${scope === null ? sql`true` : sql`escopo in (${scope}, 'ambos')`}
      order by nome
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.name,
-    cor: r.color,
-    escopo: r.scope,
-    obrigatoriaNoEncerramento: r.requiredInClosure,
+    name: r.name,
+    color: r.color,
+    scope: r.scope,
+    requiredInClosure: r.requiredInClosure,
   }));
 }
 
@@ -72,14 +73,14 @@ async function carregarEtiqueta(
 ): Promise<LinhaEtiqueta> {
   if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
   const { rows } = await tx.execute<LinhaEtiqueta>(
-    sql`select id, nome, escopo from etiqueta where id = ${etiquetaId}::uuid limit 1`,
+    sql`select id, nome as name, escopo as scope from etiqueta where id = ${etiquetaId}::uuid limit 1`,
   );
   const etiqueta = rows[0];
   if (!etiqueta) throw PipeError.naoEncontrado('Etiqueta');
   if (etiqueta.scope !== alvo && etiqueta.scope !== 'ambos') {
     throw PipeError.request(
       'label_of_other_scope',
-      alvo === 'conversation'
+      alvo === 'conversa'
         ? `A etiqueta "${etiqueta.name}" é de contato, não de conversa.`
         : `A etiqueta "${etiqueta.name}" é de conversa, não de contato.`,
     );
@@ -101,7 +102,7 @@ async function loadConversationOpen(
 ): Promise<LineConversation> {
   if (!UUID.test(conversaId)) throw PipeError.naoEncontrado('Conversa');
   const { rows } = await tx.execute<LineConversation>(
-    sql`select id, estado, atendente_id from conversa where id = ${conversaId}::uuid limit 1`,
+    sql`select id, estado as state, atendente_id as "agentId" from conversa where id = ${conversaId}::uuid limit 1`,
   );
   const conversation = rows[0];
   if (!conversation) throw PipeError.naoEncontrado('Conversa');
@@ -141,7 +142,7 @@ export async function labelConversation(
       await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
     }
     const conversa = await loadConversationOpen(tx, conversationId, ator);
-    const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversation');
+    const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversa');
 
     const { rowCount } = await tx.execute(sql`
       insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
@@ -151,14 +152,14 @@ export async function labelConversation(
     const aplicada = (rowCount ?? 0) > 0;
     if (aplicada) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.agentId ? { tipo: 'usuario', id: ator.agentId } : { tipo: 'chave' },
+        ator: ator.agentId ? { type: 'usuario', id: ator.agentId } : { type: 'chave' },
         acao: 'criou',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
         depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.name },
       });
     }
-    return { etiquetaId: etiqueta.id, nome: etiqueta.name, aplicada };
+    return { etiquetaId: etiqueta.id, name: etiqueta.name, aplicada };
   });
 
   // Depois do commit: a faixa de etiquetas da conversa mudou.
@@ -184,12 +185,12 @@ export async function unlabelConversation(
        using etiqueta e
        where e.id = ce.etiqueta_id
          and ce.conversa_id = ${conversa.id}::uuid and ce.etiqueta_id = ${etiquetaId}::uuid
-      returning e.nome
+      returning e.nome as name
     `);
     const removida = rows.length > 0;
     if (removida) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.agentId ? { tipo: 'usuario', id: ator.agentId } : { tipo: 'chave' },
+        ator: ator.agentId ? { type: 'usuario', id: ator.agentId } : { type: 'chave' },
         acao: 'excluiu',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
@@ -217,7 +218,7 @@ export async function listLabelsOfContact(
 ): Promise<LabelOfContact[]> {
   if (!UUID.test(contactId)) return [];
   const { rows } = await tx.execute<LabelOfContact>(sql`
-    select e.id, e.nome, e.cor
+    select e.id, e.nome as name, e.cor as color
       from contato_etiqueta ce
       join etiqueta e on e.id = ce.etiqueta_id
      where ce.contato_id = ${contactId}::uuid
@@ -265,14 +266,14 @@ export async function labelContact(
     const aplicada = (rowCount ?? 0) > 0;
     if (aplicada) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.userId ? { tipo: 'usuario', id: ator.userId } : { tipo: 'chave' },
+        ator: ator.userId ? { type: 'usuario', id: ator.userId } : { type: 'chave' },
         acao: 'criou',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,
         depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.name },
       });
     }
-    return { etiquetaId: etiqueta.id, nome: etiqueta.name, aplicada };
+    return { etiquetaId: etiqueta.id, name: etiqueta.name, aplicada };
   });
 }
 
@@ -294,12 +295,12 @@ export async function unlabelContact(
        using etiqueta e
        where e.id = ce.etiqueta_id
          and ce.contato_id = ${contato.id}::uuid and ce.etiqueta_id = ${etiquetaId}::uuid
-      returning e.nome
+      returning e.nome as name
     `);
     const removida = rows.length > 0;
     if (removida) {
       await registrarAuditoria(tx, ator.tenantId, {
-        ator: ator.userId ? { tipo: 'usuario', id: ator.userId } : { tipo: 'chave' },
+        ator: ator.userId ? { type: 'usuario', id: ator.userId } : { type: 'chave' },
         acao: 'excluiu',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,
