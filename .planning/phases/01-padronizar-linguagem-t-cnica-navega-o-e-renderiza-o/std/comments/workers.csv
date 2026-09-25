@@ -1,5 +1,5 @@
 id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
-workers-comment-5c3bca20,workers,apps/workers/src/agregacao.ts,104,104,line,0,// Em série (nunca `Promise.all` dentro da transação — ver README).,,,,,,
+workers-comment-5c3bca20,workers,apps/workers/src/agregacao.ts,104,104,line,0,// Em série (nunca `Promise.all` dentro da transação — ver README).,translate,Run in series; never use `Promise.all` inside this transaction (see README).,security,apps/workers/src/agregacao.ts:104; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-f96bfccf,workers,apps/workers/src/agregacao.ts,11,21,jsdoc,10,"/**
  * Fila de agregação: fecha `metrica_diaria` do dia anterior.
  *
@@ -10,23 +10,23 @@ workers-comment-f96bfccf,workers,apps/workers/src/agregacao.ts,11,21,jsdoc,10,"/
  *
  * A matemática vive em `@pipe/core` e não é reescrita aqui. Este arquivo só traduz
  * linha de banco em `ConversaEventos` e resultado de métrica em coluna.
- */",,,,,,
-workers-comment-feb62a0a,workers,apps/workers/src/agregacao.ts,23,23,jsdoc,1,/** Fuso do tenant decide onde o dia começa. Relatório em UTC mente para o cliente. */,,,,,,
-workers-comment-8e614af2,workers,apps/workers/src/agregacao.ts,235,235,line,2,"// Sem dimensão não há linha: `metrica_diaria_uk` inclui `dimensao_id`, e no",,,,,,
-workers-comment-40686b2f,workers,apps/workers/src/agregacao.ts,236,236,line,3,"// Postgres dois NULL são distintos num índice único — a linha ""sem fila"" seria",,,,,,
-workers-comment-62d30227,workers,apps/workers/src/agregacao.ts,264,264,line,1,"// Soma e denominador viajam juntos: a média é feita na hora de exibir,",,,,,,
-workers-comment-2581de1e,workers,apps/workers/src/agregacao.ts,265,265,line,1,// porque média de médias entre dias mente (spec de métricas §5).,,,,,,
+ */",translate,"Aggregation queue closes the previous day's `metrica_diaria`. Every metric derives from `evento_atendimento`, never a mutable conversation field, so historical data can be recalculated when a metric definition changes (data model §4). The routine is idempotent: rerunning a day overwrites its row instead of adding to it. The math lives in `@pipe/core`; this file only maps database rows to `ConversaEventos` and metric results to columns.",architecture,apps/workers/src/agregacao.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-feb62a0a,workers,apps/workers/src/agregacao.ts,23,23,jsdoc,1,/** Fuso do tenant decide onde o dia começa. Relatório em UTC mente para o cliente. */,translate,The tenant time zone determines the start of a day; a UTC report would mislead the client.,other,apps/workers/src/agregacao.ts:23,codex3,reviewed
+workers-comment-8e614af2,workers,apps/workers/src/agregacao.ts,235,235,line,2,"// Sem dimensão não há linha: `metrica_diaria_uk` inclui `dimensao_id`, e no",translate,"Without a dimension there is no row: `metrica_diaria_uk` includes `dimensao_id`, and",architecture,apps/workers/src/agregacao.ts:235; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-40686b2f,workers,apps/workers/src/agregacao.ts,236,236,line,3,"// Postgres dois NULL são distintos num índice único — a linha ""sem fila"" seria",translate,Postgres treats two NULLs as distinct in a unique index; a row without a queue would,architecture,apps/workers/src/agregacao.ts:236; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-62d30227,workers,apps/workers/src/agregacao.ts,264,264,line,1,"// Soma e denominador viajam juntos: a média é feita na hora de exibir,",translate,"Keep the sum and denominator together; calculate the average when displaying it,",architecture,apps/workers/src/agregacao.ts:264; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-2581de1e,workers,apps/workers/src/agregacao.ts,265,265,line,1,// porque média de médias entre dias mente (spec de métricas §5).,translate,because averaging daily averages is misleading (metrics spec §5).,architecture,apps/workers/src/agregacao.ts:265; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-a6539b07,workers,apps/workers/src/agregacao.ts,54,57,jsdoc,2,"/**
  * Agrega o dia para todos os tenants ativos. Roda de madrugada, uma vez por dia.
  * O `select` de tenants usa o papel dono; toda leitura de negócio, o da aplicação.
- */",,,,,,
-workers-comment-e301884c,workers,apps/workers/src/agregacao.ts,64,64,line,1,// Em série: cada tenant abre a própria transação.,,,,,,
+ */",translate,Aggregate the previous day for all active tenants each night. The owner role runs the `select` of tenants; the app role reads business data.,security,apps/workers/src/agregacao.ts:54; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-e301884c,workers,apps/workers/src/agregacao.ts,64,64,line,1,// Em série: cada tenant abre a própria transação.,translate,Run serially: each tenant opens its own transaction.,security,apps/workers/src/agregacao.ts:64; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-502232a3,workers,apps/workers/src/banco.ts,35,40,jsdoc,4,"/**
  * Roda o trabalho com `pipe.tenant_id` fixado.
  *
  * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
  * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
- */",,,,,,
+ */",translate,Run work with `pipe.tenant_id` set. Queries in the callback must run in series. `Promise.all` disrupts the transaction's `set_config` and can leave a query running without a tenant; see README.,security,apps/workers/src/banco.ts:35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-52df730d,workers,apps/workers/src/banco.ts,4,16,jsdoc,12,"/**
  * Dois pools, dois papéis.
  *
@@ -39,7 +39,7 @@ workers-comment-52df730d,workers,apps/workers/src/banco.ts,4,16,jsdoc,12,"/**
  *
  * A regra que sustenta o isolamento continua valendo: nada além do `select` de
  * reivindicação roda com o papel dono.
- */",,,,,,
+ */",translate,"Two pools and roles. Only the app role (`DATABASE_URL_APP`) accesses business data, always inside `comTenant`. The owner role (`DATABASE_URL`) has one worker use: identify the tenant of each queued row. `outbox_mensagem` and `entrega_webhook` span all tenants, and RLS on `pipe.tenant_id` cannot return rows before a tenant is set. Migration `0001_rls` records this exception. Isolation still requires that no query except the claim `select` uses the owner role.",security,apps/workers/src/banco.ts:4; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-2072ca1d,workers,apps/workers/src/csv.ts,1,18,jsdoc,12,"/**
  * Ler e escrever CSV, com o comportamento do `CSV.new(io, headers: true)` do Ruby
  * que o `DataImportJob` do Chatwoot usa (ver `importacao-de-contatos.ts`):
@@ -57,17 +57,17 @@ workers-comment-2072ca1d,workers,apps/workers/src/csv.ts,1,18,jsdoc,12,"/**
  * - o separador é detectado na linha de cabeçalho (`;` ou `,`): o Excel em
  *   português salva com ponto e vírgula, e o Chatwoot só aceita vírgula;
  * - linha inteira em branco é pulada, em vez de virar contato vazio.
- */",,,,,,
-workers-comment-288e79f7,workers,apps/workers/src/csv.ts,99,99,jsdoc,0,"/** `CSV.generate`: aspas só onde precisa. Vírgula como separador, como o original. */",,,,,,
-workers-comment-469d92c4,workers,apps/workers/src/entrega.ts,100,100,line,3,// os dois peguem a mesma linha. Roda com o papel dono porque varre todos os tenants.,,,,,,
-workers-comment-c6e9c881,workers,apps/workers/src/entrega.ts,116,116,line,2,// Em série de propósito: cada item abre a própria transação com tenant fixado.,,,,,,
+ */",translate,"Read and write CSV with Ruby `CSV.new(io, headers: true)` behavior used by Chatwoot's `DataImportJob` (see `importacao-de-contatos.ts`). Quoted fields may contain separators or newlines; `""""` denotes a quote. Malformed quoting raises `CsvMalformado` (the source's `CSV::MalformedCSVError`) so the whole import fails rather than importing a partial bad row. Strip an initial UTF-8 BOM (`delete_prefix(""\xEF\xBB\xBF"")`). This small reader avoids adding a shared lockfile dependency. Pipe extensions: detect `;` or `,` from the header because Portuguese Excel uses semicolons while Chatwoot accepts commas; skip fully blank rows rather than creating empty contacts.",integration,apps/workers/src/csv.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-288e79f7,workers,apps/workers/src/csv.ts,99,99,jsdoc,0,"/** `CSV.generate`: aspas só onde precisa. Vírgula como separador, como o original. */",translate,Match `CSV.generate`: quote fields only when needed and use commas as in the source.,integration,apps/workers/src/csv.ts:99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-469d92c4,workers,apps/workers/src/entrega.ts,100,100,line,3,// os dois peguem a mesma linha. Roda com o papel dono porque varre todos os tenants.,translate,so two workers cannot claim the same row. Use the owner role to scan all tenants.,security,apps/workers/src/entrega.ts:100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-c6e9c881,workers,apps/workers/src/entrega.ts,116,116,line,2,// Em série de propósito: cada item abre a própria transação com tenant fixado.,translate,Intentionally serial: each item opens its own transaction with a fixed tenant.,security,apps/workers/src/entrega.ts:116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-5c6c18e5,workers,apps/workers/src/entrega.ts,19,25,jsdoc,6,"/**
  * Fila de entrega: drena `outbox_mensagem` e entrega de verdade.
  *
  * A chamada à Meta acontece **fora** da transação. Segurar uma conexão do pool
  * durante um HTTP que pode levar segundos é o jeito mais rápido de esgotar o pool
  * num pico. São três passos: reivindica (papel dono), lê e envia, grava.
- */",,,,,,
+ */",translate,"Delivery queue drains `outbox_mensagem` and sends messages. Call Meta OUTSIDE the transaction: holding a pool connection during an HTTP call that may take seconds could exhaust the pool under load. Steps: claim with the owner role, read and send, then write the result.",integration,apps/workers/src/entrega.ts:19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-041b0d39,workers,apps/workers/src/entrega.ts,204,212,jsdoc,13,"/**
  * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
  * texto e mídia por URL — template é coisa do WhatsApp.
@@ -76,48 +76,48 @@ workers-comment-041b0d39,workers,apps/workers/src/entrega.ts,204,212,jsdoc,13,"/
  * conferida aqui nem no `@pipe/core` — o core trata canal que não é WhatsApp como sem
  * janela (`canalDoCore` em `apps/api/src/dominio/envio.ts`). Fora da janela, a Meta
  * recusa com 4xx e a mensagem fica `falhou` com o motivo dela.
- */",,,,,,
-workers-comment-1154921c,workers,apps/workers/src/entrega.ts,220,220,line,1,// ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.,,,,,,
+ */",translate,"Instagram sends to the IGSID (`contato_identidade`), never a phone number, and supports text and URL media, not WhatsApp templates. Pipe intentionally does not enforce Direct's 24-hour window (or 7 days with HUMAN_AGENT) here or in `@pipe/core`: `canalDoCore` in `apps/api/src/dominio/envio.ts` treats non-WhatsApp channels as without a window. Outside the window Meta returns 4xx and the message becomes `falhou` with Meta's reason.",integration,apps/workers/src/entrega.ts:204; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-1154921c,workers,apps/workers/src/entrega.ts,220,220,line,1,// ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.,translate,The keyring is reread on every send; cache it if profiling shows this matters.,security,apps/workers/src/entrega.ts:220; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-506b0399,workers,apps/workers/src/entrega.ts,264,270,jsdoc,3,"/**
  * Monta o pedido e recusa antes de gastar chamada.
  *
  * Formato e tamanho de mídia (`regras-blip.md` §1.6) e deslocamento de parâmetro de
  * template (§1.4) são verificados aqui: mídia em formato recusado **nunca** chega a
  * chamar a Meta, e o atendente lê o motivo em vez de um código da Meta.
- */",,,,,,
-workers-comment-101c3ae8,workers,apps/workers/src/entrega.ts,304,304,line,1,// Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.,,,,,,
-workers-comment-a9537a93,workers,apps/workers/src/entrega.ts,306,306,line,2,"// Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.",,,,,,
+ */",translate,Build the request and reject invalid media before a network call. Check media format and size (`regras-blip.md` §1.6) and template parameter offset (§1.4) here. Unsupported media must never reach Meta; the agent sees a reason instead of a Meta code.,integration,apps/workers/src/entrega.ts:264; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-101c3ae8,workers,apps/workers/src/entrega.ts,304,304,line,1,// Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.,translate,"For a flow question, use buttons or a list if the channel allows it; otherwise numbered text.",integration,apps/workers/src/entrega.ts:304; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a9537a93,workers,apps/workers/src/entrega.ts,306,306,line,2,"// Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.",translate,"Only on WhatsApp: Instagram has its own quick reply, not connected yet, so send text.",integration,apps/workers/src/entrega.ts:306; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-e810bdf4,workers,apps/workers/src/entrega.ts,31,34,jsdoc,3,"/**
  * Espera crescente com um pouco de sorteio. Sem o sorteio, mil mensagens que
  * falharam juntas voltam juntas e batem na Meta no mesmo segundo de novo.
- */",,,,,,
-workers-comment-8f83641e,workers,apps/workers/src/entrega.ts,354,354,line,1,"// Sem coluna jsonb em `mensagem`, os valores só existem no job da fila. Se o job",,,,,,
-workers-comment-b304f64a,workers,apps/workers/src/entrega.ts,355,355,line,1,"// se perdeu, falha alto em vez de mandar o template com o parâmetro trocado.",,,,,,
-workers-comment-ea862705,workers,apps/workers/src/entrega.ts,393,393,jsdoc,1,/** A identidade do canal manda; telefone é o fallback de quem nunca escreveu. */,,,,,,
-workers-comment-bae7e9c7,workers,apps/workers/src/entrega.ts,40,40,jsdoc,2,"/** `type` e não `interface`: só o alias ganha índice implícito, que `execute<T>` exige. */",,,,,,
-workers-comment-f81736b9,workers,apps/workers/src/entrega.ts,401,401,line,1,// O `config` vem do banco com o token CIFRADO (`cifrarConfig` na criação do canal).,,,,,,
-workers-comment-6b620e9a,workers,apps/workers/src/entrega.ts,402,402,line,3,"// Sem decifrar, o `Bearer` sairia com o `pipev1…` e a Meta recusaria todo envio —",,,,,,
-workers-comment-05d8258b,workers,apps/workers/src/entrega.ts,403,403,line,3,// o dublê não percebe. O chaveiro só é exigido quando há o que decifrar.,,,,,,
-workers-comment-be3eaf48,workers,apps/workers/src/entrega.ts,420,420,jsdoc,1,/** `anexo.chave_storage` é chave no storage de objetos; a base pública é configuração. */,,,,,,
-workers-comment-d4ca0013,workers,apps/workers/src/entrega.ts,460,460,line,6,// A mensagem volta a `pendente`: para o atendente ela ainda está a caminho.,,,,,,
+ */",translate,"Use increasing backoff with jitter. Without jitter, a thousand messages failing together retry together and hit Meta again in the same second.",integration,apps/workers/src/entrega.ts:31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-8f83641e,workers,apps/workers/src/entrega.ts,354,354,line,1,"// Sem coluna jsonb em `mensagem`, os valores só existem no job da fila. Se o job",translate,There is no JSONB column on `mensagem`; template values exist only in the queue job. If that job,security,apps/workers/src/entrega.ts:354; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b304f64a,workers,apps/workers/src/entrega.ts,355,355,line,1,"// se perdeu, falha alto em vez de mandar o template com o parâmetro trocado.",translate,"is lost, fail loudly instead of sending a template with misplaced parameters.",security,apps/workers/src/entrega.ts:355; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-ea862705,workers,apps/workers/src/entrega.ts,393,393,jsdoc,1,/** A identidade do canal manda; telefone é o fallback de quem nunca escreveu. */,translate,Channel identity takes precedence; phone number is the fallback for a contact who has never messaged.,integration,apps/workers/src/entrega.ts:393; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-bae7e9c7,workers,apps/workers/src/entrega.ts,40,40,jsdoc,2,"/** `type` e não `interface`: só o alias ganha índice implícito, que `execute<T>` exige. */",translate,"Use `type`, not `interface`: only the alias gets the implicit index signature required by `execute<T>`.",integration,apps/workers/src/entrega.ts:40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-f81736b9,workers,apps/workers/src/entrega.ts,401,401,line,1,// O `config` vem do banco com o token CIFRADO (`cifrarConfig` na criação do canal).,translate,Database `config` contains the ENCRYPTED token (`cifrarConfig` when creating the channel).,security,apps/workers/src/entrega.ts:401; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-6b620e9a,workers,apps/workers/src/entrega.ts,402,402,line,3,"// Sem decifrar, o `Bearer` sairia com o `pipev1…` e a Meta recusaria todo envio —",translate,"Without decryption, `Bearer` would contain `pipev1…` and Meta would reject every send;",security,apps/workers/src/entrega.ts:402; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-05d8258b,workers,apps/workers/src/entrega.ts,403,403,line,3,// o dublê não percebe. O chaveiro só é exigido quando há o que decifrar.,translate,the test double would miss this. Require the keyring only when decryption is needed.,security,apps/workers/src/entrega.ts:403; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-be3eaf48,workers,apps/workers/src/entrega.ts,420,420,jsdoc,1,/** `anexo.chave_storage` é chave no storage de objetos; a base pública é configuração. */,translate,`anexo.chave_storage` is an object-storage key; the public base URL is configuration.,integration,apps/workers/src/entrega.ts:420; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-d4ca0013,workers,apps/workers/src/entrega.ts,460,460,line,6,// A mensagem volta a `pendente`: para o atendente ela ainda está a caminho.,translate,Return the message to `pendente`: to the agent it is still on its way.,integration,apps/workers/src/entrega.ts:460; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-d6cff5f2,workers,apps/workers/src/entrega.ts,78,81,jsdoc,3,"/**
    * Valores posicionais de template, por id de mensagem, vindos do job da fila.
    * O banco ainda não tem coluna para guardá-los — ver `parametros_perdidos`.
-   */",,,,,,
+   */",translate,"Positional template values, keyed by message ID, come from the queue job. The database has no column for them yet; see `parametros_perdidos`.",security,apps/workers/src/entrega.ts:78; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-3f869ec3,workers,apps/workers/src/entrega.ts,92,95,jsdoc,6,"/**
  * Uma rodada da fila de entrega. Devolve o que aconteceu com cada mensagem — é o que
  * o teste de ponta a ponta inspeciona e o que o log de produção registra.
- */",,,,,,
-workers-comment-1557737e,workers,apps/workers/src/entrega.ts,99,99,line,3,// Reivindicação atômica: `skip locked` deixa dois workers dividirem a fila sem que,,,,,,
+ */",translate,Process one delivery queue sweep and return each message result for end-to-end tests and production logs.,integration,apps/workers/src/entrega.ts:92; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-1557737e,workers,apps/workers/src/entrega.ts,99,99,line,3,// Reivindicação atômica: `skip locked` deixa dois workers dividirem a fila sem que,translate,Atomic claim: `skip locked` lets two workers split the queue without,security,apps/workers/src/entrega.ts:99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-bd0f6dfe,workers,apps/workers/src/filas.ts,1,7,jsdoc,6,"/**
  * Nomes de fila e conexão, num lugar só.
  *
  * A fila é o transporte, não a verdade (modelo de dados §9): o que precisa
  * sobreviver a reinício tem linha em `outbox_mensagem`, `entrega_webhook` ou
  * `execucao_workflow`. Perder um job atrasa; não perde mensagem.
- */",,,,,,
-workers-comment-228bf794,workers,apps/workers/src/filas.ts,10,10,line,0,// no Redis. Daí o hífen.,,,,,,
-workers-comment-3c920810,workers,apps/workers/src/filas.ts,20,20,jsdoc,0,/** Só um empurrão: o worker varre o outbox de qualquer jeito. */,,,,,,
+ */",translate,"Queue names and connection live together. A queue transports work; the durable record is in `outbox_mensagem`, `entrega_webhook`, or `execucao_workflow` (data model §9). Losing a job delays processing but does not lose a message.",integration,apps/workers/src/filas.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-228bf794,workers,apps/workers/src/filas.ts,10,10,line,0,// no Redis. Daí o hífen.,translate,in Redis; hence the hyphen.,integration,apps/workers/src/filas.ts:10; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-3c920810,workers,apps/workers/src/filas.ts,20,20,jsdoc,0,/** Só um empurrão: o worker varre o outbox de qualquer jeito. */,translate,Only a nudge: the worker sweeps the outbox regardless.,integration,apps/workers/src/filas.ts:20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-774e504d,workers,apps/workers/src/filas.ts,31,39,jsdoc,9,"/**
  * Baixar a mídia de um anexo recebido (`chave_storage = 'meta:<media_id>'` ou a URL
  * do CDN do Instagram) para o nosso storage.
@@ -126,14 +126,14 @@ workers-comment-774e504d,workers,apps/workers/src/filas.ts,31,39,jsdoc,9,"/**
  * com a Meta para baixar mídia de um canal é quem já decifra o token dele
  * (`dominio/midia.ts`). O job carrega só os identificadores; o worker relê o anexo
  * (e o canal dele) dentro do `comTenant` daquele tenant.
- */",,,,,,
+ */",translate,"Download received attachment media (`chave_storage = 'meta:<media_id>'` or Instagram CDN URL) into our storage. `api`, not workers, consumes this job because it already decrypts the channel token for Meta downloads (`dominio/midia.ts`), as with CRM mirroring. The job carries identifiers only; the consumer rereads attachment and channel inside that tenant's `comTenant`.",integration,apps/workers/src/filas.ts:31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-42b4fbda,workers,apps/workers/src/filas.ts,45,51,jsdoc,6,"/**
  * Checar o SLA de uma conversa (`apps/api/src/dominio/gestao/sla-motor.ts`).
  *
  * Mesmo desenho do download de mídia: quem CONSOME é a `api` (é lá que mora a regra
  * de SLA e a ação de elevar prioridade/notificar), e o job leva só os dois ids — o
  * worker relê a conversa e as regras do tenant dentro do `noTenant` dela.
- */",,,,,,
+ */",translate,"Check conversation SLA (`apps/api/src/dominio/gestao/sla-motor.ts`). As with media downloads, `api` consumes this job because SLA rules and the priority/notification action live there. The job carries two IDs; the consumer rereads conversation and tenant rules inside its `noTenant`.",integration,apps/workers/src/filas.ts:45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-e4b2403c,workers,apps/workers/src/filas.ts,62,72,jsdoc,15,"/**
  * Espelhar um contato no CRM do cliente.
  *
@@ -144,27 +144,27 @@ workers-comment-e4b2403c,workers,apps/workers/src/filas.ts,62,72,jsdoc,15,"/**
  * O job carrega só os identificadores. O worker relê o contato dentro do `comTenant`
  * daquele tenant, e é isso que impede um `contatoId` de outro cliente de virar
  * escrita no CRM errado — sem tenant em vigor, a consulta não retorna linha.
- */",,,,,,
+ */",translate,"Mirror a contact to the client's CRM. `api`, not workers, consumes this queue, as with `pipe-entrada`: API talks to CRM and owns the domain rule. Workers only sweep and requeue missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contatoId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",integration,apps/workers/src/filas.ts:62; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-4fed691f,workers,apps/workers/src/filas.ts,78,83,jsdoc,5,"/**
  * Sincronizar o dicionário de dados de um tenant com os metadados do CRM dele.
  *
  * Mesmo desenho do espelho: quem CONSOME é a `api` (quem fala com o CRM), o job leva só
  * o `tenantId`, e a sincronização relê a configuração dentro do `comTenant` dele.
- */",,,,,,
+ */",translate,"Synchronize a tenant's data dictionary from its CRM metadata. As with mirroring, `api` consumes the job because it talks to CRM. The job carries only `tenantId`; synchronization rereads configuration inside that tenant's `comTenant`.",integration,apps/workers/src/filas.ts:78; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-87d37c83,workers,apps/workers/src/filas.ts,94,100,jsdoc,4,"/**
  * Importar contatos de um CSV (`importacao-de-contatos.ts`).
  *
  * Quem consome são os workers: é trabalho só de banco, longo, e não fala com
  * serviço externo. O arquivo não viaja no job — mora em `importacao_arquivo` —,
  * e o job leva só os dois ids; o processamento relê tudo no `comTenant` do tenant.
- */",,,,,,
-workers-comment-172e102d,workers,apps/workers/src/gerenciador-de-contatos.ts,100,100,line,2,// A forma exata ganha quando as duas existem (o `prefers the normalized format` do spec).,,,,,,
-workers-comment-39c4a2e2,workers,apps/workers/src/gerenciador-de-contatos.ts,136,136,line,3,// que veio na linha sobrescreve; o que não veio fica como estava.,,,,,,
-workers-comment-2ccb0cb2,workers,apps/workers/src/gerenciador-de-contatos.ts,145,145,jsdoc,1,"/** As validações do `Contact`, com as frases do pt_BR do Chatwoot. */",,,,,,
-workers-comment-689488d0,workers,apps/workers/src/gerenciador-de-contatos.ts,158,158,line,2,// `uniqueness: { scope: [:account_id] }` — o outro contato que já tem este dado.,,,,,,
-workers-comment-e58c593a,workers,apps/workers/src/gerenciador-de-contatos.ts,180,180,jsdoc,2,/** O `Contact.import` de uma linha já validada. Devolve o id. */,,,,,,
-workers-comment-58517730,workers,apps/workers/src/gerenciador-de-contatos.ts,208,208,line,3,// O `wa_id` é o número sem o `+`. `do nothing`: se o WhatsApp já trouxe esta,,,,,,
-workers-comment-27762166,workers,apps/workers/src/gerenciador-de-contatos.ts,209,209,line,2,"// pessoa, a identidade existe e continua apontando para quem ela aponta.",,,,,,
+ */",translate,"Import contacts from CSV (`importacao-de-contatos.ts`). Workers consume this long database-only job. The file stays in `importacao_arquivo`, not in the job; the job carries two IDs and processing rereads data inside the tenant's `comTenant`.",security,apps/workers/src/filas.ts:94; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-172e102d,workers,apps/workers/src/gerenciador-de-contatos.ts,100,100,line,2,// A forma exata ganha quando as duas existem (o `prefers the normalized format` do spec).,translate,Prefer the exact form when both exist (the spec's `prefers the normalized format`).,integration,apps/workers/src/gerenciador-de-contatos.ts:100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-39c4a2e2,workers,apps/workers/src/gerenciador-de-contatos.ts,136,136,line,3,// que veio na linha sobrescreve; o que não veio fica como estava.,translate,A field supplied by this row overwrites the old value; an absent field stays unchanged.,integration,apps/workers/src/gerenciador-de-contatos.ts:136; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-2ccb0cb2,workers,apps/workers/src/gerenciador-de-contatos.ts,145,145,jsdoc,1,"/** As validações do `Contact`, com as frases do pt_BR do Chatwoot. */",translate,Apply `Contact` validations with Chatwoot's pt_BR messages.,integration,apps/workers/src/gerenciador-de-contatos.ts:145; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-689488d0,workers,apps/workers/src/gerenciador-de-contatos.ts,158,158,line,2,// `uniqueness: { scope: [:account_id] }` — o outro contato que já tem este dado.,translate,`uniqueness: { scope: [:account_id] }` means another contact already has this value.,security,apps/workers/src/gerenciador-de-contatos.ts:158; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-e58c593a,workers,apps/workers/src/gerenciador-de-contatos.ts,180,180,jsdoc,2,/** O `Contact.import` de uma linha já validada. Devolve o id. */,translate,Implement `Contact.import` for one validated row and return its ID.,integration,apps/workers/src/gerenciador-de-contatos.ts:180; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-58517730,workers,apps/workers/src/gerenciador-de-contatos.ts,208,208,line,3,// O `wa_id` é o número sem o `+`. `do nothing`: se o WhatsApp já trouxe esta,translate,"`wa_id` is the number without `+`. With `do nothing`, an identity created by WhatsApp",integration,apps/workers/src/gerenciador-de-contatos.ts:208; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-27762166,workers,apps/workers/src/gerenciador-de-contatos.ts,209,209,line,2,"// pessoa, a identidade existe e continua apontando para quem ela aponta.",translate,continues to point to the same contact rather than being reassigned.,integration,apps/workers/src/gerenciador-de-contatos.ts:209; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-1c182f31,workers,apps/workers/src/gerenciador-de-contatos.ts,6,26,jsdoc,26,"/**
  * Portado de chatwoot/chatwoot (MIT), app/services/data_import/contact_manager.rb,
  * com as validações de `phone_number` e `email` de app/models/contact.rb.
@@ -185,14 +185,14 @@ workers-comment-1c182f31,workers,apps/workers/src/gerenciador-de-contatos.ts,6,2
  *   `POST /v1/contatos` do Pipe: sem identificador, não recebe mensagem;
  * - quem tem telefone ganha `contato_identidade` de WhatsApp, para a primeira
  *   mensagem dele cair nesta ficha e não abrir uma nova.
- */",,,,,,
-workers-comment-a3bc5a51,workers,apps/workers/src/gerenciador-de-contatos.ts,80,80,jsdoc,1,"/** Todas as formas do mesmo número, com `+`. */",,,,,,
-workers-comment-b38a69a9,workers,apps/workers/src/importacao-de-contatos.ts,131,131,line,3,"// Em série: a linha seguinte precisa ver o contato que a anterior criou,",,,,,,
-workers-comment-dd84a42c,workers,apps/workers/src/importacao-de-contatos.ts,132,132,line,0,// senão duas linhas do mesmo telefone viram dois contatos.,,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), `app/services/data_import/contact_manager.rb`, with `phone_number` and `email` validations from `app/models/contact.rb`. For each CSV row, find an existing contact by identifier, email, then phone; merge supplied values if found, otherwise create one, then validate. Reimporting updates rather than duplicates. All queries run inside the import's `comTenant`; RLS limits matches to that client. Pipe additions: normalize phone to E.164 with the ninth digit (`paraE164`) and match both number forms (`candidatosDoTelefone`, as in the Chatwoot webhook); reject a contact lacking phone and email, matching Pipe's `POST /v1/contatos` rule; create a WhatsApp `contato_identidade` for a phone contact so its first message reaches this record instead of making a new one.",integration,apps/workers/src/gerenciador-de-contatos.ts:6; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a3bc5a51,workers,apps/workers/src/gerenciador-de-contatos.ts,80,80,jsdoc,1,"/** Todas as formas do mesmo número, com `+`. */",translate,"All forms of the same number, with `+`.",integration,apps/workers/src/gerenciador-de-contatos.ts:80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b38a69a9,workers,apps/workers/src/importacao-de-contatos.ts,131,131,line,3,"// Em série: a linha seguinte precisa ver o contato que a anterior criou,",translate,"Run rows serially so the next row sees a contact created by the previous one,",security,apps/workers/src/importacao-de-contatos.ts:131; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-dd84a42c,workers,apps/workers/src/importacao-de-contatos.ts,132,132,line,0,// senão duas linhas do mesmo telefone viram dois contatos.,translate,preventing duplicate contacts for repeated phone numbers.,security,apps/workers/src/importacao-de-contatos.ts:132; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-9e2c2059,workers,apps/workers/src/importacao-de-contatos.ts,41,44,jsdoc,3,"/**
  * Os nomes de coluna que o original reconhece, e os apelidos em português que o
  * Pipe acrescenta — ninguém exporta planilha com `phone_number` no cabeçalho.
- */",,,,,,
+ */",translate,Recognize the source column names and Pipe's Portuguese aliases; users do not export spreadsheets headed `phone_number`.,integration,apps/workers/src/importacao-de-contatos.ts:41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-bd6ee6ff,workers,apps/workers/src/importacao-de-contatos.ts,8,37,jsdoc,25,"/**
  * Portado de chatwoot/chatwoot (MIT), app/jobs/data_import_job.rb
  *
@@ -222,7 +222,7 @@ workers-comment-bd6ee6ff,workers,apps/workers/src/importacao-de-contatos.ts,8,37
  * contato. O Pipe não tem etiqueta de contato — a coluna, se vier, vira atributo.
  * E o aviso por e-mail ao administrador não existe: não há e-mail transacional
  * (item 7 do `o-que-falta.md`); a tela mostra o estado.
- */",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT), `app/jobs/data_import_job.rb`. API stores the file and enqueues the job; workers read CSV, deduplicate, and write contacts so large files do not hold an HTTP request. Follow the source steps: set `executando` (`status: :processing`); read headed CSV, marking `falhou` and stopping on malformed quotes; validate and write good rows while appending invalid ones and reasons in `erros`; set `concluida` with totals; save rejected rows as `failed_records` for download. Process batches of 1,000 (`Contact.import`'s `batch_size: 1000`), each in its own transaction. Progress is visible while running; a database error loses only the current batch, and rerun deduplicates accepted rows. The job carries only `tenantId` and `importacaoId`; all reads occur in that tenant's `comTenant`, so another tenant's import ID is invisible. Known differences: source `labels` become an attribute because Pipe has no contact tag, and no admin email is sent because there is no transactional email (`o-que-falta.md` item 7); the screen shows status.",integration,apps/workers/src/importacao-de-contatos.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-8ff08114,workers,apps/workers/src/instagram.ts,3,13,jsdoc,9,"/**
  * Saída pelo Instagram (Direct). Reconstruído de chatwoot/chatwoot (MIT),
  * app/services/instagram/send_on_instagram_service.rb (`POST /{ig-user-id}/messages`
@@ -233,28 +233,28 @@ workers-comment-8ff08114,workers,apps/workers/src/instagram.ts,3,13,jsdoc,9,"/**
  *
  * Mesma escolha do cliente do WhatsApp: `PIPE_WHATSAPP_CLIENTE=real` fala com a Meta,
  * qualquer outro valor usa o dublê.
- */",,,,,,
-workers-comment-a42caa96,workers,apps/workers/src/instagram.ts,40,40,jsdoc,2,/** Tipo do Pipe → `attachment.type` do Instagram. Conferir com token real: `file` para documento. */,,,,,,
-workers-comment-6a09f5a3,workers,apps/workers/src/instagram.ts,54,54,line,2,// O Direct não tem legenda em anexo: vai como segunda mensagem. Falhar aqui NÃO,,,,,,
-workers-comment-37b53ee5,workers,apps/workers/src/instagram.ts,55,55,line,3,// devolve erro — repetir reenviaria a mídia que já chegou. Fica no log.,,,,,,
-workers-comment-986a4fa6,workers,apps/workers/src/instagram.ts,81,81,line,1,"// 4xx é permanente (fora da janela de 24h, usuário que bloqueou, token vencido);",,,,,,
-workers-comment-34e90333,workers,apps/workers/src/instagram.ts,82,82,line,2,// 429 e 5xx voltam ao outbox. A mensagem da Meta não carrega o token: vai no header.,,,,,,
-workers-comment-b75e710f,workers,apps/workers/src/instagram.ts,95,95,jsdoc,2,"/** Dublê: devolve `mid` sequencial e registra a chamada, sem token. */",,,,,,
+ */",translate,"Instagram Direct outbound adapter, reconstructed from chatwoot/chatwoot (MIT), `app/services/instagram/send_on_instagram_service.rb`: `POST /{ig-user-id}/messages` on `graph.instagram.com` with `{recipient:{id}, message:{text}|{attachment}}`. Failures intentionally use `ErroWhatsApp`, the delivery class whose `permanente` flag decides retry versus stopping; it is not a WhatsApp-only error. As with WhatsApp, `PIPE_WHATSAPP_CLIENTE=real` calls Meta and any other value uses the test double.",integration,apps/workers/src/instagram.ts:3; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a42caa96,workers,apps/workers/src/instagram.ts,40,40,jsdoc,2,/** Tipo do Pipe → `attachment.type` do Instagram. Conferir com token real: `file` para documento. */,translate,Map Pipe type to Instagram `attachment.type`. Confirm `file` for documents with a real token.,integration,apps/workers/src/instagram.ts:40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-6a09f5a3,workers,apps/workers/src/instagram.ts,54,54,line,2,// O Direct não tem legenda em anexo: vai como segunda mensagem. Falhar aqui NÃO,translate,Direct has no attachment caption: send it as a second message. A failure here must NOT,integration,apps/workers/src/instagram.ts:54; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-37b53ee5,workers,apps/workers/src/instagram.ts,55,55,line,3,// devolve erro — repetir reenviaria a mídia que já chegou. Fica no log.,translate,"return an error, since retry would resend delivered media; log it instead.",integration,apps/workers/src/instagram.ts:55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-986a4fa6,workers,apps/workers/src/instagram.ts,81,81,line,1,"// 4xx é permanente (fora da janela de 24h, usuário que bloqueou, token vencido);",translate,"Treat 4xx as permanent (outside the 24-hour window, blocked user, expired token),",integration,apps/workers/src/instagram.ts:81; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-34e90333,workers,apps/workers/src/instagram.ts,82,82,line,2,// 429 e 5xx voltam ao outbox. A mensagem da Meta não carrega o token: vai no header.,translate,while 429 and 5xx return to the outbox. The Meta message omits the token; it is in the header.,integration,apps/workers/src/instagram.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b75e710f,workers,apps/workers/src/instagram.ts,95,95,jsdoc,2,"/** Dublê: devolve `mid` sequencial e registra a chamada, sem token. */",translate,Test double: return sequential `mid` values and record calls without a token.,integration,apps/workers/src/instagram.ts:95; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-87cc5d3e,workers,apps/workers/src/main.ts,11,17,jsdoc,9,"/**
  * Processo dos workers.
  *
  * Duas filas: entrega de mensagem e agregação diária. A entrega tem dois gatilhos —
  * o job que a `api` publica ao enfileirar, e uma varredura periódica que existe
  * porque a fila pode perder job e o outbox não pode perder mensagem.
- */",,,,,,
-workers-comment-a897b4a5,workers,apps/workers/src/main.ts,52,52,line,2,"// Uma importação por vez: é a fila `low` do Chatwoot, e duas planilhas grandes em",,,,,,
-workers-comment-f53fb40c,workers,apps/workers/src/main.ts,53,53,line,2,// paralelo disputariam o banco com a entrega de mensagem.,,,,,,
-workers-comment-834faddd,workers,apps/workers/src/main.ts,65,65,line,3,// Varredura de segurança da entrega: recupera o que a fila deixou cair e o que,,,,,,
-workers-comment-5fca2dfd,workers,apps/workers/src/main.ts,66,66,line,2,// está esperando a próxima tentativa do backoff.,,,,,,
-workers-comment-01d86892,workers,apps/workers/src/messenger.ts,6,6,line,5,"//graph.facebook.com/${p.credenciais.apiVersao??'v23.0'}/me/messages`,{method:'POST',headers:{authorization:`Bearer ${p.credenciais.tokenAcesso}`,'content-type':'application/json'},body:JSON.stringify({recipient:{id:p.para},message:mensagem})});}catch(e){throw new ErroWhatsApp('rede',`Não alcançou o Messenger: ${(e as Error).message}`,false);}const d=await r.json().catch(()=>({})) as {message_id?:string;error?:{code?:number;message?:string}};if(!r.ok||d.error)throw new ErroWhatsApp(String(d.error?.code??r.status),d.error?.message??`O Messenger respondeu ${r.status}.`,r.status>=400&&r.status<500&&r.status!==429);if(!d.message_id)throw new ErroWhatsApp('sem_id','O Messenger aceitou mas não devolveu o id.',false);return{idProvedor:d.message_id};} }",,,,,,
-workers-comment-478ad942,workers,apps/workers/src/whatsapp/cliente.ts,17,17,jsdoc,1,/** `WHATSAPP_PHONE_NUMBER_ID` — o número que envia. */,,,,,,
-workers-comment-63d1c975,workers,apps/workers/src/whatsapp/cliente.ts,19,19,jsdoc,0,/** Token do usuário de sistema. Cifrado em `canal.config` (§6 da spec). */,,,,,,
-workers-comment-e6cb5114,workers,apps/workers/src/whatsapp/cliente.ts,21,21,jsdoc,2,/** Padrão `v21.0`. A Meta descontinua versão antiga; por isso é configuração. */,,,,,,
+ */",translate,"Worker process. Two queues handle delivery and daily aggregation. Delivery has two triggers: a job published by `api` when enqueuing, and a periodic sweep because a queue can lose a job while the outbox must retain the message.",integration,apps/workers/src/main.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a897b4a5,workers,apps/workers/src/main.ts,52,52,line,2,"// Uma importação por vez: é a fila `low` do Chatwoot, e duas planilhas grandes em",translate,"Run one import at a time, like Chatwoot's `low` queue: two large spreadsheets",integration,apps/workers/src/main.ts:52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-f53fb40c,workers,apps/workers/src/main.ts,53,53,line,2,// paralelo disputariam o banco com a entrega de mensagem.,translate,in parallel would contend with message delivery for the database.,integration,apps/workers/src/main.ts:53; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-834faddd,workers,apps/workers/src/main.ts,65,65,line,3,// Varredura de segurança da entrega: recupera o que a fila deixou cair e o que,translate,Delivery recovery sweep picks up jobs lost by the queue and messages,integration,apps/workers/src/main.ts:65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-5fca2dfd,workers,apps/workers/src/main.ts,66,66,line,2,// está esperando a próxima tentativa do backoff.,translate,waiting for the next backoff attempt.,integration,apps/workers/src/main.ts:66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-01d86892,workers,apps/workers/src/messenger.ts,6,6,line,5,"//graph.facebook.com/${p.credenciais.apiVersao??'v23.0'}/me/messages`,{method:'POST',headers:{authorization:`Bearer ${p.credenciais.tokenAcesso}`,'content-type':'application/json'},body:JSON.stringify({recipient:{id:p.para},message:mensagem})});}catch(e){throw new ErroWhatsApp('rede',`Não alcançou o Messenger: ${(e as Error).message}`,false);}const d=await r.json().catch(()=>({})) as {message_id?:string;error?:{code?:number;message?:string}};if(!r.ok||d.error)throw new ErroWhatsApp(String(d.error?.code??r.status),d.error?.message??`O Messenger respondeu ${r.status}.`,r.status>=400&&r.status<500&&r.status!==429);if(!d.message_id)throw new ErroWhatsApp('sem_id','O Messenger aceitou mas não devolveu o id.',false);return{idProvedor:d.message_id};} }",keep-original,,integration,"apps/workers/src/messenger.ts:6; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",codex3,reviewed
+workers-comment-478ad942,workers,apps/workers/src/whatsapp/cliente.ts,17,17,jsdoc,1,/** `WHATSAPP_PHONE_NUMBER_ID` — o número que envia. */,translate,`WHATSAPP_PHONE_NUMBER_ID` identifies the sending number.,integration,apps/workers/src/whatsapp/cliente.ts:17; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-63d1c975,workers,apps/workers/src/whatsapp/cliente.ts,19,19,jsdoc,0,/** Token do usuário de sistema. Cifrado em `canal.config` (§6 da spec). */,translate,"System-user token, encrypted in `canal.config` (spec §6).",security,apps/workers/src/whatsapp/cliente.ts:19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-e6cb5114,workers,apps/workers/src/whatsapp/cliente.ts,21,21,jsdoc,2,/** Padrão `v21.0`. A Meta descontinua versão antiga; por isso é configuração. */,translate,"Default `v21.0`. Meta discontinues old versions, so this is configurable.",integration,apps/workers/src/whatsapp/cliente.ts:21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-176c5859,workers,apps/workers/src/whatsapp/cliente.ts,3,12,jsdoc,12,"/**
  * O adaptador de saída para o WhatsApp.
  *
@@ -264,24 +264,24 @@ workers-comment-176c5859,workers,apps/workers/src/whatsapp/cliente.ts,3,12,jsdoc
  * `PIPE_WHATSAPP_CLIENTE`; sem WABA no ambiente, o padrão é o dublê, de propósito —
  * subir com o cliente real sem credencial só produziria falha de autenticação em
  * série, que é ruído, não sinal.
- */",,,,,,
-workers-comment-805be2d9,workers,apps/workers/src/whatsapp/cliente.ts,32,32,jsdoc,1,/** URL pública do storage de objetos. A mídia sobe antes do envio (§4.3). */,,,,,,
-workers-comment-e3ea42c8,workers,apps/workers/src/whatsapp/cliente.ts,41,41,jsdoc,2,"/** Valores por posição **de disparo**, com o deslocamento de mídia já aplicado. */",,,,,,
-workers-comment-ac30d026,workers,apps/workers/src/whatsapp/cliente.ts,45,45,jsdoc,0,/** Pergunta do fluxo em botões ou lista. Ver `interativo.ts`. */,,,,,,
-workers-comment-211a48e1,workers,apps/workers/src/whatsapp/cliente.ts,56,56,jsdoc,2,"/** Destinatário em E.164 sem o `+`, como a Cloud API exige. */",,,,,,
+ */",translate,"WhatsApp outbound adapter. Two implementations share an interface because we have NO test WABA: `ClienteWhatsAppReal` calls Cloud API; `ClienteWhatsAppDuble` simulates delivery, delays, and failures to exercise the whole path. `PIPE_WHATSAPP_CLIENTE` selects one; without a WABA, the default is intentionally the double. Starting the real client without credentials would generate repeated authentication failures rather than useful signal.",integration,apps/workers/src/whatsapp/cliente.ts:3; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-805be2d9,workers,apps/workers/src/whatsapp/cliente.ts,32,32,jsdoc,1,/** URL pública do storage de objetos. A mídia sobe antes do envio (§4.3). */,translate,Public object-storage URL. Media is uploaded before sending (§4.3).,integration,apps/workers/src/whatsapp/cliente.ts:32; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-e3ea42c8,workers,apps/workers/src/whatsapp/cliente.ts,41,41,jsdoc,2,"/** Valores por posição **de disparo**, com o deslocamento de mídia já aplicado. */",translate,"Template values by SEND position, after applying the media offset.",integration,apps/workers/src/whatsapp/cliente.ts:41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-ac30d026,workers,apps/workers/src/whatsapp/cliente.ts,45,45,jsdoc,0,/** Pergunta do fluxo em botões ou lista. Ver `interativo.ts`. */,translate,Flow question as buttons or a list; see `interativo.ts`.,integration,apps/workers/src/whatsapp/cliente.ts:45; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-211a48e1,workers,apps/workers/src/whatsapp/cliente.ts,56,56,jsdoc,2,"/** Destinatário em E.164 sem o `+`, como a Cloud API exige. */",translate,"Recipient in E.164 without `+`, as Cloud API requires.",integration,apps/workers/src/whatsapp/cliente.ts:56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-15059300,workers,apps/workers/src/whatsapp/cliente.ts,67,71,jsdoc,4,"/**
  * `permanente` decide o destino: falha permanente para de tentar e grava
  * `erro_codigo`/`erro_texto` na mensagem; falha temporária volta ao outbox com espera
  * crescente. Confundir as duas é gastar 5 tentativas num número que não existe.
- */",,,,,,
-workers-comment-dac485ad,workers,apps/workers/src/whatsapp/duble.ts,113,113,line,2,"// Monta o template mesmo sem enviar: parâmetro deslocado tem que falhar aqui,",,,,,,
-workers-comment-c75baf7e,workers,apps/workers/src/whatsapp/duble.ts,114,114,line,1,// não silenciosamente do outro lado.,,,,,,
-workers-comment-0dfe144b,workers,apps/workers/src/whatsapp/duble.ts,156,156,line,1,// (`delivered`). `read` só quando o cliente abre — ver `marcarLida`.,,,,,,
-workers-comment-8be89bad,workers,apps/workers/src/whatsapp/duble.ts,172,172,jsdoc,0,/** Instância única: o teste e o worker precisam olhar o mesmo dublê. */,,,,,,
-workers-comment-e8d53b58,workers,apps/workers/src/whatsapp/duble.ts,175,175,jsdoc,2,"/** Payload de webhook da Meta com um `statuses[]`, para postar no endpoint de entrada. */",,,,,,
-workers-comment-bd6b5da4,workers,apps/workers/src/whatsapp/duble.ts,20,20,jsdoc,2,/** Destinatários que sempre falham. Serve para exercitar o caminho de erro. */,,,,,,
-workers-comment-b530305e,workers,apps/workers/src/whatsapp/duble.ts,22,22,jsdoc,2,/** A falha simulada é permanente (não repete) ou temporária (volta ao outbox). */,,,,,,
-workers-comment-11142d30,workers,apps/workers/src/whatsapp/duble.ts,24,24,jsdoc,0,/** Código e texto da falha simulada. */,,,,,,
+ */",translate,`permanente` controls the outcome: a permanent failure stops retries and writes `erro_codigo`/`erro_texto` on the message; a temporary failure returns to the outbox with increasing delay. Confusing them wastes five attempts on a nonexistent number.,integration,apps/workers/src/whatsapp/cliente.ts:67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-dac485ad,workers,apps/workers/src/whatsapp/duble.ts,113,113,line,2,"// Monta o template mesmo sem enviar: parâmetro deslocado tem que falhar aqui,",translate,"Build the template even without sending: a shifted parameter must fail here,",integration,apps/workers/src/whatsapp/duble.ts:113; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-c75baf7e,workers,apps/workers/src/whatsapp/duble.ts,114,114,line,1,// não silenciosamente do outro lado.,translate,rather than silently on the far side.,integration,apps/workers/src/whatsapp/duble.ts:114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-0dfe144b,workers,apps/workers/src/whatsapp/duble.ts,156,156,line,1,// (`delivered`). `read` só quando o cliente abre — ver `marcarLida`.,translate,(`delivered`). Emit `read` only when the client opens the message; see `marcarLida`.,integration,apps/workers/src/whatsapp/duble.ts:156; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-8be89bad,workers,apps/workers/src/whatsapp/duble.ts,172,172,jsdoc,0,/** Instância única: o teste e o worker precisam olhar o mesmo dublê. */,translate,Keep a single instance so tests and worker inspect the same double.,integration,apps/workers/src/whatsapp/duble.ts:172; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-e8d53b58,workers,apps/workers/src/whatsapp/duble.ts,175,175,jsdoc,2,"/** Payload de webhook da Meta com um `statuses[]`, para postar no endpoint de entrada. */",translate,"Meta webhook payload with one `statuses[]`, for posting to the inbound endpoint.",integration,apps/workers/src/whatsapp/duble.ts:175; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-bd6b5da4,workers,apps/workers/src/whatsapp/duble.ts,20,20,jsdoc,2,/** Destinatários que sempre falham. Serve para exercitar o caminho de erro. */,translate,"Recipients that always fail, to exercise the error path.",integration,apps/workers/src/whatsapp/duble.ts:20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b530305e,workers,apps/workers/src/whatsapp/duble.ts,22,22,jsdoc,2,/** A falha simulada é permanente (não repete) ou temporária (volta ao outbox). */,translate,Simulated failure is either permanent (no retry) or temporary (back to outbox).,integration,apps/workers/src/whatsapp/duble.ts:22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-11142d30,workers,apps/workers/src/whatsapp/duble.ts,24,24,jsdoc,0,/** Código e texto da falha simulada. */,translate,Code and text of the simulated failure.,integration,apps/workers/src/whatsapp/duble.ts:24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-e67ee7c6,workers,apps/workers/src/whatsapp/duble.ts,5,15,jsdoc,13,"/**
  * Dublê da Cloud API.
  *
@@ -292,17 +292,17 @@ workers-comment-e67ee7c6,workers,apps/workers/src/whatsapp/duble.ts,5,15,jsdoc,1
  *
  * Também monta os componentes do template antes de ""aceitar"": é isso que faz o erro
  * de deslocamento de parâmetro aparecer no dublê, e não só em produção.
- */",,,,,,
-workers-comment-c063b782,workers,apps/workers/src/whatsapp/duble.ts,72,72,jsdoc,4,/** Chamadas realmente feitas. É o que prova que a Meta **não** foi chamada. */,,,,,,
-workers-comment-37592908,workers,apps/workers/src/whatsapp/duble.ts,77,77,jsdoc,0,"/** Zera chamadas, status e sequência — entre cenários de teste. */",,,,,,
-workers-comment-300a8e38,workers,apps/workers/src/whatsapp/duble.ts,92,92,jsdoc,4,/** O cliente abriu a mensagem. A Meta só manda `read` quando isso acontece. */,,,,,,
+ */",translate,"Cloud API double. It is the operating mode while there is no WABA, not merely a test mock. It simulates Meta accepting a message, returning a `wamid`, and LATER sending status webhooks. The same endpoint used in production consumes those statuses, so the tested path is real. It also builds template components before accepting, exposing shifted-parameter errors in the double instead of only in production.",integration,apps/workers/src/whatsapp/duble.ts:5; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-c063b782,workers,apps/workers/src/whatsapp/duble.ts,72,72,jsdoc,4,/** Chamadas realmente feitas. É o que prova que a Meta **não** foi chamada. */,translate,"Actual calls made, proving that Meta was NOT called.",integration,apps/workers/src/whatsapp/duble.ts:72; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-37592908,workers,apps/workers/src/whatsapp/duble.ts,77,77,jsdoc,0,"/** Zera chamadas, status e sequência — entre cenários de teste. */",translate,"Reset calls, statuses, and sequence between test scenarios.",integration,apps/workers/src/whatsapp/duble.ts:77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-300a8e38,workers,apps/workers/src/whatsapp/duble.ts,92,92,jsdoc,4,/** O cliente abriu a mensagem. A Meta só manda `read` quando isso acontece. */,translate,The client opened the message; Meta sends `read` only then.,integration,apps/workers/src/whatsapp/duble.ts:92; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-94da5b87,workers,apps/workers/src/whatsapp/index.ts,14,18,jsdoc,4,"/**
  * `PIPE_WHATSAPP_CLIENTE=real` liga a Cloud API; qualquer outro valor (ou nenhum)
  * usa o dublê. O padrão é o dublê porque hoje não há WABA: com credencial ausente,
  * o cliente real só produziria erro de autenticação em série.
- */",,,,,,
-workers-comment-4903f231,workers,apps/workers/src/whatsapp/index.ts,25,25,jsdoc,2,/** Troca o cliente em tempo de execução. Existe para teste e para o modo de ensaio. */,,,,,,
-workers-comment-a42ec08d,workers,apps/workers/src/whatsapp/interativo.ts,23,23,jsdoc,3,"/** Texto do botão que abre a lista. A Meta exige um, até 20 caracteres. */",,,,,,
+ */",translate,"`PIPE_WHATSAPP_CLIENTE=real` enables Cloud API; any other or absent value selects the double. Without a WABA, the double is the default to avoid repeated authentication failures from the real client.",integration,apps/workers/src/whatsapp/index.ts:14; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-4903f231,workers,apps/workers/src/whatsapp/index.ts,25,25,jsdoc,2,/** Troca o cliente em tempo de execução. Existe para teste e para o modo de ensaio. */,translate,Replace the client at runtime for tests and rehearsal mode.,integration,apps/workers/src/whatsapp/index.ts:25; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a42ec08d,workers,apps/workers/src/whatsapp/interativo.ts,23,23,jsdoc,3,"/** Texto do botão que abre a lista. A Meta exige um, até 20 caracteres. */",translate,Label for the button opening the list; Meta requires one of at most 20 characters.,integration,apps/workers/src/whatsapp/interativo.ts:23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-9263a945,workers,apps/workers/src/whatsapp/interativo.ts,3,16,jsdoc,17,"/**
  * Pergunta do fluxo (o `select` da Blip) como mensagem interativa do WhatsApp.
  *
@@ -316,10 +316,10 @@ workers-comment-9263a945,workers,apps/workers/src/whatsapp/interativo.ts,3,16,js
  * lista até 24, texto do corpo até 1024. Opção que não cabe NÃO é cortada — o
  * cliente leria outra coisa e a resposta dele não casaria com a opção do fluxo;
  * a pergunta inteira cai para texto.
- */",,,,,,
-workers-comment-b6667698,workers,apps/workers/src/whatsapp/interativo.ts,47,47,jsdoc,1,"/** Os dois interruptores nascem ligados, que é o estado observado na origem. */",,,,,,
-workers-comment-5916ad70,workers,apps/workers/src/whatsapp/interativo.ts,53,53,jsdoc,0,"/** `null` = sai como texto (formato desligado, opção longa demais, corpo vazio ou grande). */",,,,,,
-workers-comment-02dc2ccd,workers,apps/workers/src/whatsapp/interativo.ts,64,64,line,3,"// A Meta recusa títulos repetidos, e a resposta seria ambígua para o fluxo.",,,,,,
+ */",translate,"Represent a flow question (Blip `select`) as a WhatsApp interactive message. Follow the source channel's ""Configurações"" settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3): with quick reply enabled, up to three options become buttons; with menu enabled, up to ten become a list; otherwise use numbered text, also stored in `mensagem.conteudo` and shown by Desk. Cloud API limits: button title 20 characters, list-row title 24, body 1024. Do NOT truncate oversized options: clients would read a different answer than the flow expects. Fall back to text for the whole question.",integration,apps/workers/src/whatsapp/interativo.ts:3; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b6667698,workers,apps/workers/src/whatsapp/interativo.ts,47,47,jsdoc,1,"/** Os dois interruptores nascem ligados, que é o estado observado na origem. */",translate,"Both switches default to enabled, matching the observed source state.",integration,apps/workers/src/whatsapp/interativo.ts:47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-5916ad70,workers,apps/workers/src/whatsapp/interativo.ts,53,53,jsdoc,0,"/** `null` = sai como texto (formato desligado, opção longa demais, corpo vazio ou grande). */",translate,"Return `null` to send text if the format is disabled, an option is too long, or the body is empty or too large.",integration,apps/workers/src/whatsapp/interativo.ts:53; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-02dc2ccd,workers,apps/workers/src/whatsapp/interativo.ts,64,64,line,3,"// A Meta recusa títulos repetidos, e a resposta seria ambígua para o fluxo.",translate,"Meta rejects duplicate titles, and the answer would be ambiguous for the flow.",integration,apps/workers/src/whatsapp/interativo.ts:64; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-3f6e2f73,workers,apps/workers/src/whatsapp/midia.ts,1,13,jsdoc,24,"/**
  * Validação de mídia antes de chamar a Meta.
  *
@@ -332,35 +332,35 @@ workers-comment-3f6e2f73,workers,apps/workers/src/whatsapp/midia.ts,1,13,jsdoc,2
  * Tamanho: a Blip documenta 100 MB para documento e 16 MB para vídeo e áudio. Para
  * imagem **não há número documentado**, e a regra do levantamento é não estimar —
  * então imagem passa sem teto de tamanho, com o formato ainda sendo verificado.
- */",,,,,,
-workers-comment-b55665ea,workers,apps/workers/src/whatsapp/midia.ts,101,101,jsdoc,3,/** `null` quando a mídia passa. Nunca lança: quem chama grava a falha na mensagem. */,,,,,,
+ */",translate,"Validate media before calling Meta. Source: `referencias-blip/pesquisa/regras-blip.md` §1.6, Blip's media-upload policy. Research marks the format list ⚠️ because it changed before. It is a documented DEFAULT, not a fixed invariant: `validarMidia` accepts a policy parameter, so a future per-tenant list can be read from the database. Blip documents 100 MB for documents and 16 MB for video and audio. There is NO documented image size; do not guess one. Images have no size ceiling here, but their format is still validated.",integration,apps/workers/src/whatsapp/midia.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-b55665ea,workers,apps/workers/src/whatsapp/midia.ts,101,101,jsdoc,3,/** `null` quando a mídia passa. Nunca lança: quem chama grava a falha na mensagem. */,translate,Return `null` for accepted media. Never throw: the caller records failure on the message.,integration,apps/workers/src/whatsapp/midia.ts:101; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-2b4cdfcd,workers,apps/workers/src/whatsapp/real.ts,11,17,jsdoc,8,"/**
  * Cliente da Cloud API da Meta.
  *
  * `POST https://graph.facebook.com/<versao>/<phone_number_id>/messages`.
  * Nunca foi exercitado contra uma WABA real — não temos uma. O que ele tem de
  * confiável é a classificação de erro, que é o que decide entre repetir e desistir.
- */",,,,,,
-workers-comment-f871ce5a,workers,apps/workers/src/whatsapp/real.ts,132,132,line,5,"// O `id` é a posição (1, 2, …); a resposta chega com o `title`, que é o que o fluxo casa.",,,,,,
-workers-comment-02e22a10,workers,apps/workers/src/whatsapp/real.ts,161,161,line,2,// Áudio é o único que não aceita legenda na Cloud API.,,,,,,
-workers-comment-a5a16275,workers,apps/workers/src/whatsapp/real.ts,22,22,jsdoc,0,"/** Nome do campo de conteúdo na Cloud API, por tipo do Pipe. */",,,,,,
+ */",translate,"Meta Cloud API client. `POST https://graph.facebook.com/<versao>/<phone_number_id>/messages`. This has never been exercised with a real WABA. Error classification, which determines retry or stop, is the behavior verified here.",integration,apps/workers/src/whatsapp/real.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-f871ce5a,workers,apps/workers/src/whatsapp/real.ts,132,132,line,5,"// O `id` é a posição (1, 2, …); a resposta chega com o `title`, que é o que o fluxo casa.",translate,"`id` is the 1-based position; the response carries `title`, which the flow matches.",integration,apps/workers/src/whatsapp/real.ts:132; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-02e22a10,workers,apps/workers/src/whatsapp/real.ts,161,161,line,2,// Áudio é o único que não aceita legenda na Cloud API.,translate,Audio is the only Cloud API media type that does not accept a caption.,integration,apps/workers/src/whatsapp/real.ts:161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-a5a16275,workers,apps/workers/src/whatsapp/real.ts,22,22,jsdoc,0,"/** Nome do campo de conteúdo na Cloud API, por tipo do Pipe. */",translate,Cloud API content field name for each Pipe media type.,integration,apps/workers/src/whatsapp/real.ts:22; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-c1866431,workers,apps/workers/src/whatsapp/real.ts,30,35,jsdoc,7,"/**
  * Códigos que não melhoram com repetição: número inválido, template inexistente,
  * fora da janela, sem permissão. Repetir esses só queima tentativa e atrasa o aviso
  * ao atendente. O resto (limite de taxa, indisponibilidade) volta para o outbox.
  * Fonte: catálogo de erro da Cloud API; a lista é configuração, não dogma.
- */",,,,,,
-workers-comment-0c7d8fea,workers,apps/workers/src/whatsapp/real.ts,37,37,line,0,// parâmetro inválido,,,,,,
-workers-comment-8f28f501,workers,apps/workers/src/whatsapp/real.ts,38,38,line,0,// campo obrigatório ausente,,,,,,
-workers-comment-1b9073ae,workers,apps/workers/src/whatsapp/real.ts,39,39,line,0,// valor de parâmetro inválido,,,,,,
-workers-comment-39d4d760,workers,apps/workers/src/whatsapp/real.ts,40,40,line,1,// destinatário não pode receber mensagem,,,,,,
-workers-comment-1da289ae,workers,apps/workers/src/whatsapp/real.ts,42,42,line,1,// tipo de mensagem não suportado,,,,,,
-workers-comment-3c2a1d6e,workers,apps/workers/src/whatsapp/real.ts,43,43,line,1,// número de parâmetros do template não bate,,,,,,
-workers-comment-6ea42ec7,workers,apps/workers/src/whatsapp/real.ts,44,44,line,1,// template não existe nesse idioma,,,,,,
-workers-comment-46a7ea32,workers,apps/workers/src/whatsapp/real.ts,47,47,line,0,// formato de parâmetro do template inválido,,,,,,
-workers-comment-937ac93a,workers,apps/workers/src/whatsapp/real.ts,48,48,line,1,// número não registrado,,,,,,
-workers-comment-979aea26,workers,apps/workers/src/whatsapp/real.ts,85,85,line,0,// Rede caiu: temporário por definição.,,,,,,
-workers-comment-22104f3f,workers,apps/workers/src/whatsapp/real.ts,97,97,line,2,// 4xx sem código conhecido também é permanente: repetir devolve o mesmo 4xx.,,,,,,
+ */",translate,"These error codes do not improve on retry: invalid number, missing template, expired window, or missing permission. Retrying only consumes attempts and delays notifying the agent. Rate limits and outages return to the outbox. Source: Cloud API error catalog; keep the set configurable, not dogmatic.",integration,apps/workers/src/whatsapp/real.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-0c7d8fea,workers,apps/workers/src/whatsapp/real.ts,37,37,line,0,// parâmetro inválido,translate,invalid parameter,integration,apps/workers/src/whatsapp/real.ts:37; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-8f28f501,workers,apps/workers/src/whatsapp/real.ts,38,38,line,0,// campo obrigatório ausente,translate,required field missing,integration,apps/workers/src/whatsapp/real.ts:38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-1b9073ae,workers,apps/workers/src/whatsapp/real.ts,39,39,line,0,// valor de parâmetro inválido,translate,invalid parameter value,integration,apps/workers/src/whatsapp/real.ts:39; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-39d4d760,workers,apps/workers/src/whatsapp/real.ts,40,40,line,1,// destinatário não pode receber mensagem,translate,recipient cannot receive the message,integration,apps/workers/src/whatsapp/real.ts:40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-1da289ae,workers,apps/workers/src/whatsapp/real.ts,42,42,line,1,// tipo de mensagem não suportado,translate,unsupported message type,integration,apps/workers/src/whatsapp/real.ts:42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-3c2a1d6e,workers,apps/workers/src/whatsapp/real.ts,43,43,line,1,// número de parâmetros do template não bate,translate,template parameter count mismatch,integration,apps/workers/src/whatsapp/real.ts:43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-6ea42ec7,workers,apps/workers/src/whatsapp/real.ts,44,44,line,1,// template não existe nesse idioma,translate,template does not exist in this language,integration,apps/workers/src/whatsapp/real.ts:44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-46a7ea32,workers,apps/workers/src/whatsapp/real.ts,47,47,line,0,// formato de parâmetro do template inválido,translate,invalid template parameter format,integration,apps/workers/src/whatsapp/real.ts:47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-937ac93a,workers,apps/workers/src/whatsapp/real.ts,48,48,line,1,// número não registrado,translate,number not registered,integration,apps/workers/src/whatsapp/real.ts:48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-979aea26,workers,apps/workers/src/whatsapp/real.ts,85,85,line,0,// Rede caiu: temporário por definição.,translate,Network failure is temporary by definition.,integration,apps/workers/src/whatsapp/real.ts:85; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-22104f3f,workers,apps/workers/src/whatsapp/real.ts,97,97,line,2,// 4xx sem código conhecido também é permanente: repetir devolve o mesmo 4xx.,translate,An unknown-code 4xx is also permanent; retry would produce the same 4xx.,integration,apps/workers/src/whatsapp/real.ts:97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-3faf760e,workers,apps/workers/src/whatsapp/template.ts,1,13,jsdoc,13,"/**
  * Montagem de parâmetro de template, com o **deslocamento por mídia no cabeçalho**.
  *
@@ -373,32 +373,32 @@ workers-comment-3faf760e,workers,apps/workers/src/whatsapp/template.ts,1,13,jsdo
  * A Cloud API, por outro lado, quer componentes separados — `header` com o parâmetro
  * dele, `body` com os dele. A tradução entre os dois é este arquivo, e é o único
  * lugar do produto onde a numeração é interpretada.
- */",,,,,,
-workers-comment-4d009e7c,workers,apps/workers/src/whatsapp/template.ts,107,107,jsdoc,2,/** Nome da variável do corpo por posição de disparo — o que a tela mostra ao operador. */,,,,,,
-workers-comment-fecce7f9,workers,apps/workers/src/whatsapp/template.ts,23,23,jsdoc,4,"/** Quantas posições a mídia consome antes do corpo: 1 quando há mídia, 0 quando não. */",,,,,,
+ */",translate,"Build template parameters with the MEDIA HEADER OFFSET. `referencias-blip/pesquisa/regras-blip.md` §1.4: when a template header contains an image, video, or document, media takes send position 1 and every body variable shifts by one from its declared `{{n}}` number. A wrong offset can silently send the client's name where a protocol number belongs. Pipe stores values by position, as campaigns, MCP, and API supply them; Cloud API expects separate `header` and `body` components. This file is the product's only interpretation of that numbering.",integration,apps/workers/src/whatsapp/template.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-4d009e7c,workers,apps/workers/src/whatsapp/template.ts,107,107,jsdoc,2,/** Nome da variável do corpo por posição de disparo — o que a tela mostra ao operador. */,translate,"Body variable name by send position, as shown to the operator.",integration,apps/workers/src/whatsapp/template.ts:107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-fecce7f9,workers,apps/workers/src/whatsapp/template.ts,23,23,jsdoc,4,"/** Quantas posições a mídia consome antes do corpo: 1 quando há mídia, 0 quando não. */",translate,"Number of positions media consumes before the body: one with media, zero otherwise.",integration,apps/workers/src/whatsapp/template.ts:23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-44166579,workers,apps/workers/src/whatsapp/template.ts,28,31,jsdoc,2,"/**
  * Posição real de disparo da n-ésima variável do corpo (`{{n}}`, `n` começando em 1).
  * É a função que o resto do produto deve chamar em vez de somar 1 na mão.
- */",,,,,,
-workers-comment-6cbda4a2,workers,apps/workers/src/whatsapp/template.ts,40,40,jsdoc,1,"/** Nomes das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */",,,,,,
+ */",translate,"Actual send position of the body variable `n` (`{{n}}`, starting at 1). Call this instead of adding one manually elsewhere.",integration,apps/workers/src/whatsapp/template.ts:28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-6cbda4a2,workers,apps/workers/src/whatsapp/template.ts,40,40,jsdoc,1,"/** Nomes das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */",translate,"Body variable names in `{{1}}`, `{{2}}`, … order.",integration,apps/workers/src/whatsapp/template.ts:40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-58b44fd4,workers,apps/workers/src/whatsapp/template.ts,74,80,jsdoc,7,"/**
  * Traduz o mapa posicional do Pipe para os componentes da Cloud API.
  *
  * `valores` é chaveado pela posição **de disparo** (com o deslocamento já aplicado),
  * que é como a campanha e o MCP recebem do cliente. Quem só tem os valores do corpo
  * usa `posicoesDoCorpo` para descobrir onde cada um vai.
- */",,,,,,
+ */",translate,"Translate Pipe's positional map into Cloud API components. `valores` is keyed by SEND position, with the offset already applied, as supplied to campaigns and MCP. Callers holding only body values use `posicoesDoCorpo` to find each send position.",integration,apps/workers/src/whatsapp/template.ts:74; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-952ec678,workers,apps/workers/tests/credenciais.test.ts,5,9,jsdoc,2,"/**
  * O canal grava o token CIFRADO (`cifrarConfig`). O worker tem de decifrar antes
  * de montar o `Bearer` — o dublê do WhatsApp não percebe token cifrado, e sem este
  * teste o envio real quebraria em silêncio.
- */",,,,,,
-workers-comment-231e5f6e,workers,apps/workers/tests/interativo.test.ts,23,23,line,2,"// 21 caracteres não cabem em botão, mas cabem em linha de lista (24) — só quando vira lista.",,,,,,
+ */",translate,"The channel stores an ENCRYPTED token (`cifrarConfig`). The worker must decrypt it before building `Bearer`; the WhatsApp double does not detect an encrypted token, so real delivery would otherwise fail silently.",security,apps/workers/tests/credenciais.test.ts:5; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-231e5f6e,workers,apps/workers/tests/interativo.test.ts,23,23,line,2,"// 21 caracteres não cabem em botão, mas cabem em linha de lista (24) — só quando vira lista.",translate,A 21-character option cannot fit a button but can fit a list row (24); only when rendered as a list.,meta-blip,apps/workers/tests/interativo.test.ts:23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-17e3ac49,workers,apps/workers/tests/telefone-e-csv.test.ts,6,10,jsdoc,1,"/**
  * O normalizador de telefone (porte do Chatwoot) e o leitor de CSV, sem banco.
  * Os casos do Brasil vêm de `brazil_phone_normalizer_spec.rb` e de
  * `phone_number_normalization_service_spec.rb`.
- */",,,,,,
-workers-comment-9c464a04,workers,apps/workers/tests/whatsapp.test.ts,106,106,line,3,"// Este é o erro que a pesquisa descreve: o operador numera 1 e 2, a mídia rouba",,,,,,
-workers-comment-65f12424,workers,apps/workers/tests/whatsapp.test.ts,107,107,line,0,"// o 1, e o cliente recebe o protocolo no lugar do nome. Aqui vira exceção.",,,,,,
-workers-comment-0097d688,workers,apps/workers/tests/whatsapp.test.ts,23,23,line,3,"// Imagem não tem teto documentado na Blip, e a regra do levantamento é não estimar.",,,,,,
+ */",translate,Test Chatwoot-ported phone normalization and CSV reading without a database. Brazilian cases come from `brazil_phone_normalizer_spec.rb` and `phone_number_normalization_service_spec.rb`.,integration,apps/workers/tests/telefone-e-csv.test.ts:6; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-9c464a04,workers,apps/workers/tests/whatsapp.test.ts,106,106,line,3,"// Este é o erro que a pesquisa descreve: o operador numera 1 e 2, a mídia rouba",translate,"This is the documented error: the operator numbers body values 1 and 2, but media takes",meta-blip,apps/workers/tests/whatsapp.test.ts:106; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-65f12424,workers,apps/workers/tests/whatsapp.test.ts,107,107,line,0,"// o 1, e o cliente recebe o protocolo no lugar do nome. Aqui vira exceção.",translate,"position 1, so the client could receive a protocol number instead of a name. Here it throws.",meta-blip,apps/workers/tests/whatsapp.test.ts:107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+workers-comment-0097d688,workers,apps/workers/tests/whatsapp.test.ts,23,23,line,3,"// Imagem não tem teto documentado na Blip, e a regra do levantamento é não estimar.",translate,"Blip documents no image size ceiling, and the research rule is not to guess one.",meta-blip,apps/workers/tests/whatsapp.test.ts:23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed

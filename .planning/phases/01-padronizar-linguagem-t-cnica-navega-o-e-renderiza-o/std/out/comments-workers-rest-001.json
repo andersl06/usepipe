@@ -1,0 +1,196 @@
+{
+  "items": [
+    {
+      "id": "workers-comment-5c3bca20",
+      "action": "translate",
+      "new_text": "Run in series; never use `Promise.all` inside this transaction (see README).",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/agregacao.ts:104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-f96bfccf",
+      "action": "translate",
+      "new_text": "Aggregation queue closes the previous day's `metrica_diaria`. Every metric derives from `evento_atendimento`, never a mutable conversation field, so historical data can be recalculated when a metric definition changes (data model §4). The routine is idempotent: rerunning a day overwrites its row instead of adding to it. The math lives in `@pipe/core`; this file only maps database rows to `ConversaEventos` and metric results to columns.",
+      "sensitivity": "architecture",
+      "evidence": "apps/workers/src/agregacao.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-feb62a0a",
+      "action": "translate",
+      "new_text": "The tenant time zone determines the start of a day; a UTC report would mislead the client.",
+      "sensitivity": "other",
+      "evidence": "apps/workers/src/agregacao.ts:23",
+      "notes": ""
+    },
+    {
+      "id": "workers-comment-8e614af2",
+      "action": "translate",
+      "new_text": "Without a dimension there is no row: `metrica_diaria_uk` includes `dimensao_id`, and",
+      "sensitivity": "architecture",
+      "evidence": "apps/workers/src/agregacao.ts:235; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-40686b2f",
+      "action": "translate",
+      "new_text": "Postgres treats two NULLs as distinct in a unique index; a row without a queue would",
+      "sensitivity": "architecture",
+      "evidence": "apps/workers/src/agregacao.ts:236; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-62d30227",
+      "action": "translate",
+      "new_text": "Keep the sum and denominator together; calculate the average when displaying it,",
+      "sensitivity": "architecture",
+      "evidence": "apps/workers/src/agregacao.ts:264; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-2581de1e",
+      "action": "translate",
+      "new_text": "because averaging daily averages is misleading (metrics spec §5).",
+      "sensitivity": "architecture",
+      "evidence": "apps/workers/src/agregacao.ts:265; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a6539b07",
+      "action": "translate",
+      "new_text": "Aggregate the previous day for all active tenants each night. The owner role runs the `select` of tenants; the app role reads business data.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/agregacao.ts:54; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e301884c",
+      "action": "translate",
+      "new_text": "Run serially: each tenant opens its own transaction.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/agregacao.ts:64; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-2072ca1d",
+      "action": "translate",
+      "new_text": "Read and write CSV with Ruby `CSV.new(io, headers: true)` behavior used by Chatwoot's `DataImportJob` (see `importacao-de-contatos.ts`). Quoted fields may contain separators or newlines; `\"\"` denotes a quote. Malformed quoting raises `CsvMalformado` (the source's `CSV::MalformedCSVError`) so the whole import fails rather than importing a partial bad row. Strip an initial UTF-8 BOM (`delete_prefix(\"\\xEF\\xBB\\xBF\")`). This small reader avoids adding a shared lockfile dependency. Pipe extensions: detect `;` or `,` from the header because Portuguese Excel uses semicolons while Chatwoot accepts commas; skip fully blank rows rather than creating empty contacts.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/csv.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-288e79f7",
+      "action": "translate",
+      "new_text": "Match `CSV.generate`: quote fields only when needed and use commas as in the source.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/csv.ts:99; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-172e102d",
+      "action": "translate",
+      "new_text": "Prefer the exact form when both exist (the spec's `prefers the normalized format`).",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-39c4a2e2",
+      "action": "translate",
+      "new_text": "A field supplied by this row overwrites the old value; an absent field stays unchanged.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:136; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-2ccb0cb2",
+      "action": "translate",
+      "new_text": "Apply `Contact` validations with Chatwoot's pt_BR messages.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-689488d0",
+      "action": "translate",
+      "new_text": "`uniqueness: { scope: [:account_id] }` means another contact already has this value.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:158; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-e58c593a",
+      "action": "translate",
+      "new_text": "Implement `Contact.import` for one validated row and return its ID.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-58517730",
+      "action": "translate",
+      "new_text": "`wa_id` is the number without `+`. With `do nothing`, an identity created by WhatsApp",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:208; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-27762166",
+      "action": "translate",
+      "new_text": "continues to point to the same contact rather than being reassigned.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:209; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-1c182f31",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), `app/services/data_import/contact_manager.rb`, with `phone_number` and `email` validations from `app/models/contact.rb`. For each CSV row, find an existing contact by identifier, email, then phone; merge supplied values if found, otherwise create one, then validate. Reimporting updates rather than duplicates. All queries run inside the import's `comTenant`; RLS limits matches to that client. Pipe additions: normalize phone to E.164 with the ninth digit (`paraE164`) and match both number forms (`candidatosDoTelefone`, as in the Chatwoot webhook); reject a contact lacking phone and email, matching Pipe's `POST /v1/contatos` rule; create a WhatsApp `contato_identidade` for a phone contact so its first message reaches this record instead of making a new one.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a3bc5a51",
+      "action": "translate",
+      "new_text": "All forms of the same number, with `+`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/gerenciador-de-contatos.ts:80; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-b38a69a9",
+      "action": "translate",
+      "new_text": "Run rows serially so the next row sees a contact created by the previous one,",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/importacao-de-contatos.ts:131; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-dd84a42c",
+      "action": "translate",
+      "new_text": "preventing duplicate contacts for repeated phone numbers.",
+      "sensitivity": "security",
+      "evidence": "apps/workers/src/importacao-de-contatos.ts:132; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-9e2c2059",
+      "action": "translate",
+      "new_text": "Recognize the source column names and Pipe's Portuguese aliases; users do not export spreadsheets headed `phone_number`.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/importacao-de-contatos.ts:41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-bd6ee6ff",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT), `app/jobs/data_import_job.rb`. API stores the file and enqueues the job; workers read CSV, deduplicate, and write contacts so large files do not hold an HTTP request. Follow the source steps: set `executando` (`status: :processing`); read headed CSV, marking `falhou` and stopping on malformed quotes; validate and write good rows while appending invalid ones and reasons in `erros`; set `concluida` with totals; save rejected rows as `failed_records` for download. Process batches of 1,000 (`Contact.import`'s `batch_size: 1000`), each in its own transaction. Progress is visible while running; a database error loses only the current batch, and rerun deduplicates accepted rows. The job carries only `tenantId` and `importacaoId`; all reads occur in that tenant's `comTenant`, so another tenant's import ID is invisible. Known differences: source `labels` become an attribute because Pipe has no contact tag, and no admin email is sent because there is no transactional email (`o-que-falta.md` item 7); the screen shows status.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/importacao-de-contatos.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

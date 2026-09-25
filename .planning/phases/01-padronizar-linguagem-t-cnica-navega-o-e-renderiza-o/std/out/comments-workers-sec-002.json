@@ -1,0 +1,164 @@
+{
+  "items": [
+    {
+      "id": "workers-comment-02e22a10",
+      "action": "translate",
+      "new_text": "Audio is the only Cloud API media type that does not accept a caption.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-a5a16275",
+      "action": "translate",
+      "new_text": "Cloud API content field name for each Pipe media type.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-c1866431",
+      "action": "translate",
+      "new_text": "These error codes do not improve on retry: invalid number, missing template, expired window, or missing permission. Retrying only consumes attempts and delays notifying the agent. Rate limits and outages return to the outbox. Source: Cloud API error catalog; keep the set configurable, not dogmatic.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-0c7d8fea",
+      "action": "translate",
+      "new_text": "invalid parameter",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:37; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-8f28f501",
+      "action": "translate",
+      "new_text": "required field missing",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-1b9073ae",
+      "action": "translate",
+      "new_text": "invalid parameter value",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-39d4d760",
+      "action": "translate",
+      "new_text": "recipient cannot receive the message",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-1da289ae",
+      "action": "translate",
+      "new_text": "unsupported message type",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-3c2a1d6e",
+      "action": "translate",
+      "new_text": "template parameter count mismatch",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-6ea42ec7",
+      "action": "translate",
+      "new_text": "template does not exist in this language",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-46a7ea32",
+      "action": "translate",
+      "new_text": "invalid template parameter format",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-937ac93a",
+      "action": "translate",
+      "new_text": "number not registered",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-979aea26",
+      "action": "translate",
+      "new_text": "Network failure is temporary by definition.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:85; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-22104f3f",
+      "action": "translate",
+      "new_text": "An unknown-code 4xx is also permanent; retry would produce the same 4xx.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/real.ts:97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-3faf760e",
+      "action": "translate",
+      "new_text": "Build template parameters with the MEDIA HEADER OFFSET. `referencias-blip/pesquisa/regras-blip.md` §1.4: when a template header contains an image, video, or document, media takes send position 1 and every body variable shifts by one from its declared `{{n}}` number. A wrong offset can silently send the client's name where a protocol number belongs. Pipe stores values by position, as campaigns, MCP, and API supply them; Cloud API expects separate `header` and `body` components. This file is the product's only interpretation of that numbering.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-4d009e7c",
+      "action": "translate",
+      "new_text": "Body variable name by send position, as shown to the operator.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-fecce7f9",
+      "action": "translate",
+      "new_text": "Number of positions media consumes before the body: one with media, zero otherwise.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-44166579",
+      "action": "translate",
+      "new_text": "Actual send position of the body variable `n` (`{{n}}`, starting at 1). Call this instead of adding one manually elsewhere.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-6cbda4a2",
+      "action": "translate",
+      "new_text": "Body variable names in `{{1}}`, `{{2}}`, … order.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:40; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "workers-comment-58b44fd4",
+      "action": "translate",
+      "new_text": "Translate Pipe's positional map into Cloud API components. `valores` is keyed by SEND position, with the offset already applied, as supplied to campaigns and MCP. Callers holding only body values use `posicoesDoCorpo` to find each send position.",
+      "sensitivity": "integration",
+      "evidence": "apps/workers/src/whatsapp/template.ts:74; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
