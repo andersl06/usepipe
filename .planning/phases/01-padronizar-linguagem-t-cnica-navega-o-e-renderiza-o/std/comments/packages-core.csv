@@ -19,19 +19,19 @@ packages-core-comment-5fa126a7,packages-core,packages/core/src/analise/index.ts,
  * servidor como `AAAA-MM-DDT00:00:00.000Z` (`ut()`), só com a data. Então o
  * que importa é a DATA, e aqui ela é texto `AAAA-MM-DD` calculado no fuso do
  * tenant — conta de dia com `Date.UTC` não tropeça em horário de verão.
- */",,,,,,
-packages-core-comment-db1117d8,packages-core,packages/core/src/analise/index.ts,124,124,jsdoc,2,"/** `ft()`: o mesmo tanto de dias, logo antes. É contra ele que a variação compara. */",,,,,,
-packages-core-comment-aa9b3468,packages-core,packages/core/src/analise/index.ts,130,130,jsdoc,0,"/** Cada dia do intervalo, em ordem — um ponto por dia nos gráficos. */",,,,,,
-packages-core-comment-caec9359,packages-core,packages/core/src/analise/index.ts,137,137,jsdoc,0,"/** `rt()`: o rótulo curto do eixo, `dd/mm`. */",,,,,,
-packages-core-comment-c863420d,packages-core,packages/core/src/analise/index.ts,152,152,jsdoc,0,"/** `IS()`: o texto do período ao lado do título (""13 de setembro de 2026 - 00h às 23h59""). */",,,,,,
+ */",translate,"Contact Analytics Dashboard and active messages share pure period, formatting, scale, and type rules here. Queries live in the `api` (`dominio/gestao-analise.ts`); both screen and API import these rules. The source is `portal-fragment-analytics` (`analytics-main.js`), mounted as `<analytics-mfe page=""…"">`. There, browser `Date` and `toLocaleString` compute periods and formatting, while sections request `/metrics/…` from `postmaster@analytics.msging.net`. Here those calculations are pure and covered by `tests/analise.test.ts`, while figures come from the database. Dates mean calendar days in the account timezone. The source sends the viewer-local date as `AAAA-MM-DDT00:00:00.000Z` via `ut()`; here it is `AAAA-MM-DD` text in the tenant timezone, and `Date.UTC` day arithmetic avoids daylight-saving errors.",meta-blip,packages/core/src/analise/index.ts:1-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-db1117d8,packages-core,packages/core/src/analise/index.ts,124,124,jsdoc,2,"/** `ft()`: o mesmo tanto de dias, logo antes. É contra ele que a variação compara. */",translate,`ft()`: the equally long immediately preceding period used for comparison.,meta-blip,packages/core/src/analise/index.ts:124-124; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-aa9b3468,packages-core,packages/core/src/analise/index.ts,130,130,jsdoc,0,"/** Cada dia do intervalo, em ordem — um ponto por dia nos gráficos. */",remove,,other,packages/core/src/analise/index.ts:130-130,codex,reviewed
+packages-core-comment-caec9359,packages-core,packages/core/src/analise/index.ts,137,137,jsdoc,0,"/** `rt()`: o rótulo curto do eixo, `dd/mm`. */",translate,`rt()`: short `dd/mm` axis label.,meta-blip,packages/core/src/analise/index.ts:137-137; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-c863420d,packages-core,packages/core/src/analise/index.ts,152,152,jsdoc,0,"/** `IS()`: o texto do período ao lado do título (""13 de setembro de 2026 - 00h às 23h59""). */",translate,"`IS()`: period label beside the title, e.g. ""13 de setembro de 2026 - 00h às 23h59"".",meta-blip,packages/core/src/analise/index.ts:152-152; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-8946f827,packages-core,packages/core/src/analise/index.ts,159,164,jsdoc,5,"/**
  * A dica do indicador de comparação — `XS()` com o dicionário `QS`.
  *
  * `foraDoAlcance` é o ramo `outOfRangeMessage`: quando o período anterior
  * começa antes de 90 dias atrás, a origem troca a dica E apaga o número (""-"").
- */",,,,,,
-packages-core-comment-40e0fbe5,packages-core,packages/core/src/analise/index.ts,174,174,block,0,"/* O `.replace(""-"", pronome)` da origem troca só o PRIMEIRO hífen. */",,,,,,
-packages-core-comment-94f85a9e,packages-core,packages/core/src/analise/index.ts,181,181,block,0,/* --------------------------------------------------------------- números */,,,,,,
+ */",translate,"Comparison indicator hint from `XS()` and dictionary `QS`. `foraDoAlcance` mirrors `outOfRangeMessage`: if the previous period starts more than 90 days ago, the source changes the hint and clears the number to ""-"".",meta-blip,packages/core/src/analise/index.ts:159-164; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-40e0fbe5,packages-core,packages/core/src/analise/index.ts,174,174,block,0,"/* O `.replace(""-"", pronome)` da origem troca só o PRIMEIRO hífen. */",translate,"The source `.replace(""-"", pronome)` replaces only the FIRST hyphen.",meta-blip,packages/core/src/analise/index.ts:174-174; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-94f85a9e,packages-core,packages/core/src/analise/index.ts,181,181,block,0,/* --------------------------------------------------------------- números */,remove,,other,packages/core/src/analise/index.ts:181-181,codex,reviewed
 packages-core-comment-7e402bb2,packages-core,packages/core/src/analise/index.ts,183,191,jsdoc,4,"/**
  * `WS()` da origem, que formata TODO número das duas telas.
  *
@@ -40,27 +40,27 @@ packages-core-comment-7e402bb2,packages-core,packages/core/src/analise/index.ts,
  * (`jS`), e zero vira `padrao` — por isso ""Taxa de rejeição"" vazia é ""0%"" (o
  * `Tc` passado como padrão) e o indicador de comparação vazio é ""-"".
  * `sinal` põe ""+"" na frente do positivo (`PS`).
- */",,,,,,
+ */",translate,"Source `WS()` formats every number on both screens. Absolute values below 100 round to two decimals and values from 100 to integers (`ZS`); missing values become `padrao`. Percentages accept a FRACTION and multiply by 100 (`jS`); zero becomes `padrao`, so an empty ""Taxa de rejeição"" is ""0%"" via `Tc` while empty comparison is ""-"". `sinal` prefixes positive percentages with ""+"" (`PS`).",meta-blip,packages/core/src/analise/index.ts:183-191; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-ee31a881,packages-core,packages/core/src/analise/index.ts,211,217,jsdoc,4,"/**
  * Os tiques do eixo de valor dos gráficos — o `generateTicks` do chart.js
  * 3.9.1 que vem no bundle (o `niceNum` da linha ~34171: ≤1 → 1, ≤2 → 2,
  * ≤5 → 5, senão 10). Passo = `niceNum(máximo / 10)`; se o topo arredondado
  * passar de 10 espaços, o passo é refeito sobre ele. Tudo zero vira 0 a 1,
  * que é o `min === max` do `LinearScale`.
- */",,,,,,
-packages-core-comment-e4f7ec8b,packages-core,packages/core/src/analise/index.ts,23,23,block,0,/* ------------------------------------------------------------------ período */,,,,,,
-packages-core-comment-98cf6add,packages-core,packages/core/src/analise/index.ts,234,234,jsdoc,2,"/** `BS()`: variação relativa ao anterior. Anterior zero com atual positivo dá `Infinity`, que `formatar` mostra como ""-"". */",,,,,,
-packages-core-comment-7d327efe,packages-core,packages/core/src/analise/index.ts,243,243,jsdoc,1,"/** O número do período e o do período anterior, para o indicador de comparação. */",,,,,,
-packages-core-comment-b2734172,packages-core,packages/core/src/analise/index.ts,252,252,jsdoc,1,"/** O nome do canal na tabela ""Canais"" — o `IE` da origem, que traduz domínio em nome. */",,,,,,
-packages-core-comment-7c64dceb,packages-core,packages/core/src/analise/index.ts,260,260,jsdoc,2,/** `/metrics/messages`. As médias são por contato COM interação. */,,,,,,
-packages-core-comment-0b2a1c0f,packages-core,packages/core/src/analise/index.ts,27,27,jsdoc,3,"/** `yT`: a segunda fileira, que só aparece com `is-displaying-dashboard-fixed-period-chips`. */",,,,,,
-packages-core-comment-1623bfc6,packages-core,packages/core/src/analise/index.ts,271,271,jsdoc,1,/** `/flowmetrics`. `excecao` nulo: o Pipe não tem bloco de exceção. */,,,,,,
-packages-core-comment-c69f03dd,packages-core,packages/core/src/analise/index.ts,273,273,jsdoc,0,/** `/blocks/fallback` e `/blocks/desk` — as listas de até 10 blocos. */,,,,,,
-packages-core-comment-f8be28cf,packages-core,packages/core/src/analise/index.ts,278,278,jsdoc,2,"/** Os nomes que o `IE` dá aos domínios da origem, pelo tipo de canal do Pipe. */",,,,,,
-packages-core-comment-d33235b6,packages-core,packages/core/src/analise/index.ts,283,283,block,0,"/* `0mn.io` é ""Blip Chat"" lá: o widget é o chat do produto, e o produto aqui é o Pipe. */",,,,,,
-packages-core-comment-45a337aa,packages-core,packages/core/src/analise/index.ts,288,288,jsdoc,2,/** Uma linha de `/active-messages/status` (`sendDateTime` já como dia). */,,,,,,
-packages-core-comment-d2a7f52b,packages-core,packages/core/src/analise/index.ts,304,304,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,,,,,,
-packages-core-comment-64a3cf0e,packages-core,packages/core/src/analise/index.ts,309,309,block,0,"/* ═══════════════════ Visão geral, relatórios e jornada (só os tipos) ═══ */",,,,,,
+ */",translate,"Chart value-axis ticks match bundled chart.js 3.9.1 `generateTicks` and `niceNum` near line 34171: values ≤1, ≤2, ≤5, then 10. Step is `niceNum(maximum / 10)`; if rounded top exceeds ten intervals, recalculate it from that top. All zeros produce 0–1, matching `LinearScale` when `min === max`.",integration,packages/core/src/analise/index.ts:211-217; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-e4f7ec8b,packages-core,packages/core/src/analise/index.ts,23,23,block,0,/* ------------------------------------------------------------------ período */,remove,,other,packages/core/src/analise/index.ts:23-23,codex,reviewed
+packages-core-comment-98cf6add,packages-core,packages/core/src/analise/index.ts,234,234,jsdoc,2,"/** `BS()`: variação relativa ao anterior. Anterior zero com atual positivo dá `Infinity`, que `formatar` mostra como ""-"". */",translate,"`BS()`: relative change from the previous value. Previous zero with current positive gives `Infinity`, displayed as ""-"" by `formatar`.",meta-blip,packages/core/src/analise/index.ts:234-234; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7d327efe,packages-core,packages/core/src/analise/index.ts,243,243,jsdoc,1,"/** O número do período e o do período anterior, para o indicador de comparação. */",remove,,other,packages/core/src/analise/index.ts:243-243,codex,reviewed
+packages-core-comment-b2734172,packages-core,packages/core/src/analise/index.ts,252,252,jsdoc,1,"/** O nome do canal na tabela ""Canais"" — o `IE` da origem, que traduz domínio em nome. */",translate,"Channel name in the ""Canais"" table; source `IE` maps domain to name.",meta-blip,packages/core/src/analise/index.ts:252-252; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7c64dceb,packages-core,packages/core/src/analise/index.ts,260,260,jsdoc,2,/** `/metrics/messages`. As médias são por contato COM interação. */,translate,`/metrics/messages`; averages are per contact WITH interaction.,meta-blip,packages/core/src/analise/index.ts:260-260; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-0b2a1c0f,packages-core,packages/core/src/analise/index.ts,27,27,jsdoc,3,"/** `yT`: a segunda fileira, que só aparece com `is-displaying-dashboard-fixed-period-chips`. */",translate,"`yT`: second chip row, shown only with `is-displaying-dashboard-fixed-period-chips`.",meta-blip,packages/core/src/analise/index.ts:27-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-1623bfc6,packages-core,packages/core/src/analise/index.ts,271,271,jsdoc,1,/** `/flowmetrics`. `excecao` nulo: o Pipe não tem bloco de exceção. */,translate,`/flowmetrics`; null `excecao` because Pipe has no exception block.,meta-blip,packages/core/src/analise/index.ts:271-271; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-c69f03dd,packages-core,packages/core/src/analise/index.ts,273,273,jsdoc,0,/** `/blocks/fallback` e `/blocks/desk` — as listas de até 10 blocos. */,translate,`/blocks/fallback` and `/blocks/desk`: lists of at most ten blocks.,meta-blip,packages/core/src/analise/index.ts:273-273; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f8be28cf,packages-core,packages/core/src/analise/index.ts,278,278,jsdoc,2,"/** Os nomes que o `IE` dá aos domínios da origem, pelo tipo de canal do Pipe. */",translate,"Names assigned by source `IE` to its domains, by Pipe channel type.",meta-blip,packages/core/src/analise/index.ts:278-278; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d33235b6,packages-core,packages/core/src/analise/index.ts,283,283,block,0,"/* `0mn.io` é ""Blip Chat"" lá: o widget é o chat do produto, e o produto aqui é o Pipe. */",translate,"Source `0mn.io` is ""Blip Chat""; the widget is this product's chat, here Pipe Chat.",meta-blip,packages/core/src/analise/index.ts:283-283; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-45a337aa,packages-core,packages/core/src/analise/index.ts,288,288,jsdoc,2,/** Uma linha de `/active-messages/status` (`sendDateTime` já como dia). */,translate,"One `/active-messages/status` row, with `sendDateTime` already reduced to a day.",meta-blip,packages/core/src/analise/index.ts:288-288; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d2a7f52b,packages-core,packages/core/src/analise/index.ts,304,304,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,translate,`/active-messages/template-names` autocomplete options.,meta-blip,packages/core/src/analise/index.ts:304-304; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-64a3cf0e,packages-core,packages/core/src/analise/index.ts,309,309,block,0,"/* ═══════════════════ Visão geral, relatórios e jornada (só os tipos) ═══ */",remove,,other,packages/core/src/analise/index.ts:309-309,codex,reviewed
 packages-core-comment-a27b4096,packages-core,packages/core/src/analise/index.ts,311,321,jsdoc,9,"/**
  * Os dados da Análise do contato — Visão Geral, Relatórios Personalizados e
  * Jornada dos Contatos (`app/fluxo/[id]/analise/`).
@@ -71,16 +71,16 @@ packages-core-comment-a27b4096,packages-core,packages/core/src/analise/index.ts,
  *
  * Uma transação por tela, consultas EM SÉRIE — `Promise.all` dentro do
  * `comTenant` apaga o `pipe.tenant_id` (ver `implantacao.ts`).
- */",,,,,,
-packages-core-comment-dcda62ab,packages-core,packages/core/src/analise/index.ts,330,330,block,0,/* ------------------------------------------------------------ Visão Geral */,,,,,,
-packages-core-comment-42fc0d4a,packages-core,packages/core/src/analise/index.ts,332,332,jsdoc,1,/** Os seis contadores dos dois cartões do `general-dashboard`. */,,,,,,
-packages-core-comment-9dce38b7,packages-core,packages/core/src/analise/index.ts,334,334,jsdoc,0,/** `metrics.activeClients`: enviaram OU receberam mensagem no período. */,,,,,,
-packages-core-comment-3690d3bb,packages-core,packages/core/src/analise/index.ts,336,336,jsdoc,0,/** `metrics.engagedClients`: ENVIARAM mensagem no período. */,,,,,,
-packages-core-comment-f70a9b3f,packages-core,packages/core/src/analise/index.ts,365,365,jsdoc,2,"/** Um item de `AnalyticsReportsService.getMany`, já com o `handleReport` aplicado. */",,,,,,
-packages-core-comment-839207aa,packages-core,packages/core/src/analise/index.ts,372,372,jsdoc,0,/** `owner.email === email da pessoa`: só o dono vê editar e excluir. */,,,,,,
-packages-core-comment-7612038b,packages-core,packages/core/src/analise/index.ts,39,39,jsdoc,0,/** Os rótulos pt de `sT` (Dashboard) e `gt` (Mensagens ativas) — iguais nos dois. */,,,,,,
-packages-core-comment-d68bfdc1,packages-core,packages/core/src/analise/index.ts,65,65,jsdoc,2,"/** A data de hoje no fuso da conta — o `new Date()` da origem, sem o fuso do servidor. */",,,,,,
-packages-core-comment-8e511a6a,packages-core,packages/core/src/analise/index.ts,70,70,jsdoc,2,/** O `?periodo=` da URL; o que não for conhecido cai no `vT.Today` inicial da origem. */,,,,,,
+ */",translate,"Types for contact Analytics Overview, Custom Reports, and Contact Journey (`app/fluxo/[id]/analise/`). In the source, all three use LIME commands to `postmaster@analytics.{domínio}`, and Journey also uses router Cassandra. Here available data comes from the database; unavailable data returns empty with `ponytail:`. Use one transaction per screen and SERIAL queries: `Promise.all` within `comTenant` clears `pipe.tenant_id` (see `implantacao.ts`).",architecture,packages/core/src/analise/index.ts:311-321; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-dcda62ab,packages-core,packages/core/src/analise/index.ts,330,330,block,0,/* ------------------------------------------------------------ Visão Geral */,remove,,other,packages/core/src/analise/index.ts:330-330,codex,reviewed
+packages-core-comment-42fc0d4a,packages-core,packages/core/src/analise/index.ts,332,332,jsdoc,1,/** Os seis contadores dos dois cartões do `general-dashboard`. */,translate,Six counters in the two `general-dashboard` cards.,meta-blip,packages/core/src/analise/index.ts:332-332; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-9dce38b7,packages-core,packages/core/src/analise/index.ts,334,334,jsdoc,0,/** `metrics.activeClients`: enviaram OU receberam mensagem no período. */,translate,`metrics.activeClients`: sent OR received a message in the period.,meta-blip,packages/core/src/analise/index.ts:334-334; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-3690d3bb,packages-core,packages/core/src/analise/index.ts,336,336,jsdoc,0,/** `metrics.engagedClients`: ENVIARAM mensagem no período. */,translate,`metrics.engagedClients`: SENT a message in the period.,meta-blip,packages/core/src/analise/index.ts:336-336; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f70a9b3f,packages-core,packages/core/src/analise/index.ts,365,365,jsdoc,2,"/** Um item de `AnalyticsReportsService.getMany`, já com o `handleReport` aplicado. */",translate,One `AnalyticsReportsService.getMany` item after `handleReport`.,meta-blip,packages/core/src/analise/index.ts:365-365; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-839207aa,packages-core,packages/core/src/analise/index.ts,372,372,jsdoc,0,/** `owner.email === email da pessoa`: só o dono vê editar e excluir. */,translate,`owner.email === email da pessoa`: only the owner can see edit and delete.,security,packages/core/src/analise/index.ts:372-372; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7612038b,packages-core,packages/core/src/analise/index.ts,39,39,jsdoc,0,/** Os rótulos pt de `sT` (Dashboard) e `gt` (Mensagens ativas) — iguais nos dois. */,translate,"Portuguese labels of `sT` (Dashboard) and `gt` (active messages), identical on both screens.",meta-blip,packages/core/src/analise/index.ts:39-39; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d68bfdc1,packages-core,packages/core/src/analise/index.ts,65,65,jsdoc,2,"/** A data de hoje no fuso da conta — o `new Date()` da origem, sem o fuso do servidor. */",translate,"Today in the account timezone, corresponding to source `new Date()` without server timezone.",meta-blip,packages/core/src/analise/index.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-8e511a6a,packages-core,packages/core/src/analise/index.ts,70,70,jsdoc,2,/** O `?periodo=` da URL; o que não for conhecido cai no `vT.Today` inicial da origem. */,translate,URL `?periodo=`; unknown values fall back to source initial `vT.Today`.,meta-blip,packages/core/src/analise/index.ts:70-70; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-16d38f6b,packages-core,packages/core/src/analise/index.ts,76,85,jsdoc,6,"/**
  * O intervalo de cada chip — `b()` e `v()` de `xT` (e os mesmos `B()`/`z()` de
  * `St`, o filtro de Mensagens ativas).
@@ -90,26 +90,26 @@ packages-core-comment-16d38f6b,packages-core,packages/core/src/analise/index.ts,
  * domingo (`dt()`). O personalizado aceita no máximo `limiteDias` para trás —
  * 90 no Dashboard (`st(90)` do `aT`) e 186 em Mensagens ativas (`St`) — e não
  * passa de hoje; fora disso, `null`.
- */",,,,,,
-packages-core-comment-f23a8b59,packages-core,packages/core/src/comum/tempo.ts,18,18,jsdoc,2,"/** Ordena instantes em ordem crescente, sem mutar a lista recebida. */",,,,,,
+ */",translate,"Chip intervals mirror `b()` and `v()` of `xT`, and `B()`/`z()` of active-message filter `St`. Preserve source quirks: ""Últimos 7 dias"" is D-7 through D-1, excluding today; ""Semana anterior"" is Sunday through Saturday (`ht()`); ""Semana atual"" starts Sunday (`dt()`). Custom periods cannot start more than `limiteDias` days back (90 on Dashboard via `st(90)` of `aT`, 186 on active messages via `St`) or extend beyond today; invalid bounds return null.",meta-blip,packages/core/src/analise/index.ts:76-85; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f23a8b59,packages-core,packages/core/src/comum/tempo.ts,18,18,jsdoc,2,"/** Ordena instantes em ordem crescente, sem mutar a lista recebida. */",remove,,other,packages/core/src/comum/tempo.ts:18-18,codex,reviewed
 packages-core-comment-3104f5e5,packages-core,packages/core/src/comum/tempo.ts,23,28,jsdoc,2,"/**
  * Comparação estável de identificador, por ponto de código.
  *
  * `localeCompare` depende de locale e ICU e por isso não serve como desempate
  * final de distribuição — o resultado precisa ser o mesmo em qualquer máquina.
- */",,,,,,
-packages-core-comment-7ca408f9,packages-core,packages/core/src/comum/tempo.ts,8,8,jsdoc,3,/** Segundos entre dois instantes. Pode ser negativo — quem chama decide o que fazer com isso. */,,,,,,
+ */",translate,"Stable identifier comparison by code point. `localeCompare` depends on locale and ICU, so it cannot break distribution ties when results must match across machines.",architecture,packages/core/src/comum/tempo.ts:23-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-7ca408f9,packages-core,packages/core/src/comum/tempo.ts,8,8,jsdoc,3,/** Segundos entre dois instantes. Pode ser negativo — quem chama decide o que fazer com isso. */,translate,Seconds between instants; may be negative and callers decide how to handle it.,other,packages/core/src/comum/tempo.ts:8-8,codex,reviewed
 packages-core-comment-21d2fb9d,packages-core,packages/core/src/comum/tipos.ts,1,7,jsdoc,3,"/**
  * Tipos compartilhados por todas as regras do Pipe.
  *
  * Duração é sempre **inteiro ou fracionário em segundos** — nunca `interval`,
  * nunca milissegundos — para bater com a convenção do modelo de dados
  * (`2026-09-05-modelo-de-dados.md`, §1).
- */",,,,,,
-packages-core-comment-e03f6b96,packages-core,packages/core/src/comum/tipos.ts,22,22,jsdoc,2,"/** Média em segundos, ou `null` quando a população é zero. Nunca `0` por falta de dado. */",,,,,,
-packages-core-comment-05c0625c,packages-core,packages/core/src/comum/tipos.ts,24,24,jsdoc,0,/** Denominador do cálculo. */,,,,,,
-packages-core-comment-65b4c7a1,packages-core,packages/core/src/comum/tipos.ts,32,32,jsdoc,2,/** Constrói um `ResultadoMetrica` a partir da soma e das contagens. */,,,,,,
-packages-core-comment-5c93275a,packages-core,packages/core/src/comum/tipos.ts,42,42,jsdoc,0,/** Resultado vazio — nenhuma conversa entrou no cálculo. */,,,,,,
+ */",translate,"Types shared by all Pipe rules. Durations are integral or fractional seconds, never `interval` or milliseconds, matching data-model convention in `2026-09-05-modelo-de-dados.md` §1.",architecture,packages/core/src/comum/tipos.ts:1-7; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-e03f6b96,packages-core,packages/core/src/comum/tipos.ts,22,22,jsdoc,2,"/** Média em segundos, ou `null` quando a população é zero. Nunca `0` por falta de dado. */",translate,"Mean in seconds, or null when population is zero; never zero merely because data is absent.",architecture,packages/core/src/comum/tipos.ts:22-22; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-05c0625c,packages-core,packages/core/src/comum/tipos.ts,24,24,jsdoc,0,/** Denominador do cálculo. */,remove,,other,packages/core/src/comum/tipos.ts:24-24,codex,reviewed
+packages-core-comment-65b4c7a1,packages-core,packages/core/src/comum/tipos.ts,32,32,jsdoc,2,/** Constrói um `ResultadoMetrica` a partir da soma e das contagens. */,remove,,other,packages/core/src/comum/tipos.ts:32-32,codex,reviewed
+packages-core-comment-5c93275a,packages-core,packages/core/src/comum/tipos.ts,42,42,jsdoc,0,/** Resultado vazio — nenhuma conversa entrou no cálculo. */,remove,,other,packages/core/src/comum/tipos.ts:42-42,codex,reviewed
 packages-core-comment-a87d7acb,packages-core,packages/core/src/comum/tipos.ts,9,20,jsdoc,8,"/**
  * Resultado padrão de toda métrica que vira número em tela ou relatório.
  *
@@ -121,11 +121,11 @@ packages-core-comment-a87d7acb,packages-core,packages/core/src/comum/tipos.ts,9,
  * `soma` é redundante com `valor × populacao`, mas fica exposta para a média
  * ponderada de §5 poder somar grupos sem acumular erro de arredondamento de
  * ponto flutuante.
- */",,,,,,
+ */",translate,"Standard result for every metric shown in a screen or report. `populacao` is the effective denominator and `excluidas` counts excluded candidates; both are mandatory by product decision (metrics spec §2): ""métrica que esconde o próprio denominador não entra neste produto"". `soma` is redundant with `valor × populacao` but supports weighted averages across groups without accumulating floating-point rounding error (§5).",architecture,packages/core/src/comum/tipos.ts:9-20; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-b55ae205,packages-core,packages/core/src/conversa/conversa.teste.ts,21,24,jsdoc,2,"/**
  * Tabela completa das 25 combinações do diagrama da §8.
  * `true` = aresta que existe no desenho; todo o resto tem de ser recusado.
- */",,,,,,
+ */",translate,All 25 combinations from the §8 diagram. True means the diagram has that edge; every other transition must be rejected.,architecture,packages/core/src/conversa/conversa.teste.ts:21-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-b9b770b9,packages-core,packages/core/src/conversa/maquina.ts,1,21,jsdoc,13,"/**
  * Máquina de estados da conversa — §8 do modelo de dados.
  *
@@ -146,7 +146,7 @@ packages-core-comment-b9b770b9,packages-core,packages/core/src/conversa/maquina.
  * Evento vindo do cliente não pode levar a conversa a estado inválido — é
  * exatamente o bug ""ticket encerrado pelo usuário em fluxo humano"" que a
  * comunidade da Blip reclama.
- */",,,,,,
+ */",translate,"Conversation state machine from data-model §8. Allowed states and transitions follow the diagram. A transfer is not a transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination (Blip rules §2.6, measured in production), so `atribuida` has no edge back to `na_fila`. Customer events must not force invalid states, avoiding the Blip community's ""ticket encerrado pelo usuário em fluxo humano"" bug.",meta-blip,packages/core/src/conversa/maquina.ts:1-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-32883197,packages-core,packages/core/src/conversa/maquina.ts,124,133,jsdoc,9,"/**
  * Aplica um evento ao estado corrente.
  *
@@ -156,23 +156,23 @@ packages-core-comment-32883197,packages-core,packages/core/src/conversa/maquina.
  *   reentrega de webhook é normal e não pode virar exceção;
  * - qualquer outro destino passa pela tabela de transições e, se não for
  *   permitido, lança `TransicaoInvalidaError`.
- */",,,,,,
-packages-core-comment-6077b056,packages-core,packages/core/src/conversa/maquina.ts,147,147,jsdoc,1,/** Versão sem exceção de `aplicarEvento`. */,,,,,,
+ */",translate,"Apply an event to the current state per product-design §4.3: unmapped events never change state; events mapping to the current state are idempotent, as webhook redelivery is normal; every other destination must pass the transition table or raise `TransicaoInvalidaError`.",architecture,packages/core/src/conversa/maquina.ts:124-133; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6077b056,packages-core,packages/core/src/conversa/maquina.ts,147,147,jsdoc,1,/** Versão sem exceção de `aplicarEvento`. */,remove,,other,packages/core/src/conversa/maquina.ts:147-147,codex,reviewed
 packages-core-comment-0a0d6117,packages-core,packages/core/src/conversa/maquina.ts,160,163,jsdoc,4,"/**
  * Reproduz uma sequência de eventos a partir de um estado inicial.
  * Serve para recalcular o passado — a razão de os eventos serem imutáveis.
- */",,,,,,
-packages-core-comment-8e42a1fa,packages-core,packages/core/src/conversa/maquina.ts,175,175,line,0,"// --- Máquina da mensagem de saída (§8, segundo diagrama) ---",,,,,,
-packages-core-comment-6c018287,packages-core,packages/core/src/conversa/maquina.ts,185,185,line,2,// Reenviar volta para a fila de saída — nunca falha em silêncio.,,,,,,
-packages-core-comment-379fadd4,packages-core,packages/core/src/conversa/maquina.ts,40,40,jsdoc,0,"/** Transições permitidas, exatamente as do diagrama da §8. */",,,,,,
-packages-core-comment-3bf5afe6,packages-core,packages/core/src/conversa/maquina.ts,49,49,jsdoc,0,/** Erro tipado de transição inválida. Nada de `throw new Error('opa')`. */,,,,,,
-packages-core-comment-485e615a,packages-core,packages/core/src/conversa/maquina.ts,70,70,jsdoc,0,/** Transita ou lança `TransicaoInvalidaError`. */,,,,,,
-packages-core-comment-4f6bf6f0,packages-core,packages/core/src/conversa/maquina.ts,80,80,jsdoc,2,"/** Versão sem exceção, para o caminho quente do consumidor de eventos. */",,,,,,
+ */",translate,Replay events from an initial state to recompute history; this is why events are immutable.,architecture,packages/core/src/conversa/maquina.ts:160-163; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-8e42a1fa,packages-core,packages/core/src/conversa/maquina.ts,175,175,line,0,"// --- Máquina da mensagem de saída (§8, segundo diagrama) ---",remove,,other,packages/core/src/conversa/maquina.ts:175-175,codex,reviewed
+packages-core-comment-6c018287,packages-core,packages/core/src/conversa/maquina.ts,185,185,line,2,// Reenviar volta para a fila de saída — nunca falha em silêncio.,translate,Retry puts delivery back in the outbound queue; it never fails silently.,architecture,packages/core/src/conversa/maquina.ts:185-185; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-379fadd4,packages-core,packages/core/src/conversa/maquina.ts,40,40,jsdoc,0,"/** Transições permitidas, exatamente as do diagrama da §8. */",remove,,other,packages/core/src/conversa/maquina.ts:40-40,codex,reviewed
+packages-core-comment-3bf5afe6,packages-core,packages/core/src/conversa/maquina.ts,49,49,jsdoc,0,/** Erro tipado de transição inválida. Nada de `throw new Error('opa')`. */,remove,,other,packages/core/src/conversa/maquina.ts:49-49,codex,reviewed
+packages-core-comment-485e615a,packages-core,packages/core/src/conversa/maquina.ts,70,70,jsdoc,0,/** Transita ou lança `TransicaoInvalidaError`. */,remove,,other,packages/core/src/conversa/maquina.ts:70-70,codex,reviewed
+packages-core-comment-4f6bf6f0,packages-core,packages/core/src/conversa/maquina.ts,80,80,jsdoc,2,"/** Versão sem exceção, para o caminho quente do consumidor de eventos. */",translate,Nonthrowing variant for the event consumer's hot path.,architecture,packages/core/src/conversa/maquina.ts:80-80; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-42bba512,packages-core,packages/core/src/conversa/maquina.ts,91,95,jsdoc,2,"/**
  * Estado de destino de cada tipo de evento. `null` = evento que não mexe no
  * estado (mensagem do cliente, alerta de SLA, avaliação, transferência de fila
  * registrada como histórico).
- */",,,,,,
+ */",translate,"Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, or queue transfer recorded as history).",architecture,packages/core/src/conversa/maquina.ts:91-95; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-45794fcc,packages-core,packages/core/src/conversa/prioridade.ts,1,18,jsdoc,19,"/**
  * A régua de prioridade da conversa, e a ordem que ela impõe na fila de espera.
  *
@@ -190,7 +190,7 @@ packages-core-comment-45794fcc,packages-core,packages/core/src/conversa/priorida
  * fica, e `@pipe/db` importa daqui para montar a restrição.
  *
  * Ver `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5.
- */",,,,,,
+ */",translate,"Conversation priority scale and its waiting-queue order live here rather than in `@pipe/db`. The scale originated beside the database constraint in `schema/comum.ts`, but importing it from there would pull `drizzle-orm/pg-core` and the PostgreSQL driver into browser code. Desk instead kept a parallel three-level weight map that treated unknown priorities as `media`, wrongly ordering `maxima` and `sem_prioridade` as medium. This package holds pure rules without database or HTTP; `@pipe/db` imports the scale to build its constraint. See `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5.",architecture,packages/core/src/conversa/prioridade.ts:1-18; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-df2b97fb,packages-core,packages/core/src/conversa/prioridade.ts,20,33,jsdoc,12,"/**
  * Os cinco degraus, **em ordem de precedência**: o índice é o peso, e o primeiro
  * é o que atende primeiro.
@@ -204,18 +204,18 @@ packages-core-comment-df2b97fb,packages-core,packages/core/src/conversa/priorida
  * A ordem desta lista é significado, não arrumação. Quem inserir um degrau no
  * meio muda a ordem da fila de espera; use `pesoPrioridade`, nunca um mapa
  * paralelo de pesos.
- */",,,,,,
+ */",translate,"Five levels in precedence order; the array index is the weight and the first receives service first. `sem_prioridade` means priority is absent, not medium by default: even `baixa` precedes it. The old `media` default assigned an invented priority to every ticket. Array order is business meaning; inserting a level changes queue order. Use `pesoPrioridade`, never a parallel weight map.",architecture,packages/core/src/conversa/prioridade.ts:20-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-3d49abd3,packages-core,packages/core/src/conversa/prioridade.ts,38,42,jsdoc,11,"/**
  * O que uma REGRA de priorização pode atribuir: tudo menos a ausência. Uma regra
  * que atribui ""sem prioridade"" não é uma regra — é a falta dela, e teria o
  * efeito de rebaixar o ticket para o fim da fila sem ninguém ter pedido.
- */",,,,,,
-packages-core-comment-6649eb79,packages-core,packages/core/src/conversa/prioridade.ts,45,45,jsdoc,0,/** Rótulo de tela de cada degrau. */,,,,,,
+ */",translate,A prioritization rule may assign any level except absence. Assigning `sem_prioridade` would demote a ticket to the end without anyone requesting it.,architecture,packages/core/src/conversa/prioridade.ts:38-42; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6649eb79,packages-core,packages/core/src/conversa/prioridade.ts,45,45,jsdoc,0,/** Rótulo de tela de cada degrau. */,remove,,other,packages/core/src/conversa/prioridade.ts:45-45,codex,reviewed
 packages-core-comment-1770611b,packages-core,packages/core/src/conversa/prioridade.ts,54,58,jsdoc,8,"/**
  * Peso de ordenação: menor atende primeiro. Valor desconhecido cai no FIM, e não
  * no meio — inventar prioridade para o que não se reconhece é o defeito que esta
  * função existe para não repetir.
- */",,,,,,
+ */",translate,Sort weight: lower is served first. Unknown values go to the END rather than the middle; assigning them invented priority is the defect this function prevents.,architecture,packages/core/src/conversa/prioridade.ts:54-58; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-f968a1f6,packages-core,packages/core/src/conversa/prioridade.ts,64,73,block,19,"/*
  * O COMPARADOR fica em cada app, e isto é deliberado: a linha da Gestão guarda a
  * data em `marcos.criadaEm` e a do Desk em `criadaEm`, e uma função genérica o
@@ -225,7 +225,7 @@ packages-core-comment-f968a1f6,packages-core,packages/core/src/conversa/priorida
  * O desempate é sempre o mesmo e é parte da regra: **prioridade primeiro,
  * empate pela mais antiga** — sem ele a fila vira pilha, com o último a chegar
  * sendo o primeiro a sair.
- */",,,,,,
+ */",translate,"Each app keeps its own comparator deliberately: Management stores creation at `marcos.criadaEm`, Desk at `criadaEm`, and a shared generic function would cost more than three duplicated lines. The scale above must remain single. Tie-break by priority first, then oldest creation time; otherwise the queue behaves as a stack, serving the latest arrival first.",architecture,packages/core/src/conversa/prioridade.ts:64-73; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-6a537bc4,packages-core,packages/core/src/distribuicao/carga.ts,1,15,jsdoc,14,"/**
  * Distribuição por carga real — §7 da spec de métricas.
  *
@@ -240,50 +240,50 @@ packages-core-comment-6a537bc4,packages-core,packages/core/src/distribuicao/carg
  *     conversa aguardando o cliente;
  *  2. empate: quem está há mais tempo sem receber conversa;
  *  3. empate persistente: ordem estável por identificador.
- */",,,,,,
+ */",translate,"Distribute by actual load (metrics spec §7). An agent is eligible only when in the queue, online, and below `limite_simultaneo − ativas > 0`; an independent cap limits assigned conversations still awaiting the first response. Among eligible agents choose lowest weighted load, with agent-waiting conversations weighted above customer-waiting ones; then longest time since last assignment; then stable identifier order.",architecture,packages/core/src/distribuicao/carga.ts:1-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-d88eed16,packages-core,packages/core/src/distribuicao/carga.ts,111,116,jsdoc,6,"/**
  * Ordem de preferência entre dois elegíveis.
  *
  * Quem nunca recebeu conversa (`ultimaAtribuicaoEm === null`) está há mais tempo
  * sem receber do que qualquer um que já recebeu — vem antes no desempate.
- */",,,,,,
+ */",translate,Preference order between eligible agents. An agent who has never received a conversation (`ultimaAtribuicaoEm === null`) has waited longer than any previously assigned agent and wins the time tie-break.,architecture,packages/core/src/distribuicao/carga.ts:111-116; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-a514bdfc,packages-core,packages/core/src/distribuicao/carga.ts,133,138,jsdoc,7,"/**
  * Escolhe o atendente que recebe a próxima conversa da fila.
  *
  * Devolve também a lista de descartados com o motivo: sem isso, ""ninguém
  * recebeu"" vira um mistério em produção.
- */",,,,,,
-packages-core-comment-52a83e1c,packages-core,packages/core/src/distribuicao/carga.ts,19,19,jsdoc,0,/** `status_atendente.estado` do modelo de dados (§3). Só `online` recebe. */,,,,,,
-packages-core-comment-f867641a,packages-core,packages/core/src/distribuicao/carga.ts,25,25,jsdoc,2,/** Filas em que o atendente está habilitado. */,,,,,,
-packages-core-comment-24c2ecdb,packages-core,packages/core/src/distribuicao/carga.ts,27,27,jsdoc,0,/** `fila_atendente.capacidade_override` ou o padrão da fila/tenant. */,,,,,,
-packages-core-comment-1cceefe8,packages-core,packages/core/src/distribuicao/carga.ts,29,29,jsdoc,1,/** Conversas abertas atribuídas a ele agora. */,,,,,,
-packages-core-comment-32c50777,packages-core,packages/core/src/distribuicao/carga.ts,31,31,jsdoc,4,/** Subconjunto de `ativas` em que a bola está com o atendente. */,,,,,,
-packages-core-comment-6b6f22bd,packages-core,packages/core/src/distribuicao/carga.ts,33,33,jsdoc,3,/** Conversas atribuídas que ainda não receberam primeira resposta. */,,,,,,
-packages-core-comment-ec3e315d,packages-core,packages/core/src/distribuicao/carga.ts,35,35,jsdoc,2,/** Quando recebeu a última conversa. `null` = nunca recebeu. */,,,,,,
-packages-core-comment-60aa4fd2,packages-core,packages/core/src/distribuicao/carga.ts,49,49,jsdoc,1,/** Peso da conversa que aguarda o atendente. Padrão 2. */,,,,,,
-packages-core-comment-0431daea,packages-core,packages/core/src/distribuicao/carga.ts,51,51,jsdoc,1,/** Peso da conversa que aguarda o cliente. Padrão 1. */,,,,,,
-packages-core-comment-2008b3cb,packages-core,packages/core/src/distribuicao/carga.ts,62,62,jsdoc,1,/** Elegíveis já na ordem de preferência. */,,,,,,
+ */",translate,"Choose the agent for the next queued conversation and return rejected candidates with reasons, so ""nobody received it"" can be diagnosed in production.",architecture,packages/core/src/distribuicao/carga.ts:133-138; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-52a83e1c,packages-core,packages/core/src/distribuicao/carga.ts,19,19,jsdoc,0,/** `status_atendente.estado` do modelo de dados (§3). Só `online` recebe. */,translate,Data-model §3 `status_atendente.estado`; only `online` agents receive conversations.,integration,packages/core/src/distribuicao/carga.ts:19-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f867641a,packages-core,packages/core/src/distribuicao/carga.ts,25,25,jsdoc,2,/** Filas em que o atendente está habilitado. */,remove,,other,packages/core/src/distribuicao/carga.ts:25-25,codex,reviewed
+packages-core-comment-24c2ecdb,packages-core,packages/core/src/distribuicao/carga.ts,27,27,jsdoc,0,/** `fila_atendente.capacidade_override` ou o padrão da fila/tenant. */,translate,`fila_atendente.capacidade_override` or the queue/tenant default.,integration,packages/core/src/distribuicao/carga.ts:27-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-1cceefe8,packages-core,packages/core/src/distribuicao/carga.ts,29,29,jsdoc,1,/** Conversas abertas atribuídas a ele agora. */,remove,,other,packages/core/src/distribuicao/carga.ts:29-29,codex,reviewed
+packages-core-comment-32c50777,packages-core,packages/core/src/distribuicao/carga.ts,31,31,jsdoc,4,/** Subconjunto de `ativas` em que a bola está com o atendente. */,translate,Subset of `ativas` awaiting an agent response.,other,packages/core/src/distribuicao/carga.ts:31-31,codex,reviewed
+packages-core-comment-6b6f22bd,packages-core,packages/core/src/distribuicao/carga.ts,33,33,jsdoc,3,/** Conversas atribuídas que ainda não receberam primeira resposta. */,translate,Assigned conversations with no first response yet.,other,packages/core/src/distribuicao/carga.ts:33-33,codex,reviewed
+packages-core-comment-ec3e315d,packages-core,packages/core/src/distribuicao/carga.ts,35,35,jsdoc,2,/** Quando recebeu a última conversa. `null` = nunca recebeu. */,translate,Most recent assignment time; null means never assigned.,other,packages/core/src/distribuicao/carga.ts:35-35,codex,reviewed
+packages-core-comment-60aa4fd2,packages-core,packages/core/src/distribuicao/carga.ts,49,49,jsdoc,1,/** Peso da conversa que aguarda o atendente. Padrão 2. */,translate,"Weight for a conversation awaiting the agent, default 2.",other,packages/core/src/distribuicao/carga.ts:49-49,codex,reviewed
+packages-core-comment-0431daea,packages-core,packages/core/src/distribuicao/carga.ts,51,51,jsdoc,1,/** Peso da conversa que aguarda o cliente. Padrão 1. */,translate,"Weight for a conversation awaiting the customer, default 1.",other,packages/core/src/distribuicao/carga.ts:51-51,codex,reviewed
+packages-core-comment-2008b3cb,packages-core,packages/core/src/distribuicao/carga.ts,62,62,jsdoc,1,/** Elegíveis já na ordem de preferência. */,remove,,other,packages/core/src/distribuicao/carga.ts:62-62,codex,reviewed
 packages-core-comment-763fd8dd,packages-core,packages/core/src/distribuicao/carga.ts,70,75,jsdoc,2,"/**
  * Carga ponderada do atendente.
  *
  * `aguardandoAtendente` é clampado em `ativas`: dado inconsistente não pode
  * gerar carga negativa para o outro termo.
- */",,,,,,
-packages-core-comment-179aeb24,packages-core,packages/core/src/distribuicao/carga.ts,92,92,jsdoc,2,/** Por que este atendente não pode receber agora — ou `null` se pode. */,,,,,,
-packages-core-comment-5386045d,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,126,126,line,2,// A ordem da entrada não pode mudar o resultado.,,,,,,
-packages-core-comment-9d3e01be,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,157,157,line,0,"// carga do parado = 10; carga do quente = 12. O rodízio por ""menos tickets""",,,,,,
-packages-core-comment-d6422040,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,39,39,line,5,"// Peso 2 para conversa que aguarda o atendente, 1 para a que aguarda o cliente.",,,,,,
-packages-core-comment-f3585b37,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,89,89,line,3,"// Sem teto configurado, a regra não se aplica.",,,,,,
-packages-core-comment-7ef5dcc2,packages-core,packages/core/src/esforco/esforco.teste.ts,123,123,line,1,// Os 180s da resposta pronta ficam fora dos 345s de esforço.,,,,,,
+ */",translate,Agent weighted load. Clamp `aguardandoAtendente` to `ativas` so inconsistent data cannot make the other term negative.,architecture,packages/core/src/distribuicao/carga.ts:70-75; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-179aeb24,packages-core,packages/core/src/distribuicao/carga.ts,92,92,jsdoc,2,/** Por que este atendente não pode receber agora — ou `null` se pode. */,remove,,other,packages/core/src/distribuicao/carga.ts:92-92,codex,reviewed
+packages-core-comment-5386045d,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,126,126,line,2,// A ordem da entrada não pode mudar o resultado.,remove,,other,packages/core/src/distribuicao/distribuicao.teste.ts:126-126,codex,reviewed
+packages-core-comment-9d3e01be,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,157,157,line,0,"// carga do parado = 10; carga do quente = 12. O rodízio por ""menos tickets""",translate,Idle agent load is 10; busy agent load is 12. Round-robin by fewer tickets would pick the busy agent (6 < 10); actual load picks the idle agent.,architecture,packages/core/src/distribuicao/distribuicao.teste.ts:157-157; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d6422040,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,39,39,line,5,"// Peso 2 para conversa que aguarda o atendente, 1 para a que aguarda o cliente.",remove,,other,packages/core/src/distribuicao/distribuicao.teste.ts:39-39,codex,reviewed
+packages-core-comment-f3585b37,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,89,89,line,3,"// Sem teto configurado, a regra não se aplica.",remove,,other,packages/core/src/distribuicao/distribuicao.teste.ts:89-89,codex,reviewed
+packages-core-comment-7ef5dcc2,packages-core,packages/core/src/esforco/esforco.teste.ts,123,123,line,1,// Os 180s da resposta pronta ficam fora dos 345s de esforço.,remove,,other,packages/core/src/esforco/esforco.teste.ts:123-123,codex,reviewed
 packages-core-comment-6dd43962,packages-core,packages/core/src/esforco/esforco.teste.ts,174,180,jsdoc,2,"/**
    * Mensagens do atendente no dia, em minutos a partir das 10:00:
    *   0, 3, 8, 25, 30, 31, 60
    * Intervalos: 3, 5, 17, 5, 1, 29 minutos.
    * Só contam os de até 10 min → 3+5 = 8 min, depois 5+1 = 6 min, depois nada.
    * Sessão = 14 min = 840s, em três blocos.
-   */",,,,,,
-packages-core-comment-5c47b96d,packages-core,packages/core/src/esforco/esforco.teste.ts,264,264,line,0,// Ponderada: 9.600 ÷ 12 = 800s. Média de médias daria (600 + 1.800) ÷ 2 = 1.200s.,,,,,,
-packages-core-comment-26a3dbd2,packages-core,packages/core/src/esforco/esforco.teste.ts,38,38,line,0,// 200 caracteres = 1 minuto de digitação,,,,,,
+   */",translate,"Agent messages in minutes after 10:00: 0, 3, 8, 25, 30, 31, 60. Gaps are 3, 5, 17, 5, 1, 29 minutes; only gaps up to 10 count, giving 8 then 6 minutes and no later time. Session time is 14 minutes (840 seconds) across three blocks.",other,packages/core/src/esforco/esforco.teste.ts:174-180,codex,reviewed
+packages-core-comment-5c47b96d,packages-core,packages/core/src/esforco/esforco.teste.ts,264,264,line,0,// Ponderada: 9.600 ÷ 12 = 800s. Média de médias daria (600 + 1.800) ÷ 2 = 1.200s.,translate,"Weighted mean: 9,600 ÷ 12 = 800 seconds. Mean of daily means would be (600 + 1,800) ÷ 2 = 1,200 seconds.",other,packages/core/src/esforco/esforco.teste.ts:264-264,codex,reviewed
+packages-core-comment-26a3dbd2,packages-core,packages/core/src/esforco/esforco.teste.ts,38,38,line,0,// 200 caracteres = 1 minuto de digitação,remove,,other,packages/core/src/esforco/esforco.teste.ts:38-38,codex,reviewed
 packages-core-comment-c8403cb8,packages-core,packages/core/src/esforco/esforco.teste.ts,86,94,jsdoc,2,"/**
    * Conta feita à mão:
    *  escrita  = 400 (texto) + 100 (nota interna) = 500 chars → 500×60÷200 = 150s
@@ -292,7 +292,7 @@ packages-core-comment-c8403cb8,packages-core,packages/core/src/esforco/esforco.t
    *  fala     = áudio do atendente de 60.000 bytes            → 60.000÷2.000 = 30s
    *  esforço  = 150 + 120 + 45 + 30                           = 345s
    *  resposta pronta: 600 chars fora do esforço               → 600×60÷200 = 180s
-   */",,,,,,
+   */",translate,"Manual calculation: writing 400 message and 100 internal-note characters gives 500 × 60 ÷ 200 = 150 s; reading 2,000 characters gives 2,000 × 60 ÷ 1,000 = 120 s; listening to customer audio adds 45 s; 60,000 bytes of agent audio at 2,000 bytes/s adds 30 s. Total effort is 345 s. The 600-character canned response is excluded and would add 180 s if typed.",other,packages/core/src/esforco/esforco.teste.ts:86-94,codex,reviewed
 packages-core-comment-b053b04a,packages-core,packages/core/src/esforco/regua.ts,1,18,jsdoc,12,"/**
  * Régua determinística de esforço de atendimento.
  *
@@ -310,7 +310,7 @@ packages-core-comment-b053b04a,packages-core,packages/core/src/esforco/regua.ts,
  * Ressalva do relatório original, que o produto precisa expor: a régua assume
  * texto digitado à mão. Por isso o conteúdo vindo de resposta pronta sai do
  * esforço e vai para coluna separada.
- */",,,,,,
+ */",translate,"Deterministic ticket-effort measure from Annex B of `Relatorio_Capacidade_Capital_Escola_90dias.docx`, validated in production and collected by `~/digisac-esforco`, repeated in `2026-09-05-pipe-design.md` §4.4. This is arithmetic, not AI classification. Per-conversation seconds: agent-written characters ÷ 200 per minute; customer-read characters ÷ 1,000 per minute; received audio duration at 1×; recorded audio duration; and, without duration metadata, estimated Opus size at about 16 kbps or 2 KB/s. The original report assumes manually typed text, so canned-response content is excluded from effort and reported separately.",architecture,packages/core/src/esforco/regua.ts:1-18; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-e0bf06bd,packages-core,packages/core/src/esforco/regua.ts,113,122,jsdoc,11,"/**
  * Aplica a régua sobre as mensagens de uma conversa.
  *
@@ -320,23 +320,23 @@ packages-core-comment-e0bf06bd,packages-core,packages/core/src/esforco/regua.ts,
  * - mensagem de bot ou de sistema não gera esforço nenhum — nem de escrita, nem
  *   de leitura, porque ninguém a digitou nem precisou lê-la para atender;
  * - o atendente não ""ouve"" o próprio áudio: áudio de saída é fala, não escuta.
- */",,,,,,
-packages-core-comment-ef443a59,packages-core,packages/core/src/esforco/regua.ts,147,147,line,2,// Resposta pronta e template não foram digitados à mão: saem do esforço,,,,,,
-packages-core-comment-81401bce,packages-core,packages/core/src/esforco/regua.ts,148,148,line,3,"// e vão para a coluna separada, como manda a ressalva do relatório.",,,,,,
-packages-core-comment-aea686c5,packages-core,packages/core/src/esforco/regua.ts,166,166,line,0,// bot e sistema: fora da régua.,,,,,,
-packages-core-comment-3160c53a,packages-core,packages/core/src/esforco/regua.ts,189,189,jsdoc,2,/** Agrupa mensagens por conversa e aplica a régua em cada uma. */,,,,,,
+ */",translate,Apply the measure to a conversation. Departures from the literal spec: agent-written internal notes (`direcao: 'interna'`) count as typing; bot and system messages produce no typing or reading effort; an agent's own outbound audio is speaking rather than listening.,architecture,packages/core/src/esforco/regua.ts:113-122; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-ef443a59,packages-core,packages/core/src/esforco/regua.ts,147,147,line,2,// Resposta pronta e template não foram digitados à mão: saem do esforço,translate,"Canned responses and templates were not manually typed, so exclude them from effort",architecture,packages/core/src/esforco/regua.ts:147-147; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-81401bce,packages-core,packages/core/src/esforco/regua.ts,148,148,line,3,"// e vão para a coluna separada, como manda a ressalva do relatório.",translate,and record them separately as required by the original report.,architecture,packages/core/src/esforco/regua.ts:148-148; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-aea686c5,packages-core,packages/core/src/esforco/regua.ts,166,166,line,0,// bot e sistema: fora da régua.,remove,,other,packages/core/src/esforco/regua.ts:166-166,codex,reviewed
+packages-core-comment-3160c53a,packages-core,packages/core/src/esforco/regua.ts,189,189,jsdoc,2,/** Agrupa mensagens por conversa e aplica a régua em cada uma. */,remove,,other,packages/core/src/esforco/regua.ts:189-189,codex,reviewed
 packages-core-comment-700dbfa6,packages-core,packages/core/src/esforco/regua.ts,28,31,jsdoc,2,"/**
  * Bytes por segundo de áudio Opus a ~16 kbps.
  * 16.000 bits/s ÷ 8 = 2.000 bytes/s. O ""2 KB/s"" do relatório é decimal, não 2 KiB.
- */",,,,,,
-packages-core-comment-6d3fae7d,packages-core,packages/core/src/esforco/regua.ts,46,46,jsdoc,2,/** Duração em segundos vinda do metadado do provedor. `null` quando não veio. */,,,,,,
-packages-core-comment-88833691,packages-core,packages/core/src/esforco/regua.ts,48,48,jsdoc,2,"/** Tamanho do arquivo, usado para estimar duração quando falta metadado. */",,,,,,
-packages-core-comment-5876d4d9,packages-core,packages/core/src/esforco/regua.ts,60,60,jsdoc,2,/** Atendente responsável pela mensagem (mensagem de bot não tem). */,,,,,,
-packages-core-comment-1a056842,packages-core,packages/core/src/esforco/regua.ts,62,62,jsdoc,3,/** Preenchido quando o corpo veio de resposta pronta — não foi digitado à mão. */,,,,,,
-packages-core-comment-725d4bf6,packages-core,packages/core/src/esforco/regua.ts,71,71,jsdoc,4,/** Caracteres digitados à mão pelo atendente (já sem resposta pronta). */,,,,,,
-packages-core-comment-1c0babe4,packages-core,packages/core/src/esforco/regua.ts,77,77,jsdoc,1,"/** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */",,,,,,
-packages-core-comment-824dd6e1,packages-core,packages/core/src/esforco/regua.ts,79,79,jsdoc,2,"/** Esforço total em segundos, sem o que veio de resposta pronta. */",,,,,,
-packages-core-comment-42bc090f,packages-core,packages/core/src/esforco/regua.ts,81,81,jsdoc,2,/** O que a resposta pronta acrescentaria se fosse contada como digitação. */,,,,,,
+ */",translate,"Opus audio at about 16 kbps means 16,000 bits/s ÷ 8 = 2,000 bytes/s. The report's ""2 KB/s"" is decimal, not 2 KiB.",architecture,packages/core/src/esforco/regua.ts:28-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-6d3fae7d,packages-core,packages/core/src/esforco/regua.ts,46,46,jsdoc,2,/** Duração em segundos vinda do metadado do provedor. `null` quando não veio. */,translate,Duration in seconds from provider metadata; null when absent.,integration,packages/core/src/esforco/regua.ts:46-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-88833691,packages-core,packages/core/src/esforco/regua.ts,48,48,jsdoc,2,"/** Tamanho do arquivo, usado para estimar duração quando falta metadado. */",translate,File size used to estimate duration when metadata is absent.,other,packages/core/src/esforco/regua.ts:48-48,codex,reviewed
+packages-core-comment-5876d4d9,packages-core,packages/core/src/esforco/regua.ts,60,60,jsdoc,2,/** Atendente responsável pela mensagem (mensagem de bot não tem). */,translate,Agent responsible for the message; bot messages have none.,other,packages/core/src/esforco/regua.ts:60-60,codex,reviewed
+packages-core-comment-1a056842,packages-core,packages/core/src/esforco/regua.ts,62,62,jsdoc,3,/** Preenchido quando o corpo veio de resposta pronta — não foi digitado à mão. */,translate,Set when content came from a canned response rather than manual typing.,other,packages/core/src/esforco/regua.ts:62-62,codex,reviewed
+packages-core-comment-725d4bf6,packages-core,packages/core/src/esforco/regua.ts,71,71,jsdoc,4,/** Caracteres digitados à mão pelo atendente (já sem resposta pronta). */,translate,"Characters manually typed by the agent, excluding canned responses.",other,packages/core/src/esforco/regua.ts:71-71,codex,reviewed
+packages-core-comment-1c0babe4,packages-core,packages/core/src/esforco/regua.ts,77,77,jsdoc,1,"/** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */",translate,"Canned-response characters, reported separately and excluded from effort.",other,packages/core/src/esforco/regua.ts:77-77,codex,reviewed
+packages-core-comment-824dd6e1,packages-core,packages/core/src/esforco/regua.ts,79,79,jsdoc,2,"/** Esforço total em segundos, sem o que veio de resposta pronta. */",translate,"Total effort in seconds, excluding canned responses.",other,packages/core/src/esforco/regua.ts:79-79,codex,reviewed
+packages-core-comment-42bc090f,packages-core,packages/core/src/esforco/regua.ts,81,81,jsdoc,2,/** O que a resposta pronta acrescentaria se fosse contada como digitação. */,translate,Effort that canned-response text would add if counted as typing.,other,packages/core/src/esforco/regua.ts:81-81,codex,reviewed
 packages-core-comment-a850c3e7,packages-core,packages/core/src/esforco/regua.ts,83,83,jsdoc,2,/** Áudios que entraram com duração zero por falta de metadado e de tamanho. */,,,,,,
 packages-core-comment-e9ecca48,packages-core,packages/core/src/esforco/regua.ts,87,87,jsdoc,2,/** Segundos de digitação para uma quantidade de caracteres. */,,,,,,
 packages-core-comment-fae8dc02,packages-core,packages/core/src/esforco/regua.ts,92,92,jsdoc,2,/** Segundos de leitura para uma quantidade de caracteres. */,,,,,,
