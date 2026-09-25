@@ -161,8 +161,8 @@ export class ManagementFlowController {
     try {
       return await noTenant(session.tenantId, (tx) =>
         createFlow(tx, session.tenantId, session.userId, {
-          nome: String(corpo.nome ?? ''),
-          tipo: corpo.tipo === 'roteador' ? 'roteador' : 'fluxo',
+          name: String(corpo.name ?? ''),
+          tipo: corpo.type === 'roteador' ? 'roteador' : 'fluxo',
           image: corpo.image ?? null,
         }),
       );
@@ -185,12 +185,12 @@ export class ManagementFlowController {
     uuidOu404(id, 'fluxo');
     /* JSON é texto de fora: o que não for string (ou `null` onde `null` vale)
        é tratado como ausente, e ausente é "não mexa". */
-    const nome = corpo?.nome;
+    const nome = corpo?.name;
     const description = corpo?.description;
     const image = corpo?.imagem;
     return noTenant(sessao.tenantId, (tx) =>
       editarFlow(tx, sessao.tenantId, sessao.userId, id, {
-        nome: typeof nome === 'string' ? nome : undefined,
+        name: typeof nome === 'string' ? nome : undefined,
         description: description === null || typeof description === 'string' ? description : undefined,
         imagem: image === null || typeof image === 'string' ? image : undefined,
       }),
@@ -294,7 +294,7 @@ export class ManagementFlowController {
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
-    const motivo = typeof corpo?.motivo === 'string' ? corpo.motivo.trim().slice(0, 500) : '';
+    const motivo = typeof corpo?.motivo === 'string' ? corpo.reason.trim().slice(0, 500) : '';
     await noTenant(sessao.tenantId, (tx) =>
       disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined),
     );
@@ -323,7 +323,7 @@ export class ManagementFlowController {
     uuidOu404(id, 'fluxo');
     return noTenant(sessao.tenantId, (tx) =>
       salvarBoasVindas(tx, sessao.tenantId, sessao.userId, id, {
-        ativo: corpo?.ativo === true,
+        active: corpo?.active === true,
         message: typeof corpo?.message === 'string' ? corpo.message : undefined,
         textoBotao: typeof corpo?.textoBotao === 'string' ? corpo.textoBotao : undefined,
       }),

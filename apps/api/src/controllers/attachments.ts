@@ -44,7 +44,7 @@ export class AttachmentsController {
       tenantId: ator.tenantId,
       nomeOriginal: nome?.slice(0, 255) ?? null,
       mimeDeclarado: declarado,
-      dados: new Uint8Array(corpo),
+      data: new Uint8Array(corpo),
     });
 
     return {

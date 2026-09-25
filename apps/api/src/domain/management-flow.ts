@@ -1,19 +1,19 @@
 import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import {
   channel,
-  classificationConversation,
-  contact,
+  classificacaoConversa as classificationConversation,
+  contato as contact,
   contactIdentity,
-  conversation,
+  conversa as conversation,
   queue,
   flow,
   inbox,
   message,
-  templateMessage,
+  templateMensagem as templateMessage,
   tenant,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
 
 /**
@@ -95,9 +95,9 @@ export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxo
     .from(contact)
     .innerJoin(conversation, eq(conversation.contatoId, contact.id))
     .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
-    .innerJoin(channel, eq(channel.id, inbox.channelId))
+    .innerJoin(channel, eq(channel.id, inbox.canalId))
     .where(
-      and(eq(contact.tenantId, tid), eq(inbox.channelId, bot.canalId), isNull(contact.excluidoEm)),
+      and(eq(contact.tenantId, tid), eq(inbox.canalId, bot.canalId), isNull(contact.excluidoEm)),
     )
     .groupBy(contact.id, channel.id)
     .orderBy(asc(contact.nome))
@@ -173,7 +173,7 @@ export async function loadDetalheContactOfFlow(
           and(
             eq(conversation.tenantId, tid),
             eq(conversation.contatoId, contactId),
-            eq(inbox.channelId, bot.canalId),
+            eq(inbox.canalId, bot.canalId),
           ),
         )
         .orderBy(desc(conversation.criadaEm))
@@ -243,8 +243,8 @@ export async function loadLogsOfFlow(
     .innerJoin(conversation, eq(conversation.id, message.conversationId))
     .innerJoin(contact, eq(contact.id, conversation.contatoId))
     .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
-    .innerJoin(channel, eq(channel.id, inbox.channelId))
-    .where(and(eq(message.tenantId, tid), eq(inbox.channelId, bot.canalId), filterSearch))
+    .innerJoin(channel, eq(channel.id, inbox.canalId))
+    .where(and(eq(message.tenantId, tid), eq(inbox.canalId, bot.canalId), filterSearch))
     .orderBy(desc(message.criadaEm))
     .limit(20);
   return linhas.map((linha) => ({
@@ -356,7 +356,7 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
     .innerJoin(conversation, eq(conversation.id, message.conversationId))
     .innerJoin(contact, eq(contact.id, conversation.contatoId))
     .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
-    .innerJoin(channel, eq(channel.id, inbox.channelId))
+    .innerJoin(channel, eq(channel.id, inbox.canalId))
     .leftJoin(templateMessage, eq(templateMessage.id, message.templateId))
     .where(
       and(

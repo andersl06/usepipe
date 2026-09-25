@@ -97,7 +97,7 @@ export async function atualizarChannel(
       update canal
          set config = ${JSON.stringify(cifrado)}::jsonb,
              waba_id = coalesce(${colunas.wabaId ?? null}, waba_id),
-             numero_id = coalesce(${colunas.numeroId ?? null}, numero_id),
+             numero_id = coalesce(${colunas.numberId ?? null}, numero_id),
              atualizado_em = now()
        where id = ${canal.id}::uuid
     `);
@@ -107,7 +107,7 @@ export async function atualizarChannel(
     ...canal,
     config,
     wabaId: colunas.wabaId ?? canal.wabaId,
-    numeroId: colunas.numeroId ?? canal.numeroId,
+    numeroId: colunas.numberId ?? canal.numberId,
   };
 }
 

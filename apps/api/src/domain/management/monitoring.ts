@@ -16,8 +16,8 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contact,
-  conversation,
+  contato as contact,
+  conversa as conversation,
   conversationLabel,
   etiqueta,
   eventAttendance,
@@ -28,7 +28,7 @@ import {
   statusAgent,
   user,
 } from '@pipe/db/schema';
-import { registrarAuditoria, type TransactionPipe } from '@pipe/db';
+import { registrarAuditoria, type TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 import { PipeError } from '../../errors.js';
 import {
@@ -240,7 +240,7 @@ export async function falarWithAgentInMonitoring(
     values (${tenantId}, ${conversaId}::uuid, ${usuarioId}::uuid, ${corpo})
   `);
   await registrarAuditoria(tx, tenantId, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'conversa',
     objetoId: conversaId,
@@ -251,7 +251,7 @@ export async function falarWithAgentInMonitoring(
 export function metricsByKey(linhas: readonly LinhaDeQuebra[]) {
   return new Map(
     linhas.map((linha) => [
-      linha.chave,
+      linha.key,
       {
         conversasFinalizadas: linha.conversations,
         tempoMedioNaFilaSeg: linha.inQueue.value,
@@ -265,8 +265,8 @@ export function metricsByKey(linhas: readonly LinhaDeQuebra[]) {
 export function normalizeTicketsByHour(linhas: readonly { hour: number; total: number }[]): number[] {
   const horas = Array<number>(24).fill(0);
   for (const linha of linhas) {
-    if (Number.isInteger(linha.hora) && linha.hora >= 0 && linha.hora < 24) {
-      horas[linha.hora] = linha.total;
+    if (Number.isInteger(linha.hour) && linha.hour >= 0 && linha.hour < 24) {
+      horas[linha.hour] = linha.total;
     }
   }
   return horas;
@@ -293,8 +293,8 @@ function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, Conversatio
     const data = (linha.data ?? {}) as { closedBy?: string };
     const evento: EventAttendance = {
       conversationId: linha.conversationId,
-      tipo: linha.tipo as TipoEvento,
-      em: linha.em,
+      tipo: linha.type as TipoEvento,
+      em: linha.at,
       userId: linha.userId,
       queueId: linha.queueId,
       encerradaBy: (data.closedBy ?? null) as ClosedBy | null,
@@ -384,7 +384,7 @@ export async function loadMonitoring(
     // Filtro rápido: entra no `where` das duas populações (abertas e encerradas),
     // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
     const recorte = [
-      filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.filaId ? eq(conversation.filaId, filter.filaId) : undefined,
+      filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
       filter.agentIds?.length ? inArray(conversation.agentId, filter.agentIds) : filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
@@ -508,7 +508,7 @@ export async function loadMonitoring(
 
     // Pausa aberta que já passou da duração sugerida pelo motivo.
     const pausasAbertas = await tx
-      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.durationSuggestedMin })
+      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.duracaoSugeridaMin })
       .from(pausa)
       .leftJoin(motivoPausa, eq(motivoPausa.id, pausa.motivoId))
       .where(isNull(pausa.encerradaEm));
@@ -523,7 +523,7 @@ export async function loadMonitoring(
     const semResposta = abertas.filter(
       (c) => c.marcos.atribuidaEm !== null && c.marcos.firstRespostaIn === null,
     );
-    const inAttendance = abertas.filter((c) => c.atendenteId !== null);
+    const inAttendance = abertas.filter((c) => c.agentId !== null);
 
     const timeReal: CardsTimeReal = {
       naFila: inQueue.length,
@@ -576,7 +576,7 @@ export async function loadMonitoring(
     const carga: CargaAgent[] = status
       .filter((s) => s.estado !== 'offline')
       .map((s) => {
-        const minhas = abertas.filter((c) => c.atendenteId === s.usuarioId);
+        const minhas = abertas.filter((c) => c.agentId === s.usuarioId);
         const aguardando = minhas.filter((c) => c.aguardandoAtendente).length;
         const limite = limitByAgent.get(s.usuarioId) ?? 5;
         const medias = byAgent.get(s.nome);
@@ -625,13 +625,13 @@ export async function loadMonitoring(
     }
 
     const filas: SummaryQueue[] = allQueues.map((f) => {
-      const ofQueue = abertas.filter((c) => c.filaId === f.id);
+      const ofQueue = abertas.filter((c) => c.queueId === f.id);
       const medias = byQueue.get(f.nome);
       return {
         id: f.id,
         nome: f.nome,
         naFila: ofQueue.filter((c) => c.marcos.atribuidaEm === null).length,
-        emAtendimento: ofQueue.filter((c) => c.atendenteId !== null).length,
+        emAtendimento: ofQueue.filter((c) => c.agentId !== null).length,
         maiorEsperaSeg: maiorDe(
           ofQueue.filter((c) => c.marcos.atribuidaEm === null).map((c) => c.inQueueSeg),
         ),
@@ -649,7 +649,7 @@ export async function loadMonitoring(
 
     const countLabel = new Map<string, number>();
     for (const c of abertas) {
-      for (const nome of c.etiquetas) {
+      for (const nome of c.labels) {
         countLabel.set(nome, (countLabel.get(nome) ?? 0) + 1);
       }
     }
@@ -669,7 +669,7 @@ export async function loadMonitoring(
     const byHourRaw = await tx
       .select({ hora: horaLocal, total: sql<number>`count(*)::int` })
       .from(conversation)
-      .where(and(gte(conversation.criadaEm, window.inicio), lt(conversation.criadaEm, window.fim), ...recorte))
+      .where(and(gte(conversation.criadaEm, window.start), lt(conversation.criadaEm, window.end), ...recorte))
       // A expressão usa um parâmetro para o fuso; referenciá-la pela posição
       // mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.
       .groupBy(sql.raw('1'))
@@ -708,8 +708,8 @@ export async function contarClosedsInPeriod(
       .where(
         and(
           isNotNull(conversation.encerradaEm),
-          gte(conversation.encerradaEm, janela.inicio),
-          lt(conversation.encerradaEm, janela.fim),
+          gte(conversation.encerradaEm, janela.start),
+          lt(conversation.encerradaEm, janela.end),
         ),
       );
     return r[0]?.total ?? 0;

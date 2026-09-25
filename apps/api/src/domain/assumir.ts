@@ -56,7 +56,7 @@ export async function assumeConversation(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId,
-      tipo: 'atribuida',
+      type: 'atribuida',
       em,
       userId: ator.agentId,
       queueId: conversation.fila_id,

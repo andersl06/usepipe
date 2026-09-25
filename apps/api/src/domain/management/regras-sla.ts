@@ -1,7 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm';
-import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
+import { queue, regraSla, slaConversa as slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
@@ -162,11 +162,11 @@ export async function createRuleSla(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, userId, RULE_MANAGE);
 
-  const nome = nomeConferido(pedido.nome);
-  const alvo = alvoConferido(pedido.alvo);
-  const prazoSeg = prazoConferido(pedido.prazoSeg);
-  const alertaSeg = alertaConferido(pedido.alertaSeg, prazoSeg);
-  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
+  const nome = nomeConferido(pedido.name);
+  const alvo = alvoConferido(pedido.target);
+  const prazoSeg = prazoConferido(pedido.deadlineSeg);
+  const alertaSeg = alertaConferido(pedido.alertSeg, prazoSeg);
+  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.scopeType ?? 'tenant', pedido.scopeId);
   const active = pedido.active ?? true;
 
   if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
@@ -178,7 +178,7 @@ export async function createRuleSla(
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de SLA.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: userId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_sla',
     objetoId: criada.id,
@@ -200,15 +200,15 @@ export async function editarRegraSla(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) depois.nome = nomeConferido(pedido.nome);
-  if (pedido.alvo !== undefined) depois.alvo = alvoConferido(pedido.alvo);
-  if (pedido.prazoSeg !== undefined) depois.prazoSeg = prazoConferido(pedido.prazoSeg);
+  if (pedido.name !== undefined) depois.name = nomeConferido(pedido.name);
+  if (pedido.target !== undefined) depois.target = alvoConferido(pedido.target);
+  if (pedido.deadlineSeg !== undefined) depois.deadlineSeg = prazoConferido(pedido.deadlineSeg);
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
 
   // Alerta depende do prazo (final), então é conferido depois dos dois — o
   // pedido pode trocar só um dos dois e o outro continuar valendo.
-  if (pedido.alertaSeg !== undefined) depois.alertaSeg = alertaConferido(pedido.alertaSeg, depois.prazoSeg);
-  else if (depois.alertaSeg !== null && depois.alertaSeg >= depois.prazoSeg) {
+  if (pedido.alertSeg !== undefined) depois.alertSeg = alertaConferido(pedido.alertSeg, depois.deadlineSeg);
+  else if (depois.alertSeg !== null && depois.alertSeg >= depois.deadlineSeg) {
     // Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.
     throw PipeError.request(
       'alert_invalid',
@@ -216,19 +216,19 @@ export async function editarRegraSla(
     );
   }
 
-  if (pedido.escopoTipo !== undefined || pedido.escopoId !== undefined) {
+  if (pedido.scopeType !== undefined || pedido.scopeId !== undefined) {
     const resolvido = await scopeChecked(
       tx,
       tid,
-      pedido.escopoTipo ?? depois.escopoTipo,
-      pedido.escopoId !== undefined ? pedido.escopoId : depois.escopoId,
+      pedido.scopeType ?? depois.scopeType,
+      pedido.scopeId !== undefined ? pedido.scopeId : depois.scopeId,
     );
-    depois.escopoTipo = resolvido.scopeType;
-    depois.escopoId = resolvido.scopeId;
+    depois.scopeType = resolvido.scopeType;
+    depois.scopeId = resolvido.scopeId;
   }
 
-  if (depois.nome !== antes.nome && (await nomeEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
+  if (depois.name !== antes.name && (await nomeEmUso(tx, tid, depois.name, id))) {
+    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.name}".`);
   }
 
   const mudanca = diferenca(antes, depois);
@@ -237,12 +237,12 @@ export async function editarRegraSla(
   const [gravada] = await tx
     .update(regraSla)
     .set({
-      nome: depois.nome,
-      alvo: depois.alvo,
-      prazoSeg: depois.prazoSeg,
-      alertaSeg: depois.alertaSeg,
-      escopoTipo: depois.escopoTipo,
-      escopoId: depois.escopoId,
+      nome: depois.name,
+      alvo: depois.target,
+      prazoSeg: depois.deadlineSeg,
+      alertaSeg: depois.alertSeg,
+      escopoTipo: depois.scopeType,
+      escopoId: depois.scopeId,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
@@ -260,7 +260,7 @@ export async function editarRegraSla(
   if (!gravada) throw PipeError.naoEncontrado('regra de SLA');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_sla',
     objetoId: id,
@@ -291,10 +291,10 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   await tx.delete(regraSla).where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_sla',
     objetoId: id,
-    antes: { nome: atual.nome, alvo: atual.alvo, ativa: atual.ativa },
+    antes: { nome: atual.name, alvo: atual.target, ativa: atual.ativa },
   });
 }

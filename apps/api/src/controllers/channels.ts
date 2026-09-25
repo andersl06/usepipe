@@ -96,7 +96,7 @@ export class ChannelsController {
     const fluxoId = corpo.canal_id ? undefined : flowIdOfBody(corpo);
     await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId);
     checkState(corpo.state, sessao.tenantId, sessao.userId);
-    validarParametros({ codigo: corpo.codigo, wabaId: corpo.waba_id });
+    validarParametros({ code: corpo.code, wabaId: corpo.waba_id });
 
     // `fetch_and_validate_inbox`: o canal a reautorizar tem de ser deste tenant.
     if (corpo.canal_id) await readChannelWhatsApp(sessao.tenantId, corpo.canal_id);
@@ -104,7 +104,7 @@ export class ChannelsController {
     const channel = await executarRegistrationEmbedded({
       tenantId: sessao.tenantId,
       userId: sessao.userId,
-      codigo: corpo.codigo,
+      code: corpo.code,
       wabaId: corpo.waba_id,
       numeroId: corpo.phone_number_id,
       coexistencia: corpo.coexistencia === true,
@@ -159,7 +159,7 @@ export class ChannelsController {
       numeroId: corpo.phone_number_id?.trim(),
       token: corpo.access_token?.trim(),
       appSecret: corpo.app_secret?.trim(),
-      nome: corpo.nome,
+      nome: corpo.name,
       channelId: corpo.channelId,
     });
     if (flowId) await connectToFlow(session.tenantId, session.userId, flowId, feito.channel.id);

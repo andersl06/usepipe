@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -63,7 +63,7 @@ function lerAlvos(values: readonly string[] | undefined): TargetOfMember[] {
     if (corte < 0) continue;
     const tipo = cru.slice(0, corte);
     const id = cru.slice(corte + 1).trim();
-    if ((tipo === 'usuario' || tipo === 'convite') && id) lidos.push({ tipo, id });
+    if ((tipo === 'usuario' || tipo === 'convite') && id) lidos.push({ type: tipo, id });
   }
   return lidos;
 }
@@ -118,7 +118,7 @@ export class ManagementAccountController {
       const ator: Ator = { tipo: 'usuario', id: session.userId };
       for (const alvo of alvos) {
         const r = checkRecording(
-          alvo.tipo === 'convite'
+          alvo.type === 'convite'
             ? await defineRoleOfInvitation(tx, session.tenantId, ator, alvo.id, roleId)
             : await defineRoleOfMember(tx, session.tenantId, ator, alvo.id, roleId),
         );
@@ -140,7 +140,7 @@ export class ManagementAccountController {
     if (alvos.length === 0) return falha('Escolha quem sai do contrato.');
     /* Ninguém se remove sozinho: quem o fizesse perderia o acesso no clique
        seguinte, e um contrato pode ficar sem nenhum administrador. */
-    if (alvos.some((a) => a.tipo === 'usuario' && a.id === sessao.userId)) {
+    if (alvos.some((a) => a.type === 'usuario' && a.id === sessao.userId)) {
       return falha('Você não pode excluir o seu próprio acesso a este contrato.');
     }
     return noTenant(sessao.tenantId, async (tx) => {
@@ -151,7 +151,7 @@ export class ManagementAccountController {
       const ator: Ator = { tipo: 'usuario', id: sessao.userId };
       for (const alvo of alvos) {
         const r = checkRecording(
-          alvo.tipo === 'convite'
+          alvo.type === 'convite'
             ? await cancelarInvitation(tx, sessao.tenantId, ator, alvo.id)
             : await removeMember(tx, sessao.tenantId, ator, alvo.id),
         );

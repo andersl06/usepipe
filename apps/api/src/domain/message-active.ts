@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';
@@ -126,7 +126,7 @@ async function aDestination(
   destino: DestinationOfTrigger,
   jaVistos: Set<string>,
 ): Promise<ResultOfDestination> {
-  const telefone = destino.telefone ? normalizar(destino.telefone) : null;
+  const telefone = destino.phone ? normalizar(destino.phone) : null;
 
   if (telefone && !telefoneValido(telefone)) {
     return { telefone, contatoId: null, enviada: false, motivo: 'numero_invalido' };
@@ -141,7 +141,7 @@ async function aDestination(
   // Preparo e recusas numa transação; o envio vai em outra, pela mesma razão de
   // sempre: não segurar conexão enquanto se fala com serviço externo.
   const preparo = await noTenant(pedido.tenantId, async (tx) => {
-    const contactId = destino.contatoId ?? (await findOrCreateByPhone(tx, channel, telefone!, destino.nome ?? null));
+    const contactId = destino.contatoId ?? (await findOrCreateByPhone(tx, channel, telefone!, destino.name ?? null));
 
     const { rows: inAttendance } = await tx.execute<{ id: string }>(sql`
       select id from conversa
@@ -170,13 +170,13 @@ async function aDestination(
   });
 
   if (preparo.recusa) {
-    return { telefone, contatoId: preparo.contatoId, enviada: false, motivo: preparo.recusa };
+    return { telefone, contatoId: preparo.contactId, enviada: false, motivo: preparo.recusa };
   }
 
   try {
     const enfileirada = await sendMessage({
       tenantId: pedido.tenantId,
-      conversaId: preparo.conversaId!,
+      conversationId: preparo.conversationId!,
       atendenteId: pedido.agentId ?? null,
       tipo: 'template',
       templateId: pedido.templateId,
@@ -184,10 +184,10 @@ async function aDestination(
     });
     return {
       telefone,
-      contatoId: preparo.contatoId,
+      contatoId: preparo.contactId,
       enviada: true,
       mensagemId: enfileirada.id,
-      conversaId: preparo.conversaId!,
+      conversaId: preparo.conversationId!,
     };
   } catch (error) {
     // Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do
@@ -196,7 +196,7 @@ async function aDestination(
     if (error instanceof PipeError && error.codigo === 'template_nao_aprovado') throw error;
     return {
       telefone,
-      contatoId: preparo.contatoId,
+      contatoId: preparo.contactId,
       enviada: false,
       motivo: 'numero_invalido',
       detalhe: error instanceof Error ? error.message : 'falha no envio',
@@ -216,7 +216,7 @@ async function findOrCreateByPhone(
   const identificador = telefone.replace(/^\+/, '');
   const { rows } = await tx.execute<{ contactId: string }>(sql`
     select contato_id from contato_identidade
-     where canal_tipo = ${canal.tipo} and identificador = ${identificador} limit 1
+     where canal_tipo = ${canal.type} and identificador = ${identificador} limit 1
   `);
   const existente = rows[0]?.contato_id;
   if (existente) return existente;
@@ -231,7 +231,7 @@ async function findOrCreateByPhone(
 
   await tx.execute(sql`
     insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
-    values (${canal.tenantId}, ${contatoId}, ${canal.tipo}, ${identificador})
+    values (${canal.tenantId}, ${contatoId}, ${canal.type}, ${identificador})
     on conflict (tenant_id, canal_tipo, identificador) do nothing
   `);
   await emitir(tx, canal.tenantId, 'contato.criado', {
@@ -283,7 +283,7 @@ async function openConversationOfTrigger(
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
     conversationId,
-    tipo: 'criada',
+    type: 'criada',
     em: agora,
     userId: agent,
     queueId: inbox.queueDefaultId,
@@ -292,7 +292,7 @@ async function openConversationOfTrigger(
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
     conversationId,
-    tipo: agent ? 'atribuida' : 'enfileirada',
+    type: agent ? 'atribuida' : 'enfileirada',
     em: agora,
     userId: agent,
     queueId: inbox.queueDefaultId,

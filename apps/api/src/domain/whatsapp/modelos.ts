@@ -194,7 +194,7 @@ export async function sincronizarModelos(
   const locations = daMeta.map(comoLocal);
   const validos = locations.filter((m): m is TemplateLocal => m !== null);
   const resultado: ResultOfSynchronization = {
-    criados: 0,
+    created: 0,
     atualizados: 0,
     removidos: 0,
     ignorados: locations.length - validos.length,
@@ -207,8 +207,8 @@ export async function sincronizarModelos(
       const { rows } = await tx.execute<{ criado: boolean }>(sql`
         insert into template_mensagem
           (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo, cabecalho_tipo, variaveis)
-        values (${tenantId}::uuid, ${channelId}::uuid, ${m.nome}, ${m.idioma}, ${m.categoria},
-                ${m.statusMeta}, ${m.corpo}, ${m.cabecalhoTipo}, ${padrao}::jsonb)
+        values (${tenantId}::uuid, ${channelId}::uuid, ${m.name}, ${m.idioma}, ${m.category},
+                ${m.statusMeta}, ${m.body}, ${m.headerType}, ${padrao}::jsonb)
         on conflict (tenant_id, canal_id, nome, idioma) do update
            set categoria = excluded.categoria,
                status_meta = excluded.status_meta,
@@ -221,22 +221,22 @@ export async function sincronizarModelos(
                atualizado_em = now()
         returning (xmax = 0) as criado
       `);
-      if (rows[0]?.criado) resultado.criados += 1;
-      else resultado.atualizados += 1;
+      if (rows[0]?.criado) resultado.created += 1;
+      else resultado.updated += 1;
     }
 
     // Nome e idioma não têm `|` (regras da Meta): serve de separador.
-    const chaves = JSON.stringify(validos.map((m) => `${m.nome}|${m.idioma}`));
+    const chaves = JSON.stringify(validos.map((m) => `${m.name}|${m.idioma}`));
     const { rows: removidos } = await tx.execute<{ id: string }>(sql`
       delete from template_mensagem
        where canal_id = ${channelId}::uuid
          and (nome || '|' || idioma) not in (select jsonb_array_elements_text(${chaves}::jsonb))
       returning id
     `);
-    resultado.removidos = removidos.length;
+    resultado.removed = removidos.length;
 
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: channelId,
@@ -319,7 +319,7 @@ export function readMediaOfHeader(dataUrl: string): MediaOfHeader {
       `${regra.rotulo} do cabeçalho tem de ter no máximo ${regra.maxBytes / (1024 * 1024)} MB.`,
     );
   }
-  return { format, bytes, tipo };
+  return { format, bytes, type: tipo };
 }
 
 type Cabecalho =
@@ -331,18 +331,18 @@ function conferirCabecalho(pedido: RequestOfTemplate): Cabecalho {
   const textoDoCabecalho = (pedido.cabecalho ?? '').trim();
   const dataUrl = (pedido.headerMedia ?? '').trim();
   if (textoDoCabecalho && dataUrl) throw recusa('cabecalho', 'O cabeçalho é texto OU mídia, não os dois.');
-  if (dataUrl) return { tipo: 'midia', media: readMediaOfHeader(dataUrl) };
-  if (!textoDoCabecalho) return { tipo: 'nenhum' };
+  if (dataUrl) return { type: 'midia', media: readMediaOfHeader(dataUrl) };
+  if (!textoDoCabecalho) return { type: 'nenhum' };
 
   if (textoDoCabecalho.length > CABECALHO_TEXTO_MAX) {
     throw recusa('cabecalho', `O cabeçalho aceita no máximo ${CABECALHO_TEXTO_MAX} caracteres.`);
   }
   const variables = variablesOfText(textoDoCabecalho);
   if (variables.length > 1) throw recusa('cabecalho', 'O cabeçalho aceita no máximo uma variável.');
-  if (variables.length === 0) return { tipo: 'texto', texto: textoDoCabecalho, exemplo: null };
+  if (variables.length === 0) return { type: 'texto', texto: textoDoCabecalho, exemplo: null };
   const exemplo = (pedido.exemploDoCabecalho ?? '').trim();
   if (!exemplo) throw recusa('exemploDoCabecalho', 'Dê um exemplo para a variável do cabeçalho.');
-  return { tipo: 'texto', texto: textoDoCabecalho, exemplo };
+  return { type: 'texto', texto: textoDoCabecalho, exemplo };
 }
 
 /**
@@ -367,7 +367,7 @@ function conferirCabecalho(pedido: RequestOfTemplate): Cabecalho {
  * `add_security_recommendation` ausente como `false`.
  */
 function assembleComponentsOfAuthentication(pedido: RequestOfTemplate): ComponentOfTemplate[] {
-  if ((pedido.corpo ?? '').trim() || (pedido.cabecalho ?? '').trim() || (pedido.rodape ?? '').trim()) {
+  if ((pedido.body ?? '').trim() || (pedido.cabecalho ?? '').trim() || (pedido.rodape ?? '').trim()) {
     throw recusa('corpo', 'Na categoria autenticação o texto é fixo da Meta: não envie corpo, cabeçalho nem rodapé.');
   }
   if ((pedido.headerMedia ?? '').trim()) {
@@ -414,13 +414,13 @@ export async function assembleTemplate(
   pedido: RequestOfTemplate,
   upMedia: (media: MediaOfHeader) => Promise<string>,
 ): Promise<NewTemplateOfMeta> {
-  const nome = (pedido.nome ?? '').trim();
+  const nome = (pedido.name ?? '').trim();
   if (!NOME_VALIDO.test(nome)) {
     throw recusa('nome', 'O nome usa só letras minúsculas, números e _ (sem espaço nem acento).');
   }
   const idioma = (pedido.idioma ?? 'pt_BR').trim();
   if (!/^[a-z]{2,3}(_[A-Z]{2})?$/.test(idioma)) throw recusa('idioma', 'Idioma inválido (ex.: pt_BR).');
-  const categoria = CATEGORIA_PARA_META[pedido.categoria ?? ''];
+  const categoria = CATEGORIA_PARA_META[pedido.category ?? ''];
   if (!categoria) throw recusa('categoria', 'A categoria é utilidade, marketing ou autenticação.');
 
   if (categoria === 'AUTHENTICATION') {
@@ -429,7 +429,7 @@ export async function assembleTemplate(
 
   const cabecalho = conferirCabecalho(pedido);
 
-  const corpo = (pedido.corpo ?? '').trim();
+  const corpo = (pedido.body ?? '').trim();
   if (!corpo) throw recusa('corpo', 'Escreva o texto da mensagem.');
   if (corpo.length > CORPO_MAX) throw recusa('corpo', `O texto aceita no máximo ${CORPO_MAX} caracteres.`);
   const variaveis = variablesOfText(corpo);
@@ -445,11 +445,11 @@ export async function assembleTemplate(
 
   // Daqui para baixo só monta: nada mais recusa, e é só agora que o arquivo sobe.
   const componentes: ComponentOfTemplate[] = [];
-  if (cabecalho.tipo === 'texto') {
+  if (cabecalho.type === 'texto') {
     const component: ComponentOfTemplate = { type: 'HEADER', format: 'TEXT', text: cabecalho.texto };
     if (cabecalho.exemplo) component.example = { header_text: [cabecalho.exemplo] };
     componentes.push(component);
-  } else if (cabecalho.tipo === 'midia') {
+  } else if (cabecalho.type === 'midia') {
     // O exemplo de mídia é o handle da Resumable Upload API, em `header_handle`.
     const handle = await upMedia(cabecalho.media);
     componentes.push({ type: 'HEADER', format: cabecalho.media.format, example: { header_handle: [handle] } });
@@ -485,17 +485,17 @@ export async function createTemplateInMeta(
   const canal = await readChannelWhatsApp(tenantId, canalId);
   const cliente = clienteGraph(tokenDo(canal));
   const waba = wabaDo(canal);
-  const template = await assembleTemplate(pedido, (midia) => cliente.upPhoto(appDo(canal), midia.bytes, midia.tipo));
+  const template = await assembleTemplate(pedido, (midia) => cliente.upPhoto(appDo(canal), midia.bytes, midia.type));
   const criado = await cliente.createTemplate(waba, template);
   const local = comoLocal({ ...template, status: criado.status ?? 'PENDING' })!;
-  const variaveis = JSON.stringify(variablesOfText(local.corpo));
+  const variaveis = JSON.stringify(variablesOfText(local.body));
 
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into template_mensagem
         (tenant_id, canal_id, nome, idioma, categoria, status_meta, corpo, cabecalho_tipo, variaveis)
-      values (${tenantId}::uuid, ${canalId}::uuid, ${local.nome}, ${local.idioma}, ${local.categoria},
-              ${local.statusMeta}, ${local.corpo}, ${local.cabecalhoTipo}, ${variaveis}::jsonb)
+      values (${tenantId}::uuid, ${canalId}::uuid, ${local.name}, ${local.idioma}, ${local.category},
+              ${local.statusMeta}, ${local.body}, ${local.headerType}, ${variaveis}::jsonb)
       on conflict (tenant_id, canal_id, nome, idioma) do update
          set status_meta = excluded.status_meta, corpo = excluded.corpo,
              categoria = excluded.categoria, cabecalho_tipo = excluded.cabecalho_tipo,
@@ -504,11 +504,11 @@ export async function createTemplateInMeta(
     `);
     const id = rows[0]!.id;
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: usuarioId },
       acao: 'criou',
       objetoTipo: 'template_mensagem',
       objetoId: id,
-      depois: { nome: local.nome, idioma: local.idioma, categoria: local.categoria },
+      depois: { nome: local.name, idioma: local.idioma, categoria: local.category },
     });
     return { id, statusMeta: local.statusMeta };
   });
@@ -530,7 +530,7 @@ export async function deleteTemplateInMeta(
     `);
     for (const { id } of rows) {
       await registrarAuditoria(tx, tenantId, {
-        ator: { type: 'usuario', id: usuarioId },
+        ator: { tipo: 'usuario', id: usuarioId },
         acao: 'excluiu',
         objetoTipo: 'template_mensagem',
         objetoId: id,

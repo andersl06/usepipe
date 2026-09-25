@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { escolherAgent } from '@pipe/core';
 import type { AgentDisponivel, EscolhaDistribution, StateAgent } from '@pipe/core';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 
@@ -167,7 +167,7 @@ export async function distribuirConversation(
   await registrarEvento(tx, {
     tenantId,
     conversationId,
-    tipo: 'atribuida',
+    type: 'atribuida',
     em,
     userId: agentId,
     queueId,

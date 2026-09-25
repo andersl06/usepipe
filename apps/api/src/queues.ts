@@ -11,11 +11,11 @@ import {
   conexaoRedis,
 } from '@pipe/workers';
 import type {
-  JobDictionaryCrm,
+  JobDicionarioCrm as JobDictionaryCrm,
   JobInbound,
   JobDelivery,
   JobMirrorCrm,
-  JobMedia,
+  JobMidia as JobMedia,
   JobProcessHttp,
   JobSla,
 } from '@pipe/workers';
@@ -27,7 +27,7 @@ import { renovarTokensInstagram } from './domain/instagram/renewal.js';
 import { contactsWithoutMirror, syncContact } from './domain/mirror-crm.js';
 import { baixarMediaOfAttachment, midiasPendentes } from './domain/media.js';
 import { checarSlaOfConversation, conversationsForChecarSla } from './domain/management/sla-motor.js';
-import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
+import { QUEUE_IMPORT, processarImportacao as processarImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
 
 /**
@@ -327,11 +327,11 @@ export async function enqueueCheckSla(job: JobSla): Promise<void> {
       removeOnComplete: 1_000,
       // Uma checagem pendente por conversa: um empurrão a mais enquanto a anterior
       // ainda não rodou vira UM job, não dois competindo pela mesma linha.
-      jobId: `sla-${job.conversationId}`,
+      jobId: `sla-${job.conversaId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[sla] não enfileirou ${job.conversationId}: ${(erro as Error).message}`);
+    console.error(`[sla] não enfileirou ${job.conversaId}: ${(erro as Error).message}`);
   }
 }
 
@@ -356,7 +356,7 @@ export function consumeCheckSla(): void {
         return pendentes.length;
       }
       const dados = job.data as JobSla;
-      await checarSlaOfConversation(dados.tenantId, dados.conversationId);
+      await checarSlaOfConversation(dados.tenantId, dados.conversaId);
     },
     {
       connection: redis(),
@@ -384,7 +384,7 @@ export async function scheduleSweepSla(): Promise<void> {
       void (async () => {
         try {
           for (const p of await conversationsForChecarSla()) {
-            await checarSlaOfConversation(p.tenantId, p.conversaId);
+            await checarSlaOfConversation(p.tenantId, p.conversationId);
           }
         } catch (erro) {
           console.error(`[sla] varredura em memória falhou: ${(erro as Error).message}`);

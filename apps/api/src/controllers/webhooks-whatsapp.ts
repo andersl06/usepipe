@@ -50,7 +50,7 @@ export class WhatsAppWebhookController {
   ): Promise<{ recebido: true }> {
     const canal = await resolveChannel(canalId);
     if (!canal) throw PipeError.naoEncontrado('Canal');
-    if (!canal.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
+    if (!canal.active) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const segredo = String(canal.config['appSecret'] ?? process.env['WHATSAPP_APP_SECRET'] ?? '');
     if (!segredo) {
@@ -130,15 +130,15 @@ export class WhatsAppWebhookController {
     }
 
     for (const inbound of identificarEntradas(request.body)) {
-      const channel = await resolveChannelByIdentifier(inbound.numeroId, inbound.wabaId);
+      const channel = await resolveChannelByIdentifier(inbound.numberId, inbound.wabaId);
       if (!channel) {
         // Sem dono: outro aplicativo, ou canal já removido. Fica no log e morre aqui.
         console.warn(
-          `[webhook] evento de conta sem canal correspondente (waba=${inbound.wabaId ?? '—'}, numero=${inbound.numeroId ?? '—'})`,
+          `[webhook] evento de conta sem canal correspondente (waba=${inbound.wabaId ?? '—'}, numero=${inbound.numberId ?? '—'})`,
         );
         continue;
       }
-      await enqueueInbound(channel.id, inbound.corpo);
+      await enqueueInbound(channel.id, inbound.body);
     }
     return { recebido: true };
   }

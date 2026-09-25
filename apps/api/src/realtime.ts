@@ -82,7 +82,7 @@ function entregarNoProcesso(tenantId: string, evento: EventoPublicado): void {
     // O canal já é do tenant, mas a conferência é repetida de propósito: se um dia
     // alguém errar a chave do canal, o erro para aqui em vez de virar vazamento.
     if (conexao.tenantId !== tenantId) continue;
-    if (userId && conexao.usuarioId !== userId) continue;
+    if (userId && conexao.userId !== userId) continue;
     if (!conexao.assuntos.has(ofContract.assunto)) continue;
     try {
       conexao.entregar(ofContract);

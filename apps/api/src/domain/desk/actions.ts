@@ -2,7 +2,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import { motivoInelegivel } from '@pipe/core';
 import type { MotivoInelegivel } from '@pipe/core';
 import { notaInterna, pausa, statusAgent } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { StateAgent } from '@pipe/contracts';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 import { registrarEvento } from '../eventos.js';
@@ -271,7 +271,7 @@ export async function atender(
     await registrarEvento(tx, {
       tenantId,
       conversationId: puxada.id,
-      tipo: 'atribuida',
+      type: 'atribuida',
       em,
       userId: atendenteId,
       queueId: puxada.queueId,
@@ -307,7 +307,7 @@ export async function transferInBulk(
     try {
       await transferConversation(
         { tenantId, agentId, exigirAssignment: true },
-        { conversationId, forQueueId, forAgentId, motivo: 'Transferência em massa' },
+        { conversationId, forQueueId, forAgentId, reason: 'Transferência em massa' },
       );
       transferidas += 1;
     } catch (error) {

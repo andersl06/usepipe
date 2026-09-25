@@ -1,8 +1,8 @@
 import { createHmac, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrar, estaCifrado } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
-import type { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TIPOS_AUTENTICACAO_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { keyring, noTenant } from './database.js';
 import { chamarComMtls } from './domain/mtls.js';
 
@@ -111,11 +111,11 @@ async function obterTokenOAuth2(auth: AuthenticationOfOutputDecrypted): Promise<
 export async function headerOfAuthorization(
   auth: AuthenticationOfOutputDecrypted,
 ): Promise<string | null> {
-  if (auth.tipo === 'basica') {
+  if (auth.type === 'basica') {
     const par = `${auth.user ?? ''}:${auth.senha ?? ''}`;
     return `Basic ${Buffer.from(par, 'utf8').toString('base64')}`;
   }
-  if (auth.tipo === 'oauth2_client_credentials') {
+  if (auth.type === 'oauth2_client_credentials') {
     return `Bearer ${await obterTokenOAuth2(auth)}`;
   }
   return null;
@@ -136,7 +136,7 @@ export function cabecalhosDeSaida(params: {
   const cabecalhos: Record<string, string> = {};
   for (const { key, value } of params.customizados ?? []) cabecalhos[key] = value;
   cabecalhos['content-type'] = 'application/json';
-  cabecalhos['x-pipe-signature'] = assinar(params.secret, params.timestamp, params.corpo);
+  cabecalhos['x-pipe-signature'] = assinar(params.secret, params.timestamp, params.body);
   cabecalhos['x-pipe-timestamp'] = params.timestamp;
   cabecalhos['x-pipe-delivery'] = params.deliveryId;
   return cabecalhos;
@@ -259,17 +259,17 @@ async function entregarUma(
   let error: string | null = null;
   try {
     const cabecalhos = cabecalhosDeSaida({
-      secret: linha.segredo,
+      secret: linha.secret,
       timestamp,
-      corpo,
+      body: corpo,
       deliveryId: deliveryId,
       customizados: linha.cabecalhos,
     });
     const authorization = await headerOfAuthorization({
-      tipo: linha.typeAuthentication,
+      type: linha.typeAuthentication,
       user: linha.authenticationUser,
       senha: decryptSecretOfWebhook(linha.authenticationPassword),
-      oauth2UrlAuthorization: linha.oauth2_url_autorizacao,
+      oauth2UrlAuthorization: linha.oauth2UrlAuthorization,
       oauth2ClientId: linha.oauth2_client_id,
       oauth2ClientSecret: decryptSecretOfWebhook(linha.oauth2_client_secret),
     });

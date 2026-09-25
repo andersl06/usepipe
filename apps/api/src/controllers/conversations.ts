@@ -236,20 +236,20 @@ export class ConversationsController {
       conversaId: id,
       atendenteId: ator.viaSession ? ator.userId : (corpo.atendente_id ?? null),
       exigirAtribuicao: ator.viaSession,
-      ...(corpo.tipo ? { tipo: corpo.tipo } : {}),
+      ...(corpo.type ? { tipo: corpo.type } : {}),
       texto: corpo.texto ?? null,
       templateId: corpo.template_id ?? null,
       ...(corpo.parametros ? { parametros: corpo.parametros } : {}),
       attachmentId: corpo.attachmentId ?? null,
       mediaUrl: corpo.mediaUrl ?? null,
-      respostaProntaId: corpo.resposta_pronta_id ?? null,
+      responseReadyId: corpo.resposta_pronta_id ?? null,
     });
     return {
       id: enfileirada.id,
       estado_entrega: enfileirada.estadoEntrega,
       insideOfWindow: enfileirada.insideOfWindow,
       categoria_cobranca: enfileirada.categoriaCobranca,
-      conteudo: enfileirada.conteudo,
+      conteudo: enfileirada.content,
     };
   }
 
@@ -288,7 +288,7 @@ export class ConversationsController {
         estado_entrega: m.estadoEntrega,
         insideOfWindow: m.insideOfWindow,
         categoria_cobranca: m.categoriaCobranca,
-        conteudo: m.conteudo,
+        conteudo: m.content,
       })),
     };
   }
@@ -310,9 +310,9 @@ export class ConversationsController {
         agentId: ator.userId,
         exigirAssignment: ator.viaSession,
       },
-      { conversaId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaId: corpo.etiqueta_id },
+      { conversationId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaId: corpo.etiqueta_id },
     );
-    return { estado: r.estado, reasonClosure: r.motivo };
+    return { estado: r.state, reasonClosure: r.reason };
   }
 
   /**
@@ -358,13 +358,13 @@ export class ConversationsController {
         conversationId: id,
         forQueueId: corpo.forQueueId ?? null,
         forAgentId: corpo.forAgentId ?? null,
-        motivo: corpo.motivo ?? null,
+        reason: corpo.reason ?? null,
       },
     );
     return {
       ofConversationId: r.ofConversationId,
       para_conversa_id: r.forConversationId,
-      estado: r.estado,
+      estado: r.state,
     };
   }
 
@@ -450,17 +450,17 @@ function asMessage(linha: LineMessage): Record<string, unknown> {
     criada_em: iso(linha.criada_em),
     direcao: linha.direction,
     autor_tipo: linha.autor_tipo,
-    autor_id: linha.autor_id,
-    tipo: linha.tipo,
-    conteudo: linha.conteudo,
+    autor_id: linha.authorId,
+    tipo: linha.type,
+    conteudo: linha.content,
     estado_entrega: linha.stateDelivery,
     erro_codigo: linha.errorCode,
     errorText: linha.errorText,
-    id_provedor: linha.id_provedor,
-    entregue_em: iso(linha.entregue_em),
-    lida_em: iso(linha.lida_em),
+    id_provedor: linha.idProvider,
+    entregue_em: iso(linha.entregueAt),
+    lida_em: iso(linha.lidaAt),
     insideOfWindow: linha.insideOfWindow,
-    categoria_cobranca: linha.categoria_cobranca,
+    categoria_cobranca: linha.categoryCobranca,
   };
 }
 

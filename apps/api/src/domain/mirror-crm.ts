@@ -56,7 +56,7 @@ export async function syncContact(
 
     const contact: ContactForEspelhar = {
       id: linha.id,
-      nome: linha.nome,
+      name: linha.nome,
       email: linha.email,
       telefoneE164: linha.telefone_e164,
       twentyPessoaId: linha.twenty_pessoa_id,
@@ -70,9 +70,9 @@ export async function syncContact(
   // A chamada de rede acontece FORA da transação, de propósito: uma conexão de banco
   // presa esperando o CRM de um cliente lento é uma conexão que falta para todos os
   // outros. O `PIPE_TWENTY_TIMEOUT_MS` protege o worker; isto protege o pool.
-  const pessoaId = await espelharContact(preparo.config, preparo.contato, buscar);
+  const pessoaId = await espelharContact(preparo.config, preparo.contact, buscar);
 
-  if (pessoaId !== preparo.contato.twentyPessoaId) {
+  if (pessoaId !== preparo.contact.twentyPessoaId) {
     await noTenant(tenantId, async (tx) => {
       await tx.execute(sql`
         update contato set twenty_pessoa_id = ${pessoaId}, atualizado_em = now()

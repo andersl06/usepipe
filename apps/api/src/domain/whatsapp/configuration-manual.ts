@@ -59,14 +59,14 @@ export async function executarConfigurationManual(pedido: {
     const religado = await reautorizar({
       tenantId: pedido.tenantId,
       channelId: pedido.channelId,
-      numeroId: previa.numeroId,
+      numeroId: previa.numberId,
       wabaId: previa.wabaId,
       token: pedido.token ?? '',
       info: {
-        numeroId: previa.numeroId,
-        numero: previa.numero,
+        numeroId: previa.numberId,
+        numero: previa.number,
         verificado: true,
-        nomeDaEmpresa: previa.nomeVerificado ?? previa.numero,
+        nomeDaEmpresa: previa.nomeVerificado ?? previa.number,
       },
     });
     /* O App Secret é do app DO CLIENTE e pode ter mudado junto com o token —
@@ -95,14 +95,14 @@ export async function executarConfigurationManual(pedido: {
     userId: pedido.userId,
     infoDaWaba: { wabaId: previa.wabaId, nomeDaEmpresa: previa.nomeVerificado ?? undefined },
     infoDoNumero: {
-      numeroId: previa.numeroId,
-      numero: previa.numero,
+      numeroId: previa.numberId,
+      numero: previa.number,
       verificado: true,
-      nomeDaEmpresa: previa.nomeVerificado ?? previa.numero,
+      nomeDaEmpresa: previa.nomeVerificado ?? previa.number,
     },
     token: pedido.token ?? '',
-    origem: 'manual_setup_v2',
-    nome: pedido.nome?.trim() || previa.nomeSugerido,
+    origin: 'manual_setup_v2',
+    nome: pedido.name?.trim() || previa.nomeSugerido,
     appSecret: pedido.appSecret,
     appId: previa.appId,
   });

@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { cifrar, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import { keyring } from '../../database.js';
 import { PipeError } from '../../errors.js';
 import { esquecerCertificadosMtls } from '../mtls.js';
@@ -217,7 +217,7 @@ export async function createCertificate(
   ator: Ator,
   pedido: PedidoDeCertificado,
 ): Promise<CertificadoMtls> {
-  const description = normalizeDescription(pedido.descricao);
+  const description = normalizeDescription(pedido.description);
   const hosts = normalizarHosts(pedido.hosts);
   const senha = normalizarSenha(pedido.senha);
   const file = normalizeFile(pedido.file);

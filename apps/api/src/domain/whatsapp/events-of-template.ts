@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../../database.js';
 import type { ChannelResolved } from '../../database.js';
 import { emitir } from '../../webhooks-saida.js';
@@ -103,9 +103,9 @@ export function emailOfRecategorization(alerta: AlertOfRecategorization, canalNo
   const para = rotulo(alerta.categoriaNova);
   return {
     para: alerta.emails,
-    assunto: `Modelo "${alerta.nome}" recategorizado pela Meta: ${de} → ${para}`,
+    assunto: `Modelo "${alerta.name}" recategorizado pela Meta: ${de} → ${para}`,
     texto:
-      `A Meta mudou a categoria do modelo "${alerta.nome}" (${alerta.idioma}) do canal ${canalNome}: ` +
+      `A Meta mudou a categoria do modelo "${alerta.name}" (${alerta.idioma}) do canal ${canalNome}: ` +
       `de ${de} para ${para}.\n\n` +
       'A categoria define o preço de cada envio desse modelo. Revise em Conteúdos → Modelos ' +
       'e, se o novo preço não fizer sentido, conteste na Meta ou crie outro modelo.\n\n' +
@@ -132,7 +132,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
         `);
         for (const { id } of rows) {
           await registrarAuditoria(tx, channel.tenantId, {
-            ator: { type: 'sistema' },
+            ator: { tipo: 'sistema' },
             acao: 'alterou',
             objetoTipo: 'template_mensagem',
             objetoId: id,
@@ -157,7 +157,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
       // Vazio = todos os administradores, como diz a tela da origem. Resolvido
       // uma vez por evento, e só se houver o que avisar.
       const emails =
-        rows.length > 0 && alerta.ativo
+        rows.length > 0 && alerta.active
           ? alerta.emails.length > 0
             ? alerta.emails
             : await emailsOfWhoGerenciaChannel(tx)
@@ -165,14 +165,14 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
       for (const { id } of rows) {
         const anterior = CATEGORIA[value?.previous_category ?? ''] ?? null;
         await registrarAuditoria(tx, channel.tenantId, {
-          ator: { type: 'sistema' },
+          ator: { tipo: 'sistema' },
           acao: 'alterou',
           objetoTipo: 'template_mensagem',
           objetoId: id,
           antes: { categoria: anterior },
           depois: { categoria: nova },
         });
-        if (alerta.ativo) {
+        if (alerta.active) {
           await emitir(tx, channel.tenantId, 'modelo.recategorizado', {
             template_id: id,
             nome,
@@ -184,7 +184,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
           });
           alertas.push({
             templateId: id,
-            nome,
+            name: nome,
             idioma,
             categoriaAnterior: anterior,
             categoriaNova: nova,

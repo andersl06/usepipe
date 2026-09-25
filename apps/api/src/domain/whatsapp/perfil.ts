@@ -74,14 +74,14 @@ function tokenDo(channel: ChannelWhatsApp): string {
 }
 
 function numeroDo(canal: ChannelWhatsApp): string {
-  const numero = texto(canal.config['phoneNumberId']) ?? canal.numeroId;
+  const numero = texto(canal.config['phoneNumberId']) ?? canal.numberId;
   if (!numero) throw PipeError.conflito('channel_without_number', 'O canal não tem número: reconecte o WhatsApp.');
   return numero;
 }
 
 function comoVisivel(perfil: PerfilDoNumero, numero: Record<string, unknown>): PerfilVisivel {
   return {
-    sobre: perfil.about ?? '',
+    about: perfil.about ?? '',
     endereco: perfil.address ?? '',
     description: perfil.description ?? '',
     email: perfil.email ?? '',
@@ -127,7 +127,7 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
     return limpo;
   };
 
-  const sobre = textoLimitado(pedido.sobre, 'sobre', 'O recado');
+  const sobre = textoLimitado(pedido.about, 'sobre', 'O recado');
   // A Meta recusa `about` vazio: o recado existe sempre, só dá para trocar.
   if (sobre !== undefined) {
     if (!sobre) throw recusa('sobre', 'O recado não pode ficar vazio.');
@@ -135,7 +135,7 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   }
   const endereco = textoLimitado(pedido.endereco, 'endereco', 'O endereço');
   if (endereco !== undefined) saida.address = endereco;
-  const description = textoLimitado(pedido.descricao, 'descricao', 'A descrição');
+  const description = textoLimitado(pedido.description, 'descricao', 'A descrição');
   if (description !== undefined) saida.description = description;
   const email = textoLimitado(pedido.email, 'email', 'O e-mail');
   if (email !== undefined) {
@@ -156,10 +156,10 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
     }
     saida.websites = sites;
   }
-  if (pedido.categoria !== undefined) {
+  if (pedido.category !== undefined) {
     // A lista de categorias é da Meta e muda; aqui só o formato do código dela.
-    if (!/^[A-Z_]{2,40}$/.test(pedido.categoria)) throw recusa('categoria', 'Categoria inválida.');
-    saida.vertical = pedido.categoria;
+    if (!/^[A-Z_]{2,40}$/.test(pedido.category)) throw recusa('categoria', 'Categoria inválida.');
+    saida.vertical = pedido.category;
   }
   return saida;
 }
@@ -174,7 +174,7 @@ export function lerFoto(foto: string): { bytes: Buffer; type: string } {
   const bytes = Buffer.from(partes[2]!, 'base64');
   if (bytes.length === 0) throw recusa('foto', 'A foto está vazia.');
   if (bytes.length > FOTO_MAX_BYTES) throw recusa('foto', 'A foto tem de ter no máximo 5 MB.');
-  return { bytes, tipo };
+  return { bytes, type: tipo };
 }
 
 export async function writeProfileOfChannel(
@@ -201,13 +201,13 @@ export async function writeProfileOfChannel(
         'Não sabemos o aplicativo deste canal para enviar a foto: reconecte o WhatsApp.',
       );
     }
-    perfil.profile_picture_handle = await cliente.upPhoto(appId, foto.bytes, foto.tipo);
+    perfil.profile_picture_handle = await cliente.upPhoto(appId, foto.bytes, foto.type);
   }
   await cliente.gravarPerfil(numeroId, perfil);
 
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: canal.id,

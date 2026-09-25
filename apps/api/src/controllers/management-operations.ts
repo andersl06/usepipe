@@ -27,7 +27,7 @@ import {
   type RecordOfEvaluation,
   type ApplicationOfQualityReview,
 } from '../domain/management/quality-review.js';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { registrarAuditoria } from '@pipe/db';
 import { closeConversation, transferConversation } from '../domain/conversation.js';
 import { exigirPermission } from '../session.js';
@@ -57,8 +57,8 @@ async function period(
   dias: number,
 ): Promise<{ de: string; ate: string; window: { start: Date; fim: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
-  const ateFinal = ate || dataIso(hoje.inicio, fuso);
-  const deFinal = de || dataIso(new Date(hoje.inicio.getTime() - (dias - 1) * 86400e3), fuso);
+  const ateFinal = ate || dataIso(hoje.start, fuso);
+  const deFinal = de || dataIso(new Date(hoje.start.getTime() - (dias - 1) * 86400e3), fuso);
   return { de: deFinal, ate: ateFinal, window: await windowOfDatas(tx, fuso, deFinal, ateFinal) };
 }
 
@@ -70,7 +70,7 @@ async function periodHistory(
   ate: string | undefined,
 ): Promise<{ de: string; ate: string; janela: { start: Date; fim: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
-  const hojeLocal = dataIso(hoje.inicio, fuso);
+  const hojeLocal = dataIso(hoje.start, fuso);
   const ateFinal = ate || hojeLocal;
   const dia = new Date(`${hojeLocal}T00:00:00.000Z`);
   dia.setUTCDate(dia.getUTCDate() - 29);
@@ -192,10 +192,10 @@ export class ManagementOperationsController {
       await exigirPermission(tx, sessao.userId, 'conversa.transferir');
       const resultado = await transferConversation(
         { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
-        { conversationId: id, forQueueId: corpo?.forQueueId ?? null, forAgentId: corpo?.forAgentId ?? null, motivo: null },
+        { conversationId: id, forQueueId: corpo?.forQueueId ?? null, forAgentId: corpo?.forAgentId ?? null, reason: null },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'transferiu_no_monitoramento', para: resultado.forConversationId },
       });
       return { para_conversa_id: resultado.forConversationId };
@@ -216,13 +216,13 @@ export class ManagementOperationsController {
       await exigirPermission(tx, sessao.userId, 'conversa.encerrar');
       const resultado = await closeConversation(
         { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
-        { conversaId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaId: corpo?.etiqueta_id },
+        { conversationId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaId: corpo?.etiqueta_id },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'finalizou_no_monitoramento' },
       });
-      return { estado: resultado.estado };
+      return { estado: resultado.state };
     });
   }
 

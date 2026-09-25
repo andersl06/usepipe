@@ -50,7 +50,7 @@ export async function validateConfigurationManual(data: {
 }): Promise<PreviaOfConfiguration> {
   // `validate_parameters!`
   if (!data.wabaId) throw recusa('O WABA ID é obrigatório.');
-  if (!data.numeroId) throw recusa('O Phone Number ID é obrigatório.');
+  if (!data.numberId) throw recusa('O Phone Number ID é obrigatório.');
   if (!data.token) throw recusa('O token de acesso é obrigatório.');
   // Acréscimo do Pipe: o token é do app do CLIENTE, e a Meta assina o webhook com
   // o segredo DESSE app. Sem ele, toda mensagem recebida cai em 401.

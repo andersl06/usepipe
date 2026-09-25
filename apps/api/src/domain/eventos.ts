@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TipoEvento } from '@pipe/core';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * `evento_atendimento` é a fonte de toda métrica (modelo de dados §4) e é imutável.
@@ -21,8 +21,8 @@ export async function registrarEvento(
   await tx.execute(sql`
     insert into evento_atendimento (tenant_id, conversa_id, tipo, em, usuario_id, fila_id, dados)
     values (
-      ${inbound.tenantId}, ${inbound.conversationId}, ${inbound.tipo},
-      ${inbound.em ?? new Date()}, ${inbound.userId ?? null}, ${inbound.queueId ?? null},
+      ${inbound.tenantId}, ${inbound.conversationId}, ${inbound.type},
+      ${inbound.at ?? new Date()}, ${inbound.userId ?? null}, ${inbound.queueId ?? null},
       ${JSON.stringify(inbound.data ?? {})}::jsonb
     )
   `);

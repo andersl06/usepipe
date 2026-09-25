@@ -59,7 +59,7 @@ export class ActiveMessagesController {
         conversa_id: l.conversationId,
         contato_id: l.contactId,
         contato_nome: l.contactName,
-        telefone: l.telefone,
+        telefone: l.phone,
         template_nome: l.templateNome,
         estado_entrega: l.stateDelivery,
         erro_codigo: l.errorCode,
@@ -86,15 +86,15 @@ export class ActiveMessagesController {
     // paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número
     // dele com a nossa credencial.
     if (!channel || channel.tenantId !== ator.tenantId) throw PipeError.naoEncontrado('Canal');
-    if (!channel.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
+    if (!channel.active) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const destinos: DestinationOfTrigger[] = (corpo.contacts ?? []).map((c) => ({
       contatoId: c.contactId ?? null,
-      telefone: c.telefone ?? null,
-      nome: c.nome ?? null,
+      telefone: c.phone ?? null,
+      nome: c.name ?? null,
       parametros: c.parametros ?? null,
     }));
-    if (destinos.some((d) => !d.contatoId && !d.telefone)) {
+    if (destinos.some((d) => !d.contatoId && !d.phone)) {
       throw PipeError.request(
         'destination_invalid',
         'Cada contato precisa de `contato_id` ou `telefone`.',
@@ -114,11 +114,11 @@ export class ActiveMessagesController {
       enviadas: resultados.filter((r) => r.enviada).length,
       recusadas: resultados.filter((r) => !r.enviada).length,
       data: resultados.map((r) => ({
-        telefone: r.telefone,
+        telefone: r.phone,
         contato_id: r.contatoId,
         enviada: r.enviada,
         mensagem_id: r.mensagemId ?? null,
-        conversa_id: r.conversaId ?? null,
+        conversa_id: r.conversationId ?? null,
         motivo: r.motivo ?? null,
         detalhe: r.detalhe ?? null,
       })),

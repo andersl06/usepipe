@@ -50,7 +50,7 @@ if (!values.tenant) {
   const resultado = await noTenant(tenantId, (tx) =>
     importFlowOfBlip(tx, {
       tenantId,
-      nome: values.nome ?? 'Fluxo importado da Blip',
+      name: values.nome ?? 'Fluxo importado da Blip',
       channelId: values.canal ?? null,
       json,
       publicar: values.publicar ?? false,

@@ -1,7 +1,7 @@
 import { and, count, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import { compararIdentificador, mediaPonderadaDePares, taxaDeResposta } from '@pipe/core';
-import { conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import { conversa as conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -77,10 +77,10 @@ export const LIMITE_COMENTARIOS = 20;
 const ORDER_CLASSE = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
 
 function ordenarClasses(a: FatiaDeClasse, b: FatiaDeClasse): number {
-  const ia = ORDER_CLASSE.indexOf(a.nome);
-  const ib = ORDER_CLASSE.indexOf(b.nome);
+  const ia = ORDER_CLASSE.indexOf(a.name);
+  const ib = ORDER_CLASSE.indexOf(b.name);
   if (ia !== ib) return (ia < 0 ? ORDER_CLASSE.length : ia) - (ib < 0 ? ORDER_CLASSE.length : ib);
-  return a.nome < b.nome ? -1 : 1;
+  return a.name < b.name ? -1 : 1;
 }
 
 export async function loadSatisfaction(
@@ -90,8 +90,8 @@ export async function loadSatisfaction(
   return consultar(tx, async (tx) => {
     const closedInPeriod = and(
       isNotNull(conversation.encerradaEm),
-      gte(conversation.encerradaEm, window.inicio),
-      lt(conversation.encerradaEm, window.fim),
+      gte(conversation.encerradaEm, window.start),
+      lt(conversation.encerradaEm, window.end),
     );
 
     // Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o
@@ -133,7 +133,7 @@ export async function loadSatisfaction(
       const g =
         groups.get(key) ??
         ({
-          tipo: l.tipo,
+          type: l.tipo,
           escalaMin: l.escalaMin,
           escalaMax: l.escalaMax,
           enviadas: 0,
@@ -174,18 +174,18 @@ export async function loadSatisfaction(
       comentarios,
       grupos: [...groups.values()]
         .map((g) => ({
-          tipo: g.tipo,
+          tipo: g.type,
           escalaMin: g.escalaMin,
           escalaMax: g.escalaMax,
           media: mediaPonderadaDePares([...g.pares.values()]),
-          respostas: g.respostas,
+          respostas: g.responses,
           enviadas: g.enviadas,
-          taxa: taxaDeResposta(g.respostas, encerradas),
+          taxa: taxaDeResposta(g.responses, encerradas),
           classes: [...g.classes.entries()]
             .map(([nome, quantity]) => ({
               nome,
               quantity,
-              fracao: g.respostas > 0 ? quantity / g.respostas : 0,
+              fracao: g.responses > 0 ? quantity / g.responses : 0,
             }))
             .sort(ordenarClasses),
         }))

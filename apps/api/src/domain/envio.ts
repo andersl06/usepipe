@@ -113,7 +113,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
         from conversa c
         join inbox ib on ib.id = c.inbox_id
         join canal ca on ca.id = ib.canal_id
-       where c.id = ${pedido.conversaId}
+       where c.id = ${pedido.conversationId}
        limit 1
     `);
     const conversation = rows[0];
@@ -128,7 +128,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     // Atendente responde no que é dele. Conversa na fila (sem dono) também é recusada:
     // pegar a conversa é uma ação com evento próprio (`atribuida`), e deixar o envio
     // atribuir por tabela faria o relatório de TMR perder o marco.
-    if (pedido.exigirAtribuicao && conversation.atendente_id !== pedido.atendenteId) {
+    if (pedido.exigirAtribuicao && conversation.atendente_id !== pedido.agentId) {
       throw new PipeError(
         403,
         'conversation_of_other_agent',
@@ -153,18 +153,18 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       if (template.status_meta !== 'aprovado') {
         throw PipeError.conflito(
           'template_nao_aprovado',
-          `O template "${template.nome}" está como "${template.status_meta}" na Meta.`,
+          `O template "${template.name}" está como "${template.status_meta}" na Meta.`,
         );
       }
     }
 
-    const tipo = pedido.tipo ?? (template ? 'template' : 'texto');
+    const tipo = pedido.type ?? (template ? 'template' : 'texto');
     const evaluation = avaliarEnvio({
       channel: channelOfCore(conversation.channelType),
       expiraEm: comoData(conversation.windowExpiresAt),
       agora,
       conteudo: template ? 'template' : 'texto_livre',
-      categoriaTemplate: template?.categoria ?? null,
+      categoriaTemplate: template?.category ?? null,
     });
 
     if (!evaluation.permitido) {
@@ -181,7 +181,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     }
 
     const conteudo = template
-      ? renderizar(template.corpo, pedido.parametros ?? [])
+      ? renderizar(template.body, pedido.parametros ?? [])
       : (pedido.texto?.trim() ?? null);
     if (!conteudo && !pedido.attachmentId) {
       throw PipeError.request('content_empty', 'Escreva algo ou anexe um arquivo.');
@@ -191,7 +191,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     // origem (`blip-desk-regras-tecnicas.md` §3.4): achou, não envia. Vale para o
     // texto livre assinado por atendente (inclusive a legenda de anexo); template
     // e mensagem do sistema/bot não passam pelo filtro, como lá.
-    if (pedido.atendenteId && !template && conteudo) {
+    if (pedido.agentId && !template && conteudo) {
       await exigirSemPalavrasProibidas(tx, pedido.tenantId, conteudo);
     }
 
@@ -202,14 +202,14 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
         dentro_da_janela, categoria_cobranca
       ) values (
         ${pedido.tenantId}, ${conversation.id}, 'saida',
-        ${pedido.atendenteId ? 'atendente' : 'sistema'}, ${pedido.atendenteId ?? null},
+        ${pedido.agentId ? 'atendente' : 'sistema'}, ${pedido.agentId ?? null},
         ${tipo}, ${conteudo}, ${pedido.attachmentId ?? null}, ${template?.id ?? null},
-        ${pedido.respostaProntaId ?? null},
+        ${pedido.responseReadyId ?? null},
         'pendente', ${agora}, ${evaluation.windowDentro},
         ${classificarCusto({
           conteudo: template ? 'template' : 'texto_livre',
           windowDentro: evaluation.windowDentro,
-          categoriaTemplate: template?.categoria ?? null,
+          categoriaTemplate: template?.category ?? null,
         })}
       )
       returning id
@@ -235,7 +235,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     // métrica que a spec de métricas proíbe enfeitar.
     const clienteJaFalou = comoData(conversation.lastMessageAt) !== null;
     const firstResponse =
-      comoData(conversation.firstResponseAt) === null && !!pedido.atendenteId && clienteJaFalou;
+      comoData(conversation.firstResponseAt) === null && !!pedido.agentId && clienteJaFalou;
 
     await tx.execute(sql`
       update conversa
@@ -251,18 +251,18 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     await registrarEvento(tx, {
       tenantId: pedido.tenantId,
       conversationId: conversation.id,
-      tipo: 'mensagem_saida',
+      type: 'mensagem_saida',
       em: agora,
-      userId: pedido.atendenteId ?? null,
+      userId: pedido.agentId ?? null,
       queueId: conversation.queueId,
     });
     if (firstResponse) {
       await registrarEvento(tx, {
         tenantId: pedido.tenantId,
         conversationId: conversation.id,
-        tipo: 'primeira_resposta',
+        type: 'primeira_resposta',
         em: agora,
-        userId: pedido.atendenteId ?? null,
+        userId: pedido.agentId ?? null,
         queueId: conversation.queueId,
       });
     }
@@ -288,15 +288,15 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
 
   // Fora da transação: enfileirar e drenar webhook não podem prender o commit.
   await enqueueDelivery({
-    messageId: resultado.mensagemId,
+    messageId: resultado.messageId,
     ...(resultado.valores ? { parametros: resultado.valores } : {}),
   });
   drenarEmSegundoPlano(pedido.tenantId);
   // Depois do commit, sempre. Ver `tempo-real.ts`.
-  await publicar(pedido.tenantId, evento('conversation', pedido.conversaId));
+  await publicar(pedido.tenantId, evento('conversation', pedido.conversationId));
 
   return {
-    id: resultado.mensagemId,
+    id: resultado.messageId,
     estadoEntrega: 'pending',
     insideOfWindow: resultado.dentroDaJanela,
     categoriaCobranca: resultado.categoriaCobranca,
@@ -392,7 +392,7 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
     enviadas.push(
       await sendMessage({
         tenantId: pedido.tenantId,
-        conversaId: pedido.conversationId,
+        conversationId: pedido.conversationId,
         atendenteId: pedido.agentId ?? null,
         tipo: tipoDoMime(attachment.mime),
         attachmentId: attachment.id,

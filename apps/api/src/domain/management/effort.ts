@@ -6,8 +6,8 @@ import {
   type EffortConversation,
   type MessageEffort,
 } from '@pipe/core';
-import { attachment, conversation, message, user } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import { attachment, conversa as conversation, message, user } from '@pipe/db/schema';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -79,8 +79,8 @@ export async function loadEffort(
       .where(
         and(
           isNotNull(conversation.encerradaEm),
-          gte(conversation.encerradaEm, window.inicio),
-          lt(conversation.encerradaEm, window.fim),
+          gte(conversation.encerradaEm, window.start),
+          lt(conversation.encerradaEm, window.end),
         ),
       )
       .orderBy(asc(message.criadaEm));
@@ -161,7 +161,7 @@ export async function loadEffort(
           audiosSemMetadado: soma((c) => c.audiosSemMetadado),
         };
       })
-      .sort((a, b) => b.esforcoSeg - a.esforcoSeg);
+      .sort((a, b) => b.effortSeg - a.effortSeg);
 
     return {
       window,

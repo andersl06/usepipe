@@ -90,7 +90,7 @@ export class CrmController {
       if (!ficha) return { record: null };
       return {
         record: {
-          nome: ficha.nome,
+          nome: ficha.name,
           email: ficha.email,
           empresa: ficha.empresa,
           link: ficha.link,

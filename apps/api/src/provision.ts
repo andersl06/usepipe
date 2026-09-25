@@ -110,7 +110,7 @@ export interface ClienteProvisionado {
 export async function provisionCustomer(
   pedido: RequestOfProvisioning,
 ): Promise<ClienteProvisionado> {
-  const nome = pedido.nome.trim();
+  const nome = pedido.name.trim();
   const slug = pedido.slug.trim().toLowerCase();
   const admin = pedido.admin.trim().toLowerCase();
 
@@ -124,18 +124,18 @@ export async function provisionCustomer(
   if (!EMAIL_ACEITAVEL.test(admin)) {
     throw PipeError.request('admin_invalid', 'Informe o e-mail do primeiro administrador.');
   }
-  if (!PLANOS.includes(pedido.plano as Plano)) {
+  if (!PLANOS.includes(pedido.plan as Plano)) {
     throw PipeError.request(
       'plan_invalid',
-      `Plano "${pedido.plano}" não existe. Os planos são: ${PLANOS.join(', ')}.`,
+      `Plano "${pedido.plan}" não existe. Os planos são: ${PLANOS.join(', ')}.`,
     );
   }
-  const plano = pedido.plano as Plano;
+  const plano = pedido.plan as Plano;
 
   // O domínio sai do e-mail do administrador quando não vier explícito — é o caso
   // normal, e digitar duas vezes a mesma coisa é como se erra uma delas.
-  const domainTarget = pedido.dominio ?? domainOfEmail(admin);
-  if (!pedido.withoutDomain && !pedido.dominio && ehDomainPublic(admin)) {
+  const domainTarget = pedido.domain ?? domainOfEmail(admin);
+  if (!pedido.withoutDomain && !pedido.domain && ehDomainPublic(admin)) {
     throw PipeError.request(
       'domain_public',
       `${admin} é e-mail pessoal e não identifica empresa. Passe --dominio, ou provisione com o e-mail corporativo do administrador.`,
@@ -212,7 +212,7 @@ export async function provisionCustomer(
     queues: semeado.queues,
     motivosDePausa: MOTIVOS_PAUSA_PADRAO.length,
     domain: domain
-      ? { id: domain.id, dominio: domain.dominio, verificado, registro: domain.registro }
+      ? { id: domain.id, dominio: domain.domain, verificado, registro: domain.registro }
       : null,
   };
 }
@@ -220,9 +220,9 @@ export async function provisionCustomer(
 /** O que o dono do cliente precisa para entrar, em texto de terminal. */
 export function asLogin(cliente: ClienteProvisionado): string {
   const app = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
-  const limites = LIMITES_DO_PLANO[cliente.plano];
+  const limites = LIMITES_DO_PLANO[cliente.plan];
   const linhas = [
-    `tenant ${cliente.slug} (${cliente.tenantId}) criado no plano ${cliente.plano}`,
+    `tenant ${cliente.slug} (${cliente.tenantId}) criado no plano ${cliente.plan}`,
     `  catálogo: ${cliente.papeis} papéis, ${cliente.permissions} permissões, ` +
       `${cliente.queues} filas, ${cliente.motivosDePausa} motivos de pausa`,
     `  franquia: ${limites.conversationsAiByAgent} conversas de IA por atendente, ` +
@@ -242,16 +242,16 @@ export function asLogin(cliente: ClienteProvisionado): string {
 
   if (cliente.domain.verificado) {
     linhas.push(
-      `domínio ${cliente.domain.dominio} VERIFICADO.`,
+      `domínio ${cliente.domain.domain} VERIFICADO.`,
       `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
       'A conta do Google é ligada sozinha na primeira entrada.',
     );
   } else {
     const r = cliente.domain.registro;
     linhas.push(
-      `domínio ${cliente.domain.dominio} PENDENTE. Peça ao cliente para publicar no DNS:`,
+      `domínio ${cliente.domain.domain} PENDENTE. Peça ao cliente para publicar no DNS:`,
       '',
-      `  ${r.nome}   ${r.tipo}   "${r.value}"`,
+      `  ${r.name}   ${r.tipo}   "${r.value}"`,
       '',
       'Depois de propagar, confira com --verificar, ou pela rota',
       `POST /v1/dominios/${cliente.domain.id}/verificar.`,
@@ -289,7 +289,7 @@ if (executadoDiretamente) {
     process.exitCode = 1;
   } else {
     provisionCustomer({
-      nome: values.nome ?? '',
+      name: values.nome ?? '',
       slug: values.slug ?? '',
       plano: values.plano ?? 'essencial',
       admin: values.admin ?? '',

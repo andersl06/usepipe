@@ -27,7 +27,7 @@ function periodOfQuery(desde: string | undefined, ate: string | undefined): Peri
   const d = desde ? new Date(desde) : null;
   const a = ate ? new Date(ate) : null;
   return {
-    desde: d && !Number.isNaN(d.getTime()) ? d : null,
+    since: d && !Number.isNaN(d.getTime()) ? d : null,
     ate: a && !Number.isNaN(a.getTime()) ? a : null,
   };
 }
@@ -70,7 +70,7 @@ export class TrackedLinksController {
     }
     return noTenant(sessao.tenantId, (tx) =>
       createLinkTracked(tx, sessao.tenantId, fluxoId, {
-        nome: corpo.nome ?? '',
+        name: corpo.name ?? '',
         destination: corpo.destination!,
       }),
     );

@@ -39,7 +39,7 @@ export class InstagramChannelsController {
       userId: sessao.userId,
       token: corpo?.access_token?.trim(),
       appSecret: corpo?.app_secret?.trim(),
-      nome: corpo?.nome,
+      name: corpo?.name,
     });
     if (flowId) await connectToFlow(sessao.tenantId, sessao.userId, flowId, feito.channel.id);
     return { ...feito.channel, webhookError: feito.webhookError, webhook: feito.webhook };

@@ -1,7 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
 import { scheduleAttendance, scheduleException, horarioFaixa } from '@pipe/db/schema';
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { exigirPermission } from '../../../session.js';
 import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../registrations.js';
@@ -298,7 +298,7 @@ export async function saveRuleQueue(
     }
     if (!operadorValido(operador)) return falha('Operador inválido.');
     if (!value) return falha(`A condição sobre "${campo}" ficou sem valor.`);
-    conditions.push({ campo, operador, value });
+    conditions.push({ field: campo, operador, value });
   }
 
   if (conditions.length === 0) {
@@ -306,7 +306,7 @@ export async function saveRuleQueue(
   }
 
   const gravado = await writeRuleQueue(tx, tid, ator, {
-    nome,
+    name: nome,
     order,
     combinador,
     queueDestinationId,

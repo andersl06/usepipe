@@ -68,13 +68,13 @@ function comoTexto(value: unknown): string | undefined {
 export async function buscarSaude(alvo: AlvoDaSaude): Promise<SaudeDoNumero> {
   // `validate_channel!`
   if (!alvo.tokenAccess) throw new Error('Falta o token de acesso.');
-  if (!alvo.numeroId) throw new Error('Falta o phone number id.');
+  if (!alvo.numberId) throw new Error('Falta o phone number id.');
   if (!alvo.wabaId) throw new Error('Falta o business account id.');
 
   const cliente = clienteGraph(alvo.tokenAccess);
   const versao = versaoDaSaude();
 
-  const numero = await cliente.buscarNumero(alvo.numeroId, CAMPOS_DO_NUMERO, versao);
+  const numero = await cliente.buscarNumero(alvo.numberId, CAMPOS_DO_NUMERO, versao);
   const throughput = (numero['throughput'] ?? undefined) as { level?: string } | undefined;
   const saude: SaudeDoNumero = {
     id: comoTexto(numero['id']),

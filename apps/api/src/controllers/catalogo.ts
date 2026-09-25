@@ -129,7 +129,7 @@ export class ContactsController {
     @Body() corpo: BodyContact,
   ): Promise<Record<string, unknown>> {
     const { tenantId } = contextOf(requisicao);
-    if (!corpo.telefone_e164 && !corpo.email) {
+    if (!corpo.phoneE164 && !corpo.email) {
       throw PipeError.request(
         'contact_without_identifier',
         'Informe telefone_e164 ou email: contato sem identificador não recebe mensagem.',
@@ -139,8 +139,8 @@ export class ContactsController {
       const { rows } = await tx.execute<LineContact>(sql`
         insert into contato (tenant_id, nome, telefone_e164, email, documento, atributos)
         values (
-          ${tenantId}, ${corpo.nome ?? null}, ${corpo.telefone_e164 ?? null},
-          ${corpo.email ?? null}, ${corpo.documento ?? null},
+          ${tenantId}, ${corpo.name ?? null}, ${corpo.phoneE164 ?? null},
+          ${corpo.email ?? null}, ${corpo.document ?? null},
           ${JSON.stringify(corpo.atributos ?? {})}::jsonb
         )
         returning id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
@@ -149,11 +149,11 @@ export class ContactsController {
       if (!criado) throw new Error('não criou o contato');
 
       // A identidade do canal é o que amarra o contato à conversa que chega da Meta.
-      if (corpo.telefone_e164) {
+      if (corpo.phoneE164) {
         await tx.execute(sql`
           insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
           values (${tenantId}, ${criado.id}, 'whatsapp_cloud',
-                  ${corpo.telefone_e164.replace(/^\+/, '')})
+                  ${corpo.phoneE164.replace(/^\+/, '')})
           on conflict (tenant_id, canal_tipo, identificador) do nothing
         `);
       }
@@ -179,10 +179,10 @@ export class ContactsController {
     const session = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('Contato');
 
-    const nome = corpo?.nome;
+    const nome = corpo?.name;
     const email = corpo?.email;
-    const telefone = corpo?.telefone_e164;
-    const document = corpo?.documento;
+    const telefone = corpo?.phoneE164;
+    const document = corpo?.document;
     const atributos = corpo?.atributos;
 
     if (typeof email === 'string' && email && !EMAIL_RAZOAVEL.test(email)) {
@@ -254,7 +254,7 @@ export class ContactsController {
       );
       if (Object.keys(mudanca.depois).length > 0 || atributos !== undefined) {
         await registrarAuditoria(tx, session.tenantId, {
-          ator: { type: 'usuario', id: session.userId },
+          ator: { tipo: 'usuario', id: session.userId },
           acao: 'alterou',
           objetoTipo: 'contato',
           objetoId: id,
@@ -361,7 +361,7 @@ export class AgentsController {
       state,
       motivoPausaId: corpo.motivo_pausa_id ?? null,
     });
-    return { usuario_id: alvo, estado: r.estado };
+    return { usuario_id: alvo, estado: r.state };
   }
 
   @Get()
@@ -433,12 +433,12 @@ export class AgentsController {
 function asContact(linha: LineContact): Record<string, unknown> {
   return {
     id: linha.id,
-    nome: linha.nome,
-    telefone_e164: linha.telefone_e164,
+    nome: linha.name,
+    telefone_e164: linha.phoneE164,
     email: linha.email,
     documento: linha.document,
-    bloqueado: linha.bloqueado,
-    criado_em: iso(linha.criado_em),
+    bloqueado: linha.blocked,
+    criado_em: iso(linha.createdAt),
     atributos: linha.atributos ?? {},
   };
 }

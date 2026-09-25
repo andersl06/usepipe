@@ -95,10 +95,10 @@ export async function closeConversation(
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    const conversa = await carregar(tx, pedido.conversaId, ator, 'conversa.encerrar');
-    exigirTransition(conversa.estado, 'encerrada');
+    const conversa = await carregar(tx, pedido.conversationId, ator, 'conversa.encerrar');
+    exigirTransition(conversa.state, 'encerrada');
 
-    const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaId ? [pedido.etiquetaId] : []))];
+    const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaIds ? [pedido.etiquetaIds] : []))];
     const { rows: etiquetas } = etiquetaIds.length
       ? await tx.execute<{ id: string; name: string; requiredInClosure: boolean }>(sql`
           select id, nome, obrigatoria_no_encerramento from etiqueta
@@ -126,7 +126,7 @@ export async function closeConversation(
 
     // Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo
     // pausado fica aberto para sempre e some do relatório de esforço.
-    const pausaEmAberto = conversa.estado === 'em_espera' && conversa.em_espera_desde !== null;
+    const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
     const pausadoSeg = pausaEmAberto
       ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
       : 0;
@@ -143,7 +143,7 @@ export async function closeConversation(
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
         conversationId: conversa.id,
-        tipo: 'espera_encerrada',
+        type: 'espera_encerrada',
         em: agora,
         userId: ator.agentId,
         queueId: conversa.queueId,
@@ -154,7 +154,7 @@ export async function closeConversation(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId: conversa.id,
-      tipo: 'encerrada',
+      type: 'encerrada',
       em: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
@@ -177,7 +177,7 @@ export async function closeConversation(
 
   drenarEmSegundoPlano(ator.tenantId);
   // Depois do commit. A conversa mudou e saiu da fila do atendente.
-  await publicar(ator.tenantId, evento('conversation', pedido.conversaId));
+  await publicar(ator.tenantId, evento('conversation', pedido.conversationId));
   await publicar(ator.tenantId, evento('queue'));
   return { estado: 'encerrada', motivo: resultado.motivo };
 }
@@ -201,8 +201,8 @@ export async function alternarEspera(
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversation = await carregar(tx, conversationId, ator);
-    const destination: StateConversation = conversation.estado === 'em_espera' ? 'em_atendimento' : 'em_espera';
-    exigirTransition(conversation.estado, destination);
+    const destination: StateConversation = conversation.state === 'em_espera' ? 'em_atendimento' : 'em_espera';
+    exigirTransition(conversation.state, destination);
 
     if (destination === 'em_espera') {
       await tx.execute(sql`
@@ -213,7 +213,7 @@ export async function alternarEspera(
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
         conversationId: conversation.id,
-        tipo: 'espera_iniciada',
+        type: 'espera_iniciada',
         em: agora,
         userId: ator.agentId,
         queueId: conversation.queueId,
@@ -235,7 +235,7 @@ export async function alternarEspera(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId: conversation.id,
-      tipo: 'espera_encerrada',
+      type: 'espera_encerrada',
       em: agora,
       userId: ator.agentId,
       queueId: conversation.queueId,
@@ -373,7 +373,7 @@ export async function transferConversation(
       await registrarEvento(tx, {
         tenantId: ator.tenantId,
         conversationId: conversa.id,
-        tipo: 'espera_encerrada',
+        type: 'espera_encerrada',
         em: agora,
         userId: ator.agentId,
         queueId: conversa.queueId,
@@ -391,13 +391,13 @@ export async function transferConversation(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId: conversa.id,
-      tipo: 'encerrada',
+      type: 'encerrada',
       em: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
       // `encerrada_por = transferencia` é o que separa, no relatório, a conversa que
       // acabou da que só mudou de mãos.
-      data: { encerrada_por: 'transferencia', motivo: pedido.motivo ?? null },
+      data: { encerrada_por: 'transferencia', motivo: pedido.reason ?? null },
     });
 
     const queueDestination = forQueue ?? conversa.queueId;
@@ -423,7 +423,7 @@ export async function transferConversation(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId: novaId,
-      tipo: 'criada',
+      type: 'criada',
       em: agora,
       userId: ator.agentId,
       queueId: queueDestination,
@@ -432,7 +432,7 @@ export async function transferConversation(
       tenantId: ator.tenantId,
       conversationId: novaId,
       // Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.
-      tipo: forAgent ? 'atribuida' : 'transferida_fila',
+      type: forAgent ? 'atribuida' : 'transferida_fila',
       em: agora,
       userId: forAgent ?? ator.agentId,
       queueId: queueDestination,
@@ -447,7 +447,7 @@ export async function transferConversation(
         de_fila_id, para_fila_id, motivo, por_usuario_id, em
       ) values (
         ${ator.tenantId}, ${conversa.id}, ${conversa.atendente_id}, ${forAgent},
-        ${conversa.queueId}, ${forQueue}, ${pedido.motivo ?? null}, ${ator.agentId}, ${agora}
+        ${conversa.queueId}, ${forQueue}, ${pedido.reason ?? null}, ${ator.agentId}, ${agora}
       )
     `);
 

@@ -73,7 +73,7 @@ export function ssoCallbackUrl(): string {
 function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
   return {
     id: linha.id,
-    provedor: linha.provedor as ProvedorSso,
+    provider: linha.provedor as ProvedorSso,
     emissor: linha.emissor,
     clienteId: linha.cliente_id,
     estado: linha.estado as StateConnection,
@@ -103,19 +103,19 @@ export async function salvarConexao(
   userId: string,
   corpo: CorpoDeConexao,
 ): Promise<ConexaoSsoVisivel> {
-  const provedor = (corpo.provedor ?? 'generico').trim();
+  const provedor = (corpo.provider ?? 'generico').trim();
   if (!PROVEDORES.includes(provedor as ProvedorSso)) {
     throw PipeError.request('provider_invalid', `"${provedor}" não é um provedor conhecido.`);
   }
 
-  const emissor = (corpo.emissor ?? '').trim().replace(/\/$/, '');
+  const emissor = (corpo.issuer ?? '').trim().replace(/\/$/, '');
   if (!emissor.startsWith('https://')) {
     throw PipeError.request(
       'issuer_invalid',
       'O emissor precisa ser a URL https do provedor — a mesma de onde sai o `.well-known`.',
     );
   }
-  const clienteId = (corpo.clienteId ?? '').trim();
+  const clienteId = (corpo.clientId ?? '').trim();
   const customerSecret = (corpo.customerSecret ?? '').trim();
   if (!clienteId || !customerSecret) {
     throw PipeError.request('config_incomplete', 'Faltam `clienteId` ou `clienteSegredo`.');
@@ -147,7 +147,7 @@ export async function salvarConexao(
 
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: antes[0] ? 'alterou' : 'criou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,
@@ -197,7 +197,7 @@ export async function defineState(
   if (!atual) throw PipeError.naoEncontrado('Conexão de SSO');
 
   const state = (mudanca.state ?? atual.estado) as StateConnection;
-  const politica = (mudanca.politica ?? atual.politica) as PoliticaSso;
+  const politica = (mudanca.policy ?? atual.politica) as PoliticaSso;
   if (!ESTADOS.includes(state)) {
     throw PipeError.request('state_invalid', `"${state}" não é um estado de conexão.`);
   }
@@ -231,7 +231,7 @@ export async function defineState(
     `);
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: usuarioId },
+      ator: { tipo: 'usuario', id: usuarioId },
       acao: state === 'ativa' ? 'ativou' : 'alterou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,

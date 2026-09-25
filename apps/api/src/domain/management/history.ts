@@ -10,15 +10,15 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contact,
-  conversation,
+  contato as contact,
+  conversa as conversation,
   conversationLabel,
   etiqueta,
   eventAttendance,
   queue,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { ticketDe } from './monitoring.js';
 
@@ -101,12 +101,12 @@ export async function loadHistory(
       .leftJoin(user, eq(user.id, conversation.agentId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId));
 
-    const comEtiqueta = filter.etiquetaId
+    const comEtiqueta = filter.labelId
       ? base.innerJoin(
           conversationLabel,
           and(
             eq(conversationLabel.conversaId, conversation.id),
-            eq(conversationLabel.etiquetaId, filter.etiquetaId),
+            eq(conversationLabel.etiquetaId, filter.labelId),
           ),
         )
       : base;
@@ -115,8 +115,8 @@ export async function loadHistory(
       .where(
         and(
           isNotNull(conversation.encerradaEm),
-          gte(conversation.encerradaEm, window.inicio),
-          lt(conversation.encerradaEm, window.fim),
+          gte(conversation.encerradaEm, window.start),
+          lt(conversation.encerradaEm, window.end),
           ...recorte,
         ),
       )
@@ -254,7 +254,7 @@ export function agruparHistory(
     if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }
-    return l.etiquetas.length > 0 ? l.etiquetas : ['Sem etiqueta'];
+    return l.labels.length > 0 ? l.labels : ['Sem etiqueta'];
   };
 
   const mapa = new Map<string, LineHistory[]>();

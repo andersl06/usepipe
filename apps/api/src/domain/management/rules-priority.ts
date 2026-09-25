@@ -2,7 +2,7 @@ import { and, asc, eq, ne } from 'drizzle-orm';
 import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversa';
 import { rulePriority, queue } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
@@ -146,7 +146,7 @@ function linha(r: {
   condition: unknown;
   active: boolean;
 }): RulePriorityWritten {
-  return { ...r, condicao: (r.condition ?? {}) as Record<string, unknown> };
+  return { ...r, condition: (r.condition ?? {}) as Record<string, unknown> };
 }
 
 export async function loadRulesOfPriority(tx: TransactionPipe): Promise<RulePriorityWritten[]> {
@@ -191,10 +191,10 @@ export async function createRulePriority(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, userId, RULE_MANAGE);
 
-  const nome = nomeConferido(pedido.nome);
-  const nivel = nivelConferido(pedido.nivel);
-  const condition = conditionChecked(pedido.condicao);
-  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
+  const nome = nomeConferido(pedido.name);
+  const nivel = nivelConferido(pedido.level);
+  const condition = conditionChecked(pedido.condition);
+  const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.scopeType ?? 'tenant', pedido.scopeId);
   const active = pedido.ativa ?? true;
 
   if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
@@ -206,7 +206,7 @@ export async function createRulePriority(
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: userId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_prioridade',
     objetoId: criada.id,
@@ -228,23 +228,23 @@ export async function editarRulePriority(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) depois.nome = nomeConferido(pedido.nome);
-  if (pedido.nivel !== undefined) depois.nivel = nivelConferido(pedido.nivel);
-  if (pedido.condicao !== undefined) depois.condicao = conditionChecked(pedido.condicao);
+  if (pedido.name !== undefined) depois.name = nomeConferido(pedido.name);
+  if (pedido.level !== undefined) depois.level = nivelConferido(pedido.level);
+  if (pedido.condition !== undefined) depois.condition = conditionChecked(pedido.condition);
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
-  if (pedido.escopoTipo !== undefined || pedido.escopoId !== undefined) {
+  if (pedido.scopeType !== undefined || pedido.scopeId !== undefined) {
     const resolvido = await scopeChecked(
       tx,
       tid,
-      pedido.escopoTipo ?? depois.escopoTipo,
-      pedido.escopoId !== undefined ? pedido.escopoId : depois.escopoId,
+      pedido.scopeType ?? depois.scopeType,
+      pedido.scopeId !== undefined ? pedido.scopeId : depois.scopeId,
     );
-    depois.escopoTipo = resolvido.scopeType;
-    depois.escopoId = resolvido.scopeId;
+    depois.scopeType = resolvido.scopeType;
+    depois.scopeId = resolvido.scopeId;
   }
 
-  if (depois.nome !== antes.nome && (await nomeEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
+  if (depois.name !== antes.name && (await nomeEmUso(tx, tid, depois.name, id))) {
+    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.name}".`);
   }
 
   const mudanca = diferenca(antes, depois);
@@ -253,11 +253,11 @@ export async function editarRulePriority(
   const [gravada] = await tx
     .update(rulePriority)
     .set({
-      nome: depois.nome,
-      nivel: depois.nivel,
-      escopoTipo: depois.escopoTipo,
-      escopoId: depois.escopoId,
-      condicao: depois.condicao,
+      nome: depois.name,
+      nivel: depois.level,
+      escopoTipo: depois.scopeType,
+      escopoId: depois.scopeId,
+      condicao: depois.condition,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
@@ -274,7 +274,7 @@ export async function editarRulePriority(
   if (!gravada) throw PipeError.naoEncontrado('regra de prioridade');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_prioridade',
     objetoId: id,
@@ -291,10 +291,10 @@ export async function deleteRulePriority(tx: TransactionPipe, tid: string, usuar
   await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_prioridade',
     objetoId: id,
-    antes: { nome: atual.nome, nivel: atual.nivel, ativa: atual.ativa },
+    antes: { nome: atual.name, nivel: atual.level, ativa: atual.ativa },
   });
 }

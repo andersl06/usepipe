@@ -40,7 +40,7 @@ export interface RequestOfRegistrationEmbedded {
 /** `validate_parameters!` do serviço e `validate_embedded_signup_params!` do controlador. */
 export function validarParametros(pedido: { code?: string | undefined; wabaId?: string | undefined }): void {
   const ausentes: string[] = [];
-  if (!pedido.codigo?.trim()) ausentes.push('code');
+  if (!pedido.code?.trim()) ausentes.push('code');
   if (!pedido.wabaId?.trim()) ausentes.push('waba_id');
   if (ausentes.length === 0) return;
   throw PipeError.request(
@@ -57,14 +57,14 @@ export async function executarRegistrationEmbedded(
     const wabaId = pedido.wabaId!.trim();
     const coexistencia = pedido.coexistencia === true;
 
-    const token = await exchangeCode(pedido.codigo);
+    const token = await exchangeCode(pedido.code);
 
     const reautorizando = pedido.channelId
       ? await readChannelWhatsApp(pedido.tenantId, pedido.channelId)
       : null;
     const info = await buscarInfoDoNumero(
       wabaId,
-      pedido.numeroId || undefined,
+      pedido.numberId || undefined,
       token,
       reautorizando ? texto(reautorizando.config['numero']) : null,
     );
@@ -73,7 +73,7 @@ export async function executarRegistrationEmbedded(
       ? await reautorizar({
           tenantId: pedido.tenantId,
           channelId: pedido.channelId,
-          numeroId: pedido.numeroId,
+          numeroId: pedido.numberId,
           wabaId,
           token,
           info,

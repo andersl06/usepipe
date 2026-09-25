@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { codigoDoPostgres } from './dominios.js';
@@ -82,7 +82,7 @@ export async function createLinkTracked(
   fluxoId: string,
   pedido: PedidoDeLink,
 ): Promise<LinkRastreado> {
-  const nome = pedido.nome.trim();
+  const nome = pedido.name.trim();
   if (!nome) throw PipeError.request('name_required', 'Dê um nome para o link.');
   confirmarUrlSegura(pedido.destination);
   await flowExists(tx, tenantId, fluxoId);
@@ -122,10 +122,10 @@ export async function listarLinksRastreados(
   tx: TransactionPipe,
   tenantId: string,
   flowId: string,
-  period: PeriodOfCount = { desde: null, ate: null },
+  period: PeriodOfCount = { since: null, ate: null },
 ): Promise<LinkRastreado[]> {
   await flowExists(tx, tenantId, flowId);
-  const desde = period.desde ?? new Date(0);
+  const desde = period.since ?? new Date(0);
   const ate = period.ate ?? new Date('9999-12-31T23:59:59Z');
 
   const { rows } = await tx.execute<{
@@ -170,8 +170,8 @@ const countByKey = new Map<string, { start: number; n: number }>();
 function respeitaLimiteDeTaxa(key: string): boolean {
   const agora = Date.now();
   const atual = countByKey.get(key);
-  if (!atual || agora - atual.inicio > WINDOW_OF_RATE_MS) {
-    countByKey.set(key, { inicio: agora, n: 1 });
+  if (!atual || agora - atual.start > WINDOW_OF_RATE_MS) {
+    countByKey.set(key, { start: agora, n: 1 });
     return true;
   }
   atual.n += 1;
@@ -204,7 +204,7 @@ export async function redirecionarClique(
   await noTenant(link.tenant_id, (tx) =>
     tx.execute(sql`
       insert into clique_link (tenant_id, link_id, agente_usuario, origem)
-      values (${link.tenant_id}, ${link.id}::uuid, ${context.agenteUser}, ${context.origem})
+      values (${link.tenant_id}, ${link.id}::uuid, ${context.agenteUser}, ${context.origin})
     `),
   );
 

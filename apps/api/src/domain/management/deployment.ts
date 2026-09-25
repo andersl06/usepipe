@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { SignalsOfDeployment } from './passos-of-deployment.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */

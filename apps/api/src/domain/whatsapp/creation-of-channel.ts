@@ -70,8 +70,8 @@ export async function createChannel(pedido: RequestOfCreation): Promise<ChannelW
 
   // `build_inbox_name`: "#{business_name} WhatsApp".
   const nomeDaEmpresa = info.nomeDaEmpresa || waba.nomeDaEmpresa || info.numero;
-  const nome = pedido.nome?.trim() || `${nomeDaEmpresa} WhatsApp`;
-  const origem: OriginOfChannel = pedido.origem ?? 'embedded_signup';
+  const nome = pedido.name?.trim() || `${nomeDaEmpresa} WhatsApp`;
+  const origem: OriginOfChannel = pedido.origin ?? 'embedded_signup';
 
   // `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO
   // aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`
@@ -114,7 +114,7 @@ export async function createChannel(pedido: RequestOfCreation): Promise<ChannelW
       `);
 
       await registrarAuditoria(tx, pedido.tenantId, {
-        ator: { type: 'usuario', id: pedido.userId },
+        ator: { tipo: 'usuario', id: pedido.userId },
         acao: 'criou',
         objetoTipo: 'canal',
         objetoId: id,

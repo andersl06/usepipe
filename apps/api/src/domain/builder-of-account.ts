@@ -90,11 +90,11 @@ export async function buildAccountOfLogin(pessoa: {
   // O nome da conta: o da empresa quando o e-mail é corporativo, o da pessoa
   // quando não é. Ambos são provisórios — "minha conta" reescreve.
   const nome = publico
-    ? pessoa.nome?.trim() || email.slice(0, email.indexOf('@'))
+    ? pessoa.name?.trim() || email.slice(0, email.indexOf('@'))
     : domainOfEmail(email).split('.')[0] || email.slice(0, email.indexOf('@'));
 
   const cliente = await provisionCustomer({
-    nome,
+    name: nome,
     slug: await slugLivre(enderecoOfAccount(email)),
     plano: 'essencial',
     admin: email,
@@ -104,7 +104,7 @@ export async function buildAccountOfLogin(pessoa: {
     withoutDomain: true,
   });
 
-  const nomeDaPessoa = pessoa.nome?.trim();
+  const nomeDaPessoa = pessoa.name?.trim();
   if (nomeDaPessoa) {
     await noTenant(cliente.tenantId, (tx) =>
       tx.execute(
@@ -186,7 +186,7 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
   // `create_account` e `create_and_link_user`, pelo provisionamento de sempre.
   const nome = pedido.nameOfAccount?.trim() || pedido.nameOfUser?.trim() || domainOfEmail(email);
   const cliente = await provisionCustomer({
-    nome,
+    name: nome,
     slug: slugOfAccount(nome, email),
     plano: 'essencial',
     admin: email,

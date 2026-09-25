@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { InboundRefused, createToken, hashDoToken } from '@pipe/authentication';
 import type { PessoaDoGoogle } from '@pipe/authentication';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { enviarEmailSemDerrubar } from './email.js';
@@ -89,8 +89,8 @@ export function emailOfInvitation(convite: InvitationCreated, tenantNome: string
   assunto: string;
   texto: string;
 } {
-  const role = LABEL_OF_ROLE[convite.papel] ?? convite.papel;
-  const vence = convite.expiraEm.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  const role = LABEL_OF_ROLE[convite.role] ?? convite.role;
+  const vence = convite.expiresAt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
   return {
     para: [convite.email],
     assunto: `Convite para entrar em ${tenantNome} no Pipe`,
@@ -198,7 +198,7 @@ export async function createInvitation(
   dados: { email?: string; role?: string; criadoPor?: string },
 ): Promise<InvitationCreated> {
   const email = normalizarEmail(dados.email);
-  const nomeDoPapel = (dados.papel ?? '').trim();
+  const nomeDoPapel = (dados.role ?? '').trim();
   if (!nomeDoPapel) {
     throw PipeError.request('role_missing', 'Informe o papel de quem está sendo convidado.');
   }
@@ -291,8 +291,8 @@ export async function readInvitation(tokenCru: string): Promise<InvitationVisibl
   const linha = await acharPeloToken(tokenCru);
   return {
     email: linha.email,
-    papel: linha.papel,
-    tenant: { nome: linha.tenant_nome, slug: linha.slug },
+    papel: linha.role,
+    tenant: { name: linha.tenant_nome, slug: linha.slug },
     expiraEm: new Date(linha.expira_em),
   };
 }
@@ -355,7 +355,7 @@ export async function aceitarInvitation(
     // `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.
     const userId = await garantirUser(tx, achado.tenant_id, {
       email: achado.email,
-      nome: pessoa?.nome ?? nomeProvisorio(achado.email),
+      name: pessoa?.nome ?? nomeProvisorio(achado.email),
       avatarUrl: pessoa?.avatarUrl ?? null,
     });
 
@@ -382,7 +382,7 @@ export async function aceitarInvitation(
       tenantId: achado.tenant_id,
       userId,
       email: achado.email,
-      papel: achado.papel,
+      papel: achado.role,
       tenant: { nome: achado.tenant_nome, slug: achado.slug },
     };
     if (!pessoa) return comum;
@@ -404,7 +404,7 @@ async function garantirUser(
 ): Promise<string> {
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email, avatar_url)
-    values (${tenantId}::uuid, ${dados.nome}, ${dados.email}, ${dados.avatarUrl})
+    values (${tenantId}::uuid, ${dados.name}, ${dados.email}, ${dados.avatarUrl})
     on conflict (tenant_id, email) do update
        set ativo = true, atualizado_em = now()
     returning id

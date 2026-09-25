@@ -100,7 +100,7 @@ export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWha
       saida.push({
         ...base,
         state: 'conectado',
-        numero: saude.display_phone_number || base.numero,
+        numero: saude.display_phone_number || base.numeroId,
         displayName: saude.verified_name || base.displayName,
         quality: saude.quality_rating ?? null,
         limite: saude.messaging_limit_tier ?? null,
@@ -159,7 +159,7 @@ export async function desconectarWhatsApp(
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,
@@ -177,7 +177,7 @@ function visivel(linha: LineChannel): ChannelWhatsAppVisible {
   const config = linha.config ?? {};
   return {
     id: linha.id,
-    nome: linha.nome,
+    name: linha.nome,
     ativo: linha.ativo,
     wabaId: linha.waba_id,
     numeroId: linha.numero_id,

@@ -248,11 +248,11 @@ function paraJson(conexao: Awaited<ReturnType<typeof lerConexao>>): Record<strin
   if (!conexao) return { conexao: null };
   return {
     id: conexao.id,
-    provedor: conexao.provedor,
-    emissor: conexao.emissor,
-    clienteId: conexao.clienteId,
-    estado: conexao.estado,
-    politica: conexao.politica,
+    provedor: conexao.provider,
+    emissor: conexao.issuer,
+    clienteId: conexao.clientId,
+    estado: conexao.state,
+    politica: conexao.policy,
     testedAt: conexao.testadaEm?.toISOString() ?? null,
     activatedAt: conexao.ativadaEm?.toISOString() ?? null,
     callbackUrl: conexao.callbackUrl,

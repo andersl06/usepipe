@@ -42,7 +42,7 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
   }
 
   // Cliente antigo pode não mandar o `phone_number_id`: cai no que a Meta acabou de devolver.
-  const numeroId = pedido.numeroId || pedido.info.numeroId;
+  const numeroId = pedido.numberId || pedido.info.numeroId;
   const atualizado = await atualizarChannel(
     channel,
     { tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },
@@ -63,5 +63,5 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
     `);
   });
 
-  return marcarReautorizado({ ...atualizado, ativo: true });
+  return marcarReautorizado({ ...atualizado, active: true });
 }

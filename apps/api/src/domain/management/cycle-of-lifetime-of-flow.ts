@@ -1,6 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { DESCRIPTION_FLOW_MAX, flow } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
@@ -194,8 +194,8 @@ export async function createFlow(
   pedido: RequestOfCreation,
 ): Promise<{ id: string }> {
   await exigirPermission(tx, usuarioId, EDITAR_FLOW);
-  const nome = nomeConferido(pedido.nome);
-  const tipo = pedido.tipo === 'roteador' ? 'roteador' : 'fluxo';
+  const nome = nomeConferido(pedido.name);
+  const tipo = pedido.type === 'roteador' ? 'roteador' : 'fluxo';
   const imageUrl = pedido.image ? imageOfBytes(pedido.image) : null;
 
   if (await nomeEmUso(tx, tenantId, nome)) throw conflitoDeNome();
@@ -258,8 +258,8 @@ export async function editarFlow(
   };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) {
-    depois.nome = nomeConferido(pedido.nome);
+  if (pedido.name !== undefined) {
+    depois.nome = nomeConferido(pedido.name);
     depois.shortName = nomeCurto(depois.nome);
   }
   if (pedido.description !== undefined) depois.descricao = descriptionChecked(pedido.description);

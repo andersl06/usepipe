@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
 import { NOME_DO_COOKIE, hashDoToken, resolveSession } from '@pipe/authentication';
 import type { SessionActive } from '@pipe/authentication';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner } from './database.js';
 import { PipeError } from './errors.js';
 

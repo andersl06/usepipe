@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { avaliarSla, alvoFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
 import { regraSla } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * Coluna SLA do monitoramento detalhado.
@@ -99,12 +99,12 @@ export function avaliarSlaOfConversation(
   const regra = escolherRegra(regras, filaId);
   if (!regra) return SEM_REGRA;
 
-  const inicio = inicioDoAlvo(regra.alvo, marcos);
+  const inicio = inicioDoAlvo(regra.target, marcos);
   if (!inicio) return SEM_REGRA;
 
-  const cumpridoEm = alvoFulfillment(regra.alvo, marcos);
+  const cumpridoEm = alvoFulfillment(regra.target, marcos);
   const r = avaliarSla({
-    regra: { prazoSeg: regra.prazoSeg, alertaSeg: regra.alertaSeg },
+    regra: { prazoSeg: regra.deadlineSeg, alertaSeg: regra.alertSeg },
     inicio,
     agora,
     cumpridoEm,
@@ -114,7 +114,7 @@ export function avaliarSlaOfConversation(
     return {
       state: 'exceeded',
       rotulo: 'ESTOUROU',
-      excedidoSeg: r.decorridoSeg - regra.prazoSeg,
+      excedidoSeg: r.decorridoSeg - regra.deadlineSeg,
     };
   }
   if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };

@@ -2,9 +2,9 @@ import { and, asc, desc, eq, gte, lt } from 'drizzle-orm';
 import { resultado, resultEmpty, type ResultadoMetrica } from '@pipe/core';
 import {
   evaluation,
-  classificationConversation,
-  contact,
-  conversation,
+  classificacaoConversa as classificationConversation,
+  contato as contact,
+  conversa as conversation,
   criterio,
   queue,
   formEvaluation,
@@ -13,7 +13,7 @@ import {
   responseEvaluation,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { uuidOuNada } from './format.js';
 import { fatalReprovado } from './note-evaluation.js';
@@ -128,11 +128,11 @@ function mediaDasNotas(itens: readonly EvaluationInList[]): ResultadoMetrica {
   let population = 0;
   let excluidas = 0;
   for (const a of itens) {
-    if (a.nota === null || !ESTADOS_VALENDO.has(a.state)) {
+    if (a.note === null || !ESTADOS_VALENDO.has(a.state)) {
       excluidas += 1;
       continue;
     }
-    soma += a.nota;
+    soma += a.note;
     population += 1;
   }
   return population > 0 ? resultado(soma, population, excluidas) : resultEmpty(excluidas);
@@ -145,10 +145,10 @@ export async function loadQualityReview(
 ): Promise<ApplicationOfQualityReview> {
   return consultar(tx, async (tx) => {
     const recorte = [
-      gte(evaluation.avaliadaEm, window.inicio),
-      lt(evaluation.avaliadaEm, window.fim),
+      gte(evaluation.avaliadaEm, window.start),
+      lt(evaluation.avaliadaEm, window.end),
       filter.agentId ? eq(evaluation.avaliadoId, filter.agentId) : undefined,
-      filter.avaliadorTipo ? eq(evaluation.avaliadorTipo, filter.avaliadorTipo) : undefined,
+      filter.evaluatorType ? eq(evaluation.avaliadorTipo, filter.evaluatorType) : undefined,
     ].filter((c) => c !== undefined);
 
     const linhas = await tx
@@ -191,7 +191,7 @@ export async function loadQualityReview(
        lugares é como o número da tabela deixa de bater com o do cartão. */
     const groups = new Map<string, EvaluationInList[]>();
     for (const a of evaluations) {
-      const key = a.avaliado ?? 'Sem atendente';
+      const key = a.evaluated ?? 'Sem atendente';
       const atual = groups.get(key);
       if (atual) atual.push(a);
       else groups.set(key, [a]);
@@ -202,20 +202,20 @@ export async function loadQualityReview(
       return {
         agent,
         media: mediaDasNotas(itens),
-        zeradas: itens.filter((a) => a.nota === 0 && ESTADOS_VALENDO.has(a.state)).length,
+        zeradas: itens.filter((a) => a.note === 0 && ESTADOS_VALENDO.has(a.state)).length,
       };
     });
 
     const count = new Map<string, number>();
     for (const a of evaluations)
-      count.set(a.avaliadorTipo, (count.get(a.avaliadorTipo) ?? 0) + 1);
+      count.set(a.evaluatorType, (count.get(a.evaluatorType) ?? 0) + 1);
 
-    const daIa = evaluations.filter((a) => a.avaliadorTipo === 'ia');
-    const comConfianca = daIa.filter((a) => a.confiancaIa !== null);
+    const daIa = evaluations.filter((a) => a.evaluatorType === 'ia');
+    const comConfianca = daIa.filter((a) => a.confidenceAi !== null);
     const confiancaIa =
       comConfianca.length > 0
         ? resultado(
-            comConfianca.reduce((s, a) => s + (a.confiancaIa ?? 0), 0),
+            comConfianca.reduce((s, a) => s + (a.confidenceAi ?? 0), 0),
             comConfianca.length,
             daIa.length - comConfianca.length,
           )
@@ -326,7 +326,7 @@ export async function carregarFicha(
         grupoOrdem: grupoCriterio.ordem,
         criterioId: criterio.id,
         criterioNome: criterio.nome,
-        descricao: criterio.description,
+        descricao: criterio.descricao,
         tipo: criterio.tipo,
         fatal: criterio.fatal,
         peso: criterio.peso,
@@ -409,7 +409,7 @@ export async function carregarFicha(
       grupos,
       notaAntesDoFatal: todos.reduce((s, c) => s + (c.pontos ?? 0), 0),
       fataisReprovados: todos
-        .filter((c) => fatalReprovado(c.tipo, c.fatal, c.value))
+        .filter((c) => fatalReprovado(c.type, c.fatal, c.value))
         .map((c) => c.criterio),
       resumo: cabeca.resumo,
       modeloClassificacao: cabeca.modeloClassificacao,

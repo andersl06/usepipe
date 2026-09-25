@@ -88,7 +88,7 @@ export class ManagementIntegrationsController {
   ): Promise<KeyOfFlowCreated> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
-    const nome = corpo?.nome;
+    const nome = corpo?.name;
     return noTenant(sessao.tenantId, (tx) =>
       createKeyOfFlow(tx, sessao.tenantId, sessao.userId, id, typeof nome === 'string' ? nome : ''),
     );
@@ -186,7 +186,7 @@ export class ManagementIntegrationsController {
     const pedido: RequestOfEditOfWebhook = {};
     if (typeof corpo?.url === 'string') pedido.url = corpo.url;
     if (Array.isArray(corpo?.eventos)) pedido.eventos = (corpo.eventos as unknown[]).map(String);
-    if (typeof corpo?.ativo === 'boolean') pedido.ativo = corpo.ativo;
+    if (typeof corpo?.active === 'boolean') pedido.active = corpo.active;
     if (corpo?.authentication !== undefined) pedido.autenticacao = corpo.authentication;
     if (corpo?.cabecalhos !== undefined) pedido.cabecalhos = corpo.cabecalhos;
     return noTenant(sessao.tenantId, (tx) =>

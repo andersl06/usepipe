@@ -1,8 +1,8 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
-import { channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
+import { channel, flow, respostaPronta, templateMensagem as templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 
@@ -31,7 +31,7 @@ export const RESPONSE_READY_MANAGE = 'resposta_pronta.gerenciar';
 export type CategoriaTemplate = (typeof CATEGORIAS_TEMPLATE)[number];
 
 export const ROTULO_CATEGORIA_TEMPLATE: Record<CategoriaTemplate, string> = {
-  utility: 'Utilidade',
+  utilidade: 'Utilidade',
   marketing: 'Marketing',
   authentication: 'Autenticação',
 };
@@ -89,10 +89,10 @@ export async function carregarRespostasProntas(
         titulo: respostaPronta.titulo,
         corpo: respostaPronta.corpo,
         categoria: respostaPronta.categoria,
-        ativa: respostaPronta.active,
+        ativa: respostaPronta.ativa,
       })
       .from(respostaPronta)
-      .where(eq(respostaPronta.scope, 'empresa'))
+      .where(eq(respostaPronta.escopo, 'empresa'))
       .orderBy(asc(respostaPronta.titulo));
   });
 }
@@ -238,7 +238,7 @@ async function atalhoEmUso(
     .where(
       and(
         eq(respostaPronta.tenantId, tid),
-        eq(respostaPronta.scope, 'empresa'),
+        eq(respostaPronta.escopo, 'empresa'),
         eq(respostaPronta.atalho, atalho),
         excetoId ? ne(respostaPronta.id, excetoId) : undefined,
       ),
@@ -259,13 +259,13 @@ async function respostaProntaViva(
       titulo: respostaPronta.titulo,
       corpo: respostaPronta.corpo,
       categoria: respostaPronta.categoria,
-      ativa: respostaPronta.active,
+      ativa: respostaPronta.ativa,
     })
     .from(respostaPronta)
     .where(
       and(
         eq(respostaPronta.tenantId, tid),
-        eq(respostaPronta.scope, 'empresa'),
+        eq(respostaPronta.escopo, 'empresa'),
         eq(respostaPronta.id, id),
       ),
     )
@@ -282,10 +282,10 @@ export async function createResponseReady(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, userId, RESPONSE_READY_MANAGE);
 
-  const atalho = atalhoConferido(pedido.atalho);
-  const titulo = tituloConferido(pedido.titulo);
-  const corpo = corpoConferido(pedido.corpo);
-  const categoria = pedido.categoria ? String(pedido.categoria).trim() || null : null;
+  const atalho = atalhoConferido(pedido.shortcut);
+  const titulo = tituloConferido(pedido.title);
+  const corpo = corpoConferido(pedido.body);
+  const categoria = pedido.category ? String(pedido.category).trim() || null : null;
   const active = pedido.active ?? true;
 
   const conflito = await atalhoEmUso(tx, tid, atalho);
@@ -303,7 +303,7 @@ export async function createResponseReady(
   if (!criada) throw PipeError.request('response_not_created', 'Não consegui gravar a resposta.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: userId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'resposta_pronta',
     objetoId: criada.id,
@@ -326,23 +326,23 @@ export async function editarRespostaPronta(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.atalho !== undefined) depois.atalho = atalhoConferido(pedido.atalho);
-  if (pedido.titulo !== undefined) depois.titulo = tituloConferido(pedido.titulo);
-  if (pedido.corpo !== undefined) depois.corpo = corpoConferido(pedido.corpo);
-  if (pedido.categoria !== undefined) {
-    depois.categoria = pedido.categoria ? String(pedido.categoria).trim() || null : null;
+  if (pedido.shortcut !== undefined) depois.shortcut = atalhoConferido(pedido.shortcut);
+  if (pedido.title !== undefined) depois.title = tituloConferido(pedido.title);
+  if (pedido.body !== undefined) depois.body = corpoConferido(pedido.body);
+  if (pedido.category !== undefined) {
+    depois.category = pedido.category ? String(pedido.category).trim() || null : null;
   }
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.atalho !== antes.atalho) {
-    const conflito = await atalhoEmUso(tx, tid, depois.atalho, id);
+  if (depois.shortcut !== antes.shortcut) {
+    const conflito = await atalhoEmUso(tx, tid, depois.shortcut, id);
     if (conflito) {
       throw PipeError.conflito(
         'shortcut_in_use',
-        `O atalho "#${depois.atalho}" já é usado por "${conflito}". Escolha outro.`,
+        `O atalho "#${depois.shortcut}" já é usado por "${conflito}". Escolha outro.`,
       );
     }
   }
@@ -350,10 +350,10 @@ export async function editarRespostaPronta(
   const [gravada] = await tx
     .update(respostaPronta)
     .set({
-      atalho: depois.atalho,
-      titulo: depois.titulo,
-      corpo: depois.corpo,
-      categoria: depois.categoria,
+      atalho: depois.shortcut,
+      titulo: depois.title,
+      corpo: depois.body,
+      categoria: depois.category,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
@@ -364,12 +364,12 @@ export async function editarRespostaPronta(
       titulo: respostaPronta.titulo,
       corpo: respostaPronta.corpo,
       categoria: respostaPronta.categoria,
-      ativa: respostaPronta.active,
+      ativa: respostaPronta.ativa,
     });
   if (!gravada) throw PipeError.naoEncontrado('resposta pronta');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'resposta_pronta',
     objetoId: id,
@@ -391,10 +391,10 @@ export async function excluirRespostaPronta(
   await tx.delete(respostaPronta).where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'resposta_pronta',
     objetoId: id,
-    antes: { atalho: atual.atalho, titulo: atual.titulo },
+    antes: { atalho: atual.shortcut, titulo: atual.title },
   });
 }

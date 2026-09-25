@@ -1,6 +1,6 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { channel, flow } from '@pipe/db/schema';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
@@ -143,8 +143,8 @@ export async function conferirQuePodeLigar(
 function flowAlreadyHasChannel(existente: { id: string; type: string; name: string }): PipeError {
   return PipeError.conflito(
     'flow_already_has_channel',
-    `Este bot já está conectado ao canal "${existente.nome}". Desconecte-o antes de conectar outro.`,
-    { canalId: existente.id, canalTipo: existente.tipo, canalNome: existente.nome },
+    `Este bot já está conectado ao canal "${existente.name}". Desconecte-o antes de conectar outro.`,
+    { canalId: existente.id, canalTipo: existente.type, canalNome: existente.name },
   );
 }
 
@@ -176,7 +176,7 @@ export async function connectChannelToFlow(
     throw PipeError.conflito(
       'number_in_use',
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
-      { fluxoId: dono.id, fluxoNome: dono.nome },
+      { fluxoId: dono.id, fluxoNome: dono.name },
     );
   }
 

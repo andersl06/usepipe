@@ -87,7 +87,7 @@ export async function createImport(
       values (${novo}::uuid, ${tenantId}::uuid, ${limpo})
     `);
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'criou',
       objetoTipo: 'importacao',
       objetoId: novo,

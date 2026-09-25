@@ -15,7 +15,7 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  conversation,
+  conversa as conversation,
   conversationLabel,
   etiqueta,
   eventAttendance,
@@ -23,7 +23,7 @@ import {
   inbox,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -161,8 +161,8 @@ export async function loadAttendance(
   return consultar(tx, async (tx) => {
     const recorte = [
       isNotNull(conversation.encerradaEm),
-      gte(conversation.encerradaEm, window.inicio),
-      lt(conversation.encerradaEm, window.fim),
+      gte(conversation.encerradaEm, window.start),
+      lt(conversation.encerradaEm, window.end),
       filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
       filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);

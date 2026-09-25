@@ -5,7 +5,7 @@ import { atualizarChannel, readChannelWhatsApp } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 
 // A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.
-export { formatOfPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
+export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
 
 /**
  * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
@@ -35,7 +35,7 @@ export function preferencesOf(channel: { config: Record<string, unknown> }): Pre
     quickReply: guardado.quickReply ?? true,
     menu: guardado.menu ?? true,
     alertRecategorization: {
-      ativo: guardado.alertRecategorization?.ativo ?? true,
+      active: guardado.alertRecategorization?.ativo ?? true,
       emails: guardado.alertRecategorization?.emails ?? [],
     },
   };
@@ -69,12 +69,12 @@ export function aplicarPedido(atual: PreferencesOfChannel, pedido: RequestOfPref
     if (typeof value !== 'boolean') throw recusa(campo, 'Use ligado ou desligado.');
     return value;
   };
-  const alerta = pedido.alertaRecategorizacao;
+  const alerta = pedido.alertRecategorization;
   return {
     quickReply: booleano(pedido.quickReply, 'quickReply') ?? atual.quickReply,
     menu: booleano(pedido.menu, 'menu') ?? atual.menu,
     alertRecategorization: {
-      ativo: booleano(alerta?.ativo, 'ativo') ?? atual.alertRecategorization.ativo,
+      active: booleano(alerta?.ativo, 'ativo') ?? atual.alertRecategorization.active,
       emails: alerta?.emails === undefined ? atual.alertRecategorization.emails : emailsDe(alerta.emails),
     },
   };
@@ -96,7 +96,7 @@ export async function writePreferences(
   await atualizarChannel(channel, { preferencias: depois });
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: channel.id,

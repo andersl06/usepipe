@@ -7,8 +7,8 @@ import {
   type MarcosSla,
   type NivelPriority,
 } from '@pipe/core';
-import { conversation, slaConversation } from '@pipe/db/schema';
-import type { TransactionPipe } from '@pipe/db';
+import { conversa as conversation, slaConversa as slaConversation } from '@pipe/db/schema';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../../database.js';
 import { registrarEvento } from '../eventos.js';
 import { emitir } from '../../webhooks-saida.js';
@@ -72,9 +72,9 @@ export function rulesWinningByTarget(
 ): RegraSlaCarregada[] {
   const byTarget = new Map<string, RegraSlaCarregada[]>();
   for (const r of regras) {
-    const lista = byTarget.get(r.alvo);
+    const lista = byTarget.get(r.target);
     if (lista) lista.push(r);
-    else byTarget.set(r.alvo, [r]);
+    else byTarget.set(r.target, [r]);
   }
   const vencedoras: RegraSlaCarregada[] = [];
   for (const lista of byTarget.values()) {
@@ -164,15 +164,15 @@ async function processarRegra(
 
   const marcos: MarcosSla = {
     criadaEm: c.criadaEm,
-    atribuidaEm: c.atribuidaEm,
+    atribuidaEm: c.assignedAt,
     firstRespostaIn: c.firstResponseAt,
-    encerradaEm: c.encerradaEm,
+    encerradaEm: c.closedAt,
     // `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do
     // contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.
     aguardandoRespostaDesde: c.lastMessageFrom === 'contato' ? c.lastMessageAt : null,
   };
 
-  const inicio = inicioDoAlvo(regra.alvo, marcos);
+  const inicio = inicioDoAlvo(regra.target, marcos);
   if (!inicio) {
     // Sem início hoje. Se havia uma linha correndo, o fim da espera (resposta que
     // chegou) fecha o ciclo como cumprido — senão ela travaria "correndo" para
@@ -191,13 +191,13 @@ async function processarRegra(
     return;
   }
 
-  const cumpridoEm = alvoFulfillment(regra.alvo, marcos);
+  const cumpridoEm = alvoFulfillment(regra.target, marcos);
   const encerrouAntes = marcos.encerradaEm !== null && marcos.encerradaEm.getTime() < agora.getTime();
   // O relógio congela em `encerradaEm` — ver decisão Pipe no topo do arquivo.
   const fimEfetivo = encerrouAntes ? (marcos.encerradaEm as Date) : agora;
 
   const resultado = avaliarSla({
-    regra: { prazoSeg: regra.prazoSeg, alertaSeg: regra.alertaSeg },
+    regra: { prazoSeg: regra.deadlineSeg, alertaSeg: regra.alertSeg },
     inicio,
     agora: fimEfetivo,
     cumpridoEm,
@@ -246,8 +246,8 @@ async function processarRegra(
     });
   } else if (
     newState !== existente.state ||
-    alertadoEm?.getTime() !== existente.alertadoEm?.getTime() ||
-    estouradoEm?.getTime() !== existente.estouradoEm?.getTime()
+    alertadoEm?.getTime() !== existente.alertedAt?.getTime() ||
+    estouradoEm?.getTime() !== existente.exceededAt?.getTime()
   ) {
     await tx
       .update(slaConversation)
@@ -255,27 +255,27 @@ async function processarRegra(
       .where(eq(slaConversation.id, existente.id));
   }
 
-  const context = { tenantId, conversaId: c.id, filaId: c.filaId, prioridadeAtual: c.priority };
+  const context = { tenantId, conversaId: c.id, filaId: c.queueId, prioridadeAtual: c.priority };
 
   if (dispararAlerta) {
     await registrarEvento(tx, {
       tenantId,
       conversationId: c.id,
-      tipo: 'sla_alertado',
+      type: 'sla_alertado',
       em: alertadoEm!,
-      queueId: c.filaId,
-      data: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
+      queueId: c.queueId,
+      data: { regra_id: regra.id, regra_nome: regra.name, alvo: regra.target },
     });
-    await executarAcao(tx, context, regra.acaoAlerta, 'sla.alertou');
+    await executarAcao(tx, context, regra.acaoAlert, 'sla.alertou');
   }
   if (dispararEstouro) {
     await registrarEvento(tx, {
       tenantId,
       conversationId: c.id,
-      tipo: 'sla_estourado',
+      type: 'sla_estourado',
       em: estouradoEm!,
-      queueId: c.filaId,
-      data: { regra_id: regra.id, regra_nome: regra.nome, alvo: regra.alvo },
+      queueId: c.queueId,
+      data: { regra_id: regra.id, regra_nome: regra.name, alvo: regra.target },
     });
     await executarAcao(tx, context, regra.acaoEstouro, 'sla.estourou');
   }

@@ -82,7 +82,7 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
 
   // O tipo real primeiro: o teto de tamanho depende dele, e um vídeo declarado como
   // PDF passaria pelo limite de 100 MB em vez do de 16 MB.
-  const mime = mimeParaServir(pedido.mimeDeclarado, pedido.dados);
+  const mime = mimeParaServir(pedido.mimeDeclarado, pedido.data);
   if (!mimeAceito(mime)) {
     throw PipeError.request(
       'type_real_not_accepted',
@@ -92,28 +92,28 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
   }
 
   const teto = maxBytesDoMime(mime);
-  if (pedido.dados.byteLength > teto) {
+  if (pedido.data.byteLength > teto) {
     throw PipeError.request(
       'file_large_excessive',
-      `O arquivo tem ${mb(pedido.dados.byteLength)} MB e o limite para este tipo é ${mb(teto)} MB.`,
-      { bytes: pedido.dados.byteLength, limite: teto },
+      `O arquivo tem ${mb(pedido.data.byteLength)} MB e o limite para este tipo é ${mb(teto)} MB.`,
+      { bytes: pedido.data.byteLength, limite: teto },
     );
   }
-  if (pedido.dados.byteLength === 0) {
+  if (pedido.data.byteLength === 0) {
     throw PipeError.request('file_empty', 'O arquivo está vazio.');
   }
 
   const key = keyOfAttachment(pedido.tenantId, pedido.nomeOriginal);
-  const checksum = createHash('sha256').update(pedido.dados).digest('hex');
+  const checksum = createHash('sha256').update(pedido.data).digest('hex');
 
   // Grava no storage ANTES do banco: linha sem arquivo é anexo quebrado na tela;
   // arquivo sem linha é só lixo, e o disco aguenta.
-  await storage().guardar(key, pedido.dados);
+  await storage().guardar(key, pedido.data);
 
   const id = await noTenant(pedido.tenantId, async (tx) => {
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into anexo (tenant_id, chave_storage, mime, bytes, nome_original, checksum)
-      values (${pedido.tenantId}, ${key}, ${mime}, ${pedido.dados.byteLength},
+      values (${pedido.tenantId}, ${key}, ${mime}, ${pedido.data.byteLength},
               ${pedido.nomeOriginal}, ${checksum})
       returning id
     `);
@@ -125,7 +125,7 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
   return {
     id,
     mime,
-    bytes: pedido.dados.byteLength,
+    bytes: pedido.data.byteLength,
     tipo: tipoDoMime(mime),
     link: linkOfAttachment(id),
   };

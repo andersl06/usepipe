@@ -1,7 +1,7 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { palavraProibida } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { SETTINGS_GENERAL_MANAGE } from './settings.js';
@@ -114,14 +114,14 @@ const cacheByTenant = new Map<string, ListaGuardada>();
  */
 export async function termosProibidosDoTenant(tx: TransactionPipe, tid: string): Promise<string[]> {
   const guardada = cacheByTenant.get(tid);
-  if (guardada && guardada.expiraEm > Date.now()) return guardada.termos;
+  if (guardada && guardada.expiresAt > Date.now()) return guardada.termos;
 
   const linhas = await tx
     .select({ termo: palavraProibida.termo })
     .from(palavraProibida)
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.ativo, true)));
   const termos = linhas.map((l) => l.termo);
-  cacheByTenant.set(tid, { termos, expiraEm: Date.now() + VALIDITY_OF_CACHE_MS });
+  cacheByTenant.set(tid, { termos, expiresAt: Date.now() + VALIDITY_OF_CACHE_MS });
   return termos;
 }
 
@@ -234,8 +234,8 @@ export async function createWordForbidden(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, userId, WORD_FORBIDDEN_MANAGE);
 
-  const termo = termoConferido(pedido.termo);
-  const ativo = pedido.ativo ?? true;
+  const termo = termoConferido(pedido.term);
+  const ativo = pedido.active ?? true;
 
   const conflito = await termoEmUso(tx, tid, termo);
   if (conflito) {
@@ -249,7 +249,7 @@ export async function createWordForbidden(
   if (!criada) throw PipeError.request('word_not_created', 'Não consegui gravar a palavra.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: userId },
+    ator: { tipo: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'palavra_proibida',
     objetoId: criada.id,
@@ -273,14 +273,14 @@ export async function editarPalavraProibida(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.termo !== undefined) depois.termo = termoConferido(pedido.termo);
-  if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
+  if (pedido.term !== undefined) depois.term = termoConferido(pedido.term);
+  if (pedido.active !== undefined) depois.active = pedido.active;
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.termo !== antes.termo) {
-    const conflito = await termoEmUso(tx, tid, depois.termo, id);
+  if (depois.term !== antes.term) {
+    const conflito = await termoEmUso(tx, tid, depois.term, id);
     if (conflito) {
       throw PipeError.conflito('term_in_use', `"${conflito}" já está na lista de palavras proibidas.`);
     }
@@ -288,13 +288,13 @@ export async function editarPalavraProibida(
 
   const [gravada] = await tx
     .update(palavraProibida)
-    .set({ termo: depois.termo, ativo: depois.ativo, atualizadoEm: new Date() })
+    .set({ termo: depois.term, ativo: depois.active, atualizadoEm: new Date() })
     .where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)))
     .returning(COLUNAS);
   if (!gravada) throw PipeError.naoEncontrado('palavra proibida');
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'palavra_proibida',
     objetoId: id,
@@ -317,11 +317,11 @@ export async function excluirPalavraProibida(
   await tx.delete(palavraProibida).where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { type: 'usuario', id: usuarioId },
+    ator: { tipo: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'palavra_proibida',
     objetoId: id,
-    antes: { termo: atual.termo, ativo: atual.ativo },
+    antes: { termo: atual.term, ativo: atual.active },
   });
   esquecerPalavrasProibidas(tid);
 }

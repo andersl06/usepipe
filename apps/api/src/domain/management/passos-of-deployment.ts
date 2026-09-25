@@ -64,19 +64,19 @@ function passoOfContacts(
   const ultima = s.lastImport;
   if (!ultima) {
     return {
-      estado: 'pending',
+      state: 'pending',
       resumo: 'Opcional: traga a base de clientes de uma planilha CSV.',
     };
   }
   if (ultima.state === 'pronta' || ultima.state === 'executando') {
     return {
-      estado: 'progress',
+      state: 'progress',
       resumo: 'Importação em andamento. Arquivo grande leva alguns minutos.',
     };
   }
   if (ultima.state === 'falhou') {
     return {
-      estado: 'pending',
+      state: 'pending',
       resumo:
         'A última importação falhou: o arquivo tem aspas malformadas. Corrija e envie de novo.',
     };
@@ -86,8 +86,8 @@ function passoOfContacts(
       ? `, ${quantos(ultima.rejeitados, 'linha rejeitada', 'linhas rejeitadas')}`
       : '';
   return {
-    estado: ultima.aceitos > 0 ? 'done' : 'pending',
-    resumo: `${quantos(ultima.aceitos, 'contato importado', 'contatos importados')}${rejeitadas}.`,
+    state: ultima.accepted > 0 ? 'done' : 'pending',
+    resumo: `${quantos(ultima.accepted, 'contato importado', 'contatos importados')}${rejeitadas}.`,
   };
 }
 
@@ -96,7 +96,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
   return [
     {
       id: 'access',
-      titulo: 'Primeiro acesso do administrador',
+      title: 'Primeiro acesso do administrador',
       estado: s.adminEntrou ? 'done' : 'pending',
       resumo: s.adminEntrou
         ? 'O administrador já entrou pelo Google.'
@@ -105,7 +105,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     },
     {
       id: 'whatsapp',
-      titulo: 'Conectar o WhatsApp',
+      title: 'Conectar o WhatsApp',
       estado: temWhatsApp ? 'done' : s.channelsPending > 0 ? 'progress' : 'pending',
       resumo: temWhatsApp
         ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
@@ -118,7 +118,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     },
     {
       id: 'equipe',
-      titulo: 'Convidar a equipe',
+      title: 'Convidar a equipe',
       estado: s.members > 1 ? 'done' : s.convites > 0 ? 'progress' : 'pending',
       resumo:
         s.members > 1
@@ -130,7 +130,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     },
     {
       id: 'queue',
-      titulo: 'Criar a primeira fila com atendente',
+      title: 'Criar a primeira fila com atendente',
       estado: s.queuesWithAgent > 0 ? 'done' : 'pending',
       resumo:
         s.queuesWithAgent > 0
@@ -142,13 +142,13 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     },
     {
       id: 'contacts',
-      titulo: 'Importar contatos',
+      title: 'Importar contatos',
       ...passoOfContacts(s),
       acao: { rotulo: 'Importar', href: '#contatos' },
     },
     {
       id: 'conversation',
-      titulo: 'Atender a conversa de teste',
+      title: 'Atender a conversa de teste',
       estado: s.conversationAtendida ? 'done' : 'pending',
       resumo: s.conversationAtendida
         ? 'Uma conversa já foi respondida pelo Desk.'

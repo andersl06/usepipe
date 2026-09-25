@@ -327,7 +327,7 @@ export class LoginController {
             // nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.
             registrationOfAccountEnabled()
               ? (quem) =>
-                  buildAccountOfLogin({ email: quem.email, nome: quem.nome }).then((account) => ({
+                  buildAccountOfLogin({ email: quem.email, name: quem.nome }).then((account) => ({
                     tenantId: account.tenantId,
                     usuarioId: account.userId,
                   }))
@@ -439,7 +439,7 @@ export class MeController {
         nome: user.tenant_nome,
         slug: user.slug,
         plano: user.plano as Plano,
-        onboardingCompleted: user.onboarding_concluido_em !== null,
+        onboardingConcluido: user.onboarding_concluido_em !== null,
       },
       permissions,
       origem: session.origem as OriginOfSession,

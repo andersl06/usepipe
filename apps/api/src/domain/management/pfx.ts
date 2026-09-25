@@ -88,7 +88,7 @@ function lerTlvs(data: Buffer): Tlv[] {
     }
     const fim = inicio + tamanho;
     if (fim > data.length) throw new Asn1Error('elemento truncado');
-    lidos.push({ tag, conteudo: data.subarray(inicio, fim), bruto: data.subarray(pos, fim) });
+    lidos.push({ tag, content: data.subarray(inicio, fim), bruto: data.subarray(pos, fim) });
     pos = fim;
   }
   return lidos;
@@ -101,7 +101,7 @@ function esperar(tlv: Tlv | undefined, tag: number, oQue: string): Tlv {
 
 /** Os filhos de um SEQUENCE/SET/[0]. */
 function filhos(tlv: Tlv | undefined, tag: number, oQue: string): Tlv[] {
-  return lerTlvs(esperar(tlv, tag, oQue).conteudo);
+  return lerTlvs(esperar(tlv, tag, oQue).content);
 }
 
 function oidDe(tlv: Tlv | undefined): string {
@@ -159,10 +159,10 @@ const PRF_DO_PBKDF2: Record<string, string> = {
 };
 
 const CIFRA_DO_PBES2: Record<string, { name: string; key: number }> = {
-  '2.16.840.1.101.3.4.1.2': { nome: 'aes-128-cbc', key: 16 },
-  '2.16.840.1.101.3.4.1.22': { nome: 'aes-192-cbc', key: 24 },
-  '2.16.840.1.101.3.4.1.42': { nome: 'aes-256-cbc', key: 32 },
-  '1.2.840.113549.3.7': { nome: 'des-ede3-cbc', key: 24 },
+  '2.16.840.1.101.3.4.1.2': { name: 'aes-128-cbc', key: 16 },
+  '2.16.840.1.101.3.4.1.22': { name: 'aes-192-cbc', key: 24 },
+  '2.16.840.1.101.3.4.1.42': { name: 'aes-256-cbc', key: 32 },
+  '1.2.840.113549.3.7': { name: 'des-ede3-cbc', key: 24 },
 };
 
 /* ------------------------------------------------------- derivação PKCS#12 */
@@ -250,27 +250,27 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
     const [kdfOid, kdfParametros] = filhos(kdf, TAG.SEQUENCIA, 'keyDerivationFunc');
     if (oidDe(kdfOid) !== OID.pbkdf2) throw new Asn1Error('PBES2 sem PBKDF2');
     const partes = filhos(kdfParametros, TAG.SEQUENCIA, 'PBKDF2-params');
-    const sal = esperar(partes[0], TAG.OCTETOS, 'salt').conteudo;
+    const sal = esperar(partes[0], TAG.OCTETOS, 'salt').content;
     const iterations = integerOf(partes[1]);
     // `keyLength` (INTEGER) e `prf` (SEQUENCE) são opcionais, nessa ordem.
     const prfTlv = partes.find((p, i) => i >= 2 && p.tag === TAG.SEQUENCIA);
-    const prf = prfTlv ? (PRF_DO_PBKDF2[oidDe(lerTlvs(prfTlv.conteudo)[0])] ?? null) : 'sha1';
+    const prf = prfTlv ? (PRF_DO_PBKDF2[oidDe(lerTlvs(prfTlv.content)[0])] ?? null) : 'sha1';
     if (!prf) throw new Asn1Error('PRF do PBKDF2 desconhecida');
 
     const [cifraOid, ivTlv] = filhos(esquema, TAG.SEQUENCIA, 'encryptionScheme');
     const cifra = CIFRA_DO_PBES2[oidDe(cifraOid)];
     if (!cifra) throw new Asn1Error('cifra do PBES2 desconhecida');
-    const iv = esperar(ivTlv, TAG.OCTETOS, 'IV').conteudo;
+    const iv = esperar(ivTlv, TAG.OCTETOS, 'IV').content;
     // No PBES2 a senha entra como os bytes UTF-8, sem o BMPString do PKCS#12
     // (é o que o `PKCS5_PBKDF2_HMAC` do OpenSSL recebe).
     const key = pbkdf2Sync(Buffer.from(senha, 'utf8'), sal, iterations, cifra.key, prf);
-    const decifra = createDecipheriv(cifra.nome, key, iv);
+    const decifra = createDecipheriv(cifra.name, key, iv);
     return Buffer.concat([decifra.update(cifrado), decifra.final()]);
   }
 
   if (oid === OID.pbeSha1E3DES || oid === OID.pbeSha1E2DES) {
     const partes = filhos(parametros, TAG.SEQUENCIA, 'pkcs-12PbeParams');
-    const sal = esperar(partes[0], TAG.OCTETOS, 'salt').conteudo;
+    const sal = esperar(partes[0], TAG.OCTETOS, 'salt').content;
     const iteracoes = integerOf(partes[1]);
     const tresChaves = oid === OID.pbeSha1E3DES;
     const chave = derivarKeyPkcs12('sha1', senha, sal, iteracoes, 1, tresChaves ? 24 : 16);
@@ -294,15 +294,15 @@ interface ConteudoDoPfx {
 /** O conteúdo de um `[0]` que embrulha um OCTET STRING (o `ContentInfo` de `data`). */
 function octetosDentroDeCtx0(tlv: Tlv | undefined): Buffer {
   const [interno] = filhos(tlv, TAG.CTX0, '[0]');
-  return esperar(interno, TAG.OCTETOS, 'OCTET STRING').conteudo;
+  return esperar(interno, TAG.OCTETOS, 'OCTET STRING').content;
 }
 
 /** O `encryptedContent [0] IMPLICIT OCTET STRING` — primitivo no DER; construído (BER) em raríssimos exportadores. */
 function conteudoCifradoDe(tlv: Tlv | undefined): Buffer {
   if (!tlv) throw new Asn1Error('encryptedContent ausente');
-  if (tlv.tag === TAG.CTX0_PRIMITIVO) return tlv.conteudo;
+  if (tlv.tag === TAG.CTX0_PRIMITIVO) return tlv.content;
   if (tlv.tag === TAG.CTX0) {
-    return Buffer.concat(lerTlvs(tlv.conteudo).map((p) => esperar(p, TAG.OCTETOS, 'pedaço').conteudo));
+    return Buffer.concat(lerTlvs(tlv.content).map((p) => esperar(p, TAG.OCTETOS, 'pedaço').content));
   }
   throw new Asn1Error('encryptedContent com tag inesperada');
 }

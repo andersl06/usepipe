@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { exigirPermission } from '../session.js';
@@ -155,10 +155,10 @@ export async function labelConversation(
         acao: 'criou',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
-        depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.nome },
+        depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.name },
       });
     }
-    return { etiquetaId: etiqueta.id, nome: etiqueta.nome, aplicada };
+    return { etiquetaId: etiqueta.id, nome: etiqueta.name, aplicada };
   });
 
   // Depois do commit: a faixa de etiquetas da conversa mudou.
@@ -269,10 +269,10 @@ export async function labelContact(
         acao: 'criou',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,
-        depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.nome },
+        depois: { etiqueta_id: etiqueta.id, etiqueta: etiqueta.name },
       });
     }
-    return { etiquetaId: etiqueta.id, nome: etiqueta.nome, aplicada };
+    return { etiquetaId: etiqueta.id, nome: etiqueta.name, aplicada };
   });
 }
 

@@ -20,7 +20,7 @@ export class RedirectController {
   ): Promise<void> {
     const destination = await redirecionarClique(codigo, {
       agenteUser: request.headers['user-agent'] ?? null,
-      origem: origem ?? null,
+      origin: origem ?? null,
       ip: enderecoDoCliente(request),
     });
     if (!destination) throw PipeError.naoEncontrado('Link');

@@ -121,7 +121,7 @@ function visivel(linha: LineChannel): ChannelInstagramVisible {
   const pendente = config['reautorizacaoPendente'] === true;
   return {
     id: linha.id,
-    nome: linha.nome,
+    name: linha.nome,
     ativo: linha.ativo,
     igUserId: linha.numero_id,
     username: texto(config['username']),
@@ -209,7 +209,7 @@ export async function conectarInstagramManual(pedido: {
 
   const agora = new Date();
   const username = account.username ?? null;
-  const nome = pedido.nome?.trim() || `${username ? `@${username}` : (account.name ?? igUserId)} Instagram`;
+  const nome = pedido.name?.trim() || `${username ? `@${username}` : (account.name ?? igUserId)} Instagram`;
   const configNova = {
     tokenAcesso: token,
     appSecret,
@@ -255,7 +255,7 @@ export async function conectarInstagramManual(pedido: {
         `);
       }
       await registrarAuditoria(tx, pedido.tenantId, {
-        ator: { type: 'usuario', id: pedido.userId },
+        ator: { tipo: 'usuario', id: pedido.userId },
         acao: existente ? 'ativou' : 'criou',
         objetoTipo: 'canal',
         objetoId: id,
@@ -308,7 +308,7 @@ export async function desconectarInstagram(
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { type: 'usuario', id: userId },
+      ator: { tipo: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,

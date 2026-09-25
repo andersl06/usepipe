@@ -1,6 +1,6 @@
 import { desc, eq, isNull } from 'drizzle-orm';
 import { segundosEntre } from '@pipe/core';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { channel, motivoPausa, pausa } from '@pipe/db/schema';
 
 /**
@@ -23,7 +23,7 @@ export async function carregarCabecalho(
     .orderBy(desc(channel.ativo), channel.criadoEm);
 
   const pausasAbertas = await tx
-    .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.durationSuggestedMin })
+    .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.duracaoSugeridaMin })
     .from(pausa)
     .leftJoin(motivoPausa, eq(motivoPausa.id, pausa.motivoId))
     .where(isNull(pausa.encerradaEm));

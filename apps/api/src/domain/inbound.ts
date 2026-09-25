@@ -6,7 +6,7 @@ import {
   transitionDeliveryAllowed,
 } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { contar } from '../metrics.js';
@@ -177,7 +177,7 @@ export async function processarPayload(
   }
 
   // Status e categoria de modelo não são conversa: não entram no resumo de mensagens.
-  const modelos = channel.tipo === 'whatsapp_cloud' ? await aplicarEventsOfTemplate(channel, payload) : 0;
+  const modelos = channel.type === 'whatsapp_cloud' ? await aplicarEventsOfTemplate(channel, payload) : 0;
 
   if (resumo.messagesRecebidas > 0 || resumo.statusAplicados > 0 || modelos > 0) {
     drenarEmSegundoPlano(channel.tenantId);
@@ -279,7 +279,7 @@ async function receiveMessage(
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
       conversationId: conversation.id,
-      tipo: 'mensagem_entrada',
+      type: 'mensagem_entrada',
       em,
       queueId: conversation.queueId,
     });
@@ -304,7 +304,7 @@ async function receiveMessage(
         queueDefaultId: inbox.queueDefaultId,
       },
       contactId,
-      message: { id: messageId, idProvedor, tipo, conteudo },
+      message: { id: messageId, idProvedor, type: tipo, conteudo },
     });
 
     // Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o
@@ -425,10 +425,10 @@ async function findOrCreateContact(
   // quem já estava na base. As variantes vêm do porte do Chatwoot
   // (`phone_number_normalization_service`); a forma recebida ganha quando as duas existem.
   const candidatos =
-    canal.tipo === 'whatsapp_cloud' ? candidatosDoTelefone(identificador) : [identificador];
+    canal.type === 'whatsapp_cloud' ? candidatosDoTelefone(identificador) : [identificador];
   const { rows } = await tx.execute<{ contactId: string }>(sql`
     select contato_id from contato_identidade
-     where canal_tipo = ${canal.tipo}
+     where canal_tipo = ${canal.type}
        and identificador in (${sql.join(
          candidatos.map((c) => sql`${c}`),
          sql`, `,
@@ -441,7 +441,7 @@ async function findOrCreateContact(
 
   // O telefone só é preenchido no WhatsApp: no Instagram o identificador é a conta,
   // e escrever conta de Instagram em `telefone_e164` estragaria a busca por telefone.
-  const telefone = canal.tipo === 'whatsapp_cloud' ? `+${normalizarWaid(identificador)}` : null;
+  const telefone = canal.type === 'whatsapp_cloud' ? `+${normalizarWaid(identificador)}` : null;
   const { rows: criado } = await tx.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${canal.tenantId}, ${nome}, ${telefone})
@@ -452,7 +452,7 @@ async function findOrCreateContact(
 
   await tx.execute(sql`
     insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
-    values (${canal.tenantId}, ${contatoId}, ${canal.tipo}, ${identificador})
+    values (${canal.tenantId}, ${contatoId}, ${canal.type}, ${identificador})
     on conflict (tenant_id, canal_tipo, identificador) do nothing
   `);
 
@@ -521,14 +521,14 @@ async function findOrOpenConversation(
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
       conversationId,
-      tipo: 'criada',
+      type: 'criada',
       em,
       queueId,
     });
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
       conversationId,
-      tipo: 'enfileirada',
+      type: 'enfileirada',
       em,
       queueId,
     });

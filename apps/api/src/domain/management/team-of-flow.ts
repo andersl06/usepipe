@@ -1,6 +1,6 @@
 import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { flow, flowMember, user } from '@pipe/db/schema';
 import type {
   TeamOfFlow,
@@ -270,10 +270,10 @@ function forContract(linha: {
 }): MemberOfFlow {
   return {
     userId: linha.userId,
-    nome: linha.nome,
+    nome: linha.name,
     email: linha.email,
-    roleInFlow: linha.papelNoFluxo as RoleInFlow,
-    permissions: linha.permissoes ?? {},
+    roleInFlow: linha.roleInFlow as RoleInFlow,
+    permissions: linha.permissions ?? {},
     criadoEm: linha.criadoEm.toISOString(),
   };
 }

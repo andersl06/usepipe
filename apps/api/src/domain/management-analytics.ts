@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import {
   NAME_OF_CHANNEL,
   diasDoIntervalo,
@@ -472,8 +472,8 @@ export async function loadLogOfMessages(
   if (!channelId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
 
   const filterSearch = filter.search?.trim() ? sql`m.conteudo ilike ${`%${filter.search.trim()}%`}` : sql`true`;
-  const filterDirection = filter.direcao ? sql`m.direcao = ${filter.direcao}` : sql`true`;
-  const filterType = filter.tipo ? sql`m.tipo = ${filter.tipo}` : sql`true`;
+  const filterDirection = filter.direction ? sql`m.direcao = ${filter.direction}` : sql`true`;
+  const filterType = filter.type ? sql`m.tipo = ${filter.type}` : sql`true`;
   const filterOf = filter.de
     ? sql`m.criada_em >= (${filter.de}::date)::timestamp at time zone ${fuso}`
     : sql`true`;

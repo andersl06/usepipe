@@ -15,7 +15,7 @@ import { evento, publicar } from '../realtime.js';
  * direto no banco.
  */
 
-const STATES_AGENT = schema.STATES_AGENT;
+const STATES_AGENT = schema.ESTADOS_ATENDENTE;
 
 export type StateAgent = (typeof STATES_AGENT)[number];
 

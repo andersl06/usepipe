@@ -11,7 +11,7 @@ import {
   type ReportCustom,
   type VisaoGeral,
 } from '@pipe/core/analise';
-import { DIRECTIONS_MESSAGE, TYPES_MESSAGE } from '@pipe/db/schema';
+import { DIRECOES_MENSAGEM as DIRECTIONS_MESSAGE, TYPES_MESSAGE } from '@pipe/db/schema';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -264,7 +264,7 @@ export class ManagementAnalyticsController {
           search,
           de: de && DIA.test(de) ? de : undefined,
           ate: ate && DIA.test(ate) ? ate : undefined,
-          direcao: direction && (DIRECTIONS_MESSAGE as readonly string[]).includes(direction)
+          direction: direction && (DIRECTIONS_MESSAGE as readonly string[]).includes(direction)
             ? direction
             : undefined,
           tipo: tipo && (TYPES_MESSAGE as readonly string[]).includes(tipo) ? tipo : undefined,

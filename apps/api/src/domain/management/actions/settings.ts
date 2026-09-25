@@ -1,4 +1,4 @@
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import type { Campos, Resultado } from './campos.js';
 import { PipeError } from '../../../errors.js';
 import {
@@ -68,7 +68,7 @@ export async function saveIdentity(
   }
 
   try {
-    const gravado = await writeIdentity(tx, tid, ator, { nome, fuso, idioma });
+    const gravado = await writeIdentity(tx, tid, ator, { name: nome, fuso, idioma });
     if (!gravado.ok) return falha(gravado.error);
   } catch (erro) {
     if (erro instanceof PipeError) return falha(erro.message);
@@ -111,7 +111,7 @@ export async function salvarPesquisa(
   try {
     const gravado = await gravarPesquisa(tx, tid, ator, {
       id,
-      tipo,
+      type: tipo,
       escalaMin: escala.min,
       escalaMax: escala.max,
       pergunta,

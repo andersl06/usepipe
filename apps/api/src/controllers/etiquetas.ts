@@ -74,7 +74,7 @@ export class ConversationLabelsController {
       id,
       etiquetaIdDe(corpo),
     );
-    return { etiqueta_id: r.etiquetaId, nome: r.nome, aplicada: r.aplicada };
+    return { etiqueta_id: r.etiquetaId, nome: r.name, aplicada: r.aplicada };
   }
 
   @Delete(':etiquetaId')
@@ -119,7 +119,7 @@ export class ContactLabelsController {
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await labelContact(ator, id, etiquetaIdDe(corpo));
-    return { etiqueta_id: r.etiquetaId, nome: r.nome, aplicada: r.aplicada };
+    return { etiqueta_id: r.etiquetaId, nome: r.name, aplicada: r.aplicada };
   }
 
   @Delete(':etiquetaId')

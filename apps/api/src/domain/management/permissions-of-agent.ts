@@ -1,13 +1,13 @@
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import {
   rolePermission,
-  permission,
+  permissao as permission,
   user,
   userRole,
   userPermission,
 } from '@pipe/db/schema';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 

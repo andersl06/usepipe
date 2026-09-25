@@ -36,16 +36,16 @@ export class InvitationsController {
 
     const invitation = await createInvitation(sessao.tenantId, {
       email: corpo.email,
-      papel: corpo.role,
+      role: corpo.role,
       criadoPor: sessao.userId,
     });
 
     return {
       id: invitation.id,
       email: invitation.email,
-      papel: invitation.papel,
+      papel: invitation.role,
       url: invitation.url,
-      expiraEm: invitation.expiraEm.toISOString(),
+      expiraEm: invitation.expiresAt.toISOString(),
     };
   }
 
@@ -68,9 +68,9 @@ export class InvitationsController {
     return {
       id: convite.id,
       email: convite.email,
-      papel: convite.papel,
+      papel: convite.role,
       url: convite.url,
-      expiraEm: convite.expiraEm.toISOString(),
+      expiraEm: convite.expiresAt.toISOString(),
     };
   }
 
@@ -84,9 +84,9 @@ export class InvitationsController {
     const convite = await readInvitation(token);
     return {
       email: convite.email,
-      role: convite.papel,
+      role: convite.role,
       tenant: convite.tenant,
-      expiraEm: convite.expiraEm.toISOString(),
+      expiraEm: convite.expiresAt.toISOString(),
     };
   }
 
@@ -104,7 +104,7 @@ export class InvitationsController {
     return {
       usuarioId: aceito.userId,
       email: aceito.email,
-      papel: aceito.papel,
+      papel: aceito.role,
       tenant: aceito.tenant,
       entrarEm: `/v1/auth/google?invite=${encodeURIComponent(token)}`,
     };
@@ -127,7 +127,7 @@ export class DomainsController {
     const registrado = await logDomain(session.tenantId, corpo.domain);
     return {
       id: registrado.id,
-      dominio: registrado.dominio,
+      dominio: registrado.domain,
       verificadoEm: registrado.verificadoEm?.toISOString() ?? null,
       registro: registrado.registro,
     };

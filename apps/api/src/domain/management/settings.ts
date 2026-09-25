@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, inArray, isNull, notInArray } from 'drizzle-
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import {
   channel,
-  conversation,
+  conversa as conversation,
   conversationLabel,
   etiqueta,
   queue,
@@ -11,7 +11,7 @@ import {
   regraSla,
   tenant,
 } from '@pipe/db/schema';
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -149,12 +149,12 @@ export async function loadData(tx: TransactionPipe): Promise<{
         id: etiqueta.id,
         nome: etiqueta.nome,
         escopo: etiqueta.escopo,
-        obrigatoriaNoEncerramento: etiqueta.requiredInClosure,
+        obrigatoriaNoEncerramento: etiqueta.obrigatoriaNoEncerramento,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
       .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.requiredInClosure)
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.obrigatoriaNoEncerramento)
       .orderBy(asc(etiqueta.nome));
 
     const channels = await tx
@@ -208,16 +208,16 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
        conexão perde a variável de sessão do RLS. */
     const caixas = await tx
       .select({
-        canalId: inbox.channelId,
+        canalId: inbox.canalId,
         id: inbox.id,
         nome: inbox.nome,
         filaPadrao: queue.nome,
         abertas: count(conversation.id),
       })
       .from(inbox)
-      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
+      .leftJoin(queue, eq(queue.id, inbox.filaPadraoId))
       .leftJoin(conversation, and(eq(conversation.inboxId, inbox.id), isNull(conversation.encerradaEm)))
-      .groupBy(inbox.channelId, inbox.id, inbox.nome, queue.nome)
+      .groupBy(inbox.canalId, inbox.id, inbox.nome, queue.nome)
       .orderBy(asc(inbox.nome));
 
     return canais.map((c) => ({
@@ -302,12 +302,12 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
       .select({
         id: etiqueta.id,
         nome: etiqueta.nome,
-        obrigatoria: etiqueta.requiredInClosure,
+        obrigatoria: etiqueta.obrigatoriaNoEncerramento,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
       .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.requiredInClosure)
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.obrigatoriaNoEncerramento)
       .orderBy(asc(etiqueta.nome));
 
     const first = pesquisas[0];
@@ -478,7 +478,7 @@ export async function writeLabelsOfClosure(
     const antes = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
 
     if (escolhidas.length > 0) {
       const validas = await tx
@@ -508,7 +508,7 @@ export async function writeLabelsOfClosure(
     const depois = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
 
     await registrarAuditoria(tx, tid, {
       ator: ator,

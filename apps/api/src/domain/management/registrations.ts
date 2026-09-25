@@ -7,7 +7,7 @@ import {
   type HourAttendance as ExpedienteDoCore,
 } from '@pipe/core';
 import {
-  conversation,
+  conversa as conversation,
   queue,
   queueAgent,
   scheduleAttendance,
@@ -22,7 +22,7 @@ import {
   user,
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
@@ -136,7 +136,7 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
       const padrao = linhas.find((l) => l.id === m.filaId)?.capacidadePadrao ?? 0;
       const agent: AgentOfQueue = {
         id: m.usuarioId,
-        nome: m.nome,
+        name: m.nome,
         estado: m.estado,
         capacity: m.override ?? padrao,
         temOverride: m.override !== null,
@@ -199,8 +199,8 @@ export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<Us
       .select({
         id: motivoPausa.id,
         nome: motivoPausa.nome,
-        duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-        contaComoProdutivo: motivoPausa.accountAsProductive,
+        duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
+        contaComoProdutivo: motivoPausa.contaComoProdutivo,
         ativo: motivoPausa.ativo,
       })
       .from(motivoPausa)
@@ -469,9 +469,9 @@ export async function editarFaixaHorario(
   const antes = { diaSemana: atual.diaSemana, inicio: relogio(atual.inicio), fim: relogio(atual.fim) };
   const depois = { ...antes };
 
-  if (pedido.diaSemana !== undefined) depois.diaSemana = diaSemanaConferido(pedido.diaSemana);
-  if (pedido.inicio !== undefined) depois.inicio = relogioConferido(pedido.inicio, 'início');
-  if (pedido.fim !== undefined) depois.fim = relogioConferido(pedido.fim, 'fim');
+  if (pedido.dayWeek !== undefined) depois.diaSemana = diaSemanaConferido(pedido.dayWeek);
+  if (pedido.start !== undefined) depois.inicio = relogioConferido(pedido.start, 'início');
+  if (pedido.end !== undefined) depois.fim = relogioConferido(pedido.end, 'fim');
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
@@ -598,10 +598,10 @@ export async function editarExceptionSchedule(
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw PipeError.request('data_invalid', 'Informe a data.');
     depois.data = data;
   }
-  if (pedido.fechado !== undefined) depois.fechado = pedido.fechado;
-  if (pedido.inicio !== undefined) depois.inicio = pedido.inicio === null ? null : relogioConferido(pedido.inicio, 'início');
-  if (pedido.fim !== undefined) depois.fim = pedido.fim === null ? null : relogioConferido(pedido.fim, 'fim');
-  if (pedido.motivo !== undefined) depois.motivo = pedido.motivo?.trim() || null;
+  if (pedido.closed !== undefined) depois.fechado = pedido.closed;
+  if (pedido.start !== undefined) depois.inicio = pedido.start === null ? null : relogioConferido(pedido.start, 'início');
+  if (pedido.end !== undefined) depois.fim = pedido.end === null ? null : relogioConferido(pedido.end, 'fim');
+  if (pedido.reason !== undefined) depois.motivo = pedido.reason?.trim() || null;
 
   if (depois.fechado) {
     if (depois.inicio || depois.fim) {
@@ -744,7 +744,7 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
     const caixas = await tx
       .select({ inbox: inbox.nome, fila: queue.nome })
       .from(inbox)
-      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
+      .leftJoin(queue, eq(queue.id, inbox.filaPadraoId))
       .orderBy(asc(inbox.nome));
 
     return {
@@ -807,9 +807,9 @@ export async function writeRuleQueue(
     const [conflito] = await tx
       .select({ id: ruleQueue.id })
       .from(ruleQueue)
-      .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, inbound.nome)))
+      .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, inbound.name)))
       .limit(1);
-    if (conflito) return { ok: false, erro: `Já existe uma regra chamada "${inbound.nome}".` };
+    if (conflito) return { ok: false, erro: `Já existe uma regra chamada "${inbound.name}".` };
 
     const [destino] = await tx
       .select({ id: queue.id })
@@ -822,9 +822,9 @@ export async function writeRuleQueue(
       .insert(ruleQueue)
       .values({
         tenantId: tid,
-        nome: inbound.nome,
-        ordem: inbound.ordem,
-        combinador: inbound.combinador,
+        nome: inbound.name,
+        ordem: inbound.order,
+        combinador: inbound.combiner,
         filaDestinoId: inbound.queueDestinationId,
         ativa: true,
       })
@@ -959,17 +959,17 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
     );
   }
   return bruto.map((c) => {
-    const campo = String(c.campo ?? '').trim();
-    const valor = String(c.valor ?? '').trim();
+    const campo = String(c.field ?? '').trim();
+    const valor = String(c.value ?? '').trim();
     if (!campoValido(campo)) {
       throw PipeError.request(
         'field_invalid',
         `"${campo}" não é um campo válido. Use um dos fixos ou um campo extra como contato.atributos.plano.`,
       );
     }
-    if (!operadorValido(c.operador)) throw PipeError.request('operator_invalid', 'Operador inválido.');
+    if (!operadorValido(c.operator)) throw PipeError.request('operator_invalid', 'Operador inválido.');
     if (!valor) throw PipeError.request('value_required', `A condição sobre "${campo}" ficou sem valor.`);
-    return { campo, operador: c.operador, valor };
+    return { campo, operador: c.operator, valor };
   });
 }
 
@@ -984,29 +984,29 @@ export async function editarRuleQueue(
   const atual = await ruleQueueViva(tx, tid, id);
   await exigirPermission(tx, usuarioId, RULE_MANAGE);
 
-  const antes = { nome: atual.nome, ordem: atual.ordem, combinador: atual.combinador, filaDestinoId: atual.filaDestinoId };
+  const antes = { nome: atual.name, ordem: atual.order, combinador: atual.combiner, filaDestinoId: atual.queueDestinationId };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) {
-    const nome = String(pedido.nome).trim();
+  if (pedido.name !== undefined) {
+    const nome = String(pedido.name).trim();
     if (!nome) throw PipeError.request('name_required', 'Informe o nome da regra.');
     depois.nome = nome;
   }
-  if (pedido.ordem !== undefined) depois.ordem = orderChecked(pedido.ordem);
-  if (pedido.combinador !== undefined) {
-    if (pedido.combinador !== 'e' && pedido.combinador !== 'ou') {
+  if (pedido.order !== undefined) depois.ordem = orderChecked(pedido.order);
+  if (pedido.combiner !== undefined) {
+    if (pedido.combiner !== 'e' && pedido.combiner !== 'ou') {
       throw PipeError.request('combiner_invalid', 'Combinador inválido.');
     }
-    depois.combinador = pedido.combinador;
+    depois.combinador = pedido.combiner;
   }
-  if (pedido.filaDestinoId !== undefined) {
+  if (pedido.queueDestinationId !== undefined) {
     const [destination] = await tx
       .select({ id: queue.id })
       .from(queue)
-      .where(and(eq(queue.tenantId, tid), eq(queue.id, pedido.filaDestinoId)))
+      .where(and(eq(queue.tenantId, tid), eq(queue.id, pedido.queueDestinationId)))
       .limit(1);
     if (!destination) throw PipeError.request('queue_not_found', 'Fila de destino não encontrada.');
-    depois.filaDestinoId = pedido.filaDestinoId;
+    depois.filaDestinoId = pedido.queueDestinationId;
   }
 
   if (depois.nome !== antes.nome) {
@@ -1071,7 +1071,7 @@ export async function deleteRuleQueue(
     acao: 'excluiu',
     objetoTipo: 'regra_fila',
     objetoId: id,
-    antes: { nome: atual.nome, ativa: atual.ativa },
+    antes: { nome: atual.name, ativa: atual.ativa },
   });
 }
 
@@ -1150,7 +1150,7 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
       return {
         ...p,
         filas: dela?.filas ?? [],
-        limiteSimultaneo: dela ? dela.limite : null,
+        limiteSimultaneo: dela ? dela.limit : null,
       };
     });
   });
@@ -1284,11 +1284,11 @@ export async function createQueue(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
 
-  const nome = nameOfQueueChecked(pedido.nome);
-  const cor = colorOfQueueChecked(pedido.cor);
+  const nome = nameOfQueueChecked(pedido.name);
+  const cor = colorOfQueueChecked(pedido.color);
   const capacityDefault = capacityChecked(pedido.capacityDefault);
   const order = orderChecked(pedido.order);
-  const horarioId = pedido.horarioId ? String(pedido.horarioId) : null;
+  const horarioId = pedido.scheduleId ? String(pedido.scheduleId) : null;
   const active = pedido.active ?? true;
 
   if (await nameOfQueueInUse(tx, tid, nome)) throw conflitoOfNameOfQueue(nome);
@@ -1329,15 +1329,15 @@ export async function editarQueue(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) depois.nome = nameOfQueueChecked(pedido.nome);
-  if (pedido.cor !== undefined) depois.cor = colorOfQueueChecked(pedido.cor);
-  if (pedido.capacidadePadrao !== undefined) {
-    depois.capacidadePadrao = capacityChecked(pedido.capacidadePadrao);
+  if (pedido.name !== undefined) depois.nome = nameOfQueueChecked(pedido.name);
+  if (pedido.color !== undefined) depois.cor = colorOfQueueChecked(pedido.color);
+  if (pedido.capacityDefault !== undefined) {
+    depois.capacidadePadrao = capacityChecked(pedido.capacityDefault);
   }
-  if (pedido.ordem !== undefined) depois.ordem = orderChecked(pedido.ordem);
+  if (pedido.order !== undefined) depois.ordem = orderChecked(pedido.order);
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
-  if (pedido.horarioId !== undefined) {
-    const horarioId = pedido.horarioId ? String(pedido.horarioId) : null;
+  if (pedido.scheduleId !== undefined) {
+    const horarioId = pedido.scheduleId ? String(pedido.scheduleId) : null;
     if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
       throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
     }
@@ -1415,7 +1415,7 @@ export async function deleteQueue(
   const [comoPadrao] = await tx
     .select({ nome: inbox.nome })
     .from(inbox)
-    .where(and(eq(inbox.tenantId, tid), eq(inbox.queueDefaultId, id)))
+    .where(and(eq(inbox.tenantId, tid), eq(inbox.filaPadraoId, id)))
     .limit(1);
   if (comoPadrao) {
     throw PipeError.conflito(
@@ -1606,8 +1606,8 @@ async function motivoVivo(tx: TransactionPipe, tid: string, id: string) {
     .select({
       id: motivoPausa.id,
       nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-      contaComoProdutivo: motivoPausa.accountAsProductive,
+      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
+      contaComoProdutivo: motivoPausa.contaComoProdutivo,
       ativo: motivoPausa.ativo,
     })
     .from(motivoPausa)
@@ -1625,10 +1625,10 @@ export async function createReasonPause(
 ): Promise<{ id: string }> {
   await exigirPermission(tx, usuarioId, PAUSE_MANAGE);
 
-  const nome = nomeDeMotivoConferido(pedido.nome);
+  const nome = nomeDeMotivoConferido(pedido.name);
   const durationSuggestedMin = durationSuggestedChecked(pedido.durationSuggestedMin);
   const accountAsProductive = pedido.countsAsProductive ?? false;
-  const ativo = pedido.ativo ?? true;
+  const ativo = pedido.active ?? true;
 
   if (await nomeDeMotivoEmUso(tx, tid, nome)) {
     throw PipeError.conflito('name_in_use', `Já existe um motivo chamado "${nome}".`);
@@ -1664,12 +1664,12 @@ export async function editarMotivoPausa(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.nome !== undefined) depois.nome = nomeDeMotivoConferido(pedido.nome);
-  if (pedido.duracaoSugeridaMin !== undefined) {
-    depois.duracaoSugeridaMin = durationSuggestedChecked(pedido.duracaoSugeridaMin);
+  if (pedido.name !== undefined) depois.nome = nomeDeMotivoConferido(pedido.name);
+  if (pedido.durationSuggestedMin !== undefined) {
+    depois.duracaoSugeridaMin = durationSuggestedChecked(pedido.durationSuggestedMin);
   }
-  if (pedido.contaComoProdutivo !== undefined) depois.contaComoProdutivo = pedido.contaComoProdutivo;
-  if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
+  if (pedido.countsAsProductive !== undefined) depois.contaComoProdutivo = pedido.countsAsProductive;
+  if (pedido.active !== undefined) depois.ativo = pedido.active;
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
@@ -1690,8 +1690,8 @@ export async function editarMotivoPausa(
     .returning({
       id: motivoPausa.id,
       nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-      contaComoProdutivo: motivoPausa.accountAsProductive,
+      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
+      contaComoProdutivo: motivoPausa.contaComoProdutivo,
       ativo: motivoPausa.ativo,
     });
   if (!gravado) throw PipeError.naoEncontrado('motivo de pausa');

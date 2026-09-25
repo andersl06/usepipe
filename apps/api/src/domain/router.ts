@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type { FlowPublished } from './flow.js';
 
 /**
@@ -49,7 +49,7 @@ type LineOfPosition = {
 
 /** O prazo do serviço a partir de agora; nulo = não expira. */
 function prazo(s: { principal: boolean; persistent: boolean; expiracao_min: number | null }) {
-  return s.principal || s.persistente || !s.expiracao_min
+  return s.principal || s.persistent || !s.expiracao_min
     ? null
     : sql`now() + ${s.expiracao_min}::int * interval '1 minute'`;
 }

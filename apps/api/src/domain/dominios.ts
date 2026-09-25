@@ -63,7 +63,7 @@ export function normalizeDomain(cru: string | undefined): string {
 }
 
 export function registroOfVerification(domain: string, token: string): RegistroOfVerification {
-  return { nome: `${PREFIX_TXT}.${domain}`, tipo: 'TXT', value: `pipe-verificacao=${token}` };
+  return { name: `${PREFIX_TXT}.${domain}`, tipo: 'TXT', value: `pipe-verificacao=${token}` };
 }
 
 /**
@@ -158,7 +158,7 @@ export async function checkDomain(
 
   let registros: string[][];
   try {
-    registros = await resolvedor(esperado.nome);
+    registros = await resolvedor(esperado.name);
   } catch {
     // `ENOTFOUND`/`ENODATA` é o caso comum: o registro ainda não foi publicado ou
     // ainda não propagou. Isso é "tente de novo", não erro do servidor.
@@ -169,7 +169,7 @@ export async function checkDomain(
   if (!publicado) {
     throw PipeError.request(
       'domain_not_verified',
-      `Não encontrei ${esperado.value} em ${esperado.nome}. Publique o TXT e tente de novo — a propagação leva alguns minutos.`,
+      `Não encontrei ${esperado.value} em ${esperado.name}. Publique o TXT e tente de novo — a propagação leva alguns minutos.`,
       { registro: { ...esperado } },
     );
   }

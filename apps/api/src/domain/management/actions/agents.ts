@@ -1,5 +1,5 @@
 import type { Campos, Resultado } from './campos.js';
-import type { TransactionPipe, Ator } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { createQueue, createReasonPause } from '../registrations.js';
 
@@ -50,7 +50,7 @@ export async function saveQueue(
   const orderRaw = data.get('ordem');
   return comoResultado(() =>
     createQueue(tx, tid, ator.id ?? '', {
-      nome: String(data.get('nome') ?? '').trim(),
+      name: String(data.get('nome') ?? '').trim(),
       cor: data.get('cor'),
       horarioId: data.get('horarioId'),
       capacityDefault: Number(capacityRaw ?? Number.NaN),
@@ -71,7 +71,7 @@ export async function salvarMotivoPausa(
   const durationRaw = dados.get('duracaoSugeridaMin');
   return comoResultado(() =>
     createReasonPause(tx, tid, ator.id ?? '', {
-      nome: String(dados.get('nome') ?? '').trim(),
+      name: String(dados.get('nome') ?? '').trim(),
       durationSuggestedMin: durationRaw === null || durationRaw === '' ? null : Number(durationRaw),
       countsAsProductive: dados.get('contaComoProdutivo') !== null,
       ativo: dados.get('ativo') !== null,

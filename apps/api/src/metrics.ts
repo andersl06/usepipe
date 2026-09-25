@@ -69,7 +69,7 @@ export function contar(nome: string, rotulos: Rotulos = {}, delta = 1): void {
   const k = key(nome, rotulos);
   const atual = contadores.get(k);
   if (atual) atual.value += delta;
-  else contadores.set(k, { nome, rotulos, value: delta });
+  else contadores.set(k, { name: nome, rotulos, value: delta });
 }
 
 export function watch(nome: string, rotulos: Rotulos, valor: number): void {
@@ -161,17 +161,17 @@ async function medidores(): Promise<string> {
 export async function renderizar(): Promise<string> {
   let texto = '';
 
-  for (const nome of [...new Set([...contadores.values()].map((c) => c.nome))].sort()) {
+  for (const nome of [...new Set([...contadores.values()].map((c) => c.name))].sort()) {
     texto += cabecalho(nome, 'counter');
     for (const c of contadores.values()) {
-      if (c.nome === nome) texto += serie(nome, c.rotulos, c.value);
+      if (c.name === nome) texto += serie(nome, c.rotulos, c.value);
     }
   }
 
-  for (const nome of [...new Set([...histogramas.values()].map((h) => h.nome))].sort()) {
+  for (const nome of [...new Set([...histogramas.values()].map((h) => h.name))].sort()) {
     texto += cabecalho(nome, 'histogram');
     for (const h of histogramas.values()) {
-      if (h.nome !== nome) continue;
+      if (h.name !== nome) continue;
       BALDES_SEGUNDOS.forEach((teto, i) => {
         texto += serie(`${nome}_bucket`, { ...h.rotulos, le: String(teto) }, h.baldes[i] ?? 0);
       });

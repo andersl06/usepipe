@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { keyringOfAmbiente, decifrar, estaCifrado } from '@pipe/db';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * O cliente do CRM (Twenty). **A única porta do Pipe para o CRM.**
@@ -201,7 +201,7 @@ export async function espelharContact(
   contact: ContactForEspelhar,
   buscar: typeof fetch = fetch,
 ): Promise<string> {
-  const nome = partirNome(contact.nome);
+  const nome = partirNome(contact.name);
   const telefone = partirTelefone(contact.telefoneE164);
 
   const data: Record<string, unknown> = { name: nome, pipeContatoId: contact.id };

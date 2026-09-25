@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { keyApi, user, webhookSaida } from '@pipe/db/schema';
-import { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import { TIPOS_AUTENTICACAO_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { hashOfSecret } from '../../authentication.js';
@@ -115,12 +115,12 @@ type LineKey = {
 function asKey(linha: LineKey): KeyOfFlow {
   return {
     id: linha.id,
-    nome: linha.nome,
+    name: linha.name,
     prefixo: linha.prefix,
     escopos: linha.scopes ?? [],
     criadaEm: linha.criadoEm.toISOString(),
     ultimoUsoEm: linha.ultimoUsoEm?.toISOString() ?? null,
-    revogadaEm: linha.revogadaEm?.toISOString() ?? null,
+    revogadaEm: linha.revokedAt?.toISOString() ?? null,
     requisitante: linha.requisitante ?? null,
   };
 }
@@ -362,10 +362,10 @@ function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
     id: linha.id,
     url: linha.url,
     eventos: linha.eventos ?? [],
-    ativo: linha.ativo,
+    ativo: linha.active,
     criadoEm: linha.criadoEm.toISOString(),
     authentication: {
-      tipo: linha.typeAuthentication as TypeAuthenticationWebhook,
+      type: linha.typeAuthentication as TypeAuthenticationWebhook,
       user: linha.authenticationUser,
       urlAuthorization: linha.oauth2UrlAuthorization,
       clientId: linha.oauth2ClientId,
@@ -381,9 +381,9 @@ const COLUNAS_WEBHOOK = {
   eventos: webhookSaida.eventos,
   ativo: webhookSaida.ativo,
   criadoEm: webhookSaida.criadoEm,
-  tipoAutenticacao: webhookSaida.typeAuthentication,
-  autenticacaoUsuario: webhookSaida.authenticationUser,
-  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAuthorization,
+  tipoAutenticacao: webhookSaida.tipoAutenticacao,
+  autenticacaoUsuario: webhookSaida.autenticacaoUsuario,
+  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAutorizacao,
   oauth2ClientId: webhookSaida.oauth2ClientId,
   cabecalhos: webhookSaida.cabecalhos,
 };
@@ -478,7 +478,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
         'Informe usuário e senha da autenticação básica.',
       );
     }
-    return { tipo: 'basica', user, senha };
+    return { type: 'basica', user, senha };
   }
 
   if (tipo === 'oauth2_client_credentials') {
@@ -493,25 +493,25 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
       );
     }
     confirmarUrlSegura(urlAuthorization);
-    return { tipo: 'oauth2_client_credentials', urlAuthorization, clientId, clientSecret };
+    return { type: 'oauth2_client_credentials', urlAuthorization, clientId, clientSecret };
   }
 
-  return { tipo: 'nenhuma' };
+  return { type: 'nenhuma' };
 }
 
 /** As colunas que a gravação seta — os dois segredos saem cifrados daqui. */
 function columnsOfAuthentication(authentication: AuthenticationWebhookInbound) {
   return {
-    tipoAutenticacao: authentication.tipo,
-    autenticacaoUsuario: authentication.tipo === 'basica' ? authentication.usuario! : null,
+    tipoAutenticacao: authentication.type,
+    autenticacaoUsuario: authentication.type === 'basica' ? authentication.user! : null,
     autenticacaoSenha:
-      authentication.tipo === 'basica' ? cifrar(authentication.senha!, keyring()) : null,
+      authentication.type === 'basica' ? cifrar(authentication.senha!, keyring()) : null,
     oauth2UrlAutorizacao:
-      authentication.tipo === 'oauth2_client_credentials' ? authentication.urlAutorizacao! : null,
+      authentication.type === 'oauth2_client_credentials' ? authentication.urlAutorizacao! : null,
     oauth2ClientId:
-      authentication.tipo === 'oauth2_client_credentials' ? authentication.clientId! : null,
+      authentication.type === 'oauth2_client_credentials' ? authentication.clientId! : null,
     oauth2ClientSecret:
-      authentication.tipo === 'oauth2_client_credentials'
+      authentication.type === 'oauth2_client_credentials'
         ? cifrar(authentication.clientSecret!, keyring())
         : null,
   };
@@ -522,14 +522,14 @@ function authenticationForAuditoria(
   autenticacao: AuthenticationWebhookInbound,
 ): AuthenticationWebhookVisible {
   return {
-    tipo: autenticacao.tipo,
-    user: autenticacao.tipo === 'basica' ? (autenticacao.usuario ?? null) : null,
+    type: autenticacao.type,
+    user: autenticacao.type === 'basica' ? (autenticacao.user ?? null) : null,
     urlAuthorization:
-      autenticacao.tipo === 'oauth2_client_credentials'
+      autenticacao.type === 'oauth2_client_credentials'
         ? (autenticacao.urlAutorizacao ?? null)
         : null,
     clientId:
-      autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.clientId ?? null) : null,
+      autenticacao.type === 'oauth2_client_credentials' ? (autenticacao.clientId ?? null) : null,
   };
 }
 
@@ -615,8 +615,8 @@ async function webhookVivo(
   const [atual] = await tx
     .select({
       ...COLUNAS_WEBHOOK,
-      segredo: webhookSaida.secret,
-      autenticacaoSenha: webhookSaida.authenticationPassword,
+      segredo: webhookSaida.segredo,
+      autenticacaoSenha: webhookSaida.autenticacaoSenha,
       oauth2ClientSecret: webhookSaida.oauth2ClientSecret,
     })
     .from(webhookSaida)
@@ -654,7 +654,7 @@ export async function editarWebhook(
   const antes = {
     url: atual.url,
     eventos: atual.eventos,
-    ativo: atual.ativo,
+    ativo: atual.active,
     autenticacao: atual.authentication,
     cabecalhos: atual.cabecalhos,
   };
@@ -664,7 +664,7 @@ export async function editarWebhook(
     depois.url = pedido.url;
   }
   if (pedido.eventos !== undefined) depois.eventos = eventosConferidos(pedido.eventos);
-  if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
+  if (pedido.active !== undefined) depois.ativo = pedido.active;
 
   let authenticationInbound: AuthenticationWebhookInbound | undefined;
   if (pedido.autenticacao !== undefined) {
@@ -725,7 +725,7 @@ export async function excluirWebhook(
     antes: {
       url: atual.url,
       eventos: atual.eventos,
-      ativo: atual.ativo,
+      ativo: atual.active,
       autenticacao: atual.authentication,
       cabecalhos: atual.cabecalhos,
     },
@@ -771,14 +771,14 @@ export async function testarWebhook(
 
   try {
     const cabecalhos = cabecalhosDeSaida({
-      secret: webhook.segredo,
+      secret: webhook.secret,
       timestamp,
-      corpo,
+      body: corpo,
       deliveryId: randomBytes(16).toString('hex'),
       customizados: webhook.cabecalhos,
     });
     const authorization = await headerOfAuthorization({
-      tipo: webhook.authentication.tipo,
+      type: webhook.authentication.type,
       user: webhook.authentication.user,
       senha: decryptSecretOfWebhook(webhook.authenticationPassword),
       oauth2UrlAuthorization: webhook.authentication.urlAuthorization,

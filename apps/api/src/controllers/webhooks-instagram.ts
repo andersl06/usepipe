@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { secretConfere } from '@pipe/db';
+import { segredoConfere as secretConfere } from '@pipe/db';
 import { resolveChannel } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';
@@ -43,7 +43,7 @@ export class InstagramWebhookController {
     @Req() request: RequestWithBodyRaw,
   ): Promise<{ recebido: true }> {
     const canal = await channelOfInstagram(canalId);
-    if (!canal.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
+    if (!canal.active) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const secret = String(canal.config['appSecret'] ?? '');
     if (!secret) {
@@ -67,6 +67,6 @@ export class InstagramWebhookController {
 /** Canal que não é do Instagram é 404 aqui: a URL de um WhatsApp não vira porta de entrada do Direct. */
 async function channelOfInstagram(canalId: string): Promise<ChannelResolved> {
   const canal = /^[0-9a-f-]{36}$/i.test(canalId) ? await resolveChannel(canalId) : null;
-  if (!canal || canal.tipo !== 'instagram') throw PipeError.naoEncontrado('Canal');
+  if (!canal || canal.type !== 'instagram') throw PipeError.naoEncontrado('Canal');
   return canal;
 }

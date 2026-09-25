@@ -1,7 +1,7 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { flow, routerService } from '@pipe/db/schema';
 import type {
   DataOfServices,
@@ -159,7 +159,7 @@ function conferido(pedido: Partial<RequestOfService>): Formulario {
     }
     expirationMin = n;
   }
-  return { nome, chatbotId, principal, persistente, expirationMin };
+  return { name: nome, chatbotId, principal, persistente, expirationMin };
 }
 
 /** Os conflitos do formulário com os outros serviços do mesmo roteador. */
@@ -195,7 +195,7 @@ async function conferirConflitos(
       .from(routerService)
       .where(eq(routerService.routerId, routerId))
   ).filter((s) => s.id !== excetoId);
-  if (outros.some((s) => s.nome === f.nome)) {
+  if (outros.some((s) => s.nome === f.name)) {
     throw PipeError.conflito(
       'service_name_in_use',
       'Já existe um serviço com este nome neste roteador.',
@@ -270,7 +270,7 @@ export async function createService(
       tenantId: tid,
       roteadorId,
       servicoId: f.chatbotId,
-      nome: f.nome,
+      nome: f.name,
       principal: f.principal,
       persistente: f.persistente,
       expiracaoMin: f.expiracaoMin,
@@ -324,7 +324,7 @@ export async function editarService(
   await tx
     .update(routerService)
     .set({
-      nome: f.nome,
+      nome: f.name,
       servicoId: f.chatbotId,
       principal: f.principal,
       persistente: f.persistente,

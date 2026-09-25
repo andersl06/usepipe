@@ -27,7 +27,7 @@ import type {
   Saida,
   ServicosDoMotor,
 } from '@pipe/core';
-import type { TransactionPipe } from '@pipe/db';
+import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversation } from './distribution.js';
@@ -377,8 +377,8 @@ export async function rodarFlowInInbound(
           ${JSON.stringify({
             id: e.message.id,
             idProvider: e.message.idProvedor,
-            type: e.message.tipo,
-            content: e.message.conteudo,
+            type: e.message.type,
+            content: e.message.content,
           })}::jsonb,
           ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
         )
@@ -513,8 +513,8 @@ export async function rodarFlowInInbound(
   const certo = await rodar(
     {
       id: e.message.idProvedor,
-      tipo: MIME_DO_TIPO[e.message.tipo] ?? 'text/plain',
-      conteudo: e.message.conteudo ?? '',
+      tipo: MIME_DO_TIPO[e.message.type] ?? 'text/plain',
+      conteudo: e.message.content ?? '',
       de: e.contactId,
     },
     {
@@ -610,7 +610,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
       message: {
         id: typeof p.entrada['id'] === 'string' ? p.entrada['id'] : null,
         idProvedor: String(p.entrada['id_provedor'] ?? ''),
-        tipo: String(p.entrada['tipo'] ?? 'texto'),
+        type: String(p.entrada['tipo'] ?? 'texto'),
         conteudo: typeof p.entrada['conteudo'] === 'string' ? p.entrada['conteudo'] : null,
       },
     }, {
@@ -644,7 +644,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
         message: {
           id: mensagem.id,
           idProvedor: mensagem.id_provedor,
-          tipo: mensagem.tipo,
+          type: mensagem.tipo,
           conteudo: mensagem.conteudo,
         },
       });
@@ -706,12 +706,12 @@ async function gravarPassos(
     const ultimo = i === estados.length - 1;
     const saida = {
       acoes: passo.actions,
-      proximo: 'proximoEstadoId' in passo ? (passo.proximoStateId ?? null) : null,
+      proximo: 'proximoEstadoId' in passo ? (passo.proximoEstadoId ?? null) : null,
       ...(i === 0 && rastro.actionsGlobal.length > 0 ? { acoesGlobais: rastro.actionsGlobal } : {}),
       ...(ultimo && eventos.length > 0 ? { eventos } : {}),
     };
     const error =
-      ('erro' in passo ? passo.error : undefined) ?? (ultimo ? rastro.error : undefined) ?? null;
+      ('erro' in passo ? passo.erro : undefined) ?? (ultimo ? rastro.error : undefined) ?? null;
     await tx.execute(sql`
       insert into execucao_passo (tenant_id, execucao_id, bloco_id, entrada, saida, erro, em)
       values (
@@ -755,7 +755,7 @@ async function transbordar(
   if (rulesOfPriority.length > 0) {
     const nivel = avaliarPriority(rulesOfPriority, {
       queueId,
-      message: e.message.conteudo,
+      message: e.message.content,
     });
     if (nivel) {
       await tx.execute(sql`
@@ -768,7 +768,7 @@ async function transbordar(
   await registrarEvento(tx, {
     tenantId: e.tenantId,
     conversationId: e.conversation.id,
-    tipo: 'criada',
+    type: 'criada',
     em,
     queueId,
     data,
@@ -776,7 +776,7 @@ async function transbordar(
   await registrarEvento(tx, {
     tenantId: e.tenantId,
     conversationId: e.conversation.id,
-    tipo: 'enfileirada',
+    type: 'enfileirada',
     em,
     queueId,
     data,
@@ -858,7 +858,7 @@ async function gravarRespostaDoBot(
      where id = ${conversationId}
   `);
   // `usuarioId` nulo é o que separa, na métrica, a saída do bot da do atendente.
-  await registrarEvento(tx, { tenantId, conversationId, tipo: 'mensagem_saida', em });
+  await registrarEvento(tx, { tenantId, conversationId, type: 'mensagem_saida', em });
   await emitir(tx, tenantId, 'mensagem.criada', {
     mensagem_id: messageId,
     conversa_id: conversationId,
@@ -1023,12 +1023,12 @@ export async function importFlowOfBlip(
   },
 ): Promise<ImportOfFlow> {
   const { rows: existentes } = await tx.execute<{ id: string }>(sql`
-    select id from fluxo where nome = ${pedido.nome} and canal_id is not distinct from ${pedido.channelId} limit 1
+    select id from fluxo where nome = ${pedido.name} and canal_id is not distinct from ${pedido.channelId} limit 1
   `);
   let flowId = existentes[0]?.id;
   if (!flowId) {
     const { rows } = await tx.execute<{ id: string }>(sql`
-      insert into fluxo (tenant_id, nome, canal_id) values (${pedido.tenantId}, ${pedido.nome}, ${pedido.channelId})
+      insert into fluxo (tenant_id, nome, canal_id) values (${pedido.tenantId}, ${pedido.name}, ${pedido.channelId})
       returning id
     `);
     flowId = rows[0]!.id;

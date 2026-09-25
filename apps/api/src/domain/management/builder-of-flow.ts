@@ -9,7 +9,7 @@ import {
 } from '@pipe/core';
 import type { State, ExportDoEditor, FlowBlip, Saida } from '@pipe/core';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe } from '@pipe/db';
+import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,
@@ -135,12 +135,12 @@ const instante = (value: Date | string | null): string | null =>
 
 const comoVersao = (l: LinhaVersao): VersionOfFlow => ({
   id: l.id,
-  versao: Number(l.versao),
+  versao: Number(l.version),
   estado: l.state,
-  blocos: Number(l.blocos),
+  blocos: Number(l.blocks),
   publicadaEm: instante(l.publicada_em),
   publishedBy: l.publishedByName,
-  criadoEm: instante(l.criado_em),
+  criadoEm: instante(l.createdAt),
   atualizadoEm: instante(l.atualizado_em),
 });
 
@@ -439,7 +439,7 @@ async function gravarRascunho(
       ...extraNoLog,
     },
   });
-  return { versao, erros: compilado.errors, naoSuportado: compilado.naoSuportado };
+  return { versao, erros: compilado.errors, naoSuportado: compilado.notSupported };
 }
 
 /* -------------------------------------------------------------- Gestos */
@@ -464,7 +464,7 @@ export async function carregarBuilder(
     publicada,
     desenho: compilado.desenho,
     errors: compilado.errors,
-    naoSuportado: compilado.naoSuportado,
+    naoSuportado: compilado.notSupported,
   };
 }
 
@@ -548,13 +548,13 @@ export async function publicarRascunho(
     antes: { estado: 'rascunho', versao: rascunho.versao, publicadaAntes: anterior?.versao ?? null },
     depois: { estado: 'publicada', versao: versao.versao, fluxoId, blocos: versao.blocos },
   });
-  if (atual.estado !== 'publicado') {
+  if (atual.state !== 'publicado') {
     await registrarAuditoria(tx, tid, {
       ator: ator(usuarioId),
       acao: 'ativou',
       objetoTipo: 'fluxo',
       objetoId: fluxoId,
-      antes: { estado: atual.estado },
+      antes: { estado: atual.state },
       depois: { estado: 'publicado', versao: versao.versao },
     });
   }
