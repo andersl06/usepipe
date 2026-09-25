@@ -205,6 +205,17 @@ function contextualLiteral(node: any, oldValue: string): boolean {
   );
 }
 
+// `consumers` can list dozens of files per row; re-splitting and re-resolving it for every
+// (row, sourceFile) pair in the project made this O(rows x files x consumers) and took minutes
+// on real-sized scopes. Resolved once per distinct `consumers` string, reused across every file.
+const consumerSetCache = new Map<string, Set<string>>();
+function resolvedConsumers(consumers: string, allRows: MapRow[]): Set<string> {
+  const cached = consumerSetCache.get(consumers);
+  if (cached) return cached;
+  const resolved = new Set(consumers.split(';').map((item) => resolvePath(item.trim(), allRows)));
+  consumerSetCache.set(consumers, resolved);
+  return resolved;
+}
 function fileMatchesConsumer(
   root: string,
   sourceFile: any,
@@ -212,10 +223,7 @@ function fileMatchesConsumer(
   allRows: MapRow[],
 ): boolean {
   const relative = normalize(path.relative(root, sourceFile.getFilePath()));
-  return consumers
-    .split(';')
-    .map((item) => resolvePath(item.trim(), allRows))
-    .includes(relative);
+  return resolvedConsumers(consumers, allRows).has(relative);
 }
 
 function rewriteWireKey(
