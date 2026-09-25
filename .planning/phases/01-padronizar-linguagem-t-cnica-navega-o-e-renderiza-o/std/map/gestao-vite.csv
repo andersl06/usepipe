@@ -878,7 +878,7 @@ gestao-vite-symbol-608ad8f5,gestao-vite,3,symbol,AcoesDoMotivo,MotivoActions,app
 gestao-vite-symbol-609eedb8,gestao-vite,3,symbol,Agrupamento,Grouping,apps/gestao-vite/src/lib/historico.ts:80,21,no,,,proposed,codex2,
 gestao-vite-symbol-60a38583,gestao-vite,3,symbol,ICONES_DAS_FUNCIONALIDADES,ICONES_OF_FEATURES,apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:163,3,no,,,proposed,codex2,
 gestao-vite-symbol-60ad0684,gestao-vite,3,symbol,PaginaDeEditarMembro,EditMemberPage,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx:28,3,no,,,proposed,codex2,
-gestao-vite-symbol-60f3c638,gestao-vite,3,symbol,formatarLimiteDoPeriodo,periodFormatarLimite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:38,7,no,,,proposed,codex2,
+gestao-vite-symbol-60f3c638,gestao-vite,3,symbol,formatarLimiteDoPeriodo,formatPeriodLimit,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:38,7,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was periodFormatarLimite"
 gestao-vite-symbol-612447dd,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx:24,251,no,,,proposed,codex2,
 gestao-vite-symbol-612559c4,gestao-vite,3,symbol,PaginaAtendimento,PageAttendance,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:180,3,no,,,proposed,codex2,
 gestao-vite-symbol-61530fed,gestao-vite,3,symbol,Bloco,Block,apps/gestao-vite/src/paginas/builder/modelo.ts:79,197,no,,,proposed,codex2,
@@ -1354,7 +1354,7 @@ gestao-vite-symbol-c614c350,gestao-vite,3,symbol,CascaDeAtendimento,AttendanceSh
 gestao-vite-symbol-c6803b87,gestao-vite,3,symbol,expiracao,expiration,apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:27,10,no,,,proposed,codex2,
 gestao-vite-symbol-c790e544,gestao-vite,3,symbol,SEM_CONVERSAS,WITHOUT_CONVERSATIONS,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:272,1,no,,,proposed,codex2,
 gestao-vite-symbol-c79110c6,gestao-vite,3,symbol,AtendenteCadastrado,AgentCadastrado,apps/gestao-vite/src/lib/cadastros.ts:167,14,no,,,proposed,codex2,
-gestao-vite-symbol-c87ca3cb,gestao-vite,3,symbol,LIMITE_DE_ACOES,LIMITE_OF_ACTIONS,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:32,7,no,,,proposed,codex2,
+gestao-vite-symbol-c87ca3cb,gestao-vite,3,symbol,LIMITE_DE_ACOES,ACTIONS_LIMIT,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:32,7,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_OF_ACTIONS"
 gestao-vite-symbol-c8e12a2e,gestao-vite,3,symbol,contas,accounts,apps/gestao-vite/src/paginas/trocar-conta/sem-acesso/page.tsx:22,85,no,,,proposed,codex2,
 gestao-vite-symbol-c8eb32a2,gestao-vite,3,symbol,interacao,interaction,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1187,18,no,,,proposed,codex2,
 gestao-vite-symbol-c94a14da,gestao-vite,3,symbol,Credenciais,Credentials,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:172,7,no,,,proposed,codex2,
@@ -1461,7 +1461,7 @@ gestao-vite-symbol-dc376c1e,gestao-vite,3,symbol,PREFIXO_ATRIBUTO,PREFIX_ATRIBUT
 gestao-vite-symbol-dc81edd8,gestao-vite,3,symbol,jaMembro,jaMember,apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:84,3,no,,,proposed,codex2,
 gestao-vite-symbol-dd0140d8,gestao-vite,3,symbol,valor,value,apps/gestao-vite/src/paginas/builder/painel.tsx:33,1656,no,,,proposed,codex2,
 gestao-vite-symbol-dd1cf6f2,gestao-vite,3,symbol,contexto,context,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/visao-geral.tsx:48,300,no,,,proposed,codex2,
-gestao-vite-symbol-dd459fbe,gestao-vite,3,symbol,LIMITE_DO_HISTORICO,LIMITE_OF_HISTORY,apps/gestao-vite/src/paginas/builder/estado.ts:21,1,no,,,proposed,codex2,
+gestao-vite-symbol-dd459fbe,gestao-vite,3,symbol,LIMITE_DO_HISTORICO,HISTORY_LIMIT,apps/gestao-vite/src/paginas/builder/estado.ts:21,1,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_OF_HISTORY"
 gestao-vite-symbol-ddc38a11,gestao-vite,3,symbol,fila,queue,apps/gestao-vite/tests/prioridade.test.ts:60,993,no,,,proposed,codex2,
 gestao-vite-symbol-debba5ed,gestao-vite,3,symbol,ControleDePermissao,PermissionControle,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:67,2,no,,,proposed,codex2,
 gestao-vite-symbol-dec9e299,gestao-vite,3,symbol,globais,global,apps/gestao-vite/tests/builder-painels.test.ts:162,134,no,,,proposed,codex2,
@@ -1537,7 +1537,7 @@ gestao-vite-symbol-ed053bd7,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/s
 gestao-vite-symbol-ed073cf3,gestao-vite,3,symbol,ROTULO_IMPORTACAO,ROTULO_IMPORT,apps/gestao-vite/src/paginas/implantacao/page.tsx:201,2,no,,,proposed,codex2,
 gestao-vite-symbol-ed207a50,gestao-vite,3,symbol,rotuloDaAutenticacao,authenticationRotulo,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:61,2,no,,,proposed,codex2,
 gestao-vite-symbol-ed20a928,gestao-vite,3,symbol,AcaoVerConversas,ActionVerConversations,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:299,2,no,,,proposed,codex2,
-gestao-vite-symbol-ed4d100f,gestao-vite,3,symbol,LIMITE_HISTORICO,LIMITE_HISTORY,apps/gestao-vite/src/lib/historico.ts:37,9,no,,,proposed,codex2,
+gestao-vite-symbol-ed4d100f,gestao-vite,3,symbol,LIMITE_HISTORICO,HISTORY_LIMIT,apps/gestao-vite/src/lib/historico.ts:37,9,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_HISTORY"
 gestao-vite-symbol-ed73bb51,gestao-vite,3,symbol,copiaDoBloco,blockCopia,apps/gestao-vite/src/paginas/builder/modelo.ts:343,3,no,,,proposed,codex2,
 gestao-vite-symbol-ed88dd9b,gestao-vite,3,symbol,PreviaDaConversa,ConversationPrevia,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:593,2,no,,,proposed,codex2,
 gestao-vite-symbol-ed8b0c5d,gestao-vite,3,symbol,AutenticacaoVisivel,AuthenticationVisivel,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:17,2,no,,,proposed,codex2,
@@ -2877,7 +2877,7 @@ gestao-vite-ts-prop-0090b488,gestao-vite,3,ts-prop,valores,values,apps/gestao-vi
 gestao-vite-ts-prop-00c764ff,gestao-vite,3,ts-prop,globais,global,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:214,134,no,,,proposed,codex2,
 gestao-vite-ts-prop-00dfcacd,gestao-vite,3,ts-prop,descricao,description,apps/gestao-vite/src/lib/certificados.ts:30,299,no,,,proposed,codex2,
 gestao-vite-ts-prop-0168949f,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:59,1478,no,,,proposed,codex2,
-gestao-vite-ts-prop-01c9e43c,gestao-vite,3,ts-prop,limite_diario_por_contato,limiteDiarioByContact,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:36,2,no,,,proposed,codex2,
+gestao-vite-ts-prop-01c9e43c,gestao-vite,3,ts-prop,limite_diario_por_contato,dailyLimitByContact,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:36,2,no,,,proposed,codex2,"W4: aligned to packages-db wire-key packages-db-wire-key-c5e4b377 (was limiteDiarioByContact); fix(01-12): missing lexicon word (limite/diario/intervalo), was limitDiarioByContact"
 gestao-vite-ts-prop-01fe2c1e,gestao-vite,3,ts-prop,destinoUrl,destinationUrl,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:24,4,no,,,proposed,codex2,
 gestao-vite-ts-prop-024f1252,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/builder-gravar.ts:21,1478,no,,,proposed,codex2,
 gestao-vite-ts-prop-02cb9fed,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:142,1656,no,,,proposed,codex2,
@@ -2898,7 +2898,7 @@ gestao-vite-ts-prop-04b675fc,gestao-vite,3,ts-prop,condicoes,conditions,apps/ges
 gestao-vite-ts-prop-056745bb,gestao-vite,3,ts-prop,periodo,period,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/filtro.tsx:27,57,no,,,proposed,codex2,
 gestao-vite-ts-prop-057ac8df,gestao-vite,3,ts-prop,arquivo,file,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:88,462,no,,,proposed,codex2,
 gestao-vite-ts-prop-0590fe90,gestao-vite,3,ts-prop,relatorios,reports,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/pagina.tsx:8,47,no,,,proposed,codex2,
-gestao-vite-ts-prop-05b1419c,gestao-vite,3,ts-prop,modeloClassificacao,templateClassification,apps/gestao-vite/src/lib/monitoria.ts:103,4,no,,,proposed,codex2,
+gestao-vite-ts-prop-05b1419c,gestao-vite,3,ts-prop,modeloClassificacao,modelClassification,apps/gestao-vite/src/lib/monitoria.ts:103,4,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-7dd9c617 (was templateClassification)
 gestao-vite-ts-prop-06afacad,gestao-vite,3,ts-prop,capacidadePadrao,capacityDefault,apps/gestao-vite/src/lib/configuracoes.ts:29,37,no,,,proposed,codex2,
 gestao-vite-ts-prop-070e6593,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:584,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-07179d6a,gestao-vite,3,ts-prop,atendimento,attendance,apps/gestao-vite/src/lib/atendimento.ts:20,673,no,,,proposed,codex2,
@@ -2928,7 +2928,7 @@ gestao-vite-ts-prop-0df3dda0,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/
 gestao-vite-ts-prop-0e5783fe,gestao-vite,3,ts-prop,descricao,description,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:22,299,no,,,proposed,codex2,
 gestao-vite-ts-prop-0e5b00c7,gestao-vite,3,ts-prop,quantidade,quantity,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:160,63,no,,,proposed,codex2,
 gestao-vite-ts-prop-0e8bd189,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:33,1478,no,,,proposed,codex2,
-gestao-vite-ts-prop-0efaf297,gestao-vite,3,ts-prop,duracaoSugeridaMin,durationSugeridaMin,apps/gestao-vite/src/lib/cadastros.ts:57,34,no,,,proposed,codex2,
+gestao-vite-ts-prop-0efaf297,gestao-vite,3,ts-prop,duracaoSugeridaMin,durationSuggestedMin,apps/gestao-vite/src/lib/cadastros.ts:57,34,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-44eb8647 (was durationSugeridaMin)
 gestao-vite-ts-prop-0f5f3cf1,gestao-vite,3,ts-prop,contato,contact,apps/gestao-vite/src/paginas/fluxo/contato.tsx:32,1026,no,,,proposed,codex2,
 gestao-vite-ts-prop-0f823abf,gestao-vite,3,ts-prop,aoTrocar,toSwitch,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:131,7,no,,,proposed,codex2,
 gestao-vite-ts-prop-0f9e1f58,gestao-vite,3,ts-prop,estado,state,apps/gestao-vite/src/lib/sla.ts:27,1269,no,,,proposed,codex2,
@@ -3050,7 +3050,7 @@ gestao-vite-ts-prop-342d11f7,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/
 gestao-vite-ts-prop-3430f57f,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:23,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-3469e313,gestao-vite,3,ts-prop,mensagem,message,apps/gestao-vite/src/lib/regra-fila.ts:110,1267,no,,,proposed,codex2,
 gestao-vite-ts-prop-34c418ed,gestao-vite,3,ts-prop,dados,data,apps/gestao-vite/src/paginas/portal.tsx:298,669,no,,,proposed,codex2,
-gestao-vite-ts-prop-3543512e,gestao-vite,3,ts-prop,escopoTipo,scopeTipo,apps/gestao-vite/src/lib/configuracoes.ts:21,79,no,,,proposed,codex2,
+gestao-vite-ts-prop-3543512e,gestao-vite,3,ts-prop,escopoTipo,scopeType,apps/gestao-vite/src/lib/configuracoes.ts:21,79,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e213fee6 (was scopeTipo)
 gestao-vite-ts-prop-359a3e43,gestao-vite,3,ts-prop,contato,contact,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:10,1026,no,,,proposed,codex2,
 gestao-vite-ts-prop-35c42c96,gestao-vite,3,ts-prop,cartao,card,apps/gestao-vite/src/componentes/lista-historico.tsx:68,46,no,,,proposed,codex2,
 gestao-vite-ts-prop-3640bb80,gestao-vite,3,ts-prop,tempoMedioRespostaSeg,timeMedioRespostaSeg,apps/gestao-vite/src/lib/monitoramento.ts:88,6,no,,,proposed,codex2,
@@ -3107,7 +3107,7 @@ gestao-vite-ts-prop-48b909af,gestao-vite,3,ts-prop,contato,contact,apps/gestao-v
 gestao-vite-ts-prop-48c45ac0,gestao-vite,3,ts-prop,chave,key,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:79,1153,no,,,proposed,codex2,
 gestao-vite-ts-prop-48e22bc7,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/componentes/lista-historico.tsx:42,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-49680201,gestao-vite,3,ts-prop,dados,data,apps/gestao-vite/src/componentes/barra-do-portal.tsx:20,669,no,,,proposed,codex2,
-gestao-vite-ts-prop-49c72c6d,gestao-vite,3,ts-prop,alertaRecategorizacao,alertaRecategorization,apps/gestao-vite/src/lib/canais.ts:55,13,no,,,proposed,codex2,
+gestao-vite-ts-prop-49c72c6d,gestao-vite,3,ts-prop,alertaRecategorizacao,alertRecategorization,apps/gestao-vite/src/lib/canais.ts:55,13,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-7c244005 (was alertaRecategorization)
 gestao-vite-ts-prop-49d54257,gestao-vite,3,ts-prop,bloco,block,apps/gestao-vite/src/paginas/builder/painel.tsx:61,665,no,,,proposed,codex2,
 gestao-vite-ts-prop-49e6b148,gestao-vite,3,ts-prop,tempoReal,realTime,apps/gestao-vite/src/lib/monitoramento.ts:104,5,no,,,proposed,codex2,
 gestao-vite-ts-prop-49eac117,gestao-vite,3,ts-prop,canais,channels,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx:24,243,no,,,proposed,codex2,
@@ -3189,7 +3189,7 @@ gestao-vite-ts-prop-66225418,gestao-vite,3,ts-prop,tipoDoContato,contactTipo,app
 gestao-vite-ts-prop-668cd034,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/componentes/metrica.tsx:28,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-6692ef67,gestao-vite,3,ts-prop,canalId,channelId,apps/gestao-vite/src/lib/canais-gravar.ts:48,387,no,,,proposed,codex2,
 gestao-vite-ts-prop-669e2a19,gestao-vite,3,ts-prop,permissoes,permissions,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:129,149,no,,,proposed,codex2,
-gestao-vite-ts-prop-6714ca35,gestao-vite,3,ts-prop,escopoTipo,scopeTipo,apps/gestao-vite/src/lib/sla.ts:20,79,no,,,proposed,codex2,
+gestao-vite-ts-prop-6714ca35,gestao-vite,3,ts-prop,escopoTipo,scopeType,apps/gestao-vite/src/lib/sla.ts:20,79,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e213fee6 (was scopeTipo)
 gestao-vite-ts-prop-678f8673,gestao-vite,3,ts-prop,documento,document,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:11,217,no,,,proposed,codex2,
 gestao-vite-ts-prop-680fd404,gestao-vite,3,ts-prop,descricao,description,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:90,299,no,,,proposed,codex2,
 gestao-vite-ts-prop-68b59704,gestao-vite,3,ts-prop,primeira_resposta,firstResposta,apps/gestao-vite/src/lib/pesquisa.ts:46,49,no,,,proposed,codex2,
@@ -3202,7 +3202,7 @@ gestao-vite-ts-prop-6aa1b252,gestao-vite,3,ts-prop,coluna,column,apps/gestao-vit
 gestao-vite-ts-prop-6ab4c7ac,gestao-vite,3,ts-prop,descricao,description,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:139,299,no,,,proposed,codex2,
 gestao-vite-ts-prop-6b36f5cc,gestao-vite,3,ts-prop,mensagem_id,messageId,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:22,29,no,,,proposed,codex2,
 gestao-vite-ts-prop-6b57eee2,gestao-vite,3,ts-prop,atendenteNome,agentName,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:589,18,no,,,proposed,codex2,
-gestao-vite-ts-prop-6b94b7bc,gestao-vite,3,ts-prop,alertaRecategorizacao,alertaRecategorization,apps/gestao-vite/src/lib/canais.ts:61,13,no,,,proposed,codex2,
+gestao-vite-ts-prop-6b94b7bc,gestao-vite,3,ts-prop,alertaRecategorizacao,alertRecategorization,apps/gestao-vite/src/lib/canais.ts:61,13,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-7c244005 (was alertaRecategorization)
 gestao-vite-ts-prop-6be61b92,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:639,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-6c72d8ba,gestao-vite,3,ts-prop,papel,role,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:39,521,no,,,proposed,codex2,
 gestao-vite-ts-prop-6d2b45ca,gestao-vite,3,ts-prop,novidade,update,apps/gestao-vite/src/paginas/novidades/page.tsx:120,8,no,,,proposed,codex2,
@@ -3231,7 +3231,7 @@ gestao-vite-ts-prop-76c0d9ce,gestao-vite,3,ts-prop,filaDestinoId,queueDestinatio
 gestao-vite-ts-prop-776230ce,gestao-vite,3,ts-prop,opcoes,options,apps/gestao-vite/src/componentes/selecao-chips.tsx:17,157,no,,,proposed,codex2,
 gestao-vite-ts-prop-77dd6885,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:62,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-781ceaa3,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:651,1478,no,,,proposed,codex2,
-gestao-vite-ts-prop-787c3598,gestao-vite,3,ts-prop,contaComoProdutivo,accountComoProdutivo,apps/gestao-vite/src/lib/cadastros.ts:58,29,no,,,proposed,codex2,
+gestao-vite-ts-prop-787c3598,gestao-vite,3,ts-prop,contaComoProdutivo,countsAsProductive,apps/gestao-vite/src/lib/cadastros.ts:58,29,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-f5548b0f (was accountComoProdutivo)
 gestao-vite-ts-prop-78bbb305,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:29,1478,no,,,proposed,codex2,
 gestao-vite-ts-prop-79316308,gestao-vite,3,ts-prop,mensagem,message,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:69,1267,no,,,proposed,codex2,
 gestao-vite-ts-prop-795f8a8b,gestao-vite,3,ts-prop,primeiraRespostaSeg,firstRespostaSeg,apps/gestao-vite/src/lib/monitoramento.ts:25,13,no,,,proposed,codex2,
@@ -3247,7 +3247,7 @@ gestao-vite-ts-prop-7c81748d,gestao-vite,3,ts-prop,descricao,description,apps/ge
 gestao-vite-ts-prop-7cae86c6,gestao-vite,3,ts-prop,filaNome,queueName,apps/gestao-vite/src/lib/historico.ts:14,27,no,,,proposed,codex2,
 gestao-vite-ts-prop-7ece44c2,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/lib/configuracoes.ts:146,1478,no,,,proposed,codex2,
 gestao-vite-ts-prop-807ce7c6,gestao-vite,3,ts-prop,canal,channel,apps/gestao-vite/src/lib/canais-gravar.ts:52,970,no,,,proposed,codex2,
-gestao-vite-ts-prop-80a4b06e,gestao-vite,3,ts-prop,escopoTipo,scopeTipo,apps/gestao-vite/src/lib/atendentes-gravar.ts:103,79,no,,,proposed,codex2,
+gestao-vite-ts-prop-80a4b06e,gestao-vite,3,ts-prop,escopoTipo,scopeType,apps/gestao-vite/src/lib/atendentes-gravar.ts:103,79,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e213fee6 (was scopeTipo)
 gestao-vite-ts-prop-80e41ca4,gestao-vite,3,ts-prop,membros,members,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:101,128,no,,,proposed,codex2,
 gestao-vite-ts-prop-80faf2ac,gestao-vite,3,ts-prop,chave,key,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:35,1153,no,,,proposed,codex2,
 gestao-vite-ts-prop-80fd00b0,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/paginas/criar/gravar.ts:13,1478,no,,,proposed,codex2,
@@ -3290,7 +3290,7 @@ gestao-vite-ts-prop-8d873c7c,gestao-vite,3,ts-prop,ativa,active,apps/gestao-vite
 gestao-vite-ts-prop-8d95f196,gestao-vite,3,ts-prop,chave,key,apps/gestao-vite/src/paginas/fluxo/itens.ts:78,1153,no,,,proposed,codex2,
 gestao-vite-ts-prop-8e054ec9,gestao-vite,3,ts-prop,membros,members,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:402,128,no,,,proposed,codex2,
 gestao-vite-ts-prop-8ed15579,gestao-vite,3,ts-prop,opcoes,options,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:43,157,no,,,proposed,codex2,
-gestao-vite-ts-prop-8f648f8a,gestao-vite,3,ts-prop,max_contatos_por_disparo,maxContactsByDisparo,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:35,3,no,,,proposed,codex2,
+gestao-vite-ts-prop-8f648f8a,gestao-vite,3,ts-prop,max_contatos_por_disparo,maxContactsByTrigger,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:35,3,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-110d4935 (was maxContactsByDisparo)
 gestao-vite-ts-prop-902c9351,gestao-vite,3,ts-prop,filas,queues,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:91,297,no,,,proposed,codex2,
 gestao-vite-ts-prop-90b8e6c2,gestao-vite,3,ts-prop,valor,value,apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts:28,1656,no,,,proposed,codex2,
 gestao-vite-ts-prop-90c3d673,gestao-vite,3,ts-prop,prefixo,prefix,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:287,89,no,,,proposed,codex2,
@@ -3306,7 +3306,7 @@ gestao-vite-ts-prop-921657ee,gestao-vite,3,ts-prop,conversasConsideradas,convers
 gestao-vite-ts-prop-921a1b73,gestao-vite,3,ts-prop,estado,state,apps/gestao-vite/src/paginas/builder/use-editor.ts:38,1269,no,,,proposed,codex2,
 gestao-vite-ts-prop-929e069a,gestao-vite,3,ts-prop,fluxoId,flowId,apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx:31,504,no,,,proposed,codex2,
 gestao-vite-ts-prop-92c09ab4,gestao-vite,3,ts-prop,fracao,fraction,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:364,39,no,,,proposed,codex2,
-gestao-vite-ts-prop-92f72eac,gestao-vite,3,ts-prop,reautorizacaoPendente,reauthorizationPendente,apps/gestao-vite/src/lib/implantacao.ts:17,19,no,,,proposed,codex2,
+gestao-vite-ts-prop-92f72eac,gestao-vite,3,ts-prop,reautorizacaoPendente,reauthorizationPending,apps/gestao-vite/src/lib/implantacao.ts:17,19,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-89c49abd (was reauthorizationPendente)
 gestao-vite-ts-prop-930ee466,gestao-vite,3,ts-prop,ativa,active,apps/gestao-vite/src/lib/configuracoes.ts:23,340,no,,,proposed,codex2,
 gestao-vite-ts-prop-9339f9a1,gestao-vite,3,ts-prop,autenticacao,authentication,apps/gestao-vite/src/lib/comunicacao.ts:23,181,no,,,proposed,codex2,
 gestao-vite-ts-prop-9344a9a9,gestao-vite,3,ts-prop,emAtendimento,inAttendance,apps/gestao-vite/src/lib/monitoramento.ts:45,9,no,,,proposed,codex2,
@@ -3374,7 +3374,7 @@ gestao-vite-ts-prop-a7a46475,gestao-vite,3,ts-prop,mensagem,message,apps/gestao-
 gestao-vite-ts-prop-a9189c61,gestao-vite,3,ts-prop,chave,key,apps/gestao-vite/src/paginas/builder/painel.tsx:83,1153,no,,,proposed,codex2,
 gestao-vite-ts-prop-a97ec340,gestao-vite,3,ts-prop,atendenteId,agentId,apps/gestao-vite/src/lib/monitoria.ts:64,217,no,,,proposed,codex2,
 gestao-vite-ts-prop-a9ac7e3a,gestao-vite,3,ts-prop,aoAbrirPainel,toAbrirPanel,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:77,27,no,,,proposed,codex2,
-gestao-vite-ts-prop-a9ae0cae,gestao-vite,3,ts-prop,escopoTipo,scopeTipo,apps/gestao-vite/src/lib/configuracoes-gravar.ts:18,79,no,,,proposed,codex2,
+gestao-vite-ts-prop-a9ae0cae,gestao-vite,3,ts-prop,escopoTipo,scopeType,apps/gestao-vite/src/lib/configuracoes-gravar.ts:18,79,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e213fee6 (was scopeTipo)
 gestao-vite-ts-prop-a9be12ee,gestao-vite,3,ts-prop,canalNome,channelName,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:34,29,no,,,proposed,codex2,
 gestao-vite-ts-prop-aa6f83cf,gestao-vite,3,ts-prop,ativa,active,apps/gestao-vite/src/lib/cadastros-gravar.ts:91,340,no,,,proposed,codex2,
 gestao-vite-ts-prop-aadded64,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/src/lib/rest.ts:13,1478,no,,,proposed,codex2,
@@ -3396,7 +3396,7 @@ gestao-vite-ts-prop-b15a6da8,gestao-vite,3,ts-prop,imagemUrl,imageUrl,apps/gesta
 gestao-vite-ts-prop-b181c6d2,gestao-vite,3,ts-prop,estado,state,apps/gestao-vite/src/lib/monitoramento.ts:19,1269,no,,,proposed,codex2,
 gestao-vite-ts-prop-b31d07bb,gestao-vite,3,ts-prop,bloco,block,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:403,665,no,,,proposed,codex2,
 gestao-vite-ts-prop-b33532f5,gestao-vite,3,ts-prop,valorInicial,valueInitial,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:46,5,no,,,proposed,codex2,
-gestao-vite-ts-prop-b36051f7,gestao-vite,3,ts-prop,reautorizacaoPendente,reauthorizationPendente,apps/gestao-vite/src/lib/canais.ts:22,19,no,,,proposed,codex2,
+gestao-vite-ts-prop-b36051f7,gestao-vite,3,ts-prop,reautorizacaoPendente,reauthorizationPending,apps/gestao-vite/src/lib/canais.ts:22,19,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-89c49abd (was reauthorizationPendente)
 gestao-vite-ts-prop-b3c3dc43,gestao-vite,3,ts-prop,condicao,condition,apps/gestao-vite/src/paginas/builder/condicao.tsx:75,123,no,,,proposed,codex2,
 gestao-vite-ts-prop-b4d1eb51,gestao-vite,3,ts-prop,ordem,order,apps/gestao-vite/src/lib/cadastros-gravar.ts:168,517,no,,,proposed,codex2,
 gestao-vite-ts-prop-b4dd3bd1,gestao-vite,3,ts-prop,filas,queues,apps/gestao-vite/src/lib/historico.ts:31,297,no,,,proposed,codex2,
@@ -3507,9 +3507,9 @@ gestao-vite-ts-prop-d93d6228,gestao-vite,3,ts-prop,cartoes,cards,apps/gestao-vit
 gestao-vite-ts-prop-d9d9c8f1,gestao-vite,3,ts-prop,fila,queue,apps/gestao-vite/src/lib/monitoria.ts:27,993,no,,,proposed,codex2,
 gestao-vite-ts-prop-da1f22d7,gestao-vite,3,ts-prop,estado,state,apps/gestao-vite/src/lib/monitoramento.ts:69,1269,no,,,proposed,codex2,
 gestao-vite-ts-prop-dafd0eb5,gestao-vite,3,ts-prop,erroDeWebhook,webhookError,apps/gestao-vite/src/lib/canais-gravar.ts:238,38,no,,,proposed,codex2,
-gestao-vite-ts-prop-db0ffd5a,gestao-vite,3,ts-prop,nomeExibicao,nameDisplay,apps/gestao-vite/src/lib/canais.ts:17,8,no,,,proposed,codex2,
+gestao-vite-ts-prop-db0ffd5a,gestao-vite,3,ts-prop,nomeExibicao,displayName,apps/gestao-vite/src/lib/canais.ts:17,8,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-a7a59ead (was nameDisplay)
 gestao-vite-ts-prop-db517f8d,gestao-vite,3,ts-prop,contatos,contacts,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:44,438,no,,,proposed,codex2,
-gestao-vite-ts-prop-db9137a9,gestao-vite,3,ts-prop,escopoTipo,scopeTipo,apps/gestao-vite/src/lib/regras-prioridade.ts:20,79,no,,,proposed,codex2,
+gestao-vite-ts-prop-db9137a9,gestao-vite,3,ts-prop,escopoTipo,scopeType,apps/gestao-vite/src/lib/regras-prioridade.ts:20,79,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e213fee6 (was scopeTipo)
 gestao-vite-ts-prop-dc070207,gestao-vite,3,ts-prop,mensagem,message,apps/gestao-vite/src/lib/api.ts:55,1267,no,,,proposed,codex2,
 gestao-vite-ts-prop-dc2a1f5f,gestao-vite,3,ts-prop,expiracao,expiration,apps/gestao-vite/src/paginas/fluxo/servicos/regras.ts:17,10,no,,,proposed,codex2,
 gestao-vite-ts-prop-dd2336ed,gestao-vite,3,ts-prop,atendimentoSeg,attendanceSeg,apps/gestao-vite/src/lib/monitoramento.ts:27,10,no,,,proposed,codex2,
@@ -3579,7 +3579,7 @@ gestao-vite-ts-prop-f2df1c4b,gestao-vite,3,ts-prop,erro,error,apps/gestao-vite/s
 gestao-vite-ts-prop-f3e70fb2,gestao-vite,3,ts-prop,painelAberto,panelAberto,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:94,41,no,,,proposed,codex2,
 gestao-vite-ts-prop-f464b6c7,gestao-vite,3,ts-prop,conversaId,conversationId,apps/gestao-vite/src/lib/monitoria.ts:25,523,no,,,proposed,codex2,
 gestao-vite-ts-prop-f464fa4b,gestao-vite,3,ts-prop,ocultarBusca,ocultarSearch,apps/gestao-vite/src/componentes/lista-regras.tsx:274,4,no,,,proposed,codex2,
-gestao-vite-ts-prop-f4c438b4,gestao-vite,3,ts-prop,obrigatoriaNoEncerramento,obrigatoriaInClosure,apps/gestao-vite/src/lib/configuracoes.ts:60,20,no,,,proposed,codex2,
+gestao-vite-ts-prop-f4c438b4,gestao-vite,3,ts-prop,obrigatoriaNoEncerramento,requiredInClosure,apps/gestao-vite/src/lib/configuracoes.ts:60,20,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-e1d39e17 (was obrigatoriaInClosure)
 gestao-vite-ts-prop-f4e691d8,gestao-vite,3,ts-prop,chave,key,apps/gestao-vite/src/lib/atendimento.ts:27,1153,no,,,proposed,codex2,
 gestao-vite-ts-prop-f5ab50f4,gestao-vite,3,ts-prop,direcao,direction,apps/gestao-vite/src/paginas/fluxo/log/tela.tsx:94,175,no,,,proposed,codex2,
 gestao-vite-ts-prop-f67fff78,gestao-vite,3,ts-prop,canal,channel,apps/gestao-vite/src/paginas/fluxo/canais/instagram/pagina.tsx:66,970,no,,,proposed,codex2,

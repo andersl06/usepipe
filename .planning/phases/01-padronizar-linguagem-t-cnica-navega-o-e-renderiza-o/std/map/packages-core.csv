@@ -141,7 +141,7 @@ packages-core-symbol-4d4876d9,packages-core,1,symbol,variavel,variable,packages/
 packages-core-symbol-4d5accfe,packages-core,1,symbol,estado,state,packages/core/src/fluxo/gerenciador.ts:171,1269,no,,,proposed,codex2,
 packages-core-symbol-4dfd2a51,packages-core,1,symbol,CONFIGURACAO_PADRAO,CONFIGURATION_DEFAULT,packages/core/src/fluxo/gerenciador.ts:51,1,no,,,proposed,codex2,
 packages-core-symbol-4f497c40,packages-core,1,symbol,NOME_DO_CANAL,NAME_OF_CHANNEL,packages/core/src/analise/index.ts:279,3,no,,,proposed,codex2,
-packages-core-symbol-50156130,packages-core,1,symbol,LIMITE_INTERVALO_SESSAO_SEG,LIMITE_INTERVALO_SESSION_SEG,packages/core/src/esforco/sessao.ts:15,4,no,,,proposed,codex2,
+packages-core-symbol-50156130,packages-core,1,symbol,LIMITE_INTERVALO_SESSAO_SEG,SESSION_INTERVAL_LIMIT_SEG,packages/core/src/esforco/sessao.ts:15,4,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_INTERVALO_SESSION_SEG"
 packages-core-symbol-5027a8a4,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/contexto.ts:324,27,no,,,proposed,codex2,
 packages-core-symbol-51859269,packages-core,1,symbol,grupos,groups,packages/core/src/esforco/regua.ts:193,85,no,,,proposed,codex2,
 packages-core-symbol-5264a237,packages-core,1,symbol,EncerradaPor,EncerradaBy,packages/core/src/metricas/eventos.ts:28,14,no,,,proposed,codex2,
@@ -198,11 +198,11 @@ packages-core-symbol-7c63149d,packages-core,1,symbol,ListaDeAcoesSuspensa,Action
 packages-core-symbol-7c9261e2,packages-core,1,symbol,calcularEsforcoPorConversa,calcularEffortByConversation,packages/core/src/esforco/regua.ts:190,3,no,,,proposed,codex2,
 packages-core-symbol-7d149c6c,packages-core,1,symbol,ContagemEncerramento,CountClosure,packages/core/src/metricas/encerramento.ts:13,11,no,,,proposed,codex2,
 packages-core-symbol-7dbbd373,packages-core,1,symbol,ACOES_SEM_EFEITO,ACTIONS_WITHOUT_EFEITO,packages/core/src/fluxo/editor.ts:155,1,no,,,proposed,codex2,
-packages-core-symbol-7e302190,packages-core,1,symbol,intervaloDoPeriodo,periodIntervalo,packages/core/src/analise/index.ts:86,23,no,,,proposed,codex2,
+packages-core-symbol-7e302190,packages-core,1,symbol,intervaloDoPeriodo,periodInterval,packages/core/src/analise/index.ts:86,23,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was periodIntervalo"
 packages-core-symbol-7e68cb01,packages-core,1,symbol,registrarMensagemDoContato,contactRegistrarMessage,packages/core/src/janela/janela.ts:50,6,no,,,proposed,codex2,
 packages-core-symbol-7e9e7e84,packages-core,1,symbol,EscolhaDistribuicao,EscolhaDistribution,packages/core/src/distribuicao/carga.ts:60,4,no,,,proposed,codex2,
 packages-core-symbol-7f8a508b,packages-core,1,symbol,fluxo,flow,packages/core/src/fluxo/gerenciador.teste.ts:88,1172,no,,,proposed,codex2,
-packages-core-symbol-81a6fd1f,packages-core,1,symbol,tempoLimite,timeLimite,packages/core/src/fluxo/gerenciador.ts:386,3,no,,,proposed,codex2,
+packages-core-symbol-81a6fd1f,packages-core,1,symbol,tempoLimite,timeLimit,packages/core/src/fluxo/gerenciador.ts:386,3,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was timeLimite"
 packages-core-symbol-821a20f6,packages-core,1,symbol,avaliarCondicaoBlip,avaliarConditionBlip,packages/core/src/fluxo/condicao.ts:230,4,no,,,proposed,codex2,
 packages-core-symbol-83881a8f,packages-core,1,symbol,estadoDaSaida,outputState,packages/core/src/fluxo/modelos.ts:181,3,no,,,proposed,codex2,
 packages-core-symbol-8526495f,packages-core,1,symbol,ItemExplicacao,ItemExplanation,packages/core/src/score/motor.ts:59,6,no,,,proposed,codex2,
@@ -214,7 +214,7 @@ packages-core-symbol-8bfcc9ca,packages-core,1,symbol,variavel,variable,packages/
 packages-core-symbol-8c6831b8,packages-core,1,symbol,validarEntrada,validarInbound,packages/core/src/fluxo/modelos.ts:112,2,no,,,proposed,codex2,
 packages-core-symbol-8ce8958d,packages-core,1,symbol,contato,contact,packages/core/src/fluxo/contexto.ts:332,1026,no,,,proposed,codex2,
 packages-core-symbol-8d5f2ce5,packages-core,1,symbol,Periodo,Period,packages/core/src/analise/index.ts:37,13,no,,,proposed,codex2,
-packages-core-symbol-8d804bdd,packages-core,1,symbol,comTempoLimite,withTimeLimite,packages/core/src/fluxo/gerenciador.ts:140,2,no,,,proposed,codex2,
+packages-core-symbol-8d804bdd,packages-core,1,symbol,comTempoLimite,withTimeLimit,packages/core/src/fluxo/gerenciador.ts:140,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was withTimeLimite"
 packages-core-symbol-8df264a6,packages-core,1,symbol,EstadoEntrega,StateDelivery,packages/core/src/conversa/maquina.ts:177,23,no,,,proposed,codex2,
 packages-core-symbol-8e28e7da,packages-core,1,symbol,chaveDoEstado,stateKey,packages/core/src/fluxo/contexto.ts:205,8,no,,,proposed,codex2,
 packages-core-symbol-8e50cbfd,packages-core,1,symbol,TipoCanal,TipoChannel,packages/core/src/janela/janela.ts:23,8,no,,,proposed,codex2,
@@ -360,7 +360,7 @@ packages-core-symbol-f1783925,packages-core,1,symbol,atendente,agent,packages/co
 packages-core-symbol-f47f242e,packages-core,1,symbol,populacao,population,packages/core/src/metricas/tempos.ts:32,34,no,,,proposed,codex2,
 packages-core-symbol-f49e05a6,packages-core,1,symbol,ACOES_DO_MOTOR,ACTIONS_OF_MOTOR,packages/core/src/fluxo/acoes.ts:233,1,no,,,proposed,codex2,
 packages-core-symbol-f4d72e2c,packages-core,1,symbol,vazio,empty,packages/core/src/esforco/esforco.teste.ts:257,290,no,,,proposed,codex2,
-packages-core-symbol-f58ed682,packages-core,1,symbol,LIMITE_DIAS_VARREDURA,LIMITE_DIAS_SWEEP,packages/core/src/sla/expediente.ts:53,5,no,,,proposed,codex2,
+packages-core-symbol-f58ed682,packages-core,1,symbol,LIMITE_DIAS_VARREDURA,SWEEP_DAYS_LIMIT,packages/core/src/sla/expediente.ts:53,5,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_DIAS_SWEEP"
 packages-core-symbol-f629eeae,packages-core,1,symbol,AtivasPorCanal,ActiveByChannel,packages/core/src/analise/index.ts:354,2,no,,,proposed,codex2,
 packages-core-symbol-f6dbab87,packages-core,1,symbol,JANELA_SEG,WINDOW_SEG,packages/core/src/janela/janela.ts:21,4,no,,,proposed,codex2,
 packages-core-symbol-f72e9ff0,packages-core,1,symbol,EscopoSla,ScopeSla,packages/core/src/sla/regra.ts:20,5,no,,,proposed,codex2,
@@ -704,13 +704,13 @@ packages-core-ts-local-fe5b526b,packages-core,1,ts-local,bloco,block,packages/co
 packages-core-ts-prop-00204b8c,packages-core,1,ts-prop,atribuicoes,assignments,packages/core/src/metricas/eventos.ts:56,8,no,,,proposed,codex2,
 packages-core-ts-prop-00cb3ae5,packages-core,1,ts-prop,estadoFinalId,stateFinalId,packages/core/src/fluxo/gerenciador.ts:77,3,no,,,proposed,codex2,
 packages-core-ts-prop-03e0fc2d,packages-core,1,ts-prop,usuarioId,userId,packages/core/src/esforco/regua.ts:61,604,no,,,proposed,codex2,
-packages-core-ts-prop-042749b6,packages-core,1,ts-prop,tempoLimitePadraoDaAcaoMs,actionMsTimeLimiteDefault,packages/core/src/fluxo/gerenciador.ts:48,2,no,,,proposed,codex2,
+packages-core-ts-prop-042749b6,packages-core,1,ts-prop,tempoLimitePadraoDaAcaoMs,defaultActionTimeLimitMs,packages/core/src/fluxo/gerenciador.ts:48,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was actionMsTimeLimiteDefault"
 packages-core-ts-prop-064f630e,packages-core,1,ts-prop,populacao,population,packages/core/src/metricas/metricas.teste.ts:161,34,no,,,proposed,codex2,
 packages-core-ts-prop-065d0e32,packages-core,1,ts-prop,fluxo,flow,packages/core/src/analise/index.ts:272,1172,no,,,proposed,codex2,
 packages-core-ts-prop-09771228,packages-core,1,ts-prop,estado,state,packages/core/src/conversa/maquina.ts:77,1269,no,,,proposed,codex2,
 packages-core-ts-prop-0db87799,packages-core,1,ts-prop,sessaoSeg,sessionSeg,packages/core/src/esforco/sessao.ts:26,16,no,,,proposed,codex2,
 packages-core-ts-prop-0e55c493,packages-core,1,ts-prop,ativasPorCanal,activeByChannel,packages/core/src/analise/index.ts:362,2,no,,,proposed,codex2,
-packages-core-ts-prop-103b7fdb,packages-core,1,ts-prop,tempoLimitePadraoDaAcaoMs,actionMsTimeLimiteDefault,packages/core/src/fluxo/gerenciador.ts:54,2,no,,,proposed,codex2,
+packages-core-ts-prop-103b7fdb,packages-core,1,ts-prop,tempoLimitePadraoDaAcaoMs,defaultActionTimeLimitMs,packages/core/src/fluxo/gerenciador.ts:54,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was actionMsTimeLimiteDefault"
 packages-core-ts-prop-11e703ff,packages-core,1,ts-prop,na_fila,inQueue,packages/core/src/conversa/maquina.ts:42,68,no,,,proposed,codex2,
 packages-core-ts-prop-136a9c21,packages-core,1,ts-prop,acoes,actions,packages/core/src/fluxo/gerenciador.ts:67,155,no,,,proposed,codex2,
 packages-core-ts-prop-150b5e30,packages-core,1,ts-prop,semPrimeiraResposta,withoutFirstResposta,packages/core/src/distribuicao/carga.ts:34,7,no,,,proposed,codex2,
@@ -745,7 +745,7 @@ packages-core-ts-prop-56318589,packages-core,1,ts-prop,estado,state,packages/cor
 packages-core-ts-prop-5d40acec,packages-core,1,ts-prop,fluxo,flow,packages/core/src/fluxo/contexto.ts:164,1172,no,,,proposed,sonnet,cx/merge-01-11: same as fluxo->flow elsewhere in packages-core (01-11 dictionary)
 packages-core-ts-prop-633df18f,packages-core,1,ts-prop,propriedade,property,packages/core/src/fluxo/contexto.ts:231,25,no,,,proposed,codex2,
 packages-core-ts-prop-68e0d7a3,packages-core,1,ts-prop,dentroDaJanela,windowDentro,packages/core/src/janela/janela.teste.ts:97,30,no,,,proposed,codex2,
-packages-core-ts-prop-69c3e30b,packages-core,1,ts-prop,tempoLimiteDaEntradaMs,inboundMsTimeLimite,packages/core/src/fluxo/gerenciador.ts:46,2,no,,,proposed,codex2,
+packages-core-ts-prop-69c3e30b,packages-core,1,ts-prop,tempoLimiteDaEntradaMs,inboundTimeLimitMs,packages/core/src/fluxo/gerenciador.ts:46,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was inboundMsTimeLimite"
 packages-core-ts-prop-6b475f06,packages-core,1,ts-prop,valor,value,packages/core/src/comum/tipos.ts:23,1656,no,,,proposed,codex2,
 packages-core-ts-prop-6b8b6359,packages-core,1,ts-prop,conversasConsideradas,conversationsConsideradas,packages/core/src/metricas/tempos.ts:24,9,no,,,proposed,codex2,
 packages-core-ts-prop-6bfaf1b6,packages-core,1,ts-prop,entradaContexto,inboundContext,packages/core/src/fluxo/contexto.ts:169,9,no,,,proposed,sonnet,"cx/merge-01-11: entrada->inbound + contexto->context, both established elsewhere in packages-core (01-11 dictionary)"
@@ -784,7 +784,7 @@ packages-core-ts-prop-b12d5c11,packages-core,1,ts-prop,sem_prioridade,withoutPri
 packages-core-ts-prop-b3ecc9c3,packages-core,1,ts-prop,esforcoSeg,effortSeg,packages/core/src/esforco/sessao.ts:84,18,no,,,proposed,codex2,
 packages-core-ts-prop-b56c618c,packages-core,1,ts-prop,escopoTipo,scopeTipo,packages/core/src/sla/regra.ts:29,79,no,,,proposed,codex2,
 packages-core-ts-prop-b7e22a2e,packages-core,1,ts-prop,dentroDaJanela,windowDentro,packages/core/src/janela/janela.ts:123,30,no,,,proposed,codex2,
-packages-core-ts-prop-ba913630,packages-core,1,ts-prop,tempoLimiteDaEntradaMs,inboundMsTimeLimite,packages/core/src/fluxo/gerenciador.ts:53,2,no,,,proposed,codex2,
+packages-core-ts-prop-ba913630,packages-core,1,ts-prop,tempoLimiteDaEntradaMs,inboundTimeLimitMs,packages/core/src/fluxo/gerenciador.ts:53,2,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was inboundMsTimeLimite"
 packages-core-ts-prop-becdb15b,packages-core,1,ts-prop,filas,queues,packages/core/src/distribuicao/carga.ts:26,297,no,,,proposed,codex2,
 packages-core-ts-prop-c35d499b,packages-core,1,ts-prop,roteador,router,packages/core/src/analise/index.ts:251,387,no,,,proposed,codex2,
 packages-core-ts-prop-c47de507,packages-core,1,ts-prop,blocosExcecao,blocksException,packages/core/src/analise/index.ts:274,3,no,,,proposed,codex2,

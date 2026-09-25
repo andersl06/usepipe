@@ -10,7 +10,7 @@ desk-vite-dir-cdb5722a,desk-vite,3,dir,apps/desk-vite/src/componentes,apps/desk-
 desk-vite-dir-fdd76c9a,desk-vite,3,dir,apps/desk-vite/src/paginas/preferencias,apps/desk-vite/src/pages/preferences,apps/desk-vite/src/paginas/preferencias,0,no,,,proposed,codex2,
 desk-vite-file-097faa66,desk-vite,3,file,modelo.ts,apps/desk-vite/src/lib/template.ts,apps/desk-vite/src/lib/modelo.ts,10,no,,,proposed,codex2,
 desk-vite-file-0aaf6ecb,desk-vite,3,file,compositor.tsx,apps/desk-vite/src/pages/attendances/composer.tsx,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,0,no,,,proposed,codex2,
-desk-vite-file-181884ac,desk-vite,3,file,intervalo-entrega.ts,apps/desk-vite/src/lib/intervalo-delivery.ts,apps/desk-vite/src/lib/intervalo-entrega.ts,0,no,,,proposed,codex2,
+desk-vite-file-181884ac,desk-vite,3,file,intervalo-entrega.ts,apps/desk-vite/src/lib/delivery-interval.ts,apps/desk-vite/src/lib/intervalo-entrega.ts,0,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was apps/desk-vite/src/lib/intervalo-delivery.ts"
 desk-vite-file-1b7de8e1,desk-vite,3,file,globais.css,apps/desk-vite/src/estilos/global.css,apps/desk-vite/src/estilos/globais.css,22,no,,,proposed,codex2,
 desk-vite-file-1d437198,desk-vite,3,file,convite.tsx,apps/desk-vite/src/pages/invitation.tsx,apps/desk-vite/src/paginas/convite.tsx,0,no,,,proposed,codex2,
 desk-vite-file-1e6e554d,desk-vite,3,file,coluna.tsx,apps/desk-vite/src/pages/attendances/column.tsx,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,0,no,,,proposed,codex2,
@@ -28,7 +28,7 @@ desk-vite-file-88762cb2,desk-vite,3,file,formato.test.ts,apps/desk-vite/tests/fo
 desk-vite-file-8a400bf2,desk-vite,3,file,periodo.test.ts,apps/desk-vite/tests/period.test.ts,apps/desk-vite/tests/periodo.test.ts,0,no,,,proposed,codex2,
 desk-vite-file-8cec7761,desk-vite,3,file,grupos.ts,apps/desk-vite/src/lib/groups.ts,apps/desk-vite/src/lib/grupos.ts,0,no,,,proposed,codex2,
 desk-vite-file-8eb40c8c,desk-vite,3,file,anexos.ts,apps/desk-vite/src/lib/attachments.ts,apps/desk-vite/src/lib/anexos.ts,6,no,,,proposed,codex2,
-desk-vite-file-9f0f2c0f,desk-vite,3,file,intervalo-entrega.test.ts,apps/desk-vite/tests/intervalo-delivery.test.ts,apps/desk-vite/tests/intervalo-entrega.test.ts,0,no,,,proposed,codex2,
+desk-vite-file-9f0f2c0f,desk-vite,3,file,intervalo-entrega.test.ts,apps/desk-vite/tests/delivery-interval.test.ts,apps/desk-vite/tests/intervalo-entrega.test.ts,0,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was apps/desk-vite/tests/intervalo-delivery.test.ts"
 desk-vite-file-a5de71fb,desk-vite,3,file,painel.tsx,apps/desk-vite/src/pages/attendances/panel.tsx,apps/desk-vite/src/paginas/atendimentos/painel.tsx,5,no,,,proposed,codex2,
 desk-vite-file-a65628f4,desk-vite,3,file,entrada.ts,apps/desk-vite/src/lib/inbound.ts,apps/desk-vite/src/lib/entrada.ts,18,no,,,proposed,codex2,
 desk-vite-file-adbe0070,desk-vite,3,file,sessao.tsx,apps/desk-vite/src/context/session.tsx,apps/desk-vite/src/contexto/sessao.tsx,0,no,,,proposed,codex2,
@@ -148,7 +148,7 @@ desk-vite-symbol-94c395db,desk-vite,3,symbol,canais,channels,apps/desk-vite/src/
 desk-vite-symbol-957f222e,desk-vite,3,symbol,MAX_CONTATOS,MAX_CONTACTS,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:28,6,no,,,proposed,codex2,
 desk-vite-symbol-99a37c4f,desk-vite,3,symbol,variaveis,variables,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:415,134,no,,,proposed,codex2,
 desk-vite-symbol-9a4f7e60,desk-vite,3,symbol,ModalDeModelo,TemplateModal,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:399,2,no,,,proposed,codex2,
-desk-vite-symbol-a05373c8,desk-vite,3,symbol,intervaloDaEntrega,deliveryIntervalo,apps/desk-vite/src/lib/intervalo-entrega.ts:6,8,no,,,proposed,codex2,
+desk-vite-symbol-a05373c8,desk-vite,3,symbol,intervaloDaEntrega,deliveryInterval,apps/desk-vite/src/lib/intervalo-entrega.ts:6,8,no,,,proposed,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was deliveryIntervalo"
 desk-vite-symbol-a174e5fa,desk-vite,3,symbol,descobrirEntrada,descobrirInbound,apps/desk-vite/src/lib/entrada.ts:45,16,no,,,proposed,codex2,
 desk-vite-symbol-a40c12d2,desk-vite,3,symbol,Sessao,Session,apps/desk-vite/src/contexto/sessao.tsx:12,25,no,,,proposed,codex2,
 desk-vite-symbol-a448c52d,desk-vite,3,symbol,CANAIS,CHANNELS,apps/desk-vite/src/lib/canal.ts:14,5,no,,,proposed,codex2,
@@ -427,7 +427,7 @@ desk-vite-ts-prop-e14d45b9,desk-vite,3,ts-prop,destino,destination,apps/desk-vit
 desk-vite-ts-prop-e1682d42,desk-vite,3,ts-prop,mensagem,message,apps/desk-vite/src/lib/api.ts:55,1267,no,,,proposed,codex2,
 desk-vite-ts-prop-e2e3106e,desk-vite,3,ts-prop,notificacoesDoNavegador,navegadorNotifications,apps/desk-vite/src/lib/preferencias.ts:23,3,no,,,proposed,codex2,
 desk-vite-ts-prop-e6cb3656,desk-vite,3,ts-prop,valor,value,apps/desk-vite/src/paginas/analytics/page.tsx:58,1656,no,,,proposed,codex2,
-desk-vite-ts-prop-e85f644b,desk-vite,3,ts-prop,ultimaInteracaoEm,ultimaInteractionIn,apps/desk-vite/src/lib/contatos.ts:13,4,no,,,proposed,codex2,
+desk-vite-ts-prop-e85f644b,desk-vite,3,ts-prop,ultimaInteracaoEm,lastInteractionAt,apps/desk-vite/src/lib/contatos.ts:13,4,no,,,proposed,codex2,W4: aligned to packages-db wire-key packages-db-wire-key-ff17cd60 (was ultimaInteractionIn)
 desk-vite-ts-prop-edc70015,desk-vite,3,ts-prop,alertaComAbaAtiva,alertaWithAbaActive,apps/desk-vite/src/lib/preferencias.ts:16,3,no,,,proposed,codex2,
 desk-vite-ts-prop-f0418906,desk-vite,3,ts-prop,conversaId,conversationId,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:67,523,no,,,proposed,codex2,
 desk-vite-ts-prop-f2ab4131,desk-vite,3,ts-prop,alertaComAbaAtiva,alertaWithAbaActive,apps/desk-vite/src/lib/preferencias.ts:27,3,no,,,proposed,codex2,

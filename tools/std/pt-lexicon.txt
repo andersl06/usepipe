@@ -45,6 +45,10 @@ criar
 dados
 descer
 destino
+diaria
+diarias
+diario
+diarios
 dicionario
 distribuicao
 dominio
@@ -77,8 +81,12 @@ implantacao
 implantar
 importacao
 importar
+intervalo
+intervalos
 janela
 leitura
+limite
+limites
 massa
 membro
 membros

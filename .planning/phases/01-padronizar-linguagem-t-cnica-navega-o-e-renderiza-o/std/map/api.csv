@@ -2257,7 +2257,7 @@ api-symbol-f027b6ac,api,2,symbol,vazio,empty,apps/api/tests/ciclo-de-vida-do-flu
 api-symbol-f02ef9a2,api,2,symbol,usuarioId,userId,apps/api/tests/configuracao-do-fluxo.test.ts:45,604,no,,,proposed,codex1,
 api-symbol-f032dff4,api,2,symbol,mudancasDeModelo,mudancasOfTemplate,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:61,2,no,,,proposed,codex1,
 api-symbol-f082ddc2,api,2,symbol,marcacaoDe,taggingOf,apps/api/tests/desk-acoes.test.ts:381,8,no,,,proposed,codex1,
-api-symbol-f09132b5,api,2,symbol,LIMITE_DIARIO_POR_CONTATO,LIMIT_DIARIO_BY_CONTACT,apps/api/src/dominio/mensagem-ativa.ts:34,5,no,,,proposed,codex1,
+api-symbol-f09132b5,api,2,symbol,LIMITE_DIARIO_POR_CONTATO,DAILY_LIMIT_BY_CONTACT,apps/api/src/dominio/mensagem-ativa.ts:34,5,no,,,proposed,codex1,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMIT_DIARIO_BY_CONTACT"
 api-symbol-f0b9906c,api,2,symbol,atendente,agent,apps/api/src/dominio/gestao/cadastros.ts:137,768,no,,,proposed,codex1,
 api-symbol-f0c14d1b,api,2,symbol,variaveis,variables,apps/api/src/dominio/whatsapp/modelos.ts:340,134,no,,,proposed,codex1,
 api-symbol-f0d297f0,api,2,symbol,usuarioComEmail,userWithEmail,apps/api/src/controladores/sso.ts:238,2,no,,,proposed,codex1,
@@ -2428,7 +2428,7 @@ api-test-title-23d29a3d,api,2,test-title,"a mensagem entra no OUTBOX, como qualq
 api-test-title-2499a42c,api,2,test-title,"liga com mensagem e texto do botão, e audita","connects with message and text of button, and audita",apps/api/tests/configuracao-do-fluxo.test.ts:142,0,no,,,proposed,codex1,
 api-test-title-24eee3c6,api,2,test-title,POST /v1/gestao/comunicacao/respostas-prontas,POST /v1/management/communication/responses-ready,apps/api/tests/cadastros-atendimento.test.ts:440,0,no,,,proposed,codex1,
 api-test-title-265a3954,api,2,test-title,"modelos com mídia no cabeçalho (imagem, vídeo, documento)","templates with media in header (image, video, document)",apps/api/tests/canais.test.ts:678,0,no,,,proposed,codex1,
-api-test-title-27455b77,api,2,test-title,agregação diária,aggregation diária,apps/api/tests/ponta-a-ponta.test.ts:364,0,no,,,proposed,codex1,
+api-test-title-27455b77,api,2,test-title,agregação diária,daily aggregation,apps/api/tests/ponta-a-ponta.test.ts:364,0,no,,,proposed,codex1,"fix(01-12): missing lexicon word (limite/diario/intervalo), was aggregation diária"
 api-test-title-274f6299,api,2,test-title,"isola os tenants: a sincronização de um não aparece, nem muda, no outro","isolates os tenants: a synchronization of um not aparece, nor changes, in other",apps/api/tests/dicionario-crm.test.ts:263,0,no,,,proposed,codex1,
 api-test-title-275211aa,api,2,test-title,desligar não apaga a mensagem — religar sem mandar de novo mantém o que já estava,disconnect not deletes a message — religar without mandar of new mantém o that already was,apps/api/tests/configuracao-do-fluxo.test.ts:179,0,no,,,proposed,codex1,
 api-test-title-282c91c4,api,2,test-title,isolamento — a regra que não se dobra,isolation — a rule that not if dobra,apps/api/tests/tempo-real.test.ts:204,0,no,,,proposed,codex1,
