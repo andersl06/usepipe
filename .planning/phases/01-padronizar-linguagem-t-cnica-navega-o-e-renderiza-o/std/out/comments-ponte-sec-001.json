@@ -20,7 +20,7 @@
       "id": "ponte-comment-1e843bea",
       "action": "translate",
       "new_text": "The bridge exposes one address for LIME commands and returns Pipe data. HTTP fits the lab's existing seam: `boot-mock.js` already disconnected the copy from Blip WebSocket and constructs a fake client whose `processCommand` returns a promise. An HTTP call works there without changing the copied bundle.",
-      "sensitivity": "architecture",
+      "sensitivity": "integration",
       "evidence": "apps/ponte/src/servidor.ts:10; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
