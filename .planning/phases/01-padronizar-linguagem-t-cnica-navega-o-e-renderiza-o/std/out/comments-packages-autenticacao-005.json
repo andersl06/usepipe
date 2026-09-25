@@ -1,0 +1,68 @@
+{
+  "items": [
+    {
+      "id": "packages-autenticacao-comment-da796a87",
+      "action": "update",
+      "new_text": "`Domain=localhost` invalidates cookies in several browsers, causing",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:56-56; Restored missing antecedent from packages/autenticacao/src/sessao.ts:95-97",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-6f19f3a2",
+      "action": "translate",
+      "new_text": "login to appear to do nothing.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:57-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-973931bf",
+      "action": "translate",
+      "new_text": "The API is on `api.pipe.com.br` and the apps are on `gestao.pipe.com.br`, `app.pipe.com.br`, and `crm.pipe.com.br`.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:64-64; Test fixture and packages/autenticacao/src/sessao.ts:54-62",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-ceab4cff",
+      "action": "translate",
+      "new_text": "Without the parent domain, each app would need a separate login.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:65-65",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-23888956",
+      "action": "update",
+      "new_text": "Keep `SameSite=Lax`: `SameSite=None` would send the cookie on requests from any site.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:68-68; Restored missing `SameSite=None` from packages/autenticacao/src/sessao.ts:61-65",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-a5f2189b",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:79-79; False-positive URL fragment in a TypeScript string literal, not a source comment; drop inventory row before apply.",
+      "notes": "pre-triage D-40; needs slice-time confirmation; false-positive inventory row"
+    },
+    {
+      "id": "packages-autenticacao-comment-5ff794ca",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:81-81; False-positive URL fragment in a TypeScript string literal, not a source comment; drop inventory row before apply.",
+      "notes": "pre-triage D-40; needs slice-time confirmation; false-positive inventory row"
+    },
+    {
+      "id": "packages-autenticacao-comment-9831037f",
+      "action": "translate",
+      "new_text": "A trailing slash must not cause rejection: browsers send origins without one, but environment values often include it.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:83-83",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

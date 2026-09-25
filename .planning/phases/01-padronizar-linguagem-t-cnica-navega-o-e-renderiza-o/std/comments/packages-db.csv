@@ -5,17 +5,17 @@ packages-db-comment-f514936f,packages-db,packages/db/src/auditoria.ts,113,119,js
  * Guardar o objeto inteiro dos dois lados incha a tabela e esconde a mudança:
  * quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as
  * quinze colunas que continuaram iguais.
- */",,,,,,
-packages-db-comment-b99f511a,packages-db,packages/db/src/auditoria.ts,139,139,line,3,// `null` e `undefined` são a mesma ausência para efeito de log: o driver,,,,,,
-packages-db-comment-f5bee3a4,packages-db,packages/db/src/auditoria.ts,140,140,line,2,"// devolve `null` e o formulário manda `undefined`, e isso não é mudança.",,,,,,
-packages-db-comment-748cec0c,packages-db,packages/db/src/auditoria.ts,22,22,jsdoc,1,"/** O que o ator é. Pessoa, chave de API, ou o próprio sistema. */",,,,,,
+ */",translate,"Difference between two states, containing only changed fields. Storing both full objects would bloat the table and hide changes: audit readers need to see capacity move from 5 to 8, not reread fifteen unchanged columns.",architecture,packages/db/src/auditoria.ts:113-119; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b99f511a,packages-db,packages/db/src/auditoria.ts,139,139,line,3,// `null` e `undefined` são a mesma ausência para efeito de log: o driver,translate,"For audit logging, `null` and `undefined` represent the same absence: the driver returns",architecture,packages/db/src/auditoria.ts:139-139; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f5bee3a4,packages-db,packages/db/src/auditoria.ts,140,140,line,2,"// devolve `null` e o formulário manda `undefined`, e isso não é mudança.",translate,"`null` while the form sends `undefined`, which is not a change.",architecture,packages/db/src/auditoria.ts:140-140; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-748cec0c,packages-db,packages/db/src/auditoria.ts,22,22,jsdoc,1,"/** O que o ator é. Pessoa, chave de API, ou o próprio sistema. */",translate,"Actor type: a person, an API key, or the system itself.",other,packages/db/src/auditoria.ts:22-22,codex,reviewed
 packages-db-comment-829906c2,packages-db,packages/db/src/auditoria.ts,26,31,jsdoc,2,"/**
  * As ações registradas.
  *
  * Lista fechada de propósito: string livre vira `update`, `atualizar`,
  * `atualizou` e `edit` na mesma tabela, e aí o log não se consulta mais.
- */",,,,,,
-packages-db-comment-2c6fc419,packages-db,packages/db/src/auditoria.ts,37,37,jsdoc,2,/** Nulo para `sistema`: o cron não tem id. */,,,,,,
+ */",translate,"Recorded actions use a closed list deliberately. Free text would put `update`, `atualizar`, `atualizou`, and `edit` in the same table and make the audit log unqueryable.",architecture,packages/db/src/auditoria.ts:26-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2c6fc419,packages-db,packages/db/src/auditoria.ts,37,37,jsdoc,2,/** Nulo para `sistema`: o cron não tem id. */,translate,Null for `sistema`: cron has no actor ID.,other,packages/db/src/auditoria.ts:37-37,codex,reviewed
 packages-db-comment-dc6e7c55,packages-db,packages/db/src/auditoria.ts,4,20,jsdoc,23,"/**
  * O registro de quem mudou o quê.
  *
@@ -32,14 +32,14 @@ packages-db-comment-dc6e7c55,packages-db,packages/db/src/auditoria.ts,4,20,jsdoc
  * DEPOIS, na mesma transação da mudança. Log em transação separada some quando
  * a mudança falha, ou sobra quando ela é desfeita — e nos dois casos ele passa
  * a mentir. Log que mente é pior que log nenhum, porque alguém confia nele.
- */",,,,,,
+ */",translate,"Records who changed what. `log_auditoria` existed since the foundation but received no writes. A usability audit found Pipe registration screens could create records but not edit or delete them because specs said they were waiting for an audit log. That absence prevented even correcting a mistyped name. Record before and after values in the same transaction as the change: a separate log transaction can disappear when the change fails or remain when it rolls back. Either outcome makes the audit log lie, which is worse than no log because people trust it.",architecture,packages/db/src/auditoria.ts:4-20; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e0037783,packages-db,packages/db/src/auditoria.ts,54,60,jsdoc,5,"/**
  * Campos que NUNCA entram no log, mesmo que venham no objeto.
  *
  * O log é lido por gente do suporte e exportado em auditoria de contrato.
  * Gravar segredo ali seria desfazer, num lugar mais visível, a cifra que
  * `segredo.ts` aplica no banco.
- */",,,,,,
+ */",translate,"Fields never written to audit logs, even if present in the input. Support reads and contract audits export this log; logging secrets here would undo the database encryption applied by `segredo.ts` in a more visible place.",security,packages/db/src/auditoria.ts:54-60; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c048d0b2,packages-db,packages/db/src/auditoria.ts,86,94,jsdoc,6,"/**
  * Registra o evento **na mesma transação** da mudança.
  *
@@ -48,17 +48,17 @@ packages-db-comment-c048d0b2,packages-db,packages/db/src/auditoria.ts,86,94,jsdo
  *
  * O `tenant_id` sai da sessão da transação — não é parâmetro. Aceitar tenant de
  * quem chama seria deixar registrar evento no nome do vizinho.
- */",,,,,,
-packages-db-comment-a48ef0fb,packages-db,packages/db/src/cliente.ts,11,11,jsdoc,1,"/** Liga o log de SQL. Útil no teste de RLS, onde o interesse é ver a transação. */",,,,,,
+ */",update,"Write the audit event in the same transaction as the change. The function accepts `tx`, so rollback removes the log with the change. It also accepts a caller-supplied `tenantId` and writes it to SQL `tenant_id`; callers must use the transaction tenant or the event could be attributed to another tenant.",security,packages/db/src/auditoria.ts:86-94; packages/db/src/auditoria.ts:86-111; signature and insert use explicit tenantId; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a48ef0fb,packages-db,packages/db/src/cliente.ts,11,11,jsdoc,1,"/** Liga o log de SQL. Útil no teste de RLS, onde o interesse é ver a transação. */",translate,"Enable SQL logging, useful for RLS tests that need to inspect the transaction.",security,packages/db/src/cliente.ts:11-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-7e11fb1f,packages-db,packages/db/src/cliente.ts,15,19,jsdoc,11,"/**
  * Cria o pool e o cliente Drizzle. A `api` usa a URL do papel da aplicação, que **não**
  * tem `bypassrls`; migration e seed usam a URL do papel dono. Confundir as duas é o
  * jeito mais rápido de achar que a RLS está ligada quando ela está sendo ignorada.
- */",,,,,,
+ */",translate,Create the pool and Drizzle client. The `api` uses the application-role URL without `bypassrls`; migrations and seeds use the owner-role URL. Mixing them can make RLS appear active while queries actually bypass it.,security,packages/db/src/cliente.ts:15-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4c8734e8,packages-db,packages/db/src/particoes.ts,30,33,jsdoc,2,"/**
  * Garante as partições do mês corrente e dos `mesesAFrente` seguintes. Idempotente:
  * chamar duas vezes no mesmo dia não faz nada na segunda.
- */",,,,,,
+ */",translate,Ensure partitions for the current month and the next `mesesAFrente` months. Idempotent: a second call on the same day changes nothing.,architecture,packages/db/src/particoes.ts:30-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-591e18d0,packages-db,packages/db/src/particoes.ts,4,11,jsdoc,14,"/**
  * `mensagem` e `evento_atendimento` crescem sem limite e são sempre consultadas por
  * período. As duas são particionadas por mês; esta é a rotina que cria a partição do
@@ -66,57 +66,57 @@ packages-db-comment-591e18d0,packages-db,packages/db/src/particoes.ts,4,11,jsdoc
  * na hora errada, que é de madrugada.
  *
  * Roda com o papel dono das tabelas (o mesmo das migrations), porque cria tabela.
- */",,,,,,
+ */",translate,"`mensagem` and `evento_atendimento` grow without bound and are queried by period, so both are partitioned monthly. This routine creates the next partition before it is needed; missing partitions cause inserts to fail at the worst time. It runs as table owner, like migrations, because it creates tables.",architecture,packages/db/src/particoes.ts:4-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-8b7ae677,packages-db,packages/db/src/schema/automacao.ts,103,106,jsdoc,1,"/**
  * As quatro paradas do traço ""Permissão"" dos modais da Equipe — as chaves
  * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
- */",,,,,,
+ */",translate,"The four stops of the source Team modal's ""Permissão"" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.",meta-blip,packages/db/src/schema/automacao.ts:103-106; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d08800ef,packages-db,packages/db/src/schema/automacao.ts,109,113,jsdoc,7,"/**
  * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
  * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
  * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
- */",,,,,,
-packages-db-comment-1e149212,packages-db,packages/db/src/schema/automacao.ts,126,126,jsdoc,0,"/** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */",,,,,,
-packages-db-comment-0d1d9987,packages-db,packages/db/src/schema/automacao.ts,131,131,jsdoc,2,/** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */,,,,,,
+ */",translate,Team for this contact: who may access this flow and at what permission. Migration 0035 explains why the source assigns permission to the BOT rather than the tenant and documents the `permissoes` shape from `PermissionsList.html` at `/team/team/edit`.,meta-blip,packages/db/src/schema/automacao.ts:109-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1e149212,packages-db,packages/db/src/schema/automacao.ts,126,126,jsdoc,0,"/** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */",translate,"`{ builder: 'escrever', analysis: 'ler', … }`: source resource to selected radio choice.",meta-blip,packages/db/src/schema/automacao.ts:126-126; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0d1d9987,packages-db,packages/db/src/schema/automacao.ts,131,131,jsdoc,2,/** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */,translate,Who added this person; survives their deletion via `set null`.,other,packages/db/src/schema/automacao.ts:131-131,codex,reviewed
 packages-db-comment-fc5a82d2,packages-db,packages/db/src/schema/automacao.ts,142,145,jsdoc,3,"/**
  * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
  * cada coluna e por que não existe túnel no Pipe.
- */",,,,,,
-packages-db-comment-74bdb969,packages-db,packages/db/src/schema/automacao.ts,157,157,jsdoc,0,/** O nome do serviço: é o `content.address` do `Redirect`. */,,,,,,
-packages-db-comment-1a145c36,packages-db,packages/db/src/schema/automacao.ts,160,160,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",,,,,,
-packages-db-comment-70fe2574,packages-db,packages/db/src/schema/automacao.ts,162,162,jsdoc,0,"/** ""Expiração do redirecionamento"", da última mensagem do cliente. */",,,,,,
+ */",translate,Router services mirror Blip `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.,meta-blip,packages/db/src/schema/automacao.ts:142-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-74bdb969,packages-db,packages/db/src/schema/automacao.ts,157,157,jsdoc,0,/** O nome do serviço: é o `content.address` do `Redirect`. */,translate,Service name used as the `Redirect` `content.address`.,meta-blip,packages/db/src/schema/automacao.ts:157-157; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1a145c36,packages-db,packages/db/src/schema/automacao.ts,160,160,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",keep-original,,meta-blip,packages/db/src/schema/automacao.ts:160-160; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-70fe2574,packages-db,packages/db/src/schema/automacao.ts,162,162,jsdoc,0,"/** ""Expiração do redirecionamento"", da última mensagem do cliente. */",translate,"The source label ""Expiração do redirecionamento"", measured from the customer's last message.",meta-blip,packages/db/src/schema/automacao.ts:162-162; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-069e4adf,packages-db,packages/db/src/schema/automacao.ts,17,21,jsdoc,5,"/**
  * Módulo 6 — Automação e extração. Três peças distintas que costumam ser confundidas:
  * construtor de fluxo (a conversa automática), motor de workflow (a automação do
  * sistema) e a linguagem de consulta com o dicionário de dados.
- */",,,,,,
+ */",translate,"Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.",architecture,packages/db/src/schema/automacao.ts:17-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a2e9c668,packages-db,packages/db/src/schema/automacao.ts,189,192,jsdoc,3,"/**
  * O Master-State: em que serviço do roteador o contato está. O ""túnel"" da Blip é a
  * chave (roteador, contato) — o contato é o real, único no tenant. Migration 0024.
- */",,,,,,
-packages-db-comment-bd1dd04d,packages-db,packages/db/src/schema/automacao.ts,208,208,jsdoc,1,/** Nulo = não expira (principal ou persistente). */,,,,,,
-packages-db-comment-6d77f613,packages-db,packages/db/src/schema/automacao.ts,210,210,jsdoc,2,/** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */,,,,,,
-packages-db-comment-779a4d89,packages-db,packages/db/src/schema/automacao.ts,214,214,jsdoc,0,"/** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */",,,,,,
-packages-db-comment-5d9c7064,packages-db,packages/db/src/schema/automacao.ts,223,223,jsdoc,2,/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */,,,,,,
-packages-db-comment-78232173,packages-db,packages/db/src/schema/automacao.ts,236,236,jsdoc,0,/** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */,,,,,,
-packages-db-comment-a5f09581,packages-db,packages/db/src/schema/automacao.ts,25,25,jsdoc,0,"/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */",,,,,,
-packages-db-comment-22f1cc88,packages-db,packages/db/src/schema/automacao.ts,28,28,jsdoc,0,"/** O `ng-maxlength=""160""` do campo ""Descrição"" de ""Editar Fluxo"" na origem. */",,,,,,
+ */",translate,"Master-State tracks which router service holds the contact. Blip's ""túnel"" uses the (router, contact) pair; Pipe uses the real contact, unique within the tenant. See migration 0024.",meta-blip,packages/db/src/schema/automacao.ts:189-192; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-bd1dd04d,packages-db,packages/db/src/schema/automacao.ts,208,208,jsdoc,1,/** Nulo = não expira (principal ou persistente). */,translate,Null means no expiry for a primary or persistent service.,other,packages/db/src/schema/automacao.ts:208-208,codex,reviewed
+packages-db-comment-6d77f613,packages-db,packages/db/src/schema/automacao.ts,210,210,jsdoc,2,/** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */,translate,Router context shared by services with `usa_contexto_do_roteador`.,architecture,packages/db/src/schema/automacao.ts:210-210; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-779a4d89,packages-db,packages/db/src/schema/automacao.ts,214,214,jsdoc,0,"/** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */",translate,Pending Change-User-State: the service starts at `bloco_inicial` or at the root.,meta-blip,packages/db/src/schema/automacao.ts:214-214; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-5d9c7064,packages-db,packages/db/src/schema/automacao.ts,223,223,jsdoc,2,/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */,translate,"Published versions stay separate from editable versions, following Blip.",meta-blip,packages/db/src/schema/automacao.ts:223-223; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-78232173,packages-db,packages/db/src/schema/automacao.ts,236,236,jsdoc,0,/** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */,translate,Blip `Flow` global actions and `configuration`; migration 0014.,meta-blip,packages/db/src/schema/automacao.ts:236-236; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a5f09581,packages-db,packages/db/src/schema/automacao.ts,25,25,jsdoc,0,"/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */",translate,Two roles for the same contact: its own conversation or routing other bots.,other,packages/db/src/schema/automacao.ts:25-25,codex,reviewed
+packages-db-comment-22f1cc88,packages-db,packages/db/src/schema/automacao.ts,28,28,jsdoc,0,"/** O `ng-maxlength=""160""` do campo ""Descrição"" de ""Editar Fluxo"" na origem. */",translate,"Source `ng-maxlength=""160""` on the ""Descrição"" field in ""Editar Fluxo"".",meta-blip,packages/db/src/schema/automacao.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-ee24c5a9,packages-db,packages/db/src/schema/automacao.ts,296,299,jsdoc,1,"/**
      * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
      * dois destinos é preenchido (migration 0014).
-     */",,,,,,
-packages-db-comment-bc99058d,packages-db,packages/db/src/schema/automacao.ts,304,304,jsdoc,3,/** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */,,,,,,
+     */",translate,Blip `{{variável}}` destination resolved at runtime. Exactly one of the two destinations is set (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:296-299; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-bc99058d,packages-db,packages/db/src/schema/automacao.ts,304,304,jsdoc,3,/** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */,translate,Exit conditions are evaluated in this order; the first match wins.,architecture,packages/db/src/schema/automacao.ts:304-304; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d86c9be3,packages-db,packages/db/src/schema/automacao.ts,332,335,jsdoc,6,"/**
      * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
      * é o que faz o atendente receber o cliente já sabendo o que o robô coletou.
-     */",,,,,,
+     */",translate,"Variable map crosses the flow and survives handoff to a human agent, who receives what the bot already collected.",architecture,packages/db/src/schema/automacao.ts:332-335; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-3bab5df8,packages-db,packages/db/src/schema/automacao.ts,347,351,jsdoc,1,"/**
      * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
      * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
      * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
-     */",,,,,,
-packages-db-comment-01bdee01,packages-db,packages/db/src/schema/automacao.ts,374,374,line,2,// A mesma mensagem da Meta só vira passo uma vez (migration 0014).,,,,,,
-packages-db-comment-be8ce6fe,packages-db,packages/db/src/schema/automacao.ts,383,383,jsdoc,1,/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */,,,,,,
+     */",translate,"Migration 0040: Dashboard, Overview, Journey, and message Log filter through `fluxo_versao.fluxo_id`, joining via `fluxo_versao_id`. Without this index, that join scans all of `execucao_fluxo`.",architecture,packages/db/src/schema/automacao.ts:347-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-01bdee01,packages-db,packages/db/src/schema/automacao.ts,374,374,line,2,// A mesma mensagem da Meta só vira passo uma vez (migration 0014).,translate,The same Meta message becomes a step only once (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:374-374; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-be8ce6fe,packages-db,packages/db/src/schema/automacao.ts,383,383,jsdoc,1,/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */,translate,Store the ProcessHttp cursor separately to retain every executed position.,architecture,packages/db/src/schema/automacao.ts:383-383; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-29cbae1f,packages-db,packages/db/src/schema/automacao.ts,39,46,jsdoc,6,"/**
      * `fluxo` ou `roteador`.
      *
@@ -124,46 +124,46 @@ packages-db-comment-29cbae1f,packages-db,packages/db/src/schema/automacao.ts,39,
      * o cartão do portal etiqueta. Roteador é o MESMO bot sem conteúdo próprio:
      * ele só referencia outros e decide para qual deles a conversa vai — por
      * isso é coluna, e não tabela nova.
-     */",,,,,,
-packages-db-comment-cd96fe30,packages-db,packages/db/src/schema/automacao.ts,479,479,jsdoc,4,/** Workflow que falha em silêncio é pior que workflow que não existe. */,,,,,,
+     */",translate,"`fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.",meta-blip,packages/db/src/schema/automacao.ts:39-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-cd96fe30,packages-db,packages/db/src/schema/automacao.ts,479,479,jsdoc,4,/** Workflow que falha em silêncio é pior que workflow que não existe. */,translate,A workflow that fails silently is worse than no workflow.,architecture,packages/db/src/schema/automacao.ts:479-479; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-11616044,packages-db,packages/db/src/schema/automacao.ts,48,54,jsdoc,5,"/**
      * O endereço da foto do contato — o `imageUri` da plataforma de origem, que
      * é o que o cartão do portal lê para desenhar o avatar.
      *
      * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
      * avisa no console e deixa a criação seguir. Migration 0020.
-     */",,,,,,
+     */",translate,"Contact photo URL, the source platform's `imageUri` used by the portal card avatar. It is genuinely optional: source upload runs inside `try/catch`, reports only to the console, and allows creation to continue. Migration 0020.",meta-blip,packages/db/src/schema/automacao.ts:48-54; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e648e96e,packages-db,packages/db/src/schema/automacao.ts,526,529,jsdoc,1,"/**
      * Consulta estruturada, analisada contra o dicionário de dados do tenant. Nunca
      * vira SQL cru vindo do cliente, e o `tenant_id` é imposto pelo servidor.
-     */",,,,,,
+     */",translate,"Structured query validated against the tenant data dictionary. Client input never becomes raw SQL, and the server imposes `tenant_id`.",security,packages/db/src/schema/automacao.ts:526-529; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d2a2a1be,packages-db,packages/db/src/schema/automacao.ts,56,62,jsdoc,4,"/**
      * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
      *
      * É ele que vai na URL do contato lá (`/application/detail/{shortName}`) e
      * é o motivo de o nome ter de começar com letra. Sem índice único: a
      * unicidade continua sendo conferida sobre `nome`. Migration 0020.
-     */",,,,,,
+     */",translate,Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.,meta-blip,packages/db/src/schema/automacao.ts:56-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-dba0e221,packages-db,packages/db/src/schema/automacao.ts,562,568,jsdoc,5,"/**
  * Espelho do `objectMetadata` do CRM (Twenty) do tenant — ver a migration 0015.
  *
  * `codigo` é o `nameSingular` e `rotulo` o `labelSingular`; as demais colunas têm o nome
  * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
  * declarada à mão pelo CRM caseiro.
- */",,,,,,
-packages-db-comment-e94f987d,packages-db,packages/db/src/schema/automacao.ts,586,586,jsdoc,5,"/** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */",,,,,,
+ */",translate,"Mirror of tenant CRM (Twenty) `objectMetadata`; see migration 0015. `codigo` is `nameSingular` and `rotulo` is `labelSingular`; other columns use Twenty property names. A row with `twentyId` came from synchronization; without it, the local CRM declared it manually.",integration,packages/db/src/schema/automacao.ts:562-568; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e94f987d,packages-db,packages/db/src/schema/automacao.ts,586,586,jsdoc,5,"/** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */",translate,Removed from Twenty; keep the row so a block referring to it reports the missing object.,integration,packages/db/src/schema/automacao.ts:586-586; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d9ee8a3a,packages-db,packages/db/src/schema/automacao.ts,593,599,jsdoc,7,"/**
  * Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido.
  *
  * Espelho do `fieldMetadata` do Twenty: `codigo` é o `name`, `rotulo` o `label`, `tipo`
  * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
  * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
- */",,,,,,
+ */",translate,"Operational data for the query language, not documentation: it defines allowed fields. Mirrors Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is literal `type` (`TEXT`, `CURRENCY`, `RELATION`, etc.). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API format.",integration,packages/db/src/schema/automacao.ts:593-599; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-16dc5e7b,packages-db,packages/db/src/schema/automacao.ts,631,635,jsdoc,6,"/**
  * Autenticação de saída do webhook — a ""Configurações de autenticação"" da
  * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
  * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
- */",,,,,,
+ */",translate,"Outbound webhook authentication mirrors the source ""Configurações de autenticação"" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication requested here but absent from the source. Migration 0036.",meta-blip,packages/db/src/schema/automacao.ts:631-635; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-b8a81432,packages-db,packages/db/src/schema/automacao.ts,64,72,jsdoc,5,"/**
      * A descrição do contato — o `description` de ""Editar Fluxo""
      * (`/configurations/basic`) da plataforma de origem.
@@ -172,24 +172,24 @@ packages-db-comment-b8a81432,packages-db,packages/db/src/schema/automacao.ts,64,
      * entre 2 e 160 caracteres (`ng-minlength=""2""`, `ng-maxlength=""160""`). O
      * teto é `check` porque é o único limite que o banco consegue guardar
      * sozinho; o mínimo é da `api`. Migration 0022.
-     */",,,,,,
-packages-db-comment-d831b1d0,packages-db,packages/db/src/schema/automacao.ts,655,655,jsdoc,0,/** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */,,,,,,
-packages-db-comment-ea6d0ace,packages-db,packages/db/src/schema/automacao.ts,657,657,jsdoc,1,"/** Usuário da autenticação básica — não é segredo, fica legível. */",,,,,,
-packages-db-comment-d269700a,packages-db,packages/db/src/schema/automacao.ts,659,659,jsdoc,0,/** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */,,,,,,
-packages-db-comment-a6a7ab05,packages-db,packages/db/src/schema/automacao.ts,661,661,jsdoc,2,"/** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */",,,,,,
-packages-db-comment-6e9e3118,packages-db,packages/db/src/schema/automacao.ts,663,663,jsdoc,1,/** Client ID do OAuth 2.0 — não é segredo. */,,,,,,
+     */",translate,"Contact description is the source ""Editar Fluxo"" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength=""2""`, `ng-maxlength=""160""`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.",meta-blip,packages/db/src/schema/automacao.ts:64-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d831b1d0,packages-db,packages/db/src/schema/automacao.ts,655,655,jsdoc,0,/** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */,translate,"`nenhuma` (default), `basica`, or `oauth2_client_credentials`; migration 0036.",integration,packages/db/src/schema/automacao.ts:655-655; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ea6d0ace,packages-db,packages/db/src/schema/automacao.ts,657,657,jsdoc,1,"/** Usuário da autenticação básica — não é segredo, fica legível. */",translate,Basic-auth username is not secret and remains readable.,security,packages/db/src/schema/automacao.ts:657-657; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d269700a,packages-db,packages/db/src/schema/automacao.ts,659,659,jsdoc,0,/** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */,translate,Basic-auth password is encrypted at rest by `@pipe/db/segredo`.,security,packages/db/src/schema/automacao.ts:659-659; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a6a7ab05,packages-db,packages/db/src/schema/automacao.ts,661,661,jsdoc,2,"/** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */",translate,OAuth 2.0 `client_credentials` token URL is validated like the webhook URL: HTTPS and no private network.,security,packages/db/src/schema/automacao.ts:661-661; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-6e9e3118,packages-db,packages/db/src/schema/automacao.ts,663,663,jsdoc,1,/** Client ID do OAuth 2.0 — não é segredo. */,translate,OAuth 2.0 Client ID is not secret.,security,packages/db/src/schema/automacao.ts:663-663; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-056a85e4,packages-db,packages/db/src/schema/automacao.ts,667,673,jsdoc,6,"/**
      * Cabeçalhos customizados — `[{ chave, valor }]`. Nunca inclui os
      * reservados da assinatura (`content-type`, `x-pipe-signature`,
      * `x-pipe-timestamp`, `x-pipe-delivery`) nem `authorization`: a regra
      * de gravação (`dominio/gestao/integracoes.ts`) recusa antes de chegar
      * aqui, então a coluna não precisa de `check` para isso.
-     */",,,,,,
+     */",translate,"Custom headers are `[{ chave, valor }]`. They never include reserved signing headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`. The write rule in `dominio/gestao/integracoes.ts` rejects these before storage, so this column needs no `check`.",security,packages/db/src/schema/automacao.ts:667-673; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0a608025,packages-db,packages/db/src/schema/automacao.ts,74,78,jsdoc,5,"/**
      * ""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): como serviço de
      * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
      * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
-     */",,,,,,
+     */",translate,"Source ""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): as a router service, share variables for the (router, contact) pair with other services that enable this option. Otherwise variables belong only to this flow. Migration 0024.",meta-blip,packages/db/src/schema/automacao.ts:74-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4168780b,packages-db,packages/db/src/schema/automacao.ts,80,90,jsdoc,11,"/**
      * Configurações do contato que ainda não tinham lugar próprio: hoje só
      * ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
@@ -200,17 +200,17 @@ packages-db-comment-4168780b,packages-db,packages/db/src/schema/automacao.ts,80,
      * Por que uma coluna e não uma tabela: são poucos campos, de UMA tela cada,
      * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
      * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
-     */",,,,,,
-packages-db-comment-b90e9b29,packages-db,packages/db/src/schema/comum.ts,19,19,jsdoc,0,"/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */",,,,,,
-packages-db-comment-46739511,packages-db,packages/db/src/schema/comum.ts,24,24,jsdoc,1,"/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */",,,,,,
+     */",translate,"Contact settings without a separate home: currently ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and ""Menu Persistente"" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.",meta-blip,packages/db/src/schema/automacao.ts:80-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b90e9b29,packages-db,packages/db/src/schema/comum.ts,19,19,jsdoc,0,"/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */",translate,Soft deletion only where history matters; otherwise delete the row.,architecture,packages/db/src/schema/comum.ts:19-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-46739511,packages-db,packages/db/src/schema/comum.ts,24,24,jsdoc,1,"/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */",translate,Money is never floating point; currency lives in a separate column.,architecture,packages/db/src/schema/comum.ts:24-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0088d272,packages-db,packages/db/src/schema/comum.ts,27,30,jsdoc,2,"/**
  * Enumeração é `text` com `check`, nunca `enum` nativo: acrescentar valor num enum do
  * Postgres trava a migration em produção, e vamos acrescentar valor o tempo todo.
- */",,,,,,
+ */",translate,"Use `text` plus `check` for enumerations, never native PostgreSQL `enum`: adding enum values can lock production migrations, and values will be added often.",architecture,packages/db/src/schema/comum.ts:27-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-40938bbc,packages-db,packages/db/src/schema/comum.ts,5,8,jsdoc,4,"/**
  * Convenções da §1 do modelo de dados, num lugar só. Se uma delas mudar, muda aqui —
  * é o que impede a segunda tabela de nascer com um carimbo diferente da primeira.
- */",,,,,,
+ */",translate,Data-model §1 conventions live in one place. A change here prevents a second table from using a different timestamp convention.,architecture,packages/db/src/schema/comum.ts:5-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a8526b2b,packages-db,packages/db/src/schema/comum.ts,54,62,block,8,"/*
  * A régua de prioridade vive em `@pipe/core/conversa`, e não aqui.
  *
@@ -219,53 +219,53 @@ packages-db-comment-a8526b2b,packages-db,packages/db/src/schema/comum.ts,54,62,b
  * componente de navegador; era por isso que ele mantinha um mapa paralelo de
  * pesos, que divergiu. Regra pura mora no pacote de regra pura, e o esquema
  * importa de lá para virar restrição — nunca o contrário.
- */",,,,,,
-packages-db-comment-1ec6c78d,packages-db,packages/db/src/schema/comum.ts,65,65,jsdoc,0,/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */,,,,,,
+ */",translate,"Priority ordering lives in `@pipe/core/conversa`, not here. Importing this file brings `drizzle-orm/pg-core` and its driver into browser consumers. The agent app formerly kept a parallel weight map that diverged. Pure rules belong in the pure rules package; the schema imports them for constraints, never the reverse.",architecture,packages/db/src/schema/comum.ts:54-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1ec6c78d,packages-db,packages/db/src/schema/comum.ts,65,65,jsdoc,0,/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */,translate,Data-model §4 closed catalog for `evento_atendimento.tipo`.,integration,packages/db/src/schema/comum.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-973430f1,packages-db,packages/db/src/schema/conversas.ts,140,145,jsdoc,5,"/**
    * O canal de onde a mídia recebida veio — só preenchido pelo webhook
    * (`dominio/entrada.ts`), nunca pelo upload manual (`controladores/anexos.ts`).
    * É de onde o download (`dominio/midia.ts`) tira o token para falar com o Graph.
    * Ver `0033_download_de_midia.sql`.
-   */",,,,,,
-packages-db-comment-0d4a866b,packages-db,packages/db/src/schema/conversas.ts,147,147,jsdoc,2,"/** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é ""não baixado"". */",,,,,,
-packages-db-comment-28c3fa8a,packages-db,packages/db/src/schema/conversas.ts,164,164,jsdoc,2,/** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */,,,,,,
-packages-db-comment-2553f275,packages-db,packages/db/src/schema/conversas.ts,171,171,jsdoc,2,/** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */,,,,,,
+   */",translate,"Source channel for received media, populated only by the webhook (`dominio/entrada.ts`), never manual upload (`controladores/anexos.ts`). Download logic (`dominio/midia.ts`) uses it to select the Graph token. See `0033_download_de_midia.sql`.",integration,packages/db/src/schema/conversas.ts:140-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0d4a866b,packages-db,packages/db/src/schema/conversas.ts,147,147,jsdoc,2,"/** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é ""não baixado"". */",translate,`bytes = 0` with a reference `chave_storage` (`meta:` or URL) means not downloaded.,integration,packages/db/src/schema/conversas.ts:147-147; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-28c3fa8a,packages-db,packages/db/src/schema/conversas.ts,164,164,jsdoc,2,/** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */,translate,CPF/CNPJ stays `text`: CNPJ becomes alphanumeric starting in 2026.,architecture,packages/db/src/schema/conversas.ts:164-164; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2553f275,packages-db,packages/db/src/schema/conversas.ts,171,171,jsdoc,2,/** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */,translate,Conversations are personal data; data-subject deletion is supported from the start.,security,packages/db/src/schema/conversas.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-11f90880,packages-db,packages/db/src/schema/conversas.ts,173,179,jsdoc,3,"/**
      * O `id` da `person` correspondente no Twenty. É o que permite o link direto do
      * Desk cair na FICHA do cliente em vez da home do CRM.
      *
      * Nulo enquanto o espelho não aconteceu — e enquanto for nulo, o Desk não mostra
      * link nenhum. Ver `docs/specs/2026-09-07-integracao-twenty.md` §4.
-     */",,,,,,
+     */",translate,"Corresponding Twenty `person` ID enables a direct Desk link to the customer record instead of the CRM home. Null until synchronization; while null, Desk shows no link. See `docs/specs/2026-09-07-integracao-twenty.md` §4.",integration,packages/db/src/schema/conversas.ts:173-179; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e35c4b7e,packages-db,packages/db/src/schema/conversas.ts,278,280,block,3,"/* Nasce SEM prioridade. Quem dá prioridade é regra de priorização ou gente;
        o padrão antigo (`media`) fazia a fila ordenar por dado que ninguém
-       escolheu. Ver `NIVEIS_PRIORIDADE`. */",,,,,,
-packages-db-comment-ea17fcef,packages-db,packages/db/src/schema/conversas.ts,28,28,jsdoc,0,"/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */",,,,,,
-packages-db-comment-2b21d069,packages-db,packages/db/src/schema/conversas.ts,291,291,jsdoc,2,/** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */,,,,,,
+       escolheu. Ver `NIVEIS_PRIORIDADE`. */",translate,Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.,architecture,packages/db/src/schema/conversas.ts:278-280; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ea17fcef,packages-db,packages/db/src/schema/conversas.ts,28,28,jsdoc,0,"/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */",update,"Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger.",architecture,packages/db/src/schema/conversas.ts:28-28; packages/db/src/schema/comum.ts:36; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2b21d069,packages-db,packages/db/src/schema/conversas.ts,291,291,jsdoc,2,/** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */,translate,Supports automatic-close guard: do not close while an agent owes the next response.,architecture,packages/db/src/schema/conversas.ts:291-291; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d9a54694,packages-db,packages/db/src/schema/conversas.ts,293,296,jsdoc,2,"/**
      * Janela de atendimento de 24h do WhatsApp, recalculada a cada mensagem de entrada
      * do contato. Nulo é canal sem janela (e-mail, widget).
-     */",,,,,,
-packages-db-comment-c0530870,packages-db,packages/db/src/schema/conversas.ts,298,298,jsdoc,1,"/** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */",,,,,,
+     */",translate,"WhatsApp 24-hour service window, recalculated for each inbound contact message. Null for channels without a window, such as email and widget.",integration,packages/db/src/schema/conversas.ts:293-296; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c0530870,packages-db,packages/db/src/schema/conversas.ts,298,298,jsdoc,1,"/** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */",translate,"No foreign key: `mensagem` is partitioned and its uniqueness is the pair (id, criada_em).",architecture,packages/db/src/schema/conversas.ts:298-298; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-fcd47b17,packages-db,packages/db/src/schema/conversas.ts,310,314,jsdoc,2,"/**
      * Migration 0040: o Log de mensagens do fluxo (`carregarLogDeMensagens`)
      * acha as conversas do canal do bot por `inbox_id` antes de descer para
      * `mensagem` — sem este índice essa busca varria `conversa` inteira.
-     */",,,,,,
+     */",translate,"Migration 0040: the flow message log (`carregarLogDeMensagens`) finds bot-channel conversations by `inbox_id` before descending to `mensagem`. Without this index, the lookup scans all of `conversa`.",architecture,packages/db/src/schema/conversas.ts:310-314; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-bcd0a0e3,packages-db,packages/db/src/schema/conversas.ts,331,334,jsdoc,2,"/**
  * Particionada por mês em `criada_em`. A chave primária de tabela particionada precisa
  * conter a chave de partição — daí `(id, criada_em)` em vez de só `id`.
- */",,,,,,
-packages-db-comment-d9b08b6d,packages-db,packages/db/src/schema/conversas.ts,351,351,jsdoc,2,"/** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */",,,,,,
+ */",translate,"Monthly partitioning by `criada_em` requires a partitioned table's primary key to contain the partition key, hence (id, criada_em) rather than id alone.",architecture,packages/db/src/schema/conversas.ts:331-334; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d9b08b6d,packages-db,packages/db/src/schema/conversas.ts,351,351,jsdoc,2,"/** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */",translate,"When set, lets effort reports subtract text the agent did not type.",integration,packages/db/src/schema/conversas.ts:351-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-67133978,packages-db,packages/db/src/schema/conversas.ts,368,371,jsdoc,8,"/**
      * Amarra a resposta do cliente ao disparo que a originou: é o que faz o relatório
      * contar a janela a partir do envio, e não pelo dia do calendário.
-     */",,,,,,
+     */",translate,"Links a customer reply to the outbound send that prompted it, so reports measure the window from send time rather than calendar day.",integration,packages/db/src/schema/conversas.ts:368-371; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-b73b1e4a,packages-db,packages/db/src/schema/conversas.ts,37,41,jsdoc,5,"/**
      * Token da Meta, senha SMTP: cifrado em repouso pela `packages/db/src/segredo.ts`,
      * com a chave fora do banco (§6). Só os campos da lista `CAMPOS_SECRETOS_DE_CANAL`
      * são cifrados — o resto continua legível para diagnóstico.
-     */",,,,,,
+     */",translate,Meta token and SMTP password are encrypted at rest by `packages/db/src/segredo.ts` using a key outside the database (§6). Only fields in `CAMPOS_SECRETOS_DE_CANAL` are encrypted; the rest remain readable for diagnosis.,security,packages/db/src/schema/conversas.ts:37-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-77803b16,packages-db,packages/db/src/schema/conversas.ts,373,383,jsdoc,14,"/**
      * O que não cabe em coluna própria e é específico do canal ou do tipo.
      *
@@ -276,11 +276,11 @@ packages-db-comment-77803b16,packages-db,packages/db/src/schema/conversas.ts,373
      * No Instagram, guarda a origem da conversa: mensagem direta, resposta a story com a
      * referência do story, menção, ou comentário promovido a conversa privada com o
      * vínculo à publicação.
-     */",,,,,,
+     */",translate,"Channel- or type-specific data that has no dedicated column. Positional template values must survive sending: if they existed only in the queue job, a lost job would also lose retry and audit capability. For Instagram, store conversation origin: direct message, story reply and reference, mention, or comment promoted to a private conversation with its publication link.",integration,packages/db/src/schema/conversas.ts:373-383; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-da7f20cc,packages-db,packages/db/src/schema/conversas.ts,401,404,jsdoc,4,"/**
  * Toda mensagem de saída passa por aqui, com estado próprio e retry com backoff.
  * `mensagem_id` fica sem chave estrangeira porque `mensagem` é particionada.
- */",,,,,,
+ */",translate,Every outbound message passes through this outbox with its own status and backoff retries. `mensagem_id` has no foreign key because `mensagem` is partitioned.,architecture,packages/db/src/schema/conversas.ts:401-404; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-5af4a28e,packages-db,packages/db/src/schema/conversas.ts,45,53,jsdoc,4,"/**
      * As duas chaves de roteamento do webhook, e a razão de estarem em COLUNA e
      * não no `config`: os eventos de template e de conta da Meta não aceitam URL
@@ -289,7 +289,7 @@ packages-db-comment-5af4a28e,packages-db,packages/db/src/schema/conversas.ts,45,
      * payload é consulta, e consulta em jsonb sem índice é varredura.
      *
      * Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
-     */",,,,,,
+     */",translate,"Webhook routing keys belong in columns rather than `config`. Meta template and account events cannot use per-customer URLs and all reach one route; the tenant must be resolved from payload (`entry[].id` is WABA, `metadata.phone_number_id` is the number). Payload resolution is a lookup, and unindexed jsonb lookup would scan. See `docs/specs/2026-09-07-webhook-por-cliente.md`.",meta-blip,packages/db/src/schema/conversas.ts:45-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-bfd26cb4,packages-db,packages/db/src/schema/conversas.ts,550,557,jsdoc,9,"/**
  * Fixar e marcar como não lida — POR ATENDENTE, não por conversa (migração 0041).
  *
@@ -297,63 +297,63 @@ packages-db-comment-bfd26cb4,packages-db,packages/db/src/schema/conversas.ts,550
  * `fixada_em` nulo é ""não fixada""; `nao_lida_em` nulo é ""lida"". A linha só existe
  * enquanto ao menos um dos dois estiver marcado (CHECK); o domínio apaga a linha
  * que ficou sem marcação. O teto de 50 fixadas é conferido no domínio.
- */",,,,,,
+ */",translate,"Pinned and manually unread markers belong to each AGENT, not the conversation (migration 0041). They mirror source card menu PIN/UNPIN and UNREAD/READ (`TicketMenuOptions`). Null `fixada_em` means unpinned; null `nao_lida_em` means read. A row exists only while at least one marker is set (CHECK), and the domain deletes unmarked rows. The domain enforces a limit of 50 pinned conversations.",meta-blip,packages/db/src/schema/conversas.ts:550-557; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-6adc7165,packages-db,packages/db/src/schema/conversas.ts,62,67,block,5,"/*
      * Únicos e GLOBAIS, de propósito — não por tenant. Dois clientes com o mesmo
      * `numero_id` é estado impossível: significaria dois donos para o mesmo
      * número, e o banco recusa antes de a aplicação escolher errado. Parciais
      * porque só o WhatsApp tem esses identificadores.
-     */",,,,,,
+     */",update,"`numero_id` is deliberately globally unique, not tenant-scoped: two tenants cannot own one number. Its index is partial because only WhatsApp has this ID. `waba_id` has a partial nonunique lookup index, so the original claim that both IDs are unique is inaccurate.",security,packages/db/src/schema/conversas.ts:62-67; packages/db/src/schema/conversas.ts:62-74; numeroId uniqueIndex vs wabaId index; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-6e1d000b,packages-db,packages/db/src/schema/conversas.ts,84,88,jsdoc,5,"/**
      * Aponta para `horario_atendimento`, que vive no módulo de Gestão. A chave
      * estrangeira nasce na migration `0003_chaves_cruzadas` para não fazer os dois
      * módulos se importarem em círculo.
-     */",,,,,,
+     */",translate,References `horario_atendimento` in the Management module. The foreign key is created by migration `0003_chaves_cruzadas` to avoid circular imports between modules.,architecture,packages/db/src/schema/conversas.ts:84-88; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a1204ae8,packages-db,packages/db/src/schema/crm.ts,156,159,jsdoc,4,"/**
  * A resposta é linha, com a versão do formulário junto: mudar o questionário não quebra
  * o histórico, e o questionário de março continua legível depois do de setembro.
- */",,,,,,
+ */",translate,"Store each form response as a row with its form version. Changing a questionnaire then preserves readable history, including a March response after a September revision.",architecture,packages/db/src/schema/crm.ts:156-159; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-2e9326cb,packages-db,packages/db/src/schema/crm.ts,19,23,jsdoc,5,"/**
  * Módulo 2 — CRM. As duas decisões que sustentam o módulo: pergunta de formulário é
  * linha e não coluna (o Lead do Salesforce de hoje tem 353 campos, 304 customizados),
  * e o score se explica — cada cálculo é uma linha nova, não uma sobrescrita.
- */",,,,,,
+ */",translate,"Module 2, CRM, rests on two decisions: form questions are rows rather than columns (the referenced Salesforce Lead had 353 fields, 304 custom), and scoring is explainable, with each calculation stored as a new row rather than overwriting the previous score.",architecture,packages/db/src/schema/crm.ts:19-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c2181385,packages-db,packages/db/src/schema/crm.ts,204,208,jsdoc,9,"/**
  * Cada cálculo é uma linha nova. `explicacao` guarda o array de {regra, versão, pontos}
  * que produziu o número: é o que responde *por que* o lead tirou 74 e o que permite
  * recalcular a base inteira quando a regra muda, sem perder o histórico.
- */",,,,,,
-packages-db-comment-d6e283cf,packages-db,packages/db/src/schema/crm.ts,230,230,jsdoc,3,"/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */",,,,,,
-packages-db-comment-bbff4479,packages-db,packages/db/src/schema/crm.ts,31,31,jsdoc,0,/** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */,,,,,,
-packages-db-comment-e57dadf0,packages-db,packages/db/src/schema/crm.ts,331,331,jsdoc,0,/** Chave no storage do relatório de linhas rejeitadas. */,,,,,,
-packages-db-comment-ac1eb811,packages-db,packages/db/src/schema/crm.ts,74,74,jsdoc,2,/** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */,,,,,,
-packages-db-comment-42fd5e12,packages-db,packages/db/src/schema/crm.ts,79,79,jsdoc,1,"/** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */",,,,,,
+ */",translate,"Each calculation creates a new row. `explicacao` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.",architecture,packages/db/src/schema/crm.ts:204-208; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d6e283cf,packages-db,packages/db/src/schema/crm.ts,230,230,jsdoc,3,"/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */",translate,The score band is the scoring engine's output and determines queue and owner.,architecture,packages/db/src/schema/crm.ts:230-230; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-bbff4479,packages-db,packages/db/src/schema/crm.ts,31,31,jsdoc,0,/** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */,translate,Store CPF/CNPJ as `text`: alphanumeric CNPJ from 2026 breaks numeric columns and fixed masks.,architecture,packages/db/src/schema/crm.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e57dadf0,packages-db,packages/db/src/schema/crm.ts,331,331,jsdoc,0,/** Chave no storage do relatório de linhas rejeitadas. */,translate,Storage key for the rejected-row report.,integration,packages/db/src/schema/crm.ts:331-331; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ac1eb811,packages-db,packages/db/src/schema/crm.ts,74,74,jsdoc,2,/** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */,translate,Denormalized from `score_lead` because these two fields are filtered constantly.,architecture,packages/db/src/schema/crm.ts:74-74; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-42fd5e12,packages-db,packages/db/src/schema/crm.ts,79,79,jsdoc,1,"/** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */",translate,"Tenant-specific custom fields live here with a GIN index, never runtime `alter table`.",architecture,packages/db/src/schema/crm.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c5a51691,packages-db,packages/db/src/schema/gestao.ts,255,260,jsdoc,5,"/**
  * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
  * atendente (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
  * como foi digitado; a comparação sem acento e sem caixa é do domínio
  * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
- */",,,,,,
+ */",translate,"Forbidden words, migration 0042: an ACCOUNT-level list blocks agent sending (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` retains the entered spelling; domain logic in `apps/api/src/dominio/gestao/palavras-proibidas.ts` compares without accents or case.",meta-blip,packages/db/src/schema/gestao.ts:255-260; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-ba08b62f,packages-db,packages/db/src/schema/gestao.ts,30,34,jsdoc,5,"/**
  * Módulo 4 — Gestão. Toda métrica é derivada de `evento_atendimento`, nunca de campo
  * mutável da conversa: é isso que permite recalcular o passado quando a definição de
  * uma métrica muda.
- */",,,,,,
+ */",translate,"Module 4, Management: derive every metric from `evento_atendimento`, never mutable conversation fields, so historical periods can be recalculated when metric definitions change.",architecture,packages/db/src/schema/gestao.ts:30-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-fe87731e,packages-db,packages/db/src/schema/gestao.ts,339,342,jsdoc,5,"/**
  * Guarda a escala junto da nota de propósito: sem isso, um 4 de CSAT e um 4 de NPS
  * acabam somados no mesmo gráfico quando a empresa tem os dois modelos.
- */",,,,,,
-packages-db-comment-b09cb3df,packages-db,packages/db/src/schema/gestao.ts,357,357,jsdoc,2,/** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */,,,,,,
+ */",translate,Store the scale alongside the score; otherwise CSAT 4 and NPS 4 would be added to the same chart when an account uses both models.,architecture,packages/db/src/schema/gestao.ts:339-342; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b09cb3df,packages-db,packages/db/src/schema/gestao.ts,357,357,jsdoc,2,/** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */,translate,"NPS values are `promotor`, `neutro`, `detrator`; CSAT values are `satisfeito`, `insatisfeito`.",integration,packages/db/src/schema/gestao.ts:357-357; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c7d88b00,packages-db,packages/db/src/schema/gestao.ts,36,39,jsdoc,2,"/**
  * Imutável e particionada por mês em `em`. A chave primária carrega a chave de
  * partição, como em `mensagem`.
- */",,,,,,
-packages-db-comment-0cb49eb7,packages-db,packages/db/src/schema/gestao.ts,80,80,jsdoc,3,"/** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */",,,,,,
+ */",translate,Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `mensagem`.,architecture,packages/db/src/schema/gestao.ts:36-39; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0cb49eb7,packages-db,packages/db/src/schema/gestao.ts,80,80,jsdoc,3,"/** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */",translate,Store sums in seconds; divide by count at display time to compute averages.,architecture,packages/db/src/schema/gestao.ts:80-80; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-5554642d,packages-db,packages/db/src/schema/gestao.ts,97,101,jsdoc,3,"/**
  * Régua determinística de esforço (§4.4 da spec): 200 char/min escrito, 1.000 char/min
  * lido, áudio em 1×. `chars_de_resposta_pronta` é o desconto do texto que o atendente
  * não digitou — sem ele, template e resposta pronta inflam o esforço.
- */",,,,,,
+ */",translate,"Deterministic effort measure (spec §4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1×. `chars_de_resposta_pronta` discounts text the agent did not type; without it, templates and canned responses inflate effort.",architecture,packages/db/src/schema/gestao.ts:97-101; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4f5dba2f,packages-db,packages/db/src/schema/identidade.ts,101,113,jsdoc,16,"/**
      * A instância do Twenty deste cliente, e a chave para falar com ela.
      *
@@ -366,7 +366,7 @@ packages-db-comment-4f5dba2f,packages-db,packages/db/src/schema/identidade.ts,10
      * `twentyChave` é a chave de API, CIFRADA em repouso pelo mesmo chaveiro do token
      * da Meta (`PIPE_CHAVES_SEGREDO`). Diferente do token da Meta, esta também LÊ: quem
      * a tiver tem a base de clientes daquele tenant inteira.
-     */",,,,,,
+     */",translate,"Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyChave` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.",security,packages/db/src/schema/identidade.ts:101-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-f15de131,packages-db,packages/db/src/schema/identidade.ts,116,123,jsdoc,12,"/**
      * Os dados que a própria pessoa preenche em ""minha conta"", depois de entrar.
      *
@@ -374,17 +374,17 @@ packages-db-comment-f15de131,packages-db,packages/db/src/schema/identidade.ts,11
      * tela de boas-vindas que anuncia isso. Exigi-los antes devolveria o
      * formulário para antes do login — que é justamente o que o autosserviço
      * evita. `funcionarios` é faixa em texto (""1 a 10""), como na origem.
-     */",,,,,,
-packages-db-comment-9a431871,packages-db,packages/db/src/schema/identidade.ts,131,131,jsdoc,2,"/** Nulo = onboarding em aberto, e a Gestão leva para ""minha conta"". */",,,,,,
+     */",translate,"Details the person supplies in ""minha conta"" after login. All are nullable because self-service creates the account without them, and the welcome screen then requests them; requiring them before login would defeat self-service. `funcionarios` is a text range such as ""1 a 10"", as in the source.",meta-blip,packages/db/src/schema/identidade.ts:116-123; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-9a431871,packages-db,packages/db/src/schema/identidade.ts,131,131,jsdoc,2,"/** Nulo = onboarding em aberto, e a Gestão leva para ""minha conta"". */",translate,"Null means onboarding is incomplete, and Management routes to ""minha conta"".",integration,packages/db/src/schema/identidade.ts:131-131; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-38ec1dcb,packages-db,packages/db/src/schema/identidade.ts,141,144,jsdoc,5,"/**
  * Toda tabela de negócio referencia o tenant por aqui. Fica em identidade e não em
  * `comum` para não criar ciclo de import com a própria tabela `tenant`.
- */",,,,,,
+ */",translate,Business tables reference the tenant through this helper. It lives in identity rather than `comum` to avoid an import cycle with the `tenant` table itself.,architecture,packages/db/src/schema/identidade.ts:141-144; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-28f85f60,packages-db,packages/db/src/schema/identidade.ts,15,19,jsdoc,2,"/**
  * Módulo 1 — Identidade e tenancy. Base de tudo; não depende de nenhum outro módulo.
  * O `tenant` carrega a personalização (nome, logo, cor, fuso, idioma): white-label é
  * configuração, nunca build separado.
- */",,,,,,
+ */",translate,"Module 1, identity and tenancy, is the foundation and depends on no other module. `tenant` holds name, logo, color, timezone, and language customization: white-labeling is configuration, never a separate build.",architecture,packages/db/src/schema/identidade.ts:15-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-542a03bf,packages-db,packages/db/src/schema/identidade.ts,166,174,jsdoc,7,"/**
  * De que lado o papel vale (migração 0021).
  *
@@ -393,14 +393,16 @@ packages-db-comment-542a03bf,packages-db,packages/db/src/schema/identidade.ts,16
  * a tela de Membros e o convite oferecem. `atendimento` é o resto (gestor,
  * supervisor, atendente, avaliador): zero ou mais por pessoa. As permissões
  * efetivas são a união dos dois.
- */",,,,,,
-packages-db-comment-aa1c4713,packages-db,packages/db/src/schema/identidade.ts,178,178,jsdoc,3,"/** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */",,,,,,
-packages-db-comment-240de17f,packages-db,packages/db/src/schema/identidade.ts,189,189,jsdoc,2,/** Papel do dia 1 não é editável pelo cliente. */,,,,,,
+ */",translate,"Role scope (migration 0021).
+
+`conta` covers contract roles `admin`, `member`, `guest`, matching the source labels ""Admin"", ""Pode editar"", and ""Pode visualizar"". Each person has ONE, and only those appear in Members and invitations. `atendimento` covers manager, supervisor, agent, and reviewer roles; a person may have zero or more. Effective permissions are the union.",meta-blip,packages/db/src/schema/identidade.ts:166-174; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-aa1c4713,packages-db,packages/db/src/schema/identidade.ts,178,178,jsdoc,3,"/** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */",translate,Source `roleId` values represented here by the NAMES of the three account roles.,meta-blip,packages/db/src/schema/identidade.ts:178-178; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-240de17f,packages-db,packages/db/src/schema/identidade.ts,189,189,jsdoc,2,/** Papel do dia 1 não é editável pelo cliente. */,remove,,other,packages/db/src/schema/identidade.ts:189-189,codex,reviewed
 packages-db-comment-0cc44801,packages-db,packages/db/src/schema/identidade.ts,202,206,jsdoc,5,"/**
  * Catálogo global de capacidades nomeadas (`conversa.transferir`,
  * `relatorio.esforco.ver`). Não tem tenant de propósito: é vocabulário do produto,
  * igual para todo mundo, e por isso é a única tabela sem RLS junto de `tenant`.
- */",,,,,,
+ */",translate,"Global catalog of named capabilities (`conversa.transferir`, `relatorio.esforco.ver`). It deliberately has no tenant: this product vocabulary is shared by everyone, making it the only table without RLS alongside `tenant`.",security,packages/db/src/schema/identidade.ts:202-206; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-56419576,packages-db,packages/db/src/schema/identidade.ts,21,32,jsdoc,12,"/**
  * Onde o tenant está hospedado.
  *
@@ -412,12 +414,16 @@ packages-db-comment-56419576,packages-db,packages/db/src/schema/identidade.ts,21
  * em tabela pequena é barato hoje e caro na véspera da primeira migração — que
  * é exatamente quando ele vai fazer falta, para o código saber a quem
  * perguntar sem consultar planilha.
- */",,,,,,
+ */",translate,"Where the tenant is hosted.
+
+`compartilhada` is the shared database with RLS, the default for most tenants. `dedicada` is a tenant moved to its own instance for contractual or load reasons. See `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
+
+Adding this column while the table is small is cheap; doing so just before the first migration would be costly. The code needs this field to locate a tenant without consulting a spreadsheet.",architecture,packages/db/src/schema/identidade.ts:21-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-3b81c39a,packages-db,packages/db/src/schema/identidade.ts,237,241,jsdoc,3,"/**
      * Cópia do `papel.escopo`, amarrada pela FK composta: é o que deixa o índice
      * parcial abaixo garantir UM papel de conta por pessoa sem trigger. Quem
      * grava papel de conta passa `'conta'`; errar o valor falha na FK.
-     */",,,,,,
+     */",translate,"Copy of `papel.escopo`, bound by a composite foreign key, allowing the partial index below to enforce ONE account role per person without a trigger. Writers pass `'conta'` for an account role; the FK rejects a wrong scope.",architecture,packages/db/src/schema/identidade.ts:237-241; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-341917a7,packages-db,packages/db/src/schema/identidade.ts,259,273,jsdoc,19,"/**
  * A EXCEÇÃO por pessoa, em cima do papel (migração 0046).
  *
@@ -432,9 +438,13 @@ packages-db-comment-341917a7,packages-db,packages/db/src/schema/identidade.ts,25
  * Linha ausente = manda o papel. `gravarPermissoesDoAtendente` APAGA a linha
  * quando a escolha volta a coincidir com o papel, para a tabela guardar só a
  * exceção e nunca virar cópia desatualizada do RBAC.
- */",,,,,,
-packages-db-comment-b5bad606,packages-db,packages/db/src/schema/identidade.ts,284,284,jsdoc,3,/** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */,,,,,,
-packages-db-comment-a921e6ba,packages-db,packages/db/src/schema/identidade.ts,331,331,jsdoc,2,"/** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */",,,,,,
+ */",translate,"A person-level EXCEPTION on top of roles (migration 0046).
+
+The source ""Permissões"" page edits a per-agent table of ""Tipo de permissão"" by ""Status"" (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` section a.4). A role grants a set; without overrides, removing one capability from one person would require a one-person role.
+
+Effective permission = COALESCE(the row's `concedida`, union of roles). Missing row means roles decide. `gravarPermissoesDoAtendente` deletes an override when it again matches the role, so this table contains exceptions rather than a stale RBAC copy.",meta-blip,packages/db/src/schema/identidade.ts:259-273; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b5bad606,packages-db,packages/db/src/schema/identidade.ts,284,284,jsdoc,3,/** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */,translate,`true` grants what the role lacks; `false` revokes what the role grants.,security,packages/db/src/schema/identidade.ts:284-284; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a921e6ba,packages-db,packages/db/src/schema/identidade.ts,331,331,jsdoc,2,"/** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */",translate,Records the login origin for audit and IdP-based revocation.,security,packages/db/src/schema/identidade.ts:331-331; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e8df1702,packages-db,packages/db/src/schema/identidade.ts,345,359,jsdoc,16,"/**
  * A conta da pessoa no provedor externo.
  *
@@ -449,7 +459,11 @@ packages-db-comment-e8df1702,packages-db,packages/db/src/schema/identidade.ts,34
  * usuário, e usuário pertence a um tenant. Deixar duas linhas para o mesmo par
  * seria a mesma pessoa entrando em dois clientes com o mesmo login — e a decisão
  * de qual vale ficaria com quem consultasse primeiro.
- */",,,,,,
+ */",update,"External provider account.
+
+The key is NEVER email: it is `(emissor, sujeito)`; for Google the issuer is `https://accounts.google.com` and the subject is the `id_token` `sub`. Email ownership can change, so matching by email could give a successor the former user's account. `emailNoProvedor` is for display and diagnostics only.
+
+The schema now enforces uniqueness PER TENANT on `(tenantId, emissor, sujeito)`, so the schema permits one provider account in several Pipe tenants. The login path currently looks up `(emissor, sujeito)` without a tenant filter and selects the first match; it cannot reliably use those multiple links. The original global-uniqueness claim is outdated.",security,packages/db/src/schema/identidade.ts:345-359; packages/db/src/schema/identidade.ts:345-385; uniqueIndex includes tenantId; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-365970bd,packages-db,packages/db/src/schema/identidade.ts,35,46,jsdoc,21,"/**
  * Os três planos, com os limites que a cobrança usa.
  *
@@ -461,13 +475,15 @@ packages-db-comment-365970bd,packages-db,packages/db/src/schema/identidade.ts,35
  * `conversasIaPorAtendente` é a franquia, e é o número que segura a margem: a IA
  * é o único custo que escala com uso, e sem teto um cliente de volume alto come
  * a margem inteira sem ninguém perceber até a fatura chegar.
- */",,,,,,
+ */",translate,"Three plans with limits used for billing, per `docs/specs/2026-09-07-preco.md`. Keep them in code, not environment configuration: the AI conversation cap must share a source with enforcement, and environment-based prices can diverge from the screen and invoice.
+
+`conversasIaPorAtendente` is the allowance protecting margin. AI is the cost that scales with use; without a cap a high-volume tenant could consume the margin before the bill reveals it.",architecture,packages/db/src/schema/identidade.ts:35-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0f38fe7a,packages-db,packages/db/src/schema/identidade.ts,375,380,jsdoc,5,"/**
      * Única dentro do tenant, e não no sistema inteiro: a mesma conta do
      * provedor administra várias contas do Pipe, e é isso que o seletor do
      * canto superior esquerdo troca. Global, a segunda empresa da mesma pessoa
      * esbarrava aqui (migração 0017).
-     */",,,,,,
+     */",update,"Unique within a tenant, not globally (migration 0017). The schema permits one provider account across Pipe tenants, but `entrarComIdentidade` currently selects the first `(emissor, sujeito)` match without tenant context, so account switching needs slice-time verification.",security,packages/db/src/schema/identidade.ts:375-380; packages/autenticacao/src/entrada.ts:101-130 selects first provider match without tenantId; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-010c67ad,packages-db,packages/db/src/schema/identidade.ts,390,400,jsdoc,13,"/**
  * Domínio de e-mail que pertence a um tenant.
  *
@@ -478,7 +494,9 @@ packages-db-comment-010c67ad,packages-db,packages/db/src/schema/identidade.ts,39
  *
  * Domínio público — gmail, hotmail, outlook — nunca é cadastrável, e a lista
  * dessas exceções vive no código, não aqui.
- */",,,,,,
+ */",translate,"Email domain owned by a tenant.
+
+It enables tenant discovery during login because the tenant is not in the subdomain (`infraestrutura.md` section 3). It counts only after TXT DNS verification; otherwise a user with `@banco.com.br` could claim the bank's tenant. Public domains such as Gmail, Hotmail, and Outlook cannot be registered; the exclusion list lives in code.",security,packages/db/src/schema/identidade.ts:390-400; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-8f183001,packages-db,packages/db/src/schema/identidade.ts,414,432,jsdoc,20,"/**
  * A conexão de SSO do tenant — o espelho fino da configuração do IdP dele.
  *
@@ -497,21 +515,27 @@ packages-db-comment-8f183001,packages-db,packages/db/src/schema/identidade.ts,41
  * cifrado por `cifrarConfig` (`packages/db/src/segredo.ts`), que já trata
  * `clientSecret` como campo secreto justamente para isto. O que um `pg_dump`
  * entrega é envelope, não credencial.
- */",,,,,,
-packages-db-comment-39c009cb,packages-db,packages/db/src/schema/identidade.ts,444,444,jsdoc,2,/** Qual IdP. Muda a leitura dos claims — no Entra o sujeito é `{tid}:{oid}`. */,,,,,,
-packages-db-comment-553872ac,packages-db,packages/db/src/schema/identidade.ts,453,453,jsdoc,2,/** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */,,,,,,
+ */",translate,"Tenant SSO connection, a thin mirror of IdP configuration.
+
+**One per tenant**, enforced by uniqueness on `tenant_id`. Multiple directories would make domain discovery ambiguous before anyone has signed in to disambiguate.
+
+**State and policy are separate.** `estado` tracks connection readiness (`rascunho` -> `testada` -> `ativa`); `politica` tracks whether password entry remains allowed (`desligado` -> `opcional` -> `obrigatorio`). Combining them can lock out an entire tenant; see `referencias-blip/pesquisa/sso-multi-tenant.md` sections 3 and 6.
+
+**The secret is not stored in plaintext here.** `clientSecret` is inside `config`, encrypted by `cifrarConfig` in `packages/db/src/segredo.ts`. A `pg_dump` contains an envelope rather than a credential.",security,packages/db/src/schema/identidade.ts:414-432; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-39c009cb,packages-db,packages/db/src/schema/identidade.ts,444,444,jsdoc,2,/** Qual IdP. Muda a leitura dos claims — no Entra o sujeito é `{tid}:{oid}`. */,translate,"IdP kind changes claim parsing: in Entra, subject is `{tid}:{oid}`.",security,packages/db/src/schema/identidade.ts:444-444; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-553872ac,packages-db,packages/db/src/schema/identidade.ts,453,453,jsdoc,2,/** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */,translate,When the test passed. It remains valid for 30 days; a test from 2024 proves nothing today.,security,packages/db/src/schema/identidade.ts:453-453; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-77543460,packages-db,packages/db/src/schema/identidade.ts,467,471,jsdoc,5,"/**
  * Chave de API e de MCP. O segredo nunca é guardado em claro: fica o `hash` e um
  * `prefixo` visível, que é o que a tela mostra para o cliente reconhecer a chave.
  * Escopo de escrita é separado de escopo de leitura (§4.6 da spec).
- */",,,,,,
+ */",translate,API and MCP key. Never store the secret in plaintext: persist `hash` plus a visible `prefixo` for the customer to recognize the key. Separate write scopes from read scopes (spec section 4.6).,security,packages/db/src/schema/identidade.ts:467-471; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-85bb2390,packages-db,packages/db/src/schema/identidade.ts,481,487,jsdoc,8,"/**
      * A chave é da CONTA (`null`, o padrão) ou de UM fluxo — a tela de
      * ""Chaves de acesso"" do fluxo (migração 0032). A FK para `fluxo` cruza
      * módulos (`identidade` → `automacao`) e por isso não entra aqui: seria
      * ciclo de import, o mesmo motivo de `0003_chaves_cruzadas.sql`. A
      * constraint de verdade está na migração 0032, plain column aqui.
-     */",,,,,,
+     */",translate,"The key belongs to the ACCOUNT (`null`, the default) or ONE flow, as on the flow's ""Chaves de acesso"" screen (migration 0032). A foreign key to `fluxo` would cross `identidade` and `automacao`, creating a circular import as with `0003_chaves_cruzadas.sql`; migration 0032 owns the actual constraint, leaving a plain column here.",architecture,packages/db/src/schema/identidade.ts:481-487; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-f68fd674,packages-db,packages/db/src/schema/identidade.ts,526,538,jsdoc,13,"/**
  * Convite para entrar num tenant.
  *
@@ -524,46 +548,50 @@ packages-db-comment-f68fd674,packages-db,packages/db/src/schema/identidade.ts,52
  * lê a tabela não consegue aceitar convite de ninguém. Prazo curto (7 dias) e uso
  * único, marcado por `aceito_em` — reaproveitar link é o defeito clássico, e é o
  * que a leitura `for update` na hora de aceitar fecha.
- */",,,,,,
-packages-db-comment-27276726,packages-db,packages/db/src/schema/identidade.ts,54,54,jsdoc,3,/** Fração das conversas que a monitoria avalia. 1 é todas. */,,,,,,
-packages-db-comment-0c2f0a1c,packages-db,packages/db/src/schema/identidade.ts,548,548,jsdoc,2,"/** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */",,,,,,
-packages-db-comment-6c2c5ec3,packages-db,packages/db/src/schema/identidade.ts,554,554,jsdoc,2,/** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */,,,,,,
-packages-db-comment-06464880,packages-db,packages/db/src/schema/identidade.ts,77,77,block,1,"/* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */",,,,,,
-packages-db-comment-f486a2bf,packages-db,packages/db/src/schema/implantacao.ts,18,18,jsdoc,4,"/** O CSV das linhas rejeitadas, com a coluna `erros`. Nulo quando nada foi rejeitado. */",,,,,,
+ */",update,"Invitation to join a tenant.
+
+An invitation is required to join an existing account without a linked identity; it prevents a verified domain alone from granting access. Google self-service can create a NEW account for an unclaimed domain or a personal email, so the original claim that invitation is the only path for those cases is outdated. See `packages/autenticacao/src/entrada.ts`.
+
+As with sessions and API keys, the database stores only the hash, never the token. Invitations expire after seven days and are single-use via `aceito_em`; the acceptance path uses `for update` to prevent link reuse.",security,packages/db/src/schema/identidade.ts:526-538; packages/autenticacao/src/entrada.ts:152-181; self-service branches; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-27276726,packages-db,packages/db/src/schema/identidade.ts,54,54,jsdoc,3,/** Fração das conversas que a monitoria avalia. 1 é todas. */,remove,,other,packages/db/src/schema/identidade.ts:54-54,codex,reviewed
+packages-db-comment-0c2f0a1c,packages-db,packages/db/src/schema/identidade.ts,548,548,jsdoc,2,"/** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */",translate,"Always `conta`: an invitation grants only an account role, enforced by the composite FK.",security,packages/db/src/schema/identidade.ts:548-548; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-6c2c5ec3,packages-db,packages/db/src/schema/identidade.ts,554,554,jsdoc,2,/** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */,translate,The user created from this invitation is retained for audit; using an invitation does not delete it.,architecture,packages/db/src/schema/identidade.ts:554-554; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-06464880,packages-db,packages/db/src/schema/identidade.ts,77,77,block,1,"/* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */",translate,"Contract-only plan: price and allowance live in the tenant record, not this table.",architecture,packages/db/src/schema/identidade.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f486a2bf,packages-db,packages/db/src/schema/implantacao.ts,18,18,jsdoc,4,"/** O CSV das linhas rejeitadas, com a coluna `erros`. Nulo quando nada foi rejeitado. */",translate,CSV of rejected rows with an `erros` column; null when no rows were rejected.,integration,packages/db/src/schema/implantacao.ts:18-18; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-84704b71,packages-db,packages/db/src/schema/implantacao.ts,6,11,jsdoc,2,"/**
  * O arquivo da importação de contatos — migration `0016_entrada_do_cliente`.
  *
  * É o `import_file` e o `failed_records` do `DataImport` do Chatwoot. Declarado
  * aqui para o `drizzle-kit` não gerar um `DROP` dela na próxima migration.
- */",,,,,,
+ */",translate,Contact-import file from migration `0016_entrada_do_cliente`. It corresponds to Chatwoot `DataImport` fields `import_file` and `failed_records`. Declared here so `drizzle-kit` does not generate a `DROP` for it in the next migration.,integration,packages/db/src/schema/implantacao.ts:6-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-44df50d1,packages-db,packages/db/src/schema/index.ts,1,5,jsdoc,2,"/**
  * Schema do Pipe, módulo a módulo, na ordem de dependência do modelo de dados.
  * Duas chaves estrangeiras cruzam módulos em círculo (`fila.horario_id` → Gestão e
  * `contato.conta_id` → CRM) e por isso nascem na migration 0003, fora do schema.
- */",,,,,,
+ */",translate,"Pipe schema organized by module in data-model dependency order. Two foreign keys cross modules in a cycle (`fila.horario_id` to Management and `contato.conta_id` to CRM), so migration 0003 creates them outside this schema.",architecture,packages/db/src/schema/index.ts:1-5; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-2be095b9,packages-db,packages/db/src/schema/monitoria.ts,106,109,jsdoc,2,"/**
      * A nota da IA nasce como sugestão e vira efetiva conforme a política do tenant —
      * sempre, só acima deste limiar, ou nunca.
-     */",,,,,,
+     */",translate,"The AI score starts as a suggestion and becomes effective according to tenant policy: always, only above this threshold, or never.",integration,packages/db/src/schema/monitoria.ts:106-109; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-1f982f18,packages-db,packages/db/src/schema/monitoria.ts,126,129,jsdoc,4,"/**
  * `evidencia_mensagem_id` é o trecho citado que sustenta a nota. Sem chave estrangeira
  * porque `mensagem` é particionada e sua unicidade é (id, criada_em).
- */",,,,,,
-packages-db-comment-7597446f,packages-db,packages/db/src/schema/monitoria.ts,172,172,jsdoc,3,"/** Bancada de medição: mede o desvio entre a nota humana e a da IA, critério a critério. */",,,,,,
+ */",translate,"`evidencia_mensagem_id` identifies the quoted passage supporting the score. It has no foreign key because `mensagem` is partitioned and unique on (id, criada_em).",architecture,packages/db/src/schema/monitoria.ts:126-129; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-7597446f,packages-db,packages/db/src/schema/monitoria.ts,172,172,jsdoc,3,"/** Bancada de medição: mede o desvio entre a nota humana e a da IA, critério a critério. */",translate,Calibration measures the gap between human and AI scores for each criterion.,integration,packages/db/src/schema/monitoria.ts:172-172; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0ff399a6,packages-db,packages/db/src/schema/monitoria.ts,19,23,jsdoc,4,"/**
  * Módulo 5 — Monitoria com IA. Formulário (grupo → critério → peso, com critério fatal
  * que zera a nota) × avaliação (humana ou IA) × ciclo (feedback → contestação →
  * calibração → coach).
- */",,,,,,
-packages-db-comment-1d829bc9,packages-db,packages/db/src/schema/monitoria.ts,273,273,jsdoc,1,"/** Onde o gestor decide o que automatizar: volume, tendência e conversas de exemplo. */",,,,,,
-packages-db-comment-9344ad26,packages-db,packages/db/src/schema/monitoria.ts,294,294,jsdoc,2,/** Sem isto o produto vende IA no prejuízo: é painel para o cliente e base de cobrança. */,,,,,,
+ */",translate,"Module 5, AI quality review: form (group -> criterion -> weight, with a fatal criterion that zeroes the score), evaluation (human or AI), and cycle (feedback -> dispute -> calibration -> coaching).",architecture,packages/db/src/schema/monitoria.ts:19-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1d829bc9,packages-db,packages/db/src/schema/monitoria.ts,273,273,jsdoc,1,"/** Onde o gestor decide o que automatizar: volume, tendência e conversas de exemplo. */",remove,,other,packages/db/src/schema/monitoria.ts:273-273,codex,reviewed
+packages-db-comment-9344ad26,packages-db,packages/db/src/schema/monitoria.ts,294,294,jsdoc,2,/** Sem isto o produto vende IA no prejuízo: é painel para o cliente e base de cobrança. */,translate,"Without this, AI could be sold at a loss. These records support both the customer dashboard and billing.",architecture,packages/db/src/schema/monitoria.ts:294-294; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-9f775248,packages-db,packages/db/src/schema/monitoria.ts,320,323,jsdoc,4,"/**
  * Incremental e versionada: documentos independentes, cada trecho rastreável até o
  * documento e a versão. É o que faz a sugestão do copiloto poder citar a fonte.
- */",,,,,,
-packages-db-comment-4af3d113,packages-db,packages/db/src/schema/monitoria.ts,69,69,jsdoc,1,/** Critério fatal zera a nota da avaliação inteira. */,,,,,,
-packages-db-comment-9246c559,packages-db,packages/db/src/segredo.ts,126,126,line,4,// `final()` do GCM lança quando a tag não bate. Não repassamos o erro original:,,,,,,
-packages-db-comment-2347eac3,packages-db,packages/db/src/segredo.ts,127,127,line,1,// detalhe de falha de autenticação é o que alimenta oráculo.,,,,,,
+ */",translate,"Incremental and versioned: documents are independent, and every passage traces to its document and version. This lets copilot suggestions cite their source.",architecture,packages/db/src/schema/monitoria.ts:320-323; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-4af3d113,packages-db,packages/db/src/schema/monitoria.ts,69,69,jsdoc,1,/** Critério fatal zera a nota da avaliação inteira. */,translate,A fatal criterion zeroes the entire evaluation score.,integration,packages/db/src/schema/monitoria.ts:69-69; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-9246c559,packages-db,packages/db/src/segredo.ts,126,126,line,4,// `final()` do GCM lança quando a tag não bate. Não repassamos o erro original:,translate,GCM `final()` throws when the authentication tag is wrong. Do not expose the original error:,security,packages/db/src/segredo.ts:126-126; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2347eac3,packages-db,packages/db/src/segredo.ts,127,127,line,1,// detalhe de falha de autenticação é o que alimenta oráculo.,translate,authentication-failure detail can become an oracle.,security,packages/db/src/segredo.ts:127-127; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0f3562e6,packages-db,packages/db/src/segredo.ts,132,139,jsdoc,4,"/**
  * Os campos de `canal.config` que são segredo.
  *
@@ -571,10 +599,12 @@ packages-db-comment-0f3562e6,packages-db,packages/db/src/segredo.ts,132,139,jsdo
  * precisa continuar legível e consultável — `phoneNumberId` aparece em log de
  * diagnóstico, `apiVersao` em suporte. Cifrar tudo transformaria toda pergunta
  * operacional em decifrar primeiro.
- */",,,,,,
-packages-db-comment-7b9c6f70,packages-db,packages/db/src/segredo.ts,146,146,line,1,// O PIN de duas etapas que o registro do número grava (`configuracao-de-webhook.ts`).,,,,,,
-packages-db-comment-2dc38d34,packages-db,packages/db/src/segredo.ts,147,147,line,2,"// Com ele, quem tem o número migra o WhatsApp do cliente para outro provedor.",,,,,,
-packages-db-comment-fad5aabe,packages-db,packages/db/src/segredo.ts,153,153,jsdoc,1,/** Cifra os campos secretos de uma configuração de canal. Idempotente. */,,,,,,
+ */",translate,"Secret fields in `canal.config`.
+
+Use a closed list instead of encrypting the whole object: other configuration must remain readable and queryable. `phoneNumberId` appears in diagnostics and `apiVersao` in support. Encrypting everything would require decryption for ordinary operations.",security,packages/db/src/segredo.ts:132-139; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-7b9c6f70,packages-db,packages/db/src/segredo.ts,146,146,line,1,// O PIN de duas etapas que o registro do número grava (`configuracao-de-webhook.ts`).,translate,Two-step PIN saved when registering the number (`configuracao-de-webhook.ts`).,security,packages/db/src/segredo.ts:146-146; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2dc38d34,packages-db,packages/db/src/segredo.ts,147,147,line,2,"// Com ele, quem tem o número migra o WhatsApp do cliente para outro provedor.",translate,"With it, someone controlling the number could migrate the tenant's WhatsApp to another provider.",security,packages/db/src/segredo.ts:147-147; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-fad5aabe,packages-db,packages/db/src/segredo.ts,153,153,jsdoc,1,/** Cifra os campos secretos de uma configuração de canal. Idempotente. */,remove,,other,packages/db/src/segredo.ts:153-153,codex,reviewed
 packages-db-comment-e1533b3e,packages-db,packages/db/src/segredo.ts,164,171,jsdoc,7,"/**
  * Decifra os campos secretos na leitura.
  *
@@ -582,8 +612,10 @@ packages-db-comment-e1533b3e,packages-db,packages/db/src/segredo.ts,164,171,jsdo
  * o que foi gravado antes desta cifra existir sem derrubar a operação. O caminho
  * de escrita não tem essa tolerância — o que for gravado a partir de agora sai
  * cifrado.
- */",,,,,,
-packages-db-comment-a5d03112,packages-db,packages/db/src/segredo.ts,182,182,jsdoc,2,"/** Comparação em tempo constante, para segredo que chega de fora (verifyToken). */",,,,,,
+ */",translate,"Decrypt secret fields on read.
+
+Plaintext values pass through deliberately, and only here, so data written before encryption was introduced remains readable without disrupting operations. The write path has no such tolerance; new data is encrypted.",security,packages/db/src/segredo.ts:164-171; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a5d03112,packages-db,packages/db/src/segredo.ts,182,182,jsdoc,2,"/** Comparação em tempo constante, para segredo que chega de fora (verifyToken). */",remove,,other,packages/db/src/segredo.ts:182-182,codex,reviewed
 packages-db-comment-244f4dc3,packages-db,packages/db/src/segredo.ts,3,30,jsdoc,29,"/**
  * Cifra de segredo de cliente, em repouso.
  *
@@ -611,27 +643,37 @@ packages-db-comment-244f4dc3,packages-db,packages/db/src/segredo.ts,3,30,jsdoc,2
  * As chaves vivem FORA do banco, em `PIPE_CHAVES_SEGREDO`, no formato
  * `<id>:<32 bytes em base64>` separado por vírgula, e a atual em
  * `PIPE_CHAVE_SEGREDO_ATUAL`. Em produção elas chegam pelo SOPS (ver `infra/`).
- */",,,,,,
-packages-db-comment-56dc541a,packages-db,packages/db/src/segredo.ts,32,32,jsdoc,1,/** Marca do envelope. Sem ponto no nome: o ponto é o separador do pacote. */,,,,,,
-packages-db-comment-069709fc,packages-db,packages/db/src/segredo.ts,43,43,jsdoc,2,/** id da chave que cifra o que for gravado agora. */,,,,,,
+ */",translate,"Encrypt tenant secrets at rest.
+
+`canal.config` holds Meta's permanent token, `appSecret`, `verifyToken`, and the SMTP password. A token holder can send messages **as the tenant's number**. The schema promised at-rest encryption from the start; this file implements it.
+
+RLS protects tenants through the application, but not a dump. Backups reach object storage and operator machines; a plaintext `pg_dump` would reveal EVERY tenant credential.
+
+**An envelope carries the key ID.** Rotate by making a new key current while retaining old keys until their data is rewritten. Without IDs, rotation would demand a one-shot migration and would tend never to happen.
+
+**AES-256-GCM, not CBC:** GCM authenticates ciphertext as well as encrypting it. Otherwise a database writer could tamper with ciphertext undetected; targeted corruption of `phoneNumberId` could route messages to the wrong number.
+
+Keys live OUTSIDE the database in `PIPE_CHAVES_SEGREDO` as comma-separated `<id>:<32 bytes em base64>` entries; `PIPE_CHAVE_SEGREDO_ATUAL` selects the current one. Production supplies them through SOPS (see `infra/`).",security,packages/db/src/segredo.ts:3-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-56dc541a,packages-db,packages/db/src/segredo.ts,32,32,jsdoc,1,/** Marca do envelope. Sem ponto no nome: o ponto é o separador do pacote. */,translate,Envelope marker. No dot in its name because dots separate envelope fields.,architecture,packages/db/src/segredo.ts:32-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-069709fc,packages-db,packages/db/src/segredo.ts,43,43,jsdoc,2,/** id da chave que cifra o que for gravado agora. */,remove,,other,packages/db/src/segredo.ts:43-43,codex,reviewed
 packages-db-comment-1b030c36,packages-db,packages/db/src/segredo.ts,49,52,jsdoc,3,"/**
  * Lê o chaveiro do ambiente. Falha alto: chave ausente em produção é erro de
  * implantação, e seguir sem cifra seria gravar token em texto achando que não.
- */",,,,,,
-packages-db-comment-ae4f8a42,packages-db,packages/db/src/segredo.ts,84,84,line,2,"// 96 bits: o tamanho que o GCM espera, e o único seguro com nonce aleatório",,,,,,
-packages-db-comment-c65d15c2,packages-db,packages/db/src/segredo.ts,98,98,jsdoc,3,/** Diz se o valor já é um envelope nosso. Serve para migrar sem cifrar duas vezes. */,,,,,,
-packages-db-comment-7966c412,packages-db,packages/db/src/semente-demo.ts,111,111,line,3,"// --- limpeza escopada ao que esta semente cria, na ordem das chaves estrangeiras ---",,,,,,
-packages-db-comment-462098a2,packages-db,packages/db/src/semente-demo.ts,113,113,line,1,"// Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é",,,,,,
-packages-db-comment-f008bb7e,packages-db,packages/db/src/semente-demo.ts,114,114,line,3,"// compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant",,,,,,
-packages-db-comment-10ebbb39,packages-db,packages/db/src/semente-demo.ts,115,115,line,1,// inteiro apaga o trabalho de quem está do lado.,,,,,,
-packages-db-comment-d54e1903,packages-db,packages/db/src/semente-demo.ts,157,157,line,1,"// Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o",,,,,,
-packages-db-comment-c224c2ab,packages-db,packages/db/src/semente-demo.ts,158,158,line,2,"// `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento",,,,,,
-packages-db-comment-fa81efc3,packages-db,packages/db/src/semente-demo.ts,159,159,line,1,// compartilhado isso é apagar o trabalho alheio.,,,,,,
-packages-db-comment-dd527ad7,packages-db,packages/db/src/semente-demo.ts,176,176,line,2,// Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`),,,,,,
-packages-db-comment-3118655b,packages-db,packages/db/src/semente-demo.ts,177,177,line,3,"// e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha",,,,,,
-packages-db-comment-ccb768c6,packages-db,packages/db/src/semente-demo.ts,178,178,line,2,// qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).,,,,,,
-packages-db-comment-55e48a57,packages-db,packages/db/src/semente-demo.ts,199,199,line,3,// O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.,,,,,,
-packages-db-comment-00bcfcba,packages-db,packages/db/src/semente-demo.ts,272,272,line,4,"// --- templates aprovados pela Meta, o que sobra quando a janela fecha ---",,,,,,
+ */",translate,Read the keyring from the environment and fail loudly. A missing production key is a deployment error; continuing would write tokens in plaintext while appearing to encrypt them.,security,packages/db/src/segredo.ts:49-52; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ae4f8a42,packages-db,packages/db/src/segredo.ts,84,84,line,2,"// 96 bits: o tamanho que o GCM espera, e o único seguro com nonce aleatório",translate,96 bits is the GCM IV size and the only safe size here with a random nonce,security,packages/db/src/segredo.ts:84-84; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c65d15c2,packages-db,packages/db/src/segredo.ts,98,98,jsdoc,3,/** Diz se o valor já é um envelope nosso. Serve para migrar sem cifrar duas vezes. */,remove,,other,packages/db/src/segredo.ts:98-98,codex,reviewed
+packages-db-comment-7966c412,packages-db,packages/db/src/semente-demo.ts,111,111,line,3,"// --- limpeza escopada ao que esta semente cria, na ordem das chaves estrangeiras ---",remove,,other,packages/db/src/semente-demo.ts:111-111,codex,reviewed
+packages-db-comment-462098a2,packages-db,packages/db/src/semente-demo.ts,113,113,line,1,"// Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é",update,Cleanup matches known names and email addresses rather than deleting the whole tenant. These queries do not filter by `tenantId`; matching records in a shared development database can therefore be removed across tenants.,architecture,packages/db/src/semente-demo.ts:113-113; packages/db/src/semente-demo.ts:113-155; queries filter names/emails without tenantId; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f008bb7e,packages-db,packages/db/src/semente-demo.ts,114,114,line,3,"// compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant",translate,"The development database is shared with Pipe Management, so deleting the entire demo tenant",architecture,packages/db/src/semente-demo.ts:114-114; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-10ebbb39,packages-db,packages/db/src/semente-demo.ts,115,115,line,1,// inteiro apaga o trabalho de quem está do lado.,translate,would erase work done in the other application.,architecture,packages/db/src/semente-demo.ts:115-115; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d54e1903,packages-db,packages/db/src/semente-demo.ts,157,157,line,1,"// Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o",translate,Reuse an existing user by email rather than recreating one: deleting an agent would clear,architecture,packages/db/src/semente-demo.ts:157-157; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c224c2ab,packages-db,packages/db/src/semente-demo.ts,158,158,line,2,"// `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento",translate,"`atendente_id` from every existing conversation assigned to that agent, and in a shared",architecture,packages/db/src/semente-demo.ts:158-158; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-fa81efc3,packages-db,packages/db/src/semente-demo.ts,159,159,line,1,// compartilhado isso é apagar o trabalho alheio.,translate,development database that would erase someone else's work.,architecture,packages/db/src/semente-demo.ts:159-159; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-dd527ad7,packages-db,packages/db/src/semente-demo.ts,176,176,line,2,// Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`),translate,"Assign an ATTENDANCE role to all three, which Desk checks in `exigirPermissao`,",integration,packages/db/src/semente-demo.ts:176-176; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3118655b,packages-db,packages/db/src/semente-demo.ts,177,177,line,3,"// e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha",translate,then an ACCOUNT role listed by the Members screen. Existing roles,integration,packages/db/src/semente-demo.ts:177-177; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ccb768c6,packages-db,packages/db/src/semente-demo.ts,178,178,line,2,// qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).,translate,stay unchanged (`on conflict` / `garantirPapelDeConta`).,integration,packages/db/src/semente-demo.ts:178-178; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-55e48a57,packages-db,packages/db/src/semente-demo.ts,199,199,line,3,// O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.,translate,New agents start Invisible so no one receives conversations before declaring readiness.,architecture,packages/db/src/semente-demo.ts:199-199; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-00bcfcba,packages-db,packages/db/src/semente-demo.ts,272,272,line,4,"// --- templates aprovados pela Meta, o que sobra quando a janela fecha ---",translate,Approved Meta templates: what remains available after the service window closes.,meta-blip,packages/db/src/semente-demo.ts:272-272; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-da2108ec,packages-db,packages/db/src/semente-demo.ts,29,40,jsdoc,8,"/**
  * Semente de **demonstração** do Pipe Desk. Separada da semente base de propósito:
  * `semente.ts` é o que todo tenant novo recebe (papéis, permissões, filas); isto aqui
@@ -643,38 +685,42 @@ packages-db-comment-da2108ec,packages-db,packages/db/src/semente-demo.ts,29,40,j
  *
  * Todas as mensagens ficam dentro do mês corrente porque `mensagem` é particionada
  * por mês e só existem partições a partir do mês da migration.
- */",,,,,,
-packages-db-comment-3ffcdb2e,packages-db,packages/db/src/semente-demo.ts,305,305,line,0,// --- respostas prontas: as da empresa e as da própria Ana ---,,,,,,
-packages-db-comment-f82c7f2d,packages-db,packages/db/src/semente-demo.ts,382,382,line,1,// --- etiquetas: as de trabalho e as de encerramento (obrigatórias para fechar) ---,,,,,,
-packages-db-comment-c926fc13,packages-db,packages/db/src/semente-demo.ts,44,44,jsdoc,3,/** O atendente que a tela assume enquanto não existe login (fase seguinte). */,,,,,,
-packages-db-comment-9270f96e,packages-db,packages/db/src/semente-demo.ts,473,473,jsdoc,3,/** Quando o contato falou pela última vez. Define a janela de 24h. */,,,,,,
+ */",update,"Pipe Desk **demo** seed, separate from base `semente.ts`. The base seed gives every new tenant roles, permissions, and sample queues; this file adds fictional users and conversations only for the demo tenant.
+
+It deletes and recreates records matching its known email and name lists, so rerunning `pnpm seed:demo` resets the demo. The cleanup queries do not include `tenantId`, so matching data in another tenant could also be affected; confirm this at slice time.
+
+Messages stay in the current month because `mensagem` is monthly partitioned and migrations create partitions from their migration month.",architecture,packages/db/src/semente-demo.ts:29-40; packages/db/src/semente-demo.ts:113-155; cleanup lacks tenantId filters; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3ffcdb2e,packages-db,packages/db/src/semente-demo.ts,305,305,line,0,// --- respostas prontas: as da empresa e as da própria Ana ---,translate,Canned replies from the company and Ana's personal collection.,other,packages/db/src/semente-demo.ts:305-305,codex,reviewed
+packages-db-comment-f82c7f2d,packages-db,packages/db/src/semente-demo.ts,382,382,line,1,// --- etiquetas: as de trabalho e as de encerramento (obrigatórias para fechar) ---,translate,Work tags and closing tags required to finish a ticket.,integration,packages/db/src/semente-demo.ts:382-382; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c926fc13,packages-db,packages/db/src/semente-demo.ts,44,44,jsdoc,3,/** O atendente que a tela assume enquanto não existe login (fase seguinte). */,remove,,other,packages/db/src/semente-demo.ts:44-44; Outdated: login now exists; packages/autenticacao/src/entrada.ts,codex,reviewed
+packages-db-comment-9270f96e,packages-db,packages/db/src/semente-demo.ts,473,473,jsdoc,3,/** Quando o contato falou pela última vez. Define a janela de 24h. */,translate,When the contact last spoke; determines the 24-hour service window.,integration,packages/db/src/semente-demo.ts:473-473; other; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-54ab3a8d,packages-db,packages/db/src/semente-demo.ts,50,53,jsdoc,7,"/**
  * O que esta semente considera ""dela"". É por estas listas que a limpeza acontece — e é
  * por isso que acrescentar gente nova aqui exige acrescentar o e-mail na lista também.
- */",,,,,,
-packages-db-comment-a36cf774,packages-db,packages/db/src/semente-demo.ts,515,515,line,2,// E-mail não tem janela de 24h: a regra é do canal.,,,,,,
-packages-db-comment-663427f3,packages-db,packages/db/src/semente-demo.ts,540,540,line,2,// Janela já fechada: passou de 24h desde a última mensagem dela.,,,,,,
-packages-db-comment-7abfae7b,packages-db,packages/db/src/semente-demo.ts,559,559,line,1,"// Conversa antiga do Marcelo, para o histórico do painel do contato.",,,,,,
-packages-db-comment-70ec3ca2,packages-db,packages/db/src/semente-demo.ts,624,624,line,0,"// Marcelo — comercial, negociando desconto; o áudio falhou.",,,,,,
-packages-db-comment-ad736082,packages-db,packages/db/src/semente-demo.ts,712,712,line,0,// Cássia — janela fechada.,,,,,,
-packages-db-comment-8761075b,packages-db,packages/db/src/semente-demo.ts,782,782,line,1,// `autor_id` do contato não referencia usuário; deixa nulo em vez de mentir.,,,,,,
-packages-db-comment-abe93f5f,packages-db,packages/db/src/semente-demo.ts,801,801,line,5,// Resumo já gravado. Nesta etapa a tela lê o que está no banco; não chama IA.,,,,,,
+ */",translate,"Lists of records this seed treats as its own. Cleanup uses them, so adding a person here also requires adding that email to the list.",architecture,packages/db/src/semente-demo.ts:50-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a36cf774,packages-db,packages/db/src/semente-demo.ts,515,515,line,2,// E-mail não tem janela de 24h: a regra é do canal.,translate,Email has no 24-hour window; that rule is channel-specific.,integration,packages/db/src/semente-demo.ts:515-515; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-663427f3,packages-db,packages/db/src/semente-demo.ts,540,540,line,2,// Janela já fechada: passou de 24h desde a última mensagem dela.,translate,The window has closed: more than 24 hours since her last message.,integration,packages/db/src/semente-demo.ts:540-540; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-7abfae7b,packages-db,packages/db/src/semente-demo.ts,559,559,line,1,"// Conversa antiga do Marcelo, para o histórico do painel do contato.",translate,Marcelo's older conversation for the contact-panel history.,other,packages/db/src/semente-demo.ts:559-559,codex,reviewed
+packages-db-comment-70ec3ca2,packages-db,packages/db/src/semente-demo.ts,624,624,line,0,"// Marcelo — comercial, negociando desconto; o áudio falhou.",translate,Marcelo: sales conversation negotiating a discount; the audio failed.,other,packages/db/src/semente-demo.ts:624-624,codex,reviewed
+packages-db-comment-ad736082,packages-db,packages/db/src/semente-demo.ts,712,712,line,0,// Cássia — janela fechada.,translate,Cássia: the service window has closed.,other,packages/db/src/semente-demo.ts:712-712,codex,reviewed
+packages-db-comment-8761075b,packages-db,packages/db/src/semente-demo.ts,782,782,line,1,// `autor_id` do contato não referencia usuário; deixa nulo em vez de mentir.,translate,A contact's `autor_id` does not reference a user; leave it null rather than assigning a false user.,architecture,packages/db/src/semente-demo.ts:782-782; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-abe93f5f,packages-db,packages/db/src/semente-demo.ts,801,801,line,5,// Resumo já gravado. Nesta etapa a tela lê o que está no banco; não chama IA.,translate,The summary is already stored. At this stage the screen reads the database without calling AI.,integration,packages/db/src/semente-demo.ts:801-801; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d7914a93,packages-db,packages/db/src/semente.ts,10,16,jsdoc,6,"/**
  * Semente mínima: um tenant, os cinco papéis do dia 1, o catálogo de permissões e as
  * filas de exemplo. Roda com o papel dono das tabelas, antes de existir usuário — por
  * isso não passa pelo `comTenant`.
  *
  * Idempotente de propósito: rodar duas vezes não duplica nada.
- */",,,,,,
+ */",translate,"Minimal seed: one tenant, five initial roles, the permission catalog, and sample queues. It uses the table-owner role before users exist, so it does not use `comTenant`. Running it twice deliberately creates no duplicates.",architecture,packages/db/src/semente.ts:10-16; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-7ca0cd30,packages-db,packages/db/src/semente.ts,108,111,jsdoc,1,"/**
  * Tudo, menos as permissões da CONTA: essas vêm só do papel de conta
  * (`PAPEIS_DA_CONTA`), desde a migração 0021.
- */",,,,,,
-packages-db-comment-f10caa26,packages-db,packages/db/src/semente.ts,116,116,jsdoc,0,"/** O `guest` deles — ""Apenas visualiza informações do contrato"". */",,,,,,
+ */",translate,"All permissions except ACCOUNT permissions, which come only from the account role (`PAPEIS_DA_CONTA`) since migration 0021.",architecture,packages/db/src/semente.ts:108-111; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f10caa26,packages-db,packages/db/src/semente.ts,116,116,jsdoc,0,"/** O `guest` deles — ""Apenas visualiza informações do contrato"". */",translate,"The source `guest` role: ""Apenas visualiza informações do contrato"".",meta-blip,packages/db/src/semente.ts:116-116; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c672a728,packages-db,packages/db/src/semente.ts,160,163,jsdoc,3,"/**
  * Gestor vê e configura tudo do negócio; o que mexe em identidade fica no
  * administrador — e excluir fluxo também, que na origem é só do admin.
- */",,,,,,
+ */",translate,"A manager can view and configure business operations; identity changes remain with the administrator, as does deleting flows, which only an admin can do in the source.",meta-blip,packages/db/src/semente.ts:160-163; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-1cd4d742,packages-db,packages/db/src/semente.ts,175,182,jsdoc,6,"/**
  * Os três papéis da CONTA, com o `roleId` da origem como nome — a matriz de
  * `referencias-blip/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela (""Admin"", ""Pode
@@ -682,21 +728,23 @@ packages-db-comment-1cd4d742,packages-db,packages/db/src/semente.ts,175,182,jsdo
  *
  * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). ""Cria e edita
  * chatbots"" é `automacao.fluxo.editar`, a permissão que o portal confere para criar.
- */",,,,,,
-packages-db-comment-2cd7bb0c,packages-db,packages/db/src/semente.ts,18,18,jsdoc,1,"/** Permissão é capacidade nomeada, nunca flag booleana espalhada pelo código. */",,,,,,
+ */",translate,"Three ACCOUNT roles named after source `roleId` values, following `referencias-blip/pesquisa/blip-painel-do-contrato.md`. UI labels (""Admin"", ""Pode editar"", ""Pode visualizar"") live in Management, not here.
+
+Each person has exactly one, enforced by a partial index on `usuario_papel`. The source ""Cria e edita chatbots"" maps to `automacao.fluxo.editar`, the permission checked by the portal on creation.",meta-blip,packages/db/src/semente.ts:175-182; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2cd7bb0c,packages-db,packages/db/src/semente.ts,18,18,jsdoc,1,"/** Permissão é capacidade nomeada, nunca flag booleana espalhada pelo código. */",translate,"A permission is a named capability, not a boolean flag scattered through code.",architecture,packages/db/src/semente.ts:18-18; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-eb371469,packages-db,packages/db/src/semente.ts,190,191,block,1,"/* Quem edita o bot publica o bot: o Builder da origem não separa os dois
-         gestos. Migração 0034. */",,,,,,
-packages-db-comment-661d179c,packages-db,packages/db/src/semente.ts,215,215,jsdoc,0,/** Os papéis de ATENDIMENTO. Nenhum carrega permissão `conta.*`. */,,,,,,
+         gestos. Migração 0034. */",translate,Whoever edits the bot may publish it: the source Builder does not separate those actions. Migration 0034.,meta-blip,packages/db/src/semente.ts:190-191; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-661d179c,packages-db,packages/db/src/semente.ts,215,215,jsdoc,0,/** Os papéis de ATENDIMENTO. Nenhum carrega permissão `conta.*`. */,translate,ATTENDANCE roles. None carries a `conta.*` permission.,architecture,packages/db/src/semente.ts:215-215; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e9c462c2,packages-db,packages/db/src/semente.ts,240,243,jsdoc,3,"/**
  * As duas primeiras replicam o roteamento por faixa de score do §4.2: 60 ou mais vai
  * para closer, abaixo disso para o Comercial.
- */",,,,,,
+ */",remove,,architecture,packages/db/src/semente.ts:240-243; Outdated: `FILAS_EXEMPLO` only defines queues and has no score-band routing; packages/db/src/semente.ts:244-251; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a10a297a,packages-db,packages/db/src/semente.ts,244,249,block,10,"/*
  * A cor guarda NOME DE TOKEN da paleta de gráfico, nunca hex. Hex em coluna de
  * dado volta a virar cor fora do sistema na hora de pintar, que é o que a régua
  * do @pipe/ui proíbe — e foi assim que a etiqueta acabou com nove matizes que
  * ninguém escolheu. A tela de Filas lê estes mesmos nomes.
- */",,,,,,
+ */",translate,"Store a chart-palette TOKEN NAME for color, never a hex literal. A hex value in a data column bypasses the `@pipe/ui` color rule when rendered; that is how tags acquired nine unchosen hues. The Queues screen reads these same names.",architecture,packages/db/src/semente.ts:244-249; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4052c002,packages-db,packages/db/src/semente.ts,257,272,jsdoc,16,"/**
  * Todo usuário do tenant SEM papel de conta ganha um — a regra ""toda pessoa tem
  * exatamente um"" da migração 0021, aplicada a quem nasceu depois dela.
@@ -712,14 +760,18 @@ packages-db-comment-4052c002,packages-db,packages/db/src/semente.ts,257,272,jsdo
  * Idempotente: o índice único parcial `usuario_papel_um_da_conta_uk` garante um
  * por pessoa, e o `where not exists` não toca em quem já tem. Rodar duas vezes
  * não duplica nem troca papel dado à mão.
- */",,,,,,
-packages-db-comment-c5b686d8,packages-db,packages/db/src/semente.ts,307,307,jsdoc,2,/** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */,,,,,,
-packages-db-comment-e4c326f9,packages-db,packages/db/src/semente.ts,368,368,line,0,"// Por último, depois de os papéis de conta existirem: quem foi semeado por",,,,,,
-packages-db-comment-c7ce7cd3,packages-db,packages/db/src/semente.ts,45,45,block,0,/* Migração 0030: nenhuma permissão cobria motivo de pausa nem resposta pronta. */,,,,,,
+ */",translate,"Every tenant user WITHOUT an account role receives one, extending migration 0021's exactly-one rule to later users.
+
+The 0021 backfill covered existing users only. Operational seeds (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) create attendance-only users, which left the contract Members screen empty because it lists ACCOUNT roles. Apply the SAME rule as 0021 so execution order does not change results: `administrador` or `conta.membros.escrever` -> `admin`; flow or workspace editors -> `member`; others -> `guest`.
+
+The partial unique index `usuario_papel_um_da_conta_uk` enforces one per user, and `where not exists` preserves existing manual assignments. Repeating the seed neither duplicates nor changes those roles.",architecture,packages/db/src/semente.ts:257-272; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c5b686d8,packages-db,packages/db/src/semente.ts,307,307,jsdoc,2,/** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */,remove,,other,packages/db/src/semente.ts:307-307; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e4c326f9,packages-db,packages/db/src/semente.ts,368,368,line,0,"// Por último, depois de os papéis de conta existirem: quem foi semeado por",translate,"Finally, after account roles exist, assign one to users seeded by another routine before this run or already present after migration 0021.",integration,packages/db/src/semente.ts:368-368; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c7ce7cd3,packages-db,packages/db/src/semente.ts,45,45,block,0,/* Migração 0030: nenhuma permissão cobria motivo de pausa nem resposta pronta. */,translate,Migration 0030: no permission covered pause reasons or canned replies.,architecture,packages/db/src/semente.ts:45-45; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0462055a,packages-db,packages/db/src/semente.ts,58,59,block,3,"/* ""Somente um admin pode deletar o chatbot"" (`deleteChatbotPermissionDenied`
-     da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */",,,,,,
+     da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */",translate,"""Somente um admin pode deletar o chatbot"" (`deleteChatbotPermissionDenied` in the source): deletion has a separate permission absent from `member`. Migration 0023.",meta-blip,packages/db/src/semente.ts:58-59; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e986f25d,packages-db,packages/db/src/semente.ts,62,63,block,1,"/* Migração 0032: nem ""Informações de conexão"" nem ""Webhook"" tinham permissão
-     própria — `chave_api.gerenciar` cobre só a emissão de chave. */",,,,,,
+     própria — `chave_api.gerenciar` cobre só a emissão de chave. */",translate,"Migration 0032: neither ""Informações de conexão"" nor ""Webhook"" had its own permission; `chave_api.gerenciar` covers key issuance only.",meta-blip,packages/db/src/semente.ts:62-63; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c370fff7,packages-db,packages/db/src/semente.ts,68,87,block,23,"/*
    * As permissões da CONTA — o que o Painel do contrato lê.
    *
@@ -739,7 +791,13 @@ packages-db-comment-c370fff7,packages-db,packages/db/src/semente.ts,68,87,block,
    * é read para `admin` e nada para o resto — ninguém tem write. Inventar
    * `conta.faturamento.escrever` seria inventar capacidade que a origem não
    * tem e que nenhuma tela nossa exerce.
-   */",,,,,,
+   */",translate,"ACCOUNT permissions read by the contract application.
+
+These bring the source matrix (`referencias-blip/pesquisa/blip-painel-do-contrato.md`, section ""A matriz de papéis"") into RBAC. It has six keys (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`, `tenant-billing`, `tenant-permissions-group`) with `read` and `write` verbs hard-coded in the frontend for three fixed roles. Here each key/verb pair becomes ONE catalog permission assigned by a database role, preserving the matrix while allowing edits without rebuilding the screen.
+
+`conta.painel.*` mirrors `tenant-dashboard` even though no card uses it: the matrix is a contract, and an unexplained gap would confuse future reviews.
+
+Billing is READ ONLY deliberately. Source `tenant-billing` gives `admin` read access and no one write access; inventing `conta.faturamento.escrever` would add an unsupported capability no screen uses.",meta-blip,packages/db/src/semente.ts:68-87; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-37f1fb42,packages-db,packages/db/src/tenant.ts,23,30,jsdoc,14,"/**
  * Abre a transação, fixa `pipe.tenant_id` nela e roda o trabalho dentro.
  *
@@ -747,33 +805,35 @@ packages-db-comment-37f1fb42,packages-db,packages/db/src/tenant.ts,23,30,jsdoc,1
  * o `set local` do SQL não aceita parâmetro, e concatenar o uuid no texto do comando
  * seria abrir a porta que a RLS existe para fechar. Como é *local*, a variável morre
  * com a transação e não vaza para a próxima que pegar a mesma conexão do pool.
- */",,,,,,
-packages-db-comment-9c65705d,packages-db,packages/db/src/tenant.ts,45,45,jsdoc,1,"/** O tenant em vigor na transação, para log e asserção. */",,,,,,
+ */",translate,"Open a transaction, set `pipe.tenant_id` for it, and run the work inside.
+
+`set_config(..., true)` is the parameterized form of `set local` from section 1 of the data model. SQL `set local` does not accept a parameter; concatenating the UUID into SQL would reopen the injection path RLS is meant to close. The setting is local to the transaction and cannot leak to the next borrower of the pooled connection.",security,packages/db/src/tenant.ts:23-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-9c65705d,packages-db,packages/db/src/tenant.ts,45,45,jsdoc,1,"/** O tenant em vigor na transação, para log e asserção. */",translate,"The tenant active in this transaction, for logging and assertions.",architecture,packages/db/src/tenant.ts:45-45; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-dfb30017,packages-db,packages/db/tests/ajuda.ts,26,29,jsdoc,4,"/**
  * Sobe o schema e semeia dois tenants com uma fila cada, usando o papel dono.
  * O `sufixo` mantém as execuções independentes quando o banco não é descartado.
- */",,,,,,
+ */",translate,Migrate the schema and seed two tenants with one queue each using the owner role. `sufixo` keeps runs independent when the database is retained.,architecture,packages/db/tests/ajuda.ts:26-29; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-72099975,packages-db,packages/db/tests/ajuda.ts,70,73,jsdoc,4,"/**
  * A consulta falhou fechada? Ou o `current_setting` lançou, ou a política filtrou
  * tudo. As duas formas são aceitáveis; devolver linha não é.
- */",,,,,,
+ */",translate,Did the query fail closed? Either `current_setting` threw or the policy filtered every row. Both outcomes are acceptable; returning a row is not.,security,packages/db/tests/ajuda.ts:70-73; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d73e4212,packages-db,packages/db/tests/ajuda.ts,9,12,jsdoc,3,"/**
  * O papel da aplicação. É o único jeito honesto de testar RLS: com o papel dono a
  * política é ignorada e o teste passaria sem provar nada.
- */",,,,,,
-packages-db-comment-3f781639,packages-db,packages/db/tests/auditoria.test.ts,102,102,line,1,"// O driver devolve `null` e o formulário manda `undefined`. Sem isto, todo",,,,,,
-packages-db-comment-30a374de,packages-db,packages/db/tests/auditoria.test.ts,103,103,line,1,// salvamento registraria mudança em campo vazio que ninguém tocou.,,,,,,
-packages-db-comment-3c02d82f,packages-db,packages/db/tests/auditoria.test.ts,46,46,line,3,"// Gravar token no log desfaria, num lugar mais visível, a cifra que o",,,,,,
+ */",translate,"The application role. RLS must be tested with this role: the table owner bypasses the policy, so an owner-role test could pass without proving isolation.",security,packages/db/tests/ajuda.ts:9-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3f781639,packages-db,packages/db/tests/auditoria.test.ts,102,102,line,1,"// O driver devolve `null` e o formulário manda `undefined`. Sem isto, todo",translate,"The driver returns `null` while the form sends `undefined`. Without this, every",architecture,packages/db/tests/auditoria.test.ts:102-102; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-30a374de,packages-db,packages/db/tests/auditoria.test.ts,103,103,line,1,// salvamento registraria mudança em campo vazio que ninguém tocou.,translate,save would log a change to an empty field nobody touched.,architecture,packages/db/tests/auditoria.test.ts:103-103; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3c02d82f,packages-db,packages/db/tests/auditoria.test.ts,46,46,line,3,"// Gravar token no log desfaria, num lugar mais visível, a cifra que o",update,Logging a token would undo the encryption in `segredo.ts` in a more visible place.,security,packages/db/tests/auditoria.test.ts:46-46; pre-triage D-40; needs slice-time confirmation; The next source line is a Portuguese continuation outside this inventory; confirm the adjacent line at slice time.,codex,reviewed
 packages-db-comment-dd9d4d5d,packages-db,packages/db/tests/auditoria.test.ts,5,9,jsdoc,3,"/**
  * O log é lido por gente do suporte e sai em auditoria de contrato. Estes
  * testes protegem duas coisas: que segredo nunca chegue lá, e que o registro
  * diga o que mudou em vez de repetir o objeto inteiro.
- */",,,,,,
-packages-db-comment-3329b37f,packages-db,packages/db/tests/auditoria.test.ts,91,91,line,4,"// Quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as",,,,,,
+ */",translate,"Support staff read the log, which also appears in contract audits. These tests ensure secrets never reach it and each record describes the change instead of repeating the entire object.",security,packages/db/tests/auditoria.test.ts:5-9; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3329b37f,packages-db,packages/db/tests/auditoria.test.ts,91,91,line,4,"// Quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as",translate,"Log readers need to see that capacity changed from 5 to 8, not reread the",architecture,packages/db/tests/auditoria.test.ts:91-91; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-66a4737c,packages-db,packages/db/tests/preparar.ts,24,27,jsdoc,2,"/**
  * O teste de RLS só prova alguma coisa contra um Postgres de verdade. Se o do
  * `docker-compose.yml` não estiver de pé, esta rotina sobe ele e espera ficar saudável.
- */",,,,,,
+ */",translate,"The RLS test proves behavior only against a real Postgres instance. If the instance in `docker-compose.yml` is down, this setup starts it and waits until it is healthy.",integration,packages/db/tests/preparar.ts:24-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a740848d,packages-db,packages/db/tests/preparar.ts,29,36,block,13,"/*
    * Chave de cifra para o ambiente de teste.
    *
@@ -781,47 +841,51 @@ packages-db-comment-a740848d,packages-db,packages/db/tests/preparar.ts,29,36,blo
    * queremos em produção: melhor a API não subir do que subir gravando token da
    * Meta em texto claro achando que não. Em teste, a chave é fixa e pública de
    * propósito — ela não protege nada aqui, só faz o caminho existir.
-   */",,,,,,
+   */",translate,"Encryption key for the test environment.
+
+Channel-secret encryption fails loudly without a keyring. In production, the API must fail to start rather than silently store Meta tokens in plaintext. The test key is deliberately fixed and public: it protects no test data, but enables the encryption path.",security,packages/db/tests/preparar.ts:29-36; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-fc17c3e8,packages-db,packages/db/tests/rls.test.ts,108,112,block,3,"/*
    * Os quatro acima provam a política numa tabela. Os cinco abaixo provam as
    * PREMISSAS da política — cada um deles falhando significa que os outros
    * passariam sem provar nada.
-   */",,,,,,
-packages-db-comment-636a75d9,packages-db,packages/db/tests/rls.test.ts,145,145,line,2,// Falha nomeando as tabelas: tabela nova sem política é o defeito que essa,,,,,,
-packages-db-comment-2fd2eb4a,packages-db,packages/db/tests/rls.test.ts,146,146,line,3,// suíte existe para pegar no dia em que alguém a criar.,,,,,,
-packages-db-comment-f5a1d810,packages-db,packages/db/tests/rls.test.ts,169,169,line,4,// A forma com subconsulta escalar é o que o planejador promove a InitPlan.,,,,,,
-packages-db-comment-f53f3ade,packages-db,packages/db/tests/rls.test.ts,170,170,line,5,"// Sem ela a política volta a rodar a função em cada linha examinada, e a",,,,,,
-packages-db-comment-0753e1bb,packages-db,packages/db/tests/rls.test.ts,171,171,line,1,// varredura de `mensagem` fica cara sem ninguém perceber.,,,,,,
-packages-db-comment-3c6ceb6a,packages-db,packages/db/tests/rls.test.ts,184,184,line,1,// Conexão devolvida ao pool com variável suja seria vazamento silencioso:,,,,,,
-packages-db-comment-a90e657a,packages-db,packages/db/tests/rls.test.ts,34,34,line,2,"// E o caminho inverso, para descartar que o filtro seja coincidência de ordem.",,,,,,
-packages-db-comment-78565a82,packages-db,packages/db/tests/rls.test.ts,41,41,line,5,// Buscar pelo id do outro tenant também não devolve nada: a política filtra a,,,,,,
-packages-db-comment-447e542e,packages-db,packages/db/tests/rls.test.ts,42,42,line,2,"// linha, não a consulta.",,,,,,
-packages-db-comment-7ad7c698,packages-db,packages/db/tests/rls.test.ts,58,58,line,2,// Nem o total escapa: `count(*)` sem tenant não pode devolver 2.,,,,,,
-packages-db-comment-c0dd9858,packages-db,packages/db/tests/rls.test.ts,65,65,line,4,// E a escrita também: inserir sem tenant em vigor não pode passar.,,,,,,
+   */",translate,"The four tests above exercise the policy on one table. The five below check its assumptions: if one fails, the earlier tests could pass without proving isolation.",security,packages/db/tests/rls.test.ts:108-112; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-636a75d9,packages-db,packages/db/tests/rls.test.ts,145,145,line,2,// Falha nomeando as tabelas: tabela nova sem política é o defeito que essa,translate,Report the table names when this fails: a new table without a policy is the defect this,security,packages/db/tests/rls.test.ts:145-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2fd2eb4a,packages-db,packages/db/tests/rls.test.ts,146,146,line,3,// suíte existe para pegar no dia em que alguém a criar.,translate,suite must catch when someone creates it.,security,packages/db/tests/rls.test.ts:146-146; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f5a1d810,packages-db,packages/db/tests/rls.test.ts,169,169,line,4,// A forma com subconsulta escalar é o que o planejador promove a InitPlan.,translate,The planner promotes the scalar subquery form to an InitPlan.,architecture,packages/db/tests/rls.test.ts:169-169; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-f53f3ade,packages-db,packages/db/tests/rls.test.ts,170,170,line,5,"// Sem ela a política volta a rodar a função em cada linha examinada, e a",translate,"Without it, the policy evaluates the function for every examined row, and",architecture,packages/db/tests/rls.test.ts:170-170; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0753e1bb,packages-db,packages/db/tests/rls.test.ts,171,171,line,1,// varredura de `mensagem` fica cara sem ninguém perceber.,translate,scanning `mensagem` becomes expensive without an obvious warning.,architecture,packages/db/tests/rls.test.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-3c6ceb6a,packages-db,packages/db/tests/rls.test.ts,184,184,line,1,// Conexão devolvida ao pool com variável suja seria vazamento silencioso:,translate,Returning a connection with a dirty tenant setting to the pool would silently leak data:,security,packages/db/tests/rls.test.ts:184-184; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a90e657a,packages-db,packages/db/tests/rls.test.ts,34,34,line,2,"// E o caminho inverso, para descartar que o filtro seja coincidência de ordem.",translate,"Check the reverse direction too, so the filter cannot pass by row-order coincidence.",security,packages/db/tests/rls.test.ts:34-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-78565a82,packages-db,packages/db/tests/rls.test.ts,41,41,line,5,// Buscar pelo id do outro tenant também não devolve nada: a política filtra a,translate,Looking up the other tenant by ID also returns nothing: the policy filters the,security,packages/db/tests/rls.test.ts:41-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-447e542e,packages-db,packages/db/tests/rls.test.ts,42,42,line,2,"// linha, não a consulta.",translate,"row, not the query.",security,packages/db/tests/rls.test.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-7ad7c698,packages-db,packages/db/tests/rls.test.ts,58,58,line,2,// Nem o total escapa: `count(*)` sem tenant não pode devolver 2.,translate,Even the total is isolated: `count(*)` without a tenant must not return 2.,security,packages/db/tests/rls.test.ts:58-58; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c0dd9858,packages-db,packages/db/tests/rls.test.ts,65,65,line,4,// E a escrita também: inserir sem tenant em vigor não pode passar.,translate,Writes are isolated too: an insert without an active tenant must fail.,security,packages/db/tests/rls.test.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-3e2a606a,packages-db,packages/db/tests/rls.test.ts,7,13,jsdoc,11,"/**
  * Critério de aceite da fundação: a política `tenant_isolado` precisa isolar de
  * verdade, e a ausência da variável de sessão precisa fechar a porta, não abri-la.
  *
  * Tudo aqui roda com o papel `pipe_app`, que não é dono das tabelas e não tem
  * `bypassrls`. Rodar com o papel dono faria os três testes passarem sem provar nada.
- */",,,,,,
-packages-db-comment-22508ff1,packages-db,packages/db/tests/rls.test.ts,77,77,line,3,"// `set local` morre com a transação. Se vazasse, a conexão devolvida ao pool",,,,,,
-packages-db-comment-a20cd20b,packages-db,packages/db/tests/rls.test.ts,78,78,line,2,// levaria o tenant A para quem pegasse ela depois.,,,,,,
-packages-db-comment-e272a584,packages-db,packages/db/tests/rls.test.ts,84,84,line,3,"// A transação seguinte, com outro tenant, enxerga só o que é dela.",,,,,,
-packages-db-comment-4b967972,packages-db,packages/db/tests/rls.test.ts,91,91,line,3,// E a política também vale na escrita: gravar linha carimbada com o outro tenant,,,,,,
-packages-db-comment-9d2a4c85,packages-db,packages/db/tests/rls.test.ts,92,92,line,1,// é barrado pelo `with check`.,,,,,,
-packages-db-comment-4cae54e5,packages-db,packages/db/tests/segredo.test.ts,107,107,line,0,"// Se alguém adicionar um segredo novo ao canal e esquecer desta lista, ele",,,,,,
-packages-db-comment-64301e2d,packages-db,packages/db/tests/segredo.test.ts,108,108,line,0,// nasce em texto claro. O teste é o lembrete.,,,,,,
+ */",update,"Foundation acceptance criterion: `tenant_isolado` must isolate rows, and a missing session setting must fail closed.
+
+The policy checks run with `pipe_app`, which owns no tables and has no `bypassrls` privilege. The owner role would bypass RLS and could make the tests pass without proving isolation.",security,packages/db/tests/rls.test.ts:7-13; pre-triage D-40; needs slice-time confirmation; Updated the stale count of three tests; the file now checks additional RLS assumptions.,codex,reviewed
+packages-db-comment-22508ff1,packages-db,packages/db/tests/rls.test.ts,77,77,line,3,"// `set local` morre com a transação. Se vazasse, a conexão devolvida ao pool",translate,"`set local` ends with the transaction. If it leaked, the pooled connection",security,packages/db/tests/rls.test.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a20cd20b,packages-db,packages/db/tests/rls.test.ts,78,78,line,2,// levaria o tenant A para quem pegasse ela depois.,translate,would carry tenant A into the next borrower's work.,security,packages/db/tests/rls.test.ts:78-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e272a584,packages-db,packages/db/tests/rls.test.ts,84,84,line,3,"// A transação seguinte, com outro tenant, enxerga só o que é dela.",translate,"The next transaction, with another tenant, sees only its own rows.",security,packages/db/tests/rls.test.ts:84-84; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-4b967972,packages-db,packages/db/tests/rls.test.ts,91,91,line,3,// E a política também vale na escrita: gravar linha carimbada com o outro tenant,translate,The policy also applies to writes: inserting a row stamped with another tenant,security,packages/db/tests/rls.test.ts:91-91; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-9d2a4c85,packages-db,packages/db/tests/rls.test.ts,92,92,line,1,// é barrado pelo `with check`.,translate,is blocked by `with check`.,security,packages/db/tests/rls.test.ts:92-92; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-4cae54e5,packages-db,packages/db/tests/segredo.test.ts,107,107,line,0,"// Se alguém adicionar um segredo novo ao canal e esquecer desta lista, ele",translate,"If someone adds another channel secret but omits it from this list, the value",security,packages/db/tests/segredo.test.ts:107-107; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-64301e2d,packages-db,packages/db/tests/segredo.test.ts,108,108,line,0,// nasce em texto claro. O teste é o lembrete.,translate,is stored in plaintext. This test is the reminder.,security,packages/db/tests/segredo.test.ts:108-108; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-896aeb57,packages-db,packages/db/tests/segredo.test.ts,24,28,jsdoc,6,"/**
  * O que estes testes protegem é a credencial do cliente: com o token da Meta
  * qualquer um manda mensagem pelo número dele. O risco não é a aplicação vazar
  * — é o dump do banco.
- */",,,,,,
-packages-db-comment-650e2b08,packages-db,packages/db/tests/segredo.test.ts,38,38,line,2,"// IV aleatório por gravação. Sem isso, valores iguais viram pacotes iguais e",,,,,,
+ */",translate,These tests protect customer credentials: a Meta token lets someone send messages from the customer's number. A database dump is the threat this encryption addresses.,security,packages/db/tests/segredo.test.ts:24-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-650e2b08,packages-db,packages/db/tests/segredo.test.ts,38,38,line,2,"// IV aleatório por gravação. Sem isso, valores iguais viram pacotes iguais e",translate,A random IV is used for each write. Otherwise identical values yield identical envelopes and,security,packages/db/tests/segredo.test.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-77c1bc0a,packages-db,packages/db/tests/semente.test.ts,10,15,jsdoc,6,"/**
  * `semear` e `garantirPapelDeConta`: todo usuário semeado recebe papel de CONTA
  * (a regra ""exatamente um"" da migração 0021), e rodar duas vezes não duplica
  * nem troca o que alguém deu à mão. Era o buraco que deixava a tela de Membros
  * do contrato vazia no tenant de demonstração.
- */",,,,,,
-packages-db-comment-79ec8af2,packages-db,packages/db/vitest.config.ts,6,6,line,2,// Sobe o Postgres do compose se ele ainda não estiver de pé.,,,,,,
+ */",translate,"`semear` and `garantirPapelDeConta` assign every seeded user an ACCOUNT role (the ""exactly one"" rule from migration 0021). Repeated runs neither duplicate roles nor replace a manually assigned one. This fixed the gap that left the contract Members screen empty in the demo tenant.",integration,packages/db/tests/semente.test.ts:10-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-79ec8af2,packages-db,packages/db/vitest.config.ts,6,6,line,2,// Sobe o Postgres do compose se ele ainda não estiver de pé.,translate,Start the compose Postgres instance if it is not already running.,integration,packages/db/vitest.config.ts:6-6; pre-triage D-40; needs slice-time confirmation,codex,reviewed

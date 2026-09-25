@@ -5,7 +5,9 @@ packages-armazenamento-comment-0757cb9a,packages-armazenamento,packages/armazena
    * A conferência é depois do `resolve`, e não antes: comparar texto antes de
    * normalizar é como `../` passa. Aqui o caminho já está absoluto e normalizado
    * quando a pergunta é feita.
-   */",,,,,,
+   */",translate,"Resolve the key within the root and **prove it did not escape**.
+
+Check after `resolve`, not before: comparing path text before normalization lets `../` through. At this point the path is already absolute and normalized.",security,packages/armazenamento/src/disco.ts:24-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-7a07a240,packages-armazenamento,packages/armazenamento/src/disco.ts,5,16,jsdoc,9,"/**
  * Backend em disco, dentro de um volume.
  *
@@ -17,8 +19,12 @@ packages-armazenamento-comment-7a07a240,packages-armazenamento,packages/armazena
  * arquivo é a `api`**, depois de conferir assinatura, validade e tenant. Uma pasta
  * publicada por nginx seria o ""objeto público adivinhável por id"" que o requisito
  * proíbe.
- */",,,,,,
-packages-armazenamento-comment-7a2e93b9,packages-armazenamento,packages/armazenamento/src/disco.ts,51,51,line,3,"// Arquivo que não existe é ausência, não falha: quem chama devolve 404.",,,,,,
+ */",translate,"Disk backend inside a volume.
+
+The root is `PIPE_STORAGE_DIR`. In production it is a container volume: files must survive `docker compose up` and image replacement, just as the CRM database does.
+
+There is deliberately no static route serving this directory: **the `api` serves files** only after checking signature, expiry, and tenant. Publishing the directory through nginx would create the guessable public object ID forbidden by the requirement.",security,packages/armazenamento/src/disco.ts:5-16; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-7a2e93b9,packages-armazenamento,packages/armazenamento/src/disco.ts,51,51,line,3,"// Arquivo que não existe é ausência, não falha: quem chama devolve 404.",translate,"A missing file means absence, not failure: the caller returns 404.",security,packages/armazenamento/src/disco.ts:51-51; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-cb0cb08a,packages-armazenamento,packages/armazenamento/src/limites.ts,1,10,jsdoc,10,"/**
  * Limites de anexo, copiados dos valores REAIS do Blip Desk.
  *
@@ -28,14 +34,20 @@ packages-armazenamento-comment-cb0cb08a,packages-armazenamento,packages/armazena
  *
  * Apesar do nome que eles deram (`..._ACCEPT_EXTENSION`), o conteúdo é **tipo MIME**,
  * não extensão. O nome errado ficou lá; aqui a variável se chama pelo que ela é.
- */",,,,,,
+ */",translate,"Attachment limits copied from the REAL Blip Desk values.
+
+Source: `supernova.desk.blip.ai/static/settings.<hash>.json`, the same file behind `referencias-blip/pesquisa/blip-desk-regras.md` section ""Anexos e Mídia"". We did not choose these values: Blip parity is the owner's benchmark, and the values here are literal.
+
+Despite Blip's name (`..._ACCEPT_EXTENSION`), the contents are **MIME types**, not extensions. Their inaccurate name remains there; our variable names describe the actual data.",security,packages/armazenamento/src/limites.ts:1-10; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-0aadface,packages-armazenamento,packages/armazenamento/src/limites.ts,114,120,jsdoc,4,"/**
  * O tipo de mensagem do Pipe para aquele MIME.
  *
  * `svg+xml` cai em `documento` de propósito, e não em `imagem`: SVG é XML executável,
  * e um `<script>` dentro dele vira XSS na tela de quem abrir a ""imagem"" inline. Ele
  * continua ACEITO — a Blip aceita —, mas nunca é renderizado como imagem por nós.
- */",,,,,,
+ */",translate,"The Pipe message type for this MIME.
+
+`svg+xml` intentionally maps to `documento`, not `imagem`: SVG is executable XML, and a `<script>` inside it becomes XSS for anyone opening the ""image"" inline. It remains ACCEPTED, as on Blip, but we never render it as an image.",security,packages/armazenamento/src/limites.ts:114-120; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-d7a2dc47,packages-armazenamento,packages/armazenamento/src/limites.ts,15,23,jsdoc,7,"/**
  * Áudio e vídeo têm teto MENOR: 16 MB.
  *
@@ -44,15 +56,19 @@ packages-armazenamento-comment-d7a2dc47,packages-armazenamento,packages/armazena
  * áudio de 80 MB que a plataforma recusa depois** (`referencias-blip/pesquisa/regras-blip.md`
  * §""documentos 100 MB, vídeo e áudio 16 MB""). Recusar cedo, com o número certo, é
  * melhor que aceitar e falhar no fim do upload.
- */",,,,,,
-packages-armazenamento-comment-91478493,packages-armazenamento,packages/armazenamento/src/limites.ts,26,26,jsdoc,2,/** O teto que vale para aquele MIME. */,,,,,,
+ */",translate,"Audio and video have a LOWER limit: 16 MB.
+
+This is absent from Blip's `settings.json`, which is where Blip Desk gets it wrong: its client checks only the 100 MB `MAX_ATTACHMENT_SIZE`, allowing an 80 MB audio upload that the platform later rejects (`referencias-blip/pesquisa/regras-blip.md`, section ""documentos 100 MB, vídeo e áudio 16 MB""). Rejecting early with the correct limit is better than failing after upload.",security,packages/armazenamento/src/limites.ts:15-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-91478493,packages-armazenamento,packages/armazenamento/src/limites.ts,26,26,jsdoc,2,/** O teto que vale para aquele MIME. */,remove,,security,packages/armazenamento/src/limites.ts:26-26; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-7077a119,packages-armazenamento,packages/armazenamento/src/limites.ts,35,40,jsdoc,1,"/**
  * `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutos.
  *
  * É o modelo deles e é o nosso: o arquivo NUNCA é servido por URL pública adivinhável
  * por id. Sai token com validade, e vencido é vencido.
- */",,,,,,
-packages-armazenamento-comment-d3d00e59,packages-armazenamento,packages/armazenamento/src/porta.ts,27,27,jsdoc,2,/** A chave dentro do bucket. Opaca para quem chama. */,,,,,,
+ */",translate,"`DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutes.
+
+This is both Blip's model and ours: a file is NEVER served through a public URL guessable by ID. Access uses an expiring token, and expiry is enforced.",security,packages/armazenamento/src/limites.ts:35-40; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-d3d00e59,packages-armazenamento,packages/armazenamento/src/porta.ts,27,27,jsdoc,2,/** A chave dentro do bucket. Opaca para quem chama. */,remove,,security,packages/armazenamento/src/porta.ts:27-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-6435063e,packages-armazenamento,packages/armazenamento/src/porta.ts,3,24,jsdoc,33,"/**
  * A porta do storage, no formato do S3.
  *
@@ -74,7 +90,17 @@ packages-armazenamento-comment-6435063e,packages-armazenamento,packages/armazena
  * ponytail: disco em host único, sem replicação. No dia em que a `api` rodar em mais de
  * uma máquina, o arquivo escrito numa não aparece na outra — aí entra o backend S3,
  * que é um arquivo novo implementando esta mesma interface.
- */",,,,,,
+ */",translate,"The storage port follows the S3 shape.
+
+""S3 shape"" means **bucket + opaque key + object**, without exposing filesystem paths to callers. Moving to S3, R2, or MinIO requires another implementation of this interface; callers do not change.
+
+TODAY we use disk storage on a volume rather than MinIO for three reasons:
+
+1. **RAM is the bottleneck in this infrastructure.** We measured about 1.9 GB per CRM instance (`2026-09-07-integracao-twenty.md` section 5.3). Another VPS container consumes the resource already under pressure.
+2. **The required compatibility is at the INTERFACE**, provided here. The S3 protocol need not run on this machine for callers to be ready for it.
+3. **Our signed URL is simple.** Blip uses neither a public bucket nor presigning: it uses a *15-minute file token*. That is what `assinar` provides with HMAC using the keyring that already protects other secrets.
+
+ponytail: disk storage on one host has no replication. If `api` runs on multiple machines, a file written on one will not appear on another; add an S3 backend as a new implementation of this interface then.",security,packages/armazenamento/src/porta.ts:3-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-c9719b36,packages-armazenamento,packages/armazenamento/src/porta.ts,43,50,jsdoc,8,"/**
  * A chave de um anexo. **O `tenantId` é o primeiro segmento, sempre.**
  *
@@ -82,25 +108,31 @@ packages-armazenamento-comment-c9719b36,packages-armazenamento,packages/armazena
  * com outro, e no dia em que isto virar bucket S3 a política de acesso por prefixo já
  * está desenhada. O `uuid` no fim é o que impede adivinhar o objeto do vizinho mesmo
  * que alguém descubra o `tenant_id`.
- */",,,,,,
+ */",translate,"An attachment key. **`tenantId` is always the first segment.**
+
+This isolates tenants by object path: tenants never share a prefix, and the prefix access policy is already defined if this becomes an S3 bucket. The trailing `uuid` prevents guessing another tenant's object even if its `tenant_id` is known.",security,packages/armazenamento/src/porta.ts:43-50; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-f323b741,packages-armazenamento,packages/armazenamento/src/porta.ts,58,61,jsdoc,4,"/**
  * A extensão só entra para o arquivo ter cara de arquivo quando alguém baixa. Ela
  * **não** decide tipo em lugar nenhum — quem decide é `tipoReal`.
- */",,,,,,
+ */",translate,The extension only makes the downloaded file look like a file. It **never** determines type; `tipoReal` does.,security,packages/armazenamento/src/porta.ts:58-61; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-a02f05dd,packages-armazenamento,packages/armazenamento/src/porta.ts,69,74,jsdoc,6,"/**
  * Chave que sai da faixa do tenant é recusada.
  *
  * A defesa contra `../` e contra id de outro cliente na URL. Vale mesmo com o link
  * assinado: assinatura prova que o link saiu de nós, não que ele é do tenant certo.
- */",,,,,,
+ */",translate,"Reject keys outside the tenant prefix.
+
+This defends against `../` and another tenant's ID in the URL. It matters even for signed links: a signature proves we issued the link, not that it belongs to the right tenant.",security,packages/armazenamento/src/porta.ts:69-74; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-6ae02b9d,packages-armazenamento,packages/armazenamento/src/porta.ts,85,91,jsdoc,5,"/**
  * Assina `<anexoId>.<expiraEm>` com HMAC-SHA256.
  *
  * O segredo é o do chaveiro (`PIPE_CHAVES_SEGREDO`), o mesmo que cifra o token da
  * Meta. Quem tem o link tem o arquivo até vencer — por isso a validade é curta e igual
  * à da Blip: 15 minutos.
- */",,,,,,
-packages-armazenamento-comment-38121af6,packages-armazenamento,packages/armazenamento/src/porta.ts,96,96,jsdoc,2,/** Confere a assinatura e a validade. Comparação em tempo constante. */,,,,,,
+ */",translate,"Sign `<anexoId>.<expiraEm>` with HMAC-SHA256.
+
+The secret comes from the keyring (`PIPE_CHAVES_SEGREDO`), which also encrypts the Meta token. Possessing the link grants access until expiry, so the lifetime is short and matches Blip's: 15 minutes.",security,packages/armazenamento/src/porta.ts:85-91; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-38121af6,packages-armazenamento,packages/armazenamento/src/porta.ts,96,96,jsdoc,2,/** Confere a assinatura e a validade. Comparação em tempo constante. */,translate,Check signature and expiry using a constant-time comparison.,security,packages/armazenamento/src/porta.ts:96-96; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-05f56fbd,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,1,16,jsdoc,21,"/**
  * Carimbo do tipo REAL do arquivo, pelos primeiros bytes.
  *
@@ -116,31 +148,41 @@ packages-armazenamento-comment-05f56fbd,packages-armazenamento,packages/armazena
  *
  * ponytail: sniffing por magic number de tabela fixa; se um dia entrar formato exótico,
  * troque por `file-type` em vez de crescer a tabela.
- */",,,,,,
-packages-armazenamento-comment-3deea103,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,20,20,jsdoc,1,/** Bytes esperados. `null` em uma posição é curinga. */,,,,,,
-packages-armazenamento-comment-9e85f209,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,32,32,line,1,// OOXML (docx/xlsx/pptx) e zip têm a MESMA assinatura: é tudo zip. Distinguir,,,,,,
-packages-armazenamento-comment-b9edee36,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,33,33,line,4,"// exigiria abrir o pacote; para o que precisamos (não é HTML, não é executável),",,,,,,
-packages-armazenamento-comment-3da89912,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,34,34,line,1,// `application/zip` já responde.,,,,,,
-packages-armazenamento-comment-97cf0610,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,42,42,line,2,"// `ftyp` na posição 4 é a família ISO-BMFF: mp4, m4v, mov, 3gp e o áudio m4a.",,,,,,
-packages-armazenamento-comment-e82ad75a,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,47,47,jsdoc,3,"/** O MIME que os bytes revelam, ou `null` quando não há assinatura reconhecível. */",,,,,,
+ */",translate,"Determine the file's REAL type from its first bytes.
+
+The decision was byte sniffing rather than antivirus. Upload extensions and `Content-Type` are client-supplied text; a `.png` that is actually HTML can cause XSS when someone opens the ""attachment"" in a browser. The response `Content-Type` follows the BYTES, not the upload claim.
+
+The table is intentionally short: it covers Blip-accepted formats with stable signatures. Formats without a recognizable signature (text, CSV, SVG) are not guessed: return `null` and let the caller decide while knowing the type is unknown.
+
+ponytail: sniffing uses a fixed magic-number table; if an exotic format is needed, use `file-type` instead of growing this table.",security,packages/armazenamento/src/tipo-real.ts:1-16; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-3deea103,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,20,20,jsdoc,1,/** Bytes esperados. `null` em uma posição é curinga. */,remove,,security,packages/armazenamento/src/tipo-real.ts:20-20; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-9e85f209,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,32,32,line,1,// OOXML (docx/xlsx/pptx) e zip têm a MESMA assinatura: é tudo zip. Distinguir,translate,OOXML (docx/xlsx/pptx) and ZIP have the SAME signature: both are ZIP. Distinguishing them,security,packages/armazenamento/src/tipo-real.ts:32-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-b9edee36,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,33,33,line,4,"// exigiria abrir o pacote; para o que precisamos (não é HTML, não é executável),",translate,"would require opening the archive; for our purpose (it is not HTML or an executable),",security,packages/armazenamento/src/tipo-real.ts:33-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-3da89912,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,34,34,line,1,// `application/zip` já responde.,translate,`application/zip` is sufficient.,security,packages/armazenamento/src/tipo-real.ts:34-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-97cf0610,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,42,42,line,2,"// `ftyp` na posição 4 é a família ISO-BMFF: mp4, m4v, mov, 3gp e o áudio m4a.",translate,"`ftyp` at offset 4 identifies the ISO-BMFF family: mp4, m4v, mov, 3gp, and m4a audio.",security,packages/armazenamento/src/tipo-real.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-e82ad75a,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,47,47,jsdoc,3,"/** O MIME que os bytes revelam, ou `null` quando não há assinatura reconhecível. */",remove,,security,packages/armazenamento/src/tipo-real.ts:47-47; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-bb3f1a69,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,60,66,jsdoc,3,"/**
  * Conteúdo que o navegador executa se for servido inline.
  *
  * HTML é aceito pela Blip e por nós, mas servi-lo com o próprio `Content-Type` no
  * nosso domínio é entregar execução de script na sessão de quem abriu. Estes vão
  * sempre como `application/octet-stream` + `Content-Disposition: attachment`.
- */",,,,,,
+ */",translate,"Content that a browser executes if served inline.
+
+Blip and Pipe accept HTML, but serving it with its own `Content-Type` on our domain would allow script execution in the opener's session. Always serve these as `application/octet-stream` with `Content-Disposition: attachment`.",security,packages/armazenamento/src/tipo-real.ts:60-66; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-armazenamento-comment-d8a84981,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,73,79,jsdoc,7,"/**
  * O MIME com que o arquivo será SERVIDO.
  *
  * Regra: se os bytes dizem uma coisa e o upload disse outra, ganham os bytes. Quando
  * os bytes não dizem nada (texto, csv), fica o declarado — mas só se ele estiver na
  * lista de aceitos, o que quem chama já garantiu.
- */",,,,,,
-packages-armazenamento-comment-3c754d8b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,202,202,line,1,// `/tmp/pipe-storage-abc` não pode alcançar `/tmp/pipe-storage-abcMAL`.,,,,,,
-packages-armazenamento-comment-e08c87b6,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,207,207,line,0,"// E o arquivo continua lá, intocado.",,,,,,
-packages-armazenamento-comment-bb580e77,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,34,34,line,2,// O cliente da Blip valida só os 100 MB e deixa subir áudio que a plataforma,,,,,,
-packages-armazenamento-comment-bdc58367,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,35,35,line,1,// recusa depois. Aqui o teto certo vale desde a validação.,,,,,,
-packages-armazenamento-comment-ab0ed8a0,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,51,51,line,0,// SVG é XML executável: renderizado inline vira XSS.,,,,,,
-packages-armazenamento-comment-1ea69a3b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,72,72,line,4,"// Os bytes não são PNG, e o declarado não sobrevive à conferência.",,,,,,
-packages-armazenamento-comment-7281c39c,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,74,74,line,4,"// Sem assinatura, fica o declarado; quem chama já garantiu que está na lista.",,,,,,
+ */",translate,"The MIME type used to SERVE the file.
+
+If the bytes and upload declaration disagree, the bytes win. If the bytes identify no type (text, CSV), retain the declared type, but only if it is accepted, as the caller has already ensured.",security,packages/armazenamento/src/tipo-real.ts:73-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-3c754d8b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,202,202,line,1,// `/tmp/pipe-storage-abc` não pode alcançar `/tmp/pipe-storage-abcMAL`.,translate,`/tmp/pipe-storage-abc` must not be able to reach `/tmp/pipe-storage-abcMAL`.,security,packages/armazenamento/tests/armazenamento.test.ts:202-202; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-e08c87b6,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,207,207,line,0,"// E o arquivo continua lá, intocado.",remove,,security,packages/armazenamento/tests/armazenamento.test.ts:207-207; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-bb580e77,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,34,34,line,2,// O cliente da Blip valida só os 100 MB e deixa subir áudio que a plataforma,translate,The Blip client checks only 100 MB and allows audio uploads that the platform,security,packages/armazenamento/tests/armazenamento.test.ts:34-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-bdc58367,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,35,35,line,1,// recusa depois. Aqui o teto certo vale desde a validação.,translate,rejects later. Here the correct limit applies during validation.,security,packages/armazenamento/tests/armazenamento.test.ts:35-35; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-ab0ed8a0,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,51,51,line,0,// SVG é XML executável: renderizado inline vira XSS.,translate,SVG is executable XML; rendering it inline causes XSS.,security,packages/armazenamento/tests/armazenamento.test.ts:51-51; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-1ea69a3b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,72,72,line,4,"// Os bytes não são PNG, e o declarado não sobrevive à conferência.",remove,,security,packages/armazenamento/tests/armazenamento.test.ts:72-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-armazenamento-comment-7281c39c,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,74,74,line,4,"// Sem assinatura, fica o declarado; quem chama já garantiu que está na lista.",remove,,security,packages/armazenamento/tests/armazenamento.test.ts:74-74; pre-triage D-40; needs slice-time confirmation,codex,reviewed

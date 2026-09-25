@@ -1,0 +1,116 @@
+{
+  "items": [
+    {
+      "id": "packages-autenticacao-comment-f2da35bf",
+      "action": "translate",
+      "new_text": "Origins allowed to call the API with credentials.\n\nA closed list comes from the environment. Never use `*`: browsers reject credentialed wildcard CORS, and allowing it would let any website send authenticated requests for a signed-in user.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:103-109",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2b094e56",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:131-131",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-e98da117",
+      "action": "translate",
+      "new_text": "Eight hours is the honest revocation ceiling without SCIM: someone who leaves a tenant organization loses access at the next revalidation, not at the exact departure time.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:14-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-a046251a",
+      "action": "translate",
+      "new_text": "Goes in the cookie; never stored.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:21-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-a78ce56e",
+      "action": "translate",
+      "new_text": "Goes in the database; never leaves it.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:23-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c0897ab1",
+      "action": "translate",
+      "new_text": "Pipe sessions put the token in a browser cookie and store only its **hash** in the database. As with API keys, a database reader cannot impersonate a user.\n\nLook up BY HASH through a unique index rather than fetching by session ID and comparing later. This keeps the query to one row and avoids a find-then-compare path with timing leakage.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:3-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-444f8bc2",
+      "action": "translate",
+      "new_text": "Plain SHA-256 without a slow derivation is deliberate: this token has 256 bits of generated entropy, unlike a human password. Slow derivation protects against dictionaries, and no practical dictionary reaches this space.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:37-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2ee9090a",
+      "action": "translate",
+      "new_text": "The parent domain with a leading dot: `.pipe.com.br`.\n\nIt lets a cookie from `api.pipe.com.br` reach `gestao.pipe.com.br`, `app.pipe.com.br`, and `crm.pipe.com.br`. Each app has its own URL; without a parent domain each would need a separate login.\n\nThe alternative, `SameSite=None` with credentialed CORS, is worse: `None` sends the cookie on requests from ANY site, whereas `Lax` blocks that. Subdomains of one parent are same-site.\n\nLeave this undefined in development: `localhost` does not accept a cookie domain, and different ports are already the same origin for this purpose.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:54-67",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-bd2775d2",
+      "action": "translate",
+      "new_text": "Disable only on `http://localhost`, where HTTPS is unavailable.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:69-69",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-e625df83",
+      "action": "translate",
+      "new_text": "The session cookie and its important attributes.\n\n`HttpOnly` keeps scripts from reading the token; without it, XSS becomes session theft. `SameSite=Lax` permits Google's top-level return navigation while blocking third-party requests.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:73-79",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-94d8e9a3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:88-88",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-5bf27dbb",
+      "action": "translate",
+      "new_text": "Does `Domain` need to precede `Secure`? No; attribute order is free. It only",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:95-95",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-730135c5",
+      "action": "translate",
+      "new_text": "appears when configured: `Domain=localhost` invalidates the cookie in several",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:96-96",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-80b7a418",
+      "action": "translate",
+      "new_text": "browsers, causing login to appear to do nothing.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/sessao.ts:97-97",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -9,43 +9,43 @@ packages-contracts-comment-5710bdc9,packages-contracts,packages/contracts/src/de
  *
  * A forma é a das consultas em `apps/api/src/dominio/desk/*.ts`; se uma coluna
  * entra ou sai de lá, entra ou sai daqui, e o `tsc` do front acusa.
- */",,,,,,
+ */",translate,"Desk screen contracts describe responses from `GET /v1/desk/…` rendered by the front end. Dates cross JSON as ISO 8601 text; the display converts them with `new Date(...)`, never the contract. This was the sole shape change in the Next Desk migration, where page and database shared a process and queries returned `Date`. These shapes follow queries in `apps/api/src/dominio/desk/*.ts`; changing a query column requires a matching contract change, surfaced by front-end `tsc`.",integration,packages/contracts/src/desk.ts:1-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-4623fc82,packages-contracts,packages/contracts/src/desk.ts,14,19,jsdoc,6,"/**
  * A régua de prioridade é a de `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`),
  * escrita aqui por extenso porque o contrato não importa pacote nenhum. Os
  * cinco literais são os mesmos, e o `tsc` do front acusa se um deles divergir
  * ao indexar `ROTULOS_PRIORIDADE` com este tipo.
- */",,,,,,
+ */",translate,Priority levels match `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`) but are spelled out here because the contracts package imports no packages. All five literals match; front-end `tsc` catches divergence when indexing `ROTULOS_PRIORIDADE` with this type.,architecture,packages/contracts/src/desk.ts:14-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-33e10acd,packages-contracts,packages/contracts/src/desk.ts,151,154,jsdoc,5,"/**
    * Os nomes das variáveis NA ORDEM das posições `{{1}}`, `{{2}}`, … Sem
    * isto a tela não tem como resolver o corpo.
-   */",,,,,,
-packages-contracts-comment-50c27a24,packages-contracts,packages/contracts/src/desk.ts,171,171,jsdoc,3,/** A conversa aberta e tudo o que a coluna do meio e o painel do contato mostram dela. */,,,,,,
+   */",translate,"Variable names in the order of `{{1}}`, `{{2}}`, etc. Without that order, the UI cannot resolve the body.",integration,packages/contracts/src/desk.ts:151-154; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-50c27a24,packages-contracts,packages/contracts/src/desk.ts,171,171,jsdoc,3,/** A conversa aberta e tudo o que a coluna do meio e o painel do contato mostram dela. */,remove,,other,packages/contracts/src/desk.ts:171-171,codex,reviewed
 packages-contracts-comment-24205784,packages-contracts,packages/contracts/src/desk.ts,177,181,jsdoc,5,"/**
    * As etiquetas do CONTATO (`contato_etiqueta`), que o painel ""Dados do
    * Contato"" mostra e edita. Separadas das da conversa porque são de escopos
    * diferentes (`etiqueta.escopo`) e não se herdam.
-   */",,,,,,
+   */",translate,CONTACT tags (`contato_etiqueta`) shown and edited in the Contact Data panel. They stay separate from conversation tags because `etiqueta.escopo` gives them different scopes; neither scope inherits the other.,architecture,packages/contracts/src/desk.ts:177-181; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-a47bf295,packages-contracts,packages/contracts/src/desk.ts,186,191,jsdoc,14,"/**
  * `GET /v1/desk/conversas/:id`. `aberta` é `null` quando a conversa não é do
  * atendente (ou não existe) — resposta 200, e não 404, porque a tela tem o que
  * fazer nesse caso: volta para a fila sem conversa aberta, como a página em
  * Next fazia, sem passar pelo caminho de erro do cache.
- */",,,,,,
-packages-contracts-comment-bf1da7cd,packages-contracts,packages/contracts/src/desk.ts,213,213,jsdoc,1,/** Quem atendeu. Nulo é atendimento que nunca saiu do robô. */,,,,,,
-packages-contracts-comment-4e5221eb,packages-contracts,packages/contracts/src/desk.ts,216,216,jsdoc,1,/** Quem encerrou. Nulo com `encerradaEm` preenchido é fim automático. */,,,,,,
+ */",translate,"`GET /v1/desk/conversas/:id` returns `aberta: null` with HTTP 200 when the conversation does not exist or does not belong to this agent. The UI then returns to the queue without an open conversation, as the Next page did, without entering the cache error path.",integration,packages/contracts/src/desk.ts:186-191; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-bf1da7cd,packages-contracts,packages/contracts/src/desk.ts,213,213,jsdoc,1,/** Quem atendeu. Nulo é atendimento que nunca saiu do robô. */,translate,Agent who handled the ticket; null means it never left the bot.,other,packages/contracts/src/desk.ts:213-213,codex,reviewed
+packages-contracts-comment-4e5221eb,packages-contracts,packages/contracts/src/desk.ts,216,216,jsdoc,1,/** Quem encerrou. Nulo com `encerradaEm` preenchido é fim automático. */,translate,Agent who closed it; null with `encerradaEm` set means automatic closure.,other,packages/contracts/src/desk.ts:216-216,codex,reviewed
 packages-contracts-comment-be5c84ab,packages-contracts,packages/contracts/src/desk.ts,220,226,jsdoc,8,"/**
  * `GET /v1/desk/tickets/:id` — o atendimento antigo, em leitura. 404 quando
  * não existe (ou é de outro cliente: a RLS não o enxerga).
  *
  * O `status` vai junto porque o trilho o mostra em toda tela, e uma ida só à
  * `api` por tela é a régua.
- */",,,,,,
-packages-contracts-comment-66b1acb6,packages-contracts,packages/contracts/src/desk.ts,234,234,block,0,/* ------------------------------------------------------------ métricas */,,,,,,
-packages-contracts-comment-7476ade1,packages-contracts,packages/contracts/src/desk.ts,241,241,jsdoc,3,"/** `null` é ""o domínio ainda não guarda isto"", e não zero. */",,,,,,
-packages-contracts-comment-698a0c6b,packages-contracts,packages/contracts/src/desk.ts,247,247,jsdoc,1,"/** Da chegada até a primeira palavra do atendente, em segundos. */",,,,,,
-packages-contracts-comment-b2fddf65,packages-contracts,packages/contracts/src/desk.ts,249,249,jsdoc,0,"/** Da abertura até cair no colo de alguém, em segundos. */",,,,,,
-packages-contracts-comment-e5c50ea1,packages-contracts,packages/contracts/src/desk.ts,251,251,jsdoc,3,"/** Fila mais o tempo que a conversa passou em espera, em segundos. */",,,,,,
+ */",translate,`GET /v1/desk/tickets/:id` reads an old ticket. It returns 404 when absent or hidden by tenant RLS. `status` is included because the rail shows it on every screen and the screen uses one API request.,security,packages/contracts/src/desk.ts:220-226; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-66b1acb6,packages-contracts,packages/contracts/src/desk.ts,234,234,block,0,/* ------------------------------------------------------------ métricas */,remove,,other,packages/contracts/src/desk.ts:234-234,codex,reviewed
+packages-contracts-comment-7476ade1,packages-contracts,packages/contracts/src/desk.ts,241,241,jsdoc,3,"/** `null` é ""o domínio ainda não guarda isto"", e não zero. */",translate,"`null` means the domain does not yet store this, rather than zero.",other,packages/contracts/src/desk.ts:241-241,codex,reviewed
+packages-contracts-comment-698a0c6b,packages-contracts,packages/contracts/src/desk.ts,247,247,jsdoc,1,"/** Da chegada até a primeira palavra do atendente, em segundos. */",translate,Seconds from arrival to the agent's first response.,other,packages/contracts/src/desk.ts:247-247,codex,reviewed
+packages-contracts-comment-b2fddf65,packages-contracts,packages/contracts/src/desk.ts,249,249,jsdoc,0,"/** Da abertura até cair no colo de alguém, em segundos. */",translate,Seconds from opening until assignment to an agent.,other,packages/contracts/src/desk.ts:249-249,codex,reviewed
+packages-contracts-comment-e5c50ea1,packages-contracts,packages/contracts/src/desk.ts,251,251,jsdoc,3,"/** Fila mais o tempo que a conversa passou em espera, em segundos. */",translate,"Queue time plus time the conversation spent on hold, in seconds.",other,packages/contracts/src/desk.ts:251-251,codex,reviewed
 packages-contracts-comment-8d219469,packages-contracts,packages/contracts/src/desk.ts,267,274,jsdoc,6,"/**
  * `GET /v1/desk/metricas?inicio=&fim=` (ISO 8601). O recorte é calculado no
  * navegador (`lib/periodo.ts`), no relógio de quem olha — como a página em
@@ -53,29 +53,29 @@ packages-contracts-comment-8d219469,packages-contracts,packages/contracts/src/de
  *
  * O `status` vai junto porque o trilho o mostra em toda tela, e uma ida só à
  * `api` por tela é a régua.
- */",,,,,,
-packages-contracts-comment-52790540,packages-contracts,packages/contracts/src/desk.ts,285,285,jsdoc,3,/** Link para a FICHA daquele cliente no CRM. Nunca a home. */,,,,,,
-packages-contracts-comment-405b2581,packages-contracts,packages/contracts/src/desk.ts,31,31,jsdoc,5,"/** Nulo é conversa que o atendente ainda não respondeu — é a ficha ""Sem resposta"". */",,,,,,
-packages-contracts-comment-50ef30e8,packages-contracts,packages/contracts/src/desk.ts,36,36,jsdoc,2,/** Desde quando está em espera — o cronômetro da ficha 'Em espera' do cartão. */,,,,,,
+ */",translate,"`GET /v1/desk/metricas?inicio=&fim=` takes ISO 8601 bounds. The browser computes the interval in the viewer's clock (`lib/periodo.ts`), as the Next page formerly did on the server clock; the API only applies it. `status` travels with metrics because the rail displays it on every screen, allowing one API request per screen.",integration,packages/contracts/src/desk.ts:267-274; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-52790540,packages-contracts,packages/contracts/src/desk.ts,285,285,jsdoc,3,/** Link para a FICHA daquele cliente no CRM. Nunca a home. */,translate,"Link to this customer's CRM record, never the home page.",integration,packages/contracts/src/desk.ts:285-285; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-405b2581,packages-contracts,packages/contracts/src/desk.ts,31,31,jsdoc,5,"/** Nulo é conversa que o atendente ainda não respondeu — é a ficha ""Sem resposta"". */",translate,Null means the agent has not answered this conversation yet; shown as the Unanswered card.,other,packages/contracts/src/desk.ts:31-31,codex,reviewed
+packages-contracts-comment-50ef30e8,packages-contracts,packages/contracts/src/desk.ts,36,36,jsdoc,2,/** Desde quando está em espera — o cronômetro da ficha 'Em espera' do cartão. */,translate,"When the hold started, used by the On Hold card timer.",other,packages/contracts/src/desk.ts:36-36,codex,reviewed
 packages-contracts-comment-1bf4ada6,packages-contracts,packages/contracts/src/desk.ts,44,48,jsdoc,8,"/**
    * As marcações DESTE atendente (`marcacao_conversa`, migração 0041): fixada no
    * topo da lista e marcada à mão como não lida. Nulo é ""não marcada"". São do
    * atendente, não da conversa — o colega que recebe a transferência não as vê.
-   */",,,,,,
+   */",translate,"This agent's own markers (`marcacao_conversa`, migration 0041): pinned at the top of the list and manually marked unread. Null means unmarked. They belong to the agent, not the conversation; a colleague receiving a transfer does not see them.",architecture,packages/contracts/src/desk.ts:44-48; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-8a273c30,packages-contracts,packages/contracts/src/desk.ts,86,92,jsdoc,12,"/**
  * O que `GET /v1/desk/fila` devolve: a fila do atendente e os catálogos que a
  * coluna precisa para desenhar — status, motivos de pausa, etiquetas, colegas
  * e respostas prontas. Tudo numa ida só, na mesma transação, como a página em
  * Next fazia; a busca, a ficha, a ordem e o recorte por fila continuam sendo
  * do navegador (`lib/ordem.ts`), porque são regras puras sobre a lista inteira.
- */",,,,,,
-packages-contracts-comment-9809afc0,packages-contracts,packages/contracts/src/desk.ts,95,95,jsdoc,2,"/** ""Clientes aguardando"": conversas na fila, nas filas do atendente. O botão ""Atender"" puxa a mais antiga. */",,,,,,
+ */",translate,"`GET /v1/desk/fila` returns the agent queue and catalogs needed by its column: status, pause reasons, tags, colleagues, and canned responses. One request and transaction mirror the Next page. Search, card, ordering, and queue filtering stay in the browser (`lib/ordem.ts`) because they are pure rules over the full list.",integration,packages/contracts/src/desk.ts:86-92; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-9809afc0,packages-contracts,packages/contracts/src/desk.ts,95,95,jsdoc,2,"/** ""Clientes aguardando"": conversas na fila, nas filas do atendente. O botão ""Atender"" puxa a mais antiga. */",translate,Waiting customers: queued conversations in this agent's queues. The Answer button takes the oldest.,other,packages/contracts/src/desk.ts:95-95,codex,reviewed
 packages-contracts-comment-344ce6f5,packages-contracts,packages/contracts/src/encerramento.ts,1,5,jsdoc,5,"/**
  * `POST /v1/conversas/:id/encerrar` e a ação correspondente do monitoramento.
  * A Blip aceita a lista de tags removíveis de `blip-tags`; o campo singular
  * continua existindo para clientes antigos da Pipe durante a migração.
- */",,,,,,
-packages-contracts-comment-1a8b5497,packages-contracts,packages/contracts/src/encerramento.ts,8,8,jsdoc,1,"/** @deprecated Envie `etiqueta_ids`, que permite várias tags ou lista vazia. */",,,,,,
+ */",translate,`POST /v1/conversas/:id/encerrar` and the matching monitoring action. Blip accepts removable tag lists from `blip-tags`; the singular field remains for old Pipe clients during migration.,meta-blip,packages/contracts/src/encerramento.ts:1-5; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-1a8b5497,packages-contracts,packages/contracts/src/encerramento.ts,8,8,jsdoc,1,"/** @deprecated Envie `etiqueta_ids`, que permite várias tags ou lista vazia. */",translate,"@deprecated Send `etiqueta_ids`, which accepts multiple tags or an empty list.",integration,packages/contracts/src/encerramento.ts:8-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-b5dd79e8,packages-contracts,packages/contracts/src/eventos.ts,1,12,jsdoc,21,"/**
  * Os eventos que o servidor empurra pelo WebSocket.
  *
@@ -87,27 +87,27 @@ packages-contracts-comment-b5dd79e8,packages-contracts,packages/contracts/src/ev
  *
  * O efeito colateral é bom: o payload fica minúsculo, e o cliente sempre lê a
  * versão mais nova, não a que estava viajando quando o evento saiu.
- */",,,,,,
-packages-contracts-comment-ff911c3d,packages-contracts,packages/contracts/src/eventos.ts,15,15,jsdoc,1,"/** Uma conversa mudou: mensagem nova, estado, atribuição, janela. */",,,,,,
-packages-contracts-comment-96031363,packages-contracts,packages/contracts/src/eventos.ts,17,17,jsdoc,1,/** A fila mudou de tamanho ou de composição. */,,,,,,
-packages-contracts-comment-095872a8,packages-contracts,packages/contracts/src/eventos.ts,19,19,jsdoc,0,"/** Um atendente mudou de status (online, pausa, invisível). */",,,,,,
-packages-contracts-comment-af6cfa5d,packages-contracts,packages/contracts/src/eventos.ts,21,21,jsdoc,1,/** Os números do Monitoramento mudaram o bastante para valer repintar. */,,,,,,
-packages-contracts-comment-182c305c,packages-contracts,packages/contracts/src/eventos.ts,30,30,jsdoc,2,/** O registro que mudou. Ausente quando o assunto é agregado (monitoramento). */,,,,,,
+ */",translate,"WebSocket events say what changed, never what the record is. Clients receive that conversation X changed and refetch through the API under RLS. Sending records over the socket would create a second data path and a second place to get tenant isolation wrong; the API already has 90 policies and 21 tests. Small event payloads also let clients read the latest version rather than one already stale in transit.",security,packages/contracts/src/eventos.ts:1-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-ff911c3d,packages-contracts,packages/contracts/src/eventos.ts,15,15,jsdoc,1,"/** Uma conversa mudou: mensagem nova, estado, atribuição, janela. */",translate,"Conversation changed: new message, state, assignment, or window.",other,packages/contracts/src/eventos.ts:15-15,codex,reviewed
+packages-contracts-comment-96031363,packages-contracts,packages/contracts/src/eventos.ts,17,17,jsdoc,1,/** A fila mudou de tamanho ou de composição. */,translate,Queue size or composition changed.,other,packages/contracts/src/eventos.ts:17-17,codex,reviewed
+packages-contracts-comment-095872a8,packages-contracts,packages/contracts/src/eventos.ts,19,19,jsdoc,0,"/** Um atendente mudou de status (online, pausa, invisível). */",translate,"Agent status changed: online, paused, or invisible.",other,packages/contracts/src/eventos.ts:19-19,codex,reviewed
+packages-contracts-comment-af6cfa5d,packages-contracts,packages/contracts/src/eventos.ts,21,21,jsdoc,1,/** Os números do Monitoramento mudaram o bastante para valer repintar. */,translate,Monitoring figures changed enough to warrant a redraw.,other,packages/contracts/src/eventos.ts:21-21,codex,reviewed
+packages-contracts-comment-182c305c,packages-contracts,packages/contracts/src/eventos.ts,30,30,jsdoc,2,/** O registro que mudou. Ausente quando o assunto é agregado (monitoramento). */,translate,Changed record; omitted for aggregate subjects such as monitoring.,other,packages/contracts/src/eventos.ts:30-30,codex,reviewed
 packages-contracts-comment-caea7556,packages-contracts,packages/contracts/src/eventos.ts,32,38,jsdoc,4,"/**
    * Momento em que o servidor emitiu, em ISO-8601.
    *
    * O cliente usa para descartar evento que chegou fora de ordem — reconexão
    * entrega o acumulado, e aplicar um evento velho por cima de um novo deixa a
    * tela mentindo.
-   */",,,,,,
+   */",translate,"Server emission time in ISO 8601. Clients use it to discard out-of-order events: reconnection delivers accumulated events, and applying an old event after a new one would make the UI wrong.",integration,packages/contracts/src/eventos.ts:32-38; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-0bc7b551,packages-contracts,packages/contracts/src/eventos.ts,42,47,jsdoc,3,"/**
  * O que o cliente manda para se inscrever.
  *
  * O `tenant_id` NÃO vem daqui: ele sai da sessão, no servidor. Aceitar tenant do
  * cliente seria deixar quem se inscreve escolher de quem quer ouvir.
- */",,,,,,
-packages-contracts-comment-3f99eef4,packages-contracts,packages/contracts/src/eventos.ts,50,50,jsdoc,3,"/** Ids específicos, quando a tela quer só uma conversa em vez de todas. */",,,,,,
-packages-contracts-comment-6469cc12,packages-contracts,packages/contracts/src/eventos.ts,54,54,jsdoc,2,"/** Quadros de controle do canal, para o cliente saber o que aconteceu. */",,,,,,
+ */",translate,"Client subscription request. `tenant_id` comes from the server session, never this request; accepting a client-supplied tenant would let subscribers choose whose events to receive.",security,packages/contracts/src/eventos.ts:42-47; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-3f99eef4,packages-contracts,packages/contracts/src/eventos.ts,50,50,jsdoc,3,"/** Ids específicos, quando a tela quer só uma conversa em vez de todas. */",translate,Specific IDs when a screen subscribes to one conversation rather than all.,other,packages/contracts/src/eventos.ts:50-50,codex,reviewed
+packages-contracts-comment-6469cc12,packages-contracts,packages/contracts/src/eventos.ts,54,54,jsdoc,2,"/** Quadros de controle do canal, para o cliente saber o que aconteceu. */",translate,Channel control frames telling clients what happened.,integration,packages/contracts/src/eventos.ts:54-54; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-ae2436f5,packages-contracts,packages/contracts/src/gestao-cadastros.ts,1,11,jsdoc,5,"/**
  * As rotas de GRAVAÇÃO do módulo Atendimento (cadastros) — filas, respostas
  * prontas e pausas personalizadas.
@@ -118,11 +118,11 @@ packages-contracts-comment-ae2436f5,packages-contracts,packages/contracts/src/ge
  * REQUISIÇÃO e de RESPOSTA moram aqui — a leitura (`FilaCadastrada`,
  * `UsoDePausas`, `RespostaProntaListada`) continua duplicada à mão em
  * `apps/gestao-vite/src/lib/*`, como já era antes desta tarefa.
- */",,,,,,
-packages-contracts-comment-b698ad07,packages-contracts,packages/contracts/src/gestao-cadastros.ts,105,105,jsdoc,1,"/** Os quatro operadores de `apps/api/src/dominio/gestao/regra-fila.ts` — duplicado à mão, como o resto deste arquivo. */",,,,,,
-packages-contracts-comment-1be36dc4,packages-contracts,packages/contracts/src/gestao-cadastros.ts,114,114,jsdoc,2,"/** Só o que veio muda; `condicoes`, quando vem, SUBSTITUI todas as anteriores. */",,,,,,
-packages-contracts-comment-087698f5,packages-contracts,packages/contracts/src/gestao-cadastros.ts,166,166,block,0,/* --------------------------------------------------------------- horários */,,,,,,
-packages-contracts-comment-75492ed0,packages-contracts,packages/contracts/src/gestao-cadastros.ts,24,24,jsdoc,2,"/** Só o que veio muda; campo ausente é ""não mexa"" — igual ao `PATCH` de fluxo. */",,,,,,
+ */",translate,"Write-route contracts for the Attendance module registration screens: queues, canned responses, and custom pauses. Shapes follow `apps/api/src/dominio/gestao/cadastros.ts` and `apps/api/src/dominio/gestao/comunicacao.ts`; front-end `tsc` catches field divergence. Only request and response shapes live here. Read shapes (`FilaCadastrada`, `UsoDePausas`, `RespostaProntaListada`) remain manually duplicated in `apps/gestao-vite/src/lib/*`, as before this task.",architecture,packages/contracts/src/gestao-cadastros.ts:1-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-b698ad07,packages-contracts,packages/contracts/src/gestao-cadastros.ts,105,105,jsdoc,1,"/** Os quatro operadores de `apps/api/src/dominio/gestao/regra-fila.ts` — duplicado à mão, como o resto deste arquivo. */",translate,"The four operators in `apps/api/src/dominio/gestao/regra-fila.ts`, manually duplicated like the rest of this file.",integration,packages/contracts/src/gestao-cadastros.ts:105-105; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-1be36dc4,packages-contracts,packages/contracts/src/gestao-cadastros.ts,114,114,jsdoc,2,"/** Só o que veio muda; `condicoes`, quando vem, SUBSTITUI todas as anteriores. */",translate,"Only supplied fields change; when supplied, `condicoes` replaces all previous conditions.",integration,packages/contracts/src/gestao-cadastros.ts:114-114; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-087698f5,packages-contracts,packages/contracts/src/gestao-cadastros.ts,166,166,block,0,/* --------------------------------------------------------------- horários */,remove,,other,packages/contracts/src/gestao-cadastros.ts:166-166,codex,reviewed
+packages-contracts-comment-75492ed0,packages-contracts,packages/contracts/src/gestao-cadastros.ts,24,24,jsdoc,2,"/** Só o que veio muda; campo ausente é ""não mexa"" — igual ao `PATCH` de fluxo. */",translate,"Only supplied fields change; an absent field means leave it untouched, as with flow `PATCH`.",integration,packages/contracts/src/gestao-cadastros.ts:24-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-2d545f47,packages-contracts,packages/contracts/src/gestao-equipe.ts,1,10,jsdoc,11,"/**
  * A aba ""Equipe"" do contato (`/fluxo/:id/equipe`): quem acessa ESTE fluxo e com
  * que permissão — o que `/v1/gestao/fluxos/:id/equipe` responde.
@@ -132,17 +132,17 @@ packages-contracts-comment-2d545f47,packages-contracts,packages/contracts/src/ge
  * uma das quatro paradas do `rzslider` (`visualize`, `custom`, `edit`, `admin`).
  * A regra inteira está em `apps/api/src/dominio/gestao/equipe-do-fluxo.ts` e na
  * migration 0035.
- */",,,,,,
-packages-contracts-comment-5bf4f153,packages-contracts,packages/contracts/src/gestao-equipe.ts,12,12,jsdoc,0,"/** Os três rádios de cada linha: `none` (0), `read` (1), `readWrite` (3). */",,,,,,
-packages-contracts-comment-c1e7a196,packages-contracts,packages/contracts/src/gestao-equipe.ts,15,15,jsdoc,0,"/** As quatro paradas do traço ""Permissão"". */",,,,,,
-packages-contracts-comment-9e6a8f3d,packages-contracts,packages/contracts/src/gestao-equipe.ts,18,18,jsdoc,0,/** Recurso da origem → rádio marcado. Chave ausente é `nenhum`. */,,,,,,
-packages-contracts-comment-490e2132,packages-contracts,packages/contracts/src/gestao-equipe.ts,21,21,jsdoc,2,/** Uma linha do `PermissionsList.html`: a chave da origem e o título pt-BR dela. */,,,,,,
-packages-contracts-comment-48c1428a,packages-contracts,packages/contracts/src/gestao-equipe.ts,27,27,jsdoc,0,/** Um cartão da lista de Equipe. */,,,,,,
-packages-contracts-comment-c22e8917,packages-contracts,packages/contracts/src/gestao-equipe.ts,42,42,jsdoc,1,"/** Quem está olhando pode adicionar, editar e remover? */",,,,,,
-packages-contracts-comment-13812712,packages-contracts,packages/contracts/src/gestao-equipe.ts,48,48,jsdoc,3,/** `null` quando a pessoa não é membro deste fluxo (o acesso vem da conta). */,,,,,,
-packages-contracts-comment-9ed1dd8b,packages-contracts,packages/contracts/src/gestao-equipe.ts,51,51,jsdoc,3,/** A permissão de conta que hoje edita fluxo — quem a tem enxerga tudo. */,,,,,,
-packages-contracts-comment-0fcb554f,packages-contracts,packages/contracts/src/gestao-equipe.ts,57,57,jsdoc,3,/** Só no `POST`: o e-mail de alguém que já está no contrato. */,,,,,,
-packages-contracts-comment-94f5a30e,packages-contracts,packages/contracts/src/gestao-equipe.ts,60,60,jsdoc,1,/** Só é lido quando o papel é `personalizado`; nos outros o nível manda. */,,,,,,
+ */",translate,"The contact's Team tab (`/fluxo/:id/equipe`) shows who can access this flow and at what permission, returned by `/v1/gestao/fluxos/:id/equipe`. Names mirror the source: per-resource levels are the three `PermissionsList.html` radio choices (`none` 0, `read` 1, `readWrite` 3), and role is one of four `rzslider` stops (`visualize`, `custom`, `edit`, `admin`). Full rules live in `apps/api/src/dominio/gestao/equipe-do-fluxo.ts` and migration 0035.",meta-blip,packages/contracts/src/gestao-equipe.ts:1-10; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-5bf4f153,packages-contracts,packages/contracts/src/gestao-equipe.ts,12,12,jsdoc,0,"/** Os três rádios de cada linha: `none` (0), `read` (1), `readWrite` (3). */",translate,"Three radio choices per row: `none` (0), `read` (1), and `readWrite` (3).",meta-blip,packages/contracts/src/gestao-equipe.ts:12-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-c1e7a196,packages-contracts,packages/contracts/src/gestao-equipe.ts,15,15,jsdoc,0,"/** As quatro paradas do traço ""Permissão"". */",translate,Four stops of the Permission slider.,meta-blip,packages/contracts/src/gestao-equipe.ts:15-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-9e6a8f3d,packages-contracts,packages/contracts/src/gestao-equipe.ts,18,18,jsdoc,0,/** Recurso da origem → rádio marcado. Chave ausente é `nenhum`. */,translate,Source resource to selected radio choice; absent key means `nenhum`.,meta-blip,packages/contracts/src/gestao-equipe.ts:18-18; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-490e2132,packages-contracts,packages/contracts/src/gestao-equipe.ts,21,21,jsdoc,2,/** Uma linha do `PermissionsList.html`: a chave da origem e o título pt-BR dela. */,translate,One `PermissionsList.html` row: source key and its pt-BR title.,meta-blip,packages/contracts/src/gestao-equipe.ts:21-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-48c1428a,packages-contracts,packages/contracts/src/gestao-equipe.ts,27,27,jsdoc,0,/** Um cartão da lista de Equipe. */,remove,,other,packages/contracts/src/gestao-equipe.ts:27-27,codex,reviewed
+packages-contracts-comment-c22e8917,packages-contracts,packages/contracts/src/gestao-equipe.ts,42,42,jsdoc,1,"/** Quem está olhando pode adicionar, editar e remover? */",translate,"Whether the current viewer can add, edit, and remove members.",other,packages/contracts/src/gestao-equipe.ts:42-42,codex,reviewed
+packages-contracts-comment-13812712,packages-contracts,packages/contracts/src/gestao-equipe.ts,48,48,jsdoc,3,/** `null` quando a pessoa não é membro deste fluxo (o acesso vem da conta). */,translate,`null` when the person is not a member of this flow and access comes from the account.,security,packages/contracts/src/gestao-equipe.ts:48-48; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-9ed1dd8b,packages-contracts,packages/contracts/src/gestao-equipe.ts,51,51,jsdoc,3,/** A permissão de conta que hoje edita fluxo — quem a tem enxerga tudo. */,translate,Account permission that currently allows flow editing and grants full visibility.,security,packages/contracts/src/gestao-equipe.ts:51-51; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-0fcb554f,packages-contracts,packages/contracts/src/gestao-equipe.ts,57,57,jsdoc,3,/** Só no `POST`: o e-mail de alguém que já está no contrato. */,translate,Only for `POST`: email of someone already on the contract.,integration,packages/contracts/src/gestao-equipe.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-94f5a30e,packages-contracts,packages/contracts/src/gestao-equipe.ts,60,60,jsdoc,1,/** Só é lido quando o papel é `personalizado`; nos outros o nível manda. */,translate,Read only when the role is `personalizado`; otherwise the level controls access.,security,packages/contracts/src/gestao-equipe.ts:60-60; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-9411c31b,packages-contracts,packages/contracts/src/gestao-fluxo.ts,1,10,jsdoc,7,"/**
  * As telas do CONTATO da Gestão (`/fluxo/:id/**`): o que `GET /v1/gestao/fluxos/…`
  * responde e o front desenha.
@@ -152,34 +152,34 @@ packages-contracts-comment-9411c31b,packages-contracts,packages/contracts/src/ge
  *
  * A forma é a das consultas em `apps/api/src/dominio/gestao-fluxo.ts`; se uma
  * coluna entra ou sai de lá, entra ou sai daqui, e o `tsc` do front acusa.
- */",,,,,,
-packages-contracts-comment-955f6412,packages-contracts,packages/contracts/src/gestao-fluxo.ts,174,174,jsdoc,2,"/** `GET /v1/gestao/fluxos/:id/growth` — os dados são da CONTA, não do contato. */",,,,,,
-packages-contracts-comment-a5875af3,packages-contracts,packages/contracts/src/gestao-fluxo.ts,182,182,block,0,/* ------------------------------------------------------------ Conteúdos */,,,,,,
-packages-contracts-comment-e18ebddd,packages-contracts,packages/contracts/src/gestao-fluxo.ts,197,197,jsdoc,1,"/** `GET /v1/gestao/fluxos/:id/conteudos`. Sem canal WhatsApp, `modelos` é vazio. */",,,,,,
-packages-contracts-comment-16f71ddb,packages-contracts,packages/contracts/src/gestao-fluxo.ts,20,20,jsdoc,0,"/** O ""Descrição"" de ""Editar Fluxo""; opcional lá, nula aqui. */",,,,,,
-packages-contracts-comment-b8ad1c88,packages-contracts,packages/contracts/src/gestao-fluxo.ts,203,203,block,0,/* ------------------------------------------------------------- Serviços */,,,,,,
-packages-contracts-comment-e0d18209,packages-contracts,packages/contracts/src/gestao-fluxo.ts,205,205,jsdoc,1,"/** Um chatbot (um `fluxo`) — o roteador, ou o que atende um serviço. */",,,,,,
-packages-contracts-comment-31291ed4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,214,214,jsdoc,1,/** Um serviço do roteador (`roteador_servico`): o nome e o chatbot que atende. */,,,,,,
-packages-contracts-comment-af790249,packages-contracts,packages/contracts/src/gestao-fluxo.ts,216,216,jsdoc,1,/** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */,,,,,,
-packages-contracts-comment-5f157d07,packages-contracts,packages/contracts/src/gestao-fluxo.ts,218,218,jsdoc,0,/** O nome do serviço: é o `address` do `Redirect`. */,,,,,,
-packages-contracts-comment-d8601240,packages-contracts,packages/contracts/src/gestao-fluxo.ts,220,220,jsdoc,0,"/** ""É o meu chatbot principal"". */",,,,,,
-packages-contracts-comment-bd166cd1,packages-contracts,packages/contracts/src/gestao-fluxo.ts,222,222,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",,,,,,
-packages-contracts-comment-558a15d6,packages-contracts,packages/contracts/src/gestao-fluxo.ts,224,224,jsdoc,1,"/** ""Expiração do redirecionamento"", em minutos; nula para principal e persistente. */",,,,,,
+ */",translate,"Management contact screens (`/fluxo/:id/**`) render responses from `GET /v1/gestao/fluxos/…`. Dates cross JSON as ISO 8601 text and are converted with `new Date(...)` at display time, never in the contract. Shapes follow queries in `apps/api/src/dominio/gestao-fluxo.ts`; front-end `tsc` catches changed columns.",integration,packages/contracts/src/gestao-fluxo.ts:1-10; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-955f6412,packages-contracts,packages/contracts/src/gestao-fluxo.ts,174,174,jsdoc,2,"/** `GET /v1/gestao/fluxos/:id/growth` — os dados são da CONTA, não do contato. */",translate,"`GET /v1/gestao/fluxos/:id/growth`: data belongs to the ACCOUNT, not the contact.",integration,packages/contracts/src/gestao-fluxo.ts:174-174; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-a5875af3,packages-contracts,packages/contracts/src/gestao-fluxo.ts,182,182,block,0,/* ------------------------------------------------------------ Conteúdos */,remove,,other,packages/contracts/src/gestao-fluxo.ts:182-182,codex,reviewed
+packages-contracts-comment-e18ebddd,packages-contracts,packages/contracts/src/gestao-fluxo.ts,197,197,jsdoc,1,"/** `GET /v1/gestao/fluxos/:id/conteudos`. Sem canal WhatsApp, `modelos` é vazio. */",translate,"`GET /v1/gestao/fluxos/:id/conteudos`; without a WhatsApp channel, `modelos` is empty.",integration,packages/contracts/src/gestao-fluxo.ts:197-197; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-16f71ddb,packages-contracts,packages/contracts/src/gestao-fluxo.ts,20,20,jsdoc,0,"/** O ""Descrição"" de ""Editar Fluxo""; opcional lá, nula aqui. */",translate,"Description in Edit Flow: optional there, nullable here.",other,packages/contracts/src/gestao-fluxo.ts:20-20,codex,reviewed
+packages-contracts-comment-b8ad1c88,packages-contracts,packages/contracts/src/gestao-fluxo.ts,203,203,block,0,/* ------------------------------------------------------------- Serviços */,remove,,other,packages/contracts/src/gestao-fluxo.ts:203-203,codex,reviewed
+packages-contracts-comment-e0d18209,packages-contracts,packages/contracts/src/gestao-fluxo.ts,205,205,jsdoc,1,"/** Um chatbot (um `fluxo`) — o roteador, ou o que atende um serviço. */",translate,A chatbot (a `fluxo`): either the router or the bot handling a service.,other,packages/contracts/src/gestao-fluxo.ts:205-205,codex,reviewed
+packages-contracts-comment-31291ed4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,214,214,jsdoc,1,/** Um serviço do roteador (`roteador_servico`): o nome e o chatbot que atende. */,translate,Router service (`roteador_servico`): its name and handling chatbot.,other,packages/contracts/src/gestao-fluxo.ts:214-214,codex,reviewed
+packages-contracts-comment-af790249,packages-contracts,packages/contracts/src/gestao-fluxo.ts,216,216,jsdoc,1,/** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */,translate,Link ID used by `PATCH` and `DELETE …/servicos/:servicoId`.,integration,packages/contracts/src/gestao-fluxo.ts:216-216; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-5f157d07,packages-contracts,packages/contracts/src/gestao-fluxo.ts,218,218,jsdoc,0,/** O nome do serviço: é o `address` do `Redirect`. */,translate,Service name used as the `Redirect` address.,integration,packages/contracts/src/gestao-fluxo.ts:218-218; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-d8601240,packages-contracts,packages/contracts/src/gestao-fluxo.ts,220,220,jsdoc,0,"/** ""É o meu chatbot principal"". */",translate,Whether this is the primary chatbot.,other,packages/contracts/src/gestao-fluxo.ts:220-220,codex,reviewed
+packages-contracts-comment-bd166cd1,packages-contracts,packages/contracts/src/gestao-fluxo.ts,222,222,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",keep-original,,meta-blip,packages/contracts/src/gestao-fluxo.ts:222-222; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-558a15d6,packages-contracts,packages/contracts/src/gestao-fluxo.ts,224,224,jsdoc,1,"/** ""Expiração do redirecionamento"", em minutos; nula para principal e persistente. */",translate,"The `""Expiração do redirecionamento""` label gives redirect expiration in minutes; null for primary and persistent services.",meta-blip,packages/contracts/src/gestao-fluxo.ts:224-224; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-5fd82bff,packages-contracts,packages/contracts/src/gestao-fluxo.ts,229,233,jsdoc,6,"/**
  * `GET /v1/gestao/fluxos/:id/servicos` — só faz sentido para roteador: para fluxo,
  * `roteador` é nulo e as listas vêm vazias. `busca` são os chatbots que podem virar
  * serviço (tipo `fluxo`, não arquivados); o não publicado aparece apagado na tela.
- */",,,,,,
+ */",translate,"`GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `roteador` and empty lists. `busca` contains eligible service chatbots (type `fluxo`, not archived); unpublished ones appear dimmed.",integration,packages/contracts/src/gestao-fluxo.ts:229-233; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-acfe39c7,packages-contracts,packages/contracts/src/gestao-fluxo.ts,241,245,jsdoc,1,"/**
  * O formulário de serviço — `POST /v1/gestao/fluxos/:id/servicos` (tudo) e
  * `PATCH …/servicos/:servicoId` (só o que muda). Principal ignora `persistente` e
  * `expiracaoMin`; persistente ignora `expiracaoMin`.
- */",,,,,,
-packages-contracts-comment-efd3ae81,packages-contracts,packages/contracts/src/gestao-fluxo.ts,256,256,jsdoc,0,"/** Os tamanhos de página do `bds-pagination` da origem (`items-page=""[40,80,120]""`). */",,,,,,
-packages-contracts-comment-2907ee9c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,259,259,jsdoc,0,/** Um cartão da grade do portal. */,,,,,,
-packages-contracts-comment-81c2d3fe,packages-contracts,packages/contracts/src/gestao-fluxo.ts,27,27,jsdoc,2,"/** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */",,,,,,
-packages-contracts-comment-6c60f3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,271,271,jsdoc,2,"/** Quantos fluxos a conta tem ao todo, ignorando a busca. */",,,,,,
-packages-contracts-comment-c8a19ff4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,273,273,jsdoc,3,"/** Quantos a busca encontrou. Sem busca, é igual a `total`. */",,,,,,
+ */",translate,Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expiracaoMin`; a persistent service ignores `expiracaoMin`.,integration,packages/contracts/src/gestao-fluxo.ts:241-245; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-efd3ae81,packages-contracts,packages/contracts/src/gestao-fluxo.ts,256,256,jsdoc,0,"/** Os tamanhos de página do `bds-pagination` da origem (`items-page=""[40,80,120]""`). */",translate,"Page sizes from the source `bds-pagination` (`items-page=""[40,80,120]""`).",meta-blip,packages/contracts/src/gestao-fluxo.ts:256-256; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-2907ee9c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,259,259,jsdoc,0,/** Um cartão da grade do portal. */,remove,,other,packages/contracts/src/gestao-fluxo.ts:259-259,codex,reviewed
+packages-contracts-comment-81c2d3fe,packages-contracts,packages/contracts/src/gestao-fluxo.ts,27,27,jsdoc,2,"/** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */",translate,"Channel identifier shown to viewers: phone number for WhatsApp, `@usuário` for Instagram, or Page ID for Messenger.",integration,packages/contracts/src/gestao-fluxo.ts:27-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-6c60f3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,271,271,jsdoc,2,"/** Quantos fluxos a conta tem ao todo, ignorando a busca. */",translate,"Total flows in the account, ignoring search.",other,packages/contracts/src/gestao-fluxo.ts:271-271,codex,reviewed
+packages-contracts-comment-c8a19ff4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,273,273,jsdoc,3,"/** Quantos a busca encontrou. Sem busca, é igual a `total`. */",translate,Number found by search; equals `total` when no search is active.,other,packages/contracts/src/gestao-fluxo.ts:273-273,codex,reviewed
 packages-contracts-comment-16043132,packages-contracts,packages/contracts/src/gestao-fluxo.ts,279,286,jsdoc,5,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` — ""Defina a Mensagem de
  * Saudação e o botão Começar"" (`/configurations/welcome`).
@@ -187,8 +187,8 @@ packages-contracts-comment-16043132,packages-contracts,packages/contracts/src/ge
  * Desativado é `{ ativo: false }`: `mensagem`/`textoBotao` continuam com o
  * último valor gravado (não se apagam ao desligar o interruptor), mas a tela
  * só os mostra — e só exige preenchidos — quando `ativo` é `true`.
- */",,,,,,
-packages-contracts-comment-6ed62c17,packages-contracts,packages/contracts/src/gestao-fluxo.ts,293,293,jsdoc,2,"/** Uma linha do Menu Persistente: ""Texto"" e ""Link"" do item que dispara um comando. */",,,,,,
+ */",translate,"`GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, ""Defina a Mensagem de Saudação e o botão Começar"". Disabled means `{ ativo: false }`: `mensagem` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.",meta-blip,packages/contracts/src/gestao-fluxo.ts:279-286; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-6ed62c17,packages-contracts,packages/contracts/src/gestao-fluxo.ts,293,293,jsdoc,2,"/** Uma linha do Menu Persistente: ""Texto"" e ""Link"" do item que dispara um comando. */",translate,"Persistent Menu item row: the command item's ""Texto"" and ""Link"".",meta-blip,packages/contracts/src/gestao-fluxo.ts:293-293; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-564ca634,packages-contracts,packages/contracts/src/gestao-fluxo.ts,299,306,jsdoc,5,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` — ""Configure o menu
  * persistente de seu fluxo"" (`/configurations/persistentMenu`), até 3 itens.
@@ -196,43 +196,43 @@ packages-contracts-comment-564ca634,packages-contracts,packages/contracts/src/ge
  * `boasVindasPreenchida` é a segunda trava da origem (""Antes de salvar...
  * você precisa preencher a tela de boas-vindas""): a tela some o Salvar quando
  * falsa, e a `api` recusa o PATCH do mesmo jeito.
- */",,,,,,
+ */",translate,"`GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` mirrors `/configurations/persistentMenu`, ""Configure o menu persistente de seu fluxo"", with at most three items. `boasVindasPreenchida` is the source's second guard (""Antes de salvar... você precisa preencher a tela de boas-vindas""): when false, the UI hides Save and the API also rejects PATCH.",meta-blip,packages/contracts/src/gestao-fluxo.ts:299-306; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-9311f49a,packages-contracts,packages/contracts/src/gestao-fluxo.ts,314,319,jsdoc,3,"/**
  * O desenho como o editor da Blip o guarda, e como a cópia do Builder o pede
  * à ponte: o mapa de estados (`blip_portal:builder_working_flow`) e as ações
  * globais (`blip_portal:builder_working_global_actions`). É o `{ flow,
  * globalActions }` do botão ""Exportar"" do Builder, com os nomes traduzidos.
- */",,,,,,
+ */",translate,"Builder drawing in the format Blip stores and the Builder copy requests from the bridge: state map `blip_portal:builder_working_flow` and global actions `blip_portal:builder_working_global_actions`. It corresponds to the Builder ""Exportar"" button's `{ flow, globalActions }`, with translated names.",meta-blip,packages/contracts/src/gestao-fluxo.ts:314-319; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-4f7b7b86,packages-contracts,packages/contracts/src/gestao-fluxo.ts,325,329,jsdoc,4,"/**
  * Um erro que o motor apontaria ao rodar o fluxo (`errosDoFluxo` de
  * `@pipe/core`), preso ao bloco que o causa. `bloco` é o `id` do estado no
  * editor; `null` quando o erro é do fluxo inteiro (sem raiz, por exemplo).
- */",,,,,,
+ */",translate,"Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `bloco` is the editor state `id`; null means a whole-flow error, such as a missing root.",architecture,packages/contracts/src/gestao-fluxo.ts:325-329; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-a18058bc,packages-contracts,packages/contracts/src/gestao-fluxo.ts,33,37,jsdoc,4,"/**
  * Um canal como a página ""Canais"" do bot o vê — `GET /v1/gestao/fluxos/:id/canal`
  * e a resposta de `PUT`. `fluxoId`/`fluxoNome` dizem qual bot vivo está com
  * ele (um bot por número — regra da origem, `FICHA-conectar-canal-no-bot.md` §4).
- */",,,,,,
-packages-contracts-comment-b96f1e5c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,337,337,jsdoc,2,"/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */",,,,,,
-packages-contracts-comment-007f3824,packages-contracts,packages/contracts/src/gestao-fluxo.ts,344,344,jsdoc,3,"/** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */",,,,,,
+ */",translate,"A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `fluxoId` and `fluxoNome` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.",meta-blip,packages/contracts/src/gestao-fluxo.ts:33-37; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-b96f1e5c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,337,337,jsdoc,2,"/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */",translate,A `fluxo_versao` row as listed by Builder history.,integration,packages/contracts/src/gestao-fluxo.ts:337-337; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-007f3824,packages-contracts,packages/contracts/src/gestao-fluxo.ts,344,344,jsdoc,3,"/** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */",translate,Publisher name; null when the version was never published.,other,packages/contracts/src/gestao-fluxo.ts:344-344,codex,reviewed
 packages-contracts-comment-5f995fe8,packages-contracts,packages/contracts/src/gestao-fluxo.ts,350,354,jsdoc,5,"/**
  * De onde veio o desenho que o Builder abre: o rascunho em edição, a versão
  * publicada (quando não há rascunho) ou o fluxo padrão (fluxo novo, nada
  * gravado ainda).
- */",,,,,,
-packages-contracts-comment-8c0d2d6e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,361,361,jsdoc,5,"/** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */",,,,,,
-packages-contracts-comment-5868689c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,363,363,jsdoc,3,"/** A versão que o motor está rodando agora, se houver. */",,,,,,
-packages-contracts-comment-419de239,packages-contracts,packages/contracts/src/gestao-fluxo.ts,366,366,jsdoc,1,/** O que impediria publicar o desenho carregado. Vazio = publicável. */,,,,,,
-packages-contracts-comment-edbd7eb4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,368,368,jsdoc,3,"/** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */",,,,,,
-packages-contracts-comment-d6fad229,packages-contracts,packages/contracts/src/gestao-fluxo.ts,382,382,jsdoc,4,"/** A que saiu do ar para esta entrar, se havia. */",,,,,,
+ */",translate,"Source of the Builder drawing: the editable draft, the published version when there is no draft, or the default flow when nothing has been stored yet.",architecture,packages/contracts/src/gestao-fluxo.ts:350-354; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-8c0d2d6e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,361,361,jsdoc,5,"/** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */",translate,"Loaded version; null for the default flow, which does not yet exist in the database.",integration,packages/contracts/src/gestao-fluxo.ts:361-361; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-5868689c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,363,363,jsdoc,3,"/** A versão que o motor está rodando agora, se houver. */",translate,"Version currently running in the engine, if any.",other,packages/contracts/src/gestao-fluxo.ts:363-363,codex,reviewed
+packages-contracts-comment-419de239,packages-contracts,packages/contracts/src/gestao-fluxo.ts,366,366,jsdoc,1,/** O que impediria publicar o desenho carregado. Vazio = publicável. */,translate,Errors blocking publication of the loaded drawing; empty means publishable.,other,packages/contracts/src/gestao-fluxo.ts:366-366,codex,reviewed
+packages-contracts-comment-edbd7eb4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,368,368,jsdoc,3,"/** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */",translate,"Action types the Pipe engine cannot yet run; publication is allowed, but execution fails.",architecture,packages/contracts/src/gestao-fluxo.ts:368-368; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-d6fad229,packages-contracts,packages/contracts/src/gestao-fluxo.ts,382,382,jsdoc,4,"/** A que saiu do ar para esta entrar, se havia. */",translate,"Previous version taken offline when this one went live, if any.",other,packages/contracts/src/gestao-fluxo.ts:382-382,codex,reviewed
 packages-contracts-comment-cfde2a4e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,48,53,jsdoc,10,"/**
  * `GET /v1/gestao/fluxos/:id/canal`: o canal ligado a este bot (ou nulo) e os
  * canais ATIVOS da conta que a tela pode oferecer — os livres para ligar, e os
  * que já estão com outro bot (para dizer qual, como a origem manda ""remover do
  * anterior""). Decisão Pipe: na origem o número nasce no bot e não há lista.
- */",,,,,,
-packages-contracts-comment-4e176b31,packages-contracts,packages/contracts/src/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso da conta, para o ""criado em"" e o ""hoje"" não serem o do navegador. */",,,,,,
-packages-contracts-comment-7d57d3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,72,72,jsdoc,0,/** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */,,,,,,
+ */",translate,"`GET /v1/gestao/fluxos/:id/canal` returns this bot's linked channel (or null) and account channels that are ACTIVE: free channels and channels linked to another bot, so the UI can identify the previous bot as the source instructs (""remover do anterior""). Pipe deliberately differs from the source, where the number is created inside the bot and no list exists.",meta-blip,packages/contracts/src/gestao-fluxo.ts:48-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-4e176b31,packages-contracts,packages/contracts/src/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso da conta, para o ""criado em"" e o ""hoje"" não serem o do navegador. */",translate,"Account timezone so ""created at"" and ""today"" use the account clock rather than the browser clock.",other,packages/contracts/src/gestao-fluxo.ts:66-66,codex,reviewed
+packages-contracts-comment-7d57d3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,72,72,jsdoc,0,/** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */,remove,,other,packages/contracts/src/gestao-fluxo.ts:72-72,codex,reviewed
 packages-contracts-comment-c95e2905,packages-contracts,packages/contracts/src/index.ts,1,9,jsdoc,10,"/**
  * Tipos partilhados entre a `api` e os fronts.
  *
@@ -241,14 +241,14 @@ packages-contracts-comment-c95e2905,packages-contracts,packages/contracts/src/in
  * divergência só aparece quando alguém troca o nome — e aí em produção.
  *
  * Nada aqui importa banco, HTTP ou React. É contrato, não implementação.
- */",,,,,,
+ */",translate,"Shared types for the `api` and front ends. One concept has one definition, so screen and API field or plan names cannot silently diverge until production. This package imports no database, HTTP, or React implementation.",architecture,packages/contracts/src/index.ts:1-9; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-9ffa06b0,packages-contracts,packages/contracts/src/sessao.ts,1,6,jsdoc,9,"/**
  * O contrato de sessão, partilhado entre a `api` e os quatro fronts.
  *
  * Existe para que ""quem está logado"" tenha UMA definição. Sem isto, cada tela
  * inventa a sua e a divergência só aparece quando um campo muda de nome.
- */",,,,,,
-packages-contracts-comment-125f7ed8,packages-contracts,packages/contracts/src/sessao.ts,101,101,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",,,,,,
+ */",translate,Session contract shared by the `api` and four front ends. A single definition of the logged-in user exposes field-name divergence when fields change.,architecture,packages/contracts/src/sessao.ts:1-6; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-125f7ed8,packages-contracts,packages/contracts/src/sessao.ts,101,101,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",translate,ISO 8601 as returned by the API; the screen handles formatting.,integration,packages/contracts/src/sessao.ts:101-101; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-7a5bc133,packages-contracts,packages/contracts/src/sessao.ts,21,28,jsdoc,17,"/**
      * `false` enquanto a conta não passou por ""minha conta"".
      *
@@ -256,23 +256,23 @@ packages-contracts-comment-7a5bc133,packages-contracts,packages/contracts/src/se
      * disse de que empresa é vai para o onboarding, não para o produto. Fosse
      * uma chamada à parte, seria uma ida à rede por tela — e a consulta do
      * `Eu` já lê a linha do tenant.
-     */",,,,,,
-packages-contracts-comment-7a13cbfb,packages-contracts,packages/contracts/src/sessao.ts,31,31,jsdoc,4,"/** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */",,,,,,
-packages-contracts-comment-8f0f6ab9,packages-contracts,packages/contracts/src/sessao.ts,33,33,jsdoc,3,"/** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */",,,,,,
+     */",translate,"False until the account has completed ""minha conta"". Every logged-in screen needs this in `Eu` to send accounts missing company details to onboarding rather than the product. Fetching it separately would add a network request per screen, while the `Eu` query already reads the tenant row.",architecture,packages/contracts/src/sessao.ts:21-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-7a13cbfb,packages-contracts,packages/contracts/src/sessao.ts,31,31,jsdoc,4,"/** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */",translate,Catalog permission codes; the screen hides features absent from this list.,security,packages/contracts/src/sessao.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-8f0f6ab9,packages-contracts,packages/contracts/src/sessao.ts,33,33,jsdoc,3,"/** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */",translate,"Login origin, shown on the account screen and used by audit.",security,packages/contracts/src/sessao.ts:33-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-a89e4514,packages-contracts,packages/contracts/src/sessao.ts,43,49,jsdoc,12,"/**
  * Por que a entrada foi recusada.
  *
  * Código, não frase: a tela decide o texto, e o texto muda sem quebrar contrato.
  * Cada um destes tem uma saída diferente para a pessoa, e é por isso que não
  * viram um ""não autorizado"" genérico.
- */",,,,,,
-packages-contracts-comment-484c0be6,packages-contracts,packages/contracts/src/sessao.ts,51,51,jsdoc,2,/** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */,,,,,,
-packages-contracts-comment-267cb3fa,packages-contracts,packages/contracts/src/sessao.ts,53,53,jsdoc,1,/** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */,,,,,,
-packages-contracts-comment-7fee6db5,packages-contracts,packages/contracts/src/sessao.ts,55,55,jsdoc,2,"/** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */",,,,,,
-packages-contracts-comment-75ba17b8,packages-contracts,packages/contracts/src/sessao.ts,57,57,jsdoc,1,/** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */,,,,,,
-packages-contracts-comment-75baef66,packages-contracts,packages/contracts/src/sessao.ts,59,59,jsdoc,2,/** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */,,,,,,
-packages-contracts-comment-25b7f827,packages-contracts,packages/contracts/src/sessao.ts,61,61,jsdoc,2,/** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */,,,,,,
-packages-contracts-comment-22427d2d,packages-contracts,packages/contracts/src/sessao.ts,63,63,jsdoc,1,/** Falha na conversa com o Google. Saída: tentar de novo. */,,,,,,
+ */",translate,"Reason login was refused, represented as a code rather than a sentence. Screens choose text independently without breaking the contract; each code gives the person a distinct recovery path instead of generic unauthorized feedback.",security,packages/contracts/src/sessao.ts:43-49; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-484c0be6,packages-contracts,packages/contracts/src/sessao.ts,51,51,jsdoc,2,/** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */,translate,A personal email does not identify a company. Recovery: use an invitation.,security,packages/contracts/src/sessao.ts:51-51; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-267cb3fa,packages-contracts,packages/contracts/src/sessao.ts,53,53,jsdoc,1,/** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */,translate,No Pipe account uses this domain. Recovery: contact the purchaser.,security,packages/contracts/src/sessao.ts:53-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-7fee6db5,packages-contracts,packages/contracts/src/sessao.ts,55,55,jsdoc,2,"/** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */",translate,"The domain is known, but this person was not invited. Recovery: request an invitation.",security,packages/contracts/src/sessao.ts:55-55; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-75ba17b8,packages-contracts,packages/contracts/src/sessao.ts,57,57,jsdoc,1,/** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */,translate,Access was disabled after joining. Recovery: contact the administrator.,security,packages/contracts/src/sessao.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-75baef66,packages-contracts,packages/contracts/src/sessao.ts,59,59,jsdoc,2,/** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */,translate,The provider did not verify the email. Recovery: verify the provider account.,security,packages/contracts/src/sessao.ts:59-59; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-25b7f827,packages-contracts,packages/contracts/src/sessao.ts,61,61,jsdoc,2,/** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */,translate,The company requires SSO. Recovery: use its identity provider.,security,packages/contracts/src/sessao.ts:61-61; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-22427d2d,packages-contracts,packages/contracts/src/sessao.ts,63,63,jsdoc,1,/** Falha na conversa com o Google. Saída: tentar de novo. */,translate,Communication with Google failed. Recovery: retry.,integration,packages/contracts/src/sessao.ts:63-63; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-fdbe15e5,packages-contracts,packages/contracts/src/sessao.ts,73,83,jsdoc,15,"/**
  * O que `POST /v1/auth/descobrir` responde: por onde ESTE e-mail entra.
  *
@@ -283,13 +283,13 @@ packages-contracts-comment-fdbe15e5,packages-contracts,packages/contracts/src/se
  * A resposta é a MESMA para e-mail conhecido e desconhecido, exceto quando o
  * domínio é verificado e tem SSO ativo. Sem isso, a rota vira catálogo de ""quais
  * empresas usam Pipe"".
- */",,,,,,
-packages-contracts-comment-040859ca,packages-contracts,packages/contracts/src/sessao.ts,8,8,jsdoc,3,/** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */,,,,,,
-packages-contracts-comment-af3dc64a,packages-contracts,packages/contracts/src/sessao.ts,86,86,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",,,,,,
+ */",translate,"`POST /v1/auth/descobrir` returns the login method for this email: `sso` directs to the company identity provider and `google` to Google. There is no `senha`: Pipe has never stored passwords, and promising a nonexistent method would make the screen offer an impossible flow. Known and unknown email addresses receive the same answer except when the domain is verified and has active SSO; otherwise the route would reveal which companies use Pipe.",security,packages/contracts/src/sessao.ts:73-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-040859ca,packages-contracts,packages/contracts/src/sessao.ts,8,8,jsdoc,3,/** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */,translate,"`GET /v1/eu` response, the source of truth for the logged-in user.",integration,packages/contracts/src/sessao.ts:8-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-af3dc64a,packages-contracts,packages/contracts/src/sessao.ts,86,86,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",translate,API path for `sso`; only the public base is missing.,integration,packages/contracts/src/sessao.ts:86-86; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-666dd1e1,packages-contracts,packages/contracts/src/sessao.ts,90,96,jsdoc,11,"/**
  * O que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora.
  *
  * O mínimo para a pessoa decidir se aquele convite é dela: qual empresa, para
  * qual e-mail, com qual papel e até quando. Nada de dado do tenant além do nome
  * — quem chega aqui não está logado.
- */",,,,,,
+ */",translate,"`GET /v1/convites/:token` exposes only enough for an unauthenticated recipient to decide whether the invitation is theirs: company name, target email, role, and expiry. No other tenant data is included because the recipient is not logged in.",security,packages/contracts/src/sessao.ts:90-96; pre-triage D-40; needs slice-time confirmation,codex,reviewed

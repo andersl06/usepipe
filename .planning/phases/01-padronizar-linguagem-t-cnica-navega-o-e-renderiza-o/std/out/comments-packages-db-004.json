@@ -1,0 +1,196 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-462098a2",
+      "action": "update",
+      "new_text": "Cleanup matches known names and email addresses rather than deleting the whole tenant. These queries do not filter by `tenantId`; matching records in a shared development database can therefore be removed across tenants.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:113-113; packages/db/src/semente-demo.ts:113-155; queries filter names/emails without tenantId",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f008bb7e",
+      "action": "translate",
+      "new_text": "The development database is shared with Pipe Management, so deleting the entire demo tenant",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:114-114",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-10ebbb39",
+      "action": "translate",
+      "new_text": "would erase work done in the other application.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:115-115",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d54e1903",
+      "action": "translate",
+      "new_text": "Reuse an existing user by email rather than recreating one: deleting an agent would clear",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:157-157",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c224c2ab",
+      "action": "translate",
+      "new_text": "`atendente_id` from every existing conversation assigned to that agent, and in a shared",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:158-158",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-fa81efc3",
+      "action": "translate",
+      "new_text": "development database that would erase someone else's work.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:159-159",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-dd527ad7",
+      "action": "translate",
+      "new_text": "Assign an ATTENDANCE role to all three, which Desk checks in `exigirPermissao`,",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:176-176",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3118655b",
+      "action": "translate",
+      "new_text": "then an ACCOUNT role listed by the Members screen. Existing roles",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:177-177",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ccb768c6",
+      "action": "translate",
+      "new_text": "stay unchanged (`on conflict` / `garantirPapelDeConta`).",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:178-178",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-55e48a57",
+      "action": "translate",
+      "new_text": "New agents start Invisible so no one receives conversations before declaring readiness.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:199-199",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-00bcfcba",
+      "action": "translate",
+      "new_text": "Approved Meta templates: what remains available after the service window closes.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/semente-demo.ts:272-272",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-da2108ec",
+      "action": "update",
+      "new_text": "Pipe Desk **demo** seed, separate from base `semente.ts`. The base seed gives every new tenant roles, permissions, and sample queues; this file adds fictional users and conversations only for the demo tenant.\n\nIt deletes and recreates records matching its known email and name lists, so rerunning `pnpm seed:demo` resets the demo. The cleanup queries do not include `tenantId`, so matching data in another tenant could also be affected; confirm this at slice time.\n\nMessages stay in the current month because `mensagem` is monthly partitioned and migrations create partitions from their migration month.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:29-40; packages/db/src/semente-demo.ts:113-155; cleanup lacks tenantId filters",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3ffcdb2e",
+      "action": "translate",
+      "new_text": "Canned replies from the company and Ana's personal collection.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:305-305",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-f82c7f2d",
+      "action": "translate",
+      "new_text": "Work tags and closing tags required to finish a ticket.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:382-382",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c926fc13",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:44-44; Outdated: login now exists; packages/autenticacao/src/entrada.ts",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-9270f96e",
+      "action": "translate",
+      "new_text": "When the contact last spoke; determines the 24-hour service window.",
+      "evidence": "packages/db/src/semente-demo.ts:473-473; other",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "integration"
+    },
+    {
+      "id": "packages-db-comment-54ab3a8d",
+      "action": "translate",
+      "new_text": "Lists of records this seed treats as its own. Cleanup uses them, so adding a person here also requires adding that email to the list.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:50-53",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a36cf774",
+      "action": "translate",
+      "new_text": "Email has no 24-hour window; that rule is channel-specific.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:515-515",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-663427f3",
+      "action": "translate",
+      "new_text": "The window has closed: more than 24 hours since her last message.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:540-540",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-7abfae7b",
+      "action": "translate",
+      "new_text": "Marcelo's older conversation for the contact-panel history.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:559-559",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-70ec3ca2",
+      "action": "translate",
+      "new_text": "Marcelo: sales conversation negotiating a discount; the audio failed.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:624-624",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-ad736082",
+      "action": "translate",
+      "new_text": "Cássia: the service window has closed.",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:712-712",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-8761075b",
+      "action": "translate",
+      "new_text": "A contact's `autor_id` does not reference a user; leave it null rather than assigning a false user.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente-demo.ts:782-782",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-abe93f5f",
+      "action": "translate",
+      "new_text": "The summary is already stored. At this stage the screen reads the database without calling AI.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/semente-demo.ts:801-801",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

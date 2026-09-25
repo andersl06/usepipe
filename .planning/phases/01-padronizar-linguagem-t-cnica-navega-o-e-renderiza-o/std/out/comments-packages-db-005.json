@@ -1,0 +1,140 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-d7914a93",
+      "action": "translate",
+      "new_text": "Minimal seed: one tenant, five initial roles, the permission catalog, and sample queues. It uses the table-owner role before users exist, so it does not use `comTenant`. Running it twice deliberately creates no duplicates.",
+      "evidence": "packages/db/src/semente.ts:10-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-7ca0cd30",
+      "action": "translate",
+      "new_text": "All permissions except ACCOUNT permissions, which come only from the account role (`PAPEIS_DA_CONTA`) since migration 0021.",
+      "evidence": "packages/db/src/semente.ts:108-111",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-f10caa26",
+      "action": "translate",
+      "new_text": "The source `guest` role: \"Apenas visualiza informações do contrato\".",
+      "evidence": "packages/db/src/semente.ts:116-116",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-c672a728",
+      "action": "translate",
+      "new_text": "A manager can view and configure business operations; identity changes remain with the administrator, as does deleting flows, which only an admin can do in the source.",
+      "evidence": "packages/db/src/semente.ts:160-163",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-1cd4d742",
+      "action": "translate",
+      "new_text": "Three ACCOUNT roles named after source `roleId` values, following `referencias-blip/pesquisa/blip-painel-do-contrato.md`. UI labels (\"Admin\", \"Pode editar\", \"Pode visualizar\") live in Management, not here.\n\nEach person has exactly one, enforced by a partial index on `usuario_papel`. The source \"Cria e edita chatbots\" maps to `automacao.fluxo.editar`, the permission checked by the portal on creation.",
+      "evidence": "packages/db/src/semente.ts:175-182",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-2cd7bb0c",
+      "action": "translate",
+      "new_text": "A permission is a named capability, not a boolean flag scattered through code.",
+      "evidence": "packages/db/src/semente.ts:18-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-eb371469",
+      "action": "translate",
+      "new_text": "Whoever edits the bot may publish it: the source Builder does not separate those actions. Migration 0034.",
+      "evidence": "packages/db/src/semente.ts:190-191",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-661d179c",
+      "action": "translate",
+      "new_text": "ATTENDANCE roles. None carries a `conta.*` permission.",
+      "evidence": "packages/db/src/semente.ts:215-215",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-e9c462c2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/semente.ts:240-243; Outdated: `FILAS_EXEMPLO` only defines queues and has no score-band routing; packages/db/src/semente.ts:244-251",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a10a297a",
+      "action": "translate",
+      "new_text": "Store a chart-palette TOKEN NAME for color, never a hex literal. A hex value in a data column bypasses the `@pipe/ui` color rule when rendered; that is how tags acquired nine unchosen hues. The Queues screen reads these same names.",
+      "evidence": "packages/db/src/semente.ts:244-249",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-4052c002",
+      "action": "translate",
+      "new_text": "Every tenant user WITHOUT an account role receives one, extending migration 0021's exactly-one rule to later users.\n\nThe 0021 backfill covered existing users only. Operational seeds (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) create attendance-only users, which left the contract Members screen empty because it lists ACCOUNT roles. Apply the SAME rule as 0021 so execution order does not change results: `administrador` or `conta.membros.escrever` -> `admin`; flow or workspace editors -> `member`; others -> `guest`.\n\nThe partial unique index `usuario_papel_um_da_conta_uk` enforces one per user, and `where not exists` preserves existing manual assignments. Repeating the seed neither duplicates nor changes those roles.",
+      "evidence": "packages/db/src/semente.ts:257-272",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-c5b686d8",
+      "action": "remove",
+      "new_text": "",
+      "evidence": "packages/db/src/semente.ts:307-307",
+      "notes": "",
+      "sensitivity": "other"
+    },
+    {
+      "id": "packages-db-comment-e4c326f9",
+      "action": "translate",
+      "new_text": "Finally, after account roles exist, assign one to users seeded by another routine before this run or already present after migration 0021.",
+      "evidence": "packages/db/src/semente.ts:368-368",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "integration"
+    },
+    {
+      "id": "packages-db-comment-c7ce7cd3",
+      "action": "translate",
+      "new_text": "Migration 0030: no permission covered pause reasons or canned replies.",
+      "evidence": "packages/db/src/semente.ts:45-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "architecture"
+    },
+    {
+      "id": "packages-db-comment-0462055a",
+      "action": "translate",
+      "new_text": "\"Somente um admin pode deletar o chatbot\" (`deleteChatbotPermissionDenied` in the source): deletion has a separate permission absent from `member`. Migration 0023.",
+      "evidence": "packages/db/src/semente.ts:58-59",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-e986f25d",
+      "action": "translate",
+      "new_text": "Migration 0032: neither \"Informações de conexão\" nor \"Webhook\" had its own permission; `chave_api.gerenciar` covers key issuance only.",
+      "evidence": "packages/db/src/semente.ts:62-63",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    },
+    {
+      "id": "packages-db-comment-c370fff7",
+      "action": "translate",
+      "new_text": "ACCOUNT permissions read by the contract application.\n\nThese bring the source matrix (`referencias-blip/pesquisa/blip-painel-do-contrato.md`, section \"A matriz de papéis\") into RBAC. It has six keys (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`, `tenant-billing`, `tenant-permissions-group`) with `read` and `write` verbs hard-coded in the frontend for three fixed roles. Here each key/verb pair becomes ONE catalog permission assigned by a database role, preserving the matrix while allowing edits without rebuilding the screen.\n\n`conta.painel.*` mirrors `tenant-dashboard` even though no card uses it: the matrix is a contract, and an unexplained gap would confuse future reviews.\n\nBilling is READ ONLY deliberately. Source `tenant-billing` gives `admin` read access and no one write access; inventing `conta.faturamento.escrever` would add an unsupported capability no screen uses.",
+      "evidence": "packages/db/src/semente.ts:68-87",
+      "notes": "pre-triage D-40; needs slice-time confirmation",
+      "sensitivity": "meta-blip"
+    }
+  ]
+}

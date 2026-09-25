@@ -1,0 +1,196 @@
+{
+  "items": [
+    {
+      "id": "packages-autenticacao-comment-2c45ea64",
+      "action": "update",
+      "new_text": "Between provider identification and an authenticated Pipe session, Google and the tenant IdP use the SAME entry path. One path applies one set of checks; a second entry path is easy to leave unguarded. The tenant comes from the verified email domain for Google or from the SSO connection that initiated the flow.\n\nCheck in this order:\n1. If an external identity is already linked, find it by `(emissor, sujeito)`, never by email; reject a linked identity from a different tenant.\n2. Enforce tenant policy: `obrigatorio` allows SSO only, even for an already linked Google identity.\n3. For a new identity, require provider-confirmed email before linking or account creation. Otherwise a provider asserting a victim's email could grant the victim's roles.\n4. A public email domain does not identify a company. Google self-service may create an account for it; otherwise reject.\n5. For other domains, use only a VERIFIED domain; SSO must match the initiating tenant. If the domain is unclaimed, Google self-service may create its first account; otherwise reject.\n6. For a claimed domain, require an existing active invited user with that email, then link the identity. A verified domain alone cannot grant entry to another tenant's account.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:10-36; packages/autenticacao/src/entrada.ts:101-213; self-service branches at 152-181",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0c0bb35c",
+      "action": "translate",
+      "new_text": "Identity already linked to ANOTHER tenant. Reusing it here would let the same provider login enter",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:126-126",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2c39d7ad",
+      "action": "translate",
+      "new_text": "two tenants, leaving the choice of which identity counts to the first lookup.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:127-127",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-bbce7d8e",
+      "action": "translate",
+      "new_text": "Before rejecting for any reason, apply a guard on EVERY new identity path: without provider confirmation that the person owns the email, nothing below may match that identity to an account, link an invited user, or open a new account with that address.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:139-142",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0a5e210f",
+      "action": "translate",
+      "new_text": "On first entry, the domain selects the tenant for Google or confirms it for SSO.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:150-150",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-dd74251b",
+      "action": "translate",
+      "new_text": "A personal email does not identify a company. In self-service it need not: the new account belongs to that person, and the company name is filled in later in \"minha conta\".",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:152-154",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-b193dc03",
+      "action": "translate",
+      "new_text": "Nobody has claimed this domain. In self-service this is the normal first-person entry for that company, not a rejection.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:173-174",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-54177c58",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:217-217; Detached JSDoc incorrectly precedes `abrirContaNova` at packages/autenticacao/src/entrada.ts:217-218.",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0c969fac",
+      "action": "translate",
+      "new_text": "At login, self-service creates the tenant and administrator; this function links the provider identity and opens the session.\n\nThe identity is stored here rather than in provisioning because provisioning is provider-agnostic; the command-line tenant creation path uses the same provisioning.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:218-225",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-69fc0516",
+      "action": "translate",
+      "new_text": "Login through the tenant IdP; the tenant comes from the connection that started the flow.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:262-262",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-6ef9ba91",
+      "action": "translate",
+      "new_text": "Open a session in an account where the person ALREADY has a user, for the account switcher in the upper-left corner.\n\nThis is not a login shortcut. The caller must first prove that the target account user is the same person already signed in, using the same email verified in the owner database. This function enforces the remaining checks - active user and target-account SSO policy - because it issues the token, and every token-issuing path must use the same guards.\n\nThe old session stays open: people often switch back, and ending a tab during a ticket would be worse than keeping two sessions alive for the same duration.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:273-286",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-f9f343a5",
+      "action": "translate",
+      "new_text": "Enforce tenant policy ON THE SERVER along the session-issuing path.\n\nHiding the Google button is insufficient: with `obrigatorio`, this path rejects even an already linked Google account. This is where \"mandatory SSO\" becomes an actual check rather than settings copy; see `referencias-blip/pesquisa/sso-multi-tenant.md` section 6.\n\nAny new session-issuing path, including password, password recovery, or invitation link, must pass through this function or it creates a back door.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:309-319",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-8c6a36b1",
+      "action": "translate",
+      "new_text": "Run sequentially, never in `Promise.all`: parallel queries inside the transaction drop",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:359-359",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-94991628",
+      "action": "translate",
+      "new_text": "the session's `pipe.tenant_id`; see the README.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:360-360",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-583fd6ef",
+      "action": "translate",
+      "new_text": "An email change at the IdP updates only this display field: the account",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:362-362",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-e4f3e986",
+      "action": "translate",
+      "new_text": "remains the `(emissor, sujeito)` pair. Changing address does not change the",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:363-363",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-53defef2",
+      "action": "translate",
+      "new_text": "account, so inheriting a former employee's address does not inherit access.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:364-364",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-082e1a7c",
+      "action": "translate",
+      "new_text": "Resolve the session cookie.\n\nUse the owner role because tenant discovery must happen before setting tenant context. Look up by HASH through a unique index and return `null` for every non-live session: nonexistent, expired, and ended tokens intentionally get the same result.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:401-408",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-e4ff74f3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:440-440",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-602643ba",
+      "action": "translate",
+      "new_text": "Stored in `sessao.origem`; bulk policy revocation depends on this value.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:64-64",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-bf7cb0e2",
+      "action": "translate",
+      "new_text": "A tenant already resolved when the flow began through an SSO connection.\n\nWith it, domain discovery no longer selects the tenant; it CONFIRMS it. The domain must still be verified for this tenant. Without that check, one tenant's IdP could authenticate another tenant's user by asserting the right email.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:66-73",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c5e79a66",
+      "action": "translate",
+      "new_text": "Self-service behavior when a person authenticates without an existing account.\n\nWithout this callback, entry is closed to those without an invitation or verified domain. With it, the account is CREATED immediately: login, account creation, welcome screen, then \"minha conta\" for details, following the reference platform.\n\nThe API provides the callback because provisioning lives there. This module narrowly decides WHEN to call it: only if no tenant owns the domain. An uninvited user on a claimed verified domain is still rejected; allowing them in would expose another tenant's account.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:75-88",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-88db4d1d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:92-92",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-5c2b0915",
+      "action": "translate",
+      "new_text": "`bancoDono` deliberately bypasses RLS only for queries needed BEFORE tenant context exists: finding the external identity, resolving the domain, and reading tenant policy. API-key resolution follows the same approach because `pipe.tenant_id` cannot be set until the tenant is known.\n\nEvery later operation uses `comTenant`.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/entrada.ts:98-106",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "packages-ui-comment-4fe75a65",
+      "action": "translate",
+      "new_text": "An empty state with a drawn illustration, never a photo. The illustration is an `Ilustracao` component rather than a standalone image, as in Blip empty states, which also lets it respond to dark mode.\n\nUse `ilustracao={false}` inside a table, where a 96px scene would push the next row offscreen.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:176-183",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-80d0cb20",
+      "action": "translate",
+      "new_text": "Name initials, at most two: more will not fit in 26px.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:208-208",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-ab70c4ec",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:22-22",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-a41bdd4f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:224-224",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-5305bc1f",
+      "action": "translate",
+      "new_text": "@deprecated Use `<Etiqueta aoClicar ativa>`. A saved list segment belongs to the clickable tag, the product's sole tag component. Keep this only while the three applications migrate.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:28-32",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-e6d3a7f8",
+      "action": "translate",
+      "new_text": "Required: an icon-only button needs an accessible name.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:53-53",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-3a0fc89e",
+      "action": "translate",
+      "new_text": "Pipe's sole tag, a first-class component.\n\nNeither Chatwoot nor Twenty supplies a generic tag, so each screen would reimplement its own and the set would drift. Blip packages `bds-chip-clickable` to avoid that; we copy the component approach, not its appearance.\n\nThis component serves four product uses: queue tag (neutral), score band (neutral), SLA status (state), and evaluation concept (state).\n\nIt starts NEUTRAL deliberately. Queue, channel, source, and stage receive no color: categories are not states, and coloring everything weakens the signal. Color appears only when the tag calls for action, using one of four states, always a pastel background paired with dark content.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:73-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-d87f5d17",
+      "action": "translate",
+      "new_text": "Pill shape, only for rounded counts and elements beside an avatar.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:94-94",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-85aca483",
+      "action": "translate",
+      "new_text": "Clickable variant for a saved list segment, toggle filter, or navigation value. With `aoClicar`, the tag is a real `<button>` with keyboard access, focus, and `aria-pressed`; without it, it is a `<span>`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:96-100",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-7c9ca64a",
+      "action": "translate",
+      "new_text": "Table implemented here because Twenty's table lives in `twenty-front`, which is AGPL and unavailable to us; neither Chatwoot nor `twenty-ui` exposes one.\n\nDensity follows Salesforce measurements: 34px rows, 8px vertical and 12px horizontal cell padding, 13px body text, and uppercase column headings in the body font rather than monospace.\n\nThe `.scroll` wrapper is functional: a wide table must scroll within its own card or it pushes the entire page sideways.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/tabela.tsx:1-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-78f5f372",
+      "action": "translate",
+      "new_text": "Right-align and use tabular monospace, for numbers rather than text.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/tabela.tsx:19-19",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-76d59eeb",
+      "action": "translate",
+      "new_text": "Severity applies to the entire row (`grave`, `critico`), not only its text.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/tabela.tsx:35-35",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-f33ec301",
+      "action": "translate",
+      "new_text": "Icon facade using Tabler Icons artwork (MIT), copyright Paweł Kuna. https://github.com/tabler/tabler-icons - MIT license.\n\nTwenty uses a facade so components never import the icon package directly. The set actually used by Pipe's three applications is small; copying those SVG paths costs less than loading the whole library and keeps stroke and size under one control point.\n\nSwitching to `@tabler/icons-react` later means replacing this file's implementation while preserving the `<Icone nome=\"...\" />` interface.\n\nAll drawings use Tabler's 24-unit grid, rounded strokes, and no fill, matching the brand symbol.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/icones.tsx:1-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-22bd23c9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/icones.tsx:20-20",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-6f6271fd",
+      "action": "translate",
+      "new_text": "Size in px. Default 16; Twenty's icon scale is 14/16/20/24.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/icones.tsx:60-60",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-68329e1e",
+      "action": "translate",
+      "new_text": "Brand symbol: two pipe elbows fitting together without touching. The gap is part of the design and must remain open (docs/marca/MARCA.md).\n\nIt was duplicated inline in three components (`desk/trilho.tsx`, `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), each with its own hex value. Now there is one copy, and the second stroke inherits the accent color.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/icones.tsx:84-91",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

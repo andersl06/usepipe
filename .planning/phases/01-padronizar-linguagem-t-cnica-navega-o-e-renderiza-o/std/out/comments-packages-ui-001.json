@@ -1,0 +1,132 @@
+{
+  "items": [
+    {
+      "id": "packages-ui-comment-05fa6255",
+      "action": "translate",
+      "new_text": "Shared modal based on the compiled Desk `close-ticket-modal` and Monitoring's `closeTicket` modal translations.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/ui/src/componentes/encerramento-ticket.tsx:7-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-12a3ebad",
+      "action": "translate",
+      "new_text": "Application structures: the horizontal navigation header, contextual sidebar, and settings-area wrapper.\n\nThese three address the structural problem rejected by the owner (\"você está carregando todas as funções na aba à esquerda\"). They enforce these rules, based on the cited references:\n\n- MODULES AT THE TOP, HORIZONTALLY. Salesforce was measured with a 40px bar containing seven items and `temSidebar: false` on the list screen, which has no sidebar. Blip places Builder / Atendimento / Análise / Growth / Canais at the top.\n- SIDEBAR ONLY FOR THE OPEN MODULE'S CONTEXT, and short. `LateralContexto` renders nothing with fewer than two items: a one-item sidebar is framing without purpose.\n- SETTINGS ON A SEPARATE SCREEN, behind the gear. Salesforce changes domain, reduces seven navigation items to three, and only then adds a 250px sidebar.\n- NONFUNCTIONAL ITEMS DO NOT APPEAR. `ItemDeNavegacao` has no disabled state deliberately: this prevents Management from returning to 32 menu items with 29 disabled.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:1-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-79fd28ad",
+      "action": "translate",
+      "new_text": "Application header modeled on Salesforce: brand on the left, modules beside it, and only ACCOUNT controls on the right, never work controls. The gear lives here as the sole route to settings.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:116-120",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-c2e15876",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:132-132",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-446042b9",
+      "action": "translate",
+      "new_text": "Sidebar for the open module, deliberately short.\n\nReturns `null` with fewer than two items: without a choice to offer, the sidebar only takes width from content.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:158-163",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-5c244309",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:198-198",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-be8715e1",
+      "action": "translate",
+      "new_text": "Settings area on a separate screen.\n\nIt replaces the entire header: there is no module navigation here, only a way back. This follows Salesforce's transition to `salesforce-setup.com`, at a scale suitable for this product.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:211-217",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-5edc539b",
+      "action": "translate",
+      "new_text": "A navigation destination. There is no `desabilitado`: nonfunctional destinations do not enter the list.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:30-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-b2f72665",
+      "action": "translate",
+      "new_text": "The application's link component.\n\nIt keeps this package independent of `next`: each application supplies its own `next/link`, preserving client-side navigation without a page reload. A plain `<a>` would turn every module change into a full reload, an unwanted interaction regression.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:39-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-f958d034",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:56-56",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-075ccfba",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:63-63",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-4be32afe",
+      "action": "translate",
+      "new_text": "Determine whether an item is active. The root item (`/`) matches only exactly; other items match descendants so `/leads/42` keeps \"Leads\" selected.",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:81-85",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-03e9ba85",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/estrutura.tsx:91-91",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-comment-d7fbb747",
+      "action": "translate",
+      "new_text": "Primitives shared by all three applications.\n\nEach had been reimplemented in `apps/desk`, `apps/gestao`, and `apps/crm` with nearly identical CSS and values that had already diverged.\n\nAll are plain React and none imports `next`. Route-dependent information, such as the active navigation item, arrives through props; each application obtains its current path from its own `usePathname`. This keeps the package usable outside Next and testable without a router.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:1-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-2cfbc3f0",
+      "action": "translate",
+      "new_text": "Active state. This is the only place where brand color touches a tag.",
+      "sensitivity": "architecture",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:102-102",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-ui-comment-c05e71e8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/ui/src/componentes/primitivos.tsx:139-139",
+      "notes": ""
+    }
+  ]
+}

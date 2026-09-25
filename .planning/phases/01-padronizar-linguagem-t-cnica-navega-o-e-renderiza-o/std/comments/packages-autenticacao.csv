@@ -25,20 +25,28 @@ packages-autenticacao-comment-2c45ea64,packages-autenticacao,packages/autenticac
  *    primeira vez pelo provedor.
  * 6. **Senão, recusa.** Criar usuário do nada é o que transforma ""descobri um
  *    domínio"" em ""entrei no cliente"". Entrada de gente nova é por convite.
- */",,,,,,
-packages-autenticacao-comment-0c0bb35c,packages-autenticacao,packages/autenticacao/src/entrada.ts,126,126,line,3,// Conta já ligada a OUTRO cliente. Reaproveitá-la aqui seria a mesma pessoa,,,,,,
-packages-autenticacao-comment-2c39d7ad,packages-autenticacao,packages/autenticacao/src/entrada.ts,127,127,line,2,"// entrando em dois tenants com o mesmo login, e a escolha de qual vale",,,,,,
+ */",update,"Between provider identification and an authenticated Pipe session, Google and the tenant IdP use the SAME entry path. One path applies one set of checks; a second entry path is easy to leave unguarded. The tenant comes from the verified email domain for Google or from the SSO connection that initiated the flow.
+
+Check in this order:
+1. If an external identity is already linked, find it by `(emissor, sujeito)`, never by email; reject a linked identity from a different tenant.
+2. Enforce tenant policy: `obrigatorio` allows SSO only, even for an already linked Google identity.
+3. For a new identity, require provider-confirmed email before linking or account creation. Otherwise a provider asserting a victim's email could grant the victim's roles.
+4. A public email domain does not identify a company. Google self-service may create an account for it; otherwise reject.
+5. For other domains, use only a VERIFIED domain; SSO must match the initiating tenant. If the domain is unclaimed, Google self-service may create its first account; otherwise reject.
+6. For a claimed domain, require an existing active invited user with that email, then link the identity. A verified domain alone cannot grant entry to another tenant's account.",security,packages/autenticacao/src/entrada.ts:10-36; packages/autenticacao/src/entrada.ts:101-213; self-service branches at 152-181; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-0c0bb35c,packages-autenticacao,packages/autenticacao/src/entrada.ts,126,126,line,3,// Conta já ligada a OUTRO cliente. Reaproveitá-la aqui seria a mesma pessoa,translate,Identity already linked to ANOTHER tenant. Reusing it here would let the same provider login enter,security,packages/autenticacao/src/entrada.ts:126-126; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-2c39d7ad,packages-autenticacao,packages/autenticacao/src/entrada.ts,127,127,line,2,"// entrando em dois tenants com o mesmo login, e a escolha de qual vale",translate,"two tenants, leaving the choice of which identity counts to the first lookup.",security,packages/autenticacao/src/entrada.ts:127-127; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-bbce7d8e,packages-autenticacao,packages/autenticacao/src/entrada.ts,139,142,block,8,"/* Antes de recusar por qualquer motivo, uma trava que vale para TODO caminho
      novo: sem o provedor afirmar que o e-mail é da pessoa, nada aqui adiante
      pode casar identidade com conta — nem ligar a um usuário convidado, nem
-     abrir conta nova com aquele endereço. */",,,,,,
-packages-autenticacao-comment-0a5e210f,packages-autenticacao,packages/autenticacao/src/entrada.ts,150,150,line,1,// Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.,,,,,,
+     abrir conta nova com aquele endereço. */",translate,"Before rejecting for any reason, apply a guard on EVERY new identity path: without provider confirmation that the person owns the email, nothing below may match that identity to an account, link an invited user, or open a new account with that address.",security,packages/autenticacao/src/entrada.ts:139-142; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-0a5e210f,packages-autenticacao,packages/autenticacao/src/entrada.ts,150,150,line,1,// Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.,translate,"On first entry, the domain selects the tenant for Google or confirms it for SSO.",security,packages/autenticacao/src/entrada.ts:150-150; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-dd74251b,packages-autenticacao,packages/autenticacao/src/entrada.ts,152,154,block,6,"/* E-mail pessoal não diz de que empresa a pessoa é — mas no autosserviço ele
        não precisa dizer: a conta que nasce é dela, e o nome da empresa vem
-       depois, em ""minha conta"". */",,,,,,
+       depois, em ""minha conta"". */",translate,"A personal email does not identify a company. In self-service it need not: the new account belongs to that person, and the company name is filled in later in ""minha conta"".",security,packages/autenticacao/src/entrada.ts:152-154; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-b193dc03,packages-autenticacao,packages/autenticacao/src/entrada.ts,173,174,block,3,"/* Ninguém reivindicou este domínio. No autosserviço isso não é recusa, é o
-       caso comum: é a primeira pessoa daquela empresa chegando. */",,,,,,
-packages-autenticacao-comment-54177c58,packages-autenticacao,packages/autenticacao/src/entrada.ts,217,217,jsdoc,2,/** O login com Google. É `entrarComIdentidade` com o tenant vindo do domínio. */,,,,,,
+       caso comum: é a primeira pessoa daquela empresa chegando. */",translate,"Nobody has claimed this domain. In self-service this is the normal first-person entry for that company, not a rejection.",security,packages/autenticacao/src/entrada.ts:173-174; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-54177c58,packages-autenticacao,packages/autenticacao/src/entrada.ts,217,217,jsdoc,2,/** O login com Google. É `entrarComIdentidade` com o tenant vindo do domínio. */,remove,,security,packages/autenticacao/src/entrada.ts:217-217; Detached JSDoc incorrectly precedes `abrirContaNova` at packages/autenticacao/src/entrada.ts:217-218.; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-0c969fac,packages-autenticacao,packages/autenticacao/src/entrada.ts,218,225,jsdoc,12,"/**
  * A conta que nasce no login: o autosserviço cria o tenant e o administrador, e
  * esta função só liga a identidade do provedor a ele e abre a sessão.
@@ -46,8 +54,10 @@ packages-autenticacao-comment-0c969fac,packages-autenticacao,packages/autenticac
  * A identidade é gravada aqui, e não dentro do provisionamento, porque quem
  * provisiona não conhece provedor nenhum — é o mesmo caminho do comando que
  * cria cliente pela linha de comando.
- */",,,,,,
-packages-autenticacao-comment-69fc0516,packages-autenticacao,packages/autenticacao/src/entrada.ts,262,262,jsdoc,2,/** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */,,,,,,
+ */",translate,"At login, self-service creates the tenant and administrator; this function links the provider identity and opens the session.
+
+The identity is stored here rather than in provisioning because provisioning is provider-agnostic; the command-line tenant creation path uses the same provisioning.",security,packages/autenticacao/src/entrada.ts:218-225; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-69fc0516,packages-autenticacao,packages/autenticacao/src/entrada.ts,262,262,jsdoc,2,/** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */,translate,Login through the tenant IdP; the tenant comes from the connection that started the flow.,security,packages/autenticacao/src/entrada.ts:262-262; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-6ef9ba91,packages-autenticacao,packages/autenticacao/src/entrada.ts,273,286,jsdoc,19,"/**
  * Abre sessão numa conta em que a pessoa JÁ tem usuário — é a troca de conta do
  * seletor do canto superior esquerdo.
@@ -61,7 +71,11 @@ packages-autenticacao-comment-6ef9ba91,packages-autenticacao,packages/autenticac
  * A sessão antiga não é encerrada aqui: quem troca de conta costuma voltar, e
  * derrubar a outra aba no meio de um atendimento seria pior do que manter duas
  * sessões vivas com o mesmo prazo.
- */",,,,,,
+ */",translate,"Open a session in an account where the person ALREADY has a user, for the account switcher in the upper-left corner.
+
+This is not a login shortcut. The caller must first prove that the target account user is the same person already signed in, using the same email verified in the owner database. This function enforces the remaining checks - active user and target-account SSO policy - because it issues the token, and every token-issuing path must use the same guards.
+
+The old session stays open: people often switch back, and ending a tab during a ticket would be worse than keeping two sessions alive for the same duration.",security,packages/autenticacao/src/entrada.ts:273-286; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-f9f343a5,packages-autenticacao,packages/autenticacao/src/entrada.ts,309,319,jsdoc,17,"/**
  * A política do tenant, conferida NO SERVIDOR, no caminho que emite a sessão.
  *
@@ -72,12 +86,16 @@ packages-autenticacao-comment-f9f343a5,packages-autenticacao,packages/autenticac
  *
  * Todo caminho novo que abrir sessão (senha, recuperação de senha, convite por
  * link) tem de passar por esta função. É a porta dos fundos clássica.
- */",,,,,,
-packages-autenticacao-comment-8c6a36b1,packages-autenticacao,packages/autenticacao/src/entrada.ts,359,359,line,0,"// Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o",,,,,,
-packages-autenticacao-comment-94991628,packages-autenticacao,packages/autenticacao/src/entrada.ts,360,360,line,0,// `pipe.tenant_id` da sessão — ver o README.,,,,,,
-packages-autenticacao-comment-583fd6ef,packages-autenticacao,packages/autenticacao/src/entrada.ts,362,362,line,2,// O e-mail que mudou no IdP atualiza só este campo de exibição: a conta,,,,,,
-packages-autenticacao-comment-e4f3e986,packages-autenticacao,packages/autenticacao/src/entrada.ts,363,363,line,1,"// continua sendo o par (emissor, sujeito). Trocar de endereço não troca de",,,,,,
-packages-autenticacao-comment-53defef2,packages-autenticacao,packages/autenticacao/src/entrada.ts,364,364,line,3,"// conta, e é por isso que herdar o endereço de quem saiu não herda o acesso.",,,,,,
+ */",translate,"Enforce tenant policy ON THE SERVER along the session-issuing path.
+
+Hiding the Google button is insufficient: with `obrigatorio`, this path rejects even an already linked Google account. This is where ""mandatory SSO"" becomes an actual check rather than settings copy; see `referencias-blip/pesquisa/sso-multi-tenant.md` section 6.
+
+Any new session-issuing path, including password, password recovery, or invitation link, must pass through this function or it creates a back door.",security,packages/autenticacao/src/entrada.ts:309-319; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-8c6a36b1,packages-autenticacao,packages/autenticacao/src/entrada.ts,359,359,line,0,"// Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o",translate,"Run sequentially, never in `Promise.all`: parallel queries inside the transaction drop",security,packages/autenticacao/src/entrada.ts:359-359; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-94991628,packages-autenticacao,packages/autenticacao/src/entrada.ts,360,360,line,0,// `pipe.tenant_id` da sessão — ver o README.,translate,the session's `pipe.tenant_id`; see the README.,security,packages/autenticacao/src/entrada.ts:360-360; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-583fd6ef,packages-autenticacao,packages/autenticacao/src/entrada.ts,362,362,line,2,// O e-mail que mudou no IdP atualiza só este campo de exibição: a conta,translate,An email change at the IdP updates only this display field: the account,security,packages/autenticacao/src/entrada.ts:362-362; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-e4f3e986,packages-autenticacao,packages/autenticacao/src/entrada.ts,363,363,line,1,"// continua sendo o par (emissor, sujeito). Trocar de endereço não troca de",translate,"remains the `(emissor, sujeito)` pair. Changing address does not change the",security,packages/autenticacao/src/entrada.ts:363-363; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-53defef2,packages-autenticacao,packages/autenticacao/src/entrada.ts,364,364,line,3,"// conta, e é por isso que herdar o endereço de quem saiu não herda o acesso.",translate,"account, so inheriting a former employee's address does not inherit access.",security,packages/autenticacao/src/entrada.ts:364-364; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-082e1a7c,packages-autenticacao,packages/autenticacao/src/entrada.ts,401,408,jsdoc,12,"/**
  * Resolve a sessão do cookie.
  *
@@ -85,9 +103,11 @@ packages-autenticacao-comment-082e1a7c,packages-autenticacao,packages/autenticac
  * acontecer antes de fixar o tenant. A consulta é pelo HASH, com índice único, e
  * devolve `null` para qualquer coisa que não seja uma sessão viva — token
  * inexistente, expirado e encerrado dão a mesma resposta, de propósito.
- */",,,,,,
-packages-autenticacao-comment-e4ff74f3,packages-autenticacao,packages/autenticacao/src/entrada.ts,440,440,jsdoc,2,/** Encerra a sessão. Idempotente: sair duas vezes não é erro. */,,,,,,
-packages-autenticacao-comment-602643ba,packages-autenticacao,packages/autenticacao/src/entrada.ts,64,64,jsdoc,2,/** Vai para `sessao.origem`. A revogação em massa por política depende dele. */,,,,,,
+ */",translate,"Resolve the session cookie.
+
+Use the owner role because tenant discovery must happen before setting tenant context. Look up by HASH through a unique index and return `null` for every non-live session: nonexistent, expired, and ended tokens intentionally get the same result.",security,packages/autenticacao/src/entrada.ts:401-408; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-e4ff74f3,packages-autenticacao,packages/autenticacao/src/entrada.ts,440,440,jsdoc,2,/** Encerra a sessão. Idempotente: sair duas vezes não é erro. */,remove,,security,packages/autenticacao/src/entrada.ts:440-440; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-602643ba,packages-autenticacao,packages/autenticacao/src/entrada.ts,64,64,jsdoc,2,/** Vai para `sessao.origem`. A revogação em massa por política depende dele. */,translate,Stored in `sessao.origem`; bulk policy revocation depends on this value.,security,packages/autenticacao/src/entrada.ts:64-64; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-bf7cb0e2,packages-autenticacao,packages/autenticacao/src/entrada.ts,66,73,jsdoc,7,"/**
    * O tenant já resolvido, quando o fluxo começou numa conexão de SSO.
    *
@@ -95,7 +115,9 @@ packages-autenticacao-comment-bf7cb0e2,packages-autenticacao,packages/autenticac
    * CONFERIR: o domínio continua tendo de estar verificado, e verificado para
    * este tenant. Sem essa conferência, o IdP de um cliente autenticaria gente de
    * outro só por mandar o e-mail certo.
-   */",,,,,,
+   */",translate,"A tenant already resolved when the flow began through an SSO connection.
+
+With it, domain discovery no longer selects the tenant; it CONFIRMS it. The domain must still be verified for this tenant. Without that check, one tenant's IdP could authenticate another tenant's user by asserting the right email.",security,packages/autenticacao/src/entrada.ts:66-73; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-c5e79a66,packages-autenticacao,packages/autenticacao/src/entrada.ts,75,88,jsdoc,23,"/**
    * O autosserviço: o que fazer quando a pessoa entrou e não há conta nenhuma
    * para ela.
@@ -109,8 +131,12 @@ packages-autenticacao-comment-c5e79a66,packages-autenticacao,packages/autenticac
    * QUANDO ela é chamada fica aqui, e é estreita de propósito: só quando não há
    * dono para o domínio. Domínio verificado sem convite continua recusando —
    * ali existe um cliente, e entrar sem convite seria entrar na conta dele.
-   */",,,,,,
-packages-autenticacao-comment-88db4d1d,packages-autenticacao,packages/autenticacao/src/entrada.ts,92,92,jsdoc,2,/** O que o autosserviço devolve: a conta recém-criada e o dono dela. */,,,,,,
+   */",translate,"Self-service behavior when a person authenticates without an existing account.
+
+Without this callback, entry is closed to those without an invitation or verified domain. With it, the account is CREATED immediately: login, account creation, welcome screen, then ""minha conta"" for details, following the reference platform.
+
+The API provides the callback because provisioning lives there. This module narrowly decides WHEN to call it: only if no tenant owns the domain. An uninvited user on a claimed verified domain is still rejected; allowing them in would expose another tenant's account.",security,packages/autenticacao/src/entrada.ts:75-88; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-88db4d1d,packages-autenticacao,packages/autenticacao/src/entrada.ts,92,92,jsdoc,2,/** O que o autosserviço devolve: a conta recém-criada e o dono dela. */,remove,,security,packages/autenticacao/src/entrada.ts:92-92; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-5c2b0915,packages-autenticacao,packages/autenticacao/src/entrada.ts,98,106,jsdoc,8,"/**
  * `bancoDono` roda sem RLS de propósito, e só nas consultas que precisam
  * acontecer ANTES de existir tenant: achar a identidade externa, resolver o
@@ -119,7 +145,9 @@ packages-autenticacao-comment-5c2b0915,packages-autenticacao,packages/autenticac
  * qual é.
  *
  * Tudo o que vem depois passa por `comTenant`.
- */",,,,,,
+ */",translate,"`bancoDono` deliberately bypasses RLS only for queries needed BEFORE tenant context exists: finding the external identity, resolving the domain, and reading tenant policy. API-key resolution follows the same approach because `pipe.tenant_id` cannot be set until the tenant is known.
+
+Every later operation uses `comTenant`.",security,packages/autenticacao/src/entrada.ts:98-106; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-24052f9a,packages-autenticacao,packages/autenticacao/src/google.ts,101,109,jsdoc,11,"/**
  * Quem o provedor disse que é — Google ou o IdP do cliente, o formato é o mesmo.
  *
@@ -128,29 +156,35 @@ packages-autenticacao-comment-24052f9a,packages-autenticacao,packages/autenticac
  * (ver `oidc.ts`). `emailVerificado` é a resposta do provedor à pergunta ""o dono
  * do domínio confirmou este endereço?"", e é o que autoriza — ou não — casar esta
  * identidade com um usuário que já existe.
- */",,,,,,
-packages-autenticacao-comment-04b6867f,packages-autenticacao,packages/autenticacao/src/google.ts,119,119,jsdoc,2,"/** O Google é um caso de `PessoaExterna`, não um formato à parte. */",,,,,,
+ */",translate,"The identity asserted by the provider, Google or the tenant IdP, in the same shape.
+
+`sujeito` is the stable identifier IN THE PROVIDER and pairs with `emissor` as the actual account key: `sub` for Google and standard OIDC, `{tid}:{oid}` for Entra (see `oidc.ts`). `emailVerificado` states whether the provider confirmed ownership of the email domain; it controls whether this identity may be matched to an existing user.",security,packages/autenticacao/src/google.ts:101-109; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-04b6867f,packages-autenticacao,packages/autenticacao/src/google.ts,119,119,jsdoc,2,"/** O Google é um caso de `PessoaExterna`, não um formato à parte. */",remove,,security,packages/autenticacao/src/google.ts:119-119; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-d915b810,packages-autenticacao,packages/autenticacao/src/google.ts,124,130,jsdoc,13,"/**
  * Troca o código pelo `id_token` e o verifica.
  *
  * `buscar` é injetável para o teste não sair para a rede — e para que a troca de
  * código, que é a parte que fala com o Google, possa ser exercitada sem segredo
  * de verdade.
- */",,,,,,
-packages-autenticacao-comment-0d1191fa,packages-autenticacao,packages/autenticacao/src/google.ts,143,143,line,1,"// Comparação simples serve: `state` é nosso, gerado agora, e não é segredo de",,,,,,
-packages-autenticacao-comment-fbe4631d,packages-autenticacao,packages/autenticacao/src/google.ts,144,144,line,3,// longa duração — o que importa é que o valor volte igual ao que mandamos.,,,,,,
-packages-autenticacao-comment-871e78ea,packages-autenticacao,packages/autenticacao/src/google.ts,192,192,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",,,,,,
-packages-autenticacao-comment-2a4cfe38,packages-autenticacao,packages/autenticacao/src/google.ts,193,193,line,2,// como ela. O Google marca `email_verified` para conta de Workspace e para,,,,,,
-packages-autenticacao-comment-d777d05b,packages-autenticacao,packages/autenticacao/src/google.ts,194,194,line,1,"// Gmail; ausência é motivo de recusa, não de tolerância.",,,,,,
-packages-autenticacao-comment-75a0a8ac,packages-autenticacao,packages/autenticacao/src/google.ts,210,210,jsdoc,4,"/** O domínio do e-mail, para descobrir a que tenant a pessoa pertence. */",,,,,,
+ */",translate,"Exchange the code for an `id_token` and verify it.
+
+`buscar` is injectable so tests can exercise the Google-facing exchange without network access or a real secret.",security,packages/autenticacao/src/google.ts:124-130; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-0d1191fa,packages-autenticacao,packages/autenticacao/src/google.ts,143,143,line,1,"// Comparação simples serve: `state` é nosso, gerado agora, e não é segredo de",translate,"A simple comparison is sufficient: `state` is ours, generated for this attempt, and not a",security,packages/autenticacao/src/google.ts:143-143; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-fbe4631d,packages-autenticacao,packages/autenticacao/src/google.ts,144,144,line,3,// longa duração — o que importa é que o valor volte igual ao que mandamos.,translate,long-lived secret. The returned value only needs to equal the one we sent.,security,packages/autenticacao/src/google.ts:144-144; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-871e78ea,packages-autenticacao,packages/autenticacao/src/google.ts,192,192,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",translate,"Without this, someone who creates a Google account with another person's address could sign in",security,packages/autenticacao/src/google.ts:192-192; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-2a4cfe38,packages-autenticacao,packages/autenticacao/src/google.ts,193,193,line,2,// como ela. O Google marca `email_verified` para conta de Workspace e para,translate,as that person. Google sets `email_verified` for Workspace and Gmail accounts;,security,packages/autenticacao/src/google.ts:193-193; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-d777d05b,packages-autenticacao,packages/autenticacao/src/google.ts,194,194,line,1,"// Gmail; ausência é motivo de recusa, não de tolerância.",translate,"its absence requires rejection, not tolerance.",security,packages/autenticacao/src/google.ts:194-194; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-75a0a8ac,packages-autenticacao,packages/autenticacao/src/google.ts,210,210,jsdoc,4,"/** O domínio do e-mail, para descobrir a que tenant a pessoa pertence. */",remove,,security,packages/autenticacao/src/google.ts:210-210; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-41d9d24f,packages-autenticacao,packages/autenticacao/src/google.ts,215,221,jsdoc,10,"/**
  * Domínios de e-mail pessoal, que nunca identificam uma empresa.
  *
  * Quem entra com um destes não é descoberto por domínio: entra por convite ou
  * pelo link direto do cliente. Sem esta lista, o primeiro a cadastrar
  * `gmail.com` levaria todo mundo para o tenant dele.
- */",,,,,,
-packages-autenticacao-comment-20ad22a9,packages-autenticacao,packages/autenticacao/src/google.ts,26,26,jsdoc,2,"/** Descoberta do Google. Constante, e por isso não vale buscar o documento. */",,,,,,
+ */",update,"Personal email domains never identify a company.
+
+They cannot select an existing tenant by domain: entry requires an invitation, or the Google self-service path creates a new account when `criarConta` is provided. Without this list, the first tenant to register `gmail.com` could claim everyone using Gmail.",security,packages/autenticacao/src/google.ts:215-221; packages/autenticacao/src/entrada.ts:152-161 confirms self-service branch; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-20ad22a9,packages-autenticacao,packages/autenticacao/src/google.ts,26,26,jsdoc,2,"/** Descoberta do Google. Constante, e por isso não vale buscar o documento. */",remove,,security,packages/autenticacao/src/google.ts:26-26; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-c5b60f2c,packages-autenticacao,packages/autenticacao/src/google.ts,4,24,jsdoc,22,"/**
  * Login com Google, pelo OpenID Connect.
  *
@@ -171,37 +205,45 @@ packages-autenticacao-comment-c5b60f2c,packages-autenticacao,packages/autenticac
  * endereço de quem saiu herdaria a conta. Além disso só aceitamos e-mail com
  * `email_verified`: sem isso, quem cria conta no Google com o endereço de outra
  * pessoa entra como ela.
- */",,,,,,
-packages-autenticacao-comment-cecd9462,packages-autenticacao,packages/autenticacao/src/google.ts,64,64,jsdoc,3,"/** O que precisa sobreviver entre a ida e a volta, guardado em cookie assinado. */",,,,,,
-packages-autenticacao-comment-0f726c4b,packages-autenticacao,packages/autenticacao/src/google.ts,78,78,line,1,"// Só caminho interno: destino absoluto vira redirecionamento aberto, que é",,,,,,
-packages-autenticacao-comment-490f1c33,packages-autenticacao,packages/autenticacao/src/google.ts,79,79,line,0,// como se monta phishing usando o nosso domínio como trampolim.,,,,,,
-packages-autenticacao-comment-f71172be,packages-autenticacao,packages/autenticacao/src/google.ts,95,95,line,1,// Sem `prompt=select_account` quem tem várias contas entra sempre na última.,,,,,,
+ */",translate,"Google login through OpenID Connect using authorization code with PKCE. Three measures close known attacks:
+
+1. Verify `id_token` against Google JWKS with issuer and audience checks. An unsigned or unchecked token lets anyone assemble a JSON identity.
+2. Generate and check per-attempt `state` and `nonce`. `state` prevents login CSRF, where a victim enters the attacker's account; `nonce` prevents replay of a captured `id_token`.
+3. Use PKCE even with a client secret, protecting an authorization code leaked in transit.
+
+The account key is `(emissor, sujeito)`, NEVER email. Email ownership can change inside a company; a successor must not inherit the previous user's account. Require `email_verified` too, or a person who creates a Google account with someone else's address could enter as them.",security,packages/autenticacao/src/google.ts:4-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-cecd9462,packages-autenticacao,packages/autenticacao/src/google.ts,64,64,jsdoc,3,"/** O que precisa sobreviver entre a ida e a volta, guardado em cookie assinado. */",translate,"Values that must survive the outbound and return legs, stored in a signed cookie.",security,packages/autenticacao/src/google.ts:64-64; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-0f726c4b,packages-autenticacao,packages/autenticacao/src/google.ts,78,78,line,1,"// Só caminho interno: destino absoluto vira redirecionamento aberto, que é",translate,"Allow only an internal path. An absolute destination would create an open redirect,",security,packages/autenticacao/src/google.ts:78-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-490f1c33,packages-autenticacao,packages/autenticacao/src/google.ts,79,79,line,0,// como se monta phishing usando o nosso domínio como trampolim.,translate,letting attackers use our domain as a phishing trampoline.,security,packages/autenticacao/src/google.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-f71172be,packages-autenticacao,packages/autenticacao/src/google.ts,95,95,line,1,// Sem `prompt=select_account` quem tem várias contas entra sempre na última.,translate,"Without `prompt=select_account`, users with multiple accounts always enter the last one.",security,packages/autenticacao/src/google.ts:95-95; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-69128277,packages-autenticacao,packages/autenticacao/src/oidc.ts,119,122,jsdoc,2,"/**
  * A ida ao IdP. Mesmo desafio do Google — `criarDesafio` serve aos dois, e é de
  * propósito: `state`, `nonce` e o verificador PKCE não têm nada de específico.
- */",,,,,,
+ */",translate,"The trip to the IdP uses the same challenge as Google. `criarDesafio` serves both deliberately: `state`, `nonce`, and the PKCE verifier are provider-independent.",security,packages/autenticacao/src/oidc.ts:119-122; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-c4f7683c,packages-autenticacao,packages/autenticacao/src/oidc.ts,142,146,jsdoc,4,"/**
  * O JWKS por emissor, guardado. `createRemoteJWKSet` já traz cache e rotação de
  * chave por dentro — criar um por login refaria a busca a cada entrada e faria a
  * rotação de certificado do cliente virar um pico de requisições no IdP dele.
- */",,,,,,
-packages-autenticacao-comment-6dbb5ab8,packages-autenticacao,packages/autenticacao/src/oidc.ts,158,158,jsdoc,3,/** Troca o código pelo `id_token` e o verifica. `buscar` e `chaves` são injetáveis para o teste. */,,,,,,
-packages-autenticacao-comment-c7824e25,packages-autenticacao,packages/autenticacao/src/oidc.ts,204,204,line,3,"// `issuer` e `audience` exatos. Sem `audience`, uma asserção emitida para outro",,,,,,
-packages-autenticacao-comment-610087fc,packages-autenticacao,packages/autenticacao/src/oidc.ts,205,205,line,0,// aplicativo é aceita aqui — e no Entra basta o atacante ter o próprio app.,,,,,,
-packages-autenticacao-comment-65d08382,packages-autenticacao,packages/autenticacao/src/oidc.ts,215,215,line,3,"// Com `aud` de vários valores, quem manda é o `azp`: sem esta conferência, um",,,,,,
-packages-autenticacao-comment-c2949884,packages-autenticacao,packages/autenticacao/src/oidc.ts,216,216,line,2,// token emitido para outro cliente que nos liste junto passaria.,,,,,,
+ */",translate,Cache JWKS by issuer. `createRemoteJWKSet` already caches keys and handles rotation internally. Creating one per login would refetch on every entry and turn a tenant certificate rotation into a burst of requests to its IdP.,security,packages/autenticacao/src/oidc.ts:142-146; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-6dbb5ab8,packages-autenticacao,packages/autenticacao/src/oidc.ts,158,158,jsdoc,3,/** Troca o código pelo `id_token` e o verifica. `buscar` e `chaves` são injetáveis para o teste. */,remove,,security,packages/autenticacao/src/oidc.ts:158-158; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c7824e25,packages-autenticacao,packages/autenticacao/src/oidc.ts,204,204,line,3,"// `issuer` e `audience` exatos. Sem `audience`, uma asserção emitida para outro",translate,"Check exact `issuer` and `audience`. Without `audience`, an assertion issued for another",security,packages/autenticacao/src/oidc.ts:204-204; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-610087fc,packages-autenticacao,packages/autenticacao/src/oidc.ts,205,205,line,0,// aplicativo é aceita aqui — e no Entra basta o atacante ter o próprio app.,translate,"application could pass here; in Entra, the attacker only needs their own app.",security,packages/autenticacao/src/oidc.ts:205-205; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-65d08382,packages-autenticacao,packages/autenticacao/src/oidc.ts,215,215,line,3,"// Com `aud` de vários valores, quem manda é o `azp`: sem esta conferência, um",translate,"With multiple `aud` values, `azp` identifies the authorized party. Without this check, a",security,packages/autenticacao/src/oidc.ts:215-215; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c2949884,packages-autenticacao,packages/autenticacao/src/oidc.ts,216,216,line,2,// token emitido para outro cliente que nos liste junto passaria.,translate,token issued for another client that also lists us would pass.,security,packages/autenticacao/src/oidc.ts:216-216; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-242ab84c,packages-autenticacao,packages/autenticacao/src/oidc.ts,239,243,jsdoc,3,"/**
  * No Entra multi-tenant o `iss` é `https://login.microsoftonline.com/{tid}/v2.0`,
  * e o emissor descoberto vem com o `{tenantid}` como marcador. Aceitamos os
  * emissores dos `tid` declarados, e nada além deles.
- */",,,,,,
+ */",translate,"In multitenant Entra, `iss` is `https://login.microsoftonline.com/{tid}/v2.0`, while discovery uses `{tenantid}` as a placeholder. Accept issuers for declared `tid` values only.",security,packages/autenticacao/src/oidc.ts:239-243; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-96e877ce,packages-autenticacao,packages/autenticacao/src/oidc.ts,26,32,jsdoc,7,"/**
  * Quem é o IdP. Não é enfeite: o Entra lê sujeito e e-mail verificado de um jeito
  * diferente de todo mundo, e tratar os dois iguais é exatamente o buraco da §8.
  *
  * A lista vem do schema, que é onde o `check` do banco a repete. Duas listas para
  * a mesma coisa é como nasce um provedor que o código aceita e o banco recusa.
- */",,,,,,
+ */",translate,"The IdP kind matters: Entra obtains subject and verified-email status differently; treating it like every other provider creates the section 8 vulnerability.
+
+The provider list comes from the schema, which repeats it in a database `check`. Separate lists could let code accept a provider that the database rejects.",security,packages/autenticacao/src/oidc.ts:26-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-a8bc721f,packages-autenticacao,packages/autenticacao/src/oidc.ts,262,269,jsdoc,2,"/**
  * O sujeito estável da conta.
  *
@@ -209,7 +251,9 @@ packages-autenticacao-comment-a8bc721f,packages-autenticacao,packages/autenticac
  * de aplicativo: recriar o app troca o `sub` de todo mundo e órfã todas as contas
  * de uma vez. O `oid` é o id do usuário no diretório e não muda; o `tid` na
  * frente evita colisão entre diretórios diferentes.
- */",,,,,,
+ */",translate,"The stable account subject.
+
+**For Entra, use `{tid}:{oid}`, NEVER `sub`.** `sub` is pairwise per app registration, so recreating an app changes every user's `sub` and orphans all linked accounts. `oid` is the stable directory user ID; the `tid` prefix prevents collisions across directories.",security,packages/autenticacao/src/oidc.ts:262-269; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-48942442,packages-autenticacao,packages/autenticacao/src/oidc.ts,280,289,jsdoc,14,"/**
  * Este e-mail foi verificado pelo dono do domínio?
  *
@@ -219,15 +263,19 @@ packages-autenticacao-comment-48942442,packages-autenticacao,packages/autenticac
  * registro do aplicativo — e sem ele a resposta é ""não sei"", que aqui vale
  * ""não"". Contas federadas por SAML/WS-Fed não têm domínio verificado e vêm com
  * `xms_edov` falso, o que é a resposta certa.
- */",,,,,,
-packages-autenticacao-comment-7aa0176f,packages-autenticacao,packages/autenticacao/src/oidc.ts,37,37,jsdoc,3,"/** O `issuer`, sem `/.well-known/...`. É ele que a descoberta tem de confirmar. */",,,,,,
+ */",translate,"Has the domain owner verified this email?
+
+**Entra does not emit `email_verified`.** Treating absence as false breaks Entra; treating it as true creates the section 8 vulnerability. Microsoft's equivalent is optional `xms_edov`, which the organization must enable in its app registration. Without it, the answer is unknown and therefore false here. Federated SAML/WS-Fed accounts lack a verified domain and report `xms_edov` false, as required.",security,packages/autenticacao/src/oidc.ts:280-289; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-7aa0176f,packages-autenticacao,packages/autenticacao/src/oidc.ts,37,37,jsdoc,3,"/** O `issuer`, sem `/.well-known/...`. É ele que a descoberta tem de confirmar. */",remove,,security,packages/autenticacao/src/oidc.ts:37-37; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-6590db05,packages-autenticacao,packages/autenticacao/src/oidc.ts,43,49,jsdoc,7,"/**
    * Os `tid` aceitos, para app multi-tenant no Entra.
    *
    * Sem isto, **qualquer diretório da Microsoft entra**: o `iss` de um app
    * multi-tenant é o do diretório de quem está entrando, e a validação de `iss`
    * sozinha passa para todos eles. É a armadilha ""emissor não fixado"" da §8.
-   */",,,,,,
+   */",translate,"Allowed `tid` values for a multitenant Entra app.
+
+Without this list, **any Microsoft directory can enter**: a multitenant app's `iss` belongs to the signing-in directory, so issuer-shape validation alone admits them all. This is the unfixed-issuer trap from section 8.",security,packages/autenticacao/src/oidc.ts:43-49; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-21d0603c,packages-autenticacao,packages/autenticacao/src/oidc.ts,67,77,jsdoc,5,"/**
  * Lê o `.well-known/openid-configuration` do emissor.
  *
@@ -238,7 +286,10 @@ packages-autenticacao-comment-21d0603c,packages-autenticacao,packages/autenticac
  * 2. **O `issuer` do documento tem de ser IGUAL ao que pedimos.** É o que impede
  *    um emissor de se declarar outro e roubar a validação de `iss` (RFC 8414 §3.3,
  *    e a raiz da família de ataques de mix-up de IdP).
- */",,,,,,
+ */",translate,"Read the issuer's `.well-known/openid-configuration`. Two security checks matter:
+
+1. Require HTTPS. Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.
+2. Require the document's `issuer` to equal the requested issuer. This prevents one issuer from impersonating another and taking over `iss` validation (RFC 8414 section 3.3 and the IdP mix-up attack family).",security,packages/autenticacao/src/oidc.ts:67-77; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-c8b4ed64,packages-autenticacao,packages/autenticacao/src/oidc.ts,7,24,jsdoc,14,"/**
  * OIDC genérico: o mesmo fluxo do `google.ts`, mas com o provedor vindo do banco.
  *
@@ -256,19 +307,25 @@ packages-autenticacao-comment-c8b4ed64,packages-autenticacao,packages/autenticac
  * As armadilhas de `referencias-blip/pesquisa/sso-multi-tenant.md` §8 estão marcadas uma a
  * uma no código abaixo. Nenhuma delas dá erro quando está errada: dá login
  * concedido.
- */",,,,,,
+ */",translate,"Generic OIDC uses the `google.ts` flow with a provider from the database. Google has a fixed issuer, so it needs no discovery. A tenant issuer may be Microsoft Entra ID, Google Workspace, or Okta. Only three things vary: endpoints discovered through `.well-known`, subject extraction, and verified-email interpretation.
+
+The invariants are JWKS signature validation with exact `iss` and `aud`, per-attempt `state`, `nonce`, and PKCE from `criarDesafio`, and `(emissor, sujeito)` as the account key rather than email.
+
+The traps in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8 are called out below. When implemented incorrectly, they silently grant login rather than raise errors.",security,packages/autenticacao/src/oidc.ts:7-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-f2da35bf,packages-autenticacao,packages/autenticacao/src/sessao.ts,103,109,jsdoc,10,"/**
  * As origens que podem chamar a API com credencial.
  *
  * Lista fechada, montada do ambiente. Nunca `*`: com credencial, curinga é
  * recusado pelo navegador — e mesmo que não fosse, seria abrir a API para
  * qualquer site fazer requisição autenticada em nome de quem está logado.
- */",,,,,,
-packages-autenticacao-comment-2b094e56,packages-autenticacao,packages/autenticacao/src/sessao.ts,131,131,jsdoc,4,/** Uma sessão vale enquanto não expirou e não foi encerrada à mão. */,,,,,,
+ */",translate,"Origins allowed to call the API with credentials.
+
+A closed list comes from the environment. Never use `*`: browsers reject credentialed wildcard CORS, and allowing it would let any website send authenticated requests for a signed-in user.",security,packages/autenticacao/src/sessao.ts:103-109; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-2b094e56,packages-autenticacao,packages/autenticacao/src/sessao.ts,131,131,jsdoc,4,/** Uma sessão vale enquanto não expirou e não foi encerrada à mão. */,remove,,security,packages/autenticacao/src/sessao.ts:131-131; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-e98da117,packages-autenticacao,packages/autenticacao/src/sessao.ts,14,15,jsdoc,2,"/** 8 horas. É o teto honesto de revogação sem SCIM: quem sai da empresa cliente
- *  perde o acesso na próxima revalidação, não no instante do desligamento. */",,,,,,
-packages-autenticacao-comment-a046251a,packages-autenticacao,packages/autenticacao/src/sessao.ts,21,21,jsdoc,1,/** Vai para o cookie. Nunca é gravado. */,,,,,,
-packages-autenticacao-comment-a78ce56e,packages-autenticacao,packages/autenticacao/src/sessao.ts,23,23,jsdoc,1,/** Vai para o banco. Nunca sai de lá. */,,,,,,
+ *  perde o acesso na próxima revalidação, não no instante do desligamento. */",translate,"Eight hours is the honest revocation ceiling without SCIM: someone who leaves a tenant organization loses access at the next revalidation, not at the exact departure time.",security,packages/autenticacao/src/sessao.ts:14-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-a046251a,packages-autenticacao,packages/autenticacao/src/sessao.ts,21,21,jsdoc,1,/** Vai para o cookie. Nunca é gravado. */,translate,Goes in the cookie; never stored.,security,packages/autenticacao/src/sessao.ts:21-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-a78ce56e,packages-autenticacao,packages/autenticacao/src/sessao.ts,23,23,jsdoc,1,/** Vai para o banco. Nunca sai de lá. */,translate,Goes in the database; never leaves it.,security,packages/autenticacao/src/sessao.ts:23-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-c0897ab1,packages-autenticacao,packages/autenticacao/src/sessao.ts,3,12,jsdoc,13,"/**
  * A sessão do Pipe.
  *
@@ -278,12 +335,14 @@ packages-autenticacao-comment-c0897ab1,packages-autenticacao,packages/autenticac
  * A busca é PELO HASH, com índice único — e não pelo id da sessão com
  * comparação depois. Isso mantém a consulta em uma linha e evita o padrão de
  * ""achou o registro, agora compara"", que é onde nasce comparação vazando tempo.
- */",,,,,,
+ */",translate,"Pipe sessions put the token in a browser cookie and store only its **hash** in the database. As with API keys, a database reader cannot impersonate a user.
+
+Look up BY HASH through a unique index rather than fetching by session ID and comparing later. This keeps the query to one row and avoids a find-then-compare path with timing leakage.",security,packages/autenticacao/src/sessao.ts:3-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-444f8bc2,packages-autenticacao,packages/autenticacao/src/sessao.ts,37,41,jsdoc,5,"/**
  * SHA-256 puro, sem custo de derivação, e isso é deliberado: o token tem 256
  * bits de entropia gerada por nós, não é senha escolhida por gente. Derivação
  * lenta protege contra dicionário, e não há dicionário que alcance isto.
- */",,,,,,
+ */",translate,"Plain SHA-256 without a slow derivation is deliberate: this token has 256 bits of generated entropy, unlike a human password. Slow derivation protects against dictionaries, and no practical dictionary reaches this space.",security,packages/autenticacao/src/sessao.ts:37-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-2ee9090a,packages-autenticacao,packages/autenticacao/src/sessao.ts,54,67,jsdoc,18,"/**
    * O domínio-pai, com ponto na frente: `.pipe.com.br`.
    *
@@ -297,59 +356,69 @@ packages-autenticacao-comment-2ee9090a,packages-autenticacao,packages/autenticac
    *
    * Em desenvolvimento fica indefinido: `localhost` não aceita domínio de
    * cookie, e as portas diferentes já são a mesma origem para este fim.
-   */",,,,,,
-packages-autenticacao-comment-bd2775d2,packages-autenticacao,packages/autenticacao/src/sessao.ts,69,69,jsdoc,2,"/** Fora só em `http://localhost`, onde não existe HTTPS para exigir. */",,,,,,
+   */",translate,"The parent domain with a leading dot: `.pipe.com.br`.
+
+It lets a cookie from `api.pipe.com.br` reach `gestao.pipe.com.br`, `app.pipe.com.br`, and `crm.pipe.com.br`. Each app has its own URL; without a parent domain each would need a separate login.
+
+The alternative, `SameSite=None` with credentialed CORS, is worse: `None` sends the cookie on requests from ANY site, whereas `Lax` blocks that. Subdomains of one parent are same-site.
+
+Leave this undefined in development: `localhost` does not accept a cookie domain, and different ports are already the same origin for this purpose.",security,packages/autenticacao/src/sessao.ts:54-67; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-bd2775d2,packages-autenticacao,packages/autenticacao/src/sessao.ts,69,69,jsdoc,2,"/** Fora só em `http://localhost`, onde não existe HTTPS para exigir. */",translate,"Disable only on `http://localhost`, where HTTPS is unavailable.",security,packages/autenticacao/src/sessao.ts:69-69; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-e625df83,packages-autenticacao,packages/autenticacao/src/sessao.ts,73,79,jsdoc,3,"/**
  * O cookie, com os atributos que importam.
  *
  * `HttpOnly` tira o token do alcance de qualquer script — sem ele, um XSS vira
  * sequestro de sessão. `SameSite=Lax` deixa o retorno do Google funcionar (é
  * navegação de topo) e barra envio em requisição de terceiro.
- */",,,,,,
-packages-autenticacao-comment-94d8e9a3,packages-autenticacao,packages/autenticacao/src/sessao.ts,88,88,jsdoc,2,/** O cookie que apaga o cookie. `Max-Age=0` some com ele em qualquer navegador. */,,,,,,
-packages-autenticacao-comment-5bf27dbb,packages-autenticacao,packages/autenticacao/src/sessao.ts,95,95,line,2,// O domínio precisa vir ANTES do Secure? Não — a ordem é livre. Mas ele só,,,,,,
-packages-autenticacao-comment-730135c5,packages-autenticacao,packages/autenticacao/src/sessao.ts,96,96,line,1,// entra quando existe: `Domain=localhost` invalida o cookie em vários,,,,,,
-packages-autenticacao-comment-80b7a418,packages-autenticacao,packages/autenticacao/src/sessao.ts,97,97,line,2,"// navegadores, e o sintoma é login que ""não faz nada"".",,,,,,
-packages-autenticacao-comment-77f05ba7,packages-autenticacao,packages/autenticacao/tests/google.test.ts,181,181,line,0,"// O verificador só aparece AQUI, na troca — nunca na ida ao Google.",,,,,,
-packages-autenticacao-comment-0c00d29e,packages-autenticacao,packages/autenticacao/tests/google.test.ts,198,198,line,2,"// Se `gmail.com` fosse cadastrável, o primeiro a registrá-lo levaria todo",,,,,,
-packages-autenticacao-comment-429bf4d4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,199,199,line,2,// mundo que usa Gmail para o tenant dele.,,,,,,
-packages-autenticacao-comment-ee8b2ad0,packages-autenticacao,packages/autenticacao/tests/google.test.ts,22,22,jsdoc,4,"/** Um par de chaves nosso, para assinar `id_token` sem sair para a rede. */",,,,,,
-packages-autenticacao-comment-90c86f0d,packages-autenticacao,packages/autenticacao/tests/google.test.ts,52,52,line,2,// O verificador em si NUNCA vai na ida — é isso que faz o PKCE valer.,,,,,,
-packages-autenticacao-comment-2ac3a761,packages-autenticacao,packages/autenticacao/tests/google.test.ts,90,90,line,0,// Normalizado: e-mail é caixa-insensível e comparar cru cria conta duplicada.,,,,,,
-packages-autenticacao-comment-50083fa4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,96,96,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",,,,,,
-packages-autenticacao-comment-c21ce733,packages-autenticacao,packages/autenticacao/tests/google.test.ts,97,97,line,2,// como ela — é o caminho de escalada mais barato que existe em OIDC.,,,,,,
-packages-autenticacao-comment-dd64dda4,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,142,142,line,3,"// Sem `audience`, uma asserção feita para o app de outro entra aqui — e no",,,,,,
-packages-autenticacao-comment-e7e76699,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,143,143,line,0,// Entra basta o atacante ter o próprio registro de aplicativo.,,,,,,
+ */",translate,"The session cookie and its important attributes.
+
+`HttpOnly` keeps scripts from reading the token; without it, XSS becomes session theft. `SameSite=Lax` permits Google's top-level return navigation while blocking third-party requests.",security,packages/autenticacao/src/sessao.ts:73-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-94d8e9a3,packages-autenticacao,packages/autenticacao/src/sessao.ts,88,88,jsdoc,2,/** O cookie que apaga o cookie. `Max-Age=0` some com ele em qualquer navegador. */,remove,,security,packages/autenticacao/src/sessao.ts:88-88; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-5bf27dbb,packages-autenticacao,packages/autenticacao/src/sessao.ts,95,95,line,2,// O domínio precisa vir ANTES do Secure? Não — a ordem é livre. Mas ele só,translate,Does `Domain` need to precede `Secure`? No; attribute order is free. It only,security,packages/autenticacao/src/sessao.ts:95-95; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-730135c5,packages-autenticacao,packages/autenticacao/src/sessao.ts,96,96,line,1,// entra quando existe: `Domain=localhost` invalida o cookie em vários,translate,appears when configured: `Domain=localhost` invalidates the cookie in several,security,packages/autenticacao/src/sessao.ts:96-96; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-80b7a418,packages-autenticacao,packages/autenticacao/src/sessao.ts,97,97,line,2,"// navegadores, e o sintoma é login que ""não faz nada"".",translate,"browsers, causing login to appear to do nothing.",security,packages/autenticacao/src/sessao.ts:97-97; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-77f05ba7,packages-autenticacao,packages/autenticacao/tests/google.test.ts,181,181,line,0,"// O verificador só aparece AQUI, na troca — nunca na ida ao Google.",translate,"The verifier appears only HERE, during code exchange, never on the outbound trip to Google.",security,packages/autenticacao/tests/google.test.ts:181-181; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-0c00d29e,packages-autenticacao,packages/autenticacao/tests/google.test.ts,198,198,line,2,"// Se `gmail.com` fosse cadastrável, o primeiro a registrá-lo levaria todo",translate,"If `gmail.com` could be registered, the first tenant to claim it would capture",security,packages/autenticacao/tests/google.test.ts:198-198; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-429bf4d4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,199,199,line,2,// mundo que usa Gmail para o tenant dele.,translate,everyone who uses Gmail.,security,packages/autenticacao/tests/google.test.ts:199-199; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-ee8b2ad0,packages-autenticacao,packages/autenticacao/tests/google.test.ts,22,22,jsdoc,4,"/** Um par de chaves nosso, para assinar `id_token` sem sair para a rede. */",remove,,security,packages/autenticacao/tests/google.test.ts:22-22; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-90c86f0d,packages-autenticacao,packages/autenticacao/tests/google.test.ts,52,52,line,2,// O verificador em si NUNCA vai na ida — é isso que faz o PKCE valer.,translate,The verifier NEVER goes outbound; that is what makes PKCE effective.,security,packages/autenticacao/tests/google.test.ts:52-52; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-2ac3a761,packages-autenticacao,packages/autenticacao/tests/google.test.ts,90,90,line,0,// Normalizado: e-mail é caixa-insensível e comparar cru cria conta duplicada.,translate,"Normalize email: it is case-insensitive, and raw comparison creates duplicate accounts.",security,packages/autenticacao/tests/google.test.ts:90-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-50083fa4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,96,96,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",translate,"Without this, someone who creates a Google account with another person's address could sign in",security,packages/autenticacao/tests/google.test.ts:96-96; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c21ce733,packages-autenticacao,packages/autenticacao/tests/google.test.ts,97,97,line,2,// como ela — é o caminho de escalada mais barato que existe em OIDC.,translate,"as that person, a cheap OIDC privilege-escalation path.",security,packages/autenticacao/tests/google.test.ts:97-97; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-dd64dda4,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,142,142,line,3,"// Sem `audience`, uma asserção feita para o app de outro entra aqui — e no",translate,"Without `audience`, an assertion for another app could enter here; in",security,packages/autenticacao/tests/oidc.test.ts:142-142; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-e7e76699,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,143,143,line,0,// Entra basta o atacante ter o próprio registro de aplicativo.,translate,"Entra, the attacker only needs their own app registration.",security,packages/autenticacao/tests/oidc.test.ts:143-143; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-autenticacao-comment-6f0ae2c3,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,15,21,jsdoc,9,"/**
  * Um teste por armadilha de `referencias-blip/pesquisa/sso-multi-tenant.md` §8.
  *
  * O que une todas elas: **nenhuma dá erro quando está errada.** Todas dão login
  * concedido, para a pessoa errada, sem nada no log. É por isso que cada uma tem
  * teste próprio em vez de um ""o fluxo funciona"" só.
- */",,,,,,
-packages-autenticacao-comment-253a3061,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,200,200,line,3,// A resposta passa pelo navegador e é trivial de capturar. O que impede o,,,,,,
-packages-autenticacao-comment-1ab7c0e7,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,201,201,line,1,"// reenvio é o `nonce` ser de uma tentativa só, e o cookie do desafio morrer",,,,,,
-packages-autenticacao-comment-5d767662,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,236,236,line,0,// O `sub` é *pairwise* por registro de aplicativo: recriar o app troca o,,,,,,
-packages-autenticacao-comment-dedbcadd,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,237,237,line,2,// `sub` de todo mundo e órfã TODAS as contas de uma vez. O `oid` não muda.,,,,,,
-packages-autenticacao-comment-c41ada45,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,242,242,line,3,// Sem `oid` não há sujeito: melhor recusar do que cair no `sub`.,,,,,,
-packages-autenticacao-comment-2a2cdacb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,247,247,line,2,// O Entra não emite `email_verified`. Quem trata a ausência como verdadeira,,,,,,
-packages-autenticacao-comment-c6d72990,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,274,274,line,1,"// Em app multi-tenant, validar só a forma do `iss` deixa entrar qualquer",,,,,,
-packages-autenticacao-comment-8ec7e8eb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,275,275,line,2,// diretório. É o `tid` conferido contra a lista do cliente que fecha.,,,,,,
-packages-autenticacao-comment-5aeecae1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,293,293,line,6,// A recusa não é aqui: é na hora de casar a identidade com um usuário que já,,,,,,
-packages-autenticacao-comment-7a6433d1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,294,294,line,0,// existe (`entrada.ts`). Assim o teste da conexão consegue MOSTRAR ao admin,,,,,,
-packages-autenticacao-comment-9741a709,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,295,295,line,1,"// que falta habilitar o claim, em vez de só falhar.",,,,,,
-packages-autenticacao-comment-f59db59a,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,345,345,line,1,// O `state` fecha o CSRF de login: a vítima entrando na conta do atacante.,,,,,,
-packages-autenticacao-comment-c04cbd24,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,58,58,jsdoc,4,"/** Um `fetch` que devolve o documento de descoberta pedido, sem sair para a rede. */",,,,,,
-packages-autenticacao-comment-594b285f,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,79,79,line,0,// Descoberta em texto claro é o documento inteiro — inclusive o `jwks_uri` —,,,,,,
-packages-autenticacao-comment-21082ce9,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,85,85,line,1,// A raiz da família de ataques de mix-up: um emissor se dizer outro e roubar,,,,,,
-packages-autenticacao-comment-a74a8c29,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,86,86,line,2,// a validação de `iss` que faríamos depois.,,,,,,
-packages-autenticacao-comment-38f1cd65,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,42,42,line,2,// Encerrada à mão vale menos que o prazo: sair tem de valer na hora.,,,,,,
-packages-autenticacao-comment-ed68ecf4,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,49,49,line,1,"// Sem HttpOnly, um XSS lê o token e vira sequestro de sessão.",,,,,,
-packages-autenticacao-comment-da796a87,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,56,56,line,0,"//  invalida o cookie em vários navegadores, e o sintoma é",,,,,,
-packages-autenticacao-comment-6f19f3a2,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,57,57,line,2,"// login que ""não faz nada"".",,,,,,
-packages-autenticacao-comment-973931bf,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,64,64,line,3,// A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.,,,,,,
-packages-autenticacao-comment-ceab4cff,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,65,65,line,2,"// Sem o domínio-pai, cada uma precisaria do próprio login.",,,,,,
-packages-autenticacao-comment-23888956,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,68,68,line,0,// E continua Lax:  mandaria o cookie em requisição de qualquer site.,,,,,,
-packages-autenticacao-comment-a5f2189b,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,79,79,line,2,"//gestao.pipe.com.br, https://app.pipe.com.br/',",,,,,,
-packages-autenticacao-comment-5ff794ca,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,81,81,line,2,"//gestao.pipe.com.br', 'https://app.pipe.com.br']);",,,,,,
-packages-autenticacao-comment-9831037f,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,83,83,line,2,"// Barra final não pode virar recusa: o navegador manda sem, mas o ambiente",,,,,,
+ */",translate,"One test per trap in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8.
+
+When these checks are wrong, they do not raise errors: they silently grant the wrong person login. Each therefore needs its own test rather than one broad happy-path test.",security,packages/autenticacao/tests/oidc.test.ts:15-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-253a3061,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,200,200,line,3,// A resposta passa pelo navegador e é trivial de capturar. O que impede o,translate,The response passes through the browser and is easy to capture. A per-attempt,security,packages/autenticacao/tests/oidc.test.ts:200-200; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-1ab7c0e7,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,201,201,line,1,"// reenvio é o `nonce` ser de uma tentativa só, e o cookie do desafio morrer",translate,"`nonce` prevents replay, and the challenge cookie must expire on return.",security,packages/autenticacao/tests/oidc.test.ts:201-201; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-5d767662,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,236,236,line,0,// O `sub` é *pairwise* por registro de aplicativo: recriar o app troca o,translate,`sub` is pairwise per app registration: recreating the app changes,security,packages/autenticacao/tests/oidc.test.ts:236-236; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-dedbcadd,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,237,237,line,2,// `sub` de todo mundo e órfã TODAS as contas de uma vez. O `oid` não muda.,translate,everyone's `sub` and orphans ALL linked accounts. `oid` stays stable.,security,packages/autenticacao/tests/oidc.test.ts:237-237; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c41ada45,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,242,242,line,3,// Sem `oid` não há sujeito: melhor recusar do que cair no `sub`.,translate,"Without `oid`, there is no Entra subject; reject rather than falling back to `sub`.",security,packages/autenticacao/tests/oidc.test.ts:242-242; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-2a2cdacb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,247,247,line,2,// O Entra não emite `email_verified`. Quem trata a ausência como verdadeira,translate,Entra does not emit `email_verified`. Treating its absence as true,security,packages/autenticacao/tests/oidc.test.ts:247-247; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c6d72990,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,274,274,line,1,"// Em app multi-tenant, validar só a forma do `iss` deixa entrar qualquer",translate,"In a multitenant app, checking only the shape of `iss` admits any",security,packages/autenticacao/tests/oidc.test.ts:274-274; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-8ec7e8eb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,275,275,line,2,// diretório. É o `tid` conferido contra a lista do cliente que fecha.,translate,directory. Checking `tid` against the tenant's allowlist closes that gap.,security,packages/autenticacao/tests/oidc.test.ts:275-275; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-5aeecae1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,293,293,line,6,// A recusa não é aqui: é na hora de casar a identidade com um usuário que já,translate,"Rejection happens when matching this identity to an existing user, not here",security,packages/autenticacao/tests/oidc.test.ts:293-293; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-7a6433d1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,294,294,line,0,// existe (`entrada.ts`). Assim o teste da conexão consegue MOSTRAR ao admin,translate,(`entrada.ts`). This lets the connection test SHOW the administrator,security,packages/autenticacao/tests/oidc.test.ts:294-294; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-9741a709,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,295,295,line,1,"// que falta habilitar o claim, em vez de só falhar.",translate,that the claim must be enabled instead of merely failing.,security,packages/autenticacao/tests/oidc.test.ts:295-295; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-f59db59a,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,345,345,line,1,// O `state` fecha o CSRF de login: a vítima entrando na conta do atacante.,translate,`state` prevents login CSRF: a victim signing into the attacker's account.,security,packages/autenticacao/tests/oidc.test.ts:345-345; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-c04cbd24,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,58,58,jsdoc,4,"/** Um `fetch` que devolve o documento de descoberta pedido, sem sair para a rede. */",remove,,security,packages/autenticacao/tests/oidc.test.ts:58-58; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-594b285f,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,79,79,line,0,// Descoberta em texto claro é o documento inteiro — inclusive o `jwks_uri` —,translate,"Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.",security,packages/autenticacao/tests/oidc.test.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-21082ce9,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,85,85,line,1,// A raiz da família de ataques de mix-up: um emissor se dizer outro e roubar,translate,The root of IdP mix-up attacks: an issuer claiming to be another and taking over,security,packages/autenticacao/tests/oidc.test.ts:85-85; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-a74a8c29,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,86,86,line,2,// a validação de `iss` que faríamos depois.,translate,our subsequent `iss` validation.,security,packages/autenticacao/tests/oidc.test.ts:86-86; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-38f1cd65,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,42,42,line,2,// Encerrada à mão vale menos que o prazo: sair tem de valer na hora.,translate,Ending a session manually overrides expiry: logout must take effect immediately.,security,packages/autenticacao/tests/sessao.test.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-ed68ecf4,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,49,49,line,1,"// Sem HttpOnly, um XSS lê o token e vira sequestro de sessão.",translate,"Without HttpOnly, XSS reads the token and steals the session.",security,packages/autenticacao/tests/sessao.test.ts:49-49; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-da796a87,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,56,56,line,0,"//  invalida o cookie em vários navegadores, e o sintoma é",update,"`Domain=localhost` invalidates cookies in several browsers, causing",security,packages/autenticacao/tests/sessao.test.ts:56-56; Restored missing antecedent from packages/autenticacao/src/sessao.ts:95-97; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-6f19f3a2,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,57,57,line,2,"// login que ""não faz nada"".",translate,login to appear to do nothing.,security,packages/autenticacao/tests/sessao.test.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-973931bf,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,64,64,line,3,// A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.,translate,"The API is on `api.pipe.com.br` and the apps are on `gestao.pipe.com.br`, `app.pipe.com.br`, and `crm.pipe.com.br`.",security,packages/autenticacao/tests/sessao.test.ts:64-64; Test fixture and packages/autenticacao/src/sessao.ts:54-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-ceab4cff,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,65,65,line,2,"// Sem o domínio-pai, cada uma precisaria do próprio login.",translate,"Without the parent domain, each app would need a separate login.",security,packages/autenticacao/tests/sessao.test.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-23888956,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,68,68,line,0,// E continua Lax:  mandaria o cookie em requisição de qualquer site.,update,Keep `SameSite=Lax`: `SameSite=None` would send the cookie on requests from any site.,security,packages/autenticacao/tests/sessao.test.ts:68-68; Restored missing `SameSite=None` from packages/autenticacao/src/sessao.ts:61-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-autenticacao-comment-a5f2189b,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,79,79,line,2,"//gestao.pipe.com.br, https://app.pipe.com.br/',",remove,,security,"packages/autenticacao/tests/sessao.test.ts:79-79; False-positive URL fragment in a TypeScript string literal, not a source comment; drop inventory row before apply.; pre-triage D-40; needs slice-time confirmation; false-positive inventory row",codex,proposed
+packages-autenticacao-comment-5ff794ca,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,81,81,line,2,"//gestao.pipe.com.br', 'https://app.pipe.com.br']);",remove,,security,"packages/autenticacao/tests/sessao.test.ts:81-81; False-positive URL fragment in a TypeScript string literal, not a source comment; drop inventory row before apply.; pre-triage D-40; needs slice-time confirmation; false-positive inventory row",codex,proposed
+packages-autenticacao-comment-9831037f,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,83,83,line,2,"// Barra final não pode virar recusa: o navegador manda sem, mas o ambiente",translate,"A trailing slash must not cause rejection: browsers send origins without one, but environment values often include it.",security,packages/autenticacao/tests/sessao.test.ts:83-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed

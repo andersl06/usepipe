@@ -1,0 +1,236 @@
+{
+  "items": [
+    {
+      "id": "packages-autenticacao-comment-77f05ba7",
+      "action": "translate",
+      "new_text": "The verifier appears only HERE, during code exchange, never on the outbound trip to Google.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:181-181",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0c00d29e",
+      "action": "translate",
+      "new_text": "If `gmail.com` could be registered, the first tenant to claim it would capture",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:198-198",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-429bf4d4",
+      "action": "translate",
+      "new_text": "everyone who uses Gmail.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:199-199",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-ee8b2ad0",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:22-22",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-90c86f0d",
+      "action": "translate",
+      "new_text": "The verifier NEVER goes outbound; that is what makes PKCE effective.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:52-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2ac3a761",
+      "action": "translate",
+      "new_text": "Normalize email: it is case-insensitive, and raw comparison creates duplicate accounts.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:90-90",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-50083fa4",
+      "action": "translate",
+      "new_text": "Without this, someone who creates a Google account with another person's address could sign in",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:96-96",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c21ce733",
+      "action": "translate",
+      "new_text": "as that person, a cheap OIDC privilege-escalation path.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/google.test.ts:97-97",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-dd64dda4",
+      "action": "translate",
+      "new_text": "Without `audience`, an assertion for another app could enter here; in",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:142-142",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-e7e76699",
+      "action": "translate",
+      "new_text": "Entra, the attacker only needs their own app registration.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:143-143",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-6f0ae2c3",
+      "action": "translate",
+      "new_text": "One test per trap in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8.\n\nWhen these checks are wrong, they do not raise errors: they silently grant the wrong person login. Each therefore needs its own test rather than one broad happy-path test.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:15-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-253a3061",
+      "action": "translate",
+      "new_text": "The response passes through the browser and is easy to capture. A per-attempt",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:200-200",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-1ab7c0e7",
+      "action": "translate",
+      "new_text": "`nonce` prevents replay, and the challenge cookie must expire on return.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:201-201",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-5d767662",
+      "action": "translate",
+      "new_text": "`sub` is pairwise per app registration: recreating the app changes",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:236-236",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-dedbcadd",
+      "action": "translate",
+      "new_text": "everyone's `sub` and orphans ALL linked accounts. `oid` stays stable.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:237-237",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c41ada45",
+      "action": "translate",
+      "new_text": "Without `oid`, there is no Entra subject; reject rather than falling back to `sub`.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:242-242",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2a2cdacb",
+      "action": "translate",
+      "new_text": "Entra does not emit `email_verified`. Treating its absence as true",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:247-247",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c6d72990",
+      "action": "translate",
+      "new_text": "In a multitenant app, checking only the shape of `iss` admits any",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:274-274",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-8ec7e8eb",
+      "action": "translate",
+      "new_text": "directory. Checking `tid` against the tenant's allowlist closes that gap.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:275-275",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-5aeecae1",
+      "action": "translate",
+      "new_text": "Rejection happens when matching this identity to an existing user, not here",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:293-293",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-7a6433d1",
+      "action": "translate",
+      "new_text": "(`entrada.ts`). This lets the connection test SHOW the administrator",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:294-294",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-9741a709",
+      "action": "translate",
+      "new_text": "that the claim must be enabled instead of merely failing.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:295-295",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-f59db59a",
+      "action": "translate",
+      "new_text": "`state` prevents login CSRF: a victim signing into the attacker's account.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:345-345",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c04cbd24",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:58-58",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-594b285f",
+      "action": "translate",
+      "new_text": "Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:79-79",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-21082ce9",
+      "action": "translate",
+      "new_text": "The root of IdP mix-up attacks: an issuer claiming to be another and taking over",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:85-85",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-a74a8c29",
+      "action": "translate",
+      "new_text": "our subsequent `iss` validation.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/oidc.test.ts:86-86",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-38f1cd65",
+      "action": "translate",
+      "new_text": "Ending a session manually overrides expiry: logout must take effect immediately.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:42-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-ed68ecf4",
+      "action": "translate",
+      "new_text": "Without HttpOnly, XSS reads the token and steals the session.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/tests/sessao.test.ts:49-49",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

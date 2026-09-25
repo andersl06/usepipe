@@ -1,0 +1,252 @@
+{
+  "items": [
+    {
+      "id": "packages-autenticacao-comment-24052f9a",
+      "action": "translate",
+      "new_text": "The identity asserted by the provider, Google or the tenant IdP, in the same shape.\n\n`sujeito` is the stable identifier IN THE PROVIDER and pairs with `emissor` as the actual account key: `sub` for Google and standard OIDC, `{tid}:{oid}` for Entra (see `oidc.ts`). `emailVerificado` states whether the provider confirmed ownership of the email domain; it controls whether this identity may be matched to an existing user.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:101-109",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-04b6867f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:119-119",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-d915b810",
+      "action": "translate",
+      "new_text": "Exchange the code for an `id_token` and verify it.\n\n`buscar` is injectable so tests can exercise the Google-facing exchange without network access or a real secret.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:124-130",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0d1191fa",
+      "action": "translate",
+      "new_text": "A simple comparison is sufficient: `state` is ours, generated for this attempt, and not a",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:143-143",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-fbe4631d",
+      "action": "translate",
+      "new_text": "long-lived secret. The returned value only needs to equal the one we sent.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:144-144",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-871e78ea",
+      "action": "translate",
+      "new_text": "Without this, someone who creates a Google account with another person's address could sign in",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:192-192",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-2a4cfe38",
+      "action": "translate",
+      "new_text": "as that person. Google sets `email_verified` for Workspace and Gmail accounts;",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:193-193",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-d777d05b",
+      "action": "translate",
+      "new_text": "its absence requires rejection, not tolerance.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:194-194",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-75a0a8ac",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:210-210",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-41d9d24f",
+      "action": "update",
+      "new_text": "Personal email domains never identify a company.\n\nThey cannot select an existing tenant by domain: entry requires an invitation, or the Google self-service path creates a new account when `criarConta` is provided. Without this list, the first tenant to register `gmail.com` could claim everyone using Gmail.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:215-221; packages/autenticacao/src/entrada.ts:152-161 confirms self-service branch",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-20ad22a9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:26-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c5b60f2c",
+      "action": "translate",
+      "new_text": "Google login through OpenID Connect using authorization code with PKCE. Three measures close known attacks:\n\n1. Verify `id_token` against Google JWKS with issuer and audience checks. An unsigned or unchecked token lets anyone assemble a JSON identity.\n2. Generate and check per-attempt `state` and `nonce`. `state` prevents login CSRF, where a victim enters the attacker's account; `nonce` prevents replay of a captured `id_token`.\n3. Use PKCE even with a client secret, protecting an authorization code leaked in transit.\n\nThe account key is `(emissor, sujeito)`, NEVER email. Email ownership can change inside a company; a successor must not inherit the previous user's account. Require `email_verified` too, or a person who creates a Google account with someone else's address could enter as them.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:4-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-cecd9462",
+      "action": "translate",
+      "new_text": "Values that must survive the outbound and return legs, stored in a signed cookie.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:64-64",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-0f726c4b",
+      "action": "translate",
+      "new_text": "Allow only an internal path. An absolute destination would create an open redirect,",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:78-78",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-490f1c33",
+      "action": "translate",
+      "new_text": "letting attackers use our domain as a phishing trampoline.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:79-79",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-f71172be",
+      "action": "translate",
+      "new_text": "Without `prompt=select_account`, users with multiple accounts always enter the last one.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/google.ts:95-95",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-69128277",
+      "action": "translate",
+      "new_text": "The trip to the IdP uses the same challenge as Google. `criarDesafio` serves both deliberately: `state`, `nonce`, and the PKCE verifier are provider-independent.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:119-122",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c4f7683c",
+      "action": "translate",
+      "new_text": "Cache JWKS by issuer. `createRemoteJWKSet` already caches keys and handles rotation internally. Creating one per login would refetch on every entry and turn a tenant certificate rotation into a burst of requests to its IdP.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:142-146",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-6dbb5ab8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:158-158",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c7824e25",
+      "action": "translate",
+      "new_text": "Check exact `issuer` and `audience`. Without `audience`, an assertion issued for another",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:204-204",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-610087fc",
+      "action": "translate",
+      "new_text": "application could pass here; in Entra, the attacker only needs their own app.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:205-205",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-65d08382",
+      "action": "translate",
+      "new_text": "With multiple `aud` values, `azp` identifies the authorized party. Without this check, a",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:215-215",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c2949884",
+      "action": "translate",
+      "new_text": "token issued for another client that also lists us would pass.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:216-216",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-242ab84c",
+      "action": "translate",
+      "new_text": "In multitenant Entra, `iss` is `https://login.microsoftonline.com/{tid}/v2.0`, while discovery uses `{tenantid}` as a placeholder. Accept issuers for declared `tid` values only.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:239-243",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-96e877ce",
+      "action": "translate",
+      "new_text": "The IdP kind matters: Entra obtains subject and verified-email status differently; treating it like every other provider creates the section 8 vulnerability.\n\nThe provider list comes from the schema, which repeats it in a database `check`. Separate lists could let code accept a provider that the database rejects.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:26-32",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-a8bc721f",
+      "action": "translate",
+      "new_text": "The stable account subject.\n\n**For Entra, use `{tid}:{oid}`, NEVER `sub`.** `sub` is pairwise per app registration, so recreating an app changes every user's `sub` and orphans all linked accounts. `oid` is the stable directory user ID; the `tid` prefix prevents collisions across directories.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:262-269",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-48942442",
+      "action": "translate",
+      "new_text": "Has the domain owner verified this email?\n\n**Entra does not emit `email_verified`.** Treating absence as false breaks Entra; treating it as true creates the section 8 vulnerability. Microsoft's equivalent is optional `xms_edov`, which the organization must enable in its app registration. Without it, the answer is unknown and therefore false here. Federated SAML/WS-Fed accounts lack a verified domain and report `xms_edov` false, as required.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:280-289",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-7aa0176f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:37-37",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-6590db05",
+      "action": "translate",
+      "new_text": "Allowed `tid` values for a multitenant Entra app.\n\nWithout this list, **any Microsoft directory can enter**: a multitenant app's `iss` belongs to the signing-in directory, so issuer-shape validation alone admits them all. This is the unfixed-issuer trap from section 8.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:43-49",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-21d0603c",
+      "action": "translate",
+      "new_text": "Read the issuer's `.well-known/openid-configuration`. Two security checks matter:\n\n1. Require HTTPS. Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.\n2. Require the document's `issuer` to equal the requested issuer. This prevents one issuer from impersonating another and taking over `iss` validation (RFC 8414 section 3.3 and the IdP mix-up attack family).",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:67-77",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-autenticacao-comment-c8b4ed64",
+      "action": "translate",
+      "new_text": "Generic OIDC uses the `google.ts` flow with a provider from the database. Google has a fixed issuer, so it needs no discovery. A tenant issuer may be Microsoft Entra ID, Google Workspace, or Okta. Only three things vary: endpoints discovered through `.well-known`, subject extraction, and verified-email interpretation.\n\nThe invariants are JWKS signature validation with exact `iss` and `aud`, per-attempt `state`, `nonce`, and PKCE from `criarDesafio`, and `(emissor, sujeito)` as the account key rather than email.\n\nThe traps in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8 are called out below. When implemented incorrectly, they silently grant login rather than raise errors.",
+      "sensitivity": "security",
+      "evidence": "packages/autenticacao/src/oidc.ts:7-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

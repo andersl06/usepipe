@@ -1,0 +1,356 @@
+{
+  "items": [
+    {
+      "id": "packages-contracts-comment-bd166cd1",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:222-222; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-558a15d6",
+      "action": "translate",
+      "new_text": "The `\"Expiração do redirecionamento\"` label gives redirect expiration in minutes; null for primary and persistent services.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:224-224; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-5fd82bff",
+      "action": "translate",
+      "new_text": "`GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `roteador` and empty lists. `busca` contains eligible service chatbots (type `fluxo`, not archived); unpublished ones appear dimmed.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:229-233; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-acfe39c7",
+      "action": "translate",
+      "new_text": "Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expiracaoMin`; a persistent service ignores `expiracaoMin`.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:241-245; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-efd3ae81",
+      "action": "translate",
+      "new_text": "Page sizes from the source `bds-pagination` (`items-page=\"[40,80,120]\"`).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:256-256; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-2907ee9c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:259-259",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-81c2d3fe",
+      "action": "translate",
+      "new_text": "Channel identifier shown to viewers: phone number for WhatsApp, `@usuário` for Instagram, or Page ID for Messenger.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:27-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-6c60f3ca",
+      "action": "translate",
+      "new_text": "Total flows in the account, ignoring search.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:271-271",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-c8a19ff4",
+      "action": "translate",
+      "new_text": "Number found by search; equals `total` when no search is active.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:273-273",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-16043132",
+      "action": "translate",
+      "new_text": "`GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, \"Defina a Mensagem de Saudação e o botão Começar\". Disabled means `{ ativo: false }`: `mensagem` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:279-286; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-6ed62c17",
+      "action": "translate",
+      "new_text": "Persistent Menu item row: the command item's \"Texto\" and \"Link\".",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:293-293; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-564ca634",
+      "action": "translate",
+      "new_text": "`GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` mirrors `/configurations/persistentMenu`, \"Configure o menu persistente de seu fluxo\", with at most three items. `boasVindasPreenchida` is the source's second guard (\"Antes de salvar... você precisa preencher a tela de boas-vindas\"): when false, the UI hides Save and the API also rejects PATCH.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:299-306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9311f49a",
+      "action": "translate",
+      "new_text": "Builder drawing in the format Blip stores and the Builder copy requests from the bridge: state map `blip_portal:builder_working_flow` and global actions `blip_portal:builder_working_global_actions`. It corresponds to the Builder \"Exportar\" button's `{ flow, globalActions }`, with translated names.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:314-319; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-4f7b7b86",
+      "action": "translate",
+      "new_text": "Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `bloco` is the editor state `id`; null means a whole-flow error, such as a missing root.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:325-329; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-a18058bc",
+      "action": "translate",
+      "new_text": "A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `fluxoId` and `fluxoNome` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:33-37; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-b96f1e5c",
+      "action": "translate",
+      "new_text": "A `fluxo_versao` row as listed by Builder history.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:337-337; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-007f3824",
+      "action": "translate",
+      "new_text": "Publisher name; null when the version was never published.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:344-344",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-5f995fe8",
+      "action": "translate",
+      "new_text": "Source of the Builder drawing: the editable draft, the published version when there is no draft, or the default flow when nothing has been stored yet.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:350-354; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-8c0d2d6e",
+      "action": "translate",
+      "new_text": "Loaded version; null for the default flow, which does not yet exist in the database.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:361-361; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-5868689c",
+      "action": "translate",
+      "new_text": "Version currently running in the engine, if any.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:363-363",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-419de239",
+      "action": "translate",
+      "new_text": "Errors blocking publication of the loaded drawing; empty means publishable.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:366-366",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-edbd7eb4",
+      "action": "translate",
+      "new_text": "Action types the Pipe engine cannot yet run; publication is allowed, but execution fails.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:368-368; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-d6fad229",
+      "action": "translate",
+      "new_text": "Previous version taken offline when this one went live, if any.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:382-382",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-cfde2a4e",
+      "action": "translate",
+      "new_text": "`GET /v1/gestao/fluxos/:id/canal` returns this bot's linked channel (or null) and account channels that are ACTIVE: free channels and channels linked to another bot, so the UI can identify the previous bot as the source instructs (\"remover do anterior\"). Pipe deliberately differs from the source, where the number is created inside the bot and no list exists.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:48-53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-4e176b31",
+      "action": "translate",
+      "new_text": "Account timezone so \"created at\" and \"today\" use the account clock rather than the browser clock.",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:66-66",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-7d57d3ca",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/contracts/src/gestao-fluxo.ts:72-72",
+      "notes": ""
+    },
+    {
+      "id": "packages-contracts-comment-c95e2905",
+      "action": "translate",
+      "new_text": "Shared types for the `api` and front ends. One concept has one definition, so screen and API field or plan names cannot silently diverge until production. This package imports no database, HTTP, or React implementation.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/index.ts:1-9; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-9ffa06b0",
+      "action": "translate",
+      "new_text": "Session contract shared by the `api` and four front ends. A single definition of the logged-in user exposes field-name divergence when fields change.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/sessao.ts:1-6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-125f7ed8",
+      "action": "translate",
+      "new_text": "ISO 8601 as returned by the API; the screen handles formatting.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/sessao.ts:101-101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-7a5bc133",
+      "action": "translate",
+      "new_text": "False until the account has completed \"minha conta\". Every logged-in screen needs this in `Eu` to send accounts missing company details to onboarding rather than the product. Fetching it separately would add a network request per screen, while the `Eu` query already reads the tenant row.",
+      "sensitivity": "architecture",
+      "evidence": "packages/contracts/src/sessao.ts:21-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-7a13cbfb",
+      "action": "translate",
+      "new_text": "Catalog permission codes; the screen hides features absent from this list.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:31-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-8f0f6ab9",
+      "action": "translate",
+      "new_text": "Login origin, shown on the account screen and used by audit.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:33-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-a89e4514",
+      "action": "translate",
+      "new_text": "Reason login was refused, represented as a code rather than a sentence. Screens choose text independently without breaking the contract; each code gives the person a distinct recovery path instead of generic unauthorized feedback.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:43-49; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-484c0be6",
+      "action": "translate",
+      "new_text": "A personal email does not identify a company. Recovery: use an invitation.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:51-51; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-267cb3fa",
+      "action": "translate",
+      "new_text": "No Pipe account uses this domain. Recovery: contact the purchaser.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:53-53; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-7fee6db5",
+      "action": "translate",
+      "new_text": "The domain is known, but this person was not invited. Recovery: request an invitation.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:55-55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-75ba17b8",
+      "action": "translate",
+      "new_text": "Access was disabled after joining. Recovery: contact the administrator.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:57-57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-75baef66",
+      "action": "translate",
+      "new_text": "The provider did not verify the email. Recovery: verify the provider account.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:59-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-25b7f827",
+      "action": "translate",
+      "new_text": "The company requires SSO. Recovery: use its identity provider.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:61-61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-22427d2d",
+      "action": "translate",
+      "new_text": "Communication with Google failed. Recovery: retry.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/sessao.ts:63-63; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-fdbe15e5",
+      "action": "translate",
+      "new_text": "`POST /v1/auth/descobrir` returns the login method for this email: `sso` directs to the company identity provider and `google` to Google. There is no `senha`: Pipe has never stored passwords, and promising a nonexistent method would make the screen offer an impossible flow. Known and unknown email addresses receive the same answer except when the domain is verified and has active SSO; otherwise the route would reveal which companies use Pipe.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:73-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-040859ca",
+      "action": "translate",
+      "new_text": "`GET /v1/eu` response, the source of truth for the logged-in user.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/sessao.ts:8-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-af3dc64a",
+      "action": "translate",
+      "new_text": "API path for `sso`; only the public base is missing.",
+      "sensitivity": "integration",
+      "evidence": "packages/contracts/src/sessao.ts:86-86; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-contracts-comment-666dd1e1",
+      "action": "translate",
+      "new_text": "`GET /v1/convites/:token` exposes only enough for an unauthenticated recipient to decide whether the invitation is theirs: company name, target email, role, and expiry. No other tenant data is included because the recipient is not logged in.",
+      "sensitivity": "security",
+      "evidence": "packages/contracts/src/sessao.ts:90-96; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
