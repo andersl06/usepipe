@@ -36,7 +36,7 @@ import {
  * SSO por tenant: configurar, testar, e entrar.
  *
  * O núcleo — descoberta, PKCE, verificação do `id_token`, resolução de conta —
- * mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é a casca HTTP,
+ * mora em `@pipe/authentication` e não se repete aqui. Este arquivo é a casca HTTP,
  * igual ao `entrar.ts`, e reaproveita o cookie de desafio dele: é o mesmo
  * mecanismo, com dois campos a mais.
  *

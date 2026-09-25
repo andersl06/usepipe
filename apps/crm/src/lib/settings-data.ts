@@ -294,7 +294,7 @@ const PRAZO_INVITATION_MS = 7 * 24 * 60 * 60 * 1000;
 /**
  * O token de convite, no formato que `apps/api` já sabe aceitar: 32 bytes
  * aleatórios em base64url, e no banco só o `sha256` em hexa. Está reproduzido
- * aqui, e não importado de `@pipe/autenticacao`, porque o CRM não depende desse
+ * aqui, e não importado de `@pipe/authentication`, porque o CRM não depende desse
  * pacote — são cinco linhas e uma dependência a menos no bundle do Next.
  */
 function novoToken(): { token: string; hash: string } {

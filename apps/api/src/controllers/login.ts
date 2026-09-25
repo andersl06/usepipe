@@ -34,7 +34,7 @@ import type { RequestWithSession } from '../session.js';
  * Entrar, saber quem entrou e sair.
  *
  * O núcleo — desafio, PKCE, verificação do `id_token`, resolução de tenant, sessão —
- * mora em `@pipe/autenticacao` e não se repete aqui. Este arquivo é só a casca HTTP:
+ * mora em `@pipe/authentication` e não se repete aqui. Este arquivo é só a casca HTTP:
  * cookie, redirecionamento e o formato da resposta.
  *
  * A regra que molda tudo: **erro de entrada nunca vira 500 na cara da pessoa.** Quem

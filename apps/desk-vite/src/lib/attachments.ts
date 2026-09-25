@@ -6,7 +6,7 @@
  * uma mensagem por arquivo já mandada e outra recusada deixaria o cliente com
  * metade dos arquivos.
  *
- * Os números são os de `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`,
+ * Os números são os de `@pipe/storage` (`MAX_ARQUIVOS_POR_MENSAGEM`,
  * `MAX_BYTES_POR_ARQUIVO`, `MAX_BYTES_AUDIO_VIDEO`), copiados em vez de
  * importados porque aquele pacote carrega o backend em disco (`node:fs`) no
  * mesmo índice e não roda no navegador. Quem manda é o servidor de todo modo:

@@ -14,7 +14,7 @@ import { PipeError } from '../errors.js';
  * `@banco.com.br` receberia todo mundo daquele banco no tenant dele. A prova é um
  * registro TXT no DNS — só quem manda na zona consegue publicar.
  *
- * **Domínio público nunca é verificável.** A lista está em `@pipe/autenticacao`
+ * **Domínio público nunca é verificável.** A lista está em `@pipe/authentication`
  * (`DOMINIOS_PUBLICOS`) e é a mesma que a entrada consulta: se `gmail.com` pudesse
  * ser verificado, o primeiro a cadastrá-lo levaria todo mundo para a conta dele.
  */
