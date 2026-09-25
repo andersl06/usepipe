@@ -2300,7 +2300,7 @@ api-comment-08281892,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,84,9
  */",translate,"Satisfaction survey, section 6 of the metrics spec. The scale is derived from the survey type, not submitted in the form; this prevents a ""CSAT de 0 a 10"" that no report can classify. `resposta_pesquisa` stores the scale with each response, so changing this setting does not reclassify history.",architecture,apps/api/src/dominio/gestao/acoes/configuracoes.ts:84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-48c81230,api,apps/api/src/dominio/gestao/acoes/regras.ts,11,11,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has its tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/acoes/regras.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b345e509,api,apps/api/src/dominio/gestao/acoes/regras.ts,147,147,line,2,"// Faixas que se sobrepõem o core mescla sozinho (`faixasDoDia`), então",translate,"`faixasDoDia` merges overlapping ranges itself, so",architecture,apps/api/src/dominio/gestao/acoes/regras.ts:147; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-63427efb,api,apps/api/src/dominio/gestao/acoes/regras.ts,148,148,line,2,// sobreposição não é erro. Faixa idêntica é: só polui a lista.,,,,,,
+api-comment-63427efb,api,apps/api/src/dominio/gestao/acoes/regras.ts,148,148,line,2,// sobreposição não é erro. Faixa idêntica é: só polui a lista.,translate,Overlap is allowed; an identical range only clutters the list.,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:148-148; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5b64697a,api,apps/api/src/dominio/gestao/acoes/regras.ts,15,27,jsdoc,16,"/**
  * Server Actions de Regras — horário de atendimento, suas faixas e exceções.
  *
@@ -2313,13 +2313,13 @@ api-comment-5b64697a,api,apps/api/src/dominio/gestao/acoes/regras.ts,15,27,jsdoc
  * formulário único de ""semana inteira"" obrigaria a reenviar tudo a cada
  * correção, e sem `update` (que a auditoria ainda não permite) isso viraria
  * horário duplicado.
- */",,,,,,
-api-comment-67c18638,api,apps/api/src/dominio/gestao/acoes/regras.ts,168,168,line,0,// ------------------------------------------------------------------ exceção,,,,,,
-api-comment-bfc65544,api,apps/api/src/dominio/gestao/acoes/regras.ts,202,202,line,1,// Exceção aberta sem horário próprio o core devolve ao expediente normal do,,,,,,
-api-comment-924b3736,api,apps/api/src/dominio/gestao/acoes/regras.ts,203,203,line,2,"// dia (`faixasDoDia`) — ou seja, ela não faria nada. Melhor recusar do que",,,,,,
-api-comment-bea1aa98,api,apps/api/src/dominio/gestao/acoes/regras.ts,204,204,line,3,// gravar uma linha que não muda nada.,,,,,,
-api-comment-00402690,api,apps/api/src/dominio/gestao/acoes/regras.ts,222,222,line,0,"// `horario_excecao_uk` é único de verdade em (horário, data). O `select`",,,,,,
-api-comment-3a278f6c,api,apps/api/src/dominio/gestao/acoes/regras.ts,223,223,line,3,// existe para a mensagem: erro de constraint chega como 500 sem contexto.,,,,,,
+ */",translate,"Rule Server Actions manage business hours, ranges and exceptions. They return `Resultado` like `app/comunicacao/acoes.ts`. Run one transaction per action and queries serially: `Promise.all` inside `comTenant` can clear `set_config('pipe.tenant_id')`, leaving RLS without the tenant filter. Registration is incremental: create the schedule, then add ranges and holidays. Without an audited update, a whole-week form would create duplicates when corrected.",security,apps/api/src/dominio/gestao/acoes/regras.ts:15-27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-67c18638,api,apps/api/src/dominio/gestao/acoes/regras.ts,168,168,line,0,// ------------------------------------------------------------------ exceção,remove,,other,apps/api/src/dominio/gestao/acoes/regras.ts:168-168,codex3,reviewed
+api-comment-bfc65544,api,apps/api/src/dominio/gestao/acoes/regras.ts,202,202,line,1,// Exceção aberta sem horário próprio o core devolve ao expediente normal do,translate,An open exception without its own hours falls back to the normal,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:202-202; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-924b3736,api,apps/api/src/dominio/gestao/acoes/regras.ts,203,203,line,2,"// dia (`faixasDoDia`) — ou seja, ela não faria nada. Melhor recusar do que",translate,"day through `faixasDoDia`; it would have no effect, so reject it instead of",architecture,apps/api/src/dominio/gestao/acoes/regras.ts:203-203; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bea1aa98,api,apps/api/src/dominio/gestao/acoes/regras.ts,204,204,line,3,// gravar uma linha que não muda nada.,translate,storing a row that changes nothing.,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:204-204; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-00402690,api,apps/api/src/dominio/gestao/acoes/regras.ts,222,222,line,0,"// `horario_excecao_uk` é único de verdade em (horário, data). O `select`",translate,`horario_excecao_uk` really enforces uniqueness on schedule and date. The `select`,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:222-222; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3a278f6c,api,apps/api/src/dominio/gestao/acoes/regras.ts,223,223,line,3,// existe para a mensagem: erro de constraint chega como 500 sem contexto.,translate,provides a useful conflict message; a constraint error otherwise surfaces as a contextless 500.,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:223-223; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e89009ba,api,apps/api/src/dominio/gestao/acoes/regras.ts,246,261,jsdoc,23,"/**
  * A regra de entrada — §8 da spec de métricas.
  *
@@ -2335,25 +2335,25 @@ api-comment-e89009ba,api,apps/api/src/dominio/gestao/acoes/regras.ts,246,261,jsd
  *
  * As condições chegam como três listas paralelas (`campo[]`, `operador[]`,
  * `valor[]`), que é como o `FormData` devolve campos repetidos.
- */",,,,,,
-api-comment-f4ed77b6,api,apps/api/src/dominio/gestao/acoes/regras.ts,291,291,line,4,"// Linha em branco é linha que a pessoa não preencheu, não erro: o",,,,,,
-api-comment-43afefd6,api,apps/api/src/dominio/gestao/acoes/regras.ts,292,292,line,4,// formulário nasce com uma e ninguém é obrigado a usar as que acrescentou.,,,,,,
+ */",translate,"Inbound rule, metrics spec §8. This action reads and validates `FormData`, calls `lib/cadastros.ts`, and revalidates the route; database access stays there, separate from Next (README, 'Quem fala com o banco'). Save the rule header and all conditions together: a rule without conditions cannot match in `filaDeDestino`, so incremental registration would briefly activate a rule that does nothing. Conditions arrive as parallel `campo[]`, `operador[]`, and `valor[]` lists, as repeated `FormData` fields.",architecture,apps/api/src/dominio/gestao/acoes/regras.ts:246-261; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f4ed77b6,api,apps/api/src/dominio/gestao/acoes/regras.ts,291,291,line,4,"// Linha em branco é linha que a pessoa não preencheu, não erro: o",translate,"A blank row is one the user did not fill in, not an error:",other,apps/api/src/dominio/gestao/acoes/regras.ts:291-291,codex3,reviewed
+api-comment-43afefd6,api,apps/api/src/dominio/gestao/acoes/regras.ts,292,292,line,4,// formulário nasce com uma e ninguém é obrigado a usar as que acrescentou.,translate,the form starts with one and optional added rows need not be used.,other,apps/api/src/dominio/gestao/acoes/regras.ts:292-292,codex3,reviewed
 api-comment-d0f3ef95,api,apps/api/src/dominio/gestao/acoes/regras.ts,319,325,jsdoc,5,"/**
  * O interruptor da própria lista, sem abrir formulário — o controle do
  * cartão-linha deles (`blip-telas-cadastro.md` §2).
  *
  * Ele existe agora porque a auditoria existe agora: é exatamente a condição que
  * o comentário de `componentes/lista-regras.tsx` registrou.
- */",,,,,,
+ */",translate,"The list-row switch toggles a rule without opening its form, matching the source card control (`blip-telas-cadastro.md` §2). It is available now because audit logging exists, as recorded in `componentes/lista-regras.tsx`.",meta-blip,apps/api/src/dominio/gestao/acoes/regras.ts:319-325; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f61eb7ce,api,apps/api/src/dominio/gestao/acoes/regras.ts,35,41,jsdoc,7,"/**
  * O fuso, na grafia canônica do runtime, ou `null` se o IANA não conhece.
  *
  * A validação é o próprio `Intl`, que é exatamente o que
  * `packages/core/src/sla/expediente.ts` usa para converter instante em hora
  * local. Fuso que passa aqui é fuso que o cálculo de SLA vai aceitar.
- */",,,,,,
-api-comment-1c1fad2d,api,apps/api/src/dominio/gestao/acoes/regras.ts,60,60,line,0,// ------------------------------------------------------------------ horário,,,,,,
-api-comment-8f4bbf5f,api,apps/api/src/dominio/gestao/acoes/regras.ts,90,90,line,2,// `horario_atendimento` não tem índice único de nome; a unicidade é regra,,,,,,
+ */",translate,"Return the runtime's canonical IANA time-zone spelling or `null` if unknown. Validate with `Intl`, as `packages/core/src/sla/expediente.ts` does for local time conversion; a zone accepted here works for SLA calculation.",architecture,apps/api/src/dominio/gestao/acoes/regras.ts:35-41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c1fad2d,api,apps/api/src/dominio/gestao/acoes/regras.ts,60,60,line,0,// ------------------------------------------------------------------ horário,remove,,other,apps/api/src/dominio/gestao/acoes/regras.ts:60-60,codex3,reviewed
+api-comment-8f4bbf5f,api,apps/api/src/dominio/gestao/acoes/regras.ts,90,90,line,2,// `horario_atendimento` não tem índice único de nome; a unicidade é regra,translate,`horario_atendimento` has no unique index on name; uniqueness is enforced by this screen.,architecture,apps/api/src/dominio/gestao/acoes/regras.ts:90-90; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2cf6fe36,api,apps/api/src/dominio/gestao/atendimento.ts,128,138,jsdoc,18,"/**
  * Quebra por chave de MUITOS PARA UM — a etiqueta.
  *
@@ -2364,15 +2364,15 @@ api-comment-2cf6fe36,api,apps/api/src/dominio/gestao/atendimento.ts,128,138,jsdo
  *
  * O que NÃO fazemos é o que o Chatwoot faz: lá a coluna de contagem conta
  * marcações (`taggings`), não conversas distintas, e ninguém avisa.
- */",,,,,,
-api-comment-604a4e8a,api,apps/api/src/dominio/gestao/atendimento.ts,170,170,line,0,"// Duas consultas em SÉRIE: dentro do `comTenant` nada roda em paralelo, sob",,,,,,
-api-comment-c843a66f,api,apps/api/src/dominio/gestao/atendimento.ts,171,171,line,0,// pena de o `pipe.tenant_id` da transação sumir.,,,,,,
-api-comment-d23048db,api,apps/api/src/dominio/gestao/atendimento.ts,197,197,line,2,"// Os eventos vêm pelo mesmo recorte, e não por lista de ids: o período",,,,,,
-api-comment-2b06bd75,api,apps/api/src/dominio/gestao/atendimento.ts,198,198,line,1,// inteiro de um relatório passa fácil dos milhares de conversas.,,,,,,
-api-comment-4564e114,api,apps/api/src/dominio/gestao/atendimento.ts,226,226,line,3,"// As etiquetas das mesmas conversas, pelo mesmo recorte. Uma consulta, em",,,,,,
-api-comment-d3114fcc,api,apps/api/src/dominio/gestao/atendimento.ts,227,227,line,1,// série como as outras — e ela vem depois porque só faz sentido se houver,,,,,,
-api-comment-04160fdb,api,apps/api/src/dominio/gestao/atendimento.ts,228,228,line,0,// conversa no período.,,,,,,
-api-comment-96d7e2e6,api,apps/api/src/dominio/gestao/atendimento.ts,29,29,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
+ */",translate,"Break down by the many-to-one label key. A conversation with three labels appears in three rows, so the row totals exceed the period total. The screen must say so: measuring a billing ticket requires counting a conversation under every topic it had. Unlike Chatwoot, count distinct conversations, not `taggings` without explanation.",architecture,apps/api/src/dominio/gestao/atendimento.ts:128-138; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-604a4e8a,api,apps/api/src/dominio/gestao/atendimento.ts,170,170,line,0,"// Duas consultas em SÉRIE: dentro do `comTenant` nada roda em paralelo, sob",translate,"Run the two queries IN SERIES: inside `comTenant`, parallel execution can",security,apps/api/src/dominio/gestao/atendimento.ts:170-170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c843a66f,api,apps/api/src/dominio/gestao/atendimento.ts,171,171,line,0,// pena de o `pipe.tenant_id` da transação sumir.,translate,lose the transaction's `pipe.tenant_id`.,security,apps/api/src/dominio/gestao/atendimento.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d23048db,api,apps/api/src/dominio/gestao/atendimento.ts,197,197,line,2,"// Os eventos vêm pelo mesmo recorte, e não por lista de ids: o período",translate,"Load events for the same period, not through an ID list: a complete",architecture,apps/api/src/dominio/gestao/atendimento.ts:197-197; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2b06bd75,api,apps/api/src/dominio/gestao/atendimento.ts,198,198,line,1,// inteiro de um relatório passa fácil dos milhares de conversas.,translate,report can contain thousands of conversations.,architecture,apps/api/src/dominio/gestao/atendimento.ts:198-198; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4564e114,api,apps/api/src/dominio/gestao/atendimento.ts,226,226,line,3,"// As etiquetas das mesmas conversas, pelo mesmo recorte. Uma consulta, em",translate,"Fetch labels for those conversations over the same period in one query,",architecture,apps/api/src/dominio/gestao/atendimento.ts:226-226; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d3114fcc,api,apps/api/src/dominio/gestao/atendimento.ts,227,227,line,1,// série como as outras — e ela vem depois porque só faz sentido se houver,translate,serially after the others; it is only useful when there are,architecture,apps/api/src/dominio/gestao/atendimento.ts:227-227; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-04160fdb,api,apps/api/src/dominio/gestao/atendimento.ts,228,228,line,0,// conversa no período.,translate,conversations in the period.,architecture,apps/api/src/dominio/gestao/atendimento.ts:228-228; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-96d7e2e6,api,apps/api/src/dominio/gestao/atendimento.ts,29,29,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/atendimento.ts:29-29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-946d0399,api,apps/api/src/dominio/gestao/atendimento.ts,33,43,jsdoc,8,"/**
  * Relatório de atendimento — §2 e §4 da spec de métricas.
  *
@@ -2383,8 +2383,8 @@ api-comment-946d0399,api,apps/api/src/dominio/gestao/atendimento.ts,33,43,jsdoc,
  *
  * População: conversas ENCERRADAS dentro do período (§3, ""período fechado"").
  * O cronômetro parou; nenhuma conversa aberta entra em nada disto.
- */",,,,,,
-api-comment-8085139e,api,apps/api/src/dominio/gestao/atendimento.ts,52,52,jsdoc,0,/** Conversas do recorte — o universo de onde saíram os denominadores acima. */,,,,,,
+ */",translate,"Attendance report, metrics spec §§2 and 4. Fetch conversations closed in the period and their events, then calculate each screen value with `packages/core/src/metricas`. Show each function's `excluidas` count. The population is CLOSED conversations in the closed period (§3); open conversations have not stopped the clock and are excluded.",architecture,apps/api/src/dominio/gestao/atendimento.ts:33-43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8085139e,api,apps/api/src/dominio/gestao/atendimento.ts,52,52,jsdoc,0,/** Conversas do recorte — o universo de onde saíram os denominadores acima. */,translate,"Conversations in the selected period, from which the denominators are derived.",other,apps/api/src/dominio/gestao/atendimento.ts:52-52,codex3,reviewed
 api-comment-9c40be92,api,apps/api/src/dominio/gestao/atendimento.ts,64,73,jsdoc,13,"/**
    * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
    * rótulo (aqui, etiqueta). Ver `referencias-blip/pesquisa/chatwoot.md`.
@@ -2394,9 +2394,9 @@ api-comment-9c40be92,api,apps/api/src/dominio/gestao/atendimento.ts,64,73,jsdoc,
    * de tempo — as contagens filtram pela data do evento e as médias, pela data
    * de criação da conversa. Aqui as duas populações são a mesma do resto do
    * relatório: conversas ENCERRADAS no período.
-   */",,,,,,
-api-comment-651a1284,api,apps/api/src/dominio/gestao/atendimento.ts,76,76,jsdoc,2,/** Conversas encerradas no período que não têm nenhuma etiqueta. */,,,,,,
-api-comment-9040a5f3,api,apps/api/src/dominio/gestao/atendimento.ts,85,85,jsdoc,2,/** Aplica as cinco métricas de tempo e a contagem de encerramentos a um recorte. */,,,,,,
+   */",translate,Break down by inbox and label (`referencias-blip/pesquisa/chatwoot.md`). Chatwoot counts `taggings` rather than distinct conversations and mixes event dates for counts with creation dates for averages. Here both dimensions use the report's population: conversations CLOSED in the selected period.,architecture,apps/api/src/dominio/gestao/atendimento.ts:64-73; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-651a1284,api,apps/api/src/dominio/gestao/atendimento.ts,76,76,jsdoc,2,/** Conversas encerradas no período que não têm nenhuma etiqueta. */,translate,Conversations closed in the period without any label.,other,apps/api/src/dominio/gestao/atendimento.ts:76-76,codex3,reviewed
+api-comment-9040a5f3,api,apps/api/src/dominio/gestao/atendimento.ts,85,85,jsdoc,2,/** Aplica as cinco métricas de tempo e a contagem de encerramentos a um recorte. */,remove,,other,apps/api/src/dominio/gestao/atendimento.ts:85-85,codex3,reviewed
 api-comment-2a8c4a2c,api,apps/api/src/dominio/gestao/atendimento.ts,98,106,jsdoc,15,"/**
  * Dobra o conjunto por uma chave e mede cada grupo.
  *
@@ -2405,19 +2405,19 @@ api-comment-2a8c4a2c,api,apps/api/src/dominio/gestao/atendimento.ts,98,106,jsdoc
  * MAIS a contagem de encerramentos no mesmo grupo — que não é
  * `ResultadoMetrica`. Então a dobra é feita aqui e a conta continua toda no
  * core, com a mesma ordenação determinística por chave que ele usa.
- */",,,,,,
-api-comment-4d59dc7e,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,100,100,line,0,// equivalente na conta — o duplo portão de `equipe-do-fluxo.ts`. Publicar continua,,,,,,
-api-comment-62859e7e,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,101,101,line,2,// sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.,,,,,,
-api-comment-7a40185d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,113,113,block,0,/* ----------------------------------------------------------- As versões */,,,,,,
-api-comment-10dc677d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,156,156,jsdoc,2,"/** A versão mais nova do fluxo naquele estado, ou nada. */",,,,,,
+ */",translate,"Group by key and measure each group. Core's `porDimensao` returns `ResultadoMetrica` per group, but this screen also needs closure counts. Group here, calculate in core, and retain core's deterministic key order.",architecture,apps/api/src/dominio/gestao/atendimento.ts:98-106; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4d59dc7e,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,100,100,line,0,// equivalente na conta — o duplo portão de `equipe-do-fluxo.ts`. Publicar continua,translate,account-wide equivalent: the dual gate in `equipe-do-fluxo.ts`. Publishing remains,security,apps/api/src/dominio/gestao/builder-do-fluxo.ts:100-100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-62859e7e,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,101,101,line,2,// sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.,translate,an account permission because the source has no per-bot publish row.,security,apps/api/src/dominio/gestao/builder-do-fluxo.ts:101-101; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7a40185d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,113,113,block,0,/* ----------------------------------------------------------- As versões */,remove,,other,apps/api/src/dominio/gestao/builder-do-fluxo.ts:113-113,codex3,reviewed
+api-comment-10dc677d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,156,156,jsdoc,2,"/** A versão mais nova do fluxo naquele estado, ou nada. */",remove,,other,apps/api/src/dominio/gestao/builder-do-fluxo.ts:156-156,codex3,reviewed
 api-comment-529a1316,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,182,187,jsdoc,6,"/**
  * O estado do MOTOR de volta ao formato do editor — o inverso de
  * `converterEstado` (`@pipe/core`, `editor.ts`), para bloco sem `original`.
  * Só o que o motor guarda volta: posição e título se existirem, sem os
  * `$cardContent` que a tela redesenha sozinha.
- */",,,,,,
-api-comment-135dd964,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,227,227,jsdoc,2,"/** O desenho de uma versão: o que o editor guardou, ou o do motor remontado. */",,,,,,
-api-comment-217c09b3,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,279,279,block,0,/* ---------------------------------------------------------- Compilação */,,,,,,
+ */",translate,"Convert engine state back to the editor format, the inverse of `converterEstado` in `@pipe/core`'s `editor.ts`, for blocks without `original`. Restore only stored position and title; the screen redraws `$cardContent` itself.",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:182-187; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-135dd964,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,227,227,jsdoc,2,"/** O desenho de uma versão: o que o editor guardou, ou o do motor remontado. */",translate,Use the editor's saved drawing when available; otherwise reconstruct it from engine state.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:227-227; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-217c09b3,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,279,279,block,0,/* ---------------------------------------------------------- Compilação */,remove,,other,apps/api/src/dominio/gestao/builder-do-fluxo.ts:279-279,codex3,reviewed
 api-comment-b2253c54,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,28,72,jsdoc,50,"/**
  * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO.
  *
@@ -2462,51 +2462,51 @@ api-comment-b2253c54,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,28,72,j
  * gesto de excluí-lo (`ciclo-de-vida-do-fluxo.ts`), e publicar o fluxo B não
  * pode sumir com o fluxo A do portal sem ninguém pedir. Quem decide qual fluxo
  * atende o número é a ligação ao canal, não o botão de publicar.
- */",,,,,,
+ */",translate,"Builder lifecycle per flow: edit, save draft, publish. Blip stores the working drawing in `blip_portal:builder_working_flow` and publishes into the running Application. Here draft and published are `fluxo_versao` rows of the SAME flow. Save overwrites the one draft per flow, replacing blocks and transitions without incrementing its version; older `importarFluxoDaBlip` saves created numbered drafts each time. Publish promotes the draft to `publicada`, archives the prior published row, assigns the next version number, and sets `fluxo.estado` to `publicado` for `fluxoPublicadoDoCanal`. Published drawings stay immutable: `execucao_fluxo.fluxo_versao_id` restricts deletion and `execucao_passo.bloco_id` depends on that version's blocks. Editing a published flow starts a new draft; restoring copies an old drawing into a draft without changing its historical version. The engine loads `bloco` and `transicao` through `carregarFluxo`; the editor reads `bloco.conteudo.original` and `fluxo_versao.global.editor`. If `original` is absent, `estadoParaOEditor` reconstructs it. Viewing and saving require `automacao.fluxo.editar`; publishing requires `automacao.fluxo.publicar` (migration 0034). Routers have no Builder and return 409. Publishing does not archive another flow on the same channel; channel binding chooses the serving flow, and archiving requires an explicit deletion gesture.",meta-blip,apps/api/src/dominio/gestao/builder-do-fluxo.ts:28-72; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9fe2b1a3,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,291,295,jsdoc,5,"/**
  * O desenho do editor no formato do motor, com o que o motor diria dele. JSON
  * é texto de fora: o mapa tem de ser objeto de objetos, e estado sem `id`
  * ganha a própria chave — é o que o editor da Blip faz ao criar o bloco.
- */",,,,,,
-api-comment-950c91a2,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,319,319,line,5,"// Bloco com `$contentActions` que não é lista, saída que não é objeto: o",,,,,,
-api-comment-09198f29,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,320,320,line,2,"// conversor tropeça, e a culpa é do desenho, não do servidor.",,,,,,
-api-comment-5cf1d4c1,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,334,334,jsdoc,5,"/** O que é do `Flow` e não de um estado, mais o que o editor guardou das ações globais. */",,,,,,
-api-comment-8fe6c3a7,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,343,343,jsdoc,1,"/** Blocos e transições de uma versão, do zero — o miolo de `importarFluxoDaBlip`. */",,,,,,
-api-comment-d3a0626b,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,377,377,line,2,// Destino que não existe fica só no desenho (`original`) e na lista de erros.,,,,,,
+ */",translate,"Convert the editor drawing to engine format and report engine errors. External JSON must be an object of objects; a state without `id` uses its map key, as in Blip's editor.",meta-blip,apps/api/src/dominio/gestao/builder-do-fluxo.ts:291-295; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-950c91a2,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,319,319,line,5,"// Bloco com `$contentActions` que não é lista, saída que não é objeto: o",translate,"If `$contentActions` is not a list or an output is not an object,",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:319-319; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-09198f29,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,320,320,line,2,"// conversor tropeça, e a culpa é do desenho, não do servidor.",translate,the drawing is invalid; the converter error is not a server fault.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:320-320; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5cf1d4c1,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,334,334,jsdoc,5,"/** O que é do `Flow` e não de um estado, mais o que o editor guardou das ações globais. */",translate,"Fields belonging to `Flow` rather than a state, plus saved global editor actions.",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:334-334; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8fe6c3a7,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,343,343,jsdoc,1,"/** Blocos e transições de uma versão, do zero — o miolo de `importarFluxoDaBlip`. */",translate,"Rebuild a version's blocks and transitions from scratch, as `importarFluxoDaBlip` does.",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:343-343; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d3a0626b,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,377,377,line,2,// Destino que não existe fica só no desenho (`original`) e na lista de erros.,translate,A nonexistent destination remains only in the drawing (`original`) and error list.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:377-377; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-de05a2d9,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,390,394,jsdoc,5,"/**
  * Grava o desenho no rascunho do fluxo — por cima do que havia, ou numa versão
  * nova numerada a seguir da maior. Sem conferir permissão: quem chama já
  * conferiu, e `restaurarVersao` passa por aqui com o desenho de outra versão.
- */",,,,,,
-api-comment-2880fdce,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,447,447,jsdoc,2,"/** O que o Builder abre: o rascunho, senão a publicada, senão o fluxo padrão. */",,,,,,
-api-comment-838791a2,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,471,471,jsdoc,1,"/** O ""salvar"" do Builder. Grava mesmo inválido — e devolve o que o motor recusaria. */",,,,,,
+ */",translate,Write the drawing over the flow's existing draft or into a new version after the greatest version number. Callers already check permission; `restaurarVersao` also passes an older version's drawing here.,security,apps/api/src/dominio/gestao/builder-do-fluxo.ts:390-394; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2880fdce,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,447,447,jsdoc,2,"/** O que o Builder abre: o rascunho, senão a publicada, senão o fluxo padrão. */",translate,"Builder opens the draft, otherwise the published version, otherwise the default flow.",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:447-447; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-838791a2,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,471,471,jsdoc,1,"/** O ""salvar"" do Builder. Grava mesmo inválido — e devolve o que o motor recusaria. */",translate,Builder save persists even an invalid drawing and returns what the engine would reject.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:471-471; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-309dac28,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,484,487,jsdoc,5,"/**
  * O ""publicar"": promove o rascunho. Inválido não passa — a lista de erros vai
  * no `detalhe` do 409, bloco a bloco, para a tela marcar.
- */",,,,,,
-api-comment-a0f58bc9,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,503,503,line,2,"// Duas conferências, e as duas têm de passar: o DESENHO (o que a pessoa vê — é",,,,,,
-api-comment-a06da136,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,504,504,line,6,"// onde mora a saída para um bloco que não existe, que `gravarBlocos` não grava)",,,,,,
-api-comment-6380f15b,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,505,505,line,2,"// e o que está em `bloco`/`transicao`, remontado como o motor vai remontar.",,,,,,
-api-comment-519e99e9,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,567,567,jsdoc,4,"/** O histórico, da mais nova para a mais antiga. */",,,,,,
-api-comment-820a8705,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,583,583,jsdoc,2,/** Uma versão antiga de volta como rascunho — a publicada continua no ar até publicar de novo. */,,,,,,
+ */",translate,Publish promotes the draft only if valid; `detalhe` of the 409 lists errors by block for the screen.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:484-487; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a0f58bc9,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,503,503,line,2,"// Duas conferências, e as duas têm de passar: o DESENHO (o que a pessoa vê — é",translate,"Both validations must pass: the DRAWING visible to the user, where",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:503-503; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a06da136,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,504,504,line,6,"// onde mora a saída para um bloco que não existe, que `gravarBlocos` não grava)",translate,"an output can target a missing block that `gravarBlocos` never stores, and",architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:504-504; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6380f15b,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,505,505,line,2,"// e o que está em `bloco`/`transicao`, remontado como o motor vai remontar.",translate,the stored `bloco`/`transicao` reconstructed as the engine will see them.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:505-505; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-519e99e9,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,567,567,jsdoc,4,"/** O histórico, da mais nova para a mais antiga. */",remove,,other,apps/api/src/dominio/gestao/builder-do-fluxo.ts:567-567,codex3,reviewed
+api-comment-820a8705,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,583,583,jsdoc,2,/** Uma versão antiga de volta como rascunho — a publicada continua no ar até publicar de novo. */,translate,Copy an old version into the draft; the published version remains live until another publish.,architecture,apps/api/src/dominio/gestao/builder-do-fluxo.ts:583-583; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ca29b4a6,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,80,84,jsdoc,9,"/**
  * O fluxo vivo desta conta que TEM Builder — ou 404, 403, 409, nesta ordem:
  * o que não existe para a conta não existe (antes de dizer que falta
  * permissão), e só quem pode entrar fica sabendo que roteador não tem editor.
- */",,,,,,
-api-comment-a3b4495d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,99,99,line,1,// Editar o desenho é permissão DO FLUXO (`builder.escrever` na aba Equipe) ou a,,,,,,
+ */",translate,"Find this account's live flow with Builder, or return 404, 403, then 409 in that order. A flow outside the account must not reveal its existence before permission checks, and only an authorized user learns that a router has no editor.",security,apps/api/src/dominio/gestao/builder-do-fluxo.ts:80-84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a3b4495d,api,apps/api/src/dominio/gestao/builder-do-fluxo.ts,99,99,line,1,// Editar o desenho é permissão DO FLUXO (`builder.escrever` na aba Equipe) ou a,translate,"Editing the drawing requires the FLOW permission `builder.escrever` on the Team tab, or the",security,apps/api/src/dominio/gestao/builder-do-fluxo.ts:99-99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-08509c6b,api,apps/api/src/dominio/gestao/cabecalho.ts,6,10,jsdoc,3,"/**
  * O que as duas barras do topo da Gestão mostram: os canais da conta e a
  * contagem de avisos (pausas abertas além do tempo sugerido). Quem está logado
  * e o tenant vêm da sessão, no controlador.
- */",,,,,,
-api-comment-c84f899e,api,apps/api/src/dominio/gestao/cadastros.ts,1057,1057,jsdoc,1,/** `destroy`: `regra_fila_condicao.regra_id` é `ON DELETE CASCADE` — excluir a regra leva as condições junto. */,,,,,,
-api-comment-ab3c0312,api,apps/api/src/dominio/gestao/cadastros.ts,1078,1078,line,0,// ------------------------------------------------------- gestão de atendentes,,,,,,
-api-comment-ab18c3ab,api,apps/api/src/dominio/gestao/cadastros.ts,1085,1085,jsdoc,3,"/** `null` quando a pessoa nunca conectou: não é ""offline"", é ""nunca esteve"". */",,,,,,
+ */",translate,The two Management top bars show account channels and alerts for pauses exceeding the suggested time. The controller obtains the signed-in user and tenant from the session.,architecture,apps/api/src/dominio/gestao/cabecalho.ts:6-10; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c84f899e,api,apps/api/src/dominio/gestao/cadastros.ts,1057,1057,jsdoc,1,/** `destroy`: `regra_fila_condicao.regra_id` é `ON DELETE CASCADE` — excluir a regra leva as condições junto. */,translate,"On `destroy`, `regra_fila_condicao.regra_id` has `ON DELETE CASCADE`, so deleting the rule also deletes its conditions.",architecture,apps/api/src/dominio/gestao/cadastros.ts:1057-1057; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ab3c0312,api,apps/api/src/dominio/gestao/cadastros.ts,1078,1078,line,0,// ------------------------------------------------------- gestão de atendentes,remove,,other,apps/api/src/dominio/gestao/cadastros.ts:1078-1078,codex3,reviewed
+api-comment-ab18c3ab,api,apps/api/src/dominio/gestao/cadastros.ts,1085,1085,jsdoc,3,"/** `null` quando a pessoa nunca conectou: não é ""offline"", é ""nunca esteve"". */",translate,"`null` means the person has never connected, which differs from being offline.",other,apps/api/src/dominio/gestao/cadastros.ts:1085-1085,codex3,reviewed
 api-comment-64678908,api,apps/api/src/dominio/gestao/cadastros.ts,1088,1091,jsdoc,7,"/**
    * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
    * nenhuma — aí não há teto porque não há de onde receber.
-   */",,,,,,
+   */",translate,Concurrent conversation cap. `null` when the agent belongs to no queue: without a queue there is no capacity to receive from.,architecture,apps/api/src/dominio/gestao/cadastros.ts:1088-1091; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-76d55bea,api,apps/api/src/dominio/gestao/cadastros.ts,1095,1114,jsdoc,21,"/**
  * Gestão de atendentes: quem atende, por onde, e quantas conversas aguenta ao
  * mesmo tempo.
@@ -2526,7 +2526,7 @@ api-comment-76d55bea,api,apps/api/src/dominio/gestao/cadastros.ts,1095,1114,jsdo
  * (`fila.capacidade_padrao`) com override por participação
  * (`fila_atendente.capacidade_override`), então uma pessoa em duas filas de
  * capacidades diferentes tem dois números, e este é o que vale.
- */",,,,,,
+ */",translate,"Agent management shows agent, email, queues and simultaneous tickets (`blip-gestao-medidas.md` §8.3), plus current status and situation from the replaced Operations screen. Capacity is the MAXIMUM of the agent's queue caps, not their sum: joining another queue must not double one person's capacity. Monitoring uses the same `limitePorAtendente` rule. Blip has a per-person cap with a global default and individual override; here each queue supplies `fila.capacidade_padrao` and membership may set `fila_atendente.capacidade_override`. For an agent in queues with different caps, use the maximum applicable cap.",meta-blip,apps/api/src/dominio/gestao/cadastros.ts:1095-1114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ad9b784c,api,apps/api/src/dominio/gestao/cadastros.ts,1159,1166,block,10,"/* ===================================================== escrita — filas
    Item 1 da tarefa de cadastros do Atendimento: criar, renomear, ativar/
    desativar, excluir (com as duas recusas que a tela precisa entender) e
@@ -2534,36 +2534,36 @@ api-comment-ad9b784c,api,apps/api/src/dominio/gestao/cadastros.ts,1159,1166,bloc
    200, para o `useActionState` de formulário), estas usam o padrão REST de
    `ciclo-de-vida-do-fluxo.ts`: `ErroPipe` com status de verdade, porque são
    gestos com efeito de segurança (permissão, tenant, id) e não só validação
-   de formulário. */",,,,,,
-api-comment-71c3d1fa,api,apps/api/src/dominio/gestao/cadastros.ts,1177,1177,jsdoc,2,/** Só o que veio muda — igual a `PedidoDeEdicao` de `ciclo-de-vida-do-fluxo.ts`. */,,,,,,
-api-comment-2eaf71be,api,apps/api/src/dominio/gestao/cadastros.ts,1211,1211,jsdoc,2,/** Mesmo teto de `acoes/atendentes.ts::salvarFila` — reaproveitado também para o override do atendente. */,,,,,,
-api-comment-6131b4cb,api,apps/api/src/dominio/gestao/cadastros.ts,1315,1315,jsdoc,1,"/** `update`: renomear, trocar cor/horário/capacidade/ordem e ativar/desativar são o mesmo gesto. */",,,,,,
-api-comment-2eacc769,api,apps/api/src/dominio/gestao/cadastros.ts,1326,1326,line,1,// `antes`/`depois` de propósito SEM anotação de tipo: literal inferido carrega,,,,,,
-api-comment-c83e3838,api,apps/api/src/dominio/gestao/cadastros.ts,1327,1327,line,2,"// índice implícito e é o que deixa `diferenca` (que pede `Record<string,",,,,,,
+   de formulário. */",translate,"Queue writes create, rename, toggle, delete with two required refusals, and link or unlink agents. Unlike form `acoes/*` returning `Resultado` in 200, these REST operations throw `ErroPipe` with real status codes for permission, tenant and ID failures, following `ciclo-de-vida-do-fluxo.ts`.",security,apps/api/src/dominio/gestao/cadastros.ts:1159-1166; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-71c3d1fa,api,apps/api/src/dominio/gestao/cadastros.ts,1177,1177,jsdoc,2,/** Só o que veio muda — igual a `PedidoDeEdicao` de `ciclo-de-vida-do-fluxo.ts`. */,translate,"Only supplied fields change, as in `PedidoDeEdicao` in `ciclo-de-vida-do-fluxo.ts`.",other,apps/api/src/dominio/gestao/cadastros.ts:1177-1177,codex3,reviewed
+api-comment-2eaf71be,api,apps/api/src/dominio/gestao/cadastros.ts,1211,1211,jsdoc,2,/** Mesmo teto de `acoes/atendentes.ts::salvarFila` — reaproveitado também para o override do atendente. */,translate,Reuse the cap from `acoes/atendentes.ts::salvarFila` for agent overrides too.,architecture,apps/api/src/dominio/gestao/cadastros.ts:1211-1211; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6131b4cb,api,apps/api/src/dominio/gestao/cadastros.ts,1315,1315,jsdoc,1,"/** `update`: renomear, trocar cor/horário/capacidade/ordem e ativar/desativar são o mesmo gesto. */",remove,,other,apps/api/src/dominio/gestao/cadastros.ts:1315-1315,codex3,reviewed
+api-comment-2eacc769,api,apps/api/src/dominio/gestao/cadastros.ts,1326,1326,line,1,// `antes`/`depois` de propósito SEM anotação de tipo: literal inferido carrega,translate,Leave `antes` and `depois` without explicit type annotations: inferred literals retain,architecture,apps/api/src/dominio/gestao/cadastros.ts:1326-1326; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c83e3838,api,apps/api/src/dominio/gestao/cadastros.ts,1327,1327,line,2,"// índice implícito e é o que deixa `diferenca` (que pede `Record<string,",translate,"the implicit index signature required by `diferenca` (`Record<string, unknown>`).",architecture,apps/api/src/dominio/gestao/cadastros.ts:1327-1327; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0f39e65f,api,apps/api/src/dominio/gestao/cadastros.ts,1388,1393,jsdoc,7,"/**
  * `destroy`: excluir de verdade — `fila` não carrega histórico próprio (quem
  * carrega é `conversa`/`evento_atendimento`, por isso as duas recusas
  * abaixo). Diferente do fluxo, aqui não há razão para ""arquivar"": não existe
  * FK que impeça o `DELETE` de uma fila livre de uso.
- */",,,,,,
-api-comment-e36ba9d9,api,apps/api/src/dominio/gestao/cadastros.ts,1427,1427,line,3,"// `regra_fila.fila_destino_id` é `ON DELETE CASCADE`: sem esta recusa, excluir a fila",,,,,,
-api-comment-da304dcb,api,apps/api/src/dominio/gestao/cadastros.ts,1428,1428,line,4,"// apagaria a regra de entrada em silêncio, sem quem a cadastrou ter pedido isso.",,,,,,
-api-comment-1b5f6479,api,apps/api/src/dominio/gestao/cadastros.ts,1452,1452,jsdoc,3,"/** Vincular: cria a participação, ou troca o `capacidadeOverride` de quem já está na fila. */",,,,,,
-api-comment-c5606e81,api,apps/api/src/dominio/gestao/cadastros.ts,1484,1484,line,0,// `Acao` de `@pipe/db` é fechado ('criou'/'alterou'/'excluiu'/'ativou'/'desativou');,,,,,,
-api-comment-b7b8b3da,api,apps/api/src/dominio/gestao/cadastros.ts,1485,1485,line,3,"// vincular/desvincular é uma alteração da COMPOSIÇÃO da fila, não um gesto à parte.",,,,,,
+ */",translate,"`destroy` really deletes a free queue. `fila` has no history of its own; `conversa` and `evento_atendimento` do, hence the refusals below. Unlike a flow, an unused queue has no foreign key requiring archival.",architecture,apps/api/src/dominio/gestao/cadastros.ts:1388-1393; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e36ba9d9,api,apps/api/src/dominio/gestao/cadastros.ts,1427,1427,line,3,"// `regra_fila.fila_destino_id` é `ON DELETE CASCADE`: sem esta recusa, excluir a fila",translate,"`regra_fila.fila_destino_id` has `ON DELETE CASCADE`: without this refusal,",architecture,apps/api/src/dominio/gestao/cadastros.ts:1427-1427; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-da304dcb,api,apps/api/src/dominio/gestao/cadastros.ts,1428,1428,line,4,"// apagaria a regra de entrada em silêncio, sem quem a cadastrou ter pedido isso.",translate,deleting the queue would silently delete its inbound rule without the owner's request.,architecture,apps/api/src/dominio/gestao/cadastros.ts:1428-1428; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1b5f6479,api,apps/api/src/dominio/gestao/cadastros.ts,1452,1452,jsdoc,3,"/** Vincular: cria a participação, ou troca o `capacidadeOverride` de quem já está na fila. */",translate,Linking creates queue membership or changes `capacidadeOverride` for an existing member.,architecture,apps/api/src/dominio/gestao/cadastros.ts:1452-1452; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c5606e81,api,apps/api/src/dominio/gestao/cadastros.ts,1484,1484,line,0,// `Acao` de `@pipe/db` é fechado ('criou'/'alterou'/'excluiu'/'ativou'/'desativou');,translate,`Acao` in `@pipe/db` is closed (`'criou'/'alterou'/'excluiu'/'ativou'/'desativou'`);,architecture,apps/api/src/dominio/gestao/cadastros.ts:1484-1484; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b7b8b3da,api,apps/api/src/dominio/gestao/cadastros.ts,1485,1485,line,3,"// vincular/desvincular é uma alteração da COMPOSIÇÃO da fila, não um gesto à parte.",translate,"linking and unlinking change queue COMPOSITION, not a separate audit action.",architecture,apps/api/src/dominio/gestao/cadastros.ts:1485-1485; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a9b13972,api,apps/api/src/dominio/gestao/cadastros.ts,1527,1532,block,8,"/* =================================================== escrita — motivo de pausa
    Item 3: criar, editar, ativar/desativar e excluir. `motivo_pausa.id` é
    `ON DELETE SET NULL` em `pausa.motivo_id` — a mesma regra que já faz
    `carregarPausas` separar as pausas ""sem motivo""; excluir um motivo em uso
    não corrompe pausa nenhuma, só historia ela como órfã, então não há recusa
-   de ""está em uso"" aqui como há em fila. */",,,,,,
-api-comment-c8565585,api,apps/api/src/dominio/gestao/cadastros.ts,1571,1571,jsdoc,2,"/** `null` é ""sem sugestão""; `undefined` (edição) é ""não mexa"" — conferidos por quem chama. */",,,,,,
-api-comment-84792638,api,apps/api/src/dominio/gestao/cadastros.ts,164,164,jsdoc,0,/** Pausas encerradas no período. */,,,,,,
-api-comment-7342a184,api,apps/api/src/dominio/gestao/cadastros.ts,166,166,jsdoc,1,"/** Duração média observada, em segundos. `null` quando ninguém usou. */",,,,,,
-api-comment-d8fcfe10,api,apps/api/src/dominio/gestao/cadastros.ts,1663,1663,line,1,// Sem anotação de tipo — ver o comentário equivalente em `editarFila`.,,,,,,
-api-comment-7c998ace,api,apps/api/src/dominio/gestao/cadastros.ts,172,172,jsdoc,0,/** Início da janela de observação. */,,,,,,
-api-comment-96db1a35,api,apps/api/src/dominio/gestao/cadastros.ts,175,175,jsdoc,0,/** Pausas encerradas no período cujo motivo foi apagado ou nunca informado. */,,,,,,
-api-comment-e2d54dc2,api,apps/api/src/dominio/gestao/cadastros.ts,177,177,jsdoc,3,"/** Pausas em aberto agora — fora da média, porque ainda não terminaram. */",,,,,,
+   de ""está em uso"" aqui como há em fila. */",translate,"Pause-reason writes create, edit, toggle and delete. `pausa.motivo_id` is `ON DELETE SET NULL` for `motivo_pausa.id`, matching `carregarPausas`' grouping of pauses without a reason. Removing an in-use reason preserves pause history as orphaned rows, so it does not need the queue-style in-use refusal.",architecture,apps/api/src/dominio/gestao/cadastros.ts:1527-1532; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c8565585,api,apps/api/src/dominio/gestao/cadastros.ts,1571,1571,jsdoc,2,"/** `null` é ""sem sugestão""; `undefined` (edição) é ""não mexa"" — conferidos por quem chama. */",translate,`null` means no suggestion; `undefined` during editing means leave unchanged. Callers enforce this.,other,apps/api/src/dominio/gestao/cadastros.ts:1571-1571,codex3,reviewed
+api-comment-84792638,api,apps/api/src/dominio/gestao/cadastros.ts,164,164,jsdoc,0,/** Pausas encerradas no período. */,remove,,other,apps/api/src/dominio/gestao/cadastros.ts:164-164,codex3,reviewed
+api-comment-7342a184,api,apps/api/src/dominio/gestao/cadastros.ts,166,166,jsdoc,1,"/** Duração média observada, em segundos. `null` quando ninguém usou. */",translate,Observed mean duration in seconds; `null` when nobody used it.,other,apps/api/src/dominio/gestao/cadastros.ts:166-166,codex3,reviewed
+api-comment-d8fcfe10,api,apps/api/src/dominio/gestao/cadastros.ts,1663,1663,line,1,// Sem anotação de tipo — ver o comentário equivalente em `editarFila`.,translate,No explicit type annotation; see the equivalent comment in `editarFila`.,architecture,apps/api/src/dominio/gestao/cadastros.ts:1663-1663; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7c998ace,api,apps/api/src/dominio/gestao/cadastros.ts,172,172,jsdoc,0,/** Início da janela de observação. */,remove,,other,apps/api/src/dominio/gestao/cadastros.ts:172-172,codex3,reviewed
+api-comment-96db1a35,api,apps/api/src/dominio/gestao/cadastros.ts,175,175,jsdoc,0,/** Pausas encerradas no período cujo motivo foi apagado ou nunca informado. */,translate,Pauses closed in the period whose reason was deleted or never supplied.,other,apps/api/src/dominio/gestao/cadastros.ts:175-175,codex3,reviewed
+api-comment-e2d54dc2,api,apps/api/src/dominio/gestao/cadastros.ts,177,177,jsdoc,3,"/** Pausas em aberto agora — fora da média, porque ainda não terminaram. */",translate,Currently open pauses are excluded from the mean because they have not ended.,architecture,apps/api/src/dominio/gestao/cadastros.ts:177-177; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e19501c5,api,apps/api/src/dominio/gestao/cadastros.ts,181,193,jsdoc,9,"/**
  * Motivos com o uso real ao lado da duração sugerida.
  *
@@ -2576,12 +2576,12 @@ api-comment-e19501c5,api,apps/api/src/dominio/gestao/cadastros.ts,181,193,jsdoc,
  * Janela móvel de `dias` corridos, e não o mês do calendário: a pergunta da tela
  * é ""o almoço de 30 minutos está durando 47?"", e para essa o recorte honesto é o
  * passado recente.
- */",,,,,,
-api-comment-6eb129ab,api,apps/api/src/dominio/gestao/cadastros.ts,246,246,line,0,// ---------------------------------------------------------------- horários,,,,,,
-api-comment-257a2e36,api,apps/api/src/dominio/gestao/cadastros.ts,270,270,jsdoc,4,/** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */,,,,,,
-api-comment-5417b12e,api,apps/api/src/dominio/gestao/cadastros.ts,273,273,jsdoc,1,/** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */,,,,,,
-api-comment-0c5afc94,api,apps/api/src/dominio/gestao/cadastros.ts,275,275,jsdoc,3,"/** Expediente dos próximos sete dias, com feriado já descontado. */",,,,,,
-api-comment-79790700,api,apps/api/src/dominio/gestao/cadastros.ts,281,281,jsdoc,1,/** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */,,,,,,
+ */",translate,"Show pause reasons with observed use beside suggested duration. Compute the mean in SQL, not `@pipe/core`: `packages/core/src/esforco/` measures conversation effort and in-session time, treating pauses only as gaps between agent messages in `calcularTempoEmSessao` (10-minute cutoff). No core function accepts `pausa` or `motivo_pausa`; aggregation by reason is SQL `avg`. Use a rolling window of `dias` calendar days rather than the calendar month, because the screen asks whether recent lunch pauses exceed their 30-minute suggestion.",architecture,apps/api/src/dominio/gestao/cadastros.ts:181-193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6eb129ab,api,apps/api/src/dominio/gestao/cadastros.ts,246,246,line,0,// ---------------------------------------------------------------- horários,remove,,other,apps/api/src/dominio/gestao/cadastros.ts:246-246,codex3,reviewed
+api-comment-257a2e36,api,apps/api/src/dominio/gestao/cadastros.ts,270,270,jsdoc,4,/** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */,translate,Names of queues using this schedule; empty means it is unused.,other,apps/api/src/dominio/gestao/cadastros.ts:270-270,codex3,reviewed
+api-comment-5417b12e,api,apps/api/src/dominio/gestao/cadastros.ts,273,273,jsdoc,1,/** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */,translate,"`null` means no opening in core's horizon, as when a schedule has no ranges.",architecture,apps/api/src/dominio/gestao/cadastros.ts:273-273; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0c5afc94,api,apps/api/src/dominio/gestao/cadastros.ts,275,275,jsdoc,3,"/** Expediente dos próximos sete dias, com feriado já descontado. */",translate,"Business hours for the next seven days, accounting for holidays.",other,apps/api/src/dominio/gestao/cadastros.ts:275-275,codex3,reviewed
+api-comment-79790700,api,apps/api/src/dominio/gestao/cadastros.ts,281,281,jsdoc,1,/** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */,translate,Active queues without a schedule run their SLA clock 24/7.,architecture,apps/api/src/dominio/gestao/cadastros.ts:281-281; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-421aad74,api,apps/api/src/dominio/gestao/cadastros.ts,288,297,jsdoc,10,"/**
  * Horários com faixas, exceções, quem os usa, e o que o `@pipe/core` diz deles.
  *
@@ -2591,10 +2591,10 @@ api-comment-421aad74,api,apps/api/src/dominio/gestao/cadastros.ts,288,297,jsdoc,
  * `packages/core/src/sla/expediente.ts` — as mesmas funções com que o SLA decide
  * se uma conversa estourou. Somar as faixas à mão nesta tela é exatamente como o
  * número da tela e o número do relatório passam a divergir.
- */",,,,,,
-api-comment-00f4594f,api,apps/api/src/dominio/gestao/cadastros.ts,32,32,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
-api-comment-b5eff776,api,apps/api/src/dominio/gestao/cadastros.ts,36,36,jsdoc,0,"/** Do catálogo (`packages/db/src/semente.ts`): ""Criar, editar e desativar fila"". */",,,,,,
-api-comment-05a6b200,api,apps/api/src/dominio/gestao/cadastros.ts,38,38,jsdoc,1,"/** ""Gerenciar regras de fila, prioridade e SLA"" — as três também moram aqui. */",,,,,,
+ */",translate,"Schedules include ranges, exceptions, users, and core-derived status. Compute 'open now', next opening and seven-day business duration with `dentroDoExpediente`, `proximaAbertura`, and `duracaoTotalSeg(intervalosUteis(...))` from `packages/core/src/sla/expediente.ts`, the same functions used by the SLA. Summing ranges independently here would make the screen disagree with its report.",architecture,apps/api/src/dominio/gestao/cadastros.ts:288-297; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-00f4594f,api,apps/api/src/dominio/gestao/cadastros.ts,32,32,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/cadastros.ts:32-32; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b5eff776,api,apps/api/src/dominio/gestao/cadastros.ts,36,36,jsdoc,0,"/** Do catálogo (`packages/db/src/semente.ts`): ""Criar, editar e desativar fila"". */",translate,"From the catalog in `packages/db/src/semente.ts`: 'Criar, editar e desativar fila'.",architecture,apps/api/src/dominio/gestao/cadastros.ts:36-36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-05a6b200,api,apps/api/src/dominio/gestao/cadastros.ts,38,38,jsdoc,1,"/** ""Gerenciar regras de fila, prioridade e SLA"" — as três também moram aqui. */",translate,"'Gerenciar regras de fila, prioridade e SLA' from the catalog also covers these three operations.",architecture,apps/api/src/dominio/gestao/cadastros.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3a0ae8b5,api,apps/api/src/dominio/gestao/cadastros.ts,388,396,block,12,"/* ============================================ escrita — faixa e exceção
    Item 3 da tarefa de cadastros do Atendimento: `acoes/regras.ts` já grava
    faixa e exceção (`salvarFaixa`/`salvarExcecao`, criação incremental); aqui
@@ -2603,9 +2603,9 @@ api-comment-3a0ae8b5,api,apps/api/src/dominio/gestao/cadastros.ts,388,396,block,
 
    `horarioId` não muda na edição: mover uma faixa para outro horário é
    excluir e recriar, não editar — o mesmo limite que `editarFila` aplica ao
-   não deixar a fila trocar de tenant. */",,,,,,
-api-comment-a237b452,api,apps/api/src/dominio/gestao/cadastros.ts,40,40,jsdoc,0,"/** ""Gerenciar horário de atendimento e feriado"". */",,,,,,
-api-comment-30099ca8,api,apps/api/src/dominio/gestao/cadastros.ts,42,42,jsdoc,0,/** Novo — migração 0030: nenhuma permissão do catálogo cobria motivo de pausa. */,,,,,,
+   não deixar a fila trocar de tenant. */",translate,"Schedule range and exception writes add edit and delete to incremental creation in `acoes/regras.ts` (`salvarFaixa`/`salvarExcecao`). These use REST `ErroPipe` statuses. `horarioId` cannot change on edit: moving a range to another schedule means delete and recreate, as `editarFila` also prevents switching tenants.",architecture,apps/api/src/dominio/gestao/cadastros.ts:388-396; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a237b452,api,apps/api/src/dominio/gestao/cadastros.ts,40,40,jsdoc,0,"/** ""Gerenciar horário de atendimento e feriado"". */",translate,Catalog permission: 'Gerenciar horário de atendimento e feriado'.,architecture,apps/api/src/dominio/gestao/cadastros.ts:40-40; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-30099ca8,api,apps/api/src/dominio/gestao/cadastros.ts,42,42,jsdoc,0,/** Novo — migração 0030: nenhuma permissão do catálogo cobria motivo de pausa. */,translate,New in migration 0030: no earlier catalog permission covered pause reasons.,architecture,apps/api/src/dominio/gestao/cadastros.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-34f27d21,api,apps/api/src/dominio/gestao/cadastros.ts,444,455,jsdoc,15,"/**
  * `update`: dia, início e fim são o mesmo gesto.
  *
@@ -2617,10 +2617,10 @@ api-comment-34f27d21,api,apps/api/src/dominio/gestao/cadastros.ts,444,455,jsdoc,
  * abriram menos do que uma só. Aqui a regra é mais estrita porque é o que a
  * tarefa pediu; a criação antiga não muda, para não alterar comportamento já
  * testado.
- */",,,,,,
-api-comment-756d55ea,api,apps/api/src/dominio/gestao/cadastros.ts,466,466,line,2,// `relogio()` normaliza o `HH:MM:SS` que o Postgres devolve para o `HH:MM`,,,,,,
-api-comment-13463623,api,apps/api/src/dominio/gestao/cadastros.ts,467,467,line,4,"// que a API recebe e devolve — sem isso, reenviar o mesmo horário parecia",,,,,,
-api-comment-94ba7892,api,apps/api/src/dominio/gestao/cadastros.ts,468,468,line,2,"// uma mudança (formato diferente, valor igual) e sujava a auditoria.",,,,,,
+ */",translate,"Updating day, start and end is one gesture. Reject start ≥ end or overlap on the same day and schedule with 409. This Pipe edit rule is stricter than creation: `salvarFaixaInterna` in `acoes/regras.ts` intentionally permits overlap because `faixasDoDia` in `@pipe/core` merges ranges. Creation behavior stays to preserve existing tests.",architecture,apps/api/src/dominio/gestao/cadastros.ts:444-455; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-756d55ea,api,apps/api/src/dominio/gestao/cadastros.ts,466,466,line,2,// `relogio()` normaliza o `HH:MM:SS` que o Postgres devolve para o `HH:MM`,translate,`relogio()` converts PostgreSQL `HH:MM:SS` to the API's `HH:MM`,architecture,apps/api/src/dominio/gestao/cadastros.ts:466-466; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-13463623,api,apps/api/src/dominio/gestao/cadastros.ts,467,467,line,4,"// que a API recebe e devolve — sem isso, reenviar o mesmo horário parecia",translate,format; otherwise resubmitting the same time appears to be a change,architecture,apps/api/src/dominio/gestao/cadastros.ts:467-467; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-94ba7892,api,apps/api/src/dominio/gestao/cadastros.ts,468,468,line,2,"// uma mudança (formato diferente, valor igual) e sujava a auditoria.",translate,and pollutes the audit log despite an equal value.,architecture,apps/api/src/dominio/gestao/cadastros.ts:468-468; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d7c60c79,api,apps/api/src/dominio/gestao/cadastros.ts,47,65,jsdoc,22,"/**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
  *
@@ -2639,12 +2639,12 @@ api-comment-d7c60c79,api,apps/api/src/dominio/gestao/cadastros.ts,47,65,jsdoc,22
  * `Promise.all` aqui: consulta paralela na mesma conexão apaga o
  * `set_config('pipe.tenant_id')` da transação e a RLS passa a não filtrar nada
  * (README, ""Como o isolamento entre clientes funciona"").
- */",,,,,,
+ */",translate,"Reads for queue, pause-reason and schedule registration forms. Edits now have `registrarAuditoria` in `@pipe/db`, storing actor, prior value and time in the SAME transaction, enabling the inbound-rule switch. This module accepts parameters and returns data without Next, `revalidatePath`, or JSX, so it can become an `apps/api` endpoint by moving code (README, 'Quem fala com o banco'). Run all reads SERIALLY inside one `comTenant`: `Promise.all` on the connection can clear transaction `set_config('pipe.tenant_id')` and stop RLS filtering (README, 'Como o isolamento entre clientes funciona').",security,apps/api/src/dominio/gestao/cadastros.ts:47-65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bf497605,api,apps/api/src/dominio/gestao/cadastros.ts,572,576,jsdoc,5,"/**
  * `update`: mesmas regras da criação (`salvarExcecaoInterna`) — fechado não
  * tem horário próprio, aberto precisa dos dois, início < fim, e a data não
  * pode colidir com outra exceção do mesmo horário (`horario_excecao_uk`).
- */",,,,,,
+ */",translate,"Update follows `salvarExcecaoInterna`: closed has no own hours, open requires both, start < end, and no conflicting date in the same schedule (`horario_excecao_uk`).",architecture,apps/api/src/dominio/gestao/cadastros.ts:572-576; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-558b947b,api,apps/api/src/dominio/gestao/cadastros.ts,684,695,jsdoc,21,"/**
  * As regras de entrada, com as condições de cada uma — §8 da spec de métricas.
  *
