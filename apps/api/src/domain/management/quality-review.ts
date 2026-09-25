@@ -154,20 +154,20 @@ export async function loadQualityReview(
     const linhas = await tx
       .select({
         id: evaluation.id,
-        conversaId: evaluation.conversaId,
-        contato: contact.nome,
-        fila: queue.nome,
-        avaliado: user.nome,
-        formulario: formEvaluation.nome,
-        notaMaxima: formEvaluation.notaMaxima,
-        nota: evaluation.nota,
-        conceito: evaluation.conceito,
-        avaliadorTipo: evaluation.avaliadorTipo,
-        confiancaIa: evaluation.confiancaIa,
-        estado: evaluation.state,
-        avaliadaEm: evaluation.avaliadaEm,
-        categoria: classificationConversation.categoria,
-        sentimento: classificationConversation.sentiment,
+        conversationId: evaluation.conversaId,
+        contact: contact.nome,
+        queue: queue.nome,
+        evaluated: user.nome,
+        form: formEvaluation.nome,
+        noteMaximum: formEvaluation.notaMaxima,
+        note: evaluation.nota,
+        concept: evaluation.conceito,
+        evaluatorType: evaluation.avaliadorTipo,
+        confidenceAi: evaluation.confiancaIa,
+        state: evaluation.state,
+        evaluatedAt: evaluation.avaliadaEm,
+        category: classificationConversation.categoria,
+        sentiment: classificationConversation.sentiment,
       })
       .from(evaluation)
       .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
@@ -181,9 +181,9 @@ export async function loadQualityReview(
 
     const evaluations: EvaluationInList[] = linhas.map((l) => ({
       ...l,
-      notaMaxima: Number(l.notaMaxima),
-      nota: numeroOuNulo(l.nota),
-      confiancaIa: numeroOuNulo(l.confiancaIa),
+      noteMaximum: Number(l.noteMaximum),
+      note: numeroOuNulo(l.note),
+      confidenceAi: numeroOuNulo(l.confidenceAi),
     }));
 
     /* Agrupamento em memória, e não `GROUP BY`: a lista inteira já veio, e a
@@ -225,11 +225,11 @@ export async function loadQualityReview(
       evaluations,
       media: mediaDasNotas(evaluations),
       byAgent,
-      porAvaliador: [...count.entries()]
-        .map(([tipo, total]) => ({ tipo, total }))
-        .sort((a, b) => a.tipo.localeCompare(b.tipo)),
-      confiancaIa,
-      escala: evaluations[0]?.notaMaxima ?? 100,
+      byEvaluator: [...count.entries()]
+        .map(([type, total]) => ({ type, total }))
+        .sort((a, b) => a.type.localeCompare(b.type)),
+      confidenceAi: confiancaIa,
+      escala: evaluations[0]?.noteMaximum ?? 100,
     };
   });
 }
@@ -366,7 +366,7 @@ export async function carregarFicha(
     for (const l of linhas) {
       let grupo = grupos.find((g) => g.id === l.grupoId);
       if (!grupo) {
-        grupo = { id: l.grupoId, nome: l.grupoNome, peso: Number(l.grupoPeso), criterios: [] };
+        grupo = { id: l.grupoId, name: l.grupoNome, peso: Number(l.grupoPeso), criterios: [] };
         grupos.push(grupo);
       }
       const citada = l.evidenciaId ? byMessage.get(l.evidenciaId) : undefined;
@@ -391,28 +391,28 @@ export async function carregarFicha(
     return {
       cabecalho: {
         id: cabeca.id,
-        conversaId: cabeca.conversaId,
-        contato: cabeca.contato,
-        fila: cabeca.fila,
-        avaliado: cabeca.avaliado,
-        formulario: cabeca.formulario,
-        notaMaxima: Number(cabeca.notaMaxima),
-        nota: numeroOuNulo(cabeca.nota),
-        conceito: cabeca.conceito,
-        avaliadorTipo: cabeca.avaliadorTipo,
-        confiancaIa: numeroOuNulo(cabeca.confiancaIa),
-        estado: cabeca.estado,
-        avaliadaEm: cabeca.avaliadaEm,
-        categoria: cabeca.categoria,
-        sentimento: cabeca.sentimento,
+        conversationId: cabeca.conversaId,
+        contact: cabeca.contato,
+        queue: cabeca.fila,
+        evaluated: cabeca.avaliado,
+        form: cabeca.formulario,
+        noteMaximum: Number(cabeca.notaMaxima),
+        note: numeroOuNulo(cabeca.nota),
+        concept: cabeca.conceito,
+        evaluatorType: cabeca.avaliadorTipo,
+        confidenceAi: numeroOuNulo(cabeca.confiancaIa),
+        state: cabeca.estado,
+        evaluatedAt: cabeca.avaliadaEm,
+        category: cabeca.categoria,
+        sentiment: cabeca.sentimento,
       },
-      grupos,
+      groups: grupos,
       notaAntesDoFatal: todos.reduce((s, c) => s + (c.pontos ?? 0), 0),
-      fataisReprovados: todos
+      fatalRejecteds: todos
         .filter((c) => fatalReprovado(c.type, c.fatal, c.value))
         .map((c) => c.criterio),
-      resumo: cabeca.resumo,
-      modeloClassificacao: cabeca.modeloClassificacao,
+      summary: cabeca.resumo,
+      modelClassification: cabeca.modeloClassificacao,
     };
   });
 }
