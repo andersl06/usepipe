@@ -12,6 +12,13 @@ import { IconePortal } from '../../../../components/icones-portal';
  * Não importa `lib/analise.ts` de propósito: aquele arquivo abre o banco. Os
  * rótulos e os limites de data chegam por prop.
  */
+export interface ActiveMessagesFilterValues {
+  periodo: string;
+  de: string;
+  ate: string;
+  template: string;
+}
+
 export function Filter({
   fileiras,
   period,
@@ -21,6 +28,7 @@ export function Filter({
   templates,
   hoje,
   limite,
+  aoAplicar,
 }: {
   /** As duas fileiras de chip: `vT` sem o personalizado, e `kt`. */
   fileiras: { key: string; rotulo: string }[][];
@@ -33,6 +41,12 @@ export function Filter({
   /** `endDateLimit` (hoje) e `startDateLimit` (hoje − 186), em `AAAA-MM-DD`. */
   hoje: string;
   limite: string;
+  /**
+   * Período em React state (D-30): o envio é interceptado, nunca navega
+   * para `?periodo=&de=&ate=`. `template` continua fora do D-30 (NEEDS
+   * VALIDATION) — a tela decide se ele volta para a query string.
+   */
+  aoAplicar?: (filtros: ActiveMessagesFilterValues) => void;
 }) {
   const [mudou, setMudou] = useState(false);
   const [escolhido, setEscolhido] = useState(period);
@@ -48,7 +62,22 @@ export function Filter({
   };
 
   return (
-    <form id="ma-filtro" className="ma-filtro" method="get">
+    <form
+      id="ma-filtro"
+      className="ma-filtro"
+      method="get"
+      onSubmit={(e) => {
+        if (!aoAplicar) return;
+        e.preventDefault();
+        const data = new FormData(e.currentTarget);
+        aoAplicar({
+          periodo: String(data.get('periodo') ?? escolhido),
+          de: String(data.get('de') ?? ''),
+          ate: String(data.get('ate') ?? ''),
+          template: String(data.get('template') ?? ''),
+        });
+      }}
+    >
       <div className="ma-filtro-grade">
         {/* `.chips-wrapper` › `bds-grid direction="column" gap="1"` */}
         <div className="ma-chips-caixa">

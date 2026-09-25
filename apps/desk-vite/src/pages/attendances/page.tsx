@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
 import type { QueueOfDesk, ResponseOfConversation } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
 import { deliveryInterval } from '../../lib/delivery-interval';
+import { useDeskSelection } from '../../context/desk-selection';
 import { IconeDesk } from '../../components/icones-desk';
 import { Column } from './column';
 import { Conversation } from './conversation';
@@ -25,8 +25,7 @@ import { Panel } from './panel';
 const POLLING_INTERVAL = 15_000;
 
 export function PageAttendances() {
-  const { id } = useParams();
-  const navegar = useNavigate();
+  const { conversationId: id, openConversation, closeConversation } = useDeskSelection();
   const [agora, setAgora] = useState(() => new Date());
   const [panelAberto, setPanelAberto] = useState(true);
 
@@ -40,10 +39,10 @@ export function PageAttendances() {
     return () => clearInterval(relogio);
   }, []);
 
-  /* Conversa que não é do atendente (ou não existe) volta para a lista, como lá. */
+  /* Conversa que não é do atendente (ou não existe) limpa a seleção, como lá. */
   useEffect(() => {
-    if (id && conversation.data && conversation.data.aberta === null) navegar('/', { replace: true });
-  }, [id, conversation.data, navegar]);
+    if (id && conversation.data && conversation.data.aberta === null) closeConversation();
+  }, [id, conversation.data, closeConversation]);
 
   const aberta = id ? (conversation.data?.aberta ?? null) : null;
   const state = queue.data?.status.estado;
@@ -59,7 +58,7 @@ export function PageAttendances() {
           queue={queue.data}
           agora={agora}
           selecionada={id ?? null}
-          aoAbrir={(c) => navegar(`/chat/${c}`)}
+          aoAbrir={(c) => openConversation(c)}
         />
       ) : (
         <div className="dk-coluna">
@@ -88,7 +87,7 @@ export function PageAttendances() {
           agora={agora}
           panelAberto={panelAberto}
           toAlternarPanel={() => setPanelAberto((v) => !v)}
-          aoFechar={() => navegar('/')}
+          aoFechar={() => closeConversation()}
         />
       ) : id && conversation.isPending ? (
         <div className="dk-conversa">

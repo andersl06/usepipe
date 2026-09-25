@@ -30,8 +30,12 @@ export function PanelFilters({
   aberto: boolean;
   aoFechar: () => void;
   acao: string;
-  /** `null` esconde o link "Limpar tudo" — não há o que limpar. */
-  limpar: string | null;
+  /**
+   * `null` esconde o link "Limpar tudo" — não há o que limpar. Uma função
+   * limpa filtro que mora em React state (D-30): não há URL de destino, só
+   * a ação de zerar o valor antes de fechar o painel.
+   */
+  limpar: string | (() => void) | null;
   aoAplicar?: (data: FormData) => void;
   children: ReactNode;
 }) {
@@ -104,9 +108,22 @@ export function PanelFilters({
               </label>
               <div className="painel-botoes">
                 {limpar ? (
-                  <a href={limpar} className="btn" onClick={aoFechar}>
-                    Limpar tudo
-                  </a>
+                  typeof limpar === 'function' ? (
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        limpar();
+                        aoFechar();
+                      }}
+                    >
+                      Limpar tudo
+                    </button>
+                  ) : (
+                    <a href={limpar} className="btn" onClick={aoFechar}>
+                      Limpar tudo
+                    </a>
+                  )
                 ) : null}
                 <button type="submit" className="btn primary">
                   Aplicar

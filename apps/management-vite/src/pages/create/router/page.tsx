@@ -1,7 +1,7 @@
 import Link from '../../../components/link';
 import { IconeManagement } from '../../../components/icones-management';
 import { IconePortal } from '../../../components/icones-portal';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
 import { CreationCasco, PassoDoNome } from '../casco';
 import { createRouter } from './actions';
@@ -48,9 +48,9 @@ const URL_SABER_MAIS = (import.meta.env['VITE_PIPE_AJUDA_ROTEADOR_URL'] as strin
 
 export function PageCreateRouter() {
   const shell = portalUseShell();
+  const { passo } = useParams();
   const [search] = useSearchParams();
   const parametros = {
-    passo: search.get('passo') ?? undefined,
     erro: search.get('erro') ?? undefined,
     nome: search.get('nome') ?? undefined,
   };
@@ -62,10 +62,10 @@ export function PageCreateRouter() {
 
   return (
     <CreationCasco>
-      {parametros.passo === 'nome' ? (
+      {passo === 'name' ? (
         <PassoDoNome
           acao={createRouter}
-          voltarPara="/criar/roteador"
+          voltarPara="/create/router"
           rotulos={ROTULOS}
           errorTitulo={RECADOS.titulo}
           error={parametros.erro}
@@ -129,7 +129,7 @@ function InvitationPasso() {
           {/* O `<bds-button ng-click="$ctrl.selectTemplate('master')">` deles,
               com o texto da tagline. Aqui é link porque o passo seguinte é
               outra renderização, e não outro estado na memória do navegador. */}
-          <Link className="btn primario cr-botao" href="/create/router?passo=nome">
+          <Link className="btn primario cr-botao" href="/create/router/name">
             {ROTULOS.tagline}
           </Link>
         </div>

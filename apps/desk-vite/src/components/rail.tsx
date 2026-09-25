@@ -59,13 +59,7 @@ export function Rail({
                 className="dk-trilho-botao"
                 title={d.rotulo}
                 aria-label={d.rotulo}
-                aria-current={
-                  d.para === '/'
-                    ? pathname === '/' || pathname.startsWith('/chat')
-                      ? 'page'
-                      : undefined
-                    : undefined
-                }
+                aria-current={d.para === '/' ? (pathname === '/' ? 'page' : undefined) : undefined}
               >
                 <IconeDesk nome={d.icone} />
               </NavLink>

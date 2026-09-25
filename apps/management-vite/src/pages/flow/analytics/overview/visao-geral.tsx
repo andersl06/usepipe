@@ -18,10 +18,13 @@ export function VisaoGeral({
   data,
   de,
   ate,
+  aoAplicarPeriodo,
 }: {
   data: DadosDaVisaoGeral;
   de: string;
   ate: string;
+  /** D-30: de/ate em state, nunca mais em `?de=&ate=`. */
+  aoAplicarPeriodo?: (de: string, ate: string) => void;
 }) {
   const c = data.contagens;
 
@@ -65,7 +68,7 @@ export function VisaoGeral({
       <div className="fx-coluna vg-painel" id="general-dashboard">
         <div className="vg-filtros">
           <div className="vg-filtro-periodo">
-            <PeriodSeletor de={de} ate={ate} />
+            <PeriodSeletor de={de} ate={ate} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 

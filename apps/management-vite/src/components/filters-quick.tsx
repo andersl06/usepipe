@@ -71,27 +71,36 @@ function ButtonFilters({ toAbrirPanel, aoLimpar, temFilters }: {
   );
 }
 
-/** A faixa superior recorta a operação e os cartões. */
-export function SOperationFilter({ atual, toAbrirPanel, panelAberto }: {
+/**
+ * A faixa superior recorta a operação e os cartões. `atual.queue` e o
+ * limpar da fila vêm de fora, via props (D-30): o filtro de fila mora em
+ * React state da tela, não na query string.
+ */
+export function SOperationFilter({ atual, toAbrirPanel, panelAberto, aoLimparQueue }: {
   atual: Parametros;
   toAbrirPanel: () => void;
   panelAberto: boolean;
+  aoLimparQueue: () => void;
 }) {
-  const [query, definirQuery] = useSearchParams();
   return (
     <div className="faixa-filtros">
       <span className="lbl">Filtros rápidos:</span>
       <PilulaOptions rotulo="Filas" value={atual.queue ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
-      <ButtonFilters toAbrirPanel={toAbrirPanel} aoLimpar={() => definirQuery(parametrosWithFilters(query, { fila: '' }))} temFilters={Boolean(atual.queue)} />
+      <ButtonFilters toAbrirPanel={toAbrirPanel} aoLimpar={aoLimparQueue} temFilters={Boolean(atual.queue)} />
     </div>
   );
 }
 
-/** A faixa inferior recorta somente a lista detalhada. */
-export function SListaFilter({ atual, toAbrirPanel, panelAberto }: {
+/**
+ * A faixa inferior recorta somente a lista detalhada. `atendente` (D-30)
+ * limpa via `aoLimparAgent` (state); `contato`/`status` continuam na query
+ * string desta tela (NEEDS VALIDATION, fora do D-30).
+ */
+export function SListaFilter({ atual, toAbrirPanel, panelAberto, aoLimparAgent }: {
   atual: Parametros;
   toAbrirPanel: () => void;
   panelAberto: boolean;
+  aoLimparAgent: () => void;
 }) {
   const [query, definirQuery] = useSearchParams();
   const temFilters = Boolean(atual.agent || atual.contact || atual.status);
@@ -103,7 +112,10 @@ export function SListaFilter({ atual, toAbrirPanel, panelAberto }: {
       <PilulaOptions rotulo="Status do atendente" value={atual.status ?? ''} toAbrirPanel={toAbrirPanel} panelAberto={panelAberto} />
       <ButtonFilters
         toAbrirPanel={toAbrirPanel}
-        aoLimpar={() => definirQuery(parametrosWithFilters(query, { atendente: '', contato: '', status: '' }))}
+        aoLimpar={() => {
+          aoLimparAgent();
+          definirQuery(parametrosWithFilters(query, { contato: '', status: '' }));
+        }}
         temFilters={temFilters}
       />
     </div>

@@ -34,10 +34,7 @@ export function App() {
       <Route element={<ExigirSession />}>
         <Route element={<Shell />}>
           <Route path="/" element={<PageAttendances />} />
-          <Route path="/chat" element={<PageAttendances />} />
-          <Route path="/chat/:id" element={<PageAttendances />} />
           <Route path="/contacts" element={<PageContacts />} />
-          <Route path="/contacts/:id" element={<PageContacts />} />
           <Route path="/analytics" element={<PageMetrics />} />
           <Route path="/activeMessage/send" element={<PageActiveMessage />} />
           <Route path="/bulk-ticket" element={<PageBulkActions />} />

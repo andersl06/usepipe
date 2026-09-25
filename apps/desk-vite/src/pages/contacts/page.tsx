@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import type { ConversationOfHistory, TicketDoDesk } from '@pipe/contracts';
 import { useRead } from '../../lib/query';
+import { useDeskSelection } from '../../context/desk-selection';
 import { IconeDesk } from '../../components/icones-desk';
 import { Avatar } from '../../components/avatar';
 import { channelOf, numeroDoTicket } from '../../lib/channel';
@@ -30,14 +31,14 @@ import { Thread } from '../attendances/thread';
  * `/tickets/:id`. Tudo de leitura, como lá.
  */
 export function PageContacts() {
-  const { id } = useParams();
-  const [parametros, setParametros] = useSearchParams();
+  const { contact: selectedContact, openContact } = useDeskSelection();
   const navegar = useNavigate();
   const [search, setSearch] = useState('');
   const [order, setOrder] = useState<ContactsOrder>('alfabetica');
   const [menuOrder, setMenuOrder] = useState(false);
   const [aba, setAba] = useState<'historico' | 'contato'>('historico');
-  const ticketId = parametros.get('ticket');
+  const id = selectedContact?.contactId ?? null;
+  const ticketId = selectedContact?.ticketId ?? null;
 
   const lista = useRead<{ contacts: ListaContact[] }>(
     `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
@@ -128,7 +129,7 @@ export function PageContacts() {
                       type="button"
                       className="dk-contato"
                       aria-current={c.id === id ? 'true' : undefined}
-                      onClick={() => navegar(`/contacts/${c.id}`)}
+                      onClick={() => openContact(c.id, null)}
                     >
                       <span className="dk-contato-rosto">
                         <Avatar />
@@ -236,7 +237,7 @@ export function PageContacts() {
                         type="button"
                         className="dk-historico-item dk-historico-botao"
                         aria-current={h.id === ticketId ? 'true' : undefined}
-                        onClick={() => setParametros({ ticket: h.id })}
+                        onClick={() => id && openContact(id, h.id)}
                       >
                         <b>Ticket {numeroDoTicket(h.id)}</b>
                         <span>{h.filaNome ?? 'Transferência direta'}</span>

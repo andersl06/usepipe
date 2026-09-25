@@ -10,10 +10,31 @@ import { PanelField, PanelFilters } from '../../components/panel-filters';
 import { Selection } from '../../components/selection';
 import { SelectionChips } from '../../components/selection-chips';
 import { parametrosWithFilters, filterIds } from '../../lib/filters-monitoring';
+import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
 import { Metrica } from '../../components/metrica';
 import { MonitoringDetailed } from '../../components/monitoring-detailed';
 import { useContact } from '../flow/contact';
+import { useEu } from '../../context/session';
 import { attendanceBase } from './shell';
+
+/**
+ * Fila e atendente do monitoramento (D-30, `std/nav-contract.md` §Gestão):
+ * moram em React state, não na query string; o último valor válido é
+ * lembrado por conta/usuário em `localStorage`. `contato`/`status`/`aba`/
+ * `busca` continuam na query — a decisão do gate 2 não os cobre (NEEDS
+ * VALIDATION na tabela por tela).
+ */
+interface QueueAgentFilters {
+  queue: string;
+  agent: string;
+}
+
+function validateQueueAgentShape(value: unknown): QueueAgentFilters | null {
+  if (!value || typeof value !== 'object') return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.queue !== 'string' || typeof v.agent !== 'string') return null;
+  return { queue: v.queue, agent: v.agent };
+}
 
 interface MonitoringResposta {
   fuso: string;
@@ -278,13 +299,23 @@ export function PageMonitoring() {
     setPanelAberto(true);
   };
   const [modoTv, setModoTv] = useState(false);
+
+  const eu = useEu();
+  const filtrosKey = filterStorageKey('management', 'monitoring', eu.tenant.id, eu.user.id);
+  const [queueAgent, setQueueAgent] = useState<QueueAgentFilters>(
+    () => loadFilters(filtrosKey, validateQueueAgentShape) ?? { queue: '', agent: '' },
+  );
+  useEffect(() => {
+    saveFilters(filtrosKey, queueAgent);
+  }, [filtrosKey, queueAgent]);
+
   const crus = Object.fromEntries(search.entries()) as Search;
   /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
      de virar 500 no `::uuid` do Postgres. */
   const params: Search = {
     ...crus,
-    queue: filterIds(search.getAll('fila')).join(','),
-    agent: filterIds(search.getAll('atendente')).join(','),
+    queue: filterIds(queueAgent.queue).join(','),
+    agent: filterIds(queueAgent.agent).join(','),
   };
   const q = new URLSearchParams();
   if (params.queue) q.set('fila', params.queue);
@@ -293,6 +324,24 @@ export function PageMonitoring() {
     staleTime: 0,
   });
   useRecargaSilenciosa(30);
+
+  /* Fila/atendente lembrados podem citar um id que não existe mais (conta
+     mudou de filas/atendentes entre visitas) — sai da seleção assim que a
+     lista real chega, sem esperar o usuário notar. */
+  useEffect(() => {
+    if (!read.data) return;
+    const idsQueue = new Set(read.data.data.queues.map((o) => o.id));
+    const idsAgent = new Set(read.data.data.listaAgents.map((o) => o.id));
+    setQueueAgent((atual) => {
+      const queue = filterIds(atual.queue)
+        .filter((id) => idsQueue.has(id))
+        .join(',');
+      const agent = filterIds(atual.agent)
+        .filter((id) => idsAgent.has(id))
+        .join(',');
+      return queue === atual.queue && agent === atual.agent ? atual : { queue, agent };
+    });
+  }, [read.data]);
 
   if (!read.data && read.isError) {
     return (
@@ -330,6 +379,7 @@ export function PageMonitoring() {
         atual={params}
         toAbrirPanel={() => abrirPanel('fila')}
         panelAberto={panelAberto && fieldPanel === 'fila'}
+        aoLimparQueue={() => setQueueAgent((atual) => ({ ...atual, queue: '' }))}
       />
 
       {/* ---------------------------------------------------- grade 2×2 */}
@@ -475,6 +525,7 @@ export function PageMonitoring() {
             atual={params}
             toAbrirPanel={() => abrirPanel('lista')}
             panelAberto={panelAberto && fieldPanel === 'lista'}
+            aoLimparAgent={() => setQueueAgent((atual) => ({ ...atual, agent: '' }))}
           />
 
           <MonitoringDetailed
@@ -495,14 +546,34 @@ export function PageMonitoring() {
         acao={base}
         aoAplicar={(data) => {
           const proximos = new URLSearchParams(search);
+          let queue = queueAgent.queue;
+          let agent = queueAgent.agent;
           for (const [key, value] of data) {
+            /* Fila e atendente (D-30) não vão para a URL — o resto do painel
+               (contato, status, aba, busca) continua na query, sem mudança. */
+            if (key === 'fila') {
+              queue = typeof value === 'string' ? filterIds(value).join(',') : queue;
+              continue;
+            }
+            if (key === 'atendente') {
+              agent = typeof value === 'string' ? filterIds(value).join(',') : agent;
+              continue;
+            }
             proximos.delete(key);
             if (typeof value === 'string' && value.trim()) proximos.set(key, value.trim());
           }
+          setQueueAgent({ queue, agent });
           definirSearch(proximos);
           setPanelAberto(false);
         }}
-        limpar={`${base}?${parametrosWithFilters(search, fieldPanel === 'fila' ? { fila: '' } : { atendente: '', contact: '', status: '' })}`}
+        limpar={() => {
+          if (fieldPanel === 'fila') {
+            setQueueAgent((atual) => ({ ...atual, queue: '' }));
+          } else {
+            setQueueAgent((atual) => ({ ...atual, agent: '' }));
+            definirSearch(parametrosWithFilters(search, { contato: '', status: '' }));
+          }
+        }}
       >
         <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
         {params.search ? <input type="hidden" name="busca" value={params.search} /> : null}

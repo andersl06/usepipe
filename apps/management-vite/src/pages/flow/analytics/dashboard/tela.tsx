@@ -43,6 +43,13 @@ export interface PropsDoDashboard {
   data: DashboardData;
   /** A barra lateral aberta (`isDisplayingContactsSidebar`), com a lista já lida. */
   lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
+  /**
+   * Período em React state (D-30, `std/nav-contract.md` §Gestão): os chips e
+   * o "De/Até" personalizado chamam esta função em vez de navegar para
+   * `?periodo=`. `undefined` (sem consumidor state) mantém o `href` como
+   * fallback de navegação — não deveria acontecer em produção.
+   */
+  aoMudarPeriodo?: (period: Period, custom?: { de: string; ate: string }) => void;
 }
 
 /** O que a URL carrega entre um clique e outro: o período. */
@@ -114,6 +121,11 @@ function PeriodFilter(p: PropsDoDashboard) {
       href={`?periodo=${nome}`}
       className={p.period === nome ? 'da-chip da-chip--ativo' : 'da-chip'}
       aria-current={p.period === nome ? 'true' : undefined}
+      onClick={(e) => {
+        if (!p.aoMudarPeriodo) return;
+        e.preventDefault();
+        p.aoMudarPeriodo(nome);
+      }}
     >
       <span className="da-chip-texto">{ROTULO_OF_PERIOD[nome]}</span>
     </a>
@@ -140,6 +152,9 @@ function PeriodFilter(p: PropsDoDashboard) {
           hoje={p.hoje}
           de={p.period === 'custom' ? p.intervalo.inicio : ''}
           ate={p.period === 'custom' ? p.intervalo.fim : ''}
+          aoAplicar={
+            p.aoMudarPeriodo ? (de, ate) => p.aoMudarPeriodo!('custom', { de, ate }) : undefined
+          }
         />
       </div>
     </div>

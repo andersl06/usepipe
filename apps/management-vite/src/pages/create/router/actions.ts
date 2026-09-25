@@ -14,7 +14,9 @@ export async function createRouter(data: FormData): Promise<void> {
 }
 
 function voltarWithError(motivo: string, nome: string): void {
-  const search = new URLSearchParams({ passo: 'nome', error: motivo });
+  /* Passo no path (D-31, `std/nav-contract.md` §Gestão); erro/nome
+     continuam na query, classificados em separado. */
+  const search = new URLSearchParams({ error: motivo });
   if (nome) search.set('nome', nome);
-  irPara(`/create/router?${search}`);
+  irPara(`/create/router/name?${search}`);
 }

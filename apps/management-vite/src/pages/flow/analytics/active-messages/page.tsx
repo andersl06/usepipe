@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   PERIODOS_DE_CALENDARIO,
@@ -9,6 +10,8 @@ import {
 } from '@pipe/core/analise';
 import { IconePortal } from '../../../../components/icones-portal';
 import { useRead } from '../../../../lib/query';
+import { filterStorageKey, loadFilters, saveFilters } from '../../../../lib/filter-memory';
+import { useEu } from '../../../../context/session';
 import { useContact } from '../../contact';
 import { Filter } from './filter';
 import { ActiveMessagesMiolo } from './miolo';
@@ -22,8 +25,10 @@ import './active-messages.css';
  *
  * Lá o `Lx` guarda período e template em estado e pede quatro comandos
  * (`/active-messages/status`, `reply-hour`, `failed-count` e `template-names`)
- * a cada "Aplicar"/"Atualizar". Aqui o estado mora na URL (`?periodo`, `?de`,
- * `?ate`, `?template`) e a `api` resolve o período no fuso da conta.
+ * a cada "Aplicar"/"Atualizar". Período (D-30, `std/nav-contract.md`
+ * §Gestão) mora em React state, lembrado por conta/usuário em
+ * `localStorage`; `template` continua na URL (NEEDS VALIDATION, fora do
+ * D-30) e a `api` resolve o período no fuso da conta.
  */
 interface ActiveMessagesResposta {
   period: Period;
@@ -35,14 +40,46 @@ interface ActiveMessagesResposta {
   data: ActiveMessagesData;
 }
 
+interface ActiveMessagesPeriodFilter {
+  periodo: string;
+  de: string;
+  ate: string;
+}
+
+const PERIODO_PADRAO: ActiveMessagesPeriodFilter = { periodo: '', de: '', ate: '' };
+
+function validateActiveMessagesPeriod(value: unknown): ActiveMessagesPeriodFilter | null {
+  if (!value || typeof value !== 'object') return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.periodo !== 'string' || typeof v.de !== 'string' || typeof v.ate !== 'string') {
+    return null;
+  }
+  return { periodo: v.periodo, de: v.de, ate: v.ate };
+}
+
 export function ActiveMessagesPage() {
   const { contact } = useContact();
-  const [search] = useSearchParams();
+  const [search, definirSearch] = useSearchParams();
+  const eu = useEu();
+  const filtrosKey = filterStorageKey(
+    'management',
+    'analytics-active-messages',
+    eu.tenant.id,
+    eu.user.id,
+  );
+  const [periodo, setPeriodo] = useState<ActiveMessagesPeriodFilter>(
+    () => loadFilters(filtrosKey, validateActiveMessagesPeriod) ?? PERIODO_PADRAO,
+  );
+  useEffect(() => {
+    saveFilters(filtrosKey, periodo);
+  }, [filtrosKey, periodo]);
+
   const q = new URLSearchParams();
-  for (const key of ['periodo', 'de', 'ate', 'template']) {
-    const v = search.get(key);
-    if (v) q.set(key, v);
-  }
+  if (periodo.periodo) q.set('periodo', periodo.periodo);
+  if (periodo.de) q.set('de', periodo.de);
+  if (periodo.ate) q.set('ate', periodo.ate);
+  const templateFiltro = search.get('template');
+  if (templateFiltro) q.set('template', templateFiltro);
   const read = useRead<ActiveMessagesResposta>(
     `/v1/management/flows/${contact.id}/analytics/messages-active?${q.toString()}`,
   );
@@ -75,6 +112,13 @@ export function ActiveMessagesPage() {
             templates={data.templates}
             hoje={hoje}
             limite={limite}
+            aoAplicar={(filtros) => {
+              setPeriodo({ periodo: filtros.periodo, de: filtros.de, ate: filtros.ate });
+              const proximos = new URLSearchParams(search);
+              if (filtros.template) proximos.set('template', filtros.template);
+              else proximos.delete('template');
+              definirSearch(proximos);
+            }}
           />
         </div>
       </div>
