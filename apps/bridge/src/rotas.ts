@@ -370,7 +370,7 @@ export async function despachar(cmd: ComandoLime, session: Session): Promise<Res
   for (const [padrao, manipulador, metodos] of rotas) {
     if (!padrao.test(caminho)) continue;
     if (!(metodos ?? ['get']).includes(cmd.method)) return null;
-    return manipulador({ session, path, query, cmd });
+    return manipulador({ session, path: caminho, query, cmd });
   }
   return null;
 }

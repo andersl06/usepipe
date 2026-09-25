@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
-import { closeConversation, transferConversation } from '@pipe/api/dominio/conversa';
-import { assumeConversation } from '@pipe/api/dominio/assumir';
-import { sendMessage } from '@pipe/api/dominio/envio';
+import { closeConversation, transferConversation } from '@pipe/api/domain/conversation';
+import { assumeConversation } from '@pipe/api/domain/assume';
+import { sendMessage } from '@pipe/api/domain/sending';
 import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
 

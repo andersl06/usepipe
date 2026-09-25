@@ -4,7 +4,7 @@ import {
   carregarBuilder,
   publicarRascunho,
   salvarRascunho,
-} from '@pipe/api/dominio/gestao/builder-do-fluxo';
+} from '@pipe/api/domain/management/flow-builder';
 import { noTenant } from './database.js';
 import type { Session } from './rotas.js';
 
