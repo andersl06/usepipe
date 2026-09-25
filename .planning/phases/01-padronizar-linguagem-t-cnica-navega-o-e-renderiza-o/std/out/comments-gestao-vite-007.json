@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-42bd2115",
+      "action": "translate",
+      "new_text": "/**\n * The copy button on the summary card — the icon with a \"Copiar\" tooltip that\n * sits next to the address and the ID on their screen.\n *\n * It's the ONLY client piece on this route; the rest of the panel is a Server\n * Component. The clipboard only exists in the browser.\n *\n * Here it's a WORD, not an icon: there's no \"copy\" icon in either\n * `icones-portal.tsx` or `@pipe/ui`, and borrowing an icon with a different\n * meaning (a checkmark, a building) would say the wrong thing. The word matches\n * their tooltip.\n *\n * When `navigator.clipboard` doesn't exist (HTTP without TLS, an old browser)\n * the click does nothing — which is why the value next to it is real,\n * selectable text, not a hidden attribute.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/copiar.tsx:3-18",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9f42f2e6",
+      "action": "translate",
+      "new_text": "/* Without this, Esc would close the whole `<dialog>`, not just the list. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:153",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-56a92d42",
+      "action": "translate",
+      "new_text": "/* The API matches the role by its DB NAME — the `roleId`, not the label. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:215",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f02212fc",
+      "action": "translate",
+      "new_text": "/* ponytail: their `/fonts/invite_envelope.svg` isn't in any capture; the\n                    illustration spot stays empty until the file arrives. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:219-221",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-aafcb9c2",
+      "action": "translate",
+      "new_text": "/* Their `bds-tooltip` would get clipped here: the chip list scrolls, and\n                              scrolling cuts off anything rising above the first\n                              row. The full email goes in the `title`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:243-245",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a1fc9a8f",
+      "action": "translate",
+      "new_text": "/* The label sits inside the border, like `bds-select`; the button's\n                      accessible name is \"Permissão\" followed by the value. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:285-286",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-77845ce9",
+      "action": "translate",
+      "new_text": "/* Their `roleOptions` — icon, color and description per role, in guest →\n   member → admin order — arrives ready-made in `papeis` (`PAPEIS_DA_ORIGEM`, in the page). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:33-34",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4f84ee67",
+      "action": "translate",
+      "new_text": "/** blip-ds's `emailValidation` is a format check, not a lookup. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:36",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2e1455c4",
+      "action": "translate",
+      "new_text": "/* The unaccented \"formatacão\" in the right place is theirs. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:383",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ac89d6f7",
+      "action": "translate",
+      "new_text": "/* \"Veja a formatacão da tabela aqui.\" downloads a template. A `data:` URL\n   inside an `<a download>` avoids a script, which some browsers block for downloads. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:42-43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fe2d9516",
+      "action": "translate",
+      "new_text": "/** Lowercased. Anyone already in the contract can't be invited again. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:58",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b6bff096",
+      "action": "translate",
+      "new_text": "/* The action result survives closing; this tracks what the person already saw,\n     so the modal reopens clean. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:74-75",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4a432f03",
+      "action": "translate",
+      "new_text": "/**\n * The \"Convidar\" button and the \"Invite people\" modal.\n *\n * In the source, the modal lives in the portal's SHELL (`#invite-answer-modal`,\n * template 632 of `portal.js`), not in the fragment. Here it lives next to the\n * table, and the list is refreshed by the action's `revalidatePath`. Every\n * measurement is commented in `contrato.css`; here only the rules remain, all\n * of them theirs:\n *\n * - **Chips** (`bds-input-chips type=\"email\"`): Enter, comma, space, paste, or\n *   leaving the field turn text into a chip; a duplicate email doesn't get\n *   added; Backspace on an empty field removes the last one. An email over 20\n *   characters shows truncated, with the full value in `title` (their\n *   `bds-tooltip` would get clipped by scrolling).\n * - **Bulk import:** reads the `.csv` IN THE BROWSER — one email per line, a\n *   `sep=` line discarded. Nothing is uploaded to any server.\n * - **\"Convidar\" stays disabled** while there's no email, an email is invalid,\n *   the permission is missing, or someone on the list is already a member\n *   (their `ng-disabled`).\n *\n * Validation here only highlights the field and disables the button: the `api`\n * makes the real decision.\n *\n * **What is NOT theirs:** the step after sending. There it's \"Convites\n * enviados com sucesso.\" and an \"OK :)\"; here there's no email delivery, so the\n * same page lists each invite's link to copy — without it, the invite never\n * reaches anyone. The link lives only in the modal's state, never in the URL.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:8-31",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d0f0ace5",
+      "action": "translate",
+      "new_text": "/**\n * Members — the panel's \"Adicione e exclua membros do contrato\" card, which in\n * the source opens the fragment's `/panel` route.\n *\n * Anyone getting here needs `conta.membros.ler`, and the check is the REAL\n * one: the panel's `?demo=1` is purely cosmetic and opens no door. Anyone\n * arriving without the permission is sent back to the panel.\n *\n * The source data contract is at\n * `referencias-blip/pesquisa/blip-membros-do-contrato.md`. The shell matches\n * theirs: the back arrow and \"Membros do contrato {nome}\" at the top\n * (`setHeaderContent({ redirect: \"/\", text: … })`), and below it a single\n * card with the selection table inside. What the panel calls the card's\n * description (\"Adicione e exclua membros do contrato\") **is not** repeated\n * here: it isn't repeated there either.\n *\n * The roles are the three ACCOUNT roles (migration 0021) and appear with their\n * labels — \"Admin\", \"Pode editar\", \"Pode visualizar\" —, never the DB name.\n * Manager, supervisor, agent and evaluator belong to attendance and don't\n * appear here: in the source they're per-contact data.\n *\n * **Convidar** sits below the table, on the right, only for those who can\n * write — like their `bp-btn--blip-dark`. The `api` (`POST /v1/convites`) is\n * what saves, and the link comes back through the modal's state, never through\n * the URL (see `convidarMembros`). Issued invites show up in the list as\n * \"(Pendente)\", as in the source.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/page.tsx:14-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-28d739ba",
+      "action": "translate",
+      "new_text": "/* In the source order (guest, member, admin), which is the order of the map's keys. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/page.tsx:56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ed4062a1",
+      "action": "translate",
+      "new_text": "/* You don't appear in your own list — it's their filter\n                     (`userIdentity !== loggedUser.identity`). Anyone who wants to\n                     leave uses \"Deixar contrato\", on the panel's summary card. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/page.tsx:89-91",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-aea51e8c",
+      "action": "translate",
+      "new_text": "/* The \"Reenviar\" result (`../acoes.ts`): with no email delivery in Pipe, the\n     new link only exists here, and leaves the screen on close — it never goes\n     into the URL. */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:111-112",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6acb4812",
+      "action": "translate",
+      "new_text": "/* `BlipSearch`: the magnifying glass is a button, and the field starts at\n          zero width and grows to 200px on focus. Closes on blur. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:155-156",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1bd0983d",
+      "action": "translate",
+      "new_text": "/* Our icon set is missing their `arrow-up`. This is THEIR `arrow-down`\n                      flipped — same stroke, opposite direction —, not a new\n                      icon. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:200-202",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-817743ca",
+      "action": "translate",
+      "new_text": "/* The description of the chosen role, as in the source: it lives HERE,\n                        below the selector, not in a caption at the bottom. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:257-258",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-245a86bb",
+      "action": "translate",
+      "new_text": "/* `title={n[a.key]}`: the cell doesn't wrap and truncates with an\n                     ellipsis, so the full value goes in the attribute. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:316-317",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8519b59f",
+      "action": "translate",
+      "new_text": "/* Only a pending invite can be resent: the user already joined, so there's\n                        nothing to resend for them. It's not bulk — each invite\n                        has its own email and its own new link. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:324-326",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2da1c2a0",
+      "action": "translate",
+      "new_text": "/**\n * What \"Reenviar\" shows: the same single-link panel as a freshly created\n * invite (`convidar.tsx`), because it's the same gap — with no email delivery,\n * someone has to copy the link by hand. Failures come from the API\n * (`ResultadoDoReenvio.erro`), like an invite already expired by another tab\n * while this one still showed the row.\n */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:350-355",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f337499d",
+      "action": "translate",
+      "new_text": "/** The account role label — \"Admin\", \"Pode editar\", \"Pode visualizar\". */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-101102cb",
+      "action": "translate",
+      "new_text": "/**\n * Their table `Checkbox`: the `input` is hidden and what shows is a small box\n * with a \"✓\". Here the `input` stays in focus and in the screen reader.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:409-412",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-340abf35",
+      "action": "translate",
+      "new_text": "/** One of the three account roles, already with what the screen shows for it. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:42",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c4678eed",
+      "action": "translate",
+      "new_text": "/**\n * The Edit menu's `BlipSelect`: label \"Papel\" inside the border, empty state\n * \"Escolha o papel\", and the list below the field with each role's name. It's\n * a sibling of the invite's Permission list (same keyboard: ↑↓, Enter, Esc),\n * but the design differs — that one is the new `bds-select`, with an icon and\n * description per option —, so they're two separate components. The value\n * goes into the hidden `papelId`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:430-436",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-448e8e6a",
+      "action": "translate",
+      "new_text": "/** `admin`, `member` or `guest` — the DB name, which is what the API matches. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:45",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a8ccbc68",
+      "action": "translate",
+      "new_text": "/** The screen's texts, in pt-BR, like the source's `Wt.pt` dictionary. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:53",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c28fa7ea",
+      "action": "translate",
+      "new_text": "/** The row key: their `userIdentity`, which here needs to say which table it came from. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:544",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-230ec6c3",
+      "action": "translate",
+      "new_text": "/**\n * The `BlipDropdownButton`: a button, a backdrop that closes on click, and a\n * card with the content on top, a divider, and the footer in\n * `flex-row-reverse` — which is why \"Cancelar\" is written after \"Aplicar\" and\n * appears to its left.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:549-553",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-df940c0a",
+      "action": "translate",
+      "new_text": "/** In the source the trigger is icon-only (`edit`/`trash`, `desk` color); here the word becomes the accessible name. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:568",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ecd34d86",
+      "action": "translate",
+      "new_text": "/**\n * Their `#tab-nav`: \"Membros do contrato\" and \"Pendentes\", both for anyone who\n * can read members. Pendentes is for whoever REQUESTED to join (`PendingTenant`)\n * — a door Pipe doesn't have —, so it always opens empty, matching the source,\n * without the count badge, which there only appears once someone is in the\n * queue.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:615-620",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8e0578e8",
+      "action": "translate",
+      "new_text": "/* `j.pt.emptyMessage` from the generic table and `aa.pt.emptyMessage` from the\n     pending tab; the tabs are `ca.pt`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:66-67",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4f1fbd8f",
+      "action": "translate",
+      "new_text": "/* `TenantPendingMembers`: the same table, without search, with Nome and Email;\n            no row, not even the header checkbox appears. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:670-671",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f771182b",
+      "action": "translate",
+      "new_text": "/**\n * The contract Members table, following the source's mechanics.\n *\n * Their `TenantMembers` component (`main.e8593b01.chunk.js`, minified as `$t`)\n * is a SELECTION table: nothing happens row by row. You select one or several,\n * and then two menus appear in the header corner that act on the whole block —\n * change the role and delete. Every measurement is commented in `contrato.css`;\n * here only the rules remain.\n *\n * The four that change behavior, all copied:\n *\n * 1. **You don't appear in your own list** (their filter,\n *    `e.userIdentity !== o.identity`). Anyone who wants to leave uses\n *    \"Deixar contrato\", not this screen.\n * 2. **The selection column only exists for those who can write** (`canSelect:\n *    canEdit`), and with it both menus disappear — read-only users see just the\n *    list and nothing else.\n * 3. **The menus only appear once something is selected**\n *    (`selectedItems.length > 0`).\n * 4. **\"Aplicar\" stays disabled until a role is chosen** (`disabled: undefined\n *    === selectedRole`).\n *\n * This is client-side because the source is: selecting, sorting and searching\n * are screen state, and without JavaScript there'd be no way to show \"3\n * selecionado(s)\". The WRITES remain Server Actions that re-check the\n * permission on the server (`../acoes.ts`) — the screen hiding the menu is a\n * design choice, not access control.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:8-31",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8ad41e62",
+      "action": "translate",
+      "new_text": "/* `\"\".concat(fullName, \" (\", pendingInvitation, \")\")` — an invitee who hasn't\n       joined yet carries that state in their own name, which is why they're\n       also included in search and sorting. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:85-87",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-32f5044f",
+      "action": "translate",
+      "new_text": "/* `roleId: content[roleId]` — the cell shows the role's LABEL (\"Admin\",\n     \"Pode editar\", \"Pode visualizar\"), never the raw `roleId`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:91-92",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cc7c4a6e",
+      "action": "translate",
+      "new_text": "/* ------------------------------------------------------------ demonstration */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:113",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-51065723",
+      "action": "translate",
+      "new_text": "/* --------------------------------------------------------- summary card */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:125",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-69b828e1",
+      "action": "translate",
+      "new_text": "/**\n * Contract panel — the screen the portal's \"Acompanhe seu contrato\" card opens.\n *\n * The reference is `referencias-blip/pesquisa/blip-painel-do-contrato.md`,\n * research on the `{conta}.tenant.fragment.blip.ai` micro-frontend. THE LAYOUT\n * IS THEIRS: the summary card in a narrow column on the left, the card groups\n * in a wide column on the right, a `1fr 3fr` grid with a 32 gap.\n *\n * **What changes the screen is the ROLE**, as there. The difference is where\n * the role comes from: they have three hardcoded in the front end\n * (`admin`/`member`/`guest`) and a literal matrix in the code; we have real\n * RBAC in the database, and the matrix became eleven permissions (`conta.*`,\n * migration `0019_permissoes_da_conta`). The funnel became a single step —\n * `hasPermission` per card — because their other two steps are a LaunchDarkly\n * flag and a subscription metric, and we have neither. What was left out\n * because of that is listed in `catalogo.ts`'s header.\n *\n * The chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in \"Novidades\":\n * in the source this panel runs in an iframe inside the portal, with the full\n * dark bar on top. That's why `/contrato` is in `estrutura-gestao.tsx`'s\n * own-shell list.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:14-35",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3b5ef2e8",
+      "action": "translate",
+      "new_text": "/* The contract's photo, in their 92px box (`.avatar.placeholder`) with the\n          72px avatar (`bds-avatar size=\"extra-large\"`) centered inside.\n          Editable under the same rule as the name — and the place where it's\n          edited already exists: \"Minha conta\". Rebuilding the form here would\n          create two paths to the same write. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:151-155",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0ce94267",
+      "action": "translate",
+      "new_text": "/* `He`: everything that isn't the photo. Exists so the horizontal card can\n          indent the body by 32 without touching the vertical card. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:164-165",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-67ebfb42",
+      "action": "translate",
+      "new_text": "/* The \"Nome do contrato\" label they place above the name. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:168",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7e8d0df9",
+      "action": "translate",
+      "new_text": "/* Their `{id}.blip.ai`, bold with a copy button. Our address identifier is\n              the account slug. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:172-173",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-cc51476d",
+      "action": "translate",
+      "new_text": "/* \"Chatbots\" and \"Membros\" only appear when present — it's their `ng-if`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:202",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c53a1b5d",
+      "action": "translate",
+      "new_text": "/* \"Deixar contrato\" sits at the bottom of the card, as there. Grayed out\n            because actually leaving is more than deleting a link: in the\n            source the screen first asks the server whether the person is the\n            ONLY admin of any chatbot and blocks if so, then ends the session\n            and drops them into another contract. Both steps belong to the\n            `api`, which doesn't have that endpoint yet. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:218-222",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-112e2b4d",
+      "action": "translate",
+      "new_text": "/* ----------------------------------------------------------------- cards */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:234",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-032b4784",
+      "action": "translate",
+      "new_text": "/* In the preview, the label for whatever would hide the card in the real\n     world: the missing permission and, when the source had one, the flag.\n     That's what the panel exists to explain. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:245-247",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8c6e3ace",
+      "action": "translate",
+      "new_text": "/* `de`: a 48px box with the `size=\"xx-large\"` (36) icon inside. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:256",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fe10aba1",
+      "action": "translate",
+      "new_text": "/* Their `flex row justify-between` row: title on the left, tag flush right. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:261-262",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-31521fd0",
+      "action": "translate",
+      "new_text": "/* A card whose route doesn't exist yet stays in place, grayed out and\n     badged — that's what the portal already does with anything under\n     construction (`pt-obra`), and removing it would hide that the product\n     has it. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:273-275",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-475ec6c9",
+      "action": "translate",
+      "new_text": "/* Demo mode is ONLY this: a `?demo=1` in the URL that makes the filter\n     return the whole catalog. It doesn't touch the session, doesn't become\n     a cookie, and never reaches any Server Action — see the header of\n     `acoes.ts`. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:45-47",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6c376ec3",
+      "action": "translate",
+      "new_text": "/* With no groups, the summary card lies flat and takes the full width —\n            it's their `horizontal` state (`Ve`, `grid-column: 1 / 3`), the\n            `guest` state. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:59-61",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0aae3753",
+      "action": "translate",
+      "new_text": "/* Their `guest` state: just the summary card, and nothing else. A line of\n                 explanatory text, instead of a blank that looks like a broken\n                 screen. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:71-73",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e2867a2b",
+      "action": "translate",
+      "new_text": "/* The info icon with tooltip they place next to each group title —\n                        `bds-icon name=\"info\" theme=\"solid\"` with no `size`,\n                        and the component's default is `medium`, 24. A native\n                        `title`: their tooltip doesn't do anything the\n                        browser's own doesn't already do. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/page.tsx:83-87",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-830b3177",
+      "action": "translate",
+      "new_text": "/**\n * The invite as seen by someone still on the outside.\n *\n * A public route, like the sign-in one — and for the same reason the API\n * doesn't require a session on `GET /v1/convites/:token`: requiring the\n * account the invite belongs to already exist in order to create it would be\n * circular.\n *\n * It shows the MINIMUM the API returns: who it's for, with what role, from\n * which company, and until when it's valid. Whoever has the link already\n * knows the email; the rest of the account isn't any business of someone who\n * hasn't joined yet.\n *\n * The button goes to `/v1/auth/google?convite=<token>`, the path for anyone\n * without a verified domain: it's the invite that decides the tenant, not the\n * domain.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/convite/page.tsx:7-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2da47731",
+      "action": "translate",
+      "new_text": "/* Expired, already used, and nonexistent all show the SAME screen: telling\n                them apart would reveal to whoever has the link whether that\n                token ever existed. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/convite/page.tsx:71-72",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-76ba9d8c",
+      "action": "translate",
+      "new_text": "/** `taglineRouter` or `tagline` — used as both the subtitle and the button text. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:100",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-518e3bd1",
+      "action": "translate",
+      "new_text": "/** `modules.ui.uploadButton.title`. The same in both, but lives in each\n      screen's `ROTULOS` because that's the screen's word list. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:106-107",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9981ef91",
+      "action": "translate",
+      "new_text": "/**\n * `#create-application-name-step`.\n *\n * A centered column: the image picker 5rem below the title, the 28rem field\n * with the floating label and, 3rem below, the two buttons at the ends\n * (\"Voltar\" on the left with an arrow, and the create button on the right).\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:113-119",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-76189b7d",
+      "action": "translate",
+      "new_text": "/** Fields the previous step needs to forward via POST — today only the\n      flow marketplace's `template`, so an error return remembers where the\n      person came from. No counterpart in the source: there the template\n      lives in `ui-router` state, not in the form. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:135-138",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-175c3143",
+      "action": "translate",
+      "new_text": "/* The source's warning is a `BlipToastService.show('danger', …)` — a\n            floating box with a title and message. Here it's fixed above the\n            picker: with no client, a warning that disappears on its own\n            doesn't disappear, and a warning that stays floating would cover\n            the form. The title is the same. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:155-158",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-50afd9df",
+      "action": "translate",
+      "new_text": "/* Their `<upload-button>`: a 150px circle, dashed while there's no file,\n            with the `input[type=file]` covering everything underneath. It's\n            genuinely OPTIONAL — `uploadApplicationImageSafely` swallows the\n            error and moves on —, and the Server Actions do the same. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:166-169",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-193335c8",
+      "action": "translate",
+      "new_text": "/* The space is what makes `:placeholder-shown` work: it's what tells CSS\n               the field is empty, and what makes the floating label stand up\n               without a line of JavaScript. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:180-182",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2e7011ea",
+      "action": "translate",
+      "new_text": "/* The `30` counter that counts down with every keystroke becomes this\n            fixed note: it states the same limit without depending on client\n            state. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:193-194",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ff4857ac",
+      "action": "translate",
+      "new_text": "/* `backFromNameStep()` returns to the PREVIOUS saved state\n              (`$ctrl.beforeNameStep`), which is the step the person came\n              from — the invite in the router, the marketplace in the flow.\n              Their `$watch` default, when there's no previous state, is\n              exactly `auth.application.create.marketplace`.\n              `bds-button variant=\"secondary\" icon=\"arrow-left\"`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:198-203",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4d00ae3e",
+      "action": "translate",
+      "new_text": "/* The footer's external destinations. Empty = item not drawn, the same rule\n   as the portal's `URL_AJUDA`: a link to a page that doesn't exist yet is\n   worse than one fewer invite. In the source it's `createApplication.needHelpUrl`,\n   their sales contact page. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:44-47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-999d3311",
+      "action": "translate",
+      "new_text": "/* With no quote page, the request becomes an email to support — the SAME\n   address the portal's \"?\" menu uses. The footer doesn't disappear: it's part\n   of the shell in the source, and hiding it because an environment variable\n   is missing would remove a piece of the screen that exists. */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:50-53",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-28c2ed9e",
+      "action": "translate",
+      "new_text": "/** `createApplication.needHelp` and `createApplication.requestAQuote` — the\n    footer's two phrases are the same on both screens, with no per-template\n    variant. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:56-57",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7bb2ac1a",
+      "action": "translate",
+      "new_text": "/**\n * The two pieces the router and flow share IDENTICALLY — because in the\n * source they're the same file, not two similar screens.\n *\n * ═══ THE SHELL (module 30189) ═══\n *\n * `auth.application.create` is an ABSTRACT state: it draws the shell, and the\n * child states only fill in the middle. The shell is a\n * `<bds-theme-provider theme=\"dark\">` wrapping `#create-application-container`,\n * a dark-background `.full-screen-container`. The portal bar DISAPPEARS. Four\n * pieces remain, in this order:\n *\n *   1. the \"x\" (`bds-icon name=\"close\" size=\"xxx-large\"`), absolute on the\n *      right — the screen's only exit, and Esc does the same;\n *   2. the centered logo, 5rem wide (`logoCenter` is the default, and only\n *      the `aiagent` state turns it off);\n *   3. the `<form>`, which grows and carries the step — here these are the\n *      `children`;\n *   4. the \"Precisa de ajuda…\" footer, which appears on every step of both\n *      screens (`showFooter` is only false in `aiagent`).\n *\n * ═══ THE NAME STEP (module 96904) ═══\n *\n * A single template for both screens. What changes are three\n * `ng-if=\"$ctrl.template != 'master'\"` swapping a word: the subtitle, the\n * title and the field label. The rest — the photo circle, the field with the\n * floating label, the counter, the two end-to-end buttons — is byte for byte\n * the same.\n *\n * ═══ WHAT WE DIDN'T COPY, AND WHY ═══\n *\n * Esc to close (`$document.on('keydown', 27 → close())`), the preview of the\n * chosen photo (`<img class=\"uploaded-img\">`), and the field's live counter\n * (`<span counter-for=… ng-maxlength=\"30\">30</span>`, which starts at 30 and\n * counts down): all three are client state, and these screens have none. The\n * \"x\" still leads to `/portal`, the photo is still chosen, uploaded and\n * saved, and the limit is still enforced by `maxLength` and by the Server\n * Action. All that's missing is the check before submitting.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:6-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c01589af",
+      "action": "translate",
+      "new_text": "/** The full-screen shell: the \"x\", the logo, the middle, and the footer. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-61f3032f",
+      "action": "translate",
+      "new_text": "/* Their `close-icon`: 40px (`size=\"xxx-large\"`), absolute on the right,\n          3rem from the edge. `close()` ends at\n          `$state.go('auth.application.list')` — here, `/portal`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:67-69",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5ea889c4",
+      "action": "translate",
+      "new_text": "/* The centered `.logo-image`: 5rem wide. The lockup is the same\n          `.pt-lockup` from the portal bar, which is already 80px and already\n          painted with the chrome's ink. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:74-76",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a2f70284",
+      "action": "translate",
+      "new_text": "/* `.create-application-footer`: a divider on top, 1.5rem padding, 54rem\n          wide, and the quote request in bold. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/casco.tsx:83-84",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-aa9bd09c",
+      "action": "translate",
+      "new_text": "/**\n * Create a flow: saves through the `api` and goes to the newly created\n * contact's screen — the source's `goToApplicationDetails()`, which ends at\n * `auth.application.detail.home`. On error, goes back to the name step with\n * the reason and the typed name in the URL, as the screen already knows how\n * to show.\n *\n * TODO(template): the hidden `template` field (only present when the person\n * came from \"Usar template\", see `casco.tsx` and `fluxo/page.tsx`) reaches\n * this far and isn't used. In the source, `MarketplaceTemplatesService.processTemplate`\n * would apply the newly created flow's business hours, human handoff,\n * evaluation, and agent-availability checks from `blip_deskCustomerService` —\n * no equivalent endpoint exists in `apps/api` today, and this file shouldn't\n * invent a new contract. When it exists, this is where the second call goes,\n * after `resultado.id` comes out of `gravarContato`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/acoes.ts:5-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a4b0a0fb",
+      "action": "translate",
+      "new_text": "/**\n * `#create-application-marketplace-step`.\n *\n * Not a `<form>`: the step's two controls are cards that change state, and a\n * form with no field or submission would just be cosmetic. The one on the\n * right is a link; the one on the left is a `<div>` because it doesn't lead\n * anywhere yet.\n *\n * A centered row that wraps (`flex justify-center flex-wrap`), 2.5rem gap,\n * 3.5rem below the titles, each card 20rem wide.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:104-113",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-25f7edc0",
+      "action": "translate",
+      "new_text": "/**\n * Create flow — a copy of the portal's `auth.application.create.marketplace`\n * → `…create.name`, read from the `portal.js` bundle (`25.204.0-v0.43.1`).\n *\n * Until now the portal's light bar primary button pointed here and returned a\n * 404. This is the screen that was missing.\n *\n * ═══ THE DIFFERENCE FROM THE ROUTER IS ONE EXTRA STEP ═══\n *\n * The router's `selectTemplate('master')` goes DIRECTLY to the name step. The\n * flow doesn't: the portal's button enters `auth.application.create.marketplace`\n * (`/application/create/marketplace`, module 92466's template), the screen\n * that asks HOW to start. Only then comes the name — and the name is the same\n * template for both screens, which is why it lives in `../casco.tsx`.\n *\n *   step 1  `…create.marketplace`  two options, side by side\n *   step 2  `…create.name/{template}`  the name, the photo, and the create button\n *\n * Here all THREE steps are the SAME route, separated by `?passo=` — the same\n * arrangement as the router, for the same reason: with no client state, each\n * step is a render.\n *\n * ═══ THE MARKETPLACE HAS TWO CARDS, AND ONLY TWO ═══\n *\n * There's no search, no category, no model grid. The whole template is\n * `<div class=\"marketplace-step-options flex justify-center flex-wrap\">` with\n * two `<bds-paper class=\"option-card\">`:\n *\n *   \"Usar template\"      → `selectTemplate('blip_deskCustomerService')`\n *   \"Construir do zero\"  → `selectTemplate('builder')`\n *\n * And the two DON'T go to the same place. `selectTemplate` ends with:\n *\n *   if ('blip_deskCustomerService' === e) this.$state.go('^.test', …)\n *   else                                  this.$state.go('^.name', …)\n *\n * In other words: \"Construir do zero\" lands DIRECTLY on the name step, and\n * \"Usar template\" passes first through `auth.application.create.test`\n * (`?passo=template` here) — the pre-configured model's presentation, with\n * the description and four features confirmed in the 09/17/2026 capture\n * (`referencias-blip/builder/criar-fluxo/`). The live test chat the source\n * runs alongside it (the account's own chatbot name and status) is NOT\n * included: it's a simulation of client state, the same rule that already\n * removed the field counter and the photo preview in `../casco.tsx`.\n *\n * What the presentation PROMISES — `MarketplaceTemplatesService.processTemplate`\n * pre-configuring business hours, handoff, evaluation and agent-availability\n * checks — still has no counterpart on our side: see the TODO in `acoes.ts`.\n * \"Escolher esse template\" creates a blank flow, just like \"Construir do\n * zero\"; only the name step's title changes.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:11-61",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-303dbe09",
+      "action": "translate",
+      "new_text": "/* `.tagline-title-container`: a column, 1rem gap, centered. The TWO\n          `bds-typo` in this step — `fs-20` subtitle and `fs-32` title. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:117-118",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a093f394",
+      "action": "translate",
+      "new_text": "/* `selectTemplate('blip_deskCustomerService')` → `^.test`, the model's\n            presentation (`PassoDoTemplate`, below). The source's\n            `bds-chip-tag color=\"success\"` — \"Ideal para começar\" — stays half\n            over the top border: it's what makes people look at this card\n            first. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:125-129",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a601beb2",
+      "action": "translate",
+      "new_text": "/* `bds-icon name=\"integration\" size=\"brand\"`. Our `loja` icon is the\n              `plugin` design from the same set — the outlet that fits. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:132-133",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a0948990",
+      "action": "translate",
+      "new_text": "/* `selectTemplate('builder')` → `^.name`. It's the whole path we copied:\n            this is where `template = 'builder'` comes from, which is our\n            `tipo = 'fluxo'`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:139-141",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e99afc1c",
+      "action": "translate",
+      "new_text": "/* `bds-icon name=\"file-empty-file\" size=\"brand\"` — the blank sheet.\n              `icones-portal.tsx` doesn't have that icon; `fluxo`\n              (`builder-new-state`, the builder's empty block) is the same\n              gesture and the SAME icon as the button that brought the person\n              here. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:143-146",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7d2041a8",
+      "action": "translate",
+      "new_text": "/* ======================================== step 2: the template presentation */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:156",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1aaf1714",
+      "action": "translate",
+      "new_text": "/** An icon from `icones-portal.tsx` for each line of `ROTULOS.funcionalidades`,\n    in the same order — a clock for hours, an agent for handoff, a checkmark\n    for evaluation, a team for available agents. No exact match in the\n    source: there each line has its own catalog icon, which we don't have;\n    the visual distinction between the four is what matters here. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:158-162",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1a50f365",
+      "action": "translate",
+      "new_text": "/**\n * `#create-application-test-step` — `auth.application.create.test`.\n *\n * We don't have this screen's pixel measurements (only step 1, the\n * marketplace, was captured rendered): the layout below reuses the same\n * centered stage as the other steps (`.cr-forma` / `.cr-titulos` /\n * `.cr-acoes`, from `../criar.css`), with the description and the feature\n * list in a column.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:165-172",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-83409159",
+      "action": "translate",
+      "new_text": "/* Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE\n     drawing any step: whoever can't is sent to `$state.go(getReturnState())`,\n     which is the contact list. Here, `/portal`. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/page.tsx:73-75",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-dacb3192",
+      "action": "translate",
+      "new_text": "/**\n * The WORDS for the \"criar fluxo\" screen — and only them.\n *\n * The name mechanics (length, sanitization, `shortName`, image types) live in\n * `../regras-de-nome.ts`, shared with the create-router screen: in the source\n * both use the SAME name-step template (module 96904), and what changes\n * between them are three `ng-if=\"$ctrl.template != 'master'\"` swapping a\n * label. Checked: `required`, `ng-minlength=\"2\"`, `ng-maxlength=\"30\"`, the\n * file's `accept`, and the server's `/(^[a-zA-Z])/` all hold equally.\n *\n * The labels come from their translation file (key `createApplication`,\n * `pt-BR` block), copied word for word. There was NO change here: the\n * source's sentences already talk about \"fluxo\", because this is the screen\n * they were written for — it's the router's screen that rewrites the shared\n * ones.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:1-15",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-298d6b0d",
+      "action": "translate",
+      "new_text": "/** `errorMsg.title` — the title of their red warning. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:103",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-84b847f9",
+      "action": "translate",
+      "new_text": "/**\n   * `errorMsg.invalidName`.\n   *\n   * In the source this phrase NEVER appears: `validateApplicationName` throws\n   * with the `DataValidation` step, and the controller translates\n   * `DataValidation` to `errorMsg.2` (\"Este nome não é válido.\"), which\n   * doesn't say what to do. We use the phrase that explains the rule; the slot\n   * goes unused, as it does there.\n   */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:105-112",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7310ef1c",
+      "action": "translate",
+      "new_text": "/**\n   * `errorMsg.1` — \"Experimente usar outro nome\" is literal, and it's the\n   * clue that the name is unique: the `shortName` comes from it, and two\n   * matching ones collide in the service.\n   */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:116-119",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e0f46142",
+      "action": "translate",
+      "new_text": "/** Ours, with no counterpart: there the permission hides the button before it gets here. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:121",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4263673a",
+      "action": "translate",
+      "new_text": "/**\n * `selectTemplate('blip_deskCustomerService')` — the only template the\n * marketplace offers today (the other card is \"Construir do zero\", with no\n * template). Confirmed in the 09/17/2026 capture\n * (`referencias-blip/builder/criar-fluxo/`): `/application/create/name/{isto}`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:19-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-497d7d0f",
+      "action": "translate",
+      "new_text": "/** `createApplication.tagline` — serves as both subtitle and submit button text. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0d976143",
+      "action": "translate",
+      "new_text": "/* --------------------------------------- the template presentation step\n     `auth.application.create.test` — `#create-application-test-step`. Only\n     exists for whoever clicked \"Usar template\"; \"Construir do zero\" skips\n     straight to the name step. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:48-51",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e0be45e5",
+      "action": "translate",
+      "new_text": "/**\n   * `createApplication.test.description` — longer than the marketplace\n   * card's (`usarTemplateDescricao`); only appears on this screen.\n   */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:55-58",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-de0de7ab",
+      "action": "translate",
+      "new_text": "/**\n   * The four lines of the `blip_deskCustomerService` feature list, in the\n   * captured order. This is what the model promises to pre-configure — not\n   * what this screen applies: `MarketplaceTemplatesService.processTemplate`\n   * (business hours, handoff, evaluation, agent availability) doesn't exist\n   * on our side. See the TODO in `acoes.ts`.\n   */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:61-67",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7a3fc80b",
+      "action": "translate",
+      "new_text": "/**\n   * `createApplication.name.titleScratch`.\n   *\n   * Note it's NOT \"Dê um nome ao SEU fluxo\": `getProvideANameText` falls back\n   * to `default` for `builder`, and that key is written without the\n   * possessive. The router's (`titleRouter`) has the \"seu\". We copied both as\n   * they are.\n   */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:79-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-02bcdfc1",
+      "action": "translate",
+      "new_text": "/**\n   * `createApplication.name.titleTemplate` — only for whoever came from\n   * `blip_deskCustomerService` (\"Usar template\"); `tituloDoNome` still\n   * applies to \"Construir do zero\".\n   */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:87-91",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d10db41d",
+      "action": "translate",
+      "new_text": "/** `modules.ui.uploadButton.title` — the label inside the dashed circle. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:95",
+      "notes": "pre-triage D-40"
+    }
+  ]
+}
