@@ -1,7 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
-import { CATEGORIAS_TEMPLATE, channel, templateMessage as templateMessage } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import { CATEGORIAS_TEMPLATE, channel, templateMessage } from '@pipe/db/schema';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { CABECALHOS_TEMPLATE, createResponseReady } from '../communication.js';
 

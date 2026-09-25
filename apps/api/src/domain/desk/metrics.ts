@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { MetricsOfAgent } from '@pipe/contracts';
 import { data } from './consultas.js';
 

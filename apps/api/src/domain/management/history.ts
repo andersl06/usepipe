@@ -10,7 +10,7 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contact as contact,
+  contact,
   conversation,
   conversationLabel,
   etiqueta,
@@ -18,7 +18,7 @@ import {
   queue,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { ticketDe } from './monitoring.js';
 

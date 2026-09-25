@@ -1,8 +1,8 @@
 import { createHmac, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrar, estaCifrado } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
-import type { TYPES_AUTHENTICATION_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import type { TransactionPipe } from '@pipe/db';
+import type { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { keyring, noTenant } from './database.js';
 import { chamarComMtls } from './domain/mtls.js';
 

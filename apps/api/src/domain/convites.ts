@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { InboundRefused, createToken, hashDoToken } from '@pipe/authentication';
 import type { PessoaDoGoogle } from '@pipe/authentication';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { enviarEmailSemDerrubar } from './email.js';

@@ -11,7 +11,7 @@ import {
   regraSla,
   tenant,
 } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */

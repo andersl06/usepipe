@@ -27,7 +27,7 @@ import {
   type RecordOfEvaluation,
   type ApplicationOfQualityReview,
 } from '../domain/management/quality-review.js';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { registrarAuditoria } from '@pipe/db';
 import { closeConversation, transferConversation } from '../domain/conversation.js';
 import { exigirPermission } from '../session.js';

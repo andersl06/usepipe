@@ -1,7 +1,7 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { flow, routerService } from '@pipe/db/schema';
 import type {
   DataOfServices,

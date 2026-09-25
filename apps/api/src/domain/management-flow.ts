@@ -2,18 +2,18 @@ import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } fro
 import {
   channel,
   classificationConversation,
-  contact as contact,
+  contact,
   contactIdentity,
   conversation,
   queue,
   flow,
   inbox,
   message,
-  templateMessage as templateMessage,
+  templateMessage,
   tenant,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
 
 /**

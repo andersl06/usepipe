@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { escolherAgent } from '@pipe/core';
 import type { AgentDisponivel, EscolhaDistribution, StateAgent } from '@pipe/core';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 

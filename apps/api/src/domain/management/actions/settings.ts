@@ -1,4 +1,4 @@
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import type { Campos, Resultado } from './campos.js';
 import { PipeError } from '../../../errors.js';
 import {

@@ -1,5 +1,5 @@
 import type { Campos, Resultado } from './campos.js';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { createQueue, createReasonPause } from '../registrations.js';
 

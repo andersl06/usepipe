@@ -8,7 +8,7 @@ import {
   type NivelPriority,
 } from '@pipe/core';
 import { conversation, slaConversation } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../../database.js';
 import { registrarEvento } from '../eventos.js';
 import { emitir } from '../../webhooks-saida.js';

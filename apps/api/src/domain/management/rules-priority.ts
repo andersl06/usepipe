@@ -2,7 +2,7 @@ import { and, asc, eq, ne } from 'drizzle-orm';
 import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversation';
 import { rulePriority, queue } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';

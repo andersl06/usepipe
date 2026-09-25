@@ -3,7 +3,7 @@ import { resultado, resultEmpty, type ResultadoMetrica } from '@pipe/core';
 import {
   evaluation,
   classificationConversation,
-  contact as contact,
+  contact,
   conversation,
   criterio,
   queue,
@@ -13,7 +13,7 @@ import {
   responseEvaluation,
   user,
 } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { uuidOuNada } from './format.js';
 import { fatalReprovado } from './note-evaluation.js';

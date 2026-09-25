@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { keyApi, user, webhookSaida } from '@pipe/db/schema';
-import { TYPES_AUTHENTICATION_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { hashOfSecret } from '../../authentication.js';

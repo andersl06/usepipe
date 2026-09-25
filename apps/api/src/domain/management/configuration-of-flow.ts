@@ -1,6 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { flow } from '@pipe/db/schema';
 import type { ConfigurationOfWelcome, ConfigurationOfMenuPersistent } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';

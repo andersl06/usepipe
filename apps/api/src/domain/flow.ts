@@ -27,7 +27,7 @@ import type {
   Saida,
   ServicosDoMotor,
 } from '@pipe/core';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversation } from './distribution.js';

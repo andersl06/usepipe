@@ -1,7 +1,7 @@
 import { and, asc, count, eq, gt, isNull, ne } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
 import { invitation, flow, role, tenant, user, userRole } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>

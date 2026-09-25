@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { avaliarExpressao, type Expressao } from '@pipe/core';
 import { rulePriority } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 
 /**
  * O motor de `regra_prioridade` — item 2 da tarefa de "fazer funcionar o que só

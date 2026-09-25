@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { exigirPermission } from '../session.js';

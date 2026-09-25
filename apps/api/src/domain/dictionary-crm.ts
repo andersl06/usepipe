@@ -1,6 +1,6 @@
 import { asc, getTableColumns, sql } from 'drizzle-orm';
 import { schema } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { TwentyError, chamar, configDoTenant } from './twenty.js';
 import type { ConfigTwenty } from './twenty.js';

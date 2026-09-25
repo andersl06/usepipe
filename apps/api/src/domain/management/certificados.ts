@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { cifrar, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { keyring } from '../../database.js';
 import { PipeError } from '../../errors.js';
 import { esquecerCertificadosMtls } from '../mtls.js';

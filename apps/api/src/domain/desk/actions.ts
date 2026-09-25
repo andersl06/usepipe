@@ -2,7 +2,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import { motivoInelegivel } from '@pipe/core';
 import type { MotivoInelegivel } from '@pipe/core';
 import { notaInterna, pausa, statusAgent } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { StateAgent } from '@pipe/contracts';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 import { registrarEvento } from '../eventos.js';

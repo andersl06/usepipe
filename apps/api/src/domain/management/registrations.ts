@@ -22,7 +22,7 @@ import {
   user,
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';

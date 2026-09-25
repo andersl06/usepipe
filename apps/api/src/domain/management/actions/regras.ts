@@ -1,7 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
 import { scheduleAttendance, scheduleException, horarioFaixa } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { exigirPermission } from '../../../session.js';
 import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../registrations.js';

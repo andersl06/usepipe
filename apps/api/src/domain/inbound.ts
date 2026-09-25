@@ -6,7 +6,7 @@ import {
   transitionDeliveryAllowed,
 } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { contar } from '../metrics.js';

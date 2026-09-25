@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { noTenant } from '../../database.js';
 import type { ChannelResolved } from '../../database.js';
 import { emitir } from '../../webhooks-saida.js';

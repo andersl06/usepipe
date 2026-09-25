@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';

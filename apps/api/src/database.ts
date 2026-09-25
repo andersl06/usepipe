@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { createDatabase, comTenant, keyringOfAmbiente, decifrarConfig } from '@pipe/db';
-import type { DatabasePipe, Keyring, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { DatabasePipe, Keyring, TransactionPipe } from '@pipe/db';
 
 /**
  * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.

@@ -7,7 +7,7 @@ import {
   type MessageEffort,
 } from '@pipe/core';
 import { attachment, conversation, message, user } from '@pipe/db/schema';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */

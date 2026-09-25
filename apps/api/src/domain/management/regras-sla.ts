@@ -1,7 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';

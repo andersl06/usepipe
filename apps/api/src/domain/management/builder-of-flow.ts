@@ -9,7 +9,7 @@ import {
 } from '@pipe/core';
 import type { State, ExportDoEditor, FlowBlip, Saida } from '@pipe/core';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,

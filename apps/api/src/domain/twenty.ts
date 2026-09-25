@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { keyringOfAmbiente, decifrar, estaCifrado } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 
 /**
  * O cliente do CRM (Twenty). **A única porta do Pipe para o CRM.**

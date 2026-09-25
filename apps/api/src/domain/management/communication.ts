@@ -1,8 +1,8 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
-import { channel, flow, respostaPronta, templateMessage as templateMessage } from '@pipe/db/schema';
+import { channel, flow, respostaPronta, templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 

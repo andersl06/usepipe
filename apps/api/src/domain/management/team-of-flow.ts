@@ -1,6 +1,6 @@
 import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe } from '@pipe/db';
 import { flow, flowMember, user } from '@pipe/db/schema';
 import type {
   TeamOfFlow,

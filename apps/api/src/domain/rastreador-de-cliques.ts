@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { codigoDoPostgres } from './dominios.js';

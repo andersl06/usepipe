@@ -1,6 +1,6 @@
 import { desc, eq, isNull } from 'drizzle-orm';
 import { segundosEntre } from '@pipe/core';
-import type { TransactionPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe } from '@pipe/db';
 import { channel, motivoPausa, pausa } from '@pipe/db/schema';
 
 /**

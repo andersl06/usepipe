@@ -16,7 +16,7 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contact as contact,
+  contact,
   conversation,
   conversationLabel,
   etiqueta,
@@ -28,7 +28,7 @@ import {
   statusAgent,
   user,
 } from '@pipe/db/schema';
-import { registrarAuditoria, type TransactionPipe as TransactionPipe } from '@pipe/db';
+import { registrarAuditoria, type TransactionPipe } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 import { PipeError } from '../../errors.js';
 import {
