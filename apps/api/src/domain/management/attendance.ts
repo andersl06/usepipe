@@ -150,7 +150,7 @@ function quebrarByMuitas(
   }
   return [...grupos.keys()]
     .sort()
-    .map((chave) => ({ chave, ...medir(grupos.get(chave) as ConversationEvents[]) }));
+    .map((chave) => ({ key: chave, ...medir(grupos.get(chave) as ConversationEvents[]) }));
 }
 
 export async function loadAttendance(
@@ -186,10 +186,10 @@ export async function loadAttendance(
       const empty = medir([]);
       return {
         geral: empty,
-        porFila: [],
-        porAtendente: [],
-        porInbox: [],
-        porEtiqueta: [],
+        byQueue: [],
+        byAgent: [],
+        byInbox: [],
+        byLabel: [],
         semEtiqueta: 0,
       };
     }
@@ -227,7 +227,7 @@ export async function loadAttendance(
     // série como as outras — e ela vem depois porque só faz sentido se houver
     // conversa no período.
     const vinculos = await tx
-      .select({ conversaId: conversationLabel.conversaId, chave: etiqueta.nome })
+      .select({ conversationId: conversationLabel.conversaId, key: etiqueta.nome })
       .from(conversationLabel)
       .innerJoin(etiqueta, eq(etiqueta.id, conversationLabel.etiquetaId))
       .innerJoin(conversation, eq(conversation.id, conversationLabel.conversaId))
@@ -235,22 +235,22 @@ export async function loadAttendance(
 
     const conversations = linhas.map((l) => ({
       chaves: {
-        fila: l.filaNome ?? 'Sem fila',
-        atendente: l.atendenteNome ?? 'Sem atendente',
+        queue: l.filaNome ?? 'Sem fila',
+        agent: l.atendenteNome ?? 'Sem atendente',
         inbox: l.inboxNome,
       },
       eventos: { conversationId: l.id, eventos: byConversation.get(l.id) ?? [] } as ConversationEvents,
     }));
 
     const eventsByConversation = new Map(conversations.map((c) => [c.eventos.conversationId, c.eventos]));
-    const etiquetadas = new Set(vinculos.map((v) => v.conversaId));
+    const etiquetadas = new Set(vinculos.map((v) => v.conversationId));
 
     return {
       geral: medir(conversations.map((c) => c.eventos)),
-      porFila: quebrar(conversations, 'queue'),
-      porAtendente: quebrar(conversations, 'agent'),
-      porInbox: quebrar(conversations, 'inbox'),
-      porEtiqueta: quebrarByMuitas(eventsByConversation, vinculos),
+      byQueue: quebrar(conversations, 'queue'),
+      byAgent: quebrar(conversations, 'agent'),
+      byInbox: quebrar(conversations, 'inbox'),
+      byLabel: quebrarByMuitas(eventsByConversation, vinculos),
       semEtiqueta: conversations.filter((c) => !etiquetadas.has(c.eventos.conversationId)).length,
     };
   });

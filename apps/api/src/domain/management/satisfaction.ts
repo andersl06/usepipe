@@ -96,8 +96,8 @@ export async function loadSatisfaction(
 
     // Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o
     // `pipe.tenant_id` em silêncio.
-    const [count] = await tx.select({ total: count() }).from(conversation).where(closedInPeriod);
-    const encerradas = count?.total ?? 0;
+    const [totalRow] = await tx.select({ total: count() }).from(conversation).where(closedInPeriod);
+    const encerradas = totalRow?.total ?? 0;
 
     const linhas = await tx
       .select({
@@ -144,9 +144,9 @@ export async function loadSatisfaction(
       g.enviadas += 1;
       if (l.nota !== null) {
         g.responses += 1;
-        const par = g.pares.get(l.pesquisaId) ?? { soma: 0, contagem: 0 };
+        const par = g.pares.get(l.pesquisaId) ?? { soma: 0, count: 0 };
         par.soma += l.nota;
-        par.contagem += 1;
+        par.count += 1;
         g.pares.set(l.pesquisaId, par);
         const classe = l.classe ?? 'sem classe';
         g.classes.set(classe, (g.classes.get(classe) ?? 0) + 1);
@@ -160,8 +160,8 @@ export async function loadSatisfaction(
       .slice(0, LIMITE_COMENTARIOS)
       .map((l) => ({
         id: l.id,
-        tipo: l.tipo,
-        nota: l.nota,
+        type: l.tipo,
+        note: l.nota,
         escalaMin: l.escalaMin,
         escalaMax: l.escalaMax,
         classe: l.classe,
@@ -172,26 +172,26 @@ export async function loadSatisfaction(
     return {
       encerradas,
       comentarios,
-      grupos: [...groups.values()]
+      groups: [...groups.values()]
         .map((g) => ({
-          tipo: g.type,
+          type: g.type,
           escalaMin: g.escalaMin,
           escalaMax: g.escalaMax,
           media: mediaPonderadaDePares([...g.pares.values()]),
-          respostas: g.responses,
+          responses: g.responses,
           enviadas: g.enviadas,
           taxa: taxaDeResposta(g.responses, encerradas),
           classes: [...g.classes.entries()]
             .map(([nome, quantity]) => ({
-              nome,
+              name: nome,
               quantity,
-              fracao: g.responses > 0 ? quantity / g.responses : 0,
+              fraction: g.responses > 0 ? quantity / g.responses : 0,
             }))
             .sort(ordenarClasses),
         }))
         // CSAT antes de NPS, e escala menor antes da maior: ordem estável, para o
         // relatório sair igual toda vez.
-        .sort((a, b) => compararIdentificador(a.tipo, b.tipo) || a.escalaMax - b.escalaMax),
+        .sort((a, b) => compararIdentificador(a.type, b.type) || a.escalaMax - b.escalaMax),
     };
   });
 }
