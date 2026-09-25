@@ -77,7 +77,7 @@ export default async function PageContacts({
       </div>
 
       <div className="tblwrap">
-        <form className="tblhead" method="get" action="/contatos">
+        <form className="tblhead" method="get" action="/contacts">
           <Campo
             type="search"
             name="q"

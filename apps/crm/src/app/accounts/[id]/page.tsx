@@ -113,7 +113,7 @@ function AccountDestaque({ ficha, fuso }: { ficha: FichaAccount; fuso: string })
 
   return (
     <Destaque
-      trilha={{ href: '/contas', rotulo: 'Contas' }}
+      trilha={{ href: '/accounts', rotulo: 'Contas' }}
       nome={ficha.nome}
       nota={ficha.criadoEm ? `aberta ${desde(ficha.criadoEm, fuso)}` : undefined}
       // Domínio é categoria, e categoria é neutra. A conta não tem estado
@@ -200,7 +200,7 @@ export default async function PageAccount({
         <div className="coluna">
           <div className="tblwrap">
             <AbasDaFicha
-              base={`/contas/${ficha.id}`}
+              base={`/accounts/${ficha.id}`}
               aba={aba}
               abas={[
                 { ...ABAS[0], count: ficha.opportunities.length },

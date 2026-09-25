@@ -12,15 +12,15 @@ import { NextResponse, type NextRequest } from 'next/server';
  * do convite. Sem essa exceção, quem não tem sessão seria mandado para `/entrar`
  * e de lá para `/entrar`, para sempre.
  */
-const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+const PUBLICO = /^\/(login|invite)(\/|$)/;
 
 export function middleware(request: NextRequest): NextResponse {
   const { pathname, search } = request.nextUrl;
   if (PUBLICO.test(pathname)) return NextResponse.next();
-  if (request.cookies.has('pipe_sessao')) return NextResponse.next();
+  if (request.cookies.has('pipe_session')) return NextResponse.next();
 
   const url = request.nextUrl.clone();
-  url.pathname = '/entrar';
+  url.pathname = '/login';
   url.search = '';
   // Para onde a pessoa queria ir. A API confere que é caminho interno antes de
   // usá-lo, e a tela confere de novo antes de mandar.

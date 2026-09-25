@@ -29,7 +29,7 @@ export const GROUPS: readonly { rotulo: string; sections: readonly Section[] }[]
     sections: [
       {
         rotulo: 'Perfil',
-        href: '/configuracoes/perfil',
+        href: '/settings/profile',
         description: 'Seu nome, sua foto e o tema desta tela.',
       },
     ],
@@ -39,17 +39,17 @@ export const GROUPS: readonly { rotulo: string; sections: readonly Section[] }[]
     sections: [
       {
         rotulo: 'Espaço de trabalho',
-        href: '/configuracoes/espaco',
+        href: '/settings/workspace',
         description: 'Nome da empresa, logo, fuso horário e domínios.',
       },
       {
         rotulo: 'Membros',
-        href: '/configuracoes/membros',
+        href: '/settings/members',
         description: 'Quem tem acesso, convites pendentes e papel de cada um.',
       },
       {
         rotulo: 'Papéis e permissões',
-        href: '/configuracoes/papeis',
+        href: '/settings/roles',
         description: 'O que cada papel pode fazer, permissão por permissão.',
       },
     ],
@@ -59,17 +59,17 @@ export const GROUPS: readonly { rotulo: string; sections: readonly Section[] }[]
     sections: [
       {
         rotulo: 'Regras de score',
-        href: '/configuracoes/regras-de-score',
+        href: '/settings/score-rules',
         description: 'As regras que somam e tiram ponto, com a versão de cada uma.',
       },
       {
         rotulo: 'Faixas e roteamento',
-        href: '/configuracoes/faixas',
+        href: '/settings/tiers',
         description: 'A faixa decide a fila e o proprietário do lead.',
       },
       {
         rotulo: 'Campos personalizados',
-        href: '/configuracoes/campos',
+        href: '/settings/fields',
         description: 'Os campos do lead que são seus, além dos que o Pipe já traz.',
       },
     ],
@@ -79,7 +79,7 @@ export const GROUPS: readonly { rotulo: string; sections: readonly Section[] }[]
     sections: [
       {
         rotulo: 'Chaves e webhooks',
-        href: '/configuracoes/api',
+        href: '/settings/api',
         description: 'Chaves da API REST e webhooks de saída, com os eventos que assinam.',
       },
     ],

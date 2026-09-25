@@ -60,7 +60,7 @@ export default async function PageAccounts({
       </div>
 
       <div className="tblwrap">
-        <form className="tblhead" method="get" action="/contas">
+        <form className="tblhead" method="get" action="/accounts">
           <Campo
             type="search"
             name="q"

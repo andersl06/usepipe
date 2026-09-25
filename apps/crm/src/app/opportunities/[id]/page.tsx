@@ -90,7 +90,7 @@ function OpportunityDestaque({
 
   return (
     <Destaque
-      trilha={{ href: '/oportunidades', rotulo: 'Oportunidades' }}
+      trilha={{ href: '/opportunities', rotulo: 'Oportunidades' }}
       nome={ficha.nome}
       nota={ficha.criadoEm ? `aberta ${desde(ficha.criadoEm, fuso)}` : undefined}
       etiquetas={
@@ -236,7 +236,7 @@ export default async function PageOpportunity({
         <div className="coluna">
           <div className="tblwrap">
             <AbasDaFicha
-              base={`/oportunidades/${ficha.id}`}
+              base={`/opportunities/${ficha.id}`}
               aba={aba}
               abas={[
                 { ...ABAS[0], count: ficha.timeLinha.length },

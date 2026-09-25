@@ -49,7 +49,7 @@ function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string })
 
   return (
     <Destaque
-      trilha={{ href: '/contatos', rotulo: 'Contatos' }}
+      trilha={{ href: '/contacts', rotulo: 'Contatos' }}
       nome={ficha.nome}
       nota={ficha.criadoEm ? `conhecido ${desde(ficha.criadoEm, fuso)}` : undefined}
       etiquetas={
@@ -136,7 +136,7 @@ export default async function PageContact({
         <div className="coluna">
           <div className="tblwrap">
             <AbasDaFicha
-              base={`/contatos/${ficha.id}`}
+              base={`/contacts/${ficha.id}`}
               aba={aba}
               abas={[
                 { ...ABAS[0], count: ficha.conversations.length },

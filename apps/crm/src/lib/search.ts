@@ -81,21 +81,21 @@ export async function buscar(termo: string): Promise<Resultado[]> {
         id: o.id,
         titulo: o.nome,
         detalhe: o.fase,
-        href: `/oportunidades`,
+        href: `/opportunities`,
       })),
       ...accounts.map((c) => ({
         tipo: 'conta' as const,
         id: c.id,
         titulo: c.nome,
         detalhe: c.dominio,
-        href: `/contas/${c.id}`,
+        href: `/accounts/${c.id}`,
       })),
       ...contacts.map((c) => ({
         tipo: 'contato' as const,
         id: c.id,
         titulo: c.nome ?? 'Sem nome',
         detalhe: c.email,
-        href: `/contatos/${c.id}`,
+        href: `/contacts/${c.id}`,
       })),
     ];
   });
