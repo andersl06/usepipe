@@ -7717,8 +7717,8 @@ gestao-vite-comment-39221dba,gestao-vite,apps/gestao-vite/src/paginas/operacao/h
  * Finalizada é o desfecho normal e fica neutra: era verde em cada linha da
  * lista, e o verde repetido deixa de significar. Perdida e abandonada seguem
  * coloridas, porque são as duas que o supervisor precisa caçar.
- */",,,,,,
-gestao-vite-comment-beb41be4,gestao-vite,apps/gestao-vite/src/paginas/operacao/historico.tsx,70,70,jsdoc,2,"/** Campos que o formulário do painel não mostra mas precisa carregar, senão some ao aplicar. */",,,,,,
+ */",translate,"Finalizada (Completed) is the normal outcome and stays neutral: every list row used to be green, and repeated green stops meaning anything. Perdida (Lost) and abandonada (Abandoned) stay colored, since those are the two the supervisor needs to hunt down.",other,apps/gestao-vite/src/paginas/operacao/historico.tsx:48-52,,proposed
+gestao-vite-comment-beb41be4,gestao-vite,apps/gestao-vite/src/paginas/operacao/historico.tsx,70,70,jsdoc,2,"/** Campos que o formulário do painel não mostra mas precisa carregar, senão some ao aplicar. */",translate,"Fields the panel form doesn't display but must still be loaded, or they disappear once the filter is applied.",other,apps/gestao-vite/src/paginas/operacao/historico.tsx:70,,proposed
 gestao-vite-comment-e6db9844,gestao-vite,apps/gestao-vite/src/paginas/operacao/historico.tsx,93,106,jsdoc,21,"/**
  * Histórico — a mesma disposição da tela deles, medida em
  * `referencias-blip/fichas/FICHA-history.md`: cabeçalho com a ação de exportar
@@ -7732,7 +7732,9 @@ gestao-vite-comment-e6db9844,gestao-vite,apps/gestao-vite/src/paginas/operacao/h
  * chegou a capturar esta tela com resultado, então a régua ""IGUAL"" não tem o
  * que comparar aqui, e a decisão registrada em `blip-telas-atendimento.md`
  * §3/§5.2 continua de pé.
- */",,,,,,
+ */",translate,"History — the same layout as their screen, measured in `referencias-blip/fichas/FICHA-history.md`: header with the CSV export action available, ""Filtros rápidos:"" strip with the three shortcuts and the period on the right, filter side panel closed by default, and the results area — empty with their text and illustration, or our CARD LIST when there is a conversation.
+
+The card list stays ours: six of the eight screens in Blip's Atendimento module use cards, and none uses a table — the material never got around to capturing this screen with results, so the ""IGUAL"" (same) ruler has nothing to compare here, and the decision recorded in `blip-telas-atendimento.md` §3/§5.2 still stands.",meta-blip,apps/gestao-vite/src/paginas/operacao/historico.tsx:93-106,,proposed
 gestao-vite-comment-5a80fb33,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,246,269,jsdoc,27,"/**
  * Monitoramento — a mesma disposição da tela deles, lida em
  * `referencias-blip/portal/dom/monitoring.html` (e confirmada na captura real,
@@ -7756,32 +7758,38 @@ gestao-vite-comment-5a80fb33,gestao-vite,apps/gestao-vite/src/paginas/operacao/m
  * fila"") continuam existindo — dentro do balão do ícone de informação. Na
  * tela deles o cartão não tem terceira linha sob o rótulo, e a régua desta
  * rodada é a forma deles; a informação nossa não some, muda de lugar.
- */",,,,,,
+ */",translate,"Monitoring — the same layout as their screen, read from `referencias-blip/portal/dom/monitoring.html` (and confirmed against the real capture, `desk/desk-monitoria__pagina.html`): header with ""Atualizar tela"" and ""Expandir tela"", TWO ""Filtros rápidos:"" strips (the top one with only ""Filas""; the bottom one with ""Atendentes"", ""Contato"" and ""Status do atendente""), a 62%/38% card grid across two rows, and the ""Monitoramento detalhado"" card with search, tabs, table and pagination.
+
+Each card is a 14/600 title and a row of centered columns: number 24/400, label 12/400 with the info icon beside it. ""Atendimentos em tempo real"" splits its columns into two groups, `w-30` (the queue) and `w-70` (the attendance), with a vertical rule between them. The label and tooltip TEXTS are theirs, literal.
+
+What we did NOT copy is the color. They paint the two numbers that describe the operation right now in blue; we paint the same two in moss. ""Perdidos"" and ""Abandonados"" come out in the error color, like their `color-delete`.
+
+Each number's formula (metrics spec) and its population (""entre 6 na fila"") still exist — inside the info icon's tooltip. On their screen the card has no third line under the label, and this round's ruler is their shape; our information doesn't disappear, it just moves.",meta-blip,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:246-269,,proposed
 gestao-vite-comment-c2839588,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,282,283,block,5,"/* O que veio da URL, já conferido: id que não é UUID vira ""sem filtro"" em vez
-     de virar 500 no `::uuid` do Postgres. */",,,,,,
+     de virar 500 no `::uuid` do Postgres. */",translate,"Value from the URL, already checked: an id that isn't a UUID becomes ""no filter"" instead of a 500 from Postgres's `::uuid` cast.",other,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:282-283,,proposed
 gestao-vite-comment-5640921f,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,327,328,block,4,"/* A faixa ""Filtros rápidos:"", com o próprio botão ""Filtros"" no fim —
-          é ali que ele mora nesta tela, não no cabeçalho. */",,,,,,
+          é ali que ele mora nesta tela, não no cabeçalho. */",translate,"The ""Filtros rápidos:"" strip, with its own ""Filtros"" button at the end — that's where it lives on this screen, not in the header.",other,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:327-328,,proposed
 gestao-vite-comment-33ddf5f4,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,39,43,jsdoc,4,"/**
  * O ícone ""Atualizar tela"" do cabeçalho da página — `bds-button icon=""refresh""
  * variant=""secondary""` com o glifo de 24 (`dom/monitoring.html`). Invalida a
  * leitura da `api` e a tela refaz a consulta.
- */",,,,,,
+ */",translate,"The page header's ""Atualizar tela"" icon — `bds-button icon=""refresh"" variant=""secondary""` with the 24 glyph (`dom/monitoring.html`). Invalidates the `api` read and the screen redoes the query.",meta-blip,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:39-43,,proposed
 gestao-vite-comment-c87ecba8,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,59,64,jsdoc,5,"/**
  * O cartão de métrica deles: `bds-paper pa4 bg-surface-1` com o título
  * `fs-14 semi-bold` e NADA MAIS no topo — os ícones de atualizar/expandir
  * moram só no cabeçalho da página (nenhum `bds-button` dentro dos quatro
  * `bds-paper` em `dom/monitoring.html`; a ficha dizia o contrário, o DOM não).
- */",,,,,,
+ */",translate,"Their metric card: `bds-paper pa4 bg-surface-1` with an `fs-14 semi-bold` title and NOTHING ELSE at the top — the refresh/expand icons live only in the page header (no `bds-button` inside any of the four `bds-paper` in `dom/monitoring.html`; the reference doc said otherwise, the DOM didn't).",meta-blip,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:59-64,,proposed
 gestao-vite-comment-06d1eb91,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,76,81,jsdoc,6,"/**
  * Recarrega a leitura a cada 30 segundos, em silêncio. Não é um controle da
  * tela deles — é o ponto de extensão do realtime, registrado desde a entrega
  * anterior — então não ganha ícone nem texto próprio: só mantém o painel
  * fresco enquanto o supervisor olha.
- */",,,,,,
+ */",translate,"Silently reloads the read every 30 seconds. It isn't a control from their screen — it's the realtime extension point, in place since the previous delivery — so it gets no icon or text of its own: it just keeps the panel fresh while the supervisor is looking.",other,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:76-81,,proposed
 gestao-vite-comment-6099c49d,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,93,96,jsdoc,0,"/**
  * ""Expandir tela"": o segundo ícone do cabeçalho, ao lado de ""Atualizar tela""
  * (`bds-button icon=""screen-full""`, `data-testid=""fullscreen-change-to-enable""`).
- */",,,,,,
+ */",translate,"""Expandir tela"": the header's second icon, next to ""Atualizar tela"" (`bds-button icon=""screen-full""`, `data-testid=""fullscreen-change-to-enable""`).",other,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:93-96,,proposed
 gestao-vite-comment-5889fbc6,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx,17,34,jsdoc,30,"/**
  * A ficha de uma avaliação.
  *
@@ -7799,7 +7807,13 @@ gestao-vite-comment-5889fbc6,gestao-vite,apps/gestao-vite/src/paginas/operacao/m
  * ANTES do critério fatal. Um zero por fatal com 84 pontos somados é um caso
  * diferente de um zero por atendimento ruim de ponta a ponta, e a diferença
  * decide se a conversa vira feedback ou vira plano de coach.
- */",,,,,,
+ */",translate,"An evaluation's record sheet.
+
+It's the screen that answers ""why 68?"". Each criterion shows what the AI answered, how many points that was worth **on the final-score scale**, the justification it wrote, and the **message cited as evidence** — resolved to the actual text, not to the `m7` label the model used.
+
+Evidence is what separates monitoring from opinion. `packages/ai` refuses the evaluation when the AI cites a passage that doesn't exist in the transcript, and refuses a non-conforming criterion without evidence; here that discipline becomes readable: whoever disagrees with the score has something to point at.
+
+The two numbers at the top are deliberately two: the score as it stands, and the score BEFORE the fatal criterion. A zero from a fatal criterion on top of 84 summed points is a different case from a zero from poor service start to finish, and that difference decides whether the conversation becomes feedback or a coaching plan.",other,apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx:17-34,,proposed
 gestao-vite-comment-d50159af,gestao-vite,apps/gestao-vite/src/paginas/operacao/monitoria.tsx,37,53,jsdoc,28,"/**
  * Monitoria com IA — a lista de conversas avaliadas.
  *
@@ -7816,7 +7830,13 @@ gestao-vite-comment-d50159af,gestao-vite,apps/gestao-vite/src/paginas/operacao/m
  *
  * População: avaliações CONCLUÍDAS dentro do período (`avaliada_em`), com o
  * cronômetro parado — a mesma separação de §3 que vale para os relatórios.
- */",,,,,,
+ */",translate,"AI Monitoring — the list of evaluated conversations.
+
+`packages/ai` scores criterion by criterion, computes the score deterministically, and cites the message backing each answer. Until now this only lived in the database: the product paid for the model call and the supervisor had nowhere to read it.
+
+The metrics ruler applies the same way. The score average shows **how many evaluations it came from** and how many were left out — a draft or a scoreless evaluation are exactly the kind of exclusion that flatters an average. And evaluations **zeroed by a fatal criterion** appear in their own column, because an average of 82 with three zeros inside is not the same operation as an average of 82 with none.
+
+Population: COMPLETED evaluations within the period (`avaliada_em`), with the clock stopped — the same split from §3 that applies to the reports.",other,apps/gestao-vite/src/paginas/operacao/monitoria.tsx:37-53,,proposed
 gestao-vite-comment-cf42ae21,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,154,179,jsdoc,24,"/**
  * Relatório de atendimento — a tela deles, bloco a bloco, lida em
  * `referencias-blip/desk/desk-relatorio-atendimento__pagina.html`:
@@ -7842,37 +7862,56 @@ gestao-vite-comment-cf42ae21,gestao-vite,apps/gestao-vite/src/paginas/operacao/r
  * honesto (""—"" ou ""Dados insuficientes""), nunca com número inventado. A
  * fórmula da spec de métricas e a contagem descartada continuam no balão do
  * ícone de informação e no `title` da célula.
- */",,,,,,
+ */",translate,"Attendance report — their screen, block by block, read from `referencias-blip/desk/desk-relatorio-atendimento__pagina.html`:
+
+1. ""Relatório de atendimento"" header with ""Gerenciador de Relatórios"" on the right (`bds-button variant=""secondary"" arrow`);
+2. ""Filtros rápidos:"" strip with ""Atendentes"" and ""Filas"", and on the right the period as a ghost button (""Últimos 7 dias"") and ""Filtros"";
+3. ""Indicadores de SLA"" card (20/700 title + info icon);
+4. row with ""Tempo máximo"" (2 metrics) and ""Status dos tickets"" (5);
+5. ""Tempo médio"" card (5 metrics);
+6. ""Tickets Abertos x Fechados"" card (chart);
+7. card with the Atendentes/Filas/Tags tabs over the same table, each with a download button, and the note about the filters;
+8. ""Disponibilidade de atendentes"" card.
+
+The metric cards are the SAME ones from Monitoramento (`bds-paper pa4` with a 14/600 title and 24/400 columns over 12/400) — not the card-within-a-block from Satisfação. Every label, title and tooltip is their text, literal.
+
+Wherever our query doesn't have the data — period peak, aggregated SLA, ""Abertos"", the chart and availability — the spot gets the honest empty state (""—"" or ""Dados insuficientes""), never a made-up number. The metrics-spec formula and the discarded count still live in the info icon's tooltip and in the cell's `title`.",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:154-179,,proposed
 gestao-vite-comment-34a52ebe,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,186,187,block,4,"/* Conferido na entrada: id torto e data torta viram ""sem filtro"". Sem isso,
-     um link colado com `?fila=abc` derruba o relatório inteiro em 500. */",,,,,,
-gestao-vite-comment-7e00a40f,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,30,30,jsdoc,2,"/** Aba do detalhamento por Atendentes/Filas/Tags — só client-side, não vai à API. */",,,,,,
+     um link colado com `?fila=abc` derruba o relatório inteiro em 500. */",translate,"Checked on the way in: a malformed id or malformed date becomes ""no filter"". Without this, a pasted link with `?fila=abc` would take down the whole report with a 500.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:186-187,,proposed
+gestao-vite-comment-7e00a40f,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,30,30,jsdoc,2,"/** Aba do detalhamento por Atendentes/Filas/Tags — só client-side, não vai à API. */",translate,"Breakdown tab for Atendentes/Filas/Tags — client-side only, never sent to the API.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:30,,proposed
 gestao-vite-comment-c23893ab,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,300,303,block,2,"/* ------------------------------------------------------------ bloco 1
           ""Indicadores de SLA"": gráfico de área deles. SLA agregado por
           período ainda não tem consulta própria aqui — o vazio é o texto
-          literal do vazio deles. */",,,,,,
+          literal do vazio deles. */",translate,"------------------------------------------------------------ block 1
+""Indicadores de SLA"": their area chart. Aggregated SLA per period doesn't have its own query here yet — the empty state is their literal empty-state text.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:300-303,,proposed
 gestao-vite-comment-dce076b4,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,318,321,block,4,"/* ------------------------------------------------------------ bloco 2
           ""Tempo máximo"" e ""Status dos tickets"", lado a lado. Hoje só
           calculamos MÉDIA; o PICO do período é consulta que falta, e
-          ""Abertos"" (tickets abertos no período) também. */",,,,,,
+          ""Abertos"" (tickets abertos no período) também. */",translate,"------------------------------------------------------------ block 2
+""Tempo máximo"" and ""Status dos tickets"", side by side. Today we only compute the AVERAGE; the period's PEAK is a missing query, and so is ""Abertos"" (tickets opened in the period).",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:318-321,,proposed
 gestao-vite-comment-5c18cf30,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,34,38,jsdoc,2,"/**
  * As três abas deles sobre a mesma tabela — `bds-tab-item label=""Atendentes|
  * Filas|Tags""` em `desk-relatorio-atendimento__pagina.html`. A aba mora na
  * querystring, como todo filtro desta tela.
- */",,,,,,
+ */",translate,"Their three tabs over the same table — `bds-tab-item label=""Atendentes|Filas|Tags""` in `desk-relatorio-atendimento__pagina.html`. The tab lives in the querystring, like every filter on this screen.",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:34-38,,proposed
 gestao-vite-comment-0f15bfff,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,383,385,block,1,"/* ------------------------------------------------------------ bloco 3
           ""Tempo médio"" — as cinco métricas, com o texto exato do cartão
-          deles em cada rótulo. */",,,,,,
+          deles em cada rótulo. */",translate,"------------------------------------------------------------ block 3
+""Tempo médio"" — the five metrics, with their card's exact text in each label.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:383-385,,proposed
 gestao-vite-comment-f7b05c74,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,427,429,block,2,"/* ------------------------------------------------------------ bloco 4
           ""Tickets Abertos x Fechados"": a série diária deles. Sem consulta
-          por dia aqui — o lugar fica, vazio. */",,,,,,
+          por dia aqui — o lugar fica, vazio. */",translate,"------------------------------------------------------------ block 4
+""Tickets Abertos x Fechados"": their daily series. No per-day query here — the slot stays, empty.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:427-429,,proposed
 gestao-vite-comment-734d94f2,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,446,449,block,5,"/* ------------------------------------------------------------ bloco 5
           As três abas deles sobre a MESMA tabela, cada uma com o botão de
           baixar encostado à direita (`bds-button-icon icon=""download""
-          class=""ml-a""`). */",,,,,,
+          class=""ml-a""`). */",translate,"------------------------------------------------------------ block 5
+Their three tabs over the SAME table, each with a download button flush to the right (`bds-button-icon icon=""download"" class=""ml-a""`).",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:446-449,,proposed
 gestao-vite-comment-fbc3cf8a,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,475,478,block,5,"/* ------------------------------------------------------------ bloco 6
           ""Disponibilidade de atendentes"" (Atendente, Online, Em pausa,
           Invisível, Tempo total). É tempo em status por período — consulta
-          que ainda não existe aqui; a tabela fica com o vazio. */",,,,,,
+          que ainda não existe aqui; a tabela fica com o vazio. */",translate,"------------------------------------------------------------ block 6
+""Disponibilidade de atendentes"" (Atendente, Online, Em pausa, Invisível, Tempo total). It's time-in-status per period — a query that doesn't exist here yet; the table stays empty.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:475-478,,proposed
 gestao-vite-comment-51f093dc,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,50,60,jsdoc,11,"/**
  * As colunas da tabela deles, na ordem e no texto exato (`bds-table-th` de
  * `desk-relatorio-atendimento__pagina.html`): o eixo, ""Tickets finalizados"",
@@ -7883,27 +7922,30 @@ gestao-vite-comment-51f093dc,gestao-vite,apps/gestao-vite/src/paginas/operacao/r
  * de sumir. As médias carregam a contagem descartada no `title` da célula
  * (a régua de métricas exige o denominador; a tela deles não o mostra, então
  * ele vai para onde não muda a forma).
- */",,,,,,
-gestao-vite-comment-2d4fe306,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,82,82,jsdoc,1,"/** O `bds-button-icon icon=""download""` de cada aba: baixa a tabela visível em CSV. */",,,,,,
-gestao-vite-comment-26354295,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,88,88,line,1,"// BOM por código de caractere, não literal na fonte: o Excel só reconhece UTF-8",,,,,,
-gestao-vite-comment-0bc3b305,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,89,89,line,1,"// num CSV com o BOM na frente, e o caractere colado direto é ""espaço irregular""",,,,,,
+ */",translate,"Their table columns, in order and exact text (`bds-table-th` from `desk-relatorio-atendimento__pagina.html`): the axis, ""Tickets finalizados"", ""Tempo médio da 1ª resposta"", ""Tempo médio de espera"", ""Tempo médio de resposta"", ""Tempo médio de atendimento"", ""Atingimento SLA"".
+
+""Atingimento SLA"" doesn't have our query yet — it gets an em dash instead of disappearing. The averages carry the discarded count in the cell's `title` (the metrics ruler requires the denominator; their screen doesn't show it, so it goes where it doesn't change the shape).",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:50-60,,proposed
+gestao-vite-comment-2d4fe306,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,82,82,jsdoc,1,"/** O `bds-button-icon icon=""download""` de cada aba: baixa a tabela visível em CSV. */",translate,"Each tab's `bds-button-icon icon=""download""`: downloads the visible table as CSV.",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:82,,proposed
+gestao-vite-comment-26354295,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,88,88,line,1,"// BOM por código de caractere, não literal na fonte: o Excel só reconhece UTF-8",translate,"// BOM by character code, not literal in the source: Excel only recognizes UTF-8",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:88,,proposed
+gestao-vite-comment-0bc3b305,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,89,89,line,1,"// num CSV com o BOM na frente, e o caractere colado direto é ""espaço irregular""",translate,"// in a CSV with the BOM up front, and a directly pasted character is ""irregular whitespace""",other,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:89,,proposed
 gestao-vite-comment-f5bddb13,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,25,26,block,2,"/* Data torta vira ""sem filtro"": `?de=abc` chegava ao `::date` do Postgres e
-     derrubava a tela inteira em 500. */",,,,,,
+     derrubava a tela inteira em 500. */",translate,"Malformed date becomes ""no filter"": `?de=abc` used to reach Postgres's `::date` cast and take down the whole screen with a 500.",other,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx:25-26,,proposed
 gestao-vite-comment-8bc3d01b,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,46,47,block,2,"/* Faixa de filtros de 56px, no lugar e na ordem da faixa deles:
-          rótulo e controles à esquerda, período e ação à direita. */",,,,,,
+          rótulo e controles à esquerda, período e ação à direita. */",translate,"56px filter strip, in the place and order of their strip: label and controls on the left, period and action on the right.",other,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx:46-47,,proposed
 gestao-vite-comment-378d1c8f,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,59,64,block,3,"/* ------------------------------------------------------ bloco 1
           A estrutura de bloco dos relatórios deles, medida em
           `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: um cartão que
           CONTÉM cartões. O rótulo vem em cima em 14/600 e o valor embaixo em
           20/700 — o oposto do cartão de Monitoramento, onde o valor vem
-          primeiro e é 24/400. */",,,,,,
+          primeiro e é 24/400. */",translate,"------------------------------------------------------------ block 1
+Their reports' block structure, measured in `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: a card that CONTAINS cards. The label comes on top in 14/600 and the value below in 20/700 — the opposite of the Monitoramento card, where the value comes first and is 24/400.",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx:59-64,,proposed
 gestao-vite-comment-4c38fccb,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,319,320,block,4,"/* A nota anda com a escala no `title`: um 4 solto não
-                          diz se é quase o teto ou um detrator. */",,,,,,
+                          diz se é quase o teto ou um detrator. */",translate,The score travels with its scale in the `title`: a bare 4 doesn't say whether it's near the ceiling or a detractor.,other,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:319-320,,proposed
 gestao-vite-comment-269311c6,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,39,42,jsdoc,1,"/**
  * As três abas de ""Detalhamento das pesquisas"" deles — `bds-tab-item label=
  * ""Geral|Filas|Atendentes""` em `desk-satisfacao__pagina.html`.
- */",,,,,,
-gestao-vite-comment-4b7d631c,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,54,54,jsdoc,1,/** Rótulo de métrica do cartão interno: 14/600 com o ícone de informação ao lado. */,,,,,,
+ */",translate,"Their three ""Detalhamento das pesquisas"" tabs — `bds-tab-item label=""Geral|Filas|Atendentes""` in `desk-satisfacao__pagina.html`.",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:39-42,,proposed
+gestao-vite-comment-4b7d631c,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,54,54,jsdoc,1,/** Rótulo de métrica do cartão interno: 14/600 com o ícone de informação ao lado. */,translate,Internal card's metric label: 14/600 with the info icon beside it.,other,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:54,,proposed
 gestao-vite-comment-589bacb3,gestao-vite,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,64,86,jsdoc,19,"/**
  * Relatório de satisfação — a tela deles, bloco a bloco, lida em
  * `referencias-blip/desk/desk-satisfacao__pagina.html`:
@@ -7926,20 +7968,27 @@ gestao-vite-comment-589bacb3,gestao-vite,apps/gestao-vite/src/paginas/operacao/r
  * pizza deles — entra no cartão ""Satisfação geral"" como tabela; o
  * comparativo por atendente/fila e a série por dia não têm consulta nossa e
  * ficam com o vazio honesto.
- */",,,,,,
+ */",translate,"Satisfaction report — their screen, block by block, read from `referencias-blip/desk/desk-satisfacao__pagina.html`:
+
+1. ""Relatório de satisfação"" header; on the right the period as a ghost button (""Últimos 30 dias"") and ""Filtros"";
+2. ""Dados gerais"" block (`bds-paper bg-surface-1 mt4 pa4`, 16/700 title + icon) with four white cards (`bg-surface-0 pa4`: 14/600 label + icon, 20/700 value): ""Média geral de satisfação"", ""Total de tickets fechados"", ""Total de respostas"", ""Taxa de resposta""; and below two 400px white cards, ""Satisfação geral"" (pie) and ""Comparativo de satisfação"" (bars, with the Atendentes/Filas selector);
+3. ""Análise do período"" block with a 400px card (series);
+4. ""Detalhamento das pesquisas"" block with the Geral/Filas/Atendentes tabs.
+
+Every title, label and column is their text, literal. Each survey's scale still decides everything (§6 of the metrics spec): with more than one scale in the period, ""Média geral"" doesn't exist and shows ""—"", with per-scale averages in the icon's tooltip. The distribution by class — the data behind their pie chart — goes into the ""Satisfação geral"" card as a table; the per-attendant/queue comparison and the daily series don't have our query and get the honest empty state.",meta-blip,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:64-86,,proposed
 gestao-vite-comment-d0ff32a7,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,109,111,block,2,"/* O banner de boas-vindas só existe na conta SEM nenhum contato e
               para quem pode criar — é o `welcome-banner` deles
-              (`!applications.length && tenant.id && canCreateChatBot`). */",,,,,,
+              (`!applications.length && tenant.id && canCreateChatBot`). */",translate,The welcome banner only exists on accounts with NO contact at all and for whoever can create one — it's their `welcome-banner` (`!applications.length && tenant.id && canCreateChatBot`).,architecture,apps/gestao-vite/src/paginas/portal.tsx:109-111,,proposed
 gestao-vite-comment-1c0d4a80,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,114,117,block,8,"/* A fileira de cartões de ação NÃO é do estado vazio: no DOM da
               conta com onze bots ela está lá, acima da lista. A condição dela
               na origem é `!isCarouselBannerEnabled || !canCreateChatBot` — ou
-              seja, nada a ver com a quantidade de contatos. */",,,,,,
+              seja, nada a ver com a quantidade de contatos. */",translate,"The action-card row is NOT part of the empty state: in the DOM of the eleven-bot account it's there, above the list. Its condition in the source is `!isCarouselBannerEnabled || !canCreateChatBot` — that is, nothing to do with the number of contacts.",architecture,apps/gestao-vite/src/paginas/portal.tsx:114-117,,proposed
 gestao-vite-comment-842470f1,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,120,122,block,4,"/* A seção da lista, o `<div id=""applications""
               ng-if=""applications.length > 0"">` deles: só existe quando a conta
-              tem contato, e é ela que some na conta nova. */",,,,,,
+              tem contato, e é ela que some na conta nova. */",translate,"The list section, their `<div id=""applications"" ng-if=""applications.length > 0"">`: it only exists when the account has a contact, and it's the one that disappears on a new account.",architecture,apps/gestao-vite/src/paginas/portal.tsx:120-122,,proposed
 gestao-vite-comment-e4aa20e1,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,14,16,block,8,"/* Os dois destinos de fora do produto que o menu de ajuda da origem oferece
    (`Blip Help` e `Blip Community`). Vazio = item não desenhado: link para
-   site que ainda não existe é pior do que menu com dois itens. */",,,,,,
+   site que ainda não existe é pior do que menu com dois itens. */",translate,The two destinations outside the product that the source's help menu offers (`Blip Help` and `Blip Community`). Empty = item not drawn: a link to a site that doesn't exist yet is worse than a menu with two items.,meta-blip,apps/gestao-vite/src/paginas/portal.tsx:14-16,,proposed
 gestao-vite-comment-3a010abe,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,157,165,jsdoc,9,"/**
  * A paginação da origem (`bds-pagination` com `page-counter`, `number-items` e
  * `items-page`): contador de itens à esquerda, escolha de itens por página e as
@@ -7948,14 +7997,16 @@ gestao-vite-comment-3a010abe,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * A página e a quantidade por página ficam em estado React. A URL visível do
  * portal não recebe `pagina` nem `por`; esses valores existem apenas na chamada
  * para `GET /v1/gestao/fluxos`.
- */",,,,,,
+ */",translate,"The source's pagination (`bds-pagination` with `page-counter`, `number-items` and `items-page`): item count on the left, items-per-page choice, and the pages on the right.
+
+The page and the items-per-page count live in React state. The portal's visible URL doesn't receive `pagina` or `por`; those values only exist in the call to `GET /v1/gestao/fluxos`.",architecture,apps/gestao-vite/src/paginas/portal.tsx:157-165,,proposed
 gestao-vite-comment-568dce2e,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,184,186,block,4,"/* Aparece SEMPRE, inclusive com uma página só: no DOM da conta de onze
      bots a barra está lá, dizendo ""1-11 de 11"" e ""de 1 páginas"". Escondê-la
-     era invenção nossa. */",,,,,,
-gestao-vite-comment-495268b6,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,21,21,jsdoc,5,/** O que a tela mostra: a casca (sessão) mais a grade (`GET /v1/gestao/fluxos`). */,,,,,,
-gestao-vite-comment-a3cca097,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,215,215,block,0,/* primeira página */,,,,,,
-gestao-vite-comment-219f67aa,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,226,226,block,0,/* página anterior */,,,,,,
-gestao-vite-comment-6f1b8a5c,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,237,237,block,0,/* seletor da página atual */,,,,,,
+     era invenção nossa. */",translate,"Always shows, even with a single page: in the DOM of the eleven-bot account the bar is there, saying ""1-11 de 11"" and ""de 1 páginas"". Hiding it was our own invention.",architecture,apps/gestao-vite/src/paginas/portal.tsx:184-186,,proposed
+gestao-vite-comment-495268b6,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,21,21,jsdoc,5,/** O que a tela mostra: a casca (sessão) mais a grade (`GET /v1/gestao/fluxos`). */,translate,What the screen shows: the shell (session) plus the grid (`GET /v1/gestao/fluxos`).,other,apps/gestao-vite/src/paginas/portal.tsx:21,,proposed
+gestao-vite-comment-a3cca097,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,215,215,block,0,/* primeira página */,remove,,other,"apps/gestao-vite/src/paginas/portal.tsx:215; redundant, restates the adjacent button's own aria-label=""Primeira página""",,proposed
+gestao-vite-comment-219f67aa,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,226,226,block,0,/* página anterior */,remove,,other,"apps/gestao-vite/src/paginas/portal.tsx:226; redundant, restates the adjacent button's own aria-label=""Página anterior""",,proposed
+gestao-vite-comment-6f1b8a5c,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,237,237,block,0,/* seletor da página atual */,remove,,other,"apps/gestao-vite/src/paginas/portal.tsx:237; redundant, restates the adjacent Selecao's own aria-label=""Página atual""",,proposed
 gestao-vite-comment-026a7322,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,24,69,jsdoc,45,"/**
  * Portal — a porta da plataforma, e a única tela do produto que muda de forma
  * conforme o que a conta tem dentro.
@@ -8001,9 +8052,39 @@ gestao-vite-comment-026a7322,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  *
  * A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: nenhum hex deles entra, tudo sai
  * dos token `--p-*` e dos `--g-barra-*`. Os ícones e a marca são os nossos.
- */",,,,,,
-gestao-vite-comment-746c94a2,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,254,254,block,0,/* próxima página */,,,,,,
-gestao-vite-comment-12459db8,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,265,265,block,0,/* última página */,,,,,,
+ */",translate,"Portal — the platform's front door, and the only screen in the product that changes shape depending on what the account has inside.
+
+Measured on the ORIGINAL screen running (their portal served locally, route `auth.application.list`, 1920 window) with `getBoundingClientRect` and `getComputedStyle`, and against the template of their bundle for whatever the test account's mock doesn't light up.
+
+═══ WHAT CHANGES WITH THE NUMBER OF CONTACTS ═══
+
+Checked against the RENDERED DOM of `supernova.blip.ai/application` (an account with eleven bots) and the LIME responses from that same session's HAR.
+
+ALWAYS on screen, in any state:
+  · both bars;
+  · the ACTION-CARD ROW (`action-card-container`), whose condition in the source is `!isCarouselBannerEnabled || !canCreateChatBot` — nothing to do with the number of contacts. It's there even with eleven bots.
+
+ONLY with NO contact at all:
+  · the welcome block (`welcome-banner`: `!applications.length && tenant.id && canCreateChatBot`) — illustration on the left, greeting with the PERSON's name, description and ONE button, the screen's only creation exit.
+
+ONLY with one contact or more, the `<div id=""applications"" ng-if=""applications.length > 0"">`:
+  · the title ""Fluxos e roteadores em {conta}"" in bold `fs-24`;
+  · the grid — fixed 188 columns, with leftover space going to the edges, from the NEWEST contact to the oldest;
+  · pagination, which appears even with a single page (""1-11 de 11"", ""Itens por página: [40,80,120]"", ""de 1 páginas"").
+
+═══ MEASUREMENTS (original × ours, at 1920) ═══
+
+  dark bar           80 · light bar 80, white, 40 padding
+  column             540 · 830 (≥852) · 1300 (≥1300), centered
+  welcome            56 padding, 72 gap, text `flex: 1 0 200px`
+  action card        `flex: 1 0 300px`, 24 padding, icon with 8-to-24 corner
+  section title      20/700/20, 1px rule, 8 indent, 24 after
+  card               188×196, 16 corner, 15 padding, 56 avatar, 50 name, 25 tag
+  grid               188 auto-fill with 24 gap, at the edges
+
+THE LAYOUT IS THEIRS, THE PAINT IS OURS: none of their hex values go in, everything comes from the `--p-*` and `--g-barra-*` tokens. The icons and the brand are ours.",meta-blip,apps/gestao-vite/src/paginas/portal.tsx:24-69,,proposed
+gestao-vite-comment-746c94a2,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,254,254,block,0,/* próxima página */,remove,,other,"apps/gestao-vite/src/paginas/portal.tsx:254; redundant, restates the adjacent button's own aria-label=""Próxima página""",,proposed
+gestao-vite-comment-12459db8,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,265,265,block,0,/* última página */,remove,,other,"apps/gestao-vite/src/paginas/portal.tsx:265; redundant, restates the adjacent button's own aria-label=""Última página""",,proposed
 gestao-vite-comment-255001d9,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,283,292,jsdoc,17,"/**
  * A segunda barra: 80px brancos logo abaixo da escura, com o conteúdo alinhado
  * à MESMA coluna do miolo. É ela que diz de qual conta é tudo que vem abaixo.
@@ -8013,10 +8094,12 @@ gestao-vite-comment-255001d9,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * título vai o ENDEREÇO da conta: na origem o portal de cada conta vive num
  * subdomínio, e é ali que a pessoa lê em qual conta está; a nossa URL não
  * carrega isso, então o slug precisa estar visível.
- */",,,,,,
+ */",translate,"The second bar: 80px white, right below the dark one, with its content aligned to the SAME column as the body. It's what tells you which account everything below belongs to.
+
+On the right, where they put search (a 32×36 field at the column's edge), goes our search — and it only appears when there's something to search. Under the title goes the account's ADDRESS: in the source, each account's portal lives on its own subdomain, and that's where a person reads which account they're in; our URL doesn't carry that, so the slug needs to stay visible.",architecture,apps/gestao-vite/src/paginas/portal.tsx:283-292,,proposed
 gestao-vite-comment-b21036f0,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,325,327,block,2,"/* O título deles é uma FRASE, não o nome solto da conta:
             `navbar.subheader.workspaceOf` = ""Espaço de trabalho de {conta}"",
-            num `bds-typo variant=""fs-20"" bold tag=""h2""`. */",,,,,,
+            num `bds-typo variant=""fs-20"" bold tag=""h2""`. */",translate,"Their title is a SENTENCE, not the account's bare name: `navbar.subheader.workspaceOf` = ""Espaço de trabalho de {conta}"", in a `bds-typo variant=""fs-20"" bold tag=""h2""`.",meta-blip,apps/gestao-vite/src/paginas/portal.tsx:325-327,,proposed
 gestao-vite-comment-6773cebe,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,330,337,block,10,"/* A ponta direita da barra clara deles (`action-icons`): a busca e,
             quando `canCreateChatbot`, os DOIS botões de criar — ""Criar
             roteador"" em terciário e ""Criar fluxo"" em primário. É daqui que se
@@ -8024,9 +8107,11 @@ gestao-vite-comment-6773cebe,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
             é um atalho a mais, não o único caminho.
 
             A busca aparece SEMPRE, inclusive na conta sem nenhum contato: na
-            origem ela está lá na conta vazia. */",,,,,,
+            origem ela está lá na conta vazia. */",translate,"The light bar's right edge in the source (`action-icons`): search and, when `canCreateChatbot`, the TWO create buttons — ""Criar roteador"" as tertiary and ""Criar fluxo"" as primary. This is where creation happens, in any account state; the welcome-banner button is one more shortcut, not the only path.
+
+Search ALWAYS appears, even on an account with no contact at all: in the source it's there even on the empty account.",architecture,apps/gestao-vite/src/paginas/portal.tsx:330-337,,proposed
 gestao-vite-comment-9ca62a14,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,339,340,block,3,"/* A busca segue o comportamento da origem: o texto fica em estado local
-              e só atualiza a consulta depois de 700 ms sem digitação. */",,,,,,
+              e só atualiza a consulta depois de 700 ms sem digitação. */",translate,Search follows the source's behavior: the text stays in local state and only updates the query 700ms after typing stops.,other,apps/gestao-vite/src/paginas/portal.tsx:339-340,,proposed
 gestao-vite-comment-bf793699,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,377,384,jsdoc,9,"/**
  * O bloco de boas-vindas do estado 1, na medida deles: 56px de recheio, 72 de
  * vão entre a ilustração e o texto, e o texto com `flex: 1 0 200px`.
@@ -8034,8 +8119,10 @@ gestao-vite-comment-bf793699,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * A saudação usa o nome da PESSOA (na origem, `blipAccount.fullName`) e não o
  * da conta — é o único lugar da tela em que isso acontece, e é o que faz a
  * tela parecer dirigida a quem abriu.
- */",,,,,,
-gestao-vite-comment-d9fc57c3,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,407,407,block,0,/* ================================================== cartões de ação */,,,,,,
+ */",translate,"State 1's welcome block, at their measurements: 56px padding, 72 gap between the illustration and the text, and the text with `flex: 1 0 200px`.
+
+The greeting uses the PERSON's name (in the source, `blipAccount.fullName`) rather than the account's — it's the only place on the screen where that happens, and it's what makes the screen feel directed at whoever opened it.",meta-blip,apps/gestao-vite/src/paginas/portal.tsx:377-384,,proposed
+gestao-vite-comment-d9fc57c3,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,407,407,block,0,/* ================================================== cartões de ação */,remove,,other,apps/gestao-vite/src/paginas/portal.tsx:407; pure section divider restating the function name (`CartoesDeAcao`) immediately below,,proposed
 gestao-vite-comment-cafb881f,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,409,427,jsdoc,26,"/**
  * A fileira de cartões de ação — o `action-card-container` deles.
  *
@@ -8054,14 +8141,20 @@ gestao-vite-comment-cafb881f,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * comunidade são os dois sites de fora, e cada um só aparece quando o endereço
  * está configurado — cartão que leva a lugar nenhum é pior do que fileira
  * curta.
- */",,,,,,
+ */",translate,"The action-card row — their `action-card-container`.
+
+IT IS NOT PART OF THE EMPTY STATE. In the DOM of the eleven-bot account the row is there, between the light bar and the list; the condition in the source is `ng-if=""!isCarouselBannerEnabled || !canCreateChatBot""`, which doesn't look at the number of contacts. Hiding it when the account had a flow was our own invention, and it was the most visible difference between the two screens.
+
+Their four are READ-ONLY — news, contract, help and community — and none of them creates anything: the only creation exit lives in the welcome-banner button. Our ""Criar fluxo"" and ""Criar roteador"" came out of here for that reason.
+
+""Novidades"" stays out while there's nothing to show. Help and community are the two outside sites, and each only appears when its address is configured — a card that leads nowhere is worse than a short row.",architecture,apps/gestao-vite/src/paginas/portal.tsx:409-427,,proposed
 gestao-vite-comment-d33ff01f,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,431,432,block,3,"/* Os quatro deles, na mesma ordem: novidades, contrato, ajuda e
-          comunidade. A comunidade ainda está sendo feita e entra apagada. */",,,,,,
+          comunidade. A comunidade ainda está sendo feita e entra apagada. */",translate,"Their four, in the same order: news, contract, help and community. Community is still being built and comes in disabled/greyed out.",other,apps/gestao-vite/src/paginas/portal.tsx:431-432,,proposed
 gestao-vite-comment-f17e19e2,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,439,442,block,4,"/* CONTRATO, e não ""Minha conta"": na origem são duas telas diferentes e o
           \`onContractCardClick\` leva ao painel do contrato (o fragmento
           \`tenant\`), não ao cadastro da pessoa. Estava apontando para o lugar
-          errado. */",,,,,,
-gestao-vite-comment-3da04687,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,489,489,jsdoc,4,"/** Ainda não existe: o cartão aparece apagado, com o selo, e não clica. */",,,,,,
+          errado. */",translate,"CONTRATO (Contract), not ""Minha conta"" (My account): in the source these are two different screens and `onContractCardClick` leads to the contract panel (the `tenant` fragment), not to the person's profile. It was pointing to the wrong place.",architecture,apps/gestao-vite/src/paginas/portal.tsx:439-442,,proposed
+gestao-vite-comment-3da04687,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,489,489,jsdoc,4,"/** Ainda não existe: o cartão aparece apagado, com o selo, e não clica. */",translate,"Doesn't exist yet: the card shows up greyed out, with the badge, and doesn't click.",other,apps/gestao-vite/src/paginas/portal.tsx:489,,proposed
 gestao-vite-comment-95c675cf,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,528,536,jsdoc,4,"/**
  * O que a etiqueta do cartão diz, por tipo.
  *
@@ -8070,7 +8163,9 @@ gestao-vite-comment-95c675cf,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * (fluxo) desenha o `bds-icon` x-small no `chip_tag--icon` e a palavra no
  * `chip_tag--text` ao lado. Olhar só o template, sem o shadow root, esconde o
  * ícone — foi o engano de antes.
- */",,,,,,
+ */",translate,"What the card's tag says, by type.
+
+The text comes AFTER the type icon: in `supernova`'s rendered DOM, `bds-chip-tag icon=""builder-router""` (router) or `icon=""builder-new-state""` (flow) draws the x-small `bds-icon` inside `chip_tag--icon` and the word inside `chip_tag--text` beside it. Looking only at the template, without the shadow root, hides the icon — that was the earlier mistake.",architecture,apps/gestao-vite/src/paginas/portal.tsx:528-536,,proposed
 gestao-vite-comment-96fb9026,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,539,556,jsdoc,21,"/**
  * O cartão, nos três andares de altura FIXA da tela deles — avatar de 56,
  * nome de 50 e etiqueta de 25 dentro de 188×196 com 15 de recheio. É isso que
@@ -8088,25 +8183,33 @@ gestao-vite-comment-96fb9026,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx
  * BLOQUEADO (cadeado, cartão apagado, clique morto) a origem usa para bot que o
  * contrato barrou. Não temos bloqueio por contrato, então não há o que desenhar
  * — está no relatório. `arquivado` nem chega aqui: sai na consulta.
- */",,,,,,
+ */",translate,"The card, in their screen's three FIXED-height tiers — a 56 avatar, a 50 name and a 25 tag inside 188×196 with 15 padding. That's what keeps a two-line name from pushing the tag out.
+
+The tag is where flow and router are told apart, exactly like their `ContactBody.html` (`template === 'builder'` becomes ""Fluxo"", `template === 'master'` becomes ""Roteador""). We have no contact image, so the avatar is always the initial.
+
+NÃO PUBLICADO (Unpublished) is the dot in the card's corner, like in the source — `rascunho` (draft) is our name for the same state. The dot is drawn in CSS, and the card's `title` spells out in full what it means: color alone isn't information.
+
+BLOQUEADO (Blocked) — padlock, greyed-out card, dead click — the source uses for a bot the contract has barred. We have no contract-based blocking, so there's nothing to draw — it's in the report. `arquivado` (archived) never even gets here: it's filtered out in the query.",architecture,apps/gestao-vite/src/paginas/portal.tsx:539-556,,proposed
 gestao-vite-comment-a39b550d,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,565,569,block,9,"/* O cartão abre a CASA do contato, e não o construtor: na origem o
          `handleContactClick` vai para `/application/detail/{contato}/home`, e é
          de lá que se escolhe Builder, Atendimento, Canais e o resto. Ir direto
          para o construtor pulava a tela que reúne tudo — e, no roteador, levava
-         a um construtor que ele nem liga. */",,,,,,
+         a um construtor que ele nem liga. */",translate,"The card opens the contact's HOME, not the builder: in the source, `handleContactClick` goes to `/application/detail/{contato}/home`, and that's where Builder, Atendimento, Canais and the rest get chosen from. Going straight to the builder skipped the screen that brings everything together — and, for a router, it led to a builder it doesn't even use.",architecture,apps/gestao-vite/src/paginas/portal.tsx:565-569,,proposed
 gestao-vite-comment-a992981b,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,573,578,block,10,"/* Com foto, ela ocupa o círculo; sem foto, entra o ícone do produto —
           é o `ng-if=""!contact.imageUri""` deles. Em nenhum dos dois casos
           aparecem as iniciais do nome, que era o que tínhamos aqui.
 
           `<img>` cru e não `next/image`: a foto é uma `data:` URI gravada na
-          própria linha, e o otimizador do Next não tem o que otimizar nela. */",,,,,,
+          própria linha, e o otimizador do Next não tem o que otimizar nela. */",translate,"With a photo, it fills the circle; without one, the product icon goes in — it's their `ng-if=""!contact.imageUri""`. In neither case do the name's initials show up, which is what we used to have here.
+
+Plain `<img>`, not `next/image`: the photo is a `data:` URI stored right in the row, and Next's optimizer has nothing to optimize in it.",other,apps/gestao-vite/src/paginas/portal.tsx:573-578,,proposed
 gestao-vite-comment-63f9eb13,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,587,588,block,2,"/* O ícone é enfeite do lado da palavra, que continua visível e é o
-          que o leitor de tela lê. */",,,,,,
+          que o leitor de tela lê. */",translate,"The icon is decoration next to the word, which stays visible and is what the screen reader reads.",other,apps/gestao-vite/src/paginas/portal.tsx:587-588,,proposed
 gestao-vite-comment-3c136fee,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,80,81,block,3,"/* Busca, página e quantidade por página ficam em estado React. A URL visível
-     do portal permanece limpa; só a chamada à API recebe esses parâmetros. */",,,,,,
-gestao-vite-comment-4cf21eb6,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,86,86,block,3,/* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */,,,,,,
+     do portal permanece limpa; só a chamada à API recebe esses parâmetros. */",translate,"Search, page and items-per-page live in React state. The portal's visible URL stays clean; only the API call receives these parameters.",architecture,apps/gestao-vite/src/paginas/portal.tsx:80-81,,proposed
+gestao-vite-comment-4cf21eb6,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,86,86,block,3,/* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */,translate,The database being down can't wipe out the bar: the grid falls back to the empty state.,architecture,apps/gestao-vite/src/paginas/portal.tsx:86,,proposed
 gestao-vite-comment-dbcca979,gestao-vite,apps/gestao-vite/src/paginas/portal.tsx,98,99,block,6,"/* Vazio é a conta SEM NENHUM fluxo — não ""a busca não achou nada"". Confundir
-     os dois faz a tela de quem tem trinta fluxos virar tela de conta nova. */",,,,,,
+     os dois faz a tela de quem tem trinta fluxos virar tela de conta nova. */",translate,"Empty means the account has NO flow at all — not ""the search found nothing"". Confusing the two turns the screen for someone with thirty flows into the screen for a new account.",architecture,apps/gestao-vite/src/paginas/portal.tsx:98-99,,proposed
 gestao-vite-comment-a8d12e7a,gestao-vite,apps/gestao-vite/src/paginas/trocar-conta/sem-acesso/page.tsx,7,17,jsdoc,19,"/**
  * ""Você faz parte de X?"" — o endereço é de uma conta em que a pessoa não tem
  * acesso.
@@ -8117,7 +8220,11 @@ gestao-vite-comment-a8d12e7a,gestao-vite,apps/gestao-vite/src/paginas/trocar-con
  * **A conta pode até não existir, e a tela é a MESMA de propósito.** Dizer
  * ""essa conta existe, mas não é sua"" conta a qualquer curioso que empresa usa o
  * Pipe — é a mesma simetria que a descoberta por e-mail já mantém na entrada.
- */",,,,,,
+ */",translate,"""Are you part of X?"" — the address belongs to an account the person doesn't have access to.
+
+It's the source platform's way out for the same case, and the reason is that a flat denial sends away someone who just needed an invite.
+
+**The account might not even exist, and the screen is the SAME on purpose.** Saying ""this account exists, but it's not yours"" tells any curious visitor which companies use Pipe — the same symmetry that email discovery already keeps at sign-in.",security,apps/gestao-vite/src/paginas/trocar-conta/sem-acesso/page.tsx:7-17,,proposed
 gestao-vite-comment-870514c4,gestao-vite,apps/gestao-vite/tests/analise-abas.test.ts,10,17,jsdoc,11,"/**
  * A fileira de abas da Análise (`/fluxo/{id}/analise`).
  *
@@ -8125,27 +8232,29 @@ gestao-vite-comment-870514c4,gestao-vite,apps/gestao-vite/tests/analise-abas.tes
  * única condição que não é uma flag direta — depende do CLUSTER, com recaída
  * em `default` — e é exatamente a que volta errada lendo só o nome das flags
  * (`is-showing-data-extractor-tab` diz ""Golden,Doberman"" e não decide nada).
- */",,,,,,
+ */",translate,"The Analysis tab row (`/fluxo/{id}/analise`).
+
+What gates this is each tab's `ng-show`, and especially `Zn()`: it's the only condition that isn't a direct flag — it depends on the CLUSTER, falling back to `default` — and it's exactly the one that comes back wrong if you only read the flag names (`is-showing-data-extractor-tab` says ""Golden,Doberman"" and decides nothing).",architecture,apps/gestao-vite/tests/analise-abas.test.ts:10-17,,proposed
 gestao-vite-comment-ded26683,gestao-vite,apps/gestao-vite/tests/analise-jornada.test.ts,29,30,block,9,"/* Ninguém chega no nó de partida, então `r` vira a soma da etapa `i + 1` —
-     a 0, que não tem aresta. É o que a origem mostra, e não uma porcentagem. */",,,,,,
+     a 0, que não tem aresta. É o que a origem mostra, e não uma porcentagem. */",translate,"Nobody reaches the starting node, so `r` becomes the sum of step `i + 1` — step 0, which has no edge. That's what the source shows, not a percentage.",other,apps/gestao-vite/tests/analise-jornada.test.ts:29-30,,proposed
 gestao-vite-comment-288d76fc,gestao-vite,apps/gestao-vite/tests/analise-jornada.test.ts,5,10,jsdoc,6,"/**
  * O rótulo dos nós da Jornada dos Contatos — `SankeyService.getLabelSufix` da
  * origem. Tem dois ramos (quem chegou / quem saiu) e um terceiro que devolve a
  * contagem crua; o do nó de partida é o que some numa refatoração, porque
  * ninguém chega nele.
- */",,,,,,
-gestao-vite-comment-bf34714b,gestao-vite,apps/gestao-vite/tests/analise.test.ts,115,115,block,0,/* O anterior de 60 dias começa antes de 90 dias atrás: some o número. */,,,,,,
-gestao-vite-comment-3e536b22,gestao-vite,apps/gestao-vite/tests/analise.test.ts,129,129,block,2,"/* Arredondou para zero: vira o padrão, não ""0%"". */",,,,,,
-gestao-vite-comment-ec2590f7,gestao-vite,apps/gestao-vite/tests/analise.test.ts,141,141,block,2,"/* 12/10 = 1,2 → passo 2 (a regra antiga, que arredonda antes, dava 1 e 13 tiques). */",,,,,,
+ */",translate,"The Contact Journey nodes' label — the source's `SankeyService.getLabelSufix`. It has two branches (who arrived / who left) and a third that returns the raw count; the starting node's is the one that disappears in a refactor, because nobody arrives at it.",other,apps/gestao-vite/tests/analise-jornada.test.ts:5-10,,proposed
+gestao-vite-comment-bf34714b,gestao-vite,apps/gestao-vite/tests/analise.test.ts,115,115,block,0,/* O anterior de 60 dias começa antes de 90 dias atrás: some o número. */,translate,The 60-day-ago previous period starts before 90 days ago: the number disappears.,other,apps/gestao-vite/tests/analise.test.ts:115,,proposed
+gestao-vite-comment-3e536b22,gestao-vite,apps/gestao-vite/tests/analise.test.ts,129,129,block,2,"/* Arredondou para zero: vira o padrão, não ""0%"". */",translate,"Rounded down to zero: becomes the default, not ""0%"".",other,apps/gestao-vite/tests/analise.test.ts:129,,proposed
+gestao-vite-comment-ec2590f7,gestao-vite,apps/gestao-vite/tests/analise.test.ts,141,141,block,2,"/* 12/10 = 1,2 → passo 2 (a regra antiga, que arredonda antes, dava 1 e 13 tiques). */",translate,"12/10 = 1.2 → step 2 (the old rule, which rounds first, gave 1 and 13 ticks).",other,apps/gestao-vite/tests/analise.test.ts:141,,proposed
 gestao-vite-comment-a5a625fb,gestao-vite,apps/gestao-vite/tests/analise.test.ts,15,21,jsdoc,4,"/**
  * As regras da Análise do contato que a origem esconde no navegador
  * (`analytics-main.js`): o intervalo de cada chip (`xT`/`St`), o período de
  * comparação (`ft`), o texto do período (`IS`) e da dica (`XS`), e o `WS` que
  * formata todo número. Voltam erradas em silêncio — a tela carrega, só mostra
  * outro dia ou ""0%"" onde era ""-"".
- */",,,,,,
-gestao-vite-comment-82ea24a3,gestao-vite,apps/gestao-vite/tests/analise.test.ts,23,23,block,0,/* 13/09/2026 é um domingo. */,,,,,,
-gestao-vite-comment-a9f49c4e,gestao-vite,apps/gestao-vite/tests/analise.test.ts,47,47,block,1,"/* No domingo a ""semana atual"" é só hoje. */",,,,,,
+ */",translate,"The Contact Analysis rules the source hides in the browser (`analytics-main.js`): each chip's interval (`xT`/`St`), the comparison period (`ft`), the period text (`IS`) and the tooltip's (`XS`), and the `WS` that formats every number. They come back wrong silently — the screen loads, it just shows another day or ""0%"" where it used to show ""-"".",other,apps/gestao-vite/tests/analise.test.ts:15-21,,proposed
+gestao-vite-comment-82ea24a3,gestao-vite,apps/gestao-vite/tests/analise.test.ts,23,23,block,0,/* 13/09/2026 é um domingo. */,translate,09/13/2026 is a Sunday.,other,apps/gestao-vite/tests/analise.test.ts:23,,proposed
+gestao-vite-comment-a9f49c4e,gestao-vite,apps/gestao-vite/tests/analise.test.ts,47,47,block,1,"/* No domingo a ""semana atual"" é só hoje. */",translate,"On Sunday, the ""current week"" is just today.",other,apps/gestao-vite/tests/analise.test.ts:47,,proposed
 gestao-vite-comment-4c5e9ccf,gestao-vite,apps/gestao-vite/tests/atendentes.test.ts,12,20,jsdoc,7,"/**
  * As contas da tela ""Gestão de atendentes"", medida em
  * `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §b.2.
@@ -8154,23 +8263,25 @@ gestao-vite-comment-4c5e9ccf,gestao-vite,apps/gestao-vite/tests/atendentes.test.
  * ""Buscar por nome ou e-mail"", e buscar só no nome faz a pessoa digitar o
  * e-mail que está na tela e não achar nada), o filtro de fila é OU (uma fila
  * marcada basta), e as três variantes de descrição da página de permissões.
- */",,,,,,
-gestao-vite-comment-7c45ae96,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,101,101,line,0,"// Primeiro arrasto, completo — um passo de verdade no histórico.",,,,,,
-gestao-vite-comment-f8d5bc50,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,109,109,line,1,// Segundo arrasto em curso — Ctrl+Z no meio dele não faz nada.,,,,,,
-gestao-vite-comment-7ddf2069,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,118,118,line,3,"// sem a trava, aqui o mapa voltaria pra (0,0) com um passado corrompido.",,,,,,
+ */",translate,"The accounts for the ""Gestão de atendentes"" (Attendant Management) screen, measured in `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §b.2.
+
+What's worth proving: search sweeps both name AND email (the source's placeholder is ""Buscar por nome ou e-mail"", and searching only the name makes someone type the email that's on screen and find nothing), the queue filter is OR (one checked queue is enough), and the three variants of the permissions page's description.",meta-blip,apps/gestao-vite/tests/atendentes.test.ts:12-20,,proposed
+gestao-vite-comment-7c45ae96,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,101,101,line,0,"// Primeiro arrasto, completo — um passo de verdade no histórico.",translate,"// First drag, complete — a real step in the history.",other,apps/gestao-vite/tests/builder-editor.test.ts:101,,proposed
+gestao-vite-comment-f8d5bc50,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,109,109,line,1,// Segundo arrasto em curso — Ctrl+Z no meio dele não faz nada.,translate,// Second drag in progress — Ctrl+Z in the middle of it does nothing.,other,apps/gestao-vite/tests/builder-editor.test.ts:109,,proposed
+gestao-vite-comment-7ddf2069,gestao-vite,apps/gestao-vite/tests/builder-editor.test.ts,118,118,line,3,"// sem a trava, aqui o mapa voltaria pra (0,0) com um passado corrompido.",translate,"// without the guard, the map here would snap back to (0,0) with a corrupted past.",other,apps/gestao-vite/tests/builder-editor.test.ts:118,,proposed
 gestao-vite-comment-39e634ff,gestao-vite,apps/gestao-vite/tests/canais.test.ts,11,14,jsdoc,3,"/**
  * O campo ""Insira os e-mails separados por vírgula"" (Configurações de alerta,
  * ficha §4) — ida e volta entre o texto do campo e a lista que a API espera.
- */",,,,,,
-gestao-vite-comment-ecca695a,gestao-vite,apps/gestao-vite/tests/canais.test.ts,38,38,line,5,//a.com\n\nhttps://b.com\nhttps://a.com';,,,,,,
-gestao-vite-comment-74f4a6cc,gestao-vite,apps/gestao-vite/tests/canais.test.ts,39,39,line,3,"//a.com', 'https://b.com']);",,,,,,
-gestao-vite-comment-2bb3c88f,gestao-vite,apps/gestao-vite/tests/canais.test.ts,40,40,line,6,"//a.com', 'https://b.com']), 'https://a.com\nhttps://b.com');",,,,,,
+ */",translate,"The ""Insira os e-mails separados por vírgula"" (Enter emails separated by commas) field (Configurações de alerta, ficha §4) — round-trip between the field's text and the list the API expects.",integration,apps/gestao-vite/tests/canais.test.ts:11-14,,proposed
+gestao-vite-comment-ecca695a,gestao-vite,apps/gestao-vite/tests/canais.test.ts,38,38,line,5,//a.com\n\nhttps://b.com\nhttps://a.com';,keep-original,,other,"apps/gestao-vite/tests/canais.test.ts:38: substring of the string literal `https://a.com` (line reads `const texto = 'https://a.com\n\nhttps://b.com\nhttps://a.com';`) misread as a `//` line comment; scanner false positive, not a real comment",,proposed
+gestao-vite-comment-74f4a6cc,gestao-vite,apps/gestao-vite/tests/canais.test.ts,39,39,line,3,"//a.com', 'https://b.com']);",keep-original,,other,"apps/gestao-vite/tests/canais.test.ts:39: substring of the string literal `https://a.com`/`https://b.com` inside `textoParaSites(texto)` assertion misread as a `//` line comment; scanner false positive, not a real comment",,proposed
+gestao-vite-comment-2bb3c88f,gestao-vite,apps/gestao-vite/tests/canais.test.ts,40,40,line,6,"//a.com', 'https://b.com']), 'https://a.com\nhttps://b.com');",keep-original,,other,"apps/gestao-vite/tests/canais.test.ts:40: substring of the string literal `https://a.com`/`https://b.com` inside the `sitesParaTexto` assertion misread as a `//` line comment; scanner false positive, not a real comment",,proposed
 gestao-vite-comment-f5d9791f,gestao-vite,apps/gestao-vite/tests/canal-do-fluxo.test.ts,14,18,jsdoc,5,"/**
  * O canal DO BOT (`fluxo/canais/**`): o que o cartão da lista decide, o que a
  * página do canal desenha, e o que a etapa ""Ativação do número"" oferece —
  * `referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1 e §4.
- */",,,,,,
-gestao-vite-comment-0a2970b0,gestao-vite,apps/gestao-vite/tests/canal-do-fluxo.test.ts,56,56,line,2,"// Canal desligado ligado ao bot: a página oferece conectar de novo, não finge conectado.",,,,,,
+ */",translate,"The bot's channel (`fluxo/canais/**`): what the list card decides, what the channel page draws, and what the ""Ativação do número"" step offers — `referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1 and §4.",meta-blip,apps/gestao-vite/tests/canal-do-fluxo.test.ts:14-18,,proposed
+gestao-vite-comment-0a2970b0,gestao-vite,apps/gestao-vite/tests/canal-do-fluxo.test.ts,56,56,line,2,"// Canal desligado ligado ao bot: a página oferece conectar de novo, não finge conectado.",translate,"// Channel disconnected but linked to the bot: the page offers to reconnect, it doesn't pretend to be connected.",integration,apps/gestao-vite/tests/canal-do-fluxo.test.ts:56,,proposed
 gestao-vite-comment-9cd795bd,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,11,18,jsdoc,10,"/**
  * As regras da tela de Certificados de autenticação, copiadas do `Pt` e do
  * `yt` do fragmento deles. Errar qualquer uma não quebra a tela: ela deixa
@@ -8178,16 +8289,18 @@ gestao-vite-comment-9cd795bd,gestao-vite,apps/gestao-vite/tests/certificados.tes
  *
  * O `status` é calculado pela `api` a partir do `.pfx` (`valido`/`expirado`,
  * e `sem_arquivo` para o cadastro antigo); aqui só se escolhe o chip.
- */",,,,,,
-gestao-vite-comment-84cea8ed,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,31,31,line,2,"//a.exemplo.com', valido: true }];",,,,,,
-gestao-vite-comment-9d054010,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,35,35,line,2,"//a.exemplo.com', atuais), false);",,,,,,
-gestao-vite-comment-78cf898d,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,39,39,line,2,"//a.exemplo.com', valido: true };",,,,,,
-gestao-vite-comment-acf856f1,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,57,57,line,3,// Navegador que não declara o tipo do .pfx: vale a extensão.,,,,,,
-gestao-vite-comment-0afd96be,gestao-vite,apps/gestao-vite/tests/comunicacao.test.ts,25,25,line,1,// Texto e ausência de cabeçalho não gastam posição.,,,,,,
+ */",translate,"The Authentication Certificates screen's rules, copied from their `Pt` and `yt` fragment. Getting any of them wrong doesn't break the screen: it lets someone through to the next step who shouldn't be, or shows the wrong date.
+
+The `status` is computed by the `api` from the `.pfx` (`valido`/`expirado`, and `sem_arquivo` for the old record); here we only pick the chip.",security,apps/gestao-vite/tests/certificados.test.ts:11-18,,proposed
+gestao-vite-comment-84cea8ed,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,31,31,line,2,"//a.exemplo.com', valido: true }];",keep-original,,other,"apps/gestao-vite/tests/certificados.test.ts:31: substring of the string literal `https://a.exemplo.com` (line reads `const atuais = [{ host: 'https://a.exemplo.com', valido: true }];`) misread as a `//` line comment; scanner false positive, not a real comment",,proposed
+gestao-vite-comment-9d054010,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,35,35,line,2,"//a.exemplo.com', atuais), false);",keep-original,,other,"apps/gestao-vite/tests/certificados.test.ts:35: substring of the string literal `https://a.exemplo.com` inside the `hostValido` assertion misread as a `//` line comment; scanner false positive, not a real comment",,proposed
+gestao-vite-comment-78cf898d,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,39,39,line,2,"//a.exemplo.com', valido: true };",keep-original,,other,"apps/gestao-vite/tests/certificados.test.ts:39: substring of the string literal `https://a.exemplo.com` (line reads `const boa = { host: 'https://a.exemplo.com', valido: true };`) misread as a `//` line comment; scanner false positive, not a real comment",,proposed
+gestao-vite-comment-acf856f1,gestao-vite,apps/gestao-vite/tests/certificados.test.ts,57,57,line,3,// Navegador que não declara o tipo do .pfx: vale a extensão.,translate,// Browser that doesn't declare the .pfx's type: fall back to the extension.,security,apps/gestao-vite/tests/certificados.test.ts:57,,proposed
+gestao-vite-comment-0afd96be,gestao-vite,apps/gestao-vite/tests/comunicacao.test.ts,25,25,line,1,// Texto e ausência de cabeçalho não gastam posição.,translate,// Text and absence of a header don't consume a slot.,integration,apps/gestao-vite/tests/comunicacao.test.ts:25,,proposed
 gestao-vite-comment-48ccb0bc,gestao-vite,apps/gestao-vite/tests/comunicacao.test.ts,31,32,block,2,"/* O valor vem de coluna de texto do banco. Assumir mídia por engano
-     deslocaria variáveis de templates que não têm cabeçalho nenhum. */",,,,,,
+     deslocaria variáveis de templates que não têm cabeçalho nenhum. */",translate,The value comes from a text column in the database. Mistakenly assuming media would shift variables for templates that have no header at all.,integration,apps/gestao-vite/tests/comunicacao.test.ts:31-32,,proposed
 gestao-vite-comment-d52c14dd,gestao-vite,apps/gestao-vite/tests/comunicacao.test.ts,45,46,block,3,"/* Se alguém somar um tipo novo à lista sem decidir se ele gasta posição, o
-     teste continua passando — mas pelo menos o valor fica escrito aqui. */",,,,,,
+     teste continua passando — mas pelo menos o valor fica escrito aqui. */",translate,"If someone adds a new type to the list without deciding whether it consumes a slot, the test still passes — but at least the value is written down here.",other,apps/gestao-vite/tests/comunicacao.test.ts:45-46,,proposed
 gestao-vite-comment-1d07f5ce,gestao-vite,apps/gestao-vite/tests/comunicacao.test.ts,9,19,jsdoc,13,"/**
  * O deslocamento das variáveis do template do WhatsApp.
  *
@@ -8198,7 +8311,11 @@ gestao-vite-comment-1d07f5ce,gestao-vite,apps/gestao-vite/tests/comunicacao.test
  *
  * A mesma conta vive em `apps/workers/src/whatsapp/template.ts`, que é quem
  * dispara de fato. Este teste é o que trava o lado da tela na mesma regra.
- */",,,,,,
+ */",translate,"The WhatsApp template variable offset.
+
+A media header takes up slot 1 of the send and pushes ALL body variables one slot forward. Getting this wrong doesn't break the screen: the campaign goes out, Meta accepts it, and the customer gets someone else's name where the order number should be — in production, for the whole base, with no error in the log.
+
+The same logic lives in `apps/workers/src/whatsapp/template.ts`, which is what actually sends it. This test is what pins the screen side to the same rule.",meta-blip,apps/gestao-vite/tests/comunicacao.test.ts:9-19,,proposed
 gestao-vite-comment-a8fd5775,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,12,24,jsdoc,20,"/**
  * O filtro de cartões do Painel do contrato.
  *
@@ -8211,20 +8328,26 @@ gestao-vite-comment-a8fd5775,gestao-vite,apps/gestao-vite/tests/contrato.test.ts
  * só, porque não temos flag nem assinatura. O que este teste trava é esse passo
  * e o portão do modo demonstração — que mostra tudo e não pode, por isso mesmo,
  * escapar para nenhuma escrita.
- */",,,,,,
+ */",translate,"The Contract Panel's card filter.
+
+It's the rule that decides what each role sees, and getting it wrong doesn't break the screen: it opens, looking fine, showing whoever can't access it a path to something that isn't theirs — which is the kind of defect nobody sees in staging and that shows up in the first contract audit.
+
+The source's funnel has three steps (flag, metric, permission); ours has just one, because we have neither a flag nor a subscription. What this test pins down is that one step, plus the demo-mode gate — which shows everything and, for that very reason, must never leak into any write.",security,apps/gestao-vite/tests/contrato.test.ts:12-24,,proposed
 gestao-vite-comment-e74b8d9c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,28,29,block,0,"/* O `guest` deles: lê o resumo e o espaço de trabalho, e vê zero cartões —
-     o único cartão de workspace da origem exige ESCRITA. */",,,,,,
-gestao-vite-comment-f22d31a2,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,40,40,line,3,// Ler membro não dá o cartão que pede ESCREVER membro (a conferência `e` deles).,,,,,,
-gestao-vite-comment-2484647c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,49,49,line,3,"// E continua sendo só desenho: o cartão que ainda não tem rota segue ""em breve"".",,,,,,
-gestao-vite-comment-814b884a,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,70,70,line,1,// `toString` existe em todo objeto; não pode passar por papel.,,,,,,
+     o único cartão de workspace da origem exige ESCRITA. */",translate,"Their `guest`: reads the summary and the workspace, and sees zero cards — the source's only workspace card requires WRITE.",security,apps/gestao-vite/tests/contrato.test.ts:28-29,,proposed
+gestao-vite-comment-f22d31a2,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,40,40,line,3,// Ler membro não dá o cartão que pede ESCREVER membro (a conferência `e` deles).,translate,// Reading members doesn't grant the card that requires WRITING members (their `e` check).,security,apps/gestao-vite/tests/contrato.test.ts:40,,proposed
+gestao-vite-comment-2484647c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,49,49,line,3,"// E continua sendo só desenho: o cartão que ainda não tem rota segue ""em breve"".",translate,"// And it's still just a mockup: the card that has no route yet still shows ""em breve"" (coming soon).",other,apps/gestao-vite/tests/contrato.test.ts:49,,proposed
+gestao-vite-comment-814b884a,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,70,70,line,1,// `toString` existe em todo objeto; não pode passar por papel.,translate,// `toString` exists on every object; it must not pass as a role.,security,apps/gestao-vite/tests/contrato.test.ts:70,,proposed
 gestao-vite-comment-dfdd5a1f,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,74,80,jsdoc,8,"/**
  * A leitura dos alvos da tela de Membros.
  *
  * É um portão de confiança: o que chega são strings do navegador, e é delas que
  * sai a decisão de mexer em `usuario` ou em `convite`. Um prefixo desconhecido
  * que passasse daqui viraria consulta com id de outra tabela.
- */",,,,,,
-gestao-vite-comment-0e105f91,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,87,87,line,3,"// Prefixo que não existe, sem prefixo, id vazio e só espaço: nada disso passa.",,,,,,
+ */",translate,"Reading the Members screen's targets.
+
+It's a trust boundary: what comes in are browser strings, and they decide whether to touch `usuario` or `convite`. An unknown prefix that slipped through here would turn into a query with another table's id.",security,apps/gestao-vite/tests/contrato.test.ts:74-80,,proposed
+gestao-vite-comment-0e105f91,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,87,87,line,3,"// Prefixo que não existe, sem prefixo, id vazio e só espaço: nada disso passa.",translate,"// A prefix that doesn't exist, no prefix, an empty id, and just whitespace: none of it gets through.",security,apps/gestao-vite/tests/contrato.test.ts:87,,proposed
 gestao-vite-comment-00d4806c,gestao-vite,apps/gestao-vite/tests/contrato.test.ts,90,90,line,0,// O id pode ter dois-pontos; só o PRIMEIRO separa.,,,,,,
 gestao-vite-comment-fc78dc52,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,17,17,jsdoc,3,/** Os primeiros bytes de cada um dos três tipos que a origem aceita. */,,,,,,
 gestao-vite-comment-01193a15,gestao-vite,apps/gestao-vite/tests/criar-regras-de-nome.test.ts,29,29,line,1,// `<!DOCTYPE h` — o começo do arquivo que vira execução de script se for,,,,,,
