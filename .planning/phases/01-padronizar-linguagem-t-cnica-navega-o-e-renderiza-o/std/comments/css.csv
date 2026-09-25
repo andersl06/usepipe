@@ -3831,7 +3831,7 @@ css-comment-bbfdd59f,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,48
 css-comment-415ea6d8,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,60,61,css,3,"/* `margin: 3px 0 9px` da origem, sem perder o `margin: 0 auto` do
      `.cf-container` que centra a coluna. */",translate,"The source's `margin: 3px 0 9px`, without losing `.cf-container`'s
    `margin: 0 auto` that centers the column.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:60-61,,proposed
-css-comment-9e39e2f7,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,65,65,css,1,"/* `<a class=""no-decoration"">` em volta do cartão inteiro (`editUser`). */",,,,,,
+css-comment-9e39e2f7,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,65,65,css,1,"/* `<a class=""no-decoration"">` em volta do cartão inteiro (`editUser`). */",translate,"`<a class=""no-decoration"">` wraps the whole card (`editUser`).",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:65,,proposed
 css-comment-b6bc8811,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,1,46,css,17,"/* ============================== a tela do contato (`/fluxo/{id}`)
 
    Cópia de `auth.application.detail.home` do portal deles, medida regra por
@@ -3877,21 +3877,60 @@ css-comment-b6bc8811,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,1,46,css,1
      #282828 `--color-content-default` (nome de extensão) → `--p-conteudo`
 
    Não há alias no `:root` como em `criar.css`: aqui nenhum `--p-*` é
-   reapontado dentro da barra, então não há ciclo de variável para abrir. */",,,,,,
+   reapontado dentro da barra, então não há ciclo de variável para abrir. */",translate,"============================== the contact screen (`/fluxo/{id}`)
+
+   Copy of `auth.application.detail.home` from their portal, measured rule by rule in the `supernova.blip.ai/portal.css` sheet and in the templates embedded in `portal.js`:
+
+     module 57475  the detail shell (`<aside class=""detail-aside fl"">` +
+                   `<section id=""main-content-area"" class=""main-detail-content
+                   min-vh-flex pa0 flex relative u-full-width"">`);
+     module 80688  the contact bar (`.subheader-nav-div.flex.items-center.
+                   justify-between.ph5`);
+     module 79829  the section row (`<ul class=""main-subheader ma0 flex
+                   items-center"">` + the `.subheader-more-items`);
+     module 77021  the core (`.container` > header > `<hr/>` >
+                   `.chatbot-home-content`).
+
+   Each block below carries the SOURCE SELECTOR and the measured number. Only what belongs to THIS screen lives here; the shell (`pt-app`, `pt-conteudo`, `pt-obra`) and the bar pieces (`g-menu`, `g-painel`, `g-ponto`) come from `globais.css`.
+
+   ═══ THE PAINT IS OURS ═══
+
+   None of their hex enters. The dark bar comes from the `--g-barra-*` tokens, the rest from `--p-*`. The mappings the rest of the project has already fixed:
+
+     #282828 `--color-content-default` (bar background)      → `--g-barra-2`
+     #c9dfe4 (bar's muted label)                              → `--g-barra-fraca`
+     #fff    (bar's active label)                              → `--g-barra-tinta`
+     #3f7de8 (active underline)                                → `--g-barra-marca`
+     #21cc79 / #ff4c4c (status dot)                            → `--g-ponto-on/off`
+     #ededed `--color-surface-2` (core floor)                  → `--ground` (pt-app)
+     #fff    `--color-surface-0` (card)                        → `--p-superficie-0`
+     #202c44 (card title)                                      → `--p-conteudo`
+     #505f79 (card body)                                       → `--p-conteudo-desabilitado`
+     #94a3ab `.bp-c-silver` (Id, ""Criado em"")                 → `--p-conteudo-fantasma`
+     #e1e1e1 (`<hr/>`)                                          → `--p-linha`
+     #ff4c4c `.bp-c-delete` (""Deixar projeto"")                → `--p-erro-conteudo`
+     #3f7de8 / #1e6bf1 (button, ""Ver mais"", price)            → `--p-marca-forte`
+     #b3d4ff (metric icon)                                      → `--p-marca-suave`
+     #8ca0b3 (divider between metrics)                          → `--p-linha-media`
+     rgba(0,0,0,.2) `--color-border-1` (field border)          → `--p-linha-media`
+     `--color-surface-1/2/3` (stack, extension)                → `--p-superficie-1/2/3`
+     #282828 `--color-content-default` (extension name)         → `--p-conteudo`
+
+   There's no `:root` alias like in `criar.css`: no `--p-*` is re-pointed inside the bar here, so there's no variable cycle to open.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:1-46; Blip Portal parity file header (portal.js/portal.css module citations); pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a6364197,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,102,104,css,3,"/* O `<dropdown-item>` do nome: `.bot-name.fw3` com `margin-left: 15px` e a
    `bds-icon name=""arrow-down"" size=""small""` logo depois. `.fw3` é peso 300 —
-   o nome é LEVE, não normal. */",,,,,,
+   o nome é LEVE, não normal. */",translate,"The `<dropdown-item>` for the name: `.bot-name.fw3` with `margin-left: 15px` and a `bds-icon name=""arrow-down"" size=""small""` right after. `.fw3` is weight 300 — the name is LIGHT, not normal.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:102-104,,proposed
 css-comment-ab789af4,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,1048,1049,css,0,"/* `__card-footer-text { display: inline-block; margin-top: 3px }` e o texto
-   `fs-12` negrito na primária. */",,,,,,
-css-comment-1c6cb561,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,133,133,css,2,/* `.arrow-icon.transition-0-3s`: a seta gira meia volta quando abre. */,,,,,,
+   `fs-12` negrito na primária. */",translate,`__card-footer-text { display: inline-block; margin-top: 3px }` and the `fs-12` bold text in the primary color.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:1048-1049,,proposed
+css-comment-1c6cb561,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,133,133,css,2,/* `.arrow-icon.transition-0-3s`: a seta gira meia volta quando abre. */,translate,`.arrow-icon.transition-0-3s`: the arrow rotates half a turn when it opens.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:133,,proposed
 css-comment-8d9362b6,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,141,144,css,2,"/* `.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`,
    `max-width: 200px`, `padding: 0`; a `<ul class=""no-style ma0 ph4"">` põe os
    20px de recuo (`.ph4` = 1.25rem). O painel abre à direita do botão
-   (`dropdown-item .dropdown-item-content { right: -.5rem }`). */",,,,,,
+   (`dropdown-item .dropdown-item-content { right: -.5rem }`). */",translate,"`.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`, `max-width: 200px`, `padding: 0`; the `<ul class=""no-style ma0 ph4"">` gives the 20px indent (`.ph4` = 1.25rem). The panel opens to the right of the button (`dropdown-item .dropdown-item-content { right: -.5rem }`).",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:141-144,,proposed
 css-comment-a758a48a,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,146,147,css,5,"/* Lá é `width: 160px` fixo; aqui o selo ""em breve"" não cabe em 160, então o
-     painel cresce até o `max-width: 200px` que a regra deles já permite. */",,,,,,
+     painel cresce até o `max-width: 200px` que a regra deles já permite. */",translate,"There it's a fixed `width: 160px`; here the ""coming soon"" badge doesn't fit in 160, so the panel grows up to the `max-width: 200px` that their own rule already allows.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:146-147,,proposed
 css-comment-12fd365f,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,157,158,css,2,"/* `dropdown-item a { color: #52636c }`, hover `#3f7de8`. Aqui o link do painel
-   já é `--p-marca-forte` por `globais.css`; só o destrutivo muda de tinta. */",,,,,,
+   já é `--p-marca-forte` por `globais.css`; só o destrutivo muda de tinta. */",translate,"`dropdown-item a { color: #52636c }`, hover `#3f7de8`. Here the panel link is already `--p-marca-forte` via `globais.css`; only the destructive one changes color.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:157-158,,proposed
 css-comment-b3aeb946,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,163,171,css,9,"/* =========================== a fileira de seções (`.main-subheader`, mód. 79829)
 
    `.subheader-nav .main-subheader > li > a`: `color: #c9dfe4`, `display: block`,
@@ -3900,13 +3939,17 @@ css-comment-b3aeb946,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,163,171,cs
    padding. Ativo e hover: `color: #fff`.
 
    É a MESMA receita da fileira de módulos do portal (`.g-modulos`), porque na
-   origem as duas barras são a mesma peça vista em dois estados. */",,,,,,
+   origem as duas barras são a mesma peça vista em dois estados. */",translate,"=========================== the section row (`.main-subheader`, module 79829)
+
+   `.subheader-nav .main-subheader > li > a`: `color: #c9dfe4`, `display: block`, `font-weight: 300`, `line-height: 3.5rem` (56px, the whole bar), `padding: 0 20px`. No `gap` — the gap between two labels is the 20+20 of padding. Active and hover: `color: #fff`.
+
+   It's the SAME recipe as the portal's module row (`.g-modulos`), because at the source both bars are the same piece seen in two states.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:163-171; cites Blip Portal module 79829 parity; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e98f9dd7,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,196,199,css,3,"/* O ativo: `li.active > a { color: #fff }` e o `a:before` de 4px na cor da
    marca, `bottom: 0`, `left: 0`, `width: 100%` (parado, é `left: 25%;
    width: 0`, com `transition: .3s`). Na `home` nenhum item acende; na Análise
-   acende ""Análise"" — o `sidenav-menu-item` testa `$state.includes(sref)`. */",,,,,,
+   acende ""Análise"" — o `sidenav-menu-item` testa `$state.includes(sref)`. */",translate,"The active one: `li.active > a { color: #fff }` and the `a:before` of 4px in the brand color, `bottom: 0`, `left: 0`, `width: 100%` (at rest, it's `left: 25%; width: 0`, with `transition: .3s`). On `home` no item lights up; on Analytics ""Análise"" lights up — the `sidenav-menu-item` tests `$state.includes(sref)`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:196-199,,proposed
 css-comment-596645d7,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,221,222,css,0,"/* `.subheader-nav .subheader-more-items { padding-left: 10px }` e o ícone
-   `more-options-horizontal` dentro de um `div.h-100.flex.items-center`. */",,,,,,
+   `more-options-horizontal` dentro de um `div.h-100.flex.items-center`. */",translate,`.subheader-nav .subheader-more-items { padding-left: 10px }` and the `more-options-horizontal` icon inside a `div.h-100.flex.items-center`.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:221-222,,proposed
 css-comment-82583b8d,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,241,251,css,12,"/* O painel é o `dropdown-item` genérico do portal, com `align=""center""` e
    `min-width=""max-content""`:
    `.dropdown-item-content { background: #f6f6f6; border-radius: 8px;
@@ -3917,26 +3960,28 @@ css-comment-82583b8d,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,241,251,cs
    `.fx-mais` ocupa a barra inteira, a conta parte do centro dela. A setinha
    é o `:before` de 17×17 girado 45° com `border-radius: 6px 0`. O fundo é a
    superfície dos cartões (na origem `#f6f6f6` sobre página branca; aqui a
-   página é a superfície 1 e o cartão a 0 — mantém-se o contraste, não o hex). */",,,,,,
-css-comment-4b6bff28,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,255,255,css,0,"/* o centro do botão, descontado o padding-left */",,,,,,
+   página é a superfície 1 e o cartão a 0 — mantém-se o contraste, não o hex). */",translate,"The panel is the portal's generic `dropdown-item`, with `align=""center""` and `min-width=""max-content""`: `.dropdown-item-content { background: #f6f6f6; border-radius: 8px; box-shadow: 0 1px 6px rgba(0,60,128,.14), 0 2px 32px rgba(70,67,103,.1); margin-top: 5px; padding: 10px 0 }`, `.dropdown-direction-bottom { top: 130% }`, `.dropdown-align-center { transform: translateX(-50%) }`. Measured in the copy: the panel starts 12px below the 24px button (130% of 24 + 5); since `.fx-mais` spans the whole bar, the math starts from its center. The little arrow is the `:before`, 17×17 rotated 45° with `border-radius: 6px 0`. The background is the cards' surface (at the source `#f6f6f6` over a white page; here the page is surface 1 and the card is 0 — the contrast is kept, not the hex).",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:241-251; measured against the Blip Portal copy; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-4b6bff28,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,255,255,css,0,"/* o centro do botão, descontado o padding-left */",translate,"the center of the button, minus the padding-left",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:255,,proposed
 css-comment-c5632f07,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,278,282,css,4,"/* Cada linha: `.subheader-nav .main-subheader .dropdown-item-content ul li
    { padding: 0 20px }` com o `margin-bottom` de 10px do `li` global (o último
    zera), e o link `{ color: #52636c; font-size: 1rem; font-weight: 300;
    display: block }` — 26px de altura medidos na cópia. O apagado (em obra)
-   usa a MESMA linha, só com a opacidade de `pt-links-obra`. */",,,,,,
+   usa a MESMA linha, só com a opacidade de `pt-links-obra`. */",translate,"Each row: `.subheader-nav .main-subheader .dropdown-item-content ul li { padding: 0 20px }` with the global `li`'s 10px `margin-bottom` (the last one zeroes it), and the link `{ color: #52636c; font-size: 1rem; font-weight: 300; display: block }` — 26px height measured in the copy. The muted one (in progress) uses the SAME row, just with `pt-links-obra`'s opacity.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:278-282; measured in the Blip Portal copy; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2b45b9c7,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,313,317,css,0,"/* ================================ os atalhos da direita (`.action-icons`)
 
    `.subheader-nav .action-icons li`: `display: inline-block; margin-left: 18px`.
    Estão dentro de um `<bds-grid gap=""1"">`, mas quem manda no vão é o
-   `margin-left` de cada item. */",,,,,,
+   `margin-left` de cada item. */",translate,"================================ the right-side shortcuts (`.action-icons`)
+
+   `.subheader-nav .action-icons li`: `display: inline-block; margin-left: 18px`. They're inside a `<bds-grid gap=""1"">`, but what governs the gap is each item's `margin-left`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:313-317,,proposed
 css-comment-632eef66,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,324,326,css,2,"/* `.subheader-nav .action-icons li i { color: #c9dfe4; font-size: 1.25rem }` —
    o glifo tem avanço de 1em, então a vaga é 20×20; `[class^=icon-]:before`
-   traz `line-height: 1` e `vertical-align: middle`. */",,,,,,
+   traz `line-height: 1` e `vertical-align: middle`. */",translate,"`.subheader-nav .action-icons li i { color: #c9dfe4; font-size: 1.25rem }` — the glyph has a 1em advance, so the slot is 20×20; `[class^=icon-]:before` brings `line-height: 1` and `vertical-align: middle`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:324-326,,proposed
 css-comment-bb9eaa53,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,333,336,css,2,"/* `.subheader-nav .action-icons li a:hover i { color: #d2dfe6 }` e
    `li a.active i { color: #3f7de8 }` — o `active` é o `ui-sref-active` do
    estado (Integrações acende em `/integrations/**`, Configurações em
-   `/configurations/**`), na mesma tinta do sublinhado da fileira. */",,,,,,
-css-comment-d1ee1fea,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,346,346,css,3,/* O selo encosta no último ícone com o recuo que o `pt-obra-selo` já tem. */,,,,,,
+   `/configurations/**`), na mesma tinta do sublinhado da fileira. */",translate,"`.subheader-nav .action-icons li a:hover i { color: #d2dfe6 }` and `li a.active i { color: #3f7de8 }` — the `active` is the `ui-sref-active` of the state (Integrations lights up on `/integrations/**`, Settings on `/configurations/**`), in the same color as the row's underline.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:333-336,,proposed
+css-comment-d1ee1fea,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,346,346,css,3,/* O selo encosta no último ícone com o recuo que o `pt-obra-selo` já tem. */,translate,The badge sits against the last icon with the same indent `pt-obra-selo` already has.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:346,,proposed
 css-comment-400e7a04,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,358,368,css,12,"/* ============================= o miolo (`#main-content-area`, mód. 57475)
 
    `<section id=""main-content-area"" class=""main-detail-content min-vh-flex pa0
@@ -3947,23 +3992,27 @@ css-comment-400e7a04,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,358,368,cs
 
    A `<aside class=""detail-aside fl"">` fica VAZIA na `home`: quem a preenche são
    Atendimento, Configurações e IA. Sem lateral, sem abas — por isso não há
-   regra de `aside` nesta folha. */",,,,,,
+   regra de `aside` nesta folha. */",translate,"============================= the core (`#main-content-area`, module 57475)
+
+   `<section id=""main-content-area"" class=""main-detail-content min-vh-flex pa0 flex relative u-full-width"">`. `.pa0` is `padding: 0` — the core column manages its own indent, the shell adds none. `.main-detail-content` brings `background-color: var(--color-surface-2)`, which here is the `--ground` that `.pt-app` already paints.
+
+   The `<aside class=""detail-aside fl"">` stays EMPTY on `home`: Attendance, Settings and AI are what fill it. No sidebar, no tabs — that's why there's no `aside` rule in this sheet.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:358-368; cites Blip Portal module 57475; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3e1a3463,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,373,375,css,6,"/* `<div class=""container"">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`,
    `width: 100%`; a partir de 550px vira `width: 90%` sem padding, e a partir
-   de 750px `width: 80%`. NÃO há `max-width` — a coluna acompanha a tela. */",,,,,,
-css-comment-3eeeefae,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,397,397,css,0,"/* `<div class=""flex flex-row justify-between mt5"">` — `.mt5` é 2.5rem, 40px. */",,,,,,
+   de 750px `width: 80%`. NÃO há `max-width` — a coluna acompanha a tela. */",translate,"`<div class=""container"">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`, `width: 100%`; from 550px it becomes `width: 90%` with no padding, and from 750px `width: 80%`. There's NO `max-width` — the column follows the screen.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:373-375,,proposed
+css-comment-3eeeefae,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,397,397,css,0,"/* `<div class=""flex flex-row justify-between mt5"">` — `.mt5` é 2.5rem, 40px. */",translate,"`<div class=""flex flex-row justify-between mt5"">` — `.mt5` is 2.5rem, 40px.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:397,,proposed
 css-comment-e694653d,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,423,424,css,2,"/* `<div class=""flex flex-column ml3"">` — `.ml3` é .625rem, 10px. E o nome e o
-   ""Id:"" trazem OUTRO `ml3` cada um, então o texto fica a 20px da foto. */",,,,,,
+   ""Id:"" trazem OUTRO `ml3` cada um, então o texto fica a 20px da foto. */",translate,"`<div class=""flex flex-column ml3"">` — `.ml3` is .625rem, 10px. And the name and ""Id:"" each bring ANOTHER `ml3`, so the text ends up 20px from the photo.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:423-424,,proposed
 css-comment-6d706157,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,432,433,css,0,"/* `<bds-typo variant=""fs-20"" bold=""bold"" class=""ml3 mb2"">`: 20px, peso 700,
-   `line-height: 100%`, 10px de recuo e 5px (`.mb2`) até o ""Id:"". */",,,,,,
+   `line-height: 100%`, 10px de recuo e 5px (`.mb2`) até o ""Id:"". */",translate,"`<bds-typo variant=""fs-20"" bold=""bold"" class=""ml3 mb2"">`: 20px, weight 700, `line-height: 100%`, 10px indent and 5px (`.mb2`) down to ""Id:"".",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:432-433,,proposed
 css-comment-9ba8b6df,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,442,443,css,0,"/* `<span class=""bp-c-silver bp-fs-6 flex flex-row""><span class=""ml3 pr1"">`:
-   `.bp-fs-6` é .875rem (14px) e `.bp-c-silver` é o cinza de apoio. */",,,,,,
-css-comment-f5e15adb,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,446,446,css,1,/* `.bp-fs-6` — não há token `--p-t-*` de 14 no miolo claro */,,,,,,
+   `.bp-fs-6` é .875rem (14px) e `.bp-c-silver` é o cinza de apoio. */",translate,"`<span class=""bp-c-silver bp-fs-6 flex flex-row""><span class=""ml3 pr1"">`: `.bp-fs-6` is .875rem (14px) and `.bp-c-silver` is the supporting gray.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:442-443,,proposed
+css-comment-f5e15adb,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,446,446,css,1,/* `.bp-fs-6` — não há token `--p-t-*` de 14 no miolo claro */,translate,`.bp-fs-6` — there's no `--p-t-*` token for 14 in the light core,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:446,,proposed
 css-comment-894d27b3,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,450,451,css,3,"/* `<div class=""self-end bp-c-silver bp-fs-6"">`: encostado no PÉ da linha, não
-   no topo — é por isso que ""Criado em"" fica na altura do ""Id:"". */",,,,,,
-css-comment-11323d69,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,460,460,css,0,"/* `.pr1` é .15625rem — 2,5px. */",,,,,,
+   no topo — é por isso que ""Criado em"" fica na altura do ""Id:"". */",translate,"`<div class=""self-end bp-c-silver bp-fs-6"">`: flush against the BOTTOM of the line, not the top — that's why ""Criado em"" sits at the same height as ""Id:"".",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:450-451,,proposed
+css-comment-11323d69,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,460,460,css,0,"/* `.pr1` é .15625rem — 2,5px. */",translate,`.pr1` is .15625rem — 2.5px.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:460,,proposed
 css-comment-483ad228,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,465,466,css,1,"/* `hr`: `border-width: 0; border-top: 1px solid #e1e1e1`, e a última regra da
-   folha deixa `margin-top: .9375rem` (15px) e `margin-bottom: 1.125rem` (18px). */",,,,,,
+   folha deixa `margin-top: .9375rem` (15px) e `margin-bottom: 1.125rem` (18px). */",translate,"`hr`: `border-width: 0; border-top: 1px solid #e1e1e1`, and the sheet's last rule leaves `margin-top: .9375rem` (15px) and `margin-bottom: 1.125rem` (18px).",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:465-466,,proposed
 css-comment-5169a877,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,473,489,css,14,"/* ============================== a grade (`.chatbot-home-content`, mód. 77021)
 
    `display: grid; gap: 0 .8rem; grid-template-columns: repeat(3, 1fr);
@@ -3980,7 +4029,15 @@ css-comment-5169a877,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,473,489,cs
    depende da flag `new-onboarding-custom-ai`, desligada para o roteador
    capturado — a origem não desenha esse estado aqui.
 
-   `.chatbot-home-content bds-typo { color: #505f79 }` — todo texto de corpo. */",,,,,,
+   `.chatbot-home-content bds-typo { color: #505f79 }` — todo texto de corpo. */",translate,"============================== the grid (`.chatbot-home-content`, module 77021)
+
+   `display: grid; gap: 0 .8rem; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, auto); padding-bottom: 2.5rem`, with the extensions column (the Blip Store) taking the first three rows on the left. Without it, their sheet swaps the areas for full-width bands — `:not(:has(.chatbot-home-content-extensions-area))`.
+
+   The 62em and 48em breakpoints go as they are. They swap columns and areas in the base rule; the variant without extensions has higher specificity and keeps controlling the areas below it too, just like there.
+
+   The `:has(.chatbot-home-content-ai-area)` variant wasn't included: the AI card depends on the `new-onboarding-custom-ai` flag, off for the captured router — the source doesn't render that state here.
+
+   `.chatbot-home-content bds-typo { color: #505f79 }` — all body text.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:473-489; cites Blip Portal module 77021 and Blip Store; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-849a17f0,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,48,57,css,5,"/* ======================================== a barra do contato (`.subheader-nav`)
 
    `.subheader-nav`: `background: var(--color-content-default)`,
@@ -3990,103 +4047,116 @@ css-comment-849a17f0,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,48,57,css,
    `padding-left/right: 2.5rem`, ou seja 40px, NÃO os 32 da barra de baixo da
    Gestão.
    `.subheader-nav .bot-header-details` tem `min-height: 55px`, e o `a` da
-   fileira tem `line-height: 3.5rem` — é isso que dá os 56px da barra. */",,,,,,
-css-comment-c8bc431d,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,532,532,css,0,/* Cada `*-area` leva `margin-bottom: .8rem` — o `gap` só vale entre colunas. */,,,,,,
+   fileira tem `line-height: 3.5rem` — é isso que dá os 56px da barra. */",translate,"======================================== the contact bar (`.subheader-nav`)
+
+   `.subheader-nav`: `background: var(--color-content-default)`, `box-shadow: 0 2px 12px rgba(96,123,153,.15)`, `font-size: 1rem`, `font-weight: 400`, `display: block`, `width: 100%`, `position: relative`. `.subheader-nav-div`: `flex items-center justify-between ph5` — and `.ph5` is `padding-left/right: 2.5rem`, i.e. 40px, NOT the 32 of Gestão's bottom bar.
+   `.subheader-nav .bot-header-details` has `min-height: 55px`, and the row's `a` has `line-height: 3.5rem` — that's what gives the bar its 56px.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/fluxo.css:48-57; Blip Portal contact-bar measurement, contrasted with Gestão's own bar; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-c8bc431d,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,532,532,css,0,/* Cada `*-area` leva `margin-bottom: .8rem` — o `gap` só vale entre colunas. */,translate,Each `*-area` gets `margin-bottom: .8rem` — the `gap` only applies between columns.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:532,,proposed
 css-comment-fd6e272a,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,559,564,css,0,"/* ================================================= o cartão (`<bds-paper>`)
 
    O `:host` do `bds-paper`: `display: block; border-radius: 16px`, fundo
    `--color-surface-0` e elevação `static` (`0 2px 8px -2px
    var(--color-shadow-1)`) — o `--g-r-cartao` e o `--g-sombra-cartao` de
-   `globais.css`. E `.chatbot-home-content bds-paper { height: 100% }`. */",,,,,,
-css-comment-46b45ec9,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,584,584,css,0,/* `.mb1` do título de Equipe: .15625rem. */,,,,,,
+   `globais.css`. E `.chatbot-home-content bds-paper { height: 100% }`. */",translate,"================================================= the card (`<bds-paper>`)
+
+   The `:host` of `bds-paper`: `display: block; border-radius: 16px`, background `--color-surface-0` and `static` elevation (`0 2px 8px -2px var(--color-shadow-1)`) — the `--g-r-cartao` and `--g-sombra-cartao` from `globais.css`. And `.chatbot-home-content bds-paper { height: 100% }`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:559-564,,proposed
+css-comment-46b45ec9,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,584,584,css,0,/* `.mb1` do título de Equipe: .15625rem. */,translate,Equipe title's `.mb1`: .15625rem.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:584,,proposed
 css-comment-aad336d3,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,589,593,css,2,"/* `<bds-button size=""short"" variant=""tertiary"">`: 32px, raio 8,
    `padding: 0 16px`, `gap: 4px`. Nesta versão do blip-ds o terciário é
    CONTORNADO: fundo transparente, borda de 1px e texto na primária
    (`.button__color--primary.button__variant--tertiary`). O hover é a primária
-   a 8% por cima (`:hover::before`). */",,,,,,
-css-comment-3b352b71,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,615,615,css,1,/* O bloco em obra herda de `pt-links-obra` a tinta da BARRA; aqui é miolo claro. */,,,,,,
-css-comment-82657af2,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,621,621,css,0,"/* `size=""standard""` — o botão da loja. */",,,,,,
+   a 8% por cima (`:hover::before`). */",translate,"`<bds-button size=""short"" variant=""tertiary"">`: 32px, radius 8, `padding: 0 16px`, `gap: 4px`. In this version of blip-ds the tertiary is OUTLINED: transparent background, 1px border and text in the primary color (`.button__color--primary.button__variant--tertiary`). The hover is the primary color at 8% on top (`:hover::before`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:589-593; cites blip-ds tertiary-button behavior; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3b352b71,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,615,615,css,1,/* O bloco em obra herda de `pt-links-obra` a tinta da BARRA; aqui é miolo claro. */,translate,The in-progress block inherits the BAR's color from `pt-links-obra`; here it's the light core.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:615,,proposed
+css-comment-82657af2,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,621,621,css,0,"/* `size=""standard""` — o botão da loja. */",translate,"`size=""standard""` — the store's button.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:621,,proposed
 css-comment-99664ea7,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,626,629,css,1,"/* ---------------------------------- Canais e Equipe: a faixa em LINHA
 
    `__container { display: flex; flex-direction: row; justify-content:
-   space-between; min-height: 82px }` — título de um lado, conteúdo do outro. */",,,,,,
+   space-between; min-height: 82px }` — título de um lado, conteúdo do outro. */",translate,"---------------------------------- Channels and Team: the ROW layout
+
+   `__container { display: flex; flex-direction: row; justify-content: space-between; min-height: 82px }` — title on one side, content on the other.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:626-629,,proposed
 css-comment-a92f3bae,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,660,663,css,6,"/* `div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }`
    (`.mt1` = .15625rem). Cada vaga é um `bds-icon type=""logo"" size=""large""`:
    28×28, sem vão entre um e outro. A cor é a do próprio logo; só o `email`, que
-   é desenho da Blip na primária dela, pinta com a nossa marca. */",,,,,,
+   é desenho da Blip na primária dela, pinta com a nossa marca. */",translate,"`div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }` (`.mt1` = .15625rem). Each slot is a `bds-icon type=""logo"" size=""large""`: 28×28, no gap between one and the next. The color is the logo's own; only `email`, which is Blip's own artwork in its primary color, is painted with our brand color.",meta-blip,apps/gestao-vite/src/paginas/fluxo/fluxo.css:660-663; explicit Blip artwork citation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-78edf539,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,677,678,css,2,"/* `__description-container { align-content: center; height: 100%; margin: 0 15px }`
-   e `__description`: `fs-12` (150%) cortado em UMA linha com reticências. */",,,,,,
+   e `__description`: `fs-12` (150%) cortado em UMA linha com reticências. */",translate,`__description-container { align-content: center; height: 100%; margin: 0 15px }` and `__description`: `fs-12` (150%) clipped to ONE line with an ellipsis.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:677-678,,proposed
 css-comment-a90816e0,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,697,702,css,4,"/* ---------------------------------- a pilha da equipe (`avatar-array`)
 
    `__avatar-container.overflow-hidden`: `position: relative; height: 100%;
    min-height: 2rem; min-width: 55px; margin-top: 17px; margin-right: 5px`. Os
    avatares são absolutos, então a caixa fica nos 55px mínimos e corta o resto:
-   na escala de .55 cabem dois e meio. É o desenho da origem. */",,,,,,
+   na escala de .55 cabem dois e meio. É o desenho da origem. */",translate,"---------------------------------- the team stack (`avatar-array`)
+
+   `__avatar-container.overflow-hidden`: `position: relative; height: 100%; min-height: 2rem; min-width: 55px; margin-top: 17px; margin-right: 5px`. The avatars are absolute, so the box stays at its 55px minimum and clips the rest: at .55 scale, two and a half fit. It's the source's own design.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/fluxo.css:697-702; ""o desenho da origem"" cites the Blip source design; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-05bd3740,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,751,755,css,0,"/* ---------------------------------------- Preferências: o cartão em COLUNA
 
    `div.flex.flex-column.justify-between.w-100.h-100.__container
    { gap: 1rem; padding: 20px 15px 15px }` e `__inputs { display: flex;
-   flex-wrap: wrap; gap: 1rem }`, cada campo em `flex: 1 1 10rem`. */",,,,,,
+   flex-wrap: wrap; gap: 1rem }`, cada campo em `flex: 1 1 10rem`. */",translate,"---------------------------------------- Preferences: the card in COLUMN layout
+
+   `div.flex.flex-column.justify-between.w-100.h-100.__container { gap: 1rem; padding: 20px 15px 15px }` and `__inputs { display: flex; flex-wrap: wrap; gap: 1rem }`, each field at `flex: 1 1 10rem`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:751-755,,proposed
 css-comment-3b21dcd9,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,770,774,css,3,"/* `bds-input`/`bds-autocomplete` com `label`: `.input--state-primary { border:
    1px solid var(--color-border-1); border-radius: 8px }`, `.input--label
    { padding: 7px 4px 8px 12px }`, rótulo `fs-12` e texto em .875rem com
    `line-height: 22px`. Os três chegam desabilitados, e `.input--state-disabled`
-   é `opacity: 50%; cursor: not-allowed`. Sem fundo: o campo é o papel. */",,,,,,
+   é `opacity: 50%; cursor: not-allowed`. Sem fundo: o campo é o papel. */",translate,"`bds-input`/`bds-autocomplete` with `label`: `.input--state-primary { border: 1px solid var(--color-border-1); border-radius: 8px }`, `.input--label { padding: 7px 4px 8px 12px }`, label at `fs-12` and text at .875rem with `line-height: 22px`. All three arrive disabled, and `.input--state-disabled` is `opacity: 50%; cursor: not-allowed`. No background: the field is the paper.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:770-774,,proposed
 css-comment-31ed52cb,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,801,802,css,2,"/* Plano é `placeholder`, não valor: tinta de dica. E vem do banco em caixa
-   baixa (`essencial`), enquanto a barra do topo o mostra capitalizado. */",,,,,,
+   baixa (`essencial`), enquanto a barra do topo o mostra capitalizado. */",translate,"The plan is a `placeholder`, not a value: hint color. And it comes from the database in lowercase (`essencial`), while the top bar shows it capitalized.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:801-802,,proposed
 css-comment-fbd1349e,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,811,816,css,0,"/* ---------------------------------------- Métricas (`__metrics-area`)
 
    `__container { display: flex; align-items: stretch; justify-content:
    space-between; padding: 1.5rem }`; cada item `flex: 1; padding-right: 1rem;
    position: relative`, e do segundo em diante `border-left: 1px solid #8ca0b3;
-   padding-left: 2rem`. */",,,,,,
+   padding-left: 2rem`. */",translate,"---------------------------------------- Metrics (`__metrics-area`)
+
+   `__container { display: flex; align-items: stretch; justify-content: space-between; padding: 1.5rem }`; each item `flex: 1; padding-right: 1rem; position: relative`, and from the second one on `border-left: 1px solid #8ca0b3; padding-left: 2rem`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:811-816,,proposed
 css-comment-2a48c1dc,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,83,86,css,2,"/* `<div class=""relative pointer"">` com o avatar `.icon.icon-sm.icon-avatar.round`
    — `.icon.icon-sm` mede 2.25rem, 36px (o `icon-l` de 72 é o do miolo). O ponto
    de status é `.u-status-on--medium` (13px, borda de 2) em `right: -3px; top: 0`,
-   que é exatamente o `.g-ponto` de `globais.css`. */",,,,,,
-css-comment-b976c7f3,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,852,852,css,2,/* Rótulo `fs-16` (150%) e a dica `info` `x-small` com `.ml2.self-end`. */,,,,,,
+   que é exatamente o `.g-ponto` de `globais.css`. */",translate,"`<div class=""relative pointer"">` with the `.icon.icon-sm.icon-avatar.round` avatar — `.icon.icon-sm` measures 2.25rem, 36px (the 72px `icon-l` is the core's). The status dot is `.u-status-on--medium` (13px, 2px border) at `right: -3px; top: 0`, exactly `globais.css`'s `.g-ponto`.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:83-86,,proposed
+css-comment-b976c7f3,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,852,852,css,2,/* Rótulo `fs-16` (150%) e a dica `info` `x-small` com `.ml2.self-end`. */,translate,Label `fs-16` (150%) and the `info` `x-small` tooltip with `.ml2.self-end`.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:852,,proposed
 css-comment-405bfe45,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,873,874,css,0,"/* `__item__link`: `fs-12` negrito, `position: absolute; bottom: 0; right: 1rem;
-   visibility: hidden`, e visível no hover do item. Tinta #3f7de8. */",,,,,,
-css-comment-aba37c8b,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,922,922,css,0,/* ---------------------------------------- Extensões (`__extensions-area`) */,,,,,,
+   visibility: hidden`, e visível no hover do item. Tinta #3f7de8. */",translate,"`__item__link`: bold `fs-12`, `position: absolute; bottom: 0; right: 1rem; visibility: hidden`, visible on the item's hover. Color #3f7de8.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:873-874,,proposed
+css-comment-aba37c8b,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,922,922,css,0,/* ---------------------------------------- Extensões (`__extensions-area`) */,translate,---------------------------------------- Extensions (`__extensions-area`),other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:922,,proposed
 css-comment-7a27daeb,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,937,938,css,2,"/* `__title-container { margin-left: 20px }` e `__title-box { display:
-   inline-block; height: 10px }` — a caixa de 10px com o título de 20px dentro. */",,,,,,
+   inline-block; height: 10px }` — a caixa de 10px com o título de 20px dentro. */",translate,`__title-container { margin-left: 20px }` and `__title-box { display: inline-block; height: 10px }` — the 10px box with the 20px title inside.,other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:937-938,,proposed
 css-comment-0e37ceb8,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,969,971,css,0,"/* `__card-container`: `inline-flex` em coluna, `min-width: 170px;
    max-height: 96px`, fundo `surface-1`, borda de 1px `surface-2`, raio 8; no
-   hover o fundo vira `surface-2` e o cartão sobe 4px. */",,,,,,
+   hover o fundo vira `surface-2` e o cartão sobe 4px. */",translate,"`__card-container`: `inline-flex` in a column, `min-width: 170px; max-height: 96px`, `surface-1` background, 1px `surface-2` border, radius 8; on hover the background becomes `surface-2` and the card lifts 4px.",other,apps/gestao-vite/src/paginas/fluxo/fluxo.css:969-971,,proposed
 css-comment-36a809c4,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,1,2,css,0,"/* Medidas de `active-campaign-main.js` e do MFE do ZIP 16: `ds`, `yo`, `Zz`,
-   `uc` e `Ny`. As cores de superfície, linha, conteúdo e marca viram tokens Pipe. */",,,,,,
+   `uc` e `Ny`. As cores de superfície, linha, conteúdo e marca viram tokens Pipe. */",translate,"Measurements from `active-campaign-main.js` and the ZIP 16 MFE: `ds`, `yo`, `Zz`, `uc` and `Ny`. Surface, line, content and brand colors become Pipe tokens.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:1-2; cites captured Blip MFE bundle; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6dd34db6,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,110,113,css,2,"/* `.main-detail-content { background-color: var(--color-surface-2);
    box-shadow: -2px 6px 6px 0 rgba(226,231,236,.96); display: flex;
    flex-direction: column; overflow: hidden }`. O fundo segue sendo o
-   `--ground` que as telas de dentro já assumem. */",,,,,,
+   `--ground` que as telas de dentro já assumem. */",translate,"`.main-detail-content { background-color: var(--color-surface-2); box-shadow: -2px 6px 6px 0 rgba(226,231,236,.96); display: flex; flex-direction: column; overflow: hidden }`. The background keeps being the `--ground` that the inner screens already assume.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:110-113; continues the file's Blip MFE parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1e9f6a49,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,3,6,css,5,"/* ==================== a casca: `section.main-section > ui-view` é `display:
    flex` com a `<aside class=""detail-aside fl"">` (318px) e a
    `section.main-detail-content` (o resto, 962 em 1280) lado a lado, na
-   largura toda, do fim da sub-barra (y=136) até o pé. */",,,,,,
+   largura toda, do fim da sub-barra (y=136) até o pé. */",translate,"==================== the shell: `section.main-section > ui-view` is `display: flex` with the `<aside class=""detail-aside fl"">` (318px) and `section.main-detail-content` (the rest, 962 of 1280) side by side, full width, from the end of the sub-bar (y=136) to the bottom.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:3-6; Blip MFE shell measurement; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-856bc5e9,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,471,475,css,7,"/* Click Tracker — painel do microfrontend `portal-fragment-click-tracker` na
    rota `growth/clicktracker`, medido na cópia com a régua (janela 1280×780):
    página com 24px 8px, fileiras com 0 8px, `bds-grid.container` de 944px
    centrado, colunas 8/4 e 3 com 0 8px, `bds-paper` com raio 16px. Toda cor
-   sai dos tokens `--p-*` / `--g-*` do Pipe. */",,,,,,
-css-comment-acc5b4fb,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,514,514,css,2,/* Título `bds-typo fs-32 bold` (190×54) e a dica de 130×40 com o botão de ícone. */,,,,,,
-css-comment-ff3ad9a9,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,543,543,css,0,"/* Rótulos ""Evento de conversão"" / ""Período analisado"": fs-14 + ícone de 20px. */",,,,,,
-css-comment-0a3ee141,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,564,564,css,1,"/* Papel do evento: 604×48, padding 12px; chip clicável 34×24 com lápis. */",,,,,,
+   sai dos tokens `--p-*` / `--g-*` do Pipe. */",translate,"Click Tracker — the `portal-fragment-click-tracker` microfrontend's panel on the `growth/clicktracker` route, measured in the copy with a ruler (1280×780 window): page with 24px 8px, rows with 0 8px, `bds-grid.container` at 944px centered, 8/4 and 3 columns with 0 8px, `bds-paper` with 16px radius. All color comes from Pipe's `--p-*` / `--g-*` tokens.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:471-475; Blip Portal click-tracker MFE parity; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-acc5b4fb,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,514,514,css,2,/* Título `bds-typo fs-32 bold` (190×54) e a dica de 130×40 com o botão de ícone. */,translate,Title `bds-typo fs-32 bold` (190×54) and the 130×40 tooltip with the icon button.,meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:514; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-ff3ad9a9,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,543,543,css,0,"/* Rótulos ""Evento de conversão"" / ""Período analisado"": fs-14 + ícone de 20px. */",translate,"Labels ""Evento de conversão"" / ""Período analisado"": fs-14 + 20px icon.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:543; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0a3ee141,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,564,564,css,1,"/* Papel do evento: 604×48, padding 12px; chip clicável 34×24 com lápis. */",translate,"Event paper: 604×48, padding 12px; clickable chip 34×24 with a pencil.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:564; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-95c15579,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,595,596,css,2,"/* `bds-datepicker` em período: grade 174px 174px com 16px; `bds-input` com
-   rótulo em negrito, 7px 4px 8px 12px, borda de 1px e raio 8px (61px). */",,,,,,
+   rótulo em negrito, 7px 4px 8px 12px, borda de 1px e raio 8px (61px). */",translate,"`bds-datepicker` in range mode: 174px 174px grid with 16px; `bds-input` with bold label, 7px 4px 8px 12px, 1px border and 8px radius (61px).",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:595-596; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-242ca5ef,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,648,649,css,2,"/* Papel do token: margem 0 10px, 16px acima, padding 12px; faixa de status de
-   24px com raio 8px; fileira de 76px com logo de 64px, textos e botão fantasma. */",,,,,,
+   24px com raio 8px; fileira de 76px com logo de 64px, textos e botão fantasma. */",translate,"Token paper: 0 10px margin, 16px above, 12px padding; 24px status strip with 8px radius; 76px row with 64px logo, texts and a ghost button.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:648-649; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-30da663d,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,748,749,css,0,"/* Papel de desempenho: padding 12px, 17px abaixo; título fs-16 (32px),
-   subtítulo fs-14 (28px), indicadores 16px abaixo em quatro colunas. */",,,,,,
+   subtítulo fs-14 (28px), indicadores 16px abaixo em quatro colunas. */",translate,"Performance paper: 12px padding, 17px below; fs-16 title (32px), fs-14 subtitle (28px), indicators 16px below in four columns.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:748-749; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-359d23d7,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,776,777,css,1,"/* Indicador: superfície 2, raio 12px, 157px; valor fs-32 extra-bold (46px),
-   rótulo fs-12 extra-bold (47px), filete de 2px e rodapé com 8px. */",,,,,,
-css-comment-379e0d10,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,830,830,css,1,"/* Estado vazio: margem 20px, ilustração 130×134 com 30px abaixo, título fs-24. */",,,,,,
+   rótulo fs-12 extra-bold (47px), filete de 2px e rodapé com 8px. */",translate,"Indicator: surface 2, 12px radius, 157px; fs-32 extra-bold value (46px), fs-12 extra-bold label (47px), 2px rule and 8px footer.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:776-777; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-379e0d10,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,830,830,css,1,"/* Estado vazio: margem 20px, ilustração 130×134 com 30px abaixo, título fs-24. */",translate,"Empty state: 20px margin, 130×134 illustration with 30px below, fs-24 title.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:830; continues click-tracker parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-45ff9c77,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,853,859,css,8,"/* Anúncios (Beta) — `growth/adsbuying` na origem, medido no DOM renderizado
    de `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`: um
    `bds-paper` centralizado (`container xxs=8`, `margin: y-9`) com uma fileira
    `justify-content: space-between; align-items: center` de no máximo 625px —
    ilustração à esquerda, coluna de texto à direita (título fs-24 bold,
    texto fs-14, botão alinhado à direita com `padding-top: 30px`). Não é um
-   cartão vertical centrado como antes: é horizontal, texto à esquerda. */",,,,,,
+   cartão vertical centrado como antes: é horizontal, texto à esquerda. */",translate,"Ads (Beta) — `growth/adsbuying` at the source, measured in the rendered DOM of `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`: a centered `bds-paper` (`container xxs=8`, `margin: y-9`) with a `justify-content: space-between; align-items: center` row of at most 625px — illustration on the left, text column on the right (fs-24 bold title, fs-14 text, button right-aligned with `padding-top: 30px`). It's not a centered vertical card like before: it's horizontal, text on the left.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:853-859; cites captured Blip Portal ads page; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-070b17dc,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,923,931,css,13,"/* Relatório de Pagamentos — `growth/activemessages/paymentsReport` na
    origem: nenhum título de página (o `ui-view=""content""` recebe o MFE
    direto, sem `home-header-testid`), duas colunas lado a lado —
@@ -4095,7 +4165,7 @@ css-comment-070b17dc,css,apps/gestao-vite/src/paginas/fluxo/growth/growth.css,92
    gap 32, cada card com `border-radius: 12px; padding: 12px`). A origem
    mostra números de demonstração fixos (384.302 mensagens etc.) que o Pipe
    não reproduz — a régua aqui é a disposição, não o dado; por isso os
-   valores ficam em ""—"" e as barras não fabricam altura. */",,,,,,
+   valores ficam em ""—"" e as barras não fabricam altura. */",translate,"Payments Report — `growth/activemessages/paymentsReport` at the source: no page title (the `ui-view=""content""` gets the MFE directly, without `home-header-testid`), two side-by-side columns — ""Tráfego de mensagens"" and ""Pagamentos"" — each with its own cards (measured in `roteador-relatoriopagamentos__pagina.html`: flex-wrap, gap 32, each card with `border-radius: 12px; padding: 12px`). The source shows fixed demo numbers (384,302 messages etc.) that Pipe doesn't reproduce — the reference here is the layout, not the data; that's why the values show as ""—"" and the bars don't fabricate a height.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/growth.css:923-931; cites captured Blip Portal payments-report page; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-25fdbf75,css,apps/gestao-vite/src/paginas/fluxo/integracoes/cabecalho-de-pagina.css,1,26,css,7,"/* ================================ `<page-header>` (blipComponents.pageHeader)
 
    Template do componente (portal.js):
@@ -4121,7 +4191,24 @@ css-comment-25fdbf75,css,apps/gestao-vite/src/paginas/fluxo/integracoes/cabecalh
    mede 26×26 com `padding-right: 10px` e o glifo `.icon-back` 16×22 na cor
    `--color-content-ghost`. A tinta segue o mapa de `fluxo.css`:
    #282828 → `--p-conteudo`, #8c8c8c → `--p-conteudo-fantasma`,
-   #cfcfcf → `--p-linha-media`. Fonte é a do Pipe. */",,,,,,
+   #cfcfcf → `--p-linha-media`. Fonte é a do Pipe. */",translate,"================================ `<page-header>` (blipComponents.pageHeader)
+
+   Component template (portal.js):
+
+     <div class=""container"">
+       <div class=""full-initial-section"">
+         <div class=""row flex page-header-content items-center mb0"">
+           <div ng-if=""backButton"" class=""pr3""> <a class=""return-icon""> <i class=""icon-back""></i> </a> </div>
+           <div class=""flex items-center w-100""> <h1 class=""mv0 mr2 lh-solid"">{{pageTitle}}</h1> </div>
+           <div class=""custom-header-content flex items-center justify-end ml5 tr w-100"" ng-transclude=""customContent""></div>
+         </div>
+       </div>
+       <div class=""page-header-description""></div> <div class=""page-header-additional-info""></div>
+     </div>
+
+   Measured in the copy (1280 window): `.container` 1024 wide, 15px from the top of the core (here it's the shell's `.fx-coluna`); `.full-initial-section` `padding: 15px 0; margin: 15px 0; border-bottom: 1px solid #cfcfcf`, 76 tall; `.page-header-content` `margin-top: 3px`, centered flex, 42 minimum height; `h1` 24px/400, `line-height: 24px`, `margin-right: 5px` (`.mr2`), color `--color-content-default`; `.custom-header-content` `margin-left: 40px` (`.ml5`), `justify-content: flex-end`; the back button's `.pr3` measures 26×26 with `padding-right: 10px` and the `.icon-back` glyph 16×22 in `--color-content-ghost`. The color follows `fluxo.css`'s map:
+   #282828 → `--p-conteudo`, #8c8c8c → `--p-conteudo-fantasma`,
+   #cfcfcf → `--p-linha-media`. The font is Pipe's.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/cabecalho-de-pagina.css:1-26; cites blipComponents.pageHeader/portal.js template; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e6dcb680,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,1,17,css,4,"/* ============================== Integrações (`/integrations`) e Webhook
 
    Estrutura e medida vêm de `portal.css` e dos templates embutidos em
@@ -4138,87 +4225,116 @@ css-comment-e6dcb680,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integrac
      #fde99b (faixa de aviso)                            → `--p-alerta-fundo`
      0 2px 8px -2px rgba(0,0,0,.16) (papel)              → `--g-sombra-cartao`
 
-   Nenhum hex deles entra; a fonte é a do Pipe. */",,,,,,
+   Nenhum hex deles entra; a fonte é a do Pipe. */",translate,"============================== Integrations (`/integrations`) and Webhook
+
+   Structure and measurements come from `portal.css` and the templates embedded in `portal.js` (`.integrations-list` grid, `card--square` card, Webhook's module 29045, `oauth-form` 75264, `custom-headers`), checked against the copy's DOM (1280 window). The color follows `fluxo.css`'s map:
+
+     #f6f6f6 `--color-surface-1` (card/paper)                 → `--p-superficie-0`
+     #282828 `--color-content-default` (title, button)        → `--p-conteudo`
+     #595959 `--color-content-disable` (description)          → `--p-conteudo-desabilitado`
+     #8c8c8c `--color-content-ghost`                           → `--p-conteudo-fantasma`
+     rgba(0,0,0,.2) `--color-border-1` (field border)         → `--p-linha-media`
+     primary (active tab, Save, dashed button)                 → `--p-marca-forte`
+     #fde99b (warning band)                                    → `--p-alerta-fundo`
+     0 2px 8px -2px rgba(0,0,0,.16) (paper)                    → `--g-sombra-cartao`
+
+   None of their hex enters; the font is Pipe's.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:1-17; cites portal.css/portal.js module 29045/75264; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-557858a0,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,145,151,css,4,"/* ------------------------------------------------ `bds-button` (size medium)
 
    `button.button__size--medium`: 40px de altura, `padding: 0 16px`, raio 8,
    borda de 1px, `gap: 4px`, texto `fs-14` negrito. O `button { min-width:
    8.125rem }` global do portal alcança o botão (build sem shadow DOM), e é por
    isso que ""Conectar"", ""+ Adicionar"" e ""Salvar"" medem 130 de largura mínima.
-   `tertiary` e `ghost` são contornados na cor do conteúdo; `primary` é cheio. */",,,,,,
+   `tertiary` e `ghost` são contornados na cor do conteúdo; `primary` é cheio. */",translate,"------------------------------------------------ `bds-button` (size medium)
+
+   `button.button__size--medium`: 40px tall, `padding: 0 16px`, radius 8, 1px border, `gap: 4px`, bold `fs-14` text. The portal's global `button { min-width: 8.125rem }` reaches the button (build without shadow DOM), which is why ""Conectar"", ""+ Adicionar"" and ""Salvar"" measure 130 minimum width. `tertiary` and `ghost` are outlined in the content color; `primary` is filled.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:145-151; cites portal-wide button CSS; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6285d584,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,19,24,css,3,"/* ------------------------------------------------ a grade de cartões
 
    `.integrations-list { display: grid; justify-content: center; margin-right:
    -20px; margin-top: 0; max-width: 1097px }` com colunas por largura de tela
    (4 ≥ 1220, 3 entre 1000 e 1220, 2 entre 500 e 1000, 1 abaixo). A lista
-   começa 15px abaixo da barra do contato. */",,,,,,
+   começa 15px abaixo da barra do contato. */",translate,"------------------------------------------------ the card grid
+
+   `.integrations-list { display: grid; justify-content: center; margin-right: -20px; margin-top: 0; max-width: 1097px }` with columns by screen width (4 ≥ 1220, 3 between 1000 and 1220, 2 between 500 and 1000, 1 below). The list starts 15px below the contact bar.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:19-24; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c925c3e5,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,193,194,css,1,"/* `bds-button-icon variant=""secondary"" size=""short""`: 40px, `padding: 8px`,
-   raio 8, sem fundo; o mesmo `min-width` global de 130px alcança o botão. */",,,,,,
+   raio 8, sem fundo; o mesmo `min-width` global de 130px alcança o botão. */",translate,"`bds-button-icon variant=""secondary"" size=""short""`: 40px, `padding: 8px`, radius 8, no background; the same global 130px `min-width` reaches the button.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:193-194; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a03e11aa,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,214,218,css,1,"/* ------------------------------------------------ o papel do Webhook
 
    `bds-paper.integration-card`: raio 16, sombra `0 2px 8px -2px rgba(0,0,0,.16)`,
    `margin: 8px auto auto`, 80% da tela (= a coluna). Dentro, `bds-grid
-   padding=""3""` é 24px. */",,,,,,
-css-comment-7999fc2f,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,219,219,css,2,/* O `<bds-grid>` de fora é flex: assim a margem de 8px do papel não colapsa na do cabeçalho. */,,,,,,
+   padding=""3""` é 24px. */",translate,"------------------------------------------------ the Webhook paper
+
+   `bds-paper.integration-card`: radius 16, shadow `0 2px 8px -2px rgba(0,0,0,.16)`, `margin: 8px auto auto`, 80% of the screen (= the column). Inside, `bds-grid padding=""3""` is 24px.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:214-218; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7999fc2f,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,219,219,css,2,/* O `<bds-grid>` de fora é flex: assim a margem de 8px do papel não colapsa na do cabeçalho. */,translate,The outer `<bds-grid>` is flex: that way the paper's 8px margin doesn't collapse into the header's.,meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:219; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-725ad45d,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,249,251,css,4,"/* `bds-tabs` (`padding: 0 10px`) com `bds-tab` de 48px, `margin-right: 32px`,
    `border-bottom: 2px solid` (só a selecionada leva a primária), texto
-   `fs-16` negrito quando selecionada e regular nas outras. */",,,,,,
+   `fs-16` negrito quando selecionada e regular nas outras. */",translate,"`bds-tabs` (`padding: 0 10px`) with 48px `bds-tab`, `margin-right: 32px`, `border-bottom: 2px solid` (only the selected one gets the primary color), bold `fs-16` text when selected and regular on the others.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:249-251; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6ff2f65a,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,318,320,css,1,"/* `bds-banner variant=""warning"" context=""inside""`: `.banner__holder { padding:
    8px 16px; border-radius: 8px }`, ícone `warning` de 24 e texto de 16 com
-   altura de linha 24, sobre o amarelo de aviso. */",,,,,,
+   altura de linha 24, sobre o amarelo de aviso. */",translate,"`bds-banner variant=""warning"" context=""inside""`: `.banner__holder { padding: 8px 16px; border-radius: 8px }`, 24px `warning` icon and 16px text with 24 line height, over the warning yellow.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:318-320; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b9eb960a,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,378,383,css,5,"/* ------------------------------------------------ `bds-input`
 
    `.input { display: flex; align-items: center; gap: 8px; padding: 8px 4px 8px
    12px; border: 1px solid var(--color-border-1); border-radius: 8px }` (7px em
    cima quando há rótulo); `label` 12px negrito com 2px abaixo; `input` 14px com
-   altura de linha 22 e 36 de altura. Com rótulo o campo mede 73; sem, 54. */",,,,,,
-css-comment-6fc9b39b,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,465,465,css,1,"/* O ícone à direita do campo (olho da senha, seta do seletor). */",,,,,,
+   altura de linha 22 e 36 de altura. Com rótulo o campo mede 73; sem, 54. */",translate,"------------------------------------------------ `bds-input`
+
+   `.input { display: flex; align-items: center; gap: 8px; padding: 8px 4px 8px 12px; border: 1px solid var(--color-border-1); border-radius: 8px }` (7px on top when there's a label); `label` 12px bold with 2px below; `input` 14px with 22 line height and 36 height. With a label the field measures 73; without, 54.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:378-383; continues portal.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-6fc9b39b,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,465,465,css,1,"/* O ícone à direita do campo (olho da senha, seta do seletor). */",translate,"The icon to the right of the field (password eye, selector arrow).",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:465,,proposed
 css-comment-a60a18e2,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,480,484,css,4,"/* ------------------------------------------------ `expandable-content.advanced-settings.pv3`
 
    Host `padding: 10px 0`; `.item-header { padding: 10px 5px; display: flex }`
    com a seta em `.mr3.mt2` (10px à direita, 5px acima) e o texto
-   `.bp-fs-6`; `item-body { margin: 10px 0 }` e, aberto, sem recuo. */",,,,,,
+   `.bp-fs-6`; `item-body { margin: 10px 0 }` e, aberto, sem recuo. */",translate,"------------------------------------------------ `expandable-content.advanced-settings.pv3`
+
+   Host `padding: 10px 0`; `.item-header { padding: 10px 5px; display: flex }` with the arrow at `.mr3.mt2` (10px to the right, 5px above) and the `.bp-fs-6` text; `item-body { margin: 10px 0 }` and, open, no indent.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:480-484,,proposed
 css-comment-2351900c,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,518,522,css,2,"/* ------------------------------------------------ `bds-select-chips.url-input-field.mb3`
 
    ponytail: o chunk do `bds-select-chips` não veio na captura; a caixa segue
    o `bds-input` e as fichas o `bds-chip-clickable` do blip-ds (32px, raio 16,
-   fundo `surface-2`, texto 14 negrito). Pede conferência na origem. */",,,,,,
+   fundo `surface-2`, texto 14 negrito). Pede conferência na origem. */",translate,"------------------------------------------------ `bds-select-chips.url-input-field.mb3`
+
+   ponytail: the `bds-select-chips` chunk wasn't in the capture; the box follows `bds-input` and the chips follow blip-ds's `bds-chip-clickable` (32px, radius 16, `surface-2` background, bold 14px text). Needs checking against the source.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:518-522; cites blip-ds component, acknowledges an incomplete Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-29cd0b98,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,604,606,css,1,"/* `bds-select-chips` de escolha (Tipos de envio) e de tipo de autenticação
    (rádio): ficha clicável, mesma altura/raio de `.ig-chip`, mas com o
-   controle nativo por trás em vez de um ""x"". */",,,,,,
+   controle nativo por trás em vez de um ""x"". */",translate,"`bds-select-chips` for choice (Tipos de envio) and for auth type (radio): clickable chip, same height/radius as `.ig-chip`, but with the native control behind it instead of an ""x"".",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:604-606,,proposed
 css-comment-dc555e85,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,63,66,css,2,"/* `card.card--with-hover.card--square`: `display: inline-flex; flex-direction:
    column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px
    rgba(0,0,0,.15); margin: .5625rem 0` e `.card-content { padding: .9375rem }`.
-   Em `[ng-click]:hover` a origem faz `transform: scale(1.03)` e sobe a sombra. */",,,,,,
+   Em `[ng-click]:hover` a origem faz `transform: scale(1.03)` e sobe a sombra. */",translate,"`card.card--with-hover.card--square`: `display: inline-flex; flex-direction: column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.15); margin: .5625rem 0` and `.card-content { padding: .9375rem }`. On `[ng-click]:hover` the source does `transform: scale(1.03)` and raises the shadow.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:63-66; cites source hover behavior; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-68deb4df,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,634,639,css,3,"/* ------------------------------------------------ OAuth
 
    `<div class=""flex flex-column items-left"">` com o título em `.mb3` e a
    fileira `bds-switch size=""short"" class=""pv2""` + `bds-typo.pv2.ph4` (altura
    28, 14px). O host curto mede 32×34: 5px de folga acima e abaixo do trilho
-   de 18 mais os 6px do `label`. */",,,,,,
+   de 18 mais os 6px do `label`. */",translate,"------------------------------------------------ OAuth
+
+   `<div class=""flex flex-column items-left"">` with the title in `.mb3` and the `bds-switch size=""short"" class=""pv2""` + `bds-typo.pv2.ph4` row (height 28, 14px). The short host measures 32×34: 5px of slack above and below the 18px track plus the `label`'s 6px.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:634-639,,proposed
 css-comment-85abbf15,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,645,646,css,3,"/* Fileira `bds-switch` + rótulo — o wrapper não pode se chamar `ig-interruptor`
-   (a classe do PRÓPRIO `<Interruptor>`, com posição/tamanho fixos, colidiria). */",,,,,,
+   (a classe do PRÓPRIO `<Interruptor>`, com posição/tamanho fixos, colidiria). */",translate,"Row `bds-switch` + label — the wrapper can't be called `ig-interruptor` (the class of the `<Interruptor>` component ITSELF, with fixed position/size, would collide).",architecture,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:645-646; class-name collision-avoidance rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-08fed819,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,663,664,css,1,"/* `oauth-form` (módulo 75264): `.pv3 > .w-100.mv3 > p.bp-fs-6` (14px, 24 abaixo)
-   e duas fileiras `.flex.mb5` (40 abaixo) com `.w-40 / .w-10 / .w-40`. */",,,,,,
+   e duas fileiras `.flex.mb5` (40 abaixo) com `.w-40 / .w-10 / .w-40`. */",translate,"`oauth-form` (module 75264): `.pv3 > .w-100.mv3 > p.bp-fs-6` (14px, 24 below) and two `.flex.mb5` rows (40 below) with `.w-40 / .w-10 / .w-40`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:663-664; cites portal.js module 75264; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-310c6fe3,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,698,703,css,0,"/* ------------------------------------------------ `custom-headers`
 
    `<div class=""flex mv5""> <div class=""w-60"">` título em `.mb3`, fileiras
    `bds-input` (`padding: .1em .2em .1em 0`) + `bds-button-icon icon=""trash""`
    e o `button.bp-btn--dashed` de 60px, largura total, borda tracejada de 2px
-   na primária, raio 3, texto 14 negrito. */",,,,,,
-css-comment-41f8df57,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,755,755,css,1,"/* O painel ""Webhook criado. Copie o segredo agora"" — some depois de ""Já copiei"". */",,,,,,
-css-comment-f95c246e,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,763,763,css,0,"/* Espaço extra acima do bloco de cabeçalhos, dentro de ""Configurações avançadas"". */",,,,,,
-css-comment-f7a01a38,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,768,768,css,1,"/* Os webhooks já criados, abaixo do formulário ""Novo webhook"". */",,,,,,
+   na primária, raio 3, texto 14 negrito. */",translate,"------------------------------------------------ `custom-headers`
+
+   `<div class=""flex mv5""> <div class=""w-60"">` title in `.mb3`, `bds-input` rows (`padding: .1em .2em .1em 0`) + `bds-button-icon icon=""trash""` and the 60px `button.bp-btn--dashed`, full width, 2px dashed border in the primary color, radius 3, bold 14px text.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:698-703,,proposed
+css-comment-41f8df57,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,755,755,css,1,"/* O painel ""Webhook criado. Copie o segredo agora"" — some depois de ""Já copiei"". */",translate,"The ""Webhook criado. Copie o segredo agora"" panel — disappears after ""Já copiei"".",security,"apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:755; one-time secret-reveal panel, keeps literal Portuguese product copy; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-f95c246e,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,763,763,css,0,"/* Espaço extra acima do bloco de cabeçalhos, dentro de ""Configurações avançadas"". */",translate,"Extra space above the headers block, inside ""Configurações avançadas"".",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:763,,proposed
+css-comment-f7a01a38,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,768,768,css,1,"/* Os webhooks já criados, abaixo do formulário ""Novo webhook"". */",translate,"The webhooks already created, below the ""Novo webhook"" form.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:768,,proposed
 css-comment-1bb712c9,css,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css,96,98,css,2,"/* `img` em linha, `height=""57""` (Dashbot `67` com `.mb0`); `.integrations-list
    .integration-item img:not(.mb0) { margin-bottom: .625rem }` — medido, o texto
-   começa 16px abaixo da figura (10 de margem + a descida da linha). */",,,,,,
+   começa 16px abaixo da figura (10 de margem + a descida da linha). */",translate,"Inline `img`, `height=""57""` (Dashbot `67` with `.mb0`); `.integrations-list .integration-item img:not(.mb0) { margin-bottom: .625rem }` — measured, the text starts 16px below the figure (10px margin + line descent).",other,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.css:96-98,,proposed
 css-comment-a95da900,css,apps/gestao-vite/src/paginas/fluxo/integracoes/interruptor.css,1,7,css,5,"/* `bds-switch` (blip-ds, build com escopo `sc-bds-switch`), medido na cópia:
    host 42×32, `label.switch` 42×24 com `margin-bottom: .375rem` (6px, do
    `label` global) e 2px de folga acima; `.slider` 42×24, raio 34; `::before`
    18×18 a `left: 3px; bottom: 3px`, translateX(18px) quando marcado.
    `size=""short""`: 32×18, bolinha 12, deslocamento 14. Tinta: desligado
    `--color-content-ghost` (#8c8c8c) → `--p-conteudo-fantasma`; ligado a
-   primária → `--p-marca-forte`; bolinha branca → `--p-superficie-0`. */",,,,,,
+   primária → `--p-marca-forte`; bolinha branca → `--p-superficie-0`. */",translate,"`bds-switch` (blip-ds, built with `sc-bds-switch` scope), measured in the copy: host 42×32, `label.switch` 42×24 with `margin-bottom: .375rem` (6px, from the global `label`) and 2px slack above; `.slider` 42×24, radius 34; `::before` 18×18 at `left: 3px; bottom: 3px`, translateX(18px) when checked. `size=""short""`: 32×18, 12px dot, 14 offset. Color: off `--color-content-ghost` (#8c8c8c) → `--p-conteudo-fantasma`; on primary → `--p-marca-forte`; white dot → `--p-superficie-0`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/interruptor.css:1-7; explicit blip-ds citation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-55f0b67f,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,1,9,css,3,"/* ============================== Growth › Log (`/growth/messages/log`)
 
    Estrutura do módulo 4842 de portal.js e regras `.message-history*` de
@@ -4227,39 +4343,47 @@ css-comment-55f0b67f,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,1,9,css,
    de `fluxo.css`: #f6f6f6 papel → `--p-superficie-0`; #282828 → `--p-conteudo`;
    #595959 → `--p-conteudo-desabilitado`; primária (Id, lupa) → `--p-marca-forte`;
    #fde99b (chip de aviso) → `--p-alerta-fundo`; a sombra `elevation=""primary""`
-   (`0 6px 16px -4px rgba(0,0,0,.16)`) → `--p-sombra-2`. Fonte é a do Pipe. */",,,,,,
+   (`0 6px 16px -4px rgba(0,0,0,.16)`) → `--p-sombra-2`. Fonte é a do Pipe. */",translate,"============================== Growth › Log (`/growth/messages/log`)
+
+   Structure from portal.js's module 4842 and portal.css's `.message-history*` rules, measured in the copy's DOM (1280 window). The header is the `<page-header>` (`cabecalho-de-pagina.css`, from Integrations). Color by `fluxo.css`'s map: #f6f6f6 paper → `--p-superficie-0`; #282828 → `--p-conteudo`; #595959 → `--p-conteudo-desabilitado`; primary (Id, magnifier) → `--p-marca-forte`; #fde99b (warning chip) → `--p-alerta-fundo`; the `elevation=""primary""` shadow (`0 6px 16px -4px rgba(0,0,0,.16)`) → `--p-sombra-2`. The font is Pipe's.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:1-9; cites portal.js module 4842; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-278129b0,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,11,12,css,1,"/* `.message-history-header custom-content { gap: 20px }` — `custom-content`
-   é `display: flex; justify-content: flex-end` com `items-center`. */",,,,,,
-css-comment-d2a36d86,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,129,129,css,1,"/* ""Carregar mais"": paginação por cursor no lugar do `take: 30` fixo da origem. */",,,,,,
+   é `display: flex; justify-content: flex-end` com `items-center`. */",translate,`.message-history-header custom-content { gap: 20px }` — `custom-content` is `display: flex; justify-content: flex-end` with `items-center`.,meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:11-12; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d2a36d86,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,129,129,css,1,"/* ""Carregar mais"": paginação por cursor no lugar do `take: 30` fixo da origem. */",translate,"""Carregar mais"": cursor-based pagination instead of the source's fixed `take: 30`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:129; contrasts with the Blip source's fixed pagination; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-64ebd0b0,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,151,152,css,1,"/* `<div class=""container relative message-history"">` — começa logo abaixo
-   dos 15px de margem do cabeçalho. */",,,,,,
+   dos 15px de margem do cabeçalho. */",translate,"`<div class=""container relative message-history"">` — starts right below the header's 15px margin.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:151-152; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bb5ac90f,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,157,159,css,1,"/* `bds-chip-tag color=""warning"" icon=""warning""`: 24 de altura, `padding: 0 4px`,
    raio 12, ícone `x-small` (16) e texto `fs-12` negrito com altura de linha 18
-   (`no-wrap`); o host leva `margin-bottom: 20px`. */",,,,,,
+   (`no-wrap`); o host leva `margin-bottom: 20px`. */",translate,"`bds-chip-tag color=""warning"" icon=""warning""`: 24px tall, `padding: 0 4px`, radius 12, `x-small` icon (16) and bold `fs-12` text with 18 line height (`no-wrap`); the host gets `margin-bottom: 20px`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:157-159; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9d751956,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,197,201,css,5,"/* `bds-paper elevation=""primary"" style=""padding:16px"" class=""mb4""`: raio 16,
    `margin-bottom: 1.25rem`. Dentro, `bds-typo tag=""p"" variant=""fs-12""` (12px,
    altura de linha 18, sem margem), `strong` 12 negrito, `pre` 12px
    monoespaçada com `white-space: pre-wrap; word-wrap: break-word;
-   margin-bottom: 0`. O `a` do Id é a primária, sem sublinhado. */",,,,,,
+   margin-bottom: 0`. O `a` do Id é a primária, sem sublinhado. */",translate,"`bds-paper elevation=""primary"" style=""padding:16px"" class=""mb4""`: radius 16, `margin-bottom: 1.25rem`. Inside, `bds-typo tag=""p"" variant=""fs-12""` (12px, 18 line height, no margin), bold 12px `strong`, 12px monospace `pre` with `white-space: pre-wrap; word-wrap: break-word; margin-bottom: 0`. The Id's `a` is the primary color, no underline.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:197-201; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b92019e1,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,237,239,css,1,"/* `.message-history .no-logs-found { margin-bottom: .75rem }` e `.no-logs-found
    bds-typo { color: var(--color-content-disable) }`; o `h4` de `fs-16` tem
-   altura de linha 24 e a descrição `fs-14` tem 21. */",,,,,,
+   altura de linha 24 e a descrição `fs-14` tem 21. */",translate,`.message-history .no-logs-found { margin-bottom: .75rem }` and `.no-logs-found bds-typo { color: var(--color-content-disable) }`; the `fs-16` `h4` has 24 line height and the `fs-14` description has 21.,meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:237-239; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9f142e38,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,38,39,css,2,"/* `bds-input.u-full-width` sem rótulo: 54 de altura, `padding: 8px 4px 8px 12px`,
-   borda de 1px, raio 8, texto 14 com altura de linha 22 em 36 de altura. */",,,,,,
+   borda de 1px, raio 8, texto 14 com altura de linha 22 em 36 de altura. */",translate,"`bds-input.u-full-width` with no label: 54 tall, `padding: 8px 4px 8px 12px`, 1px border, radius 8, 14px text with 22 line height at 36 height.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:38-39; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fcf008d7,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,75,77,css,0,"/* `bds-button-icon icon=""search"" size=""short""` (primária): 40 de altura,
    `padding: 8px`, raio 8, `margin-left: 8px`; o `button { min-width: 8.125rem }`
-   global do portal dá os 130 de largura. */",,,,,,
+   global do portal dá os 130 de largura. */",translate,"`bds-button-icon icon=""search"" size=""short""` (primary): 40 tall, `padding: 8px`, radius 8, `margin-left: 8px`; the portal's global `button { min-width: 8.125rem }` gives the 130 width.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:75-77; continues log.css parity section; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0e0ebb9b,css,apps/gestao-vite/src/paginas/fluxo/log/log.css,99,101,css,6,"/* Filtro por período/direção/tipo (item 4 da tarefa) — a origem só tinha a
    busca por texto acima; estes campos entram no MESMO `<form method=""get"">`
-   para não perder o que já estava filtrado ao trocar um campo por vez. */",,,,,,
+   para não perder o que já estava filtrado ao trocar um campo por vez. */",translate,"Filter by period/direction/type (task item 4) — the source only had the text search above; these fields go into the SAME `<form method=""get"">` so switching one field at a time doesn't lose what was already filtered.",meta-blip,apps/gestao-vite/src/paginas/fluxo/log/log.css:99-101; contrasts with the Blip source's simpler filter; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-99d470fb,css,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.css,1,5,css,1,"/* ==========================================================
    SERVIÇOS
    Replica a organização visual da tela master-services da Blip.
    Nenhuma regra funcional depende deste arquivo.
-   ========================================================== */",,,,,,
+   ========================================================== */",translate,"==========================================================
+   SERVICES
+   Replicates Blip's master-services screen's visual organization.
+   No functional rule depends on this file.
+   ==========================================================",meta-blip,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.css:1-5; explicit Blip master-services citation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-15ff119f,css,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.css,112,114,css,1,"/* ==========================================================
    CARDS DOS SERVIÇOS
-   ========================================================== */",,,,,,
+   ========================================================== */",translate,"==========================================================
+   SERVICE CARDS
+   ==========================================================",other,"apps/gestao-vite/src/paginas/fluxo/servicos/servicos.css:112-114; bare section divider, no content of its own",,proposed
 css-comment-d1ee7986,css,apps/gestao-vite/src/paginas/fluxo/servicos/servicos.css,13,15,css,0,"/* ==========================================================
    CABEÇALHO / DESCRIÇÃO
    ========================================================== */",translate,"==========================================================
