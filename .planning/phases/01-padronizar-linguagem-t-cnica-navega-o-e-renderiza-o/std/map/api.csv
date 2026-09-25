@@ -1,5 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-api-cookie-c9e75885,api,2,cookie,pipe_desafio,pipe_challenge,apps/api/src/controladores/entrar.ts:47,11,no,,D-12,approved,sonnet,
+api-cookie-c9e75885,api,2,cookie,pipe_desafio,pipe_challenge,apps/api/src/controladores/entrar.ts:47,11,no,,D-12,approved,sonnet,"rewrite-literals unmatched: the constant is read via a hand-rolled Set-Cookie template literal and a custom lerCookies() helper - not a cookie.get/set() call the technical-position matcher recognizes; apply manually"
 api-dir-2cbd4c3f,api,2,dir,apps/api/src/dominio/gestao/acoes,apps/api/src/domain/management/actions,apps/api/src/dominio/gestao/acoes,0,no,,,approved,codex1,
 api-dir-3eb5edfe,api,2,dir,apps/api/src/dominio/whatsapp,apps/api/src/domain/whatsapp,apps/api/src/dominio/whatsapp,0,no,,,approved,codex1,
 api-dir-450156ea,api,2,dir,apps/api/src/dominio/desk,apps/api/src/domain/desk,apps/api/src/dominio/desk,0,no,,,approved,codex1,
@@ -63,7 +63,7 @@ api-endpoint-707ced7b,api,2,endpoint,/v1/gestao/comunicacao/respostas-prontas/:*
 api-endpoint-73bc2236,api,2,endpoint,/v1/canais/whatsapp,/v1/channels/whatsapp,apps/api/src/controladores/canais.ts:44,0,no,,,approved,codex1,
 api-endpoint-767b5321,api,2,endpoint,/v1/conversas/:*/espera,/v1/conversations/:id/wait,apps/api/src/controladores/conversas.ts:372,0,no,,,approved,codex1,
 api-endpoint-772f4ba3,api,2,endpoint,/v1/gestao/relatorios/atendimento,/v1/management/reports/attendance,apps/api/src/controladores/gestao-operacao.ts:253,0,no,,,approved,codex1,
-api-endpoint-77d9d0cd,api,2,endpoint,/v1/crm/contato/:*,/v1/crm/contact/:contactId,apps/api/src/controladores/crm.ts:63,0,no,,,approved,codex1,
+api-endpoint-77d9d0cd,api,2,endpoint,/v1/crm/contato/:contatoId,/v1/crm/contact/:contactId,apps/api/src/controladores/crm.ts:63,0,no,,,approved,codex1,inventory old used :* placeholder but the actual @Get() param is named :contatoId; corrected to match source so rewrite-literals' decorator matcher (exact string equality) can find it
 api-endpoint-79481201,api,2,endpoint,/v1/gestao/regras/horarios,/v1/management/rules/schedules,apps/api/src/controladores/gestao-cadastros.ts:84,0,no,,,approved,codex1,
 api-endpoint-7d79ad05,api,2,endpoint,/v1/gestao/atendentes/permissoes,/v1/management/agents/permissions,apps/api/src/controladores/gestao-cadastros.ts:461,0,no,,,approved,codex1,
 api-endpoint-7d99b268,api,2,endpoint,/v1/gestao/fluxos/:*/contatos/:*,/v1/management/flows/:id/contacts/:contactId,apps/api/src/controladores/gestao-fluxo.ts:371,0,no,,,approved,codex1,
@@ -581,11 +581,11 @@ api-literal-value-dae35d21,api,2,literal-value,sem_espelho,without_mirror,apps/a
 api-literal-value-e903c566,api,2,literal-value,bullmq,KEEP,apps/api/src/filas.ts:45,13,no,,D-11,approved,codex1,
 api-literal-value-f20ad935,api,2,literal-value,andamento,progress,apps/api/src/dominio/gestao/passos-da-implantacao.ts:38,29,no,,D-11,approved,codex1,
 api-literal-value-f89882ba,api,2,literal-value,contatos,contacts,apps/api/src/dominio/gestao/passos-da-implantacao.ts:40,438,no,,D-11,approved,codex1,
-api-metric-0ccc740d,api,2,metric,pipe_http_requisicoes_total,pipe_http_requests_total,apps/api/src/metricas.ts:51,8,no,,D-38,approved,sonnet,
-api-metric-5688f498,api,2,metric,pipe_migration_pendente,pipe_migration_pending,apps/api/src/metricas.ts:55,8,no,,D-38,approved,sonnet,
-api-metric-87eff7d9,api,2,metric,pipe_fila_idade_item_mais_velho_segundos,pipe_queue_oldest_item_age_seconds,apps/api/src/metricas.ts:54,7,no,,D-38,approved,sonnet,
-api-metric-95dd604a,api,2,metric,pipe_fila_profundidade,pipe_queue_depth,apps/api/src/metricas.ts:53,10,no,,D-38,approved,sonnet,
-api-metric-dcf9e22f,api,2,metric,pipe_mensagem_entrega_total,pipe_message_delivery_total,apps/api/src/metricas.ts:52,6,no,,D-38,approved,sonnet,
+api-metric-0ccc740d,api,2,metric,pipe_http_requisicoes_total,pipe_http_requests_total,apps/api/src/metricas.ts:51,8,no,,D-38,approved,sonnet,"rewrite-literals unmatched: metricas.ts is a hand-rolled Prometheus exporter (no prom-client) - the name is an unquoted AJUDA dict key and a bare contar() call argument, not a Counter/Gauge {name:} property the technical-position matcher recognizes; apply manually"
+api-metric-5688f498,api,2,metric,pipe_migration_pendente,pipe_migration_pending,apps/api/src/metricas.ts:55,8,no,,D-38,approved,sonnet,rewrite-literals unmatched: same hand-rolled exporter as api-metric-0ccc740d; apply manually
+api-metric-87eff7d9,api,2,metric,pipe_fila_idade_item_mais_velho_segundos,pipe_queue_oldest_item_age_seconds,apps/api/src/metricas.ts:54,7,no,,D-38,approved,sonnet,rewrite-literals unmatched: same hand-rolled exporter as api-metric-0ccc740d; apply manually
+api-metric-95dd604a,api,2,metric,pipe_fila_profundidade,pipe_queue_depth,apps/api/src/metricas.ts:53,10,no,,D-38,approved,sonnet,rewrite-literals unmatched: same hand-rolled exporter as api-metric-0ccc740d; apply manually
+api-metric-dcf9e22f,api,2,metric,pipe_mensagem_entrega_total,pipe_message_delivery_total,apps/api/src/metricas.ts:52,6,no,,D-38,approved,sonnet,rewrite-literals unmatched: same hand-rolled exporter as api-metric-0ccc740d; apply manually
 api-queue-new-instagram-token,api,2,queue,pipe-instagram-token,KEEP,apps/api/src/filas.ts:475,0,unknown,,D-10,approved,sonnet,
 api-script-46aa8560,api,2,script,importar:fluxo,import:flow,apps/api/package.json:1,0,no,,D-07,approved,sonnet,
 api-script-bf26d566,api,2,script,provisionar,provision,apps/api/package.json:1,0,no,,D-07,approved,sonnet,

@@ -143,14 +143,27 @@ function isFirstArgument(node: any): boolean {
   return call?.getArguments()[0] === node;
 }
 
+function isArgumentAt(node: any, index: number): boolean {
+  const call = node.getFirstAncestor(
+    (ancestor: any) => Node.isCallExpression(ancestor) || Node.isNewExpression(ancestor),
+  );
+  return call?.getArguments()[index] === node;
+}
+
 function technicalExactPosition(node: any, kind: string): boolean {
   const name = callName(node);
-  if (!isFirstArgument(node))
-    return kind === 'error-code' && Node.isBinaryExpression(node.getParent());
+  if (kind === 'error-code') {
+    // `new ErroPipe(statusCode, 'code', message)` carries the code as the
+    // second argument, unlike the `ErroPipe.factory('code', message)` static
+    // helpers where it is first; both are legitimate call shapes.
+    if (Node.isBinaryExpression(node.getParent())) return true;
+    return /(?:PipeError|ErroPipe|\.error|\.fail|\.codigo)/.test(name) &&
+      (isArgumentAt(node, 0) || isArgumentAt(node, 1));
+  }
+  if (!isFirstArgument(node)) return false;
   if (kind === 'queue') return /(?:^|\.)(?:Queue|Worker|QueueEvents)$/.test(name);
   if (kind === 'job-name') return /(?:\.add|upsertJobScheduler|removeJobScheduler)$/.test(name);
   if (kind === 'ws-event') return /(?:\.emit|\.on|\.send)$/.test(name);
-  if (kind === 'error-code') return /(?:PipeError|ErroPipe|\.error|\.fail|\.codigo)/.test(name);
   if (kind === 'cookie')
     return /(?:cookie|cookies|Cookie).*(?:get|set|clear|remove)|(?:get|set|clear)Cookie/i.test(
       name,
@@ -252,6 +265,13 @@ function rewriteWireKey(
     const object = property.getParent();
     const type = object.getContextualType?.();
     if (type?.isAny?.() || type?.isUnknown?.()) targets.push(property.getNameNode());
+  }
+  // Raw SQL row-shape type literals (`tx.execute<{ fluxo_id: string }>(sql\`...\`)`)
+  // mirror the wire/DB column name directly in a type declaration - there is
+  // no value-level `any`/`unknown` receiver to check, the declaration itself
+  // is the wire boundary.
+  for (const signature of sourceFile.getDescendantsOfKind(SyntaxKind.PropertySignature)) {
+    if (signature.getName() === row.old) targets.push(signature.getNameNode());
   }
   if (!dryRun)
     for (const target of targets) {
