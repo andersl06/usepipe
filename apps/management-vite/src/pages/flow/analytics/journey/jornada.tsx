@@ -51,6 +51,7 @@ export function ContactsJourney({
   min,
   max,
   router,
+  aoAplicarPeriodo,
 }: {
   arestas: ArestaDaJornada[];
   de: string;
@@ -59,6 +60,8 @@ export function ContactsJourney({
   max: string;
   /** `isThisMasterApplication()`: muda a frase do "sem dado". */
   router: boolean;
+  /** D-30: de/ate em state, nunca mais em `?de=&ate=`. */
+  aoAplicarPeriodo?: (de: string, ate: string) => void;
 }) {
   /* `firstNodeFilterOptions`: os nós de partida, sem "Outros"/"Saída", únicos e
      em ordem alfabética. Vêm de TODAS as arestas — trocar o início não estreita
@@ -115,7 +118,7 @@ export function ContactsJourney({
             </label>
           </div>
           <div className="jr-periodo">
-            <PeriodSeletor de={de} ate={ate} min={min} max={max} />
+            <PeriodSeletor de={de} ate={ate} min={min} max={max} aoAplicar={aoAplicarPeriodo} />
           </div>
         </div>
 

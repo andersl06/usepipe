@@ -1,11 +1,26 @@
-import Link from '../../components/link';
+import { useEffect, useState } from 'react';
 import { BarraDoPortal } from '../../components/barra-do-portal';
 import { IconeSearch, IconePortal } from '../../components/icones-portal';
 import { Selection } from '../../components/selection';
-import { useSearchParams } from 'react-router-dom';
 import { portalUseShell } from '../../lib/shell';
+import { filterStorageKey, loadFilters, saveFilters } from '../../lib/filter-memory';
+import { useEu } from '../../context/session';
 import { CATEGORIAS, UPDATES, type Update } from './conteudo';
 import './updates.css';
+
+interface UpdatesFilter {
+  q: string;
+  categoria: string;
+}
+
+const FILTRO_VAZIO: UpdatesFilter = { q: '', categoria: '' };
+
+function validateUpdatesFilter(value: unknown): UpdatesFilter | null {
+  if (!value || typeof value !== 'object') return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.q !== 'string' || typeof v.categoria !== 'string') return null;
+  return { q: v.q, categoria: v.categoria };
+}
 
 /**
  * Novidades — o "Novidades na Blip" do portal deles, com o desenho do blog do
@@ -27,11 +42,17 @@ import './updates.css';
  */
 export function PageUpdates() {
   const shell = portalUseShell();
-  const [parametrosDaUrl] = useSearchParams();
-  const parametros = Object.fromEntries(parametrosDaUrl.entries());
+  const eu = useEu();
+  const filtrosKey = filterStorageKey('management', 'updates', eu.tenant.id, eu.user.id);
+  const [filtros, setFiltros] = useState<UpdatesFilter>(
+    () => loadFilters(filtrosKey, validateUpdatesFilter) ?? FILTRO_VAZIO,
+  );
+  useEffect(() => {
+    saveFilters(filtrosKey, filtros);
+  }, [filtrosKey, filtros]);
 
-  const search = first(parametros['q']).trim();
-  const categoria = first(parametros['categoria']).trim();
+  const search = filtros.q.trim();
+  const categoria = filtros.categoria.trim();
 
   const achados = UPDATES.filter((n) => {
     const combinaCategoria = !categoria || categoria === CATEGORIAS[0] || n.categoria === categoria;
@@ -59,7 +80,20 @@ export function PageUpdates() {
             ar.
           </p>
 
-          <form className="nv-filtros" method="get" action="/novidades" role="search">
+          <form
+            className="nv-filtros"
+            method="get"
+            action="/updates"
+            role="search"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const data = new FormData(e.currentTarget);
+              setFiltros({
+                q: String(data.get('q') ?? ''),
+                categoria: String(data.get('categoria') ?? ''),
+              });
+            }}
+          >
             <div className="nv-campo">
               <IconeSearch tamanho={20} />
               <input
@@ -84,7 +118,6 @@ export function PageUpdates() {
               </Selection>
               <IconePortal nome="baixo" tamanho={20} />
             </div>
-            {/* Sem JavaScript: o filtro aplica no envio, como a busca do portal. */}
             <button type="submit" className="btn">
               Filtrar
             </button>
@@ -94,12 +127,22 @@ export function PageUpdates() {
             <p className="nv-nada">Nenhuma novidade encontrada com esse filtro.</p>
           ) : null}
 
-          {destaque ? <Card update={destaque} grande /> : null}
+          {destaque ? (
+            <Card
+              update={destaque}
+              grande
+              aoFiltrarCategoria={(c) => setFiltros({ q: '', categoria: c })}
+            />
+          ) : null}
 
           {rest.length > 0 ? (
             <div className="nv-grade">
               {rest.map((n) => (
-                <Card key={n.id} update={n} />
+                <Card
+                  key={n.id}
+                  update={n}
+                  aoFiltrarCategoria={(c) => setFiltros({ q: '', categoria: c })}
+                />
               ))}
             </div>
           ) : null}
@@ -117,7 +160,15 @@ export function PageUpdates() {
  * foto de banco genérica em cima de um aviso de versão mente sobre o conteúdo.
  * A cor vem da categoria, então a grade continua legível de longe.
  */
-function Card({ update, grande }: { update: Update; grande?: boolean }) {
+function Card({
+  update,
+  grande,
+  aoFiltrarCategoria,
+}: {
+  update: Update;
+  grande?: boolean;
+  aoFiltrarCategoria: (categoria: string) => void;
+}) {
   return (
     <article className={grande ? 'nv-cartao nv-cartao-grande' : 'nv-cartao'}>
       <div className="nv-capa" data-categoria={update.categoria}>
@@ -133,14 +184,16 @@ function Card({ update, grande }: { update: Update; grande?: boolean }) {
           {' · '}
           {update.read} min de leitura
         </p>
-        {/* Cada novidade ainda não tem página própria; o link leva à lista com
-            o tema já filtrado, que é o mais perto de útil sem inventar rota. */}
-        <Link
+        {/* Cada novidade ainda não tem página própria; o botão filtra a
+            própria lista pelo tema, que é o mais perto de útil sem inventar
+            rota — o filtro vive em state (D-30), não numa URL para navegar. */}
+        <button
+          type="button"
           className="nv-ler"
-          href={`/updates?categoria=${encodeURIComponent(update.categoria)}`}
+          onClick={() => aoFiltrarCategoria(update.categoria)}
         >
           Ler mais <span aria-hidden="true">→</span>
-        </Link>
+        </button>
       </div>
     </article>
   );
@@ -164,9 +217,4 @@ function byExtenso(iso: string): string {
     'dezembro',
   ];
   return `${dia} de ${meses[(mes ?? 1) - 1]} de ${ano}`;
-}
-
-/** O primeiro valor de um parâmetro que pode vir repetido na URL. */
-function first(value: string | string[] | undefined): string {
-  return Array.isArray(value) ? (value[0] ?? '') : (value ?? '');
 }

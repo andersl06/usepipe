@@ -1,6 +1,6 @@
 import Link from '../../../components/link';
 import { IconePortal } from '../../../components/icones-portal';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { portalUseShell } from '../../../lib/shell';
 import { CreationCasco, PassoDoNome } from '../casco';
 import { createFlow } from './actions';
@@ -61,9 +61,9 @@ import './create-flow.css';
  */
 export function PageCreateFlow() {
   const shell = portalUseShell();
+  const { passo } = useParams();
   const [search] = useSearchParams();
   const parametros = {
-    passo: search.get('passo') ?? undefined,
     erro: search.get('erro') ?? undefined,
     nome: search.get('nome') ?? undefined,
     template: search.get('template') ?? undefined,
@@ -77,10 +77,10 @@ export function PageCreateFlow() {
 
   return (
     <CreationCasco>
-      {parametros.passo === 'nome' ? (
+      {passo === 'name' ? (
         <PassoDoNome
           acao={createFlow}
-          voltarPara={veioDoTemplate ? `/criar/fluxo?passo=template` : '/criar/fluxo'}
+          voltarPara={veioDoTemplate ? `/create/flow/template` : '/create/flow'}
           rotulos={{
             ...ROTULOS,
             tituloDoNome: veioDoTemplate ? ROTULOS.tituloDoNomeComTemplate : ROTULOS.tituloDoNome,
@@ -90,7 +90,7 @@ export function PageCreateFlow() {
           nome={parametros.nome}
           camposOcultos={veioDoTemplate ? { template: TEMPLATE_PADRAO } : undefined}
         />
-      ) : parametros.passo === 'template' ? (
+      ) : passo === 'template' ? (
         <PassoDoTemplate />
       ) : (
         <PassoDoMarketplace />
@@ -127,7 +127,7 @@ function PassoDoMarketplace() {
             `bds-chip-tag color="success"` da origem — "Ideal para começar" —
             continua meio a meio sobre a borda de cima: ele é o que faz a
             pessoa olhar primeiro para este cartão. */}
-        <Link className="cf-cartao" href="/create/flow?passo=template">
+        <Link className="cf-cartao" href="/create/flow/template">
           <span className="cf-selo-recomendado">{ROTULOS.selo}</span>
           {/* `bds-icon name="integration" size="brand"`. O nosso `loja` é o
               desenho `plugin` do mesmo conjunto — a tomada que encaixa. */}
@@ -139,7 +139,7 @@ function PassoDoMarketplace() {
         {/* `selectTemplate('builder')` → `^.name`. É o caminho inteiro que
             copiamos: daqui sai o `template = 'builder'`, que é o nosso
             `tipo = 'fluxo'`. */}
-        <Link className="cf-cartao" href="/create/flow?passo=nome">
+        <Link className="cf-cartao" href="/create/flow/name">
           {/* `bds-icon name="file-empty-file" size="brand"` — a folha em
               branco. `icones-portal.tsx` não tem esse desenho; o `fluxo`
               (`builder-new-state`, o bloco vazio do construtor) é o mesmo
@@ -199,7 +199,7 @@ function PassoDoTemplate() {
           </Link>
           <Link
             className="btn primario cr-botao"
-            href={`/create/flow?passo=nome&template=${TEMPLATE_PADRAO}`}
+            href={`/create/flow/name?template=${TEMPLATE_PADRAO}`}
           >
             {ROTULOS.escolherEsseTemplate}
           </Link>

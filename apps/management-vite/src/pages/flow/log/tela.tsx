@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { IconeSearch, IconePortal } from '../../../components/icones-portal';
 import { Selection } from '../../../components/selection';
 import { Interruptor } from '../integrations/interruptor';
@@ -76,6 +76,14 @@ export interface LogMessage {
   metadata: string | null;
 }
 
+export interface LogFilterValues {
+  busca: string;
+  de: string;
+  ate: string;
+  direcao: string;
+  tipo: string;
+}
+
 export function TelaDoLog({
   search,
   de,
@@ -86,6 +94,7 @@ export function TelaDoLog({
   temMais = false,
   carregandoMais = false,
   aoCarregarMais,
+  aoAplicarFiltro,
 }: {
   search: string;
   /** Filtro por período, direção e tipo — item 4 da tarefa: a origem só tinha busca. */
@@ -97,16 +106,36 @@ export function TelaDoLog({
   temMais?: boolean;
   carregandoMais?: boolean;
   aoCarregarMais?: () => void;
+  /**
+   * Filtro em React state (D-30, `std/nav-contract.md` §Gestão): o
+   * `<form method="get">` continua existindo por acessibilidade (Enter
+   * envia), mas o envio é interceptado — nunca mais navega para
+   * `?busca=&de=&...`, só chama esta função com os valores lidos.
+   */
+  aoAplicarFiltro?: (filtros: LogFilterValues) => void;
 }) {
   const [ativo, setAtivo] = useState(false);
   const filterActive = Boolean(search || de || ate || direction || tipo);
   const mostrarSearch = filterActive || messages.length !== 0;
 
-  /* Selects e datas mandam de novo o MESMO formulário (GET): assim nenhum
-     filtro já escolhido some quando outro muda. `?de=` vazio é inofensivo —
-     o backend trata ausente e vazio do mesmo jeito (`DIA.test('')` é falso). */
+  /* Selects e datas reenviam o MESMO formulário: assim nenhum filtro já
+     escolhido some quando outro muda. O envio é interceptado (onSubmit
+     abaixo) — nunca navega, só atualiza o state da tela (D-30). */
   function reenviar(evento: ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
     evento.currentTarget.form?.requestSubmit();
+  }
+
+  function enviar(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    if (!aoAplicarFiltro) return;
+    const data = new FormData(evento.currentTarget);
+    aoAplicarFiltro({
+      busca: String(data.get('busca') ?? ''),
+      de: String(data.get('de') ?? ''),
+      ate: String(data.get('ate') ?? ''),
+      direcao: String(data.get('direcao') ?? ''),
+      tipo: String(data.get('tipo') ?? ''),
+    });
   }
 
   return (
@@ -120,7 +149,7 @@ export function TelaDoLog({
             <div className="lg-custom">
               {mostrarSearch ? (
                 <div className="lg-doze">
-                  <form id="messagesForm" className="lg-form" method="get">
+                  <form id="messagesForm" className="lg-form" method="get" onSubmit={enviar}>
                     <div className="lg-grupo">
                       <div className="lg-campo">
                         <input

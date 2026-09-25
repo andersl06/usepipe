@@ -75,11 +75,18 @@ export function PeriodSeletor({
   ate,
   min,
   max,
+  aoAplicar,
 }: {
   de: string;
   ate: string;
   min?: string;
   max?: string;
+  /**
+   * De/Até em React state (D-30, `std/nav-contract.md` §Gestão): o envio é
+   * interceptado — nunca navega para `?de=&ate=`, só chama esta função com
+   * os dois valores lidos do formulário.
+   */
+  aoAplicar?: (de: string, ate: string) => void;
 }) {
   return (
     <details className="an-periodo">
@@ -91,7 +98,16 @@ export function PeriodSeletor({
         <span>~</span>
         <span className="an-periodo-data">{dataDoSeletor(ate)}</span>
       </summary>
-      <form className="an-periodo-painel" method="get">
+      <form
+        className="an-periodo-painel"
+        method="get"
+        onSubmit={(e) => {
+          if (!aoAplicar) return;
+          e.preventDefault();
+          const data = new FormData(e.currentTarget);
+          aoAplicar(String(data.get('de') ?? ''), String(data.get('ate') ?? ''));
+        }}
+      >
         <div className="an-periodo-calendarios">
           <input
             type="date"

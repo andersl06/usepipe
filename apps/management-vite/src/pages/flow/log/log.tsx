@@ -1,11 +1,29 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { api } from '../../../lib/api';
 import { useRead } from '../../../lib/query';
+import { filterStorageKey, loadFilters, saveFilters } from '../../../lib/filter-memory';
+import { useEu } from '../../../context/session';
 import { ModuloShell, useContact } from '../contact';
-import { TelaDoLog } from './tela';
+import { TelaDoLog, type LogFilterValues } from './tela';
 import '../integrations/header-of-page.css';
 import './log.css';
+
+/** Shape guard for the stored filter (D-30): any string field missing drops the whole value. */
+function validateLogFilters(value: unknown): LogFilterValues | null {
+  if (!value || typeof value !== 'object') return null;
+  const v = value as Record<string, unknown>;
+  const fields = ['busca', 'de', 'ate', 'direcao', 'tipo'] as const;
+  if (fields.some((f) => typeof v[f] !== 'string')) return null;
+  return {
+    busca: v.busca as string,
+    de: v.de as string,
+    ate: v.ate as string,
+    direcao: v.direcao as string,
+    tipo: v.tipo as string,
+  };
+}
+
+const FILTROS_VAZIOS: LogFilterValues = { busca: '', de: '', ate: '', direcao: '', tipo: '' };
 
 /**
  * Growth › Log — `auth.application.detail.growth.messages.log` da origem
@@ -36,12 +54,20 @@ interface LogPage {
 
 export function PageLog() {
   const { contact } = useContact();
-  const [parametros] = useSearchParams();
-  const search = parametros.get('busca') ?? '';
-  const de = parametros.get('de') ?? '';
-  const ate = parametros.get('ate') ?? '';
-  const direction = parametros.get('direcao') ?? '';
-  const tipo = parametros.get('tipo') ?? '';
+  const eu = useEu();
+  const filtrosKey = filterStorageKey('management', 'log', eu.tenant.id, eu.user.id);
+  const [filtros, setFiltros] = useState<LogFilterValues>(
+    () => loadFilters(filtrosKey, validateLogFilters) ?? FILTROS_VAZIOS,
+  );
+  useEffect(() => {
+    saveFilters(filtrosKey, filtros);
+  }, [filtrosKey, filtros]);
+
+  const search = filtros.busca;
+  const de = filtros.de;
+  const ate = filtros.ate;
+  const direction = filtros.direcao;
+  const tipo = filtros.tipo;
 
   const queryBase = new URLSearchParams();
   if (search) queryBase.set('busca', search);
@@ -103,6 +129,7 @@ export function PageLog() {
         temMais={temMais}
         carregandoMais={carregandoMais}
         aoCarregarMais={carregarMais}
+        aoAplicarFiltro={setFiltros}
         messages={logs.map((log) => ({
           id: log.id,
           /* `{{message.storageDate | date: 'yyyy-MM-dd HH:mm:ss'}}` */

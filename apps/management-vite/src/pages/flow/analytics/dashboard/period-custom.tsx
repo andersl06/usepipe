@@ -12,7 +12,18 @@ import { useState } from 'react';
  *
  * Aplicar é um GET com `periodo=custom`: a página relê o período da URL.
  */
-export function PeriodCustom({ hoje, de, ate }: { hoje: string; de: string; ate: string }) {
+export function PeriodCustom({
+  hoje,
+  de,
+  ate,
+  aoAplicar,
+}: {
+  hoje: string;
+  de: string;
+  ate: string;
+  /** D-30: período em state, nunca mais `?periodo=custom&de=&ate=`. */
+  aoAplicar?: (de: string, ate: string) => void;
+}) {
   const [inicio, setInicio] = useState(de);
   const [fim, setFim] = useState(ate);
   const minimo = new Date(Date.parse(`${hoje}T00:00:00Z`) - 90 * 86_400_000)
@@ -20,7 +31,15 @@ export function PeriodCustom({ hoje, de, ate }: { hoje: string; de: string; ate:
     .slice(0, 10);
 
   return (
-    <form method="get" className="da-datas">
+    <form
+      method="get"
+      className="da-datas"
+      onSubmit={(e) => {
+        if (!aoAplicar) return;
+        e.preventDefault();
+        if (inicio && fim) aoAplicar(inicio, fim);
+      }}
+    >
       <input type="hidden" name="periodo" value="custom" />
       {/* `tT.date-info`: a caixa de 32px com borda surface-2 e as duas `oT`. */}
       <div className="da-datas-caixa">

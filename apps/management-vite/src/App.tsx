@@ -162,7 +162,10 @@ const contactRotas = (
 
     <Route path="contatos" element={<ContactsShell />}>
       <Route index element={<BotListaContacts />} />
-      <Route path=":contatoId" element={<BotDetalheContact />} />
+      {/* fix(01-24): o nome do param tinha ficado PT (`contatoId`) depois do
+          rename, e `detalhe.tsx` já lê `contactId` — o contato nunca resolvia
+          (D-29, contato no path continua "keep", mas precisa funcionar). */}
+      <Route path=":contactId" element={<BotDetalheContact />} />
     </Route>
 
     <Route path="integracoes" element={<IntegrationsShell />}>
@@ -270,8 +273,11 @@ export function App() {
         <Route path="/my-account" element={<PageMyAccount />} />
         <Route path="/bem-vindo" element={<PageWelcome />} />
         <Route path="/switch-account/no-access" element={<PageNoAccess />} />
-        <Route path="/create/flow" element={<PageCreateFlow />} />
-        <Route path="/create/router" element={<PageCreateRouter />} />
+        {/* D-31 (`std/nav-contract.md` §Gestão): passo do wizard no path, não
+            em `?passo=`. `:passo?` cobre a base (sem passo, primeira tela)
+            e cada segmento de passo com a MESMA rota declarativa. */}
+        <Route path="/create/flow/:passo?" element={<PageCreateFlow />} />
+        <Route path="/create/router/:passo?" element={<PageCreateRouter />} />
 
         {/* Implantação — onboarding de CONTA, sem contato nenhum para
             pendurar. Cromo próprio (`pt-app` + `BarraDoPortal`, como
