@@ -2,7 +2,7 @@ id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity
 packages-ui-comment-05fa6255,packages-ui,packages/ui/src/componentes/encerramento-ticket.tsx,7,10,jsdoc,0,"/**
  * Modal compartilhado, baseado no `close-ticket-modal` compilado do Desk e
  * nas traduções do modal `closeTicket` de Monitoramento.
- */",,,,,,
+ */",translate,Shared modal based on the compiled Desk `close-ticket-modal` and Monitoring's `closeTicket` modal translations.,meta-blip,packages/ui/src/componentes/encerramento-ticket.tsx:7-10; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-12a3ebad,packages-ui,packages/ui/src/componentes/estrutura.tsx,1,24,jsdoc,29,"/**
  * Estruturas de aplicação: o cabeçalho com navegação horizontal, a lateral
  * contextual e o invólucro da área de configurações.
@@ -26,31 +26,42 @@ packages-ui-comment-12a3ebad,packages-ui,packages/ui/src/componentes/estrutura.t
  * - ITEM QUE NÃO FUNCIONA NÃO APARECE. `ItemDeNavegacao` não tem estado
  *   desabilitado. Não é esquecimento: é o que impede a Gestão de voltar a ter
  *   32 itens de menu com 29 apagados.
- */",,,,,,
+ */",translate,"Application structures: the horizontal navigation header, contextual sidebar, and settings-area wrapper.
+
+These three address the structural problem rejected by the owner (""você está carregando todas as funções na aba à esquerda""). They enforce these rules, based on the cited references:
+
+- MODULES AT THE TOP, HORIZONTALLY. Salesforce was measured with a 40px bar containing seven items and `temSidebar: false` on the list screen, which has no sidebar. Blip places Builder / Atendimento / Análise / Growth / Canais at the top.
+- SIDEBAR ONLY FOR THE OPEN MODULE'S CONTEXT, and short. `LateralContexto` renders nothing with fewer than two items: a one-item sidebar is framing without purpose.
+- SETTINGS ON A SEPARATE SCREEN, behind the gear. Salesforce changes domain, reduces seven navigation items to three, and only then adds a 250px sidebar.
+- NONFUNCTIONAL ITEMS DO NOT APPEAR. `ItemDeNavegacao` has no disabled state deliberately: this prevents Management from returning to 32 menu items with 29 disabled.",architecture,packages/ui/src/componentes/estrutura.tsx:1-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-79fd28ad,packages-ui,packages/ui/src/componentes/estrutura.tsx,116,120,jsdoc,6,"/**
  * Cabeçalho da aplicação. Espelha o do Salesforce: marca à esquerda, módulos
  * ao lado, e à direita só o que é da CONTA — nunca do trabalho. A engrenagem
  * mora aqui, e é o único caminho para a configuração.
- */",,,,,,
-packages-ui-comment-c2e15876,packages-ui,packages/ui/src/componentes/estrutura.tsx,132,132,jsdoc,3,/** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */,,,,,,
+ */",translate,"Application header modeled on Salesforce: brand on the left, modules beside it, and only ACCOUNT controls on the right, never work controls. The gear lives here as the sole route to settings.",architecture,packages/ui/src/componentes/estrutura.tsx:116-120; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-c2e15876,packages-ui,packages/ui/src/componentes/estrutura.tsx,132,132,jsdoc,3,/** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */,remove,,other,packages/ui/src/componentes/estrutura.tsx:132-132,codex,reviewed
 packages-ui-comment-446042b9,packages-ui,packages/ui/src/componentes/estrutura.tsx,158,163,jsdoc,4,"/**
  * Lateral do módulo aberto. Curta por regra.
  *
  * Devolve `null` com menos de dois itens: sem escolha para oferecer, a
  * lateral só rouba largura do conteúdo.
- */",,,,,,
-packages-ui-comment-5c244309,packages-ui,packages/ui/src/componentes/estrutura.tsx,198,198,jsdoc,0,"/** Invólucro padrão: topo fixo, e abaixo lateral (opcional) + conteúdo. */",,,,,,
+ */",translate,"Sidebar for the open module, deliberately short.
+
+Returns `null` with fewer than two items: without a choice to offer, the sidebar only takes width from content.",architecture,packages/ui/src/componentes/estrutura.tsx:158-163; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-5c244309,packages-ui,packages/ui/src/componentes/estrutura.tsx,198,198,jsdoc,0,"/** Invólucro padrão: topo fixo, e abaixo lateral (opcional) + conteúdo. */",remove,,other,packages/ui/src/componentes/estrutura.tsx:198-198,codex,reviewed
 packages-ui-comment-be8715e1,packages-ui,packages/ui/src/componentes/estrutura.tsx,211,217,jsdoc,6,"/**
  * Área de configurações: tela própria.
  *
  * Troca o cabeçalho inteiro — não há navegação de módulo aqui, só o caminho
  * de volta. É o corte que o Salesforce faz ao sair para `salesforce-setup.com`,
  * na escala que faz sentido para nós.
- */",,,,,,
+ */",translate,"Settings area on a separate screen.
+
+It replaces the entire header: there is no module navigation here, only a way back. This follows Salesforce's transition to `salesforce-setup.com`, at a scale suitable for this product.",architecture,packages/ui/src/componentes/estrutura.tsx:211-217; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-5edc539b,packages-ui,packages/ui/src/componentes/estrutura.tsx,30,33,jsdoc,4,"/**
  * Um destino de navegação. Repare que não existe `desabilitado`:
  * quem não funciona não entra na lista.
- */",,,,,,
+ */",translate,A navigation destination. There is no `desabilitado`: nonfunctional destinations do not enter the list.,architecture,packages/ui/src/componentes/estrutura.tsx:30-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-b2f72665,packages-ui,packages/ui/src/componentes/estrutura.tsx,39,46,jsdoc,11,"/**
  * O componente de link do aplicativo.
  *
@@ -58,15 +69,17 @@ packages-ui-comment-b2f72665,packages-ui,packages/ui/src/componentes/estrutura.t
  * passa o seu `next/link` e a navegação segue no cliente, sem recarregar a
  * página. Sem isso, um `<a>` cru transformaria toda troca de módulo num
  * recarregamento completo — uma regressão de sensação que ninguém pediu.
- */",,,,,,
-packages-ui-comment-f958d034,packages-ui,packages/ui/src/componentes/estrutura.tsx,56,56,jsdoc,2,"/** Link padrão: âncora comum, para quem não passar um. */",,,,,,
-packages-ui-comment-075ccfba,packages-ui,packages/ui/src/componentes/estrutura.tsx,63,63,jsdoc,2,/** Marca no canto superior esquerdo. Leva sempre para a raiz do aplicativo. */,,,,,,
+ */",translate,"The application's link component.
+
+It keeps this package independent of `next`: each application supplies its own `next/link`, preserving client-side navigation without a page reload. A plain `<a>` would turn every module change into a full reload, an unwanted interaction regression.",architecture,packages/ui/src/componentes/estrutura.tsx:39-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-f958d034,packages-ui,packages/ui/src/componentes/estrutura.tsx,56,56,jsdoc,2,"/** Link padrão: âncora comum, para quem não passar um. */",remove,,other,packages/ui/src/componentes/estrutura.tsx:56-56,codex,reviewed
+packages-ui-comment-075ccfba,packages-ui,packages/ui/src/componentes/estrutura.tsx,63,63,jsdoc,2,/** Marca no canto superior esquerdo. Leva sempre para a raiz do aplicativo. */,remove,,other,packages/ui/src/componentes/estrutura.tsx:63-63,codex,reviewed
 packages-ui-comment-4be32afe,packages-ui,packages/ui/src/componentes/estrutura.tsx,81,85,jsdoc,4,"/**
  * Decide se um item está ativo. Um item de raiz (`/`) só casa exatamente;
  * os demais casam com os seus descendentes, para que `/leads/42` mantenha
  * ""Leads"" marcado.
- */",,,,,,
-packages-ui-comment-03e9ba85,packages-ui,packages/ui/src/componentes/estrutura.tsx,91,91,jsdoc,0,"/** Navegação horizontal de módulos. Poucos itens, todos funcionando. */",,,,,,
+ */",translate,"Determine whether an item is active. The root item (`/`) matches only exactly; other items match descendants so `/leads/42` keeps ""Leads"" selected.",other,packages/ui/src/componentes/estrutura.tsx:81-85,codex,reviewed
+packages-ui-comment-03e9ba85,packages-ui,packages/ui/src/componentes/estrutura.tsx,91,91,jsdoc,0,"/** Navegação horizontal de módulos. Poucos itens, todos funcionando. */",remove,,other,packages/ui/src/componentes/estrutura.tsx:91-91,codex,reviewed
 packages-ui-comment-d7fbb747,packages-ui,packages/ui/src/componentes/primitivos.tsx,1,11,jsdoc,8,"/**
  * Primitivos compartilhados pelos três aplicativos.
  *
@@ -77,9 +90,13 @@ packages-ui-comment-d7fbb747,packages-ui,packages/ui/src/componentes/primitivos.
  * ativo da navegação) chega por prop, e cada aplicativo passa o caminho atual
  * a partir do seu próprio `usePathname`. É o que mantém este pacote utilizável
  * fora do Next e testável sem roteador.
- */",,,,,,
-packages-ui-comment-2cfbc3f0,packages-ui,packages/ui/src/componentes/primitivos.tsx,102,102,jsdoc,3,/** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */,,,,,,
-packages-ui-comment-c05e71e8,packages-ui,packages/ui/src/componentes/primitivos.tsx,139,139,block,0,/* ------------------------------------------------------------ formulário */,,,,,,
+ */",translate,"Primitives shared by all three applications.
+
+Each had been reimplemented in `apps/desk`, `apps/gestao`, and `apps/crm` with nearly identical CSS and values that had already diverged.
+
+All are plain React and none imports `next`. Route-dependent information, such as the active navigation item, arrives through props; each application obtains its current path from its own `usePathname`. This keeps the package usable outside Next and testable without a router.",architecture,packages/ui/src/componentes/primitivos.tsx:1-11; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-2cfbc3f0,packages-ui,packages/ui/src/componentes/primitivos.tsx,102,102,jsdoc,3,/** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */,translate,Active state. This is the only place where brand color touches a tag.,architecture,packages/ui/src/componentes/primitivos.tsx:102-102; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-c05e71e8,packages-ui,packages/ui/src/componentes/primitivos.tsx,139,139,block,0,/* ------------------------------------------------------------ formulário */,remove,,other,packages/ui/src/componentes/primitivos.tsx:139-139,codex,reviewed
 packages-ui-comment-4fe75a65,packages-ui,packages/ui/src/componentes/primitivos.tsx,176,183,jsdoc,11,"/**
  * Estado vazio com ilustração desenhada, nunca com foto. Ilustração é
  * componente (`Ilustracao`), não imagem solta — é como a Blip preenche estado
@@ -87,16 +104,18 @@ packages-ui-comment-4fe75a65,packages-ui,packages/ui/src/componentes/primitivos.
  *
  * `ilustracao={false}` para o vazio que aparece dentro de uma tabela, onde uma
  * cena de 96px empurra a linha seguinte para fora da tela.
- */",,,,,,
-packages-ui-comment-80d0cb20,packages-ui,packages/ui/src/componentes/primitivos.tsx,208,208,jsdoc,4,"/** Iniciais do nome. Duas, no máximo — mais do que isso não cabe em 26px. */",,,,,,
-packages-ui-comment-ab70c4ec,packages-ui,packages/ui/src/componentes/primitivos.tsx,22,22,block,0,/* ------------------------------------------------------------------ botão */,,,,,,
-packages-ui-comment-a41bdd4f,packages-ui,packages/ui/src/componentes/primitivos.tsx,224,224,block,0,/* ---------------------------------------------------------------- cartão */,,,,,,
+ */",translate,"An empty state with a drawn illustration, never a photo. The illustration is an `Ilustracao` component rather than a standalone image, as in Blip empty states, which also lets it respond to dark mode.
+
+Use `ilustracao={false}` inside a table, where a 96px scene would push the next row offscreen.",meta-blip,packages/ui/src/componentes/primitivos.tsx:176-183; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-80d0cb20,packages-ui,packages/ui/src/componentes/primitivos.tsx,208,208,jsdoc,4,"/** Iniciais do nome. Duas, no máximo — mais do que isso não cabe em 26px. */",translate,"Name initials, at most two: more will not fit in 26px.",other,packages/ui/src/componentes/primitivos.tsx:208-208,codex,reviewed
+packages-ui-comment-ab70c4ec,packages-ui,packages/ui/src/componentes/primitivos.tsx,22,22,block,0,/* ------------------------------------------------------------------ botão */,remove,,other,packages/ui/src/componentes/primitivos.tsx:22-22,codex,reviewed
+packages-ui-comment-a41bdd4f,packages-ui,packages/ui/src/componentes/primitivos.tsx,224,224,block,0,/* ---------------------------------------------------------------- cartão */,remove,,other,packages/ui/src/componentes/primitivos.tsx:224-224,codex,reviewed
 packages-ui-comment-5305bc1f,packages-ui,packages/ui/src/componentes/primitivos.tsx,28,32,jsdoc,1,"/**
    * @deprecated Use `<Etiqueta aoClicar ativa>`. O recorte salvo de lista é
    * papel da etiqueta clicável, que é o componente único de etiqueta do
    * produto. Fica só enquanto os três aplicativos migram.
-   */",,,,,,
-packages-ui-comment-e6d3a7f8,packages-ui,packages/ui/src/componentes/primitivos.tsx,53,53,jsdoc,2,"/** Obrigatório: o botão não tem texto, então precisa de nome acessível. */",,,,,,
+   */",translate,"@deprecated Use `<Etiqueta aoClicar ativa>`. A saved list segment belongs to the clickable tag, the product's sole tag component. Keep this only while the three applications migrate.",architecture,packages/ui/src/componentes/primitivos.tsx:28-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-e6d3a7f8,packages-ui,packages/ui/src/componentes/primitivos.tsx,53,53,jsdoc,2,"/** Obrigatório: o botão não tem texto, então precisa de nome acessível. */",translate,Required: an icon-only button needs an accessible name.,other,packages/ui/src/componentes/primitivos.tsx:53-53,codex,reviewed
 packages-ui-comment-3a0fc89e,packages-ui,packages/ui/src/componentes/primitivos.tsx,73,89,jsdoc,20,"/**
  * A etiqueta do Pipe, e a única. Componente de primeira classe.
  *
@@ -113,13 +132,19 @@ packages-ui-comment-3a0fc89e,packages-ui,packages/ui/src/componentes/primitivos.
  * categoria não é estado, e quando tudo é colorido nada é. Cor só entra
  * quando o que a etiqueta diz exige uma ação, e aí ela é um dos quatro
  * estados — sempre o par fundo pastel com conteúdo escuro.
- */",,,,,,
-packages-ui-comment-d87f5d17,packages-ui,packages/ui/src/componentes/primitivos.tsx,94,94,jsdoc,3,/** Pílula. Só para contagem redonda e para o que acompanha avatar. */,,,,,,
+ */",translate,"Pipe's sole tag, a first-class component.
+
+Neither Chatwoot nor Twenty supplies a generic tag, so each screen would reimplement its own and the set would drift. Blip packages `bds-chip-clickable` to avoid that; we copy the component approach, not its appearance.
+
+This component serves four product uses: queue tag (neutral), score band (neutral), SLA status (state), and evaluation concept (state).
+
+It starts NEUTRAL deliberately. Queue, channel, source, and stage receive no color: categories are not states, and coloring everything weakens the signal. Color appears only when the tag calls for action, using one of four states, always a pastel background paired with dark content.",meta-blip,packages/ui/src/componentes/primitivos.tsx:73-89; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-d87f5d17,packages-ui,packages/ui/src/componentes/primitivos.tsx,94,94,jsdoc,3,/** Pílula. Só para contagem redonda e para o que acompanha avatar. */,translate,"Pill shape, only for rounded counts and elements beside an avatar.",other,packages/ui/src/componentes/primitivos.tsx:94-94,codex,reviewed
 packages-ui-comment-85aca483,packages-ui,packages/ui/src/componentes/primitivos.tsx,96,100,jsdoc,5,"/**
    * Variante clicável: recorte salvo de lista, filtro que liga e desliga,
    * valor que navega. Com `aoClicar` a etiqueta vira `<button>` de verdade —
    * teclado, foco e `aria-pressed` de graça. Sem ele, é um `<span>`.
-   */",,,,,,
+   */",translate,"Clickable variant for a saved list segment, toggle filter, or navigation value. With `aoClicar`, the tag is a real `<button>` with keyboard access, focus, and `aria-pressed`; without it, it is a `<span>`.",architecture,packages/ui/src/componentes/primitivos.tsx:96-100; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-7c9ca64a,packages-ui,packages/ui/src/componentes/tabela.tsx,1,12,jsdoc,14,"/**
  * Tabela. Desenhada aqui porque não dá para copiar: a do Twenty vive em
  * `twenty-front`, que é AGPL e está fora do nosso alcance, e nem Chatwoot nem
@@ -131,9 +156,13 @@ packages-ui-comment-7c9ca64a,packages-ui,packages/ui/src/componentes/tabela.tsx,
  *
  * O invólucro `.scroll` não é decoração: tabela larga precisa rolar dentro do
  * próprio cartão, senão empurra a página inteira para o lado.
- */",,,,,,
-packages-ui-comment-78f5f372,packages-ui,packages/ui/src/componentes/tabela.tsx,19,19,jsdoc,4,"/** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */",,,,,,
-packages-ui-comment-76d59eeb,packages-ui,packages/ui/src/componentes/tabela.tsx,35,35,jsdoc,1,"/** Severidade vai na linha inteira (`grave`, `critico`), não só no texto. */",,,,,,
+ */",translate,"Table implemented here because Twenty's table lives in `twenty-front`, which is AGPL and unavailable to us; neither Chatwoot nor `twenty-ui` exposes one.
+
+Density follows Salesforce measurements: 34px rows, 8px vertical and 12px horizontal cell padding, 13px body text, and uppercase column headings in the body font rather than monospace.
+
+The `.scroll` wrapper is functional: a wide table must scroll within its own card or it pushes the entire page sideways.",architecture,packages/ui/src/componentes/tabela.tsx:1-12; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-78f5f372,packages-ui,packages/ui/src/componentes/tabela.tsx,19,19,jsdoc,4,"/** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */",translate,"Right-align and use tabular monospace, for numbers rather than text.",other,packages/ui/src/componentes/tabela.tsx:19-19,codex,reviewed
+packages-ui-comment-76d59eeb,packages-ui,packages/ui/src/componentes/tabela.tsx,35,35,jsdoc,1,"/** Severidade vai na linha inteira (`grave`, `critico`), não só no texto. */",translate,"Severity applies to the entire row (`grave`, `critico`), not only its text.",architecture,packages/ui/src/componentes/tabela.tsx:35-35; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-f33ec301,packages-ui,packages/ui/src/icones.tsx,1,16,jsdoc,16,"/**
  * Fachada de ícone — desenhos do Tabler Icons (MIT), © Paweł Kuna.
  * https://github.com/tabler/tabler-icons — licença MIT.
@@ -149,9 +178,15 @@ packages-ui-comment-f33ec301,packages-ui,packages/ui/src/icones.tsx,1,16,jsdoc,1
  *
  * Todos os desenhos usam a grade de 24 do Tabler, traço arredondado, sem
  * preenchimento — as mesmas convenções do símbolo da marca.
- */",,,,,,
-packages-ui-comment-22bd23c9,packages-ui,packages/ui/src/icones.tsx,20,20,jsdoc,0,/** Caminhos na grade 24×24 do Tabler. Ordem alfabética. */,,,,,,
-packages-ui-comment-6f6271fd,packages-ui,packages/ui/src/icones.tsx,60,60,jsdoc,1,/** Tamanho em px. Padrão 16 — a régua de ícone do Twenty é 14/16/20/24. */,,,,,,
+ */",translate,"Icon facade using Tabler Icons artwork (MIT), copyright Paweł Kuna. https://github.com/tabler/tabler-icons - MIT license.
+
+Twenty uses a facade so components never import the icon package directly. The set actually used by Pipe's three applications is small; copying those SVG paths costs less than loading the whole library and keeps stroke and size under one control point.
+
+Switching to `@tabler/icons-react` later means replacing this file's implementation while preserving the `<Icone nome=""..."" />` interface.
+
+All drawings use Tabler's 24-unit grid, rounded strokes, and no fill, matching the brand symbol.",architecture,packages/ui/src/icones.tsx:1-16; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-22bd23c9,packages-ui,packages/ui/src/icones.tsx,20,20,jsdoc,0,/** Caminhos na grade 24×24 do Tabler. Ordem alfabética. */,remove,,other,packages/ui/src/icones.tsx:20-20,codex,reviewed
+packages-ui-comment-6f6271fd,packages-ui,packages/ui/src/icones.tsx,60,60,jsdoc,1,/** Tamanho em px. Padrão 16 — a régua de ícone do Twenty é 14/16/20/24. */,translate,Size in px. Default 16; Twenty's icon scale is 14/16/20/24.,other,packages/ui/src/icones.tsx:60-60,codex,reviewed
 packages-ui-comment-68329e1e,packages-ui,packages/ui/src/icones.tsx,84,91,jsdoc,4,"/**
  * Símbolo da marca: dois cotovelos de tubulação que se encaixam sem se tocar.
  * O vão entre os dois é parte do desenho — nunca fechar (docs/marca/MARCA.md).
@@ -159,7 +194,9 @@ packages-ui-comment-68329e1e,packages-ui,packages/ui/src/icones.tsx,84,91,jsdoc,
  * Estava duplicado inline em três componentes (`desk/trilho.tsx`,
  * `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), cada cópia com o seu
  * próprio hex. Agora é um só, e o segundo traço herda a cor de destaque.
- */",,,,,,
+ */",translate,"Brand symbol: two pipe elbows fitting together without touching. The gap is part of the design and must remain open (docs/marca/MARCA.md).
+
+It was duplicated inline in three components (`desk/trilho.tsx`, `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), each with its own hex value. Now there is one copy, and the second stroke inherits the accent color.",architecture,packages/ui/src/icones.tsx:84-91; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-571ebeff,packages-ui,packages/ui/src/ilustracoes.tsx,1,15,jsdoc,9,"/**
  * Ilustração de estado vazio.
  *
@@ -174,7 +211,11 @@ packages-ui-comment-571ebeff,packages-ui,packages/ui/src/ilustracoes.tsx,1,15,js
  * desenho (docs/marca/MARCA.md). Duas cores por cena: o traço neutro herda
  * `currentColor` da classe `.ilustracao`, e o acento vem da paleta estendida,
  * que junto com o gráfico é o único lugar onde ela pode aparecer.
- */",,,,,,
+ */",translate,"Empty-state illustration.
+
+Blip bundle measurements showed `bds-illustration` packaged as a component (`referencias-blip/pesquisa/blip-design-system.md`, section 4). An illustration is a component rather than a loose image, allowing Blip-style empty states without a photo. Photos age quickly in an operations product, add weight, and clash with dark mode.
+
+The drawing follows the brand symbol's language: monoline, even stroke, rounded ends and curves, and intentional gaps between parts (docs/marca/MARCA.md). Each scene uses two colors: the neutral stroke inherits `currentColor` from `.ilustracao`, while the accent comes from the extended palette, allowed only in charts and illustrations.",meta-blip,packages/ui/src/ilustracoes.tsx:1-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-2c00428f,packages-ui,packages/ui/src/ilustracoes.tsx,19,26,jsdoc,12,"/**
  * As cenas. Cada uma existe porque um estado vazio real do Pipe precisa dela:
  *
@@ -182,16 +223,21 @@ packages-ui-comment-2c00428f,packages-ui,packages/ui/src/ilustracoes.tsx,19,26,j
  * - `busca`    — o filtro não achou nada. Tubulação com a lente por cima.
  * - `concluido` — a fila zerou. É o único estado vazio que é boa notícia.
  * - `erro`     — a tela não conseguiu carregar. Tubulação partida.
- */",,,,,,
-packages-ui-comment-0ab25639,packages-ui,packages/ui/src/ilustracoes.tsx,31,31,jsdoc,1,/** Largura em px. Padrão 96 — cabe num cartão sem virar o assunto da tela. */,,,,,,
+ */",translate,"Each scene corresponds to a real Pipe empty state:
+
+- `vazio`: a list has nothing yet; an empty pipe.
+- `busca`: a filter found nothing; a lens over the pipe.
+- `concluido`: the queue is cleared; the one empty state that is good news.
+- `erro`: the screen failed to load; a broken pipe.",architecture,packages/ui/src/ilustracoes.tsx:19-26; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-0ab25639,packages-ui,packages/ui/src/ilustracoes.tsx,31,31,jsdoc,1,/** Largura em px. Padrão 96 — cabe num cartão sem virar o assunto da tela. */,remove,,other,packages/ui/src/ilustracoes.tsx:31-31,codex,reviewed
 packages-ui-comment-a84482ce,packages-ui,packages/ui/src/ilustracoes.tsx,35,36,block,6,"/* Traço uniforme de 6 na grade de 120, que é a proporção do símbolo (12 em
-   120) reduzida à metade porque a ilustração é maior que o logotipo. */",,,,,,
-packages-ui-comment-28ff67ba,packages-ui,packages/ui/src/ilustracoes.tsx,59,59,jsdoc,1,"/** Texto alternativo. A ilustração é decorativa, mas quem lê tela merece saber. */",,,,,,
-packages-ui-comment-3242414b,packages-ui,packages/ui/src/ilustracoes.tsx,68,68,block,2,/* Dois cotovelos que não se encontram: o vão é o vazio. */,,,,,,
-packages-ui-comment-2a1af893,packages-ui,packages/ui/src/ilustracoes.tsx,77,77,block,4,"/* A mesma tubulação, com a lente por cima: procurou e não achou. */",,,,,,
+   120) reduzida à metade porque a ilustração é maior que o logotipo. */",translate,A stroke of 6 on a 120-unit grid is half the brand symbol's 12-on-120 proportion because the illustration is larger than the logo.,architecture,packages/ui/src/ilustracoes.tsx:35-36; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-28ff67ba,packages-ui,packages/ui/src/ilustracoes.tsx,59,59,jsdoc,1,"/** Texto alternativo. A ilustração é decorativa, mas quem lê tela merece saber. */",translate,"Alternative text. The illustration is decorative, but screen-reader users deserve a description.",other,packages/ui/src/ilustracoes.tsx:59-59,codex,reviewed
+packages-ui-comment-3242414b,packages-ui,packages/ui/src/ilustracoes.tsx,68,68,block,2,/* Dois cotovelos que não se encontram: o vão é o vazio. */,remove,,other,packages/ui/src/ilustracoes.tsx:68-68,codex,reviewed
+packages-ui-comment-2a1af893,packages-ui,packages/ui/src/ilustracoes.tsx,77,77,block,4,"/* A mesma tubulação, com a lente por cima: procurou e não achou. */",remove,,other,packages/ui/src/ilustracoes.tsx:77-77,codex,reviewed
 packages-ui-comment-c299b435,packages-ui,packages/ui/src/ilustracoes.tsx,87,88,block,5,"/* Fila zerada. O acento é o verde escuro da série, não a cor de marca:
-     ilustração não pinta com a marca. */",,,,,,
-packages-ui-comment-b321e692,packages-ui,packages/ui/src/ilustracoes.tsx,97,97,block,3,"/* Tubulação partida. Terracota, que é a cor do que exige ação. */",,,,,,
+     ilustração não pinta com a marca. */",translate,"The queue is empty. The accent uses the series' dark green, not the brand color: illustrations do not use brand paint.",architecture,packages/ui/src/ilustracoes.tsx:87-88; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-b321e692,packages-ui,packages/ui/src/ilustracoes.tsx,97,97,block,3,"/* Tubulação partida. Terracota, que é a cor do que exige ação. */",remove,,other,packages/ui/src/ilustracoes.tsx:97-97,codex,reviewed
 packages-ui-comment-36c4cb21,packages-ui,packages/ui/src/index.ts,1,21,jsdoc,17,"/**
  * Design system do Pipe — fonte única de token e de componente para
  * `apps/desk`, `apps/gestao` e `apps/crm`.
@@ -212,8 +258,17 @@ packages-ui-comment-36c4cb21,packages-ui,packages/ui/src/index.ts,1,21,jsdoc,17,
  *   2. Estado é PAR: fundo pastel com conteúdo escuro. Quatro estados.
  *   3. A paleta estendida (`TEMA.grafico`) é exclusiva de gráfico e
  *      ilustração. Fora dali ela não existe.
- */",,,,,,
-packages-ui-comment-59210c60,packages-ui,packages/ui/src/regras-encerramento.ts,8,8,jsdoc,2,/** A Blip bloqueia a confirmação enquanto faltar qualquer tag obrigatória. */,,,,,,
+ */",translate,"Pipe design system: the single source of tokens and components for `apps/desk`, `apps/gestao`, and `apps/crm`.
+
+This file does NOT import styles: each application imports `@pipe/ui/estilos.css` once in its root layout. Keeping them separate lets server code use the typed theme without pulling in CSS.
+
+The decisions enforced by this package are in `docs/specs/2026-09-05-design-system.md`; brand identity remains in `docs/marca/MARCA.md`; supporting measurements are in `referencias-blip/pesquisa/visual-blip-salesforce.md` and `referencias-blip/pesquisa/blip-design-system.md`.
+
+Its public API enforces three rules that applications must not bypass by declaring their own colors:
+1. ONE brand color (moss) for primary actions and active state only.
+2. A state is a PAIR: pastel background with dark content, across four states.
+3. The extended palette (`TEMA.grafico`) is only for charts and illustrations.",architecture,packages/ui/src/index.ts:1-21; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-59210c60,packages-ui,packages/ui/src/regras-encerramento.ts,8,8,jsdoc,2,/** A Blip bloqueia a confirmação enquanto faltar qualquer tag obrigatória. */,translate,Blip blocks confirmation until all required tags are selected.,meta-blip,packages/ui/src/regras-encerramento.ts:8-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-9ecc7350,packages-ui,packages/ui/src/tema.ts,1,18,jsdoc,16,"/**
  * Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
  *
@@ -231,34 +286,42 @@ packages-ui-comment-9ecc7350,packages-ui,packages/ui/src/tema.ts,1,18,jsdoc,16,"
  * As cores apontam para a custom property de propósito: assim um componente
  * que leia `TEMA.cor.marca` continua trocando de tema sozinho, sem saber que
  * tema existe.
- */",,,,,,
-packages-ui-comment-cf2c2614,packages-ui,packages/ui/src/tema.ts,107,107,jsdoc,0,"/** Número tabular e rótulo de seção. Nunca nome de fase, fila ou origem. */",,,,,,
+ */",update,"Adapted from twenty-ui (MIT): https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
+
+We borrowed its SHAPE, not its values: a typed TypeScript theme object, `espaco()` as a 4px-multiple function, a radius scale, and centralized density tokens. Values are Pipe's (docs/marca/MARCA.md); role-based organization comes from Blip measurements (`referencias-blip/pesquisa/blip-design-system.md`).
+
+This object mirrors `estilos/tokens.css` in typed form for code that needs a TypeScript value, such as layout calculations, canvas charts, and tests. CSS authors should use the custom property instead of importing this object.
+
+Colors deliberately reference custom properties, so a component reading `TEMA.marca.cor` changes theme without knowing that themes exist.",architecture,packages/ui/src/tema.ts:1-18; pre-triage D-40; needs slice-time confirmation; corrected symbol verified at packages/ui/src/tema.ts:49-50,codex,reviewed
+packages-ui-comment-cf2c2614,packages-ui,packages/ui/src/tema.ts,107,107,jsdoc,0,"/** Número tabular e rótulo de seção. Nunca nome de fase, fila ou origem. */",translate,"Tabular numbers and section labels only; never stage, queue, or source names.",architecture,packages/ui/src/tema.ts:107-107; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-0e2a953b,packages-ui,packages/ui/src/tema.ts,109,113,jsdoc,5,"/**
      * Três degraus carregam a aplicação: 16, 14 e 12. O de 10 só para o
      * verdadeiramente secundário. `titulo` e `numero` são exceção nomeada
      * pelo papel, para continuarem sendo exceção. Régua em px, nunca rem.
-     */",,,,,,
-packages-ui-comment-98fda376,packages-ui,packages/ui/src/tema.ts,125,125,jsdoc,1,/** Um raio padrão e duas exceções com propósito. */,,,,,,
-packages-ui-comment-a1c5e3ad,packages-ui,packages/ui/src/tema.ts,143,143,jsdoc,0,"/** Régua de densidade. Ver docs/specs/2026-09-05-design-system.md, seção 5. */",,,,,,
-packages-ui-comment-de81a87f,packages-ui,packages/ui/src/tema.ts,157,157,jsdoc,0,/** Multiplicador de espaço. Ver `espaco()`. */,,,,,,
+     */",translate,"Three sizes carry the application: 16, 14, and 12. Size 10 is reserved for truly secondary text. `titulo` and `numero` are role-named exceptions so they remain exceptions. Sizes are in px, never rem.",architecture,packages/ui/src/tema.ts:109-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-98fda376,packages-ui,packages/ui/src/tema.ts,125,125,jsdoc,1,/** Um raio padrão e duas exceções com propósito. */,remove,,other,packages/ui/src/tema.ts:125-125,codex,reviewed
+packages-ui-comment-a1c5e3ad,packages-ui,packages/ui/src/tema.ts,143,143,jsdoc,0,"/** Régua de densidade. Ver docs/specs/2026-09-05-design-system.md, seção 5. */",translate,"Density scale. See docs/specs/2026-09-05-design-system.md, section 5.",architecture,packages/ui/src/tema.ts:143-143; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-de81a87f,packages-ui,packages/ui/src/tema.ts,157,157,jsdoc,0,/** Multiplicador de espaço. Ver `espaco()`. */,remove,,other,packages/ui/src/tema.ts:157-157,codex,reviewed
 packages-ui-comment-269d79c3,packages-ui,packages/ui/src/tema.ts,161,166,jsdoc,1,"/**
  * `espaco(2)` → `'8px'`; `espaco(1, 2)` → `'4px 8px'`.
  *
  * Existe para tornar impossível escrever um espaçamento fora do múltiplo de 4
  * por acidente. Mesmo truque do `spacing()` do twenty-ui.
- */",,,,,,
-packages-ui-comment-adee1c39,packages-ui,packages/ui/src/tema.ts,173,173,jsdoc,3,/** Os quatro estados. É a mesma lista que a `Etiqueta` aceita como tom. */,,,,,,
-packages-ui-comment-c67880c0,packages-ui,packages/ui/src/tema.ts,30,30,jsdoc,0,"/** Quatro degraus de conteúdo, na ordem da Blip. */",,,,,,
-packages-ui-comment-20f0fe77,packages-ui,packages/ui/src/tema.ts,38,38,jsdoc,0,/** Tinta translúcida em três forças. Nunca hex opaco. */,,,,,,
+ */",translate,"`espaco(2)` yields `'8px'`; `espaco(1, 2)` yields `'4px 8px'`.
+
+This makes accidental spacing outside a multiple of 4 impossible, using the same approach as twenty-ui's `spacing()`.",architecture,packages/ui/src/tema.ts:161-166; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-adee1c39,packages-ui,packages/ui/src/tema.ts,173,173,jsdoc,3,/** Os quatro estados. É a mesma lista que a `Etiqueta` aceita como tom. */,remove,,other,packages/ui/src/tema.ts:173-173,codex,reviewed
+packages-ui-comment-c67880c0,packages-ui,packages/ui/src/tema.ts,30,30,jsdoc,0,"/** Quatro degraus de conteúdo, na ordem da Blip. */",translate,"Four content steps, following Blip's order.",meta-blip,packages/ui/src/tema.ts:30-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-20f0fe77,packages-ui,packages/ui/src/tema.ts,38,38,jsdoc,0,/** Tinta translúcida em três forças. Nunca hex opaco. */,translate,Three strengths of translucent ink; never an opaque hex value.,architecture,packages/ui/src/tema.ts:38-38; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-ee03c6a0,packages-ui,packages/ui/src/tema.ts,45,48,jsdoc,3,"/**
    * UMA cor de marca. Pinta ação primária, estado ativo e foco, e nada mais.
    * Não é cor de rótulo, de número, de título nem de etiqueta de categoria.
-   */",,,,,,
+   */",translate,"ONE brand color for primary actions, active state, and focus only. Never use it for labels, numbers, titles, or category tags.",architecture,packages/ui/src/tema.ts:45-48; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-5bcbe161,packages-ui,packages/ui/src/tema.ts,57,61,jsdoc,4,"/**
    * Estado é um PAR: fundo pastel com conteúdo escuro por cima, mais a linha
    * que os une. Nunca use só o conteúdo colorido — as três variáveis viajam
    * juntas, senão viram duas cores diferentes em dois arquivos.
-   */",,,,,,
+   */",translate,"A state is a PAIR: pastel background, dark foreground, and the line connecting them. Never use colored content alone; all three variables travel together so two files cannot give the state two different colors.",architecture,packages/ui/src/tema.ts:57-61; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-08df3d02,packages-ui,packages/ui/src/tema.ts,85,93,jsdoc,6,"/**
    * PALETA ESTENDIDA — EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO.
    *
@@ -267,7 +330,11 @@ packages-ui-comment-08df3d02,packages-ui,packages/ui/src/tema.ts,85,93,jsdoc,6,"
    * espalhá-las pela interface corrente que fez a tela parecer um carrossel.
    *
    * A ordem de `serie` é a ordem das séries de um gráfico.
-   */",,,,,,
+   */",translate,"EXTENDED PALETTE - ONLY FOR CHARTS AND ILLUSTRATIONS.
+
+Terracotta, ochre, deep blue, and sage live here only. None belongs in interface chrome, tags, borders, icons, or text. Spreading them across the interface made the screen look like a carousel.
+
+The order of `serie` is the chart series order.",architecture,packages/ui/src/tema.ts:85-93; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-bc0778cb,packages-ui,packages/ui/verificar-tokens.mjs,1,15,jsdoc,8,"/**
  * Verificação do design system. `node verificar-tokens.mjs`.
  *
@@ -282,17 +349,22 @@ packages-ui-comment-bc0778cb,packages-ui,packages/ui/verificar-tokens.mjs,1,15,j
  *      de tema escuro (preferência do sistema e escolha explícita).
  *   3. As regras contáveis continuam valendo: 5 superfícies, 4 degraus de
  *      conteúdo, 4 estados com 3 variáveis cada, 3 raios, 4 degraus de texto.
- */",,,,,,
+ */",translate,"Design-system check: `node verificar-tokens.mjs`.
+
+This deliberately uses no framework: it is one check for this package's recurring failure, a token used without a definition or defined only in the light theme. `--sage` and `--online` disappeared from the first dark theme that way, unnoticed until the screen turned white.
+
+It checks: (1) every used `var(--p-*)` is defined; (2) every light-theme color token is redefined in both dark-theme blocks (system preference and explicit choice); (3) counted rules remain at five surfaces, four content steps, four states with three variables each, three radii, and four text sizes.",architecture,packages/ui/verificar-tokens.mjs:1-15; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ui-comment-8c84f441,packages-ui,packages/ui/verificar-tokens.mjs,35,39,jsdoc,9,"/**
  * O mesmo conjunto sem a ponte de migração. As regras contáveis olham só para
  * cá: o apelido antigo não pode fazer a régua parecer maior do que ela é.
  * Quando a ponte for apagada, os dois conjuntos voltam a ser o mesmo.
- */",,,,,,
-packages-ui-comment-13a54871,packages-ui,packages/ui/verificar-tokens.mjs,43,43,block,2,/* 1 — nada usa o que não existe. ------------------------------------------ */,,,,,,
-packages-ui-comment-7d73fd77,packages-ui,packages/ui/verificar-tokens.mjs,56,56,jsdoc,2,/** Cor = tem hex ou rgba no valor. Tamanho e duração não mudam com o tema. */,,,,,,
-packages-ui-comment-54af6113,packages-ui,packages/ui/verificar-tokens.mjs,69,69,block,0,/* 3 — as regras contáveis. ------------------------------------------------ */,,,,,,
+ */",translate,"The same token set without the migration bridge. Counted rules inspect only this set so old aliases cannot inflate the scale. Once the bridge is removed, both sets become identical again.",architecture,packages/ui/verificar-tokens.mjs:35-39; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-13a54871,packages-ui,packages/ui/verificar-tokens.mjs,43,43,block,2,/* 1 — nada usa o que não existe. ------------------------------------------ */,translate,1 - nothing uses an undefined token. ------------------------------------------,other,packages/ui/verificar-tokens.mjs:43-43,codex,reviewed
+packages-ui-comment-7d73fd77,packages-ui,packages/ui/verificar-tokens.mjs,56,56,jsdoc,2,/** Cor = tem hex ou rgba no valor. Tamanho e duração não mudam com o tema. */,translate,A color value contains hex or rgba; sizes and durations do not change with the theme.,architecture,packages/ui/verificar-tokens.mjs:56-56; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ui-comment-54af6113,packages-ui,packages/ui/verificar-tokens.mjs,69,69,block,0,/* 3 — as regras contáveis. ------------------------------------------------ */,translate,3 - enforce the counted rules. ------------------------------------------------,other,packages/ui/verificar-tokens.mjs:69-69,codex,reviewed
 packages-ui-comment-6333a2b4,packages-ui,packages/ui/verificar-tokens.mjs,86,90,block,9,"/* 4 — a paleta estendida continua cercada. --------------------------------
    Ela pode em dois lugares: a barra de dado (`.trilho`/`.fill`, que é gráfico)
    e a ilustração, que desenha com o próprio SVG. Todo o resto de base.css é
    cromo, e cromo não recebe matiz da paleta estendida. Este é o teste que
-   pega o erro que o dono reprovou antes de ele chegar na tela. */",,,,,,
+   pega o erro que o dono reprovou antes de ele chegar na tela. */",translate,"4 - keep the extended palette contained. --------------------------------
+It is allowed in two places: the data bar (`.trilho`/`.fill`, which is a chart) and the illustration drawn with its own SVG. All other `base.css` styles are chrome, which must not receive extended-palette hues. This test catches the error previously rejected by the owner before it reaches the screen.",architecture,packages/ui/verificar-tokens.mjs:86-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
