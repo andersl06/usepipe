@@ -3865,12 +3865,12 @@ api-comment-a7150bd8,api,apps/api/src/dominio/gestao/pfx.ts,399,403,jsdoc,5,"/**
  */",translate,"Read `.pfx` with its password and throw `ErroPipe` 400 (`senha_incorreta`, `pfx_invalido`, `pfx_formato_antigo`, `pfx_ilegivel`) without exposing password or file bytes in messages.",security,apps/api/src/dominio/gestao/pfx.ts:399-403; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d83b0fa8,api,apps/api/src/dominio/gestao/pfx.ts,405,405,line,3,"// 1. O OpenSSL julga: MAC com a senha, chave decifrada, chave casando com o certificado.",translate,"First let OpenSSL verify the password MAC, decrypted key and key-certificate match.",security,apps/api/src/dominio/gestao/pfx.ts:405-405; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-6fec09eb,api,apps/api/src/dominio/gestao/pfx.ts,428,428,block,1,/* um certificado corrompido na cadeia não invalida o próprio */,translate,A corrupt chain certificate does not invalidate the leaf certificate.,security,apps/api/src/dominio/gestao/pfx.ts:428-428; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-3ca7c543,api,apps/api/src/dominio/gestao/pfx.ts,435,435,line,2,// A chave só serve para apontar qual certificado é o próprio: vive nesta,,,,,,
-api-comment-4e0c16c8,api,apps/api/src/dominio/gestao/pfx.ts,436,436,line,1,// função e morre com ela.,,,,,,
-api-comment-efac31e2,api,apps/api/src/dominio/gestao/pfx.ts,443,443,block,2,/* saco de chave em formato que o OpenSSL não abre por aqui: cai na heurística */,,,,,,
-api-comment-284c3ada,api,apps/api/src/dominio/gestao/pfx.ts,47,47,jsdoc,1,"/** O elemento inteiro (tag + tamanho + conteúdo), para repassar ao OpenSSL. */",,,,,,
-api-comment-d1ef1686,api,apps/api/src/dominio/gestao/pfx.ts,57,57,jsdoc,0,/** `[0]` explícito (construído). */,,,,,,
-api-comment-cd751201,api,apps/api/src/dominio/gestao/pfx.ts,59,59,jsdoc,0,/** `[0]` implícito primitivo — o `encryptedContent` do PKCS#7. */,,,,,,
+api-comment-3ca7c543,api,apps/api/src/dominio/gestao/pfx.ts,435,435,line,2,// A chave só serve para apontar qual certificado é o próprio: vive nesta,translate,Use the private key only to identify the matching leaf certificate; it lives,security,apps/api/src/dominio/gestao/pfx.ts:435-435; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4e0c16c8,api,apps/api/src/dominio/gestao/pfx.ts,436,436,line,1,// função e morre com ela.,translate,only within this function and is discarded on return.,security,apps/api/src/dominio/gestao/pfx.ts:436-436; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-efac31e2,api,apps/api/src/dominio/gestao/pfx.ts,443,443,block,2,/* saco de chave em formato que o OpenSSL não abre por aqui: cai na heurística */,translate,"If OpenSSL cannot open this key-bag format here, use the certificate heuristic.",security,apps/api/src/dominio/gestao/pfx.ts:443-443; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-284c3ada,api,apps/api/src/dominio/gestao/pfx.ts,47,47,jsdoc,1,"/** O elemento inteiro (tag + tamanho + conteúdo), para repassar ao OpenSSL. */",translate,"Keep the whole element (tag, length, content) for passing to OpenSSL.",security,apps/api/src/dominio/gestao/pfx.ts:47-47; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d1ef1686,api,apps/api/src/dominio/gestao/pfx.ts,57,57,jsdoc,0,/** `[0]` explícito (construído). */,translate,Explicit constructed `[0]`.,security,apps/api/src/dominio/gestao/pfx.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cd751201,api,apps/api/src/dominio/gestao/pfx.ts,59,59,jsdoc,0,/** `[0]` implícito primitivo — o `encryptedContent` do PKCS#7. */,translate,"Primitive implicit `[0]`, the PKCS#7 `encryptedContent`.",security,apps/api/src/dominio/gestao/pfx.ts:59-59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-96b9123d,api,apps/api/src/dominio/gestao/pfx.ts,6,28,jsdoc,25,"/**
  * Leitura do `.pfx` (PKCS#12) no servidor, só com o que o Node traz.
  *
@@ -3893,9 +3893,9 @@ api-comment-96b9123d,api,apps/api/src/dominio/gestao/pfx.ts,6,28,jsdoc,25,"/**
  * e do OpenSSL 1.x por padrão) não existem no OpenSSL 3 sem o provedor
  * `legacy`, que o Node não carrega — o passo 1 já recusa esses arquivos com
  * ""unsupported"", e a mensagem pede reexportar com AES.
- */",,,,,,
-api-comment-2086ba09,api,apps/api/src/dominio/gestao/pfx.ts,70,70,jsdoc,0,"/** Lê os elementos DER consecutivos de `dados`, do começo ao fim. */",,,,,,
-api-comment-79e5e478,api,apps/api/src/dominio/gestao/pfx.ts,83,83,line,0,// `0x80` é tamanho indefinido (BER): nenhum exportador de .pfx usa.,,,,,,
+ */",translate,"Read server-side `.pfx` (PKCS#12) with Node APIs. Blip delegates uploaded `password` and `file` to `postmaster@mtls.blip.ai`, returning `status` and `expiration_date` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). First `tls.createSecureContext({ pfx, passphrase })` lets OpenSSL verify the password MAC, decrypt the private key and require a matching certificate; the same pair is used by `https.Agent` in `dominio/mtls.ts`. Then `X509Certificate` reads expiry, issuer, subject and SHA-256 fingerprint from DER/PEM. Since Node has no public PKCS#12 certificate extraction API, the minimal ASN.1 parser (RFC 7292) opens the envelope and decrypts PBES2/AES or PKCS#12 3DES certificate bags. RC2/RC4 PBEs from old Windows or OpenSSL 1.x exports require OpenSSL 3's `legacy` provider, unavailable to Node; step one rejects them as 'unsupported' and asks for AES re-export.",security,apps/api/src/dominio/gestao/pfx.ts:6-28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2086ba09,api,apps/api/src/dominio/gestao/pfx.ts,70,70,jsdoc,0,"/** Lê os elementos DER consecutivos de `dados`, do começo ao fim. */",translate,Read consecutive DER elements of `dados` from start to end.,security,apps/api/src/dominio/gestao/pfx.ts:70-70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-79e5e478,api,apps/api/src/dominio/gestao/pfx.ts,83,83,line,0,// `0x80` é tamanho indefinido (BER): nenhum exportador de .pfx usa.,translate,"`0x80` denotes indefinite BER length, unused by supported `.pfx` exporters.",security,apps/api/src/dominio/gestao/pfx.ts:83-83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8aa1a8b6,api,apps/api/src/dominio/gestao/prioridade-motor.ts,6,33,jsdoc,53,"/**
  * O motor de `regra_prioridade` — item 2 da tarefa de ""fazer funcionar o que só
  * está cadastrado"". `regras-prioridade.ts` tem o CRUD completo desde a tarefa
@@ -3923,27 +3923,27 @@ api-comment-8aa1a8b6,api,apps/api/src/dominio/gestao/prioridade-motor.ts,6,33,js
  * ESCOPO já filtra a aplicabilidade — condição é um refinamento OPCIONAL por
  * cima dele. ""Toda conversa desta fila nasce com nível X"" é um caso de uso
  * legítimo e não deveria exigir uma condição de mentira só para casar sempre.
- */",,,,,,
+ */",translate,"The `regra_prioridade` engine now evaluates active rules when a conversation enters a queue (`dominio/entrada.ts`, `dominio/fluxo.ts`), and the first match sets `conversa.prioridade`. Earlier `regras-prioridade.ts` implemented only CRUD. Pipe still has no explicit order column: queue-scoped rules precede tenant-scoped rules, as in SLA `escolherRegra` in `sla.ts`; within a scope, older `criado_em` wins. Add an `ordem` column only if reordering without recreation becomes necessary. An empty condition matches all conversations IN SCOPE: `regra_prioridade.condicao` defaults to `{}` (`packages/db/src/schema/gestao.ts`), and scope already filters applicability. This deliberately differs from empty `regra_fila` conditions, which never match because their conditions are the whole rule.",architecture,apps/api/src/dominio/gestao/prioridade-motor.ts:6-33; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4075918b,api,apps/api/src/dominio/gestao/prioridade-motor.ts,62,66,jsdoc,4,"/**
  * Ordem de avaliação, estável e testável — ver a decisão Pipe no topo do
  * arquivo. Escopo `fila` (0) antes de `tenant` (1); empate desempata pela
  * mais antiga, e um empate residual (mesmo instante) pelo id.
- */",,,,,,
-api-comment-efe01659,api,apps/api/src/dominio/gestao/prioridade-motor.ts,83,83,jsdoc,3,/** O que a conversa recém-chegada oferece à condição — mesmo desenho de `ContextoDaConversa` em `regra-fila.ts`. */,,,,,,
+ */",translate,"Deterministic evaluation order: `fila` scope (0) before `tenant` (1), then older creation time, then ID for exact ties.",architecture,apps/api/src/dominio/gestao/prioridade-motor.ts:62-66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-efe01659,api,apps/api/src/dominio/gestao/prioridade-motor.ts,83,83,jsdoc,3,/** O que a conversa recém-chegada oferece à condição — mesmo desenho de `ContextoDaConversa` em `regra-fila.ts`. */,translate,"Fields offered by a newly arrived conversation, shaped like `ContextoDaConversa` in `regra-fila.ts`.",architecture,apps/api/src/dominio/gestao/prioridade-motor.ts:83-83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-edbe0a5a,api,apps/api/src/dominio/gestao/prioridade-motor.ts,95,100,jsdoc,10,"/**
  * A primeira regra ativa que casa (escopo + condição, nesta ordem — o escopo é
  * mais barato de checar e filtra a maioria antes de avaliar a expressão).
  * `null` quando nenhuma casa: a conversa mantém `sem_prioridade`, o padrão de
  * `conversa.prioridade` — não muda o comportamento de quem não cadastrou regra.
- */",,,,,,
-api-comment-be3e3ca1,api,apps/api/src/dominio/gestao/regra-fila.ts,108,108,jsdoc,3,/** O que a conversa recém-chegada oferece à regra. */,,,,,,
+ */",translate,"Return the first active rule whose scope and condition match, checking cheap scope first. `null` leaves `conversa.prioridade` at default `sem_prioridade`, preserving behavior without registered rules.",architecture,apps/api/src/dominio/gestao/prioridade-motor.ts:95-100; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-be3e3ca1,api,apps/api/src/dominio/gestao/regra-fila.ts,108,108,jsdoc,3,/** O que a conversa recém-chegada oferece à regra. */,remove,,other,apps/api/src/dominio/gestao/regra-fila.ts:108-108,codex3,reviewed
 api-comment-87f36a52,api,apps/api/src/dominio/gestao/regra-fila.ts,126,132,jsdoc,8,"/**
  * Ordem de avaliação, estável e testável.
  *
  * Empate de `ordem` desempata por id — a mesma escolha da distribuição (§7):
  * sem o desempate, duas regras com ordem 0 são resolvidas pela ordem em que o
  * Postgres devolveu as linhas, que não é ordem nenhuma.
- */",,,,,,
+ */",translate,"Evaluate rules in deterministic order: ties in `ordem` break by ID, as in distribution spec §7. Without that tie-break, two order-0 rules depend on unspecified PostgreSQL row order.",architecture,apps/api/src/dominio/gestao/regra-fila.ts:126-132; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc40f4d4,api,apps/api/src/dominio/gestao/regra-fila.ts,148,156,jsdoc,13,"/**
  * A primeira regra ativa que casa. `null` quando nenhuma casa — e aí a conversa
  * segue para a fila padrão da caixa de entrada.
@@ -3952,8 +3952,8 @@ api-comment-cc40f4d4,api,apps/api/src/dominio/gestao/regra-fila.ts,148,156,jsdoc
  * para lista vazia, e é o comportamento certo. Uma regra vazia que casasse
  * sempre seria um capturador universal criado por engano, e ele engoliria toda
  * a fila abaixo dela sem ninguém entender por quê.
- */",,,,,,
-api-comment-379e8a7f,api,apps/api/src/dominio/gestao/regra-fila.ts,175,175,jsdoc,3,"/** A regra escrita por extenso, do jeito que a tela mostra no cartão. */",,,,,,
+ */",translate,"Return the first matching active rule, or `null` to use the inbox default queue. An active rule with no conditions never matches because `avaliarExpressao` returns false for an empty list; otherwise an accidentally empty rule would capture every conversation before rules below it.",architecture,apps/api/src/dominio/gestao/regra-fila.ts:148-156; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-379e8a7f,api,apps/api/src/dominio/gestao/regra-fila.ts,175,175,jsdoc,3,"/** A regra escrita por extenso, do jeito que a tela mostra no cartão. */",remove,,other,apps/api/src/dominio/gestao/regra-fila.ts:175-175,codex3,reviewed
 api-comment-ba3c9768,api,apps/api/src/dominio/gestao/regra-fila.ts,184,191,jsdoc,12,"/**
  * Regras que nunca vão ser alcançadas, por índice na ordem de avaliação.
  *
@@ -3961,7 +3961,7 @@ api-comment-ba3c9768,api,apps/api/src/dominio/gestao/regra-fila.ts,184,191,jsdoc
  * regra ativa sem condição (nunca casa) e regra colocada abaixo de outra
  * idêntica (a de cima vence sempre). Sem este aviso, o gestor cadastra a
  * segunda, testa, não funciona, e não tem como saber que o problema é a ordem.
- */",,,,,,
+ */",translate,"Report unreachable rule indexes: an active rule without conditions never matches, and a rule below an identical one never wins. Show these configuration errors so a manager understands why a newly tested rule has no effect.",architecture,apps/api/src/dominio/gestao/regra-fila.ts:184-191; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c1fd74e5,api,apps/api/src/dominio/gestao/regra-fila.ts,3,27,jsdoc,37,"/**
  * A regra de entrada — §8 da spec de métricas.
  *
@@ -3986,22 +3986,22 @@ api-comment-c1fd74e5,api,apps/api/src/dominio/gestao/regra-fila.ts,3,27,jsdoc,37
  * A avaliação em si é do `@pipe/core` (`score/motor.ts`): os mesmos operadores,
  * a mesma normalização sem acento e sem caixa, o mesmo caminho por ponto. Uma
  * segunda implementação de ""contém"" é uma segunda definição de ""contém"".
- */",,,,,,
+ */",translate,"Inbound rules (metrics spec §8) choose a conversation's arrival queue. Unlike unspecified Blip documentation, Pipe evaluates in displayed order, with FIRST match winning, and combines each rule's conditions by user-chosen AND or OR. If none matches, `inbox.fila_padrao_id` selects the default queue outside this module. Keep this module pure for the `'use client'` form; importing Drizzle or `@pipe/db` would pull `pg` into the browser. Delegate expression evaluation to `@pipe/core` (`score/motor.ts`) so operators, accent/case normalization and dotted paths have one definition.",meta-blip,apps/api/src/dominio/gestao/regra-fila.ts:3-27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2043a695,api,apps/api/src/dominio/gestao/regra-fila.ts,40,46,jsdoc,5,"/**
  * Os campos sobre os quais a condição fala. `mensagem` é o conteúdo da primeira
  * mensagem do cliente; o resto sai do contato.
  *
  * `contato.atributos.` é PREFIXO, não campo: o que vem depois é a chave do
  * campo extra, que cada tenant nomeia como quiser (`contato.atributos.plano`).
- */",,,,,,
-api-comment-0576ef06,api,apps/api/src/dominio/gestao/regra-fila.ts,63,63,jsdoc,1,"/** Rótulo de qualquer campo, inclusive o extra que ninguém cadastrou em lista. */",,,,,,
+ */",translate,"`mensagem` is the customer's first message; other fields come from the contact. `contato.atributos.` is a PREFIX followed by the tenant-defined extra-field key, e.g. `contato.atributos.plano`.",architecture,apps/api/src/dominio/gestao/regra-fila.ts:40-46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0576ef06,api,apps/api/src/dominio/gestao/regra-fila.ts,63,63,jsdoc,1,"/** Rótulo de qualquer campo, inclusive o extra que ninguém cadastrou em lista. */",remove,,other,apps/api/src/dominio/gestao/regra-fila.ts:63-63,codex3,reviewed
 api-comment-b6da2153,api,apps/api/src/dominio/gestao/regra-fila.ts,77,83,jsdoc,11,"/**
  * Campo aceito: um dos quatro fixos, ou um extra com chave não vazia.
  *
  * A validação existe porque campo livre digitado errado vira regra que nunca
  * casa — e regra que nunca casa não dá erro, só manda a conversa para a fila
  * errada em silêncio.
- */",,,,,,
+ */",translate,Accept one of four fixed fields or an extra field with a nonempty key. A mistyped arbitrary field would make a rule silently never match and send conversations to the wrong queue.,architecture,apps/api/src/dominio/gestao/regra-fila.ts:77-83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a8bad109,api,apps/api/src/dominio/gestao/regras-de-nome.ts,1,29,jsdoc,23,"/**
  * As regras do nome do contato — as MESMAS para o roteador e para o fluxo.
  *
@@ -4030,7 +4030,7 @@ api-comment-a8bad109,api,apps/api/src/dominio/gestao/regras-de-nome.ts,1,29,jsdo
  * Existe em arquivo, e não dentro da tela, porque precisa valer DUAS vezes: o
  * navegador barra (`required`, `minlength`, `maxlength`) e a Server Action barra
  * de novo, para quem mandar o POST por fora.
- */",,,,,,
+ */",translate,"Share contact-name rules between router and flow because Blip uses the SAME creation template for both. Source name step module 96904 changes only labels through three `ng-if=""$ctrl.template != 'master'""`; `required`, 2–30 length, file `accept` and per-key sanitization are identical. Server `validateApplicationName` runs through `prepareApplicationData` for every template. Evidence: source `portal.js` 25.204.0-v0.43.1 modules `CreateApplicationController` (18502), name template (96904), and `CreateApplicationService.validateApplicationName`. Keep the rules outside either screen and enforce them both in browser validation and the Server Action against direct POSTs.",meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:1-29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0061b007,api,apps/api/src/dominio/gestao/regras-de-nome.ts,100,107,jsdoc,8,"/**
  * A primeira letra tem de ser LETRA.
  *
@@ -4038,8 +4038,8 @@ api-comment-0061b007,api,apps/api/src/dominio/gestao/regras-de-nome.ts,100,107,j
  * porquê está na linha anterior do serviço — `shortName = name.toLowerCase()`,
  * e o `shortName` é o identificador do contato na plataforma. Identificador que
  * começa com dígito ou com `(` não vira endereço.
- */",,,,,,
-api-comment-baa74b40,api,apps/api/src/dominio/gestao/regras-de-nome.ts,110,110,jsdoc,3,"/** Tira do nome tudo o que a origem tira, a cada tecla. */",,,,,,
+ */",translate,Require a LETTER first. Source `validateApplicationName` uses `/(^[a-zA-Z])/` because `shortName = name.toLowerCase()` becomes the platform contact identifier; a digit or `(` cannot start that address.,meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:100-107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-baa74b40,api,apps/api/src/dominio/gestao/regras-de-nome.ts,110,110,jsdoc,3,"/** Tira do nome tudo o que a origem tira, a cada tecla. */",translate,Apply the source's per-keystroke name sanitization.,meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:110-110; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-88a7582d,api,apps/api/src/dominio/gestao/regras-de-nome.ts,115,128,jsdoc,12,"/**
  * O `shortName` da origem: `application.shortName = application.name.toLowerCase()`.
  *
@@ -4053,15 +4053,15 @@ api-comment-88a7582d,api,apps/api/src/dominio/gestao/regras-de-nome.ts,115,128,j
  * índice único: quem garante nome sem repetição continua sendo o `select` da
  * Server Action, sobre `nome`. Um índice aqui faria ""Meu Bot"" e ""meu-bot""
  * colidirem, que é regra nova e não é cópia de nada.
- */",,,,,,
-api-comment-1c6440fc,api,apps/api/src/dominio/gestao/regras-de-nome.ts,133,133,jsdoc,3,/** O que a Server Action devolve quando recusa. */,,,,,,
+ */",translate,"Source `application.shortName = application.name.toLowerCase()` would leave spaces (e.g. 'Meu Fluxo' to `meu fluxo`), though observed real short names have none; an unseen downstream service likely normalizes them. Pipe replaces spaces with hyphens before saving `fluxo.short_name` (migration `0020`) so addresses work. Do not add a unique index: existing name uniqueness is checked by Server Action `select` over `nome`, and an index here would newly make 'Meu Bot' collide with 'meu-bot'.",meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:115-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1c6440fc,api,apps/api/src/dominio/gestao/regras-de-nome.ts,133,133,jsdoc,3,/** O que a Server Action devolve quando recusa. */,remove,,other,apps/api/src/dominio/gestao/regras-de-nome.ts:133-133,codex3,reviewed
 api-comment-9846547b,api,apps/api/src/dominio/gestao/regras-de-nome.ts,138,144,jsdoc,13,"/**
  * As duas frases que `conferir` pode devolver.
  *
  * Vêm de fora porque são a ÚNICA parte da regra que muda entre as telas: a
  * origem tem `errorMsg.invalidName` escrita com a palavra ""fluxo"" e a tela do
  * roteador troca para ""roteador"". A regra é a mesma; o substantivo não.
- */",,,,,,
+ */",translate,`conferir` returns one of two screen-supplied sentences. Source `errorMsg.invalidName` says 'fluxo' while the router screen says 'roteador'; the rule stays identical and only the noun changes.,meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:138-144; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1c75aef6,api,apps/api/src/dominio/gestao/regras-de-nome.ts,150,159,jsdoc,6,"/**
  * Confere o nome — na MESMA ordem da origem.
  *
@@ -4071,7 +4071,7 @@ api-comment-1c75aef6,api,apps/api/src/dominio/gestao/regras-de-nome.ts,150,159,j
  *
  * Devolve a PRIMEIRA recusa: o `checkFormValidity` deles também para no
  * primeiro campo inválido.
- */",,,,,,
+ */",translate,"Validate names in source order: form `validApplicationFormErrors` checks required/min/max length before service `validateApplicationName` checks the first letter. Return the FIRST refusal, as source `checkFormValidity` stops at the first invalid field.",meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:150-159; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8bc275ee,api,apps/api/src/dominio/gestao/regras-de-nome.ts,37,52,jsdoc,20,"/**
  * O seletor de imagem do passo do nome — o `<upload-button>` deles.
  *
@@ -4087,7 +4087,7 @@ api-comment-8bc275ee,api,apps/api/src/dominio/gestao/regras-de-nome.ts,37,52,jsd
  * 256 KB de arquivo viram ~350 KB de texto em base64 — folgado para um avatar
  * que a tela desenha com 150px de diâmetro, e pequeno o bastante para a linha
  * continuar uma linha.
- */",,,,,,
+ */",translate,"Source name-step `<upload-button>` (module 96904) accepts literal `accept=""'.gif, .png, .jpeg, .jpg'""` and `ng-mime-type=""image/png, image/jpg, image/jpeg, image/gif""`. `.jpg` and `.jpeg` share `image/jpeg`, so four extensions mean three real MIME types. Pipe's `maxBytes` has no source counterpart: Blip stores a media URL, while Pipe stores a data URI in the row (`acoes.ts`), so a 256 KB file expands to about 350 KB base64 while remaining adequate for a 150px avatar.",meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:37-52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc6da077,api,apps/api/src/dominio/gestao/regras-de-nome.ts,59,70,jsdoc,13,"/**
  * As assinaturas dos três tipos aceitos, nos primeiros bytes.
  *
@@ -4099,8 +4099,8 @@ api-comment-cc6da077,api,apps/api/src/dominio/gestao/regras-de-nome.ts,59,70,jsd
  *
  * ponytail: tabela de três assinaturas; se estas telas passarem a aceitar mais
  * formato, troque pelo `tipoReal` de `@pipe/armazenamento`.
- */",,,,,,
-api-comment-5502db6e,api,apps/api/src/dominio/gestao/regras-de-nome.ts,77,77,jsdoc,4,"/** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */",,,,,,
+ */",translate,"Check file signatures in bytes, NEVER client extension or `Content-Type`. The canonical 15-format table is `packages/armazenamento/src/tipo-real.ts`; duplicate only these three signatures here because importing its built package into Next would add a build dependency. If more formats are accepted, use `tipoReal` from `@pipe/armazenamento`.",security,apps/api/src/dominio/gestao/regras-de-nome.ts:59-70; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5502db6e,api,apps/api/src/dominio/gestao/regras-de-nome.ts,77,77,jsdoc,4,"/** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */",translate,"MIME determined from bytes, or `null` if none of the three signatures match.",security,apps/api/src/dominio/gestao/regras-de-nome.ts:77-77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c9fc1fa4,api,apps/api/src/dominio/gestao/regras-de-nome.ts,86,97,jsdoc,15,"/**
  * O saneamento que a origem aplica a CADA TECLA (`ng-change` chamando
  * `validateSpecialCharacter`, que passa o valor pelo regex abaixo e reescreve
@@ -4112,7 +4112,7 @@ api-comment-c9fc1fa4,api,apps/api/src/dominio/gestao/regras-de-nome.ts,86,97,jsd
  * o do idioma da tela. Copiamos o filtro porque ele protege o `shortName` (ver
  * `nomeCurto` abaixo), mas ACRESCENTAMOS as letras acentuadas do português —
  * copiar defeito não é copiar disposição.
- */",,,,,,
+ */",translate,"Blip sanitizes on EVERY keystroke with `ng-change` and `validateSpecialCharacter`. Its allowed class `a-zA-Z0-9[]()_ -` excludes accents, silently turning 'Fluxo Padrão' into 'Fluxo Padro'. Pipe retains filtering to protect `shortName` (`nomeCurto`) but adds Portuguese accented letters; reproducing the source bug is unnecessary.",meta-blip,apps/api/src/dominio/gestao/regras-de-nome.ts:86-97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ab443196,api,apps/api/src/dominio/gestao/regras-prioridade.ts,10,44,jsdoc,45,"/**
  * CRUD básico de `regra_prioridade` — item 4 da tarefa de cadastros do
  * Atendimento. ""Sem tela nova"": este arquivo só existe para a rota REST
@@ -4147,14 +4147,14 @@ api-comment-ab443196,api,apps/api/src/dominio/gestao/regras-prioridade.ts,10,44,
  * `tenant` e `fila`: sem motor nenhum lendo esta tabela, ""verificar"" que
  * `inbox`/`equipe`/`etiqueta` seriam aceitos por engano é o único cuidado
  * possível — o mesmo raciocínio de `regras-sla.ts`.
- */",,,,,,
-api-comment-bd9c1903,api,apps/api/src/dominio/gestao/regras-prioridade.ts,98,98,jsdoc,1,"/** Objeto simples, não array nem escalar — `jsonb` aceita qualquer JSON, mas condição de regra é um mapa de critérios. */",,,,,,
-api-comment-80eac258,api,apps/api/src/dominio/gestao/regras-sla.ts,208,208,line,2,"// Alerta depende do prazo (final), então é conferido depois dos dois — o",,,,,,
-api-comment-6460a624,api,apps/api/src/dominio/gestao/regras-sla.ts,209,209,line,1,// pedido pode trocar só um dos dois e o outro continuar valendo.,,,,,,
-api-comment-f7f97e63,api,apps/api/src/dominio/gestao/regras-sla.ts,212,212,line,3,// Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.,,,,,,
-api-comment-a4c0bcd7,api,apps/api/src/dominio/gestao/regras-sla.ts,277,277,line,1,// `sla_conversa.regra_id` é `ON DELETE CASCADE`: excluir a regra apagaria em,,,,,,
-api-comment-f237d085,api,apps/api/src/dominio/gestao/regras-sla.ts,278,278,line,4,// silêncio o cronômetro de toda conversa que ainda está correndo com ela.,,,,,,
-api-comment-92df35c7,api,apps/api/src/dominio/gestao/regras-sla.ts,36,36,jsdoc,1,/** Uma semana: acima disso o prazo provavelmente é erro de digitação (segundos em vez de minutos). */,,,,,,
+ */",translate,"`regra_prioridade` CRUD was added to complete REST without a new `apps/gestao-vite` page. Historically there was no engine: `conversa.prioridade` was set elsewhere, and the CRUD task asked only to store configuration. The later `prioridade-motor.ts` (`avaliarPrioridade`/`carregarRegrasDePrioridadeAtivas`) now evaluates it in `dominio/entrada.ts`/`dominio/fluxo.ts` on queue entry. Historical no-order decision also followed a schema without an order column (`packages/db/src/schema/gestao.ts`) and no consumer; current deterministic order is queue scope before tenant, then `criado_em` (see motor). Retain these historical reasons rather than suggesting the engine is still absent. Accept only `tenant`/`fila` in `escopoTipo`, following SLA; unsupported `inbox`/`equipe`/`etiqueta` scopes must not be stored as silently ineffective rules.",architecture,apps/api/src/dominio/gestao/regras-prioridade.ts:10-44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bd9c1903,api,apps/api/src/dominio/gestao/regras-prioridade.ts,98,98,jsdoc,1,"/** Objeto simples, não array nem escalar — `jsonb` aceita qualquer JSON, mas condição de regra é um mapa de critérios. */",translate,"Require a plain object for rule conditions, not an array or scalar; `jsonb` accepts any JSON but a rule condition must map criteria.",architecture,apps/api/src/dominio/gestao/regras-prioridade.ts:98-98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-80eac258,api,apps/api/src/dominio/gestao/regras-sla.ts,208,208,line,2,"// Alerta depende do prazo (final), então é conferido depois dos dois — o",translate,Validate the alert after both final deadline values: a PATCH may change only,architecture,apps/api/src/dominio/gestao/regras-sla.ts:208-208; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6460a624,api,apps/api/src/dominio/gestao/regras-sla.ts,209,209,line,1,// pedido pode trocar só um dos dois e o outro continuar valendo.,translate,one deadline while retaining the other.,architecture,apps/api/src/dominio/gestao/regras-sla.ts:209-209; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f7f97e63,api,apps/api/src/dominio/gestao/regras-sla.ts,212,212,line,3,// Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.,translate,Reject a deadline shortened below an existing alert rather than storing an alert that can never fire.,architecture,apps/api/src/dominio/gestao/regras-sla.ts:212-212; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a4c0bcd7,api,apps/api/src/dominio/gestao/regras-sla.ts,277,277,line,1,// `sla_conversa.regra_id` é `ON DELETE CASCADE`: excluir a regra apagaria em,translate,`sla_conversa.regra_id` is `ON DELETE CASCADE`: deleting the rule would,architecture,apps/api/src/dominio/gestao/regras-sla.ts:277-277; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f237d085,api,apps/api/src/dominio/gestao/regras-sla.ts,278,278,line,4,// silêncio o cronômetro de toda conversa que ainda está correndo com ela.,translate,silently delete timers for conversations still running under it.,architecture,apps/api/src/dominio/gestao/regras-sla.ts:278-278; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-92df35c7,api,apps/api/src/dominio/gestao/regras-sla.ts,36,36,jsdoc,1,/** Uma semana: acima disso o prazo provavelmente é erro de digitação (segundos em vez de minutos). */,translate,"Cap at one week; larger deadlines are likely unit mistakes, such as seconds entered as minutes.",architecture,apps/api/src/dominio/gestao/regras-sla.ts:36-36; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-67f89a2f,api,apps/api/src/dominio/gestao/regras-sla.ts,9,27,jsdoc,20,"/**
  * Escrita de `regra_sla` — item 2 da tarefa de cadastros do Atendimento. A
  * LEITURA continua em `configuracoes.ts` (`carregarRegras`, que já monta o
@@ -4173,8 +4173,8 @@ api-comment-67f89a2f,api,apps/api/src/dominio/gestao/regras-sla.ts,9,27,jsdoc,20
  * `packages/db/src/schema/gestao.ts`), mas `escolherRegra` do motor de SLA
  * (`dominio/gestao/sla.ts`) só sabe resolver estes dois; uma regra com outro
  * escopo seria aceita e nunca aplicada — pior que recusar na entrada.
- */",,,,,,
-api-comment-b755e04d,api,apps/api/src/dominio/gestao/regras-sla.ts,95,95,jsdoc,2,"/** `null`/ausente é ""sem alerta""; quando vem, tem de soar ANTES do prazo estourar. */",,,,,,
+ */",translate,"Write `regra_sla` here while `configuracoes.ts` `carregarRegras` reads rules and joins queue names for `regras/sla`. Follow `cadastros.ts` REST `ErroPipe` statuses. Keep SLA separate from queue, pause and inbound-rule registration, as `comunicacao.ts` is separate. Reuse `regra.gerenciar` from `gravarRegraFila`; catalog label 'Gerenciar regras de fila, prioridade e SLA' already covers it. Pipe accepts only `tenant` and `fila` `escopoTipo`: database `ESCOPOS_REGRA` also allows `inbox`, `equipe` and `etiqueta`, but SLA motor `escolherRegra` in `dominio/gestao/sla.ts` cannot apply those; reject them rather than saving inert rules.",architecture,apps/api/src/dominio/gestao/regras-sla.ts:9-27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b755e04d,api,apps/api/src/dominio/gestao/regras-sla.ts,95,95,jsdoc,2,"/** `null`/ausente é ""sem alerta""; quando vem, tem de soar ANTES do prazo estourar. */",translate,Missing or `null` means no alert; a supplied alert must fire BEFORE the deadline.,architecture,apps/api/src/dominio/gestao/regras-sla.ts:95-95; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-61dffc01,api,apps/api/src/dominio/gestao/satisfacao.ts,11,24,jsdoc,18,"/**
  * Relatório de satisfação — §6 da spec de métricas.
  *
@@ -4188,15 +4188,15 @@ api-comment-61dffc01,api,apps/api/src/dominio/gestao/satisfacao.ts,11,24,jsdoc,1
  * conversas encerradas no período, sobre conversas encerradas no período.
  * Numerador e denominador contados sobre universos diferentes dariam uma taxa
  * que não quer dizer nada.
- */",,,,,,
-api-comment-bae930a6,api,apps/api/src/dominio/gestao/satisfacao.ts,125,125,jsdoc,1,"/** Um par por pesquisa: a média do grupo é soma ÷ soma, nunca média de médias. */",,,,,,
-api-comment-0bbe80bf,api,apps/api/src/dominio/gestao/satisfacao.ts,192,192,line,1,"// CSAT antes de NPS, e escala menor antes da maior: ordem estável, para o",,,,,,
-api-comment-7e79aeb8,api,apps/api/src/dominio/gestao/satisfacao.ts,193,193,line,0,// relatório sair igual toda vez.,,,,,,
-api-comment-af48607c,api,apps/api/src/dominio/gestao/satisfacao.ts,29,29,jsdoc,1,"/** Participação na barra. Divisão de contagens, não é métrica da spec. */",,,,,,
-api-comment-912885bf,api,apps/api/src/dominio/gestao/satisfacao.ts,41,41,jsdoc,2,"/** Pesquisas geradas para conversas encerradas no período, respondidas ou não. */",,,,,,
-api-comment-f583a89b,api,apps/api/src/dominio/gestao/satisfacao.ts,43,43,jsdoc,0,/** Respostas ÷ conversas encerradas no período. Obrigatória ao lado da média. */,,,,,,
-api-comment-b958e712,api,apps/api/src/dominio/gestao/satisfacao.ts,60,60,jsdoc,0,/** Denominador da taxa de resposta: conversas encerradas no período. */,,,,,,
-api-comment-eeb6dbbd,api,apps/api/src/dominio/gestao/satisfacao.ts,66,66,jsdoc,4,"/** Teto dos comentários: é uma amostra recente, não a extração da pesquisa. */",,,,,,
+ */",translate,"Satisfaction report, metrics spec §6. Store scale with every score in `resposta_pesquisa` (`escala_min`, `escala_max`): CSAT 4 on 1–5 and NPS 4 on 0–10 differ and must not share a chart. Group by both type AND scale so mixed scales cannot enter the same mean. Response-rate numerator and denominator both use conversations closed in the selected period; different populations would yield a meaningless rate.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:11-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bae930a6,api,apps/api/src/dominio/gestao/satisfacao.ts,125,125,jsdoc,1,"/** Um par por pesquisa: a média do grupo é soma ÷ soma, nunca média de médias. */",translate,"One pair per survey; group mean is sum divided by sum, never mean of means.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:125-125; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0bbe80bf,api,apps/api/src/dominio/gestao/satisfacao.ts,192,192,line,1,"// CSAT antes de NPS, e escala menor antes da maior: ordem estável, para o",translate,Order CSAT before NPS and smaller scales before larger ones for a,architecture,apps/api/src/dominio/gestao/satisfacao.ts:192-192; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7e79aeb8,api,apps/api/src/dominio/gestao/satisfacao.ts,193,193,line,0,// relatório sair igual toda vez.,translate,stable report every time.,architecture,apps/api/src/dominio/gestao/satisfacao.ts:193-193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-af48607c,api,apps/api/src/dominio/gestao/satisfacao.ts,29,29,jsdoc,1,"/** Participação na barra. Divisão de contagens, não é métrica da spec. */",translate,Share of the bar; a division of counts rather than a spec metric.,other,apps/api/src/dominio/gestao/satisfacao.ts:29-29,codex3,reviewed
+api-comment-912885bf,api,apps/api/src/dominio/gestao/satisfacao.ts,41,41,jsdoc,2,"/** Pesquisas geradas para conversas encerradas no período, respondidas ou não. */",translate,"Surveys generated for conversations closed in the period, answered or not.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:41-41; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f583a89b,api,apps/api/src/dominio/gestao/satisfacao.ts,43,43,jsdoc,0,/** Respostas ÷ conversas encerradas no período. Obrigatória ao lado da média. */,translate,"Responses divided by conversations closed in the period, shown alongside the mean.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:43-43; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b958e712,api,apps/api/src/dominio/gestao/satisfacao.ts,60,60,jsdoc,0,/** Denominador da taxa de resposta: conversas encerradas no período. */,translate,Response-rate denominator: conversations closed in the period.,architecture,apps/api/src/dominio/gestao/satisfacao.ts:60-60; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-eeb6dbbd,api,apps/api/src/dominio/gestao/satisfacao.ts,66,66,jsdoc,4,"/** Teto dos comentários: é uma amostra recente, não a extração da pesquisa. */",translate,"Cap comments because this is a recent sample, not a full survey export.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:66-66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-11fd993a,api,apps/api/src/dominio/gestao/satisfacao.ts,69,76,jsdoc,9,"/**
  * Ordem de leitura das classes, do melhor para o pior.
  *
@@ -4204,12 +4204,12 @@ api-comment-11fd993a,api,apps/api/src/dominio/gestao/satisfacao.ts,69,76,jsdoc,9
  * modelos: `satisfeito`/`insatisfeito` no CSAT, `promotor`/`neutro`/`detrator`
  * no NPS. A tela mostra o que veio do banco e não reclassifica nota nenhuma —
  * classificar aqui seria inventar uma segunda definição das faixas.
- */",,,,,,
-api-comment-ba4b75c8,api,apps/api/src/dominio/gestao/satisfacao.ts,7,7,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
-api-comment-2ca9b456,api,apps/api/src/dominio/gestao/satisfacao.ts,97,97,line,0,"// Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o",,,,,,
-api-comment-726b47fd,api,apps/api/src/dominio/gestao/satisfacao.ts,98,98,line,0,// `pipe.tenant_id` em silêncio.,,,,,,
-api-comment-c3226efb,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,119,119,jsdoc,2,"/** O roteador vivo desta conta, ou 404; fluxo que não é roteador é pedido inválido. */",,,,,,
-api-comment-ef85b664,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,135,135,jsdoc,3,"/** O formulário normalizado: o que a tela esconde, o banco não guarda. */",,,,,,
+ */",translate,"Read stored classes from best to worst. `classe` has different vocabulary for CSAT (`satisfeito`/`insatisfeito`) and NPS (`promotor`/`neutro`/`detrator`). Show stored classification without recomputing historical scores, which could introduce new thresholds.",architecture,apps/api/src/dominio/gestao/satisfacao.ts:69-76; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ba4b75c8,api,apps/api/src/dominio/gestao/satisfacao.ts,7,7,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/satisfacao.ts:7-7; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2ca9b456,api,apps/api/src/dominio/gestao/satisfacao.ts,97,97,line,0,"// Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o",translate,"Run serially, never in parallel: `Promise.all` inside the transaction can",security,apps/api/src/dominio/gestao/satisfacao.ts:97-97; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-726b47fd,api,apps/api/src/dominio/gestao/satisfacao.ts,98,98,line,0,// `pipe.tenant_id` em silêncio.,translate,silently clear `pipe.tenant_id`.,security,apps/api/src/dominio/gestao/satisfacao.ts:98-98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c3226efb,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,119,119,jsdoc,2,"/** O roteador vivo desta conta, ou 404; fluxo que não é roteador é pedido inválido. */",translate,Return this account's live router or 404; a non-router flow is an invalid request.,security,apps/api/src/dominio/gestao/servicos-do-roteador.ts:119-119; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ef85b664,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,135,135,jsdoc,3,"/** O formulário normalizado: o que a tela esconde, o banco não guarda. */",translate,Normalize the form so hidden fields are not stored.,architecture,apps/api/src/dominio/gestao/servicos-do-roteador.ts:135-135; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a5ef51bd,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,15,42,jsdoc,30,"/**
  * Os serviços do roteador — a tela `master.services` da Blip
  * (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`), gravada em `roteador_servico`
@@ -4237,38 +4237,38 @@ api-comment-a5ef51bd,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,15,
  *
  * Permissão: a de editar fluxo (`automacao.fluxo.editar`) nos três gestos —
  * mexer em serviço é editar o roteador.
- */",,,,,,
-api-comment-0cefad78,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,165,165,jsdoc,1,/** Os conflitos do formulário com os outros serviços do mesmo roteador. */,,,,,,
-api-comment-1d58f9a2,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,218,218,jsdoc,1,/** O vínculo como a tela lê. */,,,,,,
-api-comment-a175f690,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,229,229,jsdoc,0,"/** O vínculo deste roteador, ou 404. */",,,,,,
+ */",translate,"Router services mirror Blip `master.services` (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) in `roteador_servico` (migration 0024). Follow `ciclo-de-vida-do-fluxo.ts`/Chatwoot `inboxes_controller`: find router within account (404 otherwise), authorize, validate, write and audit. Source form requires unique router-local service name as `Redirect.address`, one live non-router account flow per service, at most one principal bot, hidden persistence/expiry for principal, and hidden expiry for persistent; expiry is required otherwise. Pipe defines integer expiry in MINUTES from 1 to 525,600 (source help says seconds but UI does not show a unit), 60-character name, 409 instead of silently replacing an existing principal, and deletion of principal without auto-promotion; conversations then fall back to the queue. All writes require `automacao.fluxo.editar` because changing a service edits its router.",meta-blip,apps/api/src/dominio/gestao/servicos-do-roteador.ts:15-42; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0cefad78,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,165,165,jsdoc,1,/** Os conflitos do formulário com os outros serviços do mesmo roteador. */,remove,,other,apps/api/src/dominio/gestao/servicos-do-roteador.ts:165-165,codex3,reviewed
+api-comment-1d58f9a2,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,218,218,jsdoc,1,/** O vínculo como a tela lê. */,remove,,other,apps/api/src/dominio/gestao/servicos-do-roteador.ts:218-218,codex3,reviewed
+api-comment-a175f690,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,229,229,jsdoc,0,"/** O vínculo deste roteador, ou 404. */",translate,Return this router's association or 404.,security,apps/api/src/dominio/gestao/servicos-do-roteador.ts:229-229; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-914d5b36,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,258,262,block,11,"/* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item ""Serviços"" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
-     segue editando (migração 0035). */",,,,,,
-api-comment-21eaa5e9,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,291,291,jsdoc,1,/** Só o que veio muda; o resultado passa pelas mesmas regras da criação. */,,,,,,
+     segue editando (migração 0035). */",translate,"Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",meta-blip,apps/api/src/dominio/gestao/servicos-do-roteador.ts:258-262; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-21eaa5e9,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,291,291,jsdoc,1,/** Só o que veio muda; o resultado passa pelas mesmas regras da criação. */,translate,"Change supplied fields only, then validate the result with creation rules.",architecture,apps/api/src/dominio/gestao/servicos-do-roteador.ts:291-291; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cec6a5cd,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,302,306,block,11,"/* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item ""Serviços"" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
-     segue editando (migração 0035). */",,,,,,
+     segue editando (migração 0035). */",translate,"Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",meta-blip,apps/api/src/dominio/gestao/servicos-do-roteador.ts:302-306; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-87025010,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,347,350,jsdoc,6,"/**
  * Tira o serviço do roteador. O chatbot continua existindo; quem estava nele volta ao
  * principal na próxima mensagem (a posição aponta para um serviço que não está mais lá).
- */",,,,,,
+ */",translate,"Remove the router service but keep its chatbot. On the next message, conversations at its former position return to the principal service because that position no longer resolves.",integration,apps/api/src/dominio/gestao/servicos-do-roteador.ts:347-350; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0a03d6cc,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,360,364,block,11,"/* A origem não tem linha para os serviços do master no `PermissionsList.html`:
      o item ""Serviços"" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
      linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
      do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
-     segue editando (migração 0035). */",,,,,,
-api-comment-e49bec96,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,60,60,jsdoc,1,"/** Os vínculos do roteador, com o chatbot de cada um. Principal primeiro. */",,,,,,
+     segue editando (migração 0035). */",translate,"Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",meta-blip,apps/api/src/dominio/gestao/servicos-do-roteador.ts:360-364; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e49bec96,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,60,60,jsdoc,1,"/** Os vínculos do roteador, com o chatbot de cada um. Principal primeiro. */",translate,"Router associations with their chatbots, principal first.",architecture,apps/api/src/dominio/gestao/servicos-do-roteador.ts:60-60; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7ce36684,api,apps/api/src/dominio/gestao/servicos-do-roteador.ts,85,88,jsdoc,7,"/**
  * `GET …/servicos`. `null` = o fluxo não existe nesta conta (404). Para fluxo que
  * não é roteador, a resposta vem vazia — a tela mostra ""não encontrado"".
- */",,,,,,
-api-comment-5781c400,api,apps/api/src/dominio/gestao/sla-motor.ts,152,152,jsdoc,3,"/** Uma regra, contra uma conversa: decide o novo estado e dispara alerta/estouro no máximo uma vez cada. */",,,,,,
-api-comment-174edd5e,api,apps/api/src/dominio/gestao/sla-motor.ts,161,161,line,3,"// Idempotência dura: linha terminal nunca mais muda, mesmo que a varredura rode de",,,,,,
-api-comment-4a2ce988,api,apps/api/src/dominio/gestao/sla-motor.ts,162,162,line,2,// novo sobre a mesma conversa daqui a um mês.,,,,,,
+ */",translate,`GET …/servicos`: `null` when the flow is outside this account (404). A non-router flow returns an empty result and the screen shows 'não encontrado'.,architecture,apps/api/src/dominio/gestao/servicos-do-roteador.ts:85-88; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5781c400,api,apps/api/src/dominio/gestao/sla-motor.ts,152,152,jsdoc,3,"/** Uma regra, contra uma conversa: decide o novo estado e dispara alerta/estouro no máximo uma vez cada. */",translate,"For one rule and conversation, choose new state and emit alert or breach at most once each.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:152-152; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-174edd5e,api,apps/api/src/dominio/gestao/sla-motor.ts,161,161,line,3,"// Idempotência dura: linha terminal nunca mais muda, mesmo que a varredura rode de",translate,"Strict idempotence: a terminal row never changes again, even if a sweep",architecture,apps/api/src/dominio/gestao/sla-motor.ts:161-161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4a2ce988,api,apps/api/src/dominio/gestao/sla-motor.ts,162,162,line,2,// novo sobre a mesma conversa daqui a um mês.,translate,revisits the same conversation a month later.,architecture,apps/api/src/dominio/gestao/sla-motor.ts:162-162; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-f0d1ff10,api,apps/api/src/dominio/gestao/sla-motor.ts,17,56,jsdoc,62,"/**
  * O relógio do SLA — item 1 da tarefa de ""fazer funcionar o que só está
  * cadastrado"". `regra_sla` e `sla_conversa` existem desde a fundação do
@@ -4308,9 +4308,9 @@ api-comment-f0d1ff10,api,apps/api/src/dominio/gestao/sla-motor.ts,17,56,jsdoc,62
  * resposta, outra de resolução). Por isso aqui a vencedora é escolhida
  * `POR ALVO`, com a mesma precedência (regra de escopo `fila` vence a de
  * escopo `tenant`, por ser mais específica).
- */",,,,,,
-api-comment-3743dbf2,api,apps/api/src/dominio/gestao/sla-motor.ts,170,170,line,1,// `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do,,,,,,
-api-comment-858801f4,api,apps/api/src/dominio/gestao/sla-motor.ts,171,171,line,3,"// contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.",,,,,,
+ */",translate,"SLA clock activates the existing `regra_sla`/`sla_conversa` storage. Like media-download scheduling in `../../filas.ts` (`agendarVarreduraDownloadMidia`/`relogioMidia`), BullMQ `pipe-sla` nudges a periodic sweep, with an in-memory dev/test path. `sla_conversa` is authoritative; a lost job only delays processing until the next sweep. Pipe does NOT pause outside business hours: neither `referencias-blip/pesquisa/regras-blip.md` nor `blip-desk-regras-tecnicas.md` documents Blip doing so; the observed first-response timer RESET after an agent reply is different. Existing `dominio/gestao/sla.ts` records the same gap. Pass `horario: null` to `avaliarSla` for 24/7 evaluation; it already accepts a queue schedule if later evidence warrants one. Freeze the clock when a conversation closes, so the next sweep cannot breach one closed before its deadline. Choose one winning rule PER TARGET, not one per conversation: `sla_conversa` uniqueness `(conversa_id, regra_id)` permits concurrent first-response and resolution rules. Apply queue-scope precedence over tenant for each target, as more specific manager configuration.",integration,apps/api/src/dominio/gestao/sla-motor.ts:17-56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3743dbf2,api,apps/api/src/dominio/gestao/sla-motor.ts,170,170,line,1,// `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do,translate,"For `resposta` (`tempo_resposta`), count only while the customer's message",architecture,apps/api/src/dominio/gestao/sla-motor.ts:170-170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-858801f4,api,apps/api/src/dominio/gestao/sla-motor.ts,171,171,line,3,"// contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.",translate,"is last. Once the agent or bot answers, this target has no remaining start time.",architecture,apps/api/src/dominio/gestao/sla-motor.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1a4d1ea7,api,apps/api/src/dominio/gestao/sla-motor.ts,177,177,line,3,"// Sem início hoje. Se havia uma linha correndo, o fim da espera (resposta que",,,,,,
 api-comment-1c25b6c0,api,apps/api/src/dominio/gestao/sla-motor.ts,178,178,line,1,"// chegou) fecha o ciclo como cumprido — senão ela travaria ""correndo"" para",,,,,,
 api-comment-0ff7d6e6,api,apps/api/src/dominio/gestao/sla-motor.ts,182,182,line,1,"// `sla_conversa` só tem uma chave (conversa, regra). Se um dia for preciso o",,,,,,

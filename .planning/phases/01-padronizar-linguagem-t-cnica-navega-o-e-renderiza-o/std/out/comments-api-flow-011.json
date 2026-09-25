@@ -1,0 +1,604 @@
+{
+  "items": [
+    {
+      "id": "api-comment-3ca7c543",
+      "action": "translate",
+      "new_text": "Use the private key only to identify the matching leaf certificate; it lives",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:435-435; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4e0c16c8",
+      "action": "translate",
+      "new_text": "only within this function and is discarded on return.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:436-436; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-efac31e2",
+      "action": "translate",
+      "new_text": "If OpenSSL cannot open this key-bag format here, use the certificate heuristic.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:443-443; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-284c3ada",
+      "action": "translate",
+      "new_text": "Keep the whole element (tag, length, content) for passing to OpenSSL.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:47-47; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d1ef1686",
+      "action": "translate",
+      "new_text": "Explicit constructed `[0]`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:57-57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cd751201",
+      "action": "translate",
+      "new_text": "Primitive implicit `[0]`, the PKCS#7 `encryptedContent`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:59-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-96b9123d",
+      "action": "translate",
+      "new_text": "Read server-side `.pfx` (PKCS#12) with Node APIs. Blip delegates uploaded `password` and `file` to `postmaster@mtls.blip.ai`, returning `status` and `expiration_date` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). First `tls.createSecureContext({ pfx, passphrase })` lets OpenSSL verify the password MAC, decrypt the private key and require a matching certificate; the same pair is used by `https.Agent` in `dominio/mtls.ts`. Then `X509Certificate` reads expiry, issuer, subject and SHA-256 fingerprint from DER/PEM. Since Node has no public PKCS#12 certificate extraction API, the minimal ASN.1 parser (RFC 7292) opens the envelope and decrypts PBES2/AES or PKCS#12 3DES certificate bags. RC2/RC4 PBEs from old Windows or OpenSSL 1.x exports require OpenSSL 3's `legacy` provider, unavailable to Node; step one rejects them as 'unsupported' and asks for AES re-export.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:6-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2086ba09",
+      "action": "translate",
+      "new_text": "Read consecutive DER elements of `dados` from start to end.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:70-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-79e5e478",
+      "action": "translate",
+      "new_text": "`0x80` denotes indefinite BER length, unused by supported `.pfx` exporters.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/pfx.ts:83-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8aa1a8b6",
+      "action": "translate",
+      "new_text": "The `regra_prioridade` engine now evaluates active rules when a conversation enters a queue (`dominio/entrada.ts`, `dominio/fluxo.ts`), and the first match sets `conversa.prioridade`. Earlier `regras-prioridade.ts` implemented only CRUD. Pipe still has no explicit order column: queue-scoped rules precede tenant-scoped rules, as in SLA `escolherRegra` in `sla.ts`; within a scope, older `criado_em` wins. Add an `ordem` column only if reordering without recreation becomes necessary. An empty condition matches all conversations IN SCOPE: `regra_prioridade.condicao` defaults to `{}` (`packages/db/src/schema/gestao.ts`), and scope already filters applicability. This deliberately differs from empty `regra_fila` conditions, which never match because their conditions are the whole rule.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/prioridade-motor.ts:6-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4075918b",
+      "action": "translate",
+      "new_text": "Deterministic evaluation order: `fila` scope (0) before `tenant` (1), then older creation time, then ID for exact ties.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/prioridade-motor.ts:62-66; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-efe01659",
+      "action": "translate",
+      "new_text": "Fields offered by a newly arrived conversation, shaped like `ContextoDaConversa` in `regra-fila.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/prioridade-motor.ts:83-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-edbe0a5a",
+      "action": "translate",
+      "new_text": "Return the first active rule whose scope and condition match, checking cheap scope first. `null` leaves `conversa.prioridade` at default `sem_prioridade`, preserving behavior without registered rules.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/prioridade-motor.ts:95-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-be3e3ca1",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:108-108",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-87f36a52",
+      "action": "translate",
+      "new_text": "Evaluate rules in deterministic order: ties in `ordem` break by ID, as in distribution spec §7. Without that tie-break, two order-0 rules depend on unspecified PostgreSQL row order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:126-132; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc40f4d4",
+      "action": "translate",
+      "new_text": "Return the first matching active rule, or `null` to use the inbox default queue. An active rule with no conditions never matches because `avaliarExpressao` returns false for an empty list; otherwise an accidentally empty rule would capture every conversation before rules below it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:148-156; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-379e8a7f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:175-175",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-ba3c9768",
+      "action": "translate",
+      "new_text": "Report unreachable rule indexes: an active rule without conditions never matches, and a rule below an identical one never wins. Show these configuration errors so a manager understands why a newly tested rule has no effect.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:184-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1fd74e5",
+      "action": "translate",
+      "new_text": "Inbound rules (metrics spec §8) choose a conversation's arrival queue. Unlike unspecified Blip documentation, Pipe evaluates in displayed order, with FIRST match winning, and combines each rule's conditions by user-chosen AND or OR. If none matches, `inbox.fila_padrao_id` selects the default queue outside this module. Keep this module pure for the `'use client'` form; importing Drizzle or `@pipe/db` would pull `pg` into the browser. Delegate expression evaluation to `@pipe/core` (`score/motor.ts`) so operators, accent/case normalization and dotted paths have one definition.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:3-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2043a695",
+      "action": "translate",
+      "new_text": "`mensagem` is the customer's first message; other fields come from the contact. `contato.atributos.` is a PREFIX followed by the tenant-defined extra-field key, e.g. `contato.atributos.plano`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:40-46; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0576ef06",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:63-63",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-b6da2153",
+      "action": "translate",
+      "new_text": "Accept one of four fixed fields or an extra field with a nonempty key. A mistyped arbitrary field would make a rule silently never match and send conversations to the wrong queue.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regra-fila.ts:77-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a8bad109",
+      "action": "translate",
+      "new_text": "Share contact-name rules between router and flow because Blip uses the SAME creation template for both. Source name step module 96904 changes only labels through three `ng-if=\"$ctrl.template != 'master'\"`; `required`, 2–30 length, file `accept` and per-key sanitization are identical. Server `validateApplicationName` runs through `prepareApplicationData` for every template. Evidence: source `portal.js` 25.204.0-v0.43.1 modules `CreateApplicationController` (18502), name template (96904), and `CreateApplicationService.validateApplicationName`. Keep the rules outside either screen and enforce them both in browser validation and the Server Action against direct POSTs.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:1-29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0061b007",
+      "action": "translate",
+      "new_text": "Require a LETTER first. Source `validateApplicationName` uses `/(^[a-zA-Z])/` because `shortName = name.toLowerCase()` becomes the platform contact identifier; a digit or `(` cannot start that address.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:100-107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-baa74b40",
+      "action": "translate",
+      "new_text": "Apply the source's per-keystroke name sanitization.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:110-110; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-88a7582d",
+      "action": "translate",
+      "new_text": "Source `application.shortName = application.name.toLowerCase()` would leave spaces (e.g. 'Meu Fluxo' to `meu fluxo`), though observed real short names have none; an unseen downstream service likely normalizes them. Pipe replaces spaces with hyphens before saving `fluxo.short_name` (migration `0020`) so addresses work. Do not add a unique index: existing name uniqueness is checked by Server Action `select` over `nome`, and an index here would newly make 'Meu Bot' collide with 'meu-bot'.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:115-128; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c6440fc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:133-133",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-9846547b",
+      "action": "translate",
+      "new_text": "`conferir` returns one of two screen-supplied sentences. Source `errorMsg.invalidName` says 'fluxo' while the router screen says 'roteador'; the rule stays identical and only the noun changes.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:138-144; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1c75aef6",
+      "action": "translate",
+      "new_text": "Validate names in source order: form `validApplicationFormErrors` checks required/min/max length before service `validateApplicationName` checks the first letter. Return the FIRST refusal, as source `checkFormValidity` stops at the first invalid field.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:150-159; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8bc275ee",
+      "action": "translate",
+      "new_text": "Source name-step `<upload-button>` (module 96904) accepts literal `accept=\"'.gif, .png, .jpeg, .jpg'\"` and `ng-mime-type=\"image/png, image/jpg, image/jpeg, image/gif\"`. `.jpg` and `.jpeg` share `image/jpeg`, so four extensions mean three real MIME types. Pipe's `maxBytes` has no source counterpart: Blip stores a media URL, while Pipe stores a data URI in the row (`acoes.ts`), so a 256 KB file expands to about 350 KB base64 while remaining adequate for a 150px avatar.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:37-52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc6da077",
+      "action": "translate",
+      "new_text": "Check file signatures in bytes, NEVER client extension or `Content-Type`. The canonical 15-format table is `packages/armazenamento/src/tipo-real.ts`; duplicate only these three signatures here because importing its built package into Next would add a build dependency. If more formats are accepted, use `tipoReal` from `@pipe/armazenamento`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:59-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5502db6e",
+      "action": "translate",
+      "new_text": "MIME determined from bytes, or `null` if none of the three signatures match.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:77-77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c9fc1fa4",
+      "action": "translate",
+      "new_text": "Blip sanitizes on EVERY keystroke with `ng-change` and `validateSpecialCharacter`. Its allowed class `a-zA-Z0-9[]()_ -` excludes accents, silently turning 'Fluxo Padrão' into 'Fluxo Padro'. Pipe retains filtering to protect `shortName` (`nomeCurto`) but adds Portuguese accented letters; reproducing the source bug is unnecessary.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/regras-de-nome.ts:86-97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ab443196",
+      "action": "translate",
+      "new_text": "`regra_prioridade` CRUD was added to complete REST without a new `apps/gestao-vite` page. Historically there was no engine: `conversa.prioridade` was set elsewhere, and the CRUD task asked only to store configuration. The later `prioridade-motor.ts` (`avaliarPrioridade`/`carregarRegrasDePrioridadeAtivas`) now evaluates it in `dominio/entrada.ts`/`dominio/fluxo.ts` on queue entry. Historical no-order decision also followed a schema without an order column (`packages/db/src/schema/gestao.ts`) and no consumer; current deterministic order is queue scope before tenant, then `criado_em` (see motor). Retain these historical reasons rather than suggesting the engine is still absent. Accept only `tenant`/`fila` in `escopoTipo`, following SLA; unsupported `inbox`/`equipe`/`etiqueta` scopes must not be stored as silently ineffective rules.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-prioridade.ts:10-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bd9c1903",
+      "action": "translate",
+      "new_text": "Require a plain object for rule conditions, not an array or scalar; `jsonb` accepts any JSON but a rule condition must map criteria.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-prioridade.ts:98-98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-80eac258",
+      "action": "translate",
+      "new_text": "Validate the alert after both final deadline values: a PATCH may change only",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:208-208; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6460a624",
+      "action": "translate",
+      "new_text": "one deadline while retaining the other.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:209-209; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f7f97e63",
+      "action": "translate",
+      "new_text": "Reject a deadline shortened below an existing alert rather than storing an alert that can never fire.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:212-212; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a4c0bcd7",
+      "action": "translate",
+      "new_text": "`sla_conversa.regra_id` is `ON DELETE CASCADE`: deleting the rule would",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:277-277; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f237d085",
+      "action": "translate",
+      "new_text": "silently delete timers for conversations still running under it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:278-278; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-92df35c7",
+      "action": "translate",
+      "new_text": "Cap at one week; larger deadlines are likely unit mistakes, such as seconds entered as minutes.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:36-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-67f89a2f",
+      "action": "translate",
+      "new_text": "Write `regra_sla` here while `configuracoes.ts` `carregarRegras` reads rules and joins queue names for `regras/sla`. Follow `cadastros.ts` REST `ErroPipe` statuses. Keep SLA separate from queue, pause and inbound-rule registration, as `comunicacao.ts` is separate. Reuse `regra.gerenciar` from `gravarRegraFila`; catalog label 'Gerenciar regras de fila, prioridade e SLA' already covers it. Pipe accepts only `tenant` and `fila` `escopoTipo`: database `ESCOPOS_REGRA` also allows `inbox`, `equipe` and `etiqueta`, but SLA motor `escolherRegra` in `dominio/gestao/sla.ts` cannot apply those; reject them rather than saving inert rules.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:9-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b755e04d",
+      "action": "translate",
+      "new_text": "Missing or `null` means no alert; a supplied alert must fire BEFORE the deadline.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/regras-sla.ts:95-95; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-61dffc01",
+      "action": "translate",
+      "new_text": "Satisfaction report, metrics spec §6. Store scale with every score in `resposta_pesquisa` (`escala_min`, `escala_max`): CSAT 4 on 1–5 and NPS 4 on 0–10 differ and must not share a chart. Group by both type AND scale so mixed scales cannot enter the same mean. Response-rate numerator and denominator both use conversations closed in the selected period; different populations would yield a meaningless rate.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:11-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bae930a6",
+      "action": "translate",
+      "new_text": "One pair per survey; group mean is sum divided by sum, never mean of means.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:125-125; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0bbe80bf",
+      "action": "translate",
+      "new_text": "Order CSAT before NPS and smaller scales before larger ones for a",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:192-192; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7e79aeb8",
+      "action": "translate",
+      "new_text": "stable report every time.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:193-193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-af48607c",
+      "action": "translate",
+      "new_text": "Share of the bar; a division of counts rather than a spec metric.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-912885bf",
+      "action": "translate",
+      "new_text": "Surveys generated for conversations closed in the period, answered or not.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:41-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f583a89b",
+      "action": "translate",
+      "new_text": "Responses divided by conversations closed in the period, shown alongside the mean.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:43-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b958e712",
+      "action": "translate",
+      "new_text": "Response-rate denominator: conversations closed in the period.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:60-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-eeb6dbbd",
+      "action": "translate",
+      "new_text": "Cap comments because this is a recent sample, not a full survey export.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:66-66; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-11fd993a",
+      "action": "translate",
+      "new_text": "Read stored classes from best to worst. `classe` has different vocabulary for CSAT (`satisfeito`/`insatisfeito`) and NPS (`promotor`/`neutro`/`detrator`). Show stored classification without recomputing historical scores, which could introduce new thresholds.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:69-76; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ba4b75c8",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:7-7; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2ca9b456",
+      "action": "translate",
+      "new_text": "Run serially, never in parallel: `Promise.all` inside the transaction can",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:97-97; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-726b47fd",
+      "action": "translate",
+      "new_text": "silently clear `pipe.tenant_id`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/satisfacao.ts:98-98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c3226efb",
+      "action": "translate",
+      "new_text": "Return this account's live router or 404; a non-router flow is an invalid request.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:119-119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ef85b664",
+      "action": "translate",
+      "new_text": "Normalize the form so hidden fields are not stored.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:135-135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a5ef51bd",
+      "action": "translate",
+      "new_text": "Router services mirror Blip `master.services` (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) in `roteador_servico` (migration 0024). Follow `ciclo-de-vida-do-fluxo.ts`/Chatwoot `inboxes_controller`: find router within account (404 otherwise), authorize, validate, write and audit. Source form requires unique router-local service name as `Redirect.address`, one live non-router account flow per service, at most one principal bot, hidden persistence/expiry for principal, and hidden expiry for persistent; expiry is required otherwise. Pipe defines integer expiry in MINUTES from 1 to 525,600 (source help says seconds but UI does not show a unit), 60-character name, 409 instead of silently replacing an existing principal, and deletion of principal without auto-promotion; conversations then fall back to the queue. All writes require `automacao.fluxo.editar` because changing a service edits its router.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:15-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0cefad78",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:165-165",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-1d58f9a2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:218-218",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-a175f690",
+      "action": "translate",
+      "new_text": "Return this router's association or 404.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:229-229; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-914d5b36",
+      "action": "translate",
+      "new_text": "Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:258-262; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-21eaa5e9",
+      "action": "translate",
+      "new_text": "Change supplied fields only, then validate the result with creation rules.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:291-291; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cec6a5cd",
+      "action": "translate",
+      "new_text": "Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:302-306; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-87025010",
+      "action": "translate",
+      "new_text": "Remove the router service but keep its chatbot. On the next message, conversations at its former position return to the principal service because that position no longer resolves.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:347-350; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0a03d6cc",
+      "action": "translate",
+      "new_text": "Source `PermissionsList.html` has no master-service row: 'Serviços' comes from `getTemplateSetupItem()`, not menu catalog. Use its nearest `basicConfigurations` permission for the contact itself; existing account-level editors retain access (migration 0035).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:360-364; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e49bec96",
+      "action": "translate",
+      "new_text": "Router associations with their chatbots, principal first.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:60-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7ce36684",
+      "action": "translate",
+      "new_text": "`GET …/servicos`: `null` when the flow is outside this account (404). A non-router flow returns an empty result and the screen shows 'não encontrado'.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/servicos-do-roteador.ts:85-88; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5781c400",
+      "action": "translate",
+      "new_text": "For one rule and conversation, choose new state and emit alert or breach at most once each.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:152-152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-174edd5e",
+      "action": "translate",
+      "new_text": "Strict idempotence: a terminal row never changes again, even if a sweep",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:161-161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4a2ce988",
+      "action": "translate",
+      "new_text": "revisits the same conversation a month later.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:162-162; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f0d1ff10",
+      "action": "translate",
+      "new_text": "SLA clock activates the existing `regra_sla`/`sla_conversa` storage. Like media-download scheduling in `../../filas.ts` (`agendarVarreduraDownloadMidia`/`relogioMidia`), BullMQ `pipe-sla` nudges a periodic sweep, with an in-memory dev/test path. `sla_conversa` is authoritative; a lost job only delays processing until the next sweep. Pipe does NOT pause outside business hours: neither `referencias-blip/pesquisa/regras-blip.md` nor `blip-desk-regras-tecnicas.md` documents Blip doing so; the observed first-response timer RESET after an agent reply is different. Existing `dominio/gestao/sla.ts` records the same gap. Pass `horario: null` to `avaliarSla` for 24/7 evaluation; it already accepts a queue schedule if later evidence warrants one. Freeze the clock when a conversation closes, so the next sweep cannot breach one closed before its deadline. Choose one winning rule PER TARGET, not one per conversation: `sla_conversa` uniqueness `(conversa_id, regra_id)` permits concurrent first-response and resolution rules. Apply queue-scope precedence over tenant for each target, as more specific manager configuration.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:17-56; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3743dbf2",
+      "action": "translate",
+      "new_text": "For `resposta` (`tempo_resposta`), count only while the customer's message",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:170-170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-858801f4",
+      "action": "translate",
+      "new_text": "is last. Once the agent or bot answers, this target has no remaining start time.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/sla-motor.ts:171-171; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
