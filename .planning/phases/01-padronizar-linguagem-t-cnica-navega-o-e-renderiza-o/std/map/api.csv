@@ -4567,3 +4567,6 @@ api-ts-prop-fdf3c236,api,2,ts-prop,historico,history,apps/api/src/controladores/
 api-ts-prop-fe4e5f1d,api,2,ts-prop,permissoes,permissions,apps/api/tests/entrada.test.ts:138,149,no,,,proposed,codex1,
 api-ts-prop-fe580fc6,api,2,ts-prop,agenteUsuario,agenteUser,apps/api/src/dominio/rastreador-de-cliques.ts:48,2,no,,,proposed,codex1,
 api-ts-prop-ff367f5a,api,2,ts-prop,acessoAosModelos,accessToTemplates,apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:26,2,no,,,proposed,codex1,
+api-query-param-erro,api,2,query-param,erro,error,apps/api/src/controladores/entrar.ts:93,,no,,,proposed,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+api-query-param-expira,api,2,query-param,expira,expires,apps/api/src/controladores/anexos.ts:63,,no,,,proposed,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+api-query-param-assinatura,api,2,query-param,assinatura,signature,apps/api/src/controladores/anexos.ts:64,,no,,,proposed,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"

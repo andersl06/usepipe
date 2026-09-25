@@ -318,7 +318,8 @@ function rewriteAstRow(
       const name = callName(literal);
       if (
         isFirstArgument(literal) &&
-        /(?:searchParams|URLSearchParams).*(?:get|set|has|delete)/.test(name) &&
+        (/(?:searchParams|URLSearchParams).*(?:get|set|has|delete)/.test(name) ||
+          /(?:^|\.)Query$/.test(name)) &&
         value === row.old
       )
         replacement = row.new;
