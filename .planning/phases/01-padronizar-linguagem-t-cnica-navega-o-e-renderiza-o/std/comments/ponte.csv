@@ -7,16 +7,16 @@ ponte-comment-51dec0db,ponte,apps/ponte/src/acoes.ts,104,112,jsdoc,14,"/**
  * do cliente; se o cliente ainda não tem nenhuma, criamos ""Encerrado pelo atendente""
  * — nascer sem etiqueta é comum em empresa nova, e travar o encerramento por isso
  * seria pior do que registrar um motivo genérico.
- */",,,,,,
-ponte-comment-5198f7f7,ponte,apps/ponte/src/acoes.ts,20,20,jsdoc,1,"/** O ator de uma ação vinda da tela: o atendente logado, agindo por si. */",,,,,,
+ */",translate,"Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. If none are supplied, use the client's first tag; if the client has none, create ""Encerrado pelo atendente"". New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.",architecture,apps/ponte/src/acoes.ts:104; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-5198f7f7,ponte,apps/ponte/src/acoes.ts,20,20,jsdoc,1,"/** O ator de uma ação vinda da tela: o atendente logado, agindo por si. */",translate,The actor for a screen action is the signed-in agent acting on their own behalf.,security,apps/ponte/src/acoes.ts:20; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-e87c0ed0,ponte,apps/ponte/src/acoes.ts,26,27,block,3,"/* Assumir NÃO é transferir para si: transferência encerra a conversa e abre outra
-     (é o modelo da plataforma de origem). Ver `dominio/assumir.ts`. */",,,,,,
-ponte-comment-49492986,ponte,apps/ponte/src/acoes.ts,31,31,jsdoc,2,/** Pega o próximo da fila: o mais antigo entre as filas de quem está pedindo. */,,,,,,
+     (é o modelo da plataforma de origem). Ver `dominio/assumir.ts`. */",translate,"Claiming is NOT transferring to oneself: a transfer closes this conversation and opens another, following the source platform's model. See `dominio/assumir.ts`.",architecture,apps/ponte/src/acoes.ts:26; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-49492986,ponte,apps/ponte/src/acoes.ts,31,31,jsdoc,2,/** Pega o próximo da fila: o mais antigo entre as filas de quem está pedindo. */,translate,Claim the oldest conversation among the requester's queues.,other,apps/ponte/src/acoes.ts:31,codex3,reviewed
 ponte-comment-d74d5e1d,ponte,apps/ponte/src/acoes.ts,50,54,jsdoc,10,"/**
  * A tela manda a mensagem para uma IDENTIDADE (`5531988887777@wa.gw.msging.net`),
  * não para uma conversa — é assim que o protocolo dela funciona. Aqui a identidade
  * vira conversa: a aberta daquele telefone.
- */",,,,,,
+ */",translate,"The screen sends a message to an IDENTITY (`5531988887777@wa.gw.msging.net`), not a conversation; that is how its protocol works. Resolve this identity to the open conversation for that phone number.",integration,apps/ponte/src/acoes.ts:50; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-a72fa5e0,ponte,apps/ponte/src/acoes.ts,8,18,jsdoc,13,"/**
  * O que o atendente FAZ na tela: assumir, responder, transferir e encerrar.
  *
@@ -27,14 +27,14 @@ ponte-comment-a72fa5e0,ponte,apps/ponte/src/acoes.ts,8,18,jsdoc,13,"/**
  * **Assumir é transferir para si.** Parece atalho, mas é o contrário: assumir tem as
  * mesmas regras de transferência (estado válido, fila, capacidade), e escrever um
  * caminho próprio seria duplicar a máquina de estados só para economizar uma linha.
- */",,,,,,
+ */",translate,"Screen actions include claiming, replying, transferring, and closing. Each calls the domain function already used by `apps/api`, with the same state machine, events, and limits. The bridge only translates screen vocabulary into Pipe's. Claiming is a transfer to oneself in terms of rules: valid state, queue, and capacity. A separate path would duplicate the state machine just to save one line.",architecture,apps/ponte/src/acoes.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-74879ec3,ponte,apps/ponte/src/acoes.ts,84,85,block,4,"/* `dentroDaJanela` sobe junto porque fora da janela de 24h a Meta só entrega
-     template: a tela precisa saber disso para avisar quem escreveu. */",,,,,,
+     template: a tela precisa saber disso para avisar quem escreveu. */",translate,"Return `dentroDaJanela` too: outside the 24-hour window Meta delivers only templates, and the screen must warn the sender.",integration,apps/ponte/src/acoes.ts:84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-91b8497a,ponte,apps/ponte/src/banco.ts,30,34,jsdoc,5,"/**
  * Roda o trabalho com o tenant fixado. Dentro do callback as consultas vão **em
  * série**: `Promise.all` aqui derruba o `set_config` da transação e a consulta passa
  * a rodar sem tenant. É a mesma armadilha registrada na `apps/api`.
- */",,,,,,
+ */",translate,"Run work with the tenant fixed. Queries inside the callback must run in series: `Promise.all` disrupts the transaction's `set_config`, allowing a query to run without a tenant. This is the same trap documented in `apps/api`.",security,apps/ponte/src/banco.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-c6ffaf7d,ponte,apps/ponte/src/banco.ts,4,11,jsdoc,9,"/**
  * Duas conexões, dois papéis — a mesma divisão da `apps/api`.
  *
@@ -42,7 +42,7 @@ ponte-comment-c6ffaf7d,ponte,apps/ponte/src/banco.ts,4,11,jsdoc,9,"/**
  * RLS valendo. O papel dono existe para UMA coisa: resolver a sessão do cookie, que
  * é justamente o que precisa acontecer **antes** de haver tenant em vigor. Nenhuma
  * outra consulta usa o papel dono.
- */",,,,,,
+ */",translate,"Two connections and roles, as in `apps/api`. All business data goes through `noTenant`, with `pipe.tenant_id` fixed and RLS active. The owner role has one purpose: resolving the cookie session before a tenant is established. No other query uses it.",security,apps/ponte/src/banco.ts:4; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-749b8c4a,ponte,apps/ponte/src/builder.ts,11,47,jsdoc,50,"/**
  * O Builder salvando e publicando de verdade.
  *
@@ -79,29 +79,29 @@ ponte-comment-749b8c4a,ponte,apps/ponte/src/builder.ts,11,47,jsdoc,50,"/**
  * a cópia representa (`PIPE_PONTE_EMAIL`) precisa tê-las — o administrador do
  * tenant tem as duas. Sem elas a resposta é a falha LIME com a frase do domínio,
  * e não um desenho que parece salvo e não está.
- */",,,,,,
-ponte-comment-51731867,ponte,apps/ponte/src/builder.ts,115,115,jsdoc,2,"/** O fluxo foi gravado, mas o motor recusaria rodar — e por isso não publicou. */",,,,,,
+ */",translate,"The Builder saves and publishes a real flow. The client screen is a Blip copy; its Builder keeps the design in two buckets, state map (`builder_working_flow`) and global actions (`builder_working_global_actions`). Publishing stores the compiled flow in the ""Application"". Here those buckets become Pipe database records through the SAME domain used by the Management Builder (`apps/api/src/dominio/gestao/builder-do-fluxo.ts`): one draft per flow, overwritten on each save; publishing promotes the draft and archives the previous version. The copy opens the Builder for a bot, and the bot is the connection: its LIME commands contain no flow ID. Buckets such as `blip_portal:builder_working_flow` have no qualifier, and the bridge runs for ONE tenant (`PIPE_PONTE_TENANT_ID`). Therefore it edits ONE flow. Use `PIPE_PONTE_FLUXO_ID` when it points to a non-archived flow of type `fluxo` in this tenant; otherwise use `Fluxo do Builder`, created on first use. A per-session flow would require the lab copy to send a bot ID on every command; it does not. The Management screen already uses per-flow routes. The domain checks `automacao.fluxo.editar` for reading and saving and `automacao.fluxo.publicar` for publishing, as for Management. The person represented by the copy (`PIPE_PONTE_EMAIL`) needs those permissions; a tenant admin has both. Without permission return a LIME failure with the domain message, not a design that only appears saved.",meta-blip,apps/ponte/src/builder.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-51731867,ponte,apps/ponte/src/builder.ts,115,115,jsdoc,2,"/** O fluxo foi gravado, mas o motor recusaria rodar — e por isso não publicou. */",translate,"The flow was saved but the engine would refuse to run it, so it was not published.",architecture,apps/ponte/src/builder.ts:115; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-f45f43cc,ponte,apps/ponte/src/builder.ts,119,124,jsdoc,8,"/**
  * Grava o desenho do cliente. `publicar: false` deixa em rascunho — é o ""salvar""
  * do Builder, que acontece a cada alteração; `true` é o botão de publicar, e só
  * então o motor passa a executar o fluxo novo. Inválido grava e não publica: a
  * frase do motor volta em `erroDeValidacao`, para a tela mostrar.
- */",,,,,,
-ponte-comment-c23201fb,ponte,apps/ponte/src/builder.ts,49,49,jsdoc,3,"/** O fluxo de reserva, quando `PIPE_PONTE_FLUXO_ID` não aponta para um. */",,,,,,
-ponte-comment-a258c346,ponte,apps/ponte/src/builder.ts,52,52,jsdoc,3,/** Uma vez por processo: o fluxo não muda enquanto a ponte roda. */,,,,,,
-ponte-comment-bea4295b,ponte,apps/ponte/src/builder.ts,55,55,jsdoc,2,"/** O id do fluxo que a cópia edita — resolvendo (e criando, se preciso) na primeira chamada. */",,,,,,
+ */",translate,"Save the client's design. `publicar: false` leaves a draft, matching the Builder's save on each change; `true` publishes and only then does the engine execute the new flow. Invalid input is saved but not published; return the engine's reason in `erroDeValidacao` for the screen to display.",integration,apps/ponte/src/builder.ts:119; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-c23201fb,ponte,apps/ponte/src/builder.ts,49,49,jsdoc,3,"/** O fluxo de reserva, quando `PIPE_PONTE_FLUXO_ID` não aponta para um. */",translate,Fallback flow when `PIPE_PONTE_FLUXO_ID` does not select one.,other,apps/ponte/src/builder.ts:49,codex3,reviewed
+ponte-comment-a258c346,ponte,apps/ponte/src/builder.ts,52,52,jsdoc,3,/** Uma vez por processo: o fluxo não muda enquanto a ponte roda. */,translate,Resolve once per process: the flow does not change while the bridge runs.,other,apps/ponte/src/builder.ts:52,codex3,reviewed
+ponte-comment-bea4295b,ponte,apps/ponte/src/builder.ts,55,55,jsdoc,2,"/** O id do fluxo que a cópia edita — resolvendo (e criando, se preciso) na primeira chamada. */",translate,"Resolve the flow ID edited by the copy, creating the flow on first use if needed.",architecture,apps/ponte/src/builder.ts:55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-0fda4b97,ponte,apps/ponte/src/builder.ts,89,93,jsdoc,9,"/**
  * Devolve o mapa do editor — o rascunho, a publicada, ou o fluxo padrão quando o
  * cliente ainda não desenhou nada (o domínio já devolve o padrão; e um rascunho
  * gravado vazio também abre com o padrão, para a tela nunca abrir em branco).
- */",,,,,,
+ */",translate,"Return the editor map: draft, published version, or default flow if no design exists. The domain supplies the default; even an empty saved draft opens with it so the screen never starts blank.",integration,apps/ponte/src/builder.ts:89; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-6173f379,ponte,apps/ponte/src/fluxo-padrao.ts,1,7,jsdoc,9,"/**
  * O fluxo padrão do Builder mora em `@pipe/core` (`fluxo/padrao.ts`) desde que a
  * tela do Builder da Gestão passou a servi-lo também (`GET /v1/gestao/fluxos/:id/
  * builder`). Este arquivo fica como reexportação para quem já importava daqui — o
  * teste `tests/fluxo-padrao.test.ts` inclusive, que continua provando que o padrão
  * é publicável sem mexer em nada.
- */",,,,,,
+ */",translate,"The Builder's default flow has lived in `@pipe/core` (`fluxo/padrao.ts`) since the Management Builder also began serving it (`GET /v1/gestao/fluxos/:id/builder`). This file remains a re-export for existing importers, including `tests/fluxo-padrao.test.ts`, which proves the default is publishable unchanged.",architecture,apps/ponte/src/fluxo-padrao.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-ee36a012,ponte,apps/ponte/src/lime.ts,1,12,jsdoc,13,"/**
  * Os envelopes do protocolo LIME, do jeito que a tela da Blip espera receber.
  *
@@ -113,80 +113,80 @@ ponte-comment-ee36a012,ponte,apps/ponte/src/lime.ts,1,12,jsdoc,13,"/**
  *
  * Os nomes e os valores aqui são os que o cliente lê; por isso ficam em inglês,
  * como no protocolo. O resto do arquivo é nosso e fica em português.
- */",,,,,,
+ */",translate,"LIME protocol envelopes as expected by the Blip screen. The copy does not use REST: it sends `{ id, method, to, uri }` commands and reads `{ status, type, resource }`. `type` determines the screen component: `application/vnd.iris.ticket+json` builds a ticket card and `application/vnd.lime.collection+json` builds a list. The wrong type displays the wrong component or nothing. Names and values here are protocol fields consumed by the client, so preserve their spelling.",meta-blip,apps/ponte/src/lime.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-f3a6126a,ponte,apps/ponte/src/lime.ts,39,43,jsdoc,5,"/**
  * Coleção no formato do protocolo. `total` é o total da CONSULTA, não da página:
  * a tela usa esse número no contador (""3 clientes aguardando""), e mandar o tamanho
  * da página faz o contador mentir assim que a lista passar de uma página.
- */",,,,,,
+ */",translate,"A protocol collection's `total` is the query total, not page size. The screen uses it for its counter (""3 clientes aguardando""); using page size becomes false after the first page.",integration,apps/ponte/src/lime.ts:39; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-2bbcf7f7,ponte,apps/ponte/src/lime.ts,59,63,jsdoc,5,"/**
  * Recurso ausente. O código 67 é o que a Blip devolve, e as telas tratam ele de
  * propósito: o Builder, por exemplo, lê 67 como ""ainda não existe fluxo salvo"" e
  * segue para o caminho de criar um. Trocar por 404 genérico quebraria esse desvio.
- */",,,,,,
+ */",translate,"Missing resource. Code 67 is Blip's response, and screens handle it intentionally: Builder treats 67 as ""no saved flow yet"" and creates one. A generic 404 would break that path.",meta-blip,apps/ponte/src/lime.ts:59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-ae36b948,ponte,apps/ponte/src/rotas.ts,105,106,block,3,"/* Responder NÃO é comando: a tela usa `sendMessage` no cliente, e o laboratório
-   converte aquela chamada nesta URI, que é nossa. */",,,,,,
-ponte-comment-56234feb,ponte,apps/ponte/src/rotas.ts,110,110,block,1,/* ---- vida e relógio: a tela pergunta o tempo todo ---- */,,,,,,
+   converte aquela chamada nesta URI, que é nossa. */",translate,"Replying is not a command: the screen calls `sendMessage` on the client, and the lab converts that call to this bridge-specific URI.",integration,apps/ponte/src/rotas.ts:105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-56234feb,ponte,apps/ponte/src/rotas.ts,110,110,block,1,/* ---- vida e relógio: a tela pergunta o tempo todo ---- */,remove,,other,apps/ponte/src/rotas.ts:110,codex3,reviewed
 ponte-comment-43ffce94,ponte,apps/ponte/src/rotas.ts,115,117,block,4,"/* ---- ações do atendente, antes das rotas de leitura de ticket ----
      A ordem importa: `/tickets/{id}/close` também casa com o padrão de
-     `/tickets/{id}`, e quem chega primeiro responde. */",,,,,,
-ponte-comment-f94bc6cc,ponte,apps/ponte/src/rotas.ts,122,122,line,3,"// Sem ninguém na fila, a tela espera coleção vazia, não erro.",,,,,,
+     `/tickets/{id}`, e quem chega primeiro responde. */",translate,"Place agent actions before ticket read routes: `/tickets/{id}/close` also matches `/tickets/{id}`, so the first matching handler wins.",architecture,apps/ponte/src/rotas.ts:115; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-f94bc6cc,ponte,apps/ponte/src/rotas.ts,122,122,line,3,"// Sem ninguém na fila, a tela espera coleção vazia, não erro.",translate,"When the queue is empty, the screen expects an empty collection rather than an error.",integration,apps/ponte/src/rotas.ts:122; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-0ace4d3c,ponte,apps/ponte/src/rotas.ts,142,144,block,8,"/* A tela usa este comando para encerrar (status começando em `Closed`) e para
          outras mudanças que ainda não traduzimos. O que não for encerramento
-         responde vazio, em vez de virar operação errada no banco. */",,,,,,
-ponte-comment-b0446643,ponte,apps/ponte/src/rotas.ts,156,156,line,4,// Transferir para pessoa específica ainda não: só para fila.,,,,,,
+         responde vazio, em vez de virar operação errada no banco. */",translate,"The screen uses this command to close when status begins with `Closed`, and for other changes not yet translated. Return an empty response for non-close changes rather than performing the wrong database operation.",integration,apps/ponte/src/rotas.ts:142; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-b0446643,ponte,apps/ponte/src/rotas.ts,156,156,line,4,// Transferir para pessoa específica ainda não: só para fila.,translate,Transfer to a specific agent is not supported yet; only queue transfer is.,other,apps/ponte/src/rotas.ts:156,codex3,reviewed
 ponte-comment-463e1e81,ponte,apps/ponte/src/rotas.ts,16,22,jsdoc,8,"/**
  * O roteador de comandos LIME.
  *
  * Desenho central: **rota que ainda não existe aqui devolve `null`**, e o laboratório
  * cai de volta no mock. É o que permite migrar a cópia comando a comando sem nunca
  * deixar a tela quebrada no meio do caminho.
- */",,,,,,
+ */",translate,"LIME command router. A route not implemented here returns `null`, letting the lab fall back to its mock. This allows command-by-command migration without breaking the copied screen.",architecture,apps/ponte/src/rotas.ts:16; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-e040557b,ponte,apps/ponte/src/rotas.ts,170,171,block,7,"/* A tela manda para uma identidade, não para uma conversa: quando vier assim,
-         resolvemos qual conversa aberta é daquele telefone. */",,,,,,
-ponte-comment-e8404752,ponte,apps/ponte/src/rotas.ts,179,179,block,1,/* ---- quem está logado ---- */,,,,,,
+         resolvemos qual conversa aberta é daquele telefone. */",translate,"The screen addresses an identity, not a conversation; resolve its open conversation by phone number.",integration,apps/ponte/src/rotas.ts:170; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-e8404752,ponte,apps/ponte/src/rotas.ts,179,179,block,1,/* ---- quem está logado ---- */,remove,,other,apps/ponte/src/rotas.ts:179,codex3,reviewed
 ponte-comment-e238d777,ponte,apps/ponte/src/rotas.ts,193,194,block,4,"/* A tela usa `isOwner` para liberar os itens de administração da barra.
-           Mandar `false` para quem é administrador some com metade da navbar. */",,,,,,
+           Mandar `false` para quem é administrador some com metade da navbar. */",translate,The screen uses `isOwner` to enable administration items in the sidebar. Returning `false` for an administrator hides half the navigation.,integration,apps/ponte/src/rotas.ts:193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-4fa1faae,ponte,apps/ponte/src/rotas.ts,256,258,block,3,"/* ---- a conversa aberta ----
      O Desk pede `/tickets//messages` (com id vazio) num instante da abertura; o
-     original responde coleção vazia em vez de erro, e a tela segue. */",,,,,,
-ponte-comment-6a1c786c,ponte,apps/ponte/src/rotas.ts,314,314,block,0,/* ---- Builder: o cliente desenhando o próprio fluxo ---- */,,,,,,
+     original responde coleção vazia em vez de erro, e a tela segue. */",translate,"On opening a conversation, Desk briefly asks for `/tickets//messages` with an empty ID. The source returns an empty collection rather than an error, so the screen continues.",meta-blip,apps/ponte/src/rotas.ts:256; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-6a1c786c,ponte,apps/ponte/src/rotas.ts,314,314,block,0,/* ---- Builder: o cliente desenhando o próprio fluxo ---- */,remove,,other,apps/ponte/src/rotas.ts:314,codex3,reviewed
 ponte-comment-4966d7f7,ponte,apps/ponte/src/rotas.ts,355,356,block,1,"/* Publicar fluxo inválido não pode passar em silêncio: o motor recusaria
-         rodar, e quem clicou em publicar precisa saber. */",,,,,,
+         rodar, e quem clicou em publicar precisa saber. */",translate,"Do not silently publish an invalid flow: the engine would refuse to run it, and the person who published it needs the reason.",integration,apps/ponte/src/rotas.ts:355; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-2ad3d010,ponte,apps/ponte/src/rotas.ts,364,367,jsdoc,4,"/**
  * Devolve `null` quando a ponte ainda não sabe responder — e aí o laboratório usa o
  * mock. Nunca devolve dado inventado no lugar.
- */",,,,,,
-ponte-comment-b5f47a73,ponte,apps/ponte/src/rotas.ts,40,40,jsdoc,2,/** Uma rota declara os métodos que aceita. O padrão é só leitura. */,,,,,,
-ponte-comment-a322007e,ponte,apps/ponte/src/rotas.ts,64,64,jsdoc,1,/** Fila e atendimento em curso: é o que o Desk mostra na lista da esquerda. */,,,,,,
+ */",translate,"Return `null` when the bridge cannot answer yet, so the lab uses its mock. Never substitute fabricated data.",architecture,apps/ponte/src/rotas.ts:364; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-b5f47a73,ponte,apps/ponte/src/rotas.ts,40,40,jsdoc,2,/** Uma rota declara os métodos que aceita. O padrão é só leitura. */,remove,,other,apps/ponte/src/rotas.ts:40,codex3,reviewed
+ponte-comment-a322007e,ponte,apps/ponte/src/rotas.ts,64,64,jsdoc,1,/** Fila e atendimento em curso: é o que o Desk mostra na lista da esquerda. */,remove,,other,apps/ponte/src/rotas.ts:64,codex3,reviewed
 ponte-comment-d81d18cf,ponte,apps/ponte/src/rotas.ts,79,81,block,7,"/* Todas as rotas com barra usam `new RegExp` com classe de caractere, e não literal
    de expressão regular. Motivo prático: barra escapada não sobrevive às ferramentas
-   que editam este arquivo por script, e o arquivo já quebrou três vezes por isso. */",,,,,,
-ponte-comment-78f7001b,ponte,apps/ponte/src/rotas.ts,85,85,block,4,"/* Ancorada: sem isto ela casaria também com `/accounts/{email}`, que é outra coisa. */",,,,,,
+   que editam este arquivo por script, e o arquivo já quebrou três vezes por isso. */",translate,"Routes containing slashes use `new RegExp` with a character class, rather than regex literals. Escaped slashes did not survive the scripts editing this file and broke it three times.",architecture,apps/ponte/src/rotas.ts:79; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-78f7001b,ponte,apps/ponte/src/rotas.ts,85,85,block,4,"/* Ancorada: sem isto ela casaria também com `/accounts/{email}`, que é outra coisa. */",translate,"Anchor this route so it cannot also match `/accounts/{email}`, a different resource.",integration,apps/ponte/src/rotas.ts:85; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-027261dc,ponte,apps/ponte/src/rotas.ts,98,99,block,3,"/* Ações do atendente. As URIs são as que a tela dispara, levantadas do bundle e
-   registradas em `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`. */",,,,,,
+   registradas em `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`. */",translate,"Agent action URIs are observed screen calls from the bundle, recorded in `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`.",meta-blip,apps/ponte/src/rotas.ts:98; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-1e843bea,ponte,apps/ponte/src/servidor.ts,10,16,jsdoc,10,"/**
  * A ponte: um endereço só, que recebe comando LIME e responde com dado do Pipe.
  *
  * Por que HTTP e não WebSocket: a cópia já foi desligada do WebSocket da Blip pelo
  * laboratório — `boot-mock.js` monta um cliente falso cujo `processCommand` devolve
  * promessa. Uma chamada HTTP encaixa nesse ponto sem tocar no bundle deles.
- */",,,,,,
+ */",translate,The bridge exposes one address for LIME commands and returns Pipe data. HTTP fits the lab's existing seam: `boot-mock.js` already disconnected the copy from Blip WebSocket and constructs a fake client whose `processCommand` returns a promise. An HTTP call works there without changing the copied bundle.,architecture,apps/ponte/src/servidor.ts:10; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-ce7339a9,ponte,apps/ponte/src/servidor.ts,18,24,jsdoc,14,"/**
  * Autenticação de laboratório, e só.
  *
  * A cópia não tem login. Enquanto a tela for a cópia, o acesso é por rede fechada e
  * a ponte confia numa chave de ambiente. **Isto não vai para a internet**: no dia em
  * que a tela for nossa, quem manda é a sessão que a `apps/api` já emite.
- */",,,,,,
+ */",translate,"Lab authentication only. The copy has no login; while it remains a copy, access is restricted to a closed network and the bridge trusts an environment key. THIS MUST NOT BE EXPOSED TO THE INTERNET. When the screen is ours, use the session issued by `apps/api`.",security,apps/ponte/src/servidor.ts:18; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-d11cda91,ponte,apps/ponte/src/servidor.ts,59,61,block,5,"/* A cópia roda em 127.0.0.1:8787 (Desk) e :8790 (Gestão). A lista vem do
      ambiente e nunca é curinga: mesmo em laboratório, curinga com credencial é
-     hábito que viaja para produção. */",,,,,,
+     hábito que viaja para produção. */",translate,"The copy runs at 127.0.0.1:8787 (Desk) and :8790 (Management). Allowed origins come from the environment and are never wildcarded: even in a lab, wildcard origins with credentials create a dangerous production habit.",security,apps/ponte/src/servidor.ts:59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-46349bc9,ponte,apps/ponte/src/servidor.ts,82,86,jsdoc,7,"/**
    * O comando chega exatamente como a tela o montou. A resposta `204` é o combinado
    * com o laboratório: ""não sei responder, use o mock"". Erro de verdade volta como
    * falha LIME, para a tela tratar como ela já sabe tratar.
-   */",,,,,,
+   */",translate,"The command arrives exactly as the screen built it. HTTP `204` is the lab convention for ""cannot answer; use the mock"". Real errors return a LIME failure for the screen's existing error handling.",integration,apps/ponte/src/servidor.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-b0e4ef78,ponte,apps/ponte/src/traducao.ts,1,8,jsdoc,13,"/**
  * Tradução: linha do Pipe → objeto que a tela da Blip sabe desenhar.
  *
@@ -194,33 +194,33 @@ ponte-comment-b0e4ef78,ponte,apps/ponte/src/traducao.ts,1,8,jsdoc,13,"/**
  * conceito que o Pipe não tem, ou o campo sai de fora (e fica anotado aqui), ou não
  * sai. Preencher com palpite é pior do que não preencher: a tela mostra o palpite
  * como se fosse dado do cliente.
- */",,,,,,
-ponte-comment-6a0ee420,ponte,apps/ponte/src/traducao.ts,114,114,line,1,"// Sem roteador no Pipe: o ""dono"" do atendimento é o canal por onde ele entrou.",,,,,,
-ponte-comment-f47f7e08,ponte,apps/ponte/src/traducao.ts,12,12,jsdoc,2,/** Estados do Pipe → `status` que o Desk lê para separar fila de atendimento. */,,,,,,
+ */",translate,"Translate Pipe records into objects the Blip screen can render. Never invent fields: when Blip has a concept Pipe lacks, either omit the field and document it here or omit the entire value. A guessed value would appear on screen as genuine client data.",architecture,apps/ponte/src/traducao.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-6a0ee420,ponte,apps/ponte/src/traducao.ts,114,114,line,1,"// Sem roteador no Pipe: o ""dono"" do atendimento é o canal por onde ele entrou.",translate,Pipe has no router here; the conversation owner is the channel through which it arrived.,integration,apps/ponte/src/traducao.ts:114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-f47f7e08,ponte,apps/ponte/src/traducao.ts,12,12,jsdoc,2,/** Estados do Pipe → `status` que o Desk lê para separar fila de atendimento. */,translate,Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations.,meta-blip,apps/ponte/src/traducao.ts:12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-5218d507,ponte,apps/ponte/src/traducao.ts,135,138,block,6,"/* Os três abaixo o Pipe não tem, e ainda assim precisam existir: a lista do
        Desk lê esses campos ao montar cada cartão, e um deles faltando derruba a
        lista inteira — foi o que aconteceu ao ligar a ponte. Valor neutro, nunca
-       inventado. */",,,,,,
-ponte-comment-82717182,ponte,apps/ponte/src/traducao.ts,151,151,line,3,// A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo,,,,,,
-ponte-comment-38ec9b32,ponte,apps/ponte/src/traducao.ts,152,152,line,1,"// vocabulário. Em vez de traduzir por aproximação, ela viaja como está.",,,,,,
+       inventado. */",translate,"Pipe lacks the three following fields, but Desk's list requires them to build each card; omitting one crashed the whole list when the bridge was connected. Use neutral values, never fabricated ones.",integration,apps/ponte/src/traducao.ts:135; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-82717182,ponte,apps/ponte/src/traducao.ts,151,151,line,3,// A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo,translate,"Pipe has five priority levels, and Blip does not use the same",meta-blip,apps/ponte/src/traducao.ts:151; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-38ec9b32,ponte,apps/ponte/src/traducao.ts,152,152,line,1,"// vocabulário. Em vez de traduzir por aproximação, ela viaja como está.",translate,vocabulary. Keep the Pipe value rather than guessing a translation.,meta-blip,apps/ponte/src/traducao.ts:152; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-f5466fa1,ponte,apps/ponte/src/traducao.ts,161,165,jsdoc,4,"/**
  * Mensagem → documento LIME. A mensagem **interna** (nota entre atendentes) fica de
  * fora: na Blip ela não é mensagem da conversa, é outro recurso. Entregá-la aqui
  * faria a nota aparecer como se tivesse ido para o cliente.
- */",,,,,,
+ */",translate,"Map a message to a LIME document. Exclude INTERNAL messages (notes between agents): in Blip they are a separate resource, not conversation messages. Including one here would make it appear to have been sent to the client.",meta-blip,apps/ponte/src/traducao.ts:161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-cea27508,ponte,apps/ponte/src/traducao.ts,175,177,block,5,"/* `messageEmitter` só existe para o que SAIU: ele diz se quem falou foi gente ou
        o robô. Em mensagem recebida o campo não tem sentido, e mandá-lo fazia a tela
-       rotular a fala do próprio cliente como ""Bot"". */",,,,,,
-ponte-comment-7111de33,ponte,apps/ponte/src/traducao.ts,193,193,jsdoc,0,/** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */,,,,,,
-ponte-comment-998ab3bf,ponte,apps/ponte/src/traducao.ts,197,197,jsdoc,2,/** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */,,,,,,
-ponte-comment-008e0f70,ponte,apps/ponte/src/traducao.ts,21,21,jsdoc,2,/** `entrada` é o cliente falando; `saida` é a empresa. `interna` não é conversa. */,,,,,,
-ponte-comment-26339a8d,ponte,apps/ponte/src/traducao.ts,27,27,jsdoc,2,"/** Tipo do Pipe → content type, que é como a Blip decide o componente da bolha. */",,,,,,
+       rotular a fala do próprio cliente como ""Bot"". */",translate,"`messageEmitter` applies only to outbound messages: it identifies a human or bot sender. It is meaningless for inbound messages; including it made the screen label the client's own message ""Bot"".",meta-blip,apps/ponte/src/traducao.ts:175; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-7111de33,ponte,apps/ponte/src/traducao.ts,193,193,jsdoc,0,/** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */,translate,`isOwner` in the screen's vocabulary enables administration items in the sidebar.,integration,apps/ponte/src/traducao.ts:193; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-998ab3bf,ponte,apps/ponte/src/traducao.ts,197,197,jsdoc,2,/** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */,translate,Desk's `/account` response needs `status`; without it the screen fails at `status.toLowerCase()`.,integration,apps/ponte/src/traducao.ts:197; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-008e0f70,ponte,apps/ponte/src/traducao.ts,21,21,jsdoc,2,/** `entrada` é o cliente falando; `saida` é a empresa. `interna` não é conversa. */,translate,`entrada` means the client speaking and `saida` the company speaking. `interna` is not a conversation message.,meta-blip,apps/ponte/src/traducao.ts:21; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-26339a8d,ponte,apps/ponte/src/traducao.ts,27,27,jsdoc,2,"/** Tipo do Pipe → content type, que é como a Blip decide o componente da bolha. */",translate,"Map Pipe message type to content type, which Blip uses to choose the bubble component.",meta-blip,apps/ponte/src/traducao.ts:27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-9b8c352d,ponte,apps/ponte/src/traducao.ts,81,86,jsdoc,3,"/**
  * Identidade no formato da Blip: o `@` do e-mail vira `%40` e o domínio da
  * plataforma entra no fim. A tela usa isso como chave de comparação (""este ticket é
  * meu?""), então precisa ser estável e única por pessoa — o e-mail serve às duas
  * coisas.
- */",,,,,,
+ */",translate,"Blip identity format: encode the email's `@` as `%40` and append the platform domain. The screen compares identities (""is this ticket mine?""), so the value must be stable and unique per person; email provides both.",meta-blip,apps/ponte/src/traducao.ts:81; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-b3584554,ponte,apps/ponte/src/traducao.ts,92,102,jsdoc,13,"/**
  * O Desk mostra ""#"" do atendimento e deixa buscar por ele. O Pipe **não tem** número
  * sequencial por tenant: a conversa é identificada por UUID.
@@ -231,19 +231,19 @@ ponte-comment-b3584554,ponte,apps/ponte/src/traducao.ts,92,102,jsdoc,13,"/**
  *
  * A saída definitiva é uma coluna `numero` com sequência por tenant, gravada na
  * criação da conversa. Está registrado em `docs/specs/2026-09-12-ponte-lime.md`.
- */",,,,,,
-ponte-comment-33f631bb,ponte,apps/ponte/tests/fluxo-padrao.test.ts,29,29,line,1,// `desk:` é o que faz o motor tratar o bloco como atendimento humano.,,,,,,
+ */",translate,"Desk displays a conversation number prefixed with ""#"" and allows searching by it. Pipe has no per-tenant sequential number; conversations use UUIDs. Until that decision is made, derive the number from the UUID: deterministic, stable, and practically unique within a tenant. It is not truly sequential and cannot mean ""ticket number 4 today"". The intended solution is a `numero` column with a per-tenant sequence, set when the conversation is created; see `docs/specs/2026-09-12-ponte-lime.md`.",architecture,apps/ponte/src/traducao.ts:92; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-33f631bb,ponte,apps/ponte/tests/fluxo-padrao.test.ts,29,29,line,1,// `desk:` é o que faz o motor tratar o bloco como atendimento humano.,translate,The `desk:` prefix makes the engine treat a block as human attendance.,meta-blip,apps/ponte/tests/fluxo-padrao.test.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-c7cac58d,ponte,apps/ponte/tests/fluxo-padrao.test.ts,5,11,jsdoc,10,"/**
  * O fluxo padrão é a primeira coisa que o cliente vê no Builder. Se ele não for
  * publicável, a primeira ação de quem entrou no produto é tomar um erro.
  *
  * Este teste existe porque isso aconteceu: a versão anterior não esperava entrada, e
  * o motor recusou publicar com ""O estado raiz precisa esperar uma entrada"".
- */",,,,,,
+ */",translate,"The default flow is the first thing a client sees in Builder. If it cannot be published, their first action fails. This test records a previous failure: the old version did not wait for input and the engine rejected publication with ""O estado raiz precisa esperar uma entrada"".",architecture,apps/ponte/tests/fluxo-padrao.test.ts:5; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 ponte-comment-f3d3d0e0,ponte,apps/ponte/tests/traducao.test.ts,12,16,jsdoc,7,"/**
  * A tradução é a parte da ponte que erra em silêncio: um campo com nome trocado não
  * quebra nada, só faz a tela mostrar o dado errado do cliente. Por isso cada
  * mapeamento tem teste.
- */",,,,,,
-ponte-comment-13e2bd58,ponte,apps/ponte/tests/traducao.test.ts,125,125,line,3,"// Recebida não carrega emissor: com ele, a tela rotulava o cliente como robô.",,,,,,
-ponte-comment-636f85a9,ponte,apps/ponte/tests/traducao.test.ts,137,137,line,3,"// Sem papel de administrador, a barra lateral não mostra os itens de gestão.",,,,,,
+ */",translate,"Bridge translation can fail silently: a wrong field name does not crash, but can show incorrect client data. Test every mapping for that reason.",architecture,apps/ponte/tests/traducao.test.ts:12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-13e2bd58,ponte,apps/ponte/tests/traducao.test.ts,125,125,line,3,"// Recebida não carrega emissor: com ele, a tela rotulava o cliente como robô.",translate,An inbound message has no emitter; including one made the screen label the client as a bot.,meta-blip,apps/ponte/tests/traducao.test.ts:125; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ponte-comment-636f85a9,ponte,apps/ponte/tests/traducao.test.ts,137,137,line,3,"// Sem papel de administrador, a barra lateral não mostra os itens de gestão.",translate,"Without an admin role, the sidebar hides management items.",integration,apps/ponte/tests/traducao.test.ts:137; pre-triage D-40; needs slice-time confirmation,codex3,reviewed

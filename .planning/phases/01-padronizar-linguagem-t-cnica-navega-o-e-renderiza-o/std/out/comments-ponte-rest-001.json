@@ -1,0 +1,452 @@
+{
+  "items": [
+    {
+      "id": "ponte-comment-51dec0db",
+      "action": "translate",
+      "new_text": "Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. If none are supplied, use the client's first tag; if the client has none, create \"Encerrado pelo atendente\". New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/acoes.ts:104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-5198f7f7",
+      "action": "translate",
+      "new_text": "The actor for a screen action is the signed-in agent acting on their own behalf.",
+      "sensitivity": "security",
+      "evidence": "apps/ponte/src/acoes.ts:20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-e87c0ed0",
+      "action": "translate",
+      "new_text": "Claiming is NOT transferring to oneself: a transfer closes this conversation and opens another, following the source platform's model. See `dominio/assumir.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/acoes.ts:26; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-49492986",
+      "action": "translate",
+      "new_text": "Claim the oldest conversation among the requester's queues.",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/acoes.ts:31",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-d74d5e1d",
+      "action": "translate",
+      "new_text": "The screen sends a message to an IDENTITY (`5531988887777@wa.gw.msging.net`), not a conversation; that is how its protocol works. Resolve this identity to the open conversation for that phone number.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/acoes.ts:50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-a72fa5e0",
+      "action": "translate",
+      "new_text": "Screen actions include claiming, replying, transferring, and closing. Each calls the domain function already used by `apps/api`, with the same state machine, events, and limits. The bridge only translates screen vocabulary into Pipe's. Claiming is a transfer to oneself in terms of rules: valid state, queue, and capacity. A separate path would duplicate the state machine just to save one line.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/acoes.ts:8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-74879ec3",
+      "action": "translate",
+      "new_text": "Return `dentroDaJanela` too: outside the 24-hour window Meta delivers only templates, and the screen must warn the sender.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/acoes.ts:84; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-749b8c4a",
+      "action": "translate",
+      "new_text": "The Builder saves and publishes a real flow. The client screen is a Blip copy; its Builder keeps the design in two buckets, state map (`builder_working_flow`) and global actions (`builder_working_global_actions`). Publishing stores the compiled flow in the \"Application\". Here those buckets become Pipe database records through the SAME domain used by the Management Builder (`apps/api/src/dominio/gestao/builder-do-fluxo.ts`): one draft per flow, overwritten on each save; publishing promotes the draft and archives the previous version. The copy opens the Builder for a bot, and the bot is the connection: its LIME commands contain no flow ID. Buckets such as `blip_portal:builder_working_flow` have no qualifier, and the bridge runs for ONE tenant (`PIPE_PONTE_TENANT_ID`). Therefore it edits ONE flow. Use `PIPE_PONTE_FLUXO_ID` when it points to a non-archived flow of type `fluxo` in this tenant; otherwise use `Fluxo do Builder`, created on first use. A per-session flow would require the lab copy to send a bot ID on every command; it does not. The Management screen already uses per-flow routes. The domain checks `automacao.fluxo.editar` for reading and saving and `automacao.fluxo.publicar` for publishing, as for Management. The person represented by the copy (`PIPE_PONTE_EMAIL`) needs those permissions; a tenant admin has both. Without permission return a LIME failure with the domain message, not a design that only appears saved.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/builder.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-51731867",
+      "action": "translate",
+      "new_text": "The flow was saved but the engine would refuse to run it, so it was not published.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/builder.ts:115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f45f43cc",
+      "action": "translate",
+      "new_text": "Save the client's design. `publicar: false` leaves a draft, matching the Builder's save on each change; `true` publishes and only then does the engine execute the new flow. Invalid input is saved but not published; return the engine's reason in `erroDeValidacao` for the screen to display.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/builder.ts:119; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-c23201fb",
+      "action": "translate",
+      "new_text": "Fallback flow when `PIPE_PONTE_FLUXO_ID` does not select one.",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/builder.ts:49",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-a258c346",
+      "action": "translate",
+      "new_text": "Resolve once per process: the flow does not change while the bridge runs.",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/builder.ts:52",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-bea4295b",
+      "action": "translate",
+      "new_text": "Resolve the flow ID edited by the copy, creating the flow on first use if needed.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/builder.ts:55; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-0fda4b97",
+      "action": "translate",
+      "new_text": "Return the editor map: draft, published version, or default flow if no design exists. The domain supplies the default; even an empty saved draft opens with it so the screen never starts blank.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/builder.ts:89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-6173f379",
+      "action": "translate",
+      "new_text": "The Builder's default flow has lived in `@pipe/core` (`fluxo/padrao.ts`) since the Management Builder also began serving it (`GET /v1/gestao/fluxos/:id/builder`). This file remains a re-export for existing importers, including `tests/fluxo-padrao.test.ts`, which proves the default is publishable unchanged.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/fluxo-padrao.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-ee36a012",
+      "action": "translate",
+      "new_text": "LIME protocol envelopes as expected by the Blip screen. The copy does not use REST: it sends `{ id, method, to, uri }` commands and reads `{ status, type, resource }`. `type` determines the screen component: `application/vnd.iris.ticket+json` builds a ticket card and `application/vnd.lime.collection+json` builds a list. The wrong type displays the wrong component or nothing. Names and values here are protocol fields consumed by the client, so preserve their spelling.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/lime.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f3a6126a",
+      "action": "translate",
+      "new_text": "A protocol collection's `total` is the query total, not page size. The screen uses it for its counter (\"3 clientes aguardando\"); using page size becomes false after the first page.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/lime.ts:39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-2bbcf7f7",
+      "action": "translate",
+      "new_text": "Missing resource. Code 67 is Blip's response, and screens handle it intentionally: Builder treats 67 as \"no saved flow yet\" and creates one. A generic 404 would break that path.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/lime.ts:59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-ae36b948",
+      "action": "translate",
+      "new_text": "Replying is not a command: the screen calls `sendMessage` on the client, and the lab converts that call to this bridge-specific URI.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:105; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-56234feb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:110",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-43ffce94",
+      "action": "translate",
+      "new_text": "Place agent actions before ticket read routes: `/tickets/{id}/close` also matches `/tickets/{id}`, so the first matching handler wins.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/rotas.ts:115; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f94bc6cc",
+      "action": "translate",
+      "new_text": "When the queue is empty, the screen expects an empty collection rather than an error.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:122; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-0ace4d3c",
+      "action": "translate",
+      "new_text": "The screen uses this command to close when status begins with `Closed`, and for other changes not yet translated. Return an empty response for non-close changes rather than performing the wrong database operation.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:142; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-b0446643",
+      "action": "translate",
+      "new_text": "Transfer to a specific agent is not supported yet; only queue transfer is.",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:156",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-463e1e81",
+      "action": "translate",
+      "new_text": "LIME command router. A route not implemented here returns `null`, letting the lab fall back to its mock. This allows command-by-command migration without breaking the copied screen.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/rotas.ts:16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-e040557b",
+      "action": "translate",
+      "new_text": "The screen addresses an identity, not a conversation; resolve its open conversation by phone number.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:170; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-e8404752",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:179",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-e238d777",
+      "action": "translate",
+      "new_text": "The screen uses `isOwner` to enable administration items in the sidebar. Returning `false` for an administrator hides half the navigation.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-4fa1faae",
+      "action": "translate",
+      "new_text": "On opening a conversation, Desk briefly asks for `/tickets//messages` with an empty ID. The source returns an empty collection rather than an error, so the screen continues.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/rotas.ts:256; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-6a1c786c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:314",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-4966d7f7",
+      "action": "translate",
+      "new_text": "Do not silently publish an invalid flow: the engine would refuse to run it, and the person who published it needs the reason.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:355; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-2ad3d010",
+      "action": "translate",
+      "new_text": "Return `null` when the bridge cannot answer yet, so the lab uses its mock. Never substitute fabricated data.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/rotas.ts:364; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-b5f47a73",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:40",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-a322007e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/ponte/src/rotas.ts:64",
+      "notes": ""
+    },
+    {
+      "id": "ponte-comment-d81d18cf",
+      "action": "translate",
+      "new_text": "Routes containing slashes use `new RegExp` with a character class, rather than regex literals. Escaped slashes did not survive the scripts editing this file and broke it three times.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/rotas.ts:79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-78f7001b",
+      "action": "translate",
+      "new_text": "Anchor this route so it cannot also match `/accounts/{email}`, a different resource.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/rotas.ts:85; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-027261dc",
+      "action": "translate",
+      "new_text": "Agent action URIs are observed screen calls from the bundle, recorded in `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/rotas.ts:98; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-b0e4ef78",
+      "action": "translate",
+      "new_text": "Translate Pipe records into objects the Blip screen can render. Never invent fields: when Blip has a concept Pipe lacks, either omit the field and document it here or omit the entire value. A guessed value would appear on screen as genuine client data.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/traducao.ts:1; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-6a0ee420",
+      "action": "translate",
+      "new_text": "Pipe has no router here; the conversation owner is the channel through which it arrived.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/traducao.ts:114; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f47f7e08",
+      "action": "translate",
+      "new_text": "Map Pipe states to the `status` values Desk uses to distinguish queued from active conversations.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-5218d507",
+      "action": "translate",
+      "new_text": "Pipe lacks the three following fields, but Desk's list requires them to build each card; omitting one crashed the whole list when the bridge was connected. Use neutral values, never fabricated ones.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/traducao.ts:135; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-82717182",
+      "action": "translate",
+      "new_text": "Pipe has five priority levels, and Blip does not use the same",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:151; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-38ec9b32",
+      "action": "translate",
+      "new_text": "vocabulary. Keep the Pipe value rather than guessing a translation.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:152; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f5466fa1",
+      "action": "translate",
+      "new_text": "Map a message to a LIME document. Exclude INTERNAL messages (notes between agents): in Blip they are a separate resource, not conversation messages. Including one here would make it appear to have been sent to the client.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:161; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-cea27508",
+      "action": "translate",
+      "new_text": "`messageEmitter` applies only to outbound messages: it identifies a human or bot sender. It is meaningless for inbound messages; including it made the screen label the client's own message \"Bot\".",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:175; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-7111de33",
+      "action": "translate",
+      "new_text": "`isOwner` in the screen's vocabulary enables administration items in the sidebar.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/traducao.ts:193; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-998ab3bf",
+      "action": "translate",
+      "new_text": "Desk's `/account` response needs `status`; without it the screen fails at `status.toLowerCase()`.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/src/traducao.ts:197; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-008e0f70",
+      "action": "translate",
+      "new_text": "`entrada` means the client speaking and `saida` the company speaking. `interna` is not a conversation message.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:21; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-26339a8d",
+      "action": "translate",
+      "new_text": "Map Pipe message type to content type, which Blip uses to choose the bubble component.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-9b8c352d",
+      "action": "translate",
+      "new_text": "Blip identity format: encode the email's `@` as `%40` and append the platform domain. The screen compares identities (\"is this ticket mine?\"), so the value must be stable and unique per person; email provides both.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/src/traducao.ts:81; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-b3584554",
+      "action": "translate",
+      "new_text": "Desk displays a conversation number prefixed with \"#\" and allows searching by it. Pipe has no per-tenant sequential number; conversations use UUIDs. Until that decision is made, derive the number from the UUID: deterministic, stable, and practically unique within a tenant. It is not truly sequential and cannot mean \"ticket number 4 today\". The intended solution is a `numero` column with a per-tenant sequence, set when the conversation is created; see `docs/specs/2026-09-12-ponte-lime.md`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/src/traducao.ts:92; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-33f631bb",
+      "action": "translate",
+      "new_text": "The `desk:` prefix makes the engine treat a block as human attendance.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/tests/fluxo-padrao.test.ts:29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-c7cac58d",
+      "action": "translate",
+      "new_text": "The default flow is the first thing a client sees in Builder. If it cannot be published, their first action fails. This test records a previous failure: the old version did not wait for input and the engine rejected publication with \"O estado raiz precisa esperar uma entrada\".",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/tests/fluxo-padrao.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-f3d3d0e0",
+      "action": "translate",
+      "new_text": "Bridge translation can fail silently: a wrong field name does not crash, but can show incorrect client data. Test every mapping for that reason.",
+      "sensitivity": "architecture",
+      "evidence": "apps/ponte/tests/traducao.test.ts:12; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-13e2bd58",
+      "action": "translate",
+      "new_text": "An inbound message has no emitter; including one made the screen label the client as a bot.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/ponte/tests/traducao.test.ts:125; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "ponte-comment-636f85a9",
+      "action": "translate",
+      "new_text": "Without an admin role, the sidebar hides management items.",
+      "sensitivity": "integration",
+      "evidence": "apps/ponte/tests/traducao.test.ts:137; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
