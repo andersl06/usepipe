@@ -267,4 +267,33 @@ O inventário original tinha só 1 linha `query-param` nos 4 escopos com `URLSea
 
 ## Approval
 
-*(preenchido pela Task 3 após a resposta do dono)*
+**Data:** 2026-09-25. **Dono:** aprovado (D-45, D-46, D-47 — decisões antecipadas ao portão registradas em `01-CONTEXT.md`; nenhuma edição adicional pendente desta sessão). `std/nav-contract.md` tem `Status: APPROVED 2026-09-25` e nenhum `OWNER DECIDES AT GATE 2` restante. `std/persisted.csv` e `std/wire-contracts.csv`: decisões confirmadas, sem pergunta nova.
+
+**D-47 (retradução dos test-title palavra-por-palavra):** os 8 escopos gerados pelo motor palavra-por-palavra (api, infra, packages-db, workers, packages-autenticacao, packages-armazenamento, packages-tempo-real — 711 linhas `test-title`) foram retraduzidos em inglês fluente (branch `cx/retranslate-tests`, mesclada nesta sessão) e aprovados diretamente (`check-map` 0 erros nessas linhas + auditoria de literais persistidos não tocados, `tools/std/scan-retranslated-literals.mjs`).
+
+**Auditoria de compostos meio-traduzidos (achado do orquestrador, boas-vindas → welcome-vindas):** todas as linhas aprovadas dos tipos `endpoint`, `front-route`, `file`, `dir`, `css-class`, `css-var`, `data-attr` e `symbol` foram varridas por palavra PT deixada para trás num composto hífen/underscore/camelCase. **206 linhas corrigidas** (a maioria sufixos de particípio/adjetivo que o motor palavra-por-palavra deixou sem traduzir — `Cadastrada`, `Listado`, `Configurado`, `Resolvido`, `Conferido`, `Valido`, `Personalizado`, `Detalhado`, `Conectado`, `Guardado`, `Criada` etc. — mais um punhado de verbos no infinitivo com a mesma causa: `conferir`, `listar`, `resolver`, `validar`, `guardar`, `gravar`, `publicar`, `decifrar`, `enfileirar`, `casar`, `atribuir`, `filtrar`, `carregar`, `buscar`, `copiar`). ~90 falsos positivos revisados e descartados: o prefixo de bloco BEM `da-` (de `dashboard`, não a preposição), `as`/`no` que já são a tradução correta de `como`/`sem`, e a letra de identidade de objeto `A`/`B` em nomes de fixture de teste. Linhas persistidas/literal-value não foram tocadas.
+
+**Correções de ferramenta encontradas nos dry-runs desta task (não são decisões do dono):**
+1. `rewrite-literals.ts`'s `technicalExactPosition` só aceitava o literal do código de erro como primeiro argumento de chamada — casava `ErroPipe.fabrica('codigo', msg)` mas não `new ErroPipe(statusCode, 'codigo', msg)` (código no segundo argumento). Corrigido (35 linhas passaram a casar).
+2. `rewriteWireKey` só reescrevia acesso/atribuição de propriedade em valor de tipo `any`/`unknown` — não cobria `PropertySignature` de literais de tipo que espelham o formato de linha SQL crua (`tx.execute<{ fluxo_id: string }>(sql\`...\`)`), que é justamente o formato-fio sem receptor em runtime para checar. Corrigido (33 linhas passaram a casar).
+3. As mesmas 33 linhas tinham a coluna `consumers` com a contagem herdada de quando eram `ts-prop` (ex. `65`) em vez da lista de arquivo(s) que `wire-key` exige — corrigido para o arquivo de `declared_at`.
+4. 1 linha `endpoint` (`api-endpoint-77d9d0cd`) tinha `old` com o placeholder `:*` do inventário original enquanto a rota real usa `:contatoId` — corrigida para casar com a fonte.
+
+Nenhuma dessas é uma decisão de produto — são bugs de ferramenta/dados que teriam bloqueado a fase mecânica de renomeio se não corrigidos agora.
+
+### Aplicabilidade final (dry-runs pós-aprovação, W13)
+
+- `check-map --scopes all --require-status approved --glossary GLOSSARY.md`: **0 erros, 285 avisos** (mesmo padrão de ambiguidade de glossário já documentado; o número cresceu com as 711 linhas retraduzidas, que também passam pelo scan).
+- `rename-symbols --scopes all --kinds symbol,ts-prop,ts-local --dry-run`: **applied=0 missing=0**.
+- `move-files --scopes all --dry-run`: **596 movimentos, 0 colisões** (`moved=0` é o próprio dry-run — nada é movido de verdade; `rewritten=1185` reescritas de import previstas).
+- `rewrite-literals --scopes all --kinds endpoint,front-route,query-param,queue,job-name,ws-event,error-code,test-title,cookie,storage-key,metric,script,subpath-export,package,literal-value,wire-key --dry-run`: **rewritten=36363, unmatched=55**. As 55 estão explicadas:
+  - 2 `query-param` (`crm-query-param-agrupar`, `crm-query-param-ordem`): já documentadas em nota de linha desde a task 1 (setadas via uma variável `p` não rastreada de volta a `URLSearchParams`; aplicação manual).
+  - 1 `cookie` + 5 `metric`: `apps/api/src/controladores/entrar.ts` e `apps/api/src/metricas.ts` são, respectivamente, um cookie de desafio montado à mão (template literal + helper `lerCookies()` próprio) e um exportador Prometheus escrito à mão (sem `prom-client`) — nenhum casa com os formatos de chamada (`cookie.get/set()`, `new Counter({name:...})`) que o casador técnico reconhece; notas de linha adicionadas, aplicação manual.
+  - 47 `wire-key` (todas `packages-db-wire-key-*`): a lista de consumidores dessas linhas vem de uma busca textual (não verificada por AST) — nos arquivos onde 0 ocorrências casaram, a palavra aparece como variável local ou valor de union type literal (enum), não como chave de propriedade na fronteira wire; a ocorrência real de fronteira dessas chaves já está coberta por outras linhas do mapa. Comportamento conservador esperado, não risco de corrupção — não anotado linha a linha (mesma explicação para as 47).
+
+### Status final
+
+- 14,901 linhas (soma exata de todos os escopos, recontada nesta sessão — a contagem `~15.858` da seção "Contagens por escopo" acima era uma estimativa) em `status=approved`; `packages-mcp` tem 0 linhas (escopo vazio).
+- `std/nav-contract.md`: `Status: APPROVED 2026-09-25`.
+- `std/persisted.csv`: 745 decisões, sem mudança nesta sessão.
+- `std/wire-contracts.csv`: sem mudança nesta sessão.
