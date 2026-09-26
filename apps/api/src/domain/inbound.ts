@@ -163,7 +163,7 @@ export async function processarPayload(
         // download fala com a Meta, e isso não pode acontecer com uma conexão do
         // pool de banco presa numa transação. Ver `dominio/midia.ts`.
         if (recebida.attachmentId) {
-          await enqueueDownloadMedia({ tenantId: channel.tenantId, anexoId: recebida.attachmentId });
+          await enqueueDownloadMedia({ tenantId: channel.tenantId, attachmentId: recebida.attachmentId });
         }
       } else resumo.ignorados += 1;
     }
@@ -314,7 +314,7 @@ async function receiveMessage(
     }
 
     return {
-      conversaId: conversation.id,
+      conversationId: conversation.id,
       respostasDoBot: bot.respostas,
       attachmentId,
       ...(bot.processHttpId ? { processHttpId: bot.processHttpId } : {}),
@@ -461,7 +461,7 @@ async function findOrCreateContact(
   // O espelho no CRM é trabalho de fila, e enfileirar não pode derrubar o
   // atendimento: `enfileirarEspelhoCrm` engole a própria falha, e a varredura de
   // 5 minutos recupera o que não entrou. Ver `dominio/espelho-crm.ts`.
-  await enqueueMirrorCrm({ tenantId: canal.tenantId, contactId });
+  await enqueueMirrorCrm({ tenantId: canal.tenantId, contactId: contatoId });
   return contatoId;
 }
 
@@ -520,14 +520,14 @@ async function findOrOpenConversation(
   if (!comBot) {
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
-      conversationId,
+      conversationId: conversaId,
       type: 'criada',
       at: em,
       queueId,
     });
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
-      conversationId,
+      conversationId: conversaId,
       type: 'enfileirada',
       at: em,
       queueId,
