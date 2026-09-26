@@ -31,7 +31,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
 const OK: Resultado = { ok: true };
 
 function falha(erro: string): Resultado {
-  return { ok: false, error };
+  return { ok: false, error: erro };
 }
 
 // --- status do atendente ---
@@ -57,7 +57,7 @@ export async function definirStatus(
   await consultar(tx, async (tx) => {
     await tx
       .insert(statusAgent)
-      .values({ usuarioId: atendenteId, tenantId, state, desde: new Date() })
+      .values({ usuarioId: atendenteId, tenantId, estado: state, desde: new Date() })
       .onConflictDoUpdate({
         target: statusAgent.usuarioId,
         set: { estado: state, desde: new Date() },
@@ -100,7 +100,7 @@ export async function cairByInactivity(
   tx: TransactionPipe,
   tenantId: string,
   agentId: string,
-  unusedData: Campos,
+  _dados: Campos,
 ): Promise<Resultado> {
   await consultar(tx, async (tx) => {
     const agora = new Date();
@@ -147,7 +147,7 @@ export async function salvarNotaInterna(
   await consultar(tx, async (tx) => {
     await tx
       .insert(notaInterna)
-      .values({ tenantId, conversationId, usuarioId: atendenteId, corpo: texto });
+      .values({ tenantId, conversaId: conversationId, usuarioId: atendenteId, corpo: texto });
   });
 
   return OK;
