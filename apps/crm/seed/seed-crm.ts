@@ -410,9 +410,9 @@ async function seedCrm(db: DatabasePipe) {
     ACCOUNTS.map((c, i) => ({
       id: idsAccount[i] as string,
       tenantId,
-      nome: c.nome,
-      documento: cnpjDe(i),
-      dominio: c.dominio,
+      name: c.nome,
+      document: cnpjDe(i),
+      domain: c.dominio,
       proprietarioId: (users[i % users.length] as { id: string }).id,
     })),
   );
@@ -423,11 +423,11 @@ async function seedCrm(db: DatabasePipe) {
     REGRAS.map((r) => ({
       id: idDe(`regra:${VERSAO_REGRA}:${r.nome}`),
       tenantId,
-      versao: VERSAO_REGRA,
-      nome: r.nome,
-      condicao: r.condition,
+      version: VERSAO_REGRA,
+      name: r.nome,
+      condition: r.condition,
       pontos: r.pontos,
-      ativa: true,
+      active: true,
     })),
   );
 
@@ -435,11 +435,11 @@ async function seedCrm(db: DatabasePipe) {
     FAIXAS.map((f) => ({
       id: idDe(`faixa:${VERSAO_REGRA}:${f.nome}`),
       tenantId,
-      versao: VERSAO_REGRA,
-      nome: f.nome,
+      version: VERSAO_REGRA,
+      name: f.nome,
       minimo: f.minimo,
       maximo: f.maximo,
-      filaId: f.queue ? (queueByName.get(f.queue) ?? null) : null,
+      queueId: f.queue ? (queueByName.get(f.queue) ?? null) : null,
       estrategiaProprietario: f.estrategia,
     })),
   );
@@ -466,11 +466,11 @@ async function seedCrm(db: DatabasePipe) {
     {
       id: idDiagnostico,
       tenantId,
-      nome: 'Diagnóstico de investidor',
+      name: 'Diagnóstico de investidor',
       slug: 'diagnostico-investidor',
-      ativo: true,
+      active: true,
     },
-    { id: idPlano, tenantId, nome: 'Interesse em plano', slug: 'interesse-plano', ativo: true },
+    { id: idPlano, tenantId, name: 'Interesse em plano', slug: 'interesse-plano', active: true },
   ]);
 
   const versions = [
@@ -483,8 +483,8 @@ async function seedCrm(db: DatabasePipe) {
     versions.map((v) => ({
       id: v.id,
       tenantId,
-      formularioId: v.formularioId,
-      versao: v.versao,
+      formId: v.formularioId,
+      version: v.versao,
       publicadaEm: new Date(agora.getTime() - dias(v.dias)),
     })),
   );
@@ -504,12 +504,12 @@ async function seedCrm(db: DatabasePipe) {
         id,
         tenantId,
         versaoId,
-        codigo: p.codigo,
+        code: p.codigo,
         rotulo: p.rotulo,
-        tipo: p.tipo,
-        opcoes: [...p.options],
-        ordem: i + 1,
-        obrigatoria: p.obrigatoria,
+        type: p.tipo,
+        options: [...p.options],
+        order: i + 1,
+        required: p.obrigatoria,
       });
       registradas.push({ id, codigo: p.codigo, tipo: p.tipo });
     });
@@ -624,9 +624,9 @@ async function seedCrm(db: DatabasePipe) {
     linhasLead.push({
       id: leadId,
       tenantId,
-      contatoId: c.id,
-      accountId,
-      origem,
+      contactId: c.id,
+      contaId: accountId,
+      origin: origem,
       campanha: CAMPANHAS[origem] ?? null,
       utm:
         CAMPANHAS[origem] === null
@@ -665,9 +665,9 @@ async function seedCrm(db: DatabasePipe) {
         tenantId,
         leadId,
         versaoRegra: resultado.versaoRegra,
-        valor: resultado.value,
+        value: resultado.value,
         faixa: resultado.faixa,
-        explicacao: resultado.explanation,
+        explanation: resultado.explanation,
         calculadoEm: new Date(criadoEm.getTime() + 1000 * entire(60, 3600)),
       });
     }
@@ -753,10 +753,10 @@ async function seedCrm(db: DatabasePipe) {
     rowsActivity.push({
       id: idDe(`atividade:${c.id}:formulario`),
       tenantId,
-      tipo: 'nota',
+      type: 'nota',
       leadId,
-      resumo: `Formulário respondido · Diagnóstico de investidor v${versaoDiag.versao}`,
-      corpo: diagnosticoCompleto
+      summary: `Formulário respondido · Diagnóstico de investidor v${versaoDiag.versao}`,
+      body: diagnosticoCompleto
         ? 'Respondeu o diagnóstico inteiro.'
         : 'Abandonou o diagnóstico na terceira pergunta.',
       ocorridaEm: respondidoEm,
@@ -771,10 +771,10 @@ async function seedCrm(db: DatabasePipe) {
       rowsActivity.push({
         id: idDe(`atividade:${c.id}:${i}`),
         tenantId,
-        tipo,
+        type: tipo,
         leadId,
-        usuarioId: proprietario?.id ?? escolher(users).id,
-        resumo:
+        userId: proprietario?.id ?? escolher(users).id,
+        summary:
           tipo === 'ligacao'
             ? 'Ligação de qualificação'
             : tipo === 'email'
@@ -784,7 +784,7 @@ async function seedCrm(db: DatabasePipe) {
                 : tipo === 'tarefa'
                   ? 'Retornar contato'
                   : 'Nota do vendedor',
-        corpo: escolher(NOTAS),
+        body: escolher(NOTAS),
         ocorridaEm: em,
         criadoEm: em,
       });
@@ -793,11 +793,11 @@ async function seedCrm(db: DatabasePipe) {
     rowsActivity.push({
       id: idDe(`atividade:${c.id}:fase`),
       tenantId,
-      tipo: 'mudanca_fase',
+      type: 'mudanca_fase',
       leadId,
-      usuarioId: proprietario?.id ?? null,
-      resumo: `Fase alterada para ${fase}`,
-      corpo: null,
+      userId: proprietario?.id ?? null,
+      summary: `Fase alterada para ${fase}`,
+      body: null,
       ocorridaEm: faseDesde,
       criadoEm: faseDesde,
     });
@@ -815,12 +815,12 @@ async function seedCrm(db: DatabasePipe) {
         tenantId,
         leadId,
         accountId,
-        nome: c.nome ?? `Oportunidade ${indice + 1}`,
-        valor: value.toFixed(2),
+        name: c.nome ?? `Oportunidade ${indice + 1}`,
+        value: value.toFixed(2),
         moeda: 'BRL',
         fase,
-        probabilidade: PROBABILITY[fase] ?? 10,
-        fechamentoPrevisto: dataIso(new Date(agora.getTime() + dias(entire(5, 75)))),
+        probability: PROBABILITY[fase] ?? 10,
+        closingExpected: dataIso(new Date(agora.getTime() + dias(entire(5, 75)))),
         proprietarioId: proprietario?.id ?? escolher(users).id,
         criadoEm: new Date(Math.min(abertaEm.getTime(), agora.getTime())),
       });
@@ -835,11 +835,11 @@ async function seedCrm(db: DatabasePipe) {
           tenantId,
           leadId,
           accountId,
-          nome: `${c.nome ?? 'Cliente'} · renovação`,
-          valor: (value * 0.8).toFixed(2),
+          name: `${c.nome ?? 'Cliente'} · renovação`,
+          value: (value * 0.8).toFixed(2),
           moeda: 'BRL',
           fase: ganha ? 'Fechamento' : 'Proposta',
-          probabilidade: ganha ? 100 : 0,
+          probability: ganha ? 100 : 0,
           fechadaEm,
           ganha,
           motivoPerda: ganha ? null : escolher(['Preço', 'Sem retorno', 'Escolheu concorrente']),

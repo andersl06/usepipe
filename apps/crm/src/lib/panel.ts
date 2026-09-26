@@ -45,8 +45,8 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
     const [abertas] = await tx
       .select({
         n: sql<number>`count(*)::int`,
-        valor: sql<string>`coalesce(sum(${opportunity.valor}), 0)`,
-        ponderado: sql<string>`coalesce(sum(${opportunity.valor} * coalesce(${opportunity.probabilidade},0) / 100.0), 0)`,
+        valor: sql<string>`coalesce(sum(${opportunity.value}), 0)`,
+        ponderado: sql<string>`coalesce(sum(${opportunity.value} * coalesce(${opportunity.probability},0) / 100.0), 0)`,
         diasMedios: sql<string | null>`avg(extract(epoch from (now() - ${opportunity.criadoEm})) / 86400)`,
       })
       .from(opportunity)
@@ -54,15 +54,15 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
 
     const [fechadas] = await tx
       .select({
-        ganho: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha}), 0)`,
-        perdido: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha} = false), 0)`,
+        ganho: sql<string>`coalesce(sum(${opportunity.value}) filter (where ${opportunity.ganha}), 0)`,
+        perdido: sql<string>`coalesce(sum(${opportunity.value}) filter (where ${opportunity.ganha} = false), 0)`,
       })
       .from(opportunity)
       .where(and(gte(opportunity.fechadaEm, mes.inicio), lt(opportunity.fechadaEm, mes.fim)));
 
     const [fechadasAntes] = await tx
       .select({
-        ganho: sql<string>`coalesce(sum(${opportunity.valor}) filter (where ${opportunity.ganha}), 0)`,
+        ganho: sql<string>`coalesce(sum(${opportunity.value}) filter (where ${opportunity.ganha}), 0)`,
       })
       .from(opportunity)
       .where(
@@ -93,10 +93,10 @@ export async function carregarIndicadores(mes: Window, mesAnterior: Window): Pro
 export async function leadsByOrigin(mes: Window): Promise<{ origem: string; n: number }[]> {
   return consultar(async (tx) => {
     const linhas = await tx
-      .select({ origem: lead.origem, n: sql<number>`count(*)::int` })
+      .select({ origem: lead.origin, n: sql<number>`count(*)::int` })
       .from(lead)
       .where(and(isNull(lead.excluidoEm), gte(lead.criadoEm, mes.inicio), lt(lead.criadoEm, mes.fim)))
-      .groupBy(lead.origem)
+      .groupBy(lead.origin)
       .orderBy(sql`count(*) desc`);
     return linhas.map((l) => ({ origem: l.origem ?? 'sem origem', n: l.n }));
   });

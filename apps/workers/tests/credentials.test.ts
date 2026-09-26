@@ -11,11 +11,11 @@ describe('Resolve channel credentials from encrypted configuration', () => {
     process.env['PIPE_CHAVE_SEGREDO_ATUAL'] = 'teste';
     const config = cifrarConfig({ phoneNumberId: '123', tokenAcesso: 'token-de-verdade' }, keyringOfEnvironment());
     expect(config['tokenAcesso']).not.toBe('token-de-verdade');
-    expect(credentialsOf(config)).toMatchObject({ phoneNumberId: '123', tokenAcesso: 'token-de-verdade' });
+    expect(credentialsOf(config)).toMatchObject({ phoneNumberId: '123', tokenAccess: 'token-de-verdade' });
   });
 
   it('Allow plaintext channel configuration without a keyring', () => {
     delete process.env['PIPE_CHAVES_SEGREDO'];
-    expect(credentialsOf({ phoneNumberId: '1', tokenAcesso: 'claro' })).toMatchObject({ tokenAcesso: 'claro' });
+    expect(credentialsOf({ phoneNumberId: '1', tokenAcesso: 'claro' })).toMatchObject({ tokenAccess: 'claro' });
   });
 });

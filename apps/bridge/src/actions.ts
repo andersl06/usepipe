@@ -11,7 +11,7 @@ import type { Session } from './rotas.js';
 
 /** The actor for a screen action is the signed-in agent acting on their own behalf. */
 function ator(session: Session, requireAssignment: boolean) {
-  return { tenantId: session.tenantId, atendenteId: session.userId, requireAssignment };
+  return { tenantId: session.tenantId, agentId: session.userId, requireAssignment };
 }
 
 export async function assumir(session: Session, conversationId: string): Promise<void> {
@@ -69,7 +69,7 @@ export async function responder(
   const enfileirada = await sendMessage({
     tenantId: session.tenantId,
     conversationId,
-    atendenteId: session.userId,
+    agentId: session.userId,
     texto,
   });
   /*
@@ -122,5 +122,5 @@ export async function encerrar(
     return criada[0]!.id;
   });
 
-  await closeConversation(ator(session, true), { conversationId, etiquetaId });
+  await closeConversation(ator(session, true), { conversationId, etiquetaIds: [etiquetaId] });
 }

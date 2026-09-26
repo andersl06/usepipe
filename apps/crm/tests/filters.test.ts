@@ -48,7 +48,7 @@ test('repeated parameter: the first one counts, the rest do not become a second 
 
 test('a round trip through the URL preserves the filter, including one with a blank value', () => {
   const filters = { origem: 'Indicação', proprietario: WITHOUT_VALUE };
-  const p = writeFilters(new URLSearchParams({ tab: 'todos' }), filters);
+  const p = writeFilters(new URLSearchParams({ aba: 'todos' }), filters);
   assert.equal(p.get('aba'), 'todos', 'o resto da consulta não pode ser atropelado');
   assert.deepEqual(readFilters(Object.fromEntries(p)), filters);
 });

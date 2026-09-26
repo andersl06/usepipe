@@ -49,22 +49,22 @@ export async function carregarFunil(): Promise<Funil> {
     tx
       .select({
         id: opportunity.id,
-        nome: opportunity.nome,
-        valor: opportunity.valor,
-        probabilidade: opportunity.probabilidade,
+        nome: opportunity.name,
+        valor: opportunity.value,
+        probabilidade: opportunity.probability,
         fase: opportunity.fase,
-        fechamentoPrevisto: opportunity.fechamentoPrevisto,
+        fechamentoPrevisto: opportunity.closingExpected,
         proprietario: user.nome,
-        contaNome: account.nome,
+        contaNome: account.name,
         leadId: opportunity.leadId,
         score: lead.scoreAtual,
       })
       .from(opportunity)
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
-      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(account, eq(account.id, opportunity.accountId))
       .leftJoin(lead, eq(lead.id, opportunity.leadId))
       .where(isNull(opportunity.fechadaEm))
-      .orderBy(asc(opportunity.nome)),
+      .orderBy(asc(opportunity.name)),
   );
 
   const colunas: ColumnFunnel[] = FASES.map((fase) => ({
@@ -177,32 +177,32 @@ export async function listOpportunities(
   return consultar(async (tx) => {
     const termo = search.trim();
     const filter = termo
-      ? sql`(${opportunity.nome} ilike ${'%' + termo + '%'}
-             or ${account.nome} ilike ${'%' + termo + '%'})`
+      ? sql`(${opportunity.name} ilike ${'%' + termo + '%'}
+             or ${account.name} ilike ${'%' + termo + '%'})`
       : undefined;
 
     const linhas = await tx
       .select({
         id: opportunity.id,
-        nome: opportunity.nome,
-        accountId: opportunity.contaId,
-        accountName: account.nome,
+        nome: opportunity.name,
+        accountId: opportunity.accountId,
+        accountName: account.name,
         leadId: opportunity.leadId,
         fase: opportunity.fase,
-        value: opportunity.valor,
-        probability: opportunity.probabilidade,
+        value: opportunity.value,
+        probability: opportunity.probability,
         proprietario: user.nome,
-        closingExpected: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.closingExpected,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
       })
       .from(opportunity)
-      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(account, eq(account.id, opportunity.accountId))
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
       .where(situationSlice(situation) ? and(situationSlice(situation), filter) : filter)
       // Open first, and within that the highest value: it's what can still
       // mexer, na ordem em que se mexe.
-      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
+      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.value))
       .limit(LIMITE_LISTA);
 
     return linhas.map((o) => ({
@@ -232,26 +232,26 @@ export async function loadOpportunity(id: string): Promise<OpportunityRecord | n
     const [cabeca] = await tx
       .select({
         id: opportunity.id,
-        nome: opportunity.nome,
-        accountId: opportunity.contaId,
-        accountName: account.nome,
+        nome: opportunity.name,
+        accountId: opportunity.accountId,
+        accountName: account.name,
         leadId: opportunity.leadId,
-        contatoId: lead.contatoId,
+        contatoId: lead.contactId,
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         fase: opportunity.fase,
-        value: opportunity.valor,
+        value: opportunity.value,
         moeda: opportunity.moeda,
-        probability: opportunity.probabilidade,
+        probability: opportunity.probability,
         proprietario: user.nome,
-        closingExpected: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.closingExpected,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
         motivoPerda: opportunity.motivoPerda,
         criadoEm: opportunity.criadoEm,
       })
       .from(opportunity)
-      .leftJoin(account, eq(account.id, opportunity.contaId))
+      .leftJoin(account, eq(account.id, opportunity.accountId))
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
       .leftJoin(lead, and(eq(lead.id, opportunity.leadId), isNull(lead.excluidoEm)))
       .where(eq(opportunity.id, id))
@@ -265,23 +265,23 @@ export async function loadOpportunity(id: string): Promise<OpportunityRecord | n
       ? await tx
           .select({
             id: opportunity.id,
-            nome: opportunity.nome,
-            accountId: opportunity.contaId,
-            accountName: account.nome,
+            nome: opportunity.name,
+            accountId: opportunity.accountId,
+            accountName: account.name,
             leadId: opportunity.leadId,
             fase: opportunity.fase,
-            value: opportunity.valor,
-            probability: opportunity.probabilidade,
+            value: opportunity.value,
+            probability: opportunity.probability,
             proprietario: user.nome,
-            closingExpected: opportunity.fechamentoPrevisto,
+            closingExpected: opportunity.closingExpected,
             fechadaEm: opportunity.fechadaEm,
             ganha: opportunity.ganha,
           })
           .from(opportunity)
-          .leftJoin(account, eq(account.id, opportunity.contaId))
+          .leftJoin(account, eq(account.id, opportunity.accountId))
           .leftJoin(user, eq(user.id, opportunity.proprietarioId))
-          .where(and(eq(opportunity.contaId, cabeca.accountId), sql`${opportunity.id} <> ${id}`))
-          .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor))
+          .where(and(eq(opportunity.accountId, cabeca.accountId), sql`${opportunity.id} <> ${id}`))
+          .orderBy(asc(opportunity.fechadaEm), desc(opportunity.value))
       : [];
 
     const timeRow = cabeca.leadId
@@ -311,7 +311,7 @@ export async function moverParaFase(opportunityId: string, fase: Fase): Promise<
       .update(opportunity)
       .set({
         fase,
-        probabilidade: PROBABILITY_BY_STAGE[fase],
+        probability: PROBABILITY_BY_STAGE[fase],
         atualizadoEm: sql`now()`,
       })
       .where(and(eq(opportunity.id, opportunityId), isNull(opportunity.fechadaEm)));

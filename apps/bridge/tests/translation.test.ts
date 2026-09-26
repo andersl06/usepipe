@@ -116,8 +116,8 @@ describe('message -> document', () => {
   });
 
   it('quem saiu tem emissor; o que o cliente mandou, não', () => {
-    const ofAgent = { ...base, direcao: 'saida', autor_tipo: 'atendente' };
-    const doBot = { ...base, direcao: 'saida', autor_tipo: 'bot' };
+    const ofAgent = { ...base, direction: 'saida', autor_tipo: 'atendente' };
+    const doBot = { ...base, direction: 'saida', autor_tipo: 'bot' };
     expect(asDocument(ofAgent)!['messageEmitter']).toBe('Human');
     expect(asDocument(doBot)!['messageEmitter']).toBe('Bot');
     // An inbound message has no emitter; including one made the screen label the client as a bot.

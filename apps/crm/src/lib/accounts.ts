@@ -35,23 +35,23 @@ export async function listAccounts(search = ''): Promise<AccountRow[]> {
   return consultar(async (tx) => {
     const termo = search.trim();
     const filter = termo
-      ? sql`(${account.nome} ilike ${'%' + termo + '%'}
-             or ${account.documento} ilike ${'%' + termo + '%'}
-             or ${account.dominio} ilike ${'%' + termo + '%'})`
+      ? sql`(${account.name} ilike ${'%' + termo + '%'}
+             or ${account.document} ilike ${'%' + termo + '%'}
+             or ${account.domain} ilike ${'%' + termo + '%'})`
       : undefined;
 
     const accounts = await tx
       .select({
         id: account.id,
-        nome: account.nome,
-        document: account.documento,
-        domain: account.dominio,
+        nome: account.name,
+        document: account.document,
+        domain: account.domain,
         proprietario: user.nome,
       })
       .from(account)
       .leftJoin(user, eq(user.id, account.proprietarioId))
       .where(and(isNull(account.excluidoEm), filter))
-      .orderBy(asc(account.nome))
+      .orderBy(asc(account.name))
       .limit(LIMITE_LISTA);
 
     // Three separate aggregations instead of a per-row subquery: the database reads
@@ -70,13 +70,13 @@ export async function listAccounts(search = ''): Promise<AccountRow[]> {
 
     const byOpportunity = await tx
       .select({
-        contaId: opportunity.contaId,
+        contaId: opportunity.accountId,
         n: sql<number>`count(*)::int`,
-        valor: sql<string>`coalesce(sum(${opportunity.valor}), 0)`,
+        valor: sql<string>`coalesce(sum(${opportunity.value}), 0)`,
       })
       .from(opportunity)
       .where(isNull(opportunity.fechadaEm))
-      .groupBy(opportunity.contaId);
+      .groupBy(opportunity.accountId);
 
     const contacts = new Map(byContact.map((l) => [l.contaId, l.n]));
     const leads = new Map(byLead.map((l) => [l.contaId, l.n]));
@@ -139,9 +139,9 @@ export async function loadAccount(id: string): Promise<AccountRecord | null> {
     const [cabeca] = await tx
       .select({
         id: account.id,
-        nome: account.nome,
-        document: account.documento,
-        domain: account.dominio,
+        nome: account.name,
+        document: account.document,
+        domain: account.domain,
         proprietario: user.nome,
         criadoEm: account.criadoEm,
         atributos: account.atributos,
@@ -169,27 +169,27 @@ export async function loadAccount(id: string): Promise<AccountRecord | null> {
         faixa: lead.faixaAtual,
       })
       .from(contact)
-      .leftJoin(lead, and(eq(lead.contatoId, contact.id), isNull(lead.excluidoEm)))
+      .leftJoin(lead, and(eq(lead.contactId, contact.id), isNull(lead.excluidoEm)))
       .where(and(eq(contact.accountId, id), isNull(contact.excluidoEm)))
       .orderBy(asc(contact.nome));
 
     const opportunities = await tx
       .select({
         id: opportunity.id,
-        nome: opportunity.nome,
-        value: opportunity.valor,
+        nome: opportunity.name,
+        value: opportunity.value,
         fase: opportunity.fase,
-        probability: opportunity.probabilidade,
+        probability: opportunity.probability,
         proprietario: user.nome,
-        closingExpected: opportunity.fechamentoPrevisto,
+        closingExpected: opportunity.closingExpected,
         fechadaEm: opportunity.fechadaEm,
         ganha: opportunity.ganha,
       })
       .from(opportunity)
       .leftJoin(user, eq(user.id, opportunity.proprietarioId))
-      .where(eq(opportunity.contaId, id))
+      .where(eq(opportunity.accountId, id))
       // Open first: it's what can still be acted on.
-      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.valor));
+      .orderBy(asc(opportunity.fechadaEm), desc(opportunity.value));
 
     const linhas: AccountOpportunity[] = opportunities.map((o) => ({
       id: o.id,

@@ -47,7 +47,7 @@ describe('Shift body parameter positions when a template has header media', () =
     nome: 'aviso',
     idioma: 'pt_BR',
     cabecalhoTipo: 'nenhum',
-    variaveis: ['nome', 'protocolo'],
+    variables: ['nome', 'protocolo'],
   } as const;
 
   const withMedia = { ...withoutMedia, cabecalhoTipo: 'imagem' } as const;

@@ -147,7 +147,7 @@ function listInFile(caminho: string, constante: string): string[] {
 test('the scope catalog has not diverged from apps/api', () => {
   assert.deepEqual(
     CATALOG_OF_SCOPES.map((e) => e.codigo),
-    listInFile('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),
+    listInFile('apps/api/src/authentication.ts', 'CATALOG_SCOPES'),
   );
 });
 
