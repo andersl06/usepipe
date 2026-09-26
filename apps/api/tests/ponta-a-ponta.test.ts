@@ -116,7 +116,8 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       windowExpiresAt: Date | string | null;
       lastMessageOf: string | null;
     }>(sql`
-      select c.id, c.estado, c.atendente_id, c.janela_expira_em, c.ultima_mensagem_de
+      select c.id, c.estado as state, c.atendente_id as "agentId",
+             c.janela_expira_em as "windowExpiresAt", c.ultima_mensagem_de as "lastMessageOf"
         from conversa c
         join contato ct on ct.id = c.contato_id
        where c.tenant_id = ${cenario.tenantId}::uuid and ct.telefone_e164 = ${`+${CLIENTE}`}
@@ -136,7 +137,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     expect(Math.abs(expira - daquiA24h)).toBeLessThan(60_000);
 
     const message = await umaLinha<{ direction: string; content: string }>(sql`
-      select direcao, conteudo from mensagem
+      select direcao as direction, conteudo as content from mensagem
        where conversa_id = ${conversationId}::uuid and direcao = 'entrada' limit 1
     `);
     expect(message?.content).toBe('Bom dia, preciso da segunda via');
@@ -177,7 +178,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     expect(corpo.categoryCobranca).toBe('livre');
 
     const outbox = await umaLinha<{ state: string; tentativas: number }>(
-      sql`select estado, tentativas from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
+      sql`select estado as state, tentativas from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
     expect(outbox?.state).toBe('pendente');
     expect(Number(outbox?.tentativas)).toBe(0);
@@ -191,7 +192,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     expect(dubleWhatsApp.chamadas.length).toBe(antes + 1);
 
     const mensagem = await umaLinha<{ stateDelivery: string; idProvider: string | null }>(
-      sql`select estado_entrega, id_provedor from mensagem where id = ${messageOutputId}::uuid`,
+      sql`select estado_entrega as "stateDelivery", id_provedor as "idProvider" from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.stateDelivery).toBe('enviada');
     expect(mensagem?.idProvider).toMatch(/^wamid\.DUBLE/);
@@ -201,13 +202,13 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     await entregarStatusDoDuble();
 
     const mensagem = await umaLinha<{ stateDelivery: string; entregueAt: string | null }>(
-      sql`select estado_entrega, entregue_em from mensagem where id = ${messageOutputId}::uuid`,
+      sql`select estado_entrega as "stateDelivery", entregue_em as "entregueAt" from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.stateDelivery).toBe('entregue');
     expect(mensagem?.entregueAt).not.toBeNull();
 
     const outbox = await umaLinha<{ state: string }>(
-      sql`select estado from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
+      sql`select estado as state from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
     expect(outbox?.state).toBe('entregue');
   });
@@ -215,7 +216,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
   it('Update a message to read when its read-status webhook arrives', async () => {
     const idProvedor = (
       await umaLinha<{ idProvider: string }>(
-        sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
+        sql`select id_provedor as "idProvider" from mensagem where id = ${messageOutputId}::uuid`,
       )
     )?.idProvider;
     expect(idProvedor).toBeTruthy();
@@ -224,7 +225,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     await entregarStatusDoDuble();
 
     const mensagem = await umaLinha<{ stateDelivery: string; lidaAt: string | null }>(
-      sql`select estado_entrega, lida_em from mensagem where id = ${messageOutputId}::uuid`,
+      sql`select estado_entrega as "stateDelivery", lida_em as "lidaAt" from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.stateDelivery).toBe('lida');
     expect(mensagem?.lidaAt).not.toBeNull();
@@ -233,7 +234,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
   it('Do not regress message state when status webhooks arrive out of order', async () => {
     const idProvedor = (
       await umaLinha<{ idProvider: string }>(
-        sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
+        sql`select id_provedor as "idProvider" from mensagem where id = ${messageOutputId}::uuid`,
       )
     )!.idProvider;
 
@@ -248,7 +249,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       }),
     );
     const mensagem = await umaLinha<{ stateDelivery: string }>(
-      sql`select estado_entrega from mensagem where id = ${messageOutputId}::uuid`,
+      sql`select estado_entrega as "stateDelivery" from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.stateDelivery).toBe('lida');
   });
@@ -318,7 +319,7 @@ describe('caminho da falha', () => {
       stateDelivery: string;
       errorCode: string;
       errorText: string;
-    }>(sql`select estado_entrega, erro_codigo, erro_texto from mensagem where id = ${criada.id}::uuid`);
+    }>(sql`select estado_entrega as "stateDelivery", erro_codigo as "errorCode", erro_texto as "errorText" from mensagem where id = ${criada.id}::uuid`);
     expect(mensagem?.stateDelivery).toBe('falhou');
     expect(mensagem?.errorCode).toBe('midia_formato_recusado');
     // The text is what the Desk shows on screen: it must be readable, not a code.
@@ -326,7 +327,7 @@ describe('caminho da falha', () => {
     expect(mensagem?.errorText).toContain('não é aceito');
 
     const outbox = await umaLinha<{ state: string; lastError: string }>(
-      sql`select estado, ultimo_erro from outbox_mensagem where mensagem_id = ${criada.id}::uuid`,
+      sql`select estado as state, ultimo_erro as "lastError" from outbox_mensagem where mensagem_id = ${criada.id}::uuid`,
     );
     expect(outbox?.state).toBe('falhou');
     expect(outbox?.lastError).toContain('midia_formato_recusado');
@@ -374,7 +375,8 @@ describe('Aggregate daily metrics from events idempotently', () => {
       messagesOutput: number;
       firstResponseN: number;
     }>(sql`
-      select conversas_criadas, mensagens_entrada, mensagens_saida, primeira_resposta_n
+      select conversas_criadas as "conversationsCreated", mensagens_entrada as "messagesInbound",
+             mensagens_saida as "messagesOutput", primeira_resposta_n as "firstResponseN"
         from metrica_diaria
        where tenant_id = ${cenario.tenantId}::uuid and dia = ${hoje}::date
          and dimensao_tipo = 'fila' and dimensao_id = ${cenario.queueId}::uuid

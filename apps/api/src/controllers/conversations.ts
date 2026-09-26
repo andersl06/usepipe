@@ -108,7 +108,7 @@ export class ConversationsController {
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineConversation & { key: Date | string }>(sql`
-        select ${sql.raw(expressao)} as chave, ${sql.raw(COLUMNS_CONVERSATION)}
+        select ${sql.raw(expressao)} as key, ${sql.raw(COLUMNS_CONVERSATION)}
           from conversa c
           join contato ct on ct.id = c.contato_id
           join inbox ib on ib.id = c.inbox_id
@@ -141,7 +141,7 @@ export class ConversationsController {
     const { tenantId } = contextOf(request);
     const linha = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineConversation & { key: Date | string }>(sql`
-        select c.criada_em as chave, ${sql.raw(COLUMNS_CONVERSATION)}
+        select c.criada_em as key, ${sql.raw(COLUMNS_CONVERSATION)}
           from conversa c
           join contato ct on ct.id = c.contato_id
           join inbox ib on ib.id = c.inbox_id
@@ -191,9 +191,11 @@ export class ConversationsController {
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineMessage>(sql`
-        select id, criada_em, direcao, autor_tipo, autor_id, tipo, conteudo, estado_entrega,
-               erro_codigo, erro_texto, id_provedor, entregue_em, lida_em, dentro_da_janela,
-               categoria_cobranca
+        select id, criada_em, direcao as direction, autor_tipo, autor_id as "authorId",
+               tipo as type, conteudo as content, estado_entrega as "stateDelivery",
+               erro_codigo as "errorCode", erro_texto as "errorText", id_provedor as "idProvider",
+               entregue_em as "entregueAt", lida_em as "lidaAt",
+               dentro_da_janela as "insideOfWindow", categoria_cobranca as "categoryCobranca"
           from mensagem
          where ${juntar(filtros)}
            and ${conditionOfCursor('criada_em', 'timestamptz', order.direction, cursor)}
@@ -369,11 +371,13 @@ export class ConversationsController {
 }
 
 const COLUMNS_CONVERSATION = `
-  c.id, c.estado, c.prioridade, c.criada_em, c.atribuida_em, c.primeira_resposta_em,
-  c.encerrada_em, c.ultima_mensagem_em, c.ultima_mensagem_de, c.janela_expira_em,
-  c.fila_id, f.nome as fila_nome, c.atendente_id, u.nome as atendente_nome,
-  ct.id as contato_id, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
-  ca.tipo as canal_tipo
+  c.id, c.estado as state, c.prioridade as priority, c.criada_em, c.atribuida_em,
+  c.primeira_resposta_em as "firstResponseAt", c.encerrada_em,
+  c.ultima_mensagem_em as "lastMessageAt", c.ultima_mensagem_de as "lastMessageOf",
+  c.janela_expira_em as "windowExpiresAt", c.fila_id as "queueId",
+  f.nome as "queueName", c.atendente_id, u.nome as "agentName",
+  ct.id as "contactId", ct.nome as "contactName", ct.telefone_e164 as "contactPhone",
+  ca.tipo as "channelType"
 `;
 
 

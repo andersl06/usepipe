@@ -108,7 +108,7 @@ async function slaConversationOf(
     state: string;
     alertado_em: Date | null;
     estourado_em: Date | null;
-  }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
+  }>(sql`select estado as state, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
   const r = rows[0];
   return r ? { state: r.state, alertedAt: r.alertado_em, exceededAt: r.estourado_em } : null;
 }
@@ -129,7 +129,7 @@ async function contarEntregas(cenario: Cenario, evento: string): Promise<number>
 
 async function priorityOf(cenario: Cenario, conversaId: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ priority: string }>(
-    sql`select prioridade from conversa where id = ${conversaId}::uuid`,
+    sql`select prioridade as priority from conversa where id = ${conversaId}::uuid`,
   );
   return rows[0]!.priority;
 }

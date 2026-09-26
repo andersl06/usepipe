@@ -39,7 +39,7 @@ async function assembleContract(sufixo: string): Promise<Cenario> {
   const dono = createDatabase({ url: URL_DONO, maxConnections: 3 });
   const semeado = await seed(dono, { name: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
   const { rows: papeis } = await dono.execute<{ id: string; name: 'admin' | 'member' | 'guest' }>(
-    sql`select id, nome from papel where tenant_id = ${semeado.tenantId}::uuid and escopo = 'conta'`,
+    sql`select id, nome as name from papel where tenant_id = ${semeado.tenantId}::uuid and escopo = 'conta'`,
   );
   const byName = Object.fromEntries(papeis.map((p) => [p.name, p.id])) as Cenario['papeis'];
   return {

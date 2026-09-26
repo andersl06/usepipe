@@ -88,8 +88,9 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
 
   const resultado = await noTenant(pedido.tenantId, async (tx) => {
     const { rows } = await tx.execute<LineConversation>(sql`
-      select c.id, c.estado, c.fila_id, c.atendente_id, c.janela_expira_em,
-             c.primeira_resposta_em, c.ultima_mensagem_em, ca.id as canal_id, ca.tipo as canal_tipo
+      select c.id, c.estado as state, c.fila_id as "queueId", c.atendente_id as "agentId",
+             c.janela_expira_em as "windowExpiresAt", c.primeira_resposta_em as "firstResponseAt",
+             c.ultima_mensagem_em as "lastMessageAt", ca.id as "channelId", ca.tipo as "channelType"
         from conversa c
         join inbox ib on ib.id = c.inbox_id
         join canal ca on ca.id = ib.canal_id
@@ -123,7 +124,8 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     let template: LinhaTemplate | null = null;
     if (pedido.templateId) {
       const { rows: linhas } = await tx.execute<LinhaTemplate>(sql`
-        select id, nome, categoria, corpo, status_meta, cabecalho_tipo, variaveis
+        select id, nome as name, categoria as category, corpo as body, status_meta,
+               cabecalho_tipo, variaveis as variables
           from template_mensagem
          where id = ${pedido.templateId} and canal_id = ${conversation.channelId}
          limit 1
