@@ -112,7 +112,7 @@ export async function saveFlow(
       versao: publicada.versao.versao,
       publicado: true,
       naoSuportado: rascunho.naoSuportado,
-      erroDeValidacao: null,
+      validationError: null,
     };
   });
 }
