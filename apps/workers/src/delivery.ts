@@ -470,7 +470,7 @@ async function reagendar(
        where id = ${linha.id}
     `);
   });
-  return { messageId: linha.mensagem_id, state: 'pending', errorCode: falha.codigo };
+  return { messageId: linha.mensagem_id, state: 'pendente', errorCode: falha.codigo };
 }
 
 /** Guarda contra status fora de ordem vindo de webhook. */
