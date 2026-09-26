@@ -14,7 +14,7 @@ import { attendanceBase } from '../operation/shell';
 /**
  * The source's `/team/permission` — its OWN PAGE, not a modal (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: "the permissions part also [opens a page]", a literal owner requirement).
  *
- * Literal form: title "Permissões", the `descricaoDasPermissoes` copy in its three variants, the "Permissões disponíveis" section with the two-column table — "Tipo de permissão" / "Status" — and "Salvar alterações".
+ * Literal form: title "Permissões", the `permissionsDescription` copy in its three variants, the "Permissões disponíveis" section with the two-column table — "Tipo de permissão" / "Status" — and "Salvar alterações".
  *
  * **The row content is ours.** The source lists ten Blip Desk capabilities; here it's Pipe's permission catalog (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), which is what the actual routes check. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.
  */

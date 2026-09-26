@@ -68,7 +68,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                   onClick={() => accountSwitch.mutate(account.tenantId)}
                 >
                   {/*
- * Local `balao` corresponds to source `message-ballon`; for `business` use local `painel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.
+ * Local `balao` corresponds to source `message-ballon`; for `business` use local `panel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.
  */}
                   <IconePortal nome={account.pessoal ? 'balao' : 'contrato'} tamanho={24} />
                   <span>

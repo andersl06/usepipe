@@ -17,7 +17,7 @@ export interface PedidoDeCertificado {
   description: string;
   hosts: string[];
   senha: string;
-  /** Data URL do `.pfx` (`lerArquivoComoDataUrl`). */
+  /** Data URL do `.pfx` (`readFileAsDataUrl`). */
   file: string;
 }
 

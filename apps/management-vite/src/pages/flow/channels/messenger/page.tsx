@@ -13,7 +13,7 @@ import { OtherChannelNotice, ChooseChannelExisting, ModalDesconectar } from '../
 /**
  * Messenger inside the BOT — `…channels/messenger`. The source's current page is a micro-frontend not present in the captured bundle (`FICHA-conectar-canal-no-bot.md` §1.4 and §5); what was read is the legacy `messengerDpr` (template 8080 + `MessengerOverviewTab.html`, 208152): title "Messenger", "Visão Geral" tab with the icon and text about the Facebook Page, and the disconnect modal (`messenger.modals.disconnect`).
  *
- * The connected state was NOT captured: here it follows the Instagram layout (chip with the Page + "Desconectar canal"), stated as a Pipe decision. The connection is the manual one (`ConectarMessengerManual`, with `fluxoId`) and, Pipe decision, picking a Page the account already has.
+ * The connected state was NOT captured: here it follows the Instagram layout (chip with the Page + "Desconectar canal"), stated as a Pipe decision. The connection is the manual one (`ConectarMessengerManual`, with `flowId`) and, Pipe decision, picking a Page the account already has.
  */
 
 const ABAS: readonly ChannelTab[] = [{ rotulo: 'Visão Geral', segment: '' }];

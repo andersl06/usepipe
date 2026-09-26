@@ -7,7 +7,7 @@
  * metade dos arquivos.
  *
  * Os números são os de `@pipe/storage` (`MAX_ARQUIVOS_POR_MENSAGEM`,
- * `MAX_BYTES_POR_ARQUIVO`, `MAX_BYTES_AUDIO_VIDEO`), copiados em vez de
+ * `MAX_BYTES_BY_FILE`, `MAX_BYTES_AUDIO_VIDEO`), copiados em vez de
  * importados porque aquele pacote carrega o backend em disco (`node:fs`) no
  * mesmo índice e não roda no navegador. Quem manda é o servidor de todo modo:
  * `POST /v1/anexos` confere tipo pelos BYTES e tamanho pelo tipo real, e o
@@ -16,7 +16,7 @@
 
 /** `MAX_ATTACHMENT_COUNT` = 10 — `MAX_ARQUIVOS_POR_MENSAGEM`. */
 export const MAX_FILES_BY_SENDING = 10;
-/** `MAX_ATTACHMENT_SIZE` = 100 MB — `MAX_BYTES_POR_ARQUIVO`. */
+/** `MAX_ATTACHMENT_SIZE` = 100 MB — `MAX_BYTES_BY_FILE`. */
 export const MAX_BYTES_BY_FILE = 104_857_600;
 /** 16 MB for audio and video (`MAX_BYTES_AUDIO_VIDEO`); Meta rejects larger files. */
 export const MAX_BYTES_AUDIO_VIDEO = 16_777_216;

@@ -22,7 +22,7 @@ export type Resultado<T> =
   | { ok: false; error: string; campo?: 'nome' | 'destino' };
 
 /**
- * This endpoint's error body (`{erro:{codigo,mensagem}}`) doesn't send `detalhe.campo` — only the `codigo` says which field it is (`criarLinkRastreado` in `dominio/rastreador-de-cliques.ts` and `confirmarUrlSegura` in `dominio/gestao/integracoes.ts`). Mapped here, not there: changing a field is a screen change, not a domain change.
+ * This endpoint's error body (`{erro:{codigo,mensagem}}`) doesn't send `detalhe.campo` — only the `codigo` says which field it is (`createLinkTracked` in `dominio/rastreador-de-cliques.ts` and `confirmarUrlSegura` in `dominio/gestao/integracoes.ts`). Mapped here, not there: changing a field is a screen change, not a domain change.
  */
 export function fieldOfErrorOfLink(codigo: string): 'nome' | 'destino' | undefined {
   if (codigo === 'name_required') return 'nome';

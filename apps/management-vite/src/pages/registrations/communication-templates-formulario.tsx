@@ -21,7 +21,7 @@ const ROTULO_CABECALHO: Record<Cabecalho, string> = { nenhum: 'Sem cabeçalho', 
 const CABECALHO_TEXTO_MAX = 60;
 const CORPO_MAX = 1024;
 
-/** The body variables, in the order they appear — same rule as `variaveisDoTexto` in the `api`. */
+/** The body variables, in the order they appear — same rule as `textVariables` in the `api`. */
 function textVariables(texto: string): string[] {
   const vistas: string[] = [];
   for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {

@@ -35,7 +35,7 @@ export const flow = pgTable(
     channelId: uuid('canal_id').references(() => channel.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('rascunho'),
     /**
-     * `fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.
+     * `flow` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.
      */
     tipo: text('tipo').notNull().default('fluxo'),
     /**
@@ -55,7 +55,7 @@ export const flow = pgTable(
      */
     usesContextOfRouter: boolean('usa_contexto_do_roteador').notNull().default(false),
     /**
-     * Contact settings without a separate home: currently "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and "Menu Persistente" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.
+     * Contact settings without a separate home: currently "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and "Menu Persistente" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `description`. Migration 0031.
      */
     configuration: jsonb('configuracao')
       .notNull()

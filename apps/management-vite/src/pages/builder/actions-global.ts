@@ -3,7 +3,7 @@ import { ACTIONS_LIMIT, LABELS_OF_ACTIONS } from './actions-of-block';
 import type { ActionsList } from './actions-of-block';
 
 /**
- * Global Actions in Configuration (`portal.js` `builder-configurations.globalActions.title`, `<actions state="$ctrl.globalActions">`) use the same `$enteringCustomActions` and `$leavingCustomActions` lists as a block, but for the whole flow. `editor.ts` confirms `globalActions.$enteringCustomActions` and `$leavingCustomActions` become executed flow-wide actions in published form. Reuse `acoes-do-bloco.ts` catalog, labels, and validation (`novaAcao`, `tipoDeAcao`, `valorDoCampo`, `comCampo`, `comTitulo`, `comCondicoes`, `errosDaAcao`); only list CRUD changes to `globais` (`Record<string, unknown>`) rather than `Bloco` with `id`.
+ * Global Actions in Configuration (`portal.js` `builder-configurations.globalActions.title`, `<actions state="$ctrl.globalActions">`) use the same `$enteringCustomActions` and `$leavingCustomActions` lists as a block, but for the whole flow. `editor.ts` confirms `globalActions.$enteringCustomActions` and `$leavingCustomActions` become executed flow-wide actions in published form. Reuse `acoes-do-bloco.ts` catalog, labels, and validation (`novaAcao`, `tipoDeAcao`, `fieldValue`, `comCampo`, `comTitulo`, `withConditions`, `actionErrors`); only list CRUD changes to `globais` (`Record<string, unknown>`) rather than `Block` with `id`.
  */
 
 export interface ActionsGlobal {

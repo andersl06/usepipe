@@ -30,7 +30,7 @@ interface Search {
   groupBy?: string;
   order?: string;
   dir?: string;
-  /** Os `f.*` do filtro por coluna. `lerFiltros` decide quais valem. */
+  /** Os `f.*` do filtro por coluna. `readFilters` decide quais valem. */
   [key: string]: string | string[] | undefined;
 }
 

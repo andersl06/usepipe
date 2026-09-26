@@ -25,7 +25,7 @@ export interface Ator {
 export interface EventoDeAuditoria {
   ator: Ator;
   acao: Acao;
-  /** Nome da tabela em snake_case: `fila`, `resposta_pronta`, `usuario`. */
+  /** Nome da tabela em snake_case: `queue`, `resposta_pronta`, `user`. */
   objetoTipo: string;
   objetoId: string;
   /** O estado anterior. Ausente em `criou`. */

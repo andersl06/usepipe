@@ -6,7 +6,7 @@ import { IMAGE } from '../../../create/regras-de-nome';
  * The two writes for "Editar Fluxo": `PATCH /v1/gestao/fluxos/:id` ("Salvar") and `DELETE /v1/gestao/fluxos/:id` ("Excluir fluxo"). The rule lives in the `api` (`dominio/gestao/ciclo-de-vida-do-fluxo.ts`); here the photo becomes `data:` to cross the JSON, as in `criar/gravar.ts`, and the rejection becomes text for the screen.
  */
 
-/** O que o PATCH devolve (`FluxoGravado` na `api`). */
+/** O que o PATCH devolve (`FlowSaved` na `api`). */
 export interface FlowSaved {
   id: string;
   nome: string;

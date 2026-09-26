@@ -199,7 +199,7 @@ export const regraScore = pgTable(
 );
 
 /**
- * Each calculation creates a new row. `explicacao` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.
+ * Each calculation creates a new row. `explanation` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.
  */
 export const scoreLead = pgTable(
   'score_lead',

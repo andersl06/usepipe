@@ -46,7 +46,7 @@ export interface JobProcessHttp {
 }
 
 /**
- * Mirror a contact into the client CRM. `api`, not the workers, consumes this queue, as with `pipe-entrada`: the API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contatoId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.
+ * Mirror a contact into the client CRM. `api`, not the workers, consumes this queue, as with `pipe-entrada`: the API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contactId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.
  */
 export interface JobMirrorCrm {
   tenantId: string;

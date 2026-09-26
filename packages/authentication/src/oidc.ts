@@ -7,7 +7,7 @@ import type { DesafioDeLogin, PessoaExterna } from './google.js';
 /**
  * Generic OIDC uses the `google.ts` flow with a provider from the database. Google has a fixed issuer, so it needs no discovery. A tenant issuer may be Microsoft Entra ID, Google Workspace, or Okta. Only three things vary: endpoints discovered through `.well-known`, subject extraction, and verified-email interpretation.
  *
- * The invariants are JWKS signature validation with exact `iss` and `aud`, per-attempt `state`, `nonce`, and PKCE from `criarDesafio`, and `(emissor, sujeito)` as the account key rather than email.
+ * The invariants are JWKS signature validation with exact `iss` and `aud`, per-attempt `state`, `nonce`, and PKCE from `createChallenge`, and `(emissor, sujeito)` as the account key rather than email.
  *
  * The traps in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8 are called out below. When implemented incorrectly, they silently grant login rather than raise errors.
  */

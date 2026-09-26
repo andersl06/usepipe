@@ -253,7 +253,7 @@ function PreViewPanel({ nome, perfil }: { nome: string; perfil: PerfilVisivel })
 /**
  * Company profile — `FICHA-canal-whatsapp.md` §2. The field table there (address/e-mail) came with SWAPPED VALUES in the capture — a Blip UI bug, recorded and not copied (§2, "Relevant finding"): here Endereço comercial writes to `endereco`, E-mail de contato writes to `email`, without the swap.
  *
- * The channel is the BOT's (`useCanalWhatsapp`); reading the profile requires `canal.gerenciar` in the `api` — without it, the `api` returns 403 and the tab says so.
+ * The channel is the BOT's (`useChannelWhatsapp`); reading the profile requires `canal.gerenciar` in the `api` — without it, the `api` returns 403 and the tab says so.
  */
 export function AbaPerfil() {
   const { channel, saude } = useChannelWhatsapp();

@@ -12,7 +12,7 @@ import {
 /**
  * The "Biblioteca de variáveis" (`$ctrl.openVarLib()`, `library` icon) — a panel on the LEFT in the source (`library-sidebar`, `position-left`), unlike the block panel (`position-right`). Two tabs, `bds-tab-group`: "Variáveis do sistema" and "Variáveis do usuário", each with search and a list with a copy button per item — structure confirmed in `portal.js` (`BuilderVariablesLibrary`).
  *
- * Without the account's variable registry that the source uses, "do usuário" here is what THIS flow actually references (`variaveisDoUsuario`, real data from the drawing) and "do sistema" is the fixed list of sources with a provider in the Pipe engine (`VARIAVEIS_DO_SISTEMA`, from `variaveis.ts` — see the reasoning there).
+ * Without the account's variable registry that the source uses, "do usuário" here is what THIS flow actually references (`userVariables`, real data from the drawing) and "do sistema" is the fixed list of sources with a provider in the Pipe engine (`VARIAVEIS_DO_SISTEMA`, from `variaveis.ts` — see the reasoning there).
  */
 
 type Aba = 'sistema' | 'usuario';

@@ -210,7 +210,7 @@ describe('reconexão', () => {
     expect(ligacao.state()).toBe('caiu');
 
     // `caiu` must also LAST long enough for the screen to show "connection lost" - that is
-    // why `aoEstado` exists. 700 ms is below the backoff floor (800 ms).
+    // why `toState` exists. 700 ms is below the backoff floor (800 ms).
     vi.advanceTimersByTime(700);
     expect(ligacao.state()).toBe('caiu');
 

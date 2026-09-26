@@ -9,7 +9,7 @@ import { ContactBar, UUID, type Contact } from './barra-of-contact';
 import './flow.css';
 
 /**
- * The contact's URL prefix, based on type — `roteador` for what the source calls `master`, `fluxo` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.
+ * The contact's URL prefix, based on type — `router` for what the source calls `master`, `flow` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.
  */
 export function contactPrefix(tipo: string): 'router' | 'flow' {
   return tipo === 'roteador' ? 'router' : 'flow';

@@ -1,5 +1,5 @@
 /**
- * Validate media before calling Meta. Source: `referencias-blip/pesquisa/regras-blip.md` §1.6, Blip's media-upload policy. Research marks the format list ⚠️ because it changed before. It is a documented DEFAULT, not a fixed invariant: `validarMidia` accepts a policy parameter, so a future per-tenant list can be read from the database. Blip documents 100 MB for documents and 16 MB for video and audio. There is NO documented image size; do not guess one. Images have no size ceiling here, but their format is still validated.
+ * Validate media before calling Meta. Source: `referencias-blip/pesquisa/regras-blip.md` §1.6, Blip's media-upload policy. Research marks the format list ⚠️ because it changed before. It is a documented DEFAULT, not a fixed invariant: `validateMedia` accepts a policy parameter, so a future per-tenant list can be read from the database. Blip documents 100 MB for documents and 16 MB for video and audio. There is NO documented image size; do not guess one. Images have no size ceiling here, but their format is still validated.
  */
 
 export type TypeMedia = 'imagem' | 'audio' | 'video' | 'documento';

@@ -59,7 +59,7 @@ export const LEVELS_OF_EDIT: readonly { value: EditLevel; rotulo: string }[] = [
 ];
 
 /**
- * The origin's `selectAllPermissions()`, on the screen side: moving the slider MARKS the radios. It's the same rule as `permissoesDoPapel` in the `api` — here so the list follows the slider before saving, there so the database never contradicts what the person saw.
+ * The origin's `selectAllPermissions()`, on the screen side: moving the slider MARKS the radios. It's the same rule as `rolePermissions` in the `api` — here so the list follows the slider before saving, there so the database never contradicts what the person saw.
  */
 export function rolePermissions(
   role: RoleInFlow,

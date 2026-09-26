@@ -19,7 +19,7 @@ import { ModalConfirmation } from './_modal';
  * **"Selecionar todos" and what it selects.** The source paginates on the SERVER (ficha §e.6); our list already arrives whole and paginates on the client, inside `ListaRegras`, which doesn't expose the visible slice from outside. `alternarTodos` marks/unmarks the entire FILTERED set (queue search + text), not just the visible page — the honest simplification while pagination stays display-only.
  * ponytail: selects the whole filtered set, not the page; adjust if `ListaRegras` starts exposing the visible slice.
  *
- * **"Excluir" removes from all queues** — it doesn't delete the user (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: Pipe has no "attendance team" as a separate registry; whoever receives a conversation is whoever is in a queue).
+ * **"Excluir" removes from all queues** — it doesn't delete the user (`removeFromAllQueues`, `lib/atendentes-gravar.ts`: Pipe has no "attendance team" as a separate registry; whoever receives a conversation is whoever is in a queue).
  */
 export function AgentsPageManagement() {
   const navegar = useNavigate();

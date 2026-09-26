@@ -140,7 +140,7 @@ const contactRoutes = (
 
     <Route path="contacts" element={<ContactsShell />}>
       <Route index element={<BotListContacts />} />
-      {/* fix(01-24): o nome do param tinha ficado PT (`contatoId`) depois do
+      {/* fix(01-24): o nome do param tinha ficado PT (`contactId`) depois do
           rename, e `detalhe.tsx` já lê `contactId` — o contato nunca resolvia
           (D-29, contato no path continua "keep", mas precisa funcionar). */}
       <Route path=":contactId" element={<BotDetailContact />} />
@@ -225,7 +225,7 @@ export function App() {
         <Route path="/flow/:id" element={<ContactRoute />}>
           {contactRoutes}
           {/*
- * Builder is hidden from the router menu by `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.
+ * Builder is hidden from the router menu by `HIDDEN_IN_ROUTER` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.
  */}
           <Route path="builder" element={<PageBuilder />} />
         </Route>

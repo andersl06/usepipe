@@ -54,7 +54,7 @@ function CampoComRotulo({
 }
 
 /**
- * What the three modals have in common, now that they live on the channel's page INSIDE THE BOT (`fluxo/canais/**`): `fluxoId` makes the channel born already linked to the bot (`fluxo_id` in the connection routes), and the button that opens the modal carries the label and variant of the screen hosting it.
+ * What the three modals have in common, now that they live on the channel's page INSIDE THE BOT (`fluxo/canais/**`): `flowId` makes the channel born already linked to the bot (`fluxo_id` in the connection routes), and the button that opens the modal carries the label and variant of the screen hosting it.
  */
 interface PropsDeConexaoManual<T> {
   flowId?: string;

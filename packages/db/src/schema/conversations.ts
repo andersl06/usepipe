@@ -25,7 +25,7 @@ import {
 } from './comum.js';
 import { refTenant, user } from './identity.js';
 
-/** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger. */
+/** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TYPES_CHANNEL` now also includes Instagram and Messenger. */
 
 export const channel = pgTable(
   'canal',

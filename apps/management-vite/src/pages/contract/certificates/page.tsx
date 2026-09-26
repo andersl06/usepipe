@@ -11,7 +11,7 @@ import './certificados.css';
 import { TelaDeCertificados } from './tela';
 
 /**
- * Authentication certificates — the "Gerencie seus certificados mTLS" card on the panel, which at the source opens the fragment's `/mtls` route (component `zt`). The route is called `certificados`, not `mtls`, for the same reason `membros` isn't called `panel`: the address is ours, in Portuguese; what gets copied is the screen. The guard is the source's — `Z.d(members)`, a `tenant-members` read —, which here is `conta.membros.ler`, the same one the card already requires. Anyone arriving without it goes back to the panel. The data contract, the copy and the modals are in `referencias-blip/pesquisa/blip-certificados-mtls.md`.
+ * Authentication certificates — the "Gerencie seus certificados mTLS" card on the panel, which at the source opens the fragment's `/mtls` route (component `zt`). The route is called `certificados`, not `mtls`, for the same reason `members` isn't called `panel`: the address is ours, in Portuguese; what gets copied is the screen. The guard is the source's — `Z.d(members)`, a `tenant-members` read —, which here is `conta.membros.ler`, the same one the card already requires. Anyone arriving without it goes back to the panel. The data contract, the copy and the modals are in `referencias-blip/pesquisa/blip-certificados-mtls.md`.
  */
 export function CertificatesPage() {
   const eu = useEu();

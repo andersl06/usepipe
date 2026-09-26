@@ -1,7 +1,7 @@
 import { memo } from 'react';
 
 /**
- * Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PaginaHistorico` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
+ * Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PageHistory` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.
  */
 
 export interface CardHistory {

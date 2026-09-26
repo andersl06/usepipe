@@ -3,7 +3,7 @@ import { atualizarLeituras } from './actions';
 import { motivoDe, type Resultado } from './rest';
 
 /**
- * Write real ready-reply `PATCH`/`DELETE` at `/v1/gestao/comunicacao/respostas-prontas/:id`, unlike `acoes.ts` which only has creator `salvarRespostaPronta`. Keep this separate from pure `comunicacao.ts`: `tests/comunicacao.test.ts` imports `cabecalhoTemMidia` and `deslocamentoDoCabecalho` under `node --test` without Vite, whereas `./api` reads `import.meta.env`.
+ * Write real ready-reply `PATCH`/`DELETE` at `/v1/gestao/comunicacao/respostas-prontas/:id`, unlike `acoes.ts` which only has creator `salvarRespostaPronta`. Keep this separate from pure `comunicacao.ts`: `tests/comunicacao.test.ts` imports `cabecalhoTemMidia` and `headerOffset` under `node --test` without Vite, whereas `./api` reads `import.meta.env`.
  */
 
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */

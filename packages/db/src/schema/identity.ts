@@ -28,7 +28,7 @@ export const DEPLOYMENTS = ['compartilhada', 'dedicada'] as const;
 /**
  * Three plans with limits used for billing, per `docs/specs/2026-09-07-preco.md`. Keep them in code, not environment configuration: the AI conversation cap must share a source with enforcement, and environment-based prices can diverge from the screen and invoice.
  *
- * `conversasIaPorAtendente` is the allowance protecting margin. AI is the cost that scales with use; without a cap a high-volume tenant could consume the margin before the bill reveals it.
+ * `conversationsAiByAgent` is the allowance protecting margin. AI is the cost that scales with use; without a cap a high-volume tenant could consume the margin before the bill reveals it.
  */
 export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
 export type Plano = (typeof PLANOS)[number];
@@ -85,7 +85,7 @@ export const tenant = pgTable(
     deployment: text('implantacao').notNull().default('compartilhada'),
     ativo: boolean('ativo').notNull().default(true),
     /**
-     * Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyChave` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.
+     * Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyKey` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.
      */
     twentyUrl: text('twenty_url'),
     twentyKey: text('twenty_chave'),
@@ -136,7 +136,7 @@ export const user = pgTable(
 /**
  * Role scope (migration 0021).
  *
- * `conta` covers contract roles `admin`, `member`, `guest`, matching the source labels "Admin", "Pode editar", and "Pode visualizar". Each person has ONE, and only those appear in Members and invitations. `atendimento` covers manager, supervisor, agent, and reviewer roles; a person may have zero or more. Effective permissions are the union.
+ * `account` covers contract roles `admin`, `member`, `guest`, matching the source labels "Admin", "Pode editar", and "Pode visualizar". Each person has ONE, and only those appear in Members and invitations. `atendimento` covers manager, supervisor, agent, and reviewer roles; a person may have zero or more. Effective permissions are the union.
  */
 export const SCOPES_ROLE = ['conta', 'atendimento'] as const;
 export type ScopeRole = (typeof SCOPES_ROLE)[number];
@@ -159,7 +159,7 @@ export const role = pgTable(
   },
   (t) => [
     uniqueIndex('papel_tenant_nome_uk').on(t.tenantId, t.nome),
-    /* Alvo das FKs compostas de `usuario_papel` e `convite`. */
+    /* Alvo das FKs compostas de `usuario_papel` e `invitation`. */
     uniqueIndex('papel_id_escopo_uk').on(t.id, t.scope),
     listaCheck('papel_escopo_ck', t.scope, SCOPES_ROLE),
   ],
@@ -353,7 +353,7 @@ export const domainTenant = pgTable(
  *
  * **One per tenant**, enforced by uniqueness on `tenant_id`. Multiple directories would make domain discovery ambiguous before anyone has signed in to disambiguate.
  *
- * **State and policy are separate.** `estado` tracks connection readiness (`rascunho` -> `testada` -> `ativa`); `politica` tracks whether password entry remains allowed (`desligado` -> `opcional` -> `obrigatorio`). Combining them can lock out an entire tenant; see `referencias-blip/pesquisa/sso-multi-tenant.md` sections 3 and 6.
+ * **State and policy are separate.** `state` tracks connection readiness (`rascunho` -> `testada` -> `active`); `politica` tracks whether password entry remains allowed (`desligado` -> `opcional` -> `obrigatorio`). Combining them can lock out an entire tenant; see `referencias-blip/pesquisa/sso-multi-tenant.md` sections 3 and 6.
  *
  * **The secret is not stored in plaintext here.** `clientSecret` is inside `config`, encrypted by `cifrarConfig` in `packages/db/src/segredo.ts`. A `pg_dump` contains an envelope rather than a credential.
  */
@@ -392,7 +392,7 @@ export const conexaoSso = pgTable(
 );
 
 /**
- * API and MCP key. Never store the secret in plaintext: persist `hash` plus a visible `prefixo` for the customer to recognize the key. Separate write scopes from read scopes (spec section 4.6).
+ * API and MCP key. Never store the secret in plaintext: persist `hash` plus a visible `prefix` for the customer to recognize the key. Separate write scopes from read scopes (spec section 4.6).
  */
 export const keyApi = pgTable(
   'chave_api',
@@ -404,7 +404,7 @@ export const keyApi = pgTable(
     hash: text('hash').notNull(),
     scopes: text('escopos').array().notNull().default(sql`'{}'::text[]`),
     /**
-     * The key belongs to the ACCOUNT (`null`, the default) or ONE flow, as on the flow's "Chaves de acesso" screen (migration 0032). A foreign key to `fluxo` would cross `identidade` and `automacao`, creating a circular import as with `0003_chaves_cruzadas.sql`; migration 0032 owns the actual constraint, leaving a plain column here.
+     * The key belongs to the ACCOUNT (`null`, the default) or ONE flow, as on the flow's "Chaves de acesso" screen (migration 0032). A foreign key to `flow` would cross `identidade` and `automacao`, creating a circular import as with `0003_chaves_cruzadas.sql`; migration 0032 owns the actual constraint, leaving a plain column here.
      */
     flowId: uuid('fluxo_id'),
     expiraEm: moment('expira_em'),
@@ -460,7 +460,7 @@ export const invitation = pgTable(
     papelId: uuid('papel_id')
       .notNull()
       .references(() => role.id, { onDelete: 'cascade' }),
-    /** Always `conta`: an invitation grants only an account role, enforced by the composite FK. */
+    /** Always `account`: an invitation grants only an account role, enforced by the composite FK. */
     escopo: text('escopo').notNull().default('conta'),
     tokenHash: text('token_hash').notNull(),
     expiraEm: moment('expira_em').notNull(),

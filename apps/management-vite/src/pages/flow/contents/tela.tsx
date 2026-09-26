@@ -18,7 +18,7 @@ import {
 } from './regras';
 
 /**
- * The body variables, in the order they appear — same rule as `variaveisDoTexto` in `dominio/whatsapp/modelos.ts` (the backend validates again; this only avoids a round trip for an error visible right here). Duplicated on purpose, as in `comunicacao-modelos-formulario.tsx`: the client screen shouldn't need to import a server module.
+ * The body variables, in the order they appear — same rule as `textVariables` in `dominio/whatsapp/modelos.ts` (the backend validates again; this only avoids a round trip for an error visible right here). Duplicated on purpose, as in `comunicacao-modelos-formulario.tsx`: the client screen shouldn't need to import a server module.
  */
 function textVariables(texto: string): string[] {
   const vistas: string[] = [];

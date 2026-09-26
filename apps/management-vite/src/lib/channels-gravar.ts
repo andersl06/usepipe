@@ -12,7 +12,7 @@ import type {
 } from './channels';
 
 /**
- * WhatsApp and Instagram channel writes at `/v1/canais/whatsapp` and `/v1/canais/instagram` mirror `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>` carries displayable `erro` and optional `campo` when `api` identifies the field (expected `{erro:{codigo,mensagem,detalhe?:{campo}}}`).
+ * WhatsApp and Instagram channel writes at `/v1/canais/whatsapp` and `/v1/canais/instagram` mirror `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>` carries displayable `error` and optional `campo` when `api` identifies the field (expected `{erro:{codigo,mensagem,detalhe?:{campo}}}`).
  */
 export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string; campo?: string };
 

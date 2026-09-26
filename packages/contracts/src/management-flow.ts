@@ -2,7 +2,7 @@
  * Management contact screens (`/fluxo/:id/**`) render responses from `GET /v1/gestao/fluxos/…`. Dates cross JSON as ISO 8601 text and are converted with `new Date(...)` at display time, never in the contract. Shapes follow queries in `apps/api/src/dominio/gestao-fluxo.ts`; front-end `tsc` catches changed columns.
  */
 
-/** O contato (o `fluxo`) e o canal dele — `GET /v1/gestao/fluxos/:id`. */
+/** O contato (o `flow`) e o canal dele — `GET /v1/gestao/fluxos/:id`. */
 export interface ContactOfFlow {
   id: string;
   nome: string;
@@ -24,7 +24,7 @@ export interface ContactOfFlow {
 /* ---------------------------------------------------------------- Canal */
 
 /**
- * A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `fluxoId` and `fluxoNome` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.
+ * A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `flowId` and `flowName` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.
  */
 export interface ChannelOfFlow {
   id: string;
@@ -190,7 +190,7 @@ export interface ContentItemsOfFlow {
 
 
 
-/** A chatbot (a `fluxo`): either the router or the bot handling a service. */
+/** A chatbot (a `flow`): either the router or the bot handling a service. */
 export interface RouterService {
   id: string;
   nome: string;
@@ -215,7 +215,7 @@ export interface LinkedService {
 }
 
 /**
- * `GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `roteador` and empty lists. `busca` contains eligible service chatbots (type `fluxo`, not archived); unpublished ones appear dimmed.
+ * `GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `router` and empty lists. `search` contains eligible service chatbots (type `flow`, not archived); unpublished ones appear dimmed.
  */
 export interface DataOfServices {
   router: RouterService | null;
@@ -225,7 +225,7 @@ export interface DataOfServices {
 }
 
 /**
- * Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expiracaoMin`; a persistent service ignores `expiracaoMin`.
+ * Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expirationMin`; a persistent service ignores `expirationMin`.
  */
 export interface RequestOfService {
   nome: string;
@@ -261,7 +261,7 @@ export interface GradeDoPortal {
 /* --------------------------------------------------------- Boas-vindas */
 
 /**
- * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, "Defina a Mensagem de Saudação e o botão Começar". Disabled means `{ ativo: false }`: `mensagem` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.
+ * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, "Defina a Mensagem de Saudação e o botão Começar". Disabled means `{ ativo: false }`: `message` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.
  */
 export interface ConfigurationOfWelcome {
   ativo: boolean;
@@ -294,7 +294,7 @@ export interface DesenhoDoBuilder {
 }
 
 /**
- * Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `bloco` is the editor state `id`; null means a whole-flow error, such as a missing root.
+ * Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `block` is the editor state `id`; null means a whole-flow error, such as a missing root.
  */
 export interface BlockError {
   block: string | null;

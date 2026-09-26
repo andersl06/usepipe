@@ -59,7 +59,7 @@ test('the queue rule beats the tenant rule', () => {
 
 test('a conversation with no queue falls back to the tenant rule, not to "no rule"', () => {
   /*
-   * A conversation still at the root has a null `filaId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.
+   * A conversation still at the root has a null `queueId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.
    */
   const pill = conversationEvaluateSla([regra({ alertaSeg: null })], marcos(), null, depois(400));
   assert.equal(pill.state, 'exceeded');

@@ -6,7 +6,7 @@ import { ROTULO_ALVO, type QueueConfigured, type RegraSlaConfigurada } from '../
 import { envioQuePreserva } from '../../components/envio-de-formulario';
 
 /**
- * SLA rule registration — item 2 of the Attendance registration task. Wires up the buttons on the `regras-sla.tsx` screen (its `TODO(escrita)`) to the API without changing the visuals: the same `form-cadastro`/`Modal` as every registration screen. **Pipe decision — scope is only chosen on CREATE.** Reading (`carregarRegras`, `apps/api/.../configuracoes.ts`) returns `escopoNome` for display, not `escopoId` — there's no way to preselect the queue in the edit form without it. Changing scope after creation is rare (a rule is born tied to one queue or to the whole operation); anyone who needs a scope change deletes and recreates, and editing stays limited to name/target/deadline/alert — which covers the task's request without widening the read.
+ * SLA rule registration — item 2 of the Attendance registration task. Wires up the buttons on the `regras-sla.tsx` screen (its `TODO(escrita)`) to the API without changing the visuals: the same `form-cadastro`/`Modal` as every registration screen. **Pipe decision — scope is only chosen on CREATE.** Reading (`carregarRegras`, `apps/api/.../configuracoes.ts`) returns `scopeName` for display, not `scopeId` — there's no way to preselect the queue in the edit form without it. Changing scope after creation is rare (a rule is born tied to one queue or to the whole operation); anyone who needs a scope change deletes and recreates, and editing stays limited to name/target/deadline/alert — which covers the task's request without widening the read.
  */
 
 function pedidoDoFormulario(data: FormData): PedidoDeRegraSla {

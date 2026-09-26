@@ -22,7 +22,7 @@ export const dynamic = 'force-dynamic';
  * without adding information.
  *
  * The difference that matters compared to Twenty is what happens when you remove someone:
- * there, the member leaves the workspace; here they're **deactivated**. `usuario` is
+ * there, the member leaves the workspace; here they're **deactivated**. `user` is
  * referenced by conversation, evaluation, lead, and audit log — deleting the row would
  * erase the authorship of everything the person did, which is exactly what a contract
  * audit would go looking for.

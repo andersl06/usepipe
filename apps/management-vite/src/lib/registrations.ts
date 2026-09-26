@@ -119,7 +119,7 @@ export interface Horarios {
 /**
  * As regras de entrada, com as condições de cada uma — §8 da spec de métricas.
  *
- * Ordenadas por `ordem` e depois por id, que é a MESMA ordem que
+ * Ordenadas por `order` e depois por id, que é a MESMA ordem que
  * `ordenarRegras` de `regra-fila.ts` aplica: a tela não pode listar numa ordem
  * e o motor avaliar noutra, senão o gestor testa a regra pela lista e conclui
  * que o produto está quebrado.
