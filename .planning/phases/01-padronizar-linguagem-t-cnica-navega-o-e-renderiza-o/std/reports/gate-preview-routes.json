@@ -1,0 +1,3412 @@
+[
+  {
+    "method": "DELETE",
+    "path": "/v1/channels/instagram/:*",
+    "rawPath": "/v1/channels/instagram/:id",
+    "controller": "InstagramChannelsController",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-instagram.ts",
+    "line": 44
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/channels/messenger/:*",
+    "rawPath": "/v1/channels/messenger/:id",
+    "controller": "MessengerChannelsController",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-messenger.ts",
+    "line": 8
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/channels/whatsapp/:*/templates/:*",
+    "rawPath": "/v1/channels/whatsapp/:id/templates/:name",
+    "controller": "ChannelsController",
+    "handler": "deleteTemplate",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 228
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/channels/whatsapp/:*",
+    "rawPath": "/v1/channels/whatsapp/:id",
+    "controller": "ChannelsController",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 241
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/contacts/:*/labels/:*",
+    "rawPath": "/v1/contacts/:id/labels/:labelId",
+    "controller": "ContactLabelsController",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 117
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/conversations/:*/labels/:*",
+    "rawPath": "/v1/conversations/:id/labels/:labelId",
+    "controller": "ConversationLabelsController",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 72
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/agents/pauses/:*",
+    "rawPath": "/v1/management/agents/pauses/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "excluirMotivoPausa",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 546
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/agents/queues/:*/agents/:*",
+    "rawPath": "/v1/management/agents/queues/:id/agents/:agentId",
+    "controller": "ManagementRegistrationsController",
+    "handler": "unlinkAgent",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 218
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/agents/queues/:*",
+    "rawPath": "/v1/management/agents/queues/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "deleteQueue",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 184
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/communication/responses-ready/:*",
+    "rawPath": "/v1/management/communication/responses-ready/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "excluirRespostaPronta",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 504
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/contract/certificates/:*/hosts/:*",
+    "rawPath": "/v1/management/contract/certificates/:id/hosts/:hostId",
+    "controller": "ManagementAccountController",
+    "handler": "apagarHostDoCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 215
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/contract/certificates/:*",
+    "rawPath": "/v1/management/contract/certificates/:id",
+    "controller": "ManagementAccountController",
+    "handler": "apagarCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 197
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/flows/:*/channel",
+    "rawPath": "/v1/management/flows/:id/channel",
+    "controller": "ManagementFlowController",
+    "handler": "disconnectChannel",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 266
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/flows/:*/keys/:*",
+    "rawPath": "/v1/management/flows/:id/keys/:keyId",
+    "controller": "ManagementIntegrationsController",
+    "handler": "revokeKey",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 90
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/flows/:*/services/:*",
+    "rawPath": "/v1/management/flows/:id/services/:serviceId",
+    "controller": "ManagementFlowController",
+    "handler": "deleteService",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 461
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/flows/:*/team/:*",
+    "rawPath": "/v1/management/flows/:id/team/:userId",
+    "controller": "ManagementTeamController",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-team.ts",
+    "line": 93
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/flows/:*",
+    "rawPath": "/v1/management/flows/:id",
+    "controller": "ManagementFlowController",
+    "handler": "excluir",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 183
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/rules/attendance/:*",
+    "rawPath": "/v1/management/rules/attendance/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "deleteRuleQueue",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 250
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/rules/priority/:*",
+    "rawPath": "/v1/management/rules/priority/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "deleteRulePriority",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 431
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/rules/schedules/exceptions/:*",
+    "rawPath": "/v1/management/rules/schedules/exceptions/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "deleteExceptionSchedule",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 302
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/rules/schedules/ranges/:*",
+    "rawPath": "/v1/management/rules/schedules/ranges/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "excluirFaixaHorario",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 277
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/settings/rules/:*",
+    "rawPath": "/v1/management/settings/rules/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "excluirRegraSla",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 341
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/settings/words-forbidden/:*",
+    "rawPath": "/v1/management/settings/words-forbidden/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "excluirPalavraProibida",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 389
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/management/webhooks/:*",
+    "rawPath": "/v1/management/webhooks/:webhookId",
+    "controller": "ManagementIntegrationsController",
+    "handler": "excluirWebhook",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 189
+  },
+  {
+    "method": "GET",
+    "path": "/l/:*",
+    "rawPath": "/l/:codigo",
+    "controller": "RedirectController",
+    "handler": "redirecionar",
+    "guards": [],
+    "file": "apps/api/src/controllers/redirect.ts",
+    "line": 11
+  },
+  {
+    "method": "GET",
+    "path": "/metrics",
+    "rawPath": "/metrics",
+    "controller": "OperationsController",
+    "handler": "metrics",
+    "guards": [],
+    "file": "apps/api/src/controllers/operations.ts",
+    "line": 48
+  },
+  {
+    "method": "GET",
+    "path": "/saude",
+    "rawPath": "/saude",
+    "controller": "OperationsController",
+    "handler": "saude",
+    "guards": [],
+    "file": "apps/api/src/controllers/operations.ts",
+    "line": 39
+  },
+  {
+    "method": "GET",
+    "path": "/v1/account",
+    "rawPath": "/v1/account",
+    "controller": "MyAccountController",
+    "handler": "account",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/my-account.ts",
+    "line": 150
+  },
+  {
+    "method": "GET",
+    "path": "/v1/accounts/my",
+    "rawPath": "/v1/accounts/my",
+    "controller": "MyAccountController",
+    "handler": "minhas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/my-account.ts",
+    "line": 222
+  },
+  {
+    "method": "GET",
+    "path": "/v1/agents",
+    "rawPath": "/v1/agents",
+    "controller": "AgentsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'atendentes:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 358
+  },
+  {
+    "method": "GET",
+    "path": "/v1/attachments/:*",
+    "rawPath": "/v1/attachments/:id",
+    "controller": "AttachmentsController",
+    "handler": "baixar",
+    "guards": [],
+    "file": "apps/api/src/controllers/attachments.ts",
+    "line": 52
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/dev",
+    "rawPath": "/v1/auth/dev",
+    "controller": "LoginController",
+    "handler": "dev",
+    "guards": [],
+    "file": "apps/api/src/controllers/login.ts",
+    "line": 195
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/google/callback",
+    "rawPath": "/v1/auth/google/callback",
+    "controller": "LoginController",
+    "handler": "callback",
+    "guards": [],
+    "file": "apps/api/src/controllers/login.ts",
+    "line": 252
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/google",
+    "rawPath": "/v1/auth/google",
+    "controller": "LoginController",
+    "handler": "ir",
+    "guards": [],
+    "file": "apps/api/src/controllers/login.ts",
+    "line": 230
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/:*",
+    "rawPath": "/v1/auth/sso/:slug",
+    "controller": "SsoLoginController",
+    "handler": "ir",
+    "guards": [],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 192
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/callback",
+    "rawPath": "/v1/auth/sso/callback",
+    "controller": "SsoLoginController",
+    "handler": "callback",
+    "guards": [],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 122
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/testar",
+    "rawPath": "/v1/auth/sso/testar",
+    "controller": "SsoLoginController",
+    "handler": "testar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 103
+  },
+  {
+    "method": "GET",
+    "path": "/v1/channels/instagram",
+    "rawPath": "/v1/channels/instagram",
+    "controller": "InstagramChannelsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-instagram.ts",
+    "line": 14
+  },
+  {
+    "method": "GET",
+    "path": "/v1/channels/messenger",
+    "rawPath": "/v1/channels/messenger",
+    "controller": "MessengerChannelsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-messenger.ts",
+    "line": 6
+  },
+  {
+    "method": "GET",
+    "path": "/v1/channels/whatsapp/:*/preferences",
+    "rawPath": "/v1/channels/whatsapp/:id/preferences",
+    "controller": "ChannelsController",
+    "handler": "preferences",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 177
+  },
+  {
+    "method": "GET",
+    "path": "/v1/channels/whatsapp/:*/profile",
+    "rawPath": "/v1/channels/whatsapp/:id/profile",
+    "controller": "ChannelsController",
+    "handler": "perfil",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 156
+  },
+  {
+    "method": "GET",
+    "path": "/v1/channels/whatsapp",
+    "rawPath": "/v1/channels/whatsapp",
+    "controller": "ChannelsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 31
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts/:*/labels",
+    "rawPath": "/v1/contacts/:id/labels",
+    "controller": "ContactLabelsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 92
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts/:*",
+    "rawPath": "/v1/contacts/:id",
+    "controller": "ContactsController",
+    "handler": "obter",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 102
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts/imports/:*/failures",
+    "rawPath": "/v1/contacts/imports/:id/failures",
+    "controller": "ContactImportsController",
+    "handler": "falhas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/imports.ts",
+    "line": 57
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts/imports/:*",
+    "rawPath": "/v1/contacts/imports/:id",
+    "controller": "ContactImportsController",
+    "handler": "ler",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/imports.ts",
+    "line": 45
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts/imports",
+    "rawPath": "/v1/contacts/imports",
+    "controller": "ContactImportsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/imports.ts",
+    "line": 37
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contacts",
+    "rawPath": "/v1/contacts",
+    "controller": "ContactsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 63
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversations/:*/messages",
+    "rawPath": "/v1/conversations/:id/messages",
+    "controller": "ConversationsController",
+    "handler": "messages",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 160
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversations/:*",
+    "rawPath": "/v1/conversations/:id",
+    "controller": "ConversationsController",
+    "handler": "obter",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'conversas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 135
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversations",
+    "rawPath": "/v1/conversations",
+    "controller": "ConversationsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'conversas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 81
+  },
+  {
+    "method": "GET",
+    "path": "/v1/convites/:*",
+    "rawPath": "/v1/convites/:token",
+    "controller": "InvitationsController",
+    "handler": "ver",
+    "guards": [],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 68
+  },
+  {
+    "method": "GET",
+    "path": "/v1/crm/contact/:*",
+    "rawPath": "/v1/crm/contact/:contactId",
+    "controller": "CrmController",
+    "handler": "ofContact",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/crm.ts",
+    "line": 51
+  },
+  {
+    "method": "GET",
+    "path": "/v1/crm/dictionary",
+    "rawPath": "/v1/crm/dictionary",
+    "controller": "CrmController",
+    "handler": "dictionary",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/crm.ts",
+    "line": 31
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/channels",
+    "rawPath": "/v1/desk/channels",
+    "controller": "DeskController",
+    "handler": "channels",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 140
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/contacts/:*",
+    "rawPath": "/v1/desk/contacts/:id",
+    "controller": "DeskController",
+    "handler": "contact",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 125
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/contacts",
+    "rawPath": "/v1/desk/contacts",
+    "controller": "DeskController",
+    "handler": "contacts",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 112
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/conversations/:*",
+    "rawPath": "/v1/desk/conversations/:id",
+    "controller": "DeskController",
+    "handler": "conversation",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 75
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/metrics",
+    "rawPath": "/v1/desk/metrics",
+    "controller": "DeskController",
+    "handler": "metrics",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 171
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/queue",
+    "rawPath": "/v1/desk/queue",
+    "controller": "DeskController",
+    "handler": "queue",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 57
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/queues",
+    "rawPath": "/v1/desk/queues",
+    "controller": "DeskController",
+    "handler": "queues",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 102
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/tickets/:*",
+    "rawPath": "/v1/desk/tickets/:id",
+    "controller": "DeskController",
+    "handler": "ticket",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 152
+  },
+  {
+    "method": "GET",
+    "path": "/v1/etiquetas",
+    "rawPath": "/v1/etiquetas",
+    "controller": "LabelsController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 37
+  },
+  {
+    "method": "GET",
+    "path": "/v1/eu",
+    "rawPath": "/v1/eu",
+    "controller": "MeController",
+    "handler": "eu",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/login.ts",
+    "line": 337
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/agents/management",
+    "rawPath": "/v1/management/agents/management",
+    "controller": "ManagementRegistrationsController",
+    "handler": "agents",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 82
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/agents/pauses",
+    "rawPath": "/v1/management/agents/pauses",
+    "controller": "ManagementRegistrationsController",
+    "handler": "pausas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 96
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/agents/permissions",
+    "rawPath": "/v1/management/agents/permissions",
+    "controller": "ManagementRegistrationsController",
+    "handler": "permissionsOfAgent",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 446
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/agents/queues",
+    "rawPath": "/v1/management/agents/queues",
+    "controller": "ManagementRegistrationsController",
+    "handler": "queues",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 89
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/channels",
+    "rawPath": "/v1/management/channels",
+    "controller": "ManagementRegistrationsController",
+    "handler": "channels",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 121
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/communication/responses-ready",
+    "rawPath": "/v1/management/communication/responses-ready",
+    "controller": "ManagementRegistrationsController",
+    "handler": "respostasProntas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 114
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/communication/templates",
+    "rawPath": "/v1/management/communication/templates",
+    "controller": "ManagementRegistrationsController",
+    "handler": "modelos",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 103
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/contract/certificates",
+    "rawPath": "/v1/management/contract/certificates",
+    "controller": "ManagementAccountController",
+    "handler": "certificados",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 170
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/contract/members",
+    "rawPath": "/v1/management/contract/members",
+    "controller": "ManagementAccountController",
+    "handler": "members",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 83
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/contract/summary",
+    "rawPath": "/v1/management/contract/summary",
+    "controller": "ManagementAccountController",
+    "handler": "resumo",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 76
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/deployment",
+    "rawPath": "/v1/management/deployment",
+    "controller": "ManagementAccountController",
+    "handler": "deployment",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 160
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/dashboard",
+    "rawPath": "/v1/management/flows/:id/analytics/dashboard",
+    "controller": "ManagementAnalyticsController",
+    "handler": "dashboard",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 102
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/journey",
+    "rawPath": "/v1/management/flows/:id/analytics/journey",
+    "controller": "ManagementAnalyticsController",
+    "handler": "jornada",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 181
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/log",
+    "rawPath": "/v1/management/flows/:id/analytics/log",
+    "controller": "ManagementAnalyticsController",
+    "handler": "log",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 228
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/messages-active",
+    "rawPath": "/v1/management/flows/:id/analytics/messages-active",
+    "controller": "ManagementAnalyticsController",
+    "handler": "messagesActive",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 135
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/reports",
+    "rawPath": "/v1/management/flows/:id/analytics/reports",
+    "controller": "ManagementAnalyticsController",
+    "handler": "reports",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 211
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/analytics/view-overview",
+    "rawPath": "/v1/management/flows/:id/analytics/view-overview",
+    "controller": "ManagementAnalyticsController",
+    "handler": "visaoGeral",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-analytics.ts",
+    "line": 162
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/builder/versions",
+    "rawPath": "/v1/management/flows/:id/builder/versions",
+    "controller": "ManagementBuilderController",
+    "handler": "versions",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-builder.ts",
+    "line": 66
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/builder",
+    "rawPath": "/v1/management/flows/:id/builder",
+    "controller": "ManagementBuilderController",
+    "handler": "carregar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-builder.ts",
+    "line": 25
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/channel",
+    "rawPath": "/v1/management/flows/:id/channel",
+    "controller": "ManagementFlowController",
+    "handler": "channel",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 234
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/connection",
+    "rawPath": "/v1/management/flows/:id/connection",
+    "controller": "ManagementIntegrationsController",
+    "handler": "conexao",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 108
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/contacts/:*",
+    "rawPath": "/v1/management/flows/:id/contacts/:contactId",
+    "controller": "ManagementFlowController",
+    "handler": "detailOfContact",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 350
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/contacts",
+    "rawPath": "/v1/management/flows/:id/contacts",
+    "controller": "ManagementFlowController",
+    "handler": "contacts",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 339
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/content-items",
+    "rawPath": "/v1/management/flows/:id/content-items",
+    "controller": "ManagementFlowController",
+    "handler": "conteudos",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 400
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/growth",
+    "rawPath": "/v1/management/flows/:id/growth",
+    "controller": "ManagementFlowController",
+    "handler": "growth",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 389
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/keys",
+    "rawPath": "/v1/management/flows/:id/keys",
+    "controller": "ManagementIntegrationsController",
+    "handler": "chaves",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 61
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/links-tracked",
+    "rawPath": "/v1/management/flows/:flowId/links-tracked",
+    "controller": "TrackedLinksController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/rastreador-de-cliques.ts",
+    "line": 40
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/logs",
+    "rawPath": "/v1/management/flows/:id/logs",
+    "controller": "ManagementFlowController",
+    "handler": "logs",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 374
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/menu-persistent",
+    "rawPath": "/v1/management/flows/:id/menu-persistent",
+    "controller": "ManagementFlowController",
+    "handler": "menuPersistente",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 313
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/services",
+    "rawPath": "/v1/management/flows/:id/services",
+    "controller": "ManagementFlowController",
+    "handler": "servicos",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 416
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/team/i",
+    "rawPath": "/v1/management/flows/:id/team/i",
+    "controller": "ManagementTeamController",
+    "handler": "minhas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-team.ts",
+    "line": 49
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/team",
+    "rawPath": "/v1/management/flows/:id/team",
+    "controller": "ManagementTeamController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-team.ts",
+    "line": 35
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*/welcome",
+    "rawPath": "/v1/management/flows/:id/welcome",
+    "controller": "ManagementFlowController",
+    "handler": "boasVindas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 283
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows/:*",
+    "rawPath": "/v1/management/flows/:id",
+    "controller": "ManagementFlowController",
+    "handler": "contact",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 214
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/flows",
+    "rawPath": "/v1/management/flows",
+    "controller": "ManagementFlowController",
+    "handler": "grade",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 195
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/header",
+    "rawPath": "/v1/management/header",
+    "controller": "ManagementOperationsController",
+    "handler": "cabecalho",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 117
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/history",
+    "rawPath": "/v1/management/history",
+    "controller": "ManagementOperationsController",
+    "handler": "history",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 223
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/monitoring/conversations/:*",
+    "rawPath": "/v1/management/monitoring/conversations/:id",
+    "controller": "ManagementOperationsController",
+    "handler": "previewOfConversation",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 146
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/monitoring",
+    "rawPath": "/v1/management/monitoring",
+    "controller": "ManagementOperationsController",
+    "handler": "monitoring",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 127
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/quality-review/:*",
+    "rawPath": "/v1/management/quality-review/:id",
+    "controller": "ManagementOperationsController",
+    "handler": "ficha",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 322
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/quality-review",
+    "rawPath": "/v1/management/quality-review",
+    "controller": "ManagementOperationsController",
+    "handler": "qualityReview",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 300
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/reports/attendance",
+    "rawPath": "/v1/management/reports/attendance",
+    "controller": "ManagementOperationsController",
+    "handler": "reportOfAttendance",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 247
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/reports/effort",
+    "rawPath": "/v1/management/reports/effort",
+    "controller": "ManagementOperationsController",
+    "handler": "reportOfEffort",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 269
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/reports/satisfaction",
+    "rawPath": "/v1/management/reports/satisfaction",
+    "controller": "ManagementOperationsController",
+    "handler": "reportOfSatisfaction",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 284
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/rules/attendance",
+    "rawPath": "/v1/management/rules/attendance",
+    "controller": "ManagementRegistrationsController",
+    "handler": "rulesOfAttendance",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 65
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/rules/priority",
+    "rawPath": "/v1/management/rules/priority",
+    "controller": "ManagementRegistrationsController",
+    "handler": "rulesOfPriority",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 149
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/rules/schedules",
+    "rawPath": "/v1/management/rules/schedules",
+    "controller": "ManagementRegistrationsController",
+    "handler": "horarios",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 72
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/settings/data",
+    "rawPath": "/v1/management/settings/data",
+    "controller": "ManagementRegistrationsController",
+    "handler": "data",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 135
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/settings/general",
+    "rawPath": "/v1/management/settings/general",
+    "controller": "ManagementRegistrationsController",
+    "handler": "general",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 142
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/settings/rules",
+    "rawPath": "/v1/management/settings/rules",
+    "controller": "ManagementRegistrationsController",
+    "handler": "regrasDeSla",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 128
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/settings/words-forbidden",
+    "rawPath": "/v1/management/settings/words-forbidden",
+    "controller": "ManagementRegistrationsController",
+    "handler": "listarPalavrasProibidas",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 354
+  },
+  {
+    "method": "GET",
+    "path": "/v1/management/webhooks",
+    "rawPath": "/v1/management/webhooks",
+    "controller": "ManagementIntegrationsController",
+    "handler": "webhooks",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 144
+  },
+  {
+    "method": "GET",
+    "path": "/v1/messages-active/limits",
+    "rawPath": "/v1/messages-active/limits",
+    "controller": "ActiveMessagesController",
+    "handler": "limites",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/messages-active.ts",
+    "line": 29
+  },
+  {
+    "method": "GET",
+    "path": "/v1/messages-active",
+    "rawPath": "/v1/messages-active",
+    "controller": "ActiveMessagesController",
+    "handler": "application",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/messages-active.ts",
+    "line": 40
+  },
+  {
+    "method": "GET",
+    "path": "/v1/queues",
+    "rawPath": "/v1/queues",
+    "controller": "QueuesController",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Scopes",
+        "args": [
+          "'filas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 264
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sso",
+    "rawPath": "/v1/sso",
+    "controller": "SsoConnectionController",
+    "handler": "ver",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 52
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/instagram/:*",
+    "rawPath": "/webhooks/instagram/:canalId",
+    "controller": "InstagramWebhookController",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controllers/webhooks-instagram.ts",
+    "line": 16
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/messenger/:*",
+    "rawPath": "/webhooks/messenger/:canalId",
+    "controller": "MessengerWebhookController",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controllers/webhooks-messenger.ts",
+    "line": 4
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/whatsapp/:*",
+    "rawPath": "/webhooks/whatsapp/:canalId",
+    "controller": "WhatsAppWebhookController",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controllers/webhooks-whatsapp.ts",
+    "line": 17
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/whatsapp",
+    "rawPath": "/webhooks/whatsapp",
+    "controller": "WhatsAppWebhookController",
+    "handler": "checkOfAccount",
+    "guards": [],
+    "file": "apps/api/src/controllers/webhooks-whatsapp.ts",
+    "line": 75
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/account",
+    "rawPath": "/v1/account",
+    "controller": "MyAccountController",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/my-account.ts",
+    "line": 171
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/channels/whatsapp/:*/preferences",
+    "rawPath": "/v1/channels/whatsapp/:id/preferences",
+    "controller": "ChannelsController",
+    "handler": "writePreferences",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 188
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/channels/whatsapp/:*/profile",
+    "rawPath": "/v1/channels/whatsapp/:id/profile",
+    "controller": "ChannelsController",
+    "handler": "gravarPerfil",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 164
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/contacts/:*",
+    "rawPath": "/v1/contacts/:id",
+    "controller": "ContactsController",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 164
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/agents/pauses/:*",
+    "rawPath": "/v1/management/agents/pauses/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editarMotivoPausa",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 532
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/agents/permissions",
+    "rawPath": "/v1/management/agents/permissions",
+    "controller": "ManagementRegistrationsController",
+    "handler": "savePermissionsOfAgent",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 463
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/agents/queues/:*",
+    "rawPath": "/v1/management/agents/queues/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editQueue",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 170
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/communication/responses-ready/:*",
+    "rawPath": "/v1/management/communication/responses-ready/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editarRespostaPronta",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 490
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/flows/:*/menu-persistent",
+    "rawPath": "/v1/management/flows/:id/menu-persistent",
+    "controller": "ManagementFlowController",
+    "handler": "salvarMenuPersistenteRota",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 324
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/flows/:*/services/:*",
+    "rawPath": "/v1/management/flows/:id/services/:serviceId",
+    "controller": "ManagementFlowController",
+    "handler": "editService",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 445
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/flows/:*/team/:*",
+    "rawPath": "/v1/management/flows/:id/team/:userId",
+    "controller": "ManagementTeamController",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-team.ts",
+    "line": 77
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/flows/:*/welcome",
+    "rawPath": "/v1/management/flows/:id/welcome",
+    "controller": "ManagementFlowController",
+    "handler": "salvarBoasVindasRota",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 294
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/flows/:*",
+    "rawPath": "/v1/management/flows/:id",
+    "controller": "ManagementFlowController",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 158
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/rules/attendance/:*",
+    "rawPath": "/v1/management/rules/attendance/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editRuleQueue",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 236
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/rules/priority/:*",
+    "rawPath": "/v1/management/rules/priority/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editRulePriority",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 417
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/rules/schedules/exceptions/:*",
+    "rawPath": "/v1/management/rules/schedules/exceptions/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editExceptionSchedule",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 288
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/rules/schedules/ranges/:*",
+    "rawPath": "/v1/management/rules/schedules/ranges/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editarFaixaHorario",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 263
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/settings/rules/:*",
+    "rawPath": "/v1/management/settings/rules/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editarRegraSla",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 327
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/settings/words-forbidden/:*",
+    "rawPath": "/v1/management/settings/words-forbidden/:id",
+    "controller": "ManagementRegistrationsController",
+    "handler": "editarPalavraProibida",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 375
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/management/webhooks/:*",
+    "rawPath": "/v1/management/webhooks/:webhookId",
+    "controller": "ManagementIntegrationsController",
+    "handler": "editarWebhook",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 169
+  },
+  {
+    "method": "POST",
+    "path": "/v1/accounts/exchange",
+    "rawPath": "/v1/accounts/exchange",
+    "controller": "MyAccountController",
+    "handler": "exchange",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/my-account.ts",
+    "line": 261
+  },
+  {
+    "method": "POST",
+    "path": "/v1/accounts",
+    "rawPath": "/v1/accounts",
+    "controller": "AccountsController",
+    "handler": "create",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/accounts.ts",
+    "line": 10
+  },
+  {
+    "method": "POST",
+    "path": "/v1/agents/status",
+    "rawPath": "/v1/agents/status",
+    "controller": "AgentsController",
+    "handler": "status",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'atendentes:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 330
+  },
+  {
+    "method": "POST",
+    "path": "/v1/attachments",
+    "rawPath": "/v1/attachments",
+    "controller": "AttachmentsController",
+    "handler": "up",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/attachments.ts",
+    "line": 18
+  },
+  {
+    "method": "POST",
+    "path": "/v1/auth/descobrir",
+    "rawPath": "/v1/auth/descobrir",
+    "controller": "SsoLoginController",
+    "handler": "descobrir",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 94
+  },
+  {
+    "method": "POST",
+    "path": "/v1/auth/sair",
+    "rawPath": "/v1/auth/sair",
+    "controller": "LoginController",
+    "handler": "sair",
+    "guards": [],
+    "file": "apps/api/src/controllers/login.ts",
+    "line": 313
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/instagram/manual",
+    "rawPath": "/v1/channels/instagram/manual",
+    "controller": "InstagramChannelsController",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-instagram.ts",
+    "line": 23
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/messenger/manual",
+    "rawPath": "/v1/channels/messenger/manual",
+    "controller": "MessengerChannelsController",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels-messenger.ts",
+    "line": 7
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/whatsapp/:*/templates/sync",
+    "rawPath": "/v1/channels/whatsapp/:id/templates/sync",
+    "controller": "ChannelsController",
+    "handler": "sincronizarModelos",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 201
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/whatsapp/:*/templates",
+    "rawPath": "/v1/channels/whatsapp/:id/templates",
+    "controller": "ChannelsController",
+    "handler": "createTemplate",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 214
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/whatsapp/manual",
+    "rawPath": "/v1/channels/whatsapp/manual",
+    "controller": "ChannelsController",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 105
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/whatsapp/state",
+    "rawPath": "/v1/channels/whatsapp/state",
+    "controller": "ChannelsController",
+    "handler": "iniciar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 42
+  },
+  {
+    "method": "POST",
+    "path": "/v1/channels/whatsapp",
+    "rawPath": "/v1/channels/whatsapp",
+    "controller": "ChannelsController",
+    "handler": "conectar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/channels.ts",
+    "line": 60
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contacts/:*/labels",
+    "rawPath": "/v1/contacts/:id/labels",
+    "controller": "ContactLabelsController",
+    "handler": "aplicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 104
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contacts/imports",
+    "rawPath": "/v1/contacts/imports",
+    "controller": "ContactImportsController",
+    "handler": "import",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/imports.ts",
+    "line": 19
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contacts",
+    "rawPath": "/v1/contacts",
+    "controller": "ContactsController",
+    "handler": "create",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "Scopes",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/catalogo.ts",
+    "line": 120
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/close",
+    "rawPath": "/v1/conversations/:id/close",
+    "controller": "ConversationsController",
+    "handler": "encerrar",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 287
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/labels",
+    "rawPath": "/v1/conversations/:id/labels",
+    "controller": "ConversationLabelsController",
+    "handler": "aplicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/etiquetas.ts",
+    "line": 55
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/messages/:*/resend",
+    "rawPath": "/v1/conversations/:id/messages/:messageId/resend",
+    "controller": "ConversationsController",
+    "handler": "reenviar",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 309
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/messages/attachments",
+    "rawPath": "/v1/conversations/:id/messages/attachments",
+    "controller": "ConversationsController",
+    "handler": "sendBatchOfAttachments",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 250
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/messages",
+    "rawPath": "/v1/conversations/:id/messages",
+    "controller": "ConversationsController",
+    "handler": "enviar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 216
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/transfer",
+    "rawPath": "/v1/conversations/:id/transfer",
+    "controller": "ConversationsController",
+    "handler": "transferir",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 323
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversations/:*/wait",
+    "rawPath": "/v1/conversations/:id/wait",
+    "controller": "ConversationsController",
+    "handler": "espera",
+    "guards": [
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/conversations.ts",
+    "line": 352
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites/:*/aceitar",
+    "rawPath": "/v1/convites/:token/aceitar",
+    "controller": "InvitationsController",
+    "handler": "aceitar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 82
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites/:*/reenviar",
+    "rawPath": "/v1/convites/:id/reenviar",
+    "controller": "InvitationsController",
+    "handler": "reenviar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 45
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites",
+    "rawPath": "/v1/convites",
+    "controller": "InvitationsController",
+    "handler": "create",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 16
+  },
+  {
+    "method": "POST",
+    "path": "/v1/crm/dictionary/sync",
+    "rawPath": "/v1/crm/dictionary/sync",
+    "controller": "CrmController",
+    "handler": "syncDictionary",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      },
+      {
+        "name": "HttpCode",
+        "args": [
+          "202"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/crm.ts",
+    "line": 41
+  },
+  {
+    "method": "POST",
+    "path": "/v1/desk/actions/:*",
+    "rawPath": "/v1/desk/actions/:acao",
+    "controller": "DeskController",
+    "handler": "acao",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/desk.ts",
+    "line": 202
+  },
+  {
+    "method": "POST",
+    "path": "/v1/dominios/:*/verificar",
+    "rawPath": "/v1/dominios/:id/verificar",
+    "controller": "DomainsController",
+    "handler": "verificar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 119
+  },
+  {
+    "method": "POST",
+    "path": "/v1/dominios",
+    "rawPath": "/v1/dominios",
+    "controller": "DomainsController",
+    "handler": "registrar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/convites.ts",
+    "line": 99
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/actions/:*",
+    "rawPath": "/v1/management/actions/:acao",
+    "controller": "ManagementRegistrationsController",
+    "handler": "acao",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 563
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/agents/pauses",
+    "rawPath": "/v1/management/agents/pauses",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createReasonPause",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 520
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/agents/queues/:*/agents",
+    "rawPath": "/v1/management/agents/queues/:id/agents",
+    "controller": "ManagementRegistrationsController",
+    "handler": "linkAgent",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 195
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/agents/queues",
+    "rawPath": "/v1/management/agents/queues",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createQueue",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 158
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/communication/responses-ready",
+    "rawPath": "/v1/management/communication/responses-ready",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createResponseReady",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 478
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/contract/certificates",
+    "rawPath": "/v1/management/contract/certificates",
+    "controller": "ManagementAccountController",
+    "handler": "cadastrarCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 181
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/contract/members/delete",
+    "rawPath": "/v1/management/contract/members/delete",
+    "controller": "ManagementAccountController",
+    "handler": "deleteMembers",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 126
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/contract/members/role",
+    "rawPath": "/v1/management/contract/members/role",
+    "controller": "ManagementAccountController",
+    "handler": "exchangeRole",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-account.ts",
+    "line": 96
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/builder/publish",
+    "rawPath": "/v1/management/flows/:id/builder/publish",
+    "controller": "ManagementBuilderController",
+    "handler": "publicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-builder.ts",
+    "line": 52
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/builder/versions/:*/restore",
+    "rawPath": "/v1/management/flows/:id/builder/versions/:version/restore",
+    "controller": "ManagementBuilderController",
+    "handler": "restore",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-builder.ts",
+    "line": 79
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/keys",
+    "rawPath": "/v1/management/flows/:id/keys",
+    "controller": "ManagementIntegrationsController",
+    "handler": "createKey",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 74
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/links-tracked",
+    "rawPath": "/v1/management/flows/:flowId/links-tracked",
+    "controller": "TrackedLinksController",
+    "handler": "create",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/rastreador-de-cliques.ts",
+    "line": 56
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/services",
+    "rawPath": "/v1/management/flows/:id/services",
+    "controller": "ManagementFlowController",
+    "handler": "createService",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 431
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows/:*/team",
+    "rawPath": "/v1/management/flows/:id/team",
+    "controller": "ManagementTeamController",
+    "handler": "adicionar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-team.ts",
+    "line": 62
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/flows",
+    "rawPath": "/v1/management/flows",
+    "controller": "ManagementFlowController",
+    "handler": "create",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 126
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/monitoring/conversations/:*/finalize",
+    "rawPath": "/v1/management/monitoring/conversations/:id/finalize",
+    "controller": "ManagementOperationsController",
+    "handler": "finalizeInMonitoring",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 199
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/monitoring/conversations/:*/notes",
+    "rawPath": "/v1/management/monitoring/conversations/:id/notes",
+    "controller": "ManagementOperationsController",
+    "handler": "speakWithAgent",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 159
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/monitoring/conversations/:*/transfer",
+    "rawPath": "/v1/management/monitoring/conversations/:id/transfer",
+    "controller": "ManagementOperationsController",
+    "handler": "transferInMonitoring",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-operations.ts",
+    "line": 175
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/rules/priority",
+    "rawPath": "/v1/management/rules/priority",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createRulePriority",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 405
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/settings/rules",
+    "rawPath": "/v1/management/settings/rules",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createRuleSla",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 315
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/settings/words-forbidden",
+    "rawPath": "/v1/management/settings/words-forbidden",
+    "controller": "ManagementRegistrationsController",
+    "handler": "createWordForbidden",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-registrations.ts",
+    "line": 363
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/webhooks/:*/test",
+    "rawPath": "/v1/management/webhooks/:webhookId/test",
+    "controller": "ManagementIntegrationsController",
+    "handler": "testarWebhook",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 203
+  },
+  {
+    "method": "POST",
+    "path": "/v1/management/webhooks",
+    "rawPath": "/v1/management/webhooks",
+    "controller": "ManagementIntegrationsController",
+    "handler": "createWebhook",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 151
+  },
+  {
+    "method": "POST",
+    "path": "/v1/messages-active",
+    "rawPath": "/v1/messages-active",
+    "controller": "ActiveMessagesController",
+    "handler": "disparar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "KeyOrSession",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/messages-active.ts",
+    "line": 65
+  },
+  {
+    "method": "POST",
+    "path": "/v1/sso/state",
+    "rawPath": "/v1/sso/state",
+    "controller": "SsoConnectionController",
+    "handler": "state",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 76
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/instagram/:*",
+    "rawPath": "/webhooks/instagram/:canalId",
+    "controller": "InstagramWebhookController",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/webhooks-instagram.ts",
+    "line": 32
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/messenger/:*",
+    "rawPath": "/webhooks/messenger/:canalId",
+    "controller": "MessengerWebhookController",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/webhooks-messenger.ts",
+    "line": 5
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/whatsapp/:*",
+    "rawPath": "/webhooks/whatsapp/:canalId",
+    "controller": "WhatsAppWebhookController",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/webhooks-whatsapp.ts",
+    "line": 36
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/whatsapp",
+    "rawPath": "/webhooks/whatsapp",
+    "controller": "WhatsAppWebhookController",
+    "handler": "receiveOfAccount",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controllers/webhooks-whatsapp.ts",
+    "line": 89
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/management/flows/:*/builder",
+    "rawPath": "/v1/management/flows/:id/builder",
+    "controller": "ManagementBuilderController",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-builder.ts",
+    "line": 38
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/management/flows/:*/channel",
+    "rawPath": "/v1/management/flows/:id/channel",
+    "controller": "ManagementFlowController",
+    "handler": "connectChannel",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-flow.ts",
+    "line": 246
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/management/flows/:*/connection",
+    "rawPath": "/v1/management/flows/:id/connection",
+    "controller": "ManagementIntegrationsController",
+    "handler": "salvarConexao",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/management-integrations.ts",
+    "line": 121
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/sso",
+    "rawPath": "/v1/sso",
+    "controller": "SsoConnectionController",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "WithSession",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controllers/sso.ts",
+    "line": 62
+  }
+]
