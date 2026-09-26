@@ -8,18 +8,7 @@ import { sendMessage } from './envio.js';
 import { emitir } from '../webhooks-saida.js';
 
 /**
- * Mensagem ativa: disparar template para uma LISTA de contatos.
- *
- * É a aba mais pesada do Desk, e o levantamento está em
- * `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`. Os números daqui são os da Blip.
- *
- * **O envio em si não é reimplementado.** Cada contato passa por `enviarMensagem`, que
- * já sabe janela de 24h, outbox, posicionamento de variável de template, evento e
- * webhook. O que existe aqui é só o que a lista acrescenta: resolver o contato, as
- * recusas, e o teto do lote.
- *
- * **Nunca é tudo-ou-nada.** Um número inválido no meio de quinze não pode derrubar os
- * catorze bons — cada contato tem o próprio resultado, como na tela deles.
+ * Active message sends a template to a list of contacts, following `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and Blip's limits. Reuse `enviarMensagem` for the 24-hour window, outbox, template variable positions, event, and webhook; this module adds contact resolution, rejection, and batch cap. Results are per contact: one invalid number must not reject the other valid contacts.
  */
 
 /** `SELECTED_CONTACT_LIST_LIMIT` = 15 (config `ActiveMessageLimitBatchDispatch`). */
@@ -28,8 +17,7 @@ export const MAX_CONTACTS_BY_TRIGGER = Number(
 );
 
 /**
- * `ActiveMessageLimitCount`, quantas ativas o MESMO contato pode receber por dia.
- * Zero desliga o limite — é o padrão deles.
+ * `ActiveMessageLimitCount` caps active messages to the same contact per day; zero disables the limit, as in Blip's default.
  */
 export const DAILY_LIMIT_BY_CONTACT = Number(
   process.env['PIPE_MENSAGEM_ATIVA_LIMITE_DIARIO'] ?? 0,
@@ -42,11 +30,11 @@ export type MotivoDeRecusa =
   | 'contact_duplicated';
 
 export interface DestinationOfTrigger {
-  /** Um dos dois: contato já cadastrado, ou telefone para achar/cadastrar. */
+  /** Either an existing contact or a phone number to find or register. */
   contatoId?: string | null;
   phone?: string | null;
   name?: string | null;
-  /** Variáveis do corpo só deste contato. Sem elas, valem as do lote. */
+  /** Body variables for this contact; fall back to batch variables when absent. */
   parametros?: string[] | null;
 }
 
@@ -66,22 +54,15 @@ export interface PedidoDeDisparo {
   templateId: string;
   destinos: DestinationOfTrigger[];
   parametros?: string[];
-  /** Quem disparou. A conversa criada nasce com essa pessoa, como no Desk deles. */
+  /** Initiating agent; assign the new conversation to that person, as in Blip Desk. */
   agentId?: string | null;
 }
 
 /**
- * E.164: `+` e de 8 a 15 dígitos. Para o Brasil, exige DDI 55 + DDD + 8 ou 9 dígitos.
- *
- * A Blip mostra "Número de telefone pode ser inválido" e, com
- * `active-message-block-invalid-phonenumber`, bloqueia. Aqui bloqueia sempre: mandar
- * template para número inválido gasta a conversa cobrada da Meta e não entrega nada.
+ * E.164 requires `+` and 8–15 digits; for Brazil require country code 55, area code, and an 8- or 9-digit number. Blip displays "Número de telefone pode ser inválido" and blocks with `active-message-block-invalid-phonenumber`. Always block here: an invalid number incurs Meta's charged conversation without delivering the template.
  */
 export function telefoneValido(bruto: string): boolean {
-  // Só a PONTUAÇÃO de formatação sai: espaço, parênteses, traço e ponto. Letra e
-  // qualquer outro caractere reprovam o número em vez de serem apagados — jogar fora
-  // o que não se entende transformaria um telefone digitado errado em outro telefone
-  // válido, e o template sairia (cobrado pela Meta) para a pessoa errada.
+  // Strip formatting punctuation only: spaces, parentheses, hyphens, and periods. Reject letters and all other characters instead of deleting them; otherwise a mistyped number could become a different valid number and send a Meta-billed template to the wrong person.
   const limpo = bruto.replace(/[\s()\-.]/g, '');
   if (!/^\+\d{8,15}$/.test(limpo)) return false;
   if (limpo.startsWith('+55')) return /^\+55\d{2}\d{8,9}$/.test(limpo);
@@ -111,9 +92,7 @@ export async function dispararMessageActive(
   const resultados: ResultOfDestination[] = [];
   const jaVistos = new Set<string>();
 
-  // Em SÉRIE, e não `Promise.all`: cada destino abre a própria transação, e paralelo
-  // na mesma conexão derruba o `set_config('pipe.tenant_id')`. Aqui isso escreveria
-  // mensagem no tenant errado — o pior lugar possível.
+  // Run serially, never with `Promise.all`: each destination opens its own transaction. Parallel work on one connection can lose `set_config('pipe.tenant_id')` and write a message under the wrong tenant.
   for (const destination of pedido.destinos) {
     resultados.push(await aDestination(canal, pedido, destination, jaVistos));
   }
@@ -138,8 +117,7 @@ async function aDestination(
   }
   jaVistos.add(key);
 
-  // Preparo e recusas numa transação; o envio vai em outra, pela mesma razão de
-  // sempre: não segurar conexão enquanto se fala com serviço externo.
+  // Prepare and validate in one transaction; send in another so the database connection is not held during an external call.
   const preparo = await noTenant(pedido.tenantId, async (tx) => {
     const contactId = destino.contatoId ?? (await findOrCreateByPhone(tx, channel, telefone!, destino.name ?? null));
 
@@ -148,8 +126,7 @@ async function aDestination(
        where contato_id = ${contactId}::uuid and estado <> 'encerrada' limit 1
     `);
     if (inAttendance[0]) {
-      // Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —
-      // e `enviarMensagem` já manda template fora da janela quando preciso.
+      // Blip code 1602: an open conversation uses the normal send path, not active messaging. `enviarMensagem` already uses a template outside the window when needed.
       return { contactId, recusa: 'ja_em_atendimento' as const };
     }
 
@@ -190,8 +167,7 @@ async function aDestination(
       conversationId: preparo.conversationId!,
     };
   } catch (error) {
-    // Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do
-    // disparo, não daquele contato. Qualquer outra falha fica no contato.
+    // A rejected or missing template fails the entire batch because it is a send configuration error, not a contact error. Keep other failures on their individual contacts.
     if (error instanceof PipeError && error.status === 404) throw error;
     if (error instanceof PipeError && error.codigo === 'template_nao_aprovado') throw error;
     return {
@@ -210,9 +186,8 @@ async function findOrCreateByPhone(
   telefone: string,
   nome: string | null,
 ): Promise<string> {
-  // O identificador do WhatsApp é o telefone SEM o `+` — a mesma forma que
+  // The WhatsApp identifier is the phone number without `+`; keep that canonical form to avoid parallel conversations for the same person when their first reply arrives.
   // `acharOuCriarContato` usa no caminho de entrada. Divergir aqui criaria um contato
-  // paralelo para a mesma pessoa na primeira mensagem que ela respondesse.
   const identificador = telefone.replace(/^\+/, '');
   const { rows } = await tx.execute<{ contactId: string }>(sql`
     select contato_id from contato_identidade
@@ -244,15 +219,7 @@ async function findOrCreateByPhone(
 }
 
 /**
- * A conversa que a mensagem ativa abre.
- *
- * Nasce **atribuída a quem disparou** quando o disparo veio de gente: foi essa pessoa
- * que iniciou o contato e é ela que vai receber a resposta, como no Desk deles. Via
- * chave de API não há dono, e a conversa cai na fila para a distribuição resolver.
- *
- * `janela_expira_em` fica NULO de propósito: quem abre a janela de 24h é a resposta do
- * cliente, não o nosso disparo. Marcar a janela aqui faria o Desk oferecer texto livre
- * antes de o cliente ter respondido — e a Meta recusaria.
+ * Conversation opened by an active message. Assign it to the initiating agent when a person triggers the send, so that agent receives the reply, as in Blip Desk. API-key sends have no owner and go to the queue for distribution. Leave `janela_expira_em` null deliberately: the customer's reply opens the 24-hour window, not our outbound send. Setting it now would offer free-form text before the customer replies and Meta would reject it.
  */
 async function openConversationOfTrigger(
   tx: TransactionPipe,
@@ -319,11 +286,7 @@ export interface LineOfApplication {
 }
 
 /**
- * O painel de status das mensagens ativas: **últimas 72 horas**, como o deles.
- *
- * Sai de `mensagem`, e não de tabela própria: o disparo já é um conjunto de mensagens
- * com `template_id`, e uma segunda tabela dizendo a mesma coisa seria uma segunda
- * verdade para divergir.
+ * Active-message status panel covers the last 72 hours, as in Blip. Derive it from `mensagem`: a send already produces messages with `template_id`, and a second table would create another source of truth.
  */
 export async function applicationOfActive(
   tenantId: string,

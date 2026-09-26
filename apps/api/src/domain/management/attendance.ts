@@ -82,7 +82,7 @@ export interface AttendanceFilter {
   agentId?: string | undefined;
 }
 
-/** Aplica as cinco métricas de tempo e a contagem de encerramentos a um recorte. */
+
 function medir(conversas: readonly ConversationEvents[]): BlockOfTimes {
   return {
     inQueue: timeInQueue(conversas),
@@ -96,13 +96,7 @@ function medir(conversas: readonly ConversationEvents[]): BlockOfTimes {
 }
 
 /**
- * Dobra o conjunto por uma chave e mede cada grupo.
- *
- * `porDimensao` do core resolveria a dobra, mas a assinatura dele devolve
- * `ResultadoMetrica` por grupo, e a quebra da tela precisa das cinco métricas
- * MAIS a contagem de encerramentos no mesmo grupo — que não é
- * `ResultadoMetrica`. Então a dobra é feita aqui e a conta continua toda no
- * core, com a mesma ordenação determinística por chave que ele usa.
+ * Group by key and measure each group. Core's `porDimensao` returns `ResultadoMetrica` per group, but this screen also needs closure counts. Group here, calculate in core, and retain core's deterministic key order.
  */
 type EixoDeQuebra = 'queue' | 'agent' | 'inbox';
 
@@ -126,15 +120,7 @@ function quebrar(
 }
 
 /**
- * Quebra por chave de MUITOS PARA UM — a etiqueta.
- *
- * Uma conversa com três etiquetas entra em três linhas, e por isso a soma das
- * linhas passa do total do período. Isso é correto e precisa estar escrito na
- * tela: a pergunta "quanto tempo leva um atendimento de cobrança" não tem como
- * ser respondida sem contar a mesma conversa em cada assunto que ela teve.
- *
- * O que NÃO fazemos é o que o Chatwoot faz: lá a coluna de contagem conta
- * marcações (`taggings`), não conversas distintas, e ninguém avisa.
+ * Break down by the many-to-one label key. A conversation with three labels appears in three rows, so the row totals exceed the period total. The screen must say so: measuring a billing ticket requires counting a conversation under every topic it had. Unlike Chatwoot, count distinct conversations, not `taggings` without explanation.
  */
 function quebrarByMuitas(
   eventsByConversation: ReadonlyMap<string, ConversationEvents>,
@@ -167,8 +153,8 @@ export async function loadAttendance(
       filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
-    // Duas consultas em SÉRIE: dentro do `comTenant` nada roda em paralelo, sob
-    // pena de o `pipe.tenant_id` da transação sumir.
+    // Run the two queries IN SERIES: inside `comTenant`, parallel execution can
+    // lose the transaction's `pipe.tenant_id`.
     const linhas = await tx
       .select({
         id: conversation.id,
@@ -194,8 +180,8 @@ export async function loadAttendance(
       };
     }
 
-    // Os eventos vêm pelo mesmo recorte, e não por lista de ids: o período
-    // inteiro de um relatório passa fácil dos milhares de conversas.
+    // Load events for the same period, not through an ID list: a complete
+    // report can contain thousands of conversations.
     const eventos = await tx
       .select({
         conversaId: eventAttendance.conversaId,
@@ -223,9 +209,9 @@ export async function loadAttendance(
       else byConversation.set(e.conversaId, [evento]);
     }
 
-    // As etiquetas das mesmas conversas, pelo mesmo recorte. Uma consulta, em
-    // série como as outras — e ela vem depois porque só faz sentido se houver
-    // conversa no período.
+    // Fetch labels for those conversations over the same period in one query,
+    // serially after the others; it is only useful when there are
+    // conversations in the period.
     const vinculos = await tx
       .select({ conversationId: conversationLabel.conversaId, key: etiqueta.nome })
       .from(conversationLabel)

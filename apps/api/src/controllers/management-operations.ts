@@ -33,13 +33,7 @@ import { closeConversation, transferConversation } from '../domain/conversation.
 import { exigirPermission } from '../session.js';
 
 /**
- * A OPERAÇÃO da Gestão — monitoramento, histórico, relatórios e monitoria —
- * por sessão de navegador. As consultas são as de `dominio/gestao/*`, movidas
- * da Gestão em Next; aqui só se resolve fuso, janela e filtro, como as páginas
- * faziam no servidor.
- *
- * Todo id de filtro passa por `uuidOuNada` e toda data por `dataOuNada`: link
- * colado com `?fila=abc` vira "sem filtro", não 500 no `::uuid` do Postgres.
+ * Management operations (monitoring, history, reports and quality review) use browser sessions. Queries moved from Next Management to `dominio/gestao/*`; this adapter resolves timezone, window and filters as the server pages did. Filter IDs pass through `uuidOuNada` and dates through `dataOuNada`, so a pasted `?fila=abc` becomes no filter rather than a Postgres `::uuid` 500.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
@@ -48,7 +42,7 @@ const uuidsOfFilter = (v?: string | string[]) => [...new Set((Array.isArray(v) ?
   .flatMap(item => item.split(',')).map(item => item.trim()).filter(item => UUID.test(item)))];
 const dataOuNada = (v?: string) => (v && DATA.test(v) ? v : undefined);
 
-/** O período pedido, ou os últimos `dias` dias incluindo hoje. */
+/** Use the requested period or the last `dias` days, including today. */
 async function period(
   tx: TransactionPipe,
   fuso: string,
@@ -62,7 +56,7 @@ async function period(
   return { de: deFinal, ate: ateFinal, window: await windowOfDatas(tx, fuso, deFinal, ateFinal) };
 }
 
-/** Apenas o Histórico conta 30 datas civis, inclusive em mudança de fuso/DST. */
+/** Only History counts 30 civil dates, including across timezone or DST changes. */
 async function periodHistory(
   tx: TransactionPipe,
   fuso: string,
@@ -80,7 +74,7 @@ async function periodHistory(
 
 export interface ResponseOfMonitoring {
   fuso: string;
-  /** O dia de hoje no fuso da conta, para o título. */
+  /** Today in the account timezone, for the title. */
   janela: { start: Date; end: Date };
   data: Monitoring;
 }
@@ -119,12 +113,12 @@ export interface ResponseOfQualityReview {
 
 @Controller('v1/management')
 export class ManagementOperationsController {
-  /** As duas barras do topo: canais e avisos. Conta e pessoa vêm de `GET /v1/eu`. */
+  /** The two top bars contain channels and notices; account and person come from `GET /v1/eu`. */
   @Get('header')
   @WithSession()
   async cabecalho(@Req() request: RequestWithSession): Promise<HeaderOfManagement> {
     const session = sessionOf(request);
-    /* Banco fora do ar não pode apagar a barra: os canais somem, a tela fica. */
+    /* A database outage must not remove the top bar: channels disappear, but the screen remains. */
     return noTenant(session.tenantId, (tx) => carregarCabecalho(tx)).catch(
       (): HeaderOfManagement => ({ channels: [], avisos: 0 }),
     );
@@ -297,7 +291,7 @@ export class ManagementOperationsController {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
-      /* Satisfação olha 30 dias por padrão: pesquisa respondida é mais rara que conversa. */
+      /* Satisfaction defaults to 30 days because completed surveys are rarer than conversations. */
       const p = await period(tx, fuso, dataOuNada(de), dataOuNada(ate), 30);
       return { fuso, de: p.de, ate: p.ate, relatorio: await loadSatisfaction(tx, p.window) };
     });

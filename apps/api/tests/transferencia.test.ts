@@ -16,13 +16,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Transferência: encerra a conversa e abre outra no destino.
- *
- * Não é transição de estado — está decidido em `packages/core/src/conversa/maquina.ts`
- * ("Transferência não é transição: ela encerra a conversa … e abre outra no destino"),
- * que é a regra da Blip. Estes testes trancam as consequências que doem se forem
- * esquecidas: a janela de 24h herdada, o evento de encerramento com
- * `encerrada_por = transferencia`, e a linha em `atribuicao` que costura as duas.
+ * Transfer: closes the conversation and opens another one at the destination. This is not a state transition — it is decided in `packages/core/src/conversa/maquina.ts` ("Transfer is not a transition: it closes the conversation … and opens another at the destination"), which is Blip's rule. These tests lock down the consequences that hurt if forgotten: the inherited 24h window, the closing event with `encerrada_por = transferencia`, and the `atribuicao` row that stitches the two together.
  */
 
 let cenario: Cenario;
@@ -149,7 +143,7 @@ describe('Transfer a conversation to a queue', () => {
       select dados from evento_atendimento
        where conversa_id = ${antiga}::uuid and tipo = 'encerrada' limit 1
     `);
-    // É o que separa, no relatório, a conversa que ACABOU da que só mudou de mãos.
+    // This is what separates, in the report, a conversation that ENDED from one that just changed hands.
     expect(rows[0]?.data['encerrada_por']).toBe('transferencia');
   });
 
@@ -165,7 +159,7 @@ describe('Transfer a conversation to a queue', () => {
     expect(new Date(nova.windowExpiresAt!).getTime()).toBe(
       new Date(antes.windowExpiresAt!).getTime(),
     );
-    // E a última mensagem, senão o fechamento automático trataria a nova como recém-nascida.
+    // And the last message too, otherwise automatic closure would treat the new one as newborn.
     expect(nova.lastMessageOf).toBe('contato');
   });
 
@@ -177,7 +171,7 @@ describe('Transfer a conversation to a queue', () => {
     const nova = await conversation(para_conversa_id);
 
     expect(nova.priority).toBe('alta');
-    // O TMR de quem recebe mede quem recebe — o preço do modelo da Blip.
+    // The receiving agent's TMR measures the receiving agent — the cost of Blip's model.
     expect(nova.firstResponseAt).toBeNull();
   });
 
@@ -266,8 +260,8 @@ describe('recusas', () => {
   });
 
   it('Require `conversa.transferir` to transfer another agent\'s conversation', async () => {
-    // É a diferença entre atendente e supervisor: quem transfere a própria não precisa
-    // da permissão; quem transfere a alheia precisa.
+    // This is the difference between an agent and a supervisor: transferring your own conversation does not require
+    // the permission; transferring someone else's does.
     const deOutro = await newConversation(otherAgentId);
     const resposta = await transferir(deOutro, { para_fila_id: otherQueueId });
     expect(resposta.status).toBe(403);
@@ -280,8 +274,8 @@ describe('recusas', () => {
       returning id
     `);
     const roleId = p[0]!.id;
-    // `conversa.transferir` já vem da semente (`packages/db/src/semente.ts`): a
-    // permissão é catálogo global, não dado de tenant.
+    // `conversa.transferir` already comes from the seed data (`packages/db/src/semente.ts`): the
+    // permission is a global catalog entry, not tenant-specific data.
     await cenario.dono.execute(sql`
       insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
       values (${cenario.tenantId}, ${roleId}, 'conversa.transferir') on conflict do nothing

@@ -3,17 +3,7 @@ import { registrationOfAccountEnabled, buildAccount } from '../domain/builder-of
 import { PipeError } from '../errors.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), a action `create` de
- * app/controllers/api/v1/accounts_controller.rb, com `check_signup_enabled` e
- * `ensure_account_name`.
- *
- * Pública de propósito, como a de lá — e por isso fechada por padrão:
- * `ENABLE_ACCOUNT_SIGNUP=false` responde 404, o `RoutingError 'Not Found'` do
- * original. A spec decide venda assistida (`2026-09-07-implantacao.md` §6.1); o
- * que falta para ligar está no cabeçalho de `dominio/construtor-de-conta.ts`.
- *
- * Resposta igual à do cadastro web não autenticado do original: só o e-mail. Não
- * há sessão aqui — a pessoa entra depois, pelo Google, com aquele e-mail.
+ * Ported from chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts_controller.rb`'s `create` action, including `check_signup_enabled` and `ensure_account_name`. Deliberately public like the original, but disabled by default: `ENABLE_ACCOUNT_SIGNUP=false` returns 404, corresponding to the original `RoutingError 'Not Found'`. Assisted sales is specified in `2026-09-07-implantacao.md` §6.1; the remaining enablement work is documented in `dominio/construtor-de-conta.ts`. As with the original unauthenticated web signup, the response contains only the email. This creates no session; the person later signs in with Google using that email.
  */
 @Controller('v1/accounts')
 export class AccountsController {

@@ -19,16 +19,7 @@ import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 
 /**
- * Anexo: subir, ler e montar o link.
- *
- * Ver `docs/specs/2026-09-07-storage-de-anexos.md`. Três regras que não se dobram:
- *
- * 1. **O tenant vem da credencial, e é o primeiro segmento da chave.** Um cliente
- *    nunca compartilha prefixo com outro.
- * 2. **Nada é servido por URL pública adivinhável por id.** Sai link assinado com 15
- *    minutos, o mesmo modelo de *file token* da Blip.
- * 3. **O tipo é carimbado pelos BYTES.** Extensão e `Content-Type` do upload são texto
- *    que o cliente escreveu; um `.png` que é HTML vira XSS na tela de quem abrir.
+ * Attachment upload, read and link generation follow `docs/specs/2026-09-07-storage-de-anexos.md`. Three invariants: the tenant comes from the credential and is the first storage-key segment, so customers never share a prefix; files are not served from guessable public ID URLs, but through 15-minute signed links like Blip *file tokens*; MIME type is determined from bytes because extension and uploaded `Content-Type` are client claims, and a `.png` containing HTML could execute script for the opener.
  */
 
 let armazem: Storage | null = null;
@@ -38,16 +29,13 @@ export function storage(): Storage {
   return armazem;
 }
 
-/** Só para teste: troca o backend sem subir infra. */
+/** Test helper: replace the storage backend without starting infrastructure. */
 export function useStorage(novo: Storage | null): void {
   armazem = novo;
 }
 
 /**
- * O segredo que assina os links.
- *
- * Reaproveita o chaveiro que já protege o token da Meta — uma chave a menos para
- * rotacionar e um lugar a menos para vazar.
+ * Use the existing keyring that protects Meta tokens to sign links, avoiding another key to rotate and another place a secret could leak.
  */
 function secretOfLink(): string {
   const keyring = keyringOfAmbiente();
@@ -80,7 +68,7 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
     );
   }
 
-  // O tipo real primeiro: o teto de tamanho depende dele, e um vídeo declarado como
+  // Determine the real type before applying the size cap: a video declared as
   // PDF passaria pelo limite de 100 MB em vez do de 16 MB.
   const mime = mimeParaServir(pedido.mimeDeclarado, pedido.data);
   if (!mimeAceito(mime)) {
@@ -106,8 +94,8 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
   const key = keyOfAttachment(pedido.tenantId, pedido.nomeOriginal);
   const checksum = createHash('sha256').update(pedido.data).digest('hex');
 
-  // Grava no storage ANTES do banco: linha sem arquivo é anexo quebrado na tela;
-  // arquivo sem linha é só lixo, e o disco aguenta.
+  // Write to storage before the database: a row without a file is a broken attachment on screen;
+  // a file without a row is only orphaned data that storage can tolerate.
   await storage().guardar(key, pedido.data);
 
   const id = await noTenant(pedido.tenantId, async (tx) => {
@@ -132,11 +120,7 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
 }
 
 /**
- * O link assinado de um anexo, com 15 minutos de validade.
- *
- * É esta URL que a Meta baixa quando mandamos mídia, e é ela que a tela usa. Absoluta
- * porque a Meta busca de fora — `PIPE_STORAGE_URL_BASE` deixa de apontar para um host
- * que não existe e passa a ser a base pública da própria `api`.
+ * Create a signed attachment URL valid for 15 minutes. Meta downloads this URL when we send media, and the screen also uses it. It must be absolute because Meta fetches externally. `PIPE_STORAGE_URL_BASE` should point to the public `api` base rather than a nonexistent host.
  */
 export function linkOfAttachment(attachmentId: string, agora = Date.now()): string {
   const expira = agora + VALIDITY_LINK_MS;
@@ -158,14 +142,7 @@ export interface AttachmentForServe {
 }
 
 /**
- * Lê um anexo a partir de um link assinado.
- *
- * **Não exige sessão de propósito**: a Meta precisa baixar a mídia e não tem cookie
- * nosso. A credencial é a própria assinatura, e por isso ela é curta e por anexo.
- *
- * O tenant é o do ANEXO, resolvido do banco pelo id — não vem da URL. Assinatura
- * prova que o link saiu de nós; a conferência de prefixo prova que o arquivo é do
- * tenant daquele anexo.
+ * Read an attachment through a signed link without requiring a session: Meta must download media but has no Pipe cookie. The short-lived signature for one attachment is the credential. Resolve the tenant from the attachment ID in the database, never from the URL. The signature proves we issued the link; the storage-key prefix check proves the file belongs to that attachment's tenant.
  */
 export async function readAttachmentSigned(
   anexoId: string,
@@ -174,7 +151,7 @@ export async function readAttachmentSigned(
   tenantIdOfAttachment: (id: string) => Promise<{ tenantId: string } | null>,
 ): Promise<AttachmentForServe> {
   if (!assinaturaValida(anexoId, expira, assinatura, secretOfLink())) {
-    // Link vencido e link forjado dão a MESMA resposta: distinguir contaria a quem
+    // Expired and forged links return the same response; distinguishing them would tell a guesser which part was correct.
     // tenta qual metade do palpite acertou.
     throw PipeError.naoAutorizado('Link inválido ou vencido.');
   }
@@ -194,7 +171,7 @@ export async function readAttachmentSigned(
   });
   if (!linha) throw PipeError.naoEncontrado('Anexo');
 
-  // Cinto e suspensório: a chave gravada tem de estar na faixa do tenant dela.
+  // Check again that the stored key lies within its tenant's prefix.
   if (!keyOfTenant(linha.keyStorage, dono.tenantId)) {
     throw PipeError.naoEncontrado('Anexo');
   }

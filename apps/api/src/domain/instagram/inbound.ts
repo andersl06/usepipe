@@ -1,26 +1,7 @@
 import type { MessageOfMeta, ValueOfWebhook } from '../inbound.js';
 
 /**
- * Reconstruído de chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb e
- * app/services/instagram/message_text.rb / incoming_message_service: o evento do
- * Direct traduzido para o MESMO formato que a entrada do WhatsApp já processa
- * (`ValorDoWebhook`). Assim contato, conversa, idempotência por `id_provedor`, fluxo e
- * roteador rodam pelo caminho que já existe em `../entrada.ts`, sem cópia.
- *
- * O formato de entrada (`object: "instagram"`):
- *
- *   entry[].id            — a conta profissional que RECEBEU (o `igUserId` do canal)
- *   entry[].messaging[]   — sender.id (IGSID), recipient.id, timestamp (ms),
- *                           message { mid, text, attachments[], is_echo, is_deleted }
- *                           | postback { mid, title, payload } | read { mid }
- *
- * Diferenças que importam:
- * - `is_echo` é a própria conta falando (inclusive o que a Pipe mandou): ignorado,
- *   como o Chatwoot faz quando o eco é de mensagem que ele mesmo enviou.
- * - o `timestamp` vem em MILISSEGUNDOS; o do WhatsApp, em segundos.
- * - anexo vem com URL, não com `media_id`.
- * - `entry` de outra conta é descartada: o webhook do app do cliente é UM por app, e
- *   um app com duas contas manda as duas para a mesma URL.
+ * Reconstructed from chatwoot/chatwoot (MIT), app/jobs/webhooks/instagram_events_job.rb and app/services/instagram/message_text.rb / incoming_message_service. Map Direct events to the same `ValorDoWebhook` format handled by WhatsApp in `../entrada.ts`, reusing contact, conversation, `id_provedor` idempotency, flow, and router logic. In `object: "instagram"`, `entry[].id` is the receiving professional account (`igUserId`); `entry[].messaging[]` carries sender.id (IGSID), recipient.id, timestamp in milliseconds, and message/postback/read data. Ignore `is_echo`, including Pipe's own messages, as Chatwoot does. WhatsApp timestamps use seconds. Instagram attachments carry URLs rather than `media_id`. Discard entries for another account: a customer's app may send events for multiple accounts to one webhook URL. The webhook's `timestamp` is milliseconds, and `entry` values for other accounts are discarded.
  */
 
 interface AttachmentOfInstagram {
@@ -44,7 +25,7 @@ interface EventoDoInstagram {
   read?: { mid?: string };
 }
 
-/** Tipo de anexo do Instagram → campo de mídia da Meta que `../entrada.ts` entende. */
+/** Map an Instagram attachment type to the Meta media field understood by `../entrada.ts`. */
 const MEDIA: Readonly<Record<string, 'image' | 'video' | 'audio' | 'document'>> = {
   image: 'image',
   video: 'video',
@@ -93,7 +74,7 @@ export function valuesOfInstagram(payload: unknown, igUserId?: string | null): V
       const m = evento.message;
       if (!m?.mid || !de || m.is_echo || m.is_deleted) continue;
 
-      // ponytail: a mensagem da Pipe tem UM anexo; o Direct pode mandar vários no
+      // ponytail: Pipe messages support one attachment, while Direct may send several under the same `mid`. Keep the first attachment and put links to the others in the text until the message model supports multiples.
       // mesmo `mid`. Fica o primeiro, e os demais viram link no texto.
       const [first, ...resto] = m.attachments ?? [];
       const campo = first?.type ? MEDIA[first.type] : undefined;
@@ -112,7 +93,7 @@ export function valuesOfInstagram(payload: unknown, igUserId?: string | null): V
         continue;
       }
 
-      // Texto, ou anexo sem equivalente no Pipe (story_mention, share, ig_reel…): vira texto com o link.
+      // Text or an unsupported attachment (`story_mention`, share, `ig_reel`): convert to text with the link.
       const corpoDoTexto = [m.text, first && !campo ? url : undefined, ...extras].filter(Boolean).join('\n');
       if (!corpoDoTexto) continue;
       messages.push({ from: de, id: m.mid, timestamp, type: 'text', text: { body: corpoDoTexto } });

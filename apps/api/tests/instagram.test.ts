@@ -2,7 +2,7 @@ import { createHmac, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CONEXAO'] = 'duble';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
@@ -26,10 +26,7 @@ const { InstagramChannelsController } = await import('../src/controllers/channel
 import type { RequestWithSession } from '../src/session.js';
 
 /**
- * O canal do Instagram (Direct) pelo caminho manual, com banco de verdade e sem tocar
- * na Meta: conectar (e as recusas), a cifra, o webhook por HTTP, a entrada sem
- * telefone, a idempotência, o eco, a saída pelo worker, desconectar, o isolamento
- * entre clientes e a renovação do token.
+ * The Instagram (Direct) channel through the manual path, against a real database and without touching Meta: connecting (and its rejections), the cipher, the HTTP webhook, inbound messages without a phone number, idempotency, echo, outbound delivery through the worker, disconnecting, isolation between customers, and token renewal.
  */
 
 const URL_DONO = process.env['DATABASE_URL']!;

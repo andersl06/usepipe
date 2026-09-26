@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -28,13 +28,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Entrar, `GET /v1/eu`, sair, `/saude` e `/metrics`.
+ * Login, `GET /v1/eu`, logout, `/saude` and `/metrics`.
  *
- * O que não está aqui e é de propósito: a conversa com o Google. `trocarCodigo` e
- * `entrarComGoogle` já têm teste em `packages/autenticacao`, e repetir a troca de
- * código aqui exigiria dublar o JWKS para provar de novo o que já está provado. O
- * que este arquivo cobre é a casca: o guarda, o formato do `Eu`, a tradução dos
- * códigos de recusa e o que sai em cookie e em redirecionamento.
+ * What's deliberately not here: the conversation with Google. `trocarCodigo` and `entrarComGoogle` already have tests in `packages/autenticacao`, and repeating the code exchange here would require doubling the JWKS to prove again what's already proven. What this file covers is the shell: the guard, the shape of `Eu`, the translation of refusal codes, and what goes out in cookies and redirects.
  */
 
 let cenario: Cenario;
@@ -42,7 +38,7 @@ let api: ApiNoAr;
 let sessionToken: string;
 const PERMISSIONS = ['conversa.responder', 'conversa.ver', 'relatorio.ver'];
 
-/** Dois papéis com permissão em comum: prova que a união vem sem repetido. */
+/** Two roles sharing a permission: proves the union has no duplicates. */
 async function seedIdentity(): Promise<void> {
   const dono = cenario.dono;
   for (const codigo of PERMISSIONS) {
@@ -78,7 +74,7 @@ async function seedIdentity(): Promise<void> {
   }
 }
 
-/** Grava uma sessão viva e devolve o token que iria para o cookie. */
+/** Writes a live session and returns the token that would go into the cookie. */
 async function openSession(durationMs?: number): Promise<string> {
   const novo = createTokencriarTokencreateToken(durationMs);
   await cenario.dono.execute(sql`
@@ -146,7 +142,7 @@ describe('GET /v1/eu', () => {
     expect(eu.tenant.plano).toBe('essencial');
     expect(eu.origem).toBe('google');
 
-    // União dos dois papéis, sem repetir `conversa.ver`.
+    // // Union of both roles, without repeating `conversa.ver`.
     expect(eu.permissions).toEqual(PERMISSIONS);
   });
 
@@ -206,7 +202,7 @@ describe('GET /v1/auth/google', () => {
     expect(cookie).toContain('Max-Age=300');
     expect(cookie).toContain('Path=/v1/auth');
 
-    // O `state` do cookie tem que ser o mesmo que foi para o Google, senão a volta
+    // // The cookie's `state` has to match the one that went to Google, or the callback
     // nunca confere.
     const desafio = lerDesafioDoCookie(cookie);
     expect(desafio.state).toBe(destination.searchParams.get('state'));
@@ -325,11 +321,11 @@ describe('GET /metrics', () => {
     expect(texto).toContain('# TYPE http_request_duration_seconds histogram');
     expect(texto).toContain('http_request_duration_seconds_bucket{');
     expect(texto).toContain('le="+Inf"');
-    // O rótulo é o PADRÃO da rota, nunca o caminho com o uuid dentro.
+    // The label is always the route pattern, never the path containing the uuid.
     expect(texto).toContain('rota="/v1/eu"');
     expect(texto).not.toContain(`rota="/v1/conversations/${cenario.tenantId}`);
 
-    // O balde acumulado nunca pode passar da contagem total da mesma série.
+    // The accumulated bucket can never exceed the total count of the same series.
     const infinito = /http_request_duration_seconds_bucket\{[^}]*le="\+Inf"\} (\d+)/.exec(texto);
     const count = /http_request_duration_seconds_count\{[^}]*\} (\d+)/.exec(texto);
     expect(Number(infinito?.[1])).toBe(Number(count?.[1]));
@@ -350,11 +346,7 @@ function lerDesafioDoCookie(cabecalho: string): {
 }
 
 /**
- * A volta do login com TRÊS fronts.
- *
- * `PIPE_URL_APP` é um valor só e a API atende Gestão, Desk e CRM. Sem a origem
- * viajando no desafio, quem entra pelo CRM volta na Gestão — e o sintoma na VPS
- * seria "o login funciona, mas me joga no aplicativo errado".
+ * Login return with THREE front-ends. `PIPE_URL_APP` is a single value, and the API serves Management, Desk and CRM. Without the origin traveling in the challenge, someone signing in through the CRM would be returned to Management — on the VPS this would show up as "login works, but sends me to the wrong app".
  */
 describe('a origem de quem começou o login', () => {
   it('origem da lista manda a volta para o aplicativo certo', () => {

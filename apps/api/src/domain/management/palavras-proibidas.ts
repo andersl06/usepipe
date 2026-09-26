@@ -7,48 +7,11 @@ import { exigirPermission } from '../../session.js';
 import { SETTINGS_GENERAL_MANAGE } from './settings.js';
 
 /**
- * Palavras proibidas: a lista da conta que barra o envio do atendente.
- *
- * Fonte: `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4. O que veio de lá:
- *
- * - **Por conta.** O bucket é `lime://<owner>/buckets/blip:desk:forbidden-words`,
- *   um por dono do bot — não há lista por fila nem por atendente. Aqui é uma
- *   tabela por tenant (migração 0042).
- * - **Só o atendente.** O filtro roda dentro de `sendTextMessage` do Desk, antes
- *   de chamar o serviço de mensagem; o bot e a mensagem ativa (template) não
- *   passam por ele. É `envio.ts` quem aplica, e só para texto livre assinado por
- *   atendente.
- * - **Bloqueia, não avisa.** Achou palavra: toast de erro com a lista entre aspas
- *   e `return` — a mensagem não sai e o texto fica intacto no input. Aqui é
- *   `ErroPipe` 400 com as palavras no `detalhe`, para a tela mostrar o mesmo aviso.
- * - **Duas passadas** (`checkForbiddenWords`, app.js:77434-77455): primeiro as
- *   FRASES (termo com espaço), como substring do texto inteiro; se alguma bater,
- *   devolve só as frases. Senão, as PALAVRAS SOLTAS: o texto é quebrado nos
- *   separadores de `SEPARADORES` e cada token é comparado por SUBSTRING
- *   (`token.includes(termo)`, o `exactMatch = false` que é o default da origem).
- * - **Sem acento e sem caixa.** `normalizeText(lower, diacritics, collapse)` é o
- *   que a origem QUIS fazer; o bug documentado em §3.4 (o ramo dos diacríticos
- *   parte da string original e descarta o lowercase) faz o filtro deles rodar
- *   case-sensitive por padrão. Aqui vale a intenção, não o bug: `PALAVRA`,
- *   `palavra` e `pálavra` são a mesma coisa.
- * - **Cache de 5 min** (`CONFIGURATION_EXPIRATION_FORBIDDEN_WORDS_TIME`, 300000 ms,
- *   `blip-desk-regras.md`): a lista é lida do banco uma vez por tenant e guardada
- *   em memória; o CRUD invalida na hora.
- *
- * Decisões Pipe, onde a origem não define:
- * - Sem `exactMatch` nem `considerDiacritics` por conta: a origem tem as duas
- *   opções no JSON do bucket, mas nenhuma tela as expõe e os defaults são os que
- *   valem. Ficam fixos nos defaults (substring, sem acento) até alguém pedir.
- * - O fail-open da origem (exceção no filtro → envia mesmo assim) NÃO é copiado:
- *   aqui o filtro roda no servidor, dentro da transação do envio, e a única falha
- *   possível é a do banco — que já derruba a transação de qualquer jeito.
+ * Forbidden terms block agent sends per `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4. Source bucket `lime://<owner>/buckets/blip:desk:forbidden-words` is per bot owner; Pipe uses a tenant table (migration 0042). Filter only agent free text in Desk `sendTextMessage` via `envio.ts`, before delivery; bots and active-message templates bypass it. On match, block, list terms in quotes and leave input intact; Pipe returns `ErroPipe` 400 with matched terms in `detalhe`. Match source `checkForbiddenWords` (app.js:77434-77455): first phrase substrings over the whole text, returning only phrases if any match; otherwise split into `SEPARADORES` tokens and use `token.includes(termo)`. Normalize case, accents and whitespace. Source has a diacritics branch bug that loses lowercase; Pipe follows intended behavior, so `PALAVRA`, `palavra`, and `pálavra` match. Cache per tenant for five minutes (`CONFIGURATION_EXPIRATION_FORBIDDEN_WORDS_TIME`, 300000 ms) and invalidate on CRUD. Pipe fixes source defaults for `exactMatch` and `considerDiacritics` because no screen exposes them. Do not copy source fail-open: this server filter runs in the send transaction, whose database failure already aborts the send.
  */
 
 /**
- * Reaproveitada do catálogo — a mesma de Configurações gerais. Palavra proibida
- * é configuração do atendimento da conta, como identidade e pesquisa; na origem
- * ela mora nas configurações do bot (`HasForbiddenWords`,
- * `blip-gestao-regras-tecnicas.md`).
+ * Reuse the General Settings catalog permission. Forbidden terms are account-wide attendance configuration like identity and survey; Blip stores them in bot settings (`HasForbiddenWords`, `blip-gestao-regras-tecnicas.md`).
  */
 export const WORD_FORBIDDEN_MANAGE = SETTINGS_GENERAL_MANAGE;
 
@@ -56,14 +19,12 @@ export const WORD_FORBIDDEN_MANAGE = SETTINGS_GENERAL_MANAGE;
 export const VALIDITY_OF_CACHE_MS = 300_000;
 
 /**
- * O regex de tokenização da origem (app.js:77445), ao pé da letra — sem hífen,
- * que lá também não separa: "bem-vindo" é um token só.
+ * Match the source tokenizer regex (`app.js:77445`) exactly, including that hyphens do not split tokens: 'bem-vindo' stays one token.
  */
 const SEPARADORES = /[,\s/.!?;:'"@#$%^&*[\]{}()|`+=_ˆ]+/;
 
 /**
- * `StringUtils.normalizeText(texto, lower, diacritics, collapse)` como foi
- * escrito para funcionar: minúsculas, sem acento, espaços colapsados.
+ * Implement intended `StringUtils.normalizeText(texto, lower, diacritics, collapse)`: lowercase, remove accents and collapse whitespace.
  */
 export function normalizarTermo(texto: string): string {
   return texto
@@ -75,14 +36,13 @@ export function normalizarTermo(texto: string): string {
 }
 
 /**
- * `checkForbiddenWords`: devolve os termos da lista encontrados no texto — como
- * estão cadastrados, para a recusa mostrá-los entre aspas. Vazio = pode enviar.
+ * Like source `checkForbiddenWords`, return matching registered terms in their stored spelling for the quoted refusal; empty means sending is allowed.
  */
 export function encontrarPalavrasProibidas(texto: string, termos: readonly string[]): string[] {
   const textoNormal = normalizarTermo(texto);
   if (!textoNormal) return [];
 
-  // 1ª passada: frases. `checkForbiddenPhrases` (app.js:77427) é substring pura
+  // First pass checks phrases: `checkForbiddenPhrases` (`app.js:77427`) uses a plain substring
   // sobre o texto inteiro, sem fronteira de palavra.
   const frases = termos.filter((termo) => termo.trim().includes(' '));
   const frasesAchadas = frases.filter((frase) => textoNormal.includes(normalizarTermo(frase)));
@@ -108,9 +68,7 @@ interface ListaGuardada {
 const cacheByTenant = new Map<string, ListaGuardada>();
 
 /**
- * Os termos ATIVOS do tenant, do cache ou do banco. É o que `envio.ts` chama a
- * cada mensagem — e é por isso que existe cache: varrer a tabela a cada envio
- * seria uma consulta por mensagem para uma lista que muda quase nunca.
+ * Read this tenant's ACTIVE forbidden terms from cache or database on every `envio.ts` message. Cache avoids a database query per send for a rarely changing list.
  */
 export async function termosProibidosDoTenant(tx: TransactionPipe, tid: string): Promise<string[]> {
   const guardada = cacheByTenant.get(tid);
@@ -125,16 +83,14 @@ export async function termosProibidosDoTenant(tx: TransactionPipe, tid: string):
   return termos;
 }
 
-/** Invalida a lista guardada. Sem tenant, esquece todas — existe para o teste. */
+/** Invalidate the cached list; without a tenant, clear all lists for tests. */
 export function esquecerPalavrasProibidas(tid?: string): void {
   if (tid) cacheByTenant.delete(tid);
   else cacheByTenant.clear();
 }
 
 /**
- * A recusa: confere o texto contra a lista do tenant e lança se achar alguma.
- * A frase segue o toast da origem (`forbiddenWords.title` / `forbiddenWords.text`):
- * o título "Palavras proibidas" e a lista do que foi encontrado, entre aspas.
+ * Check text against the tenant's forbidden terms and throw when matched. Match source toast `forbiddenWords.title`/`forbiddenWords.text`: title 'Palavras proibidas' and matched terms in quotes.
  */
 export async function exigirSemPalavrasProibidas(
   tx: TransactionPipe,
@@ -188,7 +144,7 @@ export async function carregarPalavrasProibidas(
     .orderBy(asc(palavraProibida.termo));
 }
 
-/** Espaços das pontas fora e os de dentro colapsados: "muito  ruim" e "muito ruim" são o mesmo termo. */
+/** Trim outer whitespace and collapse inner whitespace so equivalent phrases register as one term. */
 function termoConferido(bruto: unknown): string {
   const termo = String(bruto ?? '')
     .replace(/\s+/g, ' ')
@@ -198,9 +154,7 @@ function termoConferido(bruto: unknown): string {
 }
 
 /**
- * O único do banco é por `lower(termo)`; a conferência aqui é mais estrita — sem
- * acento também — porque para o filtro "açúcar" e "acucar" são o mesmo termo, e
- * cadastrar os dois só confundiria a lista.
+ * The database unique key uses `lower(termo)`, but registration also ignores accents: the filter treats 'açúcar' and 'acucar' as one term, so storing both would confuse the list.
  */
 async function termoEmUso(
   tx: TransactionPipe,
@@ -269,7 +223,7 @@ export async function editarPalavraProibida(
   const atual = await palavraViva(tx, tid, id);
   await exigirPermission(tx, usuarioId, WORD_FORBIDDEN_MANAGE);
 
-  // Sem anotação de tipo — literal fresco aceita `Record<string, unknown>` em `diferenca`.
+  // Leave the type unannotated: the inferred literal satisfies `Record<string, unknown>` in `diferenca`.
   const antes = { ...atual };
   const depois = { ...antes };
 

@@ -4,35 +4,7 @@ import { decifrar } from '@pipe/db';
 import { keyring, noTenant } from '../database.js';
 
 /**
- * mTLS de saída: a Pipe apresenta o certificado do cliente quando ELA chama os
- * endereços dele.
- *
- * É o que a origem faz com o que a tela `/mtls` cadastra
- * (`referencias-blip/pesquisa/blip-certificados-mtls.md`): o `.pfx` fica associado a
- * `hosts`, e quando a plataforma chama um desses hosts apresenta o certificado
- * (autenticação mútua). Não é a Pipe exigindo certificado de ninguém — é a Pipe
- * como CLIENTE TLS.
- *
- * Quem usa: a entrega dos webhooks de saída (`webhooks-saida.ts`, via
- * `chamarComMtls`) e o botão "Testar" da tela de Integrações. A futura ação de
- * chamada externa do Builder (`ProcessHttp`, que o motor de `dominio/fluxo.ts`
- * hoje não executa) entra pelo mesmo `chamarComMtls(tenantId, url, ...)`.
- *
- * **Casamento por host.** O cadastro guarda URLs (`https://api.cliente.com.br`,
- * `https://api.cliente.com.br:8443/x`); o que casa é `hostname` + porta, o
- * caminho é ignorado — um certificado é da máquina, não da rota. Host sem
- * certificado = chamada normal. Dois certificados para o mesmo host: vale o
- * cadastrado por último.
- *
- * **Cache.** O índice de hosts de cada tenant vive `TTL_INDICE_MS` em memória
- * e o `https.Agent` (que carrega o `.pfx` decifrado) vive por certificado até
- * `esquecerCertificadosMtls` — chamado por quem cadastra/exclui em
- * `gestao/certificados.ts`. Certificado não é editável (só criado e excluído),
- * então um agente por id nunca fica com conteúdo velho; a invalidação só
- * precisa tirá-lo do mapa. Com mais de uma instância da api, o TTL curto é o
- * que limita o atraso de quem não recebeu a invalidação.
- *
- * O `.pfx` decifrado só existe dentro do `Agent`; nunca em log.
+ * Outbound mTLS: Pipe presents the customer's certificate when Pipe calls that customer's addresses; Pipe is the TLS client, not a server demanding certificates. This mirrors the `/mtls` setup in `referencias-blip/pesquisa/blip-certificados-mtls.md`: a `.pfx` is bound to hosts and presented on outbound calls. `webhooks-saida.ts` and the Integrations Test button use `chamarComMtls`; a future Builder `ProcessHttp` action can use `chamarComMtls(tenantId, url, ...)` when `dominio/fluxo.ts` supports it. Match hostname and port, ignoring URL path. Without a certificate use a normal call; if two certificates match, use the most recently registered. Cache each tenant's host index for `TTL_INDICE_MS` and each certificate's `https.Agent` until `esquecerCertificadosMtls` invalidates it on create/delete in `gestao/certificados.ts`. Certificates are immutable, so short TTL bounds stale indexes across API instances. Decrypted `.pfx` exists only in the Agent and never in logs. Registered `hosts` may include `https://api.cliente.com.br` or `https://api.cliente.com.br:8443/x`; match `hostname` plus port, and keep decrypted bytes inside the `Agent`.
  */
 
 const TTL_INDICE_MS = Number(process.env['PIPE_MTLS_TTL_INDICE_MS'] ?? 60_000);
@@ -40,7 +12,7 @@ const TTL_INDICE_MS = Number(process.env['PIPE_MTLS_TTL_INDICE_MS'] ?? 60_000);
 interface HostComCertificado {
   certificadoId: string;
   hostname: string;
-  /** `''` = porta padrão (443), como `URL.port`. */
+  /** An empty string means the default port 443, as in `URL.port`. The stored form is `''` for that default port. */
   porta: string;
 }
 
@@ -52,7 +24,7 @@ interface IndiceDoTenant {
 const indexByTenant = new Map<string, IndiceDoTenant>();
 const agentByCertificate = new Map<string, https.Agent>();
 
-/** Uma URL cadastrada em `certificado_mtls_host` vira `hostname` + porta; inválida (não devia existir) é ignorada. */
+/** Reduce a registered `certificado_mtls_host` URL to hostname and port; ignore invalid URLs, which should not exist. Match the `hostname` and port. */
 function hostDe(certificadoId: string, url: string): HostComCertificado | null {
   try {
     const u = new URL(url);
@@ -84,7 +56,7 @@ async function indiceDe(tenantId: string): Promise<IndiceDoTenant> {
     if (host) hosts.push(host);
   }
 
-  // Agente de certificado que sumiu do índice (excluído em outra instância,
+  // Discard an agent whose certificate disappeared from the host index, possibly deleted in another instance.
   // ou entre um TTL e outro) morre aqui, junto com os sockets dele.
   if (guardado) {
     const vivos = new Set(hosts.map((h) => h.certificadoId));
@@ -119,7 +91,7 @@ async function agenteDoCertificado(tenantId: string, certificadoId: string): Pro
   });
   if (!linha?.fileEncrypted || !linha.senha_cifrada) return null;
 
-  // Decifrado aqui e entregue ao Agent; `decifrar` lança `SegredoErro` se a
+  // Decrypt here and pass to the Agent. If the key was removed from the keyring, `decifrar` throws `SegredoErro`, which delivery records like any other error.
   // chave saiu do chaveiro — e a entrega registra o erro como qualquer outro.
   const chaves = keyring();
   const agente = new https.Agent({
@@ -132,8 +104,7 @@ async function agenteDoCertificado(tenantId: string, certificadoId: string): Pro
 }
 
 /**
- * O `https.Agent` com o certificado do cliente para esta URL, ou `null` quando
- * o host não tem certificado (ou a URL não é HTTPS): aí a chamada é a normal.
+ * Return an `https.Agent` with this URL's client certificate, or null when the host has no certificate or the URL is not HTTPS; then use a normal request. Return `null` for the ordinary request path.
  */
 export async function agenteMtlsPara(tenantId: string, url: string): Promise<https.Agent | null> {
   let alvo: URL;
@@ -151,8 +122,7 @@ export async function agenteMtlsPara(tenantId: string, url: string): Promise<htt
 }
 
 /**
- * Esquece o índice do tenant e os agentes dos certificados dele (ou de um só).
- * Sem tenant, tudo.
+ * Forget a tenant's host index and all or one of its certificate agents; without a tenant, clear everything.
  */
 export function esquecerCertificadosMtls(tenantId?: string, certificadoId?: string): void {
   if (!tenantId) {
@@ -179,14 +149,14 @@ export interface PedidoDeSaida {
   timeoutMs: number;
 }
 
-/** O que os dois caminhos (com e sem certificado) devolvem — o subconjunto de `Response` que a entrega usa. */
+/** Response subset shared by requests with and without a certificate, as needed for delivery. This is the subset of `Response` used by delivery. */
 export interface RespostaDeSaida {
   ok: boolean;
   status: number;
   texto: () => Promise<string>;
 }
 
-/** `https.request` com o agente: o `fetch` global (undici) não aceita `https.Agent`. */
+/** Use `https.request` with the agent; global `fetch` (undici) does not accept `https.Agent`. */
 function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent): Promise<RespostaDeSaida> {
   return new Promise((resolver, rejeitar) => {
     const request = https.request(
@@ -217,9 +187,7 @@ function pedirComAgente(url: string, pedido: PedidoDeSaida, agente: https.Agent)
 }
 
 /**
- * Chama uma URL do cliente em nome do tenant: com o certificado dele se o host
- * tem um, e como `fetch` comum se não tem. Ponto único de saída para os
- * webhooks e, amanhã, para o `ProcessHttp` do Builder.
+ * Call a customer URL for the tenant, presenting its certificate if the host has one and using ordinary `fetch` otherwise. This is the single outbound path for webhooks and future Builder `ProcessHttp` calls.
  */
 export async function chamarComMtls(
   tenantId: string,

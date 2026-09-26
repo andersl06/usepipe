@@ -19,20 +19,14 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * A chave de acesso criada na tela "Chaves de acesso" do fluxo
- * (`chave_api.fluxo_id`, migração 0032) é uma credencial CERCADA, não um
- * rótulo: o guarda de chave (`conferirFluxoDaChave`, `autenticacao.ts`)
- * carrega o `fluxoId` na sessão da chave e
+ * The access key created on the flow's "Chaves de acesso" screen (`chave_api.fluxo_id`, migration 0032) is a FENCED credential, not just a label: the key guard (`conferirFluxoDaChave`, `autenticacao.ts`) carries the key's session `fluxoId` and
  *
- * - em rota POR FLUXO, só deixa agir no fluxo dela (outro fluxo é 403);
- * - em rota que NÃO é por fluxo, recusa (403 `chave_de_fluxo`) — decisão
- *   Pipe, explicada no próprio guarda;
- * - chave de CONTA (`fluxo_id` nulo) segue como sempre: o tenant inteiro;
- * - revogada é 401, e o escopo continua sendo conferido antes da cerca.
+ * - on a route PER FLOW, only lets it act on its own flow (another flow is 403);
+ * - on a route that is NOT per flow, it refuses (403 `chave_de_fluxo`) — a Pipe decision, explained in the guard itself;
+ * - an ACCOUNT key (`fluxo_id` null) behaves as always: the whole tenant;
+ * - revoked is 401, and the scope is still checked before the fence.
  *
- * A chave é criada pela rota de verdade (`POST /v1/gestao/fluxos/:id/chaves`),
- * com sessão de navegador, para provar que é ESSA chave — a que a tela entrega
- * ao cliente — que sai cercada.
+ * The key is created through the real route (`POST /v1/gestao/fluxos/:id/chaves`), with a browser session, to prove it's THIS key — the one the screen hands the client — that comes out fenced.
  */
 
 let a: Cenario;
@@ -123,14 +117,14 @@ function errorOf(resposta: Resposta): { code: string; message: string; detalhe?:
   return resposta.corpo['erro'] as { code: string; message: string; detalhe?: Record<string, unknown> };
 }
 
-/** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */
+/** Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token. */
 async function keyOfScreen(flowId: string, nome: string): Promise<{ id: string; token: string }> {
   const criada = await chamar('POST', `/v1/management/flows/${flowId}/keys`, comCookie(session), { nome });
   expect(criada.status).toBe(201);
   return { id: criada.corpo['id'] as string, token: criada.corpo['token'] as string };
 }
 
-/** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */
+/** An Express request already matched to the route — what the guard sees. */
 function requestMatched(padrao: string, params: Record<string, string>): Request {
   return { params, route: { path: padrao } } as unknown as Request;
 }
@@ -154,7 +148,7 @@ describe('Enforce the flow-key boundary using the key flow and matched route', (
   it('Allow a flow A key only on flow A and return 403 on flow B', () => {
     const key = { fluxoId: flowA };
     expect(() => checkFlowOfKey(key, flowA)).not.toThrow();
-    // Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.
+    // // A uuid arrives in different case depending on who wrote it; the fence isn't sensitive to that.
     expect(() => checkFlowOfKey(key, flowA.toUpperCase())).not.toThrow();
 
     let error: unknown;
@@ -197,7 +191,7 @@ describe('Enforce the flow-key boundary using the key flow and matched route', (
         }),
       ),
     ).toBe(flowA);
-    // `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.
+    // // A conversation `:id` isn't a flow, even if the value happens to match a flow's id.
     expect(flowOfRoute(requestMatched('/v1/conversations/:id/messages', { id: flowA }))).toBeNull();
     expect(flowOfRoute(requestMatched('/v1/conversations', {}))).toBeNull();
   });
@@ -224,13 +218,13 @@ describe('Constrain flow API keys to flow routes', () => {
   });
 
   it('Check the scope before enforcing the flow-key boundary', async () => {
-    // A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.
+    // // The flow key is born without `filas:ler`: the refusal is a SCOPE one, not a flow one.
     const withoutScope = await chamar('GET', '/v1/queues', withKey(keyOfFlowA));
     expect(withoutScope.status).toBe(403);
     expect(errorOf(withoutScope).codigo).toBe('without_scope');
     expect(errorOf(withoutScope).detalhe).toEqual({ escopo: 'filas:ler' });
 
-    // Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.
+    // // An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.
     const queues = await chamar('GET', '/v1/queues', withKey(a.tokenWithoutScope));
     expect(queues.status).toBe(200);
     const conversations = await chamar('GET', '/v1/conversations', withKey(a.tokenWithoutScope));

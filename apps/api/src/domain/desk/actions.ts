@@ -9,23 +9,12 @@ import { registrarEvento } from '../eventos.js';
 import { transferConversation } from '../conversation.js';
 import { queuesOfAgent, tetoWithoutFirstResponse } from '../distribution.js';
 
-/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como no Desk. */
+/** The transaction already has its tenant fixed; `consultar` only names the block, as in Desk. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
- * As Server Actions do Desk que ESCREVIAM direto no banco, movidas de
- * `apps/desk/src/app/acoes.ts` com o corpo intacto: o status do atendente, a
- * queda por inatividade e a nota interna.
- *
- * As outras — enviar, reenviar, encerrar, espera — já iam para
- * `POST /v1/conversas/…` pelo `postNaApi` do Next, e agora vão direto do
- * navegador, com o cookie. Não há endpoint novo para elas: a regra, a
- * transição de estado e o registro do evento continuam morando num lugar só.
- *
- * O `tenantId` e o `atendenteId` vêm da SESSÃO (`sessaoDe` no controlador),
- * nunca do corpo: aceitar um `usuarioId` no corpo deixaria qualquer pessoa
- * logada mudar o status do colega.
+ * Desk Server Actions that WROTE directly to the database were moved from `apps/desk/src/app/acoes.ts` unchanged: agent status, inactivity logout, and internal notes. Sending, retrying, closing, and waiting already called `POST /v1/conversas/…` via Next `postNaApi`; now the browser calls it directly with the cookie. No new endpoints duplicate their rules, state transitions, or events. `tenantId` and `atendenteId` come from the SESSION (`sessaoDe` in the controller), never the body: accepting `usuarioId` from the body would let any signed-in person change a colleague's status.
  */
 
 const OK: Resultado = { ok: true };
@@ -49,7 +38,7 @@ export async function definirStatus(
     return falha('Estado desconhecido.');
   }
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
-  // de pausa não alimenta relatório nenhum — e é exatamente por isso que é obrigatório.
+  // cannot feed a report, which is why it is required.
   if (state === 'pausa' && !motivoId) {
     return falha('Escolha o motivo da pausa.');
   }
@@ -64,7 +53,7 @@ export async function definirStatus(
       });
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta
-    // o mesmo minuto duas vezes no relatório de ocupação.
+    // the same minute twice in the occupancy report.
     await tx
       .update(pausa)
       .set({ encerradaEm: new Date() })
@@ -79,22 +68,7 @@ export async function definirStatus(
 }
 
 /**
- * Queda por inatividade: vinte minutos sem nenhum gesto na tela e o atendente
- * sai da distribuição.
- *
- * É a mesma régua da tela de referência (dez minutos até o aviso, mais dez até
- * a queda), registrada em `referencias-blip/pesquisa/blip-desk-medidas.md`, §9. Quem conta
- * o tempo é o navegador, em `componentes/inatividade`; o que chega aqui é só
- * o veredito.
- *
- * A ação é **idempotente e estreita de propósito**: ela só derruba, nunca
- * levanta, e não faz nada se o atendente já está Offline. Sem isso, uma aba
- * esquecida aberta num segundo monitor derrubaria o atendente que está
- * trabalhando na primeira — e a queda por inatividade viraria a causa mais
- * comum de conversa parada, que é justamente o que ela existe para evitar.
- *
- * A pausa aberta é encerrada junto, pelo mesmo motivo de `definirStatus`: pausa
- * sem fim conta o mesmo minuto para sempre no relatório de ocupação.
+ * Inactivity drops an agent from distribution after twenty minutes without screen activity. This follows the reference screen's ten-minute warning plus ten-minute grace period (`referencias-blip/pesquisa/blip-desk-medidas.md` §9). The browser counts time in `componentes/inatividade`; this action receives only the verdict. It is intentionally narrow and idempotent: it only moves offline and does nothing if already Offline. Otherwise an abandoned second tab could disconnect an agent actively using another tab. Close any open break too, as in `definirStatus`, or an endless break would count the same minute forever in occupancy reports.
  */
 export async function cairByInactivity(
   tx: TransactionPipe,
@@ -125,12 +99,7 @@ export async function cairByInactivity(
 // --- nota interna ---
 
 /**
- * A nota interna — o ramo `modo === 'nota'` do `enviarMensagem` de antes.
- *
- * Nota não é mensagem, não sai para o cliente e não passa pela janela de 24h;
- * por isso ela nunca teve rota em `/v1/conversas` e é a única escrita do
- * compositor que continua vindo por aqui. O texto livre e o template vão para
- * `POST /v1/conversas/:id/mensagens`, direto do navegador.
+ * Internal notes are the former `modo === 'nota'` branch of `enviarMensagem`. A note is not a conversation message, is never sent to the client, and is outside the 24-hour window. It therefore never had a `/v1/conversas` route and is the only composer write remaining here. Free text and templates go directly from the browser to `POST /v1/conversas/:id/mensagens`.
  */
 export async function salvarNotaInterna(
   tx: TransactionPipe,
@@ -153,9 +122,8 @@ export async function salvarNotaInterna(
   return OK;
 }
 
-// --- atender (puxar o próximo da fila) ---
 
-/** A mensagem de "cheio" — o `code 23 / "Agent ticket list is full."` da origem, em português. */
+/** The "full" message matches source `code 23 / "Agent ticket list is full."`, rendered in Portuguese. */
 function messageOfLimit(motivo: MotivoInelegivel, ativas: number): string {
   if (motivo === 'teto_sem_primeira_resposta') {
     return 'Responda os atendimentos que ainda estão sem primeira resposta antes de puxar outro.';
@@ -167,27 +135,7 @@ function messageOfLimit(motivo: MotivoInelegivel, ativas: number): string {
 }
 
 /**
- * O botão "Atender" da coluna — o `set /tickets/claim` da referência: o atendente
- * puxa para si a conversa mais antiga da fila, entre as filas em que ele está.
- *
- * É `assumirConversa` (`dominio/assumir.ts`) sem escolher o id: a mesma trava
- * (`where estado = 'na_fila'`, com `skip locked` para dois cliques ao mesmo tempo
- * não disputarem a mesma linha), a mesma `atribuicao` e o mesmo evento. Só atende
- * quem está Online — é a regra de lá, onde o botão nem aparece nos outros status.
- *
- * **O limite de vagas vale aqui como vale na distribuição automática.** Na origem o
- * servidor recusa o `/tickets/claim` com `code 23 / "Agent ticket list is full."`
- * quando o agente está no limite (`blip-desk-regras-tecnicas.md` §2.2-2.3); a
- * conta é a de `@pipe/core` (`motivoInelegivel`: vaga = `limite − ativas > 0`, mais
- * o teto de conversas sem primeira resposta), alimentada por `filasDoAtendente`, o
- * mesmo levantamento que `distribuirConversa` usa. Só as filas em que o atendente
- * tem vaga entram no `UPDATE`.
- *
- * A checagem é ATÔMICA por atendente: a linha de `status_atendente` é travada
- * (`for update`) antes de contar as ativas, então dois cliques simultâneos do mesmo
- * atendente rodam em série — o segundo só conta depois de o primeiro ter gravado, e
- * não fura o limite. O `skip locked` da conversa continua resolvendo a disputa
- * entre atendentes DIFERENTES pela mesma linha.
+ * The column's "Atender" action mirrors source `set /tickets/claim`: the agent claims the oldest conversation among their queues. It calls `assumirConversa` (`dominio/assumir.ts`) without choosing an ID, retaining the same guard (`where estado = 'na_fila'` with `skip locked` for competing claims), `atribuicao`, and event. Only Online agents may claim, as in the source. Capacity limits also apply: the source rejects `/tickets/claim` with `code 23 / "Agent ticket list is full."` (`blip-desk-regras-tecnicas.md` §2.2–2.3). `@pipe/core` `motivoInelegivel` evaluates free capacity (`limite − ativas > 0`) and the cap on conversations lacking a first response, using `filasDoAtendente` like `distribuirConversa`; only queues with room enter the `UPDATE`. The check is atomic per agent: lock that agent's `status_atendente` row (`for update`) before counting active conversations, so simultaneous clicks run serially and the second sees the first claim. Conversation `skip locked` separately resolves competition between DIFFERENT agents.
  */
 export async function atender(
   tx: TransactionPipe,
@@ -196,8 +144,8 @@ export async function atender(
   _dados: Campos,
 ): Promise<Resultado & { conversationId?: string }> {
   return consultar(tx, async (tx) => {
-    // `for update` é a serialização por atendente descrita acima. Quem está online
-    // sempre tem esta linha (é ela que diz que está online).
+    // `for update` serializes claims per agent as described above. Online agents
+    // always have this row; it records that they are online.
     const { rows: status } = await tx.execute<{ state: string }>(
       sql`select estado from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
     );
@@ -215,16 +163,16 @@ export async function atender(
     }
     const ativas = byQueue[0]?.ativas ?? 0;
 
-    // Sem fila nenhuma com vaga e sem fila nenhuma cadastrada, a recusa é o limite:
-    // não adianta procurar conversa que a pessoa não pode receber. (Quem não está em
-    // fila alguma só puxa conversa sem fila, e para essa não há limite cadastrado.)
+    // With no queue that has capacity, reject for the capacity limit rather than
+    // searching for a conversation the agent cannot receive. An agent in no queue
+    // can only claim an unqueued conversation, for which no configured queue limit applies.
     if (comVaga.length === 0 && motivoDeRecusa !== null) {
       return falha(messageOfLimit(motivoDeRecusa, ativas));
     }
 
-    // Conversa sem fila (transferência direta que voltou para a espera) vale para
-    // qualquer atendente — desde que ele tenha vaga em alguma fila, ou não esteja em
-    // fila alguma (aí não há limite que se aplique).
+    // An unqueued conversation (a direct transfer returned to waiting) is available
+    // to any agent with capacity in some queue, or to an agent in no queue
+    // where no queue limit applies.
     const acceptsWithoutQueue = byQueue.length === 0 || comVaga.length > 0;
     const queuesSql =
       comVaga.length > 0
@@ -248,8 +196,8 @@ export async function atender(
     `);
     const puxada = rows[0];
     if (!puxada) {
-      // Nada nas filas com vaga. Se há gente esperando numa fila em que o atendente
-      // está cheio, a razão é o limite — e é isso que a mensagem tem de dizer.
+      // Nothing is available in queues with capacity. If people wait in a queue where
+      // the agent is full, report the capacity limit as the refusal reason.
       if (motivoDeRecusa !== null) {
         const { rows: esperando } = await tx.execute<{ n: string }>(sql`
           select count(*)::text as n from conversa c
@@ -280,14 +228,9 @@ export async function atender(
   });
 }
 
-// --- ações em massa ---
 
 /**
- * A tela "Ações em Massa" da referência: transferir vários tickets de uma vez
- * para uma fila ou um atendente. É `transferirConversa` (`dominio/conversa.ts`)
- * repetido, em série, uma conversa por vez — cada uma com a sua transação, a
- * mesma regra (encerra e abre outra) e o mesmo evento. O resultado diz quantas
- * foram, e o primeiro motivo de recusa, se houve.
+ * The source "Ações em Massa" screen transfers several tickets to a queue or agent. Call `transferirConversa` (`dominio/conversa.ts`) serially, one conversation and transaction at a time. Each transfer closes and opens a conversation and records its event. Return the transferred count and first refusal reason, if any.
  */
 export async function transferInBulk(
   _tx: TransactionPipe,

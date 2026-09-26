@@ -18,26 +18,13 @@ import {
 } from '../domain/management/team-of-flow.js';
 
 /**
- * A aba "Equipe" do contato (`/fluxo/:id/equipe`), por sessão de navegador — a
- * mesma casca fina de `gestao-builder.ts`, num arquivo à parte porque a equipe
- * POR FLUXO é um assunto só e a regra inteira mora em
- * `dominio/gestao/equipe-do-fluxo.ts`.
- *
- * - `GET :id/equipe` — a lista, os recursos do modal de editar e se quem olha
- *   pode mexer;
- * - `GET :id/equipe/eu` — o que o menu do contato peneira (`itensDoMenu`);
- * - `POST :id/equipe` — adiciona por e-mail de quem JÁ está no contrato;
- * - `PATCH :id/equipe/:usuarioId` — o "Salvar alterações";
- * - `DELETE :id/equipe/:usuarioId` — 204.
- *
- * O tenant vem da sessão, nunca da URL: fluxo de outro cliente é 404, como
- * fluxo que não existe. `id` fora do padrão de uuid é 404 antes do banco —
- * URL é texto de fora, e o Postgres recusa uuid malformado com 500.
+ * The contact's "Equipe" tab (`/fluxo/:id/equipe`) uses a browser session. Keep per-flow team logic in `dominio/gestao/equipe-do-fluxo.ts`, with a thin adapter like `gestao-builder.ts`. `GET :id/equipe` loads members, edit-modal resources and caller editability; `GET :id/equipe/eu` supplies `itensDoMenu`; `POST :id/equipe` adds someone already on the contract by email; `PATCH :id/equipe/:usuarioId` saves changes; `DELETE :id/equipe/:usuarioId` returns 204. The tenant comes from the session, never the URL, so another customer's flow looks absent (404). Invalid UUID `id` is rejected with 404 before Postgres can return 500.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/* Cópia do `uuidOu404` de `gestao-fluxo.ts` para não amarrar este controlador
-   àquele arquivo — são três linhas e a regra é a mesma nos dois. */
+/*
+ * Copy `uuidOu404` from `gestao-fluxo.ts` rather than coupling this controller to that file; the three-line rule is the same.
+ */
 function uuidOu404(value: string, oQue: string): string {
   if (!UUID.test(value)) throw PipeError.naoEncontrado(oQue);
   return value;
@@ -58,7 +45,7 @@ export class ManagementTeamController {
     );
   }
 
-  /** Sem permissão própria: é a resposta sobre QUEM PERGUNTA, e ela é sempre dele. */
+  /** No separate permission is needed: this response describes the caller and is always that caller's own data. */
   @Get(':id/equipe/eu')
   @WithSession()
   async minhas(

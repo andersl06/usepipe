@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
-// Ping rápido para o teste não esperar 15 segundos pelo quadro de controle.
+// A fast ping so the test does not wait 15 seconds for the control frame.
 process.env['PIPE_WS_PING_MS'] = '150';
 
 const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
@@ -21,11 +21,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Tempo real: o canal, a autenticação e — o que mais importa — o ISOLAMENTO.
- *
- * A regra que o dono não abre mão: uma conexão só recebe evento do próprio tenant, e o
- * que é de uma pessoa só chega a ela. Isso não se confere por leitura; confere-se
- * abrindo dois tenants de verdade e provando que um não escuta o outro.
+ * Real time: the channel, authentication and — what matters most — ISOLATION. The rule the owner will not compromise on: a connection only receives events from its own tenant, and whatever belongs to one person only reaches that person. This cannot be verified by reading the code; it is verified by opening two real tenants and proving that one cannot listen to the other.
  */
 
 let cenario: Cenario;
@@ -59,11 +55,7 @@ afterAll(async () => {
 const abertos: WebSocket[] = [];
 
 /**
- * Fecha TODO socket aberto no caso anterior e espera o registro esvaziar.
- *
- * Sem isto, um caso empresta conexão para o seguinte e `conexoesVivas` conta lixo —
- * o teste do isolamento passaria a depender da ordem, que é a pior forma de um teste
- * de segurança falhar.
+ * Closes EVERY socket left open by the previous case and waits for the registry to empty. Without this, one case lends its connection to the next and `conexoesVivas` counts garbage — the isolation test would end up depending on run order, the worst way for a security test to fail.
  */
 afterEach(async () => {
   for (const ws of abertos.splice(0)) ws.close();
@@ -79,7 +71,7 @@ interface Cliente {
   fechar: () => void;
 }
 
-/** Conecta, assina os assuntos e espera a confirmação do servidor. */
+/** Connects, subscribes to the subjects and waits for the server's confirmation. */
 async function conectar(token: string, assuntos: string[] = ['conversa', 'fila', 'atendente']) {
   const ws = new WebSocket(urlWs, {
     headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'http://localhost:3200' },
@@ -94,7 +86,7 @@ async function conectar(token: string, assuntos: string[] = ['conversa', 'fila',
     ws.on('message', (cru) => {
       const q = JSON.parse(String(cru)) as { type?: string };
       if (q.tipo === 'inscrito') resolve();
-      // O `ping` do contrato não é evento; não polui o que o teste inspeciona.
+      // The contract's `ping` is not an event; it does not pollute what the test inspects.
       else if (q.tipo !== 'ping') recebidos.push(q);
     });
   });
@@ -103,7 +95,7 @@ async function conectar(token: string, assuntos: string[] = ['conversa', 'fila',
   return { ws, recebidos, fechar: () => ws.close() } satisfies Cliente;
 }
 
-/** Espera o evento chegar, sem `sleep` fixo: o canal é rápido, a máquina nem sempre. */
+/** Waits for the event to arrive, without a fixed `sleep`: the channel is fast, the machine is not always. */
 async function esperar(cliente: Cliente, quantos = 1, tetoMs = 3_000): Promise<void> {
   const limite = Date.now() + tetoMs;
   while (cliente.recebidos.length < quantos && Date.now() < limite) {
@@ -127,8 +119,8 @@ describe('Authenticate WebSocket connections', () => {
   });
 
   it('origem fora de PIPE_ORIGENS, 403 — CORS não vale para WebSocket', async () => {
-    // Sem esta conferência, um site qualquer abriria o socket e o navegador anexaria
-    // o cookie da vítima: cross-site WebSocket hijacking.
+    // Without this check, any site could open the socket, and the browser would attach
+    // the victim's cookie: cross-site WebSocket hijacking.
     const token = await openSession(cenario);
     const ws = new WebSocket(urlWs, {
       headers: { cookie: `${NOME_DO_COOKIE}=${token}`, origin: 'https://site-do-mal.example' },
@@ -150,7 +142,7 @@ describe('Authenticate WebSocket connections', () => {
 describe('Confirm requested topic subscriptions', () => {
   it('confirma os assuntos pedidos', async () => {
     const cliente = await conectar(await openSession(cenario), ['conversa']);
-    // A confirmação já foi esperada em `conectar`.
+    // The confirmation was already awaited in `conectar`.
     expect(connectionsVivas(cenario.tenantId)).toBeGreaterThan(0);
     cliente.fechar();
   });
@@ -231,7 +223,7 @@ describe('Isolate real-time events by tenant', () => {
   });
 
   it('evento com dono só chega ao dono', async () => {
-    // É o que o chat do gestor com o atendente exige.
+    // This is what the manager-to-agent chat requires.
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into usuario (tenant_id, nome, email)
       values (${cenario.tenantId}, 'Outra Pessoa', ${`p-${randomUUID().slice(0, 8)}@e2e.pipe.app`})
@@ -250,7 +242,7 @@ describe('Isolate real-time events by tenant', () => {
     await new Promise((r) => setTimeout(r, 300));
 
     expect(dono.recebidos).toHaveLength(1);
-    // Mesmo tenant, mesma inscrição — e ainda assim não recebe.
+    // Same tenant, same subscription — and still does not receive it.
     expect(colega.recebidos).toHaveLength(0);
     dono.fechar();
     colega.fechar();
@@ -279,7 +271,7 @@ describe('o evento diz O QUE mudou, nunca O QUE É', () => {
 
     const recebido = cliente.recebidos[0] as Record<string, unknown>;
     expect(Object.keys(recebido).sort()).toEqual(['assunto', 'em', 'id']);
-    // `usuarioId` é endereçamento interno e não pode vazar para o cliente.
+    // `usuarioId` is internal addressing and must never leak to the client.
     expect(recebido['usuarioId']).toBeUndefined();
     cliente.fechar();
   });
@@ -296,8 +288,8 @@ describe('queda', () => {
     while (connectionsVivas(cenario.tenantId) > antes && Date.now() < limite) {
       await new Promise((r) => setTimeout(r, 20));
     }
-    // Conexão que não some do registro é vazamento de memória e entrega para socket
-    // morto — o processo ficaria escrevendo em quem já foi embora.
+    // A connection that never disappears from the registry is a memory leak, and delivery would go to a
+    // dead socket — the process would keep writing to someone who has already left.
     expect(connectionsVivas(cenario.tenantId)).toBe(antes);
   });
 

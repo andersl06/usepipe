@@ -33,14 +33,7 @@ export interface SummaryOfContract {
 }
 
 /**
- * O cartão de resumo, sempre visível — `tenant-summary` tem read para os três
- * papéis deles.
- *
- * Duas diferenças anotadas em relação à origem, e as duas são a nosso favor: lá
- * `tenant.applications` é inicializado como `[]` e nunca preenchido, então a
- * linha "Chatbots" não aparece na prática; e `members` só é carregado para
- * `admin`, porque a lista vem junto da assinatura. Aqui os dois números saem de
- * um `count` do banco e valem para quem abrir a tela.
+ * Always show the contract summary: source `tenant-summary` is readable by all three roles. Pipe calculates both counts in the database for every viewer. In the source `tenant.applications` stays `[]`, so 'Chatbots' is absent in practice, and `members` loads only for `admin` with the subscription.
  */
 export async function loadSummaryOfContract(
   tx: TransactionPipe,
@@ -60,8 +53,9 @@ export async function loadSummaryOfContract(
       .where(eq(tenant.id, tid))
       .limit(1);
 
-    /* Uma consulta de cada vez: a transação vive numa conexão só, e duas
-       concorrentes nela se atropelam (a mesma nota de `lib/portal.ts`). */
+    /*
+     * Run one query at a time: a transaction has one connection, and concurrent queries can interfere, as noted in `lib/portal.ts`.
+     */
     const [flows] = await tx
       .select({ n: count() })
       .from(flow)
@@ -108,9 +102,7 @@ export interface MemberOfContract {
 }
 
 /**
- * Os três papéis de conta — os únicos que Membros e Convidar oferecem. Gestor,
- * supervisor, atendente e avaliador são de atendimento e ficam fora, como na
- * origem, onde eles são dados por contato.
+ * Offer only the three account roles in Members and Invite. Manager, supervisor, agent and evaluator are attendance roles assigned per contact in the source.
  */
 export async function loadPapeisOfAccount(tx: TransactionPipe): Promise<RoleOfAccount[]> {
   return consultar(tx, (tx) =>
@@ -123,21 +115,7 @@ export async function loadPapeisOfAccount(tx: TransactionPipe): Promise<RoleOfAc
 }
 
 /**
- * Quem tem acesso à conta — e quem foi convidado e ainda não entrou.
- *
- * Só quem está ativo: "remover" aqui é desativar (ver `removerMembro`), e quem
- * saiu não é membro. O nome continua na conversa, na avaliação e no log — é
- * justamente por isso que a linha do usuário não é apagada.
- *
- * Os convites em aberto entram na MESMA lista, como na origem: lá o convidado
- * já é uma linha de `tenant-user` com `userStatus: "PendingUser"`, e a tela o
- * mostra junto dos outros com "(Pendente)" no nome. Convite vencido ou já
- * aceito não aparece — o primeiro não dá acesso a ninguém e o segundo já virou
- * usuário, e apareceria duas vezes.
- *
- * Convidado não tem nome: só sabemos o e-mail até a primeira entrada. Fica o
- * trecho antes do `@`, que é o mesmo apanhado da origem quando a busca da conta
- * falha (`decodeURIComponent(userIdentity.split("@")[0])`).
+ * List people with account access and pending invitees together. Only active users count: `removerMembro` deactivates instead of deleting, preserving names in conversations, evaluations and audit logs. Source invitees are `tenant-user` rows with `userStatus: 'PendingUser'`, shown with '(Pendente)'; expired invites grant no access and accepted ones are already users, so exclude both. An invitee has no name before first sign-in; display the email prefix, matching source fallback `decodeURIComponent(userIdentity.split('@')[0])`.
  */
 export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract[]> {
   return consultar(tx, async (tx) => {
@@ -151,8 +129,9 @@ export async function loadMembers(tx: TransactionPipe): Promise<MemberOfContract
         roleName: role.nome,
       })
       .from(user)
-      /* Só o papel de CONTA: é UM por pessoa (índice parcial da 0021), então o
-         join não multiplica a linha. Os de atendimento não são assunto desta tela. */
+      /*
+       * Join the single ACCOUNT role per user (migration 0021 partial index), so the row is not multiplied; attendance roles belong to another screen.
+       */
       .leftJoin(
         userRole,
         and(eq(userRole.userId, user.id), eq(userRole.escopo, 'conta')),
@@ -196,17 +175,14 @@ export type Recording = { ok: true } | { ok: false; error: string };
 
 const OK: Recording = { ok: true };
 
-/** O nome do papel de conta que a origem chama de `admin` — ver `PAPEIS_DA_ORIGEM`. */
+/** The account role that the source calls `admin`; see `PAPEIS_DA_ORIGEM`. */
 const ROLE_ADMIN = 'admin';
 
 const MESSAGE_LAST_ADMIN =
   'Este é o último administrador do contrato. Dê o papel de Admin a outra pessoa antes.';
 
 /**
- * Quantos administradores de CONTA ainda estão ativos.
- *
- * Conta só quem tem acesso (`usuario.ativo`): um admin desativado não segura
- * ninguém, e é justamente o "ativo = false" que a exclusão já faz.
+ * Count active ACCOUNT administrators only. A deactivated admin no longer has access, so must not satisfy the last-admin guard.
  */
 async function contarAdministradoresAtivos(tx: TransactionPipe): Promise<number> {
   return consultar(tx, async (tx) => {
@@ -221,12 +197,7 @@ async function contarAdministradoresAtivos(tx: TransactionPipe): Promise<number>
 }
 
 /**
- * Troca o papel de CONTA de um membro.
- *
- * UM por pessoa, como na origem (`roleId` é um campo só): o de conta antigo sai
- * antes do novo entrar, na mesma transação. Os papéis de atendimento (gestor,
- * atendente…) NÃO são tocados — trocar "Admin" por "Pode visualizar" não tira
- * ninguém do atendimento. A auditoria guarda o antes e o depois.
+ * Replace one member's ACCOUNT role in a single transaction: remove the old role before adding the new, matching the source's single `roleId`. Leave attendance roles untouched, so changing account Admin to view-only does not remove attendance access. Audit both values.
  */
 export async function defineRoleOfMember(
   tx: TransactionPipe,
@@ -260,8 +231,8 @@ export async function defineRoleOfMember(
       .innerJoin(role, eq(role.id, userRole.papelId))
       .where(ofAccount);
 
-    // Rebaixar o ÚLTIMO admin ativo tiraria a única conta que pode devolver o
-    // papel a alguém — o contrato ficaria sem quem administra.
+    // Demoting the LAST active admin would remove the only account able to
+    // grant that role again, leaving the contract unmanaged.
     const eraAdmin = alvo.ativo && antigos.some((p) => p.nome === ROLE_ADMIN);
     if (eraAdmin && novo.nome !== ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
       return { ok: false, error: MESSAGE_LAST_ADMIN };
@@ -285,16 +256,7 @@ export async function defineRoleOfMember(
 }
 
 /**
- * Tira alguém do contrato.
- *
- * **Desativa, não apaga.** `usuario` é referenciado por conversa, avaliação,
- * lead e log de auditoria: apagar a linha apagaria a autoria de tudo o que a
- * pessoa fez — que é exatamente o que uma auditoria de contrato vai procurar.
- * `ativo = false` já barra a entrada (`packages/autenticacao/src/entrada.ts`),
- * que é o efeito que a tela promete.
- *
- * O papel FICA. Reativar alguém sem papel nenhum daria acesso a uma tela vazia,
- * e quem volta costuma voltar para a mesma função.
+ * Remove a contract member by DEACTIVATING, never deleting. `usuario` is referenced by conversations, evaluations, leads and audit records; deleting it would erase attribution needed by contract audits. `ativo = false` already blocks sign-in (`packages/autenticacao/src/entrada.ts`). Keep the role so a reactivated member returns to their former responsibilities.
  */
 export async function removeMember(
   tx: TransactionPipe,
@@ -317,8 +279,8 @@ export async function removeMember(
       .innerJoin(role, eq(role.id, userRole.papelId))
       .where(and(eq(userRole.userId, usuarioIdAlvo), eq(userRole.escopo, 'conta')))
       .limit(1);
-    // Mesma trava de `definirPapelDoMembro`: remover o último admin ativo
-    // deixaria o contrato sem ninguém que possa dar o papel a outra pessoa.
+    // Apply the `definirPapelDoMembro` guard here too: removing the last active admin
+    // would leave nobody able to assign the role again.
     if (roleAtual?.nome === ROLE_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
       return { ok: false, error: MESSAGE_LAST_ADMIN };
     }
@@ -338,12 +300,7 @@ export async function removeMember(
 }
 
 /**
- * Troca o papel de um convite que ainda não foi usado.
- *
- * Na origem isto é a MESMA chamada de `definirPapelDoMembro` — lá o convidado
- * já é uma linha de `tenant-user` e `set .../role` vale para ele igual. Aqui a
- * linha vive em `convite`, então é uma função à parte; o efeito é o mesmo, e o
- * papel novo é o que vai valer quando a pessoa entrar.
+ * Change the role of an unused invite. Blip uses the same `definirPapelDoMembro` operation because invitees are already `tenant-user` rows and `set .../role` applies equally. Here they live in `convite`, so a separate function has the same effect: the new role applies at first sign-in.
  */
 export async function defineRoleOfInvitation(
   tx: TransactionPipe,
@@ -385,12 +342,7 @@ export async function defineRoleOfInvitation(
 }
 
 /**
- * Cancela um convite em aberto.
- *
- * **Vence, não apaga.** A linha do convite é a prova de quem chamou quem, e é o
- * que uma auditoria procura quando alguém de fora aparece dentro. Vencer o
- * prazo já mata o link — é a mesma jogada de `criarConvite`, que vence o
- * anterior antes de emitir outro.
+ * Cancel an open invitation by expiring, not deleting it. Keep the row as evidence of who invited whom; expiry invalidates its link, as `criarConvite` does before issuing a replacement.
  */
 export async function cancelarInvitation(
   tx: TransactionPipe,

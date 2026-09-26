@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -15,10 +15,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O nono dígito na entrada. A Meta ainda entrega celular brasileiro antigo sem o 9
- * (`553199998888`), e o importador de contatos grava a forma canônica, com o 9
- * (`5531999998888`). Sem casar as duas, o cliente importado que escreve abre uma
- * ficha nova e perde o histórico e os dados que a empresa subiu.
+ * The ninth digit on input. Meta still delivers old-style Brazilian mobile numbers without the 9 (`553199998888`), and the contact importer records the canonical form, with the 9 (`5531999998888`). Without matching the two, an imported customer who writes in opens a new record and loses the history and data the company uploaded.
  */
 
 let cenario: Cenario;

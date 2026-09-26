@@ -7,25 +7,10 @@ import { databaseOwner, keyring, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 
 /**
- * A conexão de SSO do cliente: o que ele preenche, em que estado ela está, e
- * quando ela passa a valer.
- *
- * Duas regras moldam este arquivo, e as duas vêm de
- * `referencias-blip/pesquisa/sso-multi-tenant.md`:
- *
- * 1. **Salvar não liga nada.** A conexão nasce `rascunho`, vira `testada` quando
- *    um teste real passa, e só então pode ir a `ativa`. É o que permite ligar o
- *    SSO sem quebrar o login de quem já está dentro.
- * 2. **Ligar o SSO e exigir o SSO são dois campos.** `estado` diz se a conexão
- *    funciona; `politica` diz se a senha ainda vale. Todo incidente de "o cliente
- *    inteiro ficou de fora" nasce de serem o mesmo botão.
- *
- * O `clientSecret` nunca é gravado em claro nem devolvido: entra por
- * `cifrarConfig` (`packages/db/src/segredo.ts`, que já trata `clientSecret` como
- * campo secreto) e só sai decifrado no caminho que fala com o IdP.
+ * Tenant SSO connection and activation follow `referencias-blip/pesquisa/sso-multi-tenant.md`. Saving creates `rascunho`; a real test moves it to `testada`, and only then can it become `ativa`, preventing an untested IdP from breaking login. `estado` controls whether the connection works, while `politica` controls whether passwords remain allowed; enabling SSO must be separate from requiring it to avoid tenant-wide lockout. Never store or return `clientSecret` in plaintext: `cifrarConfig` (`packages/db/src/segredo.ts`) encrypts it, and only the IdP call path decrypts it.
  */
 
-/** Um teste vale 30 dias. Conexão testada no ano passado não prova nada hoje. */
+/** A successful test is valid for 30 days; a test from last year proves nothing now. */
 export const DAYS_OF_TEST_VALID = 30;
 
 export const ESTADOS = ['rascunho', 'testada', 'ativa'] as const;
@@ -35,7 +20,7 @@ export const PROVEDORES = ['generico', 'entra', 'google_workspace', 'okta'] as c
 export type StateConnection = (typeof ESTADOS)[number];
 export type PoliticaSso = (typeof POLITICAS)[number];
 
-/** O que a tela vê. Sem segredo, e é por isso que existe um tipo só para isto. */
+/** Screen-facing type excludes secrets; that is why it is separate. */
 export interface ConexaoSsoVisivel {
   id: string;
   provider: ProvedorSso;
@@ -50,7 +35,7 @@ export interface ConexaoSsoVisivel {
 }
 
 interface LinhaConexao {
-  /** O `execute` do drizzle exige forma indexável; as colunas acima continuam tipadas. */
+  /** Drizzle `execute` requires an indexable shape; the columns above remain typed. */
   [column: string]: unknown;
   id: string;
   tenant_id: string;
@@ -64,7 +49,7 @@ interface LinhaConexao {
   ativada_em: string | null;
 }
 
-/** A URL de retorno é UMA, para todos os clientes: o tenant vem do `state`, não da URL. */
+/** Use one callback URL for every tenant; `state`, not the URL, identifies the tenant. */
 export function ssoCallbackUrl(): string {
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
   return `${base}/v1/auth/sso/callback`;
@@ -92,11 +77,7 @@ export interface CorpoDeConexao {
 }
 
 /**
- * Salva a conexão. **Sempre volta para `rascunho`.**
- *
- * Mudar o emissor de uma conexão `ativa` sem rebaixar o estado seria trocar o
- * diretório inteiro de quem entra sem que ninguém testasse o novo — e o sintoma
- * apareceria como "todo mundo entrou no cliente errado", não como erro.
+ * Save the connection and always return it to `rascunho`. Changing an active connection's issuer without resetting and retesting could silently move all logins to another directory. An `ativa` connection must be retested after this change.
  */
 export async function salvarConexao(
   tenantId: string,
@@ -128,8 +109,7 @@ export async function salvarConexao(
       sql`select * from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
     );
 
-    // A política NÃO é tocada aqui, de propósito: reconfigurar o IdP não pode
-    // reabrir a senha de um tenant que exige SSO, nem fechá-la sem um botão.
+    // Do not change policy here: reconfiguring the IdP must neither reopen passwords for an SSO-required tenant nor disable them without an explicit action.
     const { rows } = await tx.execute<LinhaConexao>(sql`
       insert into conexao_sso (tenant_id, tipo, provedor, emissor, cliente_id, config)
       values (${tenantId}::uuid, 'oidc', ${provedor}, ${emissor}, ${clienteId},
@@ -151,8 +131,7 @@ export async function salvarConexao(
       acao: antes[0] ? 'alterou' : 'criou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,
-      // `registrarAuditoria` descarta `config` sozinha — `config` está na lista
-      // de campos que nunca entram no log. Passar a linha inteira é seguro.
+      // `registrarAuditoria` itself excludes `config` from logs, so passing the full row is safe.
       ...(antes[0] ? { antes: antes[0] } : {}),
       depois: linha,
     });
@@ -180,13 +159,7 @@ export interface MudancaOfState {
 }
 
 /**
- * Move a conexão de estado e/ou muda a política. **Duas travas, e cada uma já
- * derrubou o login de alguém:**
- *
- * - `ativa` exige teste verde nos últimos 30 dias. Sem isso, "salvei e liguei"
- *   manda todo o cliente para um IdP que nunca respondeu.
- * - `obrigatorio` exige a conexão `ativa`. Exigir SSO com o SSO desligado tranca
- *   o cliente inteiro do lado de fora, e é o incidente mais comum do assunto.
+ * Change SSO connection state and/or policy with two safeguards. `ativa` requires a successful test within 30 days; otherwise enabling could send every user to an IdP that never answered. `obrigatorio` requires an active connection; requiring a disabled SSO connection locks out the whole tenant.
  */
 export async function defineState(
   tenantId: string,
@@ -248,7 +221,7 @@ export function testValid(testadaEm: string | Date | null, agora = new Date()): 
   return agora.getTime() - quando.getTime() <= DAYS_OF_TEST_VALID * 24 * 60 * 60 * 1000;
 }
 
-/** Marca o teste verde. Só o retorno do fluxo de teste chama isto. */
+/** Record a successful test; only the test-flow callback calls this. */
 export async function marcarTestada(tenantId: string): Promise<void> {
   await noTenant(tenantId, async (tx) => {
     await tx.execute(sql`
@@ -268,11 +241,7 @@ export interface ConnectionForFlow {
 }
 
 /**
- * A conexão pronta para falar com o IdP, com o segredo decifrado e a descoberta
- * já lida. `buscar` é injetável para o teste não sair para a rede.
- *
- * `exigirAtiva` separa os dois usos: o login de verdade só anda com a conexão
- * ligada; o teste anda com ela em rascunho — é justamente para isso que ele existe.
+ * Ready IdP connection with decrypted secret and discovery metadata. `buscar` is injectable so tests avoid the network. `exigirAtiva` separates real login, which requires an active connection, from testing a draft connection.
  */
 export async function connectionForFlow(
   tenantId: string,
@@ -306,12 +275,7 @@ export async function connectionForFlow(
 }
 
 /**
- * O `tid` aceito, tirado do próprio emissor cadastrado.
- *
- * `https://login.microsoftonline.com/<tid>/v2.0` fixa o diretório. Se o cliente
- * cadastrar o emissor `common` ou `organizations`, a lista sai vazia — e aí o
- * `iss` do token seria de qualquer diretório da Microsoft. Recusamos: emissor de
- * app multi-tenant sem `tid` é a armadilha "emissor não fixado" da §8.
+ * Derive the accepted `tid` from the registered issuer. `https://login.microsoftonline.com/<tid>/v2.0` pins the directory. `common` or `organizations` yields no `tid`, so a token's `iss` could belong to any Microsoft directory; reject that unpinned issuer (spec §8).
  */
 function tenantsDoEntra(emissor: string): readonly string[] {
   const casado = /login\.microsoftonline\.com\/([^/]+)/.exec(emissor);
@@ -325,20 +289,11 @@ function tenantsDoEntra(emissor: string): readonly string[] {
   return [tid];
 }
 
-// O tipo vive em @pipe/contracts: é a MESMA resposta que as três telas de entrada
-// leem, e duas definições do mesmo formato divergem no dia em que um campo muda.
+// The type lives in @pipe/contracts so all three login screens share the same response format; duplicate definitions would diverge when a field changes.
 export type { RespostaDaDescoberta };
 
 /**
- * A descoberta do login: um campo de e-mail, e um "Continuar".
- *
- * **A resposta é a mesma para e-mail conhecido e desconhecido**, exceto quando o
- * domínio é verificado e tem SSO ativo — que é público de qualquer jeito, porque
- * o cliente escolheu ligar. Sem isso, o endpoint vira catálogo de "quais empresas
- * usam Pipe".
- *
- * Por isso não há atalho para domínio público: a consulta roda igual nos dois
- * casos e o descarte vem depois. Tempo de resposta também conta.
+ * Login discovery accepts an email and returns the same response for known and unknown addresses, except a verified domain with active SSO, which the tenant chose to make public. Otherwise the endpoint would reveal which companies use Pipe. Query public domains through the same path and discard after lookup to avoid a timing difference.
  */
 export async function discoverInbound(emailCru: string | undefined): Promise<RespostaDaDescoberta> {
   const email = (emailCru ?? '').trim().toLowerCase();
@@ -360,21 +315,16 @@ export async function discoverInbound(emailCru: string | undefined): Promise<Res
      limit 1
   `);
 
-  // O descarte vem DEPOIS da consulta, e é o que garante que `gmail.com` custe o
-  // mesmo tempo que um domínio de empresa. Domínio público nunca roteia: quem
+  // Discard after lookup so `gmail.com` takes roughly the same time as a company domain. Public domains never route to SSO.
   // mapeasse `gmail.com` capturaria o login de meio Brasil.
   const slug = DOMINIOS_PUBLICOS.has(domain) ? undefined : rows[0]?.slug;
-  // `google`, e não `senha`: o Pipe não guarda senha de ninguém, e prometer um
-  // campo que não existe faz a tela desenhar o que não sabe fazer.
+  // Return `google`, not `senha`: Pipe stores no passwords, and promising a nonexistent password field would mislead the screen.
   if (!slug) return { metodo: 'google' };
   return { metodo: 'sso', irPara: `/v1/auth/sso/${encodeURIComponent(slug)}` };
 }
 
 /**
- * O link direto `/e/<slug>`: a mesma descoberta, feita pela URL.
- *
- * Existe para quem tem e-mail pessoal e por isso nunca é descoberto pelo domínio
- * — o dono da agência com `@gmail.com`, o terceirizado, o consultor.
+ * `/e/<slug>` performs the same discovery by URL for personal-email users whom domain discovery cannot find, such as agency owners, contractors, and consultants on `@gmail.com`.
  */
 export async function tenantBySlug(slug: string): Promise<string> {
   const { rows } = await databaseOwner().execute<{ id: string }>(

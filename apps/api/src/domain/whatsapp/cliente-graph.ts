@@ -2,48 +2,12 @@ import { createHash, createHmac } from 'node:crypto';
 import { PipeError } from '../../errors.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb
- *
- * O cliente do Graph que o cadastro embutido, a configuração manual, a saúde do
- * número e a desmontagem usam. Mesmos endpoints, mesmos corpos e mesma ordem do
- * original — o nome dos métodos é que foi para o português:
- *
- * | Chatwoot                               | aqui                           |
- * |----------------------------------------|--------------------------------|
- * | `exchange_code_for_token`              | `trocarCodigoPorToken`         |
- * | `fetch_all_phone_numbers`              | `buscarTodosOsNumeros`         |
- * | `fetch_message_templates`              | `buscarModelos`                |
- * | `fetch_permissions`                    | `buscarPermissoes`             |
- * | `fetch_phone_number`                   | `buscarNumero`                 |
- * | `register_phone_number`                | `registrarNumero`              |
- * | `deregister_phone_number`              | `descadastrarNumero`           |
- * | `phone_number_verified?`               | `numeroVerificado`             |
- * | `subscribe_phone_number_webhook`       | `assinarWebhookDoNumero`       |
- * | `subscribe_app_to_waba`                | `assinarAppNaWaba`             |
- * | `override_phone_number_callback`       | `sobrescreverCallbackDoNumero` |
- * | `clear_phone_number_callback_override` | `limparCallbackDoNumero`       |
- * | `unsubscribe_app_from_waba`            | `desassinarAppDaWaba`          |
- * | `handle_response`                      | `pedir`                        |
- *
- * Acréscimos do Pipe, que o original não tem:
- *
- * - **O corpo cru da resposta não entra na exceção.** O original levanta
- *   `"#{error_message}: #{response.body}"`; aqui só entram o `error.message` da
- *   Meta e o código, e passados por `esconder`. A Meta às vezes ecoa o que
- *   recebeu, e token de cliente em mensagem de erro é credencial indo para o log.
- * - **`buscar` injetável**, para o teste exercitar o cliente real sem rede.
- * - **O dublê** (`ClienteGraphDuble`). Não temos aplicativo aprovado na Meta, e
- *   sem dublê o caminho "conectar → receber" não roda antes de ela liberar. A
- *   escolha é por `PIPE_WHATSAPP_CONEXAO`: `real` fala com o Graph, qualquer outro
- *   valor usa o dublê.
- * - **A versão padrão é a v26.0**, a mais nova do changelog oficial do Graph em
- *   11/09/2026 (o original usa `v22.0`). A v21.0 que o Pipe usava vale só até
- *   21/01/2027.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/facebook_api_client.rb. This Graph client serves embedded signup, manual setup, number health, and teardown with the original endpoints, payloads, and order; methods `trocarCodigoPorToken`, `buscarTodosOsNumeros`, `buscarModelos`, `buscarPermissoes`, `buscarNumero`, `registrarNumero`, `descadastrarNumero`, `numeroVerificado`, `assinarWebhookDoNumero`, `assinarAppNaWaba`, `sobrescreverCallbackDoNumero`, `limparCallbackDoNumero`, `desassinarAppDaWaba`, and `pedir` correspond to the Chatwoot operations. Pipe never includes raw response bodies in exceptions: Meta may echo submitted credentials, so only scrubbed error message and code are logged through `esconder`. `buscar` is injectable for network-free tests. `ClienteGraphDuble` enables the full connection path before Meta approves the app; `PIPE_WHATSAPP_CONEXAO=real` uses Graph and other values use the fake. The default API version is v26.0 (Graph changelog, 2026-09-11), versus Chatwoot v22.0; Pipe's former v21.0 expires 2027-01-21. Method mapping in order: `exchange_code_for_token`→`trocarCodigoPorToken`; `fetch_all_phone_numbers`→`buscarTodosOsNumeros`; `fetch_message_templates`→`buscarModelos`; `fetch_permissions`→`buscarPermissoes`; `fetch_phone_number`→`buscarNumero`; `register_phone_number`→`registrarNumero`; `deregister_phone_number`→`descadastrarNumero`; `phone_number_verified?`→`numeroVerificado`; `subscribe_phone_number_webhook`→`assinarWebhookDoNumero`; `subscribe_app_to_waba`→`assinarAppNaWaba`; `override_phone_number_callback`→`sobrescreverCallbackDoNumero`; `clear_phone_number_callback_override`→`limparCallbackDoNumero`; `unsubscribe_app_from_waba`→`desassinarAppDaWaba`; `handle_response`→`pedir`. Chatwoot exposed `"#{error_message}: #{response.body}"`; Pipe logs only scrubbed `error.message`. `PIPE_WHATSAPP_CONEXAO` selects `real` or the fake; Chatwoot uses `v22.0`.
  */
 
 export const URL_BASE = 'https://graph.facebook.com';
 
-/** `WEBHOOK_DEFAULT_FIELDS` do original: reenviados em toda assinatura para a Meta não voltar ao padrão. */
+/** Resend the original `WEBHOOK_DEFAULT_FIELDS` on every subscription so Meta does not reset them to defaults. */
 export const CAMPOS_PADRAO_DO_WEBHOOK = ['messages', 'smb_message_echoes'] as const;
 
 /** `GlobalConfigService.load('WHATSAPP_API_VERSION', …)` do original, com o nome do Pipe. */
@@ -86,12 +50,7 @@ export type PerfilParaGravar = Omit<PerfilDoNumero, 'profile_picture_url'> & {
 export const CAMPOS_DO_PERFIL = 'about,address,description,email,profile_picture_url,websites,vertical';
 
 /**
- * Um componente de template como a Meta devolve e recebe (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`).
- *
- * Os dois últimos campos são só da categoria AUTHENTICATION, cujo texto é da
- * Meta e não nosso: `BODY.add_security_recommendation` acrescenta "não
- * compartilhe este código" e `FOOTER.code_expiration_minutes` (1 a 90) põe o
- * "este código expira em N minutos" — ver `montarModelo` em `modelos.ts`.
+ * Template component accepted and returned by Meta (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`). The last two fields apply only to AUTHENTICATION templates. Meta supplies their text: `BODY.add_security_recommendation` adds "não compartilhe este código", and `FOOTER.code_expiration_minutes` (1–90) adds "este código expira em N minutos"; see `montarModelo` in `modelos.ts`.
  */
 export interface ComponentOfTemplate {
   type: string;
@@ -143,45 +102,36 @@ export abstract class ClienteGraph {
   abstract desassinarAppDaWaba(wabaId: string): Promise<unknown>;
 
   /*
-   * Acréscimos do Pipe para a configuração MANUAL e o perfil do número — o
-   * Chatwoot não edita perfil. Endpoints da Cloud API:
-   * `GET /app`, `GET|POST /{phone}/whatsapp_business_profile` e a
-   * Resumable Upload API (`POST /{app}/uploads` + `POST /{upload}`).
+   * Pipe additions for manual setup and phone profile, which Chatwoot does not edit: Cloud API `GET /app`, `GET|POST /{phone}/whatsapp_business_profile`, and Resumable Upload API `POST /{app}/uploads` plus `POST /{upload}`.
    */
 
-  /** `GET /app`: o aplicativo dono do token — na configuração manual, o do CLIENTE. */
+  /** `GET /app` identifies the token-owning app, which belongs to the customer in manual setup. */
   abstract buscarAppDoToken(): Promise<{ id?: string; name?: string }>;
   /**
-   * Prova que o `appSecret` colado é o do app dono do token: a Meta confere o
-   * `appsecret_proof` (HMAC-SHA256 do token com o segredo) sempre que ele vem.
+   * Prove the pasted `appSecret` belongs to the token-owning app: Meta validates `appsecret_proof`, an HMAC-SHA256 of the token using that secret.
    */
   abstract checkSecretOfApp(numeroId: string, secret: string): Promise<boolean>;
   abstract lerPerfil(numeroId: string): Promise<PerfilDoNumero>;
   abstract gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown>;
   /**
-   * Sobe um arquivo pela Resumable Upload API e devolve o `h` — o handle que
-   * `profile_picture_handle` (foto do perfil) e `example.header_handle` (mídia
-   * de exemplo no cabeçalho do modelo) esperam. O nome ficou de quando só a
-   * foto subia; a API é a mesma para qualquer tipo, e `tipo` é o MIME.
+   * Upload through the Resumable Upload API and return handle `h`, used by `profile_picture_handle` and template `example.header_handle`. The name predates support for non-photo files; `tipo` is MIME for any media.
    */
   abstract upPhoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
-  /** `GET /{waba}/message_templates`, todas as páginas. */
+  /** Fetch all pages of `GET /{waba}/message_templates`. */
   abstract listarModelos(wabaId: string): Promise<TemplateOfMeta[]>;
-  /** `POST /{waba}/message_templates`: manda para análise da Meta. */
+  /** Submit `POST /{waba}/message_templates` for Meta review. */
   abstract createTemplate(wabaId: string, template: NewTemplateOfMeta): Promise<{ id?: string; status?: string }>;
   /** `DELETE /{waba}/message_templates?name=`: some em TODOS os idiomas desse nome. */
   abstract deleteTemplate(wabaId: string, nome: string): Promise<unknown>;
 
-  /** `phone_number_verified?`: conectado já está registrado, mesmo com o código de verificação vencido. */
+  /** `phone_number_verified?`: a connected number is registered even if its verification code expired. */
   async numeroVerificado(numeroId: string): Promise<boolean> {
     const data = await this.buscarNumero(numeroId, 'status,code_verification_status');
     return data['status'] === 'CONNECTED' || data['code_verification_status'] === 'VERIFIED';
   }
 
   /**
-   * `subscribe_phone_number_webhook`: o app na WABA primeiro — a Meta exige isso
-   * antes de qualquer override (chatwoot#13097). O override por NÚMERO ganha do
-   * da WABA, e é o que deixa dois números da mesma WABA irem para URLs diferentes.
+   * `subscribe_phone_number_webhook` must subscribe the app to the WABA before any override, as Meta requires (chatwoot#13097). The per-number override wins over the WABA callback, allowing two numbers in one WABA to use different URLs.
    */
   async assinarWebhookDoNumero(
     wabaId: string,
@@ -195,7 +145,7 @@ export abstract class ClienteGraph {
   }
 }
 
-/** Tira segredo de texto que vai virar mensagem de erro. Acréscimo do Pipe. */
+/** Strip secrets from text that may become an error message; Pipe addition. */
 function esconder(texto: string, ...secrets: string[]): string {
   let saida = texto;
   for (const segredo of secrets) {
@@ -208,8 +158,7 @@ function credentialsOfApp(): { id: string; secret: string } {
   const id = process.env['WHATSAPP_APP_ID'] ?? '';
   const secret = process.env['WHATSAPP_APP_SECRET'] ?? '';
   if (!id || !secret) {
-    // Acréscimo do Pipe: o original manda string vazia e deixa a Meta recusar,
-    // o que vira um erro dela sem dizer qual variável falta.
+    // Pipe rejects missing variables before calling Meta. The original sends an empty string and receives a less specific Meta error.
     throw new PipeError(
       500,
       'app_without_credential',
@@ -244,7 +193,7 @@ export class ClienteGraphReal extends ClienteGraph {
     return { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' };
   }
 
-  /** `handle_response`: recusa vira exceção com a mensagem do passo; sucesso devolve o JSON. */
+  /** `handle_response`: a refusal throws with the step's message; success returns JSON. */
   private async pedir<T>(
     url: string,
     init: RequestInit,
@@ -296,7 +245,7 @@ export class ClienteGraphReal extends ClienteGraph {
     );
   }
 
-  /** Paginado: uma WABA pode ter mais números que uma página do Graph. */
+  /** Paginate because a WABA can contain more numbers than one Graph page. */
   async buscarTodosOsNumeros(wabaId: string): Promise<NumeroDaWaba[]> {
     const numeros: NumeroDaWaba[] = [];
     let depois: string | undefined;
@@ -349,7 +298,7 @@ export class ClienteGraphReal extends ClienteGraph {
     );
   }
 
-  /** Solta o número deste app, para o cliente poder levá-lo a outro provedor. */
+  /** Release the number from this app so the customer can move it to another provider. */
   descadastrarNumero(numeroId: string): Promise<unknown> {
     return this.pedir(
       this.url(`${numeroId}/deregister`),
@@ -400,7 +349,7 @@ export class ClienteGraphReal extends ClienteGraph {
     );
   }
 
-  /** Tira a assinatura do app da WABA inteira — só quando o último canal dela sai. */
+  /** Unsubscribe the app from the whole WABA only when its last channel leaves. */
   desassinarAppDaWaba(wabaId: string): Promise<unknown> {
     return this.pedir(
       this.url(`${wabaId}/subscribed_apps`),
@@ -425,7 +374,7 @@ export class ClienteGraphReal extends ClienteGraph {
       );
       return true;
     } catch (erro) {
-      // Só a recusa da Meta quer dizer "segredo errado"; rede fora é outro problema.
+      // Only a Meta refusal means the secret is wrong; a network outage is different.
       if (erro instanceof PipeError && erro.codigo === 'meta_refused') return false;
       throw erro;
     }
@@ -453,9 +402,7 @@ export class ClienteGraphReal extends ClienteGraph {
   }
 
   /**
-   * Resumable Upload API em duas chamadas: abre a sessão no app e manda os bytes
-   * de uma vez (`file_offset: 0`). O id da sessão já vem com `?sig=…` — vai
-   * colado na URL, sem codificar, senão a assinatura dela deixa de bater.
+   * Resumable Upload API takes two calls: open a session on the app and send all bytes with `file_offset: 0`. The session ID includes `?sig=…`; append it to the URL without encoding or the signature will fail.
    */
   async upPhoto(appId: string, bytes: Buffer, tipo: string): Promise<string> {
     const session = await this.pedir<{ id?: string }>(
@@ -512,7 +459,7 @@ export class ClienteGraphReal extends ClienteGraph {
   }
 }
 
-/** O que o dublê registrou. Sem token nenhum, de propósito: isto vai para o teste e para o log. */
+/** What the fake recorded, deliberately without tokens because tests and logs consume it. */
 export interface ChamadaGraph {
   acao: string;
   wabaId?: string;
@@ -523,20 +470,12 @@ export interface ChamadaGraph {
 }
 
 /**
- * O dublê do Graph. Acréscimo do Pipe — o original testa com WebMock.
- *
- * Determinístico a partir do código: o mesmo código sempre dá o mesmo token, e o
- * token sempre dá o mesmo número. É o que permite exercitar na VPS o caminho
- * inteiro e provar, de quebra, que o mesmo número não entra em dois clientes.
- *
- * Prefixos de código que exercitam os caminhos de erro sem aplicativo aprovado:
- * `invalido…` (a Meta recusa a troca), `sem-token…` (a troca volta sem
- * `access_token`) e `sem-permissao…` (o token não alcança a WABA).
+ * Pipe's Graph fake replaces Chatwoot's WebMock. It deterministically maps each code to a token and each token to a number, enabling full VPS connection tests and proving a number cannot join two tenants. Prefixes exercise failures without an approved app: `invalido…` makes Meta refuse exchange, `sem-token…` returns no `access_token`, and `sem-permissao…` denies WABA access.
  */
 export class ClienteGraphDuble extends ClienteGraph {
   readonly nome = 'duble' as const;
 
-  /** Compartilhado entre instâncias: cada chamada nasce com um token, o registro é um só. */
+  /** Shared across instances: each call has its own token but one recorded call list. */
   static readonly chamadas: ChamadaGraph[] = [];
 
   static reiniciar(): void {
@@ -545,7 +484,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     ClienteGraphDuble.modelos.clear();
   }
 
-  /** Onze dígitos estáveis a partir de um texto qualquer. */
+  /** Stable eleven-digit value derived from arbitrary text. */
   static sufixo(seed: string): string {
     const hash = createHash('sha256').update(seed).digest('hex').slice(0, 12);
     return BigInt(`0x${hash}`).toString().padStart(11, '0').slice(0, 11);
@@ -676,7 +615,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     return Promise.resolve({ success: true });
   }
 
-  /** Perfil por número, compartilhado entre instâncias como o registro de chamadas. */
+  /** Per-number profile shared across instances, like the call log. */
   static readonly perfis = new Map<string, PerfilDoNumero>();
 
   buscarAppDoToken(): Promise<{ id?: string; name?: string }> {
@@ -684,7 +623,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     return Promise.resolve({ id: `app-${ClienteGraphDuble.sufixo(this.token)}`, name: 'App de Ensaio' });
   }
 
-  /** Segredo que começa com `bad` (hexadecimal válido) é o segredo de outro app. */
+  /** A valid hexadecimal secret starting with `bad` belongs to another app. */
   checkSecretOfApp(numeroId: string, segredo: string): Promise<boolean> {
     this.registrar({ acao: 'conferir_segredo', numeroId });
     return Promise.resolve(!segredo.startsWith('bad'));
@@ -712,7 +651,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     return Promise.resolve(`${appId}-${ClienteGraphDuble.sufixo(bytes.toString('base64'))}`);
   }
 
-  /** Modelos por WABA. O que é criado nasce `PENDING`, como na Meta. */
+  /** Templates are keyed by WABA; new templates start as `PENDING`, as in Meta. */
   static readonly modelos = new Map<string, TemplateOfMeta[]>();
 
   listarModelos(wabaId: string): Promise<TemplateOfMeta[]> {
@@ -752,7 +691,7 @@ type FabricaDeCliente = (token?: string) => ClienteGraph;
 
 let fabrica: FabricaDeCliente | null = null;
 
-/** `Whatsapp::FacebookApiClient.new(access_token)`, com o dublê no lugar quando não é produção. */
+/** Chatwoot `Whatsapp::FacebookApiClient.new(access_token)` uses the fake outside production. */
 export function clienteGraph(token?: string): ClienteGraph {
   fabrica ??=
     modoDaConexao() === 'real'
@@ -761,7 +700,7 @@ export function clienteGraph(token?: string): ClienteGraph {
   return fabrica(token);
 }
 
-/** Troca a fábrica em tempo de execução. Existe para o teste. */
+/** Replace the factory at runtime for tests. */
 export function definirFabricaGraph(nova: FabricaDeCliente | null): void {
   fabrica = nova;
 }

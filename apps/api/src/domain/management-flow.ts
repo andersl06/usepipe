@@ -17,20 +17,11 @@ import type { TransactionPipe } from '@pipe/db';
 import type { GradeDoPortal } from '@pipe/contracts';
 
 /**
- * As leituras das telas DO CONTATO (`/fluxo/:id/**` na Gestão), movidas de
- * `apps/gestao/src/lib/*` para cá, como o README previu ("virar endpoint na
- * `api` é mover o arquivo"): a consulta é a mesma, só que agora recebe a
- * transação já com o tenant fixado — o controlador é quem sabe de sessão.
- *
- * Nada aqui sabe de HTTP nem de tela. O que sai é o que a tela desenha, e o
- * tipo é derivado da consulta (`Awaited<ReturnType<…>>`), não copiado à mão.
+ * Read contact-facing flow screens (`/fluxo/:id/**` in Management). These queries moved from `apps/gestao/src/lib/*` as planned in the README: the caller supplies a tenant-scoped transaction, and the `api` controller owns session handling. This module knows no HTTP or screen; it returns what the UI renders, with types derived from the query (`Awaited<ReturnType<…>>`) rather than copied manually.
  */
 
 /**
- * O que a tela mostra como "o número" do canal: `config.numero` no WhatsApp,
- * `config.username` no Instagram, o id da Página (`numero_id`) no Messenger.
- * Nenhum dos três é segredo — ficam legíveis no `config` cifrado
- * (`dominio/canais.ts`, `visivel`).
+ * The channel identifier shown as "the number": WhatsApp `config.numero`, Instagram `config.username`, or Messenger Page ID (`numero_id`). These are not secrets and are readable in encrypted `config` (`dominio/canais.ts`, `visivel`).
  */
 export const identifierOfChannel = sql<string | null>`coalesce(
   ${channel.config} ->> 'numero', ${channel.config} ->> 'username', ${channel.numeroId}
@@ -63,7 +54,7 @@ export async function loadContact(tx: TransactionPipe, tid: string, id: string) 
 
 export type ContactOfFlow = NonNullable<Awaited<ReturnType<typeof loadContact>>>;
 
-/** O fuso do tenant, para o "hoje" e o "criado em" não serem o fuso do servidor. */
+/** Use the tenant time zone so "today" and "created at" do not use the server time zone. */
 export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
   const [linha] = await tx.select({ fuso: tenant.fuso }).from(tenant).limit(1);
   return linha?.fuso ?? 'America/Sao_Paulo';
@@ -296,16 +287,13 @@ export interface DataOfGrowth {
 }
 
 /**
- * A origem lista campanhas; o Pipe ainda não persiste campanha nem audiência.
- * A leitura usa mensagens de template reais das últimas 72h, janela do painel da
- * API e do rastro da tela de origem. ponytail: cada linha é uma mensagem, não uma
- * campanha; quando houver entidade campanha, agrupar por disparo_id sem inferir
- * campanhas a partir de horário ou modelo.
+ * The source lists campaigns, but Pipe does not yet persist campaigns or audiences. Read real template messages from the past 72 hours, the API panel and source screen window. Each row is a message, not a campaign. Once a campaign entity exists, group by `disparo_id`; do not infer campaigns from time or model.
  */
 export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<DataOfGrowth> {
   const desde = new Date(Date.now() - 72 * 60 * 60 * 1000);
-  /* As consultas vão em série: em paralelo o driver disputa a mesma conexão
-     e o `set_config` do tenant se perde. */
+  /*
+   * Run queries serially: in parallel the driver contends for one connection and the tenant `set_config` is lost.
+   */
   const channels = await tx
     .select({ id: channel.id, name: channel.nome })
     .from(channel)
@@ -385,7 +373,7 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
   };
 }
 
-/* ------------------------------------------------------------ Conteúdos */
+
 
 export interface TemplateListed {
   id: string;
@@ -446,9 +434,7 @@ export async function loadChannelOfFlow(
 /* --------------------------------------------------------------- Portal */
 
 /**
- * A grade do portal, PAGINADA no banco (a origem conta com centenas de bots por
- * conta). `arquivado` fica fora: arquivar é tirar de circulação sem apagar.
- * Do mais novo para o mais antigo, que é a ordem da origem.
+ * Page the portal grid in the database: the source expects hundreds of bots per account. Exclude `arquivado` because archiving removes a bot from circulation without deleting it. Sort newest first, as in the source.
  */
 export async function carregarGradeDoPortal(
   tx: TransactionPipe,
@@ -457,7 +443,7 @@ export async function carregarGradeDoPortal(
   const search = pedido.search.trim();
   const emUso = ne(flow.estado, 'arquivado');
   const filter = search ? and(emUso, ilike(flow.nome, `%${search}%`)) : emUso;
-  /* UMA de cada vez: a transação vive numa conexão só. */
+  /* Run ONE query at a time: the transaction has a single connection. */
   const total = (await tx.select({ n: count() }).from(flow).where(emUso))[0]?.n ?? 0;
   const encontrados = search
     ? ((await tx.select({ n: count() }).from(flow).where(filter))[0]?.n ?? 0)

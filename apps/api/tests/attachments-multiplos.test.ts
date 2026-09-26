@@ -20,14 +20,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * `POST /v1/conversas/:id/mensagens/anexos` — vários arquivos num envio
- * (`enviarAnexos`, `dominio/envio.ts`; auditoria do Desk, item 2).
+ * `POST /v1/conversas/:id/mensagens/anexos` — several files in one send (`enviarAnexos`, `dominio/envio.ts`; Desk audit, item 2).
  *
- * O modelo é o da origem: UMA mensagem por arquivo, em sequência, até 10. O que
- * este arquivo prova é o "tudo ou nada": o lote é validado inteiro ANTES de a
- * primeira mensagem sair — mais de 10, anexo inexistente, arquivo fora do teto
- * do tipo, janela fechada ou conversa de outro atendente não deixam NENHUMA
- * mensagem para trás.
+ * The model follows the source: ONE message per file, in sequence, up to 10. What this file proves is "all or nothing": the whole batch is validated BEFORE the first message goes out — more than 10, a nonexistent attachment, a file over the type's ceiling, a closed window, or a conversation belonging to another agent leave NO message behind.
  */
 
 let cenario: Cenario;
@@ -97,7 +92,7 @@ async function up(dados: Buffer, mime: string, nome: string): Promise<string> {
   return ((await resposta.json()) as { id: string }).id;
 }
 
-/** Uma conversa com a janela de 24 h aberta (ou fechada), atribuída a `atendenteId`. */
+/** A conversation with the 24h window open (or closed), assigned to `atendenteId`. */
 async function createConversation(
   agentId: string | null,
   window: 'aberta' | 'fechada' = 'aberta',
@@ -163,12 +158,12 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     expect(messages).toHaveLength(3);
     expect(messages.every((m) => m.estado_entrega === 'pendente')).toBe(true);
 
-    // Na ordem em que a resposta diz que saíram (a ordem do lote), não na do relógio.
+    // // In the order the response says they went out (the batch's order), not the clock's.
     const todas = await messagesOf(conversationId);
     const gravadas = messages.map((m) => todas.find((g) => g.id === m.id)!);
     expect(gravadas.map((m) => m.attachmentId)).toEqual([foto, contract, outra]);
     expect(gravadas.map((m) => m.tipo)).toEqual(['imagem', 'documento', 'imagem']);
-    // A legenda vai na PRIMEIRA, só.
+    // // The caption goes on the FIRST one, only.
     expect(gravadas.map((m) => m.conteudo)).toEqual(['Segue o material', null, null]);
 
     const { rows: outbox } = await cenario.dono.execute<{ n: string }>(sql`
@@ -208,8 +203,8 @@ describe('POST /v1/conversations/:id/messages/anexos', () => {
     const conversaId = await createConversation(cenario.agentId);
     const ok = await up(PNG, 'image/png', 'ok.png');
     const grande = await up(PDF, 'application/pdf', 'enorme.pdf');
-    // O upload já barra o tamanho; para provar a conferência por arquivo no LOTE, a
-    // linha é adulterada com o papel dono, como se tivesse entrado por outro caminho.
+    // // The upload already blocks by size; to prove the per-file check in the BATCH, the
+    // // line is tampered with the owner role, as if it had come in through another path.
     await cenario.dono.execute(sql`
       update anexo set bytes = ${MAX_BYTES_BY_FILEMAX_BYTES_POR_ARQUIVOMAX_BYTES_BY_FILE + 1} where id = ${grande}::uuid
     `);

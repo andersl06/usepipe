@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_EMAIL_MODO'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -22,13 +22,9 @@ import type { Email, RemetenteDeEmail } from '../src/domain/email.js';
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
- * E-mail: o dublê registra, o convite dispara com o link, a recategorização
- * dispara para a lista do canal (e não dispara desligada), e a falha do
- * provedor NÃO derruba nenhuma das duas operações.
+ * Email: the double records it, the invite fires with the link, recategorization fires for the channel's list (and doesn't fire when disabled), and a provider failure does NOT bring down either operation.
  *
- * Sem servidor HTTP: `criarConvite` e `aplicarEventosDeModelo` são chamados
- * direto, como `convites.test.ts` e `canais.test.ts` já fazem. O remetente real
- * é exercitado com um `fetch` falso, para provar o contrato do POST sem rede.
+ * No HTTP server: `criarConvite` and `aplicarEventosDeModelo` are called directly, as `convites.test.ts` and `canais.test.ts` already do. The real sender is exercised with a fake `fetch`, to prove the POST's contract without a network.
  */
 
 let cenario: Cenario;
@@ -56,7 +52,7 @@ async function seedRoleOfAccount(nome: string): Promise<void> {
   `);
 }
 
-/** Uma pessoa do tenant com a permissão dada — quem o alerta acha quando a lista está vazia. */
+/** A person on the tenant with the given permission — who the alert finds when the list is empty. */
 async function pessoaCom(permission: string, email: string): Promise<string> {
   const marca = randomUUID().slice(0, 8);
   const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
@@ -83,7 +79,7 @@ async function pessoaCom(permission: string, email: string): Promise<string> {
   return users[0]!.id;
 }
 
-/** Grava a preferência de alerta no canal do cenário e limpa o cache de canal. */
+/** Writes the alert preference on the scenario's channel and clears the channel cache. */
 async function configurarAlerta(ativo: boolean, emails: string[]): Promise<void> {
   const preferences = JSON.stringify({ alertaRecategorizacao: { ativo, emails } });
   await cenario.dono.execute(sql`
@@ -93,7 +89,7 @@ async function configurarAlerta(ativo: boolean, emails: string[]): Promise<void>
   esquecerChannel(cenario.channelId);
 }
 
-/** O evento de recategorização como a Meta manda, para o modelo do cenário. */
+/** The recategorization event as Meta sends it, for the scenario's template. */
 function recategorization(nome: string, de: string, para: string): unknown {
   return {
     object: 'whatsapp_business_account',
@@ -161,7 +157,7 @@ describe('o remetente', () => {
     expect(await enviarEmailSemDerrubar(email, 'teste')).toBe(true);
     expect(RemetenteDuble.enviados).toEqual([email]);
 
-    // Ninguém para avisar não é erro, e não registra nada.
+    // // Nobody to notify isn't an error, and nothing gets recorded.
     expect(await enviarEmailSemDerrubar({ ...email, para: [] }, 'teste')).toBe(false);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
@@ -209,7 +205,7 @@ describe('o remetente', () => {
         html: '<p>Texto</p>',
       });
 
-      // Recusa do provedor vira erro com o status — e o token não vaza na mensagem.
+      // // A provider refusal becomes an error with the status — and the token doesn't leak into the message.
       const recusa = (() =>
         Promise.resolve(new Response('token-de-teste-bem-comprido invalido', { status: 401 }))) as unknown as typeof fetch;
       await expect(
@@ -240,7 +236,7 @@ describe('Create and email invitations', () => {
     expect(enviado.para).toEqual([email]);
     expect(enviado.assunto).toContain('Convite');
     expect(enviado.texto).toContain(invitation.url);
-    // Diz onde a pessoa está entrando e com que acesso.
+    // // Says where the person is signing in and with what access.
     expect(enviado.texto).toContain(`e2e email-`);
     expect(enviado.texto).toContain('Pode visualizar');
   });
@@ -291,7 +287,7 @@ describe('Send template recategorization alerts', () => {
     expect(enviado.assunto).toContain('Utilidade → Marketing');
     expect(enviado.texto).toContain('WhatsApp de teste');
 
-    // Modelo que o Pipe não conhece não dispara nada.
+    // // A template Pipe doesn't know doesn't fire anything.
     expect(await aplicarEventsOfTemplate(channel, recategorization('nao_existe', 'UTILITY', 'MARKETING'))).toBe(0);
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
@@ -322,7 +318,7 @@ describe('Send template recategorization alerts', () => {
     expect(await aplicarEventsOfTemplate(canal, recategorization(rows[0]!.nome, 'MARKETING', 'UTILITY'))).toBe(1);
     expect(RemetenteDuble.enviados).toHaveLength(1);
     expect(RemetenteDuble.enviados[0]!.para).toContain(emailDoGestor);
-    // O atendente do cenário não gerencia canal: não entra na lista.
+    // // The scenario's agent doesn't manage the channel: doesn't make the list.
     const { rows: agent } = await cenario.dono.execute<{ email: string }>(
       sql`select email from usuario where id = ${cenario.agentId}::uuid`,
     );

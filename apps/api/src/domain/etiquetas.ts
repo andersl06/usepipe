@@ -8,20 +8,7 @@ import { evento, publicar } from '../realtime.js';
 import type { AtorOfConversation } from './conversation.js';
 
 /**
- * Etiquetar conversa ABERTA e etiquetar CONTATO — fora do encerramento.
- *
- * Até aqui a única forma de marcar uma tag numa conversa era pelo `POST /encerrar`,
- * que exige a etiqueta e fecha o ticket junto. A origem separa os dois gestos
- * (`ModalType.ADD_TAGS` ≠ `CLOSE_TICKET`, `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`
- * §1.8): a tag da conversa aberta é anotação de trabalho, e a do encerramento é
- * classificação final. As duas moram na mesma `conversa_etiqueta`, e por isso a
- * etiqueta aplicada aqui aparece pré-marcada no modal de Finalizar.
- *
- * A etiqueta de contato (`contato_etiqueta`) existia no schema sem rota nenhuma —
- * nem leitura, nem escrita. O escopo da etiqueta (`conversa` | `contato` | `ambos`)
- * é conferido no servidor: uma etiqueta de conversa não cabe num contato, e vice-versa.
- *
- * Auditoria na MESMA transação (`registrarAuditoria`), como toda escrita de cadastro.
+ * Tag an OPEN conversation or a CONTACT outside closing. Previously a conversation could be tagged only through `POST /encerrar`, which also closed it. The source distinguishes `ModalType.ADD_TAGS` from `CLOSE_TICKET` (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §1.8): an open ticket's tag is a work note, while the closing tag is final classification. Both use `conversa_etiqueta`, so a tag added here appears selected in the close modal. `contato_etiqueta` already existed without read or write routes. Enforce scope (`conversa` | `contato` | `ambos`) on the server: conversation-only tags cannot go on contacts and vice versa. Record `registrarAuditoria` in the SAME transaction as every catalog write.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -91,9 +78,7 @@ async function carregarEtiqueta(
 type LineConversation = { id: string; state: string; agentId: string | null };
 
 /**
- * A conversa existe, está aberta e — quando quem pede é gente — é do atendente.
- * Encerrada é recusada: tag em ticket fechado é reclassificação, e isso é tela de
- * gestor (histórico), não do Desk.
+ * The conversation must exist and be open; for a person, it must be assigned to that agent. Reject closed tickets: retagging them is a manager's history operation, not a Desk action.
  */
 async function loadConversationOpen(
   tx: TransactionPipe,
@@ -127,7 +112,7 @@ async function loadConversationOpen(
 export interface EtiquetaAplicada {
   etiquetaId: string;
   name: string;
-  /** `false` quando já estava lá — aplicar duas vezes não é erro, é no-op. */
+  /** Return `false` if already present; repeated application is a no-op, not an error. */
   aplicada: boolean;
 }
 
@@ -237,7 +222,7 @@ async function loadContact(tx: TransactionPipe, contatoId: string): Promise<{ id
   return contact;
 }
 
-/** Quem pede: pessoa (com `contato.editar`) ou chave (`contatos:escrever`, sem permissão de pessoa). */
+/** Requester is a person with `contato.editar` or an API key with `contatos:escrever` and no person permission. */
 export interface AtorOfContact {
   tenantId: string;
   userId: string | null;
@@ -252,7 +237,7 @@ export async function labelContact(
   return noTenant(ator.tenantId, async (tx) => {
     if (ator.viaSession) {
       if (!ator.userId) throw PipeError.naoAutorizado();
-      // A etiqueta do contato é dado do contato: a mesma permissão de editar a ficha.
+      // Contact tags are contact data, so require the same permission as editing the profile.
       await exigirPermission(tx, ator.userId, 'contato.editar');
     }
     const contato = await loadContact(tx, contatoId);

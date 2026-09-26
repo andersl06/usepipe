@@ -16,14 +16,11 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Encerrar e pausar têm de gravar `evento_atendimento`.
+ * Closing and pausing have to record `evento_atendimento`.
  *
- * O defeito que estes testes trancam: o Desk escrevia direto na tabela `conversa` e
- * não gravava evento nenhum. TMR, SLA e esforço ficavam cegos para tudo que o
- * atendente fazia — a Gestão mostrava número errado com cara de certo.
+ * The bug these tests lock down: the Desk used to write directly to the `conversa` table and record no event at all. TMR, SLA and effort were blind to everything the agent did — Management showed a wrong number that looked right.
  *
- * Métrica sai de `evento_atendimento`, que é imutável (modelo de dados §4); o estado
- * da conversa é cache. Por isso a asserção é sempre sobre o evento, não sobre a coluna.
+ * Metrics come from `evento_atendimento`, which is immutable (data model §4); the conversation's state is a cache. That's why the assertion is always on the event, never on the column.
  */
 
 let cenario: Cenario;
@@ -217,7 +214,7 @@ describe('espera', () => {
     const corpo = (await resposta.json()) as { state: string; pausadoSeg: number };
 
     expect(corpo.estado).toBe('em_atendimento');
-    // A conversa nasceu com `em_espera_desde` 30 segundos atrás.
+    // // The conversation was born with `em_espera_desde` 30 seconds ago.
     expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
     const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`
       select dados from evento_atendimento

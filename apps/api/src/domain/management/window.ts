@@ -2,23 +2,20 @@ import { sql } from 'drizzle-orm';
 import type { TransactionPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 
-/** Um intervalo em instantes, já no fuso da conta — o `Janela` de `lib/banco.ts` da Gestão. */
+/** Instant range in the account time zone, equivalent to Management's `Janela` in `lib/banco.ts`. */
 export interface Window {
   start: Date;
   end: Date;
 }
 
-/** O fuso do tenant, para o "hoje" dos cartões não ser o fuso do servidor. */
+/** Use the tenant time zone for card 'today', not the server time zone. */
 export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
   const [linha] = await tx.select({ fuso: tenant.fuso }).from(tenant).limit(1);
   return linha?.fuso ?? 'America/Sao_Paulo';
 }
 
 /**
- * Início e fim do dia corrente no fuso do tenant.
- *
- * A conta é feita pelo Postgres de propósito: é ele que conhece o banco de fusos,
- * e reimplementar horário de verão em JavaScript é como se perde um dia inteiro.
+ * Compute current-day bounds in the tenant time zone with PostgreSQL, which knows the time-zone database; duplicating daylight-saving logic in JavaScript risks losing a whole day.
  */
 export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<Window> {
   const r = await tx.execute<{ inicio: Date; fim: Date }>(
@@ -30,7 +27,7 @@ export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<
   return { start: new Date(linha.inicio), end: new Date(linha.fim) };
 }
 
-/** Do começo de `de` ao fim de `ate` (inclusivo), dias de calendário no fuso da conta. */
+/** From the start of `de` through the inclusive end of `ate`, as calendar days in the account time zone. */
 export async function windowOfDatas(
   tx: TransactionPipe,
   fuso: string,

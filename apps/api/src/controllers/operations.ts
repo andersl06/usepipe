@@ -6,25 +6,11 @@ import { renderizar } from '../metrics.js';
 import { verificarSaude } from '../saude.js';
 
 /**
- * As duas rotas que não pertencem a ninguém de fora: o healthcheck do orquestrador e
- * a coleta do Prometheus. Nenhuma delas leva `@Escopos` nem `@ComSessao` — são
- * públicas de propósito, e a de métricas tem porteiro próprio, logo abaixo.
+ * The orchestrator health check and Prometheus collection are deliberately unmarked by `@Escopos` or `@ComSessao`. Both routes are public at the guard layer; `/metrics` applies its own access check below.
  */
 
 /**
- * Quem pode ver `/metrics`.
- *
- * **`/metrics` aberto vaza volume de cliente**: contagem de requisição por rota e
- * profundidade de fila dizem quanto o Pipe está movimentando, e a soma disso é
- * informação comercial. Duas camadas, nesta ordem:
- *
- * 1. `PIPE_METRICS_TOKEN` definido → exige `Authorization: Bearer <token>`. É o modo
- *    de produção, e o Prometheus manda o header por `authorization` no `scrape_config`.
- * 2. Sem token → só rede interna (loopback e faixas privadas). Serve ao
- *    desenvolvimento e ao `docker compose`, onde o Prometheus é vizinho de rede.
- *
- * Atrás do Traefik o IP visto é o do proxy, que é privado — ou seja, sem token a
- * camada 2 libera qualquer um que chegue pelo proxy. Por isso: **em produção, token.**
+ * Control access to `/metrics`. An open endpoint exposes customer activity: request counts by route and queue depth reveal Pipe's commercial volume. With `PIPE_METRICS_TOKEN`, require `Authorization: Bearer <token>`; production Prometheus sends it through `authorization` in `scrape_config`. Without the token, allow only loopback or private networks for development and neighboring `docker compose` Prometheus. Behind Traefik, the visible proxy IP is private, so that fallback admits anyone who can reach the proxy. Production therefore requires the token.
  */
 export function canVerMetrics(request: Request): boolean {
   const esperado = process.env['PIPE_METRICS_TOKEN'];
@@ -39,12 +25,12 @@ export function canVerMetrics(request: Request): boolean {
 
 export function ehRedeInterna(ip: string | undefined): boolean {
   if (!ip) return false;
-  // O Node entrega IPv4 mapeado como `::ffff:10.0.0.3` quando o socket é dual-stack.
+  // On dual-stack sockets, Node represents mapped IPv4 as `::ffff:10.0.0.3`.
   const limpo = ip.replace(/^::ffff:/i, '');
   if (limpo === '127.0.0.1' || limpo === '::1' || limpo === 'localhost') return true;
   if (/^10\./.test(limpo) || /^192\.168\./.test(limpo)) return true;
   if (/^172\.(1[6-9]|2\d|3[01])\./.test(limpo)) return true;
-  // fc00::/7 (único local) e fe80::/10 (enlace local).
+  // `fc00::/7` is unique-local and `fe80::/10` is link-local.
   return /^f[cd]/i.test(limpo) || /^fe[89ab]/i.test(limpo);
 }
 
@@ -53,9 +39,9 @@ export class OperationsController {
   @Get('saude')
   async saude(@Res() resposta: Response): Promise<void> {
     const saude = await verificarSaude();
-    // 503 só quando o banco está fora: é o que tira o contêiner de rotação. Redis
-    // fora degrada a fila, não a resposta — e derrubar tudo por isso é trocar uma
-    // degradação por uma queda.
+    // Return 503 only when the database is down, so the container leaves rotation. Redis
+    // failure degrades queue processing, not responses; bringing down everything would turn
+    // degraded service into a full outage.
     resposta.status(saude.ok ? 200 : 503).json(saude);
   }
 

@@ -5,30 +5,10 @@ import { PipeError } from '../errors.js';
 import { provisionCustomer } from '../provision.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/builders/account_builder.rb, e a
- * leitura da flag de `account_signup_enabled?` em lib/global_config_service.rb.
- *
- * ## A decisão que esta flag carrega
- *
- * `docs/specs/2026-09-07-implantacao.md` §6.1 decide que a venda é ASSISTIDA:
- * quem cria tenant é o comando `provisionar`, e "provisionar é comando, não rota".
- * A flag do Chatwoot resolve o impasse sem contrariar a spec: `ENABLE_ACCOUNT_SIGNUP`
- * nasce `false`, e com ela desligada a rota pública responde 404 — exatamente o
- * que o Chatwoot faz (`check_signup_enabled`). Ligar é decisão do dono.
- *
- * Quem ligar precisa saber o que falta, porque o Chatwoot tem e o Pipe não:
- * - **captcha** (`validate_captcha`, hCaptcha);
- * - **confirmação do e-mail** antes de haver sessão — o Pipe não manda e-mail
- *   (`o-que-falta.md` item 7). Aqui a conta nasce INERTE: o administrador só
- *   entra pelo Google com aquele e-mail, e só depois de alguém do Pipe verificar
- *   o domínio ou mandar um convite;
- * - **limite de tentativa** por IP, que o Chatwoot faz fora deste arquivo (Rack::Attack).
- *
- * O que NÃO é duplicado: criar tenant, catálogo, papéis e administrador é o
- * `provisionarCliente`, o mesmo do comando. Este arquivo só valida e chama.
+ * Ported from chatwoot/chatwoot (MIT), `app/builders/account_builder.rb`, and its `account_signup_enabled?` flag in `lib/global_config_service.rb`. `docs/specs/2026-09-07-implantacao.md` §6.1 chooses assisted sales: tenant creation uses the `provisionar` command, not a route. The Chatwoot flag keeps public signup disabled by default (`ENABLE_ACCOUNT_SIGNUP` defaults to `false` and the route returns 404, as `check_signup_enabled` does there); enabling it requires an owner decision. Before enabling it, Pipe still needs hCaptcha (`validate_captcha`), email confirmation before a session for this signup path, and per-IP rate limiting (Rack::Attack in Chatwoot). The gap recorded in `o-que-falta.md` item 7 has partly changed: Pipe now has an email sender for invitations (`apps/api/src/dominio/email.ts`), but this signup path does not confirm the address. An account created here remains inert: its admin can enter via Google only after Pipe verifies the domain or sends an invitation. Tenant, catalog, roles, and admin creation stay in `provisionarCliente`; this file only validates and calls it.
  */
 
-/** `GlobalConfigService.account_signup_enabled?`: qualquer valor que não seja `false` liga. */
+/** `GlobalConfigService.account_signup_enabled?`: any value other than `false` enables signup. */
 export function registrationOfAccountEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   const value = (env['ENABLE_ACCOUNT_SIGNUP'] ?? '').trim() || 'false';
   return value !== 'false';
@@ -49,7 +29,7 @@ export interface AccountCreated {
   email: string;
 }
 
-/** O slug do espaço a partir do nome (a sugestão que a Blip faz em `/tenant-valid-id`). */
+/** Derive the workspace slug from the name, as Blip suggests in `/tenant-valid-id`. */
 export function slugOfAccount(nome: string, email: string): string {
   const base = (nome || domainOfEmail(email).split('.')[0] || 'conta')
     .normalize('NFD')
@@ -61,24 +41,7 @@ export function slugOfAccount(nome: string, email: string): string {
 }
 
 /**
- * A conta que nasce NO LOGIN, sem convite e sem domínio verificado.
- *
- * É o autosserviço da plataforma de origem: quem entra e não pertence a conta
- * nenhuma ganha uma na hora, e os dados da empresa vêm depois, em "minha
- * conta". Por isso aqui não há as validações de `construirConta`:
- *
- * - **domínio público passa.** Lá a conta pessoal é o caso comum de quem está
- *   experimentando, e o nome da empresa é assunto do formulário seguinte.
- * - **e-mail que já é usuário passa.** A mesma pessoa administra várias contas,
- *   e a partir da migração 0017 a identidade do provedor é única por tenant,
- *   não no sistema inteiro.
- *
- * O que NÃO se dispensa é o provedor ter confirmado o e-mail — isso é conferido
- * antes, em `entrarComIdentidade`, e vale para todo caminho de entrada.
- *
- * O slug ganha sufixo quando bate com um que já existe: são contas de gente
- * diferente com o mesmo nome de empresa, e derrubar o login de quem chegou
- * depois seria o pior jeito de contar isso.
+ * An account created AT SIGN-IN without an invitation or verified domain follows the source platform's self-service path: someone with no account receives one immediately, and supplies company details later in "minha conta". Unlike `construirConta`, a public email domain is allowed because personal trial accounts are common, and an email already used by another account is allowed because one person may manage several accounts. Since migration 0017, provider identity is unique per tenant, not globally. Provider-verified email remains mandatory and is checked earlier by `entrarComIdentidade` on every sign-in path. Add a suffix on slug collision: different people can have the same company name, and a later user's login must not fail for that reason.
  */
 export async function buildAccountOfLogin(pessoa: {
   email: string;
@@ -87,8 +50,8 @@ export async function buildAccountOfLogin(pessoa: {
   const email = pessoa.email.trim().toLowerCase();
   const publico = ehDomainPublic(email);
 
-  // O nome da conta: o da empresa quando o e-mail é corporativo, o da pessoa
-  // quando não é. Ambos são provisórios — "minha conta" reescreve.
+  // Use the company name for a corporate email and the person's name for a public email;
+  // both are provisional and "minha conta" can replace them.
   const nome = publico
     ? pessoa.name?.trim() || email.slice(0, email.indexOf('@'))
     : domainOfEmail(email).split('.')[0] || email.slice(0, email.indexOf('@'));
@@ -98,9 +61,9 @@ export async function buildAccountOfLogin(pessoa: {
     slug: await slugLivre(enderecoOfAccount(email)),
     plan: 'essencial',
     admin: email,
-    // E-mail pessoal não reivindica domínio; corporativo também não, aqui:
-    // domínio é o que dá entrada a TODO mundo daquele endereço, e isso se pede
-    // depois, com verificação por DNS.
+    // A personal email does not claim a domain; neither does a corporate email here:
+    // a domain grants entry to everyone with that address, so it must be requested
+    // later through DNS verification.
     withoutDomain: true,
   });
 
@@ -118,17 +81,7 @@ export async function buildAccountOfLogin(pessoa: {
 }
 
 /**
- * O endereço da conta, no formato da plataforma de origem: a PARTE LOCAL DO
- * E-MAIL mais um sufixo curto — `anderson-linhares-oxo7k`.
- *
- * Lá esse texto vira o subdomínio do portal daquela conta, e ele sai do e-mail
- * de quem está criando, não do nome da empresa: no minuto do cadastro ninguém
- * digitou nome de empresa ainda, e o endereço precisa existir antes disso.
- *
- * O sufixo aleatório não é enfeite: sem ele, duas pessoas chamadas
- * `joao.silva` em empresas diferentes brigariam pelo mesmo endereço, e a
- * segunda entraria numa fila de `-2`, `-3` que denuncia quantas contas existem.
- * Cinco caracteres em base 36 dão 60 milhões de combinações por nome.
+ * The account address follows the source platform: the email LOCAL PART plus a short suffix, for example `anderson-linhares-oxo7k`. There it becomes the account portal subdomain. It uses the creator's email rather than company name because the company name has not yet been entered when the address is needed. The random suffix prevents people such as `joao.silva` at different companies from colliding or receiving sequential `-2`, `-3` suffixes that reveal account counts. Five base-36 characters provide about 60 million combinations per name.
  */
 export function enderecoOfAccount(email: string, aleatorio = Math.random): string {
   const local = email.slice(0, email.indexOf('@') > 0 ? email.indexOf('@') : undefined);
@@ -146,7 +99,7 @@ export function enderecoOfAccount(email: string, aleatorio = Math.random): strin
   return `${base || 'conta'}-${sufixo}`;
 }
 
-/** `nome`, `nome-2`, `nome-3`… O primeiro que ninguém usou. */
+/** `nome`, `nome-2`, `nome-3`… Return the first unused value. */
 async function slugLivre(base: string): Promise<string> {
   for (let tentativa = 1; tentativa <= 50; tentativa++) {
     const slug = tentativa === 1 ? base : `${base}-${tentativa}`;
@@ -155,8 +108,8 @@ async function slugLivre(base: string): Promise<string> {
     );
     if (!rows[0]?.existe) return slug;
   }
-  // 50 contas com o mesmo nome é sinal de outra coisa acontecendo; o sufixo de
-  // tempo garante que ninguém fica sem entrar enquanto se descobre o quê.
+  // Fifty accounts with the same name suggest another issue; the time suffix
+  // ensures sign-in remains available while that issue is investigated.
   return `${base}-${Date.now().toString(36)}`;
 }
 
@@ -174,8 +127,8 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
     );
   }
 
-  // `validate_user`: e-mail que já é usuário em qualquer cliente. Papel dono,
-  // porque a pergunta é global, e só volta sim ou não.
+  // `validate_user`: check whether the email is already a user in any client. Use the owner role
+  // because this is a global question, and return only yes or no.
   const { rows } = await databaseOwner().execute<{ existe: boolean }>(
     sql`select exists (select 1 from usuario where lower(email) = ${email}) as existe`,
   );
@@ -192,7 +145,7 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
     admin: email,
   });
 
-  // `name: user_full_name` — o provisionamento põe a parte local do e-mail.
+  // `name: user_full_name`: provisioning uses the email's local part.
   const nameOfUser = pedido.nameOfUser?.trim();
   if (nameOfUser) {
     await noTenant(cliente.tenantId, (tx) =>

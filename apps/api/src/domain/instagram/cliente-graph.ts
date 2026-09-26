@@ -3,30 +3,12 @@ import { PipeError } from '../../errors.js';
 import { modoDaConexao, versaoDaApi } from '../whatsapp/cliente-graph.js';
 
 /**
- * Reconstruído a partir de chatwoot/chatwoot (MIT), app/services/instagram/*
- * (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) e do
- * `Channel::Instagram#subscribe`/`#unsubscribe`. Sem rede para ler o original: o
- * porte segue a Instagram Platform API ("Instagram API with Instagram Login"),
- * `graph.instagram.com`, e o que não deu para confirmar está marcado com
- * "conferir com token real".
- *
- * | Chatwoot                                    | aqui                   |
- * |---------------------------------------------|------------------------|
- * | `fetch_instagram_user_details` (`/me`)      | `buscarConta`          |
- * | `Channel::Instagram#subscribe`              | `assinarWebhook`       |
- * | `Channel::Instagram#unsubscribe`            | `desassinarWebhook`    |
- * | `RefreshOauthTokenService#refresh_long_lived_token` | `renovarToken` |
- *
- * Acréscimos do Pipe, os mesmos do cliente do WhatsApp (`../whatsapp/cliente-graph.ts`):
- * corpo cru da Meta nunca entra na exceção e todo segredo passa por `esconder`;
- * `buscar` injetável; dublê determinístico escolhido por `PIPE_WHATSAPP_CONEXAO`.
- * E um que o Chatwoot não tem: `conferirSegredoDoApp`, porque aqui o app é o do
- * CLIENTE e é o segredo dele que assina o webhook.
+ * Reconstructed from chatwoot/chatwoot (MIT), app/services/instagram/* (`Instagram::BaseService`, `Instagram::RefreshOauthTokenService`) and `Channel::Instagram#subscribe`/`#unsubscribe`. With no network access to inspect the original, the port follows the Instagram Platform API ("Instagram API with Instagram Login") at `graph.instagram.com`; unverified behavior is marked "verify with a real token". Chatwoot `fetch_instagram_user_details` maps to `buscarConta`, `subscribe`/`unsubscribe` to `assinarWebhook`/`desassinarWebhook`, and `refresh_long_lived_token` to `renovarToken`. As in `../whatsapp/cliente-graph.ts`, raw Meta bodies never enter exceptions, secrets pass through `esconder`, `buscar` is injectable, and `PIPE_WHATSAPP_CONEXAO` selects a deterministic fake. Pipe also adds `conferirSegredoDoApp`: the app belongs to the customer, whose secret signs the webhook. `buscarConta` calls `/me`; `Channel::Instagram#unsubscribe` maps to `desassinarWebhook`, and `RefreshOauthTokenService#refresh_long_lived_token` maps to `renovarToken`.
  */
 
 export const URL_BASE_INSTAGRAM = 'https://graph.instagram.com';
 
-/** Os campos que o webhook do Instagram entrega para a Pipe. */
+/** Fields delivered to Pipe by the Instagram webhook. */
 export const CAMPOS_DO_WEBHOOK_INSTAGRAM = [
   'messages',
   'messaging_postbacks',
@@ -35,9 +17,7 @@ export const CAMPOS_DO_WEBHOOK_INSTAGRAM = [
 ] as const;
 
 /**
- * A mesma versão do WhatsApp, sobreponível por `INSTAGRAM_API_VERSAO`.
- * Conferir com token real: o `graph.instagram.com` segue a numeração do Graph,
- * mas não há garantia de que a versão mais nova do WhatsApp já exista lá.
+ * Use the WhatsApp version, overridable by `INSTAGRAM_API_VERSAO`. Verify with a real token that `graph.instagram.com` supports the same Graph version; the latest WhatsApp version may not be available there.
  */
 export function versaoDaApiInstagram(): string {
   return process.env['INSTAGRAM_API_VERSAO'] ?? versaoDaApi();
@@ -45,9 +25,9 @@ export function versaoDaApiInstagram(): string {
 
 /** `GET /me?fields=user_id,username,name,profile_picture_url`. */
 export interface AccountInstagram {
-  /** O id "app-scoped" do usuário. */
+  /** App-scoped user ID. */
   id?: string;
-  /** O id da conta profissional: é o `entry[].id` e o `recipient.id` do webhook. */
+  /** Professional account ID, used as webhook `entry[].id` and `recipient.id`. */
   user_id?: string;
   username?: string;
   name?: string;
@@ -57,14 +37,14 @@ export interface AccountInstagram {
 export interface TokenRenovado {
   access_token?: string;
   token_type?: string;
-  /** Segundos. O token de longa duração vale 60 dias. */
+  /** Seconds; the long-lived token is valid for 60 days. */
   expires_in?: number;
 }
 
 export abstract class ClienteGraphInstagram {
   abstract readonly nome: 'real' | 'duble';
   abstract fetchAccount(): Promise<AccountInstagram>;
-  /** Prova que o App Secret colado é do app que gerou o token (`appsecret_proof`). */
+  /** Prove that the pasted App Secret belongs to the app that issued the token (`appsecret_proof`). */
   abstract checkSecretOfApp(segredo: string): Promise<boolean>;
   abstract assinarWebhook(igUserId: string): Promise<unknown>;
   abstract desassinarWebhook(igUserId: string): Promise<unknown>;
@@ -72,8 +52,7 @@ export abstract class ClienteGraphInstagram {
 }
 
 /**
- * Tira segredo de texto que vai virar mensagem de erro. Cópia do `esconder` de
- * `../whatsapp/cliente-graph.ts`, que não é exportado lá.
+ * Remove secrets from text that may become an error message. This copies the unexported `esconder` from `../whatsapp/cliente-graph.ts`.
  */
 function esconder(texto: string, ...segredos: string[]): string {
   let saida = texto;
@@ -100,7 +79,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     return url.toString();
   }
 
-  /** Conferir com token real: o `graph.instagram.com` aceita o token em `Authorization: Bearer`. */
+  /** Verify with a real token that `graph.instagram.com` accepts `Authorization: Bearer`. */
   private cabecalhos(): Record<string, string> {
     return { authorization: `Bearer ${this.token}`, 'content-type': 'application/json' };
   }
@@ -143,7 +122,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     );
   }
 
-  /** Conferir com token real: que o `graph.instagram.com` confere `appsecret_proof` como o Graph do Facebook. */
+  /** Verify with a real token that `graph.instagram.com` validates `appsecret_proof` as Facebook Graph does. */
   async checkSecretOfApp(secret: string): Promise<boolean> {
     const prova = createHmac('sha256', secret).update(this.token).digest('hex');
     try {
@@ -169,7 +148,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     );
   }
 
-  /** Conferir com token real: o `DELETE /{ig-user-id}/subscribed_apps` existe no `graph.instagram.com`. */
+  /** Verify with a real token that `DELETE /{ig-user-id}/subscribed_apps` exists on `graph.instagram.com`. */
   desassinarWebhook(igUserId: string): Promise<unknown> {
     return this.pedir(
       this.url(`${igUserId}/subscribed_apps`),
@@ -179,8 +158,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
   }
 
   /**
-   * `GET /refresh_access_token?grant_type=ig_refresh_token` — sem versão no caminho e
-   * com o token na consulta, como a documentação mostra. Conferir com token real.
+   * `GET /refresh_access_token?grant_type=ig_refresh_token` has no version in the path and passes the token in the query, as documented. Verify with a real token.
    */
   renovarToken(): Promise<TokenRenovado> {
     return this.pedir(
@@ -197,11 +175,7 @@ export interface ChamadaGraphInstagram {
 }
 
 /**
- * O dublê. Determinístico a partir do token: o mesmo token dá sempre a mesma conta,
- * e é isso que prova que a mesma conta não entra em dois clientes.
- *
- * Tokens que exercitam os caminhos de erro: `invalido…` (a Meta recusa o token) e
- * `expirado…` (recusa a renovação). Segredo que começa com `bad` é de outro app.
+ * Deterministic fake based on the token: the same token always identifies the same account, proving that one account cannot be added to two tenants. Tokens starting `invalido…` simulate Meta rejecting the token; `expirado…` rejects renewal. A secret starting `bad` belongs to another app.
  */
 export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
   readonly nome = 'duble' as const;
@@ -213,7 +187,7 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
     ClienteGraphInstagramDuble.renewals = 0;
   }
 
-  /** Dezessete dígitos estáveis, no formato do id de conta profissional. */
+  /** Stable 17-digit professional account ID. */
   static idOfAccount(token: string): string {
     const hash = createHash('sha256').update(token).digest('hex').slice(0, 14);
     return `178${BigInt(`0x${hash}`).toString().padStart(14, '0').slice(0, 14)}`;
@@ -262,8 +236,7 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
       return this.recusar('A renovação do token do Instagram falhou');
     }
     ClienteGraphInstagramDuble.renewals += 1;
-    // O token renovado mantém o prefixo do original: a conta do dublê sai do token,
-    // mas o canal já guardou o `igUserId` — é ele que vale depois de conectar.
+    // The renewed token keeps the original prefix, so the fake derives the same account. After connection, the stored `igUserId` is authoritative.
     return Promise.resolve({
       access_token: `${this.token.split('~')[0]}~r${ClienteGraphInstagramDuble.renewals}`,
       token_type: 'bearer',
@@ -283,7 +256,7 @@ export function clienteGraphInstagram(token?: string): ClienteGraphInstagram {
   return fabrica(token);
 }
 
-/** Troca a fábrica em tempo de execução. Existe para o teste. */
+/** Replace the factory at runtime for tests. */
 export function definirFabricaGraphInstagram(nova: FabricaDeCliente | null): void {
   fabrica = nova;
 }

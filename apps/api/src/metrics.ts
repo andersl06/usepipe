@@ -28,7 +28,7 @@ import { migrationsPendentes } from './saude.js';
 
 type Rotulos = Record<string, string>;
 
-/** Baldes em segundos. O alerta corta em p95 > 1,5s, então o 1 e o 2,5 cercam o corte. */
+/** Buckets are seconds; 1 and 2.5 bracket the p95 > 1.5s alert threshold. */
 export const BALDES_SEGUNDOS = [0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10] as const;
 
 interface Contador {
@@ -40,7 +40,7 @@ interface Contador {
 interface Histograma {
   name: string;
   rotulos: Rotulos;
-  /** Contagem por balde, já acumulada — é o que o formato `le` exige. */
+  /** Counts are cumulative across buckets, as Prometheus `le` requires. */
   baldes: number[];
   soma: number;
   count: number;
@@ -81,19 +81,14 @@ export function watch(nome: string, rotulos: Rotulos, valor: number): void {
   }
   histograma.soma += valor;
   histograma.count += 1;
-  // Somar em TODO balde cujo teto alcança o valor é o que deixa a contagem
-  // acumulada, que é como o Prometheus lê `le`.
+  // Increment every bucket whose upper bound includes the value, producing cumulative counts for Prometheus `le`.
   BALDES_SEGUNDOS.forEach((teto, i) => {
     if (valor <= teto) histograma.baldes[i] = (histograma.baldes[i] ?? 0) + 1;
   });
 }
 
 /**
- * Mede toda requisição, inclusive as que não casam com rota nenhuma.
- *
- * Fica em middleware, e não em interceptor do Nest, justamente por isso: o 404 e o
- * corpo grande demais nunca chegam a um controlador, e são exatamente os dois
- * sintomas que a gente quer ver no gráfico.
+ * Measure every request, including unmatched routes. Middleware rather than a Nest interceptor observes 404s and oversized bodies before they reach a controller; both should appear in metrics.
  */
 export function medirRequest(
   requisicao: Request,
@@ -116,8 +111,7 @@ export function medirRequest(
 
 function rotaDe(request: Request): string {
   const caminho = (request as Request & { route?: { path?: string } }).route?.path;
-  // `desconhecida` em vez do caminho cru: sem rota casada, o caminho é entrada do
-  // cliente, e entrada do cliente como rótulo é cardinalidade sem teto.
+  // Use `desconhecida` rather than raw path when no route matches. The path is client input; as a metric label it would create unbounded cardinality.
   return caminho ?? 'desconhecida';
 }
 
@@ -135,7 +129,7 @@ function cabecalho(nome: string, tipo: string): string {
   return `${ajuda ? `# HELP ${nome} ${ajuda}\n` : ''}# TYPE ${nome} ${tipo}\n`;
 }
 
-/** Medidores: valem só no instante da coleta, então são lidos aqui e não guardados. */
+/** Read gauges at collection time because their values are instantaneous; do not store them. */
 async function medidores(): Promise<string> {
   let texto = '';
 

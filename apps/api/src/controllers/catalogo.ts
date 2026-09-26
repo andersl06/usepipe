@@ -23,15 +23,11 @@ import { igualEmLista, juntar } from './conversations.js';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Bem básico de propósito: recusa o óbvio errado, não tenta validar RFC 5322 inteiro. */
+/** Intentionally basic: rejects clearly invalid addresses without attempting full RFC 5322 validation. */
 const EMAIL_RAZOAVEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
- * Contatos, filas e atendentes.
- *
- * Três recursos pequenos num arquivo só: são leituras diretas, com o mesmo padrão de
- * filtro, ordenação e cursor. Separá-los em três arquivos daria três importações e
- * nenhuma clareza a mais.
+ * Contacts, queues and attendants share this file because they are small direct reads with the same filtering, ordering and cursor pattern. Splitting them would add imports without improving clarity.
  */
 
 type LineContact = {
@@ -53,7 +49,7 @@ interface BodyContact {
   atributos?: Record<string, unknown>;
 }
 
-/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */
+/** `PATCH /v1/contatos/:id`: missing fields are unchanged; `null` clears a field, except `atributos`, which merges. */
 interface BodyEditContact {
   name?: string | null;
   email?: string | null;
@@ -148,7 +144,7 @@ export class ContactsController {
       const criado = rows[0];
       if (!criado) throw new Error('não criou o contato');
 
-      // A identidade do canal é o que amarra o contato à conversa que chega da Meta.
+      // The channel identity links a contact to the conversation arriving from Meta.
       if (corpo.phoneE164) {
         await tx.execute(sql`
           insert into contato_identidade (tenant_id, contato_id, canal_tipo, identificador)
@@ -163,11 +159,7 @@ export class ContactsController {
   }
 
   /**
-   * O "Editar" de `fluxo/contatos/detalhe/editar.tsx` — sessão, não chave: quem edita
-   * é gente da equipe, e a permissão (`contato.editar`) só existe para ator com
-   * `usuarioId`. `nome`/`email`/`telefone_e164`/`documento` ausentes não mexem, `null`
-   * apaga; `atributos` é MESCLA (`||`) — só as chaves enviadas (`city`, `gender`) mudam,
-   * as outras extras do contato continuam como estavam.
+   * The "Editar" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; `null` clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.
    */
   @Patch(':id')
   @WithSession()
@@ -333,8 +325,7 @@ export class QueuesController {
 @Controller('v1/agents')
 export class AgentsController {
   /**
-   * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
-   * (a Gestão desconectando quem ficou inativo), e aí exige permissão.
+   * Change presence status. Without `usuario_id`, this changes the caller's own status. Supplying it is a supervisor action (for example, Management disconnecting an inactive attendant) and requires permission.
    */
   @Post('status')
   @KeyOrSession('atendentes:ler')

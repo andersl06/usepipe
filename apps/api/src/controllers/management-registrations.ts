@@ -31,9 +31,7 @@ import * as acoesConfiguracoes from '../domain/management/actions/settings.js';
 import { Campos, type CamposCrus, type Resultado } from '../domain/management/actions/campos.js';
 
 /**
- * `id` de recurso na URL: fora do padrão de uuid a resposta é 404 antes de ir
- * ao banco — mesma regra de `gestao-fluxo.ts` (URL é texto de fora, e o
- * Postgres recusa uuid malformado com 500, não 404).
+ * Reject a resource URL `id` outside UUID format with 404 before querying, as in `gestao-fluxo.ts`. URLs are untrusted text; Postgres would return a malformed-UUID 500 instead.
  */
 function idOu404(value: string, oQue: string): string {
   if (!uuidOuNada(value)) throw PipeError.naoEncontrado(oQue);
@@ -41,17 +39,7 @@ function idOu404(value: string, oQue: string): string {
 }
 
 /**
- * Os CADASTROS da Gestão — Regras, Atendentes, Comunicação e Preferências —
- * por sessão de navegador: as leituras de cada tela e as ações dos formulários.
- *
- * As ações são as Server Actions da Gestão em Next, movidas para
- * `dominio/gestao/acoes/*` com o corpo intacto: o formulário manda os campos
- * como JSON (`{ campos }`), `Campos` os oferece com `get`/`getAll` como o
- * `FormData` fazia, e a resposta é o mesmo `Resultado` — `ok` ou o motivo em
- * texto para a tela mostrar ao lado do botão.
- *
- * A lista de ações é FECHADA: só o que está no mapa abaixo pode ser chamado
- * pelo nome. Nome fora do mapa é 404, não `eval`.
+ * Management registrations for Rules, Attendants, Communication and Preferences use browser sessions for screen reads and form actions. The actions are Next Management Server Actions moved unchanged to `dominio/gestao/acoes/*`: the form sends JSON `{ campos }`, `Campos` exposes `get`/`getAll` like `FormData`, and returns the same `Resultado`, either `ok` or a reason shown beside the button. The action-name allowlist is closed: names outside the map return 404 and never reach `eval`.
  */
 type Acao = (tx: TransactionPipe, tid: string, ator: Ator, data: Campos) => Promise<Resultado>;
 
@@ -116,7 +104,7 @@ export class ManagementRegistrationsController {
   @WithSession()
   modelos(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
-    /* Em série: as duas consultas dividem a mesma conexão. */
+    /* Run serially: both queries share one connection. */
     return noTenant(sessao.tenantId, async (tx) => ({
       modelos: await comunicacao.carregarModelos(tx),
       channels: await comunicacao.loadChannelsWhatsapp(tx),
@@ -270,7 +258,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  /* ------------------------------------------------------- horários (item 3) */
+
 
   @Patch('regras/horarios/faixas/:id')
   @WithSession()
@@ -451,12 +439,9 @@ export class ManagementRegistrationsController {
     );
   }
 
-  /* ------------------------------------ permissões do atendente (tela própria)
-     A origem abre `attendance.desk.team.permission` como PÁGINA, com a tabela
-     "Tipo de permissão" × "Status" e "Salvar alterações"
-     (`FICHA-atendentes-filas-pausas.md` §a.4). A seleção vai por
-     `?atendentes=id,id` — a rota da origem também não tem `:id` na URL, porque
-     a página atende vários de uma vez. */
+  /*
+   * Attendant permissions are a separate page in the source: `attendance.desk.team.permission`, with the "Tipo de permissão" × "Status" table and "Salvar alterações" (`FICHA-atendentes-filas-pausas.md` §a.4). Selection uses `?atendentes=id,id`; the source route also has no `:id` because the page handles several attendants at once.
+   */
 
   @Get('agents/permissions')
   @WithSession()
@@ -572,9 +557,9 @@ export class ManagementRegistrationsController {
     );
   }
 
-  /* --------------------------------------------------------------- ações */
 
-  /** Um formulário da Gestão: `{ campos }` entra, `Resultado` sai. */
+
+
   @Post('acoes/:acao')
   @HttpCode(200)
   @WithSession()

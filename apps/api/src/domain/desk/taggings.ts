@@ -3,21 +3,7 @@ import type { TransactionPipe } from '@pipe/db';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 
 /**
- * Fixar e marcar como não lida — o menu "⋮" do cartão do Desk, que até aqui só
- * fazia `stopPropagation()`.
- *
- * É o `TicketMenuOptions` da origem (`blip-desk-regras-tecnicas.md` §1.8:
- * `PIN`/`UNPIN`, `UNREAD`/`READ`) com a regra de
- * `blip-desk-funcoes.md` §3: "o próprio atendente pode fixar manualmente até 50
- * tickets no topo da sua lista, e também marcar/desmarcar qualquer ticket como
- * 'não lido'". As duas são POR ATENDENTE — a conversa transferida chega limpa no
- * colega — e por isso moram em `marcacao_conversa` (migração 0041), nunca em
- * coluna de `conversa`.
- *
- * A marcação é do atendente da SESSÃO sobre uma conversa que é dele e está
- * aberta; `usuarioId` nunca vem do corpo, como nas outras ações de `acoes.ts`.
- * A linha some quando os dois carimbos ficam nulos: a tabela guarda marcação,
- * não ausência dela.
+ * Pinning and marking unread implement the Desk card's "⋮" menu, which previously only called `stopPropagation()`. The source `TicketMenuOptions` (`blip-desk-regras-tecnicas.md` §1.8: `PIN`/`UNPIN`, `UNREAD`/`READ`) and `blip-desk-funcoes.md` §3 allow an agent to pin up to 50 own tickets and toggle unread. Both marks are PER AGENT; a transferred conversation starts unmarked for its new agent. Store them in `marcacao_conversa` (migration 0041), never on `conversa`. The SESSION agent may mark only an open conversation assigned to them; `usuarioId` never comes from the body, as in `acoes.ts`. Delete the row when both marks are null because this table stores markings, not their absence. Source wording: "o próprio atendente pode fixar manualmente até 50 tickets no topo da sua lista, e também marcar/desmarcar qualquer ticket como 'não lido'".
  */
 
 /** O teto da origem: 50 tickets fixados por atendente. */
@@ -31,7 +17,7 @@ function falha(error: string): Resultado {
 
 function comoBooleano(value: unknown): boolean | null {
   const texto = String(value ?? '').trim().toLowerCase();
-  // `on` é como o FormData manda a caixa marcada (ver `campos.ts`).
+  // `on` is how `FormData` sends a checked box; see `campos.ts`.
   if (texto === 'true' || texto === '1' || texto === 'sim' || texto === 'on') return true;
   if (texto === 'false' || texto === '0' || texto === 'nao' || texto === 'não') return false;
   return null;
@@ -39,7 +25,7 @@ function comoBooleano(value: unknown): boolean | null {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** A conversa existe, está aberta e é do atendente — senão, o motivo. */
+/** Confirm that the conversation exists, is open, and belongs to this agent; otherwise return the reason. */
 async function checkConversation(
   tx: TransactionPipe,
   atendenteId: string,
@@ -57,10 +43,7 @@ async function checkConversation(
 }
 
 /**
- * Tira UMA marca: apaga a linha quando ela ia ficar vazia, e só então zera a
- * outra. O `CHECK` (`marcacao_conversa_alguma_ck`) é conferido no próprio
- * `update`, então zerar primeiro e limpar depois estoura antes de chegar na
- * limpeza — era o que acontecia ao desafixar uma conversa sem outra marca.
+ * Remove ONE mark by deleting the row if it would become empty, and only otherwise clearing that mark. The `marcacao_conversa_alguma_ck` `CHECK` runs during `update`: clearing first and deleting later fails before cleanup, as happened when unpinning a conversation with no other mark.
  */
 async function tirarMarca(
   tx: TransactionPipe,
@@ -77,9 +60,7 @@ async function tirarMarca(
 }
 
 /**
- * `fixar` — campos `conversaId` e `fixada` (`true`/`false`). Fixar de novo é
- * no-op (mantém o `fixada_em` original, para a ordem no topo não pular);
- * desafixar o que não estava fixado também é no-op.
+ * `fixar` receives `conversaId` and `fixada` (`true`/`false`). Pinning an already pinned ticket is a no-op, preserving `fixada_em` and list order; unpinning an unpinned ticket is also a no-op.
  */
 export async function fixar(
   tx: TransactionPipe,
@@ -95,7 +76,7 @@ export async function fixar(
   if (motivo) return falha(motivo);
 
   if (fixada) {
-    // O teto conta as OUTRAS fixadas: refixar a mesma não pode bater no limite.
+    // The limit counts OTHER pinned tickets; pinning the same one again must not hit the cap.
     const { rows } = await tx.execute<{ n: string }>(sql`
       select count(*)::text as n from marcacao_conversa
        where usuario_id = ${atendenteId}::uuid and fixada_em is not null
@@ -119,10 +100,7 @@ export async function fixar(
 }
 
 /**
- * `marcarNaoLida` — campos `conversaId` e `naoLida` (`true`/`false`). "Lida" é o
- * que abrir a conversa faz sozinho na tela (a ficha "Não lidas" da origem
- * "remove o ticket automaticamente assim que ele é aberto"); "não lida" é o
- * lembrete manual para voltar depois.
+ * `marcarNaoLida` receives `conversaId` and `naoLida` (`true`/`false`). Opening a conversation automatically marks it read on the source screen (the "Não lidas" panel removes a ticket when opened); unread is a manual reminder to return later.
  */
 export async function marcarNaoLida(
   tx: TransactionPipe,

@@ -24,27 +24,7 @@ import { chamarComMtls } from '../mtls.js';
 import { EDITAR_FLOW } from './cycle-of-lifetime-of-flow.js';
 
 /**
- * As três telas de Integrações do fluxo que só mostravam mock:
- *
- * - "Chaves de acesso" (`configuracoes/keys`): a `chave_api` sempre foi da
- *   CONTA; aqui ela pode ser de UM fluxo (`chave_api.fluxo_id`, migração
- *   0032). O formato do token é o mesmo de `autenticacao.ts`
- *   (`pipe_<prefixo>_<segredo>`) — é a MESMA credencial, só que a tela nasce
- *   com o fluxo já marcado.
- * - "Informações de conexão" (`configuracoes/api`): leitura real (id do
- *   fluxo, a chave ativa dele, o endpoint da `api`) e a única escrita que a
- *   origem faz ali — as duas URLs do cartão "Conectar usando HTTP" —, que
- *   aqui é o mesmo recurso do item de baixo: um `webhook_saida` por conjunto
- *   de eventos.
- * - "Webhook" (`integracoes/webhook`): CRUD de `webhook_saida` — a entrega já
- *   existe (`webhooks-saida.ts`); faltava criar, listar, editar, excluir e
- *   testar.
- *
- * Permissão: `chave_api.gerenciar` para chave (já existia, cobre "Emitir e
- * revogar chave de API"); `automacao.integracao.gerenciar` para o que grava
- * webhook/conexão (novo, migração 0032); leitura da conexão usa a mesma
- * permissão de editar fluxo (`EDITAR_FLUXO`) — é uma tela de configuração
- * do fluxo como as outras.
+ * Replace three mocked flow Integration screens. 'Chaves de acesso' (`configuracoes/keys`) may scope existing account `chave_api` to ONE flow via `chave_api.fluxo_id` (migration 0032); its `pipe_<prefixo>_<segredo>` token remains the same credential as `autenticacao.ts`. 'Informações de conexão' (`configuracoes/api`) reads flow ID, active key and API endpoint, and writes the two 'Conectar usando HTTP' URLs as `webhook_saida` resources by event set. 'Webhook' (`integracoes/webhook`) adds CRUD and test to existing delivery in `webhooks-saida.ts`. Keys require `chave_api.gerenciar`; webhook/connection writes require new `automacao.integracao.gerenciar` (migration 0032); connection reads use `EDITAR_FLUXO`.
  */
 
 export const MANAGE_KEY = 'chave_api.gerenciar';
@@ -71,11 +51,7 @@ async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string
 export const LIMITE_DE_CHAVES = 3;
 
 /**
- * Os escopos que uma chave de fluxo nasce com. O escopo diz "o quê"; o
- * `fluxo_id` diz "onde": o guarda de chave (`conferirFluxoDaChave`, em
- * `autenticacao.ts`) carrega o `fluxoId` na sessão da chave e só a deixa agir
- * nas rotas DAQUELE fluxo — em rota que não é por fluxo ela é recusada (403
- * `chave_de_fluxo`), em rota de outro fluxo idem (`chave_de_outro_fluxo`).
+ * Default scopes for a flow key. Scope says WHAT; `fluxo_id` says WHERE. `conferirFluxoDaChave` in `autenticacao.ts` puts `fluxoId` in the key session and permits only routes for THAT flow. Non-flow routes return 403 `chave_de_fluxo`; routes for another flow return `chave_de_outro_fluxo`.
  */
 const SCOPES_OF_KEY_OF_FLOW = [
   'conversas:ler',
@@ -97,7 +73,7 @@ export interface KeyOfFlow {
 }
 
 export interface KeyOfFlowCreated extends KeyOfFlow {
-  /** `pipe_<prefixo>_<segredo>` — aparece só aqui. O banco guarda só o hash. */
+  /** `pipe_<prefixo>_<segredo>` appears only here; the database stores its hash alone. */
   token: string;
 }
 
@@ -161,7 +137,7 @@ export async function listKeysOfFlow(
   return linhas.map(asKey);
 }
 
-/** `createKey()`: sem nome é recusa, no limite é recusa, senão gera e grava. */
+/** `createKey()` rejects a missing name or reached limit; otherwise it generates and stores the key. */
 export async function createKeyOfFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -257,14 +233,7 @@ export async function revogarKeyOfFlow(
 /* -------------------------------------------------------------- SSRF/URL */
 
 /**
- * "Nos dois casos, use um protocolo seguro (HTTPS)" (origem, cartão
- * "Conectar usando HTTP") — e a régua do Pipe soma o que a Blip nunca
- * precisou de propósito: quem chama a `api` também escolhe a URL de destino,
- * então a URL é fronteira de SSRF, não só de formulário.
- *
- * ponytail: confere protocolo e literal de IP/hostname; NÃO resolve DNS. Um
- * hostname público que resolve para IP privado (rebinding) passa — cobrir
- * isso pede checar o IP na hora da ENTREGA, não da gravação, e ninguém pediu.
+ * The source 'Conectar usando HTTP' card says 'Nos dois casos, use um protocolo seguro (HTTPS)'. Pipe also treats the user-chosen destination URL as an SSRF boundary because `api` will call it. `ponytail` validates protocol and literal IP/hostname but does NOT resolve DNS. A public hostname resolving to a private IP (rebinding) can pass; covering that requires checking the resolved IP at DELIVERY, not at save time, and is not implemented.
  */
 export function confirmarUrlSegura(url: string): void {
   let analisada: URL;
@@ -307,18 +276,10 @@ function ipPrivado(host: string): boolean {
 /* --------------------------------------------------------- Webhook_saida */
 
 /**
- * Não são "do fluxo": `webhook_saida` sempre foi da CONTA (`apis.md` §5.5),
- * e a tela `integracoes/webhook` fica sob a casca de um fluxo só porque é lá
- * que o portal a desenha (a origem também é por bot; o Pipe decidiu não
- * duplicar a tabela por fluxo — a régua de webhook de saída já é
- * tenant-wide, `emitir()` avisa TODOS os assinantes ativos de um evento).
+ * `webhook_saida` belongs to the ACCOUNT, not the flow (`apis.md` §5.5). The source nests the webhook screen under a bot, but Pipe retains tenant-wide delivery: `emitir()` notifies ALL active subscribers to an event rather than duplicating storage per flow.
  */
 /**
- * "Configurações de autenticação" da origem (switch + OAuth 2.0
- * `client_credentials`), mais Básica — a origem não mostra, a tarefa pede.
- * `usuario`/`urlAutorizacao`/`clientId` não são segredo e voltam na leitura;
- * `senha`/`clientSecret` são cifrados em repouso e NUNCA voltam (nem aqui,
- * nem em auditoria) — só entram na entrega/teste, decifrados na hora.
+ * Support source 'Configurações de autenticação' switch and OAuth 2.0 `client_credentials`, plus task-requested Basic auth. Return nonsecret `usuario`, `urlAutorizacao`, and `clientId`; encrypt `senha` and `clientSecret` at rest and NEVER return them here or in audit. Decrypt only for delivery or test.
  */
 export interface AuthenticationWebhookVisible {
   type: TypeAuthenticationWebhook;
@@ -338,8 +299,9 @@ export interface WebhookDeSaida {
 }
 
 export interface WebhookDeSaidaCriado extends WebhookDeSaida {
-  /** Aparece só na criação — o banco guarda o segredo cifrado^Wem claro para
-   *  assinar (`webhook_saida.segredo`), mas a TELA nunca volta a mostrá-lo. */
+  /**
+   * Show the signing secret only on creation. `webhook_saida.segredo` stores it in plaintext for signing, but the screen never returns it again.
+   */
   secret: string;
 }
 
@@ -353,7 +315,7 @@ type LinhaWebhook = {
   authenticationUser: string | null;
   oauth2UrlAuthorization: string | null;
   oauth2ClientId: string | null;
-  /** `jsonb`: o driver já devolve parseado, mas o tipo da coluna some no `select`. */
+  /** The driver parses `jsonb`, but the column type is lost in this `select`. */
   cabecalhos: unknown;
 };
 
@@ -374,7 +336,7 @@ function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
   };
 }
 
-/** Nunca inclui `autenticacaoSenha`/`oauth2ClientSecret` — só `webhookVivo` (privado) lê os dois. */
+/** Never include `autenticacaoSenha` or `oauth2ClientSecret`; only private `webhookVivo` reads them. */
 const COLUNAS_WEBHOOK = {
   id: webhookSaida.id,
   url: webhookSaida.url,
@@ -401,7 +363,7 @@ function eventosConferidos(eventos: unknown): EventoWebhook[] {
   return unicos as EventoWebhook[];
 }
 
-/** `+ Adicionar cabeçalho` da origem: Chave/Valor, sem repetir e sem os reservados da assinatura. */
+/** Source '+ Adicionar cabeçalho' accepts Key/Value pairs without duplicates or headers reserved for the signature. */
 const LIMITE_CABECALHOS = 20;
 
 function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
@@ -447,11 +409,7 @@ function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
 }
 
 /**
- * "Configurações de autenticação": nasce `nenhuma` quando o pedido não traz
- * nada (mesmo default da coluna). Editar SEMPRE substitui por inteiro — como
- * `eventos` — então trocar de OAuth 2.0 para Básica (ou vice-versa) pede as
- * credenciais de novo; não dá para só trocar o tipo e manter a senha antiga
- * cifrada de um jeito que o formulário nunca viu em claro.
+ * Authentication defaults to `nenhuma` when absent, matching the database. Editing REPLACES the whole configuration, as with `eventos`: switching between OAuth 2.0 and Basic requires resubmitting credentials, since the form never saw the old encrypted password.
  */
 export interface AuthenticationWebhookInbound {
   type: TypeAuthenticationWebhook;
@@ -499,7 +457,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
   return { type: 'nenhuma' };
 }
 
-/** As colunas que a gravação seta — os dois segredos saem cifrados daqui. */
+/** Columns written on save; both secrets leave this function encrypted. */
 function columnsOfAuthentication(authentication: AuthenticationWebhookInbound) {
   return {
     typeAuthentication: authentication.type,
@@ -552,7 +510,7 @@ export interface PedidoDeWebhook {
   eventos: string[];
   /** `undefined` = "nenhuma" (o default da coluna). Validado por `autenticacaoConferida`. */
   autenticacao?: unknown;
-  /** `undefined` = sem cabeçalhos. Validado por `cabecalhosConferidos`. */
+  /** `undefined` means no headers; `cabecalhosConferidos` validates them. */
   cabecalhos?: unknown;
 }
 
@@ -600,7 +558,7 @@ export async function createWebhook(
   return { ...comoWebhook(criado), secret: segredo };
 }
 
-/** Linha completa, com os segredos — só para entrega/teste (`testarWebhook`) e edição/exclusão. */
+/** Load a complete row including secrets only for delivery, `testarWebhook`, editing or deletion. */
 async function webhookVivo(
   tx: TransactionPipe,
   tenantId: string,
@@ -635,12 +593,12 @@ export interface RequestOfEditOfWebhook {
   url?: string;
   eventos?: string[];
   active?: boolean;
-  /** Substitui por inteiro, como `eventos` — ver o comentário de `autenticacaoConferida`. */
+  /** Replace all authentication fields like `eventos`; see `autenticacaoConferida`. */
   autenticacao?: unknown;
   cabecalhos?: unknown;
 }
 
-/** `PATCH`: url/eventos/ativo/autenticacao/cabecalhos — só o que veio. Ativar/desativar vira `Acao` própria. */
+/** `PATCH` changes supplied URL, events, active state, authentication and headers. Activation and deactivation have their own `Acao`. */
 export async function editarWebhook(
   tx: TransactionPipe,
   tenantId: string,
@@ -703,7 +661,7 @@ export async function editarWebhook(
   return comoWebhook(gravado);
 }
 
-/** `DELETE` de verdade: `entrega_webhook.webhook_id` é `ON DELETE CASCADE`, sem histórico a proteger. */
+/** Real `DELETE`: `entrega_webhook.webhook_id` is `ON DELETE CASCADE`, with no history to protect. */
 export async function excluirWebhook(
   tx: TransactionPipe,
   tenantId: string,
@@ -740,16 +698,11 @@ export interface ResultOfTest {
   corpo?: string;
 }
 
-/** Corta a prévia do corpo da resposta do teste — nunca a resposta inteira no log/tela. */
+/** Truncate test-response previews; never show or log the complete body. */
 const LIMIT_BODY_OF_TEST = 300;
 
 /**
- * O botão "Testar": um POST imediato, fora da fila de `webhooks-saida.ts` —
- * é um clique de gente, não um fato de negócio, e não deixa rastro em
- * `entrega_webhook` (não é evento real, e falhar aqui não deve gerar retry).
- * Usa a MESMA autenticação e os MESMOS cabeçalhos customizados da entrega de
- * verdade (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`, `webhooks-saida.ts`)
- * — e o MESMO certificado mTLS, se o host tiver um (`chamarComMtls`).
+ * The 'Testar' button sends an immediate POST outside `webhooks-saida.ts` queue: a human click is not a business event, creates no `entrega_webhook` row, and failure must not retry. Use the SAME authentication and custom headers as real delivery (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`), and the SAME host mTLS certificate via `chamarComMtls`.
  */
 export async function testarWebhook(
   tx: TransactionPipe,
@@ -810,12 +763,10 @@ export async function testarWebhook(
   }
 }
 
-/* --------------------------------------------------- Conexão do fluxo (API) */
+
 
 /**
- * Os dois eventos-conjunto que a "Informações de conexão" grava, cada um seu
- * próprio `webhook_saida` — o mesmo recurso do item de Integrações, só que
- * criado/lido pelo conjunto de eventos em vez do id.
+ * 'Informações de conexão' stores two event sets as separate `webhook_saida` rows, the same Integration resource addressed by event set rather than ID.
  */
 const EVENTS_MESSAGES: readonly EventoWebhook[] = ['mensagem.criada'];
 const EVENTS_NOTIFICATIONS: readonly EventoWebhook[] = [
@@ -835,12 +786,7 @@ export interface ConnectionOfFlow {
 }
 
 /**
- * Literal de array montado à mão: o template do `sql` do drizzle ACHATA um
- * array em parâmetros soltos (um `array de 1` vira parâmetro escalar, e
- * `= $1::text[]` quebra com "malformed array literal") — o mesmo motivo de
- * `igualEmLista` em `controladores/conversas.ts`. Os eventos aqui são sempre
- * os nossos próprios (`EVENTOS_MENSAGENS`/`EVENTOS_NOTIFICACOES`, catálogo
- * fechado), então não há entrada de cliente para escapar.
+ * Build an array literal manually: Drizzle's `sql` template FLATTENS JS arrays into parameters; a one-element array becomes scalar and `= $1::text[]` fails with 'malformed array literal'. This matches `igualEmLista` in `controladores/conversas.ts`. Values here come only from closed catalogs `EVENTOS_MENSAGENS` and `EVENTOS_NOTIFICACOES`, so there is no customer input to escape.
  */
 function literalDeArray(values: readonly string[]): string {
   return `{${values.join(',')}}`;
@@ -887,7 +833,7 @@ async function montarConexao(
   };
 }
 
-/** Leitura de "Informações de conexão" — mesma permissão de editar o fluxo. */
+/** Read 'Informações de conexão' with flow-edit permission. */
 export async function loadConnectionOfFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -900,7 +846,7 @@ export async function loadConnectionOfFlow(
 }
 
 export interface PedidoDeConexao {
-  /** `undefined` não mexe; `null` ou `""` apaga (exclui o webhook daquele conjunto). */
+  /** `undefined` leaves the value unchanged; `null` or `''` deletes that event set's webhook. */
   urlMensagens?: string | null;
   urlNotificacoes?: string | null;
 }
@@ -936,10 +882,7 @@ async function upsertWebhookDeConexao(
 }
 
 /**
- * As três de baixo repetem `criarWebhook`/`editarWebhook`/`excluirWebhook`
- * SEM checar permissão de novo — `salvarConexaoDoFluxo` já checou a dela
- * (`GERENCIAR_INTEGRACAO`), e checar duas vezes na mesma transação não muda
- * o resultado, só o número de consultas.
+ * The three helpers call `criarWebhook`/`editarWebhook`/`excluirWebhook` without another permission check: `salvarConexaoDoFluxo` already checked `GERENCIAR_INTEGRACAO` in the same transaction; checking twice adds queries without changing authorization.
  */
 async function createWebhookWithoutPermission(
   tx: TransactionPipe,
@@ -1010,7 +953,7 @@ async function deleteWebhookWithoutPermission(
   });
 }
 
-/** Escrita de "Informações de conexão" — permissão própria de integração. */
+/** Write 'Informações de conexão' with its own integration permission. */
 export async function saveConnectionOfFlow(
   tx: TransactionPipe,
   tenantId: string,

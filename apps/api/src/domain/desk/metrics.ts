@@ -4,28 +4,7 @@ import type { MetricsOfAgent } from '@pipe/contracts';
 import { data } from './consultas.js';
 
 /**
- * As métricas do atendente, para a tela de métricas do Desk — movidas de
- * `apps/desk/src/servidor/metricas.ts` com o SQL intacto; a forma da resposta
- * é `MetricasDoAtendente`, de `@pipe/contracts`.
- *
- * **É sempre do próprio atendente**, nunca de um colega e nunca de outro
- * cliente. O isolamento vem de dois lugares que se somam: a transação roda em
- * `noTenant`, com a RLS do banco valendo, e toda consulta daqui filtra por
- * `atendente_id` — que vem da sessão, não da URL. Não existe parâmetro para
- * olhar o número de outra pessoa, e é assim que tem de continuar: a visão da
- * operação é do Pipe Gestão, com permissão de supervisor.
- *
- * A anatomia é a da tela de referência (`referencias-blip/pesquisa/blip-desk-medidas.md`,
- * §10): seis contagens de situação, três tempos médios e uma série diária.
- *
- * Duas coisas que a referência faz e que aqui NÃO se copia, de propósito:
- *
- * 1. Lá as consultas são disparadas uma por robô, em paralelo, e **quando uma
- *    falha o total sai menor sem ninguém avisar**. Aqui é uma consulta só, na
- *    mesma transação: ou o número está certo, ou a tela quebra e a pessoa sabe.
- * 2. Lá a média de tempo é a média simples entre robôs, cada um pesando igual
- *    tenha ele 1 ou 500 atendimentos. Aqui a média é sobre os atendimentos, que
- *    é a única que responde "quanto o cliente esperou por mim".
+ * Agent metrics for the Desk screen, moved from `apps/desk/src/servidor/metricas.ts` with SQL unchanged; return `MetricasDoAtendente` from `@pipe/contracts`. Always show the current agent, never a colleague or another client. Isolation combines `noTenant` RLS with an `atendente_id` filter taken from the session, not the URL. There is no parameter to inspect another agent; supervisor operations belong in Pipe Management. The source screen (`referencias-blip/pesquisa/blip-desk-medidas.md` §10) has six state counts, three averages, and a daily series. Two intentional differences: source queries run in parallel per bot and silently undercount when one fails; this implementation runs one query in one transaction, so failure is visible. The source averages bot averages equally whether a bot handled one or 500 tickets; this implementation averages across tickets to answer how long clients waited for this agent.
  */
 
 function integer(value: string | number | null): number {
@@ -43,14 +22,7 @@ export async function loadMetrics(
   fim: Date,
 ): Promise<MetricsOfAgent> {
   /*
-   * Uma passada só sobre as conversas do atendente que TOCAM o período — ou
-   * porque caíram nele, ou porque fecharam nele. Contar as duas coisas na
-   * mesma varredura evita a segunda ida ao banco, e o `filter` do Postgres é
-   * exatamente a ferramenta para isso.
-   *
-   * Cada tempo médio tem a sua própria população, e é por isso que cada um leva
-   * o seu `filter`: uma conversa sem primeira resposta não pode puxar a média
-   * de primeira resposta para baixo, ela simplesmente não entra na conta.
+   * Scan once over this agent's conversations touching the period through arrival or closure. Counting both in one pass avoids a second database query; Postgres `filter` supports it. Each average has its own population and `filter`: a conversation without a first response must not lower the first-response average; it is excluded.
    */
   const { rows } = await tx.execute<{
     abertos: string | null;
@@ -92,13 +64,7 @@ export async function loadMetrics(
   const t = rows[0];
 
   /*
-   * A série diária. O `generate_series` garante que dia sem movimento apareça
-   * como zero em vez de sumir do gráfico — sem ele, uma semana com dois dias
-   * parados vira uma linha que mente sobre o ritmo.
-   *
-   * ponytail: duas subconsultas correlacionadas por dia, no máximo 90 dias e
-   * sempre com o índice de atendente. Se um dia isto virar visão de operação,
-   * troque por um `group by` sobre uma união das duas datas.
+   * Daily series uses `generate_series` so inactive days appear as zero rather than disappearing from the chart. It currently uses two correlated subqueries per day for at most 90 indexed days; if this becomes an operations view, replace them with a `group by` over both date sets.
    */
   const serie = await tx.execute<{
     dia: Date | string;
@@ -123,9 +89,7 @@ export async function loadMetrics(
       fechados: integer(t?.fechados ?? null),
       finalizados: integer(t?.finalizados ?? null),
       abandonados: integer(t?.abandonados ?? null),
-      // Transferência e perda não existem no nosso domínio: não há coluna que
-      // diga que a conversa mudou de atendente nem que ela se perdeu. `null`
-      // aqui vira um traço na tela, e não um zero — zero seria mentira.
+      // Transfers are supported in the domain, but this Desk response does not compute per-agent transfer or loss counters. Return `null` for both so the screen shows a dash instead of an invented zero.
       transferidos: null,
       perdidos: null,
     },

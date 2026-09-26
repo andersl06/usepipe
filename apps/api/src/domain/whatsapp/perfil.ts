@@ -7,19 +7,7 @@ import { clienteGraph } from './cliente-graph.js';
 import type { PerfilDoNumero, PerfilParaGravar } from './cliente-graph.js';
 
 /**
- * O perfil comercial do número — o que o cliente do WhatsApp vê ao abrir o
- * contato: foto, recado ("sobre"), descrição, endereço, e-mail, sites e categoria.
- *
- * Acréscimo do Pipe (o Chatwoot não edita perfil). Funciona com o token de
- * qualquer um dos dois caminhos de conexão, inclusive o manual: é a Cloud API
- * (`/{phone}/whatsapp_business_profile`) com `whatsapp_business_management`,
- * que o token manual já provou ter (`validacao-da-configuracao-manual.ts`).
- *
- * O NOME de exibição fica fora da gravação de propósito: toda troca passa pela
- * análise da Meta, e por aqui ele só é lido, com o status da análise.
- *
- * Limites da documentação da Cloud API. A Meta confere de novo; conferir aqui é
- * para a tela dizer qual campo está errado em vez de repetir a recusa dela.
+ * Business profile visible to WhatsApp contacts: photo, about, description, address, email, sites, and category. Pipe adds profile editing absent from Chatwoot, using `/{phone}/whatsapp_business_profile` and `whatsapp_business_management` with either embedded or manual token (`validacao-da-configuracao-manual.ts`). Display name is intentionally read-only because Meta reviews changes; expose its review status. Validate documented Cloud API limits locally so the UI identifies invalid fields before Meta repeats the rejection.
  */
 
 export const LIMITES_DO_PERFIL = {
@@ -31,7 +19,7 @@ export const LIMITES_DO_PERFIL = {
   sites: 2,
 } as const;
 
-/** 5 MB, JPEG ou PNG: o que a Meta aceita como foto de perfil. */
+/** Meta accepts JPEG or PNG profile photos up to 5 MB. */
 const FOTO_MAX_BYTES = 5 * 1024 * 1024;
 const TIPOS_DE_FOTO = ['image/jpeg', 'image/png'] as const;
 
@@ -43,7 +31,7 @@ export interface PerfilVisivel {
   sites: string[];
   category: string;
   fotoUrl: string | null;
-  /** Só leitura: o nome e o estado da análise da Meta. */
+  /** Read-only display name and Meta review status. */
   nome: {
     display: string | null;
     status: string | null;
@@ -101,7 +89,7 @@ export async function readProfileOfChannel(tenantId: string, channelId: string):
   const channel = await readChannelWhatsApp(tenantId, channelId);
   const cliente = clienteGraph(tokenDo(channel));
   const numeroId = numeroDo(channel);
-  // Em série: a segunda chamada só faz sentido se a primeira alcançou o número.
+  // Run serially; the second call matters only if the first reached the number.
   const perfil = await cliente.lerPerfil(numeroId);
   const numero = await cliente.buscarNumero(
     numeroId,
@@ -110,7 +98,7 @@ export async function readProfileOfChannel(tenantId: string, channelId: string):
   return comoVisivel(perfil, numero);
 }
 
-/** Confere e traduz para os nomes da Meta só o que veio — campo ausente não é mexido. */
+/** Validate and map only supplied fields to Meta names; absent fields remain unchanged. */
 export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   const saida: PerfilParaGravar = {};
   const textoLimitado = (
@@ -128,7 +116,7 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   };
 
   const sobre = textoLimitado(pedido.about, 'sobre', 'O recado');
-  // A Meta recusa `about` vazio: o recado existe sempre, só dá para trocar.
+  // Meta rejects an empty `about`; it can be replaced but not removed.
   if (sobre !== undefined) {
     if (!sobre) throw recusa('sobre', 'O recado não pode ficar vazio.');
     saida.about = sobre;
@@ -157,7 +145,7 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
     saida.websites = sites;
   }
   if (pedido.category !== undefined) {
-    // A lista de categorias é da Meta e muda; aqui só o formato do código dela.
+    // Meta's category list changes; validate only its code format here.
     if (!/^[A-Z_]{2,40}$/.test(pedido.category)) throw recusa('categoria', 'Categoria inválida.');
     saida.vertical = pedido.category;
   }
@@ -211,7 +199,7 @@ export async function writeProfileOfChannel(
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: canal.id,
-      // Sem a foto nem o handle: o log guarda o que mudou, não a imagem.
+      // Log the change without the photo or upload handle; audit records describe changes, not image data.
       depois: {
         perfil: Object.keys(perfil).filter((c) => c !== 'profile_picture_handle'),
         foto: Boolean(foto),

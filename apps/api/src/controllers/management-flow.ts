@@ -72,30 +72,17 @@ import type {
 } from '../domain/management-flow.js';
 
 /**
- * As telas do CONTATO da Gestão (`/fluxo/:id/**`), por sessão de navegador.
- *
- * É a primeira leva da migração do front para Vite (README, "Quem fala com o
- * banco"): o que a Gestão em Next consultava por server component passa a
- * pedir aqui. Uma rota por leitura, o mesmo dado, e o tenant vem da sessão —
- * nunca da URL.
- *
- * O ciclo de vida do contato (criar, editar, excluir) também mora aqui, na
- * mesma casca: `POST`, `PATCH /:id`, `DELETE /:id`. A regra é de
- * `dominio/gestao/ciclo-de-vida-do-fluxo.ts`; o controlador só sabe de sessão
- * e do contrato de cada tela.
- *
- * `id` é o `fluxo.id`. Fora do padrão de uuid a resposta é 404 antes de ir ao
- * banco: URL é texto de fora, e o Postgres recusa uuid malformado com 500.
+ * Management contact screens (`/fluxo/:id/**`) use browser sessions. This was the first Next-to-Vite front-end migration (README, "Quem fala com o banco"): Next Server Component reads became one API route per read, with the same data and tenant from the session, never the URL. Contact creation, editing and deletion share this adapter through `POST`, `PATCH /:id` and `DELETE /:id`; rules live in `dominio/gestao/ciclo-de-vida-do-fluxo.ts`. `id` is `fluxo.id`; reject invalid UUIDs with 404 before Postgres can return 500.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** Exportada para o controlador do Builder (`gestao-builder.ts`), que vive sob a mesma casca. */
+
 export function uuidOu404(value: string, oQue: string): string {
   if (!UUID.test(value)) throw PipeError.naoEncontrado(oQue);
   return value;
 }
 
-/** O que a casca do contato precisa: o contato, o canal dele e o fuso da conta. */
+
 export interface ShellOfContact {
   contact: ContactOfFlow;
   fuso: string;
@@ -112,35 +99,29 @@ export interface ShellOfContact {
 export interface RequestOfContact {
   name: string;
   type: 'fluxo' | 'roteador';
-  /** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */
+  /** Accept `data:image/...;base64,...` or nothing. File bytes determine the type, not the label. */
   image?: string | null;
   recados: RecadosDoNome & { nomeEmUso: string; withoutPermission: string };
 }
 
 /**
- * Sucesso é `{ id }`; recusa é `{ erro }` com a frase da tela, em 200 — o
- * contrato que a tela de criar já espera (ela leva o `erro` de volta ao passo
- * do nome pela URL). É a exceção ao padrão `ErroPipe` deste controlador, e
- * fica restrita ao POST: o PATCH e o DELETE respondem status e
- * `{ erro: { codigo, mensagem } }`, como o resto da `api`.
+ * Success is `{ id }`; rejection is `{ erro }` with the screen's phrase, both with 200. The create screen expects this contract and carries `erro` back to the name step in the URL. This exception to this controller's `ErroPipe` pattern applies only to POST; PATCH and DELETE use status codes and `{ erro: { codigo, mensagem } }` like the rest of the `api`.
  */
 export type ResultOfContact =
   { id: string; error?: undefined } | { id?: undefined; error: string };
 
 export interface RequestOfEditOfContact {
   name?: string;
-  /** `null` ou vazio apaga; ausente não mexe. */
+  /** `null` or empty clears the value; absence leaves it unchanged. */
   description?: string | null;
-  /** `data:` troca, `null` tira, ausente não mexe. */
+  /** `data:` replaces the image, `null` removes it, and absence leaves it unchanged. */
   imagem?: string | null;
 }
 
 @Controller('v1/management/flows')
 export class ManagementFlowController {
   /**
-   * Criar um contato (fluxo ou roteador). A regra inteira — permissão, nome,
-   * foto, nome único — mora em `ciclo-de-vida-do-fluxo.ts`; aqui só se traduz
-   * cada recusa para a frase que a tela pediu.
+   * Create a contact (flow or router). Permission, name, photo and uniqueness rules live in `ciclo-de-vida-do-fluxo.ts`; this adapter maps each rejection to the phrase requested by the screen.
    */
   @Post()
   @HttpCode(200)
@@ -173,7 +154,7 @@ export class ManagementFlowController {
     }
   }
 
-  /** Editar nome, descrição e imagem — o "Salvar" de "Editar Fluxo". */
+
   @Patch(':id')
   @WithSession()
   async editar(
@@ -183,8 +164,9 @@ export class ManagementFlowController {
   ): Promise<FlowWritten> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
-    /* JSON é texto de fora: o que não for string (ou `null` onde `null` vale)
-       é tratado como ausente, e ausente é "não mexa". */
+    /*
+     * JSON is external input. Treat a value other than a string, or `null` where it is allowed, as absent; absent means leave the field unchanged.
+     */
     const nome = corpo?.name;
     const description = corpo?.description;
     const image = corpo?.imagem;
@@ -197,7 +179,7 @@ export class ManagementFlowController {
     );
   }
 
-  /** Excluir — arquiva; o porquê está em `ciclo-de-vida-do-fluxo.ts`. */
+
   @Delete(':id')
   @HttpCode(204)
   @WithSession()
@@ -209,7 +191,7 @@ export class ManagementFlowController {
     );
   }
 
-  /** A grade do portal. Fora da lista de tamanhos, cai no primeiro; página inválida vira 1. */
+  /** Portal grid: an unlisted page size falls back to the first allowed size, and an invalid page becomes 1. */
   @Get()
   @WithSession()
   async grade(
@@ -247,9 +229,7 @@ export class ManagementFlowController {
   }
 
   /**
-   * O canal DO BOT — a página `channels/{canal}` da origem. A regra (um bot por
-   * número, canal inativo não liga, permissão `channels.escrever` no fluxo)
-   * mora em `dominio/gestao/canal-do-fluxo.ts`.
+   * The bot's channel is the source `channels/{canal}` page. The rules for one bot per number, refusing inactive channels and `channels.escrever` permission on the flow live in `dominio/gestao/canal-do-fluxo.ts`.
    */
   @Get(':id/canal')
   @WithSession()
@@ -262,7 +242,7 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, (tx) => loadChannelOfFlowInScreen(tx, sessao.tenantId, id));
   }
 
-  /** "Ativar número": liga um canal existente da conta a este bot. */
+
   @Put(':id/canal')
   @WithSession()
   async connectChannel(
@@ -281,8 +261,7 @@ export class ManagementFlowController {
   }
 
   /**
-   * Desliga o canal deste bot. O canal em si continua conectado à Meta. O
-   * `motivo` (opcional) é o do modal de desconexão da origem; vai para o log.
+   * Disconnect the channel from this bot, leaving the channel itself connected to Meta. Optional `motivo` comes from the source disconnect modal and is written to the log.
    */
   @Delete(':id/canal')
   @HttpCode(204)
@@ -406,7 +385,7 @@ export class ManagementFlowController {
     );
   }
 
-  /** O Growth é da CONTA, não do contato — a rota leva o `id` só para ficar sob a mesma casca. */
+  /** Growth belongs to the account, not the contact; this route carries `id` only to share the adapter. */
   @Get(':id/growth')
   @WithSession()
   async growth(
@@ -433,7 +412,7 @@ export class ManagementFlowController {
     });
   }
 
-  /** Os serviços do roteador. As regras moram em `dominio/gestao/servicos-do-roteador.ts`. */
+
   @Get(':id/servicos')
   @WithSession()
   async servicos(

@@ -4,23 +4,7 @@ import { keyring } from '../../database.js';
 import { PipeError } from '../../errors.js';
 
 /**
- * O `state` do cadastro embutido. **Acréscimo do Pipe, não é porte.**
- *
- * O Chatwoot abre o popup pelo `FB.login` do SDK e não tem `state`: o `code` volta
- * para o JavaScript da própria página e segue num POST autenticado. A Blip usa o
- * diálogo por redirecionamento com `state` aleatório por abertura. O Pipe segue o
- * Chatwoot no fluxo e acrescenta a amarra, porque o ataque que ela fecha é
- * concreto: alguém conclui o cadastro com a WABA DELE e faz o navegador de um
- * administrador nosso entregar esse `code` — e o cliente passa a atender pelo
- * número de outra pessoa.
- *
- * O `state` é emitido pelo servidor, preso ao tenant e ao usuário da sessão, com
- * validade de dez minutos, e cifrado com o chaveiro que já cifra o token da Meta
- * (AES-256-GCM, autenticado: alterado, não decifra). Sem tabela nova.
- *
- * ponytail: não é de uso único. Reapresentado dentro dos dez minutos, só serve à
- * mesma pessoa no mesmo tenant, e o `code` da Meta já é de uso único e vive 30 s.
- * Se virar requisito, é uma tabela de `state` queimado.
+ * Embedded signup `state` is a Pipe addition. Chatwoot's `FB.login` SDK returns `code` to its own JavaScript and sends an authenticated POST; Blip uses redirect with random per-opening `state`. Pipe also binds `state` to prevent an attacker from making an administrator's browser submit a code for the attacker's WABA, causing the tenant to serve someone else's number. The server issues a ten-minute `state` bound to session user and tenant, encrypted and authenticated by the Meta-token keyring (AES-256-GCM); tampering makes decryption fail without a new table. ponytail: it is not single-use; replay within ten minutes is bound to the same user and tenant, and Meta's `code` is single-use for 30 seconds. Add a spent-state table if single-use state becomes required.
  */
 
 const VALIDITY_MS = 10 * 60 * 1000;
@@ -54,8 +38,7 @@ export function checkState(
   } catch {
     conteudo = null;
   }
-  // Ausente, forjado, de outra sessão ou vencido dão a MESMA resposta: dizer qual
-  // metade falhou é ensinar a quem tenta.
+  // Missing, forged, expired, or other-session `state` values all return the same response to avoid revealing which check failed.
   if (!conteudo || conteudo.t !== tenantId || conteudo.u !== usuarioId || !(conteudo.e > agora)) {
     throw new PipeError(
       403,

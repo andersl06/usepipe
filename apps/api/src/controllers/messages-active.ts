@@ -13,13 +13,7 @@ import { PipeError } from '../errors.js';
 import type { RequestWithSession } from '../session.js';
 
 /**
- * `/v1/mensagens-ativas` — disparo de template para uma lista de contatos.
- *
- * Ver `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` e `dominio/mensagem-ativa.ts`.
- *
- * **A resposta é 207-em-espírito**: 201 com o resultado POR CONTATO. Um número
- * inválido no meio de quinze não derruba os catorze bons, e a tela precisa saber
- * exatamente quem entrou e quem foi recusado — é assim que a tela deles se comporta.
+ * `/v1/mensagens-ativas` sends a template to a contact list. See `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` and `dominio/mensagem-ativa.ts`. The response has 207-like semantics with status 201 and a result per contact: one invalid number among fifteen does not reject the other fourteen. The screen needs to show exactly which contacts were accepted and rejected, matching the source behavior.
  */
 
 interface CorpoDoDisparo {
@@ -31,7 +25,7 @@ interface CorpoDoDisparo {
 
 @Controller('v1/messages-active')
 export class ActiveMessagesController {
-  /** Os limites em vigor, para a tela não repetir número mágico. */
+  /** Return the active limits so the screen does not duplicate magic numbers. */
   @Get('limits')
   @KeyOrSession('mensagens:ler')
   limites(): Record<string, unknown> {
@@ -42,7 +36,7 @@ export class ActiveMessagesController {
     };
   }
 
-  /** O painel "Status geral": últimas 72 horas, como o deles. */
+  /** The "Status geral" panel defaults to the last 72 hours, as in the source. */
   @Get()
   @KeyOrSession('mensagens:ler')
   async application(
@@ -82,9 +76,9 @@ export class ActiveMessagesController {
     }
 
     const channel = await resolveChannel(corpo.channelId);
-    // O canal é resolvido pelo papel dono, então CONFERIR O TENANT aqui não é
-    // paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número
-    // dele com a nossa credencial.
+    // The owner role resolves the channel, so checking the tenant here is essential:
+    // without it, another customer's `canal_id` could send from that customer's number
+    // using our credential.
     if (!channel || channel.tenantId !== ator.tenantId) throw PipeError.naoEncontrado('Canal');
     if (!channel.active) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 

@@ -1,10 +1,5 @@
 /**
- * Núcleo de `tools/std/gerar-fixtures-jsonb.ts`, colocado aqui (e não em `tools/std/`)
- * porque precisa resolver `drizzle-orm`/`@pipe/db` e todo o código de domínio da `api`
- * pelo `node_modules` desta workspace — `tools/std` não tem esses pacotes instalados.
- * Não é teste (sem `.test.` no nome, `node --test`/vitest não o coletam); é só a parte
- * do gerador que precisa rodar a partir daqui. Ver o cabeçalho de
- * `tools/std/gerar-fixtures-jsonb.ts` para o propósito e as decisões do dono.
+ * Core of `tools/std/gerar-fixtures-jsonb.ts`, placed here (rather than in `tools/std/`) because it needs to resolve `drizzle-orm`/`@pipe/db` and all of the `api`'s domain code through this workspace's `node_modules` — `tools/std` does not have those packages installed. It is not a test (no `.test.` in the name, so `node --test`/Vitest do not collect it); it is only the part of the generator that must run from here. See the header of `tools/std/gerar-fixtures-jsonb.ts` for the purpose and the owner's decisions.
  */
 
 import { randomUUID } from 'node:crypto';
@@ -23,9 +18,7 @@ const FIXTURE_FLOW: unknown = JSON.parse(
 export type Registro = Record<string, unknown>;
 
 /**
- * Gera todas as fixtures dentro de UM tenant descartável (criado e apagado aqui, como
- * `montarCenario` já faz para a suíte de teste inteira) e devolve os registros crus, por
- * nome de arquivo de fixture — quem chama redige e escreve.
+ * Generates all fixtures inside a SINGLE disposable tenant (created and deleted here, the same way `montarCenario` already does for the entire test suite) and returns the raw records, keyed by fixture file name — the caller redacts and writes them.
  */
 export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
   const { upApi } = await import('../src/servidor.js');
@@ -57,7 +50,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
 
   try {
     // --- flow version + flow execution + outbox (mensagem.dados) ---
-    // Reaproveita a fixture sintética do motor (a mesma de apps/api/tests/fluxo.test.ts):
+    // Reuses the engine's synthetic fixture (the same one from `apps/api/tests/fluxo.test.ts`):
     // publicar grava fluxo_versao.global, bloco.conteudo/posicao, transicao.condicao;
     // conversar com o bot grava execucao_fluxo.contexto, execucao_passo.entrada/saida e,
     // no menu (select), mensagem.dados.
@@ -99,8 +92,8 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // `cenario.dono` tem `bypassrls` (papel dono): toda leitura daqui em diante filtra
-    // `tenant_id = cenario.tenantId` explicitamente, nunca só por telefone/id — sem RLS
-    // amarrando, um telefone de teste igual ao de outra execução (deste ou de outro
+    // Set `tenant_id = cenario.tenantId` explicitly, never by phone/id alone — without RLS
+    // enforcing it, a test phone number equal to one from another run (of this or another
     // agente, no mesmo Postgres local compartilhado) vazaria linha de outro tenant.
     const { rows: executionRows } = await cenario.dono.execute<{ id: string; context: unknown }>(sql`
       select e.id, e.contexto from execucao_fluxo e
@@ -140,10 +133,10 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // --- flow execution: process_http_execucao (suspenso, sem chamada de rede) ---
-    // `contexto.servicos.suspenderHttp` está sempre setado em `rodarFluxoNaEntrada`, então
-    // toda ação ProcessHttp SEMPRE suspende antes de chamar rede de verdade — a linha nasce
-    // com entrada/contexto/pedido preenchidos e `resposta` nula (estado 'pendente'), sem
-    // nenhum request sair da máquina.
+    // `contexto.servicos.suspenderHttp` is always set in `rodarFluxoNaEntrada`, so
+    // every ProcessHttp action ALWAYS suspends before making a real network call — the row is created
+    // with entrada/contexto/pedido filled in and `resposta` null (state 'pendente'), without
+    // any request ever leaving the machine.
     const flowWithProcessHttp = JSON.parse(JSON.stringify(FIXTURE_FLOW)) as {
       flow: Record<string, { $enteringCustomActions: unknown[] }>;
     };
@@ -324,8 +317,8 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // --- crm: lead.utm / lead.customizados ---
-    // Sem rota de escrita própria hoje; formato igual ao que
-    // apps/crm/semente/semente-crm.ts:625-654 grava (citado, não executado).
+    // There is no dedicated write route for it today; the format matches what
+    // `apps/crm/semente/semente-crm.ts:625-654` writes (referenced, not executed).
     const { rows: leadRows } = await cenario.dono.execute<{
       id: string;
       utm: unknown;
@@ -351,7 +344,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // --- template: template_mensagem.variaveis ---
-    // Sem chamada à Graph API da Meta; reproduz a MESMA transformação determinística de
+    // No call to Meta's Graph API; it reproduces the SAME deterministic transformation as
     // apps/api/src/dominio/whatsapp/modelos.ts:207 (`Array.from({length:n}, (_,i)=>...)`).
     const quantasVariables = 2;
     const variablesDefault = Array.from(

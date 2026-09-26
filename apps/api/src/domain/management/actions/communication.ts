@@ -10,14 +10,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
   fn(tx);
 
 /**
- * Server Actions de Comunicação. Seguem o mesmo formato `Resultado` de
- * `apps/desk/src/app/acoes.ts`: sem exceção para o caso esperado de erro de
- * formulário, para o `useActionState` do lado do cliente mostrar mensagem sem
- * precisar de try/catch na tela.
- *
- * As duas ações fazem UMA transação cada, com os `selects` de conflito antes
- * do `insert` — nunca em paralelo (`Promise.all` dentro de `comTenant` derruba
- * o `set_config('pipe.tenant_id')` da sessão, ver README §Banco de dados).
+ * Communication Server Actions return expected form errors as `Resultado`, following `apps/desk/src/app/acoes.ts`, so client `useActionState` can show them without try/catch. Each action performs ONE transaction, using conflict `selects` before `insert`. Never use `Promise.all` inside `comTenant`: parallel queries can lose the session `set_config('pipe.tenant_id')`; see README section Banco de dados.
  */
 
 const OK: Resultado = { ok: true };
@@ -42,9 +35,7 @@ async function comoResultado(fn: () => Promise<unknown>): Promise<Resultado> {
 // --------------------------------------------------------- respostas prontas
 
 /**
- * Casca fina sobre `criarRespostaPronta` de `comunicacao.ts` — a mesma que a
- * rota REST nova (`POST /v1/gestao/comunicacao/respostas-prontas`) chama.
- * Antes desta ação validava e gravava aqui, sem permissão nenhuma.
+ * Thin wrapper around `criarRespostaPronta` in `comunicacao.ts`, also used by `POST /v1/gestao/comunicacao/respostas-prontas`. Previously this action validated and wrote here without permission checks.
  */
 export async function salvarRespostaPronta(
   tx: TransactionPipe,
@@ -110,9 +101,9 @@ export async function saveTemplate(
     if (channelEscolhido.tipo !== 'whatsapp_cloud')
       return falha('Modelo de mensagem é só para canal WhatsApp.');
 
-    // `template_mensagem_uk` é `uniqueIndex` de verdade (tenant, canal, nome, idioma),
-    // mas o conflito é checado aqui mesmo assim: erro de constraint no banco vira
-    // 500 sem contexto, e quem cadastra precisa saber QUAL modelo já existe.
+    // `template_mensagem_uk` is a real `uniqueIndex` on tenant, channel, name, and language,
+    // but check for conflict here anyway: a database constraint error becomes
+    // an unexplained 500, and the user needs to know WHICH template exists.
     const [conflito] = await tx
       .select({ id: templateMessage.id })
       .from(templateMessage)
@@ -138,7 +129,7 @@ export async function saveTemplate(
       cabecalhoTipo,
       corpo,
       variables,
-      // Nasce pendente sempre: aprovação é da Meta, não desta tela. Ver comentário
+      // A template always starts pending: Meta approves it, not this screen. See the `status_meta` comment in `packages/db/src/schema/conversas.ts`.
       // de `status_meta` em `packages/db/src/schema/conversas.ts`.
       statusMeta: 'pendente',
     });

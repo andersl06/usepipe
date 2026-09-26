@@ -8,31 +8,7 @@ import { identifierOfChannel } from '../management-flow.js';
 import { exigirPermissionInFlow } from './team-of-flow.js';
 
 /**
- * Ligar e desligar o canal DO BOT — o que a página
- * `/application/detail/{bot}/channels/{canal}` da origem faz por trás do
- * "Ativar número" (`FICHA-conectar-canal-no-bot.md` §2 e §4).
- *
- * `fluxo.canal_id` era só LIDO pela `api` (`fluxoPublicadoDoCanal`); os
- * testes ligavam por SQL e a tela não tinha como. Aqui é o gesto de escrita,
- * com as regras que a origem mostra:
- *
- * - **o canal é do bot**: a permissão é `channels.escrever` NESTE fluxo (a
- *   linha "Canais" da lista de permissões por bot), ou a equivalente da conta
- *   — `exigirPermissaoNoFluxo`;
- * - **um bot por número**: ligar um canal que já está com outro bot vivo é
- *   recusado — "Ops… Este número já está em uso / Para ativar o número neste
- *   bot, remova do anterior e tente novamente." (`errorMsg.phoneNumberIsAlreadyConnected`).
- *   A origem não transfere; quem quer trocar desliga no bot antigo antes. O
- *   `detalhe` diz QUAL bot está com ele — acréscimo do Pipe, para a tela
- *   apontar o caminho;
- * - **canal inativo não liga** (409): desconectado aqui, ele não recebe
- *   mensagem; ligar um bot a ele seria ligar a nada.
- *
- * Decisão Pipe (não está na origem): `fluxo.canal_id` é UMA coluna, então um
- * bot tem UM canal. Na origem um bot tem WhatsApp + Messenger + Instagram ao
- * mesmo tempo. Ligar um segundo canal a um bot que já tem outro é recusado
- * (409 `fluxo_ja_tem_canal`) em vez de trocar por baixo dos panos — a tela do
- * WhatsApp não pode desligar o Instagram sem avisar.
+ * Connect or disconnect a channel for a BOT, as source `/application/detail/{bot}/channels/{canal}` does behind 'Ativar número' (`FICHA-conectar-canal-no-bot.md` §§2,4). `fluxo.canal_id` was previously read by `fluxoPublicadoDoCanal`, while tests linked it by SQL; this adds the screen's write operation. Require `channels.escrever` on THIS flow or the account equivalent through `exigirPermissaoNoFluxo`. Reject a channel linked to another live bot, preserving the source's literal message 'Ops… Este número já está em uso / Para ativar o número neste bot, remova do anterior e tente novamente.' (`errorMsg.phoneNumberIsAlreadyConnected`); `detalhe` additionally identifies that bot. An inactive channel cannot receive, so linking returns 409. Pipe differs from Blip: `fluxo.canal_id` is one column, so this bot supports ONE channel; linking another returns 409 `fluxo_ja_tem_canal` rather than silently replacing WhatsApp, Messenger or Instagram.
  */
 
 const CONNECT_CHANNEL = 'channels.escrever';
@@ -58,7 +34,7 @@ const COLUNAS = {
   ativo: channel.ativo,
 };
 
-/** O bot VIVO que está com o canal, se houver — arquivado não segura número. */
+/** Return the live bot linked to this channel; archived bots do not reserve numbers. */
 async function botOfChannel(
   tx: TransactionPipe,
   tenantId: string,
@@ -73,7 +49,7 @@ async function botOfChannel(
   return linha ?? null;
 }
 
-/** Um canal DESTE tenant, ou 404. O tenant vem da sessão, nunca do corpo. */
+/** Return a channel belonging to THIS tenant, or 404. Tenant identity comes from the session, never the request body. */
 async function channelOfTenant(tx: TransactionPipe, tenantId: string, canalId: string) {
   const [linha] = await tx
     .select(COLUNAS)
@@ -95,7 +71,7 @@ async function forContract(
 
 /* ------------------------------------------------------------------ Leitura */
 
-/** O que a página do canal precisa: o canal deste bot e os que a conta tem para oferecer. */
+
 export async function loadChannelOfFlowInScreen(
   tx: TransactionPipe,
   tenantId: string,
@@ -124,10 +100,7 @@ export async function loadChannelOfFlowInScreen(
 /* ------------------------------------------------------------------- Gestos */
 
 /**
- * As três portas que um canal novo precisa atravessar ANTES de ser criado para
- * este bot (conexão manual com `fluxo_id`): o bot existe e é deste tenant, a
- * pessoa pode conectar canal nele, e ele ainda não tem canal. Assim a
- * credencial do cliente não é gravada para depois a ligação ser recusada.
+ * Before creating a channel with `fluxo_id`, verify that the bot belongs to this tenant, the user may connect a channel to it, and it has no channel yet. Do not store client credentials only to reject the link afterward.
  */
 export async function conferirQuePodeLigar(
   tx: TransactionPipe,
@@ -148,7 +121,7 @@ function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: stri
   );
 }
 
-/** "Ativar número": o canal passa a ser deste bot. Ligar o mesmo canal de novo não é erro. */
+/** 'Ativar número' links the channel to this bot; linking the same channel again is idempotent. */
 export async function connectChannelToFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -172,7 +145,7 @@ export async function connectChannelToFlow(
 
   const dono = await botOfChannel(tx, tenantId, alvo.id);
   if (dono) {
-    /* O título e a mensagem são os da origem (`whatsapp.errorMsg.phoneNumberIsAlreadyConnected`). */
+    /* The title and message match the source's `whatsapp.errorMsg.phoneNumberIsAlreadyConnected`. */
     throw PipeError.conflito(
       'number_in_use',
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
@@ -197,13 +170,7 @@ export async function connectChannelToFlow(
 }
 
 /**
- * Desligar o canal DO BOT. O canal continua existindo e ativo — desconectar o
- * número em si (`DELETE /v1/canais/whatsapp/:id`) é outro gesto. Sem canal,
- * nada muda e nada é registrado.
- *
- * `motivo` é o "Por qual motivo você quer desconectar o …?" do modal da
- * origem (Instagram/Messenger, `FICHA-conectar-canal-no-bot.md` §3.3): lá vai
- * para a analítica deles; aqui fica no log de auditoria.
+ * Disconnect the channel FROM THE BOT. The channel stays active; disconnecting the number itself (`DELETE /v1/canais/whatsapp/:id`) is a separate gesture. With no linked channel, make no change or audit entry. `motivo` comes from the source modal 'Por qual motivo você quer desconectar o …?' for Instagram/Messenger (`FICHA-conectar-canal-no-bot.md` §3.3); Blip uses it for analytics, while Pipe stores it in the audit log.
  */
 export async function disconnectChannelOfFlow(
   tx: TransactionPipe,
@@ -232,9 +199,7 @@ export async function disconnectChannelOfFlow(
 }
 
 /**
- * Quem administra o bot pode RECONECTAR o canal DELE (token vencido), porque na
- * origem isso se faz na página do canal dentro do bot. Devolve `true` quando o
- * canal pedido é mesmo o daquele bot e a pessoa tem poder nele.
+ * A bot administrator may reconnect THAT bot's channel after token expiry, as the source channel page permits. Return `true` only if the requested channel belongs to the bot and the user has authority there.
  */
 export async function canReconnectInFlow(
   tx: TransactionPipe,

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável, como
+// The mode must be decided before any import that reads the variable, as
 // nos outros testes de webhook/fila.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -17,14 +17,7 @@ const { ordenarQueueOfWait } = await import('../src/domain/management/monitoring
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
- * O relógio de SLA (`dominio/gestao/sla-motor.ts`), chamado DIRETO — sem passar
- * pela fila BullMQ. `PIPE_FILAS=memoria` já faz `enfileirarChecagemSla` não fazer
- * nada (mesma regra da mídia e do espelho no CRM), então provar o relógio de
- * verdade é chamar `checarSlaDaConversa` direto, exatamente o que o consumidor
- * da fila faz em produção.
- *
- * Os fixtures usam SQL cru contra `cenario.dono` (bypassa RLS, é semente) — o
- * mesmo padrão de `entrada-telefone.test.ts` e `midia-recebida.test.ts`.
+ * The SLA clock (`dominio/gestao/sla-motor.ts`), called DIRECTLY — without going through the BullMQ queue. `PIPE_FILAS=memoria` already makes `enfileirarChecagemSla` a no-op (the same rule as media and the CRM mirror), so proving the real clock means calling `checarSlaDaConversa` directly, exactly what the queue consumer does in production. The fixtures use raw SQL against `cenario.dono` (bypassing RLS, since it is seed data) — the same pattern as `entrada-telefone.test.ts` and `midia-recebida.test.ts`.
  */
 
 let a: Cenario;
@@ -95,9 +88,9 @@ async function createRuleSla(
 }
 
 async function createWebhook(cenario: Cenario, eventos: string[]): Promise<void> {
-  // Literal de array do Postgres construído à mão — o mesmo truque de `ajuda.ts`
-  // (`criarChave`, coluna `escopos`): passar um array JS direto no `sql` cru não vira
-  // `{a,b}`, vira parâmetro de texto solto e o Postgres recusa.
+  // A Postgres array literal built by hand — the same trick as `ajuda.ts`
+  // (`criarChave`, `escopos` column): passing a raw JS array straight into raw `sql` does not turn into
+  // `{a,b}` turns into a bare text parameter and Postgres rejects it.
   await cenario.dono.execute(sql`
     insert into webhook_saida (tenant_id, url, eventos, segredo)
     values (
@@ -156,7 +149,7 @@ describe('Choose the most specific SLA rule for each target', () => {
     };
     const doTenant = { ...ofQueue, id: 'r-tenant', nome: 'do tenant', escopoTipo: 'tenant', escopoId: null };
     expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-1')).toEqual([ofQueue]);
-    // Fora da fila que a regra específica escolheu: só a do tenant se aplica.
+    // Outside the queue the specific rule targeted: only the tenant's rule applies.
     expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-2')).toEqual([doTenant]);
   });
 
@@ -181,10 +174,10 @@ describe('Choose the most specific SLA rule for each target', () => {
 });
 
 describe('Check conversation SLA alerts and breaches', () => {
-  // Cada teste cadastra a(s) SUA(S) própria(s) regra(s). Sem isto, a segunda regra
-  // de um alvo já usado por um teste anterior (mesmo escopo `tenant`) empataria
-  // com a primeira, e `regrasVencedorasPorAlvo` escolheria uma delas por ordem
-  // alfabética de nome — não necessariamente a que ESTE teste acabou de criar.
+  // Each test registers its OWN rule(s). Without this, the second rule
+  // for a target already used by an earlier test (same `tenant` scope) would tie
+  // with the first one, and `regrasVencedorasPorAlvo` would pick between them by
+  // alphabetical name order — not necessarily the one THIS test just created.
   beforeEach(async () => {
     await a.dono.execute(sql`delete from regra_sla where tenant_id = ${a.tenantId}::uuid`);
   });
@@ -202,7 +195,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     expect(linha?.estouradoEm).toBeNull();
     expect(await contarEventos(a, conversationId, 'sla_alertado')).toBe(1);
 
-    // Idempotência: rodar de novo no MESMO instante não duplica o evento nem muda o carimbo.
+    // Idempotency: running it again at the SAME instant does not duplicate the event or change the timestamp.
     const alertadoEmAntes = linha!.alertadoEm;
     await checarSlaOfConversation(a.tenantId, conversationId, agora0);
     linha = await slaConversationOf(a, conversationId);
@@ -217,7 +210,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     expect(linha?.estouradoEm).not.toBeNull();
     expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
 
-    // Idempotência do estouro: rodar de novo não duplica nem regride o estado.
+    // Idempotency of the breach: running it again neither duplicates nor regresses the state.
     const estouradoEmAntes = linha!.estouradoEm;
     await checarSlaOfConversation(a.tenantId, conversationId, new Date(agora1.getTime() + 60_000));
     linha = await slaConversationOf(a, conversationId);
@@ -239,8 +232,8 @@ describe('Check conversation SLA alerts and breaches', () => {
     expect(await contarEventos(a, conversaId, 'sla_alertado')).toBe(0);
     expect(await contarEventos(a, conversaId, 'sla_estourado')).toBe(0);
     const linha = await slaConversationOf(a, conversaId);
-    // Fechou sem cumprir (nunca teve 1ª resposta) e sem estourar: cancelado, não
-    // "correndo" para sempre — decisão Pipe em `sla-motor.ts`.
+    // Closed without being met (never had a first response) and without breaching: canceled, not
+    // left "running" forever — a Pipe decision made in `sla-motor.ts`.
     expect(linha?.state).toBe('cancelado');
   });
 
@@ -264,7 +257,7 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('Raise priority one step and reorder the waiting queue after an SLA breach (`elevar_prioridade`)', async () => {
-    // `resolucao` é o nome do alvo NO BANCO (`ALVOS_SLA`); `sla.ts` traduz para o
+    // `resolucao` is the target's name IN THE DATABASE (`ALVOS_SLA`); `sla.ts` translates it to the
     // alvo `encerramento` do `@pipe/core` (`ALVO_DO_BANCO`).
     await createRuleSla(a, {
       alvo: 'resolucao',
@@ -273,10 +266,10 @@ describe('Check conversation SLA alerts and breaches', () => {
       acaoEstouro: { tipo: 'elevar_prioridade' },
     });
     const agora = new Date();
-    // A: mais antiga, prioridade `baixa`, prazo de resolução já estourado (criada há 100s, prazo é 60s).
+    // A: older, `baixa` priority, resolution deadline already breached (created 100s ago, deadline is 60s).
     const criadaA = new Date(agora.getTime() - 100_000);
     const conversationA = await createConversation(a, { criadaEm: criadaA, prioridade: 'baixa' });
-    // B: mais nova, prioridade `media` — sem regra de SLA estourando para ela.
+    // B: newer, `media` priority — with no SLA rule breaching for it.
     const criadaB = new Date(agora.getTime() - 10_000);
     const conversationB = await createConversation(a, { criadaEm: criadaB, prioridade: 'media' });
 
@@ -294,28 +287,28 @@ describe('Check conversation SLA alerts and breaches', () => {
       { id: conversationA, prioridade: await priorityOf(a, conversationA), marcos: { criadaEm: criadaA } },
       { id: conversationB, prioridade: await priorityOf(a, conversationB), marcos: { criadaEm: criadaB } },
     ];
-    // Depois: A e B empatam em `media`; o desempate é pela mais ANTIGA — A vence agora.
+    // Afterwards: A and B tie at `media`; the tiebreaker is the OLDER one — A wins now.
     expect(ordenarQueueOfWait(linhaDepois).map((l) => l.id)).toEqual([conversationA, conversationB]);
   });
 });
 
 describe('Isolate conversation SLA checks by tenant', () => {
   it('Never apply one tenant\'s SLA rule to another tenant\'s conversation', async () => {
-    // Tenant novo, sem NENHUMA regra própria — `a` já acumulou regras dos testes
-    // acima neste arquivo, e usá-lo aqui provaria menos que "sem regra cadastrada".
+    // A new tenant, with NO rule of its own — `a` has already accumulated rules from the tests
+    // above in this file, and reusing it here would prove less than "no rule registered".
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);
     try {
-      // Regra cadastrada SÓ no tenant B.
+      // A rule registered ONLY in tenant B.
       await createRuleSla(b, { alvo: 'primeira_resposta', prazoSeg: 10, alertaSeg: 5 });
 
       const agora = new Date();
-      // Estouraria fácil, SE a regra de B valesse para este tenant.
+      // It would easily breach IF B's rule applied to this tenant.
       const criadaEm = new Date(agora.getTime() - 100_000);
       const conversationWithoutRule = await createConversation(semRegra, { criadaEm, atribuidaEm: criadaEm });
 
       await checarSlaOfConversation(semRegra.tenantId, conversationWithoutRule, agora);
 
-      // Sem regra cadastrada NESTE tenant: não muda nada, nenhuma linha em `sla_conversa`.
+      // With no rule registered in THIS tenant: nothing changes, no row in `sla_conversa`.
       expect(await slaConversationOf(semRegra, conversationWithoutRule)).toBeNull();
       expect(await contarEventos(semRegra, conversationWithoutRule, 'sla_alertado')).toBe(0);
       expect(await contarEventos(semRegra, conversationWithoutRule, 'sla_estourado')).toBe(0);

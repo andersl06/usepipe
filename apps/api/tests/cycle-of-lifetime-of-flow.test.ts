@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,28 +17,21 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O ciclo de vida do contato (fluxo/roteador): `POST`, `PATCH /:id` e
- * `DELETE /:id` em `/v1/gestao/fluxos`.
+ * The contact's (flow/router) lifecycle: `POST`, `PATCH /:id` and `DELETE /:id` on `/v1/gestao/fluxos`.
  *
- * O que vale a pena provar é o que a origem das telas decide e o que o Pipe
- * decidiu por cima dela: o nome pelas regras do assistente de criação (2 a 30,
- * começa com letra, saneado), a descrição pelo DOM de "Editar Fluxo" (2 a 160,
- * opcional), a foto pelos BYTES, a permissão de excluir só do admin
- * (`automacao.fluxo.excluir`), e a exclusão que ARQUIVA em vez de apagar — o
- * fluxo some da grade, o nome fica livre, e a versão publicada continua no
- * banco para o histórico das conversas que passaram por ela.
+ * What's worth proving is what the screens' source decides and what Pipe decided on top of it: the name by the creation wizard's rules (2 to 30, starts with a letter, sanitized), the description by the "Edit Flow" DOM (2 to 160, optional), the photo by its BYTES, the delete permission for admins only (`automacao.fluxo.excluir`), and the deletion that ARCHIVES instead of erasing — the flow disappears from the grid, the name becomes free, and the published version stays in the database for the history of the conversations that went through it.
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Quem cria e edita, mas não exclui — o `member` deles. */
+/** Who creates and edits, but doesn't delete — their `member`. */
 let sessionEditor: string;
-/** Quem também exclui — o `admin` deles. */
+/** Who also deletes — their `admin`. */
 let sessionAdmin: string;
-/** Gente do tenant A sem permissão nenhuma sobre fluxo. */
+/** People from tenant A with no permission at all on the flow. */
 let sessionWithoutPoder: string;
-/** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */
+/** Admin of tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
 const RECADOS = {
@@ -48,7 +41,7 @@ const RECADOS = {
   semPermissao: 'recado: sem permissão',
 };
 
-/** Um usuário novo no tenant, com um papel que carrega estas permissões. */
+/** A new user on the tenant, with a role carrying these permissions. */
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
   const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
@@ -83,7 +76,7 @@ async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<strin
   return userId;
 }
 
-/** Grava uma sessão viva para a pessoa e devolve o token do cookie. */
+/** Writes a live session for the person and returns the cookie's token. */
 async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
@@ -97,12 +90,12 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
-/** Um PNG "de mentira" que é PNG de verdade para quem lê os bytes: a assinatura e mais nada. */
+/** A "fake" PNG that's a real PNG to whoever reads the bytes: the signature and nothing else. */
 const PNG = `data:image/png;base64,${Buffer.from([
   0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d,
 ]).toString('base64')}`;
 
-/** Rótulo de PNG, bytes de texto: o tipo mente. */
+/** PNG label, text bytes: the type lies. */
 const NOT_IMAGE = `data:image/png;base64,${Buffer.from('isto não é uma imagem').toString(
   'base64',
 )}`;
@@ -152,7 +145,7 @@ async function create(
   return { status: resposta.status, corpo: (await resposta.json()) as ResponseOfCreation };
 }
 
-/** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */
+/** Creates and returns the id, or fails the test — for scenarios that need a ready flow. */
 async function criado(nome: string, extra: Record<string, unknown> = {}): Promise<string> {
   const { status, corpo } = await create(sessionEditor, { nome, ...extra });
   expect(status).toBe(200);
@@ -330,7 +323,7 @@ describe('PATCH /v1/management/flows/:id', () => {
         shortName: `depois-${marca}`,
       },
     });
-    // A foto não mudou, então não está no registro.
+    // // The photo didn't change, so it's not in the record.
     expect(log[1]?.depois).not.toHaveProperty('imagemUrl');
   });
 
@@ -344,7 +337,7 @@ describe('PATCH /v1/management/flows/:id', () => {
 
     const empty = await editar(sessionEditor, id, {});
     expect(empty.status).toBe(200);
-    // criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.
+    // // created plus the description; the empty PATCH and the no-change PATCH don't go in.
     expect(await auditoriaDe(id)).toHaveLength(2);
   });
 
@@ -383,7 +376,7 @@ describe('PATCH /v1/management/flows/:id', () => {
     expect(emUso.status).toBe(409);
     expect((emUso.corpo['erro'] as { code: string }).codigo).toBe('name_in_use');
 
-    // O próprio nome não é conflito consigo mesmo.
+    // // Its own name isn't a conflict with itself.
     const mesmo = await editar(sessionEditor, id, { nome: `Um ${marca}` });
     expect(mesmo.status).toBe(200);
 
@@ -477,11 +470,11 @@ describe('DELETE /v1/management/flows/:id', () => {
       depois: { estado: 'arquivado' },
     });
 
-    // Excluído é "não existe": excluir de novo e editar dão 404.
+    // // Deleted means "doesn't exist": deleting again and editing both return 404.
     expect((await excluir(sessionAdmin, id)).status).toBe(404);
     expect((await editar(sessionEditor, id, { nome: 'Ressuscitado' })).status).toBe(404);
 
-    // E o nome voltou a estar livre para um contato novo.
+    // // And the name became free again for a new contact.
     const novo = await create(sessionEditor, { nome });
     expect(novo.corpo.error).toBeUndefined();
     expect(novo.corpo.id).not.toBe(id);

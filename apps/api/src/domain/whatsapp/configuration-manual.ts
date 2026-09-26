@@ -7,31 +7,15 @@ import { reautorizar } from './reauthorization.js';
 import { atualizarChannel } from './channel.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb
- *
- * Valida, cria canal e caixa (origem `manual_setup_v2`) e configura o webhook. Um
- * webhook que falha NÃO desfaz o canal: volta em `erroDeWebhook`, para a tela
- * dizer o que aconteceu em vez de engolir — é por isso que o original roda o
- * webhook explicitamente e não num callback de gravação.
- *
- * A diferença para o cadastro embutido: aqui o token é do cliente (usuário de
- * sistema dele), então desconectar não solta o número nem desassina a WABA — ver
- * `desmontagem-de-webhook.ts`.
- *
- * Acréscimo do Pipe: o App Secret do app do cliente. É com ele que a Meta assina
- * o que manda para o nosso webhook — o Chatwoot usa um segredo global porque lá o
- * app é sempre o da instalação.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb. Validate, create channel and inbox (`manual_setup_v2`), and configure webhook. A failed webhook leaves the channel and returns `erroDeWebhook` so the UI can explain it; the original runs setup explicitly rather than in a save callback. Unlike embedded signup, the token belongs to the customer's system user, so disconnecting must not deregister the number or unsubscribe its WABA (`desmontagem-de-webhook.ts`). Pipe additionally uses the customer's App Secret to verify Meta signatures, while Chatwoot uses one installation-wide secret.
  */
 
 export interface ConfigurationManual {
   channel: ChannelWhatsApp;
-  /** `webhook_error`. `null` é o `webhook_setup?` verdadeiro. */
+  /** `webhook_error`; null means `webhook_setup?` succeeded. A `null` value represents success. */
   webhookError: string | null;
   /**
-   * O que o cliente cola no webhook DO APP dele (Painel → WhatsApp → Configuração).
-   * Mensagens chegam pelo override do número, que já foi feito; mas status de
-   * template, qualidade e `account_update` não aceitam override e só chegam se o
-   * app do cliente apontar para cá.
+   * Customer-entered callback for their app (Dashboard → WhatsApp → Configuration). Messages arrive through the existing number override, but template status, quality, and `account_update` cannot be overridden and arrive only if their app points here.
    */
   webhook: { url: string; verifyToken: string };
 }
@@ -45,11 +29,7 @@ export async function executarConfigurationManual(pedido: {
   appSecret?: string | undefined;
   name?: string | undefined;
   /**
-   * Reconexão POR CIMA do canal que já existe. Na origem o token é da
-   * plataforma e, quando ele cai, refaz-se a conexão no mesmo canal — não há
-   * botão de desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
-   * Aqui o token é do cliente e expira; sem esta porta, trocar o token vira um
-   * beco: criar de novo esbarra no próprio número (`numero_em_uso`).
+   * Reconnect over the existing channel. The original platform-owned token reconnects the same channel when invalidated; WhatsApp has no disconnect button (`FICHA-conectar-canal-no-bot.md` §5). Here the customer-owned token expires, so without this route replacement would fail on its own number (`numero_em_uso`).
    */
   channelId?: string | undefined;
 }): Promise<ConfigurationManual> {
@@ -69,9 +49,9 @@ export async function executarConfigurationManual(pedido: {
         nomeDaEmpresa: previa.nomeVerificado ?? previa.number,
       },
     });
-    /* O App Secret é do app DO CLIENTE e pode ter mudado junto com o token —
-       sem ele a assinatura do webhook deixa de conferir. A origem volta a ser a
-       manual: `reautorizar` nasceu para o cadastro embutido. */
+    /*
+     * The App Secret belongs to the customer's app and may change with the token. Without the new secret, webhook signatures fail. `reautorizar` originated in embedded signup, but manual setup owns this value.
+     */
     const withSecret = await atualizarChannel(religado, {
       origem: 'manual_setup_v2',
       ...(pedido.appSecret ? { appSecret: pedido.appSecret } : {}),
@@ -108,7 +88,7 @@ export async function executarConfigurationManual(pedido: {
   });
   const webhook = { url: urlDoWebhook(channel.id), verifyToken: texto(channel.config['verifyToken']) ?? '' };
 
-  // `setup_webhook`: erro de registro também conta como erro de webhook.
+  // `setup_webhook`: registration failure also counts as a webhook error.
   try {
     const resultado = await configurarWebhook(channel, { wabaId: previa.wabaId });
     if (resultado.errorOfRegistro) throw resultado.errorOfRegistro;

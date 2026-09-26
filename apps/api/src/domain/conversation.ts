@@ -9,16 +9,7 @@ import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
 
 /**
- * Encerrar e pausar conversa.
- *
- * Existem aqui, e não na tela, porque **o evento não pode depender de a tela lembrar**.
- * O Desk encerrava e pausava escrevendo direto na tabela e não gravava
- * `evento_atendimento` nenhum — o resultado era TMR, SLA e esforço cegos para tudo o
- * que o atendente fazia, com a Gestão mostrando número errado com cara de certo.
- *
- * `evento_atendimento` é a fonte de toda métrica e é imutável (modelo de dados §4).
- * Estado da conversa é cache do que os eventos já dizem; se os dois divergirem, quem
- * está certo é o evento.
+ * Closing and pausing conversations belong in the domain, not the screen: events must not depend on the screen remembering them. Desk previously wrote state directly and recorded no `evento_atendimento`, leaving TMR, SLA, and effort reports blind to agent actions. Immutable `evento_atendimento` is the source of all metrics (data model §4); conversation state is a cache of those events. If they diverge, trust the event.
  */
 
 type LineConversation = {
@@ -29,11 +20,11 @@ type LineConversation = {
   em_espera_desde: Date | string | null;
 };
 
-/** Quem está pedindo. `atendenteId` nulo é integração — não é dono de conversa. */
+/** Requester context: null `atendenteId` denotes an integration, which does not own a conversation. */
 export interface AtorOfConversation {
   tenantId: string;
   agentId: string | null;
-  /** Exige que a conversa esteja atribuída ao `atendenteId`. Ver `envio.ts`. */
+  /** Require the conversation to be assigned to `atendenteId`; see `envio.ts`. */
   exigirAssignment: boolean;
 }
 
@@ -65,7 +56,7 @@ async function carregar(
   return conversa;
 }
 
-/** Traduz a recusa da máquina de estados em 409, sem vazar `never` para o controlador. */
+/** Convert a state-machine rejection to 409 without exposing `never` to the controller. */
 function exigirTransition(de: string, para: StateConversation): void {
   try {
     transitar(de as StateConversation, para);
@@ -80,11 +71,10 @@ function exigirTransition(de: string, para: StateConversation): void {
 export interface RequestOfClosure {
   conversationId: string;
   /**
-   * A Blip (`close-modal-container.js`) envia uma coleção e bloqueia só quando
-   * a política exige tags; no Pipe, as etiquetas marcadas na Gestão são essa lista.
+   * Blip (`close-modal-container.js`) sends a collection and blocks closure only when policy requires tags; in Pipe, the tags selected in Management are that collection.
    */
   etiquetaIds?: readonly string[];
-  /** Compatibilidade com clientes que ainda enviam a forma antiga. */
+  /** Compatibility with clients still sending the old shape. */
   labelId?: string;
 }
 
@@ -124,8 +114,8 @@ export async function closeConversation(
     }
     const motivo = etiquetas.map((etiqueta) => etiqueta.name).join(', ');
 
-    // Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo
-    // pausado fica aberto para sempre e some do relatório de esforço.
+    // Close an open waiting interval before closing its conversation; otherwise the
+    // paused interval remains open and disappears from effort reporting.
     const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
     const pausadoSeg = pausaEmAberto
       ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
@@ -158,7 +148,7 @@ export async function closeConversation(
       at: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
-      // `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.
+      // `encerradaPor` in `@pipe/core` identifies WHO removed the conversation from the screen, not the clicker's ID.
       data: {
         encerrada_por: ator.agentId ? 'atendente' : 'transferencia',
         ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
@@ -189,9 +179,7 @@ export interface EsperaAlternada {
 }
 
 /**
- * Modo de espera: pausa a conversa sem que a inatividade do cliente conte.
- *
- * O intervalo em espera vira coluna própria no relatório — some do SLA, não do número.
+ * Waiting mode pauses a conversation without counting client inactivity. Waiting time has its own report column; it is excluded from SLA, not from the count.
  */
 export async function alternarEspera(
   ator: AtorOfConversation,
@@ -248,21 +236,21 @@ export async function alternarEspera(
     return { state: destination, pausadoSeg };
   });
 
-  // Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.
+  // Publish after commit, as for every domain action. See `tempo-real.ts`.
   await publicar(ator.tenantId, evento('conversation', conversationId));
   return resultado;
 }
 
 export interface PedidoDeTransferencia {
   conversationId: string;
-  /** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */
+  /** Set exactly ONE destination. A queue sends the conversation back to a queue; an agent receives it directly. */
   forQueueId?: string | null;
   forAgentId?: string | null;
   reason?: string | null;
 }
 
 export interface Transferida {
-  /** A conversa que foi ENCERRADA. */
+
   ofConversationId: string;
   /** A conversa NOVA, no destino. */
   forConversationId: string;
@@ -270,32 +258,7 @@ export interface Transferida {
 }
 
 /**
- * Transferir conversa, para fila ou para atendente.
- *
- * **Transferência não é transição de estado**: ela ENCERRA a conversa atual com
- * `encerrada_por = transferencia` e ABRE outra no destino. Não é escolha minha — está
- * decidido em `packages/core/src/conversa/maquina.ts`, que por isso não tem aresta de
- * `atribuida` de volta para `na_fila`, e é a regra da Blip ("o ticket atual é
- * encerrado com status Transferido e um novo ticket é aberto",
- * `referencias-blip/pesquisa/blip-desk-funcoes.md` §3).
- *
- * O que a conversa nova HERDA, e por quê:
- *
- * - **A janela de 24 horas** (`janela_expira_em` e a mensagem que a abriu). A janela é
- *   do CONTATO, não do ticket: sem herdar, quem recebe a transferência não consegue
- *   mandar texto livre e não entende por quê. É a armadilha mais cara daqui.
- * - **A prioridade** — a Blip herda, e prioridade é do problema, não do atendente.
- * - **A última mensagem** (`ultima_mensagem_em`/`_de`), senão o fechamento automático
- *   por inatividade trataria a conversa nova como recém-nascida.
- *
- * O que NÃO herda: **as etiquetas** (a Blip também não) e **as mensagens** — elas ficam
- * na conversa encerrada, e o histórico do contato é quem costura as duas na tela.
- *
- * O efeito na métrica, escrito porque é a pergunta que sempre volta: a conversa nova
- * começa com `criada_em = agora` e `primeira_resposta_em` nulo, então **o TMR de quem
- * recebe mede quem recebe**, e o tempo de fila da transferência conta de novo. É o
- * preço do modelo da Blip, e o relatório de transferências (`atribuicao`) é o que
- * permite remontar a jornada inteira do cliente.
+ * Transfer a conversation to a queue or agent. A transfer is NOT a state transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination. `packages/core/src/conversa/maquina.ts` has no edge from `atribuida` back to `na_fila`, matching Blip's rule that the current ticket closes as transferred and a new one opens (`referencias-blip/pesquisa/blip-desk-funcoes.md` §3). The new conversation inherits the 24-hour window (`janela_expira_em` and the opening message) because the window belongs to the CONTACT, not the ticket; without it, the receiving agent could not send free text. It also inherits priority, as Blip does and as the issue requires, and the last message (`ultima_mensagem_em`/`_de`) so inactivity closing does not treat it as newly started. It does NOT inherit tags (also Blip's rule) or messages; the contact history joins both conversations on screen. The new conversation has `criada_em = agora` and `primeira_resposta_em` starts null: the receiving agent's TMR measures that agent, queue time starts again, and the `atribuicao` transfer report reconstructs the full client journey.
  */
 export async function transferConversation(
   ator: AtorOfConversation,
@@ -335,10 +298,10 @@ export async function transferConversation(
       throw PipeError.conflito('conversation_closed', 'A conversa já está encerrada.');
     }
 
-    // Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a
-    // permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a
-    // própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho
-    // do ticket do próprio atendente.
+    // Transferring ANOTHER agent's conversation is a supervisor action; that is why
+    // `conversa.transferir` exists (data model §64). An agent transferring their
+    // own conversation does not need it, as in Blip Desk where the action is on
+    // the agent's own ticket header.
     const ehDono = conversa.agentId === ator.agentId && ator.agentId !== null;
     if (ator.exigirAssignment && !ehDono) {
       if (!ator.agentId) throw PipeError.naoAutorizado();
@@ -363,8 +326,8 @@ export async function transferConversation(
       }
     }
 
-    // Espera em aberto fecha ANTES do encerramento, senão o intervalo pausado fica
-    // aberto para sempre e some do relatório de esforço.
+    // Close any open waiting period BEFORE closing the conversation, or the paused
+    // interval remains open and disappears from effort reporting.
     const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
     const pausadoSeg = pausaEmAberto
       ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
@@ -395,8 +358,8 @@ export async function transferConversation(
       at: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
-      // `encerrada_por = transferencia` é o que separa, no relatório, a conversa que
-      // acabou da que só mudou de mãos.
+      // `encerrada_por = transferencia` distinguishes, in reports, a conversation that
+      // ended from one that merely changed hands.
       data: { encerrada_por: 'transferencia', motivo: pedido.reason ?? null },
     });
 
@@ -431,7 +394,7 @@ export async function transferConversation(
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId: novaId,
-      // Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.
+      // A queue destination uses `transferida_fila`; for an agent the new conversation starts assigned.
       type: forAgent ? 'atribuida' : 'transferida_fila',
       at: agora,
       userId: forAgent ?? ator.agentId,
@@ -439,8 +402,8 @@ export async function transferConversation(
       data: { de_conversa_id: conversa.id },
     });
 
-    // `atribuicao` é o que costura as duas conversas: é por ela que o painel de
-    // transferências remonta a jornada do cliente depois do encerramento.
+    // `atribuicao` links the two conversations so the transfer dashboard can
+    // reconstruct the client's journey after closure.
     await tx.execute(sql`
       insert into atribuicao (
         tenant_id, conversa_id, de_usuario_id, para_usuario_id,
@@ -467,7 +430,7 @@ export async function transferConversation(
   });
 
   drenarEmSegundoPlano(ator.tenantId);
-  // Duas conversas mudaram: a que encerrou e a que nasceu no destino.
+  // Two conversations changed: the closed one and the new one at the destination.
   await publicar(ator.tenantId, evento('conversation', resultado.ofConversationId));
   await publicar(ator.tenantId, evento('conversation', resultado.forConversationId));
   await publicar(ator.tenantId, evento('queue'));

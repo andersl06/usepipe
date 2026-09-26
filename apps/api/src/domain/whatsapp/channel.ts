@@ -5,17 +5,7 @@ import { databaseOwner, keyring, esquecerChannel, noTenant } from '../../databas
 import { PipeError } from '../../errors.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/models/channel/whatsapp.rb — as partes
- * que os serviços de conexão usam: `ensure_webhook_verify_token`,
- * `prompt_reauthorization!`, `reauthorized!` e a unicidade do número
- * (`validates :phone_number, uniqueness: true`). O `setup_webhooks` mora em
- * `configuracao-de-webhook.ts`, junto do serviço que ele chama.
- *
- * Diferença de modelo que atravessa o porte inteiro: no Chatwoot o canal guarda
- * `provider_config` numa coluna só; aqui o `canal.config` é cifrado campo a campo
- * (`packages/db/src/segredo.ts`), e o WABA e o número moram em COLUNA porque são
- * a chave de roteamento da rota guarda-chuva
- * (`docs/specs/2026-09-07-webhook-por-cliente.md` §4).
+ * Ported from chatwoot/chatwoot (MIT), app/models/channel/whatsapp.rb: `ensure_webhook_verify_token`, `prompt_reauthorization!`, `reauthorized!`, and global phone uniqueness (`validates :phone_number, uniqueness: true`). `setup_webhooks` lives in `configuracao-de-webhook.ts` beside its caller. Unlike Chatwoot's single `provider_config` column, Pipe encrypts `canal.config` secret fields (`packages/db/src/segredo.ts`) and stores WABA and phone in columns for umbrella webhook routing (`docs/specs/2026-09-07-webhook-por-cliente.md` §4).
  */
 
 export interface ChannelWhatsApp {
@@ -25,17 +15,14 @@ export interface ChannelWhatsApp {
   active: boolean;
   wabaId: string | null;
   numberId: string | null;
-  /** Decifrado. Existe só em memória, nunca volta assim para o banco. */
+  /** Decrypted in memory only; never write this form back to the database. */
   config: Record<string, unknown>;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * A URL que vai para a Meta. Não é segredo — quem protege é a assinatura.
- *
- * Diferença do original: lá a URL leva o número (`/webhooks/whatsapp/+5511…`);
- * aqui leva o `canalId`, que é o que a spec do webhook por cliente decidiu.
+ * Meta webhook URL is not secret; the signature protects it. Unlike Chatwoot's `/webhooks/whatsapp/+5511…`, use `canalId` as specified for per-customer webhooks.
  */
 export function urlDoWebhook(channelId: string): string {
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
@@ -57,7 +44,7 @@ type LineChannel = {
   config: Record<string, unknown> | null;
 };
 
-/** O canal do tenant, com o `config` decifrado. Canal de outro tenant é 404, não 403. */
+/** Return this tenant's channel with decrypted `config`; another tenant's channel is 404, not 403. */
 export async function readChannelWhatsApp(tenantId: string, canalId: string): Promise<ChannelWhatsApp> {
   if (!UUID.test(canalId)) throw PipeError.naoEncontrado('Canal');
   const linha = await noTenant(tenantId, async (tx) => {
@@ -73,17 +60,16 @@ export async function readChannelWhatsApp(tenantId: string, canalId: string): Pr
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
-    nome: linha.nome,
-    ativo: linha.ativo,
+    name: linha.nome,
+    active: linha.ativo,
     wabaId: linha.waba_id,
-    numeroId: linha.numero_id,
+    numberId: linha.numero_id,
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }
 
 /**
- * `channel.provider_config = …merge(…)` + `save!`. O `config` inteiro é cifrado de
- * novo na gravação: `cifrarConfig` só toca os campos secretos e é idempotente.
+ * Merge and save `channel.provider_config` as in Chatwoot. Reencrypt all of `config` on write; `cifrarConfig` touches only secret fields and is idempotent. This mirrors `channel.provider_config = …merge(…)` followed by `save!`.
  */
 export async function atualizarChannel(
   canal: ChannelWhatsApp,
@@ -117,8 +103,7 @@ export function novoVerifyToken(): string {
 }
 
 /**
- * `prompt_reauthorization!`. No Chatwoot é coluna do canal; aqui é uma marca no
- * `config`, que já é o lugar do estado da conexão e não pede migration.
+ * Chatwoot `prompt_reauthorization!` is a channel column; here it is a marker in `config`, where connection state already lives, avoiding a migration.
  */
 export function pedirReauthorization(channel: ChannelWhatsApp): Promise<ChannelWhatsApp> {
   return atualizarChannel(channel, { reautorizacaoPendente: true });
@@ -134,12 +119,7 @@ export function reauthorizationPending(canal: { config: Record<string, unknown> 
 }
 
 /**
- * `Channel::Whatsapp.find_by(phone_number:)`: a unicidade é GLOBAL, entre todos
- * os clientes. Roda com o papel dono porque a RLS esconderia justamente o canal
- * do outro tenant que precisa barrar — e devolve só sim ou não, nada da linha.
- *
- * Confere o `phone_number_id` (coluna com índice único) e o número em si, que é o
- * que o original compara.
+ * Chatwoot `Channel::Whatsapp.find_by(phone_number:)` requires global uniqueness across tenants. Use the owner role because RLS would hide the other tenant's channel; return only yes/no. Check both indexed `phone_number_id` and the number itself, as in Chatwoot.
  */
 export async function numeroJaConectado(numeroId: string, numero: string | null): Promise<boolean> {
   const { rows } = await databaseOwner().execute<{ tem: boolean }>(sql`

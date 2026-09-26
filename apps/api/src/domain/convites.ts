@@ -7,24 +7,10 @@ import { PipeError } from '../errors.js';
 import { enviarEmailSemDerrubar } from './email.js';
 
 /**
- * Convite: a **única** porta de entrada para quem não tem domínio verificado.
- *
- * A quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi
- * convidado, e isso é de propósito: criar usuário do nada transforma "descobri um
- * domínio" em "entrei no cliente". Este arquivo é o outro lado dessa recusa — quem
- * põe gente dentro, com quem convidou registrado.
- *
- * Três regras moldam tudo aqui, e as três já valem para a sessão e para a chave de API:
- *
- * 1. **O banco guarda o hash, nunca o token.** Quem lê a tabela `convite` não
- *    consegue aceitar convite de ninguém.
- * 2. **Prazo curto.** Sete dias. Link de convite que não vence é credencial
- *    permanente esquecida na caixa de entrada de alguém.
- * 3. **Uso único**, garantido por `select ... for update` na hora de aceitar — não
- *    por "leu, conferiu, depois gravou", que é onde dois cliques viram dois usuários.
+ * Invitation is the ONLY entry path for someone without a verified domain. `packages/autenticacao/src/entrada.ts` rejects people who were not invited: discovering a domain must not imply joining its client. This file records who invited whom. Three safeguards also used for sessions and API keys apply: store the hash, never the token, so reading `convite` cannot redeem links; expire links in seven days so forgotten inbox links do not become permanent credentials; and enforce single use with `select ... for update` on acceptance, not a read followed by an unprotected write that allows two concurrent uses.
  */
 
-/** Sete dias. É prazo de convite, não de sessão: quem não usa, pede outro. */
+/** Seven days is the invitation lifetime, not the session lifetime; an unused recipient requests another. */
 export const DEADLINE_INVITATION_MS = 7 * 24 * 60 * 60 * 1000;
 
 const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -33,13 +19,13 @@ export interface InvitationCreated {
   id: string;
   email: string;
   role: string;
-  /** Só existe nesta resposta. Depois daqui, no banco só há o hash. */
+  /** The token exists only in this response; the database stores only its hash afterward. */
   token: string;
   url: string;
   expiresAt: Date;
 }
 
-/** O que `GET /v1/convites/:token` mostra, sem exigir sessão. */
+/** Fields exposed by `GET /v1/convites/:token` without a session. */
 export interface InvitationVisible {
   email: string;
   role: string;
@@ -62,7 +48,7 @@ function normalizarEmail(cru: string | undefined): string {
   return email;
 }
 
-/** O nome que a pessoa carrega até entrar pela primeira vez e o Google dizer o dela. */
+/** Provisional name until first sign-in provides the person's Google name. */
 function nomeProvisorio(email: string): string {
   return email.slice(0, email.indexOf('@'));
 }
@@ -72,7 +58,7 @@ export function urlOfInvitation(token: string): string {
   return `${base}/invite/${token}`;
 }
 
-/** O rótulo da tela para cada papel de conta (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */
+/** Screen label for each account role (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */
 const LABEL_OF_ROLE: Readonly<Record<string, string>> = {
   admin: 'Admin',
   member: 'Pode editar',
@@ -80,9 +66,7 @@ const LABEL_OF_ROLE: Readonly<Record<string, string>> = {
 };
 
 /**
- * O e-mail do convite: o link, quem convidou para onde, com que papel e até
- * quando. Texto puro de propósito — é o que sobrevive a qualquer cliente de
- * e-mail e o que o teste lê.
+ * Invitation email contains the link, inviter's destination tenant, role, and expiry. Use plain text intentionally: it survives any email client and is what the test reads.
  */
 export function emailOfInvitation(convite: InvitationCreated, tenantNome: string): {
   para: string[];
@@ -103,26 +87,20 @@ export function emailOfInvitation(convite: InvitationCreated, tenantNome: string
 }
 
 /**
- * Manda o convite por e-mail DEPOIS do commit, e nunca derruba quem chamou: a
- * resposta segue devolvendo o link, como sempre fez — é o plano B de quem
- * convidou quando o e-mail não chega.
+ * Email the invitation AFTER commit without failing the caller. Continue returning the link so the inviter can use it if email delivery fails.
  */
 async function avisarConvidado(invitation: InvitationCreated, tenantNome: string): Promise<void> {
   await enviarEmailSemDerrubar(emailOfInvitation(invitation, tenantNome), `convite ${invitation.id}`);
 }
 
-/** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */
+/** Current tenant name, used in the email to show which client the person joins. */
 async function nomeDoTenant(tx: TransactionPipe): Promise<string> {
   const { rows } = await tx.execute<{ name: string }>(sql`select nome as name from tenant limit 1`);
   return rows[0]?.name ?? 'Pipe';
 }
 
 /**
- * O que `criarConvite` e `reenviarConvite` fazem em comum, dentro da MESMA
- * transação de quem chamou: emite um token novo, invalida qualquer convite
- * aberto para o e-mail e insere a linha. Extraído para as duas nunca
- * divergirem no que conta como "reenviar" — hoje é literalmente convidar de
- * novo, e é por isso que reenviar não é uma tabela nem um contador à parte.
+ * Shared operation for `criarConvite` and `reenviarConvite` in the caller's SAME transaction: issue a new token, invalidate any open invitation to that email, and insert the row. Keeping this in one helper prevents the two paths from disagreeing on "resend": today it literally creates a new invitation, not a separate table or counter.
  */
 async function emitirInvitation(
   tx: TransactionPipe,
@@ -159,8 +137,8 @@ async function emitirInvitation(
   }
 
   // Convidar (ou reenviar) de novo INVALIDA o convite anterior. Sem isto, cada
-  // reenvio deixa mais um link vivo, e cancelar o acesso passaria a exigir
-  // caçar todos eles.
+  // otherwise resending leaves another live link, and revoking access would require
+  // finding every one of them.
   await tx.execute(sql`
     update convite set expira_em = now(), atualizado_em = now()
      where email = ${email} and aceito_em is null and expira_em > now()
@@ -184,14 +162,7 @@ async function emitirInvitation(
 }
 
 /**
- * Cria o convite. O papel vem pelo NOME (`admin`, `member`, `guest`), que é o que
- * quem convida conhece — e a busca acontece com `pipe.tenant_id` fixado, então é
- * impossível convidar alguém para um papel de outro cliente.
- *
- * **Só papel de CONTA** (migração 0021), como na origem: o convite dá o papel no
- * contrato, e supervisor, atendente e os demais são dados no atendimento, por
- * contato. O banco também recusa (FK composta em `convite.escopo`); a conferência
- * aqui existe para a resposta dizer o porquê em vez de estourar a FK.
+ * Create an invitation. Look up the role by NAME (`admin`, `member`, `guest`), which is what the inviter knows, with `pipe.tenant_id` fixed so a role from another client cannot be selected. Accept only ACCOUNT roles (migration 0021), as in the source: invitation grants a contract role; supervisor and agent roles are assigned later per contact. The database also rejects the wrong scope through the composite FK on `convite.escopo`; checking here provides a useful error instead of an FK failure.
  */
 export async function createInvitation(
   tenantId: string,
@@ -207,16 +178,13 @@ export async function createInvitation(
     convite: await emitirInvitation(tx, tenantId, { email, role: nomeDoPapel, createdBy: dados.criadoPor }),
     tenantNome: await nomeDoTenant(tx),
   }));
-  // Fora da transação: e-mail não pode prender o commit, nem a falha dele desfazê-lo.
+  // Send email outside the transaction: delivery must not delay commit or roll it back on failure.
   await avisarConvidado(convite, tenantNome);
   return convite;
 }
 
 /**
- * Reenvia um convite em aberto: o mesmo e-mail e o mesmo papel, com um link novo
- * — que MATA o link antigo, como todo reenvio (`emitirConvite`). O link novo vai
- * por e-mail (`dominio/email.ts`) e continua na resposta, para quem convidou
- * colar de novo se o e-mail não chegar.
+ * Resend an open invitation to the same email and role with a new link that INVALIDATES the previous one (`emitirConvite`). Email the new link via `dominio/email.ts` and keep it in the response so the inviter can share it if email delivery fails.
  */
 export async function resendInvitation(
   tenantId: string,
@@ -255,10 +223,7 @@ type LineInvitation = {
 };
 
 /**
- * Acha o convite pelo hash do token.
- *
- * Roda com o papel dono pela mesma razão da resolução de sessão: descobrir o tenant
- * é justamente o que precisa acontecer **antes** de fixar o tenant.
+ * Find an invitation by token hash. Use the owner role, as for session resolution, because the tenant must be discovered BEFORE it can be set.
  */
 async function acharPeloToken(tokenCru: string): Promise<LineInvitation> {
   const { rows } = await databaseOwner().execute<LineInvitation>(sql`
@@ -272,12 +237,12 @@ async function acharPeloToken(tokenCru: string): Promise<LineInvitation> {
   `);
 
   const linha = rows[0];
-  // Token que não existe é 404 e nada mais: responder "expirado" a um palpite
+  // An unknown token returns only 404; describing a guessed token as "expired"
   // confirmaria que o palpite era um convite de verdade.
   if (!linha) throw PipeError.naoEncontrado('Convite');
 
-  // Daqui para baixo quem pergunta JÁ tem um token válido, e merece saber por que
-  // ele não funciona mais — senão o suporte recebe "o link não faz nada".
+  // From here the requester HAS a valid token and should learn why it
+  // no longer works, avoiding an opaque "link does nothing" support case.
   if (linha.aceito_em) {
     throw new PipeError(410, 'invitation_used', 'Este convite já foi usado. Peça outro.');
   }
@@ -303,24 +268,12 @@ export interface InvitationAccepted {
   email: string;
   role: string;
   tenant: { name: string; slug: string };
-  /** Só vem quando a pessoa aceitou já autenticada pelo Google. */
+  /** Present only when the person already accepted while authenticated through Google. */
   session?: InboundByInvitation;
 }
 
 /**
- * Aceita o convite: cria o usuário no tenant, dá o papel e queima o token.
- *
- * `pessoa` é opcional, e é ela que separa as duas portas:
- *
- * - **Sem `pessoa`** (`POST /v1/convites/:token/aceitar`): o usuário passa a existir
- *   e a pessoa entra depois pelo Google. Isso fecha o ciclo quando o domínio dela já
- *   está verificado — é a terceira pergunta de `entrada.ts` que liga a conta.
- * - **Com `pessoa`** (a volta do Google carregando `?convite=`): a conta externa é
- *   ligada aqui e a sessão sai daqui. É o caminho de quem **não** tem domínio
- *   verificado, e por isso é o que o link do convite deve oferecer.
- *
- * O `for update` é o que faz o uso único valer: dois cliques no mesmo link chegam
- * juntos, e sem o bloqueio os dois leem "não aceito" e os dois seguem em frente.
+ * Accept an invitation by creating the tenant user, granting the role, and consuming the token. Optional `pessoa` separates two paths. Without `pessoa` (`POST /v1/convites/:token/aceitar`), create the user now; they sign in through Google later if their domain is verified, following the third question in `entrada.ts`. With `pessoa` (Google callback carrying `?convite=`), link the external account and open a session here; this is the path offered to someone without a verified domain. `for update` enforces single use: two concurrent clicks must not both read "not accepted" and proceed.
  */
 export async function aceitarInvitation(
   tokenCru: string,
@@ -330,8 +283,8 @@ export async function aceitarInvitation(
   const achado = await acharPeloToken(tokenCru);
 
   if (pessoa && pessoa.email.toLowerCase() !== achado.email) {
-    // O convite é para UM endereço. Entrar com outra conta do Google e cair dentro
-    // do cliente seria o link virando porta para quem quer que o receba encaminhado.
+    // An invitation targets ONE email. Signing in with another Google account must not let
+    // whoever received a forwarded link enter this client.
     throw PipeError.request(
       'invitation_of_other_email',
       `Este convite é para ${achado.email}. Entre com essa conta.`,
@@ -351,17 +304,17 @@ export async function aceitarInvitation(
       throw new PipeError(410, 'invitation_expired', 'Este convite venceu. Peça outro.');
     }
 
-    // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
-    // `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.
+    // Run in series, never `Promise.all`: parallel queries within the transaction disrupt
+    // `pipe.tenant_id` and may run without a tenant; see README.
     const userId = await garantirUser(tx, achado.tenant_id, {
       email: achado.email,
       name: pessoa?.nome ?? nomeProvisorio(achado.email),
       avatarUrl: pessoa?.avatarUrl ?? null,
     });
 
-    // UM papel de conta por pessoa (índice parcial da 0021). Quem volta
-    // desativado e é convidado de novo troca o papel de conta antigo pelo do
-    // convite; os papéis de atendimento ficam.
+    // One account role per person (migration 0021 partial index). A returning
+    // inactive user invited again replaces the old account role with the
+    // invitation role while keeping attendance roles.
     await tx.execute(sql`
       delete from usuario_papel
        where usuario_id = ${userId}::uuid and escopo = 'conta'
@@ -393,9 +346,7 @@ export async function aceitarInvitation(
 }
 
 /**
- * O usuário do convite. `on conflict` porque o e-mail pode já existir desativado —
- * quem saiu e voltou é a mesma pessoa, e uma segunda linha esbarraria no único
- * `(tenant_id, email)` de qualquer jeito.
+ * Use `on conflict` because the invited email may belong to an inactive user. A returning person is the same user, and a second row would violate `(tenant_id, email)` anyway.
  */
 async function garantirUser(
   tx: TransactionPipe,
@@ -412,7 +363,7 @@ async function garantirUser(
   return rows[0]!.id;
 }
 
-/** Liga a conta do Google ao usuário do convite e abre a sessão. */
+/** Link the invited user's Google account and open a session. */
 async function connectAndLogin(
   tx: TransactionPipe,
   tenantId: string,
@@ -420,9 +371,9 @@ async function connectAndLogin(
   pessoa: PessoaDoGoogle,
   contexto: { ip?: string; agente?: string },
 ): Promise<InboundByInvitation> {
-  // O único de `identidade_externa` é por tenant em `(tenant_id, emissor, sujeito)`.
-  // Se ela já é de outra pessoa no tenant, o convite não pode
-  // levá-la em silêncio — falha alto, com o motivo.
+  // `identidade_externa` is unique per tenant on `(tenant_id, emissor, sujeito)`.
+  // If that identity already belongs to someone else in the tenant, the invitation must not
+  // silently reassign it; fail clearly with the reason.
   const { rows: jaLigada } = await tx.execute<{ n: string }>(sql`
     select count(*)::text as n from identidade_externa
      where emissor = ${pessoa.emissor} and sujeito = ${pessoa.sujeito}
@@ -443,10 +394,10 @@ async function connectAndLogin(
     on conflict (tenant_id, emissor, sujeito) do nothing
   `);
 
-  // §6 da pesquisa de SSO: a política é conferida NO SERVIDOR em todo caminho
-  // que emite sessão, e o convite por link é um deles. Sem esta linha, um tenant
-  // que exige SSO continua entrando pelo Google se alguém tiver um convite na
-  // mão — é a porta dos fundos clássica, irmã do "esqueci minha senha".
+  // SSO research §6: enforce policy ON THE SERVER on every path
+  // that issues a session, including invitation links. Otherwise a tenant
+  // requiring SSO could still admit Google sign-in through an invitation
+  // link: a classic back door, like a password-reset bypass.
   const { rows: politica } = await tx.execute<{ policy: string }>(
     sql`select politica as policy from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
   );

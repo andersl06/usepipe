@@ -28,15 +28,7 @@ import type {
 } from '../domain/management/integrations.js';
 
 /**
- * As telas de Integrações do fluxo: chaves de acesso, informações de conexão
- * e webhook de saída. Regra em `dominio/gestao/integracoes.ts`; aqui só
- * sessão, validação de UUID de URL e tradução de corpo — o mesmo desenho de
- * `gestao-fluxo.ts`.
- *
- * `chaves` e `conexao` vivem sob `/v1/gestao/fluxos/:id` porque são do
- * fluxo; `webhooks` é `/v1/gestao/webhooks` porque `webhook_saida` é da
- * CONTA (ver o comentário no domínio) — colocá-lo sob `:id` fingiria uma
- * coluna que a tabela não tem.
+ * Flow integration screens cover access keys, connection information and outbound webhooks. Rules live in `dominio/gestao/integracoes.ts`; this adapter handles sessions, URL UUID validation and body conversion as in `gestao-fluxo.ts`. `chaves` and `conexao` live under `/v1/gestao/fluxos/:id` because they belong to a flow. `webhooks` lives at `/v1/gestao/webhooks` because `webhook_saida` belongs to the account (see the domain comment); putting it under `:id` would imply a table column that does not exist.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -94,7 +86,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  /** "Excluir chave" da tela — a regra REVOGA (`revogada_em`), nunca apaga a linha. */
+  /** The screen says "Excluir chave", but the rule revokes by setting `revogada_em`; it never deletes the row. */
   @Delete('v1/gestao/fluxos/:id/chaves/:chaveId')
   @HttpCode(204)
   @WithSession()
@@ -111,7 +103,7 @@ export class ManagementIntegrationsController {
     );
   }
 
-  /* --------------------------------------------------- Informações de conexão */
+
 
   @Get('v1/gestao/fluxos/:id/conexao')
   @WithSession()

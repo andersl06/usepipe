@@ -38,55 +38,27 @@ import { chamarComMtls } from './mtls.js';
 import { confirmarUrlSegura } from './management/integrations.js';
 
 /**
- * O fluxo automático (o bot) ligado à entrada do WhatsApp.
- *
- * O motor é o porte do `FlowManager` da Blip e mora em `@pipe/core`; aqui fica só o que
- * é do Pipe: carregar o fluxo publicado do canal, guardar o contexto em
- * `execucao_fluxo`, gravar cada estado visitado em `execucao_passo`, mandar as
- * respostas pelo outbox e entregar a conversa à fila.
- *
- * **Onde roda.** Dentro da transação que grava a mensagem de entrada, no consumidor da
- * fila `pipe-entrada` — nunca no webhook, que responde 200 e enfileira. Mesma transação
- * de propósito: mensagem e resposta do bot entram juntas ou não entram, e a reentrega da
- * Meta cai na guarda de `id_provedor` (mais o índice `execucao_passo_entrada_uk`).
- * `ProcessHttp` usa o mesmo limite de segurança de saída (HTTPS/SSRF e mTLS), mas
- * grava um cursor e sai desta transação antes de falar com a API do cliente.
- *
- * **Humano ganha.** A Blip cala o bot estacionando o usuário num estado `desk:`. No Pipe a
- * dona da conversa é a própria conversa: com atendente, ou já na fila, o bot não fala. O
- * bot só responde em conversa sem fila e sem atendente — a que nasce com fluxo publicado.
- *
- * **Volta ao fluxo.** Encerrado o atendimento, a mensagem seguinte abre conversa nova, e
- * o contexto do bot vem junto (na Blip o contexto é do usuário, não do ticket). Se o
- * usuário parou num bloco `desk:`, o motor recebe primeiro o `Ticket` encerrado — é o
- * que a Blip manda ao bot quando o atendimento fecha — e as saídas do bloco de
- * atendimento decidem para onde ele vai: é o "bloco configurável" do editor da Blip.
- *
- * **Roteador.** Canal ligado a roteador publicado: quem roda é o SERVIÇO em que o contato
- * está (`roteador.ts`). Trocar de serviço no meio da conversa encerra a execução do
- * anterior e abre outra; a volta do humano cai no serviço em que ele estava, porque a
- * posição é do contato, não da conversa.
+ * The automated flow (bot) connected to WhatsApp intake uses the Blip `FlowManager` port in `@pipe/core`. This module handles Pipe-specific work: load the channel's published flow, store context in `execucao_fluxo`, record visited states in `execucao_passo`, put replies in the outbox, and hand a conversation to a queue. Run inside the transaction that records the incoming message, in the `pipe-entrada` consumer; the webhook only responds 200 and enqueues. Keeping input and bot reply in one transaction makes them commit together, while Meta redelivery is caught by `id_provedor` and `execucao_passo_entrada_uk`. `ProcessHttp` uses the same HTTPS/SSRF and mTLS outbound boundary, but persists a cursor and leaves the transaction before contacting the client API. Human ownership takes precedence: Blip parks a user in `desk:`, while Pipe lets the conversation own this decision. With an agent or queue, the bot stays silent; it responds only when neither is assigned. After attendance closes, the next message opens a new conversation with the bot context, which belongs to the contact as in Blip. If paused in `desk:`, feed the closed `Ticket` to the engine first so the attendance block's outputs determine the next state (the Blip editor's "bloco configur?vel"). For a channel with a published router, run the contact's current SERVICE from `roteador.ts`. Changing service closes the old execution and starts a new one; returning from human attendance resumes in the contact's service, because position belongs to the contact.
  */
 
 export interface FlowPublished {
   flowId: string;
   versaoId: string;
-  /** Presente quando o canal é de um roteador: o fluxo acima é o serviço da vez. */
+  /** Present when the channel belongs to a router: the flow above is the current service. */
   router?: {
     id: string;
-    /** O serviço usa o contexto do roteador (`usa_contexto_do_roteador`). */
+    /** This service uses the router context (`usa_contexto_do_roteador`). */
     compartilhaContext: boolean;
     /** O contexto do par (roteador, contato). */
     contexto: Record<string, string>;
-    /** Change-User-State pendente do último `Redirect`. */
+    /** Pending Change-User-State from the last `Redirect`. */
     reiniciar: boolean;
     blockInicial: string | null;
   };
 }
 
 /**
- * O bot do canal. Roteador publicado ganha do fluxo ligado direto (um bot por número), e
- * resolve o serviço do contato — por isso o contato entra aqui.
+ * The channel bot: a published router takes precedence over a directly connected flow (one bot per number) and resolves the contact's service. That is why the contact enters here.
  */
 export async function flowPublishedOfChannel(
   tx: TransactionPipe,
@@ -125,10 +97,7 @@ type LineTransition = {
 };
 
 /**
- * Remonta o `Flow` da Blip a partir de `bloco` e `transicao`.
- *
- * ponytail: três consultas por mensagem de entrada. Versão publicada não muda, então
- * um cache por `versaoId` é seguro quando isto aparecer no perfil.
+ * Rebuild Blip `Flow` from `bloco` and `transicao`. Current cost is three queries per inbound message; a published version does not change, so cache by `versaoId` if profiling justifies it.
  */
 export async function loadFlow(
   tx: TransactionPipe,
@@ -162,7 +131,7 @@ export async function loadFlow(
 
   const states = blocos.map((b) => {
     const state: Record<string, unknown> = { ...b.content };
-    // `original` é o estado do editor guardado na importação; o motor não o lê.
+    // `original` is the editor state saved during import; the engine does not read it.
     delete state['original'];
     return { ...state, id: b.code, outputs: saidas.get(b.id) ?? [] } as State;
   });
@@ -177,7 +146,7 @@ export interface InboundInFlow {
   tenantId: string;
   conversation: {
     id: string;
-    /** Nasceu com esta mensagem. Só conversa nova começa fluxo. */
+    /** Created by this message; only a new conversation starts a flow. */
     nova: boolean;
     queueId: string | null;
     agentId: string | null;
@@ -188,9 +157,9 @@ export interface InboundInFlow {
 }
 
 export interface ResultOfFlow {
-  /** O bot ficou com a mensagem. `false` = segue o caminho normal, da fila. */
+  /** The bot handled the message; `false` follows the normal queue path. */
   tratou: boolean;
-  /** Quantas respostas foram para o outbox — para empurrar a entrega depois do commit. */
+  /** Number of replies written to the outbox, used to nudge delivery after commit. */
   respostas: number;
   processHttpId?: string;
 }
@@ -204,7 +173,7 @@ type LineExecution = {
   context: Record<string, string>;
 };
 
-/** `Ticket.Status` da Blip a partir de quem encerrou a conversa no Pipe. */
+/** Map Pipe's closing actor to Blip `Ticket.Status`. */
 const STATUS_DO_TICKET: Readonly<Record<string, string>> = {
   atendente: 'ClosedAttendant',
   cliente: 'ClosedClient',
@@ -219,7 +188,7 @@ export async function rodarFlowInInbound(
   retomada?: { executionId: string; cursor: CursorDeProcessHttp; resposta: RespostaDeHttp },
 ): Promise<ResultOfFlow> {
   const { conversation } = e;
-  // Humano ganha: com atendente, o bot não fala.
+  // Human ownership wins: the bot does not speak while an agent is assigned.
   if (conversation.agentId && !retomada) return NAO_TRATOU;
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
@@ -239,34 +208,34 @@ export async function rodarFlowInInbound(
        where execucao_id = ${execution.id} and estado in ('pendente', 'chamando')
        limit 1
     `);
-    // Decisão Pipe: enquanto o HTTP está pendente, a mensagem fica gravada e espera
-    // a retomada; assim uma conversa nunca tem duas execuções do motor em paralelo.
+    // Pipe decision: while HTTP is pending, the message remains stored and waits
+    // for resumption so one conversation never runs two engine executions concurrently.
     if (pendentes[0]) return { tratou: true, respostas: 0 };
   }
 
-  // Já na fila, esperando gente: também é do humano.
+  // Already queued and waiting for a person is also human-owned.
   if (conversation.queueId && !retomada) return NAO_TRATOU;
   if (!execution && (!conversation.nova || !publicado) && !retomada) return NAO_TRATOU;
 
   if (!publicado) {
-    // A conversa estava com o bot e o fluxo saiu do ar: vai para a fila em vez de ficar muda.
+    // If the conversation belonged to the bot but its flow was unpublished, move it to the queue rather than leave it silent.
     await transbordarSemFalhar(tx, e, execution?.context ?? {}, 'o fluxo do canal saiu do ar');
     return { tratou: true, respostas: 0 };
   }
 
   const roteador = publicado.router ?? null;
   if (execution && execution.flowId !== publicado.flowId) {
-    // O roteador mandou o contato para outro serviço: a execução do anterior termina aqui.
+    // The router sent the contact to another service; end the prior execution here.
     await tx.execute(sql`
       update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execution.id}
     `);
     execution = null;
   }
 
-  // Só a conversa nova recebe o `Ticket` do atendimento que acabou.
+  // Only a new conversation receives the `Ticket` from the closed attendance session.
   const nova = execution === null && conversation.nova;
   if (!execution) {
-    // O contexto é do CONTATO, como na Blip: a conversa nova herda o que o bot já sabia.
+    // Context belongs to the CONTACT, as in Blip: the new conversation inherits what the bot knew.
     const { rows: anteriores } = await tx.execute<{ contexto: Record<string, string> }>(sql`
       select e.contexto from execucao_fluxo e
         join fluxo_versao v on v.id = e.fluxo_versao_id
@@ -284,8 +253,8 @@ export async function rodarFlowInInbound(
     `);
     execution = criada[0]!;
   } else if (execution.flowVersionId !== publicado.versaoId) {
-    // Versão nova publicada no meio da conversa: segue com o mesmo contexto. Estado que
-    // não existe mais cai na raiz — é o que o `FlowManager` faz.
+    // If a new version is published during a conversation, retain the same context. A state
+    // that no longer exists falls back to root, as `FlowManager` does.
     await tx.execute(
       sql`update execucao_fluxo set fluxo_versao_id = ${publicado.versaoId} where id = ${execution.id}`,
     );
@@ -293,12 +262,12 @@ export async function rodarFlowInInbound(
   const executionId = execution.id;
 
   const { flow, blockByCode } = await loadFlow(tx, publicado);
-  // Com o contexto do roteador ligado, as variáveis são do par (roteador, contato).
+  // With shared router context, variables are scoped to the router-contact pair.
   const variables: Record<string, string> = {
     ...(roteador?.compartilhaContext ? roteador.contexto : execution.context),
   };
   if (roteador?.reiniciar) {
-    // Change-User-State depois do Master-State: o destino começa no bloco pedido, ou na raiz.
+    // Apply Change-User-State after Master-State: the destination starts at the requested block or at root.
     if (roteador.blockInicial) variables[stateKey(flow.id)] = roteador.blockInicial;
     else delete variables[stateKey(flow.id)];
     await tx.execute(sql`
@@ -306,7 +275,7 @@ export async function rodarFlowInInbound(
        where roteador_id = ${roteador.id} and contato_id = ${e.contactId}
     `);
   }
-  /** O contexto do roteador acompanha o da execução, sempre que ela grava. */
+  /** Persist router context whenever the execution is saved. */
   const saveContextOfRouter = async (): Promise<void> => {
     if (!roteador?.compartilhaContext) return;
     await tx.execute(sql`
@@ -346,15 +315,15 @@ export async function rodarFlowInInbound(
           metodo: pedido.metodo,
           headers: pedido.cabecalhos,
           body: pedido.corpo,
-          // ponytail: a chamada ainda roda DENTRO da transação da entrada, que segura a
-          // ponytail: fora da transação, o limite é o requestTimeout da origem (60 s).
+          // Future work: this call still runs INSIDE the inbound transaction, holding a
+          // database connection; outside the transaction, the source `requestTimeout` is 60 s.
           timeoutMs: pedido.timeoutMs,
         });
         const corpo = await resposta.texto();
         const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
         return { status: resposta.status, corpo: corpo.slice(0, limite) };
       } catch (erro) {
-        // Regra da origem: rede/timeout não derruba ProcessHttp; o fluxo recebe status sintético.
+        // Source rule: network failure or timeout must not abort ProcessHttp; the flow receives a synthetic status.
         const message = erro instanceof Error ? erro.message : String(erro);
         const timeout = /timeout|aborted|timed out/i.test(message);
         return {
@@ -389,8 +358,8 @@ export async function rodarFlowInInbound(
       // O cursor fica committed antes de liberar a chamada externa.
       throw new SuspensaoDeProcessHttp(pedido, cursor);
     },
-    // ponytail: o `context` do Redirect não é entregue ao destino como primeira entrada;
-    // o destino começa na próxima mensagem do cliente. Entregar exige rodar o motor do
+    // The Redirect `context` is not delivered as the destination's first input;
+    // the destination starts on the next customer message. Delivering it immediately would require running the destination flow engine here.
     // destino aqui dentro, com o fluxo dele carregado.
     ...(roteador
       ? {
@@ -406,7 +375,7 @@ export async function rodarFlowInInbound(
       : {}),
   };
 
-  /** Uma entrada no motor. Falha do fluxo não derruba a mensagem: vai para a fila. */
+  /** Run one engine input. A flow failure must not abort the message; route it to a queue. */
   const rodar = async (
     message: InboundMessage,
     inbound: Record<string, unknown>,
@@ -474,7 +443,7 @@ export async function rodarFlowInInbound(
          where id = ${executionId}
       `);
       await saveContextOfRouter();
-      // Na Blip o usuário ficaria parado sem resposta. Aqui ele vai para a fila.
+      // Blip would leave the user waiting without a reply; here the conversation goes to the queue.
       if (!transferida)
         await transbordarSemFalhar(tx, e, variables, `o fluxo falhou: ${erro.message}`);
       return false;
@@ -500,8 +469,8 @@ export async function rodarFlowInInbound(
       { ticket, id_provedor: e.message.idProvedor, mensagem_id: e.message.id },
     );
     if (!certo) return { tratou: true, respostas };
-    // Parou num bloco que já falou com o cliente: a mensagem dele serviu para acordar o bot.
-    // Voltou para a raiz (ou saiu do fluxo): a mensagem é a primeira entrada, como na Blip.
+    // The bot stopped after replying to the customer; the next customer message wakes it.
+    // After returning to the root or leaving the flow, treat this message as the first input, as Blip does.
     const depois = stateSaved(variables, flow.id);
     if (depois !== null && depois !== flow.states.find((s) => s.root)?.id) {
       await saveExecution(tx, executionId, variables, flow.id, blockByCode, transferida);
@@ -529,7 +498,7 @@ export async function rodarFlowInInbound(
   return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}) };
 }
 
-/** Executa o HTTP fora da transação e, numa segunda transação, retoma o cursor. */
+/** Perform HTTP outside the transaction, then resume the saved cursor in a second transaction. */
 export async function executarProcessHttp(processoId: string): Promise<string[]> {
   type Linha = {
     id: string; tenant_id: string; executionId: string; state: string;
@@ -658,7 +627,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
   return novosProcessos;
 }
 
-/** `mensagem.tipo` do Pipe → o MIME que a Blip põe em `{{input.type}}`. */
+/** Map Pipe `mensagem.tipo` to the MIME value Blip places in `{{input.type}}`. */
 const MIME_DO_TIPO: Readonly<Record<string, string>> = {
   texto: 'text/plain',
   template: 'text/plain',
@@ -678,7 +647,7 @@ async function saveExecution(
   transferida: boolean,
 ): Promise<void> {
   const estado = stateSaved(variables, flowId);
-  // Sem estado, o próximo contato recomeça na raiz; transferida, a conversa é do humano.
+  // Without saved state, the next contact starts at the root; after transfer, the conversation belongs to a human.
   const concluida = transferida || estado === null;
   await tx.execute(sql`
     update execucao_fluxo
@@ -724,12 +693,7 @@ async function gravarPassos(
 }
 
 /**
- * A conversa sai do bot e entra na fila.
- *
- * É aqui que ela vira atendimento: `criada` e `enfileirada` são gravadas AGORA, e não
- * quando o bot começou. O tempo de fila e o de primeira resposta medem a partir de
- * `criada` (`@pipe/core`, `marcosDaConversa`), e contar o tempo do bot ali seria pôr na
- * conta da equipe a conversa com o robô — na Blip, o ticket também só nasce no transbordo.
+ * Move the conversation from bot control into a queue. This is when attendance begins: write `criada` and `enfileirada` NOW, not when the bot started. Queue time and first-response time start at `criada` (`@pipe/core`, `marcosDaConversa`); including bot time would charge the team for the robot conversation. In Blip too, the ticket is created only at handoff.
  */
 async function transbordar(
   tx: TransactionPipe,
@@ -748,9 +712,9 @@ async function transbordar(
   `);
   if (!rows[0]) return;
 
-  // A conversa acabou de entrar na fila (o `update` acima só afeta linha uma vez,
-  // por causa do `fila_id is null` na condição) — é o único momento em que a
-  // prioridade é avaliada para ela. Ver decisão Pipe em `gestao/prioridade-motor.ts`.
+  // The conversation has just entered the queue; the `update` above changes a row only once
+  // because its condition requires `fila_id is null`. This is the only time
+  // to assess its priority. See the Pipe decision in `gestao/prioridade-motor.ts`.
   const rulesOfPriority = await loadRulesOfPriorityActive(tx);
   if (rulesOfPriority.length > 0) {
     const nivel = avaliarPriority(rulesOfPriority, {
@@ -781,7 +745,7 @@ async function transbordar(
     queueId,
     data,
   });
-  // O atendente recebe o cliente já sabendo o que o robô coletou: é a nota que o Desk mostra.
+  // Give the agent what the bot collected about the customer in the note shown by Desk.
   await tx.execute(sql`
     insert into nota_interna (tenant_id, conversa_id, corpo, em)
     values (${e.tenantId}, ${e.conversation.id}, ${summaryOfContext(variaveis, motivo)}, ${em})
@@ -794,7 +758,7 @@ async function transbordar(
   await distribuirConversation(tx, e.tenantId, e.conversation.id, queueId, em);
 }
 
-/** A saída de emergência não pode derrubar a mensagem que chegou. */
+/** The emergency fallback must not abort the incoming message. */
 async function transbordarSemFalhar(
   tx: TransactionPipe,
   e: InboundInFlow,
@@ -808,7 +772,7 @@ async function transbordarSemFalhar(
   }
 }
 
-/** As variáveis que o bot coletou, sem as chaves de controle do motor. */
+/** Variables collected by the bot, excluding engine control keys. */
 export function summaryOfContext(variaveis: Record<string, string>, motivo: string | null): string {
   const linhas = Object.entries(variaveis)
     .filter(([k]) => !/^(previous-)?stateId@/.test(k) && !k.startsWith('desk_'))
@@ -821,8 +785,7 @@ export function summaryOfContext(variaveis: Record<string, string>, motivo: stri
 }
 
 /**
- * Resposta do bot: `mensagem` pendente + linha no outbox, como toda saída do Pipe. Quem
- * entrega é o worker. Dentro da janela sempre: o bot só fala em resposta ao cliente.
+ * Bot reply: pending `mensagem` plus an outbox row, like every Pipe outbound message. The worker delivers it. The bot always speaks inside the service window because it replies only to the customer.
  */
 async function gravarRespostaDoBot(
   tx: TransactionPipe,
@@ -830,7 +793,7 @@ async function gravarRespostaDoBot(
   conversationId: string,
   texto: string,
   em: Date,
-  /** `{ pergunta }` quando é menu: o worker decide se sai em botões, lista ou texto. */
+  /** Use `{ pergunta }` for a menu; the worker chooses buttons, a list, or text. */
   data: Record<string, unknown> | null = null,
 ): Promise<void> {
   const categoria = classificarCusto({
@@ -857,7 +820,7 @@ async function gravarRespostaDoBot(
     update conversa set ultima_mensagem_em = ${em}, ultima_mensagem_de = 'bot', atualizado_em = now()
      where id = ${conversationId}
   `);
-  // `usuarioId` nulo é o que separa, na métrica, a saída do bot da do atendente.
+  // A null `usuarioId` distinguishes bot output from agent output in metrics.
   await registrarEvento(tx, { tenantId, conversationId, type: 'mensagem_saida', at: em });
   await emitir(tx, tenantId, 'mensagem.criada', {
     mensagem_id: messageId,
@@ -869,14 +832,10 @@ async function gravarRespostaDoBot(
 }
 
 /**
- * O conteúdo LIME que o fluxo manda → o texto que o WhatsApp do Pipe envia hoje.
- * Menu (`select`) vira texto com as opções numeradas; o "digitando" não sai. Tipo sem
- * tradução é erro: a ação do motor falha, e não sai mensagem pela metade.
+ * Convert LIME content emitted by the flow into the text Pipe sends on WhatsApp today. A `select` menu becomes numbered options; the typing indicator is omitted. An unsupported type is an error: the engine action fails rather than sending a partial message.
  */
 /**
- * O menu (`select`) como pergunta estruturada, para o worker poder mandar em
- * botões ou lista (`interativo.ts` de `@pipe/workers/whatsapp`). O texto numerado
- * de `textoParaOCanal` continua sendo o conteúdo gravado e o plano B.
+ * Represent a `select` menu as a structured question so the worker can send buttons or a list (`interativo.ts` in `@pipe/workers/whatsapp`). Numbered `textoParaOCanal` remains the stored content and fallback.
  */
 export function perguntaDoSelect(m: OutputMessage): { texto: string; opcoes: string[] } | null {
   if (m.tipo.toLowerCase() !== 'application/vnd.lime.select+json') return null;
@@ -928,7 +887,7 @@ async function loadContact(
     sql`select nome, telefone_e164, email, atributos from contato where id = ${contactId} limit 1`,
   );
   const c = rows[0];
-  // O vocabulário é o do `Contact` da Blip, que é o que o fluxo importado usa.
+  // Use Blip `Contact` vocabulary because the imported flow expects it.
   return c
     ? {
         identity: contactId,
@@ -940,7 +899,7 @@ async function loadContact(
     : null;
 }
 
-/** O último atendimento encerrado do contato, como o `Ticket` que a Blip manda ao bot. */
+/** The contact's last closed attendance session, like the `Ticket` Blip sends to the bot. */
 async function lastAttendance(
   tx: TransactionPipe,
   contatoId: string,
@@ -964,7 +923,7 @@ async function lastAttendance(
   };
 }
 
-/** Horário que só anda para a frente: a ordem das respostas é a ordem de `criada_em`. */
+/** A timestamp that only moves forward: reply order follows `criada_em`. */
 function relogioCrescente(): () => Date {
   let ultimo = 0;
   return () => {
@@ -973,7 +932,6 @@ function relogioCrescente(): () => Date {
   };
 }
 
-// --- importação ---
 
 export interface ImportOfFlow {
   flowId: string;
@@ -981,13 +939,12 @@ export interface ImportOfFlow {
   version: number;
   publicado: boolean;
   report: ImportReport;
-  /** O fluxo foi gravado, mas o motor recusaria rodar: por isso não publica. */
+  /** The flow was stored, but the engine would refuse to run it; do not publish. */
   errorOfValidation: string | null;
 }
 
 /**
- * O tipo do bloco no Pipe. A Blip não tem tipo de bloco; este rótulo é só para a tela
- * e o relatório — o motor não o lê.
+ * Pipe block type. Blip has no block type; this label serves only the screen and report, and the engine does not read it.
  */
 export function classificarState(e: State): string {
   const tipos = [...(e.inputActions ?? []), ...(e.outputActions ?? [])].map((a) => a.type);
@@ -1006,11 +963,7 @@ export function classificarState(e: State): string {
 }
 
 /**
- * Grava um fluxo da Blip (export do editor ou publicado) como versão nova.
- *
- * Nada se perde: o estado original do editor vai em `bloco.conteudo.original`, e o que
- * o motor não executa volta no relatório, por tipo. Publicar arquiva a versão publicada
- * anterior e o outro fluxo publicado do mesmo canal — um bot por número.
+ * Store a Blip flow, exported from the editor or published, as a new version. Preserve the editor's original state in `bloco.conteudo.original`, and report unsupported engine features by type. Publishing archives the previous published version and any other published flow on the same channel: one bot per number.
  */
 export async function importFlowOfBlip(
   tx: TransactionPipe,
@@ -1063,7 +1016,7 @@ export async function importFlowOfBlip(
     );
   }
 
-  // O que é do `Flow` e não de um estado: ações globais, `configuration`, versão.
+  // These belong to `Flow`, not a state: global actions, `configuration`, and version.
   const global: Record<string, unknown> = { ...flow };
   delete global['states'];
   delete global['id'];
@@ -1080,7 +1033,7 @@ export async function importFlowOfBlip(
   const blockByCode = new Map<string, string>();
   for (const state of flow.states) {
     const codigo = state.id;
-    // Id e saídas têm coluna e tabela próprias (`codigo`, `transicao`); o resto é o estado.
+    // ID and outputs have their own column and table (`codigo`, `transicao`); the remaining fields are state data.
     const conteudo: Record<string, unknown> = { ...state };
     delete conteudo['id'];
     delete conteudo['outputs'];
@@ -1103,7 +1056,7 @@ export async function importFlowOfBlip(
     for (const [i, saida] of (estado.outputs ?? []).entries()) {
       const variable = contextEhVariable(saida.stateId) ? saida.stateId : null;
       const para = variable ? null : (blockByCode.get(saida.stateId) ?? null);
-      // Destino inexistente só passa se o fluxo não for publicado — e já está no erro de validação.
+      // An unknown destination is allowed only for an unpublished flow and already appears in validation errors.
       if (!variable && !para) continue;
       await tx.execute(sql`
         insert into transicao (tenant_id, versao_id, de_bloco_id, para_bloco_id, para_variavel, condicao, ordem)

@@ -9,19 +9,7 @@ import { versaoDaApi } from './cliente-graph.js';
 import type { InfoDoNumero } from './info-do-numero.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/channel_creation_service.rb
- *
- * Mesmos passos: valida, recusa número que já existe **em qualquer cliente**, e
- * cria canal e caixa de entrada na MESMA transação — canal sem caixa é canal que
- * recebe mensagem sem ter onde pô-la.
- *
- * Acréscimos do Pipe:
- * - o token e o `verify_token` gravados **cifrados** (`cifrarConfig`);
- * - a caixa nasce apontando para a primeira fila ativa, que é quem a distribuição
- *   usa (`fila_padrao_id`) — o Chatwoot não tem fila;
- * - auditoria com o autor, na mesma transação;
- * - o índice único de `numero_id` fecha a corrida que o `find_by` deixa aberta:
- *   duas conexões simultâneas do mesmo número, uma delas cai no `23505`.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/channel_creation_service.rb. Validate, reject a number already used by any tenant, and create channel and inbox in one transaction; a channel without an inbox cannot place inbound messages. Pipe encrypts token and `verify_token` with `cifrarConfig`, points the inbox at the first active queue (`fila_padrao_id`), audits the actor in the same transaction, and uses the unique `numero_id` index to close the concurrent-connection race left by `find_by` (one attempt gets `23505`).
  */
 
 export interface InfoDaWaba {
@@ -38,14 +26,14 @@ export interface RequestOfCreation {
   infoDoNumero: InfoDoNumero | null;
   token: string;
   origin?: OriginOfChannel;
-  /** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */
+  /** Only manual setup chooses the name; embedded signup uses the company's name. */
   name?: string | undefined;
-  /** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */
+  /** Manual setup supplies the customer's app secret and ID, which sign its webhook. */
   appSecret?: string | undefined;
   appId?: string | null | undefined;
 }
 
-/** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */
+/** Chatwoot pt_BR error `errors.whatsapp.phone_number_already_exists`. */
 export function numeroEmUso(numero: string): PipeError {
   return PipeError.conflito(
     'number_in_use',
@@ -73,9 +61,7 @@ export async function createChannel(pedido: RequestOfCreation): Promise<ChannelW
   const nome = pedido.name?.trim() || `${nomeDaEmpresa} WhatsApp`;
   const origem: OriginOfChannel = pedido.origin ?? 'embedded_signup';
 
-  // `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO
-  // aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`
-  // do ambiente. Na configuração manual é o do app do cliente.
+  // `build_provider_config`: embedded signup uses Pipe's app secret. If absent, do not store one and verify webhooks with environment `WHATSAPP_APP_SECRET`. Manual setup uses the customer's app secret. Embedded signup may omit `appSecret`; manual setup supplies the customer's value.
   const appSecret = pedido.appSecret || process.env['WHATSAPP_APP_SECRET'] || '';
   const config = cifrarConfig(
     {

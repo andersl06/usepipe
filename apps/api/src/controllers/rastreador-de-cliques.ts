@@ -11,9 +11,7 @@ import {
 } from '../domain/rastreador-de-cliques.js';
 
 /**
- * `/v1/gestao/fluxos/:fluxoId/links-rastreados` — cadastro e leitura do link
- * curto do rastreador de cliques. Controlador próprio (não `gestao-fluxo.ts`,
- * fora do escopo desta tarefa), no mesmo formato de `mensagens-ativas.ts`.
+ * `/v1/gestao/fluxos/:fluxoId/links-rastreados` creates and reads short click-tracking links. It has a separate controller from `gestao-fluxo.ts` and follows the `mensagens-ativas.ts` shape.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;

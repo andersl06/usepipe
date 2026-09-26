@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -20,15 +20,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * A equipe DO FLUXO — `/v1/gestao/fluxos/:id/equipe` — e a peneira que ela
- * existe para alimentar, `exigirPermissaoNoFluxo`.
- *
- * O que vale provar é o que a origem decide e o que o Pipe decidiu por cima
- * dela: o nível de cima MARCA os rádios de baixo (`selectAllPermissions()`),
- * quem não está no contrato é recusado com a frase da própria origem, o duplo
- * portão aceita quem tem a permissão NO FLUXO **ou** na conta (e recusa quem
- * não tem nenhuma das duas), e o último administrador do fluxo não sai — essa
- * última é nossa, porque a origem tem `owner` e nós não.
+ * The flow's OWN team — `/v1/gestao/fluxos/:id/equipe` — and the guard it exists to feed, `exigirPermissaoNoFluxo`. What is worth proving is what the source product decides and what Pipe decided on top of it: the higher level SETS the lower radios (`selectAllPermissions()`), anyone outside the contract is rejected with the source's own wording, the double gate accepts anyone with the permission on the FLOW **or** on the account (and rejects anyone with neither), and the flow's last administrator cannot leave — this last rule is ours, because the source has `owner` and we do not.
  */
 
 let a: Cenario;
@@ -36,19 +28,19 @@ let b: Cenario;
 let api: ApiNoAr;
 /** Quem edita fluxo pela CONTA (`automacao.fluxo.editar`) — o `member` deles. */
 let sessionEditor: string;
-/** Gente do tenant A sem permissão nenhuma sobre fluxo, e sem ser membro. */
+/** People from tenant A with no flow permission at all, and not even a member. */
 let sessionWithoutPoder: string;
 let semPoderId: string;
-/** Editor do tenant B: prova que o tenant vem da sessão, nunca da URL. */
+/** An editor from tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
-/** Três pessoas do tenant A sem permissão de conta, para entrarem por fluxo. */
+/** Three people from tenant A with no account-level permission, so they enter through the flow. */
 let ana: { id: string; email: string };
 let bruno: { id: string; email: string };
 let carla: { id: string; email: string };
 /** O fluxo sobre o qual quase tudo acontece. */
 let flowId: string;
 
-/** Um usuário novo no tenant, com um papel que carrega estas permissões. */
+/** A new user in the tenant, with a role carrying these permissions. */
 async function pessoaCom(
   cenario: Cenario,
   permissions: string[],
@@ -137,7 +129,7 @@ const editar = (sessao: string, alvo: string, corpo: Record<string, unknown>, id
 const remover = (sessao: string, alvo: string, id = flowId) =>
   chamar(sessao, `/v1/management/flows/${id}/team/${alvo}`, { method: 'DELETE' });
 
-/** Põe alguém direto no banco, sem passar pela rota — para montar cenário. */
+/** Inserts someone directly in the database, bypassing the route, to set up the scenario. */
 async function seed(
   cenario: Cenario,
   flow: string,
@@ -202,7 +194,7 @@ describe('POST /v1/management/flows/:id/team', () => {
     });
     expect(status).toBe(201);
     expect(corpo).toMatchObject({ usuarioId: ana.id, email: ana.email, papelNoFluxo: 'editar' });
-    /* `selectAllPermissions()`: "Ver e editar" põe TODAS as linhas em `readWrite`. */
+    /* `selectAllPermissions()`: "View and edit" sets EVERY row to `readWrite`. */
     expect(corpo['permissoes']).toMatchObject({ builder: 'escrever', analysis: 'escrever' });
 
     const log = await auditoriaDe(ana.id);
@@ -226,7 +218,7 @@ describe('POST /v1/management/flows/:id/team', () => {
     expect(solta.corpo['permissoes']).toMatchObject({
       builder: 'escrever',
       channels: 'ler',
-      /* O que não veio fica em "Sem permissão" — o rádio zero da origem. */
+      /* Whatever is absent falls into "No permission" — the source's zero radio option. */
       analysis: 'nenhum',
     });
   });
@@ -275,7 +267,7 @@ describe('Require permission to manage the flow team', () => {
     const lista = await listar(sessionWithoutPoder);
     expect(lista.status).toBe(200);
     expect(lista.corpo['podeGerir']).toBe(true);
-    /* Volta ao que era: o resto dos casos conta com ele sem poder nenhum. */
+    /* Back to how it was: the remaining cases rely on him having no permission at all. */
     await a.dono.execute(sql`
       delete from fluxo_membro where fluxo_id = ${flowId}::uuid
         and usuario_id = ${semPoderId}::uuid
@@ -348,7 +340,7 @@ describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
 });
 
 describe('Check flow and account permissions at both access gates', () => {
-  /** Roda a função crua na transação do tenant, como as rotas fazem. */
+  /** Runs the raw function inside the tenant's transaction, the same way the routes do. */
   const tentar = (usuarioId: string, fluxo: string, codigo: string) =>
     noTenant(a.tenantId, (tx) => exigirPermissionInFlow(tx, usuarioId, fluxo, codigo))
       .then(() => 'passou')
@@ -383,9 +375,9 @@ describe('Check flow and account permissions at both access gates', () => {
   });
 
   it('Allow flow-only members to edit basic flow settings', async () => {
-    /* `PATCH /v1/gestao/fluxos/:id` é "Configurações básicas"
-       (`basicConfigurations`): antes da 0035 exigia `automacao.fluxo.editar` na
-       conta, e quem não tinha levava 403. */
+    /*
+     * `PATCH /v1/gestao/fluxos/:id` is "Basic configurations" (`basicConfigurations`): before migration 0035 it required `automacao.fluxo.editar` on the account, and anyone without it got a 403.
+     */
     const fluxo = await createFlowInDatabase(a, `Básicas ${randomUUID().slice(0, 6)}`);
     const antes = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',

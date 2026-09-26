@@ -31,12 +31,7 @@ import {
 } from '../domain/management-analytics.js';
 
 /**
- * A ANÁLISE do contato (`/fluxo/:id/analise/**`), por sessão de navegador.
- *
- * O período é resolvido AQUI, no fuso da conta, como as páginas em Next faziam
- * no servidor: o "hoje" é o do tenant, não o do navegador de quem abre. A
- * resposta devolve o período que valeu (o pedido pode cair no padrão), para a
- * tela desenhar o chip certo.
+ * Contact analytics (`/fluxo/:id/analise/**`) uses a browser session. Resolve the period here in the account's timezone, as Next pages did on the server: "today" is the tenant's day, not the viewer's browser day. Return the period actually used, since the request may fall back to a default, so the screen shows the correct chip.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DIA = /^\d{4}-\d{2}-\d{2}$/;
@@ -46,14 +41,14 @@ function uuidOu404(value: string): string {
   return value;
 }
 
-/** `moment().add(n, 'days')` sobre uma data sem hora. */
+/** Apply `moment().add(n, 'days')` semantics to a date without a time. */
 function somarDias(dia: string, n: number): string {
   const d = new Date(`${dia}T00:00:00Z`);
   d.setUTCDate(d.getUTCDate() + n);
   return d.toISOString().slice(0, 10);
 }
 
-/** `?de=&ate=` válidos e em ordem, ou o padrão da tela. */
+/** Use valid, ordered `?de=&ate=` values, or the screen default. */
 function periodOfUrl(
   de: string | undefined,
   ate: string | undefined,
@@ -151,7 +146,7 @@ export class ManagementAnalyticsController {
     uuidOu404(id);
     return noTenant(sessao.tenantId, async (tx) => {
       const hoje = hojeNoFuso(await fusoDoTenant(tx));
-      /* 186 dias é o `startDateLimit` que o `St` põe no `bds-datepicker`. */
+      /* 186 days is the `startDateLimit` set by `St` on `bds-datepicker`. */
       let periodo = readPeriod(periodoPedido);
       let intervalo = periodInterval(periodo, hoje, { de, ate, limiteDias: 186 });
       if (!intervalo) {
@@ -228,10 +223,7 @@ export class ManagementAnalyticsController {
   }
 
   /**
-   * O Log de mensagens (`Growth › Log` na origem) — filtro por período,
-   * direção e tipo, paginado por cursor (`?cursor=&limit=`, o mesmo formato
-   * de `GET /v1/conversas/:id/mensagens`). `direcao`/`tipo` fora da lista são
-   * ignorados, não erro — mesmo trato lenientede `contatos` em `dashboard()`.
+   * Message Log (`Growth › Log` in the source): filter by period, direction and type, with cursor pagination (`?cursor=&limit=`, as in `GET /v1/conversas/:id/mensagens`). Ignore `direcao` or `tipo` values outside the allowlist rather than erroring, matching the lenient `contatos` handling in `dashboard()`.
    */
   @Get('log')
   @WithSession()
@@ -251,8 +243,8 @@ export class ManagementAnalyticsController {
     const limite = lerLimite(limiteBruto);
     const cursor = lerCursor(cursorBruto);
     const resposta = await noTenant(sessao.tenantId, async (tx) => {
-      // Mesmo trato de `jornada()`: fluxo de outro tenant não existe para a RLS,
-      // e "sem fluxo" não pode devolver 200 com lista vazia — vira 404.
+      // As in `jornada()`, RLS makes another tenant's flow nonexistent,
+      // so a missing flow must return 404 rather than 200 with an empty list.
       const contato = await loadContact(tx, sessao.tenantId, id);
       if (!contato) return null;
       const fuso = await fusoDoTenant(tx);

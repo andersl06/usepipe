@@ -12,9 +12,7 @@ const { registrationOfAccountEnabled, slugOfAccount } =
   await import('../src/domain/builder-of-account.js');
 
 /**
- * O cadastro de conta, fechado por padrão (`ENABLE_ACCOUNT_SIGNUP=false`), como
- * no Chatwoot de onde a flag foi portada. Aberto, ele provisiona pelo mesmo
- * `provisionarCliente` do comando.
+ * Account signup, closed by default (`ENABLE_ACCOUNT_SIGNUP=false`), as in the Chatwoot it was ported from. When open, it provisions through the same `provisionarCliente` as the command.
  */
 
 const URL_DONO = process.env['DATABASE_URL']!;
@@ -96,7 +94,7 @@ describe('Return 404 from POST /v1/accounts when signup is disabled by default (
        where t.slug = ${slugOfAccount(`Acme ${S}`, email)} and u.email = ${email}
        order by p.nome
     `);
-    // `admin` na conta e `administrador` no atendimento (migração 0021).
+    // // `admin` at the account level and `administrador` in attendance (migration 0021).
     expect(rows).toEqual([
       { nome: 'Ana Ribeiro', papel: 'admin' },
       { nome: 'Ana Ribeiro', papel: 'administrador' },

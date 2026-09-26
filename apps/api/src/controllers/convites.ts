@@ -7,22 +7,12 @@ import { aceitarInvitation, createInvitation, readInvitation, resendInvitation }
 import { logDomain, checkDomain } from '../domain/dominios.js';
 
 /**
- * As duas portas por onde gente nova entra num tenant: o convite e o domínio
- * verificado. Ficam no mesmo arquivo porque são a mesma decisão vista de dois
- * lados — "esta pessoa pertence a este cliente?" — e a regra de uma só faz sentido
- * ao lado da outra.
- *
- * A casca é fina de propósito: convite e domínio moram em `src/dominio/`, testáveis
- * sem subir o Nest. Aqui só há verbo, caminho, permissão e formato.
- *
- * **Rota sem `@ComSessao()` é pública de propósito.** As duas do convite precisam
- * ser: quem abre o link ainda não tem conta, e exigir sessão para ver um convite
- * seria exigir a conta que o convite existe para criar.
+ * Invitations and verified domains are two ways a person joins a tenant, so this file keeps the related membership rules together. The HTTP adapter is thin: invitation and domain logic live in `src/dominio/` and can be tested without Nest; this layer handles method, path, permission and response shape. The invitation routes without `@ComSessao()` are deliberately public. Someone opening a link has no account yet, so requiring a session would require the account that the invitation is meant to create.
  */
 
 @Controller('v1/convites')
 export class InvitationsController {
-  /** Convida alguém. Devolve o link com o token — que não volta a aparecer. */
+  /** Invite a person and return the link containing the token; that token is not shown again. */
   @Post()
   @HttpCode(201)
   @WithSession()
@@ -31,7 +21,7 @@ export class InvitationsController {
     @Body() corpo: { email?: string; role?: string },
   ): Promise<Record<string, unknown>> {
     const sessao = sessionOf(requisicao);
-    // O "gerencia membros" do `admin` — a mesma permissão que a tela de Membros confere.
+    // The `admin`'s "manage members" permission, also checked by the Members screen.
     await permitido(sessao.tenantId, sessao.userId, 'conta.membros.escrever');
 
     const invitation = await createInvitation(sessao.tenantId, {
@@ -50,9 +40,7 @@ export class InvitationsController {
   }
 
   /**
-   * Reenvia um convite em aberto: mesmo e-mail, mesmo papel, link novo — o de
-   * antes morre (ver `emitirConvite`). Mesma permissão de convidar; sem ela ou
-   * sem o convite (de outro tenant, já aceito, já vencido) sai 403/404.
+   * Resend an open invitation with the same email and role but a new link; the old link is invalidated by `emitirConvite`. Require the same invitation permission. Without it, or when the invitation is from another tenant, accepted or expired, return 403/404.
    */
   @Post(':id/reenviar')
   @HttpCode(201)
@@ -75,9 +63,7 @@ export class InvitationsController {
   }
 
   /**
-   * Para quem é o convite. Sem sessão, e devolvendo o MÍNIMO: o e-mail convidado, o
-   * papel e o nome do cliente. Quem tem o link já sabe o e-mail; o resto da conta
-   * não é assunto de quem ainda está do lado de fora.
+   * Show who the invitation is for without a session, returning only the invited email, role and customer name. A holder of the link already knows the email; other account data must stay hidden until they join.
    */
   @Get(':token')
   async ver(@Param('token') token: string): Promise<InvitationVisible> {
@@ -91,11 +77,7 @@ export class InvitationsController {
   }
 
   /**
-   * Aceita o convite: cria o usuário e queima o token.
-   *
-   * A conta do Google é ligada quando a pessoa entra — pelo domínio verificado, ou
-   * pelo próprio link do convite, que é `entrarEm` aqui embaixo. Esse é o caminho de
-   * quem não tem domínio verificado, e por isso ele vem pronto na resposta.
+   * Accept the invitation, create the user and consume the token. The Google account is linked at sign-in through a verified domain or through this invitation link (`entrarEm`). The link is returned because invitees without a verified domain need that path.
    */
   @Post(':token/aceitar')
   @HttpCode(200)
@@ -113,7 +95,7 @@ export class InvitationsController {
 
 @Controller('v1/dominios')
 export class DomainsController {
-  /** Registra o domínio e diz qual TXT publicar. Verificar é o passo seguinte. */
+
   @Post()
   @HttpCode(201)
   @WithSession()
@@ -133,7 +115,7 @@ export class DomainsController {
     };
   }
 
-  /** Confere o TXT no DNS. Sai 400 enquanto não achar — publicar e propagar demora. */
+  /** Check the DNS TXT record. Return 400 until it appears because publishing and propagation take time. */
   @Post(':id/verificar')
   @HttpCode(200)
   @WithSession()
@@ -154,12 +136,7 @@ export class DomainsController {
 }
 
 /**
- * A permissão é conferida numa transação própria, antes da que escreve.
- *
- * Duas transações em vez de uma porque a permissão mora numa tabela do tenant e as
- * funções de domínio abrem a delas. Custa uma consulta de leitura e mantém o
- * controlador sem saber de transação — e a alternativa, empurrar o `usuarioId`
- * para dentro de cada função de domínio, espalharia a regra de acesso por elas.
+ * Check permission in a separate transaction before the write transaction. Permission lives in a tenant table, while domain functions open their own transactions. One additional read keeps transaction handling out of the controller; passing `usuarioId` into every domain function would spread the access rule among them.
  */
 function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
   return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));

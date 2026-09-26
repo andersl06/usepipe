@@ -1,6 +1,6 @@
 import type { ValueOfWebhook } from '../inbound.js';
 
-/** `page` usa PSID, sem telefone; a forma normalizada é a mesma da entrada WhatsApp. */
+/** `page` uses PSID rather than phone; its normalized form matches WhatsApp inbound data. */
 export function payloadDoMessenger(payload: unknown): boolean { return (payload as { object?: unknown } | null)?.object === 'page'; }
 export function valuesOfMessenger(payload: unknown, pageId?: string | null): ValueOfWebhook[] {
   const corpo = payload as { entry?: { id?: string; messaging?: { sender?: { id?: string }; message?: { mid?: string; text?: string; is_echo?: boolean; attachments?: { type?: string; payload?: { url?: string } }[] }; postback?: { mid?: string; title?: string; payload?: string }; timestamp?: number }[] }[] };

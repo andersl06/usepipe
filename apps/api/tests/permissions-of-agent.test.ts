@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,25 +17,15 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * A tela "Permissões" do atendente — `GET`/`PATCH /v1/gestao/atendentes/permissoes`.
- *
- * A forma da tela é a da origem (`referencias-blip/portal/dom/
- * FICHA-atendentes-filas-pausas.md` §a.4): página própria, tabela "Tipo de
- * permissão" × "Status", seleção múltipla. O que vale a pena provar aqui é a
- * regra que a migração 0046 introduziu e que atravessa a API inteira:
- *
- *   efetiva = COALESCE(override desta pessoa, união dos papéis)
- *
- * e o cuidado que impede a tabela de exceções de virar cópia podre do RBAC:
- * **quando a escolha volta a coincidir com o papel, a linha é APAGADA.**
+ * The agent's "Permissões" screen — `GET`/`PATCH /v1/gestao/atendentes/permissoes`. The screen's shape follows the source product (`referencias-blip/portal/dom/FICHA-atendentes-filas-pausas.md` §a.4): its own page, a "Permission type" × "Status" table, multiple selection. What is worth proving here is the rule migration 0046 introduced, which runs through the entire API: effective = COALESCE(this person's override, union of their roles), and the safeguard that keeps the exceptions table from rotting into a stale copy of RBAC: **when the choice matches the role again, the row is DELETED.**
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Quem pode mexer na permissão dos outros (`usuario.gerenciar`). */
+/** Who can change other people's permissions (`usuario.gerenciar`). */
 let sessionManager: string;
-/** Atendente comum: é o alvo, e não pode se promover. */
+/** A regular agent: the target, who cannot promote themself. */
 let sessionAgent: string;
 let sessionOfOtherTenant: string;
 let gestorId: string;
@@ -43,10 +33,7 @@ let agentId: string;
 let segundoId: string;
 
 /**
- * O catálogo (`permissao`) é tabela GLOBAL e quem o preenche em produção é
- * `packages/db/src/semente.ts`, que o teste não roda — só algumas migrações
- * semeiam código solto. Os códigos que este arquivo usa entram aqui, como
- * `pessoaCom` já fazia com os dele.
+ * The catalog (`permissao`) is a GLOBAL table, and in production it is populated by `packages/db/src/semente.ts`, which the test does not run — only a few migrations seed loose codes. The codes this file uses are inserted here, the same way `pessoaCom` already did with its own.
  */
 const DO_CATALOGO = [
   'conversa.ver',
@@ -67,7 +54,7 @@ async function seedCatalog(cenario: Cenario): Promise<void> {
   }
 }
 
-/** Um usuário novo no tenant, com um papel que carrega estas permissões. */
+/** A new user in the tenant, with a role carrying these permissions. */
 async function pessoaCom(cenario: Cenario, permissoes: string[]): Promise<string> {
   const marca = randomUUID().slice(0, 8);
   const { rows: users } = await cenario.dono.execute<{ id: string }>(sql`
@@ -199,9 +186,9 @@ describe('GET /v1/management/agents/permissions', () => {
       override: null,
       ligada: false,
     });
-    /* A tabela é o catálogo DO ATENDENTE, não só o que a pessoa tem: a linha
-       desligada precisa aparecer para poder ser ligada. O que é de gestão
-       (relatório, regra, usuário) fica de fora: vem do papel. */
+    /*
+     * The table is the AGENT's full catalog, not just what the person already has: a disabled row must still appear so it can be turned on. Anything management-level (report, rule, user) is excluded: it comes from the role.
+     */
     const codigos = corpo.permissions?.map((p) => p.codigo) ?? [];
     for (const codigo of DO_CATALOGO) {
       if (/^(conversa|contato)./.test(codigo)) expect(codigos).toContain(codigo);
@@ -218,7 +205,7 @@ describe('GET /v1/management/agents/permissions', () => {
   it('Show a permission as partial when selected agents differ', async () => {
     const { corpo } = await ler(sessionManager, [agentId, segundoId]);
     expect(corpo.agents).toHaveLength(2);
-    /* Os dois têm `conversa.ver`; só o primeiro tem `conversa.responder`. */
+    /* Both have `conversa.ver`; only the first has `conversa.responder`. */
     expect(permission(corpo, 'conversa.ver')).toMatchObject({ ligada: true, parcial: false });
     expect(permission(corpo, 'conversa.responder')).toMatchObject({ ligada: false, parcial: true });
   });
@@ -271,7 +258,7 @@ describe('PATCH /v1/management/agents/permissions', () => {
   });
 
   it('Apply agent permission overrides to routes immediately', async () => {
-    /* `regra.gerenciar` é o que `POST /v1/gestao/regras/prioridade` cobra. */
+    /* `regra.gerenciar` is what `POST /v1/gestao/regras/prioridade` requires. */
     const create = () =>
       fetch(`${api.url}/v1/management/rules/priority`, {
         method: 'POST',
@@ -281,13 +268,14 @@ describe('PATCH /v1/management/agents/permissions', () => {
 
     expect((await create()).status).toBe(403);
 
-    /* `regra.gerenciar` é de gestão e a página não o concede (vem do papel);
-       a exceção vai direto na tabela para provar que `exigirPermissao` a lê. */
+    /*
+     * `regra.gerenciar` is a management permission and the page does not grant it (it comes from the role); the exception is written directly into the table to prove `exigirPermissao` reads it.
+     */
     await a.dono.execute(sql`
       insert into usuario_permissao (tenant_id, usuario_id, permissao_codigo, concedida)
       values (${a.tenantId}, ${agentId}::uuid, 'regra.gerenciar', true)
     `);
-    /* `POST` sem `@HttpCode` é 201 no Nest — o que importa aqui é não ser 403. */
+    /* `POST` without `@HttpCode` defaults to 201 in Nest — what matters here is that it is not 403. */
     expect((await create()).status).toBe(201);
 
     await a.dono.execute(sql`
@@ -341,7 +329,7 @@ describe('PATCH /v1/management/agents/permissions', () => {
       return rows[0]!.n;
     };
     const antes = await contar();
-    /* `relatorio.ver` já foi ligado no teste anterior: pedir de novo é o mesmo estado. */
+    /* `relatorio.ver` was already enabled in the previous test: requesting it again is a no-op, same state. */
     await salvar(sessionManager, [segundoId], { 'relatorio.ver': true });
     expect(await contar()).toBe(antes);
   });

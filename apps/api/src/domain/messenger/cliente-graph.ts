@@ -2,7 +2,7 @@ import { createHash, createHmac } from 'node:crypto';
 import { PipeError } from '../../errors.js';
 import { modoDaConexao, versaoDaApi } from '../whatsapp/cliente-graph.js';
 
-/** Cliente do Messenger. A API de Página usa o Graph principal, não graph.instagram.com. */
+/** Messenger client uses the main Graph API for Pages, not `graph.instagram.com`. */
 export interface PageMessenger { id?: string; name?: string }
 export abstract class ClienteGraphMessenger {
   abstract readonly nome: 'real' | 'duble';
@@ -41,7 +41,7 @@ export class ClienteGraphMessengerReal extends ClienteGraphMessenger {
   assinarWebhook(paginaId: string): Promise<unknown> { return this.pedir(`${paginaId}/subscribed_apps`, { method: 'POST', body: JSON.stringify({ subscribed_fields: ['messages', 'messaging_postbacks', 'messaging_optins'].join(',') }) }); }
   desassinarWebhook(paginaId: string): Promise<unknown> { return this.pedir(`${paginaId}/subscribed_apps`, { method: 'DELETE' }); }
   configurarPerfil(perfil: Record<string, unknown>): Promise<unknown> {
-    // conferir com token real: a Página aceita me/messenger_profile com token de página.
+    // Verify with a real token that the Page accepts `me/messenger_profile` with a Page token.
     return this.pedir('me/messenger_profile', { method: 'POST', body: JSON.stringify(perfil) });
   }
 }

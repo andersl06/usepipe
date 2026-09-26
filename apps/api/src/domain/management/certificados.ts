@@ -7,32 +7,7 @@ import { esquecerCertificadosMtls } from '../mtls.js';
 import { lerPfx } from './pfx.js';
 
 /**
- * Certificados de autenticação (mTLS) do contrato — o que a tela
- * `/contrato/certificados` lê e grava.
- *
- * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`: a tela sobe o
- * `.pfx` com a senha (`multipart` com `password` e `file`), o serviço deles lê
- * o arquivo e devolve `status` e `expiration_date`, e o certificado fica
- * associado a `hosts` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Quando a
- * plataforma chama um desses hosts, apresenta o certificado.
- *
- * Aqui é igual, desde a migration 0044: o `.pfx` e a senha ficam **cifrados**
- * (`packages/db/src/segredo.ts`) em `arquivo_cifrado`/`senha_cifrada`; a
- * validade, a impressão digital, o emissor e o sujeito saem do próprio arquivo
- * (`pfx.ts`, com `node:tls`/`node:crypto`); e `dominio/mtls.ts` usa o par para
- * apresentar o certificado nos webhooks de saída. O status é calculado —
- * `valido`/`expirado` pela validade, `sem_arquivo` para o que foi cadastrado à
- * mão antes da 0044 (a origem tem `valid`/`invalid`/`underValidation`; o
- * "em validação" deles é o upload assíncrono, que aqui é síncrono).
- *
- * **O que nunca sai daqui**: o arquivo e a senha. Não vão na listagem, não
- * vão na resposta do cadastro, não vão no log de auditoria — só
- * `dominio/mtls.ts` os lê, decifra e entrega ao `https.Agent`.
- *
- * Raw SQL, como `rastreador-de-cliques.ts` (migration 0038): as tabelas
- * (`certificado_mtls`, `certificado_mtls_host`, migrations 0039 e 0044) não
- * entram no schema Drizzle para não competir com quem mexe em
- * `identidade`/`automacao` ao mesmo tempo.
+ * Contract mTLS certificates for `/contrato/certificados`. Blip sends LIME commands to `postmaster@mtls.blip.ai`: multipart `.pfx` and password (`password`, `file`) yield `status` and `expiration_date`, with associated `hosts` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Since migration 0044, Pipe encrypts `.pfx` and password with `packages/db/src/segredo.ts` into `arquivo_cifrado`/`senha_cifrada`; `pfx.ts` extracts expiry, fingerprint, issuer and subject. `dominio/mtls.ts` presents the certificate on outbound webhooks. Status is derived: `valido`/`expirado` from expiry, `sem_arquivo` for pre-0044 manually entered records; Blip's `underValidation` corresponds to its asynchronous upload, while ours is synchronous. NEVER expose the file or password in lists, registration responses or audit logs; only `dominio/mtls.ts` decrypts them for `https.Agent`. Use raw SQL for `certificado_mtls` and `certificado_mtls_host` (migrations 0039/0044), as in `rastreador-de-cliques.ts`, to avoid concurrent Drizzle schema changes in `identidade`/`automacao`.
  */
 
 export interface HostDoCertificado {
@@ -40,13 +15,13 @@ export interface HostDoCertificado {
   host: string;
 }
 
-/** `valid`/`invalid` da origem, com nome pelo motivo — a tela escolhe o chip por aqui. */
+/** Map the source's `valid`/`invalid` to reason-specific names so the screen selects its status chip. */
 export type StatusDoCertificado = 'valido' | 'expirado' | 'without_file';
 
 export interface CertificadoMtls {
   id: string;
   description: string;
-  /** ISO 8601, só a data (`date` no banco). Lida do `.pfx`. */
+  /** ISO 8601 date only (`date` in the database), read from the `.pfx`. */
   expiresAt: string;
   /** SHA-256 `AB:CD:…`, lida do `.pfx`. */
   impressaoDigital: string;
@@ -62,7 +37,7 @@ export interface PedidoDeCertificado {
   hosts: string[];
   /** A senha do `.pfx`. Cifrada no banco, nunca devolvida. */
   senha: string;
-  /** O `.pfx` em base64 — puro ou como data URL (`data:…;base64,…`), que é o que o `FileReader` da tela dá. */
+  /** The `.pfx` as raw base64 or a data URL (`data:…;base64,…`) produced by the screen's `FileReader`. */
   file: string;
 }
 
@@ -70,12 +45,12 @@ export type Recording = { ok: true } | { ok: false; error: string };
 
 const OK: Recording = { ok: true };
 
-/** "O arquivo deve ter no máximo 10MB" — o teto do `yt` da origem, conferido de novo aqui. */
+/** 'O arquivo deve ter no máximo 10MB' is the source `yt` limit; check it again here. */
 export const MAX_BYTES_DO_PFX = 10 * 1048576;
 
 const URL_HTTPS = /^https:\/\/[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 
-/** O `o` do `vt` deles (`blip-certificados-mtls.md`): HTTPS com domínio. */
+/** The source's `vt.o` (`blip-certificados-mtls.md`): HTTPS with a domain. */
 function normalizarHosts(crus: string[] | undefined): string[] {
   const vistos = new Set<string>();
   const limpos: string[] = [];
@@ -115,7 +90,7 @@ function normalizarSenha(crua: unknown): string {
   return senha;
 }
 
-/** Base64 puro ou data URL → bytes. Vazio, ilegível ou maior que o teto: 400. */
+/** Decode raw base64 or a data URL to bytes; reject empty, unreadable or oversized content with 400. */
 function normalizeFile(cru: unknown): Buffer {
   const texto = typeof cru === 'string' ? cru.trim() : '';
   const base64 = texto.startsWith('data:') ? texto.slice(texto.indexOf(',') + 1) : texto;
@@ -150,17 +125,14 @@ function statusDe(linha: { hasFile: boolean; expirado: boolean }): StatusDoCerti
 }
 
 /**
- * A lista da tela, mais nova primeiro — como a origem devolve `response.items`.
- * `arquivo_cifrado` e `senha_cifrada` não entram no `select`: nem cifrados
- * saem daqui. O `expirado` é decidido pelo Postgres (`current_date`), para
- * não depender do fuso do processo ao comparar um `date`.
+ * List newest first, as source `response.items` does. Do not select `arquivo_cifrado` or `senha_cifrada`: even encrypted values must not leave here. Compute `expirado` in PostgreSQL with `current_date` so comparison of a `date` does not depend on process time zone.
  */
 export async function listarCertificados(
   tx: TransactionPipe,
   tenantId: string,
 ): Promise<CertificadoMtls[]> {
   // `expira_em` sai como texto `YYYY-MM-DD`: o driver devolveria um `date`
-  // como `Date` à meia-noite LOCAL, e `toISOString()` num fuso negativo
+  // as a `Date` at LOCAL midnight; `toISOString()` in a negative time zone
   // voltaria um dia.
   const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`
     select id, descricao as description, to_char(expira_em, 'YYYY-MM-DD') as expira_em,
@@ -174,9 +146,9 @@ export async function listarCertificados(
   `);
   if (certificados.length === 0) return [];
 
-  // `sql` com um array em JS não vira array literal do Postgres (o driver manda
-  // como registro, e `any(uuid[])` recusa) — por isso o literal `{a,b,c}` à mão,
-  // como um único parâmetro de texto que o `::uuid[]` casa.
+  // A JS array interpolated into `sql` is not a PostgreSQL array literal (the driver
+  // sends a record, which `any(uuid[])` rejects). Construct `{a,b,c}` explicitly
+  // as one text parameter cast with `::uuid[]`.
   const idsLiteral = `{${certificados.map((c) => c.id).join(',')}}`;
   const { rows: hosts } = await tx.execute<{ id: string; certificado_id: string; host: string }>(sql`
     select id, certificado_id, host
@@ -205,11 +177,7 @@ export async function listarCertificados(
 }
 
 /**
- * Cadastra o certificado e os hosts dele, na mesma transação.
- *
- * O `.pfx` é lido ANTES de qualquer gravação (`lerPfx`): senha errada ou
- * arquivo que não serve é 400, e nada entra no banco. O que entra, entra
- * cifrado com a chave atual do chaveiro.
+ * Register the certificate and its hosts in one transaction. Parse the `.pfx` with `lerPfx` BEFORE writing: a wrong password or unusable file returns 400 without a database row. Encrypt stored content with the current keyring key.
  */
 export async function createCertificate(
   tx: TransactionPipe,
@@ -249,7 +217,7 @@ export async function createCertificate(
     hostsGravados.push({ id: hostRows[0]!.id, host });
   }
 
-  // Só o que é público do certificado: nada do arquivo, nada da senha.
+  // Return only public certificate fields, never the file or password.
   await registrarAuditoria(tx, tenantId, {
     ator,
     acao: 'criou',
@@ -265,15 +233,15 @@ export async function createCertificate(
     },
   });
 
-  // O índice de hosts deste tenant em `mtls.ts` ficou velho. (Chamado dentro
-  // da transação: entre aqui e o commit uma entrega pode reler o estado antigo,
-  // e o TTL curto do índice cobre essa janela.)
+  // Invalidate this tenant's host index in `mtls.ts`. Called within
+  // the transaction, so a delivery before commit may reload old state;
+  // the index's short TTL bounds that interval.
   esquecerCertificadosMtls(tenantId);
 
   return {
     id: novo.id,
     description,
-    // A mesma forma da listagem: a data, à meia-noite UTC.
+    // Use the listing's date representation: midnight UTC.
     expiresAt: new Date(expiraEm).toISOString(),
     impressaoDigital: read.impressaoDigital,
     issuer: read.emissor,
@@ -315,10 +283,7 @@ export async function excluirCertificado(
 }
 
 /**
- * Exclui um host do certificado. Se era o último, o certificado inteiro sai
- * junto — como na origem: "Se o certificado fica sem host, o modal de hosts
- * fecha e a lista recarrega" (`blip-certificados-mtls.md`), porque um
- * certificado sem host nenhum não autentica nada.
+ * Remove a host from the certificate. If it was the last, remove the certificate too: a certificate without a host authenticates nothing. This matches the source host modal behavior in `blip-certificados-mtls.md`: 'Se o certificado fica sem host, o modal de hosts fecha e a lista recarrega'.
  */
 export async function excluirHostDoCertificado(
   tx: TransactionPipe,

@@ -9,14 +9,7 @@ import { assinaturaConfere } from './webhooks-whatsapp.js';
 import type { RequestWithBodyRaw } from './webhooks-whatsapp.js';
 
 /**
- * Webhook do Instagram (Direct), por canal. Reconstruído de chatwoot/chatwoot (MIT),
- * app/controllers/webhooks/instagram_controller.rb, com as regras do webhook do
- * WhatsApp da Pipe (`webhooks-whatsapp.ts`): `verify_token` em tempo constante,
- * assinatura `X-Hub-Signature-256` sobre o corpo cru com o App Secret DO APP DO
- * CLIENTE (gravado no canal), 200 imediato e o processamento na fila.
- *
- * Diferente do WhatsApp, não há segredo do ambiente como reserva: todo canal do
- * Instagram é manual, e sem o segredo do canal a recusa é fechada.
+ * Per-channel Instagram Direct webhook, reconstructed from chatwoot/chatwoot (MIT), `app/controllers/webhooks/instagram_controller.rb`, with Pipe's WhatsApp webhook rules (`webhooks-whatsapp.ts`): constant-time `verify_token` comparison, `X-Hub-Signature-256` over the raw body using the customer app's App Secret stored on the channel, immediate 200, then queued processing. Unlike WhatsApp there is no environment-secret fallback: every Instagram channel is manual, so a missing channel secret fails closed.
  */
 @Controller('webhooks/instagram')
 export class InstagramWebhookController {
@@ -64,7 +57,7 @@ export class InstagramWebhookController {
   }
 }
 
-/** Canal que não é do Instagram é 404 aqui: a URL de um WhatsApp não vira porta de entrada do Direct. */
+/** Return 404 for a channel that is not Instagram; a WhatsApp URL must not accept Direct traffic. */
 async function channelOfInstagram(canalId: string): Promise<ChannelResolved> {
   const canal = /^[0-9a-f-]{36}$/i.test(canalId) ? await resolveChannel(canalId) : null;
   if (!canal || canal.type !== 'instagram') throw PipeError.naoEncontrado('Canal');

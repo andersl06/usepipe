@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -18,17 +18,7 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 type RegraDeMotor = Parameters<typeof avaliarPriority>[0][number];
 
 /**
- * O motor de `regra_prioridade` (`dominio/gestao/prioridade-motor.ts`) — item 2
- * da tarefa de "fazer funcionar o que só está cadastrado". `regras-prioridade.ts`
- * já tinha o CRUD; até este arquivo, nada LIA a tabela para decidir a
- * prioridade de uma conversa de verdade.
- *
- * Duas camadas de teste:
- *  1. `avaliarPrioridade`/`ordenarRegrasDePrioridade` direto, sem banco — a regra
- *     de "primeira que casa vence" é pura, e é mais rápido provar aqui.
- *  2. Um webhook de verdade (`falar`, o mesmo padrão de `entrada-telefone.test.ts`)
- *     provando que `dominio/entrada.ts` liga o motor quando a conversa entra na
- *     fila.
+ * The `regra_prioridade` engine (`dominio/gestao/prioridade-motor.ts`) — item 2 of the "make what is only registered actually work" task. `regras-prioridade.ts` already had the CRUD; until this file, nothing READ the table to decide an actual conversation's priority. Two layers of tests: 1. `avaliarPrioridade`/`ordenarRegrasDePrioridade` directly, without a database — the "first match wins" rule is pure, and proving it here is faster. 2. A real webhook (`falar`, the same pattern as `entrada-telefone.test.ts`) proving that `dominio/entrada.ts` wires up the engine when a conversation enters the queue.
  */
 
 function regra(parcial: Partial<RegraDeMotor> & Pick<RegraDeMotor, 'id' | 'nivel'>): RegraDeMotor {
@@ -53,19 +43,19 @@ describe('Choose the first matching priority rule', () => {
       nivel: 'alta',
       scopeType: 'fila',
       scopeId: 'fila-vip',
-      // Cadastrada DEPOIS da regra do tenant — decisão Pipe: escopo específico
-      // vence por ser mais específico, não por ter sido cadastrado antes.
+      // Registered AFTER the tenant's rule — Pipe's decision: a more specific scope
+      // wins for being more specific, not for having been registered earlier.
       criadoEm: new Date('2026-02-01T00:00:00Z'),
     });
     expect(avaliarPriority([doTenant, ofQueue], { queueId: 'fila-vip' })).toBe('alta');
-    // Fora da fila-vip, só a regra do tenant se aplica.
+    // Outside the fila-vip, only the tenant's rule applies.
     expect(avaliarPriority([doTenant, ofQueue], { queueId: 'outra-fila' })).toBe('baixa');
   });
 
   it('Prefer the oldest matching rule within the same scope', () => {
     const antiga = regra({ id: 'antiga', nivel: 'media', criadoEm: new Date('2026-01-01T00:00:00Z') });
     const nova = regra({ id: 'nova', nivel: 'alta', criadoEm: new Date('2026-06-01T00:00:00Z') });
-    // Ordem de entrada não importa — só a data de criação.
+    // Arrival order does not matter — only the creation date.
     expect(ordenarRulesOfPriority([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
     expect(avaliarPriority([nova, antiga], {})).toBe('media');
   });
@@ -163,13 +153,13 @@ describe('Evaluate priority when a conversation enters a queue', () => {
   it('Never apply one tenant\'s priority rule to another tenant\'s conversation', async () => {
     const outro = await montarCenario(`prioridade-outro-${randomUUID().slice(0, 8)}`);
     try {
-      // Regra SÓ no tenant `outro`, casando em qualquer mensagem (condição vazia).
+      // A rule that exists ONLY in the `outro` tenant, matching any message (empty condition).
       await outro.dono.execute(sql`
         insert into regra_prioridade (tenant_id, nome, nivel, condicao)
         values (${outro.tenantId}::uuid, 'regra do outro tenant', 'maxima', '{}'::jsonb)
       `);
 
-      // Mensagem chega no tenant principal, que não tem regra nenhuma cadastrada.
+      // The message arrives at the main tenant, which has no rule registered at all.
       await falar('5521987650003', 'mensagem qualquer');
       expect(await priorityOfPhone('+5521987650003')).toBe('sem_prioridade');
     } finally {

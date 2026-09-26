@@ -15,44 +15,7 @@ import { emitir } from '../../webhooks-saida.js';
 import { carregarRegrasSla, type RegraSlaCarregada } from './sla.js';
 
 /**
- * O relógio do SLA — item 1 da tarefa de "fazer funcionar o que só está
- * cadastrado". `regra_sla` e `sla_conversa` existem desde a fundação do
- * módulo de Gestão; até este arquivo, nada escrevia em `sla_conversa` — a
- * tabela ficava vazia e nenhum alerta ou estouro acontecia de verdade.
- *
- * Mesmo padrão do download de mídia (`../../filas.ts`,
- * `agendarVarreduraDownloadMidia`/`relogioMidia`): fila BullMQ (`pipe-sla`) +
- * varredura periódica, com um caminho em memória para dev/teste. A fila é o
- * empurrão; a verdade fica em `sla_conversa`, e perder um job só atrasa até a
- * próxima varredura pegar a conversa de novo.
- *
- * **Decisão Pipe — sem pausa por horário de atendimento.** A tarefa pediu
- * para checar `referencias-blip/pesquisa/regras-blip.md` e `blip-desk-regras-tecnicas.md`
- * antes de inventar uma pausa. Nenhum dos dois documenta que o SLA da Blip
- * pausa fora do expediente (o achado mais próximo, em `regras-blip.md`, é
- * sobre o contador de 1ª resposta **zerar a cada resposta do atendente**, não
- * sobre pausar por horário). `dominio/gestao/sla.ts` já registrava a mesma
- * lacuna para o "pill" do monitoramento ("o relógio roda sem expediente —
- * `horario_atendimento` ainda não é semeado"). Este motor segue a MESMA
- * decisão: passa `horario: null` para `avaliarSla` (atendimento 24×7). Se um
- * dia a origem confirmar a pausa, é só passar o `horario_atendimento` da fila
- * — `avaliarSla` já aceita.
- *
- * **Decisão Pipe — o relógio congela quando a conversa encerra.** Isto não é
- * a pausa por horário (que fica de fora, acima): é o mínimo para a conversa
- * encerrada ANTES do prazo não estourar horas depois, só porque a varredura
- * seguinte rodou com `agora` real avançando sobre uma conversa que ninguém
- * mais atende. Sem isto, "conversa encerrada antes do prazo não dispara"
- * seria impossível de garantir.
- *
- * **Decisão Pipe — uma regra vencedora POR ALVO, não uma só para a
- * conversa.** O `escolherRegra` de `sla.ts` (usado no "pill", uma coluna só)
- * pega a primeira regra que casar o escopo, ignorando o alvo. Mas
- * `sla_conversa` tem chave única `(conversa_id, regra_id)` — o modelo já
- * prevê VÁRIAS regras rodando ao mesmo tempo numa conversa (uma de 1ª
- * resposta, outra de resolução). Por isso aqui a vencedora é escolhida
- * `POR ALVO`, com a mesma precedência (regra de escopo `fila` vence a de
- * escopo `tenant`, por ser mais específica).
+ * SLA clock activates the existing `regra_sla`/`sla_conversa` storage. Like media-download scheduling in `../../filas.ts` (`agendarVarreduraDownloadMidia`/`relogioMidia`), BullMQ `pipe-sla` nudges a periodic sweep, with an in-memory dev/test path. `sla_conversa` is authoritative; a lost job only delays processing until the next sweep. Pipe does NOT pause outside business hours: neither `referencias-blip/pesquisa/regras-blip.md` nor `blip-desk-regras-tecnicas.md` documents Blip doing so; the observed first-response timer RESET after an agent reply is different. Existing `dominio/gestao/sla.ts` records the same gap. Pass `horario: null` to `avaliarSla` for 24/7 evaluation; it already accepts a queue schedule if later evidence warrants one. Freeze the clock when a conversation closes, so the next sweep cannot breach one closed before its deadline. Choose one winning rule PER TARGET, not one per conversation: `sla_conversa` uniqueness `(conversa_id, regra_id)` permits concurrent first-response and resolution rules. Apply queue-scope precedence over tenant for each target, as more specific manager configuration.
  */
 
 const STATES_TERMINALS = new Set(['cumprido', 'cancelado']);
@@ -65,7 +28,7 @@ function vencedoraDoAlvo(
   return ofQueue ?? regras.find((r) => r.scopeType === 'tenant') ?? null;
 }
 
-/** Agrupa por alvo e escolhe, em cada grupo, a regra de escopo mais específico. */
+/** Group by target and select the most specific scope rule in each group. */
 export function rulesWinningByTarget(
   regras: readonly RegraSlaCarregada[],
   filaId: string | null,
@@ -84,10 +47,10 @@ export function rulesWinningByTarget(
   return vencedoras;
 }
 
-/** Sobe um degrau na régua de prioridade (§`conversa/prioridade.ts`). Já em `maxima`, não faz nada. */
+/** Raise priority one step (`conversa/prioridade.ts`); do nothing when already at `maxima`. */
 function nivelElevado(atual: string): NivelPriority | null {
   const position = (NIVEIS_PRIORITY as readonly string[]).indexOf(atual);
-  // -1 (valor desconhecido) ou 0 (já é `maxima`): nada a elevar.
+  // A priority of -1 is unknown, and 0 is already `maxima`; neither can be raised.
   if (position <= 0) return null;
   return NIVEIS_PRIORITY[position - 1] as NivelPriority;
 }
@@ -149,7 +112,7 @@ interface LinhaSlaExistente {
   exceededAt: Date | null;
 }
 
-/** Uma regra, contra uma conversa: decide o novo estado e dispara alerta/estouro no máximo uma vez cada. */
+/** For one rule and conversation, choose new state and emit alert or breach at most once each. */
 async function processarRegra(
   tx: TransactionPipe,
   tenantId: string,
@@ -158,8 +121,8 @@ async function processarRegra(
   existente: LinhaSlaExistente | undefined,
   agora: Date,
 ): Promise<void> {
-  // Idempotência dura: linha terminal nunca mais muda, mesmo que a varredura rode de
-  // novo sobre a mesma conversa daqui a um mês.
+  // Strict idempotence: a terminal row never changes again, even if a sweep
+  // revisits the same conversation a month later.
   if (existente && STATES_TERMINALS.has(existente.state)) return;
 
   const marcos: MarcosSla = {
@@ -167,21 +130,18 @@ async function processarRegra(
     atribuidaEm: c.assignedAt,
     firstRespostaIn: c.firstResponseAt,
     encerradaEm: c.closedAt,
-    // `resposta` (tempo_resposta): só corre enquanto a última mensagem foi do
-    // contato. Assim que o atendente (ou o bot) responde, o alvo não tem mais início.
+    // For `resposta` (`tempo_resposta`), count only while the customer's message
+    // is last. Once the agent or bot answers, this target has no remaining start time.
     aguardandoRespostaDesde: c.lastMessageFrom === 'contato' ? c.lastMessageAt : null,
   };
 
   const inicio = inicioDoAlvo(regra.target, marcos);
   if (!inicio) {
-    // Sem início hoje. Se havia uma linha correndo, o fim da espera (resposta que
-    // chegou) fecha o ciclo como cumprido — senão ela travaria "correndo" para
+    // No start time today. If a row was running, the reply that ended the wait closes the cycle as met; otherwise it would remain running indefinitely.
     // sempre depois que o atendente respondesse.
     //
     // ponytail: alvo `resposta` reaproveita a MESMA linha entre ciclos de espera —
-    // `sla_conversa` só tem uma chave (conversa, regra). Se um dia for preciso o
-    // histórico de CADA ciclo de resposta (não só o último), isso vira tabela
-    // própria; hoje ninguém pediu esse histórico.
+    // `sla_conversa` has one key per conversation and rule. Keeping every response cycle, rather than only the latest, would require a separate table; that history is not currently needed.
     if (existente) {
       await tx
         .update(slaConversation)
@@ -193,7 +153,7 @@ async function processarRegra(
 
   const cumpridoEm = alvoFulfillment(regra.target, marcos);
   const encerrouAntes = marcos.encerradaEm !== null && marcos.encerradaEm.getTime() < agora.getTime();
-  // O relógio congela em `encerradaEm` — ver decisão Pipe no topo do arquivo.
+  // The clock stops at `encerradaEm`; see the Pipe decision at the top of this file.
   const fimEfetivo = encerrouAntes ? (marcos.encerradaEm as Date) : agora;
 
   const resultado = avaliarSla({
@@ -227,8 +187,7 @@ async function processarRegra(
     newState = 'correndo';
   }
 
-  // Encerrou sem cumprir o alvo e sem ter estourado antes de fechar: não fica
-  // "correndo"/"alertado" para sempre — é isso que garante que fechar cedo não
+  // If the conversation closes without meeting the target or breaching it first, mark the cycle complete so it does not remain `correndo` or `alertado` forever. Closing early must not count as a breach.
   // dispara nada mais tarde.
   if (marcos.encerradaEm && !resultado.cumprido && newState !== 'estourado') {
     newState = 'cancelado';
@@ -282,11 +241,7 @@ async function processarRegra(
 }
 
 /**
- * Checa o SLA de UMA conversa — o que o consumidor da fila `pipe-sla` chama por
- * job, e o que o modo em memória chama direto por conversa pendente.
- *
- * Tudo dentro de `noTenant`: a RLS decide o que `carregarRegrasSla` enxerga, a
- * mesma garantia de isolamento entre tenants que o resto da `api` usa.
+ * Check one conversation's SLA, called by each `pipe-sla` queue job or directly for each pending conversation in memory mode. Run entirely inside `noTenant`: RLS controls what `carregarRegrasSla` can see and provides the same tenant isolation as the rest of the `api`.
  */
 export async function checarSlaOfConversation(
   tenantId: string,
@@ -309,13 +264,12 @@ export async function checarSlaOfConversation(
       .from(conversation)
       .where(eq(conversation.id, conversationId))
       .limit(1);
-    // A conversa sumiu entre o enfileirar e o processar (mesma tolerância do
-    // download de mídia): nada a fazer, a próxima varredura nem vai mais achá-la.
+    // The conversation disappeared between enqueue and processing. As with media downloads, do nothing; the next sweep will no longer find it.
     if (!c) return;
 
     const regras = await carregarRegrasSla(tx);
     const vencedoras = rulesWinningByTarget(regras, c.queueId);
-    // Sem regra cadastrada para esta fila/tenant: não muda nada, como pedido.
+    // If this queue and tenant have no configured rule, leave the conversation unchanged.
     if (vencedoras.length === 0) return;
 
     const existentes = await tx
@@ -350,13 +304,7 @@ export interface CandidataASla {
 }
 
 /**
- * Candidatas à varredura: conversas ainda abertas, OU já encerradas mas com
- * `sla_conversa` ainda `correndo`/`alertado` — que é a última passada que as
- * fecha (cumprido/cancelado/estourado), como no fim de `processarRegra`.
- *
- * `bancoDono()`, como `midiasPendentes`/`contatosSemEspelho`: a varredura
- * atravessa tenant para achar QUEM precisa de trabalho; o trabalho em si
- * (`checarSlaDaConversa`) roda depois, um tenant de cada vez, sob RLS.
+ * Sweep open conversations and closed ones whose `sla_conversa` is still `correndo` or `alertado`. That final pass closes the cycle as met, canceled, or breached, as in `processarRegra`. `bancoDono()` crosses tenants only to find candidates, like `midiasPendentes` and `contatosSemEspelho`; `checarSlaDaConversa` then processes one tenant at a time under RLS.
  */
 export async function conversationsForChecarSla(lote = 200): Promise<CandidataASla[]> {
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`

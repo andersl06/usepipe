@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
-// No modo memória a API processa a importação em linha — o mesmo código do worker.
+// In memory mode the API processes the import inline — the same code path as the worker.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -19,10 +19,7 @@ const { ContactImportsController } = await import('../src/controllers/imports.js
 import type { RequestWithSession } from '../src/session.js';
 
 /**
- * A importação de contatos por CSV, com banco de verdade: o porte do
- * `DataImportJob` do Chatwoot mais o que o Pipe pede — telefone em E.164 com o
- * nono dígito, deduplicação por telefone dentro do tenant, relatório das linhas
- * rejeitadas e isolamento entre clientes.
+ * CSV contact import, against a real database: a port of Chatwoot's `DataImportJob` plus what Pipe additionally requires — phone numbers in E.164 with the ninth digit, deduplication by phone within the tenant, a report of rejected rows, and isolation between customers.
  */
 
 const URL_DONO = process.env['DATABASE_URL']!;
@@ -117,7 +114,7 @@ describe('telefone em E.164, com o nono dígito do Brasil', () => {
       ['Dani', '+5541988881234'],
     ]);
 
-    // A identidade de WhatsApp nasce junto: a primeira mensagem da Ana cai nesta ficha.
+    // The WhatsApp identity is created at the same time: Ana's first message lands on this record.
     const { rows } = await dono.execute<{ n: string }>(sql`
       select count(*)::text as n from contato_identidade
        where tenant_id = ${A.tenantId}::uuid and canal_tipo = 'whatsapp_cloud'
@@ -149,8 +146,8 @@ describe('Deduplicate contacts by phone number within a tenant', () => {
 
     const eva = await contactsWith(A.tenantId, ['+554199990000', '+5541999990000']);
     expect(eva).toHaveLength(1);
-    // O contato que já existia é o que fica, mesclado: nome da última linha, e-mail
-    // da primeira, telefone agora na forma canônica.
+    // The contact that already existed is the one that remains, merged: name from the last row, email
+    // from the first, and phone number now in its canonical form.
     expect(eva[0]).toMatchObject({
       id: idDaEva,
       nome: 'Eva Souza',

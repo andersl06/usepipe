@@ -26,7 +26,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 const CONFIG = { url: 'https://crm.cliente.teste', chave: 'chave-de-teste' };
 
-/** Um `fetch` de mentira que devolve o que o teste mandar e guarda o que recebeu. */
+/** A fake `fetch` that returns whatever the test instructs and records what it received. */
 function fetchFalso(respostas: unknown[]): {
   buscar: typeof fetch;
   chamadas: { url: string; body: Record<string, unknown> }[];
@@ -146,7 +146,7 @@ describe('Mirror contacts to the CRM without creating duplicates', () => {
   });
 
   it('Abort when the CRM returns another tenant\'s contact', async () => {
-    // O caso da URL trocada na implantação: chave válida, instância errada.
+    // The case of a swapped URL in the deployment: a valid key, but the wrong instance.
     const { buscar } = fetchFalso([
       { data: { people: { edges: [] } } },
       { data: { createPerson: { id: 'x', pipeContatoId: 'de-outro-cliente' } } },
@@ -206,7 +206,7 @@ describe('Load CRM configuration per tenant with fail-closed behavior', () => {
       configDoTenant(tx, cenario.tenantId),
     );
     expect(config?.key).toBe('chave-secreta-do-crm');
-    // Barra final removida: senão o link viraria `…//object/person/…`.
+    // The trailing slash is removed: otherwise the link would become `…//object/person/…`.
     expect(config?.url).toBe('https://crm.cliente.teste');
   });
 
@@ -240,15 +240,15 @@ describe('Load CRM configuration per tenant with fail-closed behavior', () => {
   it('Do not write another tenant\'s contact to the CRM', async () => {
     await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente()));
 
-    // Um id que não existe neste tenant tem o mesmo destino de um de outro cliente:
-    // a RLS não devolve linha, e o espelho não acontece.
+    // An id that does not exist in this tenant has the same outcome as one from another customer:
+    // RLS returns no row, and the mirror does not happen.
     const r = await syncContact(cenario.tenantId, randomUUID(), naoChame);
 
     expect(r.state).toBe('sem_espelho');
   });
 });
 
-/** Um `fetch` que falha o teste se for chamado. Prova que nem tentou falar com o CRM. */
+/** A `fetch` that fails the test if called. Proves it never even tried to talk to the CRM. */
 const naoChame = (async () => {
   throw new Error('não deveria ter chamado o CRM');
 }) as unknown as typeof fetch;

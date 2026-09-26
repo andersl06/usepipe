@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -19,11 +19,7 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 /**
  * `POST /v1/desk/acoes/:acao` (`controladores/desk.ts`, `dominio/desk/acoes.ts`).
  *
- * Nenhum teste existia para este controlador inteiro — nem as leituras, nem as
- * cinco ações (`definirStatus`, `cairPorInatividade`, `salvarNotaInterna`,
- * `atender`, `transferirEmMassa`). Este arquivo cobre as ações: elas GRAVAM,
- * o `atendenteId`/`tenantId` vêm sempre da SESSÃO (nunca do corpo), e a lista
- * de nomes aceitos é FECHADA.
+ * No test existed for this entire controller — not the reads, not the five actions (`definirStatus`, `cairPorInatividade`, `salvarNotaInterna`, `atender`, `transferirEmMassa`). This file covers the actions: they WRITE, `atendenteId`/`tenantId` always come from the SESSION (never from the body), and the list of accepted names is CLOSED.
  */
 
 let a: Cenario;
@@ -181,7 +177,7 @@ describe('definirStatus', () => {
     expect(offline.corpo).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.estado).toBe('offline');
 
-    // Devolve o cenário para online — outros testes deste arquivo dependem disso.
+    // // Returns the scenario to online — other tests in this file depend on it.
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
 });
@@ -196,7 +192,7 @@ describe('Set an inactive agent offline and close any open pause', () => {
     expect((await statusDe(a.agentId))?.estado).toBe('offline');
     expect(await pausaAbertaDe(a.agentId)).toBeNull();
 
-    // Devolve o cenário para online.
+    // // Returns the scenario to online.
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
 
@@ -369,7 +365,7 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
     const vazia = await acao(sessionAgent, 'atender');
     expect(vazia.corpo).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
 
-    // Devolve o cenário: sem override e sem conversa presa no atendente.
+    // // Returns the scenario: no override and no conversation stuck on the agent.
     await a.dono.execute(sql`
       update fila_atendente set capacidade_override = null
        where usuario_id = ${a.agentId}::uuid and fila_id = ${a.queueId}::uuid
@@ -473,7 +469,7 @@ describe('Pin conversations and mark them unread per agent', () => {
       ok: false,
       erro: 'Você já tem 50 conversas fixadas. Desafixe uma para fixar outra.',
     });
-    // Refixar uma das 50 não bate no teto.
+    // // Re-fixing one of the 50 doesn't hit the ceiling.
     const refixa = await acao(sessionAgent, 'fixar', { conversaId: outras[0]!, fixada: 'true' });
     expect(refixa.corpo).toMatchObject({ ok: true });
 

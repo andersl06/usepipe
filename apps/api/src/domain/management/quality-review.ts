@@ -23,25 +23,10 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
   fn(tx);
 
 /**
- * Monitoria com IA — o resultado que ninguém via.
- *
- * `packages/ai` avalia a conversa critério a critério, calcula a nota de forma
- * determinística (`avaliacao/nota.ts`), cita a mensagem que sustenta cada
- * resposta e grava tudo em `avaliacao` + `resposta_avaliacao`. Não havia tela: o
- * produto pagava pela chamada de modelo e o supervisor não tinha onde ler.
- *
- * **A régua de métricas vale aqui igual.** A média das notas mostra a população
- * de que saiu e quantas avaliações ficaram de fora, porque avaliação em
- * rascunho e avaliação sem nota são exatamente o tipo de exclusão que embeleza
- * a média sem ninguém perceber. Média ponderada por volume (§5): soma das notas
- * ÷ número de avaliações, nunca média de médias por atendente.
- *
- * Nada aqui sabe que o Next existe — recebe parâmetro e devolve dado (README,
- * "Quem fala com o banco"). Consultas em SÉRIE dentro do `consultar`:
- * `Promise.all` derruba o `pipe.tenant_id` e a RLS deixa de filtrar em silêncio.
+ * AI quality review displays the evaluation result. `packages/ai` scores each criterion deterministically (`avaliacao/nota.ts`), cites supporting messages and stores `avaliacao` plus `resposta_avaliacao`; supervisors previously had no screen for paid model calls. Display the mean's population and exclusions: drafts and unscored evaluations can otherwise inflate it. Weight by evaluation volume (§5): sum scores divided by evaluation count, never average agent averages. This module accepts data and returns data without Next (README, 'Quem fala com o banco'). Query SERIALly inside `consultar`: `Promise.all` can clear `pipe.tenant_id` and silently disable RLS tenant filtering.
  */
 
-/** Estados em que a nota já vale. Rascunho não conta — ninguém fechou aquilo. */
+/** States with a final usable score; drafts are not counted because nobody finalized them. */
 const ESTADOS_VALENDO = new Set(['concluida', 'contestada', 'revisada', 'encerrada']);
 
 export const LABEL_STATE_EVALUATION: Record<string, string> = {
@@ -117,11 +102,7 @@ function numeroOuNulo(bruto: string | null): number | null {
 }
 
 /**
- * Média das notas de um conjunto, com a população explícita.
- *
- * Fora da média: avaliação em rascunho e avaliação sem nota. A contagem
- * excluída volta junto porque a tela é obrigada a mostrá-la — média que esconde
- * o denominador melhora justamente quando o processo piora.
+ * Average scores with explicit population. Exclude draft evaluations and those without a score; return their excluded count so the screen can show a denominator that does not improve invisibly as the process worsens.
  */
 function mediaDasNotas(itens: readonly EvaluationInList[]): ResultadoMetrica {
   let soma = 0;
@@ -186,9 +167,9 @@ export async function loadQualityReview(
       confidenceAi: numeroOuNulo(l.confidenceAi),
     }));
 
-    /* Agrupamento em memória, e não `GROUP BY`: a lista inteira já veio, e a
-       média precisa da MESMA regra de exclusão da geral. Duas contas em dois
-       lugares é como o número da tabela deixa de bater com o do cartão. */
+    /*
+     * Group the already loaded list in memory, not with `GROUP BY`, using the SAME exclusion rule as the overall average so table and card agree.
+     */
     const groups = new Map<string, EvaluationInList[]>();
     for (const a of evaluations) {
       const key = a.evaluated ?? 'Sem atendente';
@@ -276,9 +257,9 @@ export async function carregarFicha(
   tx: TransactionPipe,
   id: string,
 ): Promise<RecordOfEvaluation | null> {
-  /* O id vem do caminho da URL, que é entrada de fora. Sem esta linha,
-     `/monitoria/abc` chegava ao Postgres como `abc::uuid` e a tela devolvia
-     500 — "não existe" é 404, e é isso que o `null` daqui vira lá em cima. */
+  /*
+   * The URL path ID is untrusted. Without validation, `/monitoria/abc` reaches PostgreSQL as `abc::uuid` and the screen returns 500; `null` here becomes the correct 404 upstream.
+   */
   if (!uuidOuNada(id)) return null;
 
   return consultar(tx, async (tx) => {
@@ -315,9 +296,9 @@ export async function carregarFicha(
 
     if (!cabeca) return null;
 
-    /* O formulário inteiro, e não só os critérios respondidos: critério sem
-       resposta é informação — quer dizer que a avaliação está incompleta, e a
-       ficha precisa mostrar a lacuna em vez de escondê-la. */
+    /*
+     * Return the whole form, including unanswered criteria: an unanswered criterion means incomplete evaluation and the detail screen must show that gap.
+     */
     const linhas = await tx
       .select({
         grupoId: grupoCriterio.id,
@@ -347,9 +328,9 @@ export async function carregarFicha(
       .where(eq(grupoCriterio.formularioId, cabeca.formularioId))
       .orderBy(asc(grupoCriterio.ordem), asc(criterio.ordem));
 
-    /* As mensagens citadas, numa consulta só. `mensagem` é particionada e a
-       unicidade dela é (id, criada_em), por isso não há chave estrangeira em
-       `evidencia_mensagem_id` — a junção é pelo id e basta para exibir. */
+    /*
+     * Fetch cited messages in one query. `mensagem` is partitioned with uniqueness on `(id, criada_em)`, so `evidencia_mensagem_id` has no foreign key; joining by ID is enough for display.
+     */
     const evidencias = await tx
       .select({
         id: message.id,

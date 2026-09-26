@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -21,30 +21,21 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO
- * (`/v1/gestao/fluxos/:id/builder`, `dominio/gestao/builder-do-fluxo.ts`).
+ * The Builder's EDIT → SAVE DRAFT → PUBLISH cycle, PER FLOW (`/v1/gestao/fluxos/:id/builder`, `dominio/gestao/builder-do-fluxo.ts`).
  *
- * O que vale a pena provar: fluxo novo abre com o fluxo padrão publicável; o
- * salvar grava POR CIMA do rascunho (uma versão, não uma por tecla) e devolve
- * os erros do motor bloco a bloco mesmo gravando; publicar numera a seguir,
- * arquiva a anterior e recusa fluxo inválido com a lista; o motor
- * (`fluxoPublicadoDoCanal`/`rodarFluxoNaEntrada`, pelo webhook) passa a usar a
- * nova enquanto a conversa que já estava com o robô continua apontando para a
- * antiga — que não foi apagada nem alterada; restaurar traz uma versão antiga
- * como rascunho sem tirar a publicada do ar; e as portas: 403 sem
- * `automacao.fluxo.publicar`, 404 de outro tenant, 409 no roteador.
+ * What's worth proving: a new flow opens with the default publishable flow; saving writes OVER the draft (one version, not one per keystroke) and returns the engine's errors block by block even while saving; publishing numbers the next version, archives the previous one, and rejects an invalid flow with the list; the engine (`fluxoPublicadoDoCanal`/`rodarFluxoNaEntrada`, via the webhook) starts using the new one while a conversation already with the bot keeps pointing to the old one — which wasn't deleted or changed; restoring brings an old version back as a draft without taking the published one down; and the gates: 403 without `automacao.fluxo.publicar`, 404 for another tenant, 409 at the router.
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Quem cria e edita, mas não publica. */
+/** Who creates and edits, but doesn't publish. */
 let sessionEditor: string;
-/** Quem também publica. */
+/** Who also publishes. */
 let sessionPublicador: string;
-/** Gente do tenant A sem permissão nenhuma sobre fluxo. */
+/** People from tenant A with no permission at all on the flow. */
 let sessionWithoutPoder: string;
-/** Quem tudo pode no tenant B: prova que o tenant vem da sessão, nunca da URL. */
+/** Who can do everything in tenant B: proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
 const RECADOS = {
@@ -104,8 +95,9 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
-/* O corpo cru das respostas: `any` como em `cadastros-atendimento.test.ts`, para
-   navegar `corpo.erro.detalhe.erros` sem um tipo por rota. */
+/*
+ * The raw body of responses: `any` like in `cadastros-atendimento.test.ts`, to navigate `corpo.erro.detalhe.erros` without a type per route.
+ */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Corpo = Record<string, any>;
 
@@ -147,10 +139,7 @@ const restore = (sessao: string, id: string, versao: string | number) =>
   pedir(sessao, 'POST', `/v1/management/flows/${id}/builder/versions/${versao}/restore`);
 
 /**
- * Um desenho no formato do editor da Blip, como a cópia manda: a raiz espera a
- * primeira mensagem, o bloco seguinte pergunta o nome e espera, e o de
- * atendimento transborda. `texto` muda entre versões para o teste ver qual
- * versão o motor rodou.
+ * A design in the Blip editor's format, as the copy dictates: the root expects the first message, the next block asks for the name and waits, and the attendance one overflows. `texto` changes between versions so the test can see which version the engine ran.
  */
 function desenho(texto: string): { flow: Record<string, unknown>; globals: Record<string, unknown> } {
   return {
@@ -209,7 +198,7 @@ function desenho(texto: string): { flow: Record<string, unknown>; globals: Recor
   };
 }
 
-/** O texto que o bloco `pergunta` manda, lido do desenho que a `api` devolve. */
+/** The text the `pergunta` block sends, read from the design the `api` returns. */
 function falaDaPergunta(corpo: Corpo): string {
   const pergunta = corpo['desenho']['fluxo']['pergunta'];
   return pergunta['$contentActions'][0]['action']['settings']['content'] as string;
@@ -283,7 +272,7 @@ beforeAll(async () => {
   sessionWithoutPoder = await openSession(a, semPoder);
   sessionOfOtherTenant = await openSession(b, doB);
 
-  // Sem ninguém online: a conversa transferida fica NA FILA, sem atendente.
+  // // With nobody online: the transferred conversation stays IN THE QUEUE, with no agent.
   await a.dono.execute(
     sql`update status_atendente set estado = 'offline' where usuario_id = ${a.agentId}::uuid`,
   );
@@ -370,7 +359,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     expect(inDatabase[0]).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 3 });
     expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('Oi! Como você se chama?');
 
-    // O fluxo em si continua em rascunho: salvar não publica.
+    // // The flow itself stays a draft: saving doesn't publish.
     const { rows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
     );
@@ -385,7 +374,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
           id: 'inicio',
           root: true,
           $title: 'Início',
-          // Sem entrada na raiz, e a saída aponta para um bloco que não existe.
+          // // No entry at the root, and the exit points to a block that doesn't exist.
           $contentActions: [],
           $conditionOutputs: [],
           $defaultOutput: { stateId: 'fantasma' },
@@ -406,19 +395,19 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     );
     expect(errors.every((e) => e.block === 'inicio')).toBe(true);
 
-    // A leitura devolve os mesmos erros — a tela abre já sabendo o que falta.
+    // // The read returns the same errors — the screen opens already knowing what's missing.
     const aberto = await builder(sessionEditor, id);
     expect(aberto.corpo['origem']).toBe('rascunho');
     expect(aberto.corpo['erros']).toEqual(errors);
 
-    // E publicar recusa com a lista, sem mexer em nada.
+    // // And publishing rejects with the list, without touching anything.
     const recusa = await publicar(sessionPublicador, id);
     expect(recusa.status).toBe(409);
     expect(recusa.corpo['erro']['code']).toBe('fluxo_invalido');
     expect(recusa.corpo['erro']['detalhe']['errors']).toEqual(errors);
     expect((await versionsInDatabase(id))[0]?.state).toBe('rascunho');
 
-    // Corpo que não é o mapa do editor é 400, e não 500.
+    // // A body that isn't the editor's map is 400, not 500.
     const torto = await salvar(sessionEditor, id, { fluxo: 'isto não é um mapa' });
     expect(torto.status).toBe(400);
     expect(torto.corpo['erro']['code']).toBe('desenho_invalido');
@@ -436,10 +425,10 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 describe('POST /v1/management/flows/:id/builder/publish', () => {
   it('Publish v2, archive v1, switch the engine, and keep active conversations on v1', async () => {
     const id = await criado(`Publicado ${randomUUID().slice(0, 6)}`);
-    // O canal do cenário passa a ser deste fluxo: é por ele que o webhook chega ao motor.
+    // // The scenario's channel becomes this flow's: that's how the webhook reaches the engine.
     await a.dono.execute(sql`update fluxo set canal_id = ${a.channelId}::uuid where id = ${id}::uuid`);
 
-    // Sem rascunho não há o que publicar.
+    // // No draft, nothing to publish.
     const semRascunho = await publicar(sessionPublicador, id);
     expect(semRascunho.status).toBe(409);
     expect(semRascunho.corpo['erro']['code']).toBe('sem_rascunho');
@@ -458,20 +447,20 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     );
     expect(flows[0]?.estado).toBe('publicado');
 
-    // Sem rascunho, o Builder abre a publicada.
+    // // With no draft, the Builder opens the published version.
     const aberto = await builder(sessionEditor, id);
     expect(aberto.corpo['origem']).toBe('publicada');
     expect(aberto.corpo['versao']['version']).toBe(1);
     expect(aberto.corpo['publicada']['version']).toBe(1);
 
-    // O motor responde com a v1, e a conversa da Ana fica esperando o nome — em andamento.
+    // // The engine responds with v1, and Ana's conversation stays waiting for the name — in progress.
     await falar(ANA, 'oi');
     const conversationOfAna = await conversationOf(ANA);
     expect(await doBot(conversationOfAna.id)).toEqual(['Olá! Qual é o seu nome? (v1)']);
     const inProgress = await executionOf(conversationOfAna.id);
     expect(inProgress).toMatchObject({ estado: 'aguardando', fluxo_versao_id: v1Id });
 
-    // Salvar de novo cria o rascunho v2 (a v1 publicada é imutável) e publicar promove.
+    // // Saving again creates draft v2 (the published v1 is immutable), and publishing promotes it.
     const rascunho = await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v2)'));
     expect(rascunho.corpo['versao']).toMatchObject({ versao: 2, estado: 'rascunho' });
     expect(rascunho.corpo['versao']['id']).not.toBe(v1Id);
@@ -488,12 +477,12 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
       [2, 'publicada', 3],
     ]);
 
-    // A execução da Ana continua na v1 — a versão e os blocos dela ficaram intactos.
+    // // Ana's run stays on v1 — its version and blocks remain intact.
     const aindaNaV1 = await executionOf(conversationOfAna.id);
     expect(aindaNaV1.flowVersionId).toBe(v1Id);
     expect(aindaNaV1.blockVersionId).toBe(v1Id);
 
-    // Conversa nova é da v2: pelo motor de verdade, e pela consulta que o motor usa.
+    // // A new conversation belongs to v2: by the real engine, and by the query the engine uses.
     await falar(BIA, 'oi');
     const conversationOfBia = await conversationOf(BIA);
     expect(await doBot(conversationOfBia.id)).toEqual(['Olá! Qual é o seu nome? (v2)']);
@@ -503,7 +492,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     );
     expect(publicado).toEqual({ fluxoId: id, versaoId: v2Id });
 
-    // O histórico lista as duas, da mais nova para a mais antiga.
+    // // The history lists both, newest to oldest.
     const history = await versions(sessionEditor, id);
     expect(history.status).toBe(200);
     const listadas = history.corpo as unknown as { version: number; state: string }[];
@@ -512,7 +501,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
       [1, 'arquivada'],
     ]);
 
-    // E ficou registrado quem publicou o quê.
+    // // And it's on record who published what.
     const { rows: log } = await a.dono.execute<{ acao: string; objeto_tipo: string }>(sql`
       select acao, objeto_tipo from log_auditoria
        where objeto_id = ${v2Id}::uuid order by em asc, id asc
@@ -559,7 +548,7 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
     expect(aberto.corpo['origem']).toBe('rascunho');
     expect(aberto.corpo['versao']['version']).toBe(3);
     expect(falaDaPergunta(aberto.corpo)).toBe('primeira');
-    // A segunda continua publicada: restaurar não publica.
+    // // The second one stays published: restoring doesn't publish.
     expect(aberto.corpo['publicada']).toMatchObject({ versao: 2, estado: 'publicada' });
 
     expect((await versionsInDatabase(id)).map((v) => [v.versao, v.state])).toEqual([
@@ -573,10 +562,10 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
     expect(outra.corpo['versao']['version']).toBe(3);
     expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('segunda');
 
-    // Versão que não existe (ou que não é número) é 404.
+    // // A version that doesn't exist (or isn't a number) is 404.
     expect((await restore(sessionEditor, id, 99)).status).toBe(404);
     expect((await restore(sessionEditor, id, 'ultima')).status).toBe(404);
-    // De outro tenant também.
+    // // From another tenant, too.
     expect((await restore(sessionOfOtherTenant, id, 1)).status).toBe(404);
   });
 });

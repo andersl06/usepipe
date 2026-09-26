@@ -19,10 +19,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
   fn(tx);
 
 /**
- * Reaproveitada do catálogo — "Configurar marca, fuso e plano". As três
- * escritas de Configurações gerais (identidade, pesquisa, etiqueta de
- * encerramento) são exatamente isso: nenhuma tinha permissão nenhuma antes
- * da tarefa de cadastros do Atendimento (item 7).
+ * Reuse catalog permission 'Configurar marca, fuso e plano' for General Settings writes to identity, survey and closing labels; before the Attendance registration task (item 7), none had permission checks.
  */
 export const SETTINGS_GENERAL_MANAGE = 'tenant.configurar';
 
@@ -203,9 +200,9 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
       .from(channel)
       .orderBy(asc(channel.nome));
 
-    /* Uma consulta para todas as caixas, agrupada em memória depois. Não é
-       Promise.all dentro da transação de propósito: consulta paralela na mesma
-       conexão perde a variável de sessão do RLS. */
+    /*
+     * Use one query for all inboxes and group in memory. Avoid `Promise.all` inside this transaction: parallel queries on one connection can lose the RLS session variable.
+     */
     const caixas = await tx
       .select({
         canalId: inbox.channelId,
@@ -281,9 +278,9 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
       .from(tenant)
       .limit(1);
 
-    /* A mais recente primeiro: quando há mais de uma, é a última configurada
-       que a tela edita, e a contagem das outras aparece no cartão. Esconder que
-       existem duas é como duas escalas acabam somadas no mesmo gráfico. */
+    /*
+     * Show the most recently configured survey for editing and the count of others. Hiding duplicates could combine different scales in one chart.
+     */
     const pesquisas = await tx
       .select({
         id: pesquisa.id,
@@ -470,11 +467,7 @@ export async function gravarPesquisa(
 }
 
 /**
- * Quais etiquetas o atendente é obrigado a escolher ao encerrar.
- *
- * Lista fechada: o que veio marcado passa a ser obrigatório, e o que não veio
- * deixa de ser. Mandar só as marcadas e nunca desmarcar nada faria a exigência
- * crescer para sempre — e ninguém consegue desfazer pela tela.
+ * The checked closing labels replace the whole required list: checked labels become required, unchecked labels stop being required. Merely adding checked labels would make the policy impossible to undo from the screen.
  */
 export async function writeLabelsOfClosure(
   tx: TransactionPipe,
@@ -525,9 +518,9 @@ export async function writeLabelsOfClosure(
       ator: ator,
       acao: 'alterou',
       objetoTipo: 'etiqueta',
-      /* Não é uma etiqueta: é a política de encerramento do tenant inteiro. O
-         objeto é o tenant, e o `antes`/`depois` diz quais nomes entraram e
-         saíram da lista. */
+      /*
+       * Audit the tenant-wide closing policy, not an individual label; `antes` and `depois` record which names entered and left the list.
+       */
       objetoId: tid,
       antes: { obrigatoriasNoEncerramento: antes.map((e) => e.nome) },
       depois: { obrigatoriasNoEncerramento: depois.map((e) => e.nome) },

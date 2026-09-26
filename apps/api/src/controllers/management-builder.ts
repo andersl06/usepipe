@@ -18,20 +18,7 @@ import {
 import { uuidOu404 } from './management-flow.js';
 
 /**
- * O Builder do contato (`/fluxo/:id/builder`), por sessão de navegador — a
- * mesma casca de `gestao-fluxo.ts`, num arquivo à parte porque o ciclo
- * rascunho → publicar → histórico é um assunto só e a regra inteira mora em
- * `dominio/gestao/builder-do-fluxo.ts`.
- *
- * - `GET :id/builder` — o desenho que o editor abre;
- * - `PUT :id/builder` — o "salvar": grava o rascunho, devolve os erros do
- *   motor por bloco (200 mesmo inválido: rascunho é para isso);
- * - `POST :id/builder/publicar` — promove o rascunho; inválido é 409 com a
- *   lista no `detalhe.erros`;
- * - `GET :id/builder/versoes` e `POST .../versoes/:versao/restaurar`.
- *
- * Roteador responde 409 em todas (`roteador_sem_builder`). O tenant vem da
- * sessão, nunca da URL; `id` fora do padrão de uuid é 404 antes do banco.
+ * The contact Builder (`/fluxo/:id/builder`) uses a browser session. It shares the HTTP adapter pattern of `gestao-fluxo.ts` but keeps the draft, publish and history lifecycle together here; the rules live in `dominio/gestao/builder-do-fluxo.ts`. `GET :id/builder` loads the design; `PUT :id/builder` saves a draft and returns per-block engine errors with 200 even when invalid; `POST :id/builder/publicar` publishes or returns 409 with `detalhe.erros`; `GET :id/builder/versoes` and `POST .../versoes/:versao/restaurar` handle versions. Routers return 409 on all these routes (`roteador_sem_builder`). The tenant comes from the session, never the URL; an invalid UUID `id` returns 404 before querying.
  */
 @Controller('v1/gestao/fluxos')
 export class ManagementBuilderController {
@@ -99,7 +86,7 @@ export class ManagementBuilderController {
   ): Promise<RascunhoGravado> {
     const session = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
-    // Número fora do padrão vira NaN, e NaN é "versão não encontrada" no domínio.
+    // An out-of-pattern number becomes NaN, which the domain treats as "version not found".
     const numero = /^\d+$/.test(versao) ? Number(versao) : Number.NaN;
     return noTenant(session.tenantId, (tx) =>
       restoreVersion(tx, session.tenantId, session.userId, id, numero),

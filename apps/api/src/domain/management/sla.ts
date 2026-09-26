@@ -4,14 +4,7 @@ import { regraSla } from '@pipe/db/schema';
 import type { TransactionPipe } from '@pipe/db';
 
 /**
- * Coluna SLA do monitoramento detalhado.
- *
- * O cálculo é do `@pipe/core` (`avaliarSla`, §11 da spec). Aqui só se escolhe a
- * regra aplicável e se traduz o resultado para o rótulo da tela.
- *
- * ponytail: o relógio roda sem expediente — `horario_atendimento` ainda não é
- * semeado, então nenhuma fila tem horário para respeitar. `avaliarSla` já aceita
- * o expediente; basta passar o horário da fila quando ele existir.
+ * SLA column for detailed monitoring. `@pipe/core` computes the SLA through `avaliarSla` (spec §11); this layer selects the applicable rule and maps the result to the screen label. ponytail: the clock currently runs outside business hours because `horario_atendimento` is not seeded. Once queues have schedules, pass the queue schedule to `avaliarSla`, which already supports it.
  */
 
 export interface RegraSlaCarregada {
@@ -32,16 +25,16 @@ export type StatePill = 'inside' | 'alert' | 'exceeded' | 'without_rule' | 'cump
 export interface PillSla {
   state: StatePill;
   rotulo: string;
-  /** Segundos além do prazo, quando estourou. */
+  /** Seconds past the deadline when breached. */
   excedidoSeg: number | null;
 }
 
-/** `regra_sla.alvo` do banco → alvo do `@pipe/core`. Nomes divergem por história. */
+/** Map database `regra_sla.alvo` to the `@pipe/core` target; names differ for historical reasons. */
 const TARGET_OF_DATABASE: Record<string, AlvoSla | null> = {
   primeira_resposta: 'primeira_resposta',
   resposta: 'tempo_resposta',
   resolucao: 'encerramento',
-  // `espera_fila` não tem equivalente no core e por isso não vira pill.
+  // `espera_fila` has no core equivalent and therefore gets no pill.
   espera_fila: null,
 };
 
@@ -80,8 +73,7 @@ export async function carregarRegrasSla(tx: TransactionPipe): Promise<RegraSlaCa
 const SEM_REGRA: PillSla = { state: 'without_rule', rotulo: '—', excedidoSeg: null };
 
 /**
- * Regra aplicável: a de escopo de fila vence a de escopo do tenant, porque a mais
- * específica é a que o gestor configurou de propósito.
+ * A queue-scoped rule overrides a tenant-scoped rule because it is the more specific rule deliberately configured by the manager.
  */
 function escolherRegra(
   regras: readonly RegraSlaCarregada[],

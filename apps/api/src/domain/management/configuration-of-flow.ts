@@ -9,20 +9,7 @@ import { exigirPermissionInFlow } from './team-of-flow.js';
 import { aplicarPerfilMessenger, readChannelMessenger } from '../messenger/channel.js';
 
 /**
- * "Tela de Boas-vindas" e "Menu Persistente" — os itens 2 e 3 de
- * `/configurations/*` (`referencias-blip/pesquisa/blip-portal-telas.md` §6), gravados em
- * `fluxo.configuracao` (migration 0031). As duas telas não tinham leitura nem
- * escrita: só desenhavam formulário e devolviam "ainda não está disponível".
- *
- * A origem não deixou ver os campos LIGADOS (a régua não ativou o roteador de
- * produção para não alterar o estado dele — `boasvindas/tela.tsx`): não há
- * limite de caracteres capturado para "Mensagem de saudação"; o de "Texto do
- * botão" (20) é decisão do Pipe, pelo teto de título de botão do Messenger
- * (`quick_replies[].title`), que é o canal em que os dois itens se aplicam.
- *
- * Permissão dos dois PATCH: a mesma de "Editar Fluxo" (`automacao.fluxo.editar`)
- * — mexer nestas telas é editar o contato, como já vale para os serviços do
- * roteador (`servicos-do-roteador.ts`).
+ * Welcome Screen ('Tela de Boas-vindas') and Persistent Menu ('Menu Persistente') are source `/configurations/*` items 2 and 3 (`referencias-blip/pesquisa/blip-portal-telas.md` §6), stored in `fluxo.configuracao` since migration 0031. Earlier forms had no persistence. Active source fields were not observed because enabling the production router would change its state (`boasvindas/tela.tsx`), so no source limit was captured for 'Mensagem de saudação'. Pipe chose 20 characters for 'Texto do botão' based on Messenger `quick_replies[].title`. Both PATCHes require `automacao.fluxo.editar`, as editing a contact does in `servicos-do-roteador.ts`.
  */
 
 export const TEXTO_BOTAO_MAX = 20;
@@ -35,7 +22,7 @@ interface ConfigurationStored {
 
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
-/** O fluxo vivo desta conta, com a configuração bruta — ou 404. */
+/** Return this account's live flow with raw configuration, or 404. */
 async function flowVivo(
   tx: TransactionPipe,
   tid: string,
@@ -84,18 +71,13 @@ export async function carregarBoasVindas(
 
 export interface PedidoDeBoasVindas {
   active: boolean;
-  /** Só exigidos (e só lidos) quando `ativo` é `true`. */
+  /** Require and read these fields only when `ativo` is `true`. */
   message?: string;
   textoBotao?: string;
 }
 
 /**
- * `ativo: false` desliga sem apagar — reativar mostra a última mensagem
- * gravada, em vez de mandar escrever tudo de novo.
- *
- * Quando o contato pertence a um Messenger ativo, a alteração também é aplicada
- * no perfil da Página (`get_started`/`greeting`); a persistência local continua
- * sendo a fonte de leitura da tela.
+ * `ativo: false` disables without erasing saved content, so reactivation restores the prior message. For an active Messenger contact, also update the Page profile (`get_started`/`greeting`); local persistence remains the screen's read source.
  */
 export async function salvarBoasVindas(
   tx: TransactionPipe,
@@ -146,7 +128,7 @@ export async function salvarBoasVindas(
     const contactMessenger = await loadContact(tx, tid, id);
     if (contactMessenger?.canalTipo === 'messenger' && contactMessenger.canalAtivo && contactMessenger.canalId) {
       const channel = await readChannelMessenger(tid, contactMessenger.canalId);
-      // conferir com token real: get_started e greeting aceitam esta combinação no token da Página.
+      // Verify with a real token that the Page accepts this combination of `get_started` and `greeting`.
       await aplicarPerfilMessenger(channel, depois.ativo
         ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.message }] }
         : { get_started: null, greeting: [] });
@@ -169,7 +151,7 @@ function itensDe(configuracao: ConfigurationStored): { texto: string; link: stri
   });
 }
 
-/** Preenchida = ativa, com mensagem e texto do botão — a trava que o menu persistente pede. */
+/** A filled welcome screen is active with message and button text; the persistent menu requires it. */
 function boasVindasPreenchidaEm(configuracao: ConfigurationStored): boolean {
   const bv = boasVindasDe(configuracao);
   return bv.ativo && bv.message.trim().length > 0 && bv.textoBotao.trim().length > 0;
@@ -193,9 +175,7 @@ export interface ItemDoPedido {
 }
 
 /**
- * As duas travas da origem, para valer: canal Messenger conectado e a tela de
- * Boas-vindas preenchida (`tela.tsx`, "O segundo bloqueio da origem... não tem
- * como ser reproduzido de verdade" — agora tem, porque Boas-vindas grava).
+ * Enforce both source gates: a connected Messenger channel and a populated Welcome Screen (`tela.tsx`). The earlier source note said the second gate could not yet be reproduced; Welcome Screen is now persisted.
  */
 export async function salvarMenuPersistente(
   tx: TransactionPipe,
@@ -263,7 +243,7 @@ export async function salvarMenuPersistente(
   const contatoMessenger = await loadContact(tx, tid, id);
   if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
     const canal = await readChannelMessenger(tid, contatoMessenger.canalId);
-    // conferir com token real: a Página aceita persistent_menu neste formato.
+    // Verify with a real token that the Page accepts this `persistent_menu` shape.
     await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', composer_input_disabled: false, call_to_actions: preenchidos.map((item) => ({ type: 'web_url', title: item.texto, url: item.link })) }] });
   }
   return { itens: preenchidos, boasVindasPreenchida: true };

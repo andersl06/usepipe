@@ -5,18 +5,7 @@ import { fecharBancos, noTenant } from './database.js';
 import { importFlowOfBlip } from './domain/flow.js';
 
 /**
- * Importa um fluxo do Builder da Blip — o export do editor ou o fluxo publicado.
- *
- * Comando, e não rota, pelo mesmo motivo de `provisionar.ts`: ainda não há tela de
- * construtor de fluxo, e a credencial de quem roda isto é o acesso ao banco.
- *
- * ```
- * # só lê e mostra o relatório (contagens por tipo), sem banco:
- * pnpm --filter @pipe/api importar:fluxo --arquivo fluxo.json
- * # grava como versão nova e publica no canal:
- * pnpm --filter @pipe/api importar:fluxo --arquivo fluxo.json \
- *   --tenant <uuid> --canal <uuid> --nome "Atendimento" --publicar
- * ```
+ * Import a Blip Builder editor export or published flow. This is a command rather than a route, as in `provisionar.ts`: there is no flow-builder UI, and database access authenticates the operator. To preview counts without a database, run `pnpm --filter @pipe/api importar:fluxo --arquivo fluxo.json`. To write and publish a new version, add `--tenant <uuid> --canal <uuid> --nome "Atendimento" --publicar`.
  */
 
 const { values } = parseArgs({

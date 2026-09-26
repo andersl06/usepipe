@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,16 +17,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Etiquetar conversa ABERTA e etiquetar CONTATO — `controladores/etiquetas.ts`,
- * `dominio/etiquetas.ts` (auditoria do Desk, itens 16 e 17).
- *
- * Até aqui a única forma de marcar tag numa conversa era encerrando
- * (`POST /encerrar`), e `contato_etiqueta` não tinha rota nenhuma. As três
- * rotas novas: o catálogo (`GET /v1/etiquetas?escopo=`), a conversa
- * (`POST`/`DELETE /v1/conversas/:id/etiquetas`, permissão `conversa.etiquetar`
- * e tem de ser o dono) e o contato (`GET`/`POST`/`DELETE
- * /v1/contatos/:id/etiquetas`, permissão `contato.editar`). O escopo da
- * etiqueta é conferido no servidor e cada gesto grava auditoria.
+ * Tagging an OPEN conversation and tagging a CONTACT — `controladores/etiquetas.ts`, `dominio/etiquetas.ts` (Desk audit, items 16 and 17). Until now the only way to tag a conversation was to close it (`POST /encerrar`), and `contato_etiqueta` had no route at all. The three new routes: the catalog (`GET /v1/etiquetas?escopo=`), the conversation (`POST`/`DELETE /v1/conversas/:id/etiquetas`, permission `conversa.etiquetar` and the caller must be the owner) and the contact (`GET`/`POST`/`DELETE /v1/contatos/:id/etiquetas`, permission `contato.editar`). The tag's scope is checked on the server and every action writes an audit record.
  */
 
 let a: Cenario;
@@ -196,7 +187,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
     expect(aplicada.corpo).toMatchObject({ etiqueta_id: labelConversation, aplicada: true });
     expect(await labelsOfConversation(conversationId)).toEqual([labelConversation]);
 
-    // A conversa continua ABERTA: etiquetar não é encerrar.
+    // The conversation stays OPEN: tagging is not closing.
     const { rows } = await a.dono.execute<{ state: string }>(
       sql`select estado from conversa where id = ${conversationId}::uuid`,
     );
@@ -227,7 +218,7 @@ describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', ()
     );
     expect(semNada.corpo).toEqual({ removida: false });
 
-    // Um `criou` e um `excluiu` — o no-op não grava linha.
+    // One `criou` and one `excluiu` event — the no-op writes no row.
     const log = await auditoriaDe('conversa_etiqueta', conversationId);
     expect(log.map((l) => l.acao)).toEqual(['criou', 'excluiu']);
     expect(log[0]?.depois).toMatchObject({ etiqueta_id: labelConversation });
@@ -363,7 +354,7 @@ describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
       labelsOfContact: { id: string }[];
     };
     expect(aberta.labelsOfContact.map((e) => e.id)).toEqual([etiquetaAmbos]);
-    // Não vaza para a conversa: são escopos diferentes.
+    // It does not leak into the conversation: they are different scopes.
     expect(aberta.etiquetasDaConversa).toEqual([]);
   });
 

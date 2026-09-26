@@ -3,8 +3,7 @@ import type { TipoEvento } from '@pipe/core';
 import type { TransactionPipe } from '@pipe/db';
 
 /**
- * `evento_atendimento` é a fonte de toda métrica (modelo de dados §4) e é imutável.
- * Gravar o evento não é log: é o dado do qual o relatório de amanhã será recalculado.
+ * Immutable `evento_atendimento` is the source of all metrics (data model §4). Writing an event is data, not a log: tomorrow's report is recalculated from it.
  */
 export async function registrarEvento(
   tx: TransactionPipe,

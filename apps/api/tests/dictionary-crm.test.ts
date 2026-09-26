@@ -21,8 +21,7 @@ const { montarCenario } = await import('./ajuda.js');
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
- * Resposta REAL da Metadata API, gravada do Twenty 2.39 local e enxugada — ver `_origem`
- * dentro do arquivo. As variações abaixo (campo removido, versão antiga) partem dela.
+ * A REAL response from the Metadata API, captured from a local Twenty 2.39 and trimmed down — see `_origem` inside the file. The variations below (removed field, old version) branch from it.
  */
 interface Fixture {
   introspection: { data: { o: { fields: { name: string }[] }; f: { fields: { name: string }[] } } };
@@ -51,12 +50,12 @@ function copia<T>(x: T): T {
   return structuredClone(x);
 }
 
-/** As respostas, na ordem em que o cliente as pede: introspecção, workspace, páginas. */
+/** The responses, in the order the client asks for them: introspection, workspace, pages. */
 function respostas(f: Fixture = FIXTURE): unknown[] {
   return [f.introspection, f.workspace, ...f.pages];
 }
 
-/** A mesma fixture, sem um campo e sem um objeto — o que "sumiu" do CRM. */
+/** The same fixture, missing a field and an object — what "went missing" from the CRM. */
 function semAlgo(objetoRemovido: string, campoRemovido: [string, string]): Fixture {
   const f = copia(FIXTURE);
   for (const p of f.pages) {
@@ -103,7 +102,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
       'opportunity',
       'messageCampaign',
     ]);
-    // A segunda página foi pedida com o cursor que a primeira devolveu.
+    // // The second page was requested with the cursor the first one returned.
     expect(chamadas[3]?.corpo.variables['depois']).toBe('cursor-da-pagina-2');
     expect(meta.customApplicationId).toBe(APP_DO_CLIENTE);
     expect(meta.objetos[0]?.fields.map((c) => c.name)).toContain('pipeContatoId');
@@ -119,8 +118,8 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
   });
 
   it('antes da 2.12 pede isCustom e dispensa o workspace', async () => {
-    // Variante sintética da gravação: troca applicationId por isCustom, como era o schema
-    // antigo. Não há instância antiga no ar para gravar de verdade.
+    // // A synthetic variant of the write: swaps applicationId for isCustom, as the old schema was.
+    // // There's no old instance running to write against for real.
     const f = copia(FIXTURE);
     for (const t of [f.introspection.data.o, f.introspection.data.f]) {
       t.fields = t.fields.map((c) => (c.name === 'applicationId' ? { name: 'isCustom' } : c));
@@ -183,7 +182,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     });
 
     const pessoa = (await ler(a)).find((o) => o.codigo === 'person');
-    // Rótulo traduzido fica só no rótulo; o código é o nameSingular em inglês.
+    // // A translated label stays only in the label; the code is the English `nameSingular`.
     expect(pessoa?.rotulo).toBe('Pessoa');
     expect(pessoa?.namePlural).toBe('people');
 
@@ -191,7 +190,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
     expect(contactId).toMatchObject({ tipo: 'TEXT', isCustom: true, agregavel: false });
     expect((await campo(a, 'person', 'name'))?.isCustom).toBe(false);
 
-    // Relação no formato da API, com a cardinalidade.
+    // // A relation in the API's format, with the cardinality.
     expect((await campo(a, 'person', 'company'))?.relation).toMatchObject({
       type: 'MANY_TO_ONE',
       targetObjectMetadata: { nameSingular: 'company' },
@@ -201,7 +200,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
       targetObjectMetadata: { nameSingular: 'person' },
     });
 
-    // Opções do SELECT exatamente como vieram.
+    // // SELECT options exactly as they came.
     const gravado = FIXTURE.pages[1]!.data.objects.edges[0]!.node.fieldsList.find(
       (c) => c.name === 'stage',
     );
@@ -229,7 +228,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
   });
 
   it('o que sumiu do CRM fica inativo e marcado — nunca apagado', async () => {
-    // Declarado à mão pelo CRM caseiro: não veio do Twenty, a sincronização não toca.
+    // // Declared by hand for the in-house CRM: it didn't come from Twenty, the sync doesn't touch it.
     await a.dono.execute(sql`
       insert into dicionario_campo (tenant_id, objeto_codigo, codigo, rotulo, tipo)
       values (${a.tenantId}, 'lead', 'origem', 'Origem', 'texto')
@@ -274,7 +273,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
       excluidoEm: null,
     });
     expect((await campo(a, 'person', 'pipeContatoId'))?.isActive).toBe(false);
-    // Nenhuma linha de B tem tenant de A, nem o contrário.
+    // // No row of B has A's tenant, or the other way around.
     expect((await ler(b)).map((o) => o.codigo).sort()).toEqual([
       'company',
       'messageCampaign',
@@ -322,7 +321,7 @@ describe('Synchronize the CRM dictionary in the database', () => {
       const corpo = (await r.json()) as {
         objetos: { code: string; campos: { code: string; isActive: boolean }[] }[];
       };
-      // O de A: o pipeContatoId está removido lá, e ativo em B.
+      // // A's: the pipeContatoId is removed there, and active in B.
       const pessoa = corpo.objetos.find((o) => o.codigo === 'person');
       expect(pessoa?.campos.find((c) => c.codigo === 'pipeContatoId')?.isActive).toBe(false);
       expect(JSON.stringify(corpo)).not.toContain(b.tenantId);
@@ -340,7 +339,7 @@ async function contar(c: Cenario): Promise<{ objetos: number; campos: number }> 
   return rows[0]!;
 }
 
-/** A linha do CRM caseiro, lida crua: ela não tem objeto em `dicionario_objeto`. */
+/** The in-house CRM's row, read raw: it has no object in `dicionario_objeto`. */
 async function origemDoLead(c: Cenario): Promise<{ excluido_em: Date | null } | undefined> {
   const { rows } = await c.dono.execute<{ excluido_em: Date | null }>(sql`
     select excluido_em from dicionario_campo

@@ -7,23 +7,7 @@ import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
 
 /**
- * Escrita de `regra_sla` — item 2 da tarefa de cadastros do Atendimento. A
- * LEITURA continua em `configuracoes.ts` (`carregarRegras`, que já monta o
- * nome da fila para a tela de `regras/sla`); este arquivo é o irmão de
- * escrita, no mesmo padrão REST de `cadastros.ts` (`ErroPipe`, status de
- * verdade). Fica em arquivo próprio, e não dentro de `cadastros.ts`, porque
- * SLA é assunto à parte de fila/pausa/regra de entrada — mesma divisão que já
- * separa `comunicacao.ts` de `cadastros.ts`.
- *
- * `regra.gerenciar` é a MESMA permissão de `gravarRegraFila`: o catálogo já
- * a descreve como "Gerenciar regras de fila, prioridade e SLA" — não há
- * permissão nova para criar aqui.
- *
- * Decisão Pipe — `escopoTipo` só aceita `tenant` e `fila`. A tabela permite
- * mais (`inbox`, `equipe`, `etiqueta` — `ESCOPOS_REGRA` em
- * `packages/db/src/schema/gestao.ts`), mas `escolherRegra` do motor de SLA
- * (`dominio/gestao/sla.ts`) só sabe resolver estes dois; uma regra com outro
- * escopo seria aceita e nunca aplicada — pior que recusar na entrada.
+ * Write `regra_sla` here while `configuracoes.ts` `carregarRegras` reads rules and joins queue names for `regras/sla`. Follow `cadastros.ts` REST `ErroPipe` statuses. Keep SLA separate from queue, pause and inbound-rule registration, as `comunicacao.ts` is separate. Reuse `regra.gerenciar` from `gravarRegraFila`; catalog label 'Gerenciar regras de fila, prioridade e SLA' already covers it. Pipe accepts only `tenant` and `fila` `escopoTipo`: database `ESCOPOS_REGRA` also allows `inbox`, `equipe` and `etiqueta`, but SLA motor `escolherRegra` in `dominio/gestao/sla.ts` cannot apply those; reject them rather than saving inert rules.
  */
 
 const SCOPES_SLA_SUPPORTED = ['tenant', 'fila'] as const;
@@ -33,7 +17,7 @@ function scopeSlaValid(bruto: string): bruto is ScopeSla {
   return (SCOPES_SLA_SUPPORTED as readonly string[]).includes(bruto);
 }
 
-/** Uma semana: acima disso o prazo provavelmente é erro de digitação (segundos em vez de minutos). */
+/** Cap at one week; larger deadlines are likely unit mistakes, such as seconds entered as minutes. */
 const PRAZO_SEG_MAX = 7 * 86_400;
 
 export interface PedidoDeRegraSla {
@@ -92,7 +76,7 @@ function prazoConferido(bruto: unknown): number {
   return n;
 }
 
-/** `null`/ausente é "sem alerta"; quando vem, tem de soar ANTES do prazo estourar. */
+/** Missing or `null` means no alert; a supplied alert must fire BEFORE the deadline. */
 function alertaConferido(bruto: unknown, prazoSeg: number): number | null {
   if (bruto === undefined || bruto === null) return null;
   const n = Number(bruto);
@@ -205,11 +189,11 @@ export async function editarRegraSla(
   if (pedido.deadlineSeg !== undefined) depois.deadlineSeg = prazoConferido(pedido.deadlineSeg);
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
 
-  // Alerta depende do prazo (final), então é conferido depois dos dois — o
-  // pedido pode trocar só um dos dois e o outro continuar valendo.
+  // Validate the alert after both final deadline values: a PATCH may change only
+  // one deadline while retaining the other.
   if (pedido.alertSeg !== undefined) depois.alertSeg = alertaConferido(pedido.alertSeg, depois.deadlineSeg);
   else if (depois.alertSeg !== null && depois.alertSeg >= depois.deadlineSeg) {
-    // Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.
+    // Reject a deadline shortened below an existing alert rather than storing an alert that can never fire.
     throw PipeError.request(
       'alert_invalid',
       'O novo prazo é menor ou igual ao alerta já cadastrado. Informe também o novo alerta.',
@@ -274,8 +258,8 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   const atual = await regraSlaViva(tx, tid, id);
   await exigirPermission(tx, usuarioId, RULE_MANAGE);
 
-  // `sla_conversa.regra_id` é `ON DELETE CASCADE`: excluir a regra apagaria em
-  // silêncio o cronômetro de toda conversa que ainda está correndo com ela.
+  // `sla_conversa.regra_id` is `ON DELETE CASCADE`: deleting the rule would
+  // silently delete timers for conversations still running under it.
   const [inProgress] = await tx
     .select({ id: slaConversation.id })
     .from(slaConversation)

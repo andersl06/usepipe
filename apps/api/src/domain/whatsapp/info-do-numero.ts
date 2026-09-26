@@ -3,17 +3,12 @@ import { clienteGraph } from './cliente-graph.js';
 import type { NumeroDaWaba } from './cliente-graph.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/phone_info_service.rb
- *
- * A regra que o original deixa escrita e que vale repetir: **identificador
- * informado é autoritativo.** Se o `phone_number_id` veio do evento do cadastro e
- * não está na WABA, é erro — nunca cair para "o primeiro número", que numa WABA
- * com vários conectaria (ou reautorizaria) o número errado em silêncio.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/phone_info_service.rb. A supplied identifier is authoritative: if signup's `phone_number_id` is absent from the WABA, fail. Never fall back to its first number, which could silently connect or reauthorize the wrong number in a multi-number WABA.
  */
 
 export interface InfoDoNumero {
   numeroId: string;
-  /** `+` e só dígitos, como o `phone_number` do canal no original. */
+  /** `+` followed only by digits, as in the original channel `phone_number`. */
   numero: string;
   verificado: boolean;
   nomeDaEmpresa: string;
@@ -61,13 +56,12 @@ function acharNumero(
   esperado: string | null,
 ): NumeroDaWaba | undefined {
   if (numeroId) return numeros.find((n) => n.id === numeroId);
-  // Coexistência pode chegar sem `phone_number_id`: na reautorização, casa pelo
-  // número que o canal já tem, em vez de pegar o primeiro da WABA.
+  // Coexistence may omit `phone_number_id`; on reauthorization match the channel's existing number instead of the WABA's first number.
   if (esperado) {
     const alvo = `+${sanitizarNumero(esperado)}`;
     return numeros.find((n) => `+${sanitizarNumero(n.display_phone_number)}` === alvo);
   }
-  // Sem identificador nenhum, só um número único é inequívoco.
+  // Without any identifier, only a single number is unambiguous.
   if (numeros.length > 1) {
     throw new PipeError(
       422,

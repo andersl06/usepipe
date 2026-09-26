@@ -20,32 +20,16 @@ import type {
 } from '@pipe/contracts';
 
 /**
- * Consultas de leitura do Desk — movidas de `apps/desk/src/servidor/consultas.ts`
- * com o SQL intacto. O que mudou foi de onde a transação vem (por parâmetro, do
- * `noTenant` do controlador) e a forma da data (ISO, para atravessar o JSON).
- *
- * SQL escrito à mão de propósito: são junções de quatro a cinco tabelas com um
- * `lateral` para pegar a última mensagem de cada conversa, e o construtor do Drizzle
- * ficaria mais longo e menos legível do que o próprio SQL. Escrita continua passando
- * pelo schema tipado (ver `acoes.ts`).
- *
- * Toda consulta roda dentro de `noTenant`, ou seja, com `pipe.tenant_id` fixado e a
- * RLS valendo — nenhuma delas filtra tenant na mão, porque o banco já filtra.
- *
- * Os tipos de saída são os de `@pipe/contracts` (`desk.ts`): se uma coluna entra
- * ou sai daqui, entra ou sai de lá, e o `tsc` do front acusa.
+ * Desk read queries were moved from `apps/desk/src/servidor/consultas.ts` with SQL unchanged. The transaction now comes from the controller's `noTenant` parameter and dates cross JSON as ISO. Handwritten SQL is deliberate: four- or five-table joins plus a `lateral` for each conversation's latest message would be longer and less clear in Drizzle. Writes still use the typed schema (`acoes.ts`). Every query runs under `noTenant` with `pipe.tenant_id` and RLS; none manually filters tenant because the database already does. Output types come from `@pipe/contracts` (`desk.ts`); `tsc` reports any front-end contract mismatch when columns change.
  */
 
 /**
- * `execute<T>` pede um tipo com índice implícito, e `interface` do contrato não tem.
- * O mapeamento devolve a mesma forma como tipo de objeto, que tem.
+ * `execute<T>` requires a type with an implicit index signature, which the contract `interface` lacks. Mapping to the same object shape supplies that signature.
  */
 type Linha<T> = { [K in keyof T]: T[K] };
 
 /**
- * O driver devolve `timestamptz` como `Date` quando o `pg` é carregado uma vez só, e como
- * texto quando alguém carrega uma segunda cópia do parser. Normalizar num lugar só é
- * mais barato do que descobrir isso de novo dentro de um componente.
+ * The driver returns `timestamptz` as `Date` with one loaded `pg` parser, or text if another copy is loaded. Normalize centrally instead of making components rediscover this.
  */
 export function data(value: Date | string): Date {
   return value instanceof Date ? value : new Date(value);
@@ -358,7 +342,7 @@ export async function carregarStatus(
      limit 1
   `);
   const r = rows[0];
-  // Sem linha de status, o atendente ainda não entrou: o padrão da spec é Invisível.
+  // Without a status row, the agent has not joined yet; the spec's default is Invisível.
   if (!r) return { estado: 'invisivel', desde: new Date().toISOString(), motivoPausa: null };
   return { estado: r.state, desde: iso(r.since), motivoPausa: r.reason };
 }
@@ -375,7 +359,7 @@ export async function listarColegas(tx: TransactionPipe, atendenteId: string): P
 export async function listHistoryOfContact(
   tx: TransactionPipe,
   contactId: string,
-  /** A conversa aberta, que fica de fora; `null` lista todas (a aba Contatos). */
+  /** Exclude the open conversation; `null` lists all, as on the Contacts tab. */
   exceto: string | null,
 ): Promise<ConversationOfHistory[]> {
   const { rows } = await tx.execute<{
@@ -403,16 +387,7 @@ export async function listHistoryOfContact(
 }
 
 /**
- * O ticket antigo, aberto em leitura a partir do histórico do contato.
- *
- * **Não filtra por atendente, e isso é deliberado.** O histórico do contato já
- * lista os atendimentos anteriores dele sem olhar quem atendeu — abrir um deles
- * não mostra nada que a coluna ao lado já não mostrasse. O que fecha o cerco é
- * a RLS: a transação roda com o `tenant_id` da sessão, e conversa de outro
- * cliente não existe para esta consulta.
- *
- * `encerrada_por` vira nome de gente aqui, e não identificador: "Atendente:
- * 3f2a…" não responde a pergunta que alguém faz ao abrir um ticket antigo.
+ * Read a historical ticket from contact history. Deliberately do not filter by agent: contact history already lists its past tickets regardless of agent, so opening one reveals no more than the list. RLS is the boundary: the query runs with the session's `tenant_id`, so another client's conversation is invisible. Resolve `encerrada_por` to a person's name, not an ID; "Atendente: 3f2a…" would not answer who closed it.
  */
 export async function carregarTicketAntigo(
   tx: TransactionPipe,
@@ -477,9 +452,7 @@ export async function carregarTicketAntigo(
 }
 
 /**
- * "Clientes aguardando": quantas conversas estão na fila, nas filas em que o
- * atendente está (ou sem fila). É o `waitingTicketsCount` de `/agents/info` da
- * referência (`~/desk-clone/README.md`), que a coluna mostra ao lado de "Atender".
+ * "Clientes aguardando" counts queued conversations in the agent's queues, or without a queue. This is the source `/agents/info` `waitingTicketsCount` (`~/desk-clone/README.md`), shown beside "Atender".
  */
 export async function contarAguardando(tx: TransactionPipe, atendenteId: string): Promise<number> {
   const { rows } = await tx.execute<{ total: number | string }>(sql`
@@ -492,7 +465,7 @@ export async function contarAguardando(tx: TransactionPipe, atendenteId: string)
   return Number(rows[0]?.total ?? 0);
 }
 
-/** As filas ativas do cliente — o destino do modal de transferência ("Fila"). */
+
 export async function listQueues(tx: TransactionPipe): Promise<{ id: string; name: string }[]> {
   const { rows } = await tx.execute<{ id: string; name: string }>(sql`
     select id, nome from fila where ativa order by nome
@@ -507,15 +480,12 @@ export interface ContactOfList {
   name: string | null;
   phone: string | null;
   email: string | null;
-  /** A última mensagem trocada com o contato, em qualquer conversa. */
+
   lastInteractionAt: string | null;
 }
 
 /**
- * A lista da aba Contatos (`desk-contact-history`): nome sem caixa (o acento
- * fica; o banco não tem `unaccent`), ou dígitos do telefone, com o mínimo de 2 caracteres da referência
- * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11). 20 por página lá; aqui os 200
- * primeiros, porque a lista ainda não tem rolagem infinita.
+ * Contacts-tab list (`desk-contact-history`): search names without case folding away accents (the database has no `unaccent`) or phone digits. The source requires at least two characters (`referencias-blip/pesquisa/blip-desk-medidas.md` §11) and displays 20 per page; this implementation returns the first 200 because infinite scrolling is not yet available.
  */
 export async function listContacts(tx: TransactionPipe, search: string): Promise<ContactOfList[]> {
   const termo = search.trim();

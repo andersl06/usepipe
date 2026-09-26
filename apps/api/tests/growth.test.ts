@@ -17,9 +17,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Growth: o rastreador de cliques (link curto + redirecionamento público) e o que
- * faltava cobrir de mensagens ativas (`mensagens-ativas.test.ts` já cobre o grosso
- * do disparo em si).
+ * Growth: the click tracker (short link + public redirect) and what was still missing from active-message coverage (`mensagens-ativas.test.ts` already covers the bulk of the dispatch itself).
  */
 
 let cenario: Cenario;
@@ -190,7 +188,7 @@ describe('Redirect public tracked links and count clicks', () => {
     const { rows: linkRow } = await cenario.dono.execute<{ id: string; tenant_id: string }>(sql`
       select id, tenant_id from link_rastreado where codigo = ${codigo}
     `);
-    // Um clique de 10 dias atrás, escrito direto — fora da janela "desde hoje".
+    // A click from 10 days ago, written directly — outside the "since today" window.
     await cenario.dono.execute(sql`
       insert into clique_link (tenant_id, link_id, criado_em)
       values (${linkRow[0]!.tenant_id}, ${linkRow[0]!.id}::uuid, now() - interval '10 days')

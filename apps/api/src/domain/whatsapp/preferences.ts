@@ -4,21 +4,11 @@ import { PipeError } from '../../errors.js';
 import { atualizarChannel, readChannelWhatsApp } from './channel.js';
 import type { ChannelWhatsApp } from './channel.js';
 
-// A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.
+// The worker owns the rule because it assembles the message; reexport it here.
 export { formatOfPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
 
 /**
- * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
- * (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3 e §4). Nada disto é
- * campo da Meta: são escolhas do Pipe guardadas no `config` do canal.
- *
- * - **Quick reply**: pergunta com até 3 opções sai como botões; com 4 ou mais,
- *   continua em texto numerado.
- * - **Menu**: até 10 opções saem como lista; com 11 ou mais, texto.
- * - **Alerta de recategorização de modelos**: quando a Meta muda a categoria de
- *   um modelo, avisa estes e-mails; lista vazia = todos os administradores.
- *
- * Os dois interruptores nascem ligados, que é o estado observado na origem.
+ * Blip WhatsApp channel Settings and Alert Settings (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §§3–4) are Pipe choices in channel `config`, not Meta fields. Quick replies use buttons for at most three choices and numbered text for four or more. Menus use lists for at most ten choices and text otherwise. Template recategorization alerts go to configured emails, or all administrators when empty. Both switches default on as observed in Blip.
  */
 
 const LIMITE_EMAILS = 20;
@@ -51,7 +41,7 @@ function recusa(campo: string, message: string): PipeError {
   return new PipeError(422, 'preferences_invalid', message, { campo });
 }
 
-/** A tela manda "separados por vírgula"; a API aceita a lista pronta também. */
+/** The screen submits comma-separated values; the API also accepts a prepared list. */
 function emailsDe(bruto: string[] | string): string[] {
   const lista = (Array.isArray(bruto) ? bruto : bruto.split(','))
     .map((e) => String(e).trim().toLowerCase())

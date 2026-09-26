@@ -8,20 +8,7 @@ import { databaseOwner, keyring, noTenant } from '../database.js';
 import { storage } from './attachment.js';
 
 /**
- * Download da mídia recebida (WhatsApp e Instagram) para o nosso storage.
- *
- * `dominio/entrada.ts` grava o anexo com `chave_storage = 'meta:<media_id>'`
- * (WhatsApp) ou a URL do CDN (Instagram) e `bytes = 0` — a referência da Meta
- * expira, e é este módulo que baixa de verdade, fora do webhook.
- *
- * WhatsApp: `GET /{versao}/{media_id}` com o Bearer do canal devolve
- * `{ url, mime_type, file_size, sha256 }`; a URL vale uns 5 minutos e é baixada com
- * o MESMO Bearer. Instagram: a URL do CDN baixa direto, sem token.
- *
- * SSRF: só os hosts da Meta abaixo, e só `https`. A URL que a Meta devolve (WhatsApp)
- * e a URL do payload do Instagram são as duas conferidas — nenhuma delas é confiável
- * só porque "veio da Meta": o payload do webhook e a resposta do Graph são texto que
- * chegou de fora.
+ * Download inbound WhatsApp and Instagram media to Pipe storage. `dominio/entrada.ts` initially saves WhatsApp `chave_storage = 'meta:<media_id>'` or an Instagram CDN URL with `bytes = 0`; these external references expire, so download outside the webhook. WhatsApp `GET /{versao}/{media_id}` with the channel Bearer returns `{ url, mime_type, file_size, sha256 }`; fetch the roughly five-minute URL with the same Bearer. Instagram CDN URLs download without a token. To prevent SSRF, allow HTTPS and Meta hosts only. Validate both Graph's returned URL and Instagram's webhook URL: each is untrusted external text. Both media URLs must use `https`.
  */
 
 export const MAX_TENTATIVAS_DOWNLOAD = Number(process.env['PIPE_MIDIA_MAX_TENTATIVAS'] ?? 5);
@@ -30,11 +17,7 @@ const URL_BASE_GRAPH = 'https://graph.facebook.com';
 const VERSAO_PADRAO_GRAPH = process.env['WHATSAPP_API_VERSAO'] ?? 'v26.0';
 
 /**
- * Hosts de onde a mídia da Meta pode ser baixada:
- * - `graph.facebook.com` — a chamada de metadado do WhatsApp;
- * - `lookaside.fbsbx.com` — o CDN de mídia do WhatsApp Cloud API;
- * - `*.fbcdn.net` — CDN geral da Meta (cobre `scontent*.xx.fbcdn.net`);
- * - `*.cdninstagram.com` — CDN do Direct do Instagram.
+ * Permitted Meta media hosts: `graph.facebook.com` for WhatsApp metadata, `lookaside.fbsbx.com` for WhatsApp Cloud API media, `*.fbcdn.net` for Meta CDN including `scontent*.xx.fbcdn.net`, and `*.cdninstagram.com` for Instagram Direct CDN.
  */
 const HOSTS_PERMITIDOS: readonly RegExp[] = [
   /^graph\.facebook\.com$/,
@@ -53,7 +36,7 @@ export function hostOfMediaAllowed(bruto: string): boolean {
   return url.protocol === 'https:' && HOSTS_PERMITIDOS.some((re) => re.test(url.hostname));
 }
 
-/** Busca HTTP injetável — o teste troca por um dublê sem tocar em `cliente-graph.ts`. */
+/** Injectable HTTP fetch so tests use a fake without touching `cliente-graph.ts`. */
 let buscar: typeof fetch = fetch;
 export function defineBuscadorOfMedia(novo: typeof fetch | null): void {
   buscar = novo ?? fetch;
@@ -86,8 +69,7 @@ type Baixado = { mime: string; bytes: Uint8Array; sha256Esperado?: string | unde
 type FalhaPermanente = { errorPermanente: string };
 
 /**
- * Baixa a mídia de UM anexo. Chamado pelo consumidor da fila (o empurrão logo
- * depois do commit da entrada) e pela varredura periódica.
+ * Download one attachment's media, called by the queue consumer after inbound commit and by the periodic sweep.
  */
 export async function baixarMediaOfAttachment(tenantId: string, attachmentId: string): Promise<ResultadoDownload> {
   const linha = await noTenant(tenantId, async (tx) => {
@@ -102,8 +84,7 @@ export async function baixarMediaOfAttachment(tenantId: string, attachmentId: st
     return rows[0] ?? null;
   });
 
-  // Sumiu, ou já foi baixado por outra tentativa (o empurrão e a varredura podem se
-  // cruzar): idempotência sem erro.
+  // The attachment disappeared or another attempt already downloaded it; enqueue and sweep may race, so treat this as an idempotent no-op.
   if (!linha) return { state: 'ignorado' };
   if (!linha.channelType) {
     return marcarFalha(tenantId, linha, 'Anexo sem canal: não há de onde baixar a mídia.');
@@ -160,8 +141,7 @@ async function baixarDoWhatsApp(linha: LineAttachment): Promise<Baixado | FalhaP
   if (!token) return { errorPermanente: 'O canal não tem tokenAcesso em canal.config.' };
   const versao = typeof config['apiVersao'] === 'string' ? config['apiVersao'] : VERSAO_PADRAO_GRAPH;
 
-  // Erro de rede ou HTTP aqui é sempre tratado como TEMPORÁRIO (propaga e quem chama
-  // reagenda): a URL de mídia vence em ~5 minutos, e a próxima tentativa pede outra.
+  // Treat network and HTTP errors as temporary and let the caller reschedule. The media URL expires in about five minutes, so the next attempt obtains a fresh URL.
   const info = await pedirJson<InfoOfMedia>(
     `${URL_BASE_GRAPH}/${versao}/${mediaId}`,
     token,
@@ -219,7 +199,7 @@ async function pedirBytes(url: string, token: string | undefined, mensagem: stri
   return new Uint8Array(await resposta.arrayBuffer());
 }
 
-/** `canal.config` cifrado (`cifrarConfig` na criação do canal); texto puro nos testes. */
+/** `canal.config` is encrypted by `cifrarConfig` at channel creation; tests use plaintext. */
 function configDecifrada(cru: Record<string, unknown> | null): Record<string, unknown> {
   if (!cru) return {};
   const cifrado = Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v));
@@ -260,12 +240,7 @@ async function reagendarOuDesistir(
 }
 
 /**
- * A varredura de segurança: anexo que ficou sem baixar volta para a fila.
- *
- * Mesmo desenho de `contatosSemEspelho`: roda com o papel dono porque varre todos os
- * tenants, e só olha quem ainda não esgotou as tentativas — o índice parcial
- * `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) é feito para este
- * filtro.
+ * Safety sweep requeues attachments left undownloaded. Like `contatosSemEspelho`, use the owner role to cross tenants, and include only rows below the attempt limit. The partial index `anexo_download_pendente_idx` (`0033_download_de_midia.sql`) supports this filter.
  */
 export async function midiasPendentes(lote = 200): Promise<JobMedia[]> {
   const { rows } = await databaseOwner().execute<{ tenant_id: string; id: string }>(sql`

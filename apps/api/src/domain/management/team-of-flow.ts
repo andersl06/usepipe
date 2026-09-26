@@ -16,49 +16,15 @@ import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 
 /**
- * O `EDITAR_FLUXO` de `ciclo-de-vida-do-fluxo.ts`, repetido aqui de propósito:
- * aquele arquivo passou a chamar `exigirPermissaoNoFluxo`, e importar a
- * constante de volta fecharia um ciclo entre os dois módulos.
+ * Duplicate `EDITAR_FLUXO` here deliberately: `ciclo-de-vida-do-fluxo.ts` now imports `exigirPermissaoNoFluxo`; importing its constant back would create a module cycle.
  */
 const EDITAR_FLOW = 'automacao.fluxo.editar';
 
 /**
- * A aba "Equipe" do contato — o `/team` da origem, e o RBAC POR FLUXO que ele
- * pressupõe.
- *
- * Na origem a permissão é do BOT, não do contrato: `getUsersAccounts`
- * (`/applications/{shortName}@msging.net/users/accounts`) cruzado com
- * `getApplicationUsersPermissions` (`.../permissions`), tudo por contato
- * (`TeamController._loadMembers`). A pesquisa mede isso no objeto real —
- * `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3: "a permissão não é do
- * tenant, é do bot". O contrato é PRÉ-REQUISITO, não fonte: o próprio aviso da
- * origem diz "Essa pessoa não faz parte do contrato. O administrador deve
- * incluir a pessoa no contrato antes de adicioná-la ao chatbot.".
- *
- * ## As duas peneiras que a tela usa
- *
- * 1. o traço "Permissão" (`rzslider`), com as quatro paradas de
- *    `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`;
- * 2. a lista por recurso (`PermissionsList.html` da rota `/team/team/edit`),
- *    com três rádios por linha: `none` (0), `read` (1), `readWrite` (3).
- *
- * A primeira MARCA a segunda (`selectAllPermissions()`): "Visualizar" põe tudo
- * em `read`, "Ver e editar" e "Admin" põem tudo em `readWrite`, e
- * "Personalizado" (`checkStatus()`) libera cada linha para a mão. É por isso
- * que `permissoesDoPapel` existe: o mapa gravado é sempre o mapa completo, e o
- * papel só diz como ele foi preenchido.
- *
- * ## Quem pode mexer na equipe
- *
- * `team.escrever` NO FLUXO (que todo `admin` do fluxo tem) **ou**
- * `automacao.fluxo.editar` NA CONTA — a regra de `exigirPermissaoNoFluxo`,
- * aplicada com o recurso `team`. Exigir só o admin do fluxo trancaria a porta
- * em todo tenant que nunca abriu esta tela (ninguém é membro de nada ainda) e
- * exigir só a conta jogaria fora a granularidade que a tabela existe para ter.
- * É o "duplo portão" da §4.3 da pesquisa, do lado de quem distribui.
+ * The contact Team tab mirrors source `/team` and PER-FLOW RBAC. Source `getUsersAccounts` (`/applications/{shortName}@msging.net/users/accounts`) combines with `getApplicationUsersPermissions` (`.../permissions`) per contact in `TeamController._loadMembers`; research `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3 records 'a permissão não é do tenant, é do bot'. Contract membership is prerequisite, as the source says: 'Essa pessoa não faz parte do contrato. O administrador deve incluir a pessoa no contrato antes de adicioná-la ao chatbot.'. The role slider (`team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`) fills per-resource radios (`PermissionsList.html`: `none` 0, `read` 1, `readWrite` 3) through `selectAllPermissions()`; only custom grants are edited individually. Store the full permission map via `permissoesDoPapel`. Team edits pass `team.escrever` ON THE FLOW or `automacao.fluxo.editar` ON THE ACCOUNT through `exigirPermissaoNoFluxo`. Requiring only flow admin would lock out tenants with no existing members; requiring only account permission would discard per-flow granularity.
  */
 
-/* --------------------------------------------------------------- Catálogo */
+
 
 /**
  * As linhas do `PermissionsList.html`, na ORDEM do template da origem
@@ -94,27 +60,19 @@ const PAPEIS: readonly RoleInFlow[] = ['visualizar', 'personalizado', 'editar', 
 const NIVEIS: readonly LevelInFlow[] = ['nenhum', 'ler', 'escrever'];
 
 /**
- * O código de CONTA equivalente a cada recurso do fluxo — o outro lado do duplo
- * portão. Hoje é `automacao.fluxo.editar` para todos: o catálogo da 0019 tem um
- * verbo só para fluxo ("Cria e edita chatbots"), sem `automacao.fluxo.ler`
- * separado (o comentário de `paginas/fluxo/equipe/permissoes.ts` registra isso).
- * A constante existe porque a granularidade do fluxo é fina e a da conta não é:
- * quando `desk`/`payments` ganharem permissão de conta própria, é aqui que a
- * equivalência muda, e nenhuma rota precisa saber.
+ * Map each flow resource to an equivalent ACCOUNT permission for the second authorization gate. Currently all map to `automacao.fluxo.editar`: catalog 0019 has only 'Cria e edita chatbots', with no separate `automacao.fluxo.ler` (`paginas/fluxo/equipe/permissoes.ts`). Keep this mapping central so future account permissions for `desk` or `payments` do not require route changes.
  */
 const EQUIVALENTE_IN_ACCOUNT: Readonly<Record<string, string>> = Object.fromEntries(
   RECURSOS_OF_FLOW.map((r) => [r.key, EDITAR_FLOW]),
 );
 
-/** O recurso que governa a própria aba Equipe. */
+/** The resource governing the Team tab itself. */
 const GERIR_EQUIPE = 'team.escrever';
 
 /* ----------------------------------------------------------------- Regras */
 
 /**
- * `selectAllPermissions()` da origem: o nível de cima marca os rádios de baixo.
- * Só `personalizado` lê o que veio da tela — nos outros três o traço manda, e
- * gravar outra coisa deixaria o banco contradizendo o que a pessoa vê.
+ * Source `selectAllPermissions()` uses the top-level role to fill lower radios. Only `personalizado` reads screen-selected entries; other levels determine the map, avoiding stored permissions that contradict the displayed role.
  */
 export function permissionsOfRole(
   role: RoleInFlow,
@@ -142,7 +100,7 @@ function roleChecked(bruto: unknown): RoleInFlow {
   );
 }
 
-/** Chave que a origem não tem é descartada; nível inválido é recusa, não silêncio. */
+/** Ignore keys unknown to the source; reject an invalid level rather than silently accepting it. */
 function permissionsChecked(bruto: unknown): PermissionsInFlow {
   if (bruto === undefined || bruto === null) return {};
   if (typeof bruto !== 'object') {
@@ -162,13 +120,13 @@ function permissionsChecked(bruto: unknown): PermissionsInFlow {
   return mapa;
 }
 
-/** `ler` se contenta com `escrever`; `escrever` não se contenta com `ler`. */
+/** `ler` is satisfied by `escrever`; `escrever` is not satisfied by `ler`. */
 function atende(nivel: LevelInFlow | undefined, verbo: LevelInFlow): boolean {
   if (verbo === 'ler') return nivel === 'ler' || nivel === 'escrever';
   return nivel === verbo;
 }
 
-/* ------------------------------------------------------------- A permissão */
+
 
 interface LineOfMember {
   roleInFlow: string;
@@ -188,7 +146,7 @@ async function member(
   return linha;
 }
 
-/** `<recurso>.<verbo>` → as duas metades, ou recusa de programação. */
+/** Split `<recurso>.<verbo>` into its two parts or reject a programming error. */
 function separar(codigo: string): { recurso: string; verbo: LevelInFlow } {
   const corte = codigo.lastIndexOf('.');
   const recurso = corte < 0 ? codigo : codigo.slice(0, corte);
@@ -200,19 +158,7 @@ function separar(codigo: string): { recurso: string; verbo: LevelInFlow } {
 }
 
 /**
- * A permissão DESTE fluxo, ou a equivalente na conta — a irmã por contato de
- * `exigirPermissao` (`sessao.ts`), e o segundo portão da §4.3 da pesquisa.
- *
- * `codigo` é `<recurso>.<verbo>` da ORIGEM (`builder.escrever`, `channels.ler`,
- * `team.escrever`). Passa quem:
- *
- * - é membro do fluxo e tem o nível pedido naquele recurso (`admin` tem tudo,
- *   por definição do traço); **ou**
- * - tem na conta o código equivalente (`EQUIVALENTE_NA_CONTA`).
- *
- * A ordem importa pouco para o resultado e muito para a conta de consultas: a
- * do fluxo é uma linha por chave única, a da conta é um `exists` com dois
- * joins, e a maioria dos tenants ainda não tem ninguém nesta tabela.
+ * Authorize THIS flow's permission or its account equivalent, matching `exigirPermissao` in `sessao.ts` and the second gate in research §4.3. `codigo` is a source `<recurso>.<verbo>` such as `builder.escrever`, `channels.ler`, or `team.escrever`. Permit a flow member with the requested resource level (`admin` grants all) OR an account member with `EQUIVALENTE_NA_CONTA`. Check the flow's unique-key row first, then the account's `exists` with two joins; many tenants have no flow membership rows.
  */
 export async function exigirPermissionInFlow(
   tx: TransactionPipe,
@@ -229,7 +175,7 @@ export async function exigirPermissionInFlow(
   await exigirPermission(tx, usuarioId, EQUIVALENTE_IN_ACCOUNT[recurso] ?? EDITAR_FLOW);
 }
 
-/** O mesmo teste sem estourar — para a tela decidir o que desenhar. */
+/** Check the same permission without throwing, so the screen can decide what to render. */
 export async function canInFlow(
   tx: TransactionPipe,
   usuarioId: string,
@@ -288,9 +234,7 @@ const COLUNAS = {
 };
 
 /**
- * A lista de `TeamController._loadMembers()`. Ver a equipe é `team.ler`: o
- * modal de editar mostra o que cada um pode, e isso é informação de quem
- * administra o contato — não de quem só conversa nele.
+ * List members like `TeamController._loadMembers()`. Viewing the team requires `team.ler`, because the edit modal exposes each member's permissions to contact administrators, not every participant.
  */
 export async function listarEquipe(
   tx: TransactionPipe,
@@ -315,7 +259,7 @@ export async function listarEquipe(
   };
 }
 
-/** O que o menu do contato peneira — sempre responde, mesmo para quem não é membro. */
+/** Return what the contact menu may show, including when the user is not a member. */
 export async function myPermissionsInFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -350,9 +294,9 @@ async function outrosAdmins(tx: TransactionPipe, fluxoId: string, exceto: string
 }
 
 function ultimoAdmin(): PipeError {
-  /* A origem esconde as ações do `owner` (`ng-if="!user.owner"`); aqui não há
-     dono, então a trava é numérica: um contato sem administrador nenhum é um
-     contato que ninguém mais consegue administrar. */
+  /*
+   * Blip hides actions for `owner` (`ng-if="!user.owner"`). Pipe has no owner role, so numerically prevent a contact from losing its last administrator.
+   */
   return PipeError.conflito(
     'last_admin',
     'Este é o último administrador do fluxo. Promova outra pessoa antes.',
@@ -360,12 +304,7 @@ function ultimoAdmin(): PipeError {
 }
 
 /**
- * `confirmAddUser()` — com a diferença que a origem confessa: lá, quem não está
- * no contrato é convidado como `guest` antes de entrar no bot; aqui o convite é
- * um gesto separado (`POST /v1/convites`, `dominio/convites.ts`), que abre a
- * própria transação e devolve o link para copiar, porque o Pipe não manda
- * e-mail. Então a recusa é a frase da própria origem, e a tela oferece o
- * convite em seguida.
+ * Source `confirmAddUser()` first invites non-contract users as `guest`. Pipe keeps invitation separate at `POST /v1/convites` in `dominio/convites.ts`; it starts its own transaction and returns a copyable link because Pipe sends no email. Use the source refusal text and let the screen offer invitation afterward.
  */
 export async function adicionarMember(
   tx: TransactionPipe,
@@ -431,7 +370,7 @@ export async function adicionarMember(
   });
 }
 
-/** O "Salvar alterações" do modal de editar. Nada mudou, nada é gravado. */
+/** The edit modal's 'Salvar alterações'; write nothing when no values changed. */
 export async function editarMember(
   tx: TransactionPipe,
   tenantId: string,
@@ -462,9 +401,9 @@ export async function editarMember(
       : permissionsChecked(pedido.permissoes),
   );
 
-  /* Achatado (um campo por recurso) porque `diferenca` compara por `===`: dois
-     mapas iguais são objetos diferentes, e sem achatar todo Salvar viraria
-     mudança. De quebra o log diz QUAL linha da lista mudou. */
+  /*
+   * Flatten to one field per resource because `diferenca` compares with `===`: equal maps are different objects, so nested values would make every Save appear changed. Flattening also names the changed permission row in the log.
+   */
   const mudanca = diferenca(
     { papelNoFluxo: atual.roleInFlow, ...(atual.permissions ?? {}) },
     { papelNoFluxo, ...permissoes },
@@ -492,7 +431,7 @@ export async function editarMember(
   return forContract({ ...atual, roleInFlow: papelNoFluxo, permissions: permissoes });
 }
 
-/** `removeUser()` — e a trava do último administrador, que a origem não precisa ter. */
+/** `removeUser()` includes a last-administrator guard absent from the source. */
 export async function removeMember(
   tx: TransactionPipe,
   tenantId: string,

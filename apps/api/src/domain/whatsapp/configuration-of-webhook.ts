@@ -7,32 +7,13 @@ import { buscarSaude, numeroPendente } from './saude.js';
 import type { SaudeDoNumero } from './saude.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb
- * e o `setup_webhooks` de app/models/channel/whatsapp.rb.
- *
- * Dois passos, na ordem do original:
- *
- * 1. **registrar o número** (`POST /{phone}/register` com PIN de 6 dígitos) —
- *    só quando ele não está verificado/conectado ou a Meta ainda o dá como
- *    pendente. Falha aqui NÃO interrompe: fica em `erroDeRegistro` e segue;
- * 2. **assinar o app na WABA e apontar o callback do número** para a rota do
- *    canal. Falha aqui interrompe, com "Falha ao configurar o webhook".
- *
- * O PIN é guardado no canal para a próxima reautorização reaproveitá-lo (a Meta
- * recusa um PIN diferente do que já está no número).
- *
- * Acréscimos do Pipe:
- * - o PIN é gravado CIFRADO (`pinVerificacao` está em `CAMPOS_SECRETOS_DE_CANAL`);
- * - além de `messages`/`smb_message_echoes`, assina os três campos que não
- *   aceitam override e caem na rota guarda-chuva (spec webhook-por-cliente §7);
- * - o limite de 200 caracteres da URL de override é conferido antes da chamada;
- * - `calls` não entra: o Pipe não tem voz.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_setup_service.rb and `setup_webhooks` in app/models/channel/whatsapp.rb. First register the number with `POST /{phone}/register` and a six-digit PIN only if not verified/connected or still pending at Meta; a failure is recorded in `erroDeRegistro` and does not stop setup. Next subscribe the app to the WABA and point the number callback at the channel route; failure stops with "Falha ao configurar o webhook". Keep the PIN for future reauthorization because Meta rejects a different PIN, but encrypt it (`pinVerificacao` in `CAMPOS_SECRETOS_DE_CANAL`). Pipe also subscribes the three fields without per-number overrides for umbrella routing (webhook-por-cliente spec §7), checks the 200-character override URL limit before calling Meta, and excludes `calls` because Pipe has no voice support. Subscribe `messages` and `smb_message_echoes` as well as the umbrella fields.
  */
 
 export const CAMPOS_ASSINADOS = [
   ...CAMPOS_PADRAO_DO_WEBHOOK,
   'message_template_status_update',
-  // A recategorização de modelo (aba "Configurações de alerta" da origem).
+  // Template recategorization from the original Alerts Settings tab.
   'template_category_update',
   'phone_number_quality_update',
   'account_update',
@@ -45,9 +26,7 @@ export interface OptionsOfWebhook {
   wabaId?: string | null;
   token?: string | null;
   /**
-   * `true`: número em coexistência com o app WhatsApp Business — já vem
-   * registrado, e o registro é pulado sem nem perguntar a saúde. `null`: ninguém
-   * disse (configuração manual), e a saúde decide pelo `is_on_biz_app`.
+   * `true` means coexistence with WhatsApp Business: the number is already registered, so skip registration without checking health. `null` means manual setup gave no hint; use `is_on_biz_app` to decide.
    */
   coexistencia?: boolean | null;
 }
@@ -83,7 +62,7 @@ export async function configurarWebhook(
     try {
       saude = await buscarSaude({ tokenAccess: token, numberId: numeroId, wabaId });
     } catch (erro) {
-      // Sem saúde, a decisão conservadora do original: não registrar.
+      // Without health data, follow the original's conservative decision and do not register.
       console.error(`[whatsapp] a checagem de saúde falhou: ${asError(erro).message}`);
       saude = {};
     }
@@ -94,7 +73,7 @@ export async function configurarWebhook(
     try {
       return await cliente.numeroVerificado(numeroId);
     } catch (erro) {
-      // Se a checagem falhar, supõe não verificado — o lado seguro, segundo o original.
+      // If health checking fails, assume unverified, the safer choice in the original.
       console.error(`[whatsapp] a checagem de verificação do número falhou: ${asError(erro).message}`);
       return false;
     }
@@ -143,9 +122,7 @@ export async function configurarWebhook(
 }
 
 /**
- * `Channel::Whatsapp#setup_webhooks`: webhook que falha não desfaz o canal — marca
- * o canal para reautorização, e a tela de Canais passa a pedir que o cliente
- * refaça a conexão.
+ * Chatwoot `Channel::Whatsapp#setup_webhooks`: webhook failure does not undo channel creation. Mark it for reauthorization so the Channels screen asks the customer to reconnect.
  */
 export async function configureWebhooksOfChannel(
   channel: ChannelWhatsApp,

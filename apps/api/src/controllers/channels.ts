@@ -23,24 +23,11 @@ import {
 } from './connection-in-flow.js';
 
 /**
- * A casca HTTP de "conectar o WhatsApp". A regra mora em `dominio/whatsapp/`.
- *
- * O `POST /v1/canais/whatsapp` é o porte de chatwoot/chatwoot (MIT),
- * app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb: conexão
- * nova ou, com `canal_id` (o `inbox_id` de lá), reautorização daquele canal.
- *
- * Sessão de navegador, não chave de API, e `canal.gerenciar` em toda rota: o que
- * se grava aqui é a credencial que manda mensagem **pelo número do cliente**. O
- * tenant vem SEMPRE da sessão — nenhum corpo desta rota carrega tenant.
- *
- * Com `fluxo_id` (conexão feita DE DENTRO do bot, como na origem —
- * `FICHA-conectar-canal-no-bot.md` §4), a permissão passa a ser a do bot
- * (`channels.escrever`, `canal-do-fluxo.ts`) e o canal nasce já ligado a ele
- * (`conexao-no-fluxo.ts`).
+ * HTTP adapter for connecting WhatsApp; the rules live in `dominio/whatsapp/`. `POST /v1/canais/whatsapp` ports chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb`: it creates a connection or, with `canal_id` (Chatwoot's `inbox_id`), reauthorizes that channel. Every route requires a browser session rather than an API key and `canal.gerenciar`, because it stores a credential that sends messages using the customer's number. The tenant always comes from the session, never the body. With `fluxo_id`, for a connection started inside a bot as in `FICHA-conectar-canal-no-bot.md` §4, the bot's `channels.escrever` permission in `canal-do-fluxo.ts` applies and `conexao-no-fluxo.ts` links the new channel to it.
  */
 @Controller('v1/channels')
 export class ChannelsController {
-  /** O que a tela de Canais mostra: ligado, número, qualidade e limite. */
+
   @Get('whatsapp')
   @WithSession()
   async listar(@Req() requisicao: RequestWithSession): Promise<{ channels: ChannelWhatsAppVisible[] }> {
@@ -50,9 +37,7 @@ export class ChannelsController {
   }
 
   /**
-   * O ponto de partida do cadastro embutido: o `state` desta abertura e o que o
-   * SDK da Meta precisa. Acréscimo do Pipe (`estado-de-conexao.ts`); no Chatwoot
-   * esses valores vêm de `window.chatwootConfig` e não há `state`.
+   * Starts embedded registration by returning the `state` and values needed by the Meta SDK. This is a Pipe addition (`estado-de-conexao.ts`); in Chatwoot the values come from `window.chatwootConfig` and there is no `state`.
    */
   @Post('whatsapp/state')
   @HttpCode(201)
@@ -70,9 +55,7 @@ export class ChannelsController {
   }
 
   /**
-   * Conclui o cadastro embutido. O `code` vive 30 segundos: o front manda assim
-   * que o popup devolve. O `state` é conferido ANTES de qualquer outra coisa — um
-   * `code` de outra sessão não chega nem à Meta.
+   * Finish embedded registration. The `code` lasts 30 seconds, so the front end sends it when the popup returns. Check `state` before anything else; a `code` from another session must never reach Meta.
    */
   @Post('whatsapp')
   @HttpCode(201)
@@ -92,7 +75,7 @@ export class ChannelsController {
     },
   ): Promise<ChannelWhatsAppVisible & { message?: string }> {
     const sessao = sessionOf(requisicao);
-    // Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.
+    // Reauthorization belongs to the channel, not the bot: `fluxo_id` applies only to a new channel.
     const fluxoId = corpo.canal_id ? undefined : flowIdOfBody({ flowId: corpo.fluxo_id });
     await permitidoConectar(sessao.tenantId, sessao.userId, fluxoId);
     checkState(corpo.state, sessao.tenantId, sessao.userId);
@@ -117,10 +100,7 @@ export class ChannelsController {
   }
 
   /**
-   * O caminho sem cadastro embutido: WABA ID, Phone Number ID e token de usuário
-   * de sistema, validados antes de gravar (porte de `manual_setup_service.rb`).
-   * O token vem no corpo porque é o do cliente; ele sai daqui cifrado e não é
-   * devolvido.
+   * The path without embedded registration takes a WABA ID, Phone Number ID and system-user token, validating them before storage (ported from `manual_setup_service.rb`). The token is in the body because it belongs to the customer; it is encrypted here and not returned.
    */
   @Post('whatsapp/manual')
   @HttpCode(201)
@@ -141,9 +121,9 @@ export class ChannelsController {
     ChannelWhatsAppVisible & { webhookError: string | null; webhook: { url: string; verifyToken: string } }
   > {
     const session = sessionOf(request);
-    /* Reconectar não liga bot nenhum — o canal já tem dono. Mas quem administra
-       o bot dono do canal pode reconectá-lo, porque na origem isso se faz na
-       página do canal DENTRO do bot. */
+    /*
+     * Reconnecting does not link a bot: the channel already has an owner. Someone who administers the channel's bot may reconnect it because the source does this on the channel page inside the bot.
+     */
     const doCorpo = flowIdOfBody(corpo);
     const flowId = corpo.channelId ? undefined : doCorpo;
     if (corpo.channelId) {
@@ -171,9 +151,7 @@ export class ChannelsController {
   }
 
   /**
-   * O perfil comercial do número (foto, recado, descrição, endereço, e-mail,
-   * sites, categoria) e, só para leitura, o nome de exibição com o status da
-   * análise da Meta. Ver `dominio/whatsapp/perfil.ts`.
+   * The number's business profile (photo, status message, description, address, email, websites and category), plus read-only display name and Meta review status. See `dominio/whatsapp/perfil.ts`.
    */
   @Get('whatsapp/:id/perfil')
   @WithSession()
@@ -195,7 +173,7 @@ export class ChannelsController {
     return writeProfileOfChannel(sessao.tenantId, sessao.userId, id, corpo ?? {});
   }
 
-  /** Abas "Configurações" e "Configurações de alerta" do canal. Ver `dominio/whatsapp/preferencias.ts`. */
+  /** Channel tabs "Configurações" and "Configurações de alerta". See `dominio/whatsapp/preferencias.ts`. */
   @Get('whatsapp/:id/preferencias')
   @WithSession()
   async preferences(
@@ -232,7 +210,7 @@ export class ChannelsController {
     return sincronizarModelos(sessao.tenantId, sessao.userId, id);
   }
 
-  /** Cria o modelo na Meta (vai para análise) e grava a cópia `pendente`. */
+  /** Create the template in Meta for review and store a `pendente` copy. */
   @Post('whatsapp/:id/modelos')
   @HttpCode(201)
   @WithSession()

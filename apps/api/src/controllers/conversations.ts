@@ -21,11 +21,7 @@ import {
 import type { Page } from '../pagination.js';
 
 /**
- * `/v1/conversas` — o recurso central da API.
- *
- * Padrão de `apis.md` §5: recurso plural, filtro na query string, ordenação
- * declarada e paginação por cursor. Nenhuma consulta filtra `tenant_id` na mão: a
- * RLS já filtra, e filtrar de novo esconderia um bug de isolamento em vez de expô-lo.
+ * `/v1/conversas` is the central API resource. Per `apis.md` §5, it uses a plural resource, query filters, declared ordering and cursor pagination. Queries do not manually filter `tenant_id`: RLS already does, and a duplicate filter would hide rather than expose an isolation bug.
  */
 
 const ESTADOS = ['na_fila', 'atribuida', 'em_atendimento', 'em_espera', 'encerrada'];
@@ -95,8 +91,8 @@ export class ConversationsController {
       campo: 'criada_em',
       direction: 'desc',
     });
-    // `ultima_mensagem_em` é nulo em conversa sem mensagem; sem o `coalesce` a linha
-    // sumiria da paginação por cursor em vez de aparecer no fim.
+    // `ultima_mensagem_em` is null for conversations without a message; without `coalesce`,
+    // the row would disappear from cursor pagination instead of appearing at the end.
     const expressao =
       ordem.campo === 'ultima_mensagem_em'
         ? 'coalesce(c.ultima_mensagem_em, c.criada_em)'
@@ -127,8 +123,8 @@ export class ConversationsController {
       return rows;
     });
 
-    // O cursor sai da linha crua, antes da serialização: a chave de ordenação é
-    // detalhe de paginação e não precisa aparecer no corpo da resposta.
+    // Build the cursor from the raw row before serialization: the sort key is
+    // a pagination detail and need not appear in the response body.
     const page = assemblePage(linhas, limite, (linha) => ({
       value: iso(linha.key) ?? '',
       id: linha.id,
@@ -215,12 +211,7 @@ export class ConversationsController {
   }
 
   /**
-   * A MESMA rota serve à integração e ao Desk — ver `ChaveOuSessao`.
-   *
-   * A diferença está em quem assina a mensagem, e ela nunca vem do corpo quando é
-   * gente: com sessão, o autor é o `usuario_id` do cookie, e um `atendente_id` no
-   * corpo é ignorado. Aceitá-lo deixaria qualquer pessoa logada mandar mensagem em
-   * nome de outra, com o nome do colega na tela do cliente.
+   * The same route serves integrations and the Desk; see `ChaveOuSessao`. What differs is message authorship. For a browser session, the author comes from the cookie's `usuario_id`, and any body `atendente_id` is ignored. Accepting that field would let a signed-in person send a message in a colleague's name, displaying that colleague to the customer.
    */
   @Post(':id/mensagens')
   @HttpCode(201)
@@ -254,10 +245,7 @@ export class ConversationsController {
   }
 
   /**
-   * Vários arquivos de uma vez — uma mensagem por arquivo, em sequência, como a
-   * origem (`enviarAnexos`). O lote é validado INTEIRO antes de a primeira sair:
-   * mais de 10, anexo inexistente ou fora do limite do tipo recusam tudo, e a
-   * resposta diz qual arquivo. As mensagens voltam na ordem em que saíram.
+   * Send multiple files as one message per file, sequentially, as the source `enviarAnexos` does. Validate the whole batch before sending the first: more than 10 files, a missing attachment or an attachment over its type limit rejects all, and the response identifies the file. Return messages in send order.
    */
   @Post(':id/mensagens/anexos')
   @HttpCode(201)
@@ -294,7 +282,7 @@ export class ConversationsController {
   }
 
   /**
-   * Encerrar. A lista replica o `blip-tags` da Blip e respeita tags obrigatórias.
+   * Close the conversation. The list mirrors Blip's `blip-tags` and enforces required tags.
    */
   @Post(':id/encerrar')
   @KeyOrSession('conversas:escrever')
@@ -316,11 +304,7 @@ export class ConversationsController {
   }
 
   /**
-   * Reenviar uma mensagem que falhou.
-   *
-   * A tela fazia isto direto no banco e **não funcionava**: devolvia `mensagem` para
-   * `pendente` sem tocar em `outbox_mensagem`, e o worker reivindica pelo estado do
-   * outbox. Ver `reenviarMensagem`.
+   * Retry a failed message. The former screen changed `mensagem` to `pendente` directly in the database and did not work: it left `outbox_mensagem` unchanged, while the worker claims messages from outbox state. See `reenviarMensagem`.
    */
   @Post(':id/mensagens/:mensagemId/reenviar')
   @KeyOrSession('mensagens:escrever')
@@ -334,11 +318,7 @@ export class ConversationsController {
   }
 
   /**
-   * Transferir para outra fila ou para outro atendente.
-   *
-   * **Encerra a conversa atual e abre outra no destino** — não é transição de estado.
-   * A regra está em `packages/core/src/conversa/maquina.ts` e é a da Blip. Por isso a
-   * resposta traz DOIS ids: o que foi encerrado e o novo.
+   * Transfer to another queue or attendant. This closes the current conversation and opens a new one at the destination; it is not a state transition. The rule in `packages/core/src/conversa/maquina.ts` mirrors Blip. The response therefore contains both IDs: the closed conversation and the new one.
    */
   @Post(':id/transferir')
   @KeyOrSession('conversas:escrever')
@@ -368,7 +348,7 @@ export class ConversationsController {
     };
   }
 
-  /** Entra em espera, ou sai dela. A mesma rota nos dois sentidos, como o botão. */
+
   @Post(':id/espera')
   @KeyOrSession('conversas:escrever')
   async espera(
@@ -396,7 +376,7 @@ const COLUMNS_CONVERSATION = `
   ca.tipo as canal_tipo
 `;
 
-/** Filtro `campo=a,b` vira `in (…)`, com os valores conferidos contra a lista. */
+
 export function igualEmLista(column: string, bruto: string, permitidos: readonly string[]): SQL {
   const values = bruto
     .split(',')
@@ -409,9 +389,9 @@ export function igualEmLista(column: string, bruto: string, permitidos: readonly
       `"${invalido}" não é valor de ${column}. Aceitos: ${permitidos.join(', ')}.`,
     );
   }
-  // Literal de array montado à mão: o template do drizzle achata array em parâmetros
-  // soltos, e `= any($1::text[])` com um valor só quebraria com "malformed array".
-  // Os valores já passaram pela lista fechada acima, então não há concatenação de
+  // Build the array literal explicitly: Drizzle's template flattens arrays into separate parameters,
+  // and `= any($1::text[])` fails with "malformed array" for a single value.
+  // Values already passed the closed allowlist above, so this does not concatenate
   // entrada do cliente aqui.
   return sql`${sql.raw(column)} = any(${`{${values.join(',')}}`}::text[])`;
 }
@@ -465,9 +445,7 @@ function asMessage(linha: LineMessage): Record<string, unknown> {
 }
 
 /**
- * `timestamptz` volta como `Date` ou como texto, dependendo de quantas cópias do
- * driver estão carregadas. Normalizar na borda é mais barato do que descobrir isso
- * de novo dentro de um cliente da API.
+ * `timestamptz` may arrive as a `Date` or text depending on how many driver copies are loaded. Normalize at the API boundary so clients do not need to rediscover this difference.
  */
 function iso(value: Date | string | null | undefined): string | null {
   if (value === null || value === undefined) return null;

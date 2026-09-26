@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -28,26 +28,19 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Convite e verificação de domínio: as duas portas por onde gente nova entra.
+ * Invite and domain verification: the two doors new people come in through.
  *
- * O que este arquivo persegue não é o caminho feliz — é o conjunto de recusas, que
- * é onde mora o valor: convite vencido, convite reusado, convite de outro tenant,
- * papel que não existe, domínio público e TXT ausente. Cada um deles, se passar,
- * é alguém entrando num cliente que não é dele.
+ * What this file goes after isn't the happy path — it's the set of refusals, which is where the value is: an expired invite, a reused invite, an invite from another tenant, a role that doesn't exist, a public domain, and a missing TXT record. Each of them, if it slipped through, means someone getting into a customer they don't belong to.
  *
- * A conversa com o Google não está aqui, pelo mesmo motivo de `entrada.test.ts`:
- * dublar o JWKS provaria de novo o que `packages/autenticacao` já prova. A parte
- * do convite que depende dela — ligar a `identidade_externa` e abrir sessão — é
- * exercitada chamando `aceitarConvite` com uma `PessoaDoGoogle` montada à mão, que
- * é exatamente o que a volta do Google entrega.
+ * The conversation with Google isn't here, for the same reason as `entrada.test.ts`: doubling the JWKS would prove again what `packages/autenticacao` already proves. The part of the invite that depends on it — linking `identidade_externa` and opening a session — is exercised by calling `aceitarConvite` with a hand-built `PessoaDoGoogle`, which is exactly what Google's callback delivers.
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Sessão de quem administra o tenant A: tem `conta.membros.escrever` e `tenant.configurar`. */
+/** The session of whoever administers tenant A: has `conta.membros.escrever` and `tenant.configurar`. */
 let sessionAdmin: string;
-/** Sessão de quem só atende: prova que a permissão é conferida de verdade. */
+/** The session of someone who only handles attendance: proves the permission is really checked. */
 let sessionWithoutPoder: string;
 
 const PERMISSIONS_OF_ADMIN = ['conta.membros.escrever', 'usuario.gerenciar', 'tenant.configurar'];
@@ -79,7 +72,7 @@ async function seedPapeis(
   return roleId;
 }
 
-/** Grava uma sessão viva para o atendente do cenário e devolve o token do cookie. */
+/** Writes a live session for the scenario's agent and returns the cookie's token. */
 async function openSession(cenario: Cenario): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
@@ -113,8 +106,8 @@ beforeAll(async () => {
     insert into usuario_papel (tenant_id, usuario_id, papel_id)
     values (${a.tenantId}, ${a.agentId}, ${roleAdmin})
   `);
-  // O papel de CONTA que os convites vão usar, um em cada tenant — e um de
-  // atendimento no A, que o convite tem de recusar.
+  // // The ACCOUNT role the invites will use, one per tenant — plus one
+  // // attendance role in A, which the invite has to refuse.
   await seedPapeis(a, 'guest', ['conta.resumo.ler'], 'conta');
   await seedPapeis(b, 'guest', ['conta.resumo.ler'], 'conta');
   await seedPapeis(a, 'atendente', ['conversa.ver']);
@@ -124,7 +117,7 @@ beforeAll(async () => {
   sessionWithoutPoder = await openSession(b);
 }, 180_000);
 
-/** Tenants nascidos do comando de provisionamento, para a limpeza levar embora. */
+/** Tenants born from the provisioning command, for cleanup to take away. */
 const provisionados: string[] = [];
 
 afterAll(async () => {
@@ -165,13 +158,13 @@ describe('POST /v1/convites', () => {
     const token = corpo.url.split('/').pop() ?? '';
     expect(token.length).toBeGreaterThan(20);
 
-    // O token não pode estar no banco em lugar nenhum: só o hash.
+    // // The token can't be in the database anywhere: only the hash.
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from convite where token_hash = ${token}`,
     );
     expect(rows[0]?.n).toBe('0');
 
-    // Sete dias, não oito horas: convite não é sessão.
+    // // Seven days, not eight hours: an invite isn't a session.
     const dias = (new Date(corpo.expiraEm).getTime() - Date.now()) / 86_400_000;
     expect(dias).toBeGreaterThan(6.9);
     expect(dias).toBeLessThan(7.1);
@@ -263,7 +256,7 @@ describe('GET /v1/convites/:token', () => {
     expect(corpo.email).toBe(email);
     expect(corpo.papel).toBe('guest');
     expect(corpo.tenant.slug).toContain('e2e-conv-');
-    // O id do tenant não é assunto de quem ainda está do lado de fora.
+    // // The tenant's id isn't anyone's business while they're still on the outside.
     expect(JSON.stringify(corpo)).not.toContain(a.tenantId);
   });
 
@@ -311,7 +304,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     expect(rows[0]?.tenant_id).toBe(a.tenantId);
     expect(rows[0]?.papel).toBe('guest');
 
-    // Uso único: o segundo clique no mesmo link não cria um segundo usuário.
+    // // Single use: a second click on the same link doesn't create a second user.
     const repetido = await fetch(`${api.url}/v1/convites/${token}/aceitar`, { method: 'POST' });
     expect(repetido.status).toBe(410);
     const error = (await repetido.json()) as { error: { code: string } };
@@ -361,14 +354,14 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const aceito = await aceitarInvitation(token, pessoa, { ip: '10.0.0.9' });
     expect(aceito.session).toBeDefined();
 
-    // A sessão vale de verdade: é o mesmo cookie que as telas usam.
+    // // The session is genuinely valid: it's the same cookie the screens use.
     const eu = await fetch(`${api.url}/v1/eu`, { headers: comCookie(aceito.session!.token) });
     expect(eu.status).toBe(200);
     const corpo = (await eu.json()) as { user: { email: string }; tenant: { id: string } };
     expect(corpo.user.email).toBe(email);
     expect(corpo.tenant.id).toBe(a.tenantId);
 
-    // E a conta ficou ligada pelo par (emissor, sujeito) — nunca pelo e-mail.
+    // // And the account stayed linked by the (issuer, subject) pair — never by email.
     const { rows } = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from identidade_externa
        where emissor = ${pessoa.emissor} and sujeito = ${pessoa.sujeito}
@@ -399,7 +392,7 @@ describe('Carry an invitation through GET /v1/auth/google?invitation=', () => {
     };
     expect(desafio.invitation).toBe(token);
 
-    // E o token do convite NÃO vaza para o Google junto com o resto do desafio.
+    // // And the invite token does NOT leak to Google along with the rest of the challenge.
     expect(resposta.headers.get('location')).not.toContain(token);
   });
 
@@ -413,10 +406,10 @@ describe('Carry an invitation through GET /v1/auth/google?invitation=', () => {
   });
 
   it('Show invalid invitations as a login refusal rather than a server error', () => {
-    // O que a volta do Google faz com um convite vencido, usado ou de outro e-mail.
+    // // What Google's callback does with an invite that's expired, used, or for another email.
     expect(codigoDaRecusa(new PipeError(410, 'invitation_used', 'já foi'))).toBe('sem_convite');
     expect(codigoDaRecusa(PipeError.naoEncontrado('Convite'))).toBe('sem_convite');
-    // Erro nosso continua sendo erro nosso: a saída é tentar de novo.
+    // // Our own error stays our own error: the way out is to try again.
     expect(codigoDaRecusa(new PipeError(500, 'error_internal', 'caiu'))).toBe('falha_no_provedor');
   });
 });
@@ -442,8 +435,8 @@ describe('POST /v1/dominios', () => {
     expect(corpo.registro.nome).toBe(`_pipe-verificacao.${domain}`);
     expect(corpo.registro.value).toMatch(/^pipe-verificacao=[0-9a-f]{32}$/);
 
-    // Idempotente: chamar de novo devolve o MESMO token, senão quem já publicou
-    // veria a verificação falhar sem ter mexido em nada.
+    // // Idempotent: calling it again returns the SAME token, otherwise whoever already published
+    // // would see the verification fail without having touched anything.
     const outra = await fetch(`${api.url}/v1/dominios`, {
       method: 'POST',
       headers: comCookie(sessionAdmin),
@@ -470,7 +463,7 @@ describe('POST /v1/dominios', () => {
     for (const cru of ['', 'semponto', 'com espaço.com', '-inicio.com']) {
       expect(() => normalizeDomain(cru)).toThrowError(/não é um domínio/);
     }
-    // O que dá para consertar sozinho, conserta.
+    // // Whatever can be fixed on its own, gets fixed.
     expect(normalizeDomain(' HTTPS://Acme.COM.br/entrar ')).toBe('acme.com.br');
     expect(normalizeDomain('@acme.com.br.')).toBe('acme.com.br');
   });
@@ -498,7 +491,7 @@ describe('Verify domains with TXT records', () => {
     const dominio = `verificavel-${randomUUID().slice(0, 8)}.teste`;
     const registrado = await logDomain(a.tenantId, dominio);
 
-    // O DNS parte o TXT em pedaços de 255 bytes; o valor é a concatenação deles.
+    // // DNS splits the TXT record into 255-byte chunks; the value is their concatenation.
     const emPedacos = [registrado.registro.value.slice(0, 10), registrado.registro.value.slice(10)];
     const resultado = await checkDomain(a.tenantId, registrado.id, async (nome) => {
       expect(nome).toBe(`_pipe-verificacao.${dominio}`);
@@ -521,7 +514,7 @@ describe('Verify domains with TXT records', () => {
       checkDomain(a.tenantId, registrado.id, async () => [['outra-coisa']]),
     ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
 
-    // DNS que nem responde é a mesma coisa: "ainda não", nunca 500.
+    // // DNS that doesn't even answer is the same thing: "not yet," never 500.
     await expect(
       checkDomain(a.tenantId, registrado.id, () => Promise.reject(new Error('ENOTFOUND'))),
     ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
@@ -536,7 +529,7 @@ describe('Verify domains with TXT records', () => {
   it('Prevent one tenant\'s verification token from verifying another\'s domain', async () => {
     const dominio = `alheio-${randomUUID().slice(0, 8)}.teste`;
     const registrado = await logDomain(b.tenantId, dominio);
-    // O A nem enxerga a linha do B: a RLS filtra antes de qualquer conferência.
+    // // A doesn't even see B's row: RLS filters it out before any check.
     await expect(checkDomain(a.tenantId, registrado.id)).rejects.toMatchObject({
       codigo: 'nao_encontrado',
     });
@@ -561,8 +554,8 @@ describe('Provision a customer tenant', () => {
     const cliente = await provision();
 
     expect(cliente.plano).toBe('operacao');
-    // O catálogo vem da semente base, não de uma segunda lista escrita aqui.
-    // Três de conta (admin, member, guest) e cinco de atendimento.
+    // // The catalog comes from the base seed, not from a second list written here.
+    // // Three account roles (admin, member, guest) and five attendance roles.
     expect(cliente.papeis).toBe(8);
     expect(cliente.permissions).toBeGreaterThan(40);
     expect(cliente.queues).toBe(4);
@@ -578,11 +571,11 @@ describe('Provision a customer tenant', () => {
        order by p.nome
     `);
     expect(rows[0]?.plano).toBe('operacao');
-    // `admin` na conta e `administrador` no atendimento (migração 0021).
+    // // `admin` at the account level and `administrador` in attendance (migration 0021).
     expect(rows.map((l) => l.papel)).toEqual(['admin', 'administrador']);
     expect(rows[0]?.motivos).toBe(String(cliente.motivosDePausa));
 
-    // Domínio nasce pendente: o DNS é do cliente, e o comando não inventa prova.
+    // // A domain is born pending: the DNS belongs to the customer, and the command doesn't invent proof.
     const dominio = cliente.domain!;
     expect(dominio.verificado).toBe(false);
     expect(dominio.registro.nome).toBe(`_pipe-verificacao.${dominio.dominio}`);

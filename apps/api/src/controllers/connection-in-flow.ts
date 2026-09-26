@@ -8,20 +8,12 @@ import {
 } from '../domain/management/channel-of-flow.js';
 
 /**
- * O `fluxo_id` opcional das conexões de canal (`POST /v1/canais/{whatsapp,
- * instagram,messenger}[/manual]`): a conexão feita DE DENTRO do bot, como na
- * origem (`FICHA-conectar-canal-no-bot.md` §4 — o canal é do bot, não da
- * conta). Com ele, a permissão é a do bot (`channels.escrever`,
- * `dominio/gestao/canal-do-fluxo.ts`) e o canal nasce já ligado; sem ele, vale
- * o `canal.gerenciar` da conta, como antes.
- *
- * Partilhado pelos três controladores para não importar um controlador de
- * dentro do outro.
+ * Optional `fluxo_id` on channel connections (`POST /v1/canais/{whatsapp,instagram,messenger}[/manual]`) means the connection starts inside a bot, as in `FICHA-conectar-canal-no-bot.md` §4, where the channel belongs to the bot rather than the account. With it, bot permission (`channels.escrever`, `dominio/gestao/canal-do-fluxo.ts`) applies and the channel starts linked. Without it, the account's `canal.gerenciar` applies. Share this helper among the three controllers so they do not import one another.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-/** `fluxo_id` do corpo, se veio; fora do padrão de uuid é 404 antes de ir ao banco. */
+/** Read `fluxo_id` from the body if present; reject a non-UUID value with 404 before querying the database. */
 export function flowIdOfBody(corpo: { flowId?: unknown } | undefined): string | undefined {
   const bruto = corpo?.flowId;
   if (bruto === undefined || bruto === null || bruto === '') return undefined;
@@ -30,8 +22,7 @@ export function flowIdOfBody(corpo: { flowId?: unknown } | undefined): string | 
 }
 
 /**
- * Com bot, confere também que ele ainda não tem canal — ANTES de gravar a
- * credencial do cliente, para a ligação não ser recusada depois do canal criado.
+ * For a bot connection, check that it has no channel before storing the customer credential; otherwise linking could fail after channel creation.
  */
 export function permitidoConectar(
   tenantId: string,
@@ -45,9 +36,7 @@ export function permitidoConectar(
 }
 
 /**
- * RECONECTAR o canal que o bot já tem (token vencido): na origem isso acontece
- * na página do canal DENTRO do bot, então quem administra o bot basta. Só vale
- * para o canal daquele bot — reconectar canal alheio continua sendo da conta.
+ * Reconnect the channel already owned by a bot when its token expires. In the source this happens on the channel page inside the bot, so bot administration is sufficient, but only for that bot's channel. Reconnecting someone else's channel still requires account permission.
  */
 export function permitidoReconectar(
   tenantId: string,
@@ -61,7 +50,7 @@ export function permitidoReconectar(
   });
 }
 
-/** O canal recém-criado passa a ser do bot. */
+
 export function connectToFlow(
   tenantId: string,
   usuarioId: string,

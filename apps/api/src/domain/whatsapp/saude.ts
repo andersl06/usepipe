@@ -1,15 +1,10 @@
 import { clienteGraph, versaoDaApi } from './cliente-graph.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/health_service.rb —
- * só o `fetch_health_status`, com os mesmos campos e a mesma formatação.
- *
- * A persistência (`sync_health_status!`, `phone_number_health`) fica de fora: a
- * tela de Canais do Pipe pergunta à Meta a cada leitura, e guardar saúde sem quem
- * a leia é coluna para envelhecer.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/health_service.rb: only `fetch_health_status`, with matching fields and formatting. Omit `sync_health_status!` and `phone_number_health` persistence because Pipe's Channels screen asks Meta on each read; storing unused health would become stale.
  */
 
-/** `MINIMUM_HEALTH_API_VERSION`: os campos de saúde só existem da v24 em diante. */
+/** `MINIMUM_HEALTH_API_VERSION`: health fields exist only from v24 onward. */
 export const VERSAO_MINIMA_DA_SAUDE = 24.0;
 
 const CAMPOS_DO_NUMERO = [
@@ -91,7 +86,7 @@ export async function buscarSaude(alvo: AlvoDaSaude): Promise<SaudeDoNumero> {
     platform_type: comoTexto(numero['platform_type']),
   };
 
-  // Como no original: se só a WABA falhar, a saúde do número já buscada volta assim mesmo.
+  // As in the original, if only the WABA check fails, return the number health already fetched.
   try {
     const waba = await cliente.buscarNumero(alvo.wabaId, CAMPOS_DA_WABA, versao);
     return {
@@ -104,7 +99,7 @@ export async function buscarSaude(alvo: AlvoDaSaude): Promise<SaudeDoNumero> {
   }
 }
 
-/** `platform_type`/`throughput_level` em `NOT_APPLICABLE`: o número ainda está sendo provisionado. */
+/** `platform_type` or `throughput_level` equal to `NOT_APPLICABLE` means provisioning is still underway. */
 export function numeroPendente(saude: SaudeDoNumero): boolean {
   return (
     saude.platform_type === 'NOT_APPLICABLE' ||

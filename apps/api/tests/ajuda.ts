@@ -22,11 +22,9 @@ export interface Cenario {
 }
 
 /**
- * Um tenant completo, com canal de WhatsApp configurado, uma fila, um atendente
- * online habilitado nela e duas chaves de API — uma com todos os escopos e outra
- * sem nenhum, para provar que o escopo é conferido de verdade.
+ * A complete tenant, with a WhatsApp channel configured, a queue, an agent online and enabled in it, and two API keys — one with every scope and another with none, to prove the scope is actually checked.
  *
- * Montado com o papel dono: é semente, não caminho de produção.
+ * Built with the owner role: it's a seed, not a production path.
  */
 export async function montarCenario(sufixo: string): Promise<Cenario> {
   await migrate(URL_DONO);
@@ -117,7 +115,7 @@ export function assinar(corpo: string): string {
   return `sha256=${createHmac('sha256', APP_SECRET).update(corpo).digest('hex')}`;
 }
 
-/** Um payload de mensagem recebida, no formato que a Meta manda. */
+/** An inbound message payload, in the format Meta sends. */
 export function payloadOfMessage(
   de: string,
   texto: string,

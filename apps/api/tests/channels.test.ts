@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CONEXAO'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -44,12 +44,9 @@ import type { RequestWithSession } from '../src/session.js';
 import type { NumeroDaWaba } from '../src/domain/whatsapp/cliente-graph.js';
 
 /**
- * Conectar o WhatsApp do cliente, com banco de verdade e sem tocar na Meta.
+ * Connecting the client's WhatsApp, with a real database and without touching Meta.
  *
- * Os casos seguem os specs do Chatwoot de onde a conexão foi portada
- * (`spec/services/whatsapp/*_spec.rb`), mais os do Pipe: o `state` contra CSRF, a
- * cifra do token e o isolamento entre clientes. O "callback" é exercitado pelo
- * controlador de verdade, com a permissão `canal.gerenciar` conferida no banco.
+ * The cases follow the Chatwoot specs the connection was ported from (`spec/services/whatsapp/*_spec.rb`), plus Pipe's own: the CSRF `state`, the token cipher, and isolation between customers. The "callback" is exercised through the real controller, with the `canal.gerenciar` permission checked in the database.
  */
 
 const URL_DONO = process.env['DATABASE_URL']!;
@@ -102,7 +99,7 @@ function chamadas(acao: string) {
   return ClienteGraphDuble.chamadas.filter((c) => c.acao === acao);
 }
 
-/** Conecta pelo controlador, com um `state` válido desta sessão. */
+/** Connects through the controller, with a valid `state` from this session. */
 function conectar(quem: { tenantId: string; adminId: string }, extra: Record<string, unknown>) {
   return controller.conectar(request(quem), {
     waba_id: WABA,
@@ -145,18 +142,18 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
     expect(canal.webhookUrl).toBe(`https://api.teste/webhooks/whatsapp/${canal.id}`);
     expect(canal.nome).toBe('Empresa de Ensaio WhatsApp');
 
-    // A WABA é assinada ANTES do override, com os campos do Chatwoot e os três
-    // da rota guarda-chuva; o override aponta para a URL DAQUELE canal.
+    // // The WABA is signed BEFORE the override, with the Chatwoot fields and the three
+    // // from the umbrella route; the override points to THAT channel's URL.
     const order = ClienteGraphDuble.chamadas.map((c) => c.acao);
     expect(order.indexOf('assinar')).toBeLessThan(order.indexOf('override'));
     expect(chamadas('assinar')[0]?.campos).toEqual(
       expect.arrayContaining(['messages', 'smb_message_echoes', 'account_update']),
     );
     expect(chamadas('override')[0]?.url).toBe(urlDoWebhook(canal.id));
-    // Número já verificado e provisionado: não registra (webhook_setup_service_spec).
+    // // Number already verified and provisioned: doesn't register (webhook_setup_service_spec).
     expect(chamadas('registrar')).toHaveLength(0);
 
-    // Token e verify_token vivem CIFRADOS. Isto é o que um `pg_dump` veria.
+    // // Token and verify_token live ENCRYPTED. This is what a `pg_dump` would see.
     const config = await configOfDatabase(canal.id);
     expect(estaCifrado(String(config['tokenAcesso']))).toBe(true);
     expect(estaCifrado(String(config['verifyToken']))).toBe(true);
@@ -328,7 +325,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
     expect(estaCifrado(String(config['pinVerificacao']))).toBe(true);
     expect(decifrar(String(config['pinVerificacao']), keyring())).toBe(registro[0]!.pin);
 
-    // PIN já guardado: a próxima configuração reaproveita, não sorteia outro.
+    // // PIN already stored: the next setup reuses it, doesn't roll a new one.
     ClienteGraphDuble.reiniciar();
     await configurarWebhook(await readChannelWhatsApp(A.tenantId, canal.id));
     expect(chamadas('registrar')[0]?.pin).toBe(registro[0]!.pin);
@@ -408,7 +405,7 @@ describe('Reauthorize disconnected WhatsApp channels (`reauthorization_service_s
 
   it('Reject a phone number that does not match the channel', async () => {
     const canal = await conectar(A, { codigo: `um-numero-${S}` });
-    // Com o `phone_number_id` do outro número, a Meta o acha e a reautorização recusa a troca.
+    // // With the other number's `phone_number_id`, Meta finds it and reauthorization rejects the swap.
     await expect(
       conectar(A, {
         codigo: `outro-numero-${S}`,
@@ -416,7 +413,7 @@ describe('Reauthorize disconnected WhatsApp channels (`reauthorization_service_s
         phone_number_id: ClienteGraphDuble.sufixo(`outro-numero-${S}`),
       }),
     ).rejects.toMatchObject({ codigo: 'numero_divergente' });
-    // Sem ele, casa pelo número do canal — que não está naquela WABA.
+    // // Without it, it matches by the channel's number — which isn't in that WABA.
     await expect(
       conectar(A, { codigo: `outro-numero-${S}`, canal_id: canal.id }),
     ).rejects.toMatchObject({ codigo: 'numero_nao_encontrado' });
@@ -426,7 +423,7 @@ describe('Reauthorize disconnected WhatsApp channels (`reauthorization_service_s
 describe('Validate manual channel configuration (`manual_setup_validation_service_spec`)', () => {
   const numeroId = ClienteGraphDuble.sufixo(`manual-${S}`);
   const token = `manual-${numeroId}`;
-  /** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */
+  /** The client app's App Secret: 32 hex characters. `bad…` the double treats as belonging to another app. */
   const appSecret = 'a'.repeat(32);
   const base = () => ({
     tenantId: A.tenantId,
@@ -469,7 +466,7 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
     expect(feito.webhookError).toBeNull();
     expect(feito.channel.nome).toBe('Suporte manual');
     expect(feito.channel.config['origem']).toBe('manual_setup_v2');
-    // O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.
+    // // This channel's webhook checks the signature with the client app's secret, not ours.
     expect(feito.channel.config['appSecret']).toBe(appSecret);
     expect(feito.channel.config['appId']).toMatch(/^app-/);
     expect(feito.webhook).toEqual({
@@ -515,7 +512,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () =>
     expect(depois.fotoUrl).toContain('app-de-teste-');
     expect(chamadas('subir_foto')).toHaveLength(1);
 
-    // Campo ausente não é mexido.
+    // // A missing field isn't touched.
     const deNovo = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, { descricao: 'Escola' });
     expect(deNovo).toMatchObject({ sobre: 'Atendimento de seg a sex', descricao: 'Escola' });
 
@@ -605,7 +602,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
       { nome: 'boas_vindas', status_meta: 'pendente', cabecalho_tipo: 'texto', variaveis: ['1', '2'] },
     ]);
 
-    // Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.
+    // // On Meta: approved, and a second template created out there shows up; a third of unknown category.
     enviado.status = 'APPROVED';
     ClienteGraphDuble.modelos.get(canal.wabaId!)!.push(
       {
@@ -620,12 +617,12 @@ describe('Synchronize, create, and delete Meta message templates', () => {
     const primeira = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
     expect(primeira).toEqual({ criados: 1, atualizados: 1, removidos: 0, ignorados: 1 });
     expect(await templatesLocations(canal.id)).toMatchObject([
-      // Os nomes dados às variáveis ficam: a quantidade não mudou.
+      // // The variable names stay: the count didn't change.
       { nome: 'boas_vindas', status_meta: 'aprovado', variaveis: ['1', '2'] },
       { nome: 'promo', status_meta: 'rejeitado', categoria: 'marketing', cabecalho_tipo: 'imagem', variaveis: ['Variável 1'] },
     ]);
 
-    // Apagado lá fora: some daqui na próxima sincronização.
+    // // Deleted out there: disappears here on the next sync.
     ClienteGraphDuble.modelos.set(
       canal.wabaId!,
       ClienteGraphDuble.modelos.get(canal.wabaId!)!.filter((m) => m.name !== 'promo'),
@@ -646,7 +643,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
     const create = (p: object) => createTemplateInMeta(A.tenantId, A.adminId, canal.id, p);
     const ok = { nome: 'aviso', categoria: 'utilidade', corpo: 'Oi {{1}}', exemplos: ['Ana'] };
     await expect(create({ ...ok, nome: 'Com Espaço' })).rejects.toMatchObject({ detalhe: { campo: 'nome' } });
-    // Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.
+    // // Authentication category now exists (own describe below); unknown category is still rejected.
     await expect(create({ ...ok, categoria: 'promocional' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
     await expect(create({ ...ok, idioma: 'português' })).rejects.toMatchObject({ detalhe: { campo: 'idioma' } });
     await expect(create({ ...ok, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
@@ -694,7 +691,7 @@ describe('Create templates with image, video, and document headers', () => {
     });
     expect(criado.statusMeta).toBe('pendente');
 
-    // Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.
+    // // Uploaded ONCE, before creating — the order follows the Resumable Upload API: handle first.
     expect(ClienteGraphDuble.chamadas.map((c) => c.acao)).toEqual(['subir_foto', 'criar_modelo']);
 
     const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'oferta_com_foto')!;
@@ -704,7 +701,7 @@ describe('Create templates with image, video, and document headers', () => {
     expect(cabecalho).not.toHaveProperty('text');
     const handles = (cabecalho.example as { header_handle: string[] }).header_handle;
     expect(handles).toHaveLength(1);
-    // Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.
+    // // Embedded: the file uploads to OUR app, and the double returns `<app>-<bytes suffix>`.
     expect(handles[0]).toMatch(/^app-de-teste-\d{11}$/);
     expect(enviado.components!.slice(1)).toEqual([
       { type: 'BODY', text: 'Oferta para {{1}}.', example: { body_text: [['Ana']] } },
@@ -757,7 +754,7 @@ describe('Create templates with image, video, and document headers', () => {
         ...p,
       });
 
-    // Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.
+    // // A type outside each format's list: the message is the one the source shows in the field.
     await expect(criar({ cabecalhoMidia: dataUrl('image/gif', Buffer.from('gif')) })).rejects.toMatchObject({
       status: 422,
       detalhe: { campo: 'cabecalhoMidia' },
@@ -770,7 +767,7 @@ describe('Create templates with image, video, and document headers', () => {
       message: 'O documento do cabeçalho é formato PDF.',
     });
 
-    // Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).
+    // // Size: 5 MB for image, 16 MB for video (document is 100 MB — too big for the test).
     const imageLarge = dataUrl('image/png', Buffer.alloc(5 * 1024 * 1024 + 1));
     await expect(criar({ cabecalhoMidia: imageLarge })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalhoMidia' },
@@ -781,7 +778,7 @@ describe('Create templates with image, video, and document headers', () => {
       message: 'O vídeo do cabeçalho tem de ter no máximo 16 MB.',
     });
 
-    // Não é data URL, está vazio, ou veio junto com cabeçalho de texto.
+    // // Not a data URL, is empty, or came with a text header.
     await expect(criar({ cabecalhoMidia: 'https://exemplo/foto.jpg' })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalhoMidia' },
     });
@@ -792,7 +789,7 @@ describe('Create templates with image, video, and document headers', () => {
       detalhe: { campo: 'cabecalho' },
     });
 
-    // Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.
+    // // Good media, bad body: the file does NOT upload — everything is checked before the upload.
     await expect(criar({ cabecalhoMidia: JPEG, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
 
     expect(chamadas('subir_foto')).toHaveLength(0);
@@ -819,7 +816,7 @@ describe('Build Meta authentication templates with their fixed components', () =
       { type: 'FOOTER', code_expiration_minutes: 10 },
       { type: 'BUTTONS', buttons: [{ type: 'OTP', otp_type: 'COPY_CODE', text: 'Copiar' }] },
     ]);
-    // Nenhum texto nosso vai para a Meta nessa categoria.
+    // // None of our text goes to Meta in this category.
     expect(enviado.components!.some((c) => 'text' in c)).toBe(false);
 
     const { rows } = await dono.execute<{
@@ -846,7 +843,7 @@ describe('Build Meta authentication templates with their fixed components', () =
       { type: 'BUTTONS', buttons: [{ type: 'OTP', otp_type: 'COPY_CODE', text: 'Copiar código' }] },
     ]);
 
-    // Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.
+    // // Off: the field doesn't go out, and the local copy is left without the security phrase.
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       nome: 'otp_seco',
       categoria: 'autenticacao',
@@ -859,7 +856,7 @@ describe('Build Meta authentication templates with their fixed components', () =
     `);
     expect(rows[0]!.body).toBe('{{1}} é seu código de verificação.');
 
-    // A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.
+    // // Meta approved it and returns the BODY with its own text: the sync replaces the local copy with it.
     enviado.status = 'APPROVED';
     enviado.components![0]!.text = '*{{1}}* é seu código de verificação. Para sua segurança, não compartilhe este código.';
     const resultado = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
@@ -921,7 +918,7 @@ describe('Read and update channel and alert preferences', () => {
       menu: false,
       alertaRecategorizacao: { ativo: true, emails: ['ana@pipe.app', 'bia@pipe.app'] },
     });
-    // O resto do config (token, número) sobrevive à gravação.
+    // // The rest of the config (token, number) survives the write.
     expect((await readChannelWhatsApp(A.tenantId, canal.id)).config['phoneNumberId']).toBeTruthy();
   });
 
@@ -1015,7 +1012,7 @@ describe('desconectar (webhook_teardown_service_spec)', () => {
       insert into conversa (tenant_id, inbox_id, contato_id, estado)
       values (${A.tenantId}::uuid, ${caixas[0]!.id}::uuid, ${contacts[0]!.id}::uuid, 'na_fila')
     `);
-    // Os outros canais desta WABA, dos testes anteriores, saem para este ser o último.
+    // // The other channels on this WABA, from earlier tests, leave so this one is the last.
     await dono.execute(sql`
       update canal set ativo = false where waba_id = ${WABA} and id <> ${channel.id}::uuid
     `);

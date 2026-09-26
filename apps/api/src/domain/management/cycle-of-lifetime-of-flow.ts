@@ -15,53 +15,7 @@ import {
 } from './regras-de-nome.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT),
- * app/controllers/api/v1/accounts/inboxes_controller.rb (`create`, `update`,
- * `destroy`, `avatar`) e app/policies/inbox_policy.rb.
- *
- * O ciclo de vida do CONTATO (o `fluxo`, fluxo ou roteador) — o que lá é o
- * ciclo de vida da Inbox. A forma é a deles, e a ordem de cada gesto também:
- *
- * - `create`: autoriza, monta com os parâmetros permitidos, `save!` (as
- *   validações do modelo recusam antes de gravar);
- * - `update`: `fetch_inbox` (404 se não é da conta), autoriza, `update!` só com
- *   o que veio — campo ausente não é campo apagado;
- * - `destroy`: `fetch_inbox`, autoriza, e some da lista;
- * - `avatar`: `@inbox.avatar.purge` — tirar a foto é um gesto próprio, aqui
- *   expresso como `imagem: null` no mesmo `update`.
- *
- * As REGRAS de cada campo não são do Chatwoot: são da plataforma de origem das
- * telas (a Blip), lidas do DOM de "Editar Fluxo"
- * (`referencias-blip/portal/dom/application-detail-pipeprincipal-configurations-basic.html`)
- * e do assistente de criação (`regras-de-nome.ts`, que cita o bundle):
- *
- * - nome: obrigatório, 2 a 30 caracteres, começa com letra, saneado a cada tecla
- *   (`required`, `ng-minlength="2"`, `ng-maxlength="30"`, `validateSpecialCharacter`);
- * - descrição: opcional, 2 a 160 quando existe (`ng-minlength="2"`,
- *   `ng-maxlength="160"`, sem `required`);
- * - imagem: opcional, `.gif .png .jpeg .jpg` conferidos pelos BYTES
- *   (`ng-mime-type="image/png, image/jpg, image/jpeg, image/gif"`).
- *
- * E a PERMISSÃO também é da origem: criar e editar são de quem "cria e edita
- * chatbots" (`automacao.fluxo.editar`, o `member` deles — migração 0021);
- * excluir é só do admin ("Somente um admin pode deletar o chatbot",
- * `deleteChatbotPermissionDenied` — `automacao.fluxo.excluir`, migração 0023).
- * Lá a InboxPolicy pede administrador para os três; a divergência é decisão da
- * origem das telas, não nossa.
- *
- * ## Excluir é ARQUIVAR
- *
- * A origem apaga de verdade ("removido de forma permanente… Essa ação não
- * poderá ser desfeita", `deleteChatBotModalBody`) e o Chatwoot também
- * (`DeleteObjectJob` → `destroy!`). Aqui o gesto vira `estado = 'arquivado'`,
- * e o motivo está no schema: `execucao_fluxo.fluxo_versao_id` é
- * `ON DELETE RESTRICT` — um fluxo que já atendeu alguém não pode ser apagado
- * sem antes apagar o histórico das conversas que passaram por ele, e histórico
- * de atendimento é o dado que a LGPD e o contrato mandam guardar. O efeito que
- * a pessoa vê é o mesmo dos dois originais: some do portal
- * (`carregarGradeDoPortal` já filtra `arquivado`), o canal para de servi-lo
- * (`fluxoPublicadoDoCanal` só olha `publicado`) e o nome fica livre para outro
- * (a unicidade ignora os arquivados). O que muda é que dá para voltar atrás.
+ * Ported from chatwoot/chatwoot (MIT), `app/controllers/api/v1/accounts/inboxes_controller.rb` (`create`, `update`, `destroy`, `avatar`) and `app/policies/inbox_policy.rb`. Contact (`fluxo` bot or router) lifecycle follows its Inbox sequence: authorize before create; fetch within account and authorize before update/delete; update supplied fields only; remove an avatar with `imagem: null`. Field rules come instead from Blip's Edit Flow DOM (`referencias-blip/portal/dom/application-detail-pipeprincipal-configurations-basic.html`) and creation wizard (`regras-de-nome.ts`): required name 2–30 starting with a letter; optional description 2–160 when present; optional image `.gif .png .jpeg .jpg` verified by BYTES. Source permissions also differ from Chatwoot: `automacao.fluxo.editar` (migration 0021) for create/edit, `automacao.fluxo.excluir` (migration 0023) for admin-only delete; the source says 'Somente um admin pode deletar o chatbot' (`deleteChatbotPermissionDenied`). Delete ARCHIVES here (`estado = 'arquivado'`) although Blip and Chatwoot permanently delete, because `execucao_fluxo.fluxo_versao_id` is `ON DELETE RESTRICT` and conversation history must remain for LGPD and contract obligations. Archived flows disappear from `carregarGradeDoPortal`, are ignored by `fluxoPublicadoDoCanal`, and free their name; this also permits restoration.
  */
 
 export const EDITAR_FLOW = 'automacao.fluxo.editar';
@@ -77,7 +31,7 @@ export interface RequestOfCreation {
   image?: string | null | undefined;
 }
 
-/** Só o que veio muda; `undefined` é "não mexa", `null` é "apague". */
+/** Only supplied fields change: `undefined` means leave unchanged; `null` means clear. */
 export interface RequestOfEdit {
   name?: string | undefined;
   description?: string | null | undefined;
@@ -95,10 +49,7 @@ export interface FlowWritten {
 /* ------------------------------------------------------------- Regras */
 
 /**
- * O nome, pelas regras de `regras-de-nome.ts` — as mesmas da criação, porque na
- * origem `validateSpecialCharacter` e os atributos do `<input>` são os mesmos
- * nas duas telas. `conferir` devolve a PRIMEIRA recusa como texto; aqui o texto
- * é o código, e a frase mora em `ErroPipe`.
+ * Use `regras-de-nome.ts` for names on create and edit: source `validateSpecialCharacter` and `<input>` attributes are the same on both screens. `conferir` returns the FIRST rejection as a code; `ErroPipe` owns the user-facing sentence.
  */
 function nomeConferido(bruto: string): string {
   const nome = limparNome(bruto).trim();
@@ -119,10 +70,7 @@ function nomeConferido(bruto: string): string {
 }
 
 /**
- * A descrição. Vazia vira NULL — o formulário manda `""` quando a pessoa apaga
- * tudo, e o campo é opcional. O filtro de caracteres da origem
- * (`validateSpecialCharacter(description, 'description')`) NÃO é aplicado:
- * o corpo dele para este campo não foi lido, e copiar o do nome seria supor.
+ * Empty description becomes NULL because the form submits `''` when cleared. The source's `validateSpecialCharacter(description, 'description')` was not reproduced: its field-specific body was not observed, so using the name rule would be an assumption.
  */
 function descriptionChecked(bruta: string | null): string | null {
   const description = (bruta ?? '').trim();
@@ -137,10 +85,7 @@ function descriptionChecked(bruta: string | null): string | null {
 }
 
 /**
- * A foto, se é mesmo imagem: o tipo sai dos bytes, nunca do rótulo. `null`
- * quando não é — quem chama decide se engole (criação, como o
- * `uploadApplicationImageSafely` deles) ou recusa (edição, onde o
- * `ng-mime-type` deixa o formulário inválido).
+ * Identify an image by bytes, never its label. Return `null` for invalid content; creation may ignore it like source `uploadApplicationImageSafely`, while editing rejects it because `ng-mime-type` makes the source form invalid.
  */
 export function imageOfBytes(dataUrl: string): string | null {
   const m = /^data:[^;]+;base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
@@ -152,7 +97,7 @@ export function imageOfBytes(dataUrl: string): string | null {
   return `data:${mime};base64,${Buffer.from(bytes).toString('base64')}`;
 }
 
-/** Outro contato VIVO com este nome? Arquivado não conta: o nome dele ficou livre. */
+/** Check another LIVE contact with this name. An archived contact frees its name. */
 async function nomeEmUso(
   tx: TransactionPipe,
   tenantId: string,
@@ -175,7 +120,7 @@ async function nomeEmUso(
 }
 
 function conflitoDeNome(): PipeError {
-  /* "Experimente usar outro nome" é o `errorMsg.1` da origem, literal. */
+  /* 'Experimente usar outro nome' is the source's literal `errorMsg.1`. */
   return PipeError.conflito(
     'name_in_use',
     'Já existe um fluxo com este nome. Experimente usar outro nome.',
@@ -186,7 +131,7 @@ const ator = (userId: string): Ator => ({ type: 'usuario', id: userId });
 
 /* ------------------------------------------------------------- Gestos */
 
-/** `create`: autoriza, valida, grava. A foto inválida é engolida, como lá. */
+/** `create` authorizes, validates and saves; invalid images are ignored as in the source. */
 export async function createFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -215,7 +160,7 @@ export async function createFlow(
   return { id: criado.id };
 }
 
-/** O contato vivo, ou 404 — o `fetch_inbox` deles. Arquivado é "não existe". */
+/** Return the live contact or 404, like source `fetch_inbox`; archived contacts are treated as absent. */
 async function flowVivo(tx: TransactionPipe, tenantId: string, id: string) {
   const [atual] = await tx
     .select({
@@ -235,7 +180,7 @@ async function flowVivo(tx: TransactionPipe, tenantId: string, id: string) {
   return atual;
 }
 
-/** `update`: só o que veio. Nada mudou, nada é gravado — nem no log. */
+/** `update` changes supplied fields only; no change means no write and no audit entry. */
 export async function editarFlow(
   tx: TransactionPipe,
   tenantId: string,
@@ -244,10 +189,9 @@ export async function editarFlow(
   pedido: RequestOfEdit,
 ): Promise<FlowWritten> {
   const atual = await flowVivo(tx, tenantId, id);
-  /* "Configurações básicas" é uma linha do `PermissionsList.html`
-     (`basicConfigurations`), então editar ESTE contato passa a valer também
-     para quem tem a permissão nele — sem tirar de quem já a tinha na conta
-     (`exigirPermissaoNoFluxo`, migração 0035). */
+  /*
+   * 'Configurações básicas' is a `PermissionsList.html` row (`basicConfigurations`), so a member with permission on THIS contact may edit it, alongside existing account-level permission (`exigirPermissaoNoFluxo`, migration 0035).
+   */
   await exigirPermissionInFlow(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const antes = {
@@ -281,7 +225,7 @@ export async function editarFlow(
   }
 
   const mudanca = diferenca(antes, depois);
-  if (Object.keys(mudanca.depois).length === 0) return { id: atual.id, ...antes };
+  if (Object.keys(mudanca.depois).length === 0) return { id: atual.id, name: antes.nome, description: antes.descricao, imageUrl: antes.imagemUrl, shortName: antes.shortName };
 
   if (depois.nome !== antes.nome && (await nomeEmUso(tx, tenantId, depois.nome, atual.id))) {
     throw conflitoDeNome();
@@ -293,9 +237,9 @@ export async function editarFlow(
     .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)))
     .returning({
       id: flow.id,
-      nome: flow.nome,
-      descricao: flow.descricao,
-      imagemUrl: flow.imageUrl,
+      name: flow.nome,
+      description: flow.descricao,
+      imageUrl: flow.imageUrl,
       shortName: flow.shortName,
     });
   if (!gravado) throw PipeError.naoEncontrado('fluxo');
@@ -311,7 +255,7 @@ export async function editarFlow(
   return gravado;
 }
 
-/** `destroy`: some da lista e do canal — arquivando, pelo motivo do cabeçalho. */
+/** `destroy` archives the contact, removing it from the list and channel for the reason in the file header. */
 export async function deleteFlow(
   tx: TransactionPipe,
   tenantId: string,

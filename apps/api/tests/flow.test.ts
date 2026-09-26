@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -20,13 +20,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O bot de ponta a ponta, com o dublê do WhatsApp e a fila em linha:
- * mensagem entra → o bot responde pelo outbox → o cliente escolhe → transferência →
- * conversa na fila com o contexto → humano ganha → encerra → a próxima mensagem volta
- * ao fluxo no bloco que o atendimento aponta.
- *
- * O fluxo é a fixture SINTÉTICA do core, no formato do editor do Builder da Blip,
- * importada pelo mesmo caminho que um fluxo de cliente usaria.
+ * The end-to-end bot, with the WhatsApp double and the queue running in-process: message comes in → the bot replies through the outbox → the customer chooses → transfer → conversation queued with its context → a human takes it → closes it → the next message returns to the flow at the block the ticket points to. The flow is the core's SYNTHETIC fixture, in the format of Blip's Builder editor, imported through the same path a customer flow would use.
  */
 
 const FIXTURE: unknown = JSON.parse(
@@ -62,7 +56,7 @@ beforeAll(async () => {
   cenario = await montarCenario(`fluxo-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
   dubleWhatsApp.reiniciar();
-  // Sem ninguém online: a conversa transferida tem de ficar NA FILA para o teste ver.
+  // With no one online: the transferred conversation must stay IN THE QUEUE for the test to observe.
   await cenario.dono.execute(
     sql`update status_atendente set estado = 'offline' where usuario_id = ${cenario.agentId}::uuid`,
   );
@@ -122,7 +116,7 @@ describe('bot com o dublê do WhatsApp', () => {
     expect(conversation.agentId).toBeNull();
     expect(await doBot(conversation.id)).toEqual(['Olá! Qual é o seu nome?']);
 
-    // O tempo com o bot não é tempo de fila: sem `criada` nem `enfileirada` ainda.
+    // Time spent with the bot is not queue time: neither `criada` nor `enfileirada` has happened yet.
     const tipos = await eventos(conversation.id);
     expect(tipos).not.toContain('criada');
     expect(tipos).not.toContain('enfileirada');
@@ -146,8 +140,8 @@ describe('bot com o dublê do WhatsApp', () => {
       'Prazer, Ana. Como posso ajudar?\n1. Financeiro\n2. Suporte',
     );
 
-    // O menu vai estruturado em `dados`, e com 2 opções o worker manda em botões
-    // (quick reply nasce ligado). O texto numerado continua sendo o conteúdo gravado.
+    // The menu is structured in `dados`, and with 2 options the worker sends it as buttons
+    // (quick reply is enabled by default). The numbered text remains the content that gets recorded.
     const { rows } = await cenario.dono.execute<{ data: unknown }>(sql`
       select dados from mensagem where conversa_id = ${conversa.id}::uuid and autor_tipo = 'bot'
        order by criada_em desc limit 1
@@ -229,7 +223,7 @@ describe('bot com o dublê do WhatsApp', () => {
       'Seu atendimento foi encerrado. Posso ajudar em algo mais?',
     ]);
 
-    // O contexto é do contato: a conversa nova sabe o nome.
+    // The context belongs to the contact: the new conversation knows the name.
     const { rows } = await cenario.dono.execute<{
       contexto: Record<string, string>;
       code: string;

@@ -10,7 +10,7 @@ import { exigirPermission } from '../../session.js';
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
-/** Do catálogo — migração 0030: nenhuma permissão cobria resposta pronta antes dela. */
+/** From catalog migration 0030: no earlier permission covered quick replies. */
 export const RESPONSE_READY_MANAGE = 'resposta_pronta.gerenciar';
 
 /**
@@ -162,7 +162,7 @@ export interface ChannelWhatsapp {
   name: string;
 }
 
-/** Só canal WhatsApp: modelo de mensagem é coisa da Cloud API, os outros canais não têm. */
+/** Only WhatsApp channels have message templates through the Cloud API. */
 export async function loadChannelsWhatsapp(tx: TransactionPipe): Promise<ChannelWhatsapp[]> {
   return consultar(tx, async (tx) => {
     return tx
@@ -173,11 +173,9 @@ export async function loadChannelsWhatsapp(tx: TransactionPipe): Promise<Channel
   });
 }
 
-/* ===================================================== escrita — respostas prontas
-   Item 2 da tarefa de cadastros do Atendimento: criar, editar, excluir. Mesmo
-   padrão REST de `ciclo-de-vida-do-fluxo.ts` — `ErroPipe` com status de
-   verdade — e não o `Resultado` em 200 das `acoes/*` (que segue existindo só
-   para `salvarRespostaPronta`, a criação antiga, sem quebrar quem já chama). */
+/*
+ * Quick-reply REST writes add edit and delete to existing `salvarRespostaPronta` creation. Follow `ciclo-de-vida-do-fluxo.ts` with real `ErroPipe` statuses; retain the older form `acoes/*` `Resultado` in 200 for its existing callers.
+ */
 
 export interface PedidoDeRespostaPronta {
   shortcut: string;
@@ -222,9 +220,7 @@ function corpoConferido(bruto: unknown): string {
 }
 
 /**
- * `resposta_pronta.atalho` só tem `index`, não `uniqueIndex` (ver o comentário
- * no topo do arquivo) — a unicidade por tenant é regra desta função, checada
- * antes do `insert`/`update`, e não da constraint.
+ * `resposta_pronta.atalho` has `index`, not `uniqueIndex`; enforce tenant uniqueness in this function before `insert`/`update`, not through a database constraint.
  */
 async function atalhoEmUso(
   tx: TransactionPipe,

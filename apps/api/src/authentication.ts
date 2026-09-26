@@ -10,14 +10,7 @@ import { KEY_ANY_CREDENTIAL, KEY_SESSION, temBearer } from './session.js';
 import type { RequestWithSession } from './session.js';
 
 /**
- * Autenticação por `chave_api`, no formato recomendado em `apis.md` §5.2:
- * `Authorization: Bearer <token>`, token **opaco** (não JWT auto-contido) para poder
- * ser revogado na hora, e `tenant_id` resolvido no servidor — nunca vindo do cliente,
- * nem em payload, nem em header.
- *
- * O token é `pipe_<prefixo>_<segredo>`. O banco guarda o `prefixo` em claro (é o que
- * a tela mostra para o cliente reconhecer a chave) e o `sha256` do segredo. Achar a
- * chave pelo prefixo é a única consulta que roda antes de haver tenant em vigor.
+ * API key authentication through `chave_api` follows `apis.md` §5.2: `Authorization: Bearer <token>`. The token is opaque rather than a self-contained JWT so it can be revoked immediately. Resolve `tenant_id` on the server; never accept it from a client payload or header. Tokens have the form `pipe_<prefixo>_<segredo>`. The database stores `prefixo` in clear text so the client can recognize the key, and stores the secret's `sha256` hash. Looking up the key by prefix is the only query performed before a tenant is established.
  */
 
 export const CATALOG_SCOPES = [
@@ -39,28 +32,21 @@ export interface ContextOfKey {
   keyId: string;
   escopos: string[];
   /**
-   * O fluxo dono da chave (`chave_api.fluxo_id`, migração 0032), ou `null` na
-   * chave de CONTA. É a cerca que `conferirFluxoDaChave` aplica: chave de fluxo
-   * só age no fluxo dela.
+   * The flow owning this key (`chave_api.fluxo_id`, migration 0032), or `null` for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.
    */
   flowId: string | null;
 }
 
-/** A requisição autenticada carrega o contexto; o controlador nunca lê header. */
+/** The authenticated request carries the context; controllers never read the header. */
 export type RequestAuthenticated = Request & { context?: ContextOfKey };
 
 export const KEY_SCOPES = 'pipe:escopos';
 
-/** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */
+/** Marks the scope required by a route. Without the marker, the route is public (for example, the webhook). */
 export const Scopes = (...scopes: Scope[]) => SetMetadata(KEY_SCOPES, scopes);
 
 /**
- * A rota serve aos dois clientes: integração por chave de API **ou** gente logada no
- * navegador. Quem se apresentou manda — ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
- *
- * Existe porque `POST /v1/conversas/:id/mensagens` é a MESMA operação nos dois casos, e
- * duplicá-la numa rota `/v1/desk/...` seria duas implementações da regra de janela de
- * 24 horas, de outbox e de evento — ou seja, duas para divergir.
+ * This route serves both API key integrations and people signed in through a browser. The presented credential takes precedence; see `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`. `POST /v1/conversas/:id/mensagens` is the same operation for both. Duplicating it under `/v1/desk/...` would duplicate the 24-hour window, outbox and event rules and let the implementations diverge.
  */
 export const KeyOrSession = (...escopos: Scope[]) =>
   applyDecorators(
@@ -70,16 +56,12 @@ export const KeyOrSession = (...escopos: Scope[]) =>
   );
 
 /**
- * Quem está pedindo: uma integração ou uma pessoa.
- *
- * O `tenantId` sai da credencial nos dois casos, nunca do corpo nem da URL. O
- * `usuarioId` só existe quando é gente — chave de API não tem dono, e mensagem
- * enviada por integração é do sistema.
+ * The caller may be an integration or a person. In both cases `tenantId` comes from the credential, never from the body or URL. Only a person has `usuarioId`: API keys have no owner, and integration messages are attributed to the system.
  */
 export interface Ator {
   tenantId: string;
   userId: string | null;
-  /** `true` quando veio de navegador. É o que liga as regras de atendente. */
+  /** `true` for a browser session; enables the attendant rules. */
   viaSession: boolean;
 }
 
@@ -113,12 +95,7 @@ type LineKey = {
 };
 
 /**
- * O fluxo que a ROTA nomeia, quando nomeia um: o parâmetro `:fluxoId`, ou o
- * `:id` (ou outro nome) logo depois de `/fluxos/` — `/v1/gestao/fluxos/:id/...`.
- *
- * Lê o PADRÃO da rota (`req.route.path`), não a URL: é o padrão que diz qual
- * segmento é o fluxo. Ler a URL casaria `/v1/conversas/<uuid>` por acidente se
- * alguém um dia nomeasse uma conversa com o id de um fluxo.
+ * When a route names a flow, use its `:fluxoId` parameter or `:id` (or another parameter name) immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.
  */
 export function flowOfRoute(requisicao: Request): string | null {
   const parametros = (requisicao.params ?? {}) as Record<string, string | undefined>;
@@ -129,21 +106,7 @@ export function flowOfRoute(requisicao: Request): string | null {
 }
 
 /**
- * A cerca da chave de fluxo. Chave de conta (`fluxoId` nulo) passa sempre —
- * é o tenant inteiro, como sempre foi.
- *
- * Chave de fluxo:
- * - rota POR FLUXO (`/…/fluxos/:id/…`): só o fluxo dela; outro fluxo é 403,
- *   e o 403 diz o porquê — não é 404, porque o fluxo existe e a chave é válida,
- *   o que falta é alcance.
- * - rota que NÃO é por fluxo (`/v1/conversas`, `/v1/contatos`, …): RECUSADA.
- *   Decisão Pipe: entre "recusar" e "limitar ao que pertence ao fluxo", vale a
- *   mais restritiva. Conversa não tem `fluxo_id` — pertence a um fluxo só por
- *   tabela (inbox → canal = `fluxo.canal_id`), e filtrar por essa tabela em
- *   cada rota de conversa/contato/anexo/etiqueta seria uma cerca de dados
- *   espalhada em oito lugares, fácil de esquecer na nona. Recusar é uma
- *   linha, aqui, e nenhuma rota de hoje aceita chave E é por fluxo — quando
- *   uma for aberta a chave, a regra de cima já vale sem mexer em nada.
+ * Account keys (`fluxoId` is null) cover the whole tenant. A flow key may access only its own flow on a flow route (`/…/fluxos/:id/…`); another flow returns 403 because the key and flow exist but the key lacks reach. Reject a flow key on routes without a flow (`/v1/conversas`, `/v1/contatos`, etc.). Pipe chose rejection over filtering related records: a conversation has no `fluxo_id` and belongs to a flow only through the inbox and channel (`fluxo.canal_id`). Repeating that data boundary across conversation, contact, attachment and tag routes would be easy to miss in a new route. The single guard enforces it. No current route both accepts a key and names a flow; when one does, this rule already applies.
  */
 export function checkFlowOfKey(
   key: Pick<ContextOfKey, 'flowId'>,
@@ -176,14 +139,14 @@ export class ApiKeyGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    // Rota sem `@Escopos` é pública de propósito: o webhook da Meta se autentica
-    // pela assinatura `X-Hub-Signature-256`, não por chave nossa.
+    // An unmarked `@Escopos` route is deliberately public: the Meta webhook authenticates
+    // with `X-Hub-Signature-256`, not with our API key.
     if (!exigidos || exigidos.length === 0) return true;
 
     const request = context.switchToHttp().getRequest<RequestAuthenticated>();
 
-    // Rota que aceita as duas credenciais e NÃO recebeu Bearer: quem confere é o
-    // guarda da sessão. Ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
+    // On a route that accepts either credential, if no Bearer token was supplied,
+    // the session guard checks the request. See `CHAVE_QUALQUER_CREDENCIAL` in `sessao.ts`.
     const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
       KEY_ANY_CREDENTIAL,
       [context.getHandler(), context.getClass()],
@@ -203,8 +166,8 @@ export class ApiKeyGuard implements CanActivate {
       throw PipeError.withoutScope(faltando ?? exigidos[0] ?? 'desconhecido');
     }
 
-    // Depois do escopo: "o que" a chave pode fazer é conferido antes de "onde".
-    // O guarda roda já dentro da rota casada, então `params` e `route.path` existem.
+    // Check the key's scope before checking its flow: first what it may do, then where.
+    // The guard runs after route matching, so `params` and `route.path` are available.
     checkFlowOfKey(key, flowOfRoute(request));
     return true;
   }
@@ -232,7 +195,7 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
   if (linha.revogada) throw PipeError.naoAutorizado('Chave revogada.');
   if (linha.expirada) throw PipeError.naoAutorizado('Chave expirada.');
 
-  // Marcar o uso não pode derrubar a requisição: é dado de auditoria, não de rota.
+  // Failure to record last use must not fail the request: this is audit data, not route data.
   void databaseOwner()
     .execute(sql`update chave_api set ultimo_uso_em = now() where id = ${linha.id}`)
     .catch(() => undefined);
@@ -249,7 +212,7 @@ export function hashOfSecret(segredo: string): string {
   return createHash('sha256').update(segredo).digest('hex');
 }
 
-/** Comparação sem vazar, pelo tempo de resposta, quantos caracteres bateram. */
+/** Compare without revealing through response timing how many characters matched. */
 function equalInTimeConstante(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);

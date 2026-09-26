@@ -12,15 +12,7 @@ import { WithSession, exigirPermission, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 
 /**
- * A casca HTTP da importação de contatos. A regra mora em
- * `dominio/importacao-de-contatos.ts`; o trabalho, no worker.
- *
- * O CSV sobe como CORPO CRU de texto (`servidor.ts` monta o parser só nesta
- * rota, com teto de 20 MB), e o nome do arquivo em `?nome=`. É a mesma escolha
- * do upload de anexo: um arquivo cabe inteiro no corpo, sem `multer`.
- *
- * `crm.importar` ("Importar base de outro CRM"), que é de administrador e gestor.
- * O tenant é o da sessão; nada no corpo o escolhe.
+ * HTTP adapter for contact import. The rule lives in `dominio/importacao-de-contatos.ts`; the worker performs the job. Upload CSV as a raw text body: `servidor.ts` installs the parser only on this route, with a 20 MB limit; pass the filename in `?nome=`. As with attachment uploads, one file fits in the request body without `multer`. Require `crm.importar` ("Importar base de outro CRM") for administrators and managers. The tenant comes from the session, never the body.
  */
 @Controller('v1/contacts/imports')
 export class ContactImportsController {
@@ -61,7 +53,7 @@ export class ContactImportsController {
     return readImport(sessao.tenantId, id);
   }
 
-  /** O relatório das linhas rejeitadas, com a coluna `erros`, para baixar. */
+  /** Download the rejected-row report with its `erros` column. */
   @Get(':id/falhas')
   @WithSession()
   async falhas(

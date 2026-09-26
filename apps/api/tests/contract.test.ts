@@ -6,7 +6,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest
 import { sql } from 'drizzle-orm';
 import { generatePfxOfTest } from './ajuda-pfx.js';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -23,14 +23,9 @@ const { entregarPendentes } = await import('../src/webhooks-saida.js');
 const URL_DONO = process.env['DATABASE_URL']!;
 
 /**
- * Contrato — Membros e Certificados: item 4 da tarefa.
+ * Contract — Members and Certificates: item 4 of the task.
  *
- * Mesmo padrão de `cadastros-atendimento.test.ts`: dois tenants, sessão por
- * cookie, caminho feliz, recusas, cross-tenant, permissão. Como Membros usa o
- * padrão `Resultado` (`{ ok, erro }` em 200, não `ErroPipe`), as recusas de
- * negócio (último admin, cross-tenant) chegam como `ok: false`; convite e
- * certificado usam `ErroPipe` de verdade (400/403/404), então essas rotas
- * mostram status HTTP também.
+ * Same pattern as `cadastros-atendimento.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. Since Members uses the `Resultado` pattern (`{ ok, erro }` at 200, not `ErroPipe`), business refusals (last admin, cross-tenant) arrive as `ok: false`; invite and certificate use real `ErroPipe` (400/403/404), so those routes show an HTTP status too.
  */
 
 interface Cenario {
@@ -76,10 +71,7 @@ async function userWithRole(
 }
 
 /**
- * Alguém com `conta.membros.escrever` que NÃO é `admin` — um papel de conta
- * customizado, só para provar que a trava de "último admin" em
- * `removerMembro` vale mesmo vindo de quem não é o próprio alvo (o "não posso
- * excluir a mim mesmo" já barra o caso mais óbvio antes dela).
+ * Someone with `conta.membros.escrever` who is NOT `admin` — a custom account role, only to prove the "last admin" guard in `removerMembro` holds even coming from someone who isn't the target themselves (the "can't remove myself" already blocks the more obvious case before it).
  */
 async function userOperator(cenario: Cenario): Promise<string> {
   const marca = randomUUID().slice(0, 8);
@@ -141,18 +133,18 @@ async function pedir(
 
 let a: Cenario;
 let b: Cenario;
-/** Tenant `a` com DOIS admins — para testar troca/remoção sem esbarrar no último. */
+/** Tenant `a` with TWO admins — to test swap/removal without hitting the last one. */
 let sessionAdmin1: string;
 let userAdmin2Id: string;
 let userMemberId: string;
 let sessionGuest: string;
-/** Tenant à parte, com um ÚNICO admin — só para os dois testes de "último admin". */
+/** A separate tenant, with a SINGLE admin — only for the two "last admin" tests. */
 let umAdmin: Cenario;
 let sessionUniqueAdmin: string;
 let userUniqueAdminId: string;
-/** Tem `conta.membros.escrever` mas não é `admin` — ver `usuarioOperador`. */
+/** Has `conta.membros.escrever` but isn't `admin` — see `usuarioOperador`. */
 let sessionOperator: string;
-/** Sessão válida do tenant B, para provar que o id de A não é achado nele. */
+/** A valid session from tenant B, to prove A's id isn't found there. */
 let sessionOfOtherTenant: string;
 
 beforeAll(async () => {
@@ -221,7 +213,7 @@ describe('convidar, reenviar e revogar', () => {
     expect(reenviado.corpo.email).toBe(email);
     expect(reenviado.corpo.url).not.toBe(criado.corpo.url);
 
-    // o convite original não existe mais (venceu); o novo id é o que vale
+    // // the original invite no longer exists (expired); the new id is the one that counts
     const naoAchaOAntigo = await pedir(
       'POST',
       `/v1/convites/${criado.corpo.id}/reenviar`,
@@ -273,7 +265,7 @@ describe('POST /v1/management/contract/members/role', () => {
     const membro = lista.corpo.membros.find((m: Corpo) => m.id === userMemberId);
     expect(membro.roleName).toBe('guest');
 
-    // devolve ao estado original, para não atrapalhar os outros testes
+    // // returns to the original state, so it doesn't disrupt the other tests
     await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.member,
       alvos: [`usuario:${userMemberId}`],
@@ -330,7 +322,7 @@ describe('o último administrador', () => {
     });
     expect(rebaixa.corpo).toEqual({ ok: true });
 
-    // devolve a admin e testa a remoção pelo outro lado
+    // // returns the admin and tests removal from the other side
     await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.admin,
       alvos: [`usuario:${userAdmin2Id}`],
@@ -360,7 +352,7 @@ const pedidoDeCertificado = (extra: Record<string, unknown> = {}) => ({
 
 describe('Manage mTLS authentication certificates', () => {
   it('Read validity, fingerprint, subject, and issuer from a .pfx and calculate its status', async () => {
-    // A tela manda data URL (FileReader); base64 puro também vale.
+    // // The screen sends a data URL (FileReader); plain base64 also works.
     const criado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({
         arquivo: `data:application/x-pkcs12;base64,${pfxValido.pfx.toString('base64')}`,
@@ -448,7 +440,7 @@ describe('Manage mTLS authentication certificates', () => {
     expect(rows[0]!.arquivo_cifrado).not.toContain(base64.slice(0, 40));
     expect(rows[0]!.senha_cifrada).not.toContain(SENHA_DO_PFX);
 
-    // A listagem não traz nem o cifrado.
+    // // The listing doesn't even include the encrypted value.
     const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     const linha = lista.corpo.find((c: Corpo) => c.id === criado.corpo.id);
     for (const key of ['senha', 'arquivo', 'senha_cifrada', 'arquivo_cifrado', 'senhaCifrada']) {
@@ -456,7 +448,7 @@ describe('Manage mTLS authentication certificates', () => {
     }
     expect(JSON.stringify(lista.corpo)).not.toContain('pipev1.');
 
-    // A auditoria registra só o que é público do certificado.
+    // // The audit log records only what's public about the certificate.
     const auditoria = await a.dono.execute<{ depois: Record<string, unknown> }>(
       sql`select depois from log_auditoria where objeto_tipo = 'certificado_mtls' and objeto_id = ${criado.corpo.id}::uuid`,
     );
@@ -551,12 +543,12 @@ describe('Manage mTLS authentication certificates', () => {
 });
 
 /* =========================================================================
- * mTLS na saída: a Pipe apresenta o certificado ao chamar o host cadastrado
+ * Outbound mTLS: Pipe presents the certificate when calling the registered host
  * ========================================================================= */
 
 const HOST_COM_CERTIFICADO = 'https://mtls.exemplo.com.br';
 
-/** Um webhook do tenant com uma entrega pendente para `url`, semeado pelo dono. */
+/** A tenant's webhook with a pending delivery for `url`, seeded by the owner. */
 async function deliveryPending(cenario: Cenario, url: string): Promise<string> {
   const { rows: webhooks } = await cenario.dono.execute<{ id: string }>(sql`
     insert into webhook_saida (tenant_id, url, eventos, segredo)
@@ -579,11 +571,7 @@ describe('mTLS na saída (webhooks)', () => {
   const chamadasFetch: string[] = [];
 
   /**
-   * Sem rede: `https.request` (o caminho com certificado) vira um dublê que
-   * registra o agente recebido e responde 200; o `fetch` global (o caminho
-   * sem certificado) registra a URL e responde 200 — menos o que vai para a
-   * própria `api` de teste, que passa pelo fetch de verdade (o mesmo cuidado
-   * de `integracoes.test.ts`).
+   * No network: `https.request` (the path with a certificate) becomes a double that records the agent it received and answers 200; the global `fetch` (the path without a certificate) records the URL and answers 200 — except for what goes to the test `api` itself, which goes through the real fetch (the same care as `integracoes.test.ts`).
    */
   function fingirRede() {
     chamadasHttps.length = 0;

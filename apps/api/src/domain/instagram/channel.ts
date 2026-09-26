@@ -7,17 +7,7 @@ import { novoVerifyToken, texto } from '../whatsapp/channel.js';
 import { clienteGraphInstagram, versaoDaApiInstagram } from './cliente-graph.js';
 
 /**
- * O canal do Instagram (Direct) pelo caminho MANUAL. Reconstruído de
- * chatwoot/chatwoot (MIT), `Channel::Instagram` e
- * app/controllers/api/v1/accounts/instagram/authorizations_controller.rb — lá o
- * token vem do OAuth do app da instalação; aqui não temos app aprovado na Meta, então
- * o cliente cria o app DELE ("Instagram API with Instagram Login"), gera o token de
- * longa duração no painel e cola na Pipe junto com o App Secret. Mesmo desenho da
- * configuração manual do WhatsApp (`../whatsapp/configuracao-manual.ts`).
- *
- * O id da conta profissional (`user_id` do `/me`) mora em `canal.numero_id`: o índice
- * único GLOBAL daquela coluna (migration 0008) é o que barra a mesma conta em dois
- * clientes, inclusive na corrida — sem migration nova.
+ * Manual Instagram Direct channel, reconstructed from chatwoot/chatwoot (MIT) `Channel::Instagram` and app/controllers/api/v1/accounts/instagram/authorizations_controller.rb. Chatwoot obtains the token through its installation app's OAuth; Pipe has no Meta-approved app, so the customer creates their own "Instagram API with Instagram Login" app and pastes its long-lived token and App Secret, as in manual WhatsApp setup (`../whatsapp/configuracao-manual.ts`). Store the professional account ID (`user_id` from `/me`) in `canal.numero_id`. Its global unique index (migration 0008) prevents an account from joining two tenants, including races, without another migration.
  */
 
 export interface ChannelInstagram {
@@ -26,7 +16,7 @@ export interface ChannelInstagram {
   name: string;
   active: boolean;
   igUserId: string;
-  /** Decifrado. Só em memória. */
+  /** Decrypted; memory only. */
   config: Record<string, unknown>;
 }
 
@@ -45,7 +35,7 @@ export interface ChannelInstagramVisible {
 
 export interface ConexaoInstagram {
   channel: ChannelInstagramVisible;
-  /** A assinatura do webhook falhou; o canal fica, e a tela diz o que houve. */
+  /** Webhook subscription failed; keep the channel and report the failure to the screen. */
   webhookError: string | null;
   /** O que o cliente cola no webhook DO APP dele (Painel → Instagram → Webhooks). */
   webhook: { url: string; verifyToken: string };
@@ -53,7 +43,7 @@ export interface ConexaoInstagram {
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FORMAT_OF_SECRET = /^[0-9a-f]{32}$/i;
-/** O token de longa duração do Instagram vale 60 dias. */
+/** Instagram long-lived tokens are valid for 60 days. */
 export const VALIDITY_OF_TOKEN_MS = 60 * 24 * 3600 * 1000;
 
 export function urlDoWebhookInstagram(canalId: string): string {
@@ -99,7 +89,7 @@ export async function readChannelInstagram(tenantId: string, canalId: string): P
   };
 }
 
-/** Grava o `config` inteiro de novo, cifrado. `cifrarConfig` é idempotente. */
+/** Rewrite the entire encrypted `config`; `cifrarConfig` is idempotent. */
 export async function atualizarConfigInstagram(
   channel: ChannelInstagram,
   changes: Record<string, unknown>,
@@ -117,7 +107,7 @@ export async function atualizarConfigInstagram(
 }
 
 function visivel(linha: LineChannel): ChannelInstagramVisible {
-  // `username` e a validade não são segredo: ficam legíveis no `config` cifrado.
+  // `username` and expiry are not secrets and stay readable in encrypted `config`.
   const config = linha.config ?? {};
   const pendente = config['reautorizacaoPendente'] === true;
   return {
@@ -135,9 +125,7 @@ function visivel(linha: LineChannel): ChannelInstagramVisible {
 }
 
 /**
- * ponytail: a lista não pergunta nada à Meta (o WhatsApp lê a saúde a cada vez).
- * `conectado` quer dizer "ligado e sem reautorização pendente"; a renovação diária do
- * token é quem descobre token revogado. Perguntar ao `/me` aqui, quando a tela pedir.
+ * ponytail: listing does not query Meta, unlike the WhatsApp health check. `conectado` means enabled with no pending reauthorization; daily token renewal detects revocation. Query `/me` here if the screen needs live health.
  */
 export async function listChannelsInstagram(tenantId: string): Promise<ChannelInstagramVisible[]> {
   return noTenant(tenantId, async (tx) => {
@@ -162,12 +150,7 @@ async function lerVisivel(tenantId: string, channelId: string): Promise<ChannelI
 }
 
 /**
- * Valida o token lendo `/me`, confere o App Secret pelo `appsecret_proof`, recusa
- * conta já conectada em QUALQUER cliente, cria canal e caixa na mesma transação,
- * assina o webhook e devolve `{ url, verifyToken }` para o cliente apontar o app dele.
- *
- * A mesma conta, desligada, no MESMO cliente é religada com o token novo — é o
- * "reconectar" do Instagram (o WhatsApp tem a reautorização por `canal_id`).
+ * Validate the token with `/me` and verify the App Secret through `appsecret_proof`. Reject an account already connected to any tenant; create channel and inbox in one transaction, subscribe the webhook, and return `{ url, verifyToken }` for the customer's app. An inactive account in the same tenant is reconnected with the new token, unlike WhatsApp's reauthorization by `canal_id`.
  */
 export async function conectarInstagramManual(pedido: {
   tenantId: string;
@@ -200,8 +183,7 @@ export async function conectarInstagramManual(pedido: {
     throw recusa('Este App Secret não é do aplicativo que gerou o token.');
   }
 
-  // Unicidade GLOBAL, com o papel dono: a RLS esconderia justamente o canal do outro
-  // cliente. Devolve só o necessário para decidir.
+  // Check global uniqueness with the owner role: RLS would hide another tenant's channel. Return only the information needed to decide.
   const { rows: existentes } = await databaseOwner().execute<{ id: string; tenant_id: string; active: boolean }>(sql`
     select id, tenant_id, ativo from canal where numero_id = ${igUserId} limit 1
   `);
@@ -221,7 +203,7 @@ export async function conectarInstagramManual(pedido: {
     ...(username ? { username } : {}),
     nomeExibicao: account.name ?? username ?? igUserId,
     origem: 'manual',
-    // Não sabemos a idade real do token colado: conta a partir de agora.
+    // The pasted token's real age is unknown; start counting now.
     // Conferir com token real se vale ler `GET /debug_token` ou equivalente.
     tokenRenovadoEm: agora.toISOString(),
     tokenExpiraEm: new Date(agora.getTime() + VALIDITY_OF_TOKEN_MS).toISOString(),
@@ -246,7 +228,7 @@ export async function conectarInstagramManual(pedido: {
           returning id
         `);
         id = rows[0]!.id;
-        // Em série, nunca em `Promise.all` — ver `../whatsapp/criacao-de-canal.ts`.
+        // Run serially, never with `Promise.all`; see `../whatsapp/criacao-de-canal.ts`.
         const { rows: queues } = await tx.execute<{ id: string }>(
           sql`select id from fila where ativa order by ordem, criado_em limit 1`,
         );
@@ -282,8 +264,7 @@ export async function conectarInstagramManual(pedido: {
 }
 
 /**
- * Desliga sem apagar conversa nem mensagem, como o WhatsApp. Tirar a assinatura do
- * webhook é tentativa: token já revogado não pode prender o canal ligado.
+ * Disable the channel without deleting conversations or messages, as for WhatsApp. Unsubscribing the webhook is best effort: an already revoked token must not prevent disablement.
  */
 export async function desconectarInstagram(
   tenantId: string,

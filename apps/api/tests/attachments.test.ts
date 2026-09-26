@@ -19,7 +19,7 @@ type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 let cenario: Cenario;
 let api: ApiNoAr;
 
-/** Armazenamento em memória: o teste não precisa de disco para provar a regra. */
+/** In-memory storage: the test doesn't need disk to prove the rule. */
 const objetos = new Map<string, Uint8Array>();
 
 beforeAll(async () => {
@@ -38,8 +38,8 @@ beforeAll(async () => {
   });
   cenario = await montarCenario(`anexo-${randomUUID().slice(0, 8)}`);
   api = await upApi(0);
-  // O link é absoluto porque é a Meta que o baixa. No teste a porta é efêmera, então
-  // a base pública passa a ser a do servidor que acabou de subir.
+  // // The link is absolute because it's Meta that downloads it. In the test the port is ephemeral, so
+  // // the public base becomes that of the server that just came up.
   process.env['PIPE_STORAGE_URL_BASE'] = api.url;
 });
 
@@ -113,7 +113,7 @@ describe('Upload attachments and return signed links', () => {
   });
 
   it('áudio acima de 16 MB é recusado, mesmo abaixo dos 100 MB', async () => {
-    // O erro que o Desk da Blip comete: valida só os 100 MB e deixa subir o que a
+    // // The mistake the Blip Desk makes: it only validates the 100 MB and lets through what the
     // plataforma recusa depois.
     const grande = Buffer.alloc(MAX_BYTES_AUDIO_VIDEO + 1024, 0x41);
     grande[0] = 0x49;
@@ -156,7 +156,7 @@ describe('Download attachments through signed links', () => {
 
   it('Allow Meta to download signed media links without our cookie or API key', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
-    // Sem `authorization`, sem `cookie`. É o caso real do link que vai para a Meta.
+    // // No `authorization`, no `cookie`. This is the real case of the link that goes to Meta.
     expect((await fetch(link)).status).toBe(200);
   });
 
@@ -170,9 +170,9 @@ describe('Download attachments through signed links', () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const url = new URL(link);
     const assinatura = url.searchParams.get('signature')!;
-    // Troca o primeiro dígito por OUTRO. Antes isto era `replace(/assinatura=./,
-    // 'assinatura=0')`, que não alterava nada quando o dígito já era `0` — o teste
-    // passava por sorte em 15 de 16 execuções.
+    // // Swap the first digit for ANOTHER one. This used to be `replace(/assinatura=./,
+    // // 'assinatura=0')`, which changed nothing when the digit was already `0` — the test
+    // // passed by luck in 15 of 16 runs.
     url.searchParams.set('signature', (assinatura[0] === '0' ? '1' : '0') + assinatura.slice(1));
 
     expect((await fetch(url.toString())).status).toBe(401);

@@ -11,8 +11,8 @@ import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { contar } from '../metrics.js';
 // Ciclo consciente: `filas.ts` importa `processarPayload` daqui e daqui sai
-// `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM
-// resolve — nenhuma é chamada durante a avaliação do módulo.
+// `enfileirarEspelhoCrm` is also a function declaration, so ESM hoisting
+// resolves the cycle; neither function runs during module evaluation.
 import {
   enqueueDownloadMedia,
   enqueueDelivery,
@@ -34,12 +34,7 @@ import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../realtime.js';
 
 /**
- * Entrada vinda da Meta: mensagem recebida, status de entrega e erro.
- *
- * Cada evento é processado numa transação com `pipe.tenant_id` fixado, em série.
- * Reentrega de webhook é normal — a Meta repete quando não recebe 200 rápido — então
- * tudo aqui é **idempotente**: mensagem já vista pelo `id_provedor` é ignorada, e
- * status que não avança na máquina de entrega é descartado sem erro.
+ * Meta inbound events include received messages, delivery statuses, and errors. Process each event serially in a transaction with `pipe.tenant_id` set. Meta retries webhooks when it does not receive 200 quickly, so this path is idempotent: ignore a message already seen by `id_provedor`, and discard a delivery status that cannot advance the state machine without error.
  */
 
 export interface ValueOfWebhook {
@@ -73,7 +68,7 @@ export interface MessageOfMeta {
 
 interface MediaOfMeta {
   id?: string;
-  /** Instagram: a mídia chega por URL, não por `media_id` (`instagram/entrada.ts`). */
+  /** Instagram media arrives by URL, not `media_id` (`instagram/entrada.ts`). */
   url?: string;
   mime_type?: string;
   sha256?: string;
@@ -123,17 +118,14 @@ const STATUS_DA_META: Readonly<Record<string, StateDelivery>> = {
 };
 
 /**
- * Processa um payload inteiro do webhook.
- *
- * A Meta reenvia se a resposta demorar, então quem chama já respondeu 200 — este
- * trabalho roda em fila. Devolve o resumo para o log e para o teste.
+ * Process a whole webhook payload after the caller has replied 200. Meta retries slow responses, so processing runs on a queue. Return a summary for logs and tests.
  */
 export async function processarPayload(
   channel: ChannelResolved,
   payload: unknown,
 ): Promise<ResultInbound> {
   const resumo: ResultInbound = { messagesRecebidas: 0, statusAplicados: 0, ignorados: 0 };
-  // Instagram é traduzido para o formato do WhatsApp e segue pelo mesmo caminho.
+  // Translate Instagram into WhatsApp shape and follow the shared inbound path.
   const igUserId = channel.config['igUserId'];
   const values = payloadDoInstagram(payload)
     ? valuesOfInstagram(payload, typeof igUserId === 'string' ? igUserId : null)
@@ -141,13 +133,13 @@ export async function processarPayload(
       ? valuesOfMessenger(payload, typeof channel.config['paginaId'] === 'string' ? channel.config['paginaId'] : null)
     : extrairValues(payload);
 
-  // As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas
-  // mensagens do mesmo cliente no mesmo lote são um aviso só.
+  // Collect touched conversations to notify screens AFTER commit. A `Set` means two
+  // messages from the same client in one batch produce one notification.
   const tocadas = new Set<string>();
   let entrouInQueue = false;
   let respostasDoBot = 0;
 
-  // Em série: cada valor abre a própria transação com tenant fixado.
+  // Run serially: each value opens its own transaction with a fixed tenant.
   for (const value of values) {
     for (const message of value.messages ?? []) {
       const recebida = await receiveMessage(channel, value, message);
@@ -159,9 +151,9 @@ export async function processarPayload(
         if (recebida.processHttpId) {
           await enfileirarProcessHttp({ tenantId: channel.tenantId, processoId: recebida.processHttpId });
         }
-        // Depois do commit da transação de entrada (`receberMensagem` já voltou): o
-        // download fala com a Meta, e isso não pode acontecer com uma conexão do
-        // pool de banco presa numa transação. Ver `dominio/midia.ts`.
+        // After the inbound transaction commits (`receberMensagem` has returned),
+        // media download calls Meta and must not hold a database pool connection
+        // inside the transaction; see `dominio/midia.ts`.
         if (recebida.attachmentId) {
           await enqueueDownloadMedia({ tenantId: channel.tenantId, attachmentId: recebida.attachmentId });
         }
@@ -176,19 +168,19 @@ export async function processarPayload(
     }
   }
 
-  // Status e categoria de modelo não são conversa: não entram no resumo de mensagens.
+  // Template status and category events are not conversations; exclude them from the message summary.
   const modelos = channel.type === 'whatsapp_cloud' ? await aplicarEventsOfTemplate(channel, payload) : 0;
 
   if (resumo.messagesRecebidas > 0 || resumo.statusAplicados > 0 || modelos > 0) {
     drenarEmSegundoPlano(channel.tenantId);
   }
-  // Depois do commit: a resposta do bot já está no outbox, e o empurrão faz o worker
-  // entregar agora em vez de na próxima varredura.
+  // After commit, the bot's response is in the outbox; nudging the worker
+  // delivers it now instead of waiting for the next sweep.
   if (respostasDoBot > 0) await enqueueDelivery({});
 
-  // **Depois do commit.** Publicar dentro da transação avisaria a tela antes de o
-  // dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é
-  // o próprio defeito que o tempo real existe para consertar.
+  // Publish AFTER commit. Publishing inside the transaction would tell screens
+  // before the data exists; they would fetch the old value and receive no second
+  // notification, defeating the purpose of realtime updates.
   for (const conversationId of tocadas) {
     await publicar(channel.tenantId, evento('conversation', conversationId));
   }
@@ -227,10 +219,10 @@ async function receiveMessage(
   const nomeDoPerfil = valor.contacts?.find((c) => c.wa_id === de)?.profile?.name ?? null;
 
   return noTenant(canal.tenantId, async (tx) => {
-    // Idempotência. Sem índice único em `id_provedor` (a tabela é particionada e a
-    // unicidade dela é `(id, criada_em)`), a guarda é esta consulta. Duas entregas
-    // simultâneas do mesmo evento ainda poderiam passar as duas — a janela é curta e
-    // o custo seria uma mensagem repetida na tela, não perda de dado.
+    // Idempotency relies on this query because partitioned `mensagem` has no unique index on `id_provedor`
+    // The table's unique key is `(id, criada_em)`, not `id_provedor`; concurrent deliveries
+    // of the same event can still pass; the window is short and the cost is a
+    // duplicate screen message rather than data loss.
     const { rows: jaVista } = await tx.execute<{ existe: number }>(
       sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,
     );
@@ -238,10 +230,10 @@ async function receiveMessage(
 
     const inbox = await acharInbox(tx, canal.id);
     const contactId = await findOrCreateContact(tx, canal, de, nomeDoPerfil);
-    // Com fluxo (ou roteador) publicado no canal, a conversa nova é do bot: nasce sem fila.
+    // With a published flow or router on the channel, a new conversation belongs to the bot and starts without a queue.
     const flow = await flowPublishedOfChannel(tx, canal.id, contactId);
     // Calculado ANTES de abrir a conversa: `regra_prioridade` pode condicionar no
-    // texto da primeira mensagem, e `acharOuAbrirConversa` aplica a regra assim que
+    // the first message text; `acharOuAbrirConversa` applies the rule as soon as
     // a conversa nasce na fila.
     const conteudo = textoDe(mensagem);
     const conversation = await findOrOpenConversation(tx, canal, inbox, contactId, em, flow !== null, {
@@ -264,8 +256,8 @@ async function receiveMessage(
     `);
     const messageId = criada[0]?.id ?? null;
 
-    // A janela de 24h é recalculada a cada mensagem de entrada do contato — a regra
-    // está em `@pipe/core`, não aqui.
+    // Recalculate the 24-hour window after every inbound contact message; the rule
+    // lives in `@pipe/core`, not here.
     const window = contactRegistrarMessage(em, messageId ?? undefined);
     await tx.execute(sql`
       update conversa
@@ -292,8 +284,8 @@ async function receiveMessage(
       conteudo,
     });
 
-    // O bot fala primeiro. Se ficou com a mensagem, a conversa é dele — ou acabou de
-    // ser transferida, e a distribuição já rodou lá dentro.
+    // The bot speaks first. If it handled the message, it owns the conversation, or
+    // has already transferred it and triggered distribution inside that path.
     const bot = await rodarFlowInInbound(tx, flow, {
       tenantId: canal.tenantId,
       conversation: {
@@ -307,7 +299,7 @@ async function receiveMessage(
       message: { id: messageId, idProvedor, type: tipo, content: conteudo },
     });
 
-    // Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o
+    // A conversation still queued is eligible for distribution on each new message if
     // atendente entrou online depois da primeira, ela sai da fila agora.
     if (!bot.tratou && conversation.state === 'na_fila' && !conversation.agentId && conversation.queueId) {
       await distribuirConversation(tx, canal.tenantId, conversation.id, conversation.queueId, em);
@@ -342,14 +334,14 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
     const message = rows[0];
     if (!message) return null;
 
-    // Status fora de ordem é rotina na Meta: `delivered` pode chegar depois de `read`.
-    // Transição não permitida é descartada em silêncio — nunca vira erro nem regressão.
+    // Out-of-order Meta statuses are routine: `delivered` may arrive after `read`.
+    // Discard a disallowed transition quietly; never return an error or regress status.
     const atual = message.stateDelivery;
     if (atual === alvo) return null;
     if (atual !== null && !transitionDeliveryAllowed(atual, alvo)) return null;
 
-    // `coalesce` nos carimbos: `read` que chega antes de `delivered` não pode apagar
-    // nem reescrever a hora da entrega. Carimbo já gravado é histórico.
+    // Use `coalesce` on timestamps: an early `read` must not clear the `delivered` timestamp or
+    // rewrite the delivery time. A stored timestamp is historical evidence.
     await tx.execute(sql`
       update mensagem
          set estado_entrega = ${alvo},
@@ -366,7 +358,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
        where id = ${message.id}
     `);
 
-    // O outbox acompanha, senão a varredura tentaria entregar de novo o que já chegou.
+    // Keep the outbox in sync, or the sweep would resend a message already delivered.
     await tx.execute(sql`
       update outbox_mensagem
          set estado = ${alvo === 'falhou' ? 'falhou' : alvo}, atualizado_em = now()
@@ -380,11 +372,11 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
       estado_novo: alvo,
     });
 
-    // O desfecho da entrega é aqui que vira número: é este webhook que a Meta usa
-    // para dizer se a mensagem chegou. `entregue` conta uma vez, `lida` não conta de
-    // novo — senão a taxa de falha do alerta `EntregaFalhando` seria diluída por
+    // This webhook turns delivery outcomes into metrics: it is how Meta tells us
+    // whether a message arrived. Count `entregue` once; `lida` must not count
+    // again, or each read would dilute failure-rate alert `EntregaFalhando`.
     // cada leitura.
-    // ponytail: rótulo `canal` é o id do canal, uma série por número de WhatsApp.
+    // Future work: `canal` labels each WhatsApp number's own time series.
     // Se a base passar de alguns milhares de canais, trocar por `canal.tipo` e
     // deixar o detalhe para o log.
     if (alvo === 'falhou' || alvo === 'entregue') {
@@ -398,7 +390,6 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
   });
 }
 
-// --- peças reutilizadas ---
 
 interface InboxResolvida {
   id: string;
@@ -420,10 +411,10 @@ async function findOrCreateContact(
   identificador: string,
   nome: string | null,
 ): Promise<string> {
-  // A Meta ainda entrega número brasileiro antigo sem o nono dígito, e o importador
-  // grava a forma canônica, com o 9: casar só a forma exata abria ficha nova para
-  // quem já estava na base. As variantes vêm do porte do Chatwoot
-  // (`phone_number_normalization_service`); a forma recebida ganha quando as duas existem.
+  // Meta still sends older Brazilian numbers without the ninth digit, while the importer
+  // stores the canonical form with 9. Exact-only matching would create a new contact for
+  // someone already in the database. Candidate variants come from the Chatwoot port
+  // (`phone_number_normalization_service`); prefer the received form if both exist.
   const candidatos =
     canal.type === 'whatsapp_cloud' ? candidatosDoTelefone(identificador) : [identificador];
   const { rows } = await tx.execute<{ contactId: string }>(sql`
@@ -439,7 +430,7 @@ async function findOrCreateContact(
   const existente = rows[0]?.contactId;
   if (existente) return existente;
 
-  // O telefone só é preenchido no WhatsApp: no Instagram o identificador é a conta,
+  // Populate phone only for WhatsApp; on Instagram the identifier is the account,
   // e escrever conta de Instagram em `telefone_e164` estragaria a busca por telefone.
   const telefone = canal.type === 'whatsapp_cloud' ? `+${normalizarWaid(identificador)}` : null;
   const { rows: criado } = await tx.execute<{ id: string }>(sql`
@@ -458,9 +449,9 @@ async function findOrCreateContact(
 
   await emitir(tx, canal.tenantId, 'contato.criado', { contato_id: contatoId, nome, telefone });
 
-  // O espelho no CRM é trabalho de fila, e enfileirar não pode derrubar o
-  // atendimento: `enfileirarEspelhoCrm` engole a própria falha, e a varredura de
-  // 5 minutos recupera o que não entrou. Ver `dominio/espelho-crm.ts`.
+  // CRM mirroring is queue work, and enqueue failure must not break
+  // the conversation: `enfileirarEspelhoCrm` absorbs its own error, and a
+  // five-minute sweep recovers missed jobs. See `dominio/espelho-crm.ts`.
   await enqueueMirrorCrm({ tenantId: canal.tenantId, contactId: contatoId });
   return contatoId;
 }
@@ -470,7 +461,7 @@ interface ConversationResolved {
   state: string;
   agentId: string | null;
   queueId: string | null;
-  /** Nasceu com esta mensagem — só conversa nova começa fluxo. */
+  /** Created by this message; only a new conversation starts a flow. */
   nova: boolean;
 }
 
@@ -505,7 +496,7 @@ async function findOrOpenConversation(
     };
   }
 
-  // Com bot, a conversa nasce sem fila: só entra na fila quando o bot transferir.
+  // With a bot, the conversation starts without a queue; it joins one only when the bot transfers it.
   const queueId = comBot ? null : inbox.queueDefaultId;
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
@@ -515,8 +506,8 @@ async function findOrOpenConversation(
   const conversaId = criada[0]?.id;
   if (!conversaId) throw new Error('não criou a conversa');
 
-  // `criada` e `enfileirada` marcam o começo do ATENDIMENTO, e é deles que sai o tempo
-  // de fila. Conversa com bot os ganha no transbordo (`dominio/fluxo.ts`), não aqui.
+  // `criada` and `enfileirada` mark the start of ATTENDANCE and determine
+  // queue time. Bot conversations receive them on handoff (`dominio/fluxo.ts`), not here.
   if (!comBot) {
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
@@ -532,9 +523,9 @@ async function findOrOpenConversation(
       at: em,
       queueId,
     });
-    // A conversa acabou de entrar na fila — é o único momento em que
+    // The conversation has just entered the queue; this is the only point where
     // `aplicarRegraDePrioridade` roda para ela (`dominio/gestao/prioridade-motor.ts`).
-    // Sem bot, é AQUI, e não no transbordo (`fluxo.ts`), porque sem bot não há
+    // Without a bot, apply it HERE rather than on handoff (`fluxo.ts`), because there
     // transbordo: a conversa nasce direto na fila.
     await aplicarRuleOfPriority(tx, conversaId, {
       queueId,
@@ -552,9 +543,7 @@ async function findOrOpenConversation(
 }
 
 /**
- * Aplica `regra_prioridade` a uma conversa que ACABOU de entrar na fila.
- * Sem regra ativa cadastrada, não toca em nada — `conversa.prioridade` mantém
- * o padrão `sem_prioridade` da coluna.
+ * Apply `regra_prioridade` to a conversation JUST entering a queue. With no active rule, leave `conversa.prioridade` at its column default `sem_prioridade`.
  */
 async function aplicarRuleOfPriority(
   tx: TransactionPipe,
@@ -589,13 +578,7 @@ function textoDe(mensagem: MessageOfMeta): string | null {
 }
 
 /**
- * A Meta manda só o `media_id`; o arquivo é baixado depois pelo endpoint de mídia.
- * Aqui fica a linha de `anexo` com a referência, para a mensagem não nascer órfã.
- * `bytes = 0` marca "ainda não baixado" — o download é trabalho de fila
- * (`dominio/midia.ts`), não de webhook, porque a Meta reenvia se a resposta demorar.
- *
- * `canal_id` é gravado aqui porque é aqui que o canal já está em mãos: é dele que o
- * download tira o token, sem precisar juntar `mensagem`/`conversa`/`inbox` depois.
+ * Meta provides only `media_id`; download follows through its media endpoint. Create an `anexo` row with the reference so the message is not orphaned. `bytes = 0` means not yet downloaded. Download is queue work (`dominio/midia.ts`), not webhook work, because Meta retries slow responses. Store `canal_id` here while the channel is known so download can get its token without joining `mensagem`/`conversa`/`inbox`.
  */
 async function saveAttachment(
   tx: TransactionPipe,
@@ -605,8 +588,8 @@ async function saveAttachment(
 ): Promise<string | null> {
   const media =
     mensagem.image ?? mensagem.audio ?? mensagem.video ?? mensagem.document ?? mensagem.sticker;
-  // Sem `media_id`, a URL do Instagram vira a chave. A URL da Meta expira; quem baixa
-  // para o storage de verdade é `dominio/midia.ts`.
+  // Without `media_id`, use the Instagram URL as the key. Meta's URL expires;
+  // `dominio/midia.ts` copies it to durable storage.
   const key = media?.id ? `meta:${media.id}` : media?.url;
   if (!media || !key) return null;
 

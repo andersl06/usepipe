@@ -7,17 +7,7 @@ import { sanitizarNumero } from './info-do-numero.js';
 import type { InfoDoNumero } from './info-do-numero.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/reauthorization_service.rb
- *
- * Reautorizar é trocar a credencial de um canal que JÁ existe, sem criar outro:
- * o número tem de ser o mesmo, e o que muda é o token (e o WABA, se o cliente o
- * trocou). É a porta de volta de um canal marcado para reautorização e, no Pipe,
- * também a de um canal desconectado.
- *
- * Acréscimo do Pipe: reautorizar RELIGA o canal (`ativo = true`). No Chatwoot
- * desconectar apaga o canal; aqui desconectar só desliga, para o histórico
- * continuar do cliente — e a volta precisa acontecer por aqui, porque criar de
- * novo esbarraria no próprio número.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/reauthorization_service.rb. Reauthorize an existing channel, never create another: require the same number and replace its token and possibly WABA. This restores a channel marked for reauthorization or disconnected. Pipe also sets `ativo = true`; Chatwoot deletes disconnected channels, but Pipe keeps history and only disables them, so recreating would collide with the same number.
  */
 
 export interface RequestOfReauthorization {
@@ -41,7 +31,7 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
     );
   }
 
-  // Cliente antigo pode não mandar o `phone_number_id`: cai no que a Meta acabou de devolver.
+  // An older client may omit `phone_number_id`; fall back to the value Meta just returned.
   const numeroId = pedido.numberId || pedido.info.numeroId;
   const atualizado = await atualizarChannel(
     channel,

@@ -6,44 +6,24 @@ import { TwentyError, chamar, configDoTenant } from './twenty.js';
 import type { ConfigTwenty } from './twenty.js';
 
 /**
- * O dicionário de dados de cada tenant, espelhado dos metadados do CRM (Twenty) dele.
- *
- * O builder de fluxo e a IA leem daqui o que existe no CRM **daquele** cliente — cada
- * cliente tem instância própria e cria objetos e campos próprios. Sem isto, a IA chuta
- * nome de campo.
- *
- * Diretriz do dono: nada inventado, tudo copiado. O formato é o do `objectMetadata` e do
- * `fieldMetadata` que a Metadata API devolve — mesmos nomes de propriedade, `type`
- * literal, `options`/`defaultValue`/`settings`/`relation` no JSON que veio. Ver a
- * migration 0015. **Nenhum código do Twenty** foi copiado: ele é AGPL; só consumimos a
- * API e o formato dela.
- *
- * O desenho de fila, varredura e isolamento é o de `espelho-crm.ts`:
- * 1. `configDoTenant` roda dentro do `comTenant` — sem RLS não há URL nem chave;
- * 2. a chamada de rede acontece FORA da transação, para não prender conexão do pool;
- * 3. a escrita volta para o `comTenant` do tenant do job, e a RLS impede a linha de cair
- *    em outro tenant.
+ * Mirror each tenant's data dictionary from its Twenty CRM metadata. The flow builder and AI read the fields in THAT client's own instance, avoiding guessed field names. Owner rule: copy facts, never invent them. Preserve the Metadata API's `objectMetadata`/`fieldMetadata` property names, literal `type`, and `options`/`defaultValue`/`settings`/`relation` JSON (migration 0015). Do not copy Twenty code: it is AGPL; consume only its API and data shape. Queue, sweep, and isolation follow `espelho-crm.ts`: read `configDoTenant` inside `comTenant` so RLS protects URL and key; call the network OUTSIDE the transaction to free the pool connection; write back inside the job tenant's `comTenant` so RLS prevents cross-tenant records.
  */
 
 const { dictionaryObject, dictionaryField } = schema;
 
-/** Tenant sem CRM configurado. Não é erro: é ausência, e a sincronização é pulada. */
+/** A tenant without CRM configuration is an absence, not an error; skip synchronization. */
 export const SEM_CRM = 'sem_crm' as const;
 
 /**
- * Critério do `agregavel`: só tipo que É número. `NUMBER` e `NUMERIC` somam direto;
- * `CURRENCY` soma `amountMicros` dentro da mesma `currencyCode`. Texto não soma, e
- * `RATING` também não — é ordinal guardado como texto (`RATING_1`…`RATING_5`).
+ * `agregavel` applies only to numeric types: `NUMBER` and `NUMERIC` sum directly; `CURRENCY` sums `amountMicros` within one `currencyCode`. Text cannot be summed, and `RATING` is ordinal text (`RATING_1`…`RATING_5`).
  */
 export const TIPOS_AGREGAVEIS: readonly string[] = ['NUMBER', 'NUMERIC', 'CURRENCY'];
 
-/** `TS_VECTOR` é o índice de busca textual do Twenty, não dado de ninguém. */
+/** `TS_VECTOR` is Twenty's full-text search index, not customer data. */
 export const TIPOS_NAO_CONSULTAVEIS: readonly string[] = ['TS_VECTOR'];
 
 /*
- * O que pedimos à Metadata API. Só vai na query o que o schema DAQUELA instância tem —
- * é assim que a mesma chamada serve à 2.39 (que tem `applicationId`) e às anteriores à
- * 2.12 (que tinham `isCustom`), sem tabela de versão.
+ * Metadata API selection depends on the schema of THAT instance. Request only available fields, allowing the same call to support Twenty 2.39 with `applicationId` and pre-2.12 versions with `isCustom`, without a version table.
  */
 const PROPS_OBJETO = [
   'id',
@@ -78,7 +58,7 @@ const PROPS_CAMPO = [
   'applicationId',
 ] as const;
 
-/** A relação no formato da API: `type` é a cardinalidade (`MANY_TO_ONE`/`ONE_TO_MANY`). */
+/** API relation format: `type` expresses cardinality (`MANY_TO_ONE`/`ONE_TO_MANY`). */
 const RELATION =
   'type targetObjectMetadata { id nameSingular } targetFieldMetadata { id name }';
 
@@ -121,7 +101,7 @@ export interface ObjetoTwenty {
 }
 
 export interface MetadadosTwenty {
-  /** `workspaceCustomApplicationId`: a aplicação dona do que o cliente criou (2.12+). */
+  /** `workspaceCustomApplicationId` identifies the app owning customer-created objects (Twenty 2.12+). */
   customApplicationId: string | null;
   objetos: ObjetoTwenty[];
 }
@@ -132,10 +112,7 @@ type NoObjeto = Omit<ObjetoTwenty, 'fields'> & {
 };
 
 /**
- * Lê objetos e campos da instância. Três passos, em série:
- * 1. introspecção de `Object` e `Field`, para saber o que pedir;
- * 2. `currentWorkspace.workspaceCustomApplicationId`, se a instância é 2.12+;
- * 3. `objects`, página a página, com os campos de cada um.
+ * Read instance objects and fields in three serial steps: introspect `Object` and `Field` to discover available fields; read `currentWorkspace.workspaceCustomApplicationId` on 2.12+; then page through `objects` with each one's fields.
  */
 export async function lerMetadados(
   config: ConfigTwenty,
@@ -162,7 +139,7 @@ export async function lerMetadados(
     ...(temCampo.has('relation') ? [`relation { ${RELATION} }`] : []),
     ...(temCampo.has('morphRelations') ? [`morphRelations { ${RELATION} }`] : []),
   ].join(' ');
-  // `fieldsList` é a lista inteira de uma vez; sem ele, a conexão paginada antiga.
+  // `fieldsList` returns the whole field list; without it, use the older paginated connection.
   const listaDeCampos = temObjeto.has('fieldsList')
     ? `fieldsList { ${camposPedidos} }`
     : `fields(paging: { first: 1000 }) { edges { node { ${camposPedidos} } } }`;
@@ -211,8 +188,7 @@ export async function lerMetadados(
 }
 
 /**
- * Do cliente ou de fábrica? Antes da 2.12 o Twenty dizia direto (`isCustom`); depois,
- * é do cliente o que pertence à aplicação `workspaceCustomApplicationId`.
+ * Determine customer ownership: before Twenty 2.12 use `isCustom`; later compare ownership with `workspaceCustomApplicationId`.
  */
 export function ehDoCliente(
   no: { isCustom?: boolean; applicationId?: string | null },
@@ -239,10 +215,10 @@ export async function syncDictionary(
   const config = await noTenant(tenantId, (tx) => configDoTenant(tx, tenantId));
   if (!config) return { state: SEM_CRM };
 
-  // Fora da transação, de propósito — ver o cabeçalho.
+  // Keep the network call outside the transaction; see the file header.
   const meta = await lerMetadados(config, buscar);
-  // Todo workspace tem os objetos de fábrica. Lista vazia é permissão faltando ou
-  // instância quebrada, e gravá-la marcaria o dicionário inteiro como removido.
+  // Every workspace has built-in objects. An empty list means missing permission or a broken instance;
+  // writing it would mark the entire dictionary removed.
   if (meta.objetos.length === 0) {
     throw new TwentyError(`CRM em ${config.url} devolveu zero objetos; nada foi gravado`);
   }
@@ -250,7 +226,7 @@ export async function syncDictionary(
   return noTenant(tenantId, (tx) => gravar(tx, tenantId, meta));
 }
 
-/** Upsert por `name` e marca de removido — em série, dentro do `comTenant`. */
+/** Upsert by `name` and mark missing records removed, serially inside `comTenant`. */
 async function gravar(
   tx: TransactionPipe,
   tenantId: string,
@@ -327,8 +303,8 @@ async function gravar(
       });
   }
 
-  // O que sumiu do Twenty: inativo e com `excluido_em`, nunca apagado. Só linha que
-  // veio do Twenty (`twenty_id`) — o que o CRM caseiro declarou à mão não é daqui.
+  // What disappeared from Twenty becomes inactive with `excluido_em`, never deleted. Only rows
+  // imported from Twenty (`twenty_id`) are ours to mark; leave handmade CRM declarations alone.
   const codigos = JSON.stringify(objetos.map((o) => o.codigo));
   const removidosObj = await tx.execute(sql`
     update dicionario_objeto
@@ -356,7 +332,7 @@ async function gravar(
   };
 }
 
-/** `excluded.<coluna>` para cada coluna da linha, menos a chave do conflito. */
+/** Use `excluded.<coluna>` for each row column except the conflict key. */
 function doExcluded(
   tabela: typeof dictionaryObject | typeof dictionaryField,
   chavesDaLinha: string[],
@@ -370,7 +346,7 @@ function doExcluded(
   );
 }
 
-/** 500 linhas por comando: ~25 colunas cada, bem abaixo do teto de 65 535 parâmetros. */
+/** Process 500 rows per statement, about 25 columns each, below Postgres's 65,535 parameter limit. */
 function emLotes<T>(linhas: T[], tamanho = 500): T[][] {
   const lotes: T[][] = [];
   for (let i = 0; i < linhas.length; i += tamanho) lotes.push(linhas.slice(i, i + tamanho));
@@ -386,14 +362,7 @@ export type ObjectOfDictionary = Omit<typeof dictionaryObject.$inferSelect, 'id'
 };
 
 /**
- * O dicionário do tenant em vigor, objeto a objeto com os seus campos. É o que o builder
- * e a IA consomem.
- *
- * Devolve TUDO, inclusive o que está inativo ou removido: quem consome filtra por
- * `isActive`/`excluidoEm`, e um bloco que aponta para campo removido precisa achar a
- * linha para dizer "campo removido" em vez de "campo desconhecido".
- *
- * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
+ * Return the current tenant's dictionary with each object and fields for the flow builder and AI. Include inactive and removed records: consumers filter `isActive`/`excluidoEm`, and a block pointing to a removed field must report "field removed" rather than "unknown field". Run both reads serially in the caller's `noTenant`.
  */
 export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDictionary[]> {
   const objetos = await tx.select().from(dictionaryObject).orderBy(asc(dictionaryObject.codigo));
@@ -415,7 +384,7 @@ export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDicti
   }));
 }
 
-/** Id interno e tenant não saem: quem consome casa por `codigo`, e o tenant é a sessão. */
+/** Do not expose internal ID or tenant: consumers match by `codigo`, and tenant comes from the session. */
 function semIds<T extends { id: string; tenantId: string }>(linha: T): Omit<T, 'id' | 'tenantId'> {
   const copia: Partial<T> = { ...linha };
   delete copia.id;
@@ -424,11 +393,7 @@ function semIds<T extends { id: string; tenantId: string }>(linha: T): Omit<T, '
 }
 
 /**
- * Quem a varredura periódica sincroniza, e quantos ficam de fora por não ter CRM.
- *
- * Papel dono pelo mesmo motivo de `contatosSemEspelho`: varre todos os tenants, antes
- * de haver tenant em vigor. **Só este `select` roda assim**; a sincronização de cada um
- * volta para o `comTenant`.
+ * Select tenants for periodic dictionary synchronization and count those without CRM. Use the owner role like `contatosSemEspelho` to scan before any tenant is established. ONLY this `select` uses it; synchronize each tenant under `comTenant`.
  */
 export async function tenantsOfDictionary(): Promise<{ comCrm: string[]; semCrm: number }> {
   const { rows } = await databaseOwner().execute<{ id: string; tem_crm: boolean }>(sql`

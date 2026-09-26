@@ -31,15 +31,7 @@ import { QUEUE_IMPORT, processarImport } from '@pipe/workers';
 import type { JobImport } from '@pipe/workers';
 
 /**
- * A API só empurra trabalho para a fila; quem executa é `apps/workers`.
- *
- * `PIPE_FILAS=memoria` roda a entrada **em linha**, sem Redis. Serve ao ambiente de
- * desenvolvimento e ao teste de ponta a ponta, e não é um atalho: o caminho
- * percorrido é o mesmo, só sem o salto pelo Redis.
- *
- * A entrega nunca é executada em linha, nem no modo memória. A verdade da entrega é
- * a linha em `outbox_mensagem`; a fila é só o empurrão para o worker olhar agora em
- * vez de na próxima varredura.
+ * The API enqueues work and `apps/workers` executes it. With `PIPE_FILAS=memoria`, inbound processing runs inline without Redis for development and end-to-end tests, following the same path minus Redis. Delivery never runs inline, even in memory mode: `outbox_mensagem` is authoritative, and the queue only prompts a worker to look before the next sweep.
  */
 
 export type ModoQueue = 'bullmq' | 'memoria';
@@ -65,8 +57,7 @@ function redis(): IORedis {
 }
 
 /**
- * A Meta reenvia o evento se a resposta demorar. Por isso o webhook responde 200 e
- * o processamento vai para a fila — nunca o contrário.
+ * Meta retries events when the response is slow, so acknowledge the webhook with 200 and process from the queue afterward.
  */
 export async function enqueueInbound(channelId: string, payload: unknown): Promise<void> {
   if (modo() === 'memoria') {
@@ -135,14 +126,7 @@ export async function enqueueDelivery(job: JobDelivery): Promise<void> {
 }
 
 /**
- * Empurra um contato para o espelho no CRM.
- *
- * Falhar aqui **não pode derrubar o atendimento**: uma mensagem que chegou vale mais
- * que o espelho dela no CRM, e a varredura recupera o que não entrou. Por isso o erro
- * é registrado e engolido em vez de propagado.
- *
- * No modo memória não espelha: a integração fala com um serviço externo, e o modo
- * memória existe justamente para rodar sem serviço externo nenhum.
+ * Enqueue contact mirroring to CRM. Failure must not interrupt attendance: the received message matters more than its CRM mirror, and the sweep recovers missed jobs. Log and swallow enqueue errors. Memory mode skips mirroring because it runs without external services.
  */
 export async function enqueueMirrorCrm(job: JobMirrorCrm): Promise<void> {
   if (modo() === 'memoria') return;
@@ -150,13 +134,10 @@ export async function enqueueMirrorCrm(job: JobMirrorCrm): Promise<void> {
     queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() });
     await queueMirrorCrm.add('espelhar', job, {
       removeOnComplete: 1_000,
-      // Um contato por vez, e o mesmo id de job: se a conversa mudar o contato três
-      // vezes em segundos, isso vira UM espelho, não três corridas concorrentes
+      // Use one job ID per contact: three rapid changes to a conversation's contact should coalesce into one mirror job, not concurrent races.
       // escrevendo no mesmo registro do CRM.
       //
-      // Hífen, NUNCA `:`. O BullMQ 5 recusa id customizado com `:` (só aceita o formato
-      // de três partes dos jobs repetidos antigos) — e como o `catch` abaixo engole o
-      // erro, `espelho:<uuid>` fazia TODO enfileiramento falhar em silêncio.
+      // Use a hyphen, never `:`, in custom job IDs. BullMQ 5 rejects colons except in legacy three-part repeat IDs; because the catch below swallows errors, `espelho:<uuid>` made every enqueue fail silently.
       jobId: `espelho-${job.contactId}`,
       attempts: 5,
       backoff: { type: 'exponential', delay: 5_000 },
@@ -169,12 +150,7 @@ export async function enqueueMirrorCrm(job: JobMirrorCrm): Promise<void> {
 let consumerMirrorCrm: Worker | null = null;
 
 /**
- * Consome o espelho do CRM — na `api`, e não em `apps/workers`, pelo mesmo motivo da
- * `pipe-entrada`: **quem fala com serviço externo é a `api`**, regra do dono.
- *
- * Dois tipos de job na mesma fila, como na entrega: `espelhar` faz um contato, e
- * `varredura` reenfileira quem ficou para trás. A varredura existe porque a fila pode
- * perder job e o contato não pode ficar sem link para a ficha.
+ * Consume CRM mirroring in the `api`, not `apps/workers`, as for `pipe-entrada`: the API owns calls to external services. The queue has `espelhar` for one contact and `varredura` to requeue missed work, since lost jobs must not leave contacts without CRM links.
  */
 export function consumeMirrorCrm(): void {
   if (modo() === 'memoria' || consumerMirrorCrm) return;
@@ -183,7 +159,7 @@ export function consumeMirrorCrm(): void {
     async (job) => {
       if (job.name === 'varredura') {
         const pendentes = await contactsWithoutMirror();
-        // Em série: o objetivo é reenfileirar, não competir com o próprio consumidor.
+        // Run serially: requeueing should not compete with its own consumer.
         for (const p of pendentes) await enqueueMirrorCrm(p);
         return pendentes.length;
       }
@@ -198,7 +174,7 @@ export function consumeMirrorCrm(): void {
   );
 }
 
-/** A varredura de segurança do espelho. Ver `contatosSemEspelho`. */
+/** Safety sweep for CRM mirroring; see `contatosSemEspelho`. */
 export async function scheduleSweepMirrorCrm(): Promise<void> {
   if (modo() === 'memoria') return;
   queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() });
@@ -210,15 +186,7 @@ export async function scheduleSweepMirrorCrm(): Promise<void> {
 }
 
 /**
- * Empurra o download da mídia de um anexo recebido (`dominio/midia.ts`).
- *
- * Mesma regra do espelho no CRM: falhar aqui **não pode derrubar o atendimento** — a
- * mensagem já chegou e está na tela, mesmo sem a mídia baixada ainda. O erro é
- * engolido, e a varredura periódica recupera o que não entrou.
- *
- * No modo memória não baixa: o download fala com a Meta, e o modo memória existe
- * para rodar sem serviço externo nenhum — quem quiser testar o download de verdade
- * chama `baixarMidiaDoAnexo` direto, como faz `tests/midia-recebida.test.ts`.
+ * Enqueue inbound attachment media download (`dominio/midia.ts`). Failure must not interrupt attendance: the message is already visible, and a periodic sweep recovers missed downloads. Memory mode skips Meta calls; tests can call `baixarMidiaDoAnexo` directly (`tests/midia-recebida.test.ts`).
  */
 export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
   if (modo() === 'memoria') return;
@@ -226,9 +194,7 @@ export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
     queueMedia ??= new Queue(QUEUE_MEDIA, { connection: redis() });
     await queueMedia.add('baixar', job, {
       removeOnComplete: 1_000,
-      // Um por anexo: o empurrão de agora e o da varredura, se se cruzarem, viram UM
-      // job — `baixarMidiaDoAnexo` também é idempotente por conta própria (`bytes = 0`
-      // na condição do `select`), então isto é só para não gastar chamada à toa.
+      // Use one job per attachment so immediate enqueue and sweep coalesce. `baixarMidiaDoAnexo` also checks `bytes = 0` for idempotency; this only avoids unnecessary calls.
       jobId: `midia-${job.attachmentId}`,
       attempts: 1,
     });
@@ -241,12 +207,7 @@ let consumerMedia: Worker | null = null;
 let relogioMedia: ReturnType<typeof setInterval> | null = null;
 
 /**
- * Consome o download de mídia — na `api`, como o espelho e o dicionário: quem já
- * decifra o token do canal (`chaveiro`, `dominio/banco.ts`) é a `api`.
- *
- * `baixar` baixa UM anexo; `varredura` reenfileira quem ficou para trás — o reagendar
- * por backoff mora dentro de `baixarMidiaDoAnexo`, não aqui, por isso `attempts: 1`
- * acima: o BullMQ nunca precisa tentar de novo por conta própria.
+ * Consume media downloads in `api`, which already decrypts channel tokens (`chaveiro`, `dominio/banco.ts`). `baixar` handles one attachment and `varredura` requeues missed ones. `baixarMidiaDoAnexo` owns backoff rescheduling, so BullMQ uses `attempts: 1` and never retries independently.
  */
 export function consumeDownloadMedia(): void {
   if (modo() === 'memoria' || consumerMedia) return;
@@ -270,17 +231,11 @@ export function consumeDownloadMedia(): void {
 }
 
 /**
- * A varredura de segurança do download de mídia. Ver `midiasPendentes`.
- *
- * ponytail: a fila não entra em `estadoDasFilas` — entra quando o alerta
- * `FilaParada` precisar olhar mídia sem baixar, mesma dívida já anotada para a
- * `pipe-importacao` (mais abaixo neste arquivo).
+ * Safety sweep for media downloads; see `midiasPendentes`. ponytail: this queue is absent from `estadoDasFilas` until `FilaParada` needs stalled-media monitoring, as already noted for `pipe-importacao` below.
  */
 export async function scheduleSweepDownloadMedia(): Promise<void> {
   if (modo() === 'memoria') {
-    // Sem Redis (a demonstração na VPS roda assim), a varredura vira um relógio no
-    // próprio processo — só com `PIPE_MIDIA_EM_MEMORIA=1`, para o teste continuar
-    // vendo o anexo cru logo depois do webhook. O empurrão por anexo não existe
+    // Without Redis, run the sweep on an in-process timer only when `PIPE_MIDIA_EM_MEMORIA=1`, so tests still see the raw attachment immediately after the webhook; there is no per-attachment enqueue in this mode.
     // aqui: o intervalo curto faz o papel dele.
     if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || relogioMedia) return;
     let rodando = false;
@@ -309,15 +264,7 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
 }
 
 /**
- * Empurra a checagem de SLA de uma conversa (`dominio/gestao/sla-motor.ts`).
- *
- * Mesma regra do espelho e da mídia: falhar aqui não pode derrubar quem mandou a
- * mensagem — o erro é engolido, e a varredura periódica pega a conversa nesta
- * mesma passada ou na próxima.
- *
- * No modo memória não empurra: quem quiser o relógio rodando em teste/dev liga
- * `PIPE_SLA_EM_MEMORIA=1` (ver `agendarVarreduraSla`), que varre direto sem fila —
- * mesmo desenho do `PIPE_MIDIA_EM_MEMORIA`.
+ * Enqueue one conversation SLA check (`dominio/gestao/sla-motor.ts`). As with CRM and media, enqueue failure cannot interrupt the sender; swallow it and let the periodic sweep find the conversation now or next time. Memory mode skips enqueueing; `PIPE_SLA_EM_MEMORIA=1` enables direct sweeping without a queue, like `PIPE_MIDIA_EM_MEMORIA`. `agendarVarreduraSla` supplies the memory-mode sweep.
  */
 export async function enqueueCheckSla(job: JobSla): Promise<void> {
   if (modo() === 'memoria') return;
@@ -325,8 +272,7 @@ export async function enqueueCheckSla(job: JobSla): Promise<void> {
     queueSla ??= new Queue(QUEUE_SLA, { connection: redis() });
     await queueSla.add('checar', job, {
       removeOnComplete: 1_000,
-      // Uma checagem pendente por conversa: um empurrão a mais enquanto a anterior
-      // ainda não rodou vira UM job, não dois competindo pela mesma linha.
+      // One pending check per conversation: an extra push before processing coalesces instead of racing on the same row.
       jobId: `sla-${job.conversationId}`,
       attempts: 1,
     });
@@ -339,11 +285,7 @@ let consumidorSla: Worker | null = null;
 let relogioSla: ReturnType<typeof setInterval> | null = null;
 
 /**
- * Consome a checagem de SLA — na `api`, como a mídia e o espelho: quem já tem a
- * regra de domínio (`sla-motor.ts`) e fala com o webhook de saída é a `api`.
- *
- * `checar` decide alerta/estouro de UMA conversa; `varredura` reenfileira quem
- * ficou para trás — mesmos dois nomes de job da mídia.
+ * Consume SLA checks in `api`, which owns `sla-motor.ts` domain rules and outbound webhooks. `checar` decides alert or breach for one conversation; `varredura` requeues missed work, as with media.
  */
 export function consumeCheckSla(): void {
   if (modo() === 'memoria' || consumidorSla) return;
@@ -366,15 +308,11 @@ export function consumeCheckSla(): void {
 }
 
 /**
- * A varredura de segurança do relógio de SLA. Ver `conversasParaChecarSla`.
- *
- * ponytail: a fila não entra em `estadoDasFilas` — mesma dívida já anotada para a
- * `pipe-midia` e a `pipe-importacao` (mais abaixo neste arquivo).
+ * Safety sweep for SLA; see `conversasParaChecarSla`. ponytail: omit this queue from `estadoDasFilas` until stalled-SLA monitoring is needed, like `pipe-midia` and `pipe-importacao`.
  */
 export async function scheduleSweepSla(): Promise<void> {
   if (modo() === 'memoria') {
-    // Sem Redis, a varredura vira um relógio no próprio processo — só com
-    // `PIPE_SLA_EM_MEMORIA=1`, para o teste de ponta a ponta ver alerta/estouro
+    // Without Redis, run the SLA sweep on an in-process timer only with `PIPE_SLA_EM_MEMORIA=1` so end-to-end tests can observe alerts and breaches.
     // acontecer sem precisar enfileirar nada. Mesmo desenho do `PIPE_MIDIA_EM_MEMORIA`.
     if (process.env['PIPE_SLA_EM_MEMORIA'] !== '1' || relogioSla) return;
     let rodando = false;
@@ -408,18 +346,13 @@ let queueDictionaryCrm: Queue<JobDictionaryCrm> | null = null;
 let consumerDictionaryCrm: Worker | null = null;
 
 /**
- * Pede a sincronização do dicionário de um tenant — a varredura, ou o admin logo depois
- * de criar um campo no CRM.
- *
- * O `jobId` por tenant faz dez pedidos seguidos virarem UMA sincronização. E o job sai
- * da fila ao terminar (`removeOnComplete: true`), senão o id guardado engoliria o
- * próximo pedido. No modo memória não sincroniza, pelo motivo do espelho.
+ * Queue one tenant's dictionary sync after a sweep or admin CRM-field creation. A tenant-specific `jobId` coalesces repeated requests; `removeOnComplete: true` clears the ID so future syncs are not swallowed. Memory mode skips sync because CRM is external.
  */
 export async function enqueueDictionaryCrm(job: JobDictionaryCrm): Promise<boolean> {
   if (modo() === 'memoria') return false;
   queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() });
   await queueDictionaryCrm.add('sincronizar', job, {
-    // Hífen, não `:` — o BullMQ 5 recusa `:` no id customizado ("Custom Id cannot contain :").
+    // Use hyphen rather than `:`; BullMQ 5 rejects `:` in custom IDs ("Custom Id cannot contain :").
     jobId: `dicionario-${job.tenantId}`,
     removeOnComplete: true,
     removeOnFail: true,
@@ -429,7 +362,7 @@ export async function enqueueDictionaryCrm(job: JobDictionaryCrm): Promise<boole
   return true;
 }
 
-/** Consome o dicionário — na `api`, como o espelho: quem fala com o CRM é a `api`. */
+/** Consume dictionary sync in `api`, which owns CRM calls, as with mirroring. */
 export function consumeDictionaryCrm(): void {
   if (modo() === 'memoria' || consumerDictionaryCrm) return;
   consumerDictionaryCrm = new Worker(
@@ -456,7 +389,7 @@ export function consumeDictionaryCrm(): void {
   });
 }
 
-/** A varredura periódica do dicionário: de hora em hora, todo tenant com CRM. */
+/** Hourly dictionary sweep for every tenant with CRM. */
 export async function scheduleSweepDictionaryCrm(): Promise<void> {
   if (modo() === 'memoria') return;
   queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() });
@@ -468,9 +401,7 @@ export async function scheduleSweepDictionaryCrm(): Promise<void> {
 }
 
 /**
- * A renovação diária do token do Instagram (`dominio/instagram/renovacao.ts`). Na
- * `api`, e não em `apps/workers`, pela regra do espelho: quem fala com a Meta para
- * mexer em credencial é a `api`, e é aqui que mora a regra.
+ * Daily Instagram token renewal (`dominio/instagram/renovacao.ts`) belongs in `api`, not `apps/workers`, because the API owns Meta credential calls and their domain rules.
  */
 const QUEUE_INSTAGRAM_TOKEN = 'pipe-instagram-token';
 let queueInstagramToken: Queue | null = null;
@@ -497,9 +428,7 @@ export async function scheduleRenewalInstagram(): Promise<void> {
 let consumerInbound: Worker<JobInbound> | null = null;
 
 /**
- * Quem consome a fila de entrada é a própria `api`, e não `apps/workers`: a regra de
- * domínio mora aqui (§3 da spec, "api … dono das regras de domínio"). A fila serve
- * para desacoplar a **resposta** à Meta do processamento, não para mudar de dono.
+ * The `api` consumes inbound jobs rather than `apps/workers` because domain rules live here (spec §3). The queue decouples the response to Meta from processing; it does not transfer ownership.
  */
 export function consumeInbound(): void {
   if (modo() === 'memoria' || consumerInbound) return;
@@ -517,27 +446,21 @@ export function consumeInbound(): void {
   );
 }
 
-/** Sonda do `/saude`. Usa a MESMA conexão do resto: sonda em canal próprio mente. */
+/** `/saude` probe uses the same connection as normal work; a separate connection could report false health. */
 export async function pingRedis(): Promise<string> {
   return redis().ping();
 }
 
 export interface StateOfQueue {
   queue: string;
-  /** Esperando mais adiado: o que ainda não rodou, sob qualquer motivo. */
+  /** Waiting plus delayed jobs: all work not yet run, for any reason. */
   depth: number;
-  /** Idade do item mais antigo ainda esperando. É o número do alerta `FilaParada`. */
+  /** Age of the oldest waiting job, used by `FilaParada`. */
   ageSeconds: number;
 }
 
 /**
- * O estado das filas no instante da coleta.
- *
- * Profundidade sozinha engana — fila grande escoando é hora cheia normal. O que
- * dói, e o que o alerta olha, é o item mais velho não sair.
- *
- * No modo memória não há fila: devolve vazio, e a métrica some da coleta em vez de
- * virar um zero que parece "tudo escoando".
+ * Queue state at collection time. Depth alone is misleading: a large draining queue is normal at peak, while an old unmoving item indicates a stall. In memory mode return no queue metric rather than zero, which would falsely imply healthy drainage.
  */
 export async function stateOfQueues(): Promise<StateOfQueue[]> {
   if (modo() === 'memoria') return [];
@@ -618,17 +541,7 @@ export async function closeQueues(): Promise<void> {
 let queueImport: Queue<JobImport> | null = null;
 
 /**
- * Empurra uma importação de contatos para os workers
- * (`apps/workers/src/importacao-de-contatos.ts`).
- *
- * No modo memória roda em linha, como a entrada: o caminho é o mesmo, sem o
- * salto pelo Redis. Fora dele, a verdade é a linha em `importacao`; perder o job
- * deixa a importação em `pronta`, visível na tela, e reenviar o arquivo não
- * duplica contato.
- *
- * ponytail: a fila não entra em `estadoDasFilas` nem em `fecharFilas` (o `quit`
- * da conexão já a encerra). Entra quando o alerta `FilaParada` precisar olhar
- * importação parada.
+ * Enqueue contact import for workers (`apps/workers/src/importacao-de-contatos.ts`). Memory mode runs inline through the same path without Redis. Otherwise the `importacao` row is authoritative: a lost job leaves a visible `pronta` import, and resubmitting does not duplicate contacts. ponytail: omit this queue from `estadoDasFilas` and `fecharFilas` (connection `quit` closes it) until `FilaParada` needs stalled-import monitoring.
  */
 export async function enqueueImport(job: JobImport): Promise<void> {
   if (modo() === 'memoria') {

@@ -16,13 +16,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Responder pelo Desk tem de ENTREGAR.
- *
- * O defeito que estes testes trancam: o Desk gravava `mensagem` com
- * `estado_entrega='enviada'` e não inseria em `outbox_mensagem`. O atendente via o
- * ✓ e o cliente não recebia nada. A correção foi fazer a tela usar a MESMA rota da
- * integração, e o que estes testes provam é que a rota aceita as duas credenciais
- * sem afrouxar nenhuma regra.
+ * Replying from the Desk must DELIVER. The defect these tests lock down: the Desk wrote `mensagem` with `estado_entrega='enviada'` without inserting into `outbox_mensagem`. The agent saw the ✓ and the customer received nothing. The fix made the screen use the SAME route as the integration, and what these tests prove is that the route accepts both credentials without loosening any rule.
  */
 
 let cenario: Cenario;
@@ -62,7 +56,7 @@ afterAll(async () => {
   await cenario.encerrar();
 });
 
-/** Uma conversa aberta, com janela de 24h em aberto, atribuída a quem se pedir. */
+/** An open conversation, with its 24h window still open, assigned to whoever the test asks for. */
 async function newConversation(agentId: string | null): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
@@ -111,7 +105,7 @@ describe('Send Desk replies with a session cookie', () => {
 
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as { id: string; stateDelivery: string };
-    // `pendente`, e não `enviada`: quem avança o estado é a confirmação da Meta.
+    // `pendente`, not `enviada`: only Meta's confirmation advances the state.
     expect(corpo.stateDelivery).toBe('pendente');
     expect(await contarOutbox(conversationId)).toBe(1);
   });
@@ -166,7 +160,7 @@ describe('Send Desk replies with a session cookie', () => {
     expect(resposta.status).toBe(403);
     const corpo = (await resposta.json()) as { error: { code: string } };
     expect(corpo.error.codigo).toBe('conversation_of_other_agent');
-    // E nada foi para a fila de entrega.
+    // And nothing went to the delivery queue.
     expect(await contarOutbox(conversaId)).toBe(0);
   });
 
@@ -193,7 +187,7 @@ describe('Send Desk replies with a session cookie', () => {
 });
 
 describe('Retry failed message sends', () => {
-  /** Uma mensagem falha, com a linha de outbox também em falha — o estado real. */
+  /** A failed message, with its outbox row also in failure — the real state. */
   async function messageFails(conversationId: string): Promise<string> {
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo,
@@ -233,10 +227,10 @@ describe('Retry failed message sends', () => {
       select estado, tentativas, proxima_tentativa_em from outbox_mensagem
        where mensagem_id = ${messageId}::uuid
     `);
-    // Era exatamente isto que a tela não fazia: ela mexia só em `mensagem`, e o
+    // This is exactly what the screen used to fail to do: it touched only `mensagem`, and the
     // worker reivindica pelo estado do OUTBOX.
     expect(rows[0]!.state).toBe('pendente');
-    // Backoff zerado: quem clicou disse que a causa foi resolvida.
+    // Backoff reset to zero: clicking means the person said the cause was resolved.
     expect(rows[0]!.tentativas).toBe(0);
     expect(rows[0]!.proxima_tentativa_em).toBeNull();
   });
@@ -256,12 +250,12 @@ describe('Retry failed message sends', () => {
     `);
     expect(rows[0]!.estado_entrega).toBe('pendente');
     expect(rows[0]!.errorCode).toBeNull();
-    // `entregue_em` é a hora que a Meta confirmou. Preencher aqui é inventar prova.
+    // `entregue_em` is the time Meta confirmed. Setting it here would fabricate evidence.
     expect(rows[0]!.entregue_em).toBeNull();
   });
 
   it('Recreate an outbox row for an old message that never had one', async () => {
-    // A assinatura do defeito antigo: a tela gravava a mensagem e não enfileirava nada.
+    // The signature of the old defect: the screen wrote the message and enqueued nothing.
     const conversaId = await newConversation(cenario.agentId);
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo,
@@ -316,7 +310,7 @@ describe('resposta pronta carimbada no mesmo insert', () => {
     const { rows } = await cenario.dono.execute<{ resposta_pronta_id: string | null }>(
       sql`select resposta_pronta_id from mensagem where conversa_id = ${conversaId}::uuid limit 1`,
     );
-    // Antes isso vinha numa SEGUNDA escrita depois do envio, e sumia toda vez que
+    // Previously this came from a SECOND write after sending, and it vanished whenever
     // aquela escrita falhava.
     expect(rows[0]!.resposta_pronta_id).toBe(respostaProntaId);
   });
@@ -326,8 +320,8 @@ describe('Preserve API-key behavior on the same send route', () => {
   it('Keep API-key sends and request-body agent IDs working (`atendente_id`)', async () => {
     const conversaId = await newConversation(otherAgentId);
 
-    // Chave de API NÃO é atendente: a regra de "conversa atribuída a você" não vale,
-    // porque integração não tem dono. Por isso esta passa onde o cookie foi recusado.
+    // An API key is NOT an agent: the "conversation assigned to you" rule does not apply,
+    // because an integration has no owner. That is why this request succeeds where the cookie was rejected.
     const resposta = await enviar(
       conversaId,
       { texto: 'Da integração', atendente_id: otherAgentId },
@@ -349,9 +343,9 @@ describe('Preserve API-key behavior on the same send route', () => {
   });
 
   it('Bearer inválido não cai no caminho do cookie', async () => {
-    // A armadilha da rota que aceita duas credenciais: se o Bearer errado fosse
+    // The trap in a route that accepts two credentials: if the wrong Bearer token were
     // ignorado, bastaria mandar lixo no header para ser tratado como visitante — e,
-    // com um cookie válido junto, virar a pessoa. Bearer presente é Bearer conferido.
+    // accepted alongside a valid cookie, it would impersonate the person. A Bearer token, once present, must be verified.
     const conversaId = await newConversation(cenario.agentId);
     const resposta = await fetch(`${api.url}/v1/conversations/${conversaId}/messages`, {
       method: 'POST',

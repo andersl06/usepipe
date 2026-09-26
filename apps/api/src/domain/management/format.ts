@@ -116,16 +116,13 @@ export function relogio(value: string): string {
 }
 
 /**
- * `HH:MM` válido, com `24:00` aceito porque o core trata meia-noite do dia
- * seguinte. Compartilhado entre `acoes/regras.ts` (criar) e `cadastros.ts`
- * (editar faixa/exceção) — duas cópias da mesma validação são duas chances de
- * divergir.
+ * Validate `HH:MM`, allowing `24:00` because core treats it as next-day midnight. Share validation between `acoes/regras.ts` creation and `cadastros.ts` range/exception editing to prevent divergent copies.
  */
 export function relogioValido(valor: string): boolean {
   return valor === '24:00' || /^([01]\d|2[0-3]):[0-5]\d$/.test(valor);
 }
 
-/** Minutos desde meia-noite, para comparar início/fim e detectar sobreposição. */
+
 export function minutosDoRelogio(relogio: string): number {
   const [h, m] = relogio.split(':');
   return Number(h) * 60 + Number(m);

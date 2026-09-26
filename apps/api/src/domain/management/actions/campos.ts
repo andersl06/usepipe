@@ -1,9 +1,5 @@
 /**
- * O que um formulário da Gestão manda: o `FormData` de antes, agora como JSON.
- *
- * Mesma interface de leitura (`get`/`getAll`) para as ações continuarem
- * iguais às Server Actions de onde vieram. Chave repetida vira lista; caixa
- * de seleção marcada vem como `'on'` e desmarcada não vem — como no FormData.
+ * Management form input: former `FormData`, now JSON. Keep `get`/`getAll` so actions read it as they did in Server Actions. A repeated key becomes a list; a checked box sends `'on'` and an unchecked box is absent, as with FormData.
  */
 export type CamposCrus = Record<string, string | string[] | undefined>;
 
@@ -27,7 +23,7 @@ export class Campos {
   }
 }
 
-/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */
+/** Every action returns success or a text reason for the screen. */
 export interface Resultado {
   ok: boolean;
   error?: string;

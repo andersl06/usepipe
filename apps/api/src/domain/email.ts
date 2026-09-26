@@ -1,32 +1,14 @@
 import { PipeError } from '../errors.js';
 
 /**
- * Envio de e-mail — o que o convite e o alerta de recategorização de modelo usam.
- *
- * Mesmo desenho de `whatsapp/cliente-graph.ts`: uma interface, um remetente real
- * e um dublê, escolhidos por variável de ambiente (`PIPE_EMAIL_MODO`), com
- * `definirRemetente` para o teste trocar em tempo de execução.
- *
- * **O real é HTTP, não SMTP.** Não há `nodemailer` (nem outro cliente SMTP) no
- * repositório, e esta tarefa não pode instalar pacote. O remetente real fala com
- * um endpoint configurável no formato dos provedores transacionais de hoje —
- * `POST <PIPE_EMAIL_URL>` com `Authorization: Bearer <PIPE_EMAIL_TOKEN>` e o JSON
- * `{ from, to, subject, text, html }`, que é o contrato do Resend
- * (`https://api.resend.com/emails`) e, com URL trocada, o de Postmark/SendGrid com
- * um adaptador mínimo. Quando SMTP direto for necessário, é UMA classe nova aqui,
- * sem mexer em quem chama.
- *
- * **Quem chama nunca cai por causa do e-mail.** `enviarEmailSemDerrubar` é a
- * porta de uso: registra a falha e devolve `false`, como `enfileirarEspelhoCrm`
- * em `filas.ts` — o convite existe e o modelo foi recategorizado com ou sem o
- * aviso, e a resposta já carrega o link/o webhook para o caso de o e-mail não ir.
+ * Email sending for invitations and template recategorization alerts follows `whatsapp/cliente-graph.ts`: one interface, real and double senders selected by `PIPE_EMAIL_MODO`, and `definirRemetente` for test injection. The real sender uses HTTP, not SMTP: no `nodemailer` client is installed. It posts `{ from, to, subject, text, html }` to configurable `POST <PIPE_EMAIL_URL>` with `Authorization: Bearer <PIPE_EMAIL_TOKEN>`, matching Resend (`https://api.resend.com/emails`); Postmark or SendGrid would need a small adapter, and direct SMTP another sender class. Callers use `enviarEmailSemDerrubar`: it logs failure and returns `false`, as `enfileirarEspelhoCrm` does in `filas.ts`. Invitations and recategorization succeed even if notification fails; the response contains the link or webhook fallback.
  */
 
 export interface Email {
-  /** Destinatários, já normalizados (minúsculas, sem repetição). */
+
   para: string[];
   assunto: string;
-  /** Corpo em texto puro. É o que vale; `html`, quando vem, é a versão bonita do mesmo texto. */
+  /** Plain text is authoritative; optional `html` is a styled rendering of the same content. */
   texto: string;
   html?: string;
 }
@@ -40,7 +22,7 @@ export abstract class RemetenteDeEmail {
   abstract enviar(email: Email): Promise<void>;
 }
 
-/** `PIPE_EMAIL_REMETENTE`: o `from` de todo e-mail. Sem ele o real não sobe. */
+/** `PIPE_EMAIL_REMETENTE` supplies every email's `from`; the real sender refuses to start without it. */
 function remetenteDoAmbiente(): { url: string; token: string; de: string; timeoutMs: number } {
   const url = process.env['PIPE_EMAIL_URL'] ?? 'https://api.resend.com/emails';
   const token = process.env['PIPE_EMAIL_TOKEN'] ?? '';
@@ -64,7 +46,7 @@ function esconder(texto: string, secret: string): string {
 export class RemetenteHttp extends RemetenteDeEmail {
   readonly nome = 'real' as const;
 
-  /** `buscar` injetável, para o teste exercitar o real sem rede. */
+  /** Inject `buscar` so tests exercise the real sender without network access. */
   constructor(private readonly buscar: typeof fetch = fetch) {
     super();
   }
@@ -105,9 +87,7 @@ export class RemetenteHttp extends RemetenteDeEmail {
 }
 
 /**
- * O dublê: guarda o que "enviou" numa lista compartilhada, como
- * `ClienteGraphDuble.chamadas`. É o padrão fora de produção — e-mail de
- * desenvolvimento indo para uma caixa real é o jeito de convidar gente por engano.
+ * The test double records what it "sent" in a shared list, like `ClienteGraphDuble.chamadas`. Keep it as the nonproduction default so development email cannot accidentally invite real people.
  */
 export class RemetenteDuble extends RemetenteDeEmail {
   readonly nome = 'duble' as const;
@@ -131,14 +111,13 @@ export function remetente(): RemetenteDeEmail {
   return remetenteAtual;
 }
 
-/** Troca o remetente em tempo de execução. Existe para o teste. */
+
 export function definirRemetente(novo: RemetenteDeEmail | null): void {
   remetenteAtual = novo;
 }
 
 /**
- * Envia sem derrubar quem chamou. Lista vazia é "ninguém para avisar", não erro.
- * `contexto` nomeia o gesto no log (`convite`, `modelo-recategorizado`).
+ * Send email without failing the caller. An empty recipient list means nobody to notify, not an error. `contexto` labels the operation in logs (`convite`, `modelo-recategorizado`).
  */
 export async function enviarEmailSemDerrubar(email: Email, context: string): Promise<boolean> {
   if (email.para.length === 0) return false;

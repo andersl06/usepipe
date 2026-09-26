@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,11 +17,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`,
- * `ControladorContatos.editar`) — o "Editar" de
- * `fluxo/contatos/detalhe/editar.tsx`. Sessão, permissão `contato.editar`,
- * telefone em E.164 validado e único no tenant, `atributos` mesclado (nunca
- * substituído por inteiro).
+ * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`) — the "Edit" of `fluxo/contatos/detalhe/editar.tsx`. Session, `contato.editar` permission, phone in E.164 validated and unique per tenant, `atributos` merged (never replaced wholesale).
  */
 
 let a: Cenario;
@@ -191,7 +187,7 @@ describe('PATCH /v1/contacts/:id', () => {
     expect(status).toBe(409);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_em_uso' } });
 
-    // O mesmo telefone que o contato já tem não é conflito consigo mesmo.
+    // // The same phone the contact already has isn't a conflict with itself.
     const semMudanca = await editar(sessionEditor, id, { telefone_e164: '+5511900000003' });
     expect(semMudanca.status).toBe(200);
   });

@@ -8,22 +8,12 @@ import { SCHEDULE_MANAGE, toggleActiveOfRuleQueue, writeRuleQueue } from '../reg
 import { campoValido, operadorValido, type OperadorDeRegra } from '../rule-queue.js';
 import { minutosDoRelogio, relogioValido } from '../format.js';
 
-/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
+/** The transaction already has its tenant fixed; `consultar` only names the block, as in Management. */
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
 /**
- * Server Actions de Regras — horário de atendimento, suas faixas e exceções.
- *
- * Mesmo formato `Resultado` de `app/comunicacao/acoes.ts`. Uma transação por
- * ação, consultas em série: `Promise.all` dentro do `comTenant` apaga o
- * `set_config('pipe.tenant_id')` e a RLS para de filtrar sem avisar.
- *
- * São três ações e não uma só porque o cadastro é incremental: cria-se o
- * horário, depois acrescenta-se faixa por faixa e feriado por feriado. Um
- * formulário único de "semana inteira" obrigaria a reenviar tudo a cada
- * correção, e sem `update` (que a auditoria ainda não permite) isso viraria
- * horário duplicado.
+ * Rule Server Actions manage business hours, ranges and exceptions. They return `Resultado` like `app/comunicacao/acoes.ts`. Run one transaction per action and queries serially: `Promise.all` inside `comTenant` can clear `set_config('pipe.tenant_id')`, leaving RLS without the tenant filter. Registration is incremental: create the schedule, then add ranges and holidays. Without an audited update, a whole-week form would create duplicates when corrected.
  */
 
 const OK: Resultado = { ok: true };
@@ -33,11 +23,7 @@ function falha(error: string): Resultado {
 }
 
 /**
- * O fuso, na grafia canônica do runtime, ou `null` se o IANA não conhece.
- *
- * A validação é o próprio `Intl`, que é exatamente o que
- * `packages/core/src/sla/expediente.ts` usa para converter instante em hora
- * local. Fuso que passa aqui é fuso que o cálculo de SLA vai aceitar.
+ * Return the runtime's canonical IANA time-zone spelling or `null` if unknown. Validate with `Intl`, as `packages/core/src/sla/expediente.ts` does for local time conversion; a zone accepted here works for SLA calculation.
  */
 function normalizarFuso(fuso: string): string | null {
   try {
@@ -57,7 +43,6 @@ async function comoResultado(fn: () => Promise<Resultado>): Promise<Resultado> {
   }
 }
 
-// ------------------------------------------------------------------ horário
 
 export async function salvarHorario(
   tx: TransactionPipe,
@@ -87,7 +72,7 @@ async function salvarHorarioInterno(
   }
 
   return consultar(tx, async (tx) => {
-    // `horario_atendimento` não tem índice único de nome; a unicidade é regra
+    // `horario_atendimento` has no unique index on name; uniqueness is enforced by this screen.
     // desta tela. Dois "Comercial" fariam o gestor ligar a fila no errado.
     const [conflito] = await tx
       .select({ id: scheduleAttendance.id })
@@ -144,8 +129,8 @@ async function salvarFaixaInterna(
       .limit(1);
     if (!horario) return falha('Horário não encontrado.');
 
-    // Faixas que se sobrepõem o core mescla sozinho (`faixasDoDia`), então
-    // sobreposição não é erro. Faixa idêntica é: só polui a lista.
+    // `faixasDoDia` merges overlapping ranges itself, so
+    // Overlap is allowed; an identical range only clutters the list.
     const [igual] = await tx
       .select({ id: horarioFaixa.id })
       .from(horarioFaixa)
@@ -165,7 +150,6 @@ async function salvarFaixaInterna(
   });
 }
 
-// ------------------------------------------------------------------ exceção
 
 export async function saveException(
   tx: TransactionPipe,
@@ -199,9 +183,9 @@ async function saveExceptionInternal(
         'Dia fechado não tem horário. Desmarque “fechado” para abrir em horário especial.',
       );
   } else {
-    // Exceção aberta sem horário próprio o core devolve ao expediente normal do
-    // dia (`faixasDoDia`) — ou seja, ela não faria nada. Melhor recusar do que
-    // gravar uma linha que não muda nada.
+    // An open exception without its own hours falls back to the normal
+    // day through `faixasDoDia`; it would have no effect, so reject it instead of
+    // storing a row that changes nothing.
     if (!inicio || !fim) {
       return falha(
         'Exceção que abre precisa de horário próprio; sem ele o dia cai no expediente normal e a exceção não faz nada.',
@@ -219,8 +203,8 @@ async function saveExceptionInternal(
       .limit(1);
     if (!horario) return falha('Horário não encontrado.');
 
-    // `horario_excecao_uk` é único de verdade em (horário, data). O `select`
-    // existe para a mensagem: erro de constraint chega como 500 sem contexto.
+    // `horario_excecao_uk` really enforces uniqueness on schedule and date. The `select`
+    // provides a useful conflict message; a constraint error otherwise surfaces as a contextless 500.
     const [conflito] = await tx
       .select({ id: scheduleException.id })
       .from(scheduleException)
@@ -244,20 +228,7 @@ async function saveExceptionInternal(
 // ---------------------------------------------------------- regra de entrada
 
 /**
- * A regra de entrada — §8 da spec de métricas.
- *
- * A ação faz só o que é da tela: lê o `FormData`, valida, chama a função de
- * `lib/cadastros.ts` e revalida a rota. A conversa com o Postgres mora lá, sem
- * saber que o Next existe — quando a `apps/api` virar a única porta do banco, é
- * um arquivo que muda de lugar (README, "Quem fala com o banco").
- *
- * O formulário manda de uma vez o cabeçalho da regra e as condições dela:
- * diferente do horário, aqui o cadastro incremental não serve. Regra sem
- * condição nunca casa (`filaDeDestino`), então salvar a cabeça e depois as
- * condições deixaria, entre os dois passos, uma regra ativa que não faz nada.
- *
- * As condições chegam como três listas paralelas (`campo[]`, `operador[]`,
- * `valor[]`), que é como o `FormData` devolve campos repetidos.
+ * Inbound rule, metrics spec §8. This action reads and validates `FormData`, calls `lib/cadastros.ts`, and revalidates the route; database access stays there, separate from Next (README, 'Quem fala com o banco'). Save the rule header and all conditions together: a rule without conditions cannot match in `filaDeDestino`, so incremental registration would briefly activate a rule that does nothing. Conditions arrive as parallel `campo[]`, `operador[]`, and `valor[]` lists, as repeated `FormData` fields.
  */
 export async function saveRuleQueue(
   tx: TransactionPipe,
@@ -288,8 +259,8 @@ export async function saveRuleQueue(
     const campo = campos[i] ?? '';
     const operador = operadores[i] ?? '';
     const value = values[i] ?? '';
-    // Linha em branco é linha que a pessoa não preencheu, não erro: o
-    // formulário nasce com uma e ninguém é obrigado a usar as que acrescentou.
+    // A blank row is one the user did not fill in, not an error:
+    // the form starts with one and optional added rows need not be used.
     if (!campo && !value) continue;
     if (!campoValido(campo)) {
       return falha(
@@ -317,11 +288,7 @@ export async function saveRuleQueue(
 }
 
 /**
- * O interruptor da própria lista, sem abrir formulário — o controle do
- * cartão-linha deles (`blip-telas-cadastro.md` §2).
- *
- * Ele existe agora porque a auditoria existe agora: é exatamente a condição que
- * o comentário de `componentes/lista-regras.tsx` registrou.
+ * The list-row switch toggles a rule without opening its form, matching the source card control (`blip-telas-cadastro.md` §2). It is available now because audit logging exists, as recorded in `componentes/lista-regras.tsx`.
  */
 export async function toggleRuleQueue(
   tx: TransactionPipe,

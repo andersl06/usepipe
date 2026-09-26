@@ -14,16 +14,7 @@ import {
 } from '../pesquisa.js';
 
 /**
- * Server Actions de Preferências ├ Configurações gerais.
- *
- * Uma ação por CARTÃO, e não uma por tela: em `Configurações gerais` da Blip
- * "não há um botão Salvar da tela — cada cartão tem o seu"
- * (`blip-telas-cadastro.md` §1 e §3). A consequência é esta: três ações
- * independentes, e um erro no cartão de pesquisa não derruba o que já foi salvo
- * no cartão de identidade.
- *
- * Cada uma faz só o que é da tela — ler os campos e validar. A conversa com o Postgres e o log de auditoria moram em
- * `lib/configuracoes.ts`.
+ * `Configurações gerais` preference Server Actions operate one CARD at a time. In source Blip General Settings, "não há um botão Salvar da tela — cada cartão tem o seu" (`blip-telas-cadastro.md` §1 and §3). Thus three actions are independent: an error in the survey card does not undo a saved identity card. These actions only read fields and validate; Postgres writes and audit logging live in `lib/configuracoes.ts`.
  */
 
 const OK: Resultado = { ok: true };
@@ -33,11 +24,7 @@ function falha(erro: string): Resultado {
 }
 
 /**
- * O fuso, na grafia canônica do runtime, ou `null` se o IANA não conhece.
- *
- * A validação é o próprio `Intl`, o mesmo que
- * `packages/core/src/sla/expediente.ts` usa para converter instante em hora
- * local: fuso que passa aqui é fuso que o cálculo de SLA vai aceitar.
+ * Return the runtime's canonical IANA time-zone spelling, or `null` if unknown. Use `Intl` for validation, just as `packages/core/src/sla/expediente.ts` does when converting instants to local time; a zone accepted here will work in SLA calculations.
  */
 function normalizarFuso(fuso: string): string | null {
   try {
@@ -75,19 +62,14 @@ export async function saveIdentity(
     throw erro;
   }
 
-  // O fuso é o "hoje" de todo cartão e de todo relatório: uma tela só não basta.
+  // The time zone defines "today" for every card and report; changing only one screen is insufficient.
   return OK;
 }
 
 // --------------------------------------------------------------- pesquisa
 
 /**
- * A pesquisa de satisfação — §6 da spec de métricas.
- *
- * A escala NÃO vem do formulário: é consequência do tipo. É o que impede o
- * "CSAT de 0 a 10" que nenhum relatório sabe classificar. Como
- * `resposta_pesquisa` guarda a escala junto de cada resposta, mudar aqui não
- * reclassifica o passado.
+ * Satisfaction survey, section 6 of the metrics spec. The scale is derived from the survey type, not submitted in the form; this prevents a "CSAT de 0 a 10" that no report can classify. `resposta_pesquisa` stores the scale with each response, so changing this setting does not reclassify history.
  */
 export async function salvarPesquisa(
   tx: TransactionPipe,
@@ -126,17 +108,9 @@ export async function salvarPesquisa(
   return OK;
 }
 
-// ------------------------------------------- etiqueta obrigatória ao encerrar
 
 /**
- * "Tornar obrigatória a inclusão de tags em atendimentos finalizados
- * manualmente" — o texto é deles (`blip-telas-cadastro.md` §3), a coluna é
- * nossa: `etiqueta.obrigatoria_no_encerramento`.
- *
- * O interruptor da seção liga a exigência; o corpo escolhe QUAIS etiquetas
- * entram. Desligar a seção limpa todas — é o que faz o interruptor significar
- * alguma coisa em vez de virar decoração acima de uma lista que continua
- * valendo.
+ * The source setting ("Tornar obrigatória a inclusão de tags em atendimentos finalizados manualmente"; `blip-telas-cadastro.md` §3) maps to our `etiqueta.obrigatoria_no_encerramento`. The section switch enables the requirement; the body chooses WHICH tags qualify. Disabling the section clears them all, so the switch has effect instead of sitting above a still-active list.
  */
 export async function saveLabelsOfClosure(
   tx: TransactionPipe,

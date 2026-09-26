@@ -44,19 +44,10 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
   fn(tx);
 
 /**
- * Consultas do monitoramento.
- *
- * Regra que atravessa o arquivo inteiro: **nenhuma conta é feita aqui**. O banco
- * entrega eventos, o `@pipe/core` calcula, esta camada só junta os dois e devolve
- * pronto para a tela. Toda métrica que vira número em tela vem de
- * `2026-09-05-metricas-atendimento.md`.
- *
- * ponytail: agregação por fila/atendente/etiqueta é feita em memória sobre o
- * conjunto do dia. Vira `group by` no Postgres (ou `metrica_diaria`) quando o
- * tenant passar de alguns milhares de conversas por dia.
+ * Monitoring queries only combine database events with calculations from `@pipe/core`; metrics shown on screen come from `2026-09-05-metricas-atendimento.md`. Group by queue, agent and label in memory over the day's rows for now. Move to PostgreSQL `group by` or `metrica_diaria` when a tenant reaches several thousand conversations per day.
  */
 
-/** Só volta às partições que interessam: evento de conversa aberta não é antigo. */
+/** Touch only relevant partitions; an open-conversation event is not historical. */
 const HORIZONTE_ABERTAS_DIAS = 30;
 
 function inicioDoHorizonte(agora: Date): Date {
@@ -177,7 +168,7 @@ export interface PreviaOfConversationInMonitoring {
   itens: { id: string; at: Date | string; type: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 }
 
-/** A Gestão lê qualquer ticket do tenant; o Desk só lê o que está atribuído ao próprio atendente. */
+/** Management may read any tenant ticket; Desk may read only tickets assigned to that agent. */
 export async function loadPreviaOfConversation(
   tx: TransactionPipe,
   userId: string,
@@ -220,7 +211,7 @@ export async function loadPreviaOfConversation(
   };
 }
 
-/** Nota interna é a conversa supervisor-atendente que a origem abre pelo balão; não sai ao cliente. */
+/** An internal note is the supervisor-agent conversation opened by the source bubble; it must not reach the customer. */
 export async function falarWithAgentInMonitoring(
   tx: TransactionPipe,
   tenantId: string,
@@ -318,7 +309,7 @@ function marcosVazios(conversaId: string): Marcos {
   };
 }
 
-/** Diferença em segundos, ou `null` quando falta uma das pontas. */
+
 function entre(inicio: Date | null, fim: Date | null): number | null {
   if (!inicio || !fim) return null;
   const s = segundosEntre(inicio, fim);
@@ -364,8 +355,9 @@ export function ordenarQueueOfWait<
   return [...linhas].sort((a, b) => {
     const diferenca = pesoPriority(a.priority) - pesoPriority(b.priority);
     if (diferenca !== 0) return diferenca;
-    /* Sem marco de criação vai para o fim: ela não é "a mais antiga", é a que
-       não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */
+    /*
+     * Place a conversation without a creation timestamp last: it is not the oldest, but one whose start is unknown. Match Desk's `null` ordering.
+     */
     const ta = a.marcos.criadaEm?.getTime() ?? Infinity;
     const tb = b.marcos.criadaEm?.getTime() ?? Infinity;
     return ta - tb;
@@ -381,8 +373,8 @@ export async function loadMonitoring(
 ): Promise<Monitoring> {
   return consultar(tx, async (tx) => {
     const desde = inicioDoHorizonte(agora);
-    // Filtro rápido: entra no `where` das duas populações (abertas e encerradas),
-    // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
+    // Apply the quick filter in `where` for both open and closed populations
+    // so cards and table describe the same selection.
     const recorte = [
       filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
       filter.agentIds?.length ? inArray(conversation.agentId, filter.agentIds) : filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
@@ -506,7 +498,7 @@ export async function loadMonitoring(
       else cardAgents.offline += 1;
     }
 
-    // Pausa aberta que já passou da duração sugerida pelo motivo.
+    // Open pause exceeding its reason's suggested duration.
     const pausasAbertas = await tx
       .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.durationSuggestedMin })
       .from(pausa)
@@ -518,7 +510,6 @@ export async function loadMonitoring(
       if (segundosEntre(p.iniciadaEm, agora) > limite * 60) cardAgents.pausasEstouradas += 1;
     }
 
-    // ---- 3. cartões de tempo real ---------------------------------------
     const inQueue = abertas.filter((c) => c.marcos.atribuidaEm === null);
     const semResposta = abertas.filter(
       (c) => c.marcos.atribuidaEm !== null && c.marcos.firstRespostaIn === null,
@@ -536,7 +527,6 @@ export async function loadMonitoring(
         cardAgents.online > 0 ? inAttendance.length / cardAgents.online : null,
     };
 
-    // ---- 4. conversas encerradas dentro do período ("hoje") -------------
     const report = await loadAttendance(tx, window, filter);
     const hoje: CardsOfToday = {
       esperaDoCliente: report.geral.esperaTotal,
@@ -670,8 +660,8 @@ export async function loadMonitoring(
       .select({ hour: horaLocal, total: sql<number>`count(*)::int` })
       .from(conversation)
       .where(and(gte(conversation.criadaEm, window.start), lt(conversation.criadaEm, window.end), ...recorte))
-      // A expressão usa um parâmetro para o fuso; referenciá-la pela posição
-      // mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.
+      // Parameterize the time-zone expression and refer to it by position
+      // so PostgreSQL sees identical `SELECT`, `GROUP BY` and `ORDER BY` expressions.
       .groupBy(sql.raw('1'))
       .orderBy(sql.raw('1'));
     const ticketsOpenByHour = normalizeTicketsByHour(byHourRaw);
@@ -696,7 +686,7 @@ export async function loadMonitoring(
   });
 }
 
-/** Contagem de conversas encerradas no período — usada pelo cabeçalho do histórico. */
+/** Closed-conversation count for the period, used by the history header. */
 export async function contarClosedsInPeriod(
   tx: TransactionPipe,
   janela: { start: Date; end: Date },

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,27 +17,21 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * As rotas de GRAVAÇÃO do módulo Atendimento (cadastros) — itens 1 a 3 da
- * tarefa: filas (criar/editar/excluir/vincular/desvincular atendente),
- * respostas prontas (criar/editar/excluir) e pausas personalizadas
- * (criar/editar/excluir).
+ * The WRITE routes of the Attendance module (registrations) — items 1 to 3 of the task: queues (create/edit/delete/link/unlink agent), canned responses (create/edit/delete), and custom pauses (create/edit/delete).
  *
- * Mesmo padrão de `ciclo-de-vida-do-fluxo.test.ts`: dois tenants, sessão por
- * cookie, caminho feliz, recusas, cross-tenant, permissão. `ErroPipe` sobe com
- * status de verdade (400/403/404/409) — diferente das `acoes/*` antigas
- * (`Resultado` em 200), porque são gestos com efeito de segurança.
+ * Same pattern as `ciclo-de-vida-do-fluxo.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. `ErroPipe` surfaces with a real status (400/403/404/409) — unlike the old `acoes/*` (`Resultado` at 200), because these are gestures with a security effect.
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Tem as três permissões novas/reaproveitadas — o "gestor" do teste. */
+/** Has the three new/reused permissions — the test's "manager." */
 let sessionManager: string;
-/** Só `fila.gerenciar` — para provar que cada rota pede a SUA permissão, não qualquer uma. */
+/** Only `fila.gerenciar` — to prove each route requires ITS OWN permission, not just any. */
 let sessionOnlyQueues: string;
-/** Gente do tenant A sem permissão nenhuma. */
+/** People from tenant A with no permission at all. */
 let sessionWithoutPoder: string;
-/** Sessão válida, mas de outro tenant — prova que o tenant vem da sessão, nunca da URL. */
+/** A valid session, but from another tenant — proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
 
 async function pessoaCom(cenario: Cenario, permissions: string[]): Promise<string> {
@@ -226,7 +220,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
 
     const log = await auditoriaDe('fila', criada.id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { nome: novoNome, capacidadePadrao: 12 } });
-    // Campo que não mudou não entra no registro.
+    // // A field that didn't change doesn't go into the record.
     expect(log.at(-1)?.depois).not.toHaveProperty('ordem');
   });
 
@@ -308,7 +302,7 @@ describe('DELETE /v1/management/agents/queues/:id', () => {
   });
 
   it('Return 409 when deleting the inbox default queue', async () => {
-    // `a.filaId` é a fila padrão de `a.inboxId` (montada em `montarCenario`).
+    // // `a.filaId` is `a.inboxId`'s default queue (built in `montarCenario`).
     const resposta = await fetch(`${api.url}/v1/management/agents/queues/${a.queueId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
@@ -403,7 +397,7 @@ describe('Assign and unassign agents from a queue', () => {
   });
 
   it('desvincula, e desvincular de novo é 404', async () => {
-    // `a.atendenteId` já está em `a.filaId` (montado em `montarCenario`).
+    // // `a.atendenteId` is already in `a.filaId` (built in `montarCenario`).
     const resposta = await fetch(
       `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}`,
       { method: 'DELETE', headers: comCookie(sessionManager) },
@@ -416,7 +410,7 @@ describe('Assign and unassign agents from a queue', () => {
     );
     expect(de_novo.status).toBe(404);
 
-    // Devolve o vínculo para não afetar outros testes deste arquivo que dependem dele.
+    // // Returns the link so it doesn't affect other tests in this file that depend on it.
     await a.dono.execute(sql`
       insert into fila_atendente (tenant_id, fila_id, usuario_id)
       values (${a.tenantId}, ${a.queueId}::uuid, ${a.agentId}::uuid)
@@ -887,7 +881,7 @@ describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
 });
 
 /* =========================================================================
- * Item 3 — editar/excluir faixa e exceção de horário
+ * Item 3 — edit/delete time-window and schedule exception
  * ========================================================================= */
 
 async function createScheduleSql(nome?: string): Promise<string> {
@@ -1101,7 +1095,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
 });
 
 /* =========================================================================
- * Item 4 — CRUD básico de regra de prioridade
+ * Item 4 — basic CRUD for priority rule
  * ========================================================================= */
 
 async function createRulePriority(session: string, corpo: Record<string, unknown> = {}) {

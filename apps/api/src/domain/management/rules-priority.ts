@@ -95,7 +95,7 @@ function nivelConferido(bruto: unknown): string {
   return nivel;
 }
 
-/** Objeto simples, não array nem escalar — `jsonb` aceita qualquer JSON, mas condição de regra é um mapa de critérios. */
+/** Require a plain object for rule conditions, not an array or scalar; `jsonb` accepts any JSON but a rule condition must map criteria. */
 function conditionChecked(bruto: unknown): Record<string, unknown> {
   if (bruto === undefined) return {};
   if (bruto === null || typeof bruto !== 'object' || Array.isArray(bruto)) {

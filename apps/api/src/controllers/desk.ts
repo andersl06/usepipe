@@ -19,24 +19,9 @@ import { listLabelsOfContact } from '../domain/etiquetas.js';
 import { Campos, type CamposCrus, type Resultado } from '../domain/management/actions/campos.js';
 
 /**
- * O DESK por sessão de navegador: as leituras de cada tela e as ações que
- * escreviam direto no banco.
- *
- * As leituras são as de `dominio/desk/consultas.ts` e `metricas.ts`, movidas
- * do Desk em Next; cada tela faz UMA ida — a fila com os catálogos, a conversa
- * com os itens e o painel, o ticket antigo, as métricas — na mesma transação
- * e em série, como as páginas faziam no servidor. O atendente é sempre o da
- * sessão: não há parâmetro para olhar a fila nem os números de outra pessoa.
- *
- * As ações são as Server Actions movidas para `dominio/desk/acoes.ts` com o
- * corpo intacto: o formulário manda os campos como JSON (`{ campos }`),
- * `Campos` os oferece com `get`/`getAll` como o `FormData` fazia, e a resposta
- * é o mesmo `Resultado`. A lista é FECHADA: nome fora do mapa é 404.
- *
- * Enviar, reenviar, encerrar e espera NÃO estão aqui: já eram
- * `POST /v1/conversas/…` e o navegador chama essas rotas direto.
+ * The browser-session Desk API serves screen reads and actions formerly written directly to the database. Reads moved from the Next Desk into `dominio/desk/consultas.ts` and `metricas.ts`: each screen makes one request for its queue and catalogs, conversation items and panel, old ticket or metrics, in a single transaction with serial queries. The attendant always comes from the session; no parameter can inspect someone else's queue or metrics. Server Actions moved unchanged to `dominio/desk/acoes.ts`: forms send JSON `{ campos }`, `Campos` exposes `get`/`getAll` as `FormData` did, and returns the same `Resultado`. The action-name allowlist is closed; an unknown name returns 404. Send, retry, close and wait use existing `POST /v1/conversas/…` routes directly.
  */
-/** O atendente é o da sessão — é ele que muda de status e assina a nota. */
+/** The attendant comes from the session; that person changes status and signs the note. */
 type Acao = (
   tx: TransactionPipe,
   tid: string,
@@ -50,12 +35,12 @@ const ACTIONS: Record<string, Acao> = {
   salvarNotaInterna: acoesDesk.salvarNotaInterna,
   atender: acoesDesk.atender,
   transferirEmMassa: acoesDesk.transferInBulk,
-  /* O menu "⋮" do cartão (`dominio/desk/marcacoes.ts`): fixar e marcar como não lida. */
+
   fixar: marcacoes.fixar,
   marcarNaoLida: marcacoes.marcarNaoLida,
 };
 
-/** Quantos dias, no máximo, um recorte de métricas pode cobrir: os 90 da tela, com folga. */
+/** Maximum metrics range: the screen's 90 days plus a little margin. */
 const TETO_OF_DAYS_OF_METRICS = 92;
 
 function dataOuNada(value: string | undefined): Date | null {
@@ -68,13 +53,13 @@ function dataOuNada(value: string | undefined): Date | null {
 export class DeskController {
   /* ------------------------------------------------------------ leituras */
 
-  /** A fila do atendente e os catálogos da coluna, numa ida só. */
+
   @Get('queue')
   @WithSession()
   queue(@Req() requisicao: RequestWithSession): Promise<QueueOfDesk> {
     const sessao = sessionOf(requisicao);
-    // Em série, e não em `Promise.all`: a transação é uma conexão só, e disparar
-    // em paralelo na mesma conexão derruba o `set_config` do tenant.
+    // Run serially rather than with `Promise.all`: the transaction uses one connection, and
+    // parallel queries on it can unset the tenant's `set_config`.
     return noTenant(sessao.tenantId, async (tx) => ({
       conversations: await consultas.listConversations(tx, sessao.userId),
       aguardando: await consultas.contarAguardando(tx, sessao.userId),
@@ -86,7 +71,7 @@ export class DeskController {
     }));
   }
 
-  /** A conversa aberta: mensagens e notas, templates do canal, etiquetas e histórico do contato. */
+
   @Get('conversas/:id')
   @WithSession()
   conversation(
@@ -113,7 +98,7 @@ export class DeskController {
     });
   }
 
-  /** As filas do cliente, para o seletor do modal de transferência. */
+
   @Get('queues')
   @WithSession()
   queues(
@@ -123,7 +108,7 @@ export class DeskController {
     return noTenant(session.tenantId, async (tx) => ({ queues: await consultas.listQueues(tx) }));
   }
 
-  /** A aba Contatos: a lista, com busca por nome ou telefone. */
+
   @Get('contacts')
   @WithSession()
   contacts(
@@ -136,7 +121,7 @@ export class DeskController {
     }));
   }
 
-  /** Um contato da aba: a ficha e o histórico de atendimentos. */
+
   @Get('contatos/:id')
   @WithSession()
   contact(
@@ -151,7 +136,7 @@ export class DeskController {
     });
   }
 
-  /** Os canais com os modelos aprovados — para a mensagem ativa e as ações em massa. */
+
   @Get('channels')
   @WithSession()
   channels(
@@ -163,7 +148,7 @@ export class DeskController {
     }));
   }
 
-  /** Um atendimento antigo, em leitura, aberto pelo histórico do contato. */
+
   @Get('tickets/:id')
   @WithSession()
   ticket(@Req() requisicao: RequestWithSession, @Param('id') id: string): Promise<TicketDoDesk> {
@@ -181,9 +166,7 @@ export class DeskController {
   }
 
   /**
-   * "Minhas métricas": sempre do próprio atendente. O intervalo vem pronto do
-   * navegador; sem os dois instantes (ou com um deles ilegível) vale o dia de
-   * hoje, e um recorte maior que o teto da tela é cortado no fim.
+   * "Minhas métricas" always uses the current attendant. The browser supplies the interval; if either timestamp is missing or unreadable, use today. Clamp a range wider than the screen limit at its start.
    */
   @Get('metrics')
   @WithSession()
@@ -213,9 +196,9 @@ export class DeskController {
     }));
   }
 
-  /* --------------------------------------------------------------- ações */
 
-  /** Um formulário do Desk: `{ campos }` entra, `Resultado` sai. */
+
+
   @Post('acoes/:acao')
   @HttpCode(200)
   @WithSession()

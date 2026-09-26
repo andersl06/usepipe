@@ -9,21 +9,7 @@ import { buscarSaude, numeroPendente } from './saude.js';
 import { exchangeCode } from './troca-de-token.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/embedded_signup_service.rb
- *
- * O que acontece depois que o cliente fecha o popup da Meta, na ordem do original:
- *
- * 1. troca o `code` pelo token do cliente (`troca-de-token.ts`);
- * 2. descobre o número dentro da WABA (`info-do-numero.ts`);
- * 3. cria o canal, ou reautoriza o existente quando vem `canalId`;
- * 4. registra o número e aponta o webhook (`configuracao-de-webhook.ts`) — falha
- *    aqui marca o canal para reautorização em vez de desfazê-lo;
- * 5. confere a saúde do número recém-criado e marca para reautorização se a Meta
- *    ainda o dá como pendente. Pula na reautorização (evita alarme falso) e na
- *    coexistência (a saúde da Meta demora minutos para acompanhar).
- *
- * O `state` contra CSRF não é deste serviço: é conferido antes, no controlador
- * (`estado-de-conexao.ts`), e é acréscimo do Pipe — o original não tem.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/embedded_signup_service.rb. After the customer closes Meta's popup, exchange `code` for a customer token (`troca-de-token.ts`), find the number in the WABA (`info-do-numero.ts`), create or reauthorize the channel if `canalId` is supplied, register the number and configure the webhook (`configuracao-de-webhook.ts`). Webhook failure marks reauthorization rather than undoing the channel. Check a new number's health and mark pending if Meta still reports it pending; skip this on reauthorization and coexistence to avoid false alarms from Meta's delayed status. The controller (`estado-de-conexao.ts`) checks CSRF `state` before this service; Pipe added that guard beyond the original.
  */
 
 export interface RequestOfRegistrationEmbedded {
@@ -33,11 +19,11 @@ export interface RequestOfRegistrationEmbedded {
   wabaId?: string | undefined;
   numberId?: string | undefined;
   coexistencia?: boolean | undefined;
-  /** O `inbox_id` do original: presente, é reautorização daquele canal. */
+  /** Original `inbox_id`: when present, reauthorize that channel. */
   channelId?: string | undefined;
 }
 
-/** `validate_parameters!` do serviço e `validate_embedded_signup_params!` do controlador. */
+/** Chatwoot `validate_parameters!` service and `validate_embedded_signup_params!` controller checks. */
 export function validarParametros(pedido: { code?: string | undefined; wabaId?: string | undefined }): void {
   const ausentes: string[] = [];
   if (!pedido.code?.trim()) ausentes.push('code');
@@ -96,7 +82,7 @@ export async function executarRegistrationEmbedded(
   }
 }
 
-/** `check_channel_health_and_prompt_reauth`. Falha da checagem só vai para o log. */
+/** `check_channel_health_and_prompt_reauth`: log health-check failures only. */
 async function conferirSaude(channel: ChannelWhatsApp): Promise<void> {
   try {
     const saude = await buscarSaude({

@@ -6,17 +6,12 @@ import { databaseApp, databaseOwner } from './database.js';
 import { pingRedis } from './queues.js';
 
 /**
- * `GET /saude` e as sondas que ele usa.
- *
- * A regra que manda aqui: **healthcheck que pendura é pior que healthcheck que
- * falha.** Um `select 1` que nunca volta faz o orquestrador ficar esperando em vez
- * de tirar o contêiner de rotação — e o cliente continua batendo num processo que
- * não atende. Por isso toda sonda tem tempo-limite curto e um veredito, sempre.
+ * `GET /saude` and its probes use short deadlines. A hanging healthcheck is worse than a failed one: a stuck `select 1` would keep the orchestrator waiting while customer traffic still reaches an unresponsive process.
  */
 
 export const TIME_LIMIT_MS = Number(process.env['PIPE_SAUDE_TIMEOUT_MS'] ?? 2_000);
 
-/** A imagem carimba `PIPE_VERSAO` no build; fora dela, vale a versão do pacote. */
+/** The image stamps `PIPE_VERSAO` at build time; outside it, use the package version. */
 export const VERSAO = process.env['PIPE_VERSAO'] ?? '0.1.0';
 
 export type Veredito = 'ok' | 'falha';
@@ -29,11 +24,7 @@ export interface Saude {
 }
 
 /**
- * Corre a sonda contra o relógio.
- *
- * O `catch` no perdedor não é enfeite: sem ele, a promessa que chega depois do
- * tempo-limite rejeita sozinha e derruba o processo por `unhandledRejection` —
- * o healthcheck matando o serviço que ele deveria vigiar.
+ * Race probes against a deadline. Catch the losing promise too: if it rejects after timeout without a handler, `unhandledRejection` could crash the service that the healthcheck is meant to monitor. The losing promise needs its own `catch`.
  */
 async function sondar(trabalho: () => Promise<unknown>): Promise<Veredito> {
   let despertador: NodeJS.Timeout | undefined;
@@ -55,24 +46,18 @@ async function sondar(trabalho: () => Promise<unknown>): Promise<Veredito> {
 }
 
 export async function verificarSaude(): Promise<Saude> {
-  // O pool sondado é o `app`: é por ele que passa todo o tráfego de negócio. O pool
-  // dono atende duas resoluções e não representa a saúde de quem serve o cliente.
+  // Probe the `app` pool used by business traffic. The owner pool handles only two resolutions and does not represent customer-facing health.
   const [database, redis] = await Promise.all([
     sondar(() => databaseApp().execute(sql`select 1`)),
     sondar(() => pingRedis()),
   ]);
 
-  // `ok` segue o banco, e só ele. Sem Redis a API ainda recebe webhook e responde
-  // leitura; sem banco ela não faz nada — e é essa a diferença entre 503 e 200.
+  // Set `ok` from database health alone. Without Redis, the API can still receive webhooks and serve reads; without the database it cannot serve, which distinguishes 200 from 503.
   return { ok: database === 'ok', versao: VERSAO, database, redis };
 }
 
 /**
- * Quantas migrations existem no repositório e ainda não foram aplicadas.
- *
- * Devolve `null` quando não dá para saber — imagem sem a pasta `drizzle`, banco
- * fora, tabela de controle ainda não criada. `null` some da coleta em vez de virar
- * um zero mentiroso, que é o que faria o alerta `MigrationPendente` calar para sempre.
+ * Count repository migrations not yet applied. Return null when unknowable (image lacks `drizzle`, database is down, or migration table is missing); omit that metric rather than emit a false zero that would silence `MigrationPendente`. The unknown value is `null`, not zero.
  */
 export async function migrationsPendentes(): Promise<number | null> {
   try {

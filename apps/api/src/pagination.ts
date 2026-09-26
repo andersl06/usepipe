@@ -3,21 +3,14 @@ import type { SQL } from 'drizzle-orm';
 import { PipeError } from './errors.js';
 
 /**
- * Paginação por cursor, ordenação e filtro — `apis.md` §5.3.
- *
- * Cursor e não `offset`: com escrita concorrente, `offset` pula e repete item entre
- * páginas. O cursor é a chave da última linha da página anterior, e o desempate
- * final é sempre `id`, para nunca haver ordenação ambígua.
- *
- * `page_info.has_next_page` é explícito porque `data.length < limit` mente quando o
- * limite bate exato no fim da coleção.
+ * Cursor pagination, sorting, and filtering (`apis.md` §5.3) use the previous page's last key rather than `offset`, which skips or repeats items under concurrent writes. Break ties with `id` for a total order. Keep `page_info.has_next_page` explicit because `data.length < limit` is false at an exact end boundary.
  */
 
 export const LIMITE_PADRAO = 50;
 export const LIMITE_TETO = 100;
 
 export interface Cursor {
-  /** Valor do campo de ordenação, serializado. */
+  /** Serialized sort-field value. */
   value: string;
   id: string;
 }
@@ -65,9 +58,7 @@ export interface Sorting {
 }
 
 /**
- * `order_by=criada_em[desc]`, com o campo validado contra a lista da rota. Campo
- * fora da lista é erro, não silêncio: ordenar por coluna inexistente devolveria a
- * ordem "natural" do Postgres e ninguém perceberia.
+ * Parse `order_by=criada_em[desc]` against each route's allowed fields. Reject unknown fields rather than silently falling back to Postgres's natural order.
  */
 export function readSorting(
   bruto: unknown,
@@ -87,11 +78,7 @@ export function readSorting(
 }
 
 /**
- * Condição de continuação da página, em keyset.
- *
- * `(campo, id) < (valor, id)` numa tupla só, e não `campo < valor or (campo = valor
- * and id < id)`: além de ser mais curto, o Postgres usa o índice composto na forma
- * de tupla. `expressao` já vem de uma lista fechada de colunas — nunca do cliente.
+ * Use keyset tuple comparison `(campo, id) < (valor, id)` so Postgres can use a composite index, rather than an expanded OR condition. `expressao` comes from a closed column list, never client input.
  */
 export function conditionOfCursor(
   expressao: string,
@@ -110,8 +97,7 @@ export function orderSql(expressao: string, direction: Direction, colunaId = 'id
 }
 
 /**
- * Monta a página a partir de `limite + 1` linhas lidas: a linha extra é o que prova
- * que existe página seguinte, sem uma segunda consulta de contagem.
+ * Read `limite + 1` rows; the extra row proves another page exists without a count query.
  */
 export function assemblePage<T>(
   linhas: T[],

@@ -4,10 +4,7 @@ import { PipeError } from '../errors.js';
 import { redirecionarClique } from '../domain/rastreador-de-cliques.js';
 
 /**
- * `GET /l/:codigo` — a rota PÚBLICA do rastreador de cliques. Sem `@ComSessao()`
- * nem `@Escopos(...)` de propósito: quem clica no anúncio/mensagem não tem
- * cookie nem chave — é público como o webhook da Meta (`sessao.ts`, "rota sem
- * marca nenhuma é pública de propósito").
+ * `GET /l/:codigo` is the public click-tracking redirect. Deliberately omit `@ComSessao()` and `@Escopos(...)`: someone clicking an ad or message has neither a cookie nor an API key. This is public like the Meta webhook; see `sessao.ts` and its unmarked-route rule.
  */
 @Controller('l')
 export class RedirectController {

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -17,13 +17,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Caminho inteiro, com o dublê ligado:
- * webhook de entrada → conversa e mensagem → resposta pela API → outbox → worker
- * entrega → `entregue` → status de leitura → `lida`. E o caminho da falha: mídia em
- * formato recusado nunca chega a chamar a Meta.
- *
- * Nada aqui é atalho: o dublê entra no lugar da Cloud API, e os status que ele gera
- * voltam pelo **mesmo** endpoint de webhook que a Meta usaria, com assinatura.
+ * The full path, with the double enabled: inbound webhook → conversation and message → reply through the API → outbox → worker delivers → `entregue` → read status → `lida`. And the failure path: media in a rejected format never reaches a call to Meta. Nothing here is a shortcut: the double stands in for the Cloud API, and the statuses it generates come back through the **same** signed webhook endpoint Meta would use.
  */
 
 let cenario: Cenario;
@@ -71,7 +65,7 @@ async function umaLinha<T extends Record<string, unknown>>(
   return (rows[0] as T | undefined) ?? null;
 }
 
-/** Entrega os status que o dublê acumulou, pelo webhook, como a Meta faria. */
+/** Delivers the statuses the double accumulated, through the webhook, the way Meta would. */
 async function entregarStatusDoDuble(): Promise<void> {
   for (const status of dubleWhatsApp.drenarStatus()) {
     const resposta = await postarWebhook(payloadDeStatus(status));
@@ -131,12 +125,12 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     expect(conversation).not.toBeNull();
     conversationId = conversation!.id;
 
-    // Distribuição por carga: o único atendente online da fila recebeu a conversa.
+    // Load-based distribution: the queue's only online agent received the conversation.
     expect(conversation!.agentId).toBe(cenario.agentId);
     expect(conversation!.state).toBe('atribuida');
     expect(conversation!.lastMessageOf).toBe('contato');
 
-    // A janela abre em 24h a partir da mensagem do cliente.
+    // The window opens for 24h starting from the customer's message.
     const expira = new Date(String(conversation!.windowExpiresAt)).getTime();
     const daquiA24h = Date.now() + 24 * 60 * 60 * 1000;
     expect(Math.abs(expira - daquiA24h)).toBeLessThan(60_000);
@@ -177,7 +171,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
     };
     messageOutputId = corpo.id;
 
-    // O ponto do trabalho: não nasce mais `enviada`.
+    // The point of this work: it is no longer created as `enviada`.
     expect(corpo.stateDelivery).toBe('pendente');
     expect(corpo.insideOfWindow).toBe(true);
     expect(corpo.categoria_cobranca).toBe('livre');
@@ -243,7 +237,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       )
     )!.id_provedor;
 
-    // `delivered` depois de `read` é rotina na Meta. Tem que ser descartado.
+    // `delivered` arriving after `read` is routine on Meta's side. It must be discarded.
     await postarWebhook(
       payloadDeStatus({
         phoneNumberId: '555000111',
@@ -317,7 +311,7 @@ describe('caminho da falha', () => {
 
     expect(meu?.state).toBe('falhou');
     expect(meu?.errorCode).toBe('midia_formato_recusado');
-    // A prova de que a validação aconteceu antes da chamada.
+    // The proof that validation happened before the call.
     expect(dubleWhatsApp.chamadas.length).toBe(chamadasAntes);
 
     const mensagem = await umaLinha<{
@@ -327,7 +321,7 @@ describe('caminho da falha', () => {
     }>(sql`select estado_entrega, erro_codigo, erro_texto from mensagem where id = ${criada.id}::uuid`);
     expect(mensagem?.estado_entrega).toBe('falhou');
     expect(mensagem?.errorCode).toBe('midia_formato_recusado');
-    // O texto é o que o Desk mostra na tela: precisa ser legível, não um código.
+    // The text is what the Desk shows on screen: it must be readable, not a code.
     expect(mensagem?.errorText).toContain('application/x-msdownload');
     expect(mensagem?.errorText).toContain('não é aceito');
 
@@ -390,8 +384,8 @@ describe('Aggregate daily metrics from events idempotently', () => {
     expect(Number(linha?.messagesOutput)).toBeGreaterThanOrEqual(1);
     expect(Number(linha?.firstResponseN)).toBeGreaterThanOrEqual(1);
 
-    // Rodar de novo sobrescreve, nunca soma em cima — é o que permite recalcular
-    // o passado quando a definição de uma métrica muda.
+    // Running it again overwrites, never accumulates on top — this is what allows recalculating
+    // past data when a metric's definition changes.
     await agregarDia(cenario.tenantId, hoje);
     const depois = await umaLinha<{ conversas_criadas: number }>(sql`
       select conversas_criadas from metrica_diaria
@@ -419,7 +413,7 @@ describe('Authenticate API requests with an API key', () => {
     const corpo = (await resposta.json()) as { error: { code: string } };
     expect(corpo.erro.codigo).toBe('without_scope');
 
-    // A mesma chave lê fila, porque esse escopo ela tem.
+    // The same key can read the queue, because it holds that scope.
     expect((await comApi('/v1/queues', {}, cenario.tokenWithoutScope)).status).toBe(200);
   });
 });

@@ -10,17 +10,7 @@ import { databaseOwner } from './database.js';
 import { PipeError } from './errors.js';
 
 /**
- * Autenticação por SESSÃO, para as telas — irmã da autenticação por chave de API de
- * `autenticacao.ts`, e com a mesma promessa: o controlador nunca lê header nem
- * cookie, e o `tenant_id` é resolvido no servidor.
- *
- * As duas convivem porque servem a clientes diferentes: a chave é integração de
- * cliente (`Authorization: Bearer pipe_...`), a sessão é gente num navegador
- * (cookie `pipe_sessao`). Uma rota declara `@Escopos(...)` ou `@ComSessao()`; sem
- * marca nenhuma, é pública de propósito (webhook, `/saude`).
- *
- * O cookie é lido à mão, sem `cookie-parser`: é um `split` de ponto-e-vírgula, e
- * uma dependência a menos na imagem.
+ * Browser session authentication complements API-key authentication in `autenticacao.ts`. Controllers read neither headers nor cookies and derive `tenant_id` server-side. Integrations use `Authorization: Bearer pipe_...`; people use browser cookie `pipe_sessao`. Routes declare `@Escopos(...)` or `@ComSessao()`; unmarked routes such as webhooks and `/saude` are intentionally public. Parse the cookie directly with semicolon splitting instead of adding `cookie-parser`. The cookie parser is a semicolon `split`.
  */
 
 export const KEY_SESSION = 'pipe:sessao';
@@ -30,30 +20,15 @@ export function sessionCookie(header: string): string {
   return `${SESSION_COOKIE_NAME}${header.slice(header.indexOf('='))}`;
 }
 
-/** Marca a rota como exigindo sessão de navegador. */
+/** Mark a route as requiring a browser session. */
 export const WithSession = () => SetMetadata(KEY_SESSION, true);
 
 /**
- * Marca a rota como aceitando **chave de API OU sessão** — não as duas juntas.
- *
- * Sem esta marca, declarar `@Escopos(...)` e `@ComSessao()` na mesma rota exigiria as
- * DUAS credenciais, porque os dois guardas são globais e independentes. Com ela, vale
- * a regra "quem se apresentou manda":
- *
- * - veio `Authorization: Bearer pipe_…` → o guarda da chave confere, o da sessão sai;
- * - não veio → o guarda da chave sai, e o da sessão confere o cookie;
- * - não veio nenhum dos dois → 401 pelo guarda da sessão.
- *
- * O Bearer ganha do cookie de propósito: uma integração que também tenha cookie no
- * mesmo navegador (o caso de quem testa a API logado no Desk) tem de ser tratada como
- * integração, e não silenciosamente como a pessoa.
- *
- * O decorador composto vive em `autenticacao.ts`, junto de `@Escopos`; aqui fica só a
- * chave, para os dois guardas a enxergarem sem ciclo de import.
+ * Mark a route as accepting API key OR session. Without this mark, both global guards would independently require credentials when `@Escopos(...)` and `@ComSessao()` appear together. With it, `Authorization: Bearer pipe_…` selects the key guard and skips the session guard; without Bearer, the session guard checks the cookie; without either, return 401. Bearer deliberately wins over a cookie so an integration tested from a logged-in Desk browser is still treated as integration. The composed decorator stays with `@Escopos` in `autenticacao.ts`; only the shared marker lives here to avoid an import cycle.
  */
 export const KEY_ANY_CREDENTIAL = 'pipe:qualquer-credencial';
 
-/** Há `Authorization: Bearer` na requisição? É o que desempata as duas credenciais. */
+/** Check for request `Authorization: Bearer` to choose between the two credentials. */
 export function temBearer(request: Request): boolean {
   return /^Bearer\s+\S/i.test(request.header('authorization') ?? '');
 }
@@ -66,8 +41,7 @@ export function sessionOf(requisicao: RequestWithSession): SessionActive {
 }
 
 /**
- * Token ausente, token inexistente, sessão expirada e sessão encerrada dão a MESMA
- * resposta. Distinguir seria contar a quem tenta qual metade do palpite acertou.
+ * Missing, unknown, expired, and revoked sessions return the same response so an attacker cannot learn which guess was partly correct.
  */
 function recusa(): PipeError {
   return PipeError.naoAutorizado('Sessão ausente ou expirada.');
@@ -78,13 +52,7 @@ export function lerCookie(cabecalho: string | undefined, nome: string): string |
 }
 
 /**
- * TODOS os valores enviados com aquele nome, na ordem em que vieram.
- *
- * O navegador manda um cookie por escopo, e o mesmo nome pode chegar duas vezes:
- * é o que acontece quando o `Domain` muda entre uma versão e outra (de host
- * para domínio-pai, por exemplo) e o antigo continua guardado. O primeiro da
- * lista nem sempre é o que vale — e ler só ele derruba o login de quem ainda
- * carrega o cookie velho, sem erro nenhum no caminho.
+ * Read every cookie value with this name in arrival order. Different cookie scopes can produce duplicate names after a `Domain` change; the first may be stale. Reading only it could silently log out people who still carry the old cookie.
  */
 export function lerCookies(cabecalho: string | undefined, nome: string): string[] {
   if (!cabecalho) return [];
@@ -103,21 +71,7 @@ export function tokenOfSession(requisicao: Request): string | undefined {
 }
 
 /**
- * A pessoa tem a permissão? Se não tiver, a requisição para aqui.
- *
- * Função, e não decorador com guarda própria: a permissão mora numa tabela do
- * tenant, e conferir antes de fixar `pipe.tenant_id` exigiria uma segunda consulta
- * com o papel dono só para repetir o que a transação já pode responder. Chame
- * dentro do `noTenant`, antes de escrever qualquer coisa.
- *
- * A permissão é a UNIÃO dos papéis, com a EXCEÇÃO por pessoa por cima
- * (`usuario_permissao`, migração 0046) — a mesma regra do `GET /v1/eu`:
- *
- *   efetiva = COALESCE(override desta pessoa, união dos papéis)
- *
- * Quem tem linha em `usuario_permissao` teve essa capacidade ligada ou
- * desligada na mão, na tela "Permissões" do atendente; sem linha, manda o
- * papel. O `coalesce` faz as duas leituras numa consulta só.
+ * Check a person's permission inside `noTenant` before writing. A separate guard before `pipe.tenant_id` is set would need an owner-role lookup duplicating what the transaction can answer. Effective permission is `COALESCE` of that person's `usuario_permissao` override (migration 0046) and the union of their roles, as in `GET /v1/eu`. A per-person row explicitly grants or denies the capability; without one, roles decide. One query combines both. SQL `coalesce` combines the override and role result.
  */
 export async function exigirPermission(
   tx: TransactionPipe,
@@ -153,7 +107,7 @@ export class SessionGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<RequestWithSession>();
 
-    // Rota que aceita as duas credenciais e recebeu Bearer: quem confere é o guarda
+    // When a dual-credential route receives Bearer, its API-key guard handles authentication; the session guard yields.
     // da chave. Ver `CHAVE_QUALQUER_CREDENCIAL`.
     const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
       KEY_ANY_CREDENTIAL,
@@ -164,7 +118,7 @@ export class SessionGuard implements CanActivate {
     const token = tokenOfSession(request);
     if (!token) throw recusa();
 
-    // Pelo HASH, com índice único: o token em claro nunca chega ao banco.
+    // Look up the unique indexed hash; plaintext tokens never reach the database.
     const session = await resolveSession(databaseOwner(), hashDoToken(token));
     if (!session) throw recusa();
 

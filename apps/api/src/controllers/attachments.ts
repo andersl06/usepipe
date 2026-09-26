@@ -10,15 +10,7 @@ import { PipeError } from '../errors.js';
 import type { RequestWithSession } from '../session.js';
 
 /**
- * `/v1/anexos` — subir arquivo e servi-lo por link assinado.
- *
- * O upload é **corpo cru**, com o tipo no `Content-Type` e o nome em `?nome=`. É a
- * forma do `PUT Object` do S3 e dispensa `multer`.
- *
- * A leitura **não exige credencial de sessão nem chave**: quem prova o direito é a
- * assinatura na própria URL. Tem de ser assim porque a Meta baixa a mídia do nosso
- * link e não tem cookie nosso — e é por isso que a validade é curta (15 minutos, o
- * mesmo *file token* da Blip).
+ * `/v1/anexos` uploads files and serves them through signed links. Uploads use the raw request body, with the type in `Content-Type` and the name in `?nome=`, like S3 `PUT Object`; this avoids `multer`. Downloads require neither a session nor an API key: the URL signature proves access. Meta downloads media from our links without our cookie, so the link expires after 15 minutes, matching Blip's *file token*.
  */
 
 @Controller('v1/attachments')
@@ -36,7 +28,7 @@ export class AttachmentsController {
       throw PipeError.request('file_empty', 'Mande o arquivo no corpo da requisição.');
     }
 
-    // O `Content-Type` é só o DECLARADO. Quem decide o tipo são os bytes, dentro de
+    // `Content-Type` is only the declared type. `guardarAnexo` determines the type from the bytes;
     // `guardarAnexo` — aqui ele nem chega a ser confiado.
     const declarado = (request.header('content-type') ?? '').split(';')[0]?.trim() ?? '';
 
@@ -68,9 +60,9 @@ export class AttachmentsController {
       id,
       Number(expira ?? 0),
       assinatura ?? '',
-      // O tenant do anexo é resolvido pelo papel dono, porque a leitura acontece
-      // ANTES de haver tenant em vigor — é a mesma lacuna do canal do webhook, e
-      // devolve só o `tenant_id`, nada mais.
+      // The attachment's tenant is resolved using the owner role because the read occurs
+      // before a tenant is established, as with a webhook channel. The lookup
+      // returns only `tenant_id`, and nothing else.
       async (attachmentId) => {
         if (!/^[0-9a-f-]{36}$/i.test(attachmentId)) return null;
         const { rows } = await databaseOwner().execute<{ tenant_id: string }>(
@@ -80,15 +72,15 @@ export class AttachmentsController {
       },
     );
 
-    // HTML e SVG saem SEMPRE como download, nunca inline: servi-los com o próprio
-    // tipo, no nosso domínio, é entregar execução de script na sessão de quem abriu.
+    // Always serve HTML and SVG as downloads, never inline: serving them with their own
+    // type on our domain would execute scripts in the opener's session.
     const layout = anexo.asAttachment ? 'attachment' : 'inline';
     const nome = (anexo.nomeOriginal ?? 'arquivo').replace(/["\r\n]/g, '');
 
     resposta.setHeader('content-type', anexo.asAttachment ? 'application/octet-stream' : anexo.mime);
     resposta.setHeader('content-disposition', `${layout}; filename="${nome}"`);
     resposta.setHeader('content-length', String(anexo.data.byteLength));
-    // Nunca em cache compartilhado: a URL é assinada e temporária, e um proxy
+    // Never use a shared cache: the signed URL is temporary, and a proxy
     // guardando a resposta serviria o arquivo depois do link vencer.
     resposta.setHeader('cache-control', 'private, max-age=300');
     resposta.setHeader('x-content-type-options', 'nosniff');

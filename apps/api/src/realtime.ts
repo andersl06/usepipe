@@ -3,30 +3,12 @@ import { conexaoRedis } from '@pipe/workers';
 import type { Assunto, EventoDoServidor } from '@pipe/contracts';
 
 /**
- * Tempo real: publicar o que mudou e entregar a quem tem direito de saber.
- *
- * A regra do contrato (`packages/contracts/src/eventos.ts`) vale inteira aqui: **o
- * evento diz O QUE mudou, nunca O QUE É.** Vai `{assunto, id, em}` e nada mais; quem
- * recebe busca o dado pela API, sob RLS. Empurrar o registro pelo canal seria uma
- * segunda porta para o dado, com um segundo lugar para errar o isolamento — e a
- * primeira porta é a que tem 90 políticas e os testes.
- *
- * ## O isolamento, que é a regra que não se dobra
- *
- * Três camadas, e nenhuma delas é "filtrar na memória por semelhança":
- *
- * 1. **Um canal do Redis por tenant** (`pipe:eventos:<tenant_id>`). Um processo só
- *    assina o canal de um tenant enquanto houver alguém DAQUELE tenant conectado
- *    nele. Sem conexão, os bytes daquele cliente não chegam nem a entrar no processo.
- * 2. **O tenant da conexão sai da sessão**, nunca do que o cliente pediu. É a mesma
- *    promessa do resto da API.
- * 3. **Evento com dono só vai para o dono.** `usuarioId` preenchido entrega apenas às
- *    conexões daquela pessoa — é o que o chat do gestor com o atendente exige.
+ * Realtime events announce what changed, never the record itself (`packages/contracts/src/eventos.ts`): send only `{assunto, id, em}` and let recipients fetch data through the API under RLS. Sending records over Redis would create another tenant-isolation path beside the existing policies and tests. Isolation has three layers: one Redis channel per tenant (`pipe:eventos:<tenant_id>`), subscribed only while this process has that tenant's connections; tenant identity comes from each connection's session, never client input; and an event with `usuarioId` reaches only that person's connections, as required for manager-agent chat.
  */
 
-/** O envelope que trafega no Redis: o evento do contrato mais o destinatário. */
+/** Redis envelope: the contract event plus its recipient. */
 export interface EventoPublicado extends EventoDoServidor {
-  /** Quando preenchido, só as conexões DESTA pessoa recebem. */
+  /** When set, deliver only to this person's connections. */
   userId?: string;
 }
 
@@ -45,15 +27,14 @@ let publicador: IORedis | null = null;
 let assinante: IORedis | null = null;
 
 /**
- * Duas conexões, e não uma, porque o Redis exige: uma conexão em modo `subscribe`
- * não aceita mais nenhum comando. Publicar pela mesma travaria a assinatura.
+ * Redis needs separate subscriber and publisher connections: a connection in `subscribe` mode cannot issue other commands, so publishing on it would block.
  */
 function conexaoPublicador(): IORedis {
   publicador ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
   return publicador;
 }
 
-/** As conexões vivas DESTE processo, agrupadas por tenant. */
+/** Live connections in this process, grouped by tenant. */
 const byTenant = new Map<string, Set<Conexao>>();
 
 function conexaoAssinante(): IORedis {
@@ -65,7 +46,7 @@ function conexaoAssinante(): IORedis {
     try {
       evento = JSON.parse(corpo) as EventoPublicado;
     } catch {
-      // Mensagem ilegível no canal não pode derrubar o processo inteiro.
+      // An unreadable channel message must not crash the process.
       return;
     }
     entregarNoProcesso(tenantId, evento);
@@ -79,29 +60,20 @@ function entregarNoProcesso(tenantId: string, evento: EventoPublicado): void {
 
   const { userId, ...ofContract } = evento;
   for (const conexao of conexoes) {
-    // O canal já é do tenant, mas a conferência é repetida de propósito: se um dia
-    // alguém errar a chave do canal, o erro para aqui em vez de virar vazamento.
+    // Recheck the tenant even though the channel is tenant-scoped; a future channel-key mistake must stop here rather than leak events.
     if (conexao.tenantId !== tenantId) continue;
     if (userId && conexao.userId !== userId) continue;
     if (!conexao.assuntos.has(ofContract.assunto)) continue;
     try {
       conexao.entregar(ofContract);
     } catch {
-      // Um cliente com o socket já morrendo não pode impedir a entrega aos outros.
+      // One dying client socket must not prevent delivery to other clients.
     }
   }
 }
 
 /**
- * Publica um evento para todo o tenant (ou para uma pessoa dele).
- *
- * **Chame DEPOIS do commit, nunca dentro da transação.** Publicar antes cria a corrida
- * em que o navegador é avisado, busca o dado, ainda lê o valor velho — e não recebe
- * segundo aviso. O sintoma seria exatamente o defeito que o tempo real existe para
- * consertar: o atendente não vê a mensagem chegar.
- *
- * Falhar aqui **não pode derrubar a operação**: a conversa já foi salva, e o preço de
- * não publicar é a tela demorar a atualizar, não perder dado.
+ * Publish an event for a tenant or one of its users only after commit. Publishing inside the transaction lets the browser refetch before the new value is visible, with no later notice. Publishing failure must not undo saved conversation data; the consequence is only delayed UI refresh.
  */
 export async function publicar(tenantId: string, evento: EventoPublicado): Promise<void> {
   try {
@@ -111,7 +83,7 @@ export async function publicar(tenantId: string, evento: EventoPublicado): Promi
   }
 }
 
-/** Atalho de quem só quer dizer "a conversa X mudou". */
+/** Shortcut for publishing that conversation X changed. */
 export function evento(assunto: Assunto, id?: string, userId?: string): EventoPublicado {
   return {
     assunto,
@@ -122,11 +94,7 @@ export function evento(assunto: Assunto, id?: string, userId?: string): EventoPu
 }
 
 /**
- * Registra uma conexão e devolve como encerrá-la.
- *
- * O processo assina o canal do tenant na PRIMEIRA conexão dele e desassina na última
- * que sair — é o que garante que um processo sem ninguém de um cliente não receba
- * nada daquele cliente.
+ * Register a connection and return how to close it. Subscribe this process to a tenant channel on its first connection and unsubscribe when its last connection leaves, so a process with no users from that tenant receives none of its data.
  */
 export async function registrar(conexao: Conexao): Promise<() => Promise<void>> {
   let connections = byTenant.get(conexao.tenantId);
@@ -151,7 +119,7 @@ export async function registrar(conexao: Conexao): Promise<() => Promise<void>> 
   };
 }
 
-/** Quantas conexões vivas há neste processo. Alimenta `/metrics` e o teste. */
+/** Live connection count in this process, used by `/metrics` and tests. */
 export function connectionsVivas(tenantId?: string): number {
   if (tenantId) return byTenant.get(tenantId)?.size ?? 0;
   let total = 0;

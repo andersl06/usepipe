@@ -4,21 +4,7 @@ import { PipeError } from '../../../errors.js';
 import { createQueue, createReasonPause } from '../registrations.js';
 
 /**
- * Server Actions de Atendentes — filas e motivos de pausa.
- *
- * Mesmo formato `Resultado` de `app/comunicacao/acoes.ts`: o erro esperado de
- * formulário volta como valor, não como exceção, para o `useActionState` da
- * tela mostrar a mensagem sem try/catch.
- *
- * As duas ações abaixo são casca fina sobre `criarFila`/`criarMotivoPausa` de
- * `cadastros.ts` — as mesmas que as rotas REST novas (`POST
- * /v1/gestao/atendentes/filas`, `POST /v1/gestao/atendentes/pausas`) chamam.
- * Antes da tarefa de cadastros do Atendimento cada uma validava e gravava
- * aqui, SEM permissão nenhuma — duas implementações do mesmo cadastro
- * discordariam cedo ou tarde. `ErroPipe` (que `exigirPermissao`,
- * `nomeDeFilaConferido` etc. lançam) vira `Resultado` aqui, e só aqui: é a
- * fronteira entre o padrão REST (status de verdade) e o padrão de formulário
- * (`Resultado` em 200) que este arquivo sempre teve.
+ * Agent Server Actions manage queues and pause reasons. Follow `Resultado` from `app/comunicacao/acoes.ts`: an expected form error is returned as a value so `useActionState` can display it without try/catch. These actions wrap `criarFila` and `criarMotivoPausa` in `cadastros.ts`, which the new REST routes (`POST /v1/gestao/atendentes/filas`, `POST /v1/gestao/atendentes/pausas`) also call. Previously each action validated and wrote here without permission checks, creating duplicate implementations. Only at this form boundary convert `ErroPipe` from `exigirPermissao`, `nomeDeFilaConferido`, etc. into `Resultado`; REST retains real status codes.
  */
 
 const OK: Resultado = { ok: true };

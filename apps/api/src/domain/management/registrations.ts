@@ -33,13 +33,13 @@ import { campoValido, operadorValido, type OperadorDeRegra, type RuleOfQueue } f
 const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> =>
   fn(tx);
 
-/** Do catálogo (`packages/db/src/semente.ts`): "Criar, editar e desativar fila". */
+/** From the catalog in `packages/db/src/semente.ts`: 'Criar, editar e desativar fila'. */
 export const QUEUE_MANAGE = 'fila.gerenciar';
-/** "Gerenciar regras de fila, prioridade e SLA" — as três também moram aqui. */
+/** 'Gerenciar regras de fila, prioridade e SLA' from the catalog also covers these three operations. */
 export const RULE_MANAGE = 'regra.gerenciar';
-/** "Gerenciar horário de atendimento e feriado". */
+/** Catalog permission: 'Gerenciar horário de atendimento e feriado'. */
 export const SCHEDULE_MANAGE = 'horario.gerenciar';
-/** Novo — migração 0030: nenhuma permissão do catálogo cobria motivo de pausa. */
+/** New in migration 0030: no earlier catalog permission covered pause reasons. */
 export const PAUSE_MANAGE = 'pausa.gerenciar';
 
 const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
@@ -179,17 +179,7 @@ export interface UsoDePausas {
 }
 
 /**
- * Motivos com o uso real ao lado da duração sugerida.
- *
- * A média sai do banco, e não do `@pipe/core`: `packages/core/src/esforco/` mede
- * esforço de conversa e tempo em sessão, e só conhece pausa como o INTERVALO
- * entre duas mensagens do atendente (`calcularTempoEmSessao`, corte em 10
- * minutos). Nenhuma função de lá recebe `pausa` nem `motivo_pausa` — não havia o
- * que reaproveitar, e agregação por motivo é `avg` de SQL mesmo.
- *
- * Janela móvel de `dias` corridos, e não o mês do calendário: a pergunta da tela
- * é "o almoço de 30 minutos está durando 47?", e para essa o recorte honesto é o
- * passado recente.
+ * Show pause reasons with observed use beside suggested duration. Compute the mean in SQL, not `@pipe/core`: `packages/core/src/esforco/` measures conversation effort and in-session time, treating pauses only as gaps between agent messages in `calcularTempoEmSessao` (10-minute cutoff). No core function accepts `pausa` or `motivo_pausa`; aggregation by reason is SQL `avg`. Use a rolling window of `dias` calendar days rather than the calendar month, because the screen asks whether recent lunch pauses exceed their 30-minute suggestion.
  */
 export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<UsoDePausas> {
   const desde = new Date(Date.now() - dias * 86_400_000);
@@ -286,14 +276,7 @@ export interface Horarios {
 const SETE_DIAS_MS = 7 * 86_400_000;
 
 /**
- * Horários com faixas, exceções, quem os usa, e o que o `@pipe/core` diz deles.
- *
- * "Aberto agora", "próxima abertura" e "expediente dos próximos sete dias" NÃO
- * são somados aqui: saem de `dentroDoExpediente`, `proximaAbertura` e
- * `duracaoTotalSeg(intervalosUteis(...))` de
- * `packages/core/src/sla/expediente.ts` — as mesmas funções com que o SLA decide
- * se uma conversa estourou. Somar as faixas à mão nesta tela é exatamente como o
- * número da tela e o número do relatório passam a divergir.
+ * Schedules include ranges, exceptions, users, and core-derived status. Compute 'open now', next opening and seven-day business duration with `dentroDoExpediente`, `proximaAbertura`, and `duracaoTotalSeg(intervalosUteis(...))` from `packages/core/src/sla/expediente.ts`, the same functions used by the SLA. Summing ranges independently here would make the screen disagree with its report.
  */
 export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
   const agora = new Date();
@@ -384,15 +367,9 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
   });
 }
 
-/* ============================================ escrita — faixa e exceção
-   Item 3 da tarefa de cadastros do Atendimento: `acoes/regras.ts` já grava
-   faixa e exceção (`salvarFaixa`/`salvarExcecao`, criação incremental); aqui
-   entram editar e excluir de cada uma, no padrão REST (`ErroPipe`, status de
-   verdade) — os dois gestos que ainda não existiam.
-
-   `horarioId` não muda na edição: mover uma faixa para outro horário é
-   excluir e recriar, não editar — o mesmo limite que `editarFila` aplica ao
-   não deixar a fila trocar de tenant. */
+/*
+ * Schedule range and exception writes add edit and delete to incremental creation in `acoes/regras.ts` (`salvarFaixa`/`salvarExcecao`). These use REST `ErroPipe` statuses. `horarioId` cannot change on edit: moving a range to another schedule means delete and recreate, as `editarFila` also prevents switching tenants.
+ */
 
 export interface RequestOfEditOfRange {
   dayWeek?: number;
@@ -441,16 +418,7 @@ function relogioConferido(bruto: unknown, campo: string): string {
 }
 
 /**
- * `update`: dia, início e fim são o mesmo gesto.
- *
- * Recusa (409) início ≥ fim e recusa (409) sobreposição no mesmo dia do
- * mesmo horário — pedido explícito da tarefa. **Decisão Pipe**, registrada
- * porque diverge da CRIAÇÃO: `salvarFaixaInterna` (`acoes/regras.ts`) deixa
- * faixas do mesmo dia se sobrepor de propósito, porque `faixasDoDia` do
- * `@pipe/core` funde intervalos sozinho e duas faixas sobrepostas nunca
- * abriram menos do que uma só. Aqui a regra é mais estrita porque é o que a
- * tarefa pediu; a criação antiga não muda, para não alterar comportamento já
- * testado.
+ * Updating day, start and end is one gesture. Reject start ≥ end or overlap on the same day and schedule with 409. This Pipe edit rule is stricter than creation: `salvarFaixaInterna` in `acoes/regras.ts` intentionally permits overlap because `faixasDoDia` in `@pipe/core` merges ranges. Creation behavior stays to preserve existing tests.
  */
 export async function editarFaixaHorario(
   tx: TransactionPipe,
@@ -462,9 +430,9 @@ export async function editarFaixaHorario(
   const atual = await faixaViva(tx, tid, id);
   await exigirPermission(tx, usuarioId, SCHEDULE_MANAGE);
 
-  // `relogio()` normaliza o `HH:MM:SS` que o Postgres devolve para o `HH:MM`
-  // que a API recebe e devolve — sem isso, reenviar o mesmo horário parecia
-  // uma mudança (formato diferente, valor igual) e sujava a auditoria.
+  // `relogio()` converts PostgreSQL `HH:MM:SS` to the API's `HH:MM`
+  // format; otherwise resubmitting the same time appears to be a change
+  // and pollutes the audit log despite an equal value.
   const antes = { diaSemana: atual.diaSemana, inicio: relogio(atual.inicio), fim: relogio(atual.fim) };
   const depois = { ...antes };
 
@@ -571,9 +539,7 @@ async function exceptionViva(tx: TransactionPipe, tid: string, id: string) {
 }
 
 /**
- * `update`: mesmas regras da criação (`salvarExcecaoInterna`) — fechado não
- * tem horário próprio, aberto precisa dos dois, início < fim, e a data não
- * pode colidir com outra exceção do mesmo horário (`horario_excecao_uk`).
+ * Update follows `salvarExcecaoInterna`: closed has no own hours, open requires both, start < end, and no conflicting date in the same schedule (`horario_excecao_uk`).
  */
 export async function editarExceptionSchedule(
   tx: TransactionPipe,
@@ -726,7 +692,7 @@ export interface RuleOfQueueRegistered extends RuleOfQueue {
 export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
   regras: RuleOfQueueRegistered[];
   queues: QueueForEscolher[];
-  /** Nomes das caixas de entrada e a fila padrão delas: o destino de quem não casa nenhuma regra. */
+  /** Inbox names and their default queue, used when no rule matches. */
   defaults: { inbox: string; queue: string | null }[];
 }> {
   return consultar(tx, async (tx) => {
@@ -821,8 +787,8 @@ export async function writeRuleQueue(
 ): Promise<Recording> {
   if (quemGrava.type === 'usuario' && quemGrava.id) await exigirPermission(tx, quemGrava.id, RULE_MANAGE);
   return consultar(tx, async (tx) => {
-    // `regra_fila` não tem índice único de nome; a unicidade é regra desta
-    // tela. Duas "Cobrança" fazem o gestor editar a que não está valendo.
+    // `regra_fila` has no unique index on name; uniqueness is enforced by this
+    // screen so duplicate 'Cobrança' rules cannot mislead a manager into editing the wrong one.
     const [conflito] = await tx
       .select({ id: ruleQueue.id })
       .from(ruleQueue)
@@ -872,7 +838,7 @@ export async function writeRuleQueue(
   });
 }
 
-/** O interruptor do cartão-linha: liga e desliga a regra na própria lista. */
+
 export async function toggleActiveOfRuleQueue(
   tx: TransactionPipe,
   tid: string,
@@ -903,20 +869,9 @@ export async function toggleActiveOfRuleQueue(
   });
 }
 
-/* ============================================== escrita — regra de entrada
-   Item 1 (segunda parte) da tarefa de cadastros do Atendimento: editar
-   (nome, fila destino, combinador, condições e ORDEM) e excluir. Criar e o
-   interruptor já existiam (`gravarRegraFila`/`alternarAtivaDaRegraFila`,
-   acima) — REST de verdade a partir daqui, no padrão de `editarFila`/
-   `excluirFila` (ErroPipe com status real, não `Resultado` em 200).
-
-   Decisão Pipe — REORDENAR não ganha rota própria: `ordem` já é só mais um
-   campo do PATCH, exatamente como em `editarFila`. Duas regras trocando de
-   posição são dois PATCH (um por regra), cada um com a nova `ordem` — a
-   tela manda um por vez ao mover uma linha para cima/baixo. Quem decide o
-   que "avaliar antes" significa é `ordenarRegras`/`filaDeDestino` em
-   `regra-fila.ts` (comentário de lá: "a primeira que casa vence"); este
-   arquivo só grava o número, nunca reordena por conta própria. */
+/*
+ * Inbound-rule REST writes add edit and delete to existing `gravarRegraFila` and `alternarAtivaDaRegraFila`. Use real `ErroPipe` statuses as in `editarFila`/`excluirFila`, not form `Resultado` in 200. Reordering is the `ordem` field of PATCH, with one PATCH per moved rule; `ordenarRegras` decides evaluation precedence. Conditions supplied in PATCH replace the prior set. This module stores the `ordem` number only; `ordenarRegras`/`filaDeDestino` in `regra-fila.ts` determines which matching rule wins first.
+ */
 
 export interface ConditionOfEdit {
   field: string;
@@ -924,7 +879,7 @@ export interface ConditionOfEdit {
   value: string;
 }
 
-/** Só o que veio muda — igual a `PedidoDeEdicaoDeFila`. `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
+/** Only supplied fields change, as in `PedidoDeEdicaoDeFila`; supplied `condicoes` REPLACE all previous conditions. */
 export interface RequestOfEditOfRuleQueue {
   name?: string;
   order?: number;
@@ -943,7 +898,7 @@ export interface RuleQueueWritten {
   condicoes: ConditionOfEdit[];
 }
 
-/** A regra viva do tenant, com as condições — ou 404. */
+/** Return this tenant's live rule with conditions, or 404. */
 async function ruleQueueViva(tx: TransactionPipe, tid: string, id: string): Promise<RuleQueueWritten> {
   const [atual] = await tx
     .select({
@@ -1002,7 +957,7 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
   });
 }
 
-/** `update`: renomear, trocar fila/combinador/ordem e substituir as condições são o mesmo gesto. */
+
 export async function editarRuleQueue(
   tx: TransactionPipe,
   tid: string,
@@ -1089,7 +1044,7 @@ export async function editarRuleQueue(
   return ruleQueueViva(tx, tid, id);
 }
 
-/** `destroy`: `regra_fila_condicao.regra_id` é `ON DELETE CASCADE` — excluir a regra leva as condições junto. */
+/** On `destroy`, `regra_fila_condicao.regra_id` has `ON DELETE CASCADE`, so deleting the rule also deletes its conditions. */
 export async function deleteRuleQueue(
   tx: TransactionPipe,
   tid: string,
@@ -1128,24 +1083,7 @@ export interface AgentRegistered {
 }
 
 /**
- * Gestão de atendentes: quem atende, por onde, e quantas conversas aguenta ao
- * mesmo tempo.
- *
- * As quatro colunas são as deles (`blip-gestao-medidas.md` §8.3): atendente,
- * e-mail, filas e tickets simultâneos. As duas nossas — status agora e situação
- * — vinham da tela de Operação, que esta substitui.
- *
- * **O teto é o MAIOR entre as filas da pessoa, e não a soma.** É a mesma regra
- * que o Monitoramento já usa para a coluna "Limite"
- * (`monitoramento.ts`, `limitePorAtendente`), e a razão é que o teto é do
- * ATENDENTE: quem está em duas filas não pode atender o dobro por estar em
- * duas. Somar transformaria entrar numa fila a mais em ganhar capacidade.
- *
- * Divergência registrada: na plataforma deles o teto é um número por pessoa,
- * com um padrão global e um override individual. Aqui ele nasce da fila
- * (`fila.capacidade_padrao`) com override por participação
- * (`fila_atendente.capacidade_override`), então uma pessoa em duas filas de
- * capacidades diferentes tem dois números, e este é o que vale.
+ * Agent management shows agent, email, queues and simultaneous tickets (`blip-gestao-medidas.md` §8.3), plus current status and situation from the replaced Operations screen. Capacity is the MAXIMUM of the agent's queue caps, not their sum: joining another queue must not double one person's capacity. Monitoring uses the same `limitePorAtendente` rule. Blip has a per-person cap with a global default and individual override; here each queue supplies `fila.capacidade_padrao` and membership may set `fila_atendente.capacidade_override`. For an agent in queues with different caps, use the maximum applicable cap.
  */
 export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]> {
   return consultar(tx, async (tx) => {
@@ -1191,14 +1129,9 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
   });
 }
 
-/* ===================================================== escrita — filas
-   Item 1 da tarefa de cadastros do Atendimento: criar, renomear, ativar/
-   desativar, excluir (com as duas recusas que a tela precisa entender) e
-   vincular/desvincular atendente. Ao contrário das `acoes/*` (Resultado em
-   200, para o `useActionState` de formulário), estas usam o padrão REST de
-   `ciclo-de-vida-do-fluxo.ts`: `ErroPipe` com status de verdade, porque são
-   gestos com efeito de segurança (permissão, tenant, id) e não só validação
-   de formulário. */
+/*
+ * Queue writes create, rename, toggle, delete with two required refusals, and link or unlink agents. Unlike form `acoes/*` returning `Resultado` in 200, these REST operations throw `ErroPipe` with real status codes for permission, tenant and ID failures, following `ciclo-de-vida-do-fluxo.ts`.
+ */
 
 export interface RequestOfQueue {
   name: string;
@@ -1209,7 +1142,7 @@ export interface RequestOfQueue {
   active?: boolean;
 }
 
-/** Só o que veio muda — igual a `PedidoDeEdicao` de `ciclo-de-vida-do-fluxo.ts`. */
+/** Only supplied fields change, as in `PedidoDeEdicao` in `ciclo-de-vida-do-fluxo.ts`. */
 export interface RequestOfEditOfQueue {
   name?: string;
   color?: string | null;
@@ -1243,7 +1176,7 @@ function colorOfQueueChecked(bruto: unknown): string | null {
   return cor;
 }
 
-/** Mesmo teto de `acoes/atendentes.ts::salvarFila` — reaproveitado também para o override do atendente. */
+/** Reuse the cap from `acoes/atendentes.ts::salvarFila` for agent overrides too. */
 function capacityChecked(bruto: unknown): number {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n > 200) {
@@ -1347,7 +1280,7 @@ export async function createQueue(
   return { id: criada.id };
 }
 
-/** `update`: renomear, trocar cor/horário/capacidade/ordem e ativar/desativar são o mesmo gesto. */
+
 export async function editarQueue(
   tx: TransactionPipe,
   tid: string,
@@ -1358,8 +1291,8 @@ export async function editarQueue(
   const atual = await queueViva(tx, tid, id);
   await exigirPermission(tx, usuarioId, QUEUE_MANAGE);
 
-  // `antes`/`depois` de propósito SEM anotação de tipo: literal inferido carrega
-  // índice implícito e é o que deixa `diferenca` (que pede `Record<string,
+  // Leave `antes` and `depois` without explicit type annotations: inferred literals retain
+  // the implicit index signature required by `diferenca` (`Record<string, unknown>`).
   // unknown>`) aceitar o objeto — a mesma escolha de `editarFluxo`.
   const antes = { ...atual };
   const depois = { ...antes };
@@ -1421,10 +1354,7 @@ export async function editarQueue(
 }
 
 /**
- * `destroy`: excluir de verdade — `fila` não carrega histórico próprio (quem
- * carrega é `conversa`/`evento_atendimento`, por isso as duas recusas
- * abaixo). Diferente do fluxo, aqui não há razão para "arquivar": não existe
- * FK que impeça o `DELETE` de uma fila livre de uso.
+ * `destroy` really deletes a free queue. `fila` has no history of its own; `conversa` and `evento_atendimento` do, hence the refusals below. Unlike a flow, an unused queue has no foreign key requiring archival.
  */
 export async function deleteQueue(
   tx: TransactionPipe,
@@ -1459,8 +1389,8 @@ export async function deleteQueue(
     );
   }
 
-  // `regra_fila.fila_destino_id` é `ON DELETE CASCADE`: sem esta recusa, excluir a fila
-  // apagaria a regra de entrada em silêncio, sem quem a cadastrou ter pedido isso.
+  // `regra_fila.fila_destino_id` has `ON DELETE CASCADE`: without this refusal,
+  // deleting the queue would silently delete its inbound rule without the owner's request.
   const [asDestinationOfRule] = await tx
     .select({ nome: ruleQueue.nome })
     .from(ruleQueue)
@@ -1484,7 +1414,7 @@ export async function deleteQueue(
   });
 }
 
-/** Vincular: cria a participação, ou troca o `capacidadeOverride` de quem já está na fila. */
+/** Linking creates queue membership or changes `capacidadeOverride` for an existing member. */
 export async function vincularAgentInQueue(
   tx: TransactionPipe,
   tid: string,
@@ -1516,8 +1446,8 @@ export async function vincularAgentInQueue(
       set: { capacityOverride: override },
     });
 
-  // `Acao` de `@pipe/db` é fechado ('criou'/'alterou'/'excluiu'/'ativou'/'desativou');
-  // vincular/desvincular é uma alteração da COMPOSIÇÃO da fila, não um gesto à parte.
+  // `Acao` in `@pipe/db` is closed (`'criou'/'alterou'/'excluiu'/'ativou'/'desativou'`);
+  // linking and unlinking change queue COMPOSITION, not a separate audit action.
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
     acao: 'alterou',
@@ -1559,12 +1489,9 @@ export async function unlinkAgentOfQueue(
   });
 }
 
-/* =================================================== escrita — motivo de pausa
-   Item 3: criar, editar, ativar/desativar e excluir. `motivo_pausa.id` é
-   `ON DELETE SET NULL` em `pausa.motivo_id` — a mesma regra que já faz
-   `carregarPausas` separar as pausas "sem motivo"; excluir um motivo em uso
-   não corrompe pausa nenhuma, só historia ela como órfã, então não há recusa
-   de "está em uso" aqui como há em fila. */
+/*
+ * Pause-reason writes create, edit, toggle and delete. `pausa.motivo_id` is `ON DELETE SET NULL` for `motivo_pausa.id`, matching `carregarPausas`' grouping of pauses without a reason. Removing an in-use reason preserves pause history as orphaned rows, so it does not need the queue-style in-use refusal.
+ */
 
 /** `maxlength 30` do `<input>` de "Nome da pausa" — `FICHA-personalizedbreaks.md` §3. */
 export const NOME_DA_PAUSA_MAX = 30;
@@ -1603,7 +1530,7 @@ function nomeDeMotivoConferido(bruto: unknown): string {
   return nome;
 }
 
-/** `null` é "sem sugestão"; `undefined` (edição) é "não mexa" — conferidos por quem chama. */
+/** `null` means no suggestion; `undefined` during editing means leave unchanged. Callers enforce this. */
 function durationSuggestedChecked(bruto: unknown): number | null {
   if (bruto === undefined || bruto === null || bruto === '') return null;
   const n = Number(bruto);
@@ -1695,7 +1622,7 @@ export async function editarMotivoPausa(
   const atual = await motivoVivo(tx, tid, id);
   await exigirPermission(tx, usuarioId, PAUSE_MANAGE);
 
-  // Sem anotação de tipo — ver o comentário equivalente em `editarFila`.
+  // No explicit type annotation; see the equivalent comment in `editarFila`.
   const antes = { ...atual };
   const depois = { ...antes };
 

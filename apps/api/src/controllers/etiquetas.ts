@@ -16,15 +16,7 @@ import type { LabelOfContact, EtiquetaDoTenant } from '../domain/etiquetas.js';
 import { PipeError } from '../errors.js';
 
 /**
- * Etiquetas — o catálogo do tenant e a aplicação em conversa ABERTA e em contato.
- *
- * Três recursos pequenos num arquivo só, como `catalogo.ts`: são a mesma regra
- * (`dominio/etiquetas.ts`) vista de três URLs. O encerramento continua em
- * `POST /v1/conversas/:id/encerrar`; sua lista segue a política de tags obrigatórias.
- *
- * Conversa e contato aceitam chave OU sessão (`ChaveOuSessao`), como o envio: uma
- * integração pode etiquetar por chave com escopo; gente logada passa pela permissão
- * (`conversa.etiquetar` / `contato.editar`) e, na conversa, tem de ser o dono.
+ * Tenant tag catalog and application to open conversations and contacts. Three small resources share one file, as in `catalogo.ts`, because they expose the same `dominio/etiquetas.ts` rule through three URLs. Closure stays at `POST /v1/conversas/:id/encerrar` with required-tag policy. Conversation and contact tagging accept a key or session (`ChaveOuSessao`): an integration needs a key with scope; a signed-in person needs `conversa.etiquetar` or `contato.editar`, and must own the conversation.
  */
 
 interface CorpoDeEtiqueta {

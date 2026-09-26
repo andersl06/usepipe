@@ -8,26 +8,7 @@ import { clienteGraph } from './cliente-graph.js';
 import type { ComponentOfTemplate, TemplateOfMeta, NewTemplateOfMeta } from './cliente-graph.js';
 
 /**
- * Modelos de mensagem (templates) do WhatsApp direto na Meta, com o token do canal.
- *
- * Antes daqui o `template_mensagem` era cadastro à mão: quem cadastrava colava o
- * texto aprovado e o status nascia `pendente` para sempre. Agora a Meta é a fonte:
- *
- * - **sincronizar** lê todos os modelos da WABA e grava/atualiza a cópia local
- *   (status, categoria, corpo, cabeçalho). Modelo que sumiu da Meta sai daqui;
- * - **criar** manda para análise da Meta e grava a cópia `pendente`;
- * - **excluir** apaga na Meta (em todos os idiomas daquele nome, que é como a
- *   Meta apaga por nome) e aqui.
- *
- * O mapeamento de variáveis (`variaveis`) é do Pipe: ao sincronizar, uma linha
- * que já existia mantém os nomes que alguém deu, desde que a quantidade de
- * `{{n}}` do corpo não tenha mudado.
- *
- * O cabeçalho pode ser texto OU mídia (imagem, vídeo, documento). Mídia pede um
- * arquivo de exemplo, que sobe pela Resumable Upload API (`subirFoto`, a mesma
- * da foto do perfil) e vai em `example.header_handle`. A categoria
- * AUTENTICAÇÃO tem componentes fixos da Meta (corpo com o código, botão de
- * copiar) — não é texto livre; ver `montarComponentesDeAutenticacao`.
+ * Manage WhatsApp templates directly through Meta using the channel token. Previously `template_mensagem` was manually registered and stayed `pendente`; now Meta is authoritative. Synchronize all WABA templates into the local copy (status, category, body, header), removing ones missing at Meta. Create by submitting for Meta review and saving a `pendente` copy. Delete at Meta across all languages of a name, then locally. Preserve Pipe's `variaveis` names on sync if the number of `{{n}}` body slots is unchanged. Headers use text or media; media requires a sample file uploaded through Resumable Upload API (`subirFoto`) as `example.header_handle`. AUTHENTICATION components are Meta-defined, not free text; see `montarComponentesDeAutenticacao`.
  */
 
 const STATUS: Readonly<Record<string, string>> = {
@@ -60,10 +41,7 @@ const CORPO_MAX = 1024;
 const CABECALHO_TEXTO_MAX = 60;
 
 /**
- * Autenticação, pela Cloud API ("Authentication Templates"): o botão de copiar
- * (`OTP` / `COPY_CODE`) aceita até 25 caracteres, e `code_expiration_minutes`
- * vai de 1 a 90. O texto padrão do botão é o `copyButton` da origem
- * (`blip-conteudos-templates.md`: "Copiar código").
+ * Cloud API Authentication Templates: `OTP`/`COPY_CODE` labels have a 25-character limit, `code_expiration_minutes` is 1–90, and the default button text is Blip's `copyButton` ("Copiar código", `blip-conteudos-templates.md`).
  */
 const BOTAO_COPIAR_MAX = 25;
 const EXPIRATION_MIN = 1;
@@ -73,14 +51,7 @@ const BOTAO_COPIAR_PADRAO = 'Copiar código';
 type FormatOfMedia = 'IMAGE' | 'VIDEO' | 'DOCUMENT';
 
 /**
- * A mídia que o cabeçalho aceita, por formato da Meta.
- *
- * Tipos: os que a tela da origem anuncia (`blip-conteudos-templates.md`,
- * `attachment`): imagem "Compatível com JPG, JPEG ou PNG", documento "Formato
- * PDF", vídeo "Compatível com MP4 até 16MB". Tamanhos: imagem 5 MB (Cloud
- * API, "Supported Media Types" — o mesmo teto da foto do perfil), vídeo 16 MB
- * e documento 100 MB (`regras-blip.md` §1.6). A Meta confere de novo; conferir
- * aqui é para recusar ANTES de subir o arquivo, com a frase da tela.
+ * Validate header media against Meta formats and the original UI (`blip-conteudos-templates.md`, `attachment`): JPG/JPEG/PNG image up to 5 MB (Cloud API Supported Media Types), PDF document up to 100 MB, or MP4 video up to 16 MB (`regras-blip.md` §1.6). Meta validates again; checking before upload gives the user the screen's specific error.
  */
 const MEDIA_OF_HEADER: Readonly<
   Record<FormatOfMedia, { tipos: readonly string[]; maxBytes: number; rotulo: string; formatos: string }>
@@ -110,13 +81,7 @@ function recusa(campo: string, message: string): PipeError {
 }
 
 /**
- * O texto que a Meta gera para o corpo de um modelo de autenticação — ela não
- * aceita texto nosso nessa categoria. Fica como cópia local até a primeira
- * sincronização, que traz o texto de verdade (localizado por ela) no `BODY`.
- *
- * conferir com token real: a frase exata em pt_BR que a Meta devolve. O que
- * importa aqui é ter UM `{{1}}` (o código é o parâmetro 1 no envio), e o
- * complemento de segurança quando `add_security_recommendation` foi ligado.
+ * Local placeholder for Meta-generated authentication template body until first sync imports the actual localized `BODY` text. Verify the exact pt_BR phrase with a real token. The required invariant is one `{{1}}` code variable. Synchronization also resolves the Meta-owned `add_security_recommendation` text.
  */
 export function textOfAuthentication(recommendationOfSeguranca: boolean): string {
   return recommendationOfSeguranca
@@ -124,7 +89,7 @@ export function textOfAuthentication(recommendationOfSeguranca: boolean): string
     : '{{1}} é seu código de verificação.';
 }
 
-/** As variáveis do texto, na ordem em que aparecem: `{{1}}`, `{{2}}` ou nomeadas `{{nome}}`. */
+/** Text variables in occurrence order: `{{1}}`, `{{2}}`, or named `{{nome}}`. */
 export function variablesOfText(textOfTemplate: string): string[] {
   const vistas: string[] = [];
   for (const achado of textOfTemplate.matchAll(/\{\{\s*([\w]+)\s*\}\}/g)) {
@@ -145,11 +110,11 @@ interface TemplateLocal {
 
 export function comoLocal(template: TemplateOfMeta): TemplateLocal | null {
   const categoria = CATEGORIA_DA_META[template.category ?? ''];
-  // Categoria que o Pipe não conhece não entra: o `check` da tabela recusaria.
+  // Skip unknown Pipe categories; the table's `check` constraint would reject them.
   if (!categoria) return null;
   const components = template.components ?? [];
   const doCorpo = components.find((c) => c.type === 'BODY');
-  // Autenticação recém-criada vem sem `text` (o texto é da Meta): cópia local até a sincronização.
+  // A newly created authentication template has no `text` because Meta supplies it; keep a local placeholder until synchronization.
   const corpo =
     doCorpo?.text ??
     (categoria === 'autenticacao' ? textOfAuthentication(doCorpo?.add_security_recommendation === true) : '');
@@ -180,7 +145,7 @@ export interface ResultOfSynchronization {
   created: number;
   updated: number;
   removed: number;
-  /** Modelos de categoria que o Pipe não conhece, deixados de fora. */
+  /** Templates in categories unknown to Pipe are excluded. */
   ignorados: number;
 }
 
@@ -201,7 +166,7 @@ export async function sincronizarModelos(
   };
 
   await noTenant(tenantId, async (tx) => {
-    // Em série, como toda escrita dentro de `noTenant`.
+    // Write serially, as for every write inside `noTenant`.
     for (const m of validos) {
       const padrao = JSON.stringify(Array.from({ length: m.quantasVariables }, (_, i) => `Variável ${i + 1}`));
       const { rows } = await tx.execute<{ criado: boolean }>(sql`
@@ -225,7 +190,7 @@ export async function sincronizarModelos(
       else resultado.updated += 1;
     }
 
-    // Nome e idioma não têm `|` (regras da Meta): serve de separador.
+    // Meta names and languages cannot contain `|`, so it is a safe separator.
     const chaves = JSON.stringify(validos.map((m) => `${m.name}|${m.idioma}`));
     const { rows: removidos } = await tx.execute<{ id: string }>(sql`
       delete from template_mensagem
@@ -249,14 +214,12 @@ export async function sincronizarModelos(
 
 export interface OptionsOfAuthentication {
   /**
-   * `add_security_recommendation`: acrescenta "não compartilhe este código" ao
-   * corpo. Nasce LIGADO — é o texto que a origem mostra no cartão
-   * (`authenticationMessage`: "… Para sua segurança, não o compartilhe.").
+   * `add_security_recommendation` adds Meta's "não compartilhe este código" to the body. Default it on, as in the source card (`authenticationMessage`: "… Para sua segurança, não o compartilhe.").
    */
   recommendationOfSeguranca?: boolean;
-  /** `code_expiration_minutes` (1 a 90): o rodapé "este código expira em N minutos". Ausente = sem rodapé. */
+  /** `code_expiration_minutes` (1–90) adds Meta's "este código expira em N minutos" footer; absent means no footer. */
   expiraEmMinutos?: number;
-  /** Texto do botão de copiar (`OTP`/`COPY_CODE`, até 25). Padrão "Copiar código". */
+  /** Copy button label for `OTP`/`COPY_CODE`, up to 25 characters; default is "Copiar código". */
   textoDoBotao?: string;
 }
 
@@ -264,21 +227,19 @@ export interface RequestOfTemplate {
   name?: string;
   idioma?: string;
   category?: string;
-  /** Texto do cabeçalho; ausente ou vazio = sem cabeçalho de texto. */
+  /** Header text; absent or empty means no text header. */
   cabecalho?: string;
   /**
-   * Mídia de exemplo do cabeçalho, `data:<tipo>;base64,…` — o mesmo formato da
-   * foto do perfil. Imagem (JPG/PNG), vídeo (MP4) ou documento (PDF); o formato
-   * do cabeçalho sai do MIME. Exclui `cabecalho` (é texto OU mídia).
+   * Header sample media in `data:<tipo>;base64,…` form, as for a profile photo: JPG/PNG image, MP4 video, or PDF document. MIME determines header format. Excludes `cabecalho`, since the header is text or media.
    */
   headerMedia?: string;
   body?: string;
   rodape?: string;
-  /** Um exemplo por variável do corpo, na ordem em que aparecem — a Meta exige. */
+  /** Meta requires one sample per body variable in occurrence order. */
   exemplos?: string[];
-  /** Exemplo da variável do cabeçalho de texto, quando ele tem uma. */
+  /** Sample for a text header variable, if present. */
   exemploDoCabecalho?: string;
-  /** Só na categoria autenticação. Ignorado nas outras. */
+  /** Authentication category only; ignored otherwise. */
   authentication?: OptionsOfAuthentication;
 }
 
@@ -291,11 +252,11 @@ const CATEGORIA_PARA_META: Readonly<Record<string, NewTemplateOfMeta['category']
 export interface MediaOfHeader {
   format: FormatOfMedia;
   bytes: Buffer;
-  /** O MIME, que é o `file_type` da Resumable Upload API. */
+  /** MIME used as Resumable Upload API `file_type`. */
   type: string;
 }
 
-/** A mídia de exemplo do cabeçalho, conferida por tipo e tamanho — antes de qualquer chamada à Meta. */
+/** Validate sample header media type and size before calling Meta. */
 export function readMediaOfHeader(dataUrl: string): MediaOfHeader {
   const partes = /^data:([^;,]+);base64,(.+)$/s.exec(dataUrl);
   if (!partes) {
@@ -346,25 +307,7 @@ function conferirCabecalho(pedido: RequestOfTemplate): Cabecalho {
 }
 
 /**
- * Os componentes de um modelo de AUTENTICAÇÃO, como a Cloud API documenta em
- * "Authentication Templates › Create authentication template" (`POST
- * /{waba}/message_templates`, `category: AUTHENTICATION`):
- *
- * - `BODY` sem `text` — o texto ("{{1}} é seu código de verificação.") é da
- *   Meta, localizado por ela; `add_security_recommendation: true` acrescenta
- *   a frase de não compartilhar;
- * - `FOOTER` só com `code_expiration_minutes` — o rodapé "este código expira
- *   em N minutos" também é dela; sem o campo, sem rodapé;
- * - `BUTTONS` com UM botão `{ type: 'OTP', otp_type: 'COPY_CODE', text }`.
- *   Só o de copiar: `ONE_TAP`/`ZERO_TAP` pedem `package_name` e
- *   `signature_hash` do app Android do cliente, que a tela não tem.
- *
- * Texto livre não entra: corpo, cabeçalho e rodapé são recusados, não
- * ignorados — mandar texto e vê-lo sumir é o que confunde quem cadastra.
- *
- * conferir com token real: o formato exato que a Meta devolve no `GET` (se
- * `BODY.text` vem preenchido, se `FOOTER.text` vem) e se ela aceita
- * `add_security_recommendation` ausente como `false`.
+ * Build AUTHENTICATION template components per Cloud API "Authentication Templates › Create authentication template" (`POST /{waba}/message_templates`, `category: AUTHENTICATION`). `BODY` omits `text`: Meta localizes "{{1}} é seu código de verificação." and can append a no-sharing sentence via `add_security_recommendation: true`. `FOOTER` uses only `code_expiration_minutes`; absence means no footer. `BUTTONS` contains one `{ type: 'OTP', otp_type: 'COPY_CODE', text }` button; `ONE_TAP` and `ZERO_TAP` need Android `package_name` and `signature_hash`, which the UI lacks. Reject free-form body, header, and footer rather than silently dropping input. Verify with a real token the exact GET fields (`BODY.text`, `FOOTER.text`) and whether omitting `add_security_recommendation` means false. The endpoint is `POST /{waba}/message_templates`; check the `GET` response with a real token, including the behavior when `add_security_recommendation` is `false`.
  */
 function assembleComponentsOfAuthentication(pedido: RequestOfTemplate): ComponentOfTemplate[] {
   if ((pedido.body ?? '').trim() || (pedido.cabecalho ?? '').trim() || (pedido.rodape ?? '').trim()) {
@@ -406,9 +349,7 @@ function assembleComponentsOfAuthentication(pedido: RequestOfTemplate): Componen
 }
 
 /**
- * Confere o pedido inteiro e monta o que vai para a Meta. TUDO é conferido
- * antes de `subirMidia` ser chamada: um corpo errado não custa um upload, e
- * tipo ou tamanho errado da mídia recusa sem tocar na Meta.
+ * Validate the entire request before `subirMidia`: invalid body, media type, or size must fail without a Meta upload.
  */
 export async function assembleTemplate(
   pedido: RequestOfTemplate,
@@ -443,14 +384,14 @@ export async function assembleTemplate(
     throw recusa('rodape', `O rodapé aceita no máximo ${CABECALHO_TEXTO_MAX} caracteres.`);
   }
 
-  // Daqui para baixo só monta: nada mais recusa, e é só agora que o arquivo sobe.
+  // After validation, only assemble components; upload the file now, when no later validation can reject it.
   const componentes: ComponentOfTemplate[] = [];
   if (cabecalho.type === 'texto') {
     const component: ComponentOfTemplate = { type: 'HEADER', format: 'TEXT', text: cabecalho.texto };
     if (cabecalho.exemplo) component.example = { header_text: [cabecalho.exemplo] };
     componentes.push(component);
   } else if (cabecalho.type === 'midia') {
-    // O exemplo de mídia é o handle da Resumable Upload API, em `header_handle`.
+    // Media sample is the Resumable Upload API handle in `header_handle`.
     const handle = await upMedia(cabecalho.media);
     componentes.push({ type: 'HEADER', format: cabecalho.media.format, example: { header_handle: [handle] } });
   }
@@ -464,7 +405,7 @@ export async function assembleTemplate(
   return { name: nome, language: idioma, category: categoria, components: componentes };
 }
 
-/** O app dono do token, onde a mídia sobe: o do cliente (manual) ou o nosso (embutido) — como a foto do perfil. */
+/** Upload media to the token-owning app, either the customer's manual app or Pipe's embedded app, as for profile photos. */
 function appDo(canal: ChannelWhatsApp): string {
   const appId = texto(canal.config['appId']) ?? process.env['WHATSAPP_APP_ID'] ?? '';
   if (!appId) {

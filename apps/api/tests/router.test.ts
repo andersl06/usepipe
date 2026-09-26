@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
@@ -22,12 +22,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O roteador (o `master` da Blip): os serviços dele pela tela
- * (`/v1/gestao/fluxos/:id/servicos`) e a conversa passando por ele.
- *
- * O que se prova é o que a origem decide: o formulário de Serviços
- * (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) e o Master-State, o Redirect e o
- * "Utilizar o contexto do Roteador" (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3–5.5).
+ * The router (Blip's `master`): its services through the screen (`/v1/gestao/fluxos/:id/servicos`) and a conversation passing through it. What is proved is what the source product decides: the Services form (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) and the Master-State, the Redirect, and "Use the Router's context" (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3-5.5).
  */
 
 let a: Cenario;
@@ -225,7 +220,7 @@ describe('/v1/management/flows/:id/services', () => {
       expect(codigo(r)).toBe('servico_chatbot');
     }
 
-    // Persistente ignora a expiração.
+    // Persistent ignores expiration.
     const persistente = await post({ nome: 'Três', chatbotId: f3, persistente: true });
     expect(persistente.status).toBe(201);
     expect(persistente.corpo).toMatchObject({ persistente: true, expiracaoMin: null });
@@ -379,7 +374,7 @@ const PRINCIPAL = {
   ],
 };
 
-/** Suporte: SEM o contexto do roteador, com expiração e atendimento humano. */
+/** Support: WITHOUT the router's context, with expiration and human service. */
 const SUPORTE = {
   states: [
     { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'pergunta' }] },
@@ -508,7 +503,7 @@ describe('Route conversations through services', () => {
     return rows[0]!;
   }
 
-  /** A última resposta do bot ao contato, em qualquer conversa. */
+  /** The bot's last reply to the contact, in any conversation. */
   async function ultimaDoBot(telefone: string): Promise<string | undefined> {
     const { rows } = await a.dono.execute<{ content: string }>(sql`
       select m.conteudo from mensagem m
@@ -559,15 +554,15 @@ describe('Route conversations through services', () => {
     expect(minutos).toBeGreaterThan(25);
     expect(minutos).toBeLessThanOrEqual(31);
 
-    // O serviço começa na raiz, e sem o contexto do roteador não vê `primeira`.
+    // The service starts at the root, and without the router's context it does not see `primeira`.
     await falar(BIA, 'meu pc');
     expect(await ultimaDoBot(BIA)).toBe('Suporte: qual o problema? []');
 
-    // Retomada: a próxima continua em `pergunta`, no suporte.
+    // Resume: the next step continues at `pergunta`, in support.
     await falar(BIA, 'tela azul');
     expect(await ultimaDoBot(BIA)).toBe('Suporte: anotado tela azul');
 
-    // A mesma conversa: a execução do principal terminou, a do suporte é a viva.
+    // The same conversation: the main flow's execution ended, and support's is the live one.
     const conversation = await conversationOpen(BIA);
     const { rows } = await a.dono.execute<{ flowId: string; state: string }>(sql`
       select v.fluxo_id, e.estado from execucao_fluxo e
@@ -593,7 +588,7 @@ describe('Route conversations through services', () => {
        where roteador_id = ${routerId}::uuid and contato_id = ${contactId}::uuid
     `);
     await falar(CAIO, 'oi de novo');
-    // O principal segue do bloco em que tinha ficado (`ir-suporte`), que leva ao menu.
+    // The main flow resumes from where it had stopped (`ir-suporte`), which leads to the menu.
     expect(await ultimaDoBot(CAIO)).toBe('Principal: menu');
     const p = await position(CAIO);
     expect(p.serviceId).toBe(principalId);
@@ -607,7 +602,7 @@ describe('Route conversations through services', () => {
     const p = await position(DAVI);
     expect(p.serviceId).toBe(vendasId);
     expect(p.expira_em).toBeNull();
-    // O principal liga o contexto do roteador: o que ele guardou está no par.
+    // The main flow sets the router's context: what it stored is in the pair.
     expect(p.context['primeira']).toBe('primeira coisa');
 
     await a.dono.execute(sql`
@@ -634,7 +629,7 @@ describe('Route conversations through services', () => {
         blockInicial: 'resposta',
       }),
     );
-    // Na raiz, "voltar" iria para `pergunta`; em `resposta`, vai para `volta`.
+    // At the root, "voltar" would go to `pergunta`; in `resposta`, it goes to `volta`.
     await falar(EVA, 'voltar');
     expect(await ultimaDoBot(EVA)).toBe('Suporte: voltando');
     const { rows } = await a.dono.execute<{ content: string }>(sql`
@@ -642,7 +637,7 @@ describe('Route conversations through services', () => {
        where c.contato_id = ${contactId}::uuid and m.autor_tipo = 'bot'
     `);
     expect(rows.map((r) => r.conteudo)).not.toContain('Suporte: anotado ');
-    // O `volta` redirecionou para o principal pelo nome do serviço.
+    // `volta` redirected to the main flow by the service's name.
     expect((await position(EVA)).serviceId).toBe(principalId);
   });
 
@@ -656,7 +651,7 @@ describe('Route conversations through services', () => {
     expect(conversa.queueId).toBe(a.queueId);
     expect(conversa.agentId).toBe(a.agentId);
 
-    // O cliente fala com o atendente: é interação, e renova o prazo do serviço.
+    // The customer talks to the agent: that is interaction, and it renews the service's deadline.
     await falar(FABIO, 'alô?');
     expect((await position(FABIO)).serviceId).toBe(suporteId);
 

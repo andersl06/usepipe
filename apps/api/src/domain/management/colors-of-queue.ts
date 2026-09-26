@@ -1,17 +1,5 @@
 /**
- * As cores que uma fila pode ter.
- *
- * `fila.cor` é DADO do cliente — a etiqueta que ele reconhece no Desk —, não
- * estilo desta tela. Mesmo assim não é campo livre de hex: o seletor de cor
- * aberto é o que enche a interface de matiz que ninguém do design system
- * escolheu, e foi assim que a `etiqueta` acabou com nove hex diferentes na
- * semente.
- *
- * Então o conjunto é fechado e vem da paleta estendida do `@pipe/ui`
- * (`TEMA.grafico.serie`), a única que pode carregar matiz sem significar
- * estado. O banco guarda o NOME do token, nunca o hex: trocar a paleta no
- * `@pipe/ui` passa a valer para as filas já cadastradas, e nenhum literal de
- * cor entra no código da Gestão.
+ * Queue colors are customer data recognized in Desk, but selection is closed rather than arbitrary hex. Use the extended `@pipe/ui` palette (`TEMA.grafico.serie`), which can carry hue without implying status. Store the token NAME in `fila.cor`, never hex, so palette changes update existing queues without Management color literals.
  */
 
 export const COLORS_OF_QUEUE = [
@@ -27,12 +15,7 @@ export function corValida(value: string): boolean {
 }
 
 /**
- * O `var()` da cor guardada, ou `null` quando o valor não é da paleta.
- *
- * A semente antiga gravou hex direto em `fila.cor`. Esses valores continuam
- * legíveis, mas não viram bolinha: pintar com hex de dado seria a mesma cor
- * fora do token que a régua proíbe. Eles aparecem como texto, e o próximo
- * cadastro os substitui.
+ * Return the stored color's `var()` or `null` when it is outside the palette. Older seed rows stored raw hex in `fila.cor`; they stay readable as text but get no color dot, since using raw hex would violate the palette. Later registration replaces those values.
  */
 export function colorOfQueue(valor: string | null): string | null {
   return valor !== null && corValida(valor) ? `var(--p-${valor})` : null;

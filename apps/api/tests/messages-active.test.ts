@@ -17,12 +17,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Mensagem ativa: disparo de template para uma lista.
- *
- * Os números conferidos aqui são os da Blip (`referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`):
- * teto de 15 contatos, recusa por contato já em atendimento (código 1602 deles) e por
- * número inválido. O que estes testes mais protegem é a regra de que **o disparo não é
- * tudo-ou-nada**.
+ * Active message: template dispatch to a list. The numbers checked here are Blip's own (`referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`): a cap of 15 contacts, rejection for a contact already in service (their code 1602) and for an invalid number. What these tests protect above all is the rule that **the dispatch is not all-or-nothing**.
  */
 
 let cenario: Cenario;
@@ -64,7 +59,7 @@ function disparar(corpo: Record<string, unknown>): Promise<Response> {
   });
 }
 
-/** Um telefone brasileiro válido e único por chamada. */
+/** A valid Brazilian phone number, unique per call. */
 let sequencia = 10_000_000;
 function telefoneNovo(): string {
   sequencia += 1;
@@ -124,8 +119,8 @@ describe('disparo', () => {
       sql`select atendente_id, estado from conversa where id = ${data[0]!.conversationId}::uuid`,
     );
     expect(rows[0]!.agentId).toBe(cenario.agentId);
-    // Nasce `atribuida` e o próprio disparo já a leva a `em_atendimento` — o template
-    // É a primeira mensagem do atendente.
+    // It is created as `atribuida`, and the dispatch itself already moves it to `em_atendimento` — the template
+    // is the agent's first message.
     expect(rows[0]!.estado).toBe('em_atendimento');
 
     const { rows: ev } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
@@ -146,9 +141,9 @@ describe('disparo', () => {
   });
 
   it('Do not count an outbound active message as the first response', async () => {
-    // Resposta pressupõe pergunta. Numa conversa aberta por disparo quem começou
-    // fomos nós; carimbar `primeira_resposta` aqui cravaria TMR de zero segundo e
-    // enfeitaria a média — exatamente o que a spec de métricas proíbe.
+    // A reply presupposes a question. In a conversation opened by a dispatch, whoever started it
+    // was us; stamping `primeira_resposta` here would record a zero-second TMR and
+    // would flatter the average — exactly what the metrics spec forbids.
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
@@ -169,7 +164,7 @@ describe('disparo', () => {
     const first = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
     const { data: d1 } = (await first.json()) as { data: { contactId: string }[] };
 
-    // Encerra para não cair na recusa de "já em atendimento".
+    // Closes it so as not to hit the "already in service" rejection.
     await cenario.dono.execute(
       sql`update conversa set estado = 'encerrada', encerrada_em = now() where contato_id = ${d1[0]!.contactId}::uuid`,
     );

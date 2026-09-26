@@ -16,25 +16,13 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * A ANÁLISE do contato — Dashboard, Visão Geral, Jornada e o Log de mensagens
- * (`controladores/gestao-analise.ts`). Semeia um fluxo publicado, uma conversa
- * atendida por ele e mensagens em dois dias, tudo por SQL direto (não pelo
- * motor de verdade: os testes de ponta a ponta do motor já vivem em
- * `fluxo.test.ts`; aqui o que se prova é a LEITURA agregada).
+ * The contact's ANALYTICS — Dashboard, Overview, Journey and the message Log (`controladores/gestao-analise.ts`). Seeds a published flow, a conversation handled by it, and messages on two days, all through direct SQL (not through the real engine: the engine's end-to-end tests already live in `fluxo.test.ts`; what's proven here is the aggregated READ).
  *
- * DIA_1 (dentro do período pedido) e DIA_0 (um dia antes, fora dele) —
- * provam o filtro por período sem depender de "agora". Precisam ficar perto
- * de hoje de verdade: `mensagem`/`evento_atendimento` são particionadas por
- * mês (`packages/db/src/particoes.ts`), e `migrar()` só cria a partição do
- * mês corrente e dos três seguintes — uma data fixa no passado cairia fora
- * de qualquer partição e o insert falharia com "no partition found".
+ * DIA_1 (inside the requested period) and DIA_0 (one day before, outside it) — prove the period filter without depending on "now." They need to stay close to the real today: `mensagem`/`evento_atendimento` are partitioned by month (`packages/db/src/particoes.ts`), and `migrar()` only creates the current month's partition and the next three — a fixed past date would fall outside any partition and the insert would fail with "no partition found."
  */
 
 /*
- * No FUSO DO CLIENTE, não em UTC: a API recusa período que termina depois de
- * "hoje" no fuso do tenant (`intervaloDoPeriodo`, caso `custom`) e cai em
- * "hoje". Das 21h de Brasília em diante o dia UTC já virou, e o teste pedia um
- * período no futuro — passava de manhã e falhava à noite.
+ * In the CLIENT'S TIMEZONE, not UTC: the API rejects a period that ends after "today" in the tenant's timezone (`intervaloDoPeriodo`, `custom` case) and falls on "today." From 9 PM Brasília onward the UTC day has already turned, and the test asked for a period in the future — it passed in the morning and failed at night.
  */
 const FUSO = 'America/Sao_Paulo';
 const iso = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: FUSO });
@@ -113,7 +101,7 @@ beforeAll(async () => {
   `);
   const executionId = execution.rows[0]!.id;
 
-  // A jornada: entrada -> b1 -> b2 -> saída.
+  // // The journey: inbound -> b1 -> b2 -> outbound.
   await cenario.dono.execute(sql`
     insert into execucao_passo (tenant_id, execucao_id, bloco_id, em)
     values (${cenario.tenantId}, ${executionId}, ${b1}, ${`${DIA_1}T15:00:01Z`}),
@@ -126,7 +114,7 @@ beforeAll(async () => {
     values (${cenario.tenantId}, ${conversationId}, 'enfileirada', ${JSON.stringify({ origem: 'fluxo' })}::jsonb, ${`${DIA_1}T15:00:02Z`})
   `);
 
-  // Mensagens do DIA_1 (dentro do período): duas recebidas, uma enviada.
+  // // DIA_1 messages (inside the period): two received, one sent.
   await cenario.dono.execute(sql`
     insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)
     values
@@ -135,7 +123,7 @@ beforeAll(async () => {
       (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'entrada', 'contato', 'imagem', 'foto.jpg', ${`${DIA_1}T15:05:00Z`})
   `);
 
-  // Uma mensagem do DIA_0 (véspera, fora do período pedido nos testes de filtro).
+  // // A DIA_0 message (the day before, outside the period requested in the filter tests).
   await cenario.dono.execute(sql`
     insert into mensagem (id, tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, criada_em)
     values (gen_random_uuid(), ${cenario.tenantId}, ${conversationId}, 'entrada', 'contato', 'texto', 'Mensagem de ontem', ${`${DIA_0}T15:00:00Z`})
@@ -174,9 +162,9 @@ describe('Aggregate seeded data for the analytics dashboard', () => {
   });
 
   it('Return zero for a date with no seeded messages', async () => {
-    // Precisa caber no teto de 90 dias do período customizado do Dashboard
+    // // Needs to fit inside the Dashboard's custom-period 90-day ceiling
     // (`intervaloDoPeriodo(..., { limiteDias: 90 })`) — fora dele a rota cai
-    // no padrão "hoje", que TEM mensagem semeada e mascararia o teste.
+    // // on the "today" pattern, which HAS a seeded message and would mask the test.
     const semDado = iso(new Date(HOJE.getTime() - 3 * 24 * 60 * 60 * 1000));
     const r = await fetch(
       url(

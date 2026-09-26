@@ -3,12 +3,7 @@ import type { ArgumentsHost, ExceptionFilter } from '@nestjs/common';
 import type { Response } from 'express';
 
 /**
- * Erro estruturado, sempre.
- *
- * `apis.md` §5.6: nunca "HTTP 200 com `status: failure` dentro", que é a armadilha
- * nº 1 da Blip. Toda falha sai com status HTTP correto e corpo
- * `{ "erro": { "codigo", "mensagem" } }`, para o cliente distinguir sucesso de
- * falha sem inspecionar o corpo.
+ * Always return structured errors (`apis.md` §5.6): never HTTP 200 with `status: failure` in the body, a common Blip trap. Use the correct HTTP status and `{ "erro": { "codigo", "mensagem" } }` so clients can distinguish failure without inspecting success bodies.
  */
 export class PipeError extends Error {
   readonly codigo: string;
@@ -40,7 +35,7 @@ export class PipeError extends Error {
     return new PipeError(403, 'without_scope', `A chave não tem o escopo "${scope}".`, { scope });
   }
 
-  /** Irmã de `semEscopo`, para gente logada: escopo é chave de API, permissão é pessoa. */
+  /** Companion to `semEscopo` for logged-in people: scope belongs to API keys, permission to people. */
   static withoutPermission(codigo: string): PipeError {
     return new PipeError(403, 'without_permission', `Você não tem a permissão "${codigo}".`, {
       permissao: codigo,
@@ -83,13 +78,13 @@ export class ErrorFilter implements ExceptionFilter {
       return;
     }
 
-    // O `body-parser` recusa corpo grande antes do Nest: culpa de quem mandou, não 500.
+    // `body-parser` rejects oversized bodies before Nest; report a client error, not 500.
     if ((exception as { type?: string } | null)?.type === 'entity.too.large') {
       resposta.status(413).json({ erro: { codigo: 'corpo_grande', mensagem: 'O corpo da requisição é grande demais.' } });
       return;
     }
 
-    // Erro não previsto não vaza stack para o cliente, mas vai inteiro para o log.
+    // Do not expose unexpected stack traces to clients; log the full error internally.
     console.error('[api] erro não tratado', exception);
     resposta.status(500).json({
       erro: { codigo: 'erro_interno', mensagem: 'Erro interno.' },

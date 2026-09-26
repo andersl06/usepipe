@@ -5,17 +5,7 @@ import { PipeError } from '../errors.js';
 import { enqueueImport } from '../queues.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT): a action `import` de
- * app/controllers/api/v1/accounts/contacts_controller.rb e o `DataImport` de
- * app/models/data_import.rb (`set_default_name` e `process_data_import`).
- *
- * A API faz o mínimo, como no original: recusa arquivo vazio, grava a
- * importação e o arquivo NA MESMA transação e, só depois do commit, enfileira o
- * job. Quem lê o CSV é o worker (`apps/workers/src/importacao-de-contatos.ts`).
- *
- * Diferença do original: lá o job espera um minuto porque o arquivo ainda está
- * subindo para o storage; aqui o arquivo mora no banco (`importacao_arquivo`) e
- * já está lá quando o job nasce.
+ * Ported from chatwoot/chatwoot (MIT): the `import` action in app/controllers/api/v1/accounts/contacts_controller.rb and `DataImport` in app/models/data_import.rb (`set_default_name` and `process_data_import`). As in the original, the API rejects an empty file, writes the import and file in the same transaction, then queues the job after commit. The worker reads the CSV (`apps/workers/src/importacao-de-contatos.ts`). Unlike Chatwoot's one-minute delay while storage upload finishes, this file is in `importacao_arquivo` and is available when the job is created.
  */
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -28,7 +18,7 @@ export interface ImportVisible {
   total: number;
   aceitos: number;
   rejeitados: number;
-  /** Há CSV de linhas rejeitadas para baixar. */
+  /** Whether a downloadable CSV of rejected rows exists. */
   temFalhas: boolean;
   criadoEm: Date;
   atualizadoEm: Date | null;
@@ -72,7 +62,7 @@ export async function createImport(
 
   // `set_default_name`: "Contacts - 2026-09-11".
   const nomeFinal = nome?.trim() || `Contatos - ${new Date().toISOString().slice(0, 10)}`;
-  // O Postgres não guarda o byte nulo em `text`, e planilha exportada às vezes traz um.
+  // Postgres cannot store a NUL byte in `text`; spreadsheet exports sometimes contain one.
   const limpo = conteudo.split('\u0000').join('');
 
   const id = await noTenant(tenantId, async (tx) => {
@@ -97,7 +87,7 @@ export async function createImport(
   });
 
   // `after_create_commit :process_data_import` — depois do commit, nunca dentro:
-  // o worker precisa enxergar a linha que acabou de ser gravada.
+  // The worker must see the row just written, so enqueue only after commit.
   await enqueueImport({ tenantId, importId: id });
   return readImport(tenantId, id);
 }
@@ -137,7 +127,7 @@ export async function listImports(tenantId: string, limite = 5): Promise<ImportV
   });
 }
 
-/** O CSV das linhas rejeitadas (`failed_records`). 404 quando nada foi rejeitado. */
+/** CSV of rejected rows (`failed_records`); return 404 when none were rejected. */
 export async function lerFalhas(tenantId: string, id: string): Promise<string> {
   if (!UUID.test(id)) throw PipeError.naoEncontrado('Relatório');
   const falhas = await noTenant(tenantId, async (tx) => {

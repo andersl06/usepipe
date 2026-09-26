@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// The mode must be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -22,29 +22,19 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * Palavras proibidas — o cadastro (`/v1/gestao/configuracoes/palavras-proibidas`)
- * e a recusa no envio (`POST /v1/conversas/:id/mensagens`).
- *
- * Mesmo padrão de `cadastros-atendimento.test.ts`: dois tenants, sessão por
- * cookie, caminho feliz, recusas, cross-tenant, permissão. A parte do envio segue
- * `envio-sessao.test.ts`: o atendente do cenário responde numa conversa que é dele,
- * e o que se prova é que a mensagem com termo da lista NÃO chega ao outbox.
- *
- * A régua de comparação é a de `blip-desk-regras-tecnicas.md` §3.4: frase é
- * substring do texto, palavra solta é substring do token, tudo sem acento e sem
- * caixa (a intenção da origem, não o bug dela).
+ * Forbidden words — registration (`/v1/gestao/configuracoes/palavras-proibidas`) and the send-time rejection (`POST /v1/conversas/:id/mensagens`). Same pattern as `cadastros-atendimento.test.ts`: two tenants, cookie session, happy path, rejections, cross-tenant, permission. The send part follows `envio-sessao.test.ts`: the scenario's agent replies in a conversation that is theirs, and what is proved is that a message containing a listed term does NOT reach the outbox. The comparison ruler is the one in `blip-desk-regras-tecnicas.md` §3.4: a phrase is a substring of the text, a standalone word is a substring of the token, all accent- and case-insensitive (the source's intent, not its bug).
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Tem `tenant.configurar` — a permissão de Configurações gerais, reaproveitada. */
+/** Has `tenant.configurar` — the General Settings permission, reused here. */
 let sessionManager: string;
-/** Gente do tenant A sem permissão nenhuma. */
+/** People from tenant A with no permission at all. */
 let sessionWithoutPoder: string;
-/** Sessão válida, mas de outro tenant — prova que o tenant vem da sessão, nunca da URL. */
+/** A valid session, but from another tenant — proves the tenant comes from the session, never from the URL. */
 let sessionOfOtherTenant: string;
-/** O atendente do cenário A, que é quem responde. */
+/** Scenario A's agent, who is the one replying. */
 let sessionAgentA: string;
 let sessionAgentB: string;
 let contactA: string;
@@ -124,7 +114,7 @@ async function createContact(cenario: Cenario): Promise<string> {
   return rows[0]!.id;
 }
 
-/** Uma conversa aberta, com janela de 24h em aberto, atribuída ao atendente do cenário. */
+/** An open conversation, with its 24h window still open, assigned to the scenario's agent. */
 async function newConversation(cenario: Cenario, contactId: string): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into conversa (
@@ -189,9 +179,11 @@ async function auditoriaDe(id: string) {
   return rows;
 }
 
-/* =========================================================================
- * A régua de comparação, sem banco
- * ========================================================================= */
+/*
+ * =========================================================================
+ * The comparison ruler, without a database
+ * =========================================================================
+ */
 
 describe('encontrarPalavrasProibidas — a régua de §3.4', () => {
   it('normaliza sem acento e sem caixa, colapsando espaços', () => {
@@ -200,9 +192,9 @@ describe('encontrarPalavrasProibidas — a régua de §3.4', () => {
 
   it('palavra solta é substring do token; frase é substring do texto', () => {
     expect(encontrarPalavrasProibidas('Você é um IDIÓTA mesmo', ['idiota'])).toEqual(['idiota']);
-    // `exactMatch = false` (default da origem): o termo barra o token que o contém.
+    // `exactMatch = false` (the source's default): the term blocks any token that contains it.
     expect(encontrarPalavrasProibidas('seus idiotas!', ['idiota'])).toEqual(['idiota']);
-    // A frase bate mesmo com caixa e espaços diferentes.
+    // The phrase matches even with different case and spacing.
     expect(encontrarPalavrasProibidas('Mandei um  Boleto  FALSO ontem', ['boleto falso'])).toEqual([
       'boleto falso',
     ]);
@@ -383,7 +375,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     const { corpo: criadaPalavra } = await createWord(sessionManager, { termo: palavra });
     expect((await createWord(sessionManager, { termo: frase })).status).toBe(201);
 
-    // Palavra solta, com acento e caixa diferentes, e num token que a CONTÉM.
+    // A standalone word, with different accent and case, inside a token that CONTAINS it.
     const conversationA = await newConversation(a, contactA);
     const recusada = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `Vocês são uns IDIÓTA${marca}s!`,
@@ -392,10 +384,10 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     expect(recusada.corpo.erro.code).toBe('word_forbidden');
     expect(recusada.corpo.erro.message).toContain(`"${palavra}"`);
     expect(recusada.corpo.erro.detalhe.palavras).toEqual([palavra]);
-    // Não gravou mensagem nem outbox: a recusa é ANTES de gravar.
+    // Neither the message nor the outbox was written: the rejection happens BEFORE writing.
     expect(await contarMessages(a, conversationA)).toBe(0);
 
-    // Frase: substring do texto inteiro, com espaços a mais e caixa diferente.
+    // Phrase: a substring of the whole text, with extra spaces and different case.
     const recusadaFrase = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `Mandei o Boleto   FALSO ${marca} ontem`,
     });
@@ -409,7 +401,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     expect(limpa.status).toBe(201);
     expect(await contarMessages(a, conversationA)).toBe(1);
 
-    // Desativada, a palavra deixa de barrar — e o cache foi invalidado pelo PATCH.
+    // Once disabled, the word stops blocking — and the cache was invalidated by the PATCH.
     const desativada = await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, {
       ativo: false,
     });
@@ -426,7 +418,7 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     });
     expect(deNovo.status).toBe(400);
 
-    // A lista é do tenant A: o atendente do B manda a mesma palavra sem ser barrado.
+    // The list belongs to tenant A: an agent from tenant B sends the same word without being blocked.
     const conversationB = await newConversation(b, contactB);
     const doB = await pedir('POST', `/v1/conversations/${conversationB}/messages`, sessionAgentB, {
       texto: `${palavra} e ${frase}`,
@@ -441,8 +433,8 @@ describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do aten
     expect((await createWord(sessionManager, { termo: palavra })).status).toBe(201);
 
     const conversaA = await newConversation(a, contactA);
-    // Chave de API sem `atendente_id`: é mensagem do sistema — o filtro da origem
-    // é do Desk, e o bot/integração não passa por ele.
+    // An API key with no `atendente_id`: it is a system message — the source's filter
+    // belongs to the Desk, and the bot/integration does not go through it.
     const doSistema = await fetch(`${api.url}/v1/conversations/${conversaA}/messages`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${a.token}` },

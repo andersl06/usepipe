@@ -17,27 +17,19 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * As três telas de Integrações do fluxo (`dominio/gestao/integracoes.ts`):
- * chaves de acesso por fluxo, informações de conexão e webhook de saída.
- *
- * O que vale provar: as duas permissões diferentes (`chave_api.gerenciar`
- * para chave, `automacao.integracao.gerenciar` para webhook/conexão — a
- * leitura da conexão usa `automacao.fluxo.editar`), o limite de 3 chaves, o
- * segredo/token aparecendo só na criação e nunca mais, a recusa de SSRF
- * (http, localhost, IP privado), o cross-tenant e o uuid malformado como
- * 404, e o `webhook_saida` sendo da CONTA (não filtra por fluxo).
+ * The flow's three Integrations screens (`dominio/gestao/integracoes.ts`): per-flow access keys, connection information and the outbound webhook. Worth proving: the two distinct permissions (`chave_api.gerenciar` for the key, `automacao.integracao.gerenciar` for webhook/connection — reading the connection uses `automacao.fluxo.editar`), the 3-key limit, the secret/token appearing only at creation and never again, SSRF rejection (http, localhost, private IP), cross-tenant and malformed uuid both returning 404, and `webhook_saida` belonging to the ACCOUNT (it does not filter by flow).
  */
 
 let a: Cenario;
 let b: Cenario;
 let api: ApiNoAr;
-/** Tem as três permissões — chave, integração e edição de fluxo. */
+/** Has all three permissions — key, integration and flow editing. */
 let sessionComplete: string;
-/** Só edita fluxo: prova que ler a conexão não pede a permissão de integração. */
+/** Only edits the flow: proves that reading the connection does not require the integration permission. */
 let sessionOnlyEditor: string;
-/** Sem nenhuma das três. */
+/** None of the three. */
 let sessionWithoutPoder: string;
-/** Tenant B, com as três permissões — prova que o tenant vem da sessão. */
+/** Tenant B, with all three permissions — proves the tenant comes from the session. */
 let sessionOfOtherTenant: string;
 let flowId: string;
 
@@ -167,7 +159,7 @@ describe('Manage flow access keys', () => {
       `)
     ).rows[0];
     expect(linha?.fluxo_id).toBe(flowId);
-    // O banco guarda o HASH sha256, não o segredo em claro que veio no token.
+    // The database stores the sha256 HASH, not the plaintext secret that came in the token.
     expect(linha?.hash).toMatch(/^[0-9a-f]{64}$/);
     expect(linha?.hash).not.toBe(corpo.token.split('_')[2]);
 
@@ -246,7 +238,7 @@ describe('Manage flow access keys', () => {
     expect(linha).toBeDefined();
     expect(linha?.revogada_em).not.toBeNull();
 
-    // Idempotente: revogar de novo não é erro, e não duplica o registro de auditoria.
+    // Idempotent: revoking again is not an error, and it does not duplicate the audit record.
     const segunda = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionComplete);
     expect(segunda.status).toBe(204);
     const log = await a.dono.execute<{ n: string }>(sql`
@@ -429,11 +421,11 @@ describe('Send outgoing webhooks for integrations', () => {
     });
     const id = criado.corpo.id;
 
-    // `fetch` global é usado tanto pelo domínio (para "entregar" ao webhook)
-    // quanto por ESTE teste (para chamar a própria `api`) — o mesmo processo,
-    // o mesmo global. O stub intercepta só a URL do webhook fake e deixa
-    // tudo que vai para `api.url` (o servidor de teste) passar pelo fetch de
-    // verdade, senão o teste conversa consigo mesmo.
+    // The global `fetch` is used both by the domain code (to "deliver" to the webhook)
+    // and by THIS test itself (to call the `api` process) — the same process,
+    // the same global. The stub intercepts only the fake webhook URL and lets
+    // everything bound for `api.url` (the test server) pass through the real fetch,
+    // otherwise the test would be talking to itself.
     const fetchOfTruth = fetch;
     const chamadas: Array<[string, RequestInit | undefined]> = [];
     vi.stubGlobal(

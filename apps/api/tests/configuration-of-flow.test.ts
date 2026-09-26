@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -17,15 +17,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * "Tela de Boas-vindas" e "Menu Persistente" — `GET/PATCH
- * /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}`
- * (`dominio/gestao/configuracao-do-fluxo.ts`).
+ * "Welcome Screen" and "Persistent Menu" — `GET/PATCH /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}` (`dominio/gestao/configuracao-do-fluxo.ts`).
  *
- * O menu persistente exige canal Messenger — e `TIPOS_CANAL`
- * (`packages/db/src/schema/comum.ts`) ainda não tem esse tipo. Por isso o
- * teste do PATCH do menu prova a RECUSA (a mesma trava que a origem mostra
- * com o Salvar desabilitado), não o sucesso: salvar de verdade só é possível
- * quando o canal Messenger existir no Pipe.
+ * The persistent menu requires a Messenger channel — and `TIPOS_CANAL` (`packages/db/src/schema/comum.ts`) doesn't have that type yet. That's why the PATCH menu test proves the REFUSAL (the same guard the source shows with Save disabled), not success: actually saving is only possible once the Messenger channel exists in Pipe.
  */
 
 let a: Cenario;

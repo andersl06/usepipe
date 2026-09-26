@@ -2,13 +2,13 @@ import { createHash, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável, como
+// The mode must be decided before any import that reads the variable, just as
 // nos outros testes de webhook.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
-// Pequeno de propósito: o teste de "desiste no limite" não precisa de 5 rodadas
-// para provar a régua.
+// Deliberately small: the "gives up at the limit" test does not need 5 rounds
+// to prove the ruler.
 process.env['PIPE_MIDIA_MAX_TENTATIVAS'] = '3';
 
 const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
@@ -17,23 +17,14 @@ const { baixarMediaOfAttachment, defineBuscadorOfMedia, hostOfMediaAllowed, MAX_
 const { useStorage } = await import('../src/domain/attachment.js');
 
 /**
- * Download da mídia recebida (`dominio/midia.ts`), direto — sem passar pela fila.
- *
- * `PIPE_FILAS=memoria` faz `enfileirarDownloadMidia` não fazer nada (mesma regra do
- * espelho no CRM: fila que fala com serviço externo não roda em linha no teste), então
- * quem quer provar o download de verdade chama `baixarMidiaDoAnexo` direto — é
- * exatamente o que o consumidor da fila faz em produção.
- *
- * Os fixtures são o mínimo que a função lê: um tenant, um canal (a fonte do token) e
- * um anexo com `bytes = 0`. Não precisa de inbox, fila nem mensagem — desde a
- * `0033_download_de_midia.sql`, `anexo.canal_id` aponta direto para o canal.
+ * Downloading received media (`dominio/midia.ts`), directly — without going through the queue. `PIPE_FILAS=memoria` makes `enfileirarDownloadMidia` a no-op (the same rule as the CRM mirror: a queue that talks to an external service does not run inline in tests), so proving the real download means calling `baixarMidiaDoAnexo` directly — exactly what the queue consumer does in production. The fixtures are the minimum the function reads: a tenant, a channel (the token's source), and an attachment with `bytes = 0`. No inbox, queue or message is needed — since `0033_download_de_midia.sql`, `anexo.canal_id` points directly to the channel.
  */
 
 type Dono = ReturnType<typeof createDatabasecriarBancocreateDatabase>;
 let dono: Dono;
 const S = randomUUID().slice(0, 8);
 
-/** Armazenamento em memória: o teste não precisa de disco para provar a regra. */
+/** In-memory storage: the test does not need disk to prove the rule. */
 const objetos = new Map<string, Uint8Array>();
 
 beforeAll(async () => {
@@ -150,7 +141,7 @@ describe('Allow only documented Meta media hosts over HTTPS', () => {
   it('Reject unlisted hosts, non-HTTPS URLs, and forged host suffixes', () => {
     expect(hostOfMediaAllowed('https://evil.example/roubado.jpg')).toBe(false);
     expect(hostOfMediaAllowed('http://graph.facebook.com/v26.0/123')).toBe(false);
-    // "termina com fbcdn.net.evil.com" não é "termina com fbcdn.net".
+    // "ends with fbcdn.net.evil.com" is not the same as "ends with fbcdn.net".
     expect(hostOfMediaAllowed('https://fbcdn.net.evil.com/x')).toBe(false);
     expect(hostOfMediaAllowed('não é url')).toBe(false);
   });
@@ -171,7 +162,7 @@ describe('Download WhatsApp media with one Bearer token, verify sha256, and dete
       if (url === 'https://graph.facebook.com/v26.0/media-123') {
         return respostaJson({
           url: 'https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=media-123',
-          // Declarado errado de propósito: os bytes são PNG, não JPEG — quem decide é
+          // Deliberately declared wrong: the bytes are PNG, not JPEG — the one who decides is
           // `mimeParaServir`, como no upload manual.
           mime_type: 'image/jpeg',
           sha256,
@@ -245,7 +236,7 @@ describe('sha256 divergente', () => {
     const linha = await lineAttachment(anexoId);
     expect(linha.bytes).toBe(0);
     expect(objetos.size).toBe(objetosAntes); // nada novo foi guardado no storage
-    // Falha permanente esgota a régua na hora — não fica reagendando o que nunca vai bater.
+    // A permanent failure exhausts the ruler immediately — it does not keep rescheduling something that will never succeed.
     expect(linha.download_tentativas).toBe(MAX_TENTATIVAS_DOWNLOAD);
     expect(linha.download_proxima_tentativa_em).toBeNull();
   });
@@ -339,7 +330,7 @@ describe('idempotência', () => {
     expect(await baixarMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'baixado' });
     expect(chamadas).toBe(1);
 
-    // Segunda chamada — o empurrão da fila e a varredura podem se cruzar.
+    // Second call — the queue's push and the sweep can overlap.
     expect(await baixarMediaOfAttachment(tenantId, anexoId)).toEqual({ estado: 'ignorado' });
     expect(chamadas).toBe(1);
   });

@@ -5,17 +5,7 @@ import type { ChannelWhatsApp } from './channel.js';
 import { clienteGraph } from './cliente-graph.js';
 
 /**
- * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb
- *
- * Três passos, cada um com a própria rede de segurança — **desmontar nunca
- * impede desconectar**. Um token já revogado pelo cliente não pode deixar o canal
- * preso ligado para sempre:
- *
- * 1. apaga o callback do número;
- * 2. solta o número do nosso app (`deregister`) — só no cadastro embutido: num
- *    número conectado à mão, isso o desligaria no app do próprio cliente;
- * 3. tira a assinatura do app da WABA — só no cadastro embutido, e só quando este
- *    é o último canal ligado dela, porque a assinatura é da WABA inteira.
+ * Ported from chatwoot/chatwoot (MIT), app/services/whatsapp/webhook_teardown_service.rb. Each teardown step is best effort so even a revoked token cannot prevent channel disconnection. Clear the number callback; deregister the number from Pipe's app only for embedded signup, since doing so for manual setup would disconnect the customer's app; unsubscribe the app from the WABA only for embedded signup and only after its last active channel leaves, because subscription covers the whole WABA. The deregistration step is `deregister`.
  */
 export async function desmontarWebhook(channel: ChannelWhatsApp): Promise<void> {
   const token = texto(channel.config['tokenAcesso']);
@@ -53,8 +43,7 @@ export async function desmontarWebhook(channel: ChannelWhatsApp): Promise<void> 
 }
 
 /**
- * `waba_sibling_exists?`. Papel dono pelo mesmo motivo da unicidade do número: a
- * assinatura é da WABA, e a WABA pode ter número em outro cliente do Pipe.
+ * `waba_sibling_exists?` uses the owner role for the same reason as global number uniqueness: WABA subscription spans numbers that may belong to another Pipe tenant.
  */
 async function wabaHasOtherChannel(canal: ChannelWhatsApp): Promise<boolean> {
   const { rows } = await databaseOwner().execute<{ tem: boolean }>(sql`

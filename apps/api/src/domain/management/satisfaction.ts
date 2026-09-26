@@ -67,12 +67,7 @@ export interface ReportSatisfaction {
 export const LIMITE_COMENTARIOS = 20;
 
 /**
- * Ordem de leitura das classes, do melhor para o pior.
- *
- * O vocabulário é o que a coluna `classe` gravou, e ele é diferente nos dois
- * modelos: `satisfeito`/`insatisfeito` no CSAT, `promotor`/`neutro`/`detrator`
- * no NPS. A tela mostra o que veio do banco e não reclassifica nota nenhuma —
- * classificar aqui seria inventar uma segunda definição das faixas.
+ * Read stored classes from best to worst. `classe` has different vocabulary for CSAT (`satisfeito`/`insatisfeito`) and NPS (`promotor`/`neutro`/`detrator`). Show stored classification without recomputing historical scores, which could introduce new thresholds.
  */
 const ORDER_CLASSE = ['promotor', 'satisfeito', 'neutro', 'insatisfeito', 'detrator'];
 
@@ -94,8 +89,8 @@ export async function loadSatisfaction(
       lt(conversation.encerradaEm, window.end),
     );
 
-    // Em série, nunca em paralelo: `Promise.all` dentro da transação derruba o
-    // `pipe.tenant_id` em silêncio.
+    // Run serially, never in parallel: `Promise.all` inside the transaction can
+    // silently clear `pipe.tenant_id`.
     const [totalRow] = await tx.select({ total: count() }).from(conversation).where(closedInPeriod);
     const encerradas = totalRow?.total ?? 0;
 
@@ -122,7 +117,7 @@ export async function loadSatisfaction(
       escalaMax: number;
       enviadas: number;
       responses: number;
-      /** Um par por pesquisa: a média do grupo é soma ÷ soma, nunca média de médias. */
+      /** One pair per survey; group mean is sum divided by sum, never mean of means. */
       pares: Map<string, { soma: number; count: number }>;
       classes: Map<string, number>;
     };
@@ -189,8 +184,8 @@ export async function loadSatisfaction(
             }))
             .sort(ordenarClasses),
         }))
-        // CSAT antes de NPS, e escala menor antes da maior: ordem estável, para o
-        // relatório sair igual toda vez.
+        // Order CSAT before NPS and smaller scales before larger ones for a
+        // stable report every time.
         .sort((a, b) => compararIdentificador(a.type, b.type) || a.escalaMax - b.escalaMax),
     };
   });

@@ -7,11 +7,7 @@ import type { RequestWithSession } from '../session.js';
 import { flowIdOfBody, connectToFlow, permitidoConectar } from './connection-in-flow.js';
 
 /**
- * A casca HTTP de "conectar o Instagram" pelo caminho manual. A regra mora em
- * `dominio/instagram/`. Mesmas travas do WhatsApp (`canais.ts`): sessão de navegador,
- * `canal.gerenciar` em toda rota, e o tenant SEMPRE da sessão — canal de outro
- * cliente é 404. Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado
- * a ele (`permitidoConectar`/`ligarAoFluxo`, em `canais.ts`).
+ * HTTP adapter for manual Instagram connection; the rules live in `dominio/instagram/`. Like WhatsApp (`canais.ts`), account-level routes require a browser session and `canal.gerenciar`, and take the tenant from the session. A channel belonging to another customer returns 404. On connection with `fluxo_id`, the bot permission applies instead, and `permitidoConectar` and `ligarAoFluxo` link the new channel to the bot.
  */
 @Controller('v1/channels/instagram')
 export class InstagramChannelsController {
@@ -23,7 +19,7 @@ export class InstagramChannelsController {
     return { channels: await listChannelsInstagram(session.tenantId) };
   }
 
-  /** O token e o App Secret são do app do cliente; saem daqui cifrados e não voltam. */
+  /** The token and App Secret belong to the customer's app; they leave here encrypted and are not returned. */
   @Post('manual')
   @HttpCode(201)
   @WithSession()

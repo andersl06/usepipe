@@ -26,14 +26,7 @@ const { fecharBancos } = await import('../src/database.js');
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
- * A conexão de SSO por tenant, e as armadilhas de
- * `referencias-blip/pesquisa/sso-multi-tenant.md` que só aparecem com banco de verdade:
- * a máquina de estados, o segredo cifrado em repouso, a descoberta por domínio e
- * a política conferida no servidor.
- *
- * O que NÃO está aqui, de propósito: a conversa com o IdP. Ela tem teste em
- * `packages/autenticacao/tests/oidc.test.ts`, e repeti-la aqui exigiria dublar o
- * JWKS para provar de novo o que já está provado.
+ * The per-tenant SSO connection, and the pitfalls from `referencias-blip/pesquisa/sso-multi-tenant.md` that only show up with a real database: the state machine, the secret encrypted at rest, domain-based discovery, and the policy checked on the server. What is deliberately NOT here: the conversation with the IdP. That has its own test in `packages/autenticacao/tests/oidc.test.ts`, and repeating it here would require faking the JWKS just to re-prove what is already proven.
  */
 
 const SUFIXO = randomUUID().slice(0, 8);
@@ -44,7 +37,7 @@ let cenario: Cenario;
 let admin: string;
 let ana: string;
 
-/** Um IdP de mentira: só o `.well-known`, que é tudo que `conexaoParaFluxo` lê. */
+/** A fake IdP: only `.well-known`, which is all `conexaoParaFluxo` reads. */
 const buscarDescoberta = (async () =>
   ({
     ok: true,
@@ -71,7 +64,7 @@ function pessoa(email: string, verificado = true, sujeito = randomUUID()) {
 beforeAll(async () => {
   cenario = await montarCenario(`sso-${SUFIXO}`);
 
-  // Domínio verificado do tenant: é ele que liga e-mail a empresa.
+  // The tenant's verified domain: it is what links an email address to a company.
   await cenario.dono.execute(sql`
     insert into dominio_tenant (tenant_id, dominio, token_verificacao, verificado_em)
     values (${cenario.tenantId}, ${DOMAIN}, 'tok', now())
@@ -108,8 +101,8 @@ describe('Save SSO connection configuration', () => {
       sql`select config from conexao_sso where tenant_id = ${cenario.tenantId}::uuid`,
     );
     const guardado = rows[0]!.config['clientSecret'];
-    // O risco que isto fecha não é um cliente ler o outro — a RLS cuida disso.
-    // É o `pg_dump`, que entregaria a credencial de TODOS os clientes de uma vez.
+    // The risk this closes is not one customer reading another's data — RLS already handles that.
+    // It is `pg_dump`, which would hand over every customer's credential at once.
     expect(typeof guardado).toBe('string');
     expect(guardado).not.toBe('segredo-do-cliente');
     expect(estaCifrado(guardado as string)).toBe(true);
@@ -117,7 +110,7 @@ describe('Save SSO connection configuration', () => {
     const visivel = await lerConexao(cenario.tenantId);
     expect(visivel?.estado).toBe('rascunho');
     expect(visivel?.politica).toBe('desligado');
-    // O que a tela mostra não tem segredo nenhum, nem campo para ele.
+    // What the screen shows has no secret at all, nor a field for one.
     expect(JSON.stringify(visivel)).not.toContain('segredo-do-cliente');
   });
 
@@ -171,7 +164,7 @@ describe('Control SSO connection state separately from login policy', () => {
     const active = await defineState(cenario.tenantId, admin, { state: 'ativa' });
     expect(active.estado).toBe('ativa');
     expect(active.ativadaEm).toBeInstanceOf(Date);
-    // Ativar NÃO exige SSO: a senha e o Google continuam valendo.
+    // Activating does NOT require SSO: password and Google login both remain valid.
     expect(active.politica).toBe('desligado');
 
     const exigindo = await defineState(cenario.tenantId, admin, { politica: 'obrigatorio' });
@@ -179,8 +172,8 @@ describe('Control SSO connection state separately from login policy', () => {
   });
 
   it('Move an edited SSO connection back to draft', async () => {
-    // Trocar o emissor de uma conexão ativa sem rebaixar o estado apontaria todo
-    // o cliente para um diretório que ninguém testou.
+    // Changing an active connection's issuer without downgrading its state would point every
+    // customer at a directory nobody has tested.
     await defineState(cenario.tenantId, admin, { politica: 'desligado' });
     await configurar();
     const visivel = await lerConexao(cenario.tenantId);
@@ -214,15 +207,15 @@ describe('descoberta do tenant no login', () => {
   });
 
   it('Make unknown domains indistinguishable from known domains without SSO', async () => {
-    // Sem essa simetria o endpoint vira catálogo de "quais empresas usam Pipe".
+    // Without this symmetry, the endpoint becomes a catalog of "which companies use Pipe".
     expect(await discoverInbound('alguem@empresa-que-nao-existe.teste')).toEqual({
       metodo: 'google',
     });
   });
 
   it('Never route public email domains through SSO', async () => {
-    // Quem mapeasse `gmail.com` capturaria o login de meio Brasil. A trava está
-    // no código, e não só no cadastro — por isso o teste força a linha no banco.
+    // Whoever mapped `gmail.com` would capture the login of half of Brazil. The guard is
+    // in the code, not only in registration — that is why the test forces the row into the database.
     await cenario.dono.execute(sql`
       insert into dominio_tenant (tenant_id, dominio, token_verificacao, verificado_em)
       values (${cenario.tenantId}, ${'gmail.com'}, 'tok', now())
@@ -258,8 +251,8 @@ describe('Authenticate through the tenant identity provider', () => {
   });
 
   it('recusa quem o IdP não confirmou o e-mail — é o caminho de escalada', async () => {
-    // Quem conseguir um IdP a emitir o e-mail da vítima entraria como ela, com os
-    // papéis dela. No Entra é a ausência de `xms_edov` que cai aqui.
+    // Anyone who gets an IdP to issue the victim's email would sign in as her, with the
+    // her roles. In Entra, it is the absence of `xms_edov` that triggers this.
     await expect(
       loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
@@ -271,8 +264,8 @@ describe('Authenticate through the tenant identity provider', () => {
   });
 
   it('Reject login from an email domain outside the initiating tenant', async () => {
-    // O IdP de um cliente não autentica gente de outro só por mandar o e-mail
-    // certo: o domínio continua tendo de estar verificado, e verificado aqui.
+    // One customer's IdP does not authenticate someone from another just by sending the email
+    // correctly: the domain still has to be verified, and verified here specifically.
     await expect(
       loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
@@ -292,8 +285,8 @@ describe('Authenticate through the tenant identity provider', () => {
 
 describe('convivência: SSO obrigatório não tem porta dos fundos', () => {
   it('com politica=obrigatorio o login pelo Google é recusado no SERVIDOR', async () => {
-    // Não é a tela que esconde o botão. A identidade já está ligada, o usuário
-    // está ativo, e mesmo assim a entrada por outro caminho recusa.
+    // It is not the screen hiding the button. The identity is already linked, the user
+    // is active, and login through the other path is still rejected.
     await defineState(cenario.tenantId, admin, { politica: 'obrigatorio' });
     try {
       await expect(
@@ -307,7 +300,7 @@ describe('convivência: SSO obrigatório não tem porta dos fundos', () => {
         }),
       ).rejects.toBeInstanceOf(InboundRefusedEntradaRecusadaInboundRefused);
 
-      // ...e o SSO continua passando, que é o ponto da política.
+      // ...and SSO still succeeds, which is the whole point of the policy.
       const entrada = await loginWithSsoentrarComSsologinWithSso(
         cenario.dono,
         cenario.dono,

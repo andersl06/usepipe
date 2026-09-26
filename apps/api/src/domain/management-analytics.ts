@@ -21,13 +21,10 @@ import {
 } from '../pagination.js';
 
 /**
- * As leituras da ANÁLISE do contato (`/fluxo/:id/analise/**`), movidas de
- * `apps/gestao/src/lib/analise.ts` e `analise-portal.ts` — a consulta é a
- * mesma; a transação vem de fora, já com o tenant fixado. A parte pura
- * (período, formatação, tipos) mora em `@pipe/core/analise`.
+ * Read contact ANALYSIS (`/fluxo/:id/analise/**`) from the database. These queries moved from `apps/gestao/src/lib/analise.ts` and `analise-portal.ts` with query logic intact; the caller supplies a transaction with tenant fixed. Pure period, formatting, and type logic stays in `@pipe/core/analise`.
  */
 
-/** Um intervalo em instantes, já no fuso da conta — `janelaDeDatas` do banco.ts. */
+/** An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts. */
 export async function windowOfDatas(
   tx: TransactionPipe,
   fuso: string,
@@ -44,21 +41,7 @@ export async function windowOfDatas(
 }
 
 /**
- * O Dashboard de um contato, lido do banco.
- *
- * Tem equivalente de verdade: `api/src/dominio/fluxo.ts` grava uma
- * `execucao_fluxo` por conversa que o bot atende, as mensagens do bot e o
- * transbordo (`enfileirada` com `dados.origem = 'fluxo'`). Então contatos,
- * mensagens, recorrência e retenção/transbordo saem das conversas que tiveram
- * execução deste fluxo — e, como na origem, as mensagens do atendimento humano
- * dessas conversas entram na conta ("Inclui, também, mensagens trafegadas no
- * Desk", diz o Dicionário de Dados).
- *
- * ponytail: `excecao`, `blocosExcecao` e `blocosTransbordo` vão vazios. O Pipe
- * não tem bloco de exceção, e `execucao_passo` não marca em qual bloco o
- * transbordo aconteceu; quando marcar, é um `group by bloco_id` aqui.
- * ponytail: o roteador não agrega os fluxos que ele chama (na origem agrega
- * "todos os chatbots conectados") — o motor do Pipe ainda não roteia.
+ * The contact Dashboard comes from the database. `api/src/dominio/fluxo.ts` writes an `execucao_fluxo` for each bot conversation, bot messages, and handoff (`enfileirada` with `dados.origem = 'fluxo'`). Contacts, messages, recurrence, retention, and handoff count conversations where this flow ran, including human attendance messages as the source Data Dictionary states. `excecao`, `blocosExcecao`, and `blocosTransbordo` stay empty: Pipe has no exception block, and `execucao_passo` does not mark the handoff block. Once it does, `group by bloco_id`. The router now routes contacts through services (`apps/api/src/dominio/roteador.ts`), but this Dashboard still does not aggregate service flows as the source does; its SQL filters one `fluxoId`. Source wording: "Inclui, também, mensagens trafegadas no Desk".
  */
 export async function carregarDashboard(
   tx: TransactionPipe,
@@ -74,8 +57,9 @@ export async function carregarDashboard(
     if (!contact[0]) return null;
 
     const medir = async (i: Intervalo) => {
-      /* Um `rollup` por dia: as linhas de cada dia e, com `dia` nulo, o período
-         inteiro — onde o `count(distinct)` não é soma dos dias. */
+      /*
+       * One `rollup` per day yields daily rows plus a row with null `dia` for the whole period; the period `count(distinct)` is not the sum of daily counts.
+       */
       const { rows } = await tx.execute<{
         dia: string | null;
         enviadas: number;
@@ -124,8 +108,9 @@ export async function carregarDashboard(
            and e.iniciada_em >= (${i.inicio}::date)::timestamp at time zone ${fuso}
            and e.iniciada_em < ((${i.fim}::date + 1)::timestamp) at time zone ${fuso}
       `);
-      /* O `rollup` devolve a linha do total mesmo sem mensagem nenhuma; o que
-         falta são os dias vazios, e o gráfico da origem tem um rótulo por dia. */
+      /*
+       * `rollup` returns the total row even without messages. Empty days are missing, though the source chart labels every day.
+       */
       const doDia = new Map(byDay.map((d) => [d.dia, d]));
       return {
         soma,
@@ -210,13 +195,7 @@ export async function carregarDashboard(
 }
 
 /**
- * A barra lateral "Número de Contatos" (`uw`): quem interagiu, ou quem não
- * respondeu, no período — `/metrics/contacts/engaged` e
- * `/metrics/sidebar/ContactsRejection` na origem. O nome, e sem nome o
- * telefone (lá é `name ?? identity`).
- *
- * ponytail: a origem pede de 20 em 20 conforme rola; aqui vêm os 1000 mais
- * recentes de uma vez — o mesmo teto que a dica do "Exportar lista" anuncia.
+ * The "Número de Contatos" sidebar (`uw`) lists those who interacted or did not respond during the period, following source `/metrics/contacts/engaged` and `/metrics/sidebar/ContactsRejection`. Display the name, or phone if absent (`name ?? identity` there). The source fetches 20 at a time while scrolling; here the 1,000 most recent arrive at once, matching the "Exportar lista" hint.
  */
 export async function loadListOfContacts(
   tx: TransactionPipe,
@@ -246,18 +225,7 @@ export async function loadListOfContacts(
 }
 
 /**
- * Mensagens ativas do contato — sem equivalente no Pipe hoje.
- *
- * Na origem é a mensagem que o BOT manda depois de 24 horas da última do
- * cliente. O bot do Pipe só fala em resposta (`gravarRespostaDoBot` grava
- * `dentro_da_janela = true`, sempre), e template disparado por campanha não é
- * atribuído a fluxo nenhum. Devolve a resposta vazia da origem — que é o que a
- * tela desenha com zeros.
- *
- * ponytail: quando disparo de template ganhar `fluxo_id` (ou o bot puder mandar
- * template), é `mensagem` com `tipo = 'template'` agrupada por dia, com
- * `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, e a
- * resposta amarrada por `disparo_id`.
+ * Active messages for this contact have no Pipe equivalent today. In the source, the BOT sends them more than 24 hours after the customer's last message. Pipe's bot only replies (`gravarRespostaDoBot` always stores `dentro_da_janela = true`), and campaign template sends have no flow attribution. Return the source's empty response so the screen shows zeros. Once template sends have `fluxo_id` or the bot can send templates, group `mensagem` rows with `tipo = 'template'` by day, using `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, and replies linked by `disparo_id`.
  */
 export async function loadMessagesActive(
   _tx: TransactionPipe,
@@ -268,17 +236,12 @@ export async function loadMessagesActive(
   return { status: [], respostasByHora: Array<number>(24).fill(0), falhas: [], templates: [] };
 }
 
-/* ═══════════════════════════════════ Visão geral, relatórios, jornada ═══ */
+
 
 type Linha = Record<string, unknown>;
 
 /**
- * O "chatbot" da origem é o contato; as mensagens DELE, aqui, são as das
- * conversas por onde alguma versão deste fluxo passou (`execucao_fluxo`).
- * Entra o atendimento humano junto, como lá: `metrics.overviewHelp.info1` diz
- * que o relatório "contabiliza todos os contatos e mensagens trafegadas,
- * incluindo interações durante o atendimento humano". Nota interna não é
- * mensagem trafegada e fica fora.
+ * The source "chatbot" is the contact. Count messages from conversations where any version of this flow ran (`execucao_fluxo`). Include human attendance as the source does: `metrics.overviewHelp.info1` states that the report includes contact and message traffic during human attendance. Internal notes are excluded because they are not traffic. Source wording: "contabiliza todos os contatos e mensagens trafegadas, incluindo interações durante o atendimento humano".
  */
 export async function carregarVisaoGeral(
   tx: TransactionPipe,
@@ -353,14 +316,10 @@ export async function carregarVisaoGeral(
   }
 }
 
-/* ------------------------------------------------ Relatórios Personalizados */
+
 
 /**
- * ponytail: sempre vazia. O Pipe não tem relatório personalizado — nem tabela,
- * nem editor de gráfico. Teto: a tela fica no estado "Nenhum relatório
- * encontrado :(". Caminho: uma tabela `relatorio` (nome, dono, privado,
- * modificado_em) com os gráficos dela, e esta função lendo os públicos mais os
- * privados da pessoa — o mesmo filtro do `getReports()` da origem.
+ * Custom reports are always empty: Pipe has no report table or chart editor. The screen stops at "Nenhum relatório encontrado :(". To implement this, add a `relatorio` table (name, owner, private flag, `modificado_em`) with its charts, and read public reports plus the person's private reports as source `getReports()` does.
  */
 export async function loadReports(_tx: TransactionPipe): Promise<ReportCustom[]> {
   return [];
@@ -369,15 +328,7 @@ export async function loadReports(_tx: TransactionPipe): Promise<ReportCustom[]>
 /* ------------------------------------------------------ Jornada dos Contatos */
 
 /**
- * As arestas da jornada, tiradas do caminho de cada execução em
- * `execucao_passo`: o passo `n` liga o bloco `n` ao bloco `n+1`, e o último
- * bloco de cada execução liga à "Saída". O nó leva a etapa entre colchetes —
- * é o que `getNodeNameWithoutInstance()` desfaz na origem, e o que impede o
- * mesmo bloco em etapas diferentes de virar ciclo no diagrama.
- *
- * ponytail: sem o nó "Outros" (`#others`), que na origem junta os blocos de
- * pouco volume. Teto: fluxo com muitos ramos desenha todos. Caminho: cortar
- * por etapa os N maiores e somar o resto numa aresta `tipo: 'outros'`.
+ * Build journey edges from each execution's path in `execucao_passo`: step `n` connects block `n` to `n+1`, and the final block connects to "Saída". Preserve the stage in brackets on node names, as source `getNodeNameWithoutInstance()` removes it; otherwise the same block in different stages can form a false cycle. The source has an "Outros" node (`#others`) for low-volume blocks. Here every branch is drawn; for very large flows, keep the top N per stage and sum the rest into an edge with `tipo: 'outros'`.
  */
 export async function carregarJornada(
   tx: TransactionPipe,
@@ -438,24 +389,7 @@ export interface LogFilter {
 }
 
 /**
- * O Log de mensagens (`MessagesController`/`MessageService.getMessages` da
- * origem), com o que a origem tinha só como texto fixo do template — período,
- * direção e tipo — virando filtro de verdade, e paginação por cursor no lugar
- * do `take: 30` fixo (`apis.md` §5.3, o mesmo padrão de
- * `controladores/conversas.ts#mensagens`).
- *
- * Escopo: as conversas do CANAL do bot (`fluxo.canal_id` → `inbox.canal_id`),
- * a mesma amarração de `carregarLogsDoFluxo` (que esta função substitui na
- * tela) — não por `execucao_fluxo`, porque o Log também mostra a mensagem
- * trocada no atendimento humano depois do transbordo, que não tem execução.
- *
- * ponytail: sem índice em `mensagem` por canal (ela não guarda `canal_id`
- * direto, só por `conversa_id`), o Postgres varre as conversas do canal
- * (agora indexadas por `conversa_inbox_idx`, migration 0040) e desce por
- * `mensagem_conversa_idx` — ótimo para um canal com poucas conversas, mais
- * caro num canal com um histórico enorme de conversas encerradas. Teto: bot
- * com centenas de milhares de conversas. Caminho, se doer: coluna
- * `canal_id` desnormalizada em `mensagem`, preenchida na escrita.
+ * Message Log follows source `MessagesController`/`MessageService.getMessages`. Source period, direction, and type labels become real filters, with cursor pagination instead of fixed `take: 30` (`apis.md` §5.3; see `controladores/conversas.ts#mensagens`). Scope to bot-channel conversations (`fluxo.canal_id` to `inbox.canal_id`), as in `carregarLogsDoFluxo`, rather than `execucao_fluxo`: the Log includes human attendance after handoff. `mensagem` has no direct `canal_id` index, so Postgres scans channel conversations through `conversa_inbox_idx` (migration 0040), then messages by `conversa_id` through `mensagem_conversa_idx`. This suits a small channel but costs more with hundreds of thousands of closed conversations. If needed, fill a denormalized `canal_id` on `mensagem` during writes.
  */
 export async function loadLogOfMessages(
   tx: TransactionPipe,

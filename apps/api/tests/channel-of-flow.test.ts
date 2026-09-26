@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { sql } from 'drizzle-orm';
 
-// O modo tem que ser decidido antes de qualquer import que leia a variável.
+// // The mode has to be decided before any import that reads the variable.
 process.env['PIPE_FILAS'] = 'memoria';
 process.env['PIPE_WHATSAPP_CONEXAO'] = 'duble';
 process.env['PIPE_WHATSAPP_CLIENTE'] = 'duble';
@@ -25,16 +25,9 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
 
 /**
- * O canal DO BOT — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, o `GET` que a
- * página do canal lê, e a conexão manual com `fluxo_id`.
+ * The BOT'S channel — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, the `GET` the channel page reads, and the manual connection with `fluxo_id`.
  *
- * O que se prova é o que a origem decide (`referencias-blip/canais/
- * FICHA-conectar-canal-no-bot.md` §4): o canal é do bot e a permissão é a
- * `channels` do bot; um bot por número ("Ops… Este número já está em uso" —
- * a Blip recusa, não transfere; quem troca desliga no bot anterior antes);
- * e, ligado o roteador ao número, a mensagem que chega nesse número cai nele.
- * Mais as travas do Pipe: canal inativo não liga (409), outro tenant e uuid
- * malformado são 404, e um bot tem um canal só (a coluna `fluxo.canal_id`).
+ * What's proven is what the source decides (`referencias-blip/canais/FICHA-conectar-canal-no-bot.md` §4): the channel belongs to the bot and the permission is the bot's `channels`; one bot per number ("Oops… This number is already in use" — Blip refuses, it doesn't transfer; whoever swaps disconnects the previous bot first); and, once the router is connected to the number, a message arriving on that number lands on it. Plus Pipe's own guards: an inactive channel doesn't connect (409), another tenant and a malformed uuid are 404, and a bot has only one channel (the `fluxo.canal_id` column).
  */
 
 let a: Cenario;
@@ -42,9 +35,9 @@ let b: Cenario;
 let api: ApiNoAr;
 /** Quem edita fluxo na conta — o equivalente de conta de `channels.escrever`. */
 let sessionEditor: string;
-/** Gente do tenant A sem permissão nenhuma. */
+/** People from tenant A with no permission at all. */
 let sessionWithoutPoder: string;
-/** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */
+/** Someone who's only a member of ONE flow, with `channels: write` — nothing at the account level. */
 let memberOfFlow: string;
 let sessionOfOtherTenant: string;
 
@@ -104,7 +97,7 @@ async function newFlow(
   return rows[0]!.id;
 }
 
-/** Um canal a mais no tenant, sem passar pela Meta. */
+/** One more channel on the tenant, without going through Meta. */
 async function newChannel(
   cenario: Cenario,
   extra: { type?: string; active?: boolean; number?: string } = {},
@@ -222,7 +215,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     });
     expect((contact.corpo['contato'] as { channelName: string }).channelName).toMatch(/^Canal /);
 
-    // Ligar de novo o mesmo canal não é erro nem gera registro.
+    // // Connecting the same channel again isn't an error and doesn't create a record.
     expect((await ligar(sessionEditor, flowId, channelId)).status).toBe(200);
     expect(await auditoriaDe(flowId)).toHaveLength(log.length);
   });
@@ -242,18 +235,18 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     expect(detalhe(recusa)['fluxoId']).toBe(first);
     expect(await channelOfDatabase(segundo)).toBeNull();
 
-    // A tela do segundo vê o canal como "em uso pelo primeiro".
+    // // The second one's screen sees the channel as "in use by the first."
     const lido = await readChannel(sessionEditor, segundo);
     const disponiveis = lido.corpo['disponiveis'] as { id: string; flowId: string | null }[];
     expect(disponiveis.find((c) => c.id === canalId)?.fluxoId).toBe(first);
 
-    // Trocar de bot é: desligar no anterior, ligar no novo.
+    // // Switching bots means: disconnect on the old one, connect on the new one.
     expect((await desligar(sessionEditor, first)).status).toBe(204);
     expect(await channelOfDatabase(first)).toBeNull();
     expect((await ligar(sessionEditor, segundo, canalId)).status).toBe(200);
     expect(await channelOfDatabase(segundo)).toBe(canalId);
 
-    // Arquivado não segura número: um terceiro liga por cima.
+    // // Archived doesn't hold the number: a third one connects over it.
     await a.dono.execute(sql`update fluxo set estado = 'arquivado' where id = ${segundo}::uuid`);
     const third = await newFlow(a, 'fluxo');
     expect((await ligar(sessionEditor, third, canalId)).status).toBe(200);
@@ -310,7 +303,7 @@ describe('PUT e GET /v1/management/flows/:id/channel', () => {
     const sessionMember = await openSession(a, memberOfFlow);
     expect((await ligar(sessionMember, fluxoId, canalId)).status).toBe(200);
     expect((await desligar(sessionMember, fluxoId)).status).toBe(204);
-    // No fluxo em que não é membro, continua sem poder.
+    // // On the flow they're not a member of, still no permission.
     expect((await ligar(sessionMember, otherFlow, canalId)).status).toBe(403);
   });
 });
@@ -401,7 +394,7 @@ const enviar = (texto: string) => ({
   settings: { type: 'text/plain', content: texto },
 });
 
-/** Um principal de uma pergunta só: responde e fica esperando. */
+/** A one-question principal: answers and waits. */
 const PRINCIPAL = {
   states: [
     { id: 'inicio', root: true, input: {}, outputs: [{ stateId: 'ola' }] },
@@ -422,14 +415,14 @@ describe('Route messages from a connected phone number to its router bot', () =>
     );
     expect(principal.errorOfValidation).toBeNull();
 
-    // Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.
+    // // Publishing the router isn't this task's gesture: it's born published, but WITHOUT a channel.
     const routerId = await newFlow(a, 'roteador', { state: 'publicado' });
     await a.dono.execute(sql`
       insert into roteador_servico (tenant_id, roteador_id, servico_id, nome, principal, persistente, expiracao_min)
       values (${a.tenantId}, ${routerId}, ${principal.fluxoId}, 'Principal', true, false, null)
     `);
 
-    // Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.
+    // // Through the screen: the scenario's channel (the number that receives the webhook) becomes the router's channel.
     expect((await ligar(sessionEditor, routerId, a.channelId)).status).toBe(200);
 
     const CLIENTE = '5511933330001';
@@ -458,7 +451,7 @@ describe('Route messages from a connected phone number to its router bot', () =>
     `);
     expect(position[0]?.serviceId).toBe(principal.fluxoId);
 
-    // Desligado o roteador do número, a próxima conversa nova já não passa por ele.
+    // // Once the router is disconnected from the number, the next new conversation no longer goes through it.
     expect((await desligar(sessionEditor, routerId)).status).toBe(204);
   });
 });
@@ -469,10 +462,7 @@ describe('reconexão manual do mesmo número', () => {
   const appSecret = 'b'.repeat(32);
 
   /**
-   * O token do cliente expira, e na origem a saída é refazer a conexão no mesmo
-   * canal — não há desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md`
-   * §5). Sem `canal_id`, trocar o token ficava num beco: criar de novo esbarra
-   * no próprio número.
+   * The client's token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect on WhatsApp (`FICHA-conectar-canal-no-bot.md` §5). Without `canal_id`, swapping the token was a dead end: creating a new one runs into the same number.
    */
   it('Update existing channel credentials by canal_id instead of rejecting its phone number', async () => {
     const fluxoId = await newFlow(a, 'fluxo');
@@ -488,16 +478,18 @@ describe('reconexão manual do mesmo número', () => {
     expect(criado.status).toBe(201);
     const canalId = criado.corpo['id'] as string;
 
-    /* Sem `canal_id`: é o beco que o dono encontrou — o número já é de um canal.
-       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */
+    /*
+     * Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.
+     */
     const sessionOfChannel = await openSession(a, await pessoaCom(a, ['canal.gerenciar']));
     const { fluxo_id: _semBot, ...semBot } = corpo;
     const repetido = await chamar(sessionOfChannel, 'POST', '/v1/channels/whatsapp/manual', semBot);
     expect(repetido.status).toBe(422);
     expect(codigo(repetido)).toBe('configuracao_invalida');
 
-    /* O duble da Meta casa token com número, então o token de teste é o mesmo;
-       o que prova a troca é o App Secret novo gravado no canal. */
+    /*
+     * The Meta double matches token to number, so the test token is the same one; what proves the swap is the new App Secret stored on the channel.
+     */
     const newSecret = 'c'.repeat(32);
     const refeito = await chamar(sessionEditor, 'POST', '/v1/channels/whatsapp/manual', {
       ...corpo,
@@ -506,7 +498,7 @@ describe('reconexão manual do mesmo número', () => {
     });
     expect(refeito.status).toBe(201);
     expect(refeito.corpo['id']).toBe(canalId);
-    /* O canal continua ligado ao mesmo bot e não nasceu um segundo. */
+    /* The channel stays connected to the same bot, and a second one wasn't born. */
     expect(await channelOfDatabase(fluxoId)).toBe(canalId);
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from canal where tenant_id = ${a.tenantId}::uuid and numero_id = ${numeroId}`,
@@ -516,7 +508,7 @@ describe('reconexão manual do mesmo número', () => {
     const { rows: guardado } = await a.dono.execute<{ secret: string }>(
       sql`select config->>'appSecret' as segredo from canal where id = ${canalId}::uuid`,
     );
-    /* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */
+    /* Encrypted in the database: what matters is that it CHANGED, not the plaintext value. */
     expect(guardado[0]!.secret).toBeTruthy();
     expect(guardado[0]!.secret).not.toBe(appSecret);
   });

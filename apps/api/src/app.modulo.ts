@@ -42,17 +42,7 @@ import { MessengerChannelsController } from './controllers/channels-messenger.js
 import { MessengerWebhookController } from './controllers/webhooks-messenger.js';
 
 /**
- * Módulo raiz.
- *
- * Sem injeção por tipo de construtor de propósito: os controladores chamam funções
- * de domínio direto, como o Desk faz com `servidor/consultas.ts`. Isso dispensa
- * `emitDecoratorMetadata`, que brigaria com o `verbatimModuleSyntax` do tsconfig da
- * base, e deixa toda regra testável sem subir o Nest.
- *
- * Os guardas são registrados como valor pronto pelo mesmo motivo. São DOIS, e cada um
- * cuida do que está marcado: `@Escopos(...)` é chave de API (integração), `@ComSessao()`
- * é cookie de navegador (as telas). Rota sem marca nenhuma é pública de propósito —
- * o webhook da Meta, que se autentica pela assinatura, e `/saude`.
+ * Root module. Controllers call domain functions directly, as the Desk does with `servidor/consultas.ts`, instead of using constructor type injection. This avoids `emitDecoratorMetadata`, which conflicts with the base tsconfig's `verbatimModuleSyntax`, and lets rules be tested without starting Nest. Guards are registered as ready values for the same reason. The two guards cover distinct markers: `@Escopos(...)` requires an API key for integrations, while `@ComSessao()` requires a browser session. An unmarked route is deliberately public: the Meta webhook authenticates by signature, and `/saude` is public.
  */
 @Module({
   controllers: [
