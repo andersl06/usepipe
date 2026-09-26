@@ -22,7 +22,7 @@
 .pipe-closure-content::before { position: absolute; z-index: 0; top: 0; bottom: 0; left: 0; width: 62%; border-radius: 8px 0 0 8px; background: color-mix(in srgb, var(--p-marca, #2c6e49) 12%, white); content: ''; }
 .pipe-closure-illustration { position: relative; z-index: 1; display: flex; width: 156px; height: 168px; margin-top: 25px; align-items: center; justify-content: center; color: var(--p-marca, #2c6e49); }
 /* The `sleepy` paths come from `blip-tokens@1.102.1` in the Desk's local ZIP; I only swapped the ink for Pipe green. */
-.pipe-closure-illustration { background: url('./assets/encerramento-sleepy.svg') center / 100% 100% no-repeat; }
+.pipe-closure-illustration { background: url('./assets/closure-sleepy.svg') center / 100% 100% no-repeat; }
 .pipe-closure-details { position: relative; z-index: 1; display: flex; width: 354px; flex-direction: column; padding: 30px 46px 0 0; }
 .pipe-closure-details h2 { align-self: flex-start; width: 295px; margin: 0; padding-bottom: 5px; color: var(--p-conteudo, #282828); font-size: 20px; font-weight: 700; line-height: 28px; }
 .pipe-closure-ticket { width: 307px; margin: 0; padding: 5px 0; font-size: 14px; line-height: 22px; }

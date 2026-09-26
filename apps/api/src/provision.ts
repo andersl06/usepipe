@@ -187,7 +187,7 @@ export function asLogin(cliente: ClienteProvisionado): string {
   if (!cliente.domain) {
     linhas.push(
       'sem domínio registrado (conta criada no login).',
-      `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
+      `Diga ao cliente: entre em ${app}/login com a conta Google ${cliente.adminEmail}.`,
       'Para entrada por domínio, registre um em POST /v1/dominios e verifique o TXT.',
     );
     return linhas.join('\n');
@@ -196,7 +196,7 @@ export function asLogin(cliente: ClienteProvisionado): string {
   if (cliente.domain.verificado) {
     linhas.push(
       `domínio ${cliente.domain.domain} VERIFICADO.`,
-      `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
+      `Diga ao cliente: entre em ${app}/login com a conta Google ${cliente.adminEmail}.`,
       'A conta do Google é ligada sozinha na primeira entrada.',
     );
   } else {

@@ -78,7 +78,7 @@ export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
   // `PIPE_URL_ENTRADA` applies only when the initiating origin is unknown; overriding a
   // por cima de uma origem conhecida devolveria todo mundo ao mesmo lugar de novo.
   const url = new URL(
-    origem ? `${base}/entrar` : (process.env['PIPE_URL_ENTRADA'] ?? `${base}/entrar`),
+    origem ? `${base}/login` : (process.env['PIPE_URL_ENTRADA'] ?? `${base}/login`),
   );
   url.searchParams.set('error', codigo);
   return url.toString();
