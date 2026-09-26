@@ -67,7 +67,7 @@ describe('Exercise Messenger with the database, webhook, and worker', () => {
   }
 
   const request = (q: { tenantId: string; adminId: string }) =>
-    ({ sessao: { tenantId: q.tenantId, usuarioId: q.adminId, origem: 'google' } }) as unknown as RequestWithSession;
+    ({ session: { tenantId: q.tenantId, userId: q.adminId, origem: 'google' } }) as unknown as RequestWithSession;
 
   async function linhas<T extends Record<string, unknown>>(query: ReturnType<typeof sql>) {
     return (await dono.execute(query)).rows as T[];

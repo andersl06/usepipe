@@ -57,7 +57,7 @@ async function tenantComAdmin(nome: string): Promise<Quem> {
 }
 
 function request(quem: Quem): RequestWithSession {
-  return { sessao: { tenantId: quem.tenantId, usuarioId: quem.adminId, origem: 'google' } } as unknown as RequestWithSession;
+  return { session: { tenantId: quem.tenantId, userId: quem.adminId, origem: 'google' } } as unknown as RequestWithSession;
 }
 
 function conectar(quem: Quem, token: string, extra: Record<string, string | undefined> = {}) {

@@ -256,7 +256,7 @@ describe('Isolate downloaded media by tenant', () => {
 describe('Check import-route permission against the database', () => {
   const controller = new ContactImportsController();
   const request = (tenantId: string, userId: string) =>
-    ({ sessao: { tenantId, userId, origem: 'google' } }) as unknown as RequestWithSession;
+    ({ session: { tenantId, userId, origem: 'google' } }) as unknown as RequestWithSession;
 
   it('Return 403 when an agent imports contacts without permission (`sem_permissao`)', async () => {
     const agent = await userWith(A.tenantId, `atendente-${S}`, 'atendente');

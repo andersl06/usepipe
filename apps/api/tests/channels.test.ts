@@ -77,7 +77,7 @@ async function tenantComAdmin(nome: string): Promise<{ tenantId: string; adminId
 
 function request(quem: { tenantId: string; adminId: string }): RequestWithSession {
   return {
-    sessao: { tenantId: quem.tenantId, usuarioId: quem.adminId, origem: 'google' },
+    session: { tenantId: quem.tenantId, userId: quem.adminId, origem: 'google' },
   } as unknown as RequestWithSession;
 }
 
@@ -483,7 +483,7 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
   });
 });
 
-describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/perfil)', () => {
+describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () => {
   const PNG = `data:image/png;base64,${Buffer.from('png-de-ensaio').toString('base64')}`;
 
   it('Read an empty profile, update only supplied fields, upload its photo, and audit the change', async () => {
