@@ -163,7 +163,7 @@ describe('Redirect public tracked links and count clicks', () => {
       userAgent: string | null;
       origin: string | null;
     }>(sql`
-      select count(*)::text as n, max(c.agente_usuario) as agente_usuario, max(c.origem) as origem
+      select count(*)::text as n, max(c.agente_usuario) as "userAgent", max(c.origem) as "origin"
         from clique_link c
         join link_rastreado l on l.id = c.link_id
        where l.codigo = ${codigo}

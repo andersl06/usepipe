@@ -104,7 +104,8 @@ async function lineOfContact(id: string) {
     document: string | null;
     atributos: Record<string, unknown>;
   }>(sql`
-    select nome, email, telefone_e164, documento, atributos from contato where id = ${id}::uuid
+    select nome as "name", email, telefone_e164 as "phoneE164", documento as "document", atributos
+      from contato where id = ${id}::uuid
   `);
   return rows[0];
 }
@@ -142,7 +143,7 @@ describe('PATCH /v1/contacts/:id', () => {
   it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {
     const id = await newContact(a, { name: 'Ana', phone: '+5511900000001' });
     const { status, corpo } = await editar(sessionEditor, id, {
-      nome: 'Ana Ribeiro',
+      name: 'Ana Ribeiro',
       email: 'ana@exemplo.com',
     });
     expect(status).toBe(200);
@@ -169,27 +170,27 @@ describe('PATCH /v1/contacts/:id', () => {
 
   it('recusa telefone fora do E.164', async () => {
     const id = await newContact(a);
-    const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '011987654321' });
+    const { status, corpo } = await editar(sessionEditor, id, { phoneE164: '011987654321' });
     expect(status).toBe(400);
-    expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_invalido' } });
+    expect(corpo).toMatchObject({ error: { code: 'contact_phone_invalid' } });
   });
 
   it('Reject malformed contact email addresses', async () => {
     const id = await newContact(a);
     const { status, corpo } = await editar(sessionEditor, id, { email: 'não é um email' });
     expect(status).toBe(400);
-    expect(corpo).toMatchObject({ erro: { codigo: 'contato_email_invalido' } });
+    expect(corpo).toMatchObject({ error: { code: 'contact_email_invalid' } });
   });
 
   it('Reject a phone number already used by another contact in the tenant', async () => {
     await newContact(a, { phone: '+5511900000002' });
     const id = await newContact(a, { phone: '+5511900000003' });
-    const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '+5511900000002' });
+    const { status, corpo } = await editar(sessionEditor, id, { phoneE164: '+5511900000002' });
     expect(status).toBe(409);
-    expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_em_uso' } });
+    expect(corpo).toMatchObject({ error: { code: 'contact_phone_in_use' } });
 
     // // The same phone the contact already has isn't a conflict with itself.
-    const semMudanca = await editar(sessionEditor, id, { telefone_e164: '+5511900000003' });
+    const semMudanca = await editar(sessionEditor, id, { phoneE164: '+5511900000003' });
     expect(semMudanca.status).toBe(200);
   });
 

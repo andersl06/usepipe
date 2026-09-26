@@ -118,7 +118,7 @@ export function checkFlowOfKey(
       403,
       'key_of_flow',
       'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/management/flows/:id/…).',
-      { fluxoId: key.flowId },
+      { flowId: key.flowId },
     );
   }
   if (flowInRoute.toLowerCase() !== key.flowId.toLowerCase()) {
@@ -126,7 +126,7 @@ export function checkFlowOfKey(
       403,
       'key_of_other_flow',
       'Esta chave pertence a outro fluxo e não pode agir neste.',
-      { fluxoId: key.flowId },
+      { flowId: key.flowId },
     );
   }
 }

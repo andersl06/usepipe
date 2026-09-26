@@ -87,8 +87,8 @@ export class DeskController {
           conversation: conversa,
           itens: await consultas.listItemsOfConversation(tx, conversa.id),
           templates: await consultas.listarTemplatesAprovados(tx, conversa.channelId),
-          conversationTags: await consultas.listLabelsOfConversation(tx, conversa.id),
-          contactTags: (await listLabelsOfContact(tx, conversa.contactId)).map((l) => ({
+          labelsOfConversation: await consultas.listLabelsOfConversation(tx, conversa.id),
+          labelsOfContact: (await listLabelsOfContact(tx, conversa.contactId)).map((l) => ({
             id: l.id,
             nome: l.name,
           })),

@@ -190,7 +190,7 @@ describe('POST/DELETE /v1/conversations/:id/labels — a conversa aberta', () =>
 
     // The conversation stays OPEN: tagging is not closing.
     const { rows } = await a.dono.execute<{ state: string }>(
-      sql`select estado from conversa where id = ${conversationId}::uuid`,
+      sql`select estado as "state" from conversa where id = ${conversationId}::uuid`,
     );
     expect(rows[0]?.state).toBe('atribuida');
 

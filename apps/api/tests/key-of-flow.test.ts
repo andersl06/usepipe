@@ -120,7 +120,7 @@ function errorOf(resposta: Resposta): { code: string; message: string; detalhe?:
 
 /** Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token. */
 async function keyOfScreen(flowId: string, nome: string): Promise<{ id: string; token: string }> {
-  const criada = await chamar('POST', `/v1/management/flows/${flowId}/keys`, comCookie(session), { nome });
+  const criada = await chamar('POST', `/v1/management/flows/${flowId}/keys`, comCookie(session), { name: nome });
   expect(criada.status).toBe(201);
   return { id: criada.body['id'] as string, token: criada.body['token'] as string };
 }
@@ -160,8 +160,8 @@ describe('Enforce the flow-key boundary using the key flow and matched route', (
     }
     expect(error).toMatchObject({
       status: 403,
-      codigo: 'chave_de_outro_fluxo',
-      detalhe: { fluxoId: flowA },
+      codigo: 'key_of_other_flow',
+      detalhe: { flowId: flowA },
     });
     expect((error as Error).message).toBe('Esta chave pertence a outro fluxo e não pode agir neste.');
   });
@@ -173,7 +173,7 @@ describe('Enforce the flow-key boundary using the key flow and matched route', (
     } catch (e) {
       erro = e;
     }
-    expect(erro).toMatchObject({ status: 403, codigo: 'chave_de_fluxo' });
+    expect(erro).toMatchObject({ status: 403, codigo: 'key_of_flow' });
     expect((erro as Error).message).toContain('/v1/management/flows/:id/');
 
     expect(() => checkFlowOfKey({ flowId: null }, null)).not.toThrow();
@@ -223,7 +223,7 @@ describe('Constrain flow API keys to flow routes', () => {
     const withoutScope = await chamar('GET', '/v1/queues', withKey(keyOfFlowA));
     expect(withoutScope.status).toBe(403);
     expect(errorOf(withoutScope).code).toBe('without_scope');
-    expect(errorOf(withoutScope).detalhe).toEqual({ escopo: 'filas:ler' });
+    expect(errorOf(withoutScope).detalhe).toEqual({ scope: 'filas:ler' });
 
     // // An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.
     const queues = await chamar('GET', '/v1/queues', withKey(a.tokenWithoutScope));
@@ -253,7 +253,7 @@ describe('Constrain flow API keys to flow routes', () => {
 
   it('Bind the access key row to its flow for authorization', async () => {
     const { rows } = await a.dono.execute<{ flowId: string | null; scopes: string[] }>(sql`
-      select fluxo_id, escopos from chave_api
+      select fluxo_id as "flowId", escopos as "scopes" from chave_api
        where tenant_id = ${a.tenantId} and prefixo = ${keyOfFlowA.split('_')[1]}
     `);
     expect(rows[0]?.flowId).toBe(flowA);

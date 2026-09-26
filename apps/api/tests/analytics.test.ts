@@ -76,7 +76,7 @@ beforeAll(async () => {
     insert into bloco (tenant_id, versao_id, codigo, nome, tipo)
     values (${cenario.tenantId}, ${versaoId}, 'b1', 'Boas-vindas', 'mensagem'),
            (${cenario.tenantId}, ${versaoId}, 'b2', 'Transbordo', 'transferencia')
-    returning id, codigo
+    returning id, codigo as "code"
   `);
   const b1 = blocos.rows.find((b) => b.code === 'b1')!.id;
   const b2 = blocos.rows.find((b) => b.code === 'b2')!.id;
@@ -206,12 +206,12 @@ describe('Visão Geral', () => {
     );
     expect(r.status).toBe(200);
     const corpo = (await r.json()) as {
-      data: { contagens: { ativos: number; engajados: number; recebidas: number; enviadas: number } };
+      dados: { contagens: { ativos: number; engajados: number; recebidas: number; enviadas: number } };
     };
-    expect(corpo.data.contagens.ativos).toBe(1);
-    expect(corpo.data.contagens.engajados).toBe(1);
-    expect(corpo.data.contagens.recebidas).toBe(2);
-    expect(corpo.data.contagens.enviadas).toBe(1);
+    expect(corpo.dados.contagens.ativos).toBe(1);
+    expect(corpo.dados.contagens.engajados).toBe(1);
+    expect(corpo.dados.contagens.recebidas).toBe(2);
+    expect(corpo.dados.contagens.enviadas).toBe(1);
   });
 });
 

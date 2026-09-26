@@ -269,12 +269,12 @@ describe('atender', () => {
     expect(conversations[0]).toMatchObject({ estado: 'atribuida', atendente_id: a.agentId });
 
     const { rows: assignments } = await a.dono.execute<{ reason: string }>(
-      sql`select motivo from atribuicao where conversa_id = ${conversaId}::uuid`,
+      sql`select motivo as "reason" from atribuicao where conversa_id = ${conversaId}::uuid`,
     );
     expect(assignments[0]?.reason).toBe('assumida_pelo_atendente');
 
     const { rows: eventos } = await a.dono.execute<{ type: string }>(
-      sql`select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid`,
+      sql`select tipo as "type" from evento_atendimento where conversa_id = ${conversaId}::uuid`,
     );
     expect(eventos.map((e) => e.type)).toContain('atribuida');
   });

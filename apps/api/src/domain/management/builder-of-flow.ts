@@ -183,10 +183,11 @@ async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<D
     sql`select global from fluxo_versao where id = ${versaoId}`,
   );
   const { rows: blocos } = await tx.execute<LineBlock>(
-    sql`select id, codigo, conteudo from bloco where versao_id = ${versaoId} order by codigo`,
+    sql`select id, codigo as "code", conteudo as "content" from bloco where versao_id = ${versaoId} order by codigo`,
   );
   const { rows: transitions } = await tx.execute<LineTransition>(sql`
-    select t.de_bloco_id, b.codigo as para_codigo, t.para_variavel, t.condicao, t.ordem
+    select t.de_bloco_id as "ofBlockId", b.codigo as para_codigo, t.para_variavel as "forVariable",
+           t.condicao as "condition", t.ordem as "order"
       from transicao t
       left join bloco b on b.id = t.para_bloco_id
      where t.versao_id = ${versaoId}

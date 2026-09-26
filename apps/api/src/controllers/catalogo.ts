@@ -82,7 +82,8 @@ export class ContactsController {
 
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineContact>(sql`
-        select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+        select id, nome as "name", telefone_e164 as "phoneE164", email, documento as "document",
+               bloqueado as "blocked", criado_em as "createdAt", atributos
           from contato
          where ${juntar(filtros)}
            and ${conditionOfCursor('criado_em', 'timestamptz', ordem.direction, cursor)}
@@ -108,7 +109,8 @@ export class ContactsController {
     const { tenantId } = contextOf(request);
     const linha = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<LineContact>(sql`
-        select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+        select id, nome as "name", telefone_e164 as "phoneE164", email, documento as "document",
+               bloqueado as "blocked", criado_em as "createdAt", atributos
           from contato where id = ${id}::uuid and excluido_em is null limit 1
       `);
       return rows[0] ?? null;
@@ -139,7 +141,8 @@ export class ContactsController {
           ${corpo.email ?? null}, ${corpo.document ?? null},
           ${JSON.stringify(corpo.atributos ?? {})}::jsonb
         )
-        returning id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+        returning id, nome as "name", telefone_e164 as "phoneE164", email, documento as "document",
+                  bloqueado as "blocked", criado_em as "createdAt", atributos
       `);
       const criado = rows[0];
       if (!criado) throw new Error('não criou o contato');
@@ -191,7 +194,8 @@ export class ContactsController {
       await requirePermission(tx, session.userId, 'contato.editar');
 
       const { rows: current } = await tx.execute<LineContact>(sql`
-        select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+        select id, nome as "name", telefone_e164 as "phoneE164", email, documento as "document",
+               bloqueado as "blocked", criado_em as "createdAt", atributos
           from contato
          where id = ${id}::uuid and tenant_id = ${session.tenantId}::uuid and excluido_em is null
          limit 1
@@ -225,7 +229,8 @@ export class ContactsController {
           },
           atualizado_em = now()
         where id = ${id}::uuid and tenant_id = ${session.tenantId}::uuid
-        returning id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+        returning id, nome as "name", telefone_e164 as "phoneE164", email, documento as "document",
+                  bloqueado as "blocked", criado_em as "createdAt", atributos
       `);
       const gravado = gravados[0];
       if (!gravado) throw PipeError.naoEncontrado('Contato');

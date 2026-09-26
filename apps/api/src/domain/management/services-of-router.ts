@@ -291,7 +291,11 @@ export async function editService(
     Object.entries(pedido ?? {}).filter(([, v]) => v !== undefined),
   ) as Partial<RequestOfService>;
   const f = conferido({ ...antes, ...definidos });
-  const mudanca = diferenca(antes, f);
+  // `conferido()` normalizes `nome` to `name` (Formulario); diff against the same key set
+  // so an unchanged field never shows up as both removed (`nome`) and added (`name`).
+  const { nome, ...antesSemNome } = antes;
+  const antesParaDiferenca = { ...antesSemNome, name: nome };
+  const mudanca = diferenca(antesParaDiferenca, f);
   if (Object.keys(mudanca.depois).length === 0) return vinculoLido(tx, roteadorId, id);
   await conferirConflitos(tx, tid, roteadorId, f, id, f.chatbotId !== antes.chatbotId);
 

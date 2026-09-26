@@ -48,7 +48,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
     );
   }
 
-  const { conversation, itens, history, contactTags } = aberta;
+  const { conversation, itens, history, labelsOfContact } = aberta;
   const notas = itens.filter((i) => i.genero === 'nota');
   const abas: { id: Aba; rotulo: string }[] = [
     { id: 'informacoes', rotulo: 'Informações' },
@@ -128,7 +128,7 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
               <Campo rotulo="fila:" value={conversation.queueName} />
             </section>
             <section className="dk-paper">
-              <ContactTags contactId={conversation.contactId} aplicadas={contactTags} />
+              <ContactTags contactId={conversation.contactId} aplicadas={labelsOfContact} />
             </section>
             <section className="dk-paper">
               <Comentarios conversationId={conversation.id} notas={notas} agora={agora} />

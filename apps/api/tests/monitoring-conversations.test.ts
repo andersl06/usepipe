@@ -114,19 +114,19 @@ describe('Monitor conversations across queues and agents', () => {
     const fila2 = queues[0]!.id;
     await a.dono.execute(sql`update conversa set fila_id = ${fila2}, atendente_id = ${atendente2} where id = ${segunda}`);
     for (const query of [
-      `fila=${a.queueId},${fila2}&agent=${a.agentId},${atendente2}`,
-      `fila=${a.queueId}&fila=${fila2}&agent=${a.agentId}&atendente=${atendente2}`,
+      `queue=${a.queueId},${fila2}&agent=${a.agentId},${atendente2}`,
+      `queue=${a.queueId}&queue=${fila2}&agent=${a.agentId}&agent=${atendente2}`,
     ]) {
       const resposta = await pedir(gestor, 'GET', `/v1/management/monitoring?${query}`);
       expect(resposta.status).toBe(200);
-      const corpo = await resposta.json() as { data: { opens: { id: string }[] } };
-      const ids = corpo.data.opens.map(c => c.id);
+      const corpo = await resposta.json() as { data: { abertas: { id: string }[] } };
+      const ids = corpo.data.abertas.map(c => c.id);
       expect(ids).toEqual(expect.arrayContaining([first, segunda]));
       expect(ids).not.toContain(fora);
     }
-    const unica = await pedir(gestor, 'GET', `/v1/management/monitoring?fila=${fila2}`);
-    const corpo = await unica.json() as { data: { opens: { id: string }[] } };
-    expect(corpo.data.opens.map(c => c.id)).toEqual([segunda]);
+    const unica = await pedir(gestor, 'GET', `/v1/management/monitoring?queue=${fila2}`);
+    const corpo = await unica.json() as { data: { abertas: { id: string }[] } };
+    expect(corpo.data.abertas.map(c => c.id)).toEqual([segunda]);
   });
 
   it('lê a prévia, grava nota e deixa auditoria', async () => {
@@ -136,7 +136,7 @@ describe('Monitor conversations across queues and agents', () => {
     expect((await previa.json() as { id: string }).id).toBe(id);
 
     expect((await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/notes`, { texto: 'Acompanhar este atendimento.' })).status).toBe(201);
-    const { rows: notas } = await a.dono.execute<{ body: string }>(sql`select corpo from nota_interna where conversa_id = ${id}::uuid`);
+    const { rows: notas } = await a.dono.execute<{ body: string }>(sql`select corpo as "body" from nota_interna where conversa_id = ${id}::uuid`);
     expect(notas[0]?.body).toBe('Acompanhar este atendimento.');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
       select depois from log_auditoria where objeto_tipo = 'conversa' and objeto_id = ${id}::uuid order by em desc limit 1
@@ -146,7 +146,7 @@ describe('Monitor conversations across queues and agents', () => {
 
   it('Transfer or close monitored conversations under separate permissions and audit both', async () => {
     const transferida = await conversation();
-    const transferencia = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${transferida}/transfer`, { para_fila_id: a.queueId });
+    const transferencia = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${transferida}/transfer`, { forQueueId: a.queueId });
     expect(transferencia.status).toBe(201);
     expect((await transferencia.json() as { forConversationId: string }).forConversationId).toMatch(/^[0-9a-f-]{36}$/);
 
@@ -165,7 +165,7 @@ describe('Monitor conversations across queues and agents', () => {
     expect((await pedir(gestorB, 'GET', `/v1/management/monitoring/conversations/${id}`)).status).toBe(404);
     expect((await pedir(gestorB, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, { etiqueta_ids: [] })).status).toBe(404);
     expect((await pedir(gestor, 'GET', '/v1/management/monitoring/conversations/nao-e-uuid')).status).toBe(404);
-    expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/transfer`, { para_fila_id: a.queueId })).status).toBe(403);
+    expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/transfer`, { forQueueId: a.queueId })).status).toBe(403);
     expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, { etiqueta_ids: [] })).status).toBe(403);
     const semEtiqueta = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, {});
     expect(semEtiqueta.status).toBe(400);

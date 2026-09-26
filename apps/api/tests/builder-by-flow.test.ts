@@ -229,7 +229,7 @@ async function falar(de: string, texto: string): Promise<void> {
 
 async function conversationOf(telefone: string): Promise<{ id: string; contactId: string }> {
   const { rows } = await a.dono.execute<{ id: string; contactId: string }>(sql`
-    select c.id, c.contato_id from conversa c join contato ct on ct.id = c.contato_id
+    select c.id, c.contato_id as "contactId" from conversa c join contato ct on ct.id = c.contato_id
      where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
      order by c.criada_em desc limit 1
   `);
@@ -239,7 +239,7 @@ async function conversationOf(telefone: string): Promise<{ id: string; contactId
 
 async function doBot(conversationId: string): Promise<string[]> {
   const { rows } = await a.dono.execute<{ content: string }>(sql`
-    select conteudo from mensagem
+    select conteudo as "content" from mensagem
      where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
   `);
   return rows.map((r) => r.content);
@@ -322,7 +322,7 @@ describe('GET /v1/management/flows/:id/builder', () => {
     expect(semPoder.status).toBe(403);
     expect(semPoder.body['error']).toMatchObject({
       code: 'without_permission',
-      detalhe: { permissao: 'automacao.fluxo.editar' },
+      detalhe: { permission: 'automacao.fluxo.editar' },
     });
 
     expect((await builder(sessionOfOtherTenant, id)).status).toBe(404);
@@ -362,7 +362,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
     // // The flow itself stays a draft: saving doesn't publish.
     const { rows } = await a.dono.execute<{ state: string }>(
-      sql`select estado from fluxo where id = ${id}::uuid`,
+      sql`select estado as "state" from fluxo where id = ${id}::uuid`,
     );
     expect(rows[0]?.state).toBe('rascunho');
   });
@@ -491,7 +491,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     const publicado = await noTenant(a.tenantId, (tx) =>
       flowPublishedOfChannel(tx, a.channelId, conversationOfBia.contactId),
     );
-    expect(publicado).toEqual({ fluxoId: id, versaoId: v2Id });
+    expect(publicado).toEqual({ flowId: id, versaoId: v2Id });
 
     // // The history lists both, newest to oldest.
     const history = await versions(sessionEditor, id);
@@ -521,7 +521,7 @@ describe('POST /v1/management/flows/:id/builder/publish', () => {
     expect(editor.status).toBe(403);
     expect(editor.body['error']).toMatchObject({
       code: 'without_permission',
-      detalhe: { permissao: 'automacao.fluxo.publicar' },
+      detalhe: { permission: 'automacao.fluxo.publicar' },
     });
 
     expect((await publicar(sessionOfOtherTenant, id)).status).toBe(404);

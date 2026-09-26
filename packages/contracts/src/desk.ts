@@ -155,11 +155,11 @@ export interface ConversationOfDesk {
   conversation: ConversationOpen;
   itens: ItemOfConversation[];
   templates: TemplateAprovado[];
-  conversationTags: LabelOfConversation[];
+  labelsOfConversation: LabelOfConversation[];
   /**
    * CONTACT tags (`contato_etiqueta`) shown and edited in the Contact Data panel. They stay separate from conversation tags because `etiqueta.escopo` gives them different scopes; neither scope inherits the other.
    */
-  contactTags: LabelOfConversation[];
+  labelsOfContact: LabelOfConversation[];
   history: ConversationOfHistory[];
 }
 

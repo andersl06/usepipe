@@ -10,7 +10,7 @@ type LineOfService = {
   servico_id: string;
   principal: boolean;
   persistent: boolean;
-  expiracao_min: number | null;
+  expirationMin: number | null;
   usesContext: boolean;
   versao_id: string | null;
 };
@@ -40,8 +40,9 @@ export async function serviceOfRouter(
   contactId: string,
 ): Promise<FlowPublished | null> {
   const { rows: servicos } = await tx.execute<LineOfService>(sql`
-    select rs.servico_id, rs.principal, rs.persistente, rs.expiracao_min,
-           f.usa_contexto_do_roteador as usa_contexto,
+    select rs.servico_id, rs.principal, rs.persistente as "persistent",
+           rs.expiracao_min as "expirationMin",
+           f.usa_contexto_do_roteador as "usesContext",
            (select v.id from fluxo_versao v
              where v.fluxo_id = f.id and v.estado = 'publicada'
              order by v.versao desc limit 1) as versao_id
@@ -50,8 +51,8 @@ export async function serviceOfRouter(
      where rs.roteador_id = ${router.id} and f.estado = 'publicado'
   `);
   const { rows: positions } = await tx.execute<LineOfPosition>(sql`
-    select servico_id, coalesce(expira_em <= now(), false) as expirou, contexto,
-           reiniciar, bloco_inicial
+    select servico_id, coalesce(expira_em <= now(), false) as expirou,
+           contexto as "context", reiniciar, bloco_inicial as "blockInitial"
       from posicao_no_roteador
      where roteador_id = ${router.id} and contato_id = ${contactId}
      for update

@@ -204,7 +204,7 @@ describe('espera', () => {
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
 
     expect(resposta.status).toBe(201);
-    expect(((await resposta.json()) as { estado: string }).estado).toBe('em_espera');
+    expect(((await resposta.json()) as { state: string }).state).toBe('em_espera');
     expect(await eventosDe(id)).toContain('espera_iniciada');
   });
 
@@ -212,9 +212,9 @@ describe('espera', () => {
     const id = await newConversation('em_espera');
 
     const resposta = await chamar(`/v1/conversations/${id}/wait`);
-    const corpo = (await resposta.json()) as { estado: string; pausado_seg: number };
+    const corpo = (await resposta.json()) as { state: string; pausado_seg: number };
 
-    expect(corpo.estado).toBe('em_atendimento');
+    expect(corpo.state).toBe('em_atendimento');
     // // The conversation was born with `em_espera_desde` 30 seconds ago.
     expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
     const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`

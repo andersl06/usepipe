@@ -114,7 +114,7 @@ async function conversation(id: string) {
 
 async function eventosDe(id: string): Promise<string[]> {
   const { rows } = await cenario.dono.execute<{ type: string }>(
-    sql`select tipo from evento_atendimento where conversa_id = ${id}::uuid order by em, tipo`,
+    sql`select tipo as "type" from evento_atendimento where conversa_id = ${id}::uuid order by em, tipo`,
   );
   return rows.map((r) => r.type);
 }
@@ -143,7 +143,7 @@ describe('Transfer a conversation to a queue', () => {
 
     expect((await conversation(antiga)).reasonClosure).toBe('Transferida');
     const { rows } = await cenario.dono.execute<{ data: Record<string, string> }>(sql`
-      select dados from evento_atendimento
+      select dados as "data" from evento_atendimento
        where conversa_id = ${antiga}::uuid and tipo = 'encerrada' limit 1
     `);
     // This is what separates, in the report, a conversation that ENDED from one that just changed hands.

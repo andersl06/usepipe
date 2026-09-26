@@ -39,7 +39,7 @@ export function Conversation({
   toTogglePanel: () => void;
   aoFechar: (proximaId?: string) => void;
 }) {
-  const { conversation, itens, templates, conversationTags } = aberta;
+  const { conversation, itens, templates, labelsOfConversation } = aberta;
   const [modal, setModal] = useState<'transferir' | 'finalizar' | 'etiquetas' | null>(null);
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState<string | null>(null);
@@ -253,7 +253,7 @@ export function Conversation({
                 Adicionar tags
               </button>
               <div className="dk-queue-tags" id="tags-scroll">
-                {conversationTags.map((e) => (
+                {labelsOfConversation.map((e) => (
                   <span key={e.id} className="dk-chip dk-chip-contorno">
                     {e.nome}
                     <button
@@ -354,7 +354,7 @@ export function Conversation({
           conversationId={conversation.id}
           numero={numero}
           etiquetas={etiquetas}
-          marcadas={conversationTags.map((e) => e.id)}
+          marcadas={labelsOfConversation.map((e) => e.id)}
           aoFechar={() => setModal(null)}
           aoFinalizar={() => {
             setModal(null);
@@ -367,7 +367,7 @@ export function Conversation({
           conversationId={conversation.id}
           numero={numero}
           etiquetas={etiquetas}
-          marcadas={conversationTags.map((e) => e.id)}
+          marcadas={labelsOfConversation.map((e) => e.id)}
           aoFechar={() => setModal(null)}
         />
       ) : null}

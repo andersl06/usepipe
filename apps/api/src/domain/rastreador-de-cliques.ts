@@ -88,7 +88,7 @@ export async function createLinkTracked(
       const { rows } = await tx.execute<{ id: string; createdAt: string }>(sql`
         insert into link_rastreado (tenant_id, fluxo_id, nome, destino_url, codigo)
         values (${tenantId}, ${fluxoId}::uuid, ${nome}, ${pedido.destination}, ${codigo})
-        returning id, criado_em
+        returning id, criado_em as "createdAt"
       `);
       const linha = rows[0];
       if (!linha) throw new Error('não criou o link');

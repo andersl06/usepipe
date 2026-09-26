@@ -494,7 +494,7 @@ describe('Route conversations through services', () => {
 
   async function conversationOpen(telefone: string): Promise<Conversation> {
     const { rows } = await a.dono.execute<Conversation>(sql`
-      select c.id, c.fila_id, c.atendente_id
+      select c.id, c.fila_id as "queueId", c.atendente_id as "agentId"
         from conversa c join contato ct on ct.id = c.contato_id
        where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
          and c.estado <> 'encerrada'
@@ -507,7 +507,7 @@ describe('Route conversations through services', () => {
   /** The bot's last reply to the contact, in any conversation. */
   async function ultimaDoBot(telefone: string): Promise<string | undefined> {
     const { rows } = await a.dono.execute<{ content: string }>(sql`
-      select m.conteudo from mensagem m
+      select m.conteudo as "content" from mensagem m
         join conversa c on c.id = m.conversa_id
         join contato ct on ct.id = c.contato_id
        where ct.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
@@ -526,7 +526,8 @@ describe('Route conversations through services', () => {
 
   async function position(telefone: string): Promise<Position> {
     const { rows } = await a.dono.execute<Position>(sql`
-      select p.servico_id, p.expira_em, p.contexto, p.contato_id
+      select p.servico_id as "serviceId", p.expira_em, p.contexto as "context",
+             p.contato_id as "contactId"
         from posicao_no_roteador p join contato ct on ct.id = p.contato_id
        where p.roteador_id = ${routerId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
     `);
@@ -566,7 +567,7 @@ describe('Route conversations through services', () => {
     // The same conversation: the main flow's execution ended, and support's is the live one.
     const conversation = await conversationOpen(BIA);
     const { rows } = await a.dono.execute<{ flowId: string; state: string }>(sql`
-      select v.fluxo_id, e.estado from execucao_fluxo e
+      select v.fluxo_id as "flowId", e.estado as "state" from execucao_fluxo e
         join fluxo_versao v on v.id = e.fluxo_versao_id
        where e.conversa_id = ${conversation.id}::uuid order by e.iniciada_em
     `);
@@ -634,7 +635,7 @@ describe('Route conversations through services', () => {
     await falar(EVA, 'voltar');
     expect(await ultimaDoBot(EVA)).toBe('Suporte: voltando');
     const { rows } = await a.dono.execute<{ content: string }>(sql`
-      select m.conteudo from mensagem m join conversa c on c.id = m.conversa_id
+      select m.conteudo as "content" from mensagem m join conversa c on c.id = m.conversa_id
        where c.contato_id = ${contactId}::uuid and m.autor_tipo = 'bot'
     `);
     expect(rows.map((r) => r.content)).not.toContain('Suporte: anotado ');
