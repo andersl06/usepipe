@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 02-07-PLAN.md (portao do dono fechado)
-last_updated: "2026-09-26T15:49:20.300Z"
+stopped_at: Phase 1 gate 3 approved by the owner; std/english-rename merged into limpeza (907803b), whole suite green
+last_updated: "2026-09-26T23:46:43.342Z"
 last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
   total_phases: 9
@@ -93,7 +93,6 @@ Problemas conhecidos herdados de PROJECT-HANDOFF.md (24/09/2026) — nenhum reso
 - `master` está 2 commits atrás de `limpeza` — decidir quando mesclar (Phase 4, OPS-01).
 - Branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, vários `worktree-agent-*`) — candidatas a apagar (Phase 4, OPS-02).
 - Número de teste da Meta expira em 24h, sem versão permanente — reconexão é rotina diária até haver número próprio com usuário de sistema.
-- Planos de implementação 02-08..02-22 bloqueados: tag std-apply-all-end (fim da aplicação do mapa std/map da Phase 1) ainda não existe no repositório
 
 ## Deferred Items
 
