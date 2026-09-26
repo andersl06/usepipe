@@ -427,15 +427,15 @@ describe('Validate manual channel configuration (`manual_setup_validation_servic
   const appSecret = 'a'.repeat(32);
   const base = () => ({
     tenantId: A.tenantId,
-    usuarioId: A.adminId,
+    userId: A.adminId,
     wabaId: 'waba-m',
-    numeroId,
+    numberId: numeroId,
     token,
     appSecret,
   });
 
   it('Reject a token without messaging permission using Meta\'s message', async () => {
-    vi.spyOn(ClienteGraphDuble.prototype, 'buscarPermissoes').mockResolvedValue({ data: [] });
+    vi.spyOn(ClienteGraphDuble.prototype, 'fetchPermissions').mockResolvedValue({ data: [] });
     await expect(runConfigurationManual(base())).rejects.toMatchObject({
       codigo: 'configuracao_invalida',
       message: expect.stringContaining('whatsapp_business_messaging'),

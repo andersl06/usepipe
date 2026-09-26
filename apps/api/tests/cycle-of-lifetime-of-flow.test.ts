@@ -331,7 +331,7 @@ describe('PATCH /v1/management/flows/:id', () => {
     const id = await criado(`Quieto ${randomUUID().slice(0, 6)}`);
     await editar(sessionEditor, id, { descricao: 'Uma descrição' });
 
-    const soNome = await editar(sessionEditor, id, { nome: (await lineOfFlow(id))!.name });
+    const soNome = await editar(sessionEditor, id, { nome: (await lineOfFlow(id))!.nome });
     expect(soNome.status).toBe(200);
     expect(soNome.corpo['descricao']).toBe('Uma descrição');
 
@@ -431,10 +431,10 @@ describe('DELETE /v1/management/flows/:id', () => {
     };
     expect(corpo.error.code).toBe('without_permission');
     expect(corpo.error.detalhe.permission).toBe('automacao.fluxo.excluir');
-    expect((await lineOfFlow(id))?.state).toBe('rascunho');
+    expect((await lineOfFlow(id))?.estado).toBe('rascunho');
 
     expect((await excluir(sessionOfOtherTenant, id)).status).toBe(404);
-    expect((await lineOfFlow(id))?.state).toBe('rascunho');
+    expect((await lineOfFlow(id))?.estado).toBe('rascunho');
   });
 
   it('Archive flows without deleting versions and free their names for reuse', async () => {
@@ -449,7 +449,7 @@ describe('DELETE /v1/management/flows/:id', () => {
     expect(resposta.status).toBe(204);
 
     const linha = await lineOfFlow(id);
-    expect(linha?.state).toBe('arquivado');
+    expect(linha?.estado).toBe('arquivado');
     expect(linha?.nome).toBe(nome);
 
     const { rows: versions } = await a.dono.execute<{ n: string }>(

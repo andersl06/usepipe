@@ -44,7 +44,7 @@ const APP_DO_CLIENTE = (FIXTURE.workspace as {
   data: { currentWorkspace: { workspaceCustomApplicationId: string } };
 }).data.currentWorkspace.workspaceCustomApplicationId;
 
-const CONFIG = { url: 'https://crm.cliente.teste', chave: 'chave-de-teste' };
+const CONFIG = { url: 'https://crm.cliente.teste', key: 'chave-de-teste' };
 
 function copia<T>(x: T): T {
   return structuredClone(x);

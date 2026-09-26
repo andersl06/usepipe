@@ -662,7 +662,7 @@ describe('Route conversations through services', () => {
     `);
     await closeConversation(
       { tenantId: a.tenantId, agentId: a.agentId, requireAssignment: true },
-      { conversationId: conversa.id, etiquetaIds: etiquetas[0]!.id },
+      { conversationId: conversa.id, etiquetaIds: [etiquetas[0]!.id] },
     );
 
     await falar(FABIO, 'voltei');

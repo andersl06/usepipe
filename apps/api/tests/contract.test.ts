@@ -584,7 +584,7 @@ describe('mTLS na saída (webhooks)', () => {
       chamadasHttps.push({ url: String(url), options });
       const resposta = new PassThrough() as PassThrough & { statusCode?: number };
       resposta.statusCode = 200;
-      const pedido = new Writable({ write: (_pedaco, encoding, fim) => fim() });
+      const pedido = new Writable({ write: (_pedaco, _encoding, fim) => fim() });
       pedido.on('finish', () => {
         aoResponder?.(resposta as unknown as IncomingMessage);
         resposta.end('ok');

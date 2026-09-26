@@ -43,7 +43,7 @@ const buscarDescoberta = (async () =>
     ok: true,
     status: 200,
     json: async () => ({
-      issuer: EMISSOR,
+      emissor: EMISSOR,
       authorization_endpoint: `${EMISSOR}/authorize`,
       token_endpoint: `${EMISSOR}/token`,
       jwks_uri: `${EMISSOR}/keys`,
@@ -52,7 +52,7 @@ const buscarDescoberta = (async () =>
 
 function pessoa(email: string, verificado = true, sujeito = randomUUID()) {
   return {
-    issuer: EMISSOR,
+    emissor: EMISSOR,
     sujeito,
     email,
     emailVerificado: verificado,

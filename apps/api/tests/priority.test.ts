@@ -21,7 +21,7 @@ type RegraDeMotor = Parameters<typeof evaluatePriority>[0][number];
  * The `regra_prioridade` engine (`dominio/gestao/prioridade-motor.ts`) — item 2 of the "make what is only registered actually work" task. `regras-prioridade.ts` already had the CRUD; until this file, nothing READ the table to decide an actual conversation's priority. Two layers of tests: 1. `avaliarPrioridade`/`ordenarRegrasDePrioridade` directly, without a database — the "first match wins" rule is pure, and proving it here is faster. 2. A real webhook (`falar`, the same pattern as `entrada-telefone.test.ts`) proving that `dominio/entrada.ts` wires up the engine when a conversation enters the queue.
  */
 
-function regra(parcial: Partial<RegraDeMotor> & Pick<RegraDeMotor, 'id' | 'nivel'>): RegraDeMotor {
+function regra(parcial: Partial<RegraDeMotor> & Pick<RegraDeMotor, 'id' | 'level'>): RegraDeMotor {
   return {
     scopeType: 'tenant',
     scopeId: null,
@@ -35,12 +35,12 @@ describe('Choose the first matching priority rule', () => {
   it('Prefer queue-scoped priority rules over tenant-scoped rules regardless of creation order', () => {
     const doTenant = regra({
       id: 'r-tenant',
-      nivel: 'baixa',
+      level: 'baixa',
       criadoEm: new Date('2026-01-01T00:00:00Z'),
     });
     const ofQueue = regra({
       id: 'r-fila',
-      nivel: 'alta',
+      level: 'alta',
       scopeType: 'fila',
       scopeId: 'fila-vip',
       // Registered AFTER the tenant's rule — Pipe's decision: a more specific scope
@@ -53,15 +53,15 @@ describe('Choose the first matching priority rule', () => {
   });
 
   it('Prefer the oldest matching rule within the same scope', () => {
-    const antiga = regra({ id: 'antiga', nivel: 'media', criadoEm: new Date('2026-01-01T00:00:00Z') });
-    const nova = regra({ id: 'nova', nivel: 'alta', criadoEm: new Date('2026-06-01T00:00:00Z') });
+    const antiga = regra({ id: 'antiga', level: 'media', criadoEm: new Date('2026-01-01T00:00:00Z') });
+    const nova = regra({ id: 'nova', level: 'alta', criadoEm: new Date('2026-06-01T00:00:00Z') });
     // Arrival order does not matter — only the creation date.
     expect(sortRulesOfPriority([nova, antiga]).map((r) => r.id)).toEqual(['antiga', 'nova']);
     expect(evaluatePriority([nova, antiga], {})).toBe('media');
   });
 
   it('Match an empty priority condition because scope already filters the rule', () => {
-    const withoutCondition = regra({ id: 'sem-condicao', nivel: 'maxima', condition: {} });
+    const withoutCondition = regra({ id: 'sem-condicao', level: 'maxima', condition: {} });
     expect(evaluatePriority([withoutCondition], { queueId: null, message: 'qualquer coisa' })).toBe(
       'maxima',
     );
@@ -70,7 +70,7 @@ describe('Choose the first matching priority rule', () => {
   it('Match a priority condition only when its field and operator expression holds', () => {
     const urgente = regra({
       id: 'urgente',
-      nivel: 'maxima',
+      level: 'maxima',
       condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
     expect(evaluatePriority([urgente], { message: 'isso é urgente, por favor' })).toBe('maxima');
@@ -80,7 +80,7 @@ describe('Choose the first matching priority rule', () => {
   it('Return null when no priority rule matches (`sem_prioridade`)', () => {
     const doTenant = regra({
       id: 'r1',
-      nivel: 'alta',
+      level: 'alta',
       condition: { campo: 'mensagem', operador: 'contem', valor: 'urgente' },
     });
     expect(evaluatePriority([doTenant], { message: 'oi, tudo bem?' })).toBeNull();

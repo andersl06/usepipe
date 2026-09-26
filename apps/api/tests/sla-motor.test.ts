@@ -138,16 +138,16 @@ describe('Choose the most specific SLA rule for each target', () => {
   it('Prefer queue-scoped SLA rules over tenant-scoped rules for the same target', () => {
     const ofQueue = {
       id: 'r-fila',
-      nome: 'da fila',
-      alvo: 'primeira_resposta' as const,
-      prazoSeg: 60,
-      alertaSeg: null,
-      escopoTipo: 'fila',
-      escopoId: 'fila-1',
-      acaoAlerta: {},
+      name: 'da fila',
+      target: 'primeira_resposta' as const,
+      deadlineSeg: 60,
+      alertSeg: null,
+      scopeType: 'fila',
+      scopeId: 'fila-1',
+      acaoAlert: {},
       acaoEstouro: {},
     };
-    const doTenant = { ...ofQueue, id: 'r-tenant', nome: 'do tenant', escopoTipo: 'tenant', escopoId: null };
+    const doTenant = { ...ofQueue, id: 'r-tenant', name: 'do tenant', scopeType: 'tenant', scopeId: null };
     expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-1')).toEqual([ofQueue]);
     // Outside the queue the specific rule targeted: only the tenant's rule applies.
     expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-2')).toEqual([doTenant]);
@@ -156,16 +156,16 @@ describe('Choose the most specific SLA rule for each target', () => {
   it('Track separate winning SLA rules for different targets (`sla_conversa`)', () => {
     const firstResponse = {
       id: 'r1',
-      nome: '1a resposta',
-      alvo: 'primeira_resposta' as const,
-      prazoSeg: 60,
-      alertaSeg: null,
-      escopoTipo: 'tenant',
-      escopoId: null,
-      acaoAlerta: {},
+      name: '1a resposta',
+      target: 'primeira_resposta' as const,
+      deadlineSeg: 60,
+      alertSeg: null,
+      scopeType: 'tenant',
+      scopeId: null,
+      acaoAlert: {},
       acaoEstouro: {},
     };
-    const resolution = { ...firstResponse, id: 'r2', nome: 'resolução', alvo: 'encerramento' as const };
+    const resolution = { ...firstResponse, id: 'r2', name: 'resolução', target: 'encerramento' as const };
     expect(rulesWinningByTarget([firstResponse, resolution], null)).toEqual([
       firstResponse,
       resolution,
@@ -243,7 +243,7 @@ describe('Check conversation SLA alerts and breaches', () => {
       target: 'primeira_resposta',
       deadlineSeg: 600,
       alertSeg: 100,
-      acaoAlerta: { tipo: 'notificar_supervisor' },
+      acaoAlert: { tipo: 'notificar_supervisor' },
     });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 200_000); // já passou do alerta (100s)
@@ -274,8 +274,8 @@ describe('Check conversation SLA alerts and breaches', () => {
     const conversationB = await createConversation(a, { criadaEm: criadaB, priority: 'media' });
 
     const linhaAntes = [
-      { id: conversationA, prioridade: 'baixa', marcos: { criadaEm: criadaA } },
-      { id: conversationB, prioridade: 'media', marcos: { criadaEm: criadaB } },
+      { id: conversationA, priority: 'baixa', marcos: { criadaEm: criadaA } },
+      { id: conversationB, priority: 'media', marcos: { criadaEm: criadaB } },
     ];
     // Antes: `media` (B) vence `baixa` (A) — B primeiro.
     expect(sortQueueOfWait(linhaAntes).map((l) => l.id)).toEqual([conversationB, conversationA]);
@@ -284,8 +284,8 @@ describe('Check conversation SLA alerts and breaches', () => {
 
     expect(await priorityOf(a, conversationA)).toBe('media');
     const linhaDepois = [
-      { id: conversationA, prioridade: await priorityOf(a, conversationA), marcos: { criadaEm: criadaA } },
-      { id: conversationB, prioridade: await priorityOf(a, conversationB), marcos: { criadaEm: criadaB } },
+      { id: conversationA, priority: await priorityOf(a, conversationA), marcos: { criadaEm: criadaA } },
+      { id: conversationB, priority: await priorityOf(a, conversationB), marcos: { criadaEm: criadaB } },
     ];
     // Afterwards: A and B tie at `media`; the tiebreaker is the OLDER one — A wins now.
     expect(sortQueueOfWait(linhaDepois).map((l) => l.id)).toEqual([conversationA, conversationB]);

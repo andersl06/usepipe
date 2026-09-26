@@ -213,7 +213,7 @@ async function rodarMotor(
     },
   };
   const rastro = await processInbound(contexto, {});
-  return { mensagens, estadoFinalId: rastro.stateFinalId, variaveis: contexto.variables };
+  return { mensagens, estadoFinalId: rastro.stateFinalId, variables: contexto.variables };
 }
 
 let cenario: Cenario;

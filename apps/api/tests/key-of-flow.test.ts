@@ -108,7 +108,7 @@ async function chamar(
   });
   return {
     status: resposta.status,
-    corpo: ((await resposta.json().catch(() => null)) ?? {}) as Record<string, unknown>,
+    body: ((await resposta.json().catch(() => null)) ?? {}) as Record<string, unknown>,
   };
 }
 
@@ -146,7 +146,7 @@ afterAll(async () => {
 
 describe('Enforce the flow-key boundary using the key flow and matched route', () => {
   it('Allow a flow A key only on flow A and return 403 on flow B', () => {
-    const key = { fluxoId: flowA };
+    const key = { flowId: flowA };
     expect(() => checkFlowOfKey(key, flowA)).not.toThrow();
     // // A uuid arrives in different case depending on who wrote it; the fence isn't sensitive to that.
     expect(() => checkFlowOfKey(key, flowA.toUpperCase())).not.toThrow();
@@ -203,7 +203,7 @@ describe('Constrain flow API keys to flow routes', () => {
     expect(recusada.status).toBe(403);
     expect(errorOf(recusada).code).toBe('key_of_flow');
     expect(errorOf(recusada).message).toContain('só vale nas rotas desse fluxo');
-    expect(errorOf(recusada).detalhe).toEqual({ fluxoId: flowA });
+    expect(errorOf(recusada).detalhe).toEqual({ flowId: flowA });
 
     const escrita = await chamar('POST', `/v1/conversations/${randomUUID()}/messages`, withKey(keyOfFlowA), {
       texto: 'oi',

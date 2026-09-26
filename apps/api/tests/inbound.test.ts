@@ -340,7 +340,7 @@ function lerDesafioDoCookie(cabecalho: string): {
   const value = /pipe_challenge=([^;]*)/.exec(cabecalho)?.[1] ?? '';
   return JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
     state: string;
-    destino: string;
+    destination: string;
     origin?: string;
   };
 }

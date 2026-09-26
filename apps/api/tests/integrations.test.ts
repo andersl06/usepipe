@@ -98,7 +98,7 @@ async function pedir<T>(
     ...init,
     headers: comCookie(session),
   });
-  return { status: resposta.status, corpo: (await resposta.json().catch(() => null)) as T };
+  return { status: resposta.status, body: (await resposta.json().catch(() => null)) as T };
 }
 
 const get = <T>(caminho: string, sessao: string) => pedir<T>(caminho, sessao);
@@ -143,7 +143,7 @@ afterAll(async () => {
 
 describe('Manage flow access keys', () => {
   it('Show a flow access token only at creation and its prefix in later lists', async () => {
-    const { status, corpo } = await post<{
+    const { status, body: corpo } = await post<{
       id: string;
       nome: string;
       prefix: string;
@@ -263,7 +263,7 @@ describe('Manage flow access keys', () => {
 describe('Read flow connection details', () => {
   it('Read real flow connection identifiers and endpoints with `automacao.fluxo.editar`', async () => {
     const connectionFlow = await createFlow(a, `Conexão ${randomUUID().slice(0, 6)}`);
-    const { status, corpo } = await get<{
+    const { status, body: corpo } = await get<{
       flowId: string;
       endpoint: string;
       keyPrefix: string | null;

@@ -141,7 +141,7 @@ beforeAll(async () => {
   sessionWithoutAuthority = await openSession(a, await pessoaCom(a, []));
   colegaId = await pessoaCom(a, ['conversa.etiquetar']);
   sessionColleague = await openSession(a, colegaId);
-  labelConversation = await createLabel('conversation');
+  labelConversation = await createLabel('conversa');
   labelContact = await createLabel('contato');
   etiquetaAmbos = await createLabel('ambos');
 }, 180_000);

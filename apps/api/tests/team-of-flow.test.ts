@@ -108,7 +108,7 @@ async function chamar(session: string, caminho: string, init: RequestInit = {}):
   const texto = await resposta.text();
   return {
     status: resposta.status,
-    corpo: texto ? (JSON.parse(texto) as Record<string, unknown>) : {},
+    body: texto ? (JSON.parse(texto) as Record<string, unknown>) : {},
   };
 }
 
@@ -188,7 +188,7 @@ afterAll(async () => {
 
 describe('POST /v1/management/flows/:id/team', () => {
   it('Add an existing account member to a flow with role-based permissions', async () => {
-    const { status, corpo } = await adicionar(sessionEditor, {
+    const { status, body: corpo } = await adicionar(sessionEditor, {
       email: ana.email,
       papelNoFluxo: 'editar',
     });
@@ -224,7 +224,7 @@ describe('POST /v1/management/flows/:id/team', () => {
   });
 
   it('Reject users who are not account members with the expected message', async () => {
-    const { status, corpo } = await adicionar(sessionEditor, {
+    const { status, body: corpo } = await adicionar(sessionEditor, {
       email: 'ninguem@e2e.pipe.app',
       papelNoFluxo: 'visualizar',
     });
@@ -275,7 +275,7 @@ describe('Require permission to manage the flow team', () => {
   });
 
   it('List team editor resources in their expected order', async () => {
-    const { status, corpo } = await listar(sessionEditor);
+    const { status, body: corpo } = await listar(sessionEditor);
     expect(status).toBe(200);
     const chaves = (corpo['recursos'] as { key: string }[]).map((r) => r.key);
     expect(chaves.slice(0, 4)).toEqual(['payments', 'channels', 'desk', 'users']);

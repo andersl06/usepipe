@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { metricsByKey, normalizeTicketsByHour } from '../src/domain/management/monitoring.js';
 
-const metrica = (value: number | null) => ({ value, populacao: value === null ? 0 : 1, excluidas: 0, soma: value ?? 0 });
+const metrica = (value: number | null) => ({ value, population: value === null ? 0 : 1, excluidas: 0, soma: value ?? 0 });
 
 describe('Build the detailed monitoring summary', () => {
   it('Carry precomputed report averages into each summary table row', () => {
     const resumo = metricsByKey([
       {
-        chave: 'Comercial',
+        key: 'Comercial',
         conversations: 3,
         inQueue: metrica(30),
         firstResponse: metrica(45),
