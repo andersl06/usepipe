@@ -22,7 +22,7 @@ describe('Turn flow questions into interactive messages', () => {
     expect(conteudoDaPergunta({ texto: '  ', opcoes: ['Sim'] }, ligado)).toBeNull();
     // A 21-character option cannot fit a button but can fit a list row (24); only when rendered as a list.
     const quatro = ['a'.repeat(22), 'b', 'c', 'd'];
-    expect(conteudoDaPergunta({ texto: 'Oi', opcoes: quatro }, ligado)).toMatchObject({ formato: 'lista' });
+    expect(conteudoDaPergunta({ texto: 'Oi', opcoes: quatro }, ligado)).toMatchObject({ format: 'lista' });
   });
 
   it('Build Cloud API reply buttons and a single-section list', () => {
