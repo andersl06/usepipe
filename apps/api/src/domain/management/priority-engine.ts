@@ -78,7 +78,7 @@ export function evaluatePriority(
       !conditionEmpty(regra.condition) &&
       !avaliarExpressao(
         regra.condition as unknown as Expressao,
-        context as Readonly<Record<string, unknown>>,
+        { ...context, mensagem: context.message, contato: context.contact } as Readonly<Record<string, unknown>>,
       )
     ) {
       continue;

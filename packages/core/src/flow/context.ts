@@ -209,7 +209,7 @@ export const stateSaved = (variables: Record<string, string>, flowId: string): s
 // --- ContextBase.GetVariableAsync ---
 
 const NAME_OF_VARIABLE =
-  /^(?<fonteOuNome>[\p{L}\p{N}_]+)(\.(?<nome>[\p{L}\p{N}_.]+))?(@(?<propriedade>([\p{L}\p{N}_.](\[(\d+|\$n)\])?)+))?$/iu;
+  /^(?<fonteOuNome>[\p{L}\p{N}_]+)(\.(?<nome>[\p{L}\p{N}_.]+))?(@(?<property>([\p{L}\p{N}_.](\[(\d+|\$n)\])?)+))?$/iu;
 
 /** `VariableName.Parse`: `fonte.nome@propriedade`; without a source, this is a context variable. */
 export function readVariableName(texto: string): {
