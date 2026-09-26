@@ -112,7 +112,7 @@ async function issueInvitation(
   const novo = createToken(DEADLINE_INVITATION_MS);
 
   const { rows: papeis } = await tx.execute<{ id: string; scope: string }>(
-    sql`select id, escopo from papel where nome = ${nameOfRole} limit 1`,
+    sql`select id, escopo as scope from papel where nome = ${nameOfRole} limit 1`,
   );
   const roleId = papeis[0]?.id;
   if (!roleId) {
@@ -193,7 +193,7 @@ export async function resendInvitation(
 ): Promise<InvitationCreated> {
   const { convite, tenantNome } = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ email: string; role: string }>(sql`
-      select c.email, p.nome as papel
+      select c.email, p.nome as role
         from convite c
         join papel p on p.id = c.papel_id
        where c.id = ${invitationId}::uuid and c.aceito_em is null and c.expira_em > now()
@@ -227,8 +227,8 @@ type LineInvitation = {
  */
 async function acharPeloToken(tokenCru: string): Promise<LineInvitation> {
   const { rows } = await databaseOwner().execute<LineInvitation>(sql`
-    select c.id, c.tenant_id, c.email, c.papel_id, c.expira_em, c.aceito_em,
-           p.nome as papel, t.nome as tenant_nome, t.slug
+    select c.id, c.tenant_id, c.email, c.papel_id as "roleId", c.expira_em, c.aceito_em,
+           p.nome as role, t.nome as tenant_nome, t.slug
       from convite c
       join papel p on p.id = c.papel_id
       join tenant t on t.id = c.tenant_id

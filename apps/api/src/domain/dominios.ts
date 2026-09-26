@@ -139,7 +139,7 @@ export async function checkDomain(
       id: string;
       domain: string;
       tokenVerification: string | null;
-    }>(sql`select id, dominio, token_verificacao from dominio_tenant
+    }>(sql`select id, dominio as domain, token_verificacao as "tokenVerification" from dominio_tenant
              where id = ${id}::uuid limit 1`);
     return rows[0] ?? null;
   });

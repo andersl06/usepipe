@@ -73,7 +73,7 @@ export interface RespostaDaDescoberta {
 export interface InvitationVisible {
   email: string;
   role: string;
-  tenant: { nome: string; slug: string };
+  tenant: { name: string; slug: string };
   /** ISO 8601 as returned by the API; the screen handles formatting. */
-  expiraEm: string;
+  expiresAt: string;
 }

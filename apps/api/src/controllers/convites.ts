@@ -33,9 +33,9 @@ export class InvitationsController {
     return {
       id: invitation.id,
       email: invitation.email,
-      papel: invitation.role,
+      role: invitation.role,
       url: invitation.url,
-      expiraEm: invitation.expiresAt.toISOString(),
+      expiresAt: invitation.expiresAt.toISOString(),
     };
   }
 
@@ -56,9 +56,9 @@ export class InvitationsController {
     return {
       id: convite.id,
       email: convite.email,
-      papel: convite.role,
+      role: convite.role,
       url: convite.url,
-      expiraEm: convite.expiresAt.toISOString(),
+      expiresAt: convite.expiresAt.toISOString(),
     };
   }
 
@@ -71,8 +71,8 @@ export class InvitationsController {
     return {
       email: convite.email,
       role: convite.role,
-      tenant: { nome: convite.tenant.name, slug: convite.tenant.slug },
-      expiraEm: convite.expiresAt.toISOString(),
+      tenant: { name: convite.tenant.name, slug: convite.tenant.slug },
+      expiresAt: convite.expiresAt.toISOString(),
     };
   }
 
@@ -84,11 +84,11 @@ export class InvitationsController {
   async aceitar(@Param('token') token: string): Promise<Record<string, unknown>> {
     const aceito = await acceptInvitation(token);
     return {
-      usuarioId: aceito.userId,
+      userId: aceito.userId,
       email: aceito.email,
-      papel: aceito.role,
+      role: aceito.role,
       tenant: aceito.tenant,
-      entrarEm: `/v1/auth/google?invite=${encodeURIComponent(token)}`,
+      joinedAt: `/v1/auth/google?invite=${encodeURIComponent(token)}`,
     };
   }
 }
@@ -109,8 +109,8 @@ export class DomainsController {
     const registrado = await logDomain(session.tenantId, corpo.domain);
     return {
       id: registrado.id,
-      dominio: registrado.domain,
-      verificadoEm: registrado.verificadoEm?.toISOString() ?? null,
+      domain: registrado.domain,
+      verifiedAt: registrado.verificadoEm?.toISOString() ?? null,
       registro: registrado.registro,
     };
   }
@@ -129,8 +129,8 @@ export class DomainsController {
     const verificado = await checkDomain(sessao.tenantId, id);
     return {
       id: verificado.id,
-      dominio: verificado.domain,
-      verificadoEm: verificado.verificadoEm.toISOString(),
+      domain: verificado.domain,
+      verifiedAt: verificado.verificadoEm.toISOString(),
     };
   }
 }

@@ -154,7 +154,7 @@ describe('POST /v1/convites', () => {
     };
     expect(corpo.email).toBe(email);
     expect(corpo.role).toBe('guest');
-    expect(corpo.url).toContain('http://telas.teste/convite/');
+    expect(corpo.url).toContain('http://telas.teste/invite/');
 
     const token = corpo.url.split('/').pop() ?? '';
     expect(token.length).toBeGreaterThan(20);
@@ -237,7 +237,7 @@ describe('POST /v1/convites', () => {
     const first = await convidar(email);
     const segundo = await convidar(email);
 
-    await expect(readInvitation(first)).rejects.toMatchObject({ codigo: 'convite_expirado' });
+    await expect(readInvitation(first)).rejects.toMatchObject({ codigo: 'invitation_expired' });
     await expect(readInvitation(segundo)).resolves.toMatchObject({ email });
   });
 });
@@ -296,7 +296,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     expect(corpo.joinedAt).toBe(`/v1/auth/google?invite=${encodeURIComponent(token)}`);
 
     const { rows } = await a.dono.execute<{ tenant_id: string; role: string }>(sql`
-      select u.tenant_id, p.nome as papel
+      select u.tenant_id, p.nome as role
         from usuario u
         join usuario_papel up on up.usuario_id = u.id
         join papel p on p.id = up.papel_id
@@ -374,7 +374,7 @@ describe('POST /v1/convites/:token/aceitar', () => {
     const token = await convidar(`fabiana.${randomUUID().slice(0, 6)}@cliente.teste`);
     await expect(
       acceptInvitation(token, pessoaDoGoogle('intrusa@cliente.teste')),
-    ).rejects.toMatchObject({ codigo: 'convite_de_outro_email' });
+    ).rejects.toMatchObject({ codigo: 'invitation_of_other_email' });
   });
 });
 
@@ -408,8 +408,8 @@ describe('Carry an invitation through GET /v1/auth/google?invitation=', () => {
 
   it('Show invalid invitations as a login refusal rather than a server error', () => {
     // // What Google's callback does with an invite that's expired, used, or for another email.
-    expect(codigoDaRecusa(new PipeError(410, 'invitation_used', 'já foi'))).toBe('sem_convite');
-    expect(codigoDaRecusa(PipeError.naoEncontrado('Convite'))).toBe('sem_convite');
+    expect(codigoDaRecusa(new PipeError(410, 'invitation_used', 'já foi'))).toBe('without_invitation');
+    expect(codigoDaRecusa(PipeError.naoEncontrado('Convite'))).toBe('without_invitation');
     // // Our own error stays our own error: the way out is to try again.
     expect(codigoDaRecusa(new PipeError(500, 'error_internal', 'caiu'))).toBe('falha_no_provedor');
   });
@@ -473,7 +473,7 @@ describe('POST /v1/dominios', () => {
     const dominio = `disputado-${randomUUID().slice(0, 8)}.teste`;
     await logDomain(b.tenantId, dominio);
     await expect(logDomain(a.tenantId, dominio)).rejects.toMatchObject({
-      codigo: 'dominio_em_uso',
+      codigo: 'domain_in_use',
     });
   });
 
@@ -513,12 +513,12 @@ describe('Verify domains with TXT records', () => {
 
     await expect(
       checkDomain(a.tenantId, registrado.id, async () => [['outra-coisa']]),
-    ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
+    ).rejects.toMatchObject({ codigo: 'domain_not_verified' });
 
     // // DNS that doesn't even answer is the same thing: "not yet," never 500.
     await expect(
       checkDomain(a.tenantId, registrado.id, () => Promise.reject(new Error('ENOTFOUND'))),
-    ).rejects.toMatchObject({ codigo: 'dominio_nao_verificado' });
+    ).rejects.toMatchObject({ codigo: 'domain_not_verified' });
 
     const { rows } = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from dominio_tenant
@@ -532,7 +532,7 @@ describe('Verify domains with TXT records', () => {
     const registrado = await logDomain(b.tenantId, dominio);
     // // A doesn't even see B's row: RLS filters it out before any check.
     await expect(checkDomain(a.tenantId, registrado.id)).rejects.toMatchObject({
-      codigo: 'nao_encontrado',
+      codigo: 'not_found',
     });
   });
 });
@@ -562,7 +562,7 @@ describe('Provision a customer tenant', () => {
     expect(cliente.queues).toBe(4);
 
     const { rows } = await a.dono.execute<{ plan: string; role: string; motivos: string }>(sql`
-      select t.plano, p.nome as papel,
+      select t.plano as plan, p.nome as role,
              (select count(*)::text from motivo_pausa where tenant_id = t.id) as motivos
         from tenant t
         join usuario u on u.id = ${cliente.adminId}::uuid
@@ -596,14 +596,14 @@ describe('Provision a customer tenant', () => {
   });
 
   it('plano fora do catálogo não passa: franquia não tem onde morar em texto livre', async () => {
-    await expect(provision({ plano: 'ilimitado' })).rejects.toMatchObject({
-      codigo: 'plano_invalido',
+    await expect(provision({ plan: 'ilimitado' })).rejects.toMatchObject({
+      codigo: 'plan_invalid',
     });
   });
 
   it('Do not provision a company from a personal email domain', async () => {
     await expect(provision({ admin: 'fulano@gmail.com' })).rejects.toMatchObject({
-      codigo: 'dominio_publico',
+      codigo: 'domain_public',
     });
   });
 
@@ -616,6 +616,6 @@ describe('Provision a customer tenant', () => {
         plan: 'essencial',
         admin: 'outro@outraempresa.teste',
       }),
-    ).rejects.toMatchObject({ codigo: 'slug_em_uso' });
+    ).rejects.toMatchObject({ codigo: 'slug_in_use' });
   });
 });
