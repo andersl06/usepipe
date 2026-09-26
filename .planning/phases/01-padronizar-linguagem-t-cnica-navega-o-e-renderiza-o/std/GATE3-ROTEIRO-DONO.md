@@ -10,7 +10,7 @@ Marque `[ ] ok` ou `[ ] problema` em cada passo. Se marcar problema, siga a seç
   - Gestão: `http://localhost:3110`
   - Desk (atendimento): `http://localhost:3210`
   - CRM: `http://localhost:3300`
-  - A API (`http://localhost:3000`) precisa estar rodando em outra janela; você não acessa ela direto.
+  - A API (`http://localhost:3010`) precisa estar rodando em outra janela; você não acessa ela direto.
 - **Usuário de teste:** não existe login de atalho no Pipe — entre sempre com sua conta Google normal (a mesma que você já usa). Use uma janela normal do navegador, e só troque para uma aba anônima quando o passo pedir (para testar convite/link sem sessão).
 - **Dados:** este ambiente é local e não tem clientes reais nem histórico real — é esperado ver listas vazias ou com poucos itens de teste.
 - Tenha à mão pelo menos um bot (fluxo ou roteador) já configurado na Gestão, com algum ticket de teste no Desk, para os passos de conversa.
