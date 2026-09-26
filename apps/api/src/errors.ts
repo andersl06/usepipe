@@ -58,9 +58,9 @@ export class ErrorFilter implements ExceptionFilter {
 
     if (exception instanceof PipeError) {
       resposta.status(exception.status).json({
-        erro: {
-          codigo: exception.codigo,
-          mensagem: exception.message,
+        error: {
+          code: exception.codigo,
+          message: exception.message,
           ...(exception.detalhe ? { detalhe: exception.detalhe } : {}),
         },
       });
@@ -70,9 +70,9 @@ export class ErrorFilter implements ExceptionFilter {
     if (exception instanceof HttpException) {
       const corpo = exception.getResponse();
       resposta.status(exception.getStatus()).json({
-        erro: {
-          codigo: 'http',
-          mensagem: typeof corpo === 'string' ? corpo : exception.message,
+        error: {
+          code: 'http',
+          message: typeof corpo === 'string' ? corpo : exception.message,
         },
       });
       return;
@@ -80,14 +80,14 @@ export class ErrorFilter implements ExceptionFilter {
 
     // `body-parser` rejects oversized bodies before Nest; report a client error, not 500.
     if ((exception as { type?: string } | null)?.type === 'entity.too.large') {
-      resposta.status(413).json({ erro: { codigo: 'corpo_grande', mensagem: 'O corpo da requisição é grande demais.' } });
+      resposta.status(413).json({ error: { code: 'corpo_grande', message: 'O corpo da requisição é grande demais.' } });
       return;
     }
 
     // Do not expose unexpected stack traces to clients; log the full error internally.
     console.error('[api] erro não tratado', exception);
     resposta.status(500).json({
-      erro: { codigo: 'erro_interno', mensagem: 'Erro interno.' },
+      error: { code: 'erro_interno', message: 'Erro interno.' },
     });
   }
 }

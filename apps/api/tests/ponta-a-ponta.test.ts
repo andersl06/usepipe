@@ -160,7 +160,7 @@ describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
       method: 'POST',
       body: JSON.stringify({
         texto: 'Bom dia! Já vou providenciar.',
-        atendente_id: cenario.agentId,
+        agentId: cenario.agentId,
       }),
     });
     expect(resposta.status).toBe(201);
@@ -298,8 +298,8 @@ describe('caminho da falha', () => {
       body: JSON.stringify({
         tipo: 'documento',
         texto: 'segue o instalador',
-        anexo_id: attachment!.id,
-        atendente_id: cenario.agentId,
+        attachmentId: attachment!.id,
+        agentId: cenario.agentId,
       }),
     });
     expect(resposta.status).toBe(201);
@@ -342,7 +342,7 @@ describe('caminho da falha', () => {
     const chamadasAntes = dubleWhatsApp.chamadas.length;
     const resposta = await comApi(`/v1/conversations/${conversaId}/messages`, {
       method: 'POST',
-      body: JSON.stringify({ texto: 'oi de novo', atendente_id: cenario.agentId }),
+      body: JSON.stringify({ texto: 'oi de novo', agentId: cenario.agentId }),
     });
 
     expect(resposta.status).toBe(409);

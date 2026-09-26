@@ -239,10 +239,10 @@ export class ConversationsController {
     });
     return {
       id: enfileirada.id,
-      estado_entrega: enfileirada.estadoEntrega,
+      stateDelivery: enfileirada.estadoEntrega,
       insideOfWindow: enfileirada.insideOfWindow,
-      categoria_cobranca: enfileirada.categoriaCobranca,
-      conteudo: enfileirada.content,
+      categoryCobranca: enfileirada.categoriaCobranca,
+      content: enfileirada.content,
     };
   }
 
@@ -275,10 +275,10 @@ export class ConversationsController {
     return {
       messages: enviadas.map((m) => ({
         id: m.id,
-        estado_entrega: m.estadoEntrega,
+        stateDelivery: m.estadoEntrega,
         insideOfWindow: m.insideOfWindow,
-        categoria_cobranca: m.categoriaCobranca,
-        conteudo: m.content,
+        categoryCobranca: m.categoriaCobranca,
+        content: m.content,
       })),
     };
   }
@@ -408,19 +408,19 @@ export function juntar(filters: readonly SQL[]): SQL {
 function asConversation(linha: LineConversation): Record<string, unknown> {
   return {
     id: linha.id,
-    estado: linha.state,
-    prioridade: linha.priority,
+    state: linha.state,
+    priority: linha.priority,
     criada_em: iso(linha.criada_em),
     atribuida_em: iso(linha.atribuida_em),
     primeira_resposta_em: iso(linha.firstResponseAt),
     encerrada_em: iso(linha.encerrada_em),
     ultima_mensagem_em: iso(linha.lastMessageAt),
     lastMessageOf: linha.lastMessageOf,
-    janela_expira_em: iso(linha.windowExpiresAt),
-    canal_tipo: linha.channelType,
+    windowExpiresAt: iso(linha.windowExpiresAt),
+    canal_type: linha.channelType,
     queue: linha.queueId ? { id: linha.queueId, name: linha.queueName } : null,
     agent: linha.atendente_id ? { id: linha.atendente_id, name: linha.agentName } : null,
-    contato: {
+    contact: {
       id: linha.contactId,
       name: linha.contactName,
       phoneE164: linha.contactPhone,
@@ -432,19 +432,19 @@ function asMessage(linha: LineMessage): Record<string, unknown> {
   return {
     id: linha.id,
     criada_em: iso(linha.criada_em),
-    direcao: linha.direction,
-    autor_tipo: linha.autor_tipo,
-    autor_id: linha.authorId,
-    tipo: linha.type,
-    conteudo: linha.content,
-    estado_entrega: linha.stateDelivery,
-    erro_codigo: linha.errorCode,
+    direction: linha.direction,
+    autor_type: linha.autor_tipo,
+    authorId: linha.authorId,
+    type: linha.type,
+    content: linha.content,
+    stateDelivery: linha.stateDelivery,
+    errorCode: linha.errorCode,
     errorText: linha.errorText,
-    id_provedor: linha.idProvider,
-    entregue_em: iso(linha.entregueAt),
-    lida_em: iso(linha.lidaAt),
+    idProvider: linha.idProvider,
+    entregueAt: iso(linha.entregueAt),
+    lidaAt: iso(linha.lidaAt),
     insideOfWindow: linha.insideOfWindow,
-    categoria_cobranca: linha.categoryCobranca,
+    categoryCobranca: linha.categoryCobranca,
   };
 }
 

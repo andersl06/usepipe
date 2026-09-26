@@ -18,7 +18,7 @@ export type Veredito = 'ok' | 'falha';
 
 export interface Saude {
   ok: boolean;
-  versao: string;
+  version: string;
   database: Veredito;
   redis: Veredito;
 }
@@ -53,7 +53,7 @@ export async function verificarSaude(): Promise<Saude> {
   ]);
 
   // Set `ok` from database health alone. Without Redis, the API can still receive webhooks and serve reads; without the database it cannot serve, which distinguishes 200 from 503.
-  return { ok: database === 'ok', versao: VERSAO, database, redis };
+  return { ok: database === 'ok', version: VERSAO, database, redis };
 }
 
 /**
