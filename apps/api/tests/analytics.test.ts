@@ -143,7 +143,7 @@ function url(caminho: string): string {
 describe('Aggregate seeded data for the analytics dashboard', () => {
   it('Count contacts and messages in the requested period', async () => {
     const r = await fetch(
-      url(`/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/dashboard?period=custom&from=${DIA_1}&to=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -168,7 +168,7 @@ describe('Aggregate seeded data for the analytics dashboard', () => {
     const semDado = iso(new Date(HOJE.getTime() - 3 * 24 * 60 * 60 * 1000));
     const r = await fetch(
       url(
-        `/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&de=${semDado}&ate=${semDado}`,
+        `/v1/management/flows/${flowId}/analytics/dashboard?period=custom&from=${semDado}&to=${semDado}`,
       ),
       { headers: cabecalho(cookie) },
     );
@@ -200,7 +200,7 @@ describe('Aggregate seeded data for the analytics dashboard', () => {
 describe('Visão Geral', () => {
   it('Count active contacts, engaged contacts, and messages in the period', async () => {
     const r = await fetch(
-      url(`/v1/management/flows/${flowId}/analytics/view-overview?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/view-overview?from=${DIA_1}&to=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -217,7 +217,7 @@ describe('Visão Geral', () => {
 describe('Trace contact journeys through analytics', () => {
   it('Draw the entry-to-exit path through blocks b1 and b2 for the period', async () => {
     const r = await fetch(
-      url(`/v1/management/flows/${flowId}/analytics/journey?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/journey?from=${DIA_1}&to=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -232,7 +232,7 @@ describe('Trace contact journeys through analytics', () => {
   it('Return an empty journey diagram when no execution falls within the period', async () => {
     const semDado = '2026-02-01';
     const r = await fetch(
-      url(`/v1/management/flows/${flowId}/analytics/journey?de=${semDado}&ate=${semDado}`),
+      url(`/v1/management/flows/${flowId}/analytics/journey?from=${semDado}&to=${semDado}`),
       { headers: cabecalho(cookie) },
     );
     const corpo = (await r.json()) as { arestas: unknown[] };
@@ -259,7 +259,7 @@ describe('List message logs newest first', () => {
   it('Filter message logs by period, direction, and type', async () => {
     const r = await fetch(
       url(
-        `/v1/management/flows/${flowId}/analytics/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem`,
+        `/v1/management/flows/${flowId}/analytics/log?from=${DIA_1}&to=${DIA_1}&direction=entrada&type=imagem`,
       ),
       { headers: cabecalho(cookie) },
     );

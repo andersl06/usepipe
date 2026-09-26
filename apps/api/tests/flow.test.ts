@@ -78,7 +78,7 @@ async function falar(de: string, texto: string, id?: string): Promise<void> {
   expect(resposta.status).toBe(200);
 }
 
-type Conversation = { id: string; state: string; queueId: string | null; agentId: string | null };
+type Conversation = { id: string; estado: string; fila_id: string | null; atendente_id: string | null };
 
 async function conversationOpen(telefone: string): Promise<Conversation> {
   const { rows } = await cenario.dono.execute<Conversation>(sql`
@@ -93,7 +93,7 @@ async function conversationOpen(telefone: string): Promise<Conversation> {
 }
 
 async function doBot(conversationId: string): Promise<string[]> {
-  const { rows } = await cenario.dono.execute<{ content: string }>(sql`
+  const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
     select conteudo from mensagem
      where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot'
      order by criada_em
@@ -102,7 +102,7 @@ async function doBot(conversationId: string): Promise<string[]> {
 }
 
 async function eventos(conversaId: string): Promise<string[]> {
-  const { rows } = await cenario.dono.execute<{ type: string }>(
+  const { rows } = await cenario.dono.execute<{ tipo: string }>(
     sql`select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by em`,
   );
   return rows.map((r) => r.tipo);
@@ -112,8 +112,8 @@ describe('bot com o dublê do WhatsApp', () => {
   it('Queue a bot reply in the outbox without assigning the conversation to a queue', async () => {
     await falar(ANA, 'oi');
     const conversation = await conversationOpen(ANA);
-    expect(conversation.queueId).toBeNull();
-    expect(conversation.agentId).toBeNull();
+    expect(conversation.fila_id).toBeNull();
+    expect(conversation.atendente_id).toBeNull();
     expect(await doBot(conversation.id)).toEqual(['Olá! Qual é o seu nome?']);
 
     // Time spent with the bot is not queue time: neither `criada` nor `enfileirada` has happened yet.
@@ -159,9 +159,9 @@ describe('bot com o dublê do WhatsApp', () => {
   it('Transfer a selected conversation into a queue with its collected context', async () => {
     await falar(ANA, '2');
     const conversa = await conversationOpen(ANA);
-    expect(conversa.queueId).toBe(cenario.queueId);
+    expect(conversa.fila_id).toBe(cenario.queueId);
     expect(conversa.estado).toBe('na_fila');
-    expect(conversa.agentId).toBeNull();
+    expect(conversa.atendente_id).toBeNull();
 
     const { rows: notas } = await cenario.dono.execute<{ body: string }>(
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
@@ -200,7 +200,7 @@ describe('bot com o dublê do WhatsApp', () => {
     await falar(ANA, 'tem alguém aí?');
     const atribuida = await conversationOpen(ANA);
     expect(atribuida.id).toBe(conversa.id);
-    expect(atribuida.agentId).toBe(cenario.agentId);
+    expect(atribuida.atendente_id).toBe(cenario.agentId);
     expect(await doBot(conversa.id)).toHaveLength(respostas);
   });
 
@@ -218,7 +218,7 @@ describe('bot com o dublê do WhatsApp', () => {
     await falar(ANA, 'oi de novo');
     const nova = await conversationOpen(ANA);
     expect(nova.id).not.toBe(conversa.id);
-    expect(nova.queueId).toBeNull();
+    expect(nova.fila_id).toBeNull();
     expect(await doBot(nova.id)).toEqual([
       'Seu atendimento foi encerrado. Posso ajudar em algo mais?',
     ]);
@@ -272,7 +272,7 @@ describe('bot com o dublê do WhatsApp', () => {
 
     await falar(DAVI, 'oi');
     const conversa = await conversationOpen(DAVI);
-    expect(conversa.queueId).toBe(cenario.queueId);
+    expect(conversa.fila_id).toBe(cenario.queueId);
     const { rows } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from execucao_fluxo where conversa_id = ${conversa.id}::uuid`,
     );

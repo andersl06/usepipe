@@ -73,7 +73,7 @@ describe('Upload attachments and return signed links', () => {
       id: string;
       mime: string;
       bytes: number;
-      type: string;
+      tipo: string;
       link: string;
     };
     expect(corpo.mime).toBe('image/png');
@@ -87,16 +87,16 @@ describe('Upload attachments and return signed links', () => {
     const resposta = await up(PNG, 'image/png');
     const { id } = (await resposta.json()) as { id: string };
 
-    const { rows } = await cenario.dono.execute<{ keyStorage: string }>(
+    const { rows } = await cenario.dono.execute<{ chave_storage: string }>(
       sql`select chave_storage from anexo where id = ${id}::uuid`,
     );
-    expect(rows[0]!.keyStorage.startsWith(`${cenario.tenantId}/`)).toBe(true);
+    expect(rows[0]!.chave_storage.startsWith(`${cenario.tenantId}/`)).toBe(true);
   });
 
   it('recusa tipo fora da lista da Blip', async () => {
     const resposta = await up(Buffer.from([0x4d, 0x5a, 0x90]), 'application/x-msdownload', 'a.exe');
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
       'type_not_accepted',
     );
   });
@@ -123,9 +123,9 @@ describe('Upload attachments and return signed links', () => {
     const resposta = await up(grande, 'audio/mpeg', 'longo.mp3');
 
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { error: { code: string; message: string } };
-    expect(corpo.error.codigo).toBe('file_large_excessive');
-    expect(corpo.error.message).toContain('16');
+    const corpo = (await resposta.json()) as { erro: { codigo: string; mensagem: string } };
+    expect(corpo.erro.codigo).toBe('file_large_excessive');
+    expect(corpo.erro.mensagem).toContain('16');
   });
 
   it('sem credencial, 401', async () => {

@@ -480,7 +480,7 @@ async function findOrOpenConversation(
     agentId: string | null;
     queueId: string | null;
   }>(sql`
-    select id, estado, atendente_id, fila_id from conversa
+    select id, estado as state, atendente_id as "agentId", fila_id as "queueId" from conversa
      where contato_id = ${contactId} and inbox_id = ${inbox.id} and estado <> 'encerrada'
      order by criada_em desc
      limit 1
@@ -500,7 +500,7 @@ async function findOrOpenConversation(
   const queueId = comBot ? null : inbox.queueDefaultId;
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contactId}, ${queueId}, 'na_fila', ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contactId}, ${queueId ?? sql`null`}, 'na_fila', ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;

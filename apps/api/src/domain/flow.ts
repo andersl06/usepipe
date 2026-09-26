@@ -76,7 +76,7 @@ export async function flowPublishedOfChannel(
     return serviceOfRouter(tx, { id: router.id, tenantId: router.tenant_id }, contatoId);
   }
   const { rows } = await tx.execute<{ flowId: string; versao_id: string }>(sql`
-    select f.id as fluxo_id, v.id as versao_id
+    select f.id as "flowId", v.id as versao_id
       from fluxo f
       join fluxo_versao v on v.fluxo_id = f.id
      where f.canal_id = ${channelId} and f.estado = 'publicado' and v.estado = 'publicada'
@@ -107,10 +107,11 @@ export async function loadFlow(
     sql`select global from fluxo_versao where id = ${publicado.versaoId}`,
   );
   const { rows: blocos } = await tx.execute<LineBlock>(
-    sql`select id, codigo, conteudo from bloco where versao_id = ${publicado.versaoId}`,
+    sql`select id, codigo as code, conteudo as content from bloco where versao_id = ${publicado.versaoId}`,
   );
   const { rows: transitions } = await tx.execute<LineTransition>(sql`
-    select t.de_bloco_id, b.codigo as para_codigo, t.para_variavel, t.condicao, t.ordem
+    select t.de_bloco_id as "ofBlockId", b.codigo as para_codigo,
+           t.para_variavel as "forVariable", t.condicao as condition, t.ordem as "order"
       from transicao t
       left join bloco b on b.id = t.para_bloco_id
      where t.versao_id = ${publicado.versaoId}
@@ -909,7 +910,7 @@ async function lastAttendance(
     select c.id,
            (select ev.dados->>'encerrada_por' from evento_atendimento ev
              where ev.conversa_id = c.id and ev.tipo = 'encerrada'
-             order by ev.em desc limit 1) as por
+             order by ev.em desc limit 1) as "by"
       from conversa c
      where c.contato_id = ${contatoId} and c.estado = 'encerrada' and c.id <> ${conversationAtualId}
      order by c.encerrada_em desc nulls last
