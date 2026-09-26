@@ -225,10 +225,10 @@ Plans:
 Plans:
 **Wave 1**
 
-- [ ] 02-01-PLAN.md — Investigação: catálogo de conteúdo da referência (D-18)
-- [ ] 02-02-PLAN.md — Investigação: ações, scripts e biblioteca de funções (D-19..D-22)
-- [ ] 02-03-PLAN.md — Investigação: pesquisa de satisfação e tags (D-06..D-13)
-- [ ] 02-04-PLAN.md — Investigação: painéis, seletor, setas e visual (D-14..D-17, D-23, D-29..D-33)
+- [x] 02-01-PLAN.md — Investigação: catálogo de conteúdo da referência (D-18)
+- [x] 02-02-PLAN.md — Investigação: ações, scripts e biblioteca de funções (D-19..D-22)
+- [x] 02-03-PLAN.md — Investigação: pesquisa de satisfação e tags (D-06..D-13)
+- [x] 02-04-PLAN.md — Investigação: painéis, seletor, setas e visual (D-14..D-17, D-23, D-29..D-33)
 - [ ] 02-05-PLAN.md — Wave técnica do motor: ProcessHttp (D-25..D-28)
 - [ ] 02-06-PLAN.md — Caracterização de arestasDe() e copiar/colar (D-17, D-29.1)
 
@@ -381,7 +381,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
-| 2. Fechar o Builder | 0/TBD | Not started | - |
+| 2. Fechar o Builder | 4/22 | In Progress|  |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
 | 5. Validar ponta a ponta em produção | 0/TBD | Not started | - |

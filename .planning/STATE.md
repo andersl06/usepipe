@@ -4,8 +4,8 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-09-26T14:12:52.893Z"
-last_activity: 2026-09-25 — portão 2 fechado (01-12, tag std-slice-0-end); aplicação única do mapa em curso (D-49)
+last_updated: "2026-09-26T14:32:40.569Z"
+last_activity: 2026-09-26 -- Phase 02 execution started
 progress:
   total_phases: 9
   completed_phases: 0
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
-**Current focus:** Phase 01 — padronizar-linguagem-t-cnica-navega-o-e-renderiza-o
+**Current focus:** Phase 02 — fechar-o-builder
 
 ## Current Position
 
-Phase: 01 (padronizar-linguagem-t-cnica-navega-o-e-renderiza-o) — EXECUTING
-Plan: 17 of 41
-Status: Executing Phase 01
-Last activity: 2026-09-25 — portão 2 fechado (01-12, tag std-slice-0-end); aplicação única do mapa em curso (D-49)
+Phase: 02 (fechar-o-builder) — EXECUTING
+Plan: 1 of 22
+Status: Executing Phase 02
+Last activity: 2026-09-26 -- Phase 02 execution started
 
 Progress: [░░░░░░░░░░] 2%
 
