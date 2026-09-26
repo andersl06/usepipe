@@ -834,3 +834,5 @@ apps/api/src/dominio/dicionario-crm.ts,^settings$,ts-prop,B,persisted: jsonb:dic
 apps/api/src/dominio/dicionario-crm.ts,^defaultValue$,ts-prop,B,persisted: jsonb:dicionarioCampo.default_value,persisted.csv:persisted-wire-08
 apps/api/src/dominio/dicionario-crm.ts,^relation$,ts-prop,B,persisted: jsonb:dicionarioCampo.relation,persisted.csv:persisted-wire-09
 apps/api/src/dominio/dicionario-crm.ts,^morphRelations$,ts-prop,B,persisted: jsonb:dicionarioCampo.morph_relations,persisted.csv:persisted-wire-10
+packages/contracts/src/management-flow.ts,"^/\*\* ""Não redirecionar automaticamente para o principal""\. \*/$",comment,C,"Reviewed literal evidence: /** ""Não redirecionar automaticamente para o principal"". */",D-17
+packages/db/src/schema/automation.ts,"^/\*\* ""Não redirecionar automaticamente para o principal""\. \*/$",comment,C,"Reviewed literal evidence: /** ""Não redirecionar automaticamente para o principal"". */",D-17
