@@ -418,7 +418,7 @@ export async function rodarFlowInInbound(
       variables,
       inboundContext: new Map(),
       contact,
-      services,
+      services: servicos,
     };
     try {
       const rastro = await processarInbound(
@@ -701,7 +701,7 @@ async function gravarPassos(
   eventos: Record<string, unknown>[],
   relogio: () => Date,
 ): Promise<void> {
-  const estados = rastro.estados.length > 0 ? rastro.estados : [{ estadoId: '', acoes: [] }];
+  const estados = rastro.estados.length > 0 ? rastro.estados : [{ stateId: '', actions: [] }];
   for (const [i, passo] of estados.entries()) {
     const ultimo = i === estados.length - 1;
     const saida = {
@@ -1047,9 +1047,9 @@ export async function importFlowOfBlip(
   }
 
   const { rows: numero } = await tx.execute<{ version: number }>(
-    sql`select coalesce(max(versao), 0) + 1 as versao from fluxo_versao where fluxo_id = ${flowId}`,
+    sql`select coalesce(max(versao), 0) + 1 as version from fluxo_versao where fluxo_id = ${flowId}`,
   );
-  const versao = Number(numero[0]?.versao ?? 1);
+  const versao = Number(numero[0]?.version ?? 1);
   if (pedido.publicar) {
     await tx.execute(
       sql`update fluxo_versao set estado = 'arquivada' where fluxo_id = ${flowId} and estado = 'publicada'`,
