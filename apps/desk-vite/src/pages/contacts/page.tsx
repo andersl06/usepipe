@@ -25,7 +25,7 @@ export function PageContacts() {
   const ticketId = selectedContact?.ticketId ?? null;
 
   const lista = useRead<{ contacts: ListContact[] }>(
-    `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
+    `/v1/desk/contacts${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
   );
   const contact = useRead<{ contact: ContactRecord; history: ConversationOfHistory[] }>(
     id ? `/v1/desk/contacts/${id}` : null,

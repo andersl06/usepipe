@@ -49,7 +49,7 @@ export function PageActiveMessage() {
   const channels = useRead<{ channels: Channel[] }>('/v1/desk/channels');
   const contacts = useRead<{ contacts: ListContact[] }>(
     origem === 'existente'
-      ? `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`
+      ? `/v1/desk/contacts${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`
       : null,
   );
   const contactInitial = useRead<{
