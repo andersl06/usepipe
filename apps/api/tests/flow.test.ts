@@ -226,13 +226,13 @@ describe('bot com o dublê do WhatsApp', () => {
     // The context belongs to the contact: the new conversation knows the name.
     const { rows } = await cenario.dono.execute<{
       contexto: Record<string, string>;
-      code: string;
+      codigo: string;
     }>(sql`
       select e.contexto, b.codigo from execucao_fluxo e join bloco b on b.id = e.bloco_atual_id
        where e.conversa_id = ${nova.id}::uuid
     `);
     expect(rows[0]!.contexto['nome']).toBe('Ana');
-    expect(rows[0]!.code).toBe('pos-atendimento');
+    expect(rows[0]!.codigo).toBe('pos-atendimento');
   });
 
   it('Do not duplicate bot replies when the same message is redelivered', async () => {
@@ -273,14 +273,14 @@ describe('bot com o dublê do WhatsApp', () => {
     await falar(DAVI, 'oi');
     const conversa = await conversationOpen(DAVI);
     expect(conversa.fila_id).toBe(cenario.queueId);
-    const { rows } = await cenario.dono.execute<{ state: string }>(
+    const { rows } = await cenario.dono.execute<{ estado: string }>(
       sql`select estado from execucao_fluxo where conversa_id = ${conversa.id}::uuid`,
     );
-    expect(rows[0]!.state).toBe('falhou');
-    const { rows: notas } = await cenario.dono.execute<{ body: string }>(
+    expect(rows[0]!.estado).toBe('falhou');
+    const { rows: notas } = await cenario.dono.execute<{ corpo: string }>(
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
     );
-    expect(notas[0]!.body).toContain('o fluxo falhou');
-    expect(notas[0]!.body).toContain('ExecuteScript');
+    expect(notas[0]!.corpo).toContain('o fluxo falhou');
+    expect(notas[0]!.corpo).toContain('ExecuteScript');
   });
 });
