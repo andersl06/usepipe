@@ -11,6 +11,7 @@ import {
 } from './expediente.js';
 
 export type AlvoSla = 'primeira_resposta' | 'tempo_resposta' | 'encerramento';
+/** The approved SLA contract keeps these literal values in Portuguese. */
 export type StateSla = 'dentro' | 'alerta' | 'estourado';
 export type ScopeSla = 'fila' | 'prioridade' | 'etiqueta';
 
