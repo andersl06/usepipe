@@ -10,21 +10,11 @@ import type { RequestWithSession } from '../session.js';
 import { Req } from '@nestjs/common';
 
 /**
- * `/v1/crm` — o que o CRM sabe de um contato.
- *
- * **A única porta do Pipe para o Twenty.** O Desk chama aqui; o Desk não fala com o
- * CRM. Regra do dono: front é front, requisição é da `api`.
- *
- * Leitura e só leitura. Escrita a partir do Desk exigiria log de auditoria — a mesma
- * pendência que já segura a edição de contato lá, e não vou abri-la de lado.
- *
- * O tenant vem da SESSÃO, nunca da requisição. É o que impede alguém de pedir a ficha
- * de um contato de outro cliente trocando o id na URL: o `contatoId` é resolvido
- * dentro do `comTenant` da sessão e, se não for daquele tenant, não retorna linha.
+ * `/v1/crm` exposes what Twenty knows about a contact. It is Pipe's sole gateway to Twenty: the Desk calls the `api`, not the CRM directly. It is read-only because writes from the Desk would require an audit log, the same unresolved requirement blocking contact editing there. The tenant comes from the session, never the request. `contatoId` is resolved inside the session's `comTenant`; another tenant's contact yields no row even if someone changes the URL ID.
  */
 
 export interface FichaDoCrm {
-  /** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */
+  /** `null` when the contact has no mirror yet or the tenant has no CRM. */
   record: {
     name: string;
     email: string | null;
@@ -36,9 +26,7 @@ export interface FichaDoCrm {
 @Controller('v1/crm')
 export class CrmController {
   /**
-   * O dicionário de dados do CRM do tenant da sessão: objetos e campos, no formato dos
-   * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
-   * sob RLS — não chama o CRM.
+   * The session tenant's CRM data dictionary contains objects and fields in Twenty metadata format. The flow builder and AI consume it. Read it from our database under RLS without calling the CRM.
    */
   @Get('dictionary')
   @WithSession()
@@ -49,7 +37,7 @@ export class CrmController {
     return { objetos: await noTenant(session.tenantId, readDictionary) };
   }
 
-  /** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */
+  /** Request synchronization after an admin creates a field in the CRM. */
   @Post('dictionary/sync')
   @WithSession()
   @HttpCode(202)
@@ -80,7 +68,7 @@ export class CrmController {
       return pessoaId ? { config, pessoaId } : null;
     });
 
-    // Sem CRM, sem espelho ou contato de outro tenant: a MESMA resposta. Não é erro,
+    // No CRM, no mirror and a contact belonging to another tenant all return the same response. Distinguishing them would reveal whether another customer's contact ID exists.
     // e distinguir os casos aqui contaria a quem perguntou se o id existe em outro
     // cliente.
     if (!preparo) return { record: null };
@@ -90,19 +78,19 @@ export class CrmController {
       if (!ficha) return { record: null };
       return {
         record: {
-          nome: ficha.name,
+          name: ficha.name,
           email: ficha.email,
           empresa: ficha.empresa,
           link: ficha.link,
         },
       };
     } catch (error) {
-      // O CRM fora do ar não pode quebrar o painel do atendente. O link continua
-      // valendo, porque ele é montado do nosso lado.
+      // A CRM outage must not break the attendant panel. The link remains
+      // valid because we construct it on our side.
       console.error(`[crm] ficha de ${contactId} falhou: ${(error as Error).message}`);
       return {
         record: {
-          nome: '',
+          name: '',
           email: null,
           empresa: null,
           link: linkDaPessoa(preparo.config.url, preparo.pessoaId),

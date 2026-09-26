@@ -3,17 +3,7 @@ import { createDatabase, comTenant, keyringOfAmbiente, decifrarConfig } from '@p
 import type { DatabasePipe, Keyring, TransactionPipe } from '@pipe/db';
 
 /**
- * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.
- *
- * Tudo que é dado de negócio passa por `noTenant`, com `pipe.tenant_id` fixado e a
- * RLS valendo. O papel dono existe para duas resoluções que acontecem **antes** de
- * haver tenant em vigor e por isso não têm como passar pela política:
- *
- * - achar o tenant do canal a partir do `:canalId` da URL do webhook da Meta;
- * - achar a chave de API pelo prefixo, para descobrir de quem é o `Bearer`.
- *
- * As duas devolvem só o `tenant_id` e o mínimo para autorizar. Nenhuma outra
- * consulta roda com o papel dono; a lacuna está registrada na migration `0001_rls`.
+ * Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the `Bearer` token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.
  */
 
 const URL_APP =
@@ -34,10 +24,7 @@ export function databaseOwner(): DatabasePipe {
 }
 
 /**
- * Roda o trabalho com `pipe.tenant_id` fixado.
- *
- * Dentro do callback as consultas vão **em série**. `Promise.all` aqui derruba o
- * `set_config` da transação e a consulta passa a rodar sem tenant — ver o README.
+ * Run work with `pipe.tenant_id` set. Execute queries inside the callback serially. `Promise.all` here breaks the transaction's `set_config` and a query may then run without a tenant; see the README.
  */
 export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promise<T>): Promise<T> {
   return comTenant(databaseApp(), tenantId, fn);
@@ -54,9 +41,7 @@ export interface ChannelResolved {
 const cacheOfChannel = new Map<string, ChannelResolved>();
 
 /**
- * O chaveiro é lido do ambiente uma vez e guardado. Ler a cada evento da Meta
- * seria trabalho repetido, e uma chave que muda em tempo de execução é reinício
- * de processo, não recarga.
+ * Load and cache the keyring from the environment once. Reading it for every Meta event would repeat work; a key change at runtime requires a process restart, not a reload.
  */
 let keyringSaved: Keyring | null = null;
 
@@ -66,8 +51,7 @@ export function keyring(): Keyring {
 }
 
 /**
- * Resolve o canal do webhook. Guardado em memória porque é lido a cada evento da
- * Meta e muda quase nunca; `esquecerCanal` invalida quando a configuração mudar.
+ * Resolve the webhook channel from an in-memory cache because every Meta event reads it and it rarely changes. `esquecerCanal` invalidates the cache when configuration changes.
  */
 export async function resolveChannel(canalId: string): Promise<ChannelResolved | null> {
   const guardado = cacheOfChannel.get(canalId);
@@ -88,9 +72,9 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
     tenantId: linha.tenant_id,
     type: linha.type,
     active: linha.active,
-    // Decifrado UMA vez, aqui, e o resto do código continua lendo
+    // Decrypt only once here; the rest of the code still reads
     // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
-    // texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.
+    // the plaintext only in the memory of code that needs it; see `packages/db/src/segredo.ts`.
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
   cacheOfChannel.set(canalId, channel);
@@ -98,16 +82,7 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
 }
 
 /**
- * Resolve o canal a partir do PAYLOAD, para a rota guarda-chuva.
- *
- * Os eventos de template e de conta da Meta não aceitam URL por cliente e chegam
- * todos no mesmo endereço. Aqui o tenant não pode vir do caminho, então vem do
- * `phone_number_id` ou, na falta dele, do WABA — nessa ordem, porque o número é
- * único e o WABA pode ter vários.
- *
- * Devolve `null` quando não casa, e quem chama DESCARTA. Evento sem dono é de
- * outro aplicativo ou de canal removido; processar no melhor palpite é como se
- * entrega o dado de um cliente a outro.
+ * Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return `null` when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.
  */
 export async function resolveChannelByIdentifier(
   numeroId: string | undefined,
@@ -136,8 +111,8 @@ export async function resolveChannelByIdentifier(
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
-    tipo: linha.type,
-    ativo: linha.active,
+    type: linha.type,
+    active: linha.active,
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }

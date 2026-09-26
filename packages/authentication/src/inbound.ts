@@ -22,10 +22,10 @@ import type { SessionActive } from './session.js';
 export class InboundRefused extends Error {
   constructor(
     readonly codigo:
-      | 'dominio_publico'
-      | 'dominio_desconhecido'
-      | 'sem_convite'
-      | 'usuario_inativo'
+      | 'domain_public'
+      | 'domain_unknown'
+      | 'without_invitation'
+      | 'user_inactive'
       | 'email_nao_verificado'
       | 'sso_obrigatorio'
       | 'outro_tenant',
@@ -41,7 +41,7 @@ export interface InboundCompleted {
   userId: string;
   /** Vai para o cookie. */
   token: string;
-  expiraEm: Date;
+  expiresAt: Date;
 }
 
 export interface OptionsOfInbound {
@@ -125,7 +125,7 @@ export async function loginWithIdentity(
       return openAccountNew(databaseApp, pessoa, options, context);
     }
     throw new InboundRefused(
-      'dominio_publico',
+      'domain_public',
       'E-mail pessoal não identifica empresa. Entre pelo convite que você recebeu.',
     );
   }
@@ -146,7 +146,7 @@ export async function loginWithIdentity(
       return openAccountNew(databaseApp, pessoa, options, context);
     }
     throw new InboundRefused(
-      'dominio_desconhecido',
+      'domain_unknown',
       `Nenhuma conta do Pipe usa o domínio "${domain}".`,
     );
   }
@@ -163,12 +163,12 @@ export async function loginWithIdentity(
     const encontrado = convidado[0];
     if (!encontrado) {
       throw new InboundRefused(
-        'sem_convite',
+        'without_invitation',
         'Você ainda não foi convidado para esta conta. Peça a quem administra.',
       );
     }
     if (!encontrado.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
 
     await tx.insert(identityExternal).values({
@@ -260,7 +260,7 @@ export async function openSessionAt(
       .where(eq(user.id, userId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
     return writeSession(tx, tenantId, userId, origem, contexto);
   });
@@ -309,7 +309,7 @@ async function openSession(
       .where(eq(user.id, usuarioId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
 
     // Run sequentially, never in `Promise.all`: parallel queries inside the transaction drop
@@ -351,7 +351,7 @@ async function writeSession(
   });
   await tx.update(user).set({ lastAccessAt: new Date() }).where(eq(user.id, usuarioId));
 
-  return { tenantId, userId: usuarioId, token: novo.token, expiraEm: novo.expiraEm };
+  return { tenantId, userId: usuarioId, token: novo.token, expiresAt: novo.expiraEm };
 }
 
 /**

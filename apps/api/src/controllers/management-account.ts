@@ -29,12 +29,7 @@ import {
 } from '../domain/management/certificados.js';
 
 /**
- * O CONTRATO e a conta na Gestão — o painel do contrato e os membros — por
- * sessão de navegador. A criação de contato (fluxo/roteador) nasceu aqui e
- * foi para `gestao-fluxo.ts`, junto do resto do ciclo de vida.
- *
- * A permissão é conferida AQUI, na gravação: tela escondida não é porta
- * trancada. `permissoesDe` é a mesma união de papéis que `GET /v1/eu` devolve.
+ * The contract panel and members in Management use a browser session. Contact creation (flow/router) moved to `gestao-fluxo.ts` with the rest of its lifecycle. Check permission here when writing: hiding a screen does not secure an endpoint. `permissoesDe` currently reads distinct role grants from `usuario_papel` and `papel_permissao`; unlike `GET /v1/eu`, it does not apply `usuario_permissao` overrides.
  */
 async function permissionsOf(tx: TransactionPipe, userId: string): Promise<string[]> {
   const { rows } = await tx.execute<{ code: string }>(sql`
@@ -94,7 +89,7 @@ export class ManagementAccountController {
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
       if (!permissoes.includes(READ_MEMBERS)) throw PipeError.withoutPermission(READ_MEMBERS);
-      return { membros: await loadMembers(tx), papeis: await loadPapeisOfAccount(tx) };
+      return { members: await loadMembers(tx), papeis: await loadPapeisOfAccount(tx) };
     });
   }
 
@@ -138,8 +133,9 @@ export class ManagementAccountController {
     const sessao = sessionOf(requisicao);
     const alvos = lerAlvos(corpo?.alvos);
     if (alvos.length === 0) return falha('Escolha quem sai do contrato.');
-    /* Ninguém se remove sozinho: quem o fizesse perderia o acesso no clique
-       seguinte, e um contrato pode ficar sem nenhum administrador. */
+    /*
+     * Do not let someone remove their own membership: they would lose access on the next click, and the account could be left without an administrator.
+     */
     if (alvos.some((a) => a.type === 'usuario' && a.id === sessao.userId)) {
       return falha('Você não pode excluir o seu próprio acesso a este contrato.');
     }
@@ -169,9 +165,7 @@ export class ManagementAccountController {
   }
 
   /**
-   * Certificados de autenticação (mTLS) — mesma guarda de Membros
-   * (`conta.membros.ler`/`.escrever`): a origem também tranca as duas telas
-   * atrás de `tenant-members` (`blip-certificados-mtls.md`).
+   * Authentication certificates (mTLS) use the same guard as Members (`conta.membros.ler`/`.escrever`). The source also places both screens behind `tenant-members` (`blip-certificados-mtls.md`).
    */
   @Get('contract/certificates')
   @WithSession()

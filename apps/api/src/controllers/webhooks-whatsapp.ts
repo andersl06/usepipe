@@ -5,24 +5,15 @@ import { resolveChannel, resolveChannelByIdentifier } from '../database.js';
 import { PipeError } from '../errors.js';
 import { enqueueInbound } from '../queues.js';
 
-/** O corpo cru, guardado pelo `verify` do parser de JSON — a assinatura é sobre ele. */
+/** The JSON parser's `verify` hook saves the raw body; the signature covers those bytes. */
 export type RequestWithBodyRaw = Request & { corpoCru?: Buffer };
 
 /**
- * Webhook da Meta.
- *
- * Três coisas que não podem ser negociadas:
- *
- * 1. A assinatura `X-Hub-Signature-256` é conferida sobre o **corpo cru**. Reserializar
- *    o JSON muda espaço e ordem de chave e a assinatura passa a nunca bater.
- * 2. A resposta é 200 imediato. A Meta reenvia o evento quando a resposta demora, e
- *    reentrega vira mensagem repetida — por isso o processamento vai para a fila.
- * 3. O `verify_token` do desafio de inscrição é comparado em tempo constante, como
- *    a assinatura: os dois são segredo compartilhado.
+ * Meta webhook invariants: verify `X-Hub-Signature-256` against the raw body because JSON reserialization changes whitespace or key order and breaks the signature. Return 200 promptly because Meta retries delayed deliveries and duplicates messages; queue processing instead. Compare the subscription challenge `verify_token` in constant time, as with the signature, because both are shared secrets.
  */
 @Controller('webhooks/whatsapp')
 export class WhatsAppWebhookController {
-  /** Verificação de inscrição: a Meta chama uma vez, com `hub.challenge`. */
+  /** Subscription verification: Meta calls once with `hub.challenge`. */
   @Get(':canalId')
   async verificar(
     @Param('canalId') channelId: string,
@@ -38,7 +29,7 @@ export class WhatsAppWebhookController {
     if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
       throw new PipeError(403, 'verification_refused', 'hub.verify_token não confere.');
     }
-    // A Meta espera o desafio cru, em texto — não JSON.
+    // Meta expects the raw challenge as text, not JSON.
     resposta.status(200).type('text/plain').send(desafio ?? '');
   }
 
@@ -54,7 +45,7 @@ export class WhatsAppWebhookController {
 
     const segredo = String(canal.config['appSecret'] ?? process.env['WHATSAPP_APP_SECRET'] ?? '');
     if (!segredo) {
-      // Sem segredo não há como distinguir a Meta de qualquer um. Recusa fechada.
+      // Without a secret, we cannot distinguish Meta from anyone else. Fail closed.
       throw new PipeError(
         403,
         'channel_without_app_secret',
@@ -70,32 +61,16 @@ export class WhatsAppWebhookController {
       throw new PipeError(401, 'signature_invalid', 'X-Hub-Signature-256 não confere.');
     }
 
-    // Enfileira e responde. Processar aqui dentro é o que faz a Meta reenviar.
+    // Enqueue and respond. Processing inside the request would cause Meta to retry.
     await enqueueInbound(canalId, requisicao.body);
     return { recebido: true };
   }
 
   /**
-   * A rota guarda-chuva, para o que a Meta NÃO deixa ter URL por cliente.
-   *
-   * Aprovação e rejeição de template, qualidade do número, mudança de limite e
-   * alerta de banimento não aceitam `override_callback_uri`: caem todos aqui,
-   * misturando os clientes. Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
-   *
-   * Duas diferenças em relação à rota por canal, e as duas importam:
-   *
-   * 1. A assinatura é conferida com o `appSecret` do NOSSO aplicativo, que é um
-   *    só. Ela prova que veio da Meta — não prova de quem é o evento.
-   * 2. O tenant sai do payload, e payload que não casa com canal nenhum é
-   *    **descartado**, nunca processado no melhor palpite.
+   * The umbrella route handles Meta events that cannot use customer-specific URLs. Template approval or rejection, number quality, limit changes and ban alerts do not accept `override_callback_uri`; all customers reach this route. See `docs/specs/2026-09-07-webhook-por-cliente.md`. Unlike the per-channel route, verify the signature with our app's single `appSecret`: that proves Meta sent the event, not which customer owns it. Resolve the tenant from the payload, and discard any payload with no matching channel rather than guessing.
    */
   /**
-   * O desafio de inscrição da rota guarda-chuva.
-   *
-   * A Meta chama esta URL uma vez, quando o webhook é cadastrado **no aplicativo**.
-   * Aqui o token é o do ambiente e não o do canal: não há canal no caminho, e o
-   * webhook do aplicativo é um só. Sem esta rota o cadastro do webhook do app não
-   * passa, e sem ele não chega template rejeitado nem queda de qualidade.
+   * Subscription challenge for the umbrella route. Meta calls this URL once when registering the webhook on the app. The token comes from the environment, not a channel, because there is no channel in the path and the app has one webhook. Without this route, app webhook registration fails and rejected templates or quality drops never arrive.
    */
   @Get()
   async checkOfAccount(
@@ -132,7 +107,7 @@ export class WhatsAppWebhookController {
     for (const inbound of identificarEntradas(request.body)) {
       const channel = await resolveChannelByIdentifier(inbound.numberId, inbound.wabaId);
       if (!channel) {
-        // Sem dono: outro aplicativo, ou canal já removido. Fica no log e morre aqui.
+        // No owner means another app or a removed channel. Log and discard the event here.
         console.warn(
           `[webhook] evento de conta sem canal correspondente (waba=${inbound.wabaId ?? '—'}, numero=${inbound.numberId ?? '—'})`,
         );
@@ -151,12 +126,7 @@ interface InboundIdentified {
 }
 
 /**
- * Quebra o payload em uma entrada por `entry`, cada uma com o identificador que
- * permite achar o dono.
- *
- * Um POST da Meta pode trazer várias `entry`, e nada garante que sejam do mesmo
- * cliente nesta rota. Tratar o lote como um só levaria o evento de um cliente
- * para a fila de outro — é exatamente o vazamento que a rota por canal não tem.
+ * Split a Meta payload into one item per `entry`, each carrying an identifier to find its owner. One POST can contain entries from several customers on this route. Treating the batch as one would enqueue one customer's event for another, a cross-tenant leak that the per-channel route avoids.
  */
 export function identificarEntradas(corpo: unknown): InboundIdentified[] {
   const raiz = corpo as { entry?: unknown[] } | undefined;
@@ -171,9 +141,9 @@ export function identificarEntradas(corpo: unknown): InboundIdentified[] {
       ?.phone_number_id;
     return {
       wabaId: e.id,
-      numeroId,
-      // Reembrulhado com UMA entry: o processamento a jusante espera o formato da Meta.
-      corpo: { object: 'whatsapp_business_account', entry: [entrada] },
+      numberId: numeroId,
+      // Rewrap with exactly one `entry`; downstream processing expects Meta's payload shape.
+      body: { object: 'whatsapp_business_account', entry: [entrada] },
     };
   });
 }
@@ -188,7 +158,7 @@ export function assinaturaConfere(
   return igual(cabecalho.slice('sha256='.length), calculada);
 }
 
-/** Assinar é fácil; comparar sem vazar o tamanho do acerto é o que evita o oráculo. */
+/** Signing is straightforward; compare without leaking the matched length through timing to avoid an oracle. */
 function igual(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);

@@ -43,19 +43,19 @@ import type { RequestWithSession } from '../session.js';
  * catálogo `RECUSAS_DE_ENTRADA` do contrato — a tela escolhe o texto e a saída.
  */
 
-/** Onde o desafio espera a volta do Google. Cinco minutos é a vida útil de um login. */
+/** The cookie holds the challenge while awaiting the Google callback; a login lasts five minutes. */
 export const COOKIE_DESAFIO = 'pipe_challenge';
 const DESAFIO_SEGUNDOS = 300;
 
-/** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */
+/** Challenge cookie `Path`: it applies only to the two `/v1/auth` routes. */
 const CAMINHO_DESAFIO = '/v1/auth';
 
 export function optionsOfCookie(): OptionsOfCookie {
   const domain = process.env['PIPE_COOKIE_DOMINIO'];
   return {
-    // `Domain=.usepipe.com.br` é o que faz o cookie emitido por `api.usepipe.com.br` valer
+    // `Domain=.usepipe.com.br` lets a cookie issued by `api.usepipe.com.br` work across `app.`, `gestao.` and `crm.`. Leave Domain unset in development: `Domain=localhost` invalidates the cookie in several browsers, making login appear to do nothing.
     // em `app.`, `gestao.` e `crm.`. Vazio em desenvolvimento: `Domain=localhost`
-    // invalida o cookie em vários navegadores, e o sintoma é login que "não faz nada".
+    // invalidates the cookie in several browsers, making login appear to do nothing.
     domain: domain && domain.length > 0 ? domain : undefined,
     seguro: process.env['PIPE_COOKIE_SEGURO'] !== 'false',
   };
@@ -66,17 +66,7 @@ function urlDoApp(): string {
 }
 
 /**
- * De qual dos três aplicativos saiu este login.
- *
- * São TRÊS fronts em três origens e uma API só. Sem esta pergunta, quem entra
- * pelo CRM volta na Gestão: `PIPE_URL_APP` é um valor único e não tem como ser o
- * certo para os três ao mesmo tempo.
- *
- * A origem vem em `?origem=` e é conferida contra `PIPE_ORIGENS`, a MESMA lista
- * fechada do CORS. Aceitar o que vem na query sem conferir seria transformar o
- * login em redirecionamento aberto: qualquer site mandaria a pessoa ao Google e
- * receberia a volta dela já logada. Origem fora da lista cai em `PIPE_URL_APP`,
- * e o login continua funcionando.
+ * Identify which of the three applications initiated login. Three front ends have distinct origins but share one API; `PIPE_URL_APP` cannot be the correct return URL for all, so a CRM login would otherwise return to Management. Validate `?origem=` against `PIPE_ORIGENS`, the same closed CORS allowlist. Trusting the query value would create an open redirect: any site could send a person to Google and receive their signed-in return. An unlisted origin falls back to `PIPE_URL_APP`, preserving login.
  */
 export function baseDoApp(origem: string | undefined): string {
   const limpa = origem?.replace(/\/$/, '');
@@ -85,7 +75,7 @@ export function baseDoApp(origem: string | undefined): string {
 
 export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
   const base = baseDoApp(origem);
-  // `PIPE_URL_ENTRADA` só decide quando NÃO se sabe de onde a pessoa veio: fixá-la
+  // `PIPE_URL_ENTRADA` applies only when the initiating origin is unknown; overriding a
   // por cima de uma origem conhecida devolveria todo mundo ao mesmo lugar de novo.
   const url = new URL(
     origem ? `${base}/entrar` : (process.env['PIPE_URL_ENTRADA'] ?? `${base}/entrar`),
@@ -95,10 +85,7 @@ export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
 }
 
 /**
- * O destino já foi limitado a caminho interno por `criarDesafio`. Conferir de novo
- * custa uma linha e fecha a porta se algum dia alguém montar o desafio à mão:
- * destino absoluto vira redirecionamento aberto, que é phishing usando o nosso
- * domínio como trampolim.
+ * `criarDesafio` already restricts destinations to internal paths. Check again here so a future caller constructing a challenge by hand cannot turn an absolute destination into an open redirect and use our domain for phishing.
  */
 export function destinationAbsolute(destination: string, origem?: string): string {
   const interno = destination.startsWith('/') && !destination.startsWith('//') ? destination : '/';
@@ -106,19 +93,15 @@ export function destinationAbsolute(destination: string, origem?: string): strin
 }
 
 /**
- * O desafio do Pipe é o do provedor MAIS o convite, quando a entrada vem de um.
- *
- * O token do convite viaja no mesmo cookie porque ele precisa sobreviver à ida ao
- * Google e voltar: sem isso, a volta não teria como saber que aquela conta acabou
- * de ser convidada, e cairia na recusa por domínio desconhecido.
+ * Pipe's challenge combines the provider challenge with an invitation when login starts from one. The invitation token travels in the same cookie so it survives the Google round trip. Without it, the callback could not know the account was invited and would reject an unknown domain.
  */
 export type ChallengeWithInvitation = DesafioDeLogin & {
   invitation?: string;
-  /** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */
+  /** The app that started login; the callback returns there. */
   origin?: string;
-  /** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */
+  /** The tenant that initiated SSO determines which customer the person belongs to. */
   tenantId?: string;
-  /** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */
+  /** Connection test: validate everything without creating a session. */
   test?: boolean;
 };
 
@@ -129,8 +112,8 @@ export function cookieDoDesafio(desafio: ChallengeWithInvitation | null): string
     `${COOKIE_DESAFIO}=${value}`,
     `Path=${CAMINHO_DESAFIO}`,
     'HttpOnly',
-    // `Lax`, e não `Strict`: a volta do Google é navegação de topo vinda de outro
-    // site. Com `Strict` o cookie não acompanha, e o login falha sempre.
+    // Use `Lax`, not `Strict`: the Google callback is a top-level navigation from another
+    // site. With `Strict`, the cookie is omitted and login always fails.
     'SameSite=Lax',
     `Max-Age=${desafio ? DESAFIO_SEGUNDOS : 0}`,
   ];
@@ -140,16 +123,12 @@ export function cookieDoDesafio(desafio: ChallengeWithInvitation | null): string
 }
 
 /**
- * O desafio vai em cookie sem assinatura nossa, e isso é deliberado: ele não afirma
- * nada: é o outro lado do `state`/`nonce`/PKCE que já viajaram para o Google, e a
- * verificação é o cookie bater com o que volta de lá. Assinar protegeria contra o
- * próprio dono do navegador forjar o próprio login — que é o que ele já pode fazer.
- * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
+ * The challenge cookie intentionally has no Pipe signature. It asserts nothing by itself: it is the counterpart to the `state`, `nonce` and PKCE values sent to Google, and verification checks that it matches the callback. Signing would only defend against a browser owner forging their own login, which they can already do. `HttpOnly` keeps scripts from reading the value.
  */
 export function lerDesafio(request: Request): ChallengeWithInvitation | null {
-  /* Cada valor recebido com esse nome, e não só o primeiro: quando o `Domain`
-     do cookie muda entre duas versões, o navegador passa a mandar os dois, e o
-     velho costuma vir na frente. Era isso que derrubava o login sem erro. */
+  /*
+   * Inspect every cookie value with this name, not only the first. If `Domain` changed between releases, the browser can send both cookies with the old one first. That previously caused a silent login failure.
+   */
   for (const cru of lerCookies(request.header('cookie'), COOKIE_DESAFIO)) {
     try {
       const objeto = JSON.parse(
@@ -157,29 +136,29 @@ export function lerDesafio(request: Request): ChallengeWithInvitation | null {
       ) as ChallengeWithInvitation;
       if (objeto.state && objeto.nonce && objeto.verificadorPkce) return objeto;
     } catch {
-      // valor ilegível: tenta o próximo
+      // Unreadable value: try the next cookie.
     }
   }
   return null;
 }
 
-/** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */
+/** Map the failure to a contract code the sign-in screen understands. */
 export function codigoDaRecusa(error: unknown): RefusesOfInbound {
   if (error instanceof InboundRefused) {
-    // Conta do provedor que já é de outro cliente: para quem está entrando é a
-    // mesma coisa que não ter sido convidado, e dizer mais contaria que aquele
+    // A provider account already owned by another customer must look to the signer-in
+    // the same as having no invitation. More detail would reveal that this email exists in another Pipe customer account.
     // e-mail existe em outra empresa do Pipe.
     return error.codigo === 'outro_tenant' ? 'without_invitation' : error.codigo;
   }
   if (error instanceof LoginError && error.codigo === 'email_nao_verificado') {
     return 'email_nao_verificado';
   }
-  // Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de
-  // outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não
-  // serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.
+  // An expired or used invitation, one for another email, or a Google account already
+  // owned by someone else all mean the invitation is unusable; request another.
+  // `sem_convite` is the code the screen can explain.
   if (error instanceof PipeError && error.status !== 500) return 'without_invitation';
-  // Todo o resto — `state` errado, troca de código falhada, config ausente — é
-  // problema nosso ou do provedor, e para quem está entrando a saída é uma só:
+  // Everything else, including a wrong `state`, failed code exchange or missing config,
+  // is our or the provider's problem. The user has one recourse: retry.
   // tentar de novo.
   return 'falha_no_provedor';
 }
@@ -189,18 +168,14 @@ export function textoDaQuery(requisicao: Request, campo: string): string | undef
   return typeof valor === 'string' ? valor : undefined;
 }
 
-/** A origem pedida, sem a barra final. Quem a confere é `baseDoApp`. */
+/** Requested origin without a trailing slash; `baseDoApp` validates it. */
 export function origemDaQuery(requisicao: Request): string | undefined {
   const crua = textoDaQuery(requisicao, 'origem');
   return crua ? crua.replace(/\/$/, '') : undefined;
 }
 
 /**
- * Aceita o convite com a identidade do Google em mãos e devolve a sessão.
- *
- * O `if` existe para o tipo, não para o caso: `aceitarConvite` sempre abre sessão
- * quando recebe a pessoa. Virar 500 aqui seria melhor do que redirecionar como se
- * tivesse dado certo.
+ * Accept the invitation with the Google identity and return the session. The `if` satisfies the type system, not a real branch: `aceitarConvite` always opens a session for a person. A 500 here would be preferable to redirecting as though login succeeded.
  */
 async function loginByInvitation(
   token: string,
@@ -215,15 +190,7 @@ async function loginByInvitation(
 @Controller('v1/auth')
 export class LoginController {
   /**
-   * Login SÓ DE DESENVOLVIMENTO, sem Google.
-   *
-   * Existe para ver as telas em `localhost` quando não há OAuth configurado.
-   * **Barrado fora de desenvolvimento**: com `NODE_ENV === 'production'` responde
-   * 404, como se a rota não existisse. Nunca é porta de verdade — a porta de
-   * verdade é `google`/`sso`. Emite uma sessão real para um usuário já semeado.
-   *
-   * Uso: abrir no navegador
-   * `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200`.
+   * Development-only login without Google. It lets developers inspect screens on `localhost` when OAuth is not configured. Outside development (`NODE_ENV === 'production'`) it returns 404 as if the route did not exist. Real sign-in uses `google` or `sso`; this path issues a real session only for an existing seeded user. Open `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200` in a browser.
    */
   @Get('dev')
   async dev(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
@@ -258,11 +225,7 @@ export class LoginController {
   }
 
   /**
-   * Começa o login: cria o desafio, guarda em cookie e manda para o Google.
-   *
-   * `?convite=<token>` é a entrada de quem foi convidado e cujo domínio ainda não
-   * está verificado. Sem ele, esse login morreria em `dominio_desconhecido` — a
-   * segunda pergunta da entrada não tem como saber de que cliente é a pessoa.
+   * Start sign-in by creating a challenge, storing it in a cookie and redirecting to Google. `?convite=<token>` admits an invitee whose domain has not been verified; without it, sign-in would fail with `dominio_desconhecido` because the second step cannot identify the customer.
    */
   @Get('google')
   ir(@Req() requisicao: Request, @Res() resposta: Response): void {
@@ -285,18 +248,18 @@ export class LoginController {
     resposta.redirect(302, urlOfAuthorization(config, desafio));
   }
 
-  /** A volta do Google. Daqui a pessoa sai logada ou sai com um código de recusa. */
+  /** Google callback: either establish a session or return a rejection code. */
   @Get('google/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
     if (!desafio) {
-      // Sem cookie o login não tem como ser conferido: pode ser aba velha, cookie
-      // bloqueado ou tentativa forjada. Nos três casos a saída é recomeçar.
+      // Without the challenge cookie, login cannot be verified: it may be an old tab, a blocked cookie
+      // or a forged attempt. In all cases the person must start again.
       //
-      // O log não é ruído: este caminho devolve a MESMA tela de "falha no
-      // provedor" que um erro de rede, e sem rastro não dá para saber qual dos
-      // dois aconteceu — foi o que atrasou um diagnóstico aqui.
+      // Keep this log: the path shows the same "provider failure" screen as
+      // a network error, and without a trace we cannot distinguish the two.
+      // That ambiguity delayed a previous diagnosis.
       console.error(
         '[api] retorno sem cookie de desafio',
         JSON.stringify({ cookies: (requisicao.header('cookie') ?? '').split(';').length }),
@@ -313,8 +276,8 @@ export class LoginController {
         error: textoDaQuery(requisicao, 'error'),
       });
       const context = { ip: requisicao.ip, agente: requisicao.header('user-agent') };
-      // Com convite no desafio, é o convite que decide o tenant e liga a conta do
-      // Google — e não o domínio. É a única porta de quem não tem domínio verificado.
+      // When the challenge includes an invitation, it determines the tenant and links the
+      // Google account instead of relying on the domain; this is the only path for an unverified domain.
       const inbound = desafio.invitation
         ? await loginByInvitation(desafio.invitation, pessoa, context)
         : await loginWithGoogle(
@@ -322,9 +285,9 @@ export class LoginController {
             databaseApp(),
             pessoa,
             context,
-            // Com o autosserviço desligado (o padrão), nada muda: quem não tem
-            // convite nem domínio verificado continua recusado. Ligado, a conta
-            // nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.
+            // With self-service disabled by default, people without an invitation or verified
+            // domain remain rejected. If enabled, the account is created here and Management
+            // receives the person on the welcome screen.
             registrationOfAccountEnabled()
               ? (quem) =>
                   buildAccountOfLogin({ email: quem.email, name: quem.nome }).then((account) => ({
@@ -335,7 +298,7 @@ export class LoginController {
           );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
+        sessionCookie(cookieOfSession(inbound.token, inbound.expiresAt, optionsOfCookie())),
       ]);
       resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
     } catch (erro) {
@@ -346,7 +309,7 @@ export class LoginController {
     }
   }
 
-  /** Encerra a sessão e apaga o cookie. Sair duas vezes não é erro. */
+  /** End the session and clear the cookie. Signing out twice is not an error. */
   @Post('sair')
   async sair(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const token = tokenOfSession(requisicao);
@@ -370,7 +333,7 @@ type LinhaEu = {
 
 @Controller('v1')
 export class MeController {
-  /** Quem está logado, no formato do contrato `Eu`. É a fonte de verdade das telas. */
+  /** The signed-in person in contract `Eu` format; source of truth for the screens. */
   @Get('eu')
   @WithSession()
   async eu(@Req() requisicao: RequestWithSession): Promise<Eu> {
@@ -389,15 +352,15 @@ export class MeController {
       const user = rows[0];
       if (!user) return null;
 
-      // As permissões são a UNIÃO dos papéis da pessoa, com a EXCEÇÃO por
-      // pessoa por cima (`usuario_permissao`, migração 0046 — a tela
-      // "Permissões" do atendente): o `union` traz o que o papel dá mais o que
-      // foi LIGADO na mão, e o `not exists` tira o que foi DESLIGADO na mão.
-      // É a mesma conta do `coalesce` de `exigirPermissao`, escrita em conjunto
-      // porque aqui a resposta é a lista, e não um código de cada vez.
-      // `distinct` porque dois papéis repetem permissão o tempo todo, e a tela
-      // não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro
-      // da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem
+      // Permissions are the union of the person's roles, with per-person exceptions
+      // overlaid through `usuario_permissao` (migration 0046; the attendant's
+      // "Permissões" screen). The `union` includes grants from roles and explicit
+      // grants; `not exists` removes permissions explicitly denied.
+      // This matches the `coalesce` logic in `exigirPermissao`, expressed as a set
+      // because this endpoint returns a list rather than testing one code at a time.
+      // Use `distinct` because multiple roles often grant the same permission, and the screen
+      // must not receive duplicates. Run serially, never with `Promise.all`: parallel work
+      // inside this transaction can unset `pipe.tenant_id` and run a query without
       // tenant.
       const { rows: permissions } = await tx.execute<{ code: string }>(sql`
         select codigo from (
@@ -422,8 +385,8 @@ export class MeController {
       return { user, permissoes: permissions.map((p) => p.code) };
     });
 
-    // Sessão viva apontando para usuário que sumiu ou foi desativado entre um
-    // pedido e outro: é recusa, não 500.
+    // A live session may point to a user removed or deactivated between
+    // requests. Reject it rather than returning 500.
     if (!encontrado) throw PipeError.naoAutorizado('Sessão ausente ou expirada.');
 
     const { user, permissoes } = encontrado;

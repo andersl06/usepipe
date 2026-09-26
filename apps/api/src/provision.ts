@@ -12,49 +12,10 @@ import { logDomain, checkDomain } from './domain/dominios.js';
 import type { RegistroOfVerification } from './domain/dominios.js';
 
 /**
- * Provisionar um cliente: de "vendemos" a "o dono consegue entrar".
- *
- * ## Comando, e não rota. Por quê
- *
- * Provisionar cria tenant, primeiro administrador e domínio verificado — as três
- * coisas que, juntas, dão acesso a um cliente inteiro. Exposto como rota, isso vira
- * **uma chave mestra por HTTP**: um segredo em variável de ambiente que, vazado em
- * log, em captura de tela ou no histórico do shell de quem chamou com `curl`, cria
- * tenants e administradores para quem o tiver. Rota também exige rotação de chave,
- * limite de tentativa e auditoria de quem chamou — trabalho que só se paga quando
- * existe tela de administração para justificá-lo.
- *
- * Como comando, a credencial é a que já existe e já é protegida: **o acesso ao
- * banco de produção**. Quem pode rodar isto já podia inserir as linhas à mão; a
- * diferença é que agora ele as insere certas, com o catálogo semeado e o domínio
- * verificado. E não há superfície nova na internet.
- *
- * Quando existir tela de administração do Pipe, o caminho é ela chamar uma rota
- * autenticada pela sessão de um usuário nosso, com papel próprio e auditoria — e
- * `provisionarCliente` continua sendo a função que ela chama. Não é preciso
- * reescrever nada; é preciso ganhar um chamador com identidade.
- *
- * ## Uso
- *
- * ```
- * pnpm --filter @pipe/api provisionar \
- *   --nome "Acme Atendimento" --slug acme --plano operacao \
- *   --admin ana@acme.com.br [--dominio acme.com.br] [--verificar] [--reaplicar]
- * ```
- *
- * Sem `--verificar` o comando imprime o TXT a publicar e o domínio fica pendente —
- * que é o caso normal, porque o DNS é do cliente. Enquanto ele não estiver
- * verificado, a equipe entra por convite (`POST /v1/convites`), que é a outra porta.
+ * Provision a tenant, first administrator, and verified domain through a command, not an HTTP route. Together these grant full tenant access; a route would require a master secret vulnerable to logs, screenshots, or `curl` shell history, plus rotation, rate limits, and caller audit. The command instead uses existing production database access, whose holder could already insert these records, and adds no Internet-facing surface. When a Pipe admin UI exists, it can call `provisionarCliente` through a session-authenticated route with a dedicated role and audit. Usage: `pnpm --filter @pipe/api provisionar --nome "Acme Atendimento" --slug acme --plano operacao --admin ana@acme.com.br [--dominio acme.com.br] [--verificar] [--reaplicar]`. Without `--verificar`, print the TXT record and leave the customer-owned DNS domain pending; staff can enter through invitations (`POST /v1/convites`) meanwhile.
  */
 
-/**
- * Motivos de pausa do dia 1.
- *
- * Ficam aqui e não em `packages/db/src/semente.ts` só porque aquele arquivo é
- * território de outra pessoa nesta rodada. É lá que eles pertencem, ao lado dos
- * papéis e das filas de exemplo — este bloco deve mudar de casa junto com a
- * primeira alteração que abrir a semente.
- */
+
 const MOTIVOS_PAUSA_PADRAO = [
   { nome: 'Almoço', duracaoSugeridaMin: 60, contaComoProdutivo: false },
   { nome: 'Intervalo', duracaoSugeridaMin: 15, contaComoProdutivo: false },
@@ -70,20 +31,15 @@ export interface RequestOfProvisioning {
   name: string;
   slug: string;
   plan: string;
-  /** O e-mail do primeiro administrador. O domínio dele é o padrão do tenant. */
+  /** First administrator's email; its domain is the tenant default. */
   admin: string;
   domain?: string | undefined;
-  /** Confere o TXT agora. Só faz sentido quando o cliente já publicou o registro. */
+  /** Check the TXT record now, only after the customer has published it. */
   verificar?: boolean | undefined;
-  /** Deixa reaplicar sobre um slug que já existe. Sem isto, slug repetido para. */
+  /** Allow reapplying to an existing slug; otherwise a duplicate slug stops. */
   reaplicar?: boolean | undefined;
   /**
-   * Cria o cliente SEM registrar domínio.
-   *
-   * É o caso da conta que nasce no login (autosserviço): quem entra com e-mail
-   * pessoal não tem domínio para reivindicar, e registrar "gmail.com" como
-   * domínio de um tenant daria a ele todo mundo que tem Gmail. Domínio ali é
-   * assunto de depois, quando a empresa quiser entrada por domínio.
+   * Create a tenant without registering a domain for self-service signups. Personal-email users cannot claim a company domain: registering `gmail.com` for one tenant would grant it every Gmail user. Domain-based sign-in can be configured later.
    */
   withoutDomain?: boolean | undefined;
 }
@@ -98,7 +54,7 @@ export interface ClienteProvisionado {
   permissions: number;
   queues: number;
   motivosDePausa: number;
-  /** Nulo quando o cliente nasceu sem domínio — ver `semDominio` no pedido. */
+  /** Null when the tenant was created without a domain; see `semDominio` in the request. */
   domain: {
     id: string;
     domain: string;
@@ -132,8 +88,7 @@ export async function provisionCustomer(
   }
   const plano = pedido.plan as Plano;
 
-  // O domínio sai do e-mail do administrador quando não vier explícito — é o caso
-  // normal, e digitar duas vezes a mesma coisa é como se erra uma delas.
+  // If no domain is supplied, derive it from the administrator email; entering the same value twice invites a mismatch.
   const domainTarget = pedido.domain ?? domainOfEmail(admin);
   if (!pedido.withoutDomain && !pedido.domain && ehDomainPublic(admin)) {
     throw PipeError.request(
@@ -153,13 +108,12 @@ export async function provisionCustomer(
     );
   }
 
-  // A semente base é a fonte única do catálogo mínimo: papéis do dia 1, permissões e
+  // The base seed is the single source for initial roles, permissions, and catalog.
   // filas de exemplo. Repetir aquela lista aqui garantiria que as duas divergissem.
-  const semeado = await seed(dono, { nome, slug });
+  const semeado = await seed(dono, { name: nome, slug });
 
   const admins = await noTenant(semeado.tenantId, async (tx) => {
-    // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
-    // `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.
+    // Run serially, never with `Promise.all`: parallel operations inside this transaction can lose `pipe.tenant_id` and run without a tenant; see the README.
     await tx.execute(
       sql`update tenant set plano = ${plano}, atualizado_em = now()
            where id = ${semeado.tenantId}::uuid`,
@@ -182,8 +136,7 @@ export async function provisionCustomer(
     `);
     const adminId = rows[0]!.id;
 
-    // Dois papéis: `admin` na conta (o único papel de conta dele) e
-    // `administrador` no atendimento (migração 0021).
+    // Assign two roles: `admin` at account scope (their only account role) and `administrador` at attendance scope (migration 0021).
     await tx.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
       select ${semeado.tenantId}::uuid, ${adminId}::uuid, id, escopo
@@ -204,7 +157,7 @@ export async function provisionCustomer(
   return {
     tenantId: semeado.tenantId,
     slug,
-    plano,
+    plan: plano,
     adminId: admins,
     adminEmail: admin,
     papeis: semeado.papeis,
@@ -212,12 +165,12 @@ export async function provisionCustomer(
     queues: semeado.queues,
     motivosDePausa: MOTIVOS_PAUSA_PADRAO.length,
     domain: domain
-      ? { id: domain.id, dominio: domain.domain, verificado, registro: domain.registro }
+      ? { id: domain.id, domain: domain.domain, verificado, registro: domain.registro }
       : null,
   };
 }
 
-/** O que o dono do cliente precisa para entrar, em texto de terminal. */
+/** Terminal text giving the tenant owner what they need to sign in. */
 export function asLogin(cliente: ClienteProvisionado): string {
   const app = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
   const limites = LIMITES_DO_PLANO[cliente.plan];

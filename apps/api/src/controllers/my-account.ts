@@ -9,27 +9,11 @@ import type { RequestWithSession } from '../session.js';
 import { optionsOfCookie } from './login.js';
 
 /**
- * "Minha conta" e o seletor de contas — as duas telas que fecham o onboarding
- * de quem entrou pelo autosserviço.
- *
- * A ordem da plataforma de origem, medida em `referencias-blip/pesquisa/onboarding-blip.md`:
- * a conta nasce no login, a tela de boas-vindas avisa, e ESTE formulário é o que
- * a completa. Enquanto `onboardingConcluidoEm` for nulo, a Gestão manda a pessoa
- * para cá em vez de abrir o portal.
- *
- * O seletor existe porque um e-mail administra várias contas (lá se troca de
- * subdomínio; aqui se troca a sessão). A lista sai do banco do DONO de
- * propósito: é a única consulta que precisa atravessar tenants, e ela responde
- * só sobre contas em que aquele e-mail já tem usuário ativo.
+ * "Minha conta" and the account selector finish self-service onboarding. The source sequence is documented in `referencias-blip/pesquisa/onboarding-blip.md`: login creates an account, the welcome screen announces it, and this form completes it. While `onboardingConcluidoEm` is null, Management sends the person here instead of opening the portal. The selector exists because one email can administer several accounts; the source changes subdomain, while Pipe changes session. Deliberately query the owner database because listing those accounts crosses tenants; return only accounts where this email already has an active user.
  */
 
 /**
- * As sete faixas da origem, com os CORTES dela (1–4, 5–19, 20–49, 50–249,
- * 250–999, 1.000–10.000, acima). Antes usávamos cortes redondos nossos — sete
- * faixas também, mas em pontos diferentes, e aí o dado não cruza com o deles
- * nem com o mercado que já responde nesse formato.
- *
- * Faixa, e não número: escala muda, faixa não.
+ * Use the source's seven employee-size bands with its exact cutoffs: 1–4, 5–19, 20–49, 50–249, 250–999, 1,000–10,000 and above. Our former seven round-number bands did not align with its data or the market that reports in this format. Store a band rather than an exact count because headcount changes more often than its band.
  */
 const FAIXAS_DE_FUNCIONARIOS = [
   '1 a 4',
@@ -41,15 +25,11 @@ const FAIXAS_DE_FUNCIONARIOS = [
   'mais de 10.000',
 ] as const;
 
-/** Os três idiomas da origem. */
+/** The source's three languages. */
 const IDIOMAS = ['pt-BR', 'en-US', 'es-ES'] as const;
 
 /**
- * Os fusos do Brasil, do mais usado para o menos.
- *
- * Lista fechada, e não o catálogo inteiro da IANA: o catálogo tem 400 e poucos
- * nomes, e a tela vira uma caçada. Quando houver cliente fora daqui, a lista
- * cresce — e o banco já aceita qualquer nome válido.
+ * Brazilian timezones, ordered from most to least used. Use a closed list rather than all roughly 400 IANA names, which would make the screen hard to scan. Extend it when there is a customer elsewhere; the database already accepts any valid name.
  */
 const FUSOS = [
   'America/Sao_Paulo',
@@ -79,15 +59,11 @@ export interface AccountInForce {
   phone: string | null;
   optinWhatsapp: boolean;
   /**
-   * A aba "Preferências" da tela de origem: idioma e fuso.
-   *
-   * As duas colunas já existiam no tenant e nenhuma tela mexia nelas — e o fuso
-   * decide o que é "hoje" em todo relatório, então deixá-lo fora da tela é
-   * deixar o cliente preso ao fuso que o provisionamento escolheu.
+   * The source screen's "Preferências" tab contains language and timezone. Both tenant columns already existed but no screen changed them. Timezone determines "today" in every report, so omitting it would leave the customer stuck with the provisioning default.
    */
   idioma: string;
   fuso: string;
-  /** Nulo enquanto o formulário não foi salvo nenhuma vez. */
+  /** Null until the form has been saved once. */
   onboardingConcluidoEm: string | null;
   faixasDeFuncionarios: readonly string[];
   idiomas: readonly string[];
@@ -123,7 +99,7 @@ function forContract(linha: LineAccount): AccountInForce {
     city: linha.city,
     state: linha.state,
     pais: linha.pais,
-    telefone: linha.phone,
+    phone: linha.phone,
     optinWhatsapp: linha.optin_whatsapp,
     idioma: linha.idioma,
     fuso: linha.fuso,
@@ -139,21 +115,16 @@ export interface AccountInList {
   name: string;
   slug: string;
   plan: string;
-  /** A conta desta sessão. É a que o seletor marca. */
+  /** The account for this session; the selector marks it. */
   inForce: boolean;
   onboardingCompleted: boolean;
   /**
-   * Conta PESSOAL: a que nasceu no login e não provou domínio nenhum.
-   *
-   * É o corte que a origem faz entre o contrato (empresa, com id) e o espaço
-   * pessoal (sem id), e o seletor desenha os dois diferente. Aqui a prova é o
-   * domínio verificado: quem contrata publica o TXT no DNS da empresa; quem
-   * entrou sozinho com o próprio e-mail não publicou nada.
+   * A personal account is created at login without a verified domain. The source distinguishes a company contract (with ID) from a personal space (without ID), and the selector renders them differently. Here the evidence is a verified domain: a subscribing company publishes a DNS TXT record; someone who joined alone with their own email has not.
    */
   personal: boolean;
 }
 
-/** Um valor da lista, ou nulo quando não veio. Fora da lista é recusa. */
+/** A value from the allowlist, or null when none was supplied. Reject a value outside the list. */
 function escolha(
   value: unknown,
   lista: readonly string[],
@@ -175,7 +146,7 @@ function texto(valor: unknown, limite: number): string | null {
 
 @Controller('v1')
 export class MyAccountController {
-  /** A conta em vigor, com o que o formulário precisa mostrar e oferecer. */
+
   @Get('account')
   @WithSession()
   async account(@Req() request: RequestWithSession): Promise<AccountInForce> {
@@ -195,12 +166,7 @@ export class MyAccountController {
   }
 
   /**
-   * Salva os dados da empresa e, com isso, conclui o onboarding.
-   *
-   * Salvar é o que marca `onboarding_concluido_em` — não há um botão "concluir"
-   * à parte. Na origem é o mesmo: o `POST /Account` do formulário é o passo.
-   * Salvar de novo depois não reabre nem remarca: a data é a da primeira vez,
-   * e é ela que conta quanto tempo a conta levou para sair do papel.
+   * Save company data and complete onboarding. Saving sets `onboarding_concluido_em`; there is no separate finish button. In the source, the form's `POST /Account` is that step. Saving again does not reopen onboarding or reset the timestamp: the first save date measures how long the account took to become active.
    */
   @Patch('account')
   @WithSession()
@@ -219,8 +185,9 @@ export class MyAccountController {
       );
     }
 
-    /* Lista fechada dos dois lados: idioma que a tela não sabe desenhar e fuso
-       que o Postgres não conhece quebram relatório inteiro, e em silêncio. */
+    /*
+     * Use allowlists at both edges. A language the screen cannot render or a timezone Postgres does not recognize can silently break an entire report.
+     */
     const idioma = escolha(corpo['idioma'], IDIOMAS, 'idioma_invalido', 'Idioma não suportado.');
     const fuso = escolha(corpo['fuso'], FUSOS, 'fuso_invalido', 'Fuso não suportado.');
 
@@ -250,11 +217,7 @@ export class MyAccountController {
   }
 
   /**
-   * As contas deste e-mail. É o que o seletor do canto superior esquerdo lista.
-   *
-   * Pelo e-mail, e não pela identidade do provedor: quem foi convidado para a
-   * conta de um cliente e ainda não entrou por lá pelo Google também aparece —
-   * é o mesmo critério que a entrada usa para ligar a conta na primeira vez.
+   * List the accounts associated with this email for the upper-left selector. Match by email rather than provider identity: someone invited to another customer's account appears even before signing in there with Google, matching the criterion used to link accounts on first sign-in.
    */
   @Get('accounts/my')
   @WithSession()
@@ -283,23 +246,17 @@ export class MyAccountController {
 
     return rows.map((linha) => ({
       tenantId: linha.tenant_id,
-      nome: linha.name,
+      name: linha.name,
       slug: linha.slug,
-      plano: linha.plan,
+      plan: linha.plan,
       inForce: linha.tenant_id === sessao.tenantId,
       onboardingCompleted: linha.onboarding_concluido_em !== null,
-      pessoal: linha.personal,
+      personal: linha.personal,
     }));
   }
 
   /**
-   * Troca a conta em vigor: abre sessão nova na conta de destino e devolve o
-   * cookie.
-   *
-   * O vínculo é conferido AQUI, pelo e-mail da sessão de agora — mandar um
-   * `tenantId` qualquer não serve de nada. A sessão antiga continua válida de
-   * propósito: quem troca de conta costuma voltar, e derrubar a outra aba no
-   * meio de um atendimento seria pior.
+   * Switch the current account by opening a new session for the destination and returning its cookie. Verify membership here using the email from the current session; an arbitrary `tenantId` in the request grants nothing. Keep the old session valid deliberately, since users switch back and invalidating another tab during a conversation would be worse.
    */
   @Post('accounts/exchange')
   @WithSession()
@@ -309,9 +266,9 @@ export class MyAccountController {
     @Body() corpo: { tenantId?: string; slug?: string },
   ): Promise<{ tenantId: string; slug: string }> {
     const sessao = sessionOf(requisicao);
-    /* Aceita as duas formas porque as duas telas pedem coisas diferentes: o
-       seletor tem o id em mãos, e o endereço da conta (o subdomínio) só tem o
-       slug — é ele que a URL carrega. */
+    /*
+     * Accept both forms because the two screens have different inputs: the selector has the account ID, while an account address (subdomain) contains only its slug in the URL.
+     */
     const destination = (corpo?.tenantId ?? '').trim() || (await idDoSlug(corpo?.slug));
     if (!destination) throw PipeError.request('tenant_missing', 'Informe a conta de destino.');
     if (destination === sessao.tenantId) {
@@ -334,8 +291,8 @@ export class MyAccountController {
        limit 1
     `);
     const alvo = rows[0];
-    // Sem vínculo a resposta é "não existe", e não "você não pode": dizer que a
-    // conta existe já conta ao curioso que empresa usa o Pipe.
+    // Without membership, respond "does not exist" rather than "you cannot": acknowledging that the
+    // account exists would reveal to a curious caller which company uses Pipe.
     if (!alvo) throw new PipeError(404, 'not_found', 'Não encontrado.');
 
     const inbound = await openSessionAt(
@@ -348,19 +305,14 @@ export class MyAccountController {
     );
     resposta.setHeader(
       'set-cookie',
-      sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
+      sessionCookie(cookieOfSession(inbound.token, inbound.expiresAt, optionsOfCookie())),
     );
     return { tenantId: destination, slug: alvo.slug };
   }
 }
 
 /**
- * O id da conta a partir do endereço dela.
- *
- * Responde no banco do dono porque a pergunta acontece ANTES de saber se a
- * pessoa tem acesso — quem decide isso é a rota, logo depois, pelo e-mail. Um
- * slug que não existe devolve vazio, e a rota trata como "não encontrado": não
- * há diferença visível entre conta inexistente e conta que não é sua.
+ * Resolve an account ID from its address using the owner database because this lookup occurs before knowing whether the person has access. The route then decides access by email. A nonexistent slug returns empty, which the route treats as not found; the response does not distinguish a nonexistent account from one the caller cannot access.
  */
 async function idDoSlug(slug: string | undefined): Promise<string> {
   const limpo = (slug ?? '').trim().toLowerCase();
@@ -371,7 +323,7 @@ async function idDoSlug(slug: string | undefined): Promise<string> {
   return rows[0]?.id ?? '';
 }
 
-/** O e-mail de quem está logado. É a chave que liga as contas da mesma pessoa. */
+/** The signed-in person's email links that person's accounts. */
 async function emailOfSession(tenantId: string, userId: string): Promise<string> {
   const email = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ email: string }>(

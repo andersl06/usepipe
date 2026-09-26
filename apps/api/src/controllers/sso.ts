@@ -48,7 +48,7 @@ import {
 
 @Controller('v1/sso')
 export class SsoConnectionController {
-  /** A conexão do tenant, sem segredo nenhum. Mostra também o que colar no IdP. */
+  /** Tenant connection details without secrets, including what to paste into the IdP. */
   @Get()
   @WithSession()
   async ver(@Req() requisicao: RequestWithSession): Promise<Record<string, unknown>> {
@@ -58,7 +58,7 @@ export class SsoConnectionController {
     return conexao ? paraJson(conexao) : { conexao: null };
   }
 
-  /** Salva a configuração. Sempre em `rascunho`: salvar não liga nada. */
+  /** Save configuration in `rascunho`; saving does not activate it. */
   @Put()
   @WithSession()
   async salvar(
@@ -71,9 +71,7 @@ export class SsoConnectionController {
   }
 
   /**
-   * Muda o estado e/ou a política. **São dois campos e dois registros de
-   * auditoria**, e é de propósito: ligar o SSO e exigir o SSO nunca podem ser o
-   * mesmo botão.
+   * Change state and/or policy as separate fields with separate audit records. Enabling SSO and requiring SSO must never be the same button.
    */
   @Post('state')
   @HttpCode(200)
@@ -91,11 +89,7 @@ export class SsoConnectionController {
 @Controller('v1/auth')
 export class SsoLoginController {
   /**
-   * Um campo, um botão: para onde este e-mail vai?
-   *
-   * A resposta é a mesma para e-mail conhecido e desconhecido — só domínio
-   * verificado com SSO ativo devolve `sso`, e isso é público porque o cliente
-   * escolheu ligar. Sem essa simetria, o endpoint vira catálogo de clientes.
+   * For an email, discover its sign-in destination. Give the same response for known and unknown email addresses: only a verified domain with active SSO yields `sso`, which is public because the customer enabled it. Without that symmetry, this endpoint would enumerate customers.
    */
   @Post('descobrir')
   @HttpCode(200)
@@ -104,18 +98,14 @@ export class SsoLoginController {
   }
 
   /**
-   * Começa o teste da conexão. Exige sessão: quem clica é o admin do cliente, já
-   * logado por senha ou pelo Google, e **a sessão dele não é tocada**.
-   *
-   * Vem antes de `sso/:slug` de propósito — no Nest a primeira rota que casa
-   * ganha, e `:slug` casaria com `testar`.
+   * Start a connection test with an existing session. The customer admin is already signed in by password or Google, and this test does not alter that session. Register this route before `sso/:slug`: Nest uses the first matching route, and `:slug` would otherwise match `testar`.
    */
   @Get('sso/testar')
   @WithSession()
   async testar(@Req() request: RequestWithSession, @Res() resposta: Response): Promise<void> {
     const session = sessionOf(request);
     await permitido(session.tenantId, session.userId, 'tenant.configurar');
-    // `exigirAtiva: false`: testar uma conexão em rascunho é exatamente o ponto.
+    // `exigirAtiva: false` permits testing a draft connection, which is the purpose here.
     const flow = await connectionForFlow(session.tenantId, { exigirActive: false });
     const desafio: ChallengeWithInvitation = {
       ...createChallenge('/'),
@@ -127,11 +117,7 @@ export class SsoLoginController {
   }
 
   /**
-   * A volta do IdP do cliente. Vem antes de `sso/:slug` pelo mesmo motivo do teste.
-   *
-   * O tenant sai do COOKIE, não da URL: `state` e o cookie são o par que prova
-   * que esta volta pertence àquela ida. Aceitar tenant vindo da query seria
-   * deixar quem monta a URL escolher em qual cliente entrar.
+   * The customer IdP callback also precedes `sso/:slug` to avoid route capture. Resolve the tenant from the cookie, never the URL: `state` and the cookie together prove this callback belongs to the original request. Taking the tenant from the query would let whoever constructs the URL choose the customer to enter.
    */
   @Get('sso/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
@@ -153,9 +139,9 @@ export class SsoLoginController {
 
       resposta.setHeader('set-cookie', apagarDesafio);
 
-      // O teste para AQUI. Nada de sessão, nada de cookie novo, nada de conta
-      // criada: só o que chegou e o que casaria. É o que torna seguro apontar
-      // um IdP novo para um tenant que já tem gente dentro.
+      // The test stops here: it creates no session, new cookie or account,
+      // only reports the received claims and what would match. That makes it safe to point
+      // a new IdP at a tenant that already has users.
       if (desafio.test) {
         await marcarTestada(desafio.tenantId);
         resposta.status(200).json({
@@ -166,7 +152,7 @@ export class SsoLoginController {
           emailVerified: pessoa.emailVerificado,
           name: pessoa.nome ?? null,
           matchesUser: await userWithEmail(desafio.tenantId, pessoa.email),
-          // O aviso que evita o chamado de segunda-feira: sem e-mail verificado
+          // Warn before Monday's support call: without a verified email, real login rejects the user even when the test passes.
           // o login real recusa, mesmo com o teste "passando".
           aviso: pessoa.emailVerificado
             ? null
@@ -184,14 +170,14 @@ export class SsoLoginController {
       );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
+        sessionCookie(cookieOfSession(inbound.token, inbound.expiresAt, optionsOfCookie())),
       ]);
       resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
     } catch (error) {
       const codigo = codigoDaRecusa(error);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', error);
       resposta.setHeader('set-cookie', apagarDesafio);
-      // No teste o admin precisa do motivo; no login de verdade, não.
+      // In a test the admin needs the failure reason; in real login the user must not receive it.
       if (desafio.test) {
         resposta.status(200).json({ result: 'falhou', codigo, motivo: message(error) });
         return;
@@ -201,10 +187,7 @@ export class SsoLoginController {
   }
 
   /**
-   * O link direto por empresa — `app.usepipe.com.br/e/<slug>` cai aqui.
-   *
-   * É a mesma descoberta feita pela URL em vez do e-mail, e existe para quem tem
-   * e-mail pessoal e por isso nunca é descoberto pelo domínio.
+   * A company direct link, `app.usepipe.com.br/e/<slug>`, reaches this route. It performs the same discovery by URL rather than email for people with personal email addresses who cannot be discovered by domain.
    */
   @Get('sso/:slug')
   async ir(
@@ -234,13 +217,13 @@ function message(erro: unknown): string {
   return erro instanceof Error ? erro.message : 'Falha desconhecida.';
 }
 
-/** Só diz SE casa, e com quem. É o admin do próprio tenant quem lê. */
+/** Report only whether the identity matches and whom; only this tenant's admin reads it. */
 async function userWithEmail(tenantId: string, email: string): Promise<string | null> {
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ name: string }>(
       sql`select nome from usuario where email = ${email} and ativo limit 1`,
     );
-    return rows[0]?.nome ?? null;
+    return rows[0]?.name ?? null;
   });
 }
 
@@ -259,7 +242,7 @@ function paraJson(conexao: Awaited<ReturnType<typeof lerConexao>>): Record<strin
   };
 }
 
-/** Mesma escolha do `convites.ts`: a permissão é conferida numa transação própria. */
+/** As in `convites.ts`, check permission in a separate transaction. */
 function permitido(tenantId: string, userId: string, codigo: string): Promise<void> {
   return noTenant(tenantId, (tx) => exigirPermission(tx, userId, codigo));
 }
