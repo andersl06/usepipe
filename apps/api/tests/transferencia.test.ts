@@ -168,7 +168,7 @@ describe('Transfer a conversation to a queue', () => {
 
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
     const { forConversationId } = (await r.json()) as { forConversationId: string };
-    const nova = await conversation(para_conversa_id);
+    const nova = await conversation(forConversationId);
 
     expect(nova.priority).toBe('alta');
     // The receiving agent's TMR measures the receiving agent — the cost of Blip's model.
@@ -199,7 +199,7 @@ describe('Transfer a conversation to a queue', () => {
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
     const { forConversationId } = (await r.json()) as { forConversationId: string };
 
-    const eventos = await eventosDe(para_conversa_id);
+    const eventos = await eventosDe(forConversationId);
     expect(eventos).toContain('criada');
     expect(eventos).toContain('transferida_fila');
   });

@@ -110,7 +110,7 @@ async function slaConversationOf(
     estourado_em: Date | null;
   }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
   const r = rows[0];
-  return r ? { state: r.state, alertedAt: r.alertado_em, estouradoEm: r.estourado_em } : null;
+  return r ? { state: r.state, alertedAt: r.alertado_em, exceededAt: r.estourado_em } : null;
 }
 
 async function contarEventos(cenario: Cenario, conversaId: string, tipo: string): Promise<number> {
@@ -183,7 +183,7 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('alerta no limiar certo, estourado no prazo certo, e idempotente nos dois', async () => {
-    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertSeg: 300 });
     const agora0 = new Date();
     const criadaEm = new Date(agora0.getTime() - 400_000); // 400s atrás: já passou do alerta (300s), não do prazo (600s)
     const conversationId = await createConversation(a, { criadaEm, assignedAt: criadaEm });
@@ -220,7 +220,7 @@ describe('Check conversation SLA alerts and breaches', () => {
   });
 
   it('Send no SLA alert or breach for a conversation closed before either deadline', async () => {
-    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertaSeg: 300 });
+    await createRuleSla(a, { target: 'primeira_resposta', deadlineSeg: 600, alertSeg: 300 });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 100_000);
     // Encerrou 50s depois de criada — MUITO antes do alerta (300s) e do prazo (600s).
@@ -242,7 +242,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     await createRuleSla(a, {
       target: 'primeira_resposta',
       deadlineSeg: 600,
-      alertaSeg: 100,
+      alertSeg: 100,
       acaoAlerta: { tipo: 'notificar_supervisor' },
     });
     const agora = new Date();
@@ -262,7 +262,7 @@ describe('Check conversation SLA alerts and breaches', () => {
     await createRuleSla(a, {
       target: 'resolucao',
       deadlineSeg: 60,
-      alertaSeg: null,
+      alertSeg: null,
       acaoEstouro: { tipo: 'elevar_prioridade' },
     });
     const agora = new Date();
@@ -299,7 +299,7 @@ describe('Isolate conversation SLA checks by tenant', () => {
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);
     try {
       // A rule registered ONLY in tenant B.
-      await createRuleSla(b, { target: 'primeira_resposta', deadlineSeg: 10, alertaSeg: 5 });
+      await createRuleSla(b, { target: 'primeira_resposta', deadlineSeg: 10, alertSeg: 5 });
 
       const agora = new Date();
       // It would easily breach IF B's rule applied to this tenant.

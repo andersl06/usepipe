@@ -130,7 +130,7 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
     const id = await newFlow(a);
     const { status, body } = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
     expect(status).toBe(200);
-    expect(corpo).toEqual({ ativo: false, mensagem: '', textoBotao: 'Começar' });
+    expect(body).toEqual({ ativo: false, mensagem: '', textoBotao: 'Começar' });
   });
 
   it('Enable the welcome message with button text and audit the change', async () => {
@@ -141,7 +141,7 @@ describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
       textoBotao: 'Começar agora',
     });
     expect(status).toBe(200);
-    expect(corpo).toEqual({ ativo: true, mensagem: 'Olá! Seja bem-vindo.', textoBotao: 'Começar agora' });
+    expect(body).toEqual({ ativo: true, mensagem: 'Olá! Seja bem-vindo.', textoBotao: 'Começar agora' });
 
     const log = await auditoriaDe('fluxo_boas_vindas', id);
     expect(log).toHaveLength(1);
@@ -208,7 +208,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
     const id = await newFlow(a);
     const { status, body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
     expect(status).toBe(200);
-    expect(corpo).toEqual({ itens: [], boasVindasPreenchida: false });
+    expect(body).toEqual({ itens: [], boasVindasPreenchida: false });
   });
 
   it('boasVindasPreenchida acompanha a Tela de Boas-vindas', async () => {
@@ -219,7 +219,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
       textoBotao: 'Começar',
     });
     const { body } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
-    expect(corpo['boasVindasPreenchida']).toBe(true);
+    expect(body['boasVindasPreenchida']).toBe(true);
   });
 
   it('Reject persistent-menu updates without a Messenger channel even when welcome is complete through PATCH', async () => {
@@ -233,7 +233,7 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
       itens: [{ texto: 'Falar com atendente', link: 'atendimento' }],
     });
     expect(status).toBe(400);
-    expect(corpo).toMatchObject({ erro: { codigo: 'menu_persistente_canal' } });
+    expect(body).toMatchObject({ erro: { codigo: 'menu_persistente_canal' } });
   });
 
   it('Check `automacao.fluxo.editar` before channel and welcome validation', async () => {
@@ -242,6 +242,6 @@ describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
       itens: [],
     });
     expect(status).toBe(403);
-    expect(corpo).toMatchObject({ erro: { codigo: 'sem_permissao' } });
+    expect(body).toMatchObject({ erro: { codigo: 'sem_permissao' } });
   });
 });

@@ -158,9 +158,9 @@ describe('POST /v1/management/agents/queues', () => {
     const nome = `Cobrança ${randomUUID().slice(0, 6)}`;
     const { status, body } = await createQueue(sessionManager, { nome, capacidadePadrao: 8, ordem: 2 });
     expect(status).toBe(201);
-    expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
-    const log = await auditoriaDe('fila', corpo.id);
+    const log = await auditoriaDe('fila', body.id);
     expect(log).toHaveLength(1);
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, capacidadePadrao: 8 } });
   });
@@ -216,7 +216,7 @@ describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar
       capacidadePadrao: 12,
     });
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ id: criada.id, nome: novoNome, capacidadePadrao: 12 });
+    expect(body).toMatchObject({ id: criada.id, nome: novoNome, capacidadePadrao: 12 });
 
     const log = await auditoriaDe('fila', criada.id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { nome: novoNome, capacidadePadrao: 12 } });
@@ -435,7 +435,7 @@ describe('POST /v1/management/communication/responses-ready', () => {
   it('cria e registra no log', async () => {
     const { status, body } = await createResponse(sessionManager);
     expect(status).toBe(201);
-    const log = await auditoriaDe('resposta_pronta', corpo.id);
+    const log = await auditoriaDe('resposta_pronta', body.id);
     expect(log).toHaveLength(1);
     expect(log[0]?.acao).toBe('criou');
   });
@@ -519,7 +519,7 @@ describe('POST /v1/management/agents/pauses', () => {
   it('cria e registra no log', async () => {
     const { status, body } = await createPause(sessionManager, { duracaoSugeridaMin: 15 });
     expect(status).toBe(201);
-    const log = await auditoriaDe('motivo_pausa', corpo.id);
+    const log = await auditoriaDe('motivo_pausa', body.id);
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { duracaoSugeridaMin: 15 } });
   });
 
@@ -602,7 +602,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       { nome: novoNome, ordem: 5 },
     );
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ id, nome: novoNome, ordem: 5 });
+    expect(body).toMatchObject({ id, nome: novoNome, ordem: 5 });
 
     const log = await auditoriaDe('regra_fila', id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { nome: novoNome, ordem: 5 } });
@@ -618,7 +618,7 @@ describe('PATCH /v1/management/rules/attendance/:id', () => {
       { condicoes: [{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }] },
     );
     expect(status).toBe(200);
-    expect(corpo.condicoes).toEqual([{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }]);
+    expect(body.condicoes).toEqual([{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }]);
   });
 
   it('Reject empty conditions, invalid fields, and missing destination queues', async () => {
@@ -729,7 +729,7 @@ describe('POST /v1/management/settings/rules', () => {
   it('cria e registra no log de auditoria', async () => {
     const { status, body } = await createRuleSla(sessionManager, { alertaSeg: 300 });
     expect(status).toBe(201);
-    const log = await auditoriaDe('regra_sla', corpo.id);
+    const log = await auditoriaDe('regra_sla', body.id);
     expect(log).toHaveLength(1);
     expect(log[0]).toMatchObject({ acao: 'criou' });
   });
@@ -933,7 +933,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
       { inicio: '08:00' },
     );
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ inicio: '08:00', fim: '18:00' });
+    expect(body).toMatchObject({ inicio: '08:00', fim: '18:00' });
 
     const log = await auditoriaDe('horario_faixa', id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou' });
@@ -1011,7 +1011,7 @@ describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
       { motivo: 'Natal' },
     );
     expect(status).toBe(200);
-    expect(corpo.motivo).toBe('Natal');
+    expect(body.motivo).toBe('Natal');
   });
 
   it('recusa (400) abrir sem horário próprio e (400) fechar sem limpar o horário', async () => {
@@ -1110,12 +1110,12 @@ describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   it('cria, lista e registra no log', async () => {
     const { status, body } = await createRulePriority(sessionManager);
     expect(status).toBe(201);
-    const log = await auditoriaDe('regra_prioridade', corpo.id);
+    const log = await auditoriaDe('regra_prioridade', body.id);
     expect(log[0]).toMatchObject({ acao: 'criou' });
 
     const listing = await pedir('GET', '/v1/management/rules/priority', sessionManager);
     expect(listing.status).toBe(200);
-    expect((listing.body as { id: string }[]).some((r) => r.id === corpo.id)).toBe(true);
+    expect((listing.body as { id: string }[]).some((r) => r.id === body.id)).toBe(true);
   });
 
   it('Reject an unassignable priority, invalid condition, or duplicate rule name', async () => {

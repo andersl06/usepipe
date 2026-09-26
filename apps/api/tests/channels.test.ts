@@ -586,7 +586,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
       category: 'utilidade',
       cabecalho: 'Olá {{1}}',
       exemploDoCabecalho: 'Ana',
-      corpo: 'Seu protocolo é {{1}} e vence em {{2}}.',
+      body: 'Seu protocolo é {{1}} e vence em {{2}}.',
       exemplos: ['123', '10/10'],
       rodape: 'Pipe',
     });
@@ -685,7 +685,7 @@ describe('Create templates with image, video, and document headers', () => {
       name: 'oferta_com_foto',
       category: 'marketing',
       headerMedia: JPEG,
-      corpo: 'Oferta para {{1}}.',
+      body: 'Oferta para {{1}}.',
       exemplos: ['Ana'],
       rodape: 'Pipe',
     });
@@ -750,7 +750,7 @@ describe('Create templates with image, video, and document headers', () => {
       createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
         name: 'recusado',
         category: 'marketing',
-        corpo: 'Oi.',
+        body: 'Oi.',
         ...p,
       });
 
@@ -956,7 +956,7 @@ describe('Update template status and category from webhooks', () => {
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, {
       name: 'lembrete',
       category: 'utilidade',
-      corpo: 'Oi',
+      body: 'Oi',
     });
     const resolvido = (await resolveChannel(canal.id))!;
 

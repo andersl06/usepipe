@@ -223,15 +223,15 @@ describe(`POST ${CAMINHO}`, () => {
     const termo = `Golpe ${randomUUID().slice(0, 6)}`;
     const { status, body } = await createWord(sessionManager, { termo });
     expect(status).toBe(201);
-    expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
-    const log = await auditoriaDe(corpo.id);
+    const log = await auditoriaDe(body.id);
     expect(log).toHaveLength(1);
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { termo, ativo: true } });
 
     const lista = await pedir('GET', CAMINHO, sessionManager);
     expect(lista.status).toBe(200);
-    expect((lista.body as { id: string; term: string }[]).some((p) => p.id === corpo.id)).toBe(true);
+    expect((lista.body as { id: string; term: string }[]).some((p) => p.id === body.id)).toBe(true);
   });
 
   it('Reject empty banned terms and accent- or case-insensitive duplicates', async () => {
@@ -277,7 +277,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
       ativo: false,
     });
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ id: criada.id, termo: novoTermo, ativo: false });
+    expect(body).toMatchObject({ id: criada.id, termo: novoTermo, ativo: false });
 
     const log = await auditoriaDe(criada.id);
     expect(log.at(-1)).toMatchObject({ acao: 'alterou', depois: { termo: novoTermo, ativo: false } });

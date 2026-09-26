@@ -149,8 +149,8 @@ async function create(
 async function criado(nome: string, extra: Record<string, unknown> = {}): Promise<string> {
   const { status, body } = await create(sessionEditor, { nome, ...extra });
   expect(status).toBe(200);
-  expect(corpo.error).toBeUndefined();
-  return corpo.id!;
+  expect(body.error).toBeUndefined();
+  return body.id!;
 }
 
 async function editar(sessao: string, id: string, corpo: Record<string, unknown>) {
@@ -196,9 +196,9 @@ describe('POST /v1/management/flows', () => {
     const nome = `Atendimento ${randomUUID().slice(0, 6)}`;
     const { status, body } = await create(sessionEditor, { nome });
     expect(status).toBe(200);
-    expect(corpo.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(body.id).toMatch(/^[0-9a-f-]{36}$/);
 
-    const linha = await lineOfFlow(corpo.id!);
+    const linha = await lineOfFlow(body.id!);
     expect(linha).toMatchObject({
       nome,
       tipo: 'fluxo',
@@ -209,7 +209,7 @@ describe('POST /v1/management/flows', () => {
       tenant_id: a.tenantId,
     });
 
-    const log = await auditoriaDe(corpo.id!);
+    const log = await auditoriaDe(body.id!);
     expect(log).toHaveLength(1);
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, tipo: 'fluxo' } });
   });
@@ -255,7 +255,7 @@ describe('POST /v1/management/flows', () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
     const { status, body } = await create(sessionWithoutAuthority, { nome });
     expect(status).toBe(200);
-    expect(corpo).toEqual({ erro: RECADOS.semPermissao });
+    expect(body).toEqual({ erro: RECADOS.semPermissao });
     const { rows } = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from fluxo where nome = ${nome}`,
     );

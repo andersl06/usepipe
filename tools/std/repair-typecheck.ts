@@ -97,6 +97,13 @@ for (const d of diagnostics) {
       continue;
     }
   }
+  if (d.code === 2304) {
+    const local = existingLocal(id);
+    if (local) {
+      add(file, id.getStart(), id.getEnd(), local, `TS${d.code}`);
+      continue;
+    }
+  }
   if (d.code === 2305 && ts.isImportSpecifier(id.parent)) {
     const specifier = id.parent;
     const declaration = specifier.parent.parent.parent;

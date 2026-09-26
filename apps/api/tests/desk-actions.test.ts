@@ -140,20 +140,20 @@ describe('definirStatus', () => {
   it('Reject an unknown agent status', async () => {
     const { status, body } = await acao(sessionAgent, 'definirStatus', { estado: 'sonolento' });
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ ok: false, erro: 'Estado desconhecido.' });
+    expect(body).toMatchObject({ ok: false, erro: 'Estado desconhecido.' });
   });
 
   it('pausa sem motivo é recusada; não muda o status atual', async () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
     const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa' });
-    expect(corpo).toMatchObject({ ok: false, erro: 'Escolha o motivo da pausa.' });
+    expect(body).toMatchObject({ ok: false, erro: 'Escolha o motivo da pausa.' });
     expect((await statusDe(a.agentId))?.state).toBe('online');
   });
 
   it('Record a reasoned pausa as an agent state and an open `pause` row', async () => {
     const motivoId = await createReasonOfPause();
     const { body } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
-    expect(corpo).toMatchObject({ ok: true });
+    expect(body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.state).toBe('pausa');
     expect((await pausaAbertaDe(a.agentId))?.motivo_id).toBe(motivoId);
   });
@@ -188,7 +188,7 @@ describe('Set an inactive agent offline and close any open pause', () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
 
     const { body } = await acao(sessionAgent, 'cairPorInatividade');
-    expect(corpo).toMatchObject({ ok: true });
+    expect(body).toMatchObject({ ok: true });
     expect((await statusDe(a.agentId))?.state).toBe('offline');
     expect(await pausaAbertaDe(a.agentId)).toBeNull();
 
@@ -216,7 +216,7 @@ describe('salvarNotaInterna', () => {
       conversationId,
       texto: '  Cliente pediu retorno amanhã.  ',
     });
-    expect(corpo).toMatchObject({ ok: true });
+    expect(body).toMatchObject({ ok: true });
 
     const { rows } = await a.dono.execute<{ body: string; userId: string }>(sql`
       select corpo, usuario_id from nota_interna where conversa_id = ${conversationId}::uuid
@@ -242,7 +242,7 @@ describe('atender', () => {
   it('recusa quem não está online', async () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'invisivel' });
     const { body } = await acao(sessionAgent, 'atender');
-    expect(corpo).toMatchObject({ ok: false, erro: 'Fique online para atender.' });
+    expect(body).toMatchObject({ ok: false, erro: 'Fique online para atender.' });
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
 
@@ -250,8 +250,8 @@ describe('atender', () => {
     // Esvazia qualquer sobra de outro teste: consome a fila antes de checar o vazio.
     for (;;) {
       const { body } = await acao(sessionAgent, 'atender');
-      if (corpo['ok'] !== true) {
-        expect(corpo).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+      if (body['ok'] !== true) {
+        expect(body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
         break;
       }
     }
@@ -260,7 +260,7 @@ describe('atender', () => {
   it('Assign the oldest waiting conversation to the agent and record the event', async () => {
     const conversaId = await createConversationInQueue();
     const { body } = await acao(sessionAgent, 'atender');
-    expect(corpo).toMatchObject({ ok: true, conversaId });
+    expect(body).toMatchObject({ ok: true, conversaId });
 
     const { rows: conversations } = await a.dono.execute<{ state: string; agentId: string }>(
       sql`select estado, atendente_id from conversa where id = ${conversaId}::uuid`,
@@ -285,7 +285,7 @@ describe('atender', () => {
     await createConversationInQueue(otherQueue[0]!.id);
 
     const { body } = await acao(sessionAgent, 'atender');
-    expect(corpo).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
+    expect(body).toMatchObject({ ok: false, erro: 'Não há clientes aguardando.' });
   });
 });
 
@@ -331,7 +331,7 @@ describe('Enforce the agent\'s available-slot limit when pulling from a queue', 
        where atendente_id = ${a.agentId}::uuid and estado <> 'encerrada'
     `);
     const { body } = await acao(sessionAgent, 'atender');
-    expect(corpo['ok']).toBe(true);
+    expect(body['ok']).toBe(true);
     expect(await activeOfAgent()).toBe(1);
   });
 
@@ -503,7 +503,7 @@ describe('Transfer selected conversations in bulk', () => {
       conversaId: [c1, c2],
       paraAtendenteId: colegaId,
     });
-    expect(corpo).toMatchObject({ ok: true, transferidas: 2 });
+    expect(body).toMatchObject({ ok: true, transferidas: 2 });
 
     const { rows } = await a.dono.execute<{ id: string; state: string }>(sql`
       select id, estado from conversa where id in (${c1}::uuid, ${c2}::uuid)
@@ -523,8 +523,8 @@ describe('Transfer selected conversations in bulk', () => {
       conversaId: [c1, randomUUID()],
       paraAtendenteId: colegaId,
     });
-    expect(corpo['ok']).toBe(true);
-    expect(corpo['transferidas']).toBe(1);
-    expect(typeof corpo['erro']).toBe('string');
+    expect(body['ok']).toBe(true);
+    expect(body['transferidas']).toBe(1);
+    expect(typeof body['erro']).toBe('string');
   });
 });

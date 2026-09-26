@@ -183,7 +183,7 @@ describe('GET /v1/management/contract/members', () => {
   it('List each member\'s role and reject users without conta.membros.ler', async () => {
     const { status, body } = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     expect(status).toBe(200);
-    const member = corpo.membros.find((m: Corpo) => m.id === userMemberId);
+    const member = body.membros.find((m: Corpo) => m.id === userMemberId);
     expect(member).toMatchObject({ tipo: 'usuario', papelNome: 'member' });
 
     const withoutSession = await fetch(`${api.url}/v1/management/contract/members`);

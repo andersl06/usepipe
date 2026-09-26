@@ -139,7 +139,7 @@ afterAll(async () => {
 
 describe('PATCH /v1/contacts/:id', () => {
   it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {
-    const id = await newContact(a, { name: 'Ana', telefone: '+5511900000001' });
+    const id = await newContact(a, { name: 'Ana', phone: '+5511900000001' });
     const { status, corpo } = await editar(sessionEditor, id, {
       nome: 'Ana Ribeiro',
       email: 'ana@exemplo.com',

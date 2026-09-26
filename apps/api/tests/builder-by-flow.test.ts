@@ -124,8 +124,8 @@ async function criado(nome: string, tipo: 'fluxo' | 'roteador' = 'fluxo'): Promi
     tipo,
   });
   expect(status).toBe(200);
-  expect(corpo['erro']).toBeUndefined();
-  return corpo['id'] as string;
+  expect(body['erro']).toBeUndefined();
+  return body['id'] as string;
 }
 
 const builder = (sessao: string, id: string) => pedir(sessao, 'GET', `/v1/management/flows/${id}/builder`);
@@ -289,12 +289,12 @@ describe('GET /v1/management/flows/:id/builder', () => {
     const id = await criado(`Novo ${randomUUID().slice(0, 6)}`);
     const { status, body } = await builder(sessionEditor, id);
     expect(status).toBe(200);
-    expect(corpo).toMatchObject({ fluxoId: id, origem: 'padrao', versao: null, publicada: null });
-    expect(corpo['erros']).toEqual([]);
-    expect(Object.keys(corpo['desenho']['fluxo']).sort()).toEqual(
+    expect(body).toMatchObject({ fluxoId: id, origem: 'padrao', versao: null, publicada: null });
+    expect(body['erros']).toEqual([]);
+    expect(Object.keys(body['desenho']['fluxo']).sort()).toEqual(
       [ID_DA_RAIZ_PADRAO, ID_OF_ATTENDANCE_DEFAULT].sort(),
     );
-    expect(corpo['desenho']['globais']).toMatchObject({ id: 'global-actions' });
+    expect(body['desenho']['globais']).toMatchObject({ id: 'global-actions' });
     expect(await versionsInDatabase(id)).toHaveLength(0);
   });
 
@@ -309,8 +309,8 @@ describe('GET /v1/management/flows/:id/builder', () => {
     ];
     for (const { status, body } of respostas) {
       expect(status).toBe(409);
-      expect(corpo['erro']['code']).toBe('roteador_sem_builder');
-      expect(corpo['erro']['message']).toContain('Roteador não tem Builder');
+      expect(body['erro']['code']).toBe('roteador_sem_builder');
+      expect(body['erro']['message']).toContain('Roteador não tem Builder');
     }
   });
 
@@ -385,8 +385,8 @@ describe('PUT /v1/management/flows/:id/builder', () => {
 
     const { status, body } = await salvar(sessionEditor, id, quebrado);
     expect(status).toBe(200);
-    expect(corpo['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 1 });
-    const errors = corpo['erros'] as { block: string | null; message: string }[];
+    expect(body['versao']).toMatchObject({ versao: 1, estado: 'rascunho', blocos: 1 });
+    const errors = body['erros'] as { block: string | null; message: string }[];
     expect(errors).toEqual(
       expect.arrayContaining([
         { bloco: 'inicio', mensagem: "O estado de destino 'fantasma' da saída não existe." },
@@ -417,7 +417,7 @@ describe('PUT /v1/management/flows/:id/builder', () => {
     const id = await criado(`Trancado ${randomUUID().slice(0, 6)}`);
     const { status, body } = await salvar(sessionWithoutAuthority, id, desenho('x'));
     expect(status).toBe(403);
-    expect(corpo['erro']['code']).toBe('sem_permissao');
+    expect(body['erro']['code']).toBe('sem_permissao');
     expect(await versionsInDatabase(id)).toHaveLength(0);
   });
 });
@@ -541,8 +541,8 @@ describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () =>
 
     const { status, body } = await restore(sessionEditor, id, 1);
     expect(status).toBe(200);
-    expect(corpo['versao']).toMatchObject({ versao: 3, estado: 'rascunho', blocos: 3 });
-    expect(corpo['erros']).toEqual([]);
+    expect(body['versao']).toMatchObject({ versao: 3, estado: 'rascunho', blocos: 3 });
+    expect(body['erros']).toEqual([]);
 
     const aberto = await builder(sessionEditor, id);
     expect(aberto.body['origem']).toBe('rascunho');

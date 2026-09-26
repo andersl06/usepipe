@@ -187,7 +187,7 @@ async function rodarMotor(
   textoDeEntrada: string,
 ): Promise<ResultadoDoMotor> {
   const { flow } = await noTenant(cenario.tenantId, (tx) =>
-    loadFlow(tx, { flowId, versaoId }),
+    loadFlow(tx, { flowId: fluxoId, versaoId }),
   );
   const mensagens: unknown[] = [];
   const contexto: Context = {
