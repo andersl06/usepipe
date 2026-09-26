@@ -39,7 +39,7 @@ test('with no active rule the pill disappears, and never becomes "WITHIN"', () =
    * "DENTRO" without a configured rule would be a lie: it claims the deadline is being met when no deadline exists. The em dash is what makes the manager notice a rule still needs to be registered.
    */
   const pill = conversationEvaluateSla([], marcos(), 'fila-1', depois(10));
-  assert.equal(pill.state, 'without_rule');
+  assert.equal(pill.state, 'sem_regra');
   assert.equal(pill.rotulo, '—');
 });
 
@@ -52,9 +52,9 @@ test('the queue rule beats the tenant rule', () => {
     regra({ id: 'fila', scopeType: 'fila', scopeId: 'fila-1', prazoSeg: 60, alertaSeg: null }),
   ];
   // 120s: dentro do prazo do tenant (3600) e fora do prazo da fila (60).
-  assert.equal(conversationEvaluateSla(regras, marcos(), 'fila-1', depois(120)).state, 'exceeded');
+  assert.equal(conversationEvaluateSla(regras, marcos(), 'fila-1', depois(120)).state, 'estourado');
   // Another queue isn't reached by the specific rule and falls back to the tenant default.
-  assert.equal(conversationEvaluateSla(regras, marcos(), 'fila-2', depois(120)).state, 'inside');
+  assert.equal(conversationEvaluateSla(regras, marcos(), 'fila-2', depois(120)).state, 'dentro');
 });
 
 test('a conversation with no queue falls back to the tenant rule, not to "no rule"', () => {
@@ -62,18 +62,18 @@ test('a conversation with no queue falls back to the tenant rule, not to "no rul
    * A conversation still at the root has a null `queueId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.
    */
   const pill = conversationEvaluateSla([regra({ alertaSeg: null })], marcos(), null, depois(400));
-  assert.equal(pill.state, 'exceeded');
+  assert.equal(pill.state, 'estourado');
 });
 
 test('alerta, dentro e estourado seguem os limiares configurados', () => {
   const regras = [regra({ prazoSeg: 300, alertaSeg: 240 })];
   const em = (s: number) => conversationEvaluateSla(regras, marcos(), null, depois(s)).state;
-  assert.equal(em(10), 'inside');
-  assert.equal(em(239), 'inside');
+  assert.equal(em(10), 'dentro');
+  assert.equal(em(239), 'dentro');
   // The threshold is inclusive: exactly at the alert point, it already alerts.
-  assert.equal(em(240), 'alert');
-  assert.equal(em(299), 'alert');
-  assert.equal(em(300), 'exceeded');
+  assert.equal(em(240), 'alerta');
+  assert.equal(em(299), 'alerta');
+  assert.equal(em(300), 'estourado');
 });
 
 test('estouro anuncia quantos segundos passaram do prazo', () => {
@@ -81,7 +81,7 @@ test('estouro anuncia quantos segundos passaram do prazo', () => {
    * It's the number that orders the queue of what needs attention first. Without it, "ESTOUROU" 10 seconds ago and two hours ago look the same.
    */
   const pill = conversationEvaluateSla([regra({ prazoSeg: 300 })], marcos(), null, depois(500));
-  assert.equal(pill.state, 'exceeded');
+  assert.equal(pill.state, 'estourado');
   assert.equal(pill.excedidoSeg, 200);
 });
 
@@ -100,7 +100,7 @@ test('responder depois do prazo continua sendo estouro', () => {
     null,
     depois(600),
   );
-  assert.equal(pill.state, 'exceeded');
+  assert.equal(pill.state, 'estourado');
 });
 
 test('responder dentro do prazo fecha a pastilha em "CUMPRIDO"', () => {
@@ -127,5 +127,5 @@ test('alvo sem marco de início não vira pastilha', () => {
     null,
     depois(9999),
   );
-  assert.equal(pill.state, 'without_rule');
+  assert.equal(pill.state, 'sem_regra');
 });

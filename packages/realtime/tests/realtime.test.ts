@@ -86,8 +86,8 @@ describe('Manage the real-time connection', () => {
     });
     ultimo().abrir();
 
-    expect(JSON.parse(ultimo().enviados[0]!)).toEqual({ assuntos: ['conversa', 'fila'] });
-    expect(ligacao.state()).toBe('ligado');
+    expect(JSON.parse(ultimo().enviados[0]!)).toEqual({ assuntos: ['conversation', 'queue'] });
+    expect(ligacao.state()).toBe('connected');
     ligacao.fechar();
   });
 
@@ -101,11 +101,11 @@ describe('Manage the real-time connection', () => {
     });
     ultimo().abrir();
 
-    ultimo().mandar({ tipo: 'inscrito', assuntos: ['conversa'] });
+    ultimo().mandar({ tipo: 'inscrito', assuntos: ['conversation'] });
     ultimo().mandar({ tipo: 'ping' });
-    ultimo().mandar({ assunto: 'conversa', id: 'c1', em: '2026-09-07T00:00:00.000Z' });
+    ultimo().mandar({ assunto: 'conversation', id: 'c1', em: '2026-09-07T00:00:00.000Z' });
 
-    expect(recebidos).toEqual([{ assunto: 'conversa', id: 'c1', em: '2026-09-07T00:00:00.000Z' }]);
+    expect(recebidos).toEqual([{ assunto: 'conversation', id: 'c1', em: '2026-09-07T00:00:00.000Z' }]);
     ligacao.fechar();
   });
 
@@ -136,13 +136,13 @@ describe('reconexão', () => {
     expect(criados).toHaveLength(1);
 
     ultimo().cair();
-    expect(ligacao.state()).toBe('caiu');
+    expect(ligacao.state()).toBe('fell');
     vi.advanceTimersByTime(2_000);
 
     expect(criados).toHaveLength(2);
     ultimo().abrir();
     // The server keeps no state for disconnected clients: a new socket starts with no topics.
-    expect(JSON.parse(ultimo().enviados[0]!)).toEqual({ assuntos: ['fila'] });
+    expect(JSON.parse(ultimo().enviados[0]!)).toEqual({ assuntos: ['queue'] });
     ligacao.fechar();
   });
 
@@ -207,15 +207,15 @@ describe('reconexão', () => {
     // passed in about half of runs, and I incorrectly reported one green run as a pass.
     vi.advanceTimersByTime(1_001);
     expect(first.fechado).toBe(true);
-    expect(ligacao.state()).toBe('caiu');
+    expect(ligacao.state()).toBe('fell');
 
     // `caiu` must also LAST long enough for the screen to show "connection lost" - that is
     // why `toState` exists. 700 ms is below the backoff floor (800 ms).
     vi.advanceTimersByTime(700);
-    expect(ligacao.state()).toBe('caiu');
+    expect(ligacao.state()).toBe('fell');
 
     vi.advanceTimersByTime(600);
-    expect(ligacao.state()).toBe('ligando');
+    expect(ligacao.state()).toBe('connecting');
     ligacao.fechar();
   });
 
@@ -236,7 +236,7 @@ describe('reconexão', () => {
     }
 
     expect(primeiro.fechado).toBe(false);
-    expect(ligacao.state()).toBe('ligado');
+    expect(ligacao.state()).toBe('connected');
     ligacao.fechar();
   });
 
@@ -254,7 +254,7 @@ describe('reconexão', () => {
     vi.advanceTimersByTime(2_000);
     ultimo().abrir();
 
-    expect(estados).toEqual(['ligado', 'caiu', 'ligando', 'ligado']);
+    expect(estados).toEqual(['connected', 'fell', 'connecting', 'connected']);
     ligacao.fechar();
   });
 
@@ -288,7 +288,7 @@ describe('reconexão', () => {
       },
     });
 
-    expect(ligacao.state()).toBe('caiu');
+    expect(ligacao.state()).toBe('fell');
     vi.advanceTimersByTime(2_000);
     expect(vezes).toBe(2);
     ligacao.fechar();

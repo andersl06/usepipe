@@ -32,7 +32,7 @@ export function PageInvitation() {
             <>
               <h1 id="convite-titulo">Você foi convidado</h1>
               <p className="login-sub">
-                {invitation.tenant.nome} convidou você para o Pipe. Entrar com o Google já cria a sua
+                {invitation.tenant.name} convidou você para o Pipe. Entrar com o Google já cria a sua
                 conta.
               </p>
 
@@ -42,7 +42,7 @@ export function PageInvitation() {
                 <dt>Papel</dt>
                 <dd>{invitation.role}</dd>
                 <dt>Vale até</dt>
-                <dd>{DATA.format(new Date(invitation.expiraEm))}</dd>
+                <dd>{DATA.format(new Date(invitation.expiresAt))}</dd>
               </dl>
 
               <a className="login-google" href={inboundWithGoogleUrl({ invitation: token })}>
