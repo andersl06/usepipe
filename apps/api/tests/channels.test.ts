@@ -161,7 +161,7 @@ describe('o callback do cadastro embutido (POST /v1/channels/whatsapp), contra o
     expect(config['origem']).toBe('embedded_signup');
 
     const { rows } = await dono.execute<{ name: string; queueDefaultId: string | null }>(
-      sql`select nome, fila_padrao_id from inbox where canal_id = ${canal.id}::uuid`,
+      sql`select nome as name, fila_padrao_id as "queueDefaultId" from inbox where canal_id = ${canal.id}::uuid`,
     );
     expect(rows).toHaveLength(1);
     expect(rows[0]!.name).toBe('Empresa de Ensaio WhatsApp');
@@ -363,7 +363,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
       new PipeError(502, 'meta_refused', 'Invalid access token'),
     );
     const canal = await conectar(A, { code: `webhook-ruim-${S}` });
-    expect(canal).toMatchObject({ estado: 'indisponivel', motivo: 'reautorizacao_pendente' });
+    expect(canal).toMatchObject({ state: 'indisponivel', motivo: 'reautorizacao_pendente' });
 
     await expect(
       configurarWebhook(await readChannelWhatsApp(A.tenantId, canal.id)),
@@ -374,7 +374,7 @@ describe('Configure the channel webhook (`webhook_setup_service_spec`)', () => {
 
     const lista = await listChannelsWhatsApp(A.tenantId);
     expect(lista.find((c) => c.id === canal.id)).toMatchObject({
-      estado: 'indisponivel',
+      state: 'indisponivel',
       motivo: 'reautorizacao_pendente',
     });
   });
@@ -399,7 +399,7 @@ describe('Reauthorize disconnected WhatsApp channels (`reauthorization_service_s
 
     const segunda = await conectar(A, { code: codigo, canal_id: first.id });
     expect(segunda.id).toBe(first.id);
-    expect(segunda).toMatchObject({ ativo: true, estado: 'conectado', mensagem: 'Reautorização concluída.' });
+    expect(segunda).toMatchObject({ active: true, state: 'conectado', message: 'Reautorização concluída.' });
     expect(await countChannels(A.tenantId)).toBe(antes);
   });
 
@@ -490,10 +490,10 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
     const canal = await conectar(A, { code: `perfil-${S}` });
     const antes = await readProfileOfChannel(A.tenantId, canal.id);
     expect(antes).toMatchObject({
-      sobre: '',
+      about: '',
       sites: [],
       fotoUrl: null,
-      nome: { exibicao: 'Empresa de Ensaio' },
+      nome: { display: 'Empresa de Ensaio' },
     });
 
     const depois = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, {
@@ -503,10 +503,10 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
       foto: PNG,
     });
     expect(depois).toMatchObject({
-      sobre: 'Atendimento de seg a sex',
+      about: 'Atendimento de seg a sex',
       sites: ['https://pipe.app'],
-      categoria: 'PROF_SERVICES',
-      descricao: '',
+      category: 'PROF_SERVICES',
+      description: '',
     });
     // Embutido: a foto sobe no NOSSO app (o do ambiente).
     expect(depois.fotoUrl).toContain('app-de-teste-');
@@ -514,7 +514,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
 
     // // A missing field isn't touched.
     const deNovo = await writeProfileOfChannel(A.tenantId, A.adminId, canal.id, { description: 'Escola' });
-    expect(deNovo).toMatchObject({ sobre: 'Atendimento de seg a sex', descricao: 'Escola' });
+    expect(deNovo).toMatchObject({ about: 'Atendimento de seg a sex', description: 'Escola' });
 
     const { rows } = await dono.execute<{ n: string }>(sql`
       select count(*)::text as n from log_auditoria
@@ -528,9 +528,9 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
     ClienteGraphDuble.reiniciar();
     const gravar = (p: object) => writeProfileOfChannel(A.tenantId, A.adminId, canal.id, p);
     await expect(gravar({})).rejects.toMatchObject({ codigo: 'nothing_for_write' });
-    await expect(gravar({ sobre: '' })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
-    await expect(gravar({ sobre: 'x'.repeat(140) })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
-    await expect(gravar({ descricao: 'x'.repeat(513) })).rejects.toMatchObject({
+    await expect(gravar({ about: '' })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
+    await expect(gravar({ about: 'x'.repeat(140) })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
+    await expect(gravar({ description: 'x'.repeat(513) })).rejects.toMatchObject({
       detalhe: { campo: 'descricao' },
     });
     await expect(gravar({ email: 'sem-arroba' })).rejects.toMatchObject({ detalhe: { campo: 'email' } });
@@ -538,7 +538,7 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
       detalhe: { campo: 'sites' },
     });
     await expect(gravar({ sites: ['pipe.app'] })).rejects.toMatchObject({ detalhe: { campo: 'sites' } });
-    await expect(gravar({ categoria: 'escola' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
+    await expect(gravar({ category: 'escola' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
     await expect(gravar({ foto: 'data:image/gif;base64,R0lG' })).rejects.toMatchObject({
       detalhe: { campo: 'foto' },
     });
@@ -566,12 +566,12 @@ describe('perfil do número (GET/PATCH /v1/channels/whatsapp/:id/profile)', () =
 describe('Synchronize, create, and delete Meta message templates', () => {
   async function templatesLocations(channelId: string) {
     const { rows } = await dono.execute<{
-      name: string;
+      nome: string;
       idioma: string;
       status_meta: string;
-      category: string;
+      categoria: string;
       cabecalho_tipo: string;
-      variables: string[];
+      variaveis: string[];
     }>(sql`
       select nome, idioma, status_meta, categoria, cabecalho_tipo, variaveis
         from template_mensagem where canal_id = ${channelId}::uuid order by nome, idioma
@@ -615,7 +615,7 @@ describe('Synchronize, create, and delete Meta message templates', () => {
       { name: 'estranho', language: 'pt_BR', status: 'APPROVED', category: 'NOVA_CATEGORIA' },
     );
     const primeira = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
-    expect(primeira).toEqual({ criados: 1, atualizados: 1, removidos: 0, ignorados: 1 });
+    expect(primeira).toEqual({ created: 1, updated: 1, removed: 0, ignorados: 1 });
     expect(await templatesLocations(canal.id)).toMatchObject([
       // // The variable names stay: the count didn't change.
       { nome: 'boas_vindas', status_meta: 'aprovado', variaveis: ['1', '2'] },
@@ -629,10 +629,10 @@ describe('Synchronize, create, and delete Meta message templates', () => {
     );
     const segunda = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
     expect(segunda.removed).toBe(1);
-    expect((await templatesLocations(canal.id)).map((m) => m.name)).toEqual(['boas_vindas']);
+    expect((await templatesLocations(canal.id)).map((m) => m.nome)).toEqual(['boas_vindas']);
 
     const excluido = await deleteTemplateInMeta(A.tenantId, A.adminId, canal.id, 'boas_vindas');
-    expect(excluido).toEqual({ removidos: 1 });
+    expect(excluido).toEqual({ removed: 1 });
     expect(await templatesLocations(canal.id)).toHaveLength(0);
     expect(ClienteGraphDuble.modelos.get(canal.wabaId!)!.some((m) => m.name === 'boas_vindas')).toBe(false);
   });
@@ -641,13 +641,13 @@ describe('Synchronize, create, and delete Meta message templates', () => {
     const canal = await conectar(A, { code: `modelos-recusa-${S}` });
     ClienteGraphDuble.reiniciar();
     const create = (p: object) => createTemplateInMeta(A.tenantId, A.adminId, canal.id, p);
-    const ok = { nome: 'aviso', categoria: 'utilidade', corpo: 'Oi {{1}}', exemplos: ['Ana'] };
-    await expect(create({ ...ok, nome: 'Com Espaço' })).rejects.toMatchObject({ detalhe: { campo: 'nome' } });
+    const ok = { name: 'aviso', category: 'utilidade', body: 'Oi {{1}}', exemplos: ['Ana'] };
+    await expect(create({ ...ok, name: 'Com Espaço' })).rejects.toMatchObject({ detalhe: { campo: 'nome' } });
     // // Authentication category now exists (own describe below); unknown category is still rejected.
-    await expect(create({ ...ok, categoria: 'promocional' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
+    await expect(create({ ...ok, category: 'promocional' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
     await expect(create({ ...ok, idioma: 'português' })).rejects.toMatchObject({ detalhe: { campo: 'idioma' } });
-    await expect(create({ ...ok, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
-    await expect(create({ ...ok, corpo: 'x'.repeat(1025) })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(create({ ...ok, body: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(create({ ...ok, body: 'x'.repeat(1025) })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(create({ ...ok, exemplos: [] })).rejects.toMatchObject({ detalhe: { campo: 'exemplos' } });
     await expect(create({ ...ok, cabecalho: '{{1}} e {{2}}' })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalho' },
@@ -718,7 +718,7 @@ describe('Create templates with image, video, and document headers', () => {
   it('Send VIDEO and DOCUMENT templates with their correct types and store those types locally', async () => {
     const canal = await conectar(A, { code: `modelos-video-doc-${S}` });
     ClienteGraphDuble.reiniciar();
-    const base = { categoria: 'utilidade', corpo: 'Segue o material.', exemplos: [] as string[] };
+    const base = { category: 'utilidade', body: 'Segue o material.', exemplos: [] as string[] };
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, name: 'com_video', headerMedia: MP4 });
     await createTemplateInMeta(A.tenantId, A.adminId, canal.id, { ...base, name: 'com_pdf', headerMedia: PDF });
 
@@ -755,42 +755,42 @@ describe('Create templates with image, video, and document headers', () => {
       });
 
     // // A type outside each format's list: the message is the one the source shows in the field.
-    await expect(criar({ cabecalhoMidia: dataUrl('image/gif', Buffer.from('gif')) })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: dataUrl('image/gif', Buffer.from('gif')) })).rejects.toMatchObject({
       status: 422,
       detalhe: { campo: 'cabecalhoMidia' },
       message: 'A imagem do cabeçalho é compatível com JPG, JPEG ou PNG.',
     });
-    await expect(criar({ cabecalhoMidia: dataUrl('video/avi', Buffer.from('avi')) })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: dataUrl('video/avi', Buffer.from('avi')) })).rejects.toMatchObject({
       message: 'O vídeo do cabeçalho é compatível com MP4 até 16MB.',
     });
-    await expect(criar({ cabecalhoMidia: dataUrl('text/plain', Buffer.from('txt')) })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: dataUrl('text/plain', Buffer.from('txt')) })).rejects.toMatchObject({
       message: 'O documento do cabeçalho é formato PDF.',
     });
 
     // // Size: 5 MB for image, 16 MB for video (document is 100 MB — too big for the test).
     const imageLarge = dataUrl('image/png', Buffer.alloc(5 * 1024 * 1024 + 1));
-    await expect(criar({ cabecalhoMidia: imageLarge })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: imageLarge })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalhoMidia' },
       message: 'A imagem do cabeçalho tem de ter no máximo 5 MB.',
     });
     const videoGrande = dataUrl('video/mp4', Buffer.alloc(16 * 1024 * 1024 + 1));
-    await expect(criar({ cabecalhoMidia: videoGrande })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: videoGrande })).rejects.toMatchObject({
       message: 'O vídeo do cabeçalho tem de ter no máximo 16 MB.',
     });
 
     // // Not a data URL, is empty, or came with a text header.
-    await expect(criar({ cabecalhoMidia: 'https://exemplo/foto.jpg' })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: 'https://exemplo/foto.jpg' })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalhoMidia' },
     });
-    await expect(criar({ cabecalhoMidia: 'data:image/png;base64,' })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: 'data:image/png;base64,' })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalhoMidia' },
     });
-    await expect(criar({ cabecalhoMidia: JPEG, cabecalho: 'Olá' })).rejects.toMatchObject({
+    await expect(criar({ headerMedia: JPEG, cabecalho: 'Olá' })).rejects.toMatchObject({
       detalhe: { campo: 'cabecalho' },
     });
 
     // // Good media, bad body: the file does NOT upload — everything is checked before the upload.
-    await expect(criar({ cabecalhoMidia: JPEG, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ headerMedia: JPEG, body: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
 
     expect(chamadas('subir_foto')).toHaveLength(0);
     expect(chamadas('criar_modelo')).toHaveLength(0);
@@ -821,7 +821,7 @@ describe('Build Meta authentication templates with their fixed components', () =
 
     const { rows } = await dono.execute<{
       category: string;
-      body: string;
+      corpo: string;
       cabecalho_tipo: string;
       variaveis: string[];
     }>(sql`
@@ -829,8 +829,8 @@ describe('Build Meta authentication templates with their fixed components', () =
        where canal_id = ${canal.id}::uuid and nome = 'codigo_de_acesso'
     `);
     expect(rows[0]).toMatchObject({ categoria: 'autenticacao', cabecalho_tipo: 'nenhum', variaveis: ['1'] });
-    expect(rows[0]!.body).toContain('{{1}}');
-    expect(rows[0]!.body).toContain('não compartilhe');
+    expect(rows[0]!.corpo).toContain('{{1}}');
+    expect(rows[0]!.corpo).toContain('não compartilhe');
   });
 
   it('Default to security advice and a copy-code button without a footer, and preserve the category on sync', async () => {
@@ -851,16 +851,16 @@ describe('Build Meta authentication templates with their fixed components', () =
     });
     const seco = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'otp_seco')!;
     expect(seco.components![0]).toEqual({ type: 'BODY' });
-    const { rows } = await dono.execute<{ body: string }>(sql`
+    const { rows } = await dono.execute<{ corpo: string }>(sql`
       select corpo from template_mensagem where canal_id = ${canal.id}::uuid and nome = 'otp_seco'
     `);
-    expect(rows[0]!.body).toBe('{{1}} é seu código de verificação.');
+    expect(rows[0]!.corpo).toBe('{{1}} é seu código de verificação.');
 
     // // Meta approved it and returns the BODY with its own text: the sync replaces the local copy with it.
     enviado.status = 'APPROVED';
     enviado.components![0]!.text = '*{{1}}* é seu código de verificação. Para sua segurança, não compartilhe este código.';
     const resultado = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
-    expect(resultado).toMatchObject({ atualizados: 2, ignorados: 0 });
+    expect(resultado).toMatchObject({ updated: 2, ignorados: 0 });
     const { rows: depois } = await dono.execute<{ status_meta: string; body: string; category: string }>(sql`
       select status_meta, corpo, categoria from template_mensagem
        where canal_id = ${canal.id}::uuid and nome = 'otp'
@@ -878,22 +878,22 @@ describe('Build Meta authentication templates with their fixed components', () =
     const criar = (p: object) =>
       createTemplateInMeta(A.tenantId, A.adminId, canal.id, { name: 'otp', category: 'autenticacao', ...p });
 
-    await expect(criar({ corpo: 'Seu código é {{1}}' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ body: 'Seu código é {{1}}' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(criar({ cabecalho: 'Código' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(criar({ rodape: 'Pipe' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(
-      criar({ cabecalhoMidia: `data:image/png;base64,${Buffer.from('png').toString('base64')}` }),
+      criar({ headerMedia: `data:image/png;base64,${Buffer.from('png').toString('base64')}` }),
     ).rejects.toMatchObject({ detalhe: { campo: 'cabecalhoMidia' } });
-    await expect(criar({ autenticacao: { expiraEmMinutos: 0 } })).rejects.toMatchObject({
+    await expect(criar({ authentication: { expiraEmMinutos: 0 } })).rejects.toMatchObject({
       detalhe: { campo: 'autenticacao.expiraEmMinutos' },
     });
-    await expect(criar({ autenticacao: { expiraEmMinutos: 91 } })).rejects.toMatchObject({
+    await expect(criar({ authentication: { expiraEmMinutos: 91 } })).rejects.toMatchObject({
       detalhe: { campo: 'autenticacao.expiraEmMinutos' },
     });
-    await expect(criar({ autenticacao: { expiraEmMinutos: 2.5 } })).rejects.toMatchObject({
+    await expect(criar({ authentication: { expiraEmMinutos: 2.5 } })).rejects.toMatchObject({
       detalhe: { campo: 'autenticacao.expiraEmMinutos' },
     });
-    await expect(criar({ autenticacao: { textoDoBotao: 'x'.repeat(26) } })).rejects.toMatchObject({
+    await expect(criar({ authentication: { textoDoBotao: 'x'.repeat(26) } })).rejects.toMatchObject({
       detalhe: { campo: 'autenticacao.textoDoBotao' },
     });
     expect(chamadas('criar_modelo')).toHaveLength(0);
@@ -907,7 +907,7 @@ describe('Read and update channel and alert preferences', () => {
     expect(await readPreferences(A.tenantId, canal.id)).toEqual({
       quickReply: true,
       menu: true,
-      alertaRecategorizacao: { ativo: true, emails: [] },
+      alertRecategorization: { active: true, emails: [] },
     });
     await writePreferences(A.tenantId, A.adminId, canal.id, { menu: false });
     const depois = await writePreferences(A.tenantId, A.adminId, canal.id, {
@@ -916,7 +916,7 @@ describe('Read and update channel and alert preferences', () => {
     expect(depois).toEqual({
       quickReply: true,
       menu: false,
-      alertaRecategorizacao: { ativo: true, emails: ['ana@pipe.app', 'bia@pipe.app'] },
+      alertRecategorization: { active: true, emails: ['ana@pipe.app', 'bia@pipe.app'] },
     });
     // // The rest of the config (token, number) survives the write.
     expect((await readChannelWhatsApp(A.tenantId, canal.id)).config['phoneNumberId']).toBeTruthy();
@@ -969,7 +969,7 @@ describe('Update template status and category from webhooks', () => {
           message_template_language: 'pt_BR',
         }),
       ),
-    ).toMatchObject({ mensagensRecebidas: 0 });
+    ).toMatchObject({ messagesReceived: 0 });
     expect(
       await applyEventsOfTemplate(
         resolvido,
@@ -1019,7 +1019,7 @@ describe('desconectar (webhook_teardown_service_spec)', () => {
 
     ClienteGraphDuble.reiniciar();
     const depois = await desconectarWhatsApp(A.tenantId, A.adminId, channel.id);
-    expect(depois).toMatchObject({ ativo: false, estado: 'desligado' });
+    expect(depois).toMatchObject({ active: false, state: 'desligado' });
     expect(chamadas('limpar_override')).toHaveLength(1);
     expect(chamadas('descadastrar')).toHaveLength(1);
     expect(chamadas('desassinar')).toHaveLength(1);
@@ -1052,7 +1052,7 @@ describe('Show channel connection health on the Channels screen', () => {
   it('Report the phone number, quality, and limit from Meta health data', async () => {
     const canal = await conectar(A, { code: `estado-${S}` });
     const meu = (await listChannelsWhatsApp(A.tenantId)).find((c) => c.id === canal.id);
-    expect(meu).toMatchObject({ estado: 'conectado', qualidade: 'GREEN', limite: 'TIER_1K' });
+    expect(meu).toMatchObject({ state: 'conectado', quality: 'GREEN', limite: 'TIER_1K' });
   });
 
   it('Show Meta outages as `unavailable` with a reason instead of failing the whole screen', async () => {
@@ -1061,7 +1061,7 @@ describe('Show channel connection health on the Channels screen', () => {
       new PipeError(502, 'meta_unreachable', 'sem rede'),
     );
     const meu = (await listChannelsWhatsApp(A.tenantId)).find((c) => c.id === canal.id);
-    expect(meu).toMatchObject({ estado: 'indisponivel', motivo: 'meta_inacessivel' });
+    expect(meu).toMatchObject({ state: 'indisponivel', motivo: 'meta_unreachable' });
   });
 });
 
