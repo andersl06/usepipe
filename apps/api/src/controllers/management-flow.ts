@@ -240,7 +240,7 @@ export class ManagementFlowController {
     const resultado = await noTenant(sessao.tenantId, async (tx) => {
       const contato = await loadContact(tx, sessao.tenantId, id);
       if (!contato) return null;
-      return { contato, fuso: await fusoDoTenant(tx) };
+      return { contact: contato, fuso: await fusoDoTenant(tx) };
     });
     if (!resultado) throw PipeError.naoEncontrado('fluxo');
     return resultado;
@@ -294,7 +294,7 @@ export class ManagementFlowController {
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
-    const motivo = typeof corpo?.motivo === 'string' ? corpo.reason.trim().slice(0, 500) : '';
+    const motivo = typeof corpo?.reason === 'string' ? corpo.reason.trim().slice(0, 500) : '';
     await noTenant(sessao.tenantId, (tx) =>
       disconnectChannelOfFlow(tx, sessao.tenantId, sessao.userId, id, motivo || undefined),
     );
@@ -429,7 +429,7 @@ export class ManagementFlowController {
     return noTenant(sessao.tenantId, async (tx) => {
       const canalId = await loadChannelOfFlow(tx, sessao.tenantId, id);
       const modelos = canalId ? await carregarModelos(tx, canalId) : [];
-      return { canalId, modelos };
+      return { channelId: canalId, modelos };
     });
   }
 
