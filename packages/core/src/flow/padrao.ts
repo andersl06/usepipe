@@ -1,33 +1,5 @@
 /**
- * O fluxo que o cliente encontra quando abre o Builder pela primeira vez.
- *
- * De propósito é o menor fluxo que já é útil: a mensagem chega, o robô avisa que vai
- * chamar gente, e a conversa vai para a fila. Nada de menu, horário ou ramificação —
- * isso é o que a empresa vai montar por cima, com a ajuda do assistente.
- *
- * Está no `core`, e não na ponte, porque dois caminhos o servem: a cópia do Builder
- * (pela ponte) e a tela do Builder da Gestão (`GET /v1/gestao/fluxos/:id/builder`).
- * O formato é o do EDITOR da Blip (`{ <id>: estado }` com `$contentActions`…), que é
- * o que as duas telas desenham; `converterDoEditor` o leva ao formato do motor.
- *
- * Três regras do motor estão embutidas aqui, e cada uma custou um fluxo que não
- * funcionava quando esquecida:
- *
- * 1. **A raiz espera uma entrada, e só isso.** Sem entrada o motor recusa publicar
- *    ("O estado raiz precisa esperar uma entrada"). E a entrada da raiz consome a
- *    PRIMEIRA mensagem do cliente (`processarEntrada`: o estado guardado é nulo, cai
- *    na raiz, e a raiz valida a entrada antes de sair) — por isso a fala do robô fica
- *    no bloco SEGUINTE, não na raiz, senão nunca sai.
- * 2. **O transbordo é a ação `ForwardToDesk`**, não o prefixo do id: é ela que chama
- *    `encaminharParaAtendimento` e põe a conversa na fila (`apps/api/src/dominio/
- *    fluxo.ts`). O prefixo `desk:` é o que faz o motor entregar o `Ticket` encerrado
- *    de volta a este bloco quando o atendimento acaba — e é a convenção da Blip, então
- *    a tela desenha o bloco com a cara certa.
- * 3. **O bloco de atendimento espera `desk_forwardToDeskState_status = Success`** e
- *    volta à raiz por padrão: encerrado o atendimento, a próxima mensagem recomeça.
- *
- * Ele não é gravado no banco: é só o ponto de partida enquanto o cliente não salvou
- * nada. No primeiro "salvar", o que vale é o desenho dele.
+ * Default flow shown on first Builder open. It is the smallest useful flow: receive a message, tell the customer a human is coming, and queue the conversation; the company can add menus, hours, and branches later. It lives in `core` because both the Builder copy via the bridge and the Management Builder screen (`GET /v1/gestao/fluxos/:id/builder`) serve it. Both draw Blip EDITOR format (`{ <id>: estado }` with `$contentActions`); `converterDoEditor` converts it for the engine. Three engine rules matter: the root only waits for input, or publication fails ("O estado raiz precisa esperar uma entrada"); the root consumes the FIRST customer message, so bot speech belongs in the NEXT block. `ForwardToDesk`, not an ID prefix, calls `encaminharParaAtendimento` to queue the conversation (`apps/api/src/dominio/fluxo.ts`); the `desk:` prefix routes the closed `Ticket` back to that block and matches Blip rendering. The attendance block expects `desk_forwardToDeskState_status = Success` and defaults back to root after closure. This starting point is never stored; the first save persists the user's drawing.
  */
 
 function state(
@@ -55,7 +27,7 @@ function state(
   };
 }
 
-/** Uma fala do robô, no formato que o editor desenha na bolha da esquerda. */
+/** Bot utterance in the format drawn in the editor's left bubble. */
 function fala(id: string, texto: string): Record<string, unknown> {
   return {
     action: {
@@ -75,7 +47,7 @@ function fala(id: string, texto: string): Record<string, unknown> {
   };
 }
 
-/** A espera pela mensagem do cliente. É o que torna o bloco publicável. */
+/** Wait for a customer message, making the block publishable. */
 function espera(id: string, dica: string, extras: Record<string, unknown> = {}): Record<string, unknown> {
   return {
     input: {
@@ -110,8 +82,8 @@ export const FLOW_DEFAULT: Record<string, unknown> = {
     '640px',
     {
       deskStateVersion: '3.0.0',
-      // `ForwardToDesk` roda ANTES do conteúdo do bloco (`converterDoEditor`): a
-      // conversa vai para a fila, e o aviso sai já dentro dela.
+      // `ForwardToDesk` runs BEFORE block content (`converterDoEditor`): the
+      // conversation enters the queue before the notice is sent inside it.
       $enteringCustomActions: [
         { $id: 'atendimento-1', type: 'ForwardToDesk', settings: {}, conditions: [] },
       ],
@@ -131,7 +103,7 @@ export const FLOW_DEFAULT: Record<string, unknown> = {
       $afterStateChangedActions: [
         { $id: 'atendimento-4', type: 'LeavingFromDesk', settings: {}, conditions: [] },
       ],
-      // Encerrado o atendimento, a próxima mensagem recomeça do início.
+      // After ticket closure, the next message restarts from the beginning.
       $defaultOutput: { stateId: ID_DA_RAIZ_PADRAO, $invalid: false },
     },
   ),

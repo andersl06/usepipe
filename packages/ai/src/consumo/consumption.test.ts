@@ -19,14 +19,12 @@ describe('tabela de preços', () => {
 
 describe('custo', () => {
   it('charges input and output at the model\'s rates', () => {
-    // 1M de entrada a US$ 2 = 200 centavos; 1M de saída a US$ 10 = 1.000 centavos.
     expect(calcularCusto('claude-sonnet-5', 1_000_000, 0)).toBeCloseTo(200, 10);
     expect(calcularCusto('claude-sonnet-5', 0, 1_000_000)).toBeCloseTo(1_000, 10);
     expect(calcularCusto('claude-sonnet-5', 1_000_000, 1_000_000)).toBeCloseTo(1_200, 10);
   });
 
   it('mede chamada de tamanho realista sem arredondar para zero', () => {
-    // 12.000 de entrada e 800 de saída: US$ 0,024 + US$ 0,008 = 3,2 centavos.
     expect(calcularCusto('claude-sonnet-5', 12_000, 800)).toBeCloseTo(3.2, 10);
   });
 

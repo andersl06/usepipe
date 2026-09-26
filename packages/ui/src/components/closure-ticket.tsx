@@ -5,8 +5,7 @@ import { Icone } from '../icones';
 import { closureCanConfirm, type ClosureTag } from '../rules-closure';
 
 /**
- * Modal compartilhado, baseado no `close-ticket-modal` compilado do Desk e
- * nas traduções do modal `closeTicket` de Monitoramento.
+ * Shared modal based on the compiled Desk `close-ticket-modal` and Monitoring's `closeTicket` modal translations.
  */
 export function CardClosureTicket({
   numero,

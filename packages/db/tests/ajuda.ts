@@ -7,8 +7,7 @@ export const URL_DONO =
   process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
 
 /**
- * O papel da aplicação. É o único jeito honesto de testar RLS: com o papel dono a
- * política é ignorada e o teste passaria sem provar nada.
+ * The application role. RLS must be tested with this role: the table owner bypasses the policy, so an owner-role test could pass without proving isolation.
  */
 export const URL_APP =
   process.env['DATABASE_URL_APP'] ?? 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
@@ -24,8 +23,7 @@ export interface Cenario {
 }
 
 /**
- * Sobe o schema e semeia dois tenants com uma fila cada, usando o papel dono.
- * O `sufixo` mantém as execuções independentes quando o banco não é descartado.
+ * Migrate the schema and seed two tenants with one queue each using the owner role. `sufixo` keeps runs independent when the database is retained.
  */
 export async function montarCenario(sufixo: string): Promise<Cenario> {
   await migrate(URL_DONO);
@@ -68,8 +66,7 @@ export async function montarCenario(sufixo: string): Promise<Cenario> {
 }
 
 /**
- * A consulta falhou fechada? Ou o `current_setting` lançou, ou a política filtrou
- * tudo. As duas formas são aceitáveis; devolver linha não é.
+ * Did the query fail closed? Either `current_setting` threw or the policy filtered every row. Both outcomes are acceptable; returning a row is not.
  */
 export async function falhouFechada(query: () => Promise<{ rows: unknown[] }>): Promise<boolean> {
   try {

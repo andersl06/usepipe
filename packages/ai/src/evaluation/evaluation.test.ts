@@ -7,9 +7,7 @@ import { montarTranscription, type MessageTranscription } from '../transcription
 import { avaliarConversation, calcularNota, valueFraction, type Formulario } from './index.js';
 
 /**
- * Pesos: c1=1×1, c2=1×2, c3=2×2, c4=3×1. Somam 10, então cada ponto de peso vale
- * 10 pontos de nota. Números redondos de propósito: teste de cálculo com número
- * feio esconde erro de arredondamento.
+ * Weights: c1=1×1, c2=1×2, c3=2×2, c4=3×1, totaling 10; each weight point is worth 10 score points. Round numbers are intentional: awkward arithmetic would obscure rounding errors in this calculation test.
  */
 const formulario: Formulario = {
   id: 'form-1',
@@ -92,7 +90,6 @@ describe('cálculo da nota', () => {
       formulario,
       respostas({ c1: 'nao_conforme', c2: 'conforme', c3: '5', c4: 'conforme' }),
     );
-    // Só o c1 (peso 1 de 10) caiu.
     expect(r.nota).toBe(90);
   });
 
@@ -137,7 +134,6 @@ describe('cálculo da nota', () => {
       formulario,
       respostas({ c1: 'conforme', c2: 'nao_se_aplica', c3: '5', c4: 'conforme' }),
     );
-    // Peso total cai de 10 para 8; quem sobrou está todo conforme.
     expect(r.nota).toBe(100);
     expect(r.respostas.find((x) => x.criterioId === 'c2')!.pontos).toBe(0);
   });
@@ -163,7 +159,6 @@ describe('cálculo da nota', () => {
   });
 });
 
-// ——— avaliação com dublê do modelo ———
 
 const conversation: MessageTranscription[] = [
   {
@@ -195,7 +190,7 @@ interface SaidaGravada {
   confianca: number;
 }
 
-/** Dublê com resposta gravada: nenhum teste gasta chamada real. */
+/** Recorded response stub: tests make no real model calls. */
 function duble(saida: SaidaGravada): ChamadaEstruturada {
   return async () =>
     ({

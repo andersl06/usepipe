@@ -4,10 +4,7 @@ import { refTenant } from './identity.js';
 import { contactImport } from './crm.js';
 
 /**
- * O arquivo da importação de contatos — migration `0016_entrada_do_cliente`.
- *
- * É o `import_file` e o `failed_records` do `DataImport` do Chatwoot. Declarado
- * aqui para o `drizzle-kit` não gerar um `DROP` dela na próxima migration.
+ * Contact-import file from migration `0016_entrada_do_cliente`. It corresponds to Chatwoot `DataImport` fields `import_file` and `failed_records`. Declared here so `drizzle-kit` does not generate a `DROP` for it in the next migration.
  */
 export const importFile = pgTable('importacao_arquivo', {
   importId: uuid('importacao_id')
@@ -15,7 +12,7 @@ export const importFile = pgTable('importacao_arquivo', {
     .references(() => contactImport.id, { onDelete: 'cascade' }),
   tenantId: refTenant(),
   conteudo: text('conteudo').notNull(),
-  /** O CSV das linhas rejeitadas, com a coluna `erros`. Nulo quando nada foi rejeitado. */
+  /** CSV of rejected rows with an `erros` column; null when no rows were rejected. */
   falhasCsv: text('falhas_csv'),
   criadoEm: moment('criado_em').notNull().defaultNow(),
 });

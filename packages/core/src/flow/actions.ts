@@ -1,15 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs,
- * Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs,
- * Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs,
- * Actions/CreateTicket/CreateTicketAction.cs e Actions/Redirect/RedirectAction.cs
- * — modificado: C# → TypeScript; quem envia, abre atendimento e registra evento é o
- * `ServicosDoMotor` que a `api` injeta (no original, `ISender` e as extensões da Blip);
- * o `Task.Delay` do "digitando" não é esperado (o motor roda dentro da transação da
- * entrada); `ForwardToDesk` e `LeavingFromDesk` NÃO estão no SDK — são ações do
- * servidor da Blip usadas pelo bloco de atendimento do editor, e o comportamento foi
- * copiado da forma desse bloco no export (variável `desk_forwardToDeskState_status`).
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs; Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs, Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs, Actions/CreateTicket/CreateTicketAction.cs, and Actions/Redirect/RedirectAction.cs. Changes from C# to TypeScript: `ServicosDoMotor` injected by the `api` sends messages, opens tickets, and records events (originally `ISender` and Blip extensions); typing `Task.Delay` is not awaited because the engine runs inside the inbound transaction. `ForwardToDesk` and `LeavingFromDesk` are Blip server actions absent from the SDK; their behavior follows the exported editor block, including `desk_forwardToDeskState_status`.
  */
 
 import type { Context, PedidoDeHttp } from './context.js';
@@ -25,7 +15,7 @@ export interface AcaoDoMotor {
 
 export type ActionsProvider = ReadonlyMap<string, AcaoDoMotor>;
 
-/** O Newtonsoft casa propriedade sem diferenciar maiúscula (`Variable`/`variable`). */
+/** Newtonsoft matches property names without case sensitivity (`Variable`/`variable`). */
 function campo(settings: Settings, nome: string): unknown {
   if (!settings) return undefined;
   const key = Object.keys(settings).find((k) => k.toLowerCase() === nome.toLowerCase());
@@ -35,7 +25,7 @@ function campo(settings: Settings, nome: string): unknown {
 const comoTexto = (v: unknown): string | null =>
   v === undefined || v === null ? null : typeof v === 'string' ? v : JSON.stringify(v);
 
-/** `ActionBase.ExecuteAsync`: configuração nula é erro antes de qualquer coisa. */
+/** `ActionBase.ExecuteAsync` rejects null configuration before any work. */
 function exigirSettings(tipo: string, settings: Settings): Record<string, unknown> {
   if (!settings) throw new Error(`As configurações são obrigatórias na ação '${tipo}'.`);
   return settings;
@@ -74,8 +64,8 @@ const sendMessage: AcaoDoMotor = {
     const c = exigirSettings(this.tipo, settings);
     const tipo = comoTexto(campo(c, 'type'));
     if (!tipo || !MIME.test(tipo)) throw new Error(`Tipo de mídia inválido: '${tipo}'.`);
-    // ponytail: o original espera o `interval` do "digitando" (Task.Delay). Aqui não:
-    // o motor roda dentro da transação da entrada, e segurar conexão por isso é caro.
+    // ponytail: unlike the source, do not await typing `interval` (`Task.Delay`) here:
+    // the engine runs inside the inbound transaction, and holding a connection for typing is costly.
     await context.services.send({
       tipo,
       conteudo: campo(c, 'content'),
@@ -105,7 +95,7 @@ const sendRawMessage: AcaoDoMotor = {
   },
 };
 
-/** `TrackEventAction`: `category` e `action` são obrigatórios. */
+/** `TrackEventAction` requires `category` and `action`. */
 const trackEvent: AcaoDoMotor = {
   tipo: 'TrackEvent',
   async executar(context, settings) {
@@ -135,13 +125,11 @@ const createTicket: AcaoDoMotor = {
   },
 };
 
-/** A variável que o bloco de atendimento do editor da Blip testa na entrada e na saída. */
+/** Variable tested by the Blip editor's attendance block on entry and exit. */
 export const VARIABLE_OF_FORWARDING = 'desk_forwardToDeskState_status';
 
 /**
- * `ForwardToDesk` (servidor da Blip). No bloco de atendimento do editor, a entrada só é
- * esperada se esta variável for `Success`, e a saída padrão é `Error` — por isso a
- * falha vira valor da variável, e não exceção.
+ * Blip server `ForwardToDesk`: the editor attendance block expects entry only when this variable is `Success`, and its default exit is `Error`. A failure therefore becomes a variable value rather than an exception.
  */
 const forwardToDesk: AcaoDoMotor = {
   tipo: 'ForwardToDesk',
@@ -159,17 +147,14 @@ const forwardToDesk: AcaoDoMotor = {
   },
 };
 
-/** `LeavingFromDesk` (servidor da Blip): no Pipe o atendimento já foi encerrado pelo Desk. */
+/** Blip server `LeavingFromDesk`: in Pipe, Desk has already closed the ticket. */
 const leavingFromDesk: AcaoDoMotor = {
   tipo: 'LeavingFromDesk',
   async executar() {},
 };
 
 /**
- * `RedirectAction` (Actions/Redirect/RedirectAction.cs): as configurações são o documento
- * `Redirect` do LIME (`application/vnd.lime.redirect+json`) — `address` é o NOME do serviço
- * no roteador (`blip-api-schemas.md` §5.4) e `context` vai junto. Quem muda o contato de
- * serviço é o `ServicosDoMotor`; sem roteador, falha, como na Blip.
+ * `RedirectAction` settings are a LIME `Redirect` document (`application/vnd.lime.redirect+json`). `address` is the router service NAME (`blip-api-schemas.md` §5.4) and `context` accompanies it. `ServicosDoMotor` moves the contact to another service; without a router this fails, as in Blip.
  */
 const redirect: AcaoDoMotor = {
   tipo: 'Redirect',
@@ -185,9 +170,7 @@ const redirect: AcaoDoMotor = {
 };
 
 /**
- * `ProcessHttpAction` da Blip: status HTTP, inclusive 4xx/5xx, vira variável e não
- * falha a ação; erro de rede é representado pela resposta sintética do serviço.
- * A chamada fica no serviço injetado para o motor continuar puro.
+ * Blip `ProcessHttpAction`: HTTP status, including 4xx/5xx, becomes a variable rather than failing the action; network failure is represented by a synthetic service response. The injected service performs the call so the engine remains pure.
  */
 const processHttp: AcaoDoMotor = {
   tipo: 'ProcessHttp',
@@ -243,10 +226,10 @@ export const ACTIONS_OF_MOTOR: readonly AcaoDoMotor[] = [
   processHttp,
 ];
 
-/** O `ActionProvider` padrão: as ações que o Pipe executa. */
+/** Default `ActionProvider` containing actions Pipe executes. */
 export const PROVEDOR_PADRAO: ActionsProvider = new Map(ACTIONS_OF_MOTOR.map((a) => [a.tipo, a]));
 
-/** `ActionProvider.Get`: tipo sem implementação é erro, não ação ignorada. */
+/** `ActionProvider.Get` treats an unimplemented type as an error, never an ignored action. */
 export function obterAcao(provedor: ActionsProvider, tipo: string): AcaoDoMotor {
   const acao = provedor.get(tipo);
   if (!acao) throw new Error(`A ação do tipo '${tipo}' não existe no Pipe.`);

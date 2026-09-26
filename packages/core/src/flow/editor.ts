@@ -1,25 +1,5 @@
 /**
- * Importador: o export do EDITOR do Builder da Blip → o formato PUBLICADO que o motor lê.
- *
- * **Não é porte.** O motor (`FlowManager`) consome o fluxo publicado
- * (`{ id, states: [{ inputActions, input, outputActions, outputs }] }`); o botão
- * "Exportar" do Builder devolve o formato do editor (`{ flow: { <id>: estado },
- * globalActions }`, com `$contentActions`, `$conditionOutputs`…). Quem converte um no
- * outro é o portal da Blip, que é proprietário: o comportamento abaixo foi copiado
- * comparando os dois formatos, sem código do portal.
- *
- * - `$enteringCustomActions` e depois as ações de `$contentActions` → `inputActions`
- *   (ação de entrada roda antes do conteúdo do bloco);
- * - o item `input` de `$contentActions` → `input`;
- * - `$leavingCustomActions` → `outputActions`; `$afterStateChangedActions` →
- *   `afterStateChangedActions`; `$localCustomActions` → `localCustomActions`;
- * - `$conditionOutputs`, na ordem, e por último `$defaultOutput` sem condição → `outputs`;
- * - `$title` → `name`; `$position` e `$tags` ficam como dado de extensão;
- * - `globalActions.$enteringCustomActions` / `$leavingCustomActions` → as ações globais
- *   de entrada e de saída do fluxo.
- *
- * Nada é descartado em silêncio: o que o Pipe não executa entra no relatório por tipo,
- * e o estado original do editor vai junto para o `bloco.conteudo` (ver `api`).
+ * Importer converts a Blip Builder EDITOR export to the PUBLISHED format read by the engine. This is not a code port: `FlowManager` consumes `{ id, states: [{ inputActions, input, outputActions, outputs }] }`, while Builder "Exportar" returns `{ flow: { <id>: estado }, globalActions }` with `$contentActions`, `$conditionOutputs`, etc. Blip's proprietary portal converts between them; behavior here comes from comparing both formats. `$enteringCustomActions` followed by `$contentActions` actions become `inputActions` (before block content); the `input` item becomes `input`; `$leavingCustomActions`, `$afterStateChangedActions`, and `$localCustomActions` map to their matching action arrays; ordered `$conditionOutputs` followed by unconditional `$defaultOutput` become `outputs`; `$title` becomes `name`, while `$position` and `$tags` remain extension data; global entering/leaving actions become flow-global actions. Unsupported content is reported by type, and original editor state is retained in `bloco.conteudo` (see `api`).
  */
 
 import { COMPARISONS, FONTES } from './condition.js';
@@ -51,7 +31,7 @@ export interface ExportDoEditor {
   globalActions?: Partial<EditorState> | null;
 }
 
-/** O export do editor tem `flow` como MAPA de estados, e não `states[]`. */
+/** Editor exports store `flow` as a STATE MAP rather than `states[]`. */
 export function ehExportDoEditor(json: unknown): json is ExportDoEditor {
   const flow = (json as { flow?: unknown } | null)?.flow;
   return (
@@ -62,7 +42,7 @@ export function ehExportDoEditor(json: unknown): json is ExportDoEditor {
   );
 }
 
-/** Tira as chaves de editor (`$id`, `$invalid`, `$cardContent`…) e mantém as do modelo. */
+/** Remove editor-only keys (`$id`, `$invalid`, `$cardContent`, etc.) while retaining model keys. */
 function limpar<T>(objeto: Objeto, manter: readonly string[] = []): T {
   const saida: Objeto = {};
   for (const [k, v] of Object.entries(objeto)) {
@@ -83,10 +63,10 @@ function converterAcao(a: Objeto): Acao {
 function converterState(e: EditorState): State {
   const conteudo = e.$contentActions ?? [];
   const editorInbound = conteudo.find((c) => c.input)?.input;
-  // Saída sem destino não vira transição: é o que o editor da Blip guarda no
-  // bloco de atendimento recém-criado (as "Saídas de atendimento" ainda sem
-  // bloco) e no rascunho em que a pessoa ainda não escolheu o "Direcionar para
-  // bloco". O motor nunca a tomaria; a tela é quem aponta que falta preencher.
+  // An exit without a destination does not become a transition: Blip Builder stores it in
+  // a newly created attendance block (the "Saídas de atendimento" have no destination
+  // block yet) or in a draft where the user has not selected "Direcionar para
+  // bloco". The engine would never take it; the UI flags the missing destination.
   const saidas: Saida[] = (e.$conditionOutputs ?? [])
     .filter((s) => typeof s.stateId === 'string' && s.stateId !== '')
     .map((s, i) => ({
@@ -118,7 +98,7 @@ function converterState(e: EditorState): State {
   return state;
 }
 
-/** O export do editor no formato publicado. O `id` do fluxo é de quem importa. */
+/** Convert editor export to published format; importer supplies the flow `id`. */
 export function converterDoEditor(exportado: ExportDoEditor, id: string): FlowBlip {
   const global = exportado.globalActions ?? {};
   return {
@@ -131,9 +111,7 @@ export function converterDoEditor(exportado: ExportDoEditor, id: string): FlowBl
 }
 
 /**
- * Lê qualquer um dos formatos da Blip: export do editor, `applicationJson` publicado
- * (`{ settings: { flow } }`), `{ flow: { states } }` ou o `Flow` direto. O publicado é
- * identidade: o motor lê a Blip nativamente.
+ * Read any Blip flow format: editor export, published `applicationJson` (`{ settings: { flow } }`), `{ flow: { states } }`, or direct `Flow`. Published format passes through unchanged because the engine reads Blip natively.
  */
 export function blipReadFlow(json: unknown, id: string): FlowBlip {
   if (ehExportDoEditor(json)) return converterDoEditor(json, id);
@@ -148,20 +126,20 @@ export function blipReadFlow(json: unknown, id: string): FlowBlip {
   return { ...flow, id };
 }
 
-/** Os tipos de conteúdo que o canal do Pipe manda hoje. O "digitando" passa sem efeito. */
+/** Content types currently sent by Pipe channels; typing passes through without effect. */
 export const CONTEUDOS_SUPORTADOS = new Set(['text/plain', 'application/vnd.lime.select+json']);
 export const CONTEUDOS_SEM_EFEITO = new Set(['application/vnd.lime.chatstate+json']);
-/** Ações que rodam e não fazem nada no Pipe, ditas aqui para não parecer que fazem. */
+/** Actions that execute without effect in Pipe, listed explicitly so they do not appear functional. */
 export const ACTIONS_WITHOUT_EFEITO = new Set(['LeavingFromDesk']);
 
 export interface ImportReport {
   estados: number;
   saidas: number;
-  /** Todas as ações, por tipo. */
+
   actions: Record<string, number>;
-  /** O que o motor do Pipe NÃO executa, por tipo — em tempo de execução, lança. */
+  /** Action types Pipe cannot execute; the engine throws at runtime. */
   naoSuportado: Record<string, number>;
-  /** O que roda sem efeito no Pipe. */
+  /** Action types that execute without effect in Pipe. */
   semEfeito: Record<string, number>;
 }
 
@@ -171,7 +149,7 @@ const somar = (mapa: Record<string, number>, key: string): void => {
 
 const texto = (v: unknown): string => (typeof v === 'string' ? v : String(v));
 
-/** O que do fluxo o Pipe executa, e o que não. Só contagens e nomes de tipo. */
+/** Report what Pipe can and cannot execute from a flow, using type names and counts only. */
 export function importReport(flow: FlowBlip): ImportReport {
   const r: ImportReport = {
     estados: flow.states.length,
@@ -228,7 +206,7 @@ export function importReport(flow: FlowBlip): ImportReport {
     ]) {
       verAcao(a);
     }
-    // Ação local só roda pelo agente do Builder (`ProcessCommandInputAsync`), não pela conversa.
+    // Local actions run only through the Builder agent (`ProcessCommandInputAsync`), not normal conversation processing.
     for (const a of e.localCustomActions ?? []) {
       somar(r.actions, a.type);
       somar(r.semEfeito, `acao-local:${a.type}`);
@@ -241,7 +219,7 @@ export function importReport(flow: FlowBlip): ImportReport {
     }
   }
 
-  // Variáveis de fonte sem provedor no Pipe (`{{calendar.x}}`, `{{resource.x}}`…).
+  // Variable sources lacking a Pipe provider, such as `{{calendar.x}}` and `{{resource.x}}`.
   for (const m of JSON.stringify(flow).matchAll(/{{([a-zA-Z0-9.@_-]+)}}/g)) {
     const nome = m[1]!.split('@')[0]!;
     if (!nome.includes('.')) continue;

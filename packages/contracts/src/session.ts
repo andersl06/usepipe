@@ -1,11 +1,8 @@
 /**
- * O contrato de sessão, partilhado entre a `api` e os quatro fronts.
- *
- * Existe para que "quem está logado" tenha UMA definição. Sem isto, cada tela
- * inventa a sua e a divergência só aparece quando um campo muda de nome.
+ * Session contract shared by the `api` and four front ends. A single definition of the logged-in user exposes field-name divergence when fields change.
  */
 
-/** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */
+/** `GET /v1/eu` response, the source of truth for the logged-in user. */
 export interface Eu {
   user: {
     id: string;
@@ -19,18 +16,13 @@ export interface Eu {
     slug: string;
     plano: Plano;
     /**
-     * `false` enquanto a conta não passou por "minha conta".
-     *
-     * Vive no `Eu` porque TODA tela logada precisa saber: conta que ainda não
-     * disse de que empresa é vai para o onboarding, não para o produto. Fosse
-     * uma chamada à parte, seria uma ida à rede por tela — e a consulta do
-     * `Eu` já lê a linha do tenant.
+     * False until the account has completed "minha conta". Every logged-in screen needs this in `Eu` to send accounts missing company details to onboarding rather than the product. Fetching it separately would add a network request per screen, while the `Eu` query already reads the tenant row.
      */
     onboardingConcluido: boolean;
   };
-  /** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */
+  /** Catalog permission codes; the screen hides features absent from this list. */
   permissions: string[];
-  /** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */
+  /** Login origin, shown on the account screen and used by audit. */
   origem: OriginOfSession;
 }
 
@@ -41,26 +33,22 @@ export const ORIGINS_OF_SESSION = ['senha', 'google', 'sso'] as const;
 export type OriginOfSession = (typeof ORIGINS_OF_SESSION)[number];
 
 /**
- * Por que a entrada foi recusada.
- *
- * Código, não frase: a tela decide o texto, e o texto muda sem quebrar contrato.
- * Cada um destes tem uma saída diferente para a pessoa, e é por isso que não
- * viram um "não autorizado" genérico.
+ * Reason login was refused, represented as a code rather than a sentence. Screens choose text independently without breaking the contract; each code gives the person a distinct recovery path instead of generic unauthorized feedback.
  */
 export const REFUSESS_OF_INBOUND = [
-  /** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */
+  /** A personal email does not identify a company. Recovery: use an invitation. */
   'domain_public',
-  /** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */
+  /** No Pipe account uses this domain. Recovery: contact the purchaser. */
   'domain_unknown',
-  /** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */
+  /** The domain is known, but this person was not invited. Recovery: request an invitation. */
   'without_invitation',
-  /** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */
+  /** Access was disabled after joining. Recovery: contact the administrator. */
   'user_inactive',
-  /** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */
+  /** The provider did not verify the email. Recovery: verify the provider account. */
   'email_nao_verificado',
-  /** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */
+  /** The company requires SSO. Recovery: use its identity provider. */
   'sso_obrigatorio',
-  /** Falha na conversa com o Google. Saída: tentar de novo. */
+  /** Communication with Google failed. Recovery: retry. */
   'falha_no_provedor',
 ] as const;
 export type RefusesOfInbound = (typeof REFUSESS_OF_INBOUND)[number];
@@ -71,33 +59,21 @@ export interface ApiError {
 }
 
 /**
- * O que `POST /v1/auth/descobrir` responde: por onde ESTE e-mail entra.
- *
- * `sso` manda ao provedor de identidade da empresa; `google` mostra o caminho do
- * Google. Não existe `senha` — o Pipe nunca guardou senha de ninguém, e um valor
- * que promete um campo que não existe faz a tela desenhar o que não sabe fazer.
- *
- * A resposta é a MESMA para e-mail conhecido e desconhecido, exceto quando o
- * domínio é verificado e tem SSO ativo. Sem isso, a rota vira catálogo de "quais
- * empresas usam Pipe".
+ * `POST /v1/auth/descobrir` returns the login method for this email: `sso` directs to the company identity provider and `google` to Google. There is no `senha`: Pipe has never stored passwords, and promising a nonexistent method would make the screen offer an impossible flow. Known and unknown email addresses receive the same answer except when the domain is verified and has active SSO; otherwise the route would reveal which companies use Pipe.
  */
 export interface RespostaDaDescoberta {
   metodo: 'sso' | 'google';
-  /** Caminho na API, quando `sso`. Falta só a base pública. */
+  /** API path for `sso`; only the public base is missing. */
   irPara?: string;
 }
 
 /**
- * O que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora.
- *
- * O mínimo para a pessoa decidir se aquele convite é dela: qual empresa, para
- * qual e-mail, com qual papel e até quando. Nada de dado do tenant além do nome
- * — quem chega aqui não está logado.
+ * `GET /v1/convites/:token` exposes only enough for an unauthenticated recipient to decide whether the invitation is theirs: company name, target email, role, and expiry. No other tenant data is included because the recipient is not logged in.
  */
 export interface InvitationVisible {
   email: string;
   role: string;
   tenant: { nome: string; slug: string };
-  /** ISO-8601, como sai da API. Quem formata é a tela. */
+  /** ISO 8601 as returned by the API; the screen handles formatting. */
   expiraEm: string;
 }

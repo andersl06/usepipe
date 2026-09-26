@@ -8,14 +8,10 @@ import { queue } from './schema/conversations.js';
 import { role, rolePermission, permission, tenant } from './schema/identity.js';
 
 /**
- * Semente mínima: um tenant, os cinco papéis do dia 1, o catálogo de permissões e as
- * filas de exemplo. Roda com o papel dono das tabelas, antes de existir usuário — por
- * isso não passa pelo `comTenant`.
- *
- * Idempotente de propósito: rodar duas vezes não duplica nada.
+ * Minimal seed: one tenant, five initial roles, the permission catalog, and sample queues. It uses the table-owner role before users exist, so it does not use `comTenant`. Running it twice deliberately creates no duplicates.
  */
 
-/** Permissão é capacidade nomeada, nunca flag booleana espalhada pelo código. */
+/** A permission is a named capability, not a boolean flag scattered through code. */
 export const CATALOG_PERMISSIONS = [
   ['conversa.ver', 'conversa', 'Ver conversas das filas em que participa'],
   ['conversa.ver_todas', 'conversa', 'Ver conversas de todas as filas'],
@@ -42,7 +38,7 @@ export const CATALOG_PERMISSIONS = [
   ['fila.gerenciar', 'gestao', 'Criar, editar e desativar fila'],
   ['regra.gerenciar', 'gestao', 'Gerenciar regras de fila, prioridade e SLA'],
   ['horario.gerenciar', 'gestao', 'Gerenciar horário de atendimento e feriado'],
-  /* Migração 0030: nenhuma permissão cobria motivo de pausa nem resposta pronta. */
+  /* Migration 0030: no permission covered pause reasons or canned replies. */
   ['pausa.gerenciar', 'gestao', 'Criar, editar e desativar motivo de pausa'],
   ['resposta_pronta.gerenciar', 'gestao', 'Criar, editar e excluir resposta pronta da empresa'],
   ['monitoria.avaliacao.ver', 'monitoria', 'Ver avaliação'],
@@ -55,35 +51,26 @@ export const CATALOG_PERMISSIONS = [
   ['monitoria.coach.gerenciar', 'monitoria', 'Criar e acompanhar plano de coach'],
   ['automacao.fluxo.editar', 'automacao', 'Editar fluxo de conversa'],
   ['automacao.fluxo.publicar', 'automacao', 'Publicar versão de fluxo'],
-  /* "Somente um admin pode deletar o chatbot" (`deleteChatbotPermissionDenied`
-     da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */
+  /*
+   * "Somente um admin pode deletar o chatbot" (`deleteChatbotPermissionDenied` in the source): deletion has a separate permission absent from `member`. Migration 0023.
+   */
   ['automacao.fluxo.excluir', 'automacao', 'Excluir fluxo de conversa'],
   ['automacao.workflow.gerenciar', 'automacao', 'Criar e ativar workflow'],
-  /* Migração 0032: nem "Informações de conexão" nem "Webhook" tinham permissão
-     própria — `chave_api.gerenciar` cobre só a emissão de chave. */
+  /*
+   * Migration 0032: neither "Informações de conexão" nor "Webhook" had its own permission; `chave_api.gerenciar` covers key issuance only.
+   */
   ['automacao.integracao.gerenciar', 'automacao', 'Gerenciar webhook de saída e conexão HTTP do fluxo'],
   ['consulta.executar', 'automacao', 'Executar consulta'],
   ['consulta.salvar', 'automacao', 'Salvar consulta'],
   ['consulta.agendar', 'automacao', 'Agendar consulta e exportação'],
   /*
-   * As permissões da CONTA — o que o Painel do contrato lê.
+   * ACCOUNT permissions read by the contract application.
    *
-   * São a matriz do painel deles (`referencias-blip/pesquisa/blip-painel-do-contrato.md`,
-   * §"A matriz de papéis") trazida para o nosso RBAC: lá são seis chaves
-   * (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`,
-   * `tenant-billing`, `tenant-permissions-group`) com dois verbos (`read`,
-   * `write`) chumbadas no front por três papéis fixos; aqui cada par
-   * chave+verbo vira UMA permissão do catálogo, e quem distribui é o papel do
-   * banco. É a mesma matriz — só que editável sem recompilar a tela.
+   * These bring the source matrix (`referencias-blip/pesquisa/blip-painel-do-contrato.md`, section "A matriz de papéis") into RBAC. It has six keys (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`, `tenant-billing`, `tenant-permissions-group`) with `read` and `write` verbs hard-coded in the frontend for three fixed roles. Here each key/verb pair becomes ONE catalog permission assigned by a database role, preserving the matrix while allowing edits without rebuilding the screen.
    *
-   * `conta.painel.*` espelha `tenant-dashboard`, que está na matriz deles e
-   * **nenhum cartão usa**. Fica aqui pela mesma razão que fica lá: a matriz é
-   * o contrato, e buraco no meio dela vira pergunta na próxima leitura.
+   * `conta.painel.*` mirrors `tenant-dashboard` even though no card uses it: the matrix is a contract, and an unexplained gap would confuse future reviews.
    *
-   * Faturamento tem só LEITURA de propósito: na matriz deles `tenant-billing`
-   * é read para `admin` e nada para o resto — ninguém tem write. Inventar
-   * `conta.faturamento.escrever` seria inventar capacidade que a origem não
-   * tem e que nenhuma tela nossa exerce.
+   * Billing is READ ONLY deliberately. Source `tenant-billing` gives `admin` read access and no one write access; inventing `conta.faturamento.escrever` would add an unsupported capability no screen uses.
    */
   ['conta.resumo.ler', 'conta', 'Ver o resumo do contrato'],
   ['conta.resumo.escrever', 'conta', 'Editar o nome e a foto do contrato'],
@@ -106,14 +93,13 @@ export const CATALOG_PERMISSIONS = [
 ] as const satisfies readonly (readonly [string, string, string])[];
 
 /**
- * Tudo, menos as permissões da CONTA: essas vêm só do papel de conta
- * (`PAPEIS_DA_CONTA`), desde a migração 0021.
+ * All permissions except ACCOUNT permissions, which come only from the account role (`PAPEIS_DA_CONTA`) since migration 0021.
  */
 const TODAS = CATALOG_PERMISSIONS.map(([codigo]) => codigo).filter(
   (codigo) => !codigo.startsWith('conta.'),
 );
 
-/** O `guest` deles — "Apenas visualiza informações do contrato". */
+/** The source `guest` role: "Apenas visualiza informações do contrato". */
 const OF_ACCOUNT_IN_READ = ['conta.resumo.ler', 'conta.workspace.ler'];
 
 const OF_AGENT = [
@@ -158,8 +144,7 @@ const DO_SUPERVISOR = [
 ];
 
 /**
- * Gestor vê e configura tudo do negócio; o que mexe em identidade fica no
- * administrador — e excluir fluxo também, que na origem é só do admin.
+ * A manager can view and configure business operations; identity changes remain with the administrator, as does deleting flows, which only an admin can do in the source.
  */
 const DO_GESTOR = TODAS.filter(
   (codigo) =>
@@ -173,12 +158,9 @@ const DO_GESTOR = TODAS.filter(
 );
 
 /**
- * Os três papéis da CONTA, com o `roleId` da origem como nome — a matriz de
- * `referencias-blip/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela ("Admin", "Pode
- * editar", "Pode visualizar") mora no gestão, não aqui.
+ * Three ACCOUNT roles named after source `roleId` values, following `referencias-blip/pesquisa/blip-painel-do-contrato.md`. UI labels ("Admin", "Pode editar", "Pode visualizar") live in Management, not here.
  *
- * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). "Cria e edita
- * chatbots" é `automacao.fluxo.editar`, a permissão que o portal confere para criar.
+ * Each person has exactly one, enforced by a partial index on `usuario_papel`. The source "Cria e edita chatbots" maps to `automacao.fluxo.editar`, the permission checked by the portal on creation.
  */
 export const PAPEIS_OF_ACCOUNT = [
   {
@@ -187,8 +169,9 @@ export const PAPEIS_OF_ACCOUNT = [
     permissoes: [
       ...CATALOG_PERMISSIONS.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
       'automacao.fluxo.editar',
-      /* Quem edita o bot publica o bot: o Builder da origem não separa os dois
-         gestos. Migração 0034. */
+      /*
+       * Whoever edits the bot may publish it: the source Builder does not separate those actions. Migration 0034.
+       */
       'automacao.fluxo.publicar',
       'automacao.fluxo.excluir',
       'automacao.integracao.gerenciar',
@@ -212,7 +195,7 @@ export const PAPEIS_OF_ACCOUNT = [
   },
 ] as const;
 
-/** Os papéis de ATENDIMENTO. Nenhum carrega permissão `conta.*`. */
+/** ATTENDANCE roles. None carries a `conta.*` permission. */
 export const PAPEIS_DIA_1 = [
   {
     nome: 'administrador',
@@ -237,15 +220,9 @@ export const PAPEIS_DIA_1 = [
   },
 ] as const;
 
-/**
- * As duas primeiras replicam o roteamento por faixa de score do §4.2: 60 ou mais vai
- * para closer, abaixo disso para o Comercial.
- */
+
 /*
- * A cor guarda NOME DE TOKEN da paleta de gráfico, nunca hex. Hex em coluna de
- * dado volta a virar cor fora do sistema na hora de pintar, que é o que a régua
- * do @pipe/ui proíbe — e foi assim que a etiqueta acabou com nove matizes que
- * ninguém escolheu. A tela de Filas lê estes mesmos nomes.
+ * Store a chart-palette TOKEN NAME for color, never a hex literal. A hex value in a data column bypasses the `@pipe/ui` color rule when rendered; that is how tags acquired nine unchosen hues. The Queues screen reads these same names.
  */
 export const QUEUES_EXAMPLE = [
   { nome: 'Comercial', cor: 'grafico-1', ordem: 1, capacidadePadrao: 8 },
@@ -304,7 +281,7 @@ export interface ResultSeed {
   papeis: number;
   permissions: number;
   queues: number;
-  /** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */
+
   papeisOfAccountData: number;
 }
 
@@ -365,7 +342,7 @@ export async function seed(
     .values(QUEUES_EXAMPLE.map((f) => ({ tenantId, ...f })))
     .onConflictDoNothing();
 
-  // Por último, depois de os papéis de conta existirem: quem foi semeado por
+  // Finally, after account roles exist, assign one to users seeded by another routine before this run or already present after migration 0021.
   // outra rotina antes desta rodada (ou pela 0021 ter passado) ganha o dele.
   const papeisOfAccountData = await garantirRoleOfAccount(db, tenantId);
 

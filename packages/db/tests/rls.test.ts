@@ -5,11 +5,9 @@ import { falhouFechada, montarCenario } from './ajuda.js';
 import type { Cenario } from './ajuda.js';
 
 /**
- * Critério de aceite da fundação: a política `tenant_isolado` precisa isolar de
- * verdade, e a ausência da variável de sessão precisa fechar a porta, não abri-la.
+ * Foundation acceptance criterion: `tenant_isolado` must isolate rows, and a missing session setting must fail closed.
  *
- * Tudo aqui roda com o papel `pipe_app`, que não é dono das tabelas e não tem
- * `bypassrls`. Rodar com o papel dono faria os três testes passarem sem provar nada.
+ * The policy checks run with `pipe_app`, which owns no tables and has no `bypassrls` privilege. The owner role would bypass RLS and could make the tests pass without proving isolation.
  */
 describe('Enforce tenant isolation through row-level security', () => {
   let cenario: Cenario;
@@ -31,15 +29,15 @@ describe('Enforce tenant isolation through row-level security', () => {
     expect(doA.map((linha) => linha.id)).toEqual([cenario.queueA]);
     expect(doA.map((linha) => linha.id)).not.toContain(cenario.queueB);
 
-    // E o caminho inverso, para descartar que o filtro seja coincidência de ordem.
+    // Check the reverse direction too, so the filter cannot pass by row-order coincidence.
     const doB = await comTenant(cenario.app, cenario.tenantB, async (tx) => {
       const r = await tx.execute<{ id: string }>(sql`select id from fila`);
       return r.rows;
     });
     expect(doB.map((linha) => linha.id)).toEqual([cenario.queueB]);
 
-    // Buscar pelo id do outro tenant também não devolve nada: a política filtra a
-    // linha, não a consulta.
+    // Looking up the other tenant by ID also returns nothing: the policy filters the
+    // row, not the query.
     const espiada = await comTenant(cenario.app, cenario.tenantA, async (tx) => {
       const r = await tx.execute<{ id: string }>(
         sql`select id from fila where id = ${cenario.queueB}::uuid`,
@@ -55,14 +53,14 @@ describe('Enforce tenant isolation through row-level security', () => {
     );
     expect(fechou).toBe(true);
 
-    // Nem o total escapa: `count(*)` sem tenant não pode devolver 2.
+    // Even the total is isolated: `count(*)` without a tenant must not return 2.
     const count = await cenario.app
       .execute<{ n: string }>(sql`select count(*)::text as n from fila`)
       .then((r) => r.rows[0]?.n ?? null)
       .catch(() => null);
     expect(count).not.toBe('2');
 
-    // E a escrita também: inserir sem tenant em vigor não pode passar.
+    // Writes are isolated too: an insert without an active tenant must fail.
     await expect(
       cenario.app.execute(
         sql`insert into fila (tenant_id, nome) values (${cenario.tenantA}::uuid, 'sem tenant em vigor')`,
@@ -74,22 +72,22 @@ describe('Enforce tenant isolation through row-level security', () => {
     const dentro = await comTenant(cenario.app, cenario.tenantA, async (tx) => tenantAtual(tx));
     expect(dentro).toBe(cenario.tenantA);
 
-    // `set local` morre com a transação. Se vazasse, a conexão devolvida ao pool
-    // levaria o tenant A para quem pegasse ela depois.
+    // `set local` ends with the transaction. If it leaked, the pooled connection
+    // would carry tenant A into the next borrower's work.
     const fechou = await falhouFechada(() =>
       cenario.app.execute<{ id: string }>(sql`select id from fila`),
     );
     expect(fechou).toBe(true);
 
-    // A transação seguinte, com outro tenant, enxerga só o que é dela.
+    // The next transaction, with another tenant, sees only its own rows.
     const depois = await comTenant(cenario.app, cenario.tenantB, async (tx) => {
       const r = await tx.execute<{ id: string }>(sql`select id from fila`);
       return r.rows.map((linha) => linha.id);
     });
     expect(depois).toEqual([cenario.queueB]);
 
-    // E a política também vale na escrita: gravar linha carimbada com o outro tenant
-    // é barrado pelo `with check`.
+    // The policy also applies to writes: inserting a row stamped with another tenant
+    // is blocked by `with check`.
     await expect(
       comTenant(cenario.app, cenario.tenantA, async (tx) =>
         tx.execute(
@@ -106,9 +104,7 @@ describe('Enforce tenant isolation through row-level security', () => {
   });
 
   /*
-   * Os quatro acima provam a política numa tabela. Os cinco abaixo provam as
-   * PREMISSAS da política — cada um deles falhando significa que os outros
-   * passariam sem provar nada.
+   * The four tests above exercise the policy on one table. The five below check its assumptions: if one fails, the earlier tests could pass without proving isolation.
    */
 
   it('The application role owns no tables and cannot bypass row-level security', async () => {
@@ -142,8 +138,8 @@ describe('Enforce tenant isolation through row-level security', () => {
                               where p.schemaname = 'public' and p.tablename = c.relname))
        order by c.relname
     `);
-    // Falha nomeando as tabelas: tabela nova sem política é o defeito que essa
-    // suíte existe para pegar no dia em que alguém a criar.
+    // Report the table names when this fails: a new table without a policy is the defect this
+    // suite must catch when someone creates it.
     expect(rows.map((r) => r.tabela)).toEqual([]);
   });
 
@@ -166,9 +162,9 @@ describe('Enforce tenant isolation through row-level security', () => {
   });
 
   it('Evaluate `current_setting` once per query rather than once per row', async () => {
-    // A forma com subconsulta escalar é o que o planejador promove a InitPlan.
-    // Sem ela a política volta a rodar a função em cada linha examinada, e a
-    // varredura de `mensagem` fica cara sem ninguém perceber.
+    // The planner promotes the scalar subquery form to an InitPlan.
+    // Without it, the policy evaluates the function for every examined row, and
+    // scanning `mensagem` becomes expensive without an obvious warning.
     const { rows } = await cenario.dono.execute<{ tabela: string }>(sql`
       select tablename as tabela
         from pg_policies
@@ -181,7 +177,7 @@ describe('Enforce tenant isolation through row-level security', () => {
   });
 
   it('Clear the tenant setting after a failed transaction', async () => {
-    // Conexão devolvida ao pool com variável suja seria vazamento silencioso:
+    // Returning a connection with a dirty tenant setting to the pool would silently leak data:
     // a consulta seguinte enxergaria o tenant de quem falhou antes.
     await expect(
       comTenant(cenario.app, cenario.tenantA, async () => {

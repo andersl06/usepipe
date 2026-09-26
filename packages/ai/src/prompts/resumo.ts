@@ -1,10 +1,5 @@
 /**
- * Prompts de resumo. Dois, porque são duas perguntas diferentes:
- *
- * - **abertura**: o atendente que assume a conversa agora precisa saber o que já
- *   aconteceu e o que ficou pendente. Escreve-se para quem vai responder em seguida.
- * - **encerramento**: sobe para a linha do tempo do lead. Escreve-se para quem vai
- *   ler daqui a três meses sem abrir a conversa.
+ * Two summary prompts serve different readers: opening summarizes prior events and pending work for the agent taking over now; closing summarizes the current outcome for someone reading the lead timeline months later.
  */
 
 import type { Prompt } from './tipos.js';
@@ -15,7 +10,7 @@ export interface InboundSummary {
   messagesOmitidas: number;
   /** Teto de palavras do resumo. */
   maxPalavras?: number;
-  /** Fila, produto, ou o que mais ajude o modelo a situar a conversa. */
+  /** Queue, product, or other context that helps the model situate the conversation. */
   context?: string | null;
 }
 
@@ -41,7 +36,7 @@ function block(inbound: InboundSummary): string {
   return `${context}Transcrição:\n${inbound.transcription}${avisoDeCorte(inbound)}`;
 }
 
-/** Resumo de abertura: o que aconteceu antes, para quem está assumindo. */
+/** Opening summary: prior events for the agent taking over. */
 export const PROMPT_RESUMO_ABERTURA: Prompt<InboundSummary> = {
   nome: 'resumo-abertura',
   versao: 'v1',
@@ -63,7 +58,7 @@ ${REGRAS_COMUNS}`,
   },
 };
 
-/** Resumo de encerramento: o que aconteceu agora, para a linha do tempo do lead. */
+/** Closing summary: current events for the lead timeline. */
 export const PROMPT_SUMMARY_CLOSURE: Prompt<InboundSummary> = {
   nome: 'resumo-encerramento',
   versao: 'v1',

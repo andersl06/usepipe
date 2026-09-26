@@ -8,31 +8,15 @@ import type { PessoaExterna } from './google.js';
 import type { SessionActive } from './session.js';
 
 /**
- * O que acontece entre "o provedor disse quem é" e "a pessoa está dentro".
+ * Between provider identification and an authenticated Pipe session, Google and the tenant IdP use the SAME entry path. One path applies one set of checks; a second entry path is easy to leave unguarded. The tenant comes from the verified email domain for Google or from the SSO connection that initiated the flow.
  *
- * O caminho é o MESMO para o Google e para o IdP do cliente, e isso é a decisão
- * central deste arquivo: uma porta só, com uma lista de perguntas só, porque toda
- * segunda porta de entrada é a que alguém esquece de trancar. A única diferença é
- * de onde vem o tenant — do domínio do e-mail (Google) ou da conexão que iniciou
- * o fluxo (SSO).
- *
- * A ordem das perguntas é o que importa, e ela é sempre a mesma:
- *
- * 1. **Esta conta externa já está ligada a alguém?** Se sim, é ela; acabou. Essa
- *    consulta é por `(emissor, sujeito)`, nunca por e-mail.
- * 2. **A política do tenant permite entrar por aqui?** Com `obrigatorio`, só SSO
- *    — mesmo para quem já tem a conta do Google ligada.
- * 3. **Se a conta não está ligada, a que tenant o domínio do e-mail pertence?**
- *    Só domínio VERIFICADO conta, domínio público nunca, e no SSO ele ainda
- *    precisa ser do tenant que iniciou o fluxo.
- * 4. **O provedor confirmou este e-mail?** Sem isso não se casa identidade nova
- *    com usuário existente: quem conseguir um IdP a emitir o e-mail da vítima
- *    entraria como ela, com os papéis dela.
- * 5. **Existe usuário com este e-mail nesse tenant?** Se sim, liga a conta
- *    externa a ele — é a pessoa que já foi convidada e está entrando pela
- *    primeira vez pelo provedor.
- * 6. **Senão, recusa.** Criar usuário do nada é o que transforma "descobri um
- *    domínio" em "entrei no cliente". Entrada de gente nova é por convite.
+ * Check in this order:
+ * 1. If an external identity is already linked, find it by `(emissor, sujeito)`, never by email; reject a linked identity from a different tenant.
+ * 2. Enforce tenant policy: `obrigatorio` allows SSO only, even for an already linked Google identity.
+ * 3. For a new identity, require provider-confirmed email before linking or account creation. Otherwise a provider asserting a victim's email could grant the victim's roles.
+ * 4. A public email domain does not identify a company. Google self-service may create an account for it; otherwise reject.
+ * 5. For other domains, use only a VERIFIED domain; SSO must match the initiating tenant. If the domain is unclaimed, Google self-service may create its first account; otherwise reject.
+ * 6. For a claimed domain, require an existing active invited user with that email, then link the identity. A verified domain alone cannot grant entry to another tenant's account.
  */
 
 export class InboundRefused extends Error {
@@ -61,48 +45,34 @@ export interface InboundCompleted {
 }
 
 export interface OptionsOfInbound {
-  /** Vai para `sessao.origem`. A revogação em massa por política depende dele. */
+  /** Stored in `sessao.origem`; bulk policy revocation depends on this value. */
   origem: 'google' | 'sso';
   /**
-   * O tenant já resolvido, quando o fluxo começou numa conexão de SSO.
+   * A tenant already resolved when the flow began through an SSO connection.
    *
-   * Com ele, a descoberta por domínio deixa de escolher o tenant e passa a
-   * CONFERIR: o domínio continua tendo de estar verificado, e verificado para
-   * este tenant. Sem essa conferência, o IdP de um cliente autenticaria gente de
-   * outro só por mandar o e-mail certo.
+   * With it, domain discovery no longer selects the tenant; it CONFIRMS it. The domain must still be verified for this tenant. Without that check, one tenant's IdP could authenticate another tenant's user by asserting the right email.
    */
   tenantId?: string | undefined;
   /**
-   * O autosserviço: o que fazer quando a pessoa entrou e não há conta nenhuma
-   * para ela.
+   * Self-service behavior when a person authenticates without an existing account.
    *
-   * Sem isto, a entrada é fechada — convite ou domínio verificado — e quem não
-   * tem nem um nem outro é recusado. Com isto, a conta é CRIADA na hora, que é
-   * o caminho da plataforma de origem: entra, a conta nasce, a tela de
-   * boas-vindas avisa, e "minha conta" completa os dados depois.
+   * Without this callback, entry is closed to those without an invitation or verified domain. With it, the account is CREATED immediately: login, account creation, welcome screen, then "minha conta" for details, following the reference platform.
    *
-   * Quem passa a função é a API (é lá que mora o provisionamento). A regra de
-   * QUANDO ela é chamada fica aqui, e é estreita de propósito: só quando não há
-   * dono para o domínio. Domínio verificado sem convite continua recusando —
-   * ali existe um cliente, e entrar sem convite seria entrar na conta dele.
+   * The API provides the callback because provisioning lives there. This module narrowly decides WHEN to call it: only if no tenant owns the domain. An uninvited user on a claimed verified domain is still rejected; allowing them in would expose another tenant's account.
    */
   createAccount?: ((pessoa: PessoaExterna) => Promise<AccountNew>) | undefined;
 }
 
-/** O que o autosserviço devolve: a conta recém-criada e o dono dela. */
+
 export interface AccountNew {
   tenantId: string;
   usuarioId: string;
 }
 
 /**
- * `bancoDono` roda sem RLS de propósito, e só nas consultas que precisam
- * acontecer ANTES de existir tenant: achar a identidade externa, resolver o
- * domínio e ler a política do tenant. É o mesmo caminho da resolução de chave de
- * API, e pela mesma razão — não dá para fixar `pipe.tenant_id` antes de saber
- * qual é.
+ * `bancoDono` deliberately bypasses RLS only for queries needed BEFORE tenant context exists: finding the external identity, resolving the domain, and reading tenant policy. API-key resolution follows the same approach because `pipe.tenant_id` cannot be set until the tenant is known.
  *
- * Tudo o que vem depois passa por `comTenant`.
+ * Every later operation uses `comTenant`.
  */
 export async function loginWithIdentity(
   databaseOwner: DatabasePipe,
@@ -123,8 +93,8 @@ export async function loginWithIdentity(
     .limit(1);
 
   if (ligada[0]) {
-    // Conta já ligada a OUTRO cliente. Reaproveitá-la aqui seria a mesma pessoa
-    // entrando em dois tenants com o mesmo login, e a escolha de qual vale
+    // Identity already linked to ANOTHER tenant. Reusing it here would let the same provider login enter
+    // two tenants, leaving the choice of which identity counts to the first lookup.
     // ficaria com quem consultasse primeiro.
     if (options.tenantId && ligada[0].tenantId !== options.tenantId) {
       throw new InboundRefused(
@@ -136,10 +106,9 @@ export async function loginWithIdentity(
     return openSession(databaseApp, ligada[0].tenantId, ligada[0].usuarioId, pessoa, options, context);
   }
 
-  /* Antes de recusar por qualquer motivo, uma trava que vale para TODO caminho
-     novo: sem o provedor afirmar que o e-mail é da pessoa, nada aqui adiante
-     pode casar identidade com conta — nem ligar a um usuário convidado, nem
-     abrir conta nova com aquele endereço. */
+  /*
+   * Before rejecting for any reason, apply a guard on EVERY new identity path: without provider confirmation that the person owns the email, nothing below may match that identity to an account, link an invited user, or open a new account with that address.
+   */
   if (!pessoa.emailVerificado) {
     throw new InboundRefused(
       'email_nao_verificado',
@@ -147,11 +116,11 @@ export async function loginWithIdentity(
     );
   }
 
-  // Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.
+  // On first entry, the domain selects the tenant for Google or confirms it for SSO.
   if (ehDomainPublic(pessoa.email)) {
-    /* E-mail pessoal não diz de que empresa a pessoa é — mas no autosserviço ele
-       não precisa dizer: a conta que nasce é dela, e o nome da empresa vem
-       depois, em "minha conta". */
+    /*
+     * A personal email does not identify a company. In self-service it need not: the new account belongs to that person, and the company name is filled in later in "minha conta".
+     */
     if (options.createAccount && !options.tenantId) {
       return openAccountNew(databaseApp, pessoa, options, context);
     }
@@ -170,8 +139,9 @@ export async function loginWithIdentity(
 
   const tenantId = dono[0]?.tenantId;
   if (!tenantId || (options.tenantId && tenantId !== options.tenantId)) {
-    /* Ninguém reivindicou este domínio. No autosserviço isso não é recusa, é o
-       caso comum: é a primeira pessoa daquela empresa chegando. */
+    /*
+     * Nobody has claimed this domain. In self-service this is the normal first-person entry for that company, not a rejection.
+     */
     if (!tenantId && options.createAccount && !options.tenantId) {
       return openAccountNew(databaseApp, pessoa, options, context);
     }
@@ -214,14 +184,11 @@ export async function loginWithIdentity(
   });
 }
 
-/** O login com Google. É `entrarComIdentidade` com o tenant vindo do domínio. */
+
 /**
- * A conta que nasce no login: o autosserviço cria o tenant e o administrador, e
- * esta função só liga a identidade do provedor a ele e abre a sessão.
+ * At login, self-service creates the tenant and administrator; this function links the provider identity and opens the session.
  *
- * A identidade é gravada aqui, e não dentro do provisionamento, porque quem
- * provisiona não conhece provedor nenhum — é o mesmo caminho do comando que
- * cria cliente pela linha de comando.
+ * The identity is stored here rather than in provisioning because provisioning is provider-agnostic; the command-line tenant creation path uses the same provisioning.
  */
 async function openAccountNew(
   bancoApp: DatabasePipe,
@@ -259,7 +226,7 @@ export function loginWithGoogle(
   );
 }
 
-/** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */
+/** Login through the tenant IdP; the tenant comes from the connection that started the flow. */
 export function loginWithSso(
   bancoDono: DatabasePipe,
   bancoApp: DatabasePipe,
@@ -271,18 +238,11 @@ export function loginWithSso(
 }
 
 /**
- * Abre sessão numa conta em que a pessoa JÁ tem usuário — é a troca de conta do
- * seletor do canto superior esquerdo.
+ * Open a session in an account where the person ALREADY has a user, for the account switcher in the upper-left corner.
  *
- * Não é atalho de login: quem chama precisa ter provado, antes, que o usuário
- * daquela conta é da mesma pessoa que já está logada (mesmo e-mail, conferido
- * no banco do dono). O que esta função garante é o resto — usuário ativo e
- * política de SSO da conta de destino —, porque é ela que emite o token, e todo
- * caminho que emite token passa pelas mesmas travas.
+ * This is not a login shortcut. The caller must first prove that the target account user is the same person already signed in, using the same email verified in the owner database. This function enforces the remaining checks - active user and target-account SSO policy - because it issues the token, and every token-issuing path must use the same guards.
  *
- * A sessão antiga não é encerrada aqui: quem troca de conta costuma voltar, e
- * derrubar a outra aba no meio de um atendimento seria pior do que manter duas
- * sessões vivas com o mesmo prazo.
+ * The old session stays open: people often switch back, and ending a tab during a ticket would be worse than keeping two sessions alive for the same duration.
  */
 export async function openSessionAt(
   bancoDono: DatabasePipe,
@@ -307,15 +267,11 @@ export async function openSessionAt(
 }
 
 /**
- * A política do tenant, conferida NO SERVIDOR, no caminho que emite a sessão.
+ * Enforce tenant policy ON THE SERVER along the session-issuing path.
  *
- * Não é a tela que esconde o botão do Google: com `obrigatorio`, este caminho
- * recusa mesmo quem já tem a conta ligada e mesmo que tudo o mais esteja certo.
- * É aqui que "SSO obrigatório" para de ser um texto na tela de configuração —
- * ver `referencias-blip/pesquisa/sso-multi-tenant.md` §6.
+ * Hiding the Google button is insufficient: with `obrigatorio`, this path rejects even an already linked Google account. This is where "mandatory SSO" becomes an actual check rather than settings copy; see `referencias-blip/pesquisa/sso-multi-tenant.md` section 6.
  *
- * Todo caminho novo que abrir sessão (senha, recuperação de senha, convite por
- * link) tem de passar por esta função. É a porta dos fundos clássica.
+ * Any new session-issuing path, including password, password recovery, or invitation link, must pass through this function or it creates a back door.
  */
 export async function exigirPoliticaCompativel(
   bancoDono: DatabasePipe,
@@ -356,12 +312,12 @@ async function openSession(
       throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
     }
 
-    // Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o
-    // `pipe.tenant_id` da sessão — ver o README.
+    // Run sequentially, never in `Promise.all`: parallel queries inside the transaction drop
+    // the session's `pipe.tenant_id`; see the README.
     //
-    // O e-mail que mudou no IdP atualiza só este campo de exibição: a conta
-    // continua sendo o par (emissor, sujeito). Trocar de endereço não troca de
-    // conta, e é por isso que herdar o endereço de quem saiu não herda o acesso.
+    // An email change at the IdP updates only this display field: the account
+    // remains the `(emissor, sujeito)` pair. Changing address does not change the
+    // account, so inheriting a former employee's address does not inherit access.
     await tx
       .update(identityExternal)
       .set({ ultimoAcessoEm: new Date(), emailNoProvedor: pessoa.email })
@@ -399,12 +355,9 @@ async function writeSession(
 }
 
 /**
- * Resolve a sessão do cookie.
+ * Resolve the session cookie.
  *
- * Roda com o papel dono porque descobrir o tenant é justamente o que precisa
- * acontecer antes de fixar o tenant. A consulta é pelo HASH, com índice único, e
- * devolve `null` para qualquer coisa que não seja uma sessão viva — token
- * inexistente, expirado e encerrado dão a mesma resposta, de propósito.
+ * Use the owner role because tenant discovery must happen before setting tenant context. Look up by HASH through a unique index and return `null` for every non-live session: nonexistent, expired, and ended tokens intentionally get the same result.
  */
 export async function resolveSession(
   bancoDono: DatabasePipe,
@@ -437,7 +390,7 @@ export async function resolveSession(
   };
 }
 
-/** Encerra a sessão. Idempotente: sair duas vezes não é erro. */
+
 export async function sair(bancoDono: DatabasePipe, hash: string): Promise<void> {
   await bancoDono
     .update(session)

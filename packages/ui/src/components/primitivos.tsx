@@ -1,13 +1,9 @@
 /**
- * Primitivos compartilhados pelos três aplicativos.
+ * Primitives shared by all three applications.
  *
- * Cada um deles estava reimplementado em `apps/desk`, `apps/gestao` e
- * `apps/crm` — em CSS quase igual, com valores que já tinham divergido.
+ * Each had been reimplemented in `apps/desk`, `apps/gestao`, and `apps/crm` with nearly identical CSS and values that had already diverged.
  *
- * Todos são React puro: nenhum importa `next`. O que depende de rota (o item
- * ativo da navegação) chega por prop, e cada aplicativo passa o caminho atual
- * a partir do seu próprio `usePathname`. É o que mantém este pacote utilizável
- * fora do Next e testável sem roteador.
+ * All are plain React and none imports `next`. Route-dependent information, such as the active navigation item, arrives through props; each application obtains its current path from its own `usePathname`. This keeps the package usable outside Next and testable without a router.
  */
 
 import type {
@@ -19,16 +15,14 @@ import type {
 import { Icone, type NomeDeIcone } from '../icones';
 import { Illustration, type IllustrationName } from '../illustrations';
 
-/* ------------------------------------------------------------------ botão */
+
 
 export type VarianteDeBotao = 'padrao' | 'primario' | 'perigo';
 
 export type PropsDeBotao = {
   variante?: VarianteDeBotao;
   /**
-   * @deprecated Use `<Etiqueta aoClicar ativa>`. O recorte salvo de lista é
-   * papel da etiqueta clicável, que é o componente único de etiqueta do
-   * produto. Fica só enquanto os três aplicativos migram.
+   * @deprecated Use `<Etiqueta aoClicar ativa>`. A saved list segment belongs to the clickable tag, the product's sole tag component. Keep this only while the three applications migrate.
    */
   chip?: boolean;
   icone?: NomeDeIcone;
@@ -50,7 +44,7 @@ export function Botao({ variante = 'padrao', chip, icone, className, children, .
 
 export type PropsDeBotaoDeIcone = {
   nome: NomeDeIcone;
-  /** Obrigatório: o botão não tem texto, então precisa de nome acessível. */
+  /** Required: an icon-only button needs an accessible name. */
   rotulo: string;
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
@@ -71,35 +65,25 @@ export function BotaoDeIcone({ nome, rotulo, className, ...resto }: PropsDeBotao
 /* --------------------------------------------------------------- etiqueta */
 
 /**
- * A etiqueta do Pipe, e a única. Componente de primeira classe.
+ * Pipe's sole tag, a first-class component.
  *
- * Nem Chatwoot nem Twenty têm um genérico, e é por isso que cada tela
- * reimplementa a sua e o conjunto fica inconsistente. A Blip empacota
- * `bds-chip-clickable` justamente para não cair nisso — é a forma que
- * copiamos, não o desenho.
+ * Neither Chatwoot nor Twenty supplies a generic tag, so each screen would reimplement its own and the set would drift. Blip packages `bds-chip-clickable` to avoid that; we copy the component approach, not its appearance.
  *
- * Este mesmo componente serve os quatro usos do produto:
- *   etiqueta de fila (neutra) · faixa de score (neutra) ·
- *   status de SLA (estado) · conceito de avaliação (estado)
+ * This component serves four product uses: queue tag (neutral), score band (neutral), SLA status (state), and evaluation concept (state).
  *
- * Nasce NEUTRA de propósito. Fila, canal, origem e fase não recebem cor:
- * categoria não é estado, e quando tudo é colorido nada é. Cor só entra
- * quando o que a etiqueta diz exige uma ação, e aí ela é um dos quatro
- * estados — sempre o par fundo pastel com conteúdo escuro.
+ * It starts NEUTRAL deliberately. Queue, channel, source, and stage receive no color: categories are not states, and coloring everything weakens the signal. Color appears only when the tag calls for action, using one of four states, always a pastel background paired with dark content.
  */
 export type TomDeEtiqueta = 'neutro' | 'sucesso' | 'alerta' | 'erro' | 'info';
 
 export type PropsDeEtiqueta = {
   tom?: TomDeEtiqueta;
-  /** Pílula. Só para contagem redonda e para o que acompanha avatar. */
+  /** Pill shape, only for rounded counts and elements beside an avatar. */
   redonda?: boolean;
   /**
-   * Variante clicável: recorte salvo de lista, filtro que liga e desliga,
-   * valor que navega. Com `aoClicar` a etiqueta vira `<button>` de verdade —
-   * teclado, foco e `aria-pressed` de graça. Sem ele, é um `<span>`.
+   * Clickable variant for a saved list segment, toggle filter, or navigation value. With `aoClicar`, the tag is a real `<button>` with keyboard access, focus, and `aria-pressed`; without it, it is a `<span>`.
    */
   aoClicar?: () => void;
-  /** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */
+  /** Active state. This is the only place where brand color touches a tag. */
   active?: boolean;
   titulo?: string;
   className?: string;
@@ -136,7 +120,7 @@ export function Etiqueta({
   );
 }
 
-/* ------------------------------------------------------------ formulário */
+
 
 export function Campo({ className, ...resto }: InputHTMLAttributes<HTMLInputElement>) {
   return <input className={className ? `campo ${className}` : 'campo'} {...resto} />;
@@ -174,12 +158,9 @@ export function Abas({ abas, atual }: { abas: readonly Aba[]; atual: string }) {
 /* ------------------------------------------------------- estado da tela */
 
 /**
- * Estado vazio com ilustração desenhada, nunca com foto. Ilustração é
- * componente (`Ilustracao`), não imagem solta — é como a Blip preenche estado
- * vazio, e é o que mantém o desenho respondendo ao tema escuro.
+ * An empty state with a drawn illustration, never a photo. The illustration is an `Ilustracao` component rather than a standalone image, as in Blip empty states, which also lets it respond to dark mode.
  *
- * `ilustracao={false}` para o vazio que aparece dentro de uma tabela, onde uma
- * cena de 96px empurra a linha seguinte para fora da tela.
+ * Use `ilustracao={false}` inside a table, where a 96px scene would push the next row offscreen.
  */
 export function EmptyState({
   titulo,
@@ -205,7 +186,7 @@ export function Carregando({ rotulo = 'Carregando' }: { rotulo?: string }) {
 
 /* ---------------------------------------------------------------- avatar */
 
-/** Iniciais do nome. Duas, no máximo — mais do que isso não cabe em 26px. */
+/** Name initials, at most two: more will not fit in 26px. */
 export function initials(nome: string): string {
   const partes = nome.trim().split(/\s+/).filter(Boolean);
   const first = partes[0]?.[0] ?? '';
@@ -221,7 +202,7 @@ export function Avatar({ nome, className }: { nome: string; className?: string }
   );
 }
 
-/* ---------------------------------------------------------------- cartão */
+
 
 export function Card({
   titulo,

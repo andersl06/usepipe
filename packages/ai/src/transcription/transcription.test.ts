@@ -35,7 +35,7 @@ describe('quem falou', () => {
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'contato' }))).toBe('Cliente');
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'atendente' }))).toBe('Atendente');
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'bot' }))).toBe('Bot');
-    // Sistema nunca herda nome de gente: é o próprio produto falando.
+    // System messages never inherit a person's name; they speak for the product itself.
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'sistema', autorNome: 'Rafael' }))).toBe(
       'Sistema',
     );
@@ -149,7 +149,6 @@ describe('truncation', () => {
     expect(t.truncada).toBe(true);
     expect(t.totalMessages).toBe(200);
     expect(t.messagesOmitidas).toBeGreaterThan(0);
-    // A primeira e a última mensagem sobrevivem sempre.
     expect(t.linhas[0]!.messageId).toBe('m0');
     expect(t.linhas.at(-1)!.messageId).toBe('m199');
     expect(t.texto).toContain(

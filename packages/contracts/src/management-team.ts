@@ -1,30 +1,23 @@
 /**
- * A aba "Equipe" do contato (`/fluxo/:id/equipe`): quem acessa ESTE fluxo e com
- * que permissão — o que `/v1/gestao/fluxos/:id/equipe` responde.
- *
- * Os nomes são os da origem, sem tradução livre: os níveis por recurso são os três
- * rádios do `PermissionsList.html` (`none` 0, `read` 1, `readWrite` 3) e o papel é
- * uma das quatro paradas do `rzslider` (`visualize`, `custom`, `edit`, `admin`).
- * A regra inteira está em `apps/api/src/dominio/gestao/equipe-do-fluxo.ts` e na
- * migration 0035.
+ * The contact's Team tab (`/fluxo/:id/equipe`) shows who can access this flow and at what permission, returned by `/v1/gestao/fluxos/:id/equipe`. Names mirror the source: per-resource levels are the three `PermissionsList.html` radio choices (`none` 0, `read` 1, `readWrite` 3), and role is one of four `rzslider` stops (`visualize`, `custom`, `edit`, `admin`). Full rules live in `apps/api/src/dominio/gestao/equipe-do-fluxo.ts` and migration 0035.
  */
 
-/** Os três rádios de cada linha: `none` (0), `read` (1), `readWrite` (3). */
+/** Three radio choices per row: `none` (0), `read` (1), and `readWrite` (3). */
 export type LevelInFlow = 'nenhum' | 'ler' | 'escrever';
 
-/** As quatro paradas do traço "Permissão". */
+/** Four stops of the Permission slider. */
 export type RoleInFlow = 'visualizar' | 'personalizado' | 'editar' | 'admin';
 
-/** Recurso da origem → rádio marcado. Chave ausente é `nenhum`. */
+/** Source resource to selected radio choice; absent key means `nenhum`. */
 export type PermissionsInFlow = Partial<Record<string, LevelInFlow>>;
 
-/** Uma linha do `PermissionsList.html`: a chave da origem e o título pt-BR dela. */
+/** One `PermissionsList.html` row: source key and its pt-BR title. */
 export interface RecursoOfFlow {
   key: string;
   titulo: string;
 }
 
-/** Um cartão da lista de Equipe. */
+
 export interface MemberOfFlow {
   userId: string;
   nome: string;
@@ -39,24 +32,24 @@ export interface TeamOfFlow {
   members: MemberOfFlow[];
   /** As linhas do modal de editar, na ordem da origem. */
   recursos: RecursoOfFlow[];
-  /** Quem está olhando pode adicionar, editar e remover? */
+  /** Whether the current viewer can add, edit, and remove members. */
   podeGerir: boolean;
 }
 
 /** `GET /v1/gestao/fluxos/:id/equipe/eu` — o que o menu do contato peneira. */
 export interface MyPermissionsInFlow {
-  /** `null` quando a pessoa não é membro deste fluxo (o acesso vem da conta). */
+  /** `null` when the person is not a member of this flow and access comes from the account. */
   papelNoFluxo: RoleInFlow | null;
   permissoes: PermissionsInFlow;
-  /** A permissão de conta que hoje edita fluxo — quem a tem enxerga tudo. */
+  /** Account permission that currently allows flow editing and grants full visibility. */
   editaByAccount: boolean;
 }
 
 /** Corpo do `POST` e do `PATCH` da equipe. */
 export interface RequestOfMemberOfFlow {
-  /** Só no `POST`: o e-mail de alguém que já está no contrato. */
+  /** Only for `POST`: email of someone already on the contract. */
   email?: string;
   papelNoFluxo?: RoleInFlow;
-  /** Só é lido quando o papel é `personalizado`; nos outros o nível manda. */
+  /** Read only when the role is `personalizado`; otherwise the level controls access. */
   permissoes?: PermissionsInFlow;
 }

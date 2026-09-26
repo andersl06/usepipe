@@ -1,29 +1,22 @@
 /**
- * Limites de anexo, copiados dos valores REAIS do Blip Desk.
+ * Attachment limits copied from the REAL Blip Desk values.
  *
- * Fonte: `supernova.desk.blip.ai/static/settings.<hash>.json`, o mesmo arquivo que
- * gerou `referencias-blip/pesquisa/blip-desk-regras.md` §"Anexos e Mídia". Os valores não foram
- * escolhidos por nós: seguir o que a Blip faz é régua do dono, e aqui ela é literal.
+ * Source: `supernova.desk.blip.ai/static/settings.<hash>.json`, the same file behind `referencias-blip/pesquisa/blip-desk-regras.md` section "Anexos e Mídia". We did not choose these values: Blip parity is the owner's benchmark, and the values here are literal.
  *
- * Apesar do nome que eles deram (`..._ACCEPT_EXTENSION`), o conteúdo é **tipo MIME**,
- * não extensão. O nome errado ficou lá; aqui a variável se chama pelo que ela é.
+ * Despite Blip's name (`..._ACCEPT_EXTENSION`), the contents are **MIME types**, not extensions. Their inaccurate name remains there; our variable names describe the actual data.
  */
 
 /** `MAX_ATTACHMENT_SIZE` = 104857600 bytes = 100 MB. */
 export const MAX_BYTES_BY_FILE = 104_857_600;
 
 /**
- * Áudio e vídeo têm teto MENOR: 16 MB.
+ * Audio and video have a LOWER limit: 16 MB.
  *
- * Isto não está no `settings.json` deles, e é justamente onde o Desk da Blip erra: o
- * cliente valida só os 100 MB de `MAX_ATTACHMENT_SIZE`, então ele **deixa subir um
- * áudio de 80 MB que a plataforma recusa depois** (`referencias-blip/pesquisa/regras-blip.md`
- * §"documentos 100 MB, vídeo e áudio 16 MB"). Recusar cedo, com o número certo, é
- * melhor que aceitar e falhar no fim do upload.
+ * This is absent from Blip's `settings.json`, which is where Blip Desk gets it wrong: its client checks only the 100 MB `MAX_ATTACHMENT_SIZE`, allowing an 80 MB audio upload that the platform later rejects (`referencias-blip/pesquisa/regras-blip.md`, section "documentos 100 MB, vídeo e áudio 16 MB"). Rejecting early with the correct limit is better than failing after upload.
  */
 export const MAX_BYTES_AUDIO_VIDEO = 16_777_216;
 
-/** O teto que vale para aquele MIME. */
+
 export function maxBytesDoMime(mime: string): number {
   const tipo = tipoDoMime(mime);
   return tipo === 'audio' || tipo === 'video' ? MAX_BYTES_AUDIO_VIDEO : MAX_BYTES_BY_FILE;
@@ -33,10 +26,9 @@ export function maxBytesDoMime(mime: string): number {
 export const MAX_FILES_BY_MESSAGE = 10;
 
 /**
- * `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutos.
+ * `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutes.
  *
- * É o modelo deles e é o nosso: o arquivo NUNCA é servido por URL pública adivinhável
- * por id. Sai token com validade, e vencido é vencido.
+ * This is both Blip's model and ours: a file is NEVER served through a public URL guessable by ID. Access uses an expiring token, and expiry is enforced.
  */
 export const VALIDITY_LINK_MS = 900_000;
 
@@ -112,11 +104,9 @@ export function mimeAceito(mime: string): mime is MimeAceito {
 }
 
 /**
- * O tipo de mensagem do Pipe para aquele MIME.
+ * The Pipe message type for this MIME.
  *
- * `svg+xml` cai em `documento` de propósito, e não em `imagem`: SVG é XML executável,
- * e um `<script>` dentro dele vira XSS na tela de quem abrir a "imagem" inline. Ele
- * continua ACEITO — a Blip aceita —, mas nunca é renderizado como imagem por nós.
+ * `svg+xml` intentionally maps to `documento`, not `imagem`: SVG is executable XML, and a `<script>` inside it becomes XSS for anyone opening the "image" inline. It remains ACCEPTED, as on Blip, but we never render it as an image.
  */
 export function tipoDoMime(mime: string): 'imagem' | 'audio' | 'video' | 'documento' {
   if (mime === 'image/svg+xml') return 'documento';

@@ -28,14 +28,11 @@ import { refTenant, user } from './identity.js';
 import { conversation, queue } from './conversations.js';
 
 /**
- * Módulo 4 — Gestão. Toda métrica é derivada de `evento_atendimento`, nunca de campo
- * mutável da conversa: é isso que permite recalcular o passado quando a definição de
- * uma métrica muda.
+ * Module 4, Management: derive every metric from `evento_atendimento`, never mutable conversation fields, so historical periods can be recalculated when metric definitions change.
  */
 
 /**
- * Imutável e particionada por mês em `em`. A chave primária carrega a chave de
- * partição, como em `mensagem`.
+ * Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `mensagem`.
  */
 export const eventAttendance = pgTable(
   'evento_atendimento',
@@ -77,7 +74,7 @@ export const metricaDiaria = pgTable(
     conversationsAbandonadas: integer('conversas_abandonadas').notNull().default(0),
     messagesInbound: integer('mensagens_entrada').notNull().default(0),
     messagesOutput: integer('mensagens_saida').notNull().default(0),
-    /** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */
+    /** Store sums in seconds; divide by count at display time to compute averages. */
     waitQueueSeg: integer('espera_fila_seg').notNull().default(0),
     waitQueueN: integer('espera_fila_n').notNull().default(0),
     firstResponseSeg: integer('primeira_resposta_seg').notNull().default(0),
@@ -95,9 +92,7 @@ export const metricaDiaria = pgTable(
 );
 
 /**
- * Régua determinística de esforço (§4.4 da spec): 200 char/min escrito, 1.000 char/min
- * lido, áudio em 1×. `chars_de_resposta_pronta` é o desconto do texto que o atendente
- * não digitou — sem ele, template e resposta pronta inflam o esforço.
+ * Deterministic effort measure (spec §4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1×. `chars_de_resposta_pronta` discounts text the agent did not type; without it, templates and canned responses inflate effort.
  */
 export const effortConversation = pgTable(
   'esforco_conversa',
@@ -253,10 +248,7 @@ export const slaConversation = pgTable(
 );
 
 /**
- * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
- * atendente (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
- * como foi digitado; a comparação sem acento e sem caixa é do domínio
- * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
+ * Forbidden words, migration 0042: an ACCOUNT-level list blocks agent sending (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` retains the entered spelling; domain logic in `apps/api/src/dominio/gestao/palavras-proibidas.ts` compares without accents or case.
  */
 export const palavraProibida = pgTable(
   'palavra_proibida',
@@ -337,8 +329,7 @@ export const pesquisa = pgTable(
 );
 
 /**
- * Guarda a escala junto da nota de propósito: sem isso, um 4 de CSAT e um 4 de NPS
- * acabam somados no mesmo gráfico quando a empresa tem os dois modelos.
+ * Store the scale alongside the score; otherwise CSAT 4 and NPS 4 would be added to the same chart when an account uses both models.
  */
 export const respostaPesquisa = pgTable(
   'resposta_pesquisa',
@@ -354,7 +345,7 @@ export const respostaPesquisa = pgTable(
     nota: smallint('nota'),
     escalaMin: smallint('escala_min').notNull(),
     escalaMax: smallint('escala_max').notNull(),
-    /** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */
+    /** NPS values are `promotor`, `neutro`, `detrator`; CSAT values are `satisfeito`, `insatisfeito`. */
     classe: text('classe'),
     comentario: text('comentario'),
     respondidaEm: moment('respondida_em'),

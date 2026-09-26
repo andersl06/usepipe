@@ -1,20 +1,12 @@
 /**
- * Cálculo da nota. Determinístico e feito aqui, nunca pelo modelo.
- *
- * A nota é média ponderada pelo peso do grupo vezes o peso do critério, na escala
- * de `formulario_avaliacao.nota_maxima`. Critério `nao_se_aplica` sai do
- * denominador — não é zero, é ausência. Critério fatal reprovado zera o total.
- *
- * `pontos` de cada resposta já vem na escala da nota: a soma dos pontos é a nota
- * antes do fatal. É essa propriedade que faz a tela conseguir mostrar "perdeu 12
- * pontos aqui" sem recalcular nada.
+ * Score calculation is deterministic here, never left to the model. The score is weighted by group and criterion weights on the `formulario_avaliacao.nota_maxima` scale. A `nao_se_aplica` criterion leaves the denominator; it is absent, not zero. A failed fatal criterion zeroes the total. Each response's `pontos` already uses the score scale: their sum is the score before the fatal rule, allowing the UI to show points lost per response without recalculation.
  */
 
 import { FormatIaError } from '../cliente/errors.js';
 import type { Criterio, Formulario, RespostaEvaluation, RespostaBruta } from './tipos.js';
 import { TETO_ESCALA, TETO_NOTA, criteriosDoFormulario } from './tipos.js';
 
-/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica. */
+/** Fraction of the criterion met, from 0 to 1; `null` means not applicable. */
 export function valueFraction(criterio: Criterio, value: string): number | null {
   const bruto = value.trim().toLowerCase();
   if (bruto === 'nao_se_aplica') return null;
@@ -46,16 +38,13 @@ export interface NotaCalculada {
   respostas: RespostaEvaluation[];
 }
 
-/** Arredonda para as duas casas de `numeric(6,2)`, sem herdar erro de ponto flutuante. */
+/** Rounds to the two decimal places of `numeric(6,2)` without carrying floating-point error. */
 export function duasCasas(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 /**
- * Aplica pesos, escala e critério fatal sobre as respostas já validadas.
- *
- * `respostas` precisa cobrir todos os critérios do formulário — quem monta essa
- * lista (`avaliacao/avaliacao.ts`) já garantiu isso. Aqui, faltar critério é erro.
+ * Applies weights, scale, and fatal criteria to validated responses. `respostas` must cover every form criterion; its builder (`avaliacao/avaliacao.ts`) already guarantees this, so a missing criterion is an error here.
  */
 export function calcularNota(
   formulario: Formulario,

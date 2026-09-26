@@ -8,14 +8,12 @@ export type DatabasePipe = NodePgDatabase<typeof schema> & { $client: pg.Pool };
 export interface OptionsDatabase {
   url?: string | undefined;
   maxConnections?: number | undefined;
-  /** Liga o log de SQL. Útil no teste de RLS, onde o interesse é ver a transação. */
+  /** Enable SQL logging, useful for RLS tests that need to inspect the transaction. */
   registrarSql?: boolean | undefined;
 }
 
 /**
- * Cria o pool e o cliente Drizzle. A `api` usa a URL do papel da aplicação, que **não**
- * tem `bypassrls`; migration e seed usam a URL do papel dono. Confundir as duas é o
- * jeito mais rápido de achar que a RLS está ligada quando ela está sendo ignorada.
+ * Create the pool and Drizzle client. The `api` uses the application-role URL without `bypassrls`; migrations and seeds use the owner-role URL. Mixing them can make RLS appear active while queries actually bypass it.
  */
 export function createDatabase(options: OptionsDatabase = {}): DatabasePipe {
   const url = options.url ?? process.env['DATABASE_URL'];

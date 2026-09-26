@@ -1,26 +1,12 @@
 /**
- * Estruturas de aplicação: o cabeçalho com navegação horizontal, a lateral
- * contextual e o invólucro da área de configurações.
+ * Application structures: the horizontal navigation header, contextual sidebar, and settings-area wrapper.
  *
- * São estas três que corrigem o problema estrutural que o dono reprovou
- * ("você está carregando todas as funções na aba à esquerda"). O que elas
- * impõem, e de onde veio:
+ * These three address the structural problem rejected by the owner ("você está carregando todas as funções na aba à esquerda"). They enforce these rules, based on the cited references:
  *
- * - MÓDULO NO TOPO, HORIZONTAL. Medido no Salesforce: barra de 40px com 7
- *   itens, e `temSidebar: false` na tela de lista — não existe lateral ali.
- *   Na Blip: Builder / Atendimento / Análise / Growth / Canais no topo.
- *
- * - LATERAL SÓ COM O CONTEXTO DO MÓDULO ABERTO, e curta. `LateralContexto`
- *   não renderiza nada quando recebe menos de dois itens: uma lateral com um
- *   item só é moldura sem função.
- *
- * - CONFIGURAÇÃO EM TELA PRÓPRIA, atrás da engrenagem. No Salesforce ela
- *   troca de domínio, corta a navegação de 7 itens para 3 e só então cria uma
- *   lateral de 250px.
- *
- * - ITEM QUE NÃO FUNCIONA NÃO APARECE. `ItemDeNavegacao` não tem estado
- *   desabilitado. Não é esquecimento: é o que impede a Gestão de voltar a ter
- *   32 itens de menu com 29 apagados.
+ * - MODULES AT THE TOP, HORIZONTALLY. Salesforce was measured with a 40px bar containing seven items and `temSidebar: false` on the list screen, which has no sidebar. Blip places Builder / Atendimento / Análise / Growth / Canais at the top.
+ * - SIDEBAR ONLY FOR THE OPEN MODULE'S CONTEXT, and short. `LateralContexto` renders nothing with fewer than two items: a one-item sidebar is framing without purpose.
+ * - SETTINGS ON A SEPARATE SCREEN, behind the gear. Salesforce changes domain, reduces seven navigation items to three, and only then adds a 250px sidebar.
+ * - NONFUNCTIONAL ITEMS DO NOT APPEAR. `ItemDeNavegacao` has no disabled state deliberately: this prevents Management from returning to 32 menu items with 29 disabled.
  */
 
 import type { ComponentType, ReactNode } from 'react';
@@ -28,8 +14,7 @@ import { Icone } from '../icones';
 import { Simbolo } from '../icones';
 
 /**
- * Um destino de navegação. Repare que não existe `desabilitado`:
- * quem não funciona não entra na lista.
+ * A navigation destination. There is no `desabilitado`: nonfunctional destinations do not enter the list.
  */
 export type NavigationItem = {
   rotulo: string;
@@ -37,12 +22,9 @@ export type NavigationItem = {
 };
 
 /**
- * O componente de link do aplicativo.
+ * The application's link component.
  *
- * Existe para que este pacote continue sem depender de `next`: cada aplicativo
- * passa o seu `next/link` e a navegação segue no cliente, sem recarregar a
- * página. Sem isso, um `<a>` cru transformaria toda troca de módulo num
- * recarregamento completo — uma regressão de sensação que ninguém pediu.
+ * It keeps this package independent of `next`: each application supplies its own `next/link`, preserving client-side navigation without a page reload. A plain `<a>` would turn every module change into a full reload, an unwanted interaction regression.
  */
 export type LinkComponent = ComponentType<{
   href: string;
@@ -53,14 +35,14 @@ export type LinkComponent = ComponentType<{
   'aria-label'?: string;
 }>;
 
-/** Link padrão: âncora comum, para quem não passar um. */
+
 const LinkPadrao: LinkComponent = ({ href, children, ...resto }) => (
   <a href={href} {...resto}>
     {children}
   </a>
 );
 
-/** Marca no canto superior esquerdo. Leva sempre para a raiz do aplicativo. */
+
 export function Marca({
   nome,
   href = '/',
@@ -79,16 +61,14 @@ export function Marca({
 }
 
 /**
- * Decide se um item está ativo. Um item de raiz (`/`) só casa exatamente;
- * os demais casam com os seus descendentes, para que `/leads/42` mantenha
- * "Leads" marcado.
+ * Determine whether an item is active. The root item (`/`) matches only exactly; other items match descendants so `/leads/42` keeps "Leads" selected.
  */
 export function estaAtivo(href: string, caminhoAtual: string): boolean {
   if (href === '/') return caminhoAtual === '/';
   return caminhoAtual === href || caminhoAtual.startsWith(`${href}/`);
 }
 
-/** Navegação horizontal de módulos. Poucos itens, todos funcionando. */
+
 export function NavModulos({
   itens,
   caminhoAtual,
@@ -114,9 +94,7 @@ export function NavModulos({
 }
 
 /**
- * Cabeçalho da aplicação. Espelha o do Salesforce: marca à esquerda, módulos
- * ao lado, e à direita só o que é da CONTA — nunca do trabalho. A engrenagem
- * mora aqui, e é o único caminho para a configuração.
+ * Application header modeled on Salesforce: brand on the left, modules beside it, and only ACCOUNT controls on the right, never work controls. The gear lives here as the sole route to settings.
  */
 export function Cabecalho({
   nome,
@@ -129,7 +107,7 @@ export function Cabecalho({
   nome: string;
   itens: readonly NavigationItem[];
   caminhoAtual: string;
-  /** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */
+
   hrefSettings?: string;
   fim?: ReactNode;
   Link?: LinkComponent;
@@ -156,10 +134,9 @@ export function Cabecalho({
 }
 
 /**
- * Lateral do módulo aberto. Curta por regra.
+ * Sidebar for the open module, deliberately short.
  *
- * Devolve `null` com menos de dois itens: sem escolha para oferecer, a
- * lateral só rouba largura do conteúdo.
+ * Returns `null` with fewer than two items: without a choice to offer, the sidebar only takes width from content.
  */
 export function LateralContext({
   titulo,
@@ -195,7 +172,7 @@ export function LateralContext({
   );
 }
 
-/** Invólucro padrão: topo fixo, e abaixo lateral (opcional) + conteúdo. */
+
 export function Application({ cabecalho, lateral, children }: { cabecalho: ReactNode; lateral?: ReactNode; children: ReactNode }) {
   return (
     <div className="p-app">
@@ -209,11 +186,9 @@ export function Application({ cabecalho, lateral, children }: { cabecalho: React
 }
 
 /**
- * Área de configurações: tela própria.
+ * Settings area on a separate screen.
  *
- * Troca o cabeçalho inteiro — não há navegação de módulo aqui, só o caminho
- * de volta. É o corte que o Salesforce faz ao sair para `salesforce-setup.com`,
- * na escala que faz sentido para nós.
+ * It replaces the entire header: there is no module navigation here, only a way back. This follows Salesforce's transition to `salesforce-setup.com`, at a scale suitable for this product.
  */
 export function AreaSettings({
   nome,

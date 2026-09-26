@@ -1,14 +1,10 @@
 /**
- * Média ponderada por volume — §5 da spec de métricas.
- *
- * Soma dos tempos ÷ soma das conversas. **Nunca média de médias**: dia cheio
- * pesa mais que dia vazio. Mesma construção do `weightedAverageOrNull` do
- * blip-dash e da régua de esforço.
+ * Volume-weighted mean from metrics spec §5: total time divided by total conversations, never a mean of means, so busy days weigh more than quiet days. This matches `weightedAverageOrNull` in blip-dash and the effort measure.
  */
 
 import { resultado, resultEmpty, type ResultadoMetrica } from '../comum/tipos.js';
 
-/** Combina resultados parciais (por dia, por fila, por atendente) em um só. */
+
 export function mediaPonderada(partes: readonly ResultadoMetrica[]): ResultadoMetrica {
   let soma = 0;
   let population = 0;
@@ -24,7 +20,7 @@ export function mediaPonderada(partes: readonly ResultadoMetrica[]): ResultadoMe
   return resultado(soma, population, excluidas);
 }
 
-/** Versão crua: pares (soma de tempo, contagem de conversas). */
+/** Raw pairs of time sum and conversation count. */
 export function mediaPonderadaDePares(
   pares: readonly { soma: number; count: number }[],
 ): number | null {
@@ -38,8 +34,7 @@ export function mediaPonderadaDePares(
 }
 
 /**
- * A armadilha que esta função existe para tornar visível: a média das médias.
- * Só deve aparecer em teste, comparada com a ponderada.
+ * Mean of means is the trap this function exposes. Use it only in tests to compare against the weighted mean.
  */
 export function mediaDeMedias(values: readonly (number | null)[]): number | null {
   const validos = values.filter((v): v is number => v !== null);
@@ -47,7 +42,7 @@ export function mediaDeMedias(values: readonly (number | null)[]): number | null
   return validos.reduce((a, b) => a + b, 0) / validos.length;
 }
 
-/** Agrupa itens por chave e aplica a métrica em cada grupo, preservando o denominador. */
+/** Group by key and apply the metric per group, preserving its denominator. */
 export function byDimensao<T>(
   itens: readonly T[],
   key: (item: T) => string | null,
@@ -63,7 +58,7 @@ export function byDimensao<T>(
   }
 
   const saida = new Map<string, ResultadoMetrica>();
-  // Ordem determinística por chave, para o relatório sair igual toda vez.
+  // Sort keys deterministically so reports are stable across runs.
   for (const k of [...groups.keys()].sort()) {
     saida.set(k, metrica(groups.get(k) as T[]));
   }
@@ -71,8 +66,7 @@ export function byDimensao<T>(
 }
 
 /**
- * Taxa de resposta de pesquisa — §6: obrigatória na tela ao lado da média,
- * porque 4,85 com 22% de resposta não é a mesma coisa que 4,85 com 90%.
+ * Survey response rate from metrics spec §6 must appear beside the mean: a 4.85 score with 22% response is not equivalent to 4.85 with 90%.
  */
 export function taxaDeResposta(respostas: number, encerradas: number): number | null {
   return encerradas > 0 ? respostas / encerradas : null;

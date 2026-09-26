@@ -1,23 +1,5 @@
 /**
- * Máquina de estados da conversa — §8 do modelo de dados.
- *
- *         ┌──────────────── reaberta ─────────────────┐
- *         ▼                                           │
- *     na_fila ──► atribuida ──► em_atendimento ──► encerrada
- *         │            │              │  ▲
- *         │            │              ▼  │
- *         │            │           em_espera
- *         │            │
- *         └────────────┴──────────► encerrada (perdida / abandonada)
- *
- * Transferência **não** é transição: ela encerra a conversa com
- * `encerrada_por = transferencia` e abre outra no destino (regras da Blip §2.6,
- * medido em produção). Por isso não existe aresta de volta para `na_fila` a
- * partir de `atribuida`.
- *
- * Evento vindo do cliente não pode levar a conversa a estado inválido — é
- * exatamente o bug "ticket encerrado pelo usuário em fluxo humano" que a
- * comunidade da Blip reclama.
+ * Conversation state machine from data-model §8. Allowed states and transitions follow the diagram. A transfer is not a transition: it closes the current conversation with `encerrada_por = transferencia` and opens another at the destination (Blip rules §2.6, measured in production), so `atribuida` has no edge back to `na_fila`. Customer events must not force invalid states, avoiding the Blip community's "ticket encerrado pelo usuário em fluxo humano" bug.
  */
 
 import type { EventAttendance, TipoEvento } from '../metrics/eventos.js';
@@ -37,7 +19,7 @@ export const STATES_CONVERSATION: readonly StateConversation[] = [
   'encerrada',
 ];
 
-/** Transições permitidas, exatamente as do diagrama da §8. */
+
 export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConversation[]>> = {
   na_fila: ['atribuida', 'encerrada'],
   atribuida: ['em_atendimento', 'encerrada'],
@@ -46,7 +28,7 @@ export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConve
   encerrada: ['na_fila'],
 };
 
-/** Erro tipado de transição inválida. Nada de `throw new Error('opa')`. */
+
 export class TransitionInvalidError extends Error {
   readonly codigo = 'transicao_invalida' as const;
   readonly de: StateConversation;
@@ -67,7 +49,7 @@ export function transitionAllowed(de: StateConversation, para: StateConversation
   return TRANSITIONS[de].includes(para);
 }
 
-/** Transita ou lança `TransicaoInvalidaError`. */
+
 export function transitar(de: StateConversation, para: StateConversation): StateConversation {
   if (!transitionAllowed(de, para)) throw new TransitionInvalidError(de, para);
   return para;
@@ -77,7 +59,7 @@ export type Tentativa<T> =
   | { ok: true; state: T }
   | { ok: false; error: TransitionInvalidError };
 
-/** Versão sem exceção, para o caminho quente do consumidor de eventos. */
+/** Nonthrowing variant for the event consumer's hot path. */
 export function tentarTransitar(
   de: StateConversation,
   para: StateConversation,
@@ -89,9 +71,7 @@ export function tentarTransitar(
 }
 
 /**
- * Estado de destino de cada tipo de evento. `null` = evento que não mexe no
- * estado (mensagem do cliente, alerta de SLA, avaliação, transferência de fila
- * registrada como histórico).
+ * Destination state per event type; null means the event does not change state (customer message, SLA alert, evaluation, or queue transfer recorded as history).
  */
 export function eventStateAlvo(tipo: TipoEvento): StateConversation | null {
   switch (tipo) {
@@ -122,14 +102,7 @@ export interface ResultApplication {
 }
 
 /**
- * Aplica um evento ao estado corrente.
- *
- * Regras que sustentam a garantia da §4.3 do desenho do produto:
- * - evento que não mapeia estado nunca muda estado, seja de quem for;
- * - evento que mapeia o **mesmo** estado corrente é idempotente e não erra —
- *   reentrega de webhook é normal e não pode virar exceção;
- * - qualquer outro destino passa pela tabela de transições e, se não for
- *   permitido, lança `TransicaoInvalidaError`.
+ * Apply an event to the current state per product-design §4.3: unmapped events never change state; events mapping to the current state are idempotent, as webhook redelivery is normal; every other destination must pass the transition table or raise `TransicaoInvalidaError`.
  */
 export function aplicarEvento(
   stateCurrent: StateConversation,
@@ -144,7 +117,7 @@ export function aplicarEvento(
   return { state: alvo, mudou: true };
 }
 
-/** Versão sem exceção de `aplicarEvento`. */
+
 export function tentarAplicarEvento(
   stateCurrent: StateConversation,
   evento: Pick<EventAttendance, 'tipo'>,
@@ -158,8 +131,7 @@ export function tentarAplicarEvento(
 }
 
 /**
- * Reproduz uma sequência de eventos a partir de um estado inicial.
- * Serve para recalcular o passado — a razão de os eventos serem imutáveis.
+ * Replay events from an initial state to recompute history; this is why events are immutable.
  */
 export function reproduzirEventos(
   eventos: readonly Pick<EventAttendance, 'tipo'>[],
@@ -172,7 +144,6 @@ export function reproduzirEventos(
   return state;
 }
 
-// --- Máquina da mensagem de saída (§8, segundo diagrama) ---
 
 export type StateDelivery = 'pendente' | 'enviando' | 'enviada' | 'entregue' | 'lida' | 'falhou';
 
@@ -182,7 +153,7 @@ export const TRANSITIONS_DELIVERY: Readonly<Record<StateDelivery, readonly State
   enviada: ['entregue', 'lida', 'falhou'],
   entregue: ['lida'],
   lida: [],
-  // Reenviar volta para a fila de saída — nunca falha em silêncio.
+  // Retry puts delivery back in the outbound queue; it never fails silently.
   falhou: ['pendente'],
 };
 

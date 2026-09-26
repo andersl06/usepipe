@@ -1,28 +1,19 @@
 import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
 
 /**
- * O cliente do canal de tempo real. **Escrito UMA vez, para os três fronts.**
+ * The realtime channel client. **Written ONCE for all three frontends.**
  *
- * ## A regra que este pacote existe para proteger
+ * ## The rule this package exists to protect
  *
- * **`aoEvento` REBUSCA. Nunca aplica o payload.**
+ * **`aoEvento` REFETCHES. It never applies the payload.**
  *
- * O evento diz O QUE mudou — `{assunto, id, em}` — e nada mais. Quem recebe vai buscar
- * o dado pela API, sob RLS. Isso não é economia de bytes: é o que impede o canal de
- * virar uma segunda fonte de verdade, com um segundo lugar para errar o isolamento
- * entre clientes. A primeira fonte é a API, que tem 90 políticas de RLS e os testes.
+ * An event says WHAT changed - `{assunto, id, em}` - and nothing more. The receiver fetches the data from the API under RLS. This is not a byte-saving measure: it prevents the channel from becoming a second source of truth with a second place where tenant isolation can fail. The API is the primary source and has 90 RLS policies and tests.
  *
- * **Se um dia alguém propuser pôr o registro dentro do payload, recuse.** O ganho seria
- * uma requisição a menos; o preço é o dado do cliente saindo por uma porta que ninguém
- * auditou, e a tela passando a mostrar o valor que estava viajando em vez do valor de
- * agora. Foi decidido no começo do projeto, está em `packages/contracts/src/eventos.ts`,
- * e está repetido aqui porque é aqui que a tentação aparece.
+ * **If anyone proposes putting the record in the payload, reject it.** The benefit would be one fewer request; the cost would be tenant data leaving through an unaudited path and the screen displaying the value in transit instead of the current value. This was decided early in the project, is documented in `packages/contracts/src/eventos.ts`, and is repeated here because this is where the temptation arises.
  *
- * ## Por que um pacote, e não um trecho copiado em cada front
+ * ## Why a package instead of code copied into each frontend
  *
- * Reconexão, backoff, reenvio da inscrição e detecção de queda são a parte que sempre
- * diverge quando é copiada — e diverge em silêncio, porque a tela continua abrindo. O
- * Desk já teve três cópias da régua de prioridade, uma delas errada. Aqui é uma só.
+ * Reconnection, backoff, subscription replay, and drop detection always diverge when copied - and silently, because the screen still opens. Desk previously had three copies of the priority rule, one of them wrong. Here there is one.
  *
  * ```ts
  * const ligacao = ligar({
@@ -30,31 +21,27 @@ import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '
  *   assuntos: ['conversa', 'fila'],
  *   aoEvento: (evento) => { if (evento.assunto === 'fila') rebuscarLista(); },
  * });
- * // ao desmontar a tela:
+ * // when unmounting the screen:
  * ligacao.fechar();
  * ```
  */
 
-/** Espera inicial da reconexão. Dobra a cada tentativa até o teto. */
+
 const ESPERA_BASE_MS = 1_000;
 const ESPERA_TETO_MS = 30_000;
 
 /**
- * Sem NENHUMA mensagem por este tempo, a ligação é dada como morta.
+ * With no messages at all for this long, the connection is considered dead.
  *
- * O servidor manda `{tipo:'ping'}` a cada 15 s (`CONNECTION_TEST_INTERVAL` da Blip).
- * Dois intervalos de silêncio é o critério — um só daria falso positivo em qualquer
- * engasgo de rede, e três deixaria a tela parada por quase um minuto.
+ * The server sends `{tipo:'ping'}` every 15 seconds (Blip's `CONNECTION_TEST_INTERVAL`). Two silent intervals are the threshold: one would cause false positives during an ordinary network stall, while three would leave the screen stale for almost a minute.
  *
- * Existe porque **socket morto não avisa**: o TCP pode ficar aberto do lado do
- * navegador enquanto o outro lado já foi embora, e o sintoma é a tela parecer viva e
- * parada — o pior dos dois mundos, e o defeito que o tempo real veio consertar.
+ * This exists because **dead sockets do not report their death**: TCP may remain open in the browser after the other side is gone, making the screen look alive but frozen - the defect realtime was meant to fix.
  */
 const SILENCIO_ATE_MORRER_MS = 35_000;
 
 export type StateOfConnection = 'connecting' | 'connected' | 'fell';
 
-/** O mínimo de `WebSocket` que este cliente usa. Existe para o teste injetar o seu. */
+
 export interface SocketMinimo {
   send: (dado: string) => void;
   close: () => void;
@@ -69,19 +56,19 @@ export interface OptionsOfConnection {
   urlApi: string;
   assuntos: Assunto[];
   /**
-   * Chamado a cada evento. **Rebusque aqui; não aplique payload** — ver o topo.
-   * Nunca é chamado com `ping`, que é quadro de controle e não evento.
+   * Called for each event. **Refetch here; do not apply the payload** - see above.
+   * Never called for `ping`, which is a control frame rather than an event.
    */
   aoEvento: (evento: EventoDoServidor) => void;
-  /** Para a tela mostrar "reconectando…" quando quiser. Opcional. */
+
   toState?: (state: StateOfConnection) => void;
-  /** Só para teste. */
+
   createSocket?: (url: string) => SocketMinimo;
 }
 
 export interface Connection {
   fechar: () => void;
-  /** O estado atual, para a tela que prefere perguntar a ouvir. */
+
   state: () => StateOfConnection;
 }
 
@@ -90,11 +77,9 @@ export function urlOfChannel(urlApi: string): string {
 }
 
 /**
- * Espera da próxima tentativa: exponencial com teto e **jitter de ±20%**.
+ * Delay before the next attempt: exponential with a cap and **+/-20% jitter**.
  *
- * O jitter não é enfeite. Quando a API reinicia, todos os navegadores caem no mesmo
- * instante; sem jitter todos voltam no mesmo instante também, e a primeira coisa que a
- * API recém-subida recebe é a manada inteira de uma vez.
+ * Jitter matters: when the API restarts, every browser disconnects at once. Without jitter, they all reconnect at once too, so a newly started API receives the entire herd immediately.
  */
 export function esperaDaTentativa(tentativa: number, sortear: () => number = Math.random): number {
   const crescente = Math.min(ESPERA_TETO_MS, ESPERA_BASE_MS * 2 ** Math.max(0, tentativa - 1));
@@ -118,15 +103,15 @@ export function ligar(options: OptionsOfConnection): Connection {
     options.toState?.(novo);
   };
 
-  /** Qualquer coisa vinda do servidor — evento OU ping — adia a sentença de morte. */
+  /** Any server message - event or ping - postpones the death timeout. */
   const respirou = (): void => {
     if (vigia) clearTimeout(vigia);
     vigia = setTimeout(() => {
-      // Não espera o `onclose`, que pode nunca chegar num socket meio-morto.
+      // Do not wait for `onclose`: it may never fire on a half-dead socket.
       try {
         socket?.close();
       } catch {
-        /* fechar socket já morto não é problema */
+
       }
       aoCair();
     }, SILENCIO_ATE_MORRER_MS);
@@ -159,8 +144,8 @@ export function ligar(options: OptionsOfConnection): Connection {
     novo.onopen = () => {
       tentativa = 0;
       changeState('connected');
-      // **A inscrição é reenviada a cada reconexão.** O servidor não guarda nada de
-      // quem caiu: socket novo começa sem assunto nenhum e não entrega nada até isto.
+      // **Resend the subscription on every reconnection.** The server keeps no state for
+      // disconnected clients: a new socket starts with no topics and receives nothing until this is sent.
       const subscription: Subscription = { assuntos: options.assuntos };
       novo.send(JSON.stringify(subscription));
       respirou();
@@ -174,7 +159,7 @@ export function ligar(options: OptionsOfConnection): Connection {
       } catch {
         return;
       }
-      // Quadro de controle não é evento: `ping`, `inscrito` e `recusado` não fazem a
+      // Control frames are not events: `ping`, `inscrito`, and `recusado` do not cause the
       // tela rebuscar nada.
       if ('tipo' in corpo) return;
       options.aoEvento(corpo);
@@ -182,21 +167,16 @@ export function ligar(options: OptionsOfConnection): Connection {
 
     novo.onclose = aoCair;
     novo.onerror = () => {
-      // `onerror` costuma vir seguido de `onclose`; `aoCair` é idempotente por conta
+      // `onerror` is usually followed by `onclose`; `aoCair` is idempotent because of
       // da guarda de `reconexao`.
       aoCair();
     };
   };
 
   /**
-   * Volta AGORA quando o navegador diz que dá para voltar.
+   * Reconnect IMMEDIATELY when the browser reports that it can reconnect.
    *
-   * **A aba oculta NÃO desliga a ligação** — e isto mudou de ideia no meio do caminho.
-   * A intenção original era pausar com a aba escondida, até ficar claro que o atendente
-   * com o Desk numa aba de fundo é exatamente quem precisa ouvir a conversa nova
-   * chegando. O que a visibilidade faz aqui é outra coisa: se a ligação JÁ caiu e a
-   * pessoa volta para a aba, não faz sentido ela esperar os 30 s do backoff olhando
-   * uma tela velha.
+   * **A hidden tab does NOT close the connection** - this decision changed during development. The original intent was to pause while the tab was hidden, until it became clear that an agent with Desk in a background tab is exactly the person who needs to hear about a new conversation. Visibility serves another purpose here: if the connection has ALREADY dropped and the user returns to the tab, they should not wait through 30 seconds of backoff while looking at a stale screen.
    */
   const voltarAgora = (): void => {
     if (fechadoDeProposito || socket) return;
@@ -238,7 +218,7 @@ export function ligar(options: OptionsOfConnection): Connection {
 function defaultCreateSocket(url: string): SocketMinimo {
   const WS = globalThis.WebSocket;
   if (!WS) throw new Error('WebSocket não existe neste ambiente');
-  // `credentials` não se configura aqui: o navegador manda o cookie de sessão no
-  // handshake de mesma origem-pai, que é como a API autentica a ligação.
+  // `credentials` is not configured here: the browser sends the session cookie in the
+  // same-parent-origin handshake, which is how the API authenticates the connection.
   return new WS(url) as unknown as SocketMinimo;
 }

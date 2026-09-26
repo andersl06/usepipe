@@ -22,7 +22,7 @@ import {
 } from './index.js';
 import { resultado } from '../comum/tipos.js';
 
-/** Instante em UTC no dia de referência (segunda-feira, 02/03/2026). */
+
 function em(relogio: string): Date {
   return new Date(`2026-03-02T${relogio}Z`);
 }
@@ -37,11 +37,7 @@ function evento(
 }
 
 /**
- * Três conversas com os cinco carimbos posicionados à mão.
- *
- *  C1 criada 10:00:00 · atribuída 10:02:30 · 1ª resposta 10:03:30 · encerrada 10:20:00
- *  C2 criada 10:00:00 · atribuída 10:10:00 · 1ª resposta 10:14:00 · encerrada 10:30:00
- *  C3 criada 10:00:00 · nunca atribuída · nunca respondida · encerrada 10:05:00
+ * Three conversations with five timestamps set manually: C1 created 10:00, assigned 10:02:30, first response 10:03:30, closed 10:20; C2 created 10:00, assigned 10:10, first response 10:14, closed 10:30; C3 created 10:00, never assigned or answered, closed 10:05.
  */
 const C1: ConversationEvents = {
   conversationId: 'c1',
@@ -161,9 +157,7 @@ describe('time metrics (§2)', () => {
     population: number;
     excluidas: number;
   }[] = [
-    // Tempo na fila: C1 150s, C2 600s. C3 nunca foi atribuída.
     { nome: 'tempo na fila', metrica: timeInQueue, value: 375, population: 2, excluidas: 1 },
-    // Até 1ª resposta: C1 60s, C2 240s. C3 nunca respondida.
     {
       nome: 'tempo até a 1ª resposta',
       metrica: timeAteFirstResposta,
@@ -179,7 +173,6 @@ describe('time metrics (§2)', () => {
       population: 3,
       excluidas: 0,
     },
-    // Atendimento: C1 990s, C2 960s. C3 fora por não ter 1ª resposta.
     {
       nome: 'tempo de atendimento',
       metrica: attendanceTime,
@@ -238,7 +231,7 @@ describe('time metrics (§2)', () => {
       eventos: [
         evento('x', 'criada', '10:00:00'),
         evento('x', 'atribuida', '10:10:00', { userId: 'u1' }),
-        // Resposta carimbada antes da atribuição: não pode virar tempo negativo.
+        // A response timestamp preceding assignment must not become a negative duration.
         evento('x', 'primeira_resposta', '10:05:00', { userId: 'u1' }),
       ],
     };
@@ -256,7 +249,6 @@ describe('response time', () => {
   //  A: 10:00 cliente → 10:01 atendente  = 60s
   //     10:05 cliente, 10:05:30 cliente → 10:07 atendente = 120s (conta da primeira)
   //  B: 09:00 cliente → 09:00:30 atendente = 30s
-  //  C: só o cliente falou → nenhuma troca completa
   const A: ConversationEvents = {
     conversationId: 'a',
     eventos: [
@@ -339,7 +331,6 @@ describe('closure status (§4)', () => {
   }
 
   it('counts lost, abandoned, finished and the total closed', () => {
-    // C1 finalizada · C2 abandonada (inatividade com atribuição) · C3 perdida.
     expect(contarClosures(TRIO)).toEqual({
       perdida: 1,
       abandonada: 1,
@@ -351,8 +342,6 @@ describe('closure status (§4)', () => {
 });
 
 describe('volume-weighted average (§5)', () => {
-  // Dia cheio: 900s em 10 conversas (média 90s).
-  // Dia vazio: 600s em 2 conversas (média 300s).
   const diaCheio = resultado(900, 10, 0);
   const diaEmpty = resultado(600, 2, 1);
 

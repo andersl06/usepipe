@@ -1,9 +1,5 @@
 /**
- * Status de encerramento — §4 da spec de métricas.
- *
- * A fronteira entre perdida e abandonada é a existência de `atribuida_em`:
- * perdida é problema de capacidade ou de fila, abandonada é problema de
- * atendimento. Separá-las é o que torna o número acionável.
+ * Closure statuses from metrics spec §4. `atribuida_em` separates lost from abandoned: lost reflects capacity or queue issues, abandoned reflects handling. Keeping them separate makes the metric actionable.
  */
 
 import { derivarMarcos, type ConversationEvents, type Marcos } from './eventos.js';
@@ -14,20 +10,14 @@ export interface CountClosure {
   perdida: number;
   abandonada: number;
   finalizada: number;
-  /** Soma das três — o "fechada" da spec. */
+  /** Sum of the three categories, called "fechada" in the spec. */
   fechada: number;
   /** Conversas ainda abertas no conjunto avaliado. */
   abertas: number;
 }
 
 /**
- * Classifica o encerramento de uma conversa. `null` quando ainda está aberta.
- *
- * - `atendente` ou `transferencia` → finalizada, tenha sido atribuída ou não
- *   (gestor também fecha em lote pela tela de monitoramento).
- * - `cliente` ou `inatividade` → perdida se nunca foi atribuída, abandonada se foi.
- * - Encerramento sem `encerradaPor` cai na mesma regra de atribuição, porque a
- *   origem desconhecida não pode virar "finalizada" por otimismo.
+ * Classify a conversation closure; return null while open. `atendente` or `transferencia` means finalized regardless of assignment, since a manager can also close in bulk from monitoring. `cliente` or `inatividade` means lost if never assigned, abandoned otherwise. Missing `encerradaPor` follows the assignment rule; unknown origin must not be optimistically labeled finalized.
  */
 export function classificarClosure(marcos: Marcos): StatusClosure | null {
   if (!marcos.encerradaEm) return null;

@@ -1,7 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs e ConditionTests.cs
- * — modificado: xUnit/Shouldly → vitest; mensagens de validação em português.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs and ConditionTests.cs. Changes: xUnit/Shouldly to vitest; validation messages remain Portuguese.
  */
 import { describe, expect, it } from 'vitest';
 import {

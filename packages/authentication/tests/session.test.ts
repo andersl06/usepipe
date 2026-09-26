@@ -39,33 +39,33 @@ describe('Create and validate sessions', () => {
 
     expect(estaValida({ expiraEm: futuro, encerradaEm: null }, agora)).toBe(true);
     expect(estaValida({ expiraEm: passado, encerradaEm: null }, agora)).toBe(false);
-    // Encerrada à mão vale menos que o prazo: sair tem de valer na hora.
+    // Ending a session manually overrides expiry: logout must take effect immediately.
     expect(estaValida({ expiraEm: futuro, encerradaEm: agora }, agora)).toBe(false);
   });
 
   it('o cookie leva HttpOnly, SameSite e Secure', () => {
     const c = cookieOfSession('abc', new Date('2026-09-07T18:00:00Z'));
     expect(c).toContain(`${NOME_DO_COOKIE}=abc`);
-    // Sem HttpOnly, um XSS lê o token e vira sequestro de sessão.
+    // Without HttpOnly, XSS reads the token and steals the session.
     expect(c).toContain('HttpOnly');
     expect(c).toContain('SameSite=Lax');
     expect(c).toContain('Secure');
   });
 
   it('em localhost o cookie sai sem Secure e SEM Domain', () => {
-    //  invalida o cookie em vários navegadores, e o sintoma é
-    // login que "não faz nada".
+    // `Domain=localhost` invalidates cookies in several browsers, causing
+    // login to appear to do nothing.
     const c = cookieOfSession('abc', new Date(), { seguro: false });
     expect(c).not.toContain('Secure');
     expect(c).not.toContain('Domain=');
   });
 
   it('Share the session cookie across application subdomains using the parent domain', () => {
-    // A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.
-    // Sem o domínio-pai, cada uma precisaria do próprio login.
+    // The API is on `api.pipe.com.br` and the apps are on `gestao.pipe.com.br`, `app.pipe.com.br`, and `crm.pipe.com.br`.
+    // Without the parent domain, each app would need a separate login.
     const c = cookieOfSession('abc', new Date(), { domain: '.pipe.com.br' });
     expect(c).toContain('Domain=.pipe.com.br');
-    // E continua Lax:  mandaria o cookie em requisição de qualquer site.
+    // Keep `SameSite=Lax`: `SameSite=None` would send the cookie on requests from any site.
     expect(c).toContain('SameSite=Lax');
   });
 
@@ -80,7 +80,7 @@ describe('Create and validate sessions', () => {
     } as NodeJS.ProcessEnv);
     expect(permitidas).toEqual(['https://gestao.pipe.com.br', 'https://app.pipe.com.br']);
     expect(origemPermitida('https://app.pipe.com.br', permitidas)).toBe(true);
-    // Barra final não pode virar recusa: o navegador manda sem, mas o ambiente
+    // A trailing slash must not cause rejection: browsers send origins without one, but environment values often include it.
     // costuma ser escrito com.
     expect(origemPermitida('https://app.pipe.com.br/', permitidas)).toBe(true);
     expect(origemPermitida('https://malicioso.example', permitidas)).toBe(false);

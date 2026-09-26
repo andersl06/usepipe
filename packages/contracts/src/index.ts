@@ -1,11 +1,5 @@
 /**
- * Tipos partilhados entre a `api` e os fronts.
- *
- * A regra que dá sentido ao pacote: **um conceito, uma definição**. Se a tela e
- * a API discordam sobre o que é um plano ou sobre o nome de um campo, a
- * divergência só aparece quando alguém troca o nome — e aí em produção.
- *
- * Nada aqui importa banco, HTTP ou React. É contrato, não implementação.
+ * Shared types for the `api` and front ends. One concept has one definition, so screen and API field or plan names cannot silently diverge until production. This package imports no database, HTTP, or React implementation.
  */
 export * from './session.js';
 export * from './eventos.js';

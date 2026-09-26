@@ -19,7 +19,7 @@ const config: ConfigDoGoogle = {
   urlOfCallback: 'https://gestao.pipe.com.br/entrar/google',
 };
 
-/** Um par de chaves nosso, para assinar `id_token` sem sair para a rede. */
+
 async function keysOfTest() {
   const { publicKey, privateKey } = await generateKeyPair('RS256');
   const jwk = await exportJWK(publicKey);
@@ -49,7 +49,7 @@ describe('login com Google', () => {
     expect(url.searchParams.get('code_challenge')).toBe(
       createHash('sha256').update(desafio.verificadorPkce).digest('base64url'),
     );
-    // O verificador em si NUNCA vai na ida — é isso que faz o PKCE valer.
+    // The verifier NEVER goes outbound; that is what makes PKCE effective.
     expect(url.search).not.toContain(desafio.verificadorPkce);
   });
 
@@ -87,14 +87,14 @@ describe('login com Google', () => {
 
     const pessoa = await verificarIdToken(token, config, 'n-1', publica);
     expect(pessoa.sujeito).toBe('110123456789');
-    // Normalizado: e-mail é caixa-insensível e comparar cru cria conta duplicada.
+    // Normalize email: it is case-insensitive, and raw comparison creates duplicate accounts.
     expect(pessoa.email).toBe('ana@empresa.com.br');
     expect(pessoa.emissor).toBe(GOOGLE.emissor);
   });
 
   it('recusa e-mail que o Google não confirmou', async () => {
-    // Sem isto, quem cria conta no Google com o endereço de outra pessoa entra
-    // como ela — é o caminho de escalada mais barato que existe em OIDC.
+    // Without this, someone who creates a Google account with another person's address could sign in
+    // as that person, a cheap OIDC privilege-escalation path.
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: GOOGLE.emissor,
@@ -178,7 +178,7 @@ describe('login com Google', () => {
     );
 
     expect(pessoa.sujeito).toBe('42');
-    // O verificador só aparece AQUI, na troca — nunca na ida ao Google.
+    // The verifier appears only HERE, during code exchange, never on the outbound trip to Google.
     expect(corpoEnviado).toContain(`code_verifier=${encodeURIComponent(desafio.verificadorPkce)}`);
     expect(corpoEnviado).toContain('grant_type=authorization_code');
   });
@@ -195,8 +195,8 @@ describe('login com Google', () => {
     expect(domainOfEmail('ana@empresa.com.br')).toBe('empresa.com.br');
     expect(ehDomainPublic('ana@gmail.com')).toBe(true);
     expect(ehDomainPublic('ana@empresa.com.br')).toBe(false);
-    // Se `gmail.com` fosse cadastrável, o primeiro a registrá-lo levaria todo
-    // mundo que usa Gmail para o tenant dele.
+    // If `gmail.com` could be registered, the first tenant to claim it would capture
+    // everyone who uses Gmail.
     expect(ehDomainPublic('ana@outlook.com')).toBe(true);
   });
 });

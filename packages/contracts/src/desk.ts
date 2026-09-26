@@ -1,21 +1,10 @@
 /**
- * As telas do DESK: o que `GET /v1/desk/…` responde e o front desenha.
- *
- * Data é TEXTO (ISO 8601): é assim que atravessa o JSON. Quem mostra converte
- * com `new Date(...)` na ponta — nunca no contrato. Foi a única mudança de
- * forma na migração do Desk em Next: lá as consultas devolviam `Date` porque
- * a página e o banco viviam no mesmo processo.
- *
- * A forma é a das consultas em `apps/api/src/dominio/desk/*.ts`; se uma coluna
- * entra ou sai de lá, entra ou sai daqui, e o `tsc` do front acusa.
+ * Desk screen contracts describe responses from `GET /v1/desk/…` rendered by the front end. Dates cross JSON as ISO 8601 text; the display converts them with `new Date(...)`, never the contract. This was the sole shape change in the Next Desk migration, where page and database shared a process and queries returned `Date`. These shapes follow queries in `apps/api/src/dominio/desk/*.ts`; changing a query column requires a matching contract change, surfaced by front-end `tsc`.
  */
 
 export type StateConversation = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
 /**
- * A régua de prioridade é a de `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`),
- * escrita aqui por extenso porque o contrato não importa pacote nenhum. Os
- * cinco literais são os mesmos, e o `tsc` do front acusa se um deles divergir
- * ao indexar `ROTULOS_PRIORIDADE` com este tipo.
+ * Priority levels match `@pipe/core/conversa` (`NIVEIS_PRIORIDADE`) but are spelled out here because the contracts package imports no packages. All five literals match; front-end `tsc` catches divergence when indexing `ROTULOS_PRIORIDADE` with this type.
  */
 export type PriorityOfDesk = 'maxima' | 'alta' | 'media' | 'baixa' | 'sem_prioridade';
 export type TypeChannelDatabase = 'whatsapp_cloud' | 'instagram' | 'email' | 'widget';
@@ -28,12 +17,12 @@ export interface ConversationOfList {
   estado: StateConversation;
   prioridade: PriorityOfDesk;
   criadaEm: string;
-  /** Nulo é conversa que o atendente ainda não respondeu — é a ficha "Sem resposta". */
+  /** Null means the agent has not answered this conversation yet; shown as the Unanswered card. */
   primeiraRespostaEm: string | null;
   ultimaMensagemEm: string | null;
   lastMessageFrom: string | null;
   janelaExpiraEm: string | null;
-  /** Desde quando está em espera — o cronômetro da ficha 'Em espera' do cartão. */
+  /** When the hold started, used by the On Hold card timer. */
   emEsperaDesde: string | null;
   contatoNome: string | null;
   contatoTelefone: string | null;
@@ -42,9 +31,7 @@ export interface ConversationOfList {
   lastMessage: string | null;
   lastMessageType: string | null;
   /**
-   * As marcações DESTE atendente (`marcacao_conversa`, migração 0041): fixada no
-   * topo da lista e marcada à mão como não lida. Nulo é "não marcada". São do
-   * atendente, não da conversa — o colega que recebe a transferência não as vê.
+   * This agent's own markers (`marcacao_conversa`, migration 0041): pinned at the top of the list and manually marked unread. Null means unmarked. They belong to the agent, not the conversation; a colleague receiving a transfer does not see them.
    */
   fixadaEm: string | null;
   naoLidaEm: string | null;
@@ -84,15 +71,11 @@ export interface RespostaProntaDoDesk {
 }
 
 /**
- * O que `GET /v1/desk/fila` devolve: a fila do atendente e os catálogos que a
- * coluna precisa para desenhar — status, motivos de pausa, etiquetas, colegas
- * e respostas prontas. Tudo numa ida só, na mesma transação, como a página em
- * Next fazia; a busca, a ficha, a ordem e o recorte por fila continuam sendo
- * do navegador (`lib/ordem.ts`), porque são regras puras sobre a lista inteira.
+ * `GET /v1/desk/fila` returns the agent queue and catalogs needed by its column: status, pause reasons, tags, colleagues, and canned responses. One request and transaction mirror the Next page. Search, card, ordering, and queue filtering stay in the browser (`lib/ordem.ts`) because they are pure rules over the full list.
  */
 export interface QueueOfDesk {
   conversations: ConversationOfList[];
-  /** "Clientes aguardando": conversas na fila, nas filas do atendente. O botão "Atender" puxa a mais antiga. */
+  /** Waiting customers: queued conversations in this agent's queues. The Answer button takes the oldest. */
   aguardando: number;
   status: StatusOfAgent;
   motivos: MotivoDePausa[];
@@ -149,8 +132,7 @@ export interface TemplateAprovado {
   categoria: 'utilidade' | 'marketing' | 'autenticacao';
   corpo: string;
   /**
-   * Os nomes das variáveis NA ORDEM das posições `{{1}}`, `{{2}}`, … Sem
-   * isto a tela não tem como resolver o corpo.
+   * Variable names in the order of `{{1}}`, `{{2}}`, etc. Without that order, the UI cannot resolve the body.
    */
   variables: unknown;
 }
@@ -168,26 +150,21 @@ export interface ConversationOfHistory {
   filaNome: string | null;
 }
 
-/** A conversa aberta e tudo o que a coluna do meio e o painel do contato mostram dela. */
+
 export interface ConversationOfDesk {
   conversation: ConversationOpen;
   itens: ItemOfConversation[];
   templates: TemplateAprovado[];
   conversationTags: LabelOfConversation[];
   /**
-   * As etiquetas do CONTATO (`contato_etiqueta`), que o painel "Dados do
-   * Contato" mostra e edita. Separadas das da conversa porque são de escopos
-   * diferentes (`etiqueta.escopo`) e não se herdam.
+   * CONTACT tags (`contato_etiqueta`) shown and edited in the Contact Data panel. They stay separate from conversation tags because `etiqueta.escopo` gives them different scopes; neither scope inherits the other.
    */
   contactTags: LabelOfConversation[];
   history: ConversationOfHistory[];
 }
 
 /**
- * `GET /v1/desk/conversas/:id`. `aberta` é `null` quando a conversa não é do
- * atendente (ou não existe) — resposta 200, e não 404, porque a tela tem o que
- * fazer nesse caso: volta para a fila sem conversa aberta, como a página em
- * Next fazia, sem passar pelo caminho de erro do cache.
+ * `GET /v1/desk/conversas/:id` returns `aberta: null` with HTTP 200 when the conversation does not exist or does not belong to this agent. The UI then returns to the queue without an open conversation, as the Next page did, without entering the cache error path.
  */
 export interface ResponseOfConversation {
   aberta: ConversationOfDesk | null;
@@ -210,19 +187,15 @@ export interface TicketAntigo {
   contactId: string;
   contatoNome: string | null;
   contatoTelefone: string | null;
-  /** Quem atendeu. Nulo é atendimento que nunca saiu do robô. */
+  /** Agent who handled the ticket; null means it never left the bot. */
   agentName: string | null;
   agentEmail: string | null;
-  /** Quem encerrou. Nulo com `encerradaEm` preenchido é fim automático. */
+  /** Agent who closed it; null with `encerradaEm` set means automatic closure. */
   closedByName: string | null;
 }
 
 /**
- * `GET /v1/desk/tickets/:id` — o atendimento antigo, em leitura. 404 quando
- * não existe (ou é de outro cliente: a RLS não o enxerga).
- *
- * O `status` vai junto porque o trilho o mostra em toda tela, e uma ida só à
- * `api` por tela é a régua.
+ * `GET /v1/desk/tickets/:id` reads an old ticket. It returns 404 when absent or hidden by tenant RLS. `status` is included because the rail shows it on every screen and the screen uses one API request.
  */
 export interface TicketDoDesk {
   ticket: TicketAntigo;
@@ -231,24 +204,24 @@ export interface TicketDoDesk {
   status: StatusOfAgent;
 }
 
-/* ------------------------------------------------------------ métricas */
+
 
 export interface CountOfSituation {
   abertos: number;
   fechados: number;
   finalizados: number;
   abandonados: number;
-  /** `null` é "o domínio ainda não guarda isto", e não zero. */
+  /** `null` means the domain does not yet store this, rather than zero. */
   transferidos: number | null;
   perdidos: number | null;
 }
 
 export interface TemposMedios {
-  /** Da chegada até a primeira palavra do atendente, em segundos. */
+  /** Seconds from arrival to the agent's first response. */
   firstResponseSeg: number | null;
-  /** Da abertura até cair no colo de alguém, em segundos. */
+  /** Seconds from opening until assignment to an agent. */
   waitInQueueSeg: number | null;
-  /** Fila mais o tempo que a conversa passou em espera, em segundos. */
+  /** Queue time plus time the conversation spent on hold, in seconds. */
   esperaTotalSeg: number | null;
 }
 
@@ -265,12 +238,7 @@ export interface MetricsOfAgent {
 }
 
 /**
- * `GET /v1/desk/metricas?inicio=&fim=` (ISO 8601). O recorte é calculado no
- * navegador (`lib/periodo.ts`), no relógio de quem olha — como a página em
- * Next fazia no relógio do servidor —, e a `api` só o aplica.
- *
- * O `status` vai junto porque o trilho o mostra em toda tela, e uma ida só à
- * `api` por tela é a régua.
+ * `GET /v1/desk/metricas?inicio=&fim=` takes ISO 8601 bounds. The browser computes the interval in the viewer's clock (`lib/periodo.ts`), as the Next page formerly did on the server clock; the API only applies it. `status` travels with metrics because the rail displays it on every screen, allowing one API request per screen.
  */
 export interface ResponseOfMetrics {
   metrics: MetricsOfAgent;
@@ -282,6 +250,6 @@ export interface FichaDoCrm {
   nome: string;
   email: string | null;
   empresa: string | null;
-  /** Link para a FICHA daquele cliente no CRM. Nunca a home. */
+  /** Link to this customer's CRM record, never the home page. */
   link: string;
 }

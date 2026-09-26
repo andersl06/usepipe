@@ -36,7 +36,6 @@ describe('carga ponderada', () => {
     aguardandoAgent: number;
     esperado: number;
   }[] = [
-    // Peso 2 para conversa que aguarda o atendente, 1 para a que aguarda o cliente.
     { nome: 'sem conversa nenhuma', ativas: 0, aguardandoAgent: 0, esperado: 0 },
     { nome: '4 ativas, 1 quente: 1×2 + 3×1', ativas: 4, aguardandoAgent: 1, esperado: 5 },
     { nome: '3 ativas, 2 quentes: 2×2 + 1×1', ativas: 3, aguardandoAgent: 2, esperado: 5 },
@@ -86,7 +85,6 @@ describe('eligibility (§7)', () => {
       'teto_sem_primeira_resposta',
     );
     expect(motivoInelegivel(acumulador, { ...QUEUE, tetoWithoutFirstResposta: 4 })).toBeNull();
-    // Sem teto configurado, a regra não se aplica.
     expect(motivoInelegivel(acumulador, QUEUE)).toBeNull();
     expect(motivoInelegivel(acumulador, { ...QUEUE, tetoWithoutFirstResposta: null })).toBeNull();
   });
@@ -123,7 +121,6 @@ describe('choice by load', () => {
     const a = agent({ id: 'aaa', ativas: 2, aguardandoAgent: 1, ultimaAssignmentIn: em('09:30:00') });
     const b = agent({ id: 'bbb', ativas: 2, aguardandoAgent: 1, ultimaAssignmentIn: em('09:30:00') });
     expect(escolherAgent([a, b], QUEUE).escolhido?.id).toBe('aaa');
-    // A ordem da entrada não pode mudar o resultado.
     expect(escolherAgent([b, a], QUEUE).escolhido?.id).toBe('aaa');
   });
 
@@ -154,7 +151,7 @@ describe('choice by load', () => {
   it('ten idle conversations are not worth the same as ten hot ones', () => {
     const parado = agent({ id: 'parado', limiteSimultaneo: 20, ativas: 10, aguardandoAgent: 0 });
     const quente = agent({ id: 'quente', limiteSimultaneo: 20, ativas: 6, aguardandoAgent: 6 });
-    // carga do parado = 10; carga do quente = 12. O rodízio por "menos tickets"
+    // Idle agent load is 10; busy agent load is 12. Round-robin by fewer tickets would pick the busy agent (6 < 10); actual load picks the idle agent.
     // escolheria o quente (6 < 10); a carga real escolhe o parado.
     expect(escolherAgent([parado, quente], QUEUE).escolhido?.id).toBe('parado');
   });

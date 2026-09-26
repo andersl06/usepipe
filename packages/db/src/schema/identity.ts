@@ -13,36 +13,22 @@ import {
 import { carimbos, id, listaCheck, moment } from './comum.js';
 
 /**
- * Módulo 1 — Identidade e tenancy. Base de tudo; não depende de nenhum outro módulo.
- * O `tenant` carrega a personalização (nome, logo, cor, fuso, idioma): white-label é
- * configuração, nunca build separado.
+ * Module 1, identity and tenancy, is the foundation and depends on no other module. `tenant` holds name, logo, color, timezone, and language customization: white-labeling is configuration, never a separate build.
  */
 
 /**
- * Onde o tenant está hospedado.
+ * Where the tenant is hosted.
  *
- * `compartilhada` é o banco de todo mundo, com RLS — é o padrão e serve à
- * esmagadora maioria. `dedicada` é o cliente que saiu para instância própria,
- * por contrato ou por peso. Ver `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
+ * `compartilhada` is the shared database with RLS, the default for most tenants. `dedicada` is a tenant moved to its own instance for contractual or load reasons. See `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
  *
- * O campo nasce agora, com todo mundo em `compartilhada`, porque criar coluna
- * em tabela pequena é barato hoje e caro na véspera da primeira migração — que
- * é exatamente quando ele vai fazer falta, para o código saber a quem
- * perguntar sem consultar planilha.
+ * Adding this column while the table is small is cheap; doing so just before the first migration would be costly. The code needs this field to locate a tenant without consulting a spreadsheet.
  */
 export const DEPLOYMENTS = ['compartilhada', 'dedicada'] as const;
 
 /**
- * Os três planos, com os limites que a cobrança usa.
+ * Three plans with limits used for billing, per `docs/specs/2026-09-07-preco.md`. Keep them in code, not environment configuration: the AI conversation cap must share a source with enforcement, and environment-based prices can diverge from the screen and invoice.
  *
- * Decididos em `docs/specs/2026-09-07-preco.md`. Ficam aqui, e não em
- * configuração, porque plano é regra: o teto de conversa analisada por IA
- * precisa estar no mesmo lugar que o código que corta, e preço em variável de
- * ambiente vira divergência entre o que a tela mostra e o que a fatura cobra.
- *
- * `conversasIaPorAtendente` é a franquia, e é o número que segura a margem: a IA
- * é o único custo que escala com uso, e sem teto um cliente de volume alto come
- * a margem inteira sem ninguém perceber até a fatura chegar.
+ * `conversasIaPorAtendente` is the allowance protecting margin. AI is the cost that scales with use; without a cap a high-volume tenant could consume the margin before the bill reveals it.
  */
 export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
 export type Plano = (typeof PLANOS)[number];
@@ -51,7 +37,7 @@ export interface LimitesDoPlano {
   priceByAgentCentavos: number;
   minimumOfAgents: number;
   conversationsAiByAgent: number;
-  /** Fração das conversas que a monitoria avalia. 1 é todas. */
+
   samplingOfQualityReview: number;
   excessCentavosByConversation: number;
   sso: boolean;
@@ -74,7 +60,7 @@ export const LIMITES_DO_PLANO: Readonly<Record<Plano, LimitesDoPlano>> = {
     excessCentavosByConversation: 18,
     sso: false,
   },
-  /* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */
+  /* Contract-only plan: price and allowance live in the tenant record, not this table. */
   escala: {
     priceByAgentCentavos: 0,
     minimumOfAgents: 20,
@@ -99,27 +85,12 @@ export const tenant = pgTable(
     deployment: text('implantacao').notNull().default('compartilhada'),
     ativo: boolean('ativo').notNull().default(true),
     /**
-     * A instância do Twenty deste cliente, e a chave para falar com ela.
-     *
-     * Uma instância POR CLIENTE, decidido em `docs/specs/2026-09-07-integracao-twenty.md`
-     * §5: o isolamento do CRM é físico, e não há instância padrão. Vazio significa
-     * "este cliente não tem CRM", e a integração inteira não acontece — nunca um
-     * fallback, porque fallback silencioso é como o dado de um cliente vai parar no
-     * CRM de outro.
-     *
-     * `twentyChave` é a chave de API, CIFRADA em repouso pelo mesmo chaveiro do token
-     * da Meta (`PIPE_CHAVES_SEGREDO`). Diferente do token da Meta, esta também LÊ: quem
-     * a tiver tem a base de clientes daquele tenant inteira.
+     * Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyChave` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.
      */
     twentyUrl: text('twenty_url'),
     twentyKey: text('twenty_chave'),
     /**
-     * Os dados que a própria pessoa preenche em "minha conta", depois de entrar.
-     *
-     * Todos anuláveis: a conta NASCE sem eles quando vem do autosserviço, e é a
-     * tela de boas-vindas que anuncia isso. Exigi-los antes devolveria o
-     * formulário para antes do login — que é justamente o que o autosserviço
-     * evita. `funcionarios` é faixa em texto ("1 a 10"), como na origem.
+     * Details the person supplies in "minha conta" after login. All are nullable because self-service creates the account without them, and the welcome screen then requests them; requiring them before login would defeat self-service. `funcionarios` is a text range such as "1 a 10", as in the source.
      */
     site: text('site'),
     funcionarios: text('funcionarios'),
@@ -128,7 +99,7 @@ export const tenant = pgTable(
     pais: text('pais'),
     telefone: text('telefone'),
     optinWhatsapp: boolean('optin_whatsapp').notNull().default(false),
-    /** Nulo = onboarding em aberto, e a Gestão leva para "minha conta". */
+    /** Null means onboarding is incomplete, and Management routes to "minha conta". */
     onboardingConcluidoEm: moment('onboarding_concluido_em'),
     ...carimbos(),
   },
@@ -139,8 +110,7 @@ export const tenant = pgTable(
 );
 
 /**
- * Toda tabela de negócio referencia o tenant por aqui. Fica em identidade e não em
- * `comum` para não criar ciclo de import com a própria tabela `tenant`.
+ * Business tables reference the tenant through this helper. It lives in identity rather than `comum` to avoid an import cycle with the `tenant` table itself.
  */
 export const refTenant = () =>
   uuid('tenant_id')
@@ -164,18 +134,14 @@ export const user = pgTable(
 );
 
 /**
- * De que lado o papel vale (migração 0021).
+ * Role scope (migration 0021).
  *
- * `conta` é o papel no contrato — `admin`, `member`, `guest`, os três da origem
- * ("Admin", "Pode editar", "Pode visualizar"). Toda pessoa tem UM, e é só ele que
- * a tela de Membros e o convite oferecem. `atendimento` é o resto (gestor,
- * supervisor, atendente, avaliador): zero ou mais por pessoa. As permissões
- * efetivas são a união dos dois.
+ * `conta` covers contract roles `admin`, `member`, `guest`, matching the source labels "Admin", "Pode editar", and "Pode visualizar". Each person has ONE, and only those appear in Members and invitations. `atendimento` covers manager, supervisor, agent, and reviewer roles; a person may have zero or more. Effective permissions are the union.
  */
 export const SCOPES_ROLE = ['conta', 'atendimento'] as const;
 export type ScopeRole = (typeof SCOPES_ROLE)[number];
 
-/** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */
+/** Source `roleId` values represented here by the NAMES of the three account roles. */
 export const PAPEIS_OF_ACCOUNT = ['admin', 'member', 'guest'] as const;
 export type RoleOfAccount = (typeof PAPEIS_OF_ACCOUNT)[number];
 
@@ -186,7 +152,7 @@ export const role = pgTable(
     tenantId: refTenant(),
     nome: text('nome').notNull(),
     description: text('descricao'),
-    /** Papel do dia 1 não é editável pelo cliente. */
+
     deSistema: boolean('de_sistema').notNull().default(false),
     scope: text('escopo').notNull().default('atendimento'),
     ...carimbos(),
@@ -200,9 +166,7 @@ export const role = pgTable(
 );
 
 /**
- * Catálogo global de capacidades nomeadas (`conversa.transferir`,
- * `relatorio.esforco.ver`). Não tem tenant de propósito: é vocabulário do produto,
- * igual para todo mundo, e por isso é a única tabela sem RLS junto de `tenant`.
+ * Global catalog of named capabilities (`conversa.transferir`, `relatorio.esforco.ver`). It deliberately has no tenant: this product vocabulary is shared by everyone, making it the only table without RLS alongside `tenant`.
  */
 export const permission = pgTable('permissao', {
   codigo: text('codigo').primaryKey(),
@@ -235,9 +199,7 @@ export const userRole = pgTable(
       .notNull()
       .references(() => role.id, { onDelete: 'cascade' }),
     /**
-     * Cópia do `papel.escopo`, amarrada pela FK composta: é o que deixa o índice
-     * parcial abaixo garantir UM papel de conta por pessoa sem trigger. Quem
-     * grava papel de conta passa `'conta'`; errar o valor falha na FK.
+     * Copy of `papel.escopo`, bound by a composite foreign key, allowing the partial index below to enforce ONE account role per person without a trigger. Writers pass `'conta'` for an account role; the FK rejects a wrong scope.
      */
     escopo: text('escopo').notNull().default('atendimento'),
   },
@@ -257,19 +219,11 @@ export const userRole = pgTable(
 );
 
 /**
- * A EXCEÇÃO por pessoa, em cima do papel (migração 0046).
+ * A person-level EXCEPTION on top of roles (migration 0046).
  *
- * É o que a página "Permissões" da origem edita — uma tabela de "Tipo de
- * permissão" × "Status", por atendente
- * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.4). Papel é
- * conjunto: sem esta tabela, desligar UMA capacidade de UMA pessoa exigia
- * inventar um papel de uma pessoa só.
+ * The source "Permissões" page edits a per-agent table of "Tipo de permissão" by "Status" (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` section a.4). A role grants a set; without overrides, removing one capability from one person would require a one-person role.
  *
- *   permissão efetiva = COALESCE(concedida desta linha, união dos papéis)
- *
- * Linha ausente = manda o papel. `gravarPermissoesDoAtendente` APAGA a linha
- * quando a escolha volta a coincidir com o papel, para a tabela guardar só a
- * exceção e nunca virar cópia desatualizada do RBAC.
+ * Effective permission = COALESCE(the row's `concedida`, union of roles). Missing row means roles decide. `gravarPermissoesDoAtendente` deletes an override when it again matches the role, so this table contains exceptions rather than a stale RBAC copy.
  */
 export const userPermission = pgTable(
   'usuario_permissao',
@@ -281,7 +235,7 @@ export const userPermission = pgTable(
     permissaoCodigo: text('permissao_codigo')
       .notNull()
       .references(() => permission.codigo, { onDelete: 'cascade' }),
-    /** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */
+    /** `true` grants what the role lacks; `false` revokes what the role grants. */
     concedida: boolean('concedida').notNull(),
     ...carimbos(),
   },
@@ -328,7 +282,7 @@ export const session = pgTable(
     expiraEm: moment('expira_em').notNull(),
     ip: text('ip'),
     agente: text('agente'),
-    /** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */
+    /** Records the login origin for audit and IdP-based revocation. */
     origem: text('origem').notNull().default('senha'),
     criadoEm: moment('criado_em').notNull().defaultNow(),
     encerradaEm: moment('encerrada_em'),
@@ -343,19 +297,11 @@ export const session = pgTable(
 export const ORIGINS_OF_SESSION = ['senha', 'google', 'sso'] as const;
 
 /**
- * A conta da pessoa no provedor externo.
+ * External provider account.
  *
- * **A chave NUNCA é o e-mail.** É o par `(emissor, sujeito)` — no Google,
- * `https://accounts.google.com` e o `sub` do `id_token`. E-mail muda de dono
- * dentro de uma empresa: quem herda o endereço de quem saiu herdaria a conta
- * junto. O `sub` é estável e é do Google, não do endereço.
+ * The key is NEVER email: it is `(emissor, sujeito)`; for Google the issuer is `https://accounts.google.com` and the subject is the `id_token` `sub`. Email ownership can change, so matching by email could give a successor the former user's account. `emailNoProvedor` is for display and diagnostics only.
  *
- * `emailNoProvedor` fica só para exibição e diagnóstico; nunca para casar conta.
- *
- * Único e GLOBAL em `(emissor, sujeito)`: uma conta do Google pertence a um
- * usuário, e usuário pertence a um tenant. Deixar duas linhas para o mesmo par
- * seria a mesma pessoa entrando em dois clientes com o mesmo login — e a decisão
- * de qual vale ficaria com quem consultasse primeiro.
+ * The schema now enforces uniqueness PER TENANT on `(tenantId, emissor, sujeito)`, so the schema permits one provider account in several Pipe tenants. The login path currently looks up `(emissor, sujeito)` without a tenant filter and selects the first match; it cannot reliably use those multiple links. The original global-uniqueness claim is outdated.
  */
 export const identityExternal = pgTable(
   'identidade_externa',
@@ -373,10 +319,7 @@ export const identityExternal = pgTable(
   },
   (t) => [
     /**
-     * Única dentro do tenant, e não no sistema inteiro: a mesma conta do
-     * provedor administra várias contas do Pipe, e é isso que o seletor do
-     * canto superior esquerdo troca. Global, a segunda empresa da mesma pessoa
-     * esbarrava aqui (migração 0017).
+     * Unique within a tenant, not globally (migration 0017). The schema permits one provider account across Pipe tenants, but `entrarComIdentidade` currently selects the first `(emissor, sujeito)` match without tenant context, so account switching needs slice-time verification.
      */
     uniqueIndex('identidade_externa_tenant_emissor_sujeito_uk').on(
       t.tenantId,
@@ -388,15 +331,9 @@ export const identityExternal = pgTable(
 );
 
 /**
- * Domínio de e-mail que pertence a um tenant.
+ * Email domain owned by a tenant.
  *
- * É o que permite descobrir o cliente a partir do login, já que o tenant não vem
- * do subdomínio (`infraestrutura.md` §3). Só entra depois de VERIFICADO por
- * registro TXT no DNS: sem isso, quem criasse conta com `@banco.com.br` entraria
- * no tenant do banco.
- *
- * Domínio público — gmail, hotmail, outlook — nunca é cadastrável, e a lista
- * dessas exceções vive no código, não aqui.
+ * It enables tenant discovery during login because the tenant is not in the subdomain (`infraestrutura.md` section 3). It counts only after TXT DNS verification; otherwise a user with `@banco.com.br` could claim the bank's tenant. Public domains such as Gmail, Hotmail, and Outlook cannot be registered; the exclusion list lives in code.
  */
 export const domainTenant = pgTable(
   'dominio_tenant',
@@ -412,23 +349,13 @@ export const domainTenant = pgTable(
 );
 
 /**
- * A conexão de SSO do tenant — o espelho fino da configuração do IdP dele.
+ * Tenant SSO connection, a thin mirror of IdP configuration.
  *
- * **Uma por tenant**, e por isso o único em `tenant_id`: a empresa entra por um
- * diretório, não por três, e permitir vários transformaria a descoberta por
- * domínio numa escolha ambígua justo no momento em que ninguém está logado para
- * desempatar.
+ * **One per tenant**, enforced by uniqueness on `tenant_id`. Multiple directories would make domain discovery ambiguous before anyone has signed in to disambiguate.
  *
- * **Estado e política são dois campos, não um.** `estado` diz se a conexão
- * funciona (`rascunho` → `testada` → `ativa`); `politica` diz se a senha ainda
- * vale (`desligado` → `opcional` → `obrigatorio`). Todo incidente de "o cliente
- * inteiro ficou de fora" nasce de serem o mesmo botão — ver
- * `referencias-blip/pesquisa/sso-multi-tenant.md` §3 e §6.
+ * **State and policy are separate.** `estado` tracks connection readiness (`rascunho` -> `testada` -> `ativa`); `politica` tracks whether password entry remains allowed (`desligado` -> `opcional` -> `obrigatorio`). Combining them can lock out an entire tenant; see `referencias-blip/pesquisa/sso-multi-tenant.md` sections 3 and 6.
  *
- * **Segredo não mora aqui em claro.** O `clientSecret` vive dentro de `config`,
- * cifrado por `cifrarConfig` (`packages/db/src/segredo.ts`), que já trata
- * `clientSecret` como campo secreto justamente para isto. O que um `pg_dump`
- * entrega é envelope, não credencial.
+ * **The secret is not stored in plaintext here.** `clientSecret` is inside `config`, encrypted by `cifrarConfig` in `packages/db/src/segredo.ts`. A `pg_dump` contains an envelope rather than a credential.
  */
 export const TIPOS_CONEXAO_SSO = ['oidc'] as const;
 export const ESTADOS_CONEXAO_SSO = ['rascunho', 'testada', 'ativa'] as const;
@@ -441,7 +368,7 @@ export const conexaoSso = pgTable(
     id: id(),
     tenantId: refTenant(),
     tipo: text('tipo').notNull().default('oidc'),
-    /** Qual IdP. Muda a leitura dos claims — no Entra o sujeito é `{tid}:{oid}`. */
+    /** IdP kind changes claim parsing: in Entra, subject is `{tid}:{oid}`. */
     provedor: text('provedor').notNull().default('generico'),
     /** O emissor OIDC, de onde sai `.well-known/openid-configuration`. */
     emissor: text('emissor').notNull(),
@@ -450,7 +377,7 @@ export const conexaoSso = pgTable(
     config: jsonb('config').notNull().default(sql`'{}'::jsonb`),
     estado: text('estado').notNull().default('rascunho'),
     politica: text('politica').notNull().default('desligado'),
-    /** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */
+    /** When the test passed. It remains valid for 30 days; a test from 2024 proves nothing today. */
     testadaEm: moment('testada_em'),
     ativadaEm: moment('ativada_em'),
     ...carimbos(),
@@ -465,9 +392,7 @@ export const conexaoSso = pgTable(
 );
 
 /**
- * Chave de API e de MCP. O segredo nunca é guardado em claro: fica o `hash` e um
- * `prefixo` visível, que é o que a tela mostra para o cliente reconhecer a chave.
- * Escopo de escrita é separado de escopo de leitura (§4.6 da spec).
+ * API and MCP key. Never store the secret in plaintext: persist `hash` plus a visible `prefixo` for the customer to recognize the key. Separate write scopes from read scopes (spec section 4.6).
  */
 export const keyApi = pgTable(
   'chave_api',
@@ -479,11 +404,7 @@ export const keyApi = pgTable(
     hash: text('hash').notNull(),
     scopes: text('escopos').array().notNull().default(sql`'{}'::text[]`),
     /**
-     * A chave é da CONTA (`null`, o padrão) ou de UM fluxo — a tela de
-     * "Chaves de acesso" do fluxo (migração 0032). A FK para `fluxo` cruza
-     * módulos (`identidade` → `automacao`) e por isso não entra aqui: seria
-     * ciclo de import, o mesmo motivo de `0003_chaves_cruzadas.sql`. A
-     * constraint de verdade está na migração 0032, plain column aqui.
+     * The key belongs to the ACCOUNT (`null`, the default) or ONE flow, as on the flow's "Chaves de acesso" screen (migration 0032). A foreign key to `fluxo` would cross `identidade` and `automacao`, creating a circular import as with `0003_chaves_cruzadas.sql`; migration 0032 owns the actual constraint, leaving a plain column here.
      */
     flowId: uuid('fluxo_id'),
     expiraEm: moment('expira_em'),
@@ -524,17 +445,11 @@ export const logAuditoria = pgTable(
 
 
 /**
- * Convite para entrar num tenant.
+ * Invitation to join a tenant.
  *
- * É a **única** porta para quem não tem domínio verificado — e é de propósito. A
- * quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi
- * convidado, porque criar usuário do nada transforma "descobri um domínio" em
- * "entrei no cliente".
+ * An invitation is required to join an existing account without a linked identity; it prevents a verified domain alone from granting access. Google self-service can create a NEW account for an unclaimed domain or a personal email, so the original claim that invitation is the only path for those cases is outdated. See `packages/autenticacao/src/entrada.ts`.
  *
- * Como a sessão e a chave de API, **o banco guarda o hash, nunca o token**: quem
- * lê a tabela não consegue aceitar convite de ninguém. Prazo curto (7 dias) e uso
- * único, marcado por `aceito_em` — reaproveitar link é o defeito clássico, e é o
- * que a leitura `for update` na hora de aceitar fecha.
+ * As with sessions and API keys, the database stores only the hash, never the token. Invitations expire after seven days and are single-use via `aceito_em`; the acceptance path uses `for update` to prevent link reuse.
  */
 export const invitation = pgTable(
   'convite',
@@ -545,13 +460,13 @@ export const invitation = pgTable(
     papelId: uuid('papel_id')
       .notNull()
       .references(() => role.id, { onDelete: 'cascade' }),
-    /** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */
+    /** Always `conta`: an invitation grants only an account role, enforced by the composite FK. */
     escopo: text('escopo').notNull().default('conta'),
     tokenHash: text('token_hash').notNull(),
     expiraEm: moment('expira_em').notNull(),
     invitationCreatedBy: uuid('criado_por').references(() => user.id, { onDelete: 'set null' }),
     aceitoEm: moment('aceito_em'),
-    /** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */
+    /** The user created from this invitation is retained for audit; using an invitation does not delete it. */
     usuarioId: uuid('usuario_id').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },

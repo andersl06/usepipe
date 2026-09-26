@@ -1,12 +1,5 @@
 /**
- * As cinco métricas de tempo da §2 da spec de métricas.
- *
- * Todas devolvem `{ valor, populacao, excluidas, soma }`: o denominador viaja
- * junto do número, sempre.
- *
- * Regra comum a todas: intervalo negativo é dado inconsistente (evento fora de
- * ordem), a conversa sai do denominador e entra em `excluidas`. Preferimos
- * encolher a população a publicar tempo negativo ou zerado à força.
+ * Five time metrics from metrics spec §2 return `{ valor, populacao, excluidas, soma }`, always carrying the denominator. A negative interval signals inconsistent out-of-order events: exclude that conversation from the denominator and count it in `excluidas` rather than publishing a negative or forced-zero duration.
  */
 
 import { resultado, type ResultadoMetrica } from '../comum/tipos.js';
@@ -18,9 +11,9 @@ import {
   type Marcos,
 } from './eventos.js';
 
-/** Tempo de resposta expõe também quantas conversas sustentaram os intervalos. */
+/** Response-time result also reports how many conversations supplied the intervals. */
 export interface ResponseTimeResult extends ResultadoMetrica {
-  /** Conversas com pelo menos uma troca completa — a população da spec §2. */
+  /** Conversations with at least one complete exchange, the population in metrics spec §2. */
   conversationsConsideradas: number;
 }
 
@@ -46,8 +39,7 @@ function acumular(
 }
 
 /**
- * Tempo na fila = `atribuida_em − criada_em`.
- * População: conversas que chegaram a ser atribuídas.
+ * Queue time is `atribuida_em − criada_em`; population includes conversations that were assigned.
  */
 export function timeInQueue(conversations: readonly ConversationEvents[]): ResultadoMetrica {
   return acumular(conversations, (m) =>
@@ -56,12 +48,7 @@ export function timeInQueue(conversations: readonly ConversationEvents[]): Resul
 }
 
 /**
- * Tempo até a 1ª resposta = `primeira_resposta_em − atribuida_em`.
- * População: conversas que tiveram resposta do atendente.
- *
- * Conversa respondida sem nenhuma atribuição registrada não tem como entrar
- * nesta fórmula e conta como excluída — o número fica ao lado da média,
- * conforme a divergência declarada em §2.
+ * Time to first response is `primeira_resposta_em − atribuida_em`; population includes conversations answered by an agent. A response without a recorded assignment cannot enter this formula and counts as excluded, shown beside the mean per the declared §2 divergence.
  */
 export function timeAteFirstResposta(conversations: readonly ConversationEvents[]): ResultadoMetrica {
   return acumular(conversations, (m) =>
@@ -70,12 +57,7 @@ export function timeAteFirstResposta(conversations: readonly ConversationEvents[
 }
 
 /**
- * Tempo total de espera do cliente.
- * Com resposta: `primeira_resposta_em − criada_em`.
- * Sem resposta: `encerrada_em − criada_em`.
- * População: todas as conversas encerradas no período.
- *
- * Conversa ainda aberta e sem resposta não tem fim de espera e fica de fora.
+ * Total customer wait: with an answer, `primeira_resposta_em − criada_em`; without one, `encerrada_em − criada_em`. Population is all conversations closed in the period. An open unanswered conversation has no wait end and is excluded.
  */
 export function timeTotalOfEsperaOfCliente(
   conversations: readonly ConversationEvents[],
@@ -89,14 +71,7 @@ export function timeTotalOfEsperaOfCliente(
 }
 
 /**
- * Tempo de resposta = média dos intervalos "mensagem do cliente → próxima
- * mensagem do atendente".
- *
- * Ambiguidade resolvida: a spec chama de população "conversas com pelo menos uma
- * troca completa", mas a fórmula é média **de intervalos**. Para não quebrar a
- * regra de §5 (soma ÷ contagem, nunca média de médias), o denominador de `valor`
- * é a quantidade de intervalos, e a contagem de conversas viaja em
- * `conversasConsideradas`. `excluidas` conta conversas sem troca completa.
+ * Response time averages intervals from customer message to next agent message. The spec calls the population conversations with at least one complete exchange, but the formula averages INTERVALS. To preserve §5 sum/count rather than a mean of means, `valor` divides by interval count; `conversasConsideradas` separately reports conversation count, while `excluidas` counts conversations without a complete exchange.
  */
 export function respostaTime(conversations: readonly ConversationEvents[]): ResponseTimeResult {
   let soma = 0;
@@ -121,12 +96,7 @@ export function respostaTime(conversations: readonly ConversationEvents[]): Resp
 }
 
 /**
- * Tempo de atendimento = `encerrada_em − primeira_resposta_em`.
- * População: conversas que tiveram 1ª resposta (e já encerraram).
- *
- * É a métrica que a Blip embeleza descartando as conversas nunca respondidas.
- * Aqui a fórmula é a mesma para ser comparável, mas `excluidas` sai junto e é
- * obrigatória na tela.
+ * Handling time is `encerrada_em − primeira_resposta_em`, for closed conversations with a first agent response. Blip makes the figure look better by omitting unanswered conversations. Keep the same formula for comparability, but report `excluidas` beside it in the UI.
  */
 export function attendanceTime(conversations: readonly ConversationEvents[]): ResultadoMetrica {
   return acumular(conversations, (m) =>

@@ -1,20 +1,5 @@
 /**
- * Régua determinística de esforço de atendimento.
- *
- * Origem: Anexo B do `Relatorio_Capacidade_Capital_Escola_90dias.docx`, já
- * validado em produção e coletado por `~/digisac-esforco`. Repetida em
- * `2026-09-05-pipe-design.md` §4.4. Não é classificação por IA: é conta.
- *
- * B.1 — esforço por conversa (em segundos):
- *  - caracteres escritos pelo atendente ÷ 200 por minuto (digitação)
- *  - caracteres recebidos do cliente ÷ 1.000 por minuto (leitura)
- *  - duração dos áudios recebidos (escuta em 1×)
- *  - duração dos áudios gravados (fala)
- *  - áudio sem metadado de duração: estimado pelo tamanho, Opus ~16 kbps → 2 KB/s
- *
- * Ressalva do relatório original, que o produto precisa expor: a régua assume
- * texto digitado à mão. Por isso o conteúdo vindo de resposta pronta sai do
- * esforço e vai para coluna separada.
+ * Deterministic ticket-effort measure from Annex B of `Relatorio_Capacidade_Capital_Escola_90dias.docx`, validated in production and collected by `~/digisac-esforco`, repeated in `2026-09-05-pipe-design.md` §4.4. This is arithmetic, not AI classification. Per-conversation seconds: agent-written characters ÷ 200 per minute; customer-read characters ÷ 1,000 per minute; received audio duration at 1×; recorded audio duration; and, without duration metadata, estimated Opus size at about 16 kbps or 2 KB/s. The original report assumes manually typed text, so canned-response content is excluded from effort and reported separately.
  */
 
 import { MINUTO } from '../comum/time.js';
@@ -26,8 +11,7 @@ export const CARACTERES_BY_MINUTO_ESCRITA = 200;
 export const CARACTERES_BY_MINUTO_READ = 1000;
 
 /**
- * Bytes por segundo de áudio Opus a ~16 kbps.
- * 16.000 bits/s ÷ 8 = 2.000 bytes/s. O "2 KB/s" do relatório é decimal, não 2 KiB.
+ * Opus audio at about 16 kbps means 16,000 bits/s ÷ 8 = 2,000 bytes/s. The report's "2 KB/s" is decimal, not 2 KiB.
  */
 export const BYTES_BY_SEGUNDO_AUDIO = 2000;
 
@@ -43,9 +27,9 @@ export type TipoMessage =
   | 'template';
 
 export interface AttachmentEffort {
-  /** Duração em segundos vinda do metadado do provedor. `null` quando não veio. */
+  /** Duration in seconds from provider metadata; null when absent. */
   durationSeg?: number | null;
-  /** Tamanho do arquivo, usado para estimar duração quando falta metadado. */
+  /** File size used to estimate duration when metadata is absent. */
   bytes?: number | null;
 }
 
@@ -57,9 +41,9 @@ export interface MessageEffort {
   tipo: TipoMessage;
   /** Texto efetivamente trafegado. */
   conteudo?: string | null;
-  /** Atendente responsável pela mensagem (mensagem de bot não tem). */
+  /** Agent responsible for the message; bot messages have none. */
   userId?: string | null;
-  /** Preenchido quando o corpo veio de resposta pronta — não foi digitado à mão. */
+  /** Set when content came from a canned response rather than manual typing. */
   respostaProntaId?: string | null;
   attachment?: AttachmentEffort | null;
 }
@@ -68,35 +52,34 @@ export interface MessageEffort {
 export interface EffortConversation {
   conversationId: string;
   agentId: string | null;
-  /** Caracteres digitados à mão pelo atendente (já sem resposta pronta). */
+  /** Characters manually typed by the agent, excluding canned responses. */
   charsEscritos: number;
   /** Caracteres do cliente lidos pelo atendente. */
   charsLidos: number;
   audioOuvidoSeg: number;
   audioGravadoSeg: number;
-  /** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */
+  /** Canned-response characters, reported separately and excluded from effort. */
   charsDeRespostaPronta: number;
-  /** Esforço total em segundos, sem o que veio de resposta pronta. */
+  /** Total effort in seconds, excluding canned responses. */
   effortSeg: number;
-  /** O que a resposta pronta acrescentaria se fosse contada como digitação. */
+  /** Effort that canned-response text would add if counted as typing. */
   effortCannedResponseSeg: number;
-  /** Áudios que entraram com duração zero por falta de metadado e de tamanho. */
+  /** Audio files recorded with zero duration because both duration metadata and size were missing. */
   audiosSemMetadado: number;
 }
 
-/** Segundos de digitação para uma quantidade de caracteres. */
+
 export function segundosDeEscrita(caracteres: number): number {
   return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_ESCRITA;
 }
 
-/** Segundos de leitura para uma quantidade de caracteres. */
+
 export function readSegundos(caracteres: number): number {
   return (caracteres * MINUTO) / CARACTERES_BY_MINUTO_READ;
 }
 
 /**
- * Duração de um áudio: metadado quando existe, estimativa por tamanho quando não.
- * Sem nenhum dos dois, devolve `null` — a régua não inventa duração.
+ * Audio duration comes from metadata when available, otherwise estimated from size. Without either, return null rather than inventing a duration.
  */
 export function audioDuration(attachment: AttachmentEffort | null | undefined): number | null {
   if (!attachment) return null;
@@ -111,14 +94,7 @@ export function contarCaracteres(texto: string | null | undefined): number {
 }
 
 /**
- * Aplica a régua sobre as mensagens de uma conversa.
- *
- * Decisões onde a spec não é literal:
- * - nota interna (`direcao: 'interna'`) escrita pelo atendente **conta** como
- *   digitação: o atendente digitou;
- * - mensagem de bot ou de sistema não gera esforço nenhum — nem de escrita, nem
- *   de leitura, porque ninguém a digitou nem precisou lê-la para atender;
- * - o atendente não "ouve" o próprio áudio: áudio de saída é fala, não escuta.
+ * Apply the measure to a conversation. Departures from the literal spec: agent-written internal notes (`direcao: 'interna'`) count as typing; bot and system messages produce no typing or reading effort; an agent's own outbound audio is speaking rather than listening.
  */
 export function calcularEffortConversation(
   messages: readonly MessageEffort[],
@@ -144,8 +120,8 @@ export function calcularEffortConversation(
         else audioGravadoSeg += duration;
       } else {
         const caracteres = contarCaracteres(message.conteudo);
-        // Resposta pronta e template não foram digitados à mão: saem do esforço
-        // e vão para a coluna separada, como manda a ressalva do relatório.
+        // Canned responses and templates were not manually typed, so exclude them from effort
+        // and record them separately as required by the original report.
         const veioPronto = !!message.respostaProntaId || message.tipo === 'template';
         if (veioPronto) charsDeRespostaPronta += caracteres;
         else charsEscritos += caracteres;
@@ -163,7 +139,6 @@ export function calcularEffortConversation(
       }
       continue;
     }
-    // bot e sistema: fora da régua.
   }
 
   const effortSeg =
@@ -186,7 +161,7 @@ export function calcularEffortConversation(
   };
 }
 
-/** Agrupa mensagens por conversa e aplica a régua em cada uma. */
+
 export function calcularEffortByConversation(
   messages: readonly MessageEffort[],
 ): EffortConversation[] {

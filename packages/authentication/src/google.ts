@@ -2,28 +2,16 @@ import { createHash, randomBytes } from 'node:crypto';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 
 /**
- * Login com Google, pelo OpenID Connect.
+ * Google login through OpenID Connect using authorization code with PKCE. Three measures close known attacks:
  *
- * O fluxo é o de código de autorização com PKCE. Três coisas aqui não são
- * escolha de estilo, e cada uma fecha um ataque conhecido:
+ * 1. Verify `id_token` against Google JWKS with issuer and audience checks. An unsigned or unchecked token lets anyone assemble a JSON identity.
+ * 2. Generate and check per-attempt `state` and `nonce`. `state` prevents login CSRF, where a victim enters the attacker's account; `nonce` prevents replay of a captured `id_token`.
+ * 3. Use PKCE even with a client secret, protecting an authorization code leaked in transit.
  *
- * 1. **O `id_token` é verificado contra o JWKS do Google**, com emissor e
- *    audiência conferidos. Aceitar o token sem verificar assinatura é aceitar
- *    qualquer um que saiba montar um JSON.
- * 2. **`state` e `nonce` são gerados por tentativa e conferidos na volta.** O
- *    `state` fecha CSRF de login (a vítima entrando na conta do atacante); o
- *    `nonce` fecha replay de um `id_token` capturado.
- * 3. **PKCE**, mesmo com segredo de cliente. Custa três linhas e protege se o
- *    código de autorização vazar no caminho.
- *
- * E a que mais derruba implementação: **a chave da conta é `(emissor, sujeito)`,
- * nunca o e-mail.** E-mail muda de dono dentro de uma empresa, e quem herda o
- * endereço de quem saiu herdaria a conta. Além disso só aceitamos e-mail com
- * `email_verified`: sem isso, quem cria conta no Google com o endereço de outra
- * pessoa entra como ela.
+ * The account key is `(emissor, sujeito)`, NEVER email. Email ownership can change inside a company; a successor must not inherit the previous user's account. Require `email_verified` too, or a person who creates a Google account with someone else's address could enter as them.
  */
 
-/** Descoberta do Google. Constante, e por isso não vale buscar o documento. */
+
 export const GOOGLE = {
   emissor: 'https://accounts.google.com',
   autorizacao: 'https://accounts.google.com/o/oauth2/v2/auth',
@@ -61,7 +49,7 @@ export function configDoAmbiente(env: NodeJS.ProcessEnv = process.env): ConfigDo
   return { clienteId, customerSecret, urlOfCallback };
 }
 
-/** O que precisa sobreviver entre a ida e a volta, guardado em cookie assinado. */
+/** Values that must survive the outbound and return legs, stored in a signed cookie. */
 export interface DesafioDeLogin {
   state: string;
   nonce: string;
@@ -75,8 +63,8 @@ export function createChallenge(destination = '/'): DesafioDeLogin {
     state: randomBytes(24).toString('base64url'),
     nonce: randomBytes(24).toString('base64url'),
     verificadorPkce: randomBytes(32).toString('base64url'),
-    // Só caminho interno: destino absoluto vira redirecionamento aberto, que é
-    // como se monta phishing usando o nosso domínio como trampolim.
+    // Allow only an internal path. An absolute destination would create an open redirect,
+    // letting attackers use our domain as a phishing trampoline.
     destination: destination.startsWith('/') && !destination.startsWith('//') ? destination : '/',
   };
 }
@@ -92,20 +80,16 @@ export function urlOfAuthorization(config: ConfigDoGoogle, desafio: DesafioDeLog
     nonce: desafio.nonce,
     code_challenge: desafioPkce,
     code_challenge_method: 'S256',
-    // Sem `prompt=select_account` quem tem várias contas entra sempre na última.
+    // Without `prompt=select_account`, users with multiple accounts always enter the last one.
     prompt: 'select_account',
   });
   return `${GOOGLE.autorizacao}?${parametros.toString()}`;
 }
 
 /**
- * Quem o provedor disse que é — Google ou o IdP do cliente, o formato é o mesmo.
+ * The identity asserted by the provider, Google or the tenant IdP, in the same shape.
  *
- * `sujeito` é o identificador estável da conta NO PROVEDOR, e junto com `emissor`
- * forma a chave real: `sub` no Google e no OIDC comum, `{tid}:{oid}` no Entra
- * (ver `oidc.ts`). `emailVerificado` é a resposta do provedor à pergunta "o dono
- * do domínio confirmou este endereço?", e é o que autoriza — ou não — casar esta
- * identidade com um usuário que já existe.
+ * `sujeito` is the stable identifier IN THE PROVIDER and pairs with `emissor` as the actual account key: `sub` for Google and standard OIDC, `{tid}:{oid}` for Entra (see `oidc.ts`). `emailVerificado` states whether the provider confirmed ownership of the email domain; it controls whether this identity may be matched to an existing user.
  */
 export interface PessoaExterna {
   emissor: string;
@@ -116,17 +100,15 @@ export interface PessoaExterna {
   avatarUrl: string | undefined;
 }
 
-/** O Google é um caso de `PessoaExterna`, não um formato à parte. */
+
 export type PessoaDoGoogle = PessoaExterna;
 
 const jwks = createRemoteJWKSet(new URL(GOOGLE.jwks));
 
 /**
- * Troca o código pelo `id_token` e o verifica.
+ * Exchange the code for an `id_token` and verify it.
  *
- * `buscar` é injetável para o teste não sair para a rede — e para que a troca de
- * código, que é a parte que fala com o Google, possa ser exercitada sem segredo
- * de verdade.
+ * `buscar` is injectable so tests can exercise the Google-facing exchange without network access or a real secret.
  */
 export async function exchangeCode(
   config: ConfigDoGoogle,
@@ -140,8 +122,8 @@ export async function exchangeCode(
   }
   if (!parametros.code) throw new LoginError('sem_codigo', 'A volta do Google veio sem código.');
 
-  // Comparação simples serve: `state` é nosso, gerado agora, e não é segredo de
-  // longa duração — o que importa é que o valor volte igual ao que mandamos.
+  // A simple comparison is sufficient: `state` is ours, generated for this attempt, and not a
+  // long-lived secret. The returned value only needs to equal the one we sent.
   if (!parametros.state || parametros.state !== desafio.state) {
     throw new LoginError('state_invalido', 'O `state` não confere: tentativa de login forjada.');
   }
@@ -189,9 +171,9 @@ export async function verificarIdToken(
     throw new LoginError('token_incompleto', 'O `id_token` veio sem `sub` ou sem `email`.');
   }
 
-  // Sem isto, quem cria conta no Google com o endereço de outra pessoa entra
-  // como ela. O Google marca `email_verified` para conta de Workspace e para
-  // Gmail; ausência é motivo de recusa, não de tolerância.
+  // Without this, someone who creates a Google account with another person's address could sign in
+  // as that person. Google sets `email_verified` for Workspace and Gmail accounts;
+  // its absence requires rejection, not tolerance.
   if (payload['email_verified'] !== true) {
     throw new LoginError('email_nao_verificado', 'O Google não confirmou este e-mail.');
   }
@@ -207,17 +189,15 @@ export async function verificarIdToken(
   };
 }
 
-/** O domínio do e-mail, para descobrir a que tenant a pessoa pertence. */
+
 export function domainOfEmail(email: string): string {
   return email.slice(email.lastIndexOf('@') + 1).toLowerCase();
 }
 
 /**
- * Domínios de e-mail pessoal, que nunca identificam uma empresa.
+ * Personal email domains never identify a company.
  *
- * Quem entra com um destes não é descoberto por domínio: entra por convite ou
- * pelo link direto do cliente. Sem esta lista, o primeiro a cadastrar
- * `gmail.com` levaria todo mundo para o tenant dele.
+ * They cannot select an existing tenant by domain: entry requires an invitation, or the Google self-service path creates a new account when `criarConta` is provided. Without this list, the first tenant to register `gmail.com` could claim everyone using Gmail.
  */
 export const DOMINIOS_PUBLICOS = new Set([
   'gmail.com',

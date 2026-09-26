@@ -1,24 +1,15 @@
 /**
- * Consumo de IA — tokens e custo de cada chamada.
- *
- * Toda função deste pacote devolve um `Consumo` junto com o resultado. Quem chama
- * grava em `consumo_ia` (§6 do modelo de dados). Sem isto o produto vende IA no
- * prejuízo: é painel para o cliente e base de cobrança.
- *
- * Modelo desconhecido **estoura** em vez de devolver custo zero. Custo zero
- * silencioso é o defeito clássico do case-sync: sucesso sem fazer o trabalho.
+ * AI usage tracks tokens and cost per call. Each package function returns `Consumo` alongside its result; callers store it in `consumo_ia` (§6 of the data model) for the customer dashboard and billing, avoiding unbilled AI usage. Unknown models fail instead of silently returning zero cost, the same false-success failure mode seen in case-sync.
  */
 
-/** Preço de um modelo, em dólares por milhão de tokens. */
+/** Model price in dollars per million tokens. */
 export interface PrecoTemplate {
   inboundUsdByMilhao: number;
   outputUsdByMilhao: number;
 }
 
 /**
- * Tabela de preços da API da Anthropic (primeira parte, valores de 2026-06).
- * Fica aqui e não em variável de ambiente porque preço errado é erro de cobrança,
- * e erro de cobrança tem que aparecer em teste, não em produção.
+ * Anthropic API prices for the first set of models, as of 2026-06. Prices live here instead of an environment variable so billing errors are caught by tests rather than in production.
  */
 export const PRECOS: Readonly<Record<string, PrecoTemplate>> = {
   'claude-sonnet-5': { inboundUsdByMilhao: 2, outputUsdByMilhao: 10 },
@@ -29,7 +20,7 @@ export const PRECOS: Readonly<Record<string, PrecoTemplate>> = {
   'claude-fable-5-1': { inboundUsdByMilhao: 10, outputUsdByMilhao: 50 },
 };
 
-/** Modelo padrão do pacote. Configurável por `PIPE_IA_MODELO`. */
+/** Package default model, configurable through `PIPE_IA_MODELO`. */
 export const TEMPLATE_DEFAULT = 'claude-sonnet-5';
 
 export class TemplateWithoutPrecoError extends Error {
@@ -43,9 +34,7 @@ export class TemplateWithoutPrecoError extends Error {
 }
 
 /**
- * Espelha as colunas de `consumo_ia`. `custoCentavos` é **fracionário de
- * propósito**: uma chamada custa muito menos que um centavo. Acumule o período
- * inteiro e arredonde só na hora de gravar, com `arredondarCentavos`.
+ * Mirrors `consumo_ia` columns. `custoCentavos` is intentionally fractional because a call can cost far less than one cent; accumulate the whole period and round only when writing with `arredondarCentavos`.
  */
 export interface Consumo {
   template: string;
@@ -54,7 +43,7 @@ export interface Consumo {
   custoCentavos: number;
 }
 
-/** Custo em centavos de dólar, sem arredondar. */
+/** Cost in US cents, without rounding. */
 export function calcularCusto(template: string, tokensInbound: number, tokensSaida: number): number {
   const preco = PRECOS[template];
   if (!preco) throw new TemplateWithoutPrecoError(template);
@@ -64,7 +53,7 @@ export function calcularCusto(template: string, tokensInbound: number, tokensSai
   return usd * 100;
 }
 
-/** Monta o `Consumo` de uma chamada a partir dos tokens devolvidos pela API. */
+
 export function consumoDe(template: string, tokensInbound: number, tokensSaida: number): Consumo {
   return {
     template,
@@ -75,8 +64,7 @@ export function consumoDe(template: string, tokensInbound: number, tokensSaida: 
 }
 
 /**
- * Soma consumos do mesmo modelo. Modelos diferentes viram linhas diferentes em
- * `consumo_ia` — por isso a soma recusa misturar modelos.
+ * Adds usage for the same model. Different models require separate `consumo_ia` rows, so this rejects mixing them.
  */
 export function somarConsumo(consumos: readonly Consumo[]): Consumo[] {
   const byTemplate = new Map<string, Consumo>();
@@ -93,7 +81,7 @@ export function somarConsumo(consumos: readonly Consumo[]): Consumo[] {
   return [...byTemplate.values()];
 }
 
-/** Arredonda para o `integer` de `consumo_ia.custo_centavos`, nunca para baixo de zero. */
+/** Rounds for `consumo_ia.custo_centavos` integer storage, never below zero. */
 export function arredondarCentavos(custoCentavos: number): number {
   return Math.max(0, Math.round(custoCentavos));
 }

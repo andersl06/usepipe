@@ -2,12 +2,7 @@ import { sql } from 'drizzle-orm';
 import type { DatabasePipe } from './cliente.js';
 
 /**
- * `mensagem` e `evento_atendimento` crescem sem limite e são sempre consultadas por
- * período. As duas são particionadas por mês; esta é a rotina que cria a partição do
- * mês seguinte antes que ela seja necessária — partição que falta vira erro de insert
- * na hora errada, que é de madrugada.
- *
- * Roda com o papel dono das tabelas (o mesmo das migrations), porque cria tabela.
+ * `mensagem` and `evento_atendimento` grow without bound and are queried by period, so both are partitioned monthly. This routine creates the next partition before it is needed; missing partitions cause inserts to fail at the worst time. It runs as table owner, like migrations, because it creates tables.
  */
 export const TABELAS_PARTICIONADAS = ['mensagem', 'evento_atendimento'] as const;
 
@@ -28,8 +23,7 @@ export function namePartition(tabela: TabelaParticionada, mes: Date): string {
 }
 
 /**
- * Garante as partições do mês corrente e dos `mesesAFrente` seguintes. Idempotente:
- * chamar duas vezes no mesmo dia não faz nada na segunda.
+ * Ensure partitions for the current month and the next `mesesAFrente` months. Idempotent: a second call on the same day changes nothing.
  */
 export async function garantirPartitions(
   db: DatabasePipe,

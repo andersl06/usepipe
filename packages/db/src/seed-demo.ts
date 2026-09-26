@@ -27,29 +27,23 @@ import { role, tenant, user, userRole } from './schema/identity.js';
 import { garantirRoleOfAccount } from './seed.js';
 
 /**
- * Semente de **demonstração** do Pipe Desk. Separada da semente base de propósito:
- * `semente.ts` é o que todo tenant novo recebe (papéis, permissões, filas); isto aqui
- * é gente inventada com conversa inventada, e nenhum tenant de verdade deve receber.
+ * Pipe Desk **demo** seed, separate from base `semente.ts`. The base seed gives every new tenant roles, permissions, and sample queues; this file adds fictional users and conversations only for the demo tenant.
  *
- * Idempotente pela raça: apaga o que ela mesma criou no tenant de demonstração e
- * recria do zero. Rodar duas vezes dá o mesmo resultado, e o segundo `pnpm seed:demo`
- * é a forma de voltar a demo ao estado inicial depois de mexer na tela.
+ * It deletes and recreates records matching its known email and name lists, so rerunning `pnpm seed:demo` resets the demo. The cleanup queries do not include `tenantId`, so matching data in another tenant could also be affected; confirm this at slice time.
  *
- * Todas as mensagens ficam dentro do mês corrente porque `mensagem` é particionada
- * por mês e só existem partições a partir do mês da migration.
+ * Messages stay in the current month because `mensagem` is monthly partitioned and migrations create partitions from their migration month.
  */
 
 const SLUG_DEMO = 'demo';
 
-/** O atendente que a tela assume enquanto não existe login (fase seguinte). */
+
 export const EMAIL_AGENT_DEMO = 'ana.ribeiro@demo.pipe.app';
 
 const MIN = 60_000;
 const HORA = 60 * MIN;
 
 /**
- * O que esta semente considera "dela". É por estas listas que a limpeza acontece — e é
- * por isso que acrescentar gente nova aqui exige acrescentar o e-mail na lista também.
+ * Lists of records this seed treats as its own. Cleanup uses them, so adding a person here also requires adding that email to the list.
  */
 const EMAILS_CONTACT = [
   'marcelo.tavares@exemplo.com.br',
@@ -108,11 +102,10 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   const agora = new Date();
   const atras = (ms: number) => new Date(agora.getTime() - ms);
 
-  // --- limpeza escopada ao que esta semente cria, na ordem das chaves estrangeiras ---
   //
-  // Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é
-  // compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant
-  // inteiro apaga o trabalho de quem está do lado.
+  // Cleanup matches known names and email addresses rather than deleting the whole tenant. These queries do not filter by `tenantId`; matching records in a shared development database can therefore be removed across tenants.
+  // The development database is shared with Pipe Management, so deleting the entire demo tenant
+  // would erase work done in the other application.
   const contactsOld = await db
     .select({ id: contact.id })
     .from(contact)
@@ -154,9 +147,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
 
   // --- gente ---
   //
-  // Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o
-  // `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento
-  // compartilhado isso é apagar o trabalho alheio.
+  // Reuse an existing user by email rather than recreating one: deleting an agent would clear
+  // `atendente_id` from every existing conversation assigned to that agent, and in a shared
+  // development database that would erase someone else's work.
   const garantirUser = async (nome: string, email: string): Promise<string> => {
     const [existente] = await db
       .select({ id: user.id })
@@ -173,9 +166,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   const brunoId = await garantirUser('Bruno Faria', 'bruno.faria@demo.pipe.app');
   const carlaId = await garantirUser('Carla Nunes', 'carla.nunes@demo.pipe.app');
 
-  // Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`)
-  // e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha
-  // qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).
+  // Assign an ATTENDANCE role to all three, which Desk checks in `exigirPermissao`,
+  // then an ACCOUNT role listed by the Members screen. Existing roles
+  // stay unchanged (`on conflict` / `garantirPapelDeConta`).
   const [roleAgent] = await db
     .select({ id: role.id })
     .from(role)
@@ -196,7 +189,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   }
   await garantirRoleOfAccount(db, tenantId);
 
-  // O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.
+  // New agents start Invisible so no one receives conversations before declaring readiness.
   await db
     .insert(statusAgent)
     .values({ usuarioId: anaId, tenantId, estado: 'invisivel' })
@@ -269,7 +262,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
   ]);
 
-  // --- templates aprovados pela Meta, o que sobra quando a janela fecha ---
+  // Approved Meta templates: what remains available after the service window closes.
   await db.insert(templateMessage).values([
     {
       tenantId,
@@ -302,7 +295,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
   ]);
 
-  // --- respostas prontas: as da empresa e as da própria Ana ---
+  // Canned replies from the company and Ana's personal collection.
   const respostas = await db
     .insert(respostaPronta)
     .values([
@@ -379,7 +372,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     .returning({ id: respostaPronta.id, atalho: respostaPronta.atalho });
   const responseBy = (atalho: string) => respostas.find((r) => r.atalho === atalho)?.id ?? null;
 
-  // --- etiquetas: as de trabalho e as de encerramento (obrigatórias para fechar) ---
+  // Work tags and closing tags required to finish a ticket.
   const etiquetas = await db
     .insert(etiqueta)
     .values([
@@ -470,7 +463,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     queueId: string;
     state: 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
     priority: 'baixa' | 'media' | 'alta';
-    /** Quando o contato falou pela última vez. Define a janela de 24h. */
+    /** When the contact last spoke; determines the 24-hour service window. */
     lastOfContactAtras: number | null;
     lastMessageAtras: number;
     lastMessageOf: 'contato' | 'atendente';
@@ -512,7 +505,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: financialId,
       state: 'atribuida',
       priority: 'media',
-      // E-mail não tem janela de 24h: a regra é do canal.
+      // Email has no 24-hour window; that rule is channel-specific.
       lastOfContactAtras: null,
       lastMessageAtras: 40 * MIN,
       lastMessageOf: 'contato',
@@ -537,7 +530,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       queueId: suporteId,
       state: 'em_espera',
       priority: 'media',
-      // Janela já fechada: passou de 24h desde a última mensagem dela.
+      // The window has closed: more than 24 hours since her last message.
       lastOfContactAtras: 30 * HORA,
       lastMessageAtras: 29 * HORA,
       lastMessageOf: 'atendente',
@@ -556,7 +549,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       lastMessageOf: 'atendente',
       criadaAtras: 19 * HORA,
     },
-    // Conversa antiga do Marcelo, para o histórico do painel do contato.
+    // Marcelo's older conversation for the contact-panel history.
     {
       id: randomUUID(),
       contactId: marcelo.id,
@@ -621,7 +614,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   };
 
   const falas: Fala[] = [
-    // Marcelo — comercial, negociando desconto; o áudio falhou.
+    // Marcelo: sales conversation negotiating a discount; the audio failed.
     {
       conversationId: convMarcelo,
       de: 'contato',
@@ -709,7 +702,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       texto: 'vim pelo anúncio, queria falar com alguém sobre preço',
       atras: 12 * MIN,
     },
-    // Cássia — janela fechada.
+    // Cássia: the service window has closed.
     {
       conversationId: convCassia,
       de: 'contato',
@@ -779,7 +772,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     })),
   );
 
-  // `autor_id` do contato não referencia usuário; deixa nulo em vez de mentir.
+  // A contact's `autor_id` does not reference a user; leave it null rather than assigning a false user.
   await db.insert(notaInterna).values([
     {
       tenantId,
@@ -798,7 +791,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     { tenantId, conversaId: convPaulo, etiquetaId: labelBy('proposta-enviada') },
   ]);
 
-  // Resumo já gravado. Nesta etapa a tela lê o que está no banco; não chama IA.
+  // The summary is already stored. At this stage the screen reads the database without calling AI.
   await db.insert(classificationConversation).values([
     {
       tenantId,

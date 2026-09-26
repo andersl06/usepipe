@@ -17,9 +17,7 @@ import { refTenant, user } from './identity.js';
 import { contact, conversation, queue } from './conversations.js';
 
 /**
- * Módulo 2 — CRM. As duas decisões que sustentam o módulo: pergunta de formulário é
- * linha e não coluna (o Lead do Salesforce de hoje tem 353 campos, 304 customizados),
- * e o score se explica — cada cálculo é uma linha nova, não uma sobrescrita.
+ * Module 2, CRM, rests on two decisions: form questions are rows rather than columns (the referenced Salesforce Lead had 353 fields, 304 custom), and scoring is explainable, with each calculation stored as a new row rather than overwriting the previous score.
  */
 
 export const account = pgTable(
@@ -28,7 +26,7 @@ export const account = pgTable(
     id: id(),
     tenantId: refTenant(),
     name: text('nome').notNull(),
-    /** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */
+    /** Store CPF/CNPJ as `text`: alphanumeric CNPJ from 2026 breaks numeric columns and fixed masks. */
     document: text('documento'),
     domain: text('dominio'),
     atributos: jsonb('atributos')
@@ -71,12 +69,12 @@ export const lead = pgTable(
     fase: text('fase'),
     faseDesde: moment('fase_desde'),
     proprietarioId: uuid('proprietario_id').references(() => user.id, { onDelete: 'set null' }),
-    /** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */
+    /** Denormalized from `score_lead` because these two fields are filtered constantly. */
     scoreAtual: integer('score_atual'),
     faixaAtual: text('faixa_atual'),
     desqualificadoEm: moment('desqualificado_em'),
     reasonDisqualificationId: uuid('motivo_desqualificacao_id'),
-    /** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */
+    /** Tenant-specific custom fields live here with a GIN index, never runtime `alter table`. */
     customizados: jsonb('customizados')
       .notNull()
       .default(sql`'{}'::jsonb`),
@@ -154,8 +152,7 @@ export const formularioPergunta = pgTable(
 );
 
 /**
- * A resposta é linha, com a versão do formulário junto: mudar o questionário não quebra
- * o histórico, e o questionário de março continua legível depois do de setembro.
+ * Store each form response as a row with its form version. Changing a questionnaire then preserves readable history, including a March response after a September revision.
  */
 export const respostaFormulario = pgTable(
   'resposta_formulario',
@@ -202,9 +199,7 @@ export const regraScore = pgTable(
 );
 
 /**
- * Cada cálculo é uma linha nova. `explicacao` guarda o array de {regra, versão, pontos}
- * que produziu o número: é o que responde *por que* o lead tirou 74 e o que permite
- * recalcular a base inteira quando a regra muda, sem perder o histórico.
+ * Each calculation creates a new row. `explicacao` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.
  */
 export const scoreLead = pgTable(
   'score_lead',
@@ -227,7 +222,7 @@ export const scoreLead = pgTable(
 
 export const ESTRATEGIAS_PROPRIETARIO = ['rodizio', 'menor_carga', 'fixo', 'nenhuma'] as const;
 
-/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */
+/** The score band is the scoring engine's output and determines queue and owner. */
 export const faixaScore = pgTable(
   'faixa_score',
   {
@@ -328,7 +323,7 @@ export const contactImport = pgTable(
     total: integer('total').notNull().default(0),
     aceitos: integer('aceitos').notNull().default(0),
     rejeitados: integer('rejeitados').notNull().default(0),
-    /** Chave no storage do relatório de linhas rejeitadas. */
+    /** Storage key for the rejected-row report. */
     keyReport: text('chave_relatorio'),
     ...carimbos(),
   },

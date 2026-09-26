@@ -1,17 +1,11 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs,
- * ValueSource.cs, ConditionsExtensions.cs e StringExtensions.cs
- * — modificado: C# → TypeScript; os enums viram as strings do JSON publicado da Blip
- * (camelCase, como o Newtonsoft grava, lidas sem diferenciar maiúscula); mensagens de
- * erro em português; `decimal.TryParse` virou `paraDecimal`; a regex não tem o limite
- * de 2 minutos do original (JS não tem timeout de regex).
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs, ValueSource.cs, ConditionsExtensions.cs, and StringExtensions.cs. Changes from C# to TypeScript: enum values become strings from published Blip JSON (Newtonsoft camelCase and case-insensitive reads); error messages remain Portuguese; `decimal.TryParse` becomes `paraDecimal`; JavaScript regex has no original two-minute timeout.
  */
 
 import type { Context, InboundPreguicosa } from './context.js';
 import { obterVariable } from './context.js';
 
-/** `ConditionComparison`. A ordem é a do enum original; o primeiro é o padrão. */
+/** `ConditionComparison` order follows the original enum; its first value is the default. */
 export const COMPARISONS = [
   'equals',
   'notEquals',
@@ -29,15 +23,15 @@ export const COMPARISONS = [
 ] as const;
 export type Comparison = (typeof COMPARISONS)[number];
 
-/** `ConditionOperator`: `or` é o padrão (o primeiro valor do enum). */
+/** `ConditionOperator`: `or` is the default, first enum value. */
 export const OPERADORES = ['or', 'and'] as const;
 export type OperadorBlip = (typeof OPERADORES)[number];
 
-/** `ValueSource`: `input` é o padrão. */
+/** `ValueSource`: `input` is the default. */
 export const FONTES = ['input', 'context', 'intent', 'entity'] as const;
 export type Fonte = (typeof FONTES)[number];
 
-/** `Condition`, com as chaves exatamente como vêm no JSON da Blip. */
+/** `Condition` keys match Blip JSON exactly. */
 export interface ConditionBlip {
   source?: string;
   variable?: string;
@@ -54,7 +48,7 @@ export class ValidationError extends Error {
   }
 }
 
-/** O Newtonsoft lê enum sem diferenciar maiúscula; valor desconhecido é erro de leitura. */
+/** Newtonsoft reads enum values case-insensitively; unknown values are parse errors. */
 function lerEnum<T extends string>(
   value: string | undefined,
   lista: readonly T[],
@@ -72,7 +66,7 @@ export const comparisonOf = (c: ConditionBlip): Comparison =>
 export const operadorDe = (c: ConditionBlip): OperadorBlip =>
   lerEnum(c.operator, OPERADORES, 'operator');
 
-/** `GetComparisonType`: só `exists` e `notExists` são unárias. */
+/** `GetComparisonType`: only `exists` and `notExists` are unary. */
 export function ehUnaria(comparison: Comparison): boolean {
   return comparison === 'exists' || comparison === 'notExists';
 }
@@ -106,8 +100,7 @@ export function validateCondition(c: ConditionBlip): void {
 }
 
 /**
- * `CompareOptions.IgnoreNonSpace | IgnoreCase` com cultura invariante: ignora
- * maiúscula e acento. O colador em `base` é o equivalente do JS.
+ * Invariant-culture `CompareOptions.IgnoreNonSpace | IgnoreCase` ignores case and accents; JS collator sensitivity `base` is the equivalent.
  */
 const COLADOR = new Intl.Collator('en', { sensitivity: 'base' });
 
@@ -117,15 +110,11 @@ function comparaIgual(v1: string | null, v2: string | null): boolean {
   return COLADOR.compare(v1, v2) === 0;
 }
 
-/** `StringComparison.OrdinalIgnoreCase` compara pela maiúscula invariante, sem ignorar acento. */
+/** `StringComparison.OrdinalIgnoreCase` compares with invariant uppercase without ignoring accents. */
 const maiuscula = (v: string): string => v.toUpperCase();
 
 /**
- * `decimal.TryParse` com cultura invariante: ponto decimal, vírgula de milhar, sinal e
- * espaço nas pontas. Devolve `null` onde o C# devolveria `false`.
- *
- * ponytail: a cultura do servidor da Blip não é conhecida; invariante é o palpite. Se
- * um fluxo real comparar "1,5" esperando 1.5, é aqui que muda.
+ * Invariant-culture `decimal.TryParse` accepts decimal dots, thousands commas, signs, and surrounding spaces; return null where C# would return false. ponytail: Blip server culture is unknown, so invariant is an assumption. If a real flow expects "1,5" to mean 1.5, change parsing here.
  */
 export function paraDecimal(v: string | null): number | null {
   if (v === null) return null;
@@ -192,11 +181,11 @@ export function delegadoBinario(
     case 'endsWith':
       return (v1, v2) => v1 !== null && v2 !== null && maiuscula(v1).endsWith(maiuscula(v2));
     case 'matches':
-      // ponytail: sem o timeout de 2 min do original. Regex escrita pelo dono do fluxo
-      // contra texto do cliente; se aparecer backtracking catastrófico, rodar em worker.
+      // ponytail: there is no original two-minute timeout. A flow owner's regex runs
+      // against customer text; move it to a worker if catastrophic backtracking appears.
       return (v1, v2) => v1 !== null && v2 !== null && new RegExp(v2).test(v1);
     case 'approximateTo':
-      // Aceita diferença de 25% do texto.
+      // Allows a 25% difference in the text.
       return (v1, v2) =>
         v1 !== null &&
         v2 !== null &&
@@ -241,7 +230,7 @@ export async function avaliarConditionBlip(
       value = await obterVariable(context, condition.variable ?? '');
       break;
     case 'intent':
-      // Sem provedor de IA no Pipe: é o mesmo que a Blip devolve quando a análise falha.
+      // Pipe has no AI provider here; this matches Blip's result when analysis fails.
       value = inbound.intent?.name ?? null;
       break;
     case 'entity':
@@ -257,7 +246,7 @@ export async function avaliarConditionBlip(
   const binaria = delegadoBinario(comparison);
   const values = condition.values ?? [];
   if (operadorDe(condition) === 'and') return values.every((v) => binaria(value, v));
-  // O original trata `notEquals` com `or` como "diferente de todos", não "de algum".
+  // The source treats `notEquals` with `or` as different from every value, not merely from some value.
   if (comparison === 'notEquals') return !values.some((v) => comparaIgual(value, v));
   return values.some((v) => binaria(value, v));
 }

@@ -1,14 +1,5 @@
 /**
- * Avaliação de atendimento por IA: recebe transcrição e formulário, devolve
- * resposta critério a critério com valor, pontos, justificativa e a mensagem que
- * serve de evidência.
- *
- * Tudo que o modelo devolve é conferido contra o formulário e contra a
- * transcrição antes de virar resultado: id de critério que não existe, rótulo de
- * evidência que não existe e critério não conforme sem evidência **falham**. É a
- * mesma disciplina que no case-sync validava a subcategoria contra a picklist —
- * lá, aceitar a resposta do modelo sem conferir produziu Cases em branco que
- * ninguém viu por meses.
+ * AI ticket evaluation takes a transcript and form and returns each criterion's value, points, rationale, and supporting message. Every model result is checked against the form and transcript before acceptance: unknown criterion IDs, nonexistent evidence labels, and noncompliant criteria without evidence fail. This follows the case-sync practice of checking subcategories against the picklist; accepting unchecked model answers there produced blank Cases unnoticed for months.
  */
 
 import { z } from 'zod';
@@ -43,19 +34,18 @@ export interface OptionsEvaluation {
   context?: string | null;
   template?: string;
   effort?: Effort;
-  /** Dublê nos testes; na produção, a chamada real. */
+  /** Test stub when injected; the real call in production. */
   chamar?: ChamadaEstruturada;
 }
 
-/** Sobra folga para justificativa e evidência de cada critério. */
+/** Leaves room for each criterion's rationale and evidence. */
 function tetoDeTokens(formulario: Formulario): number {
   const criterios = criteriosDoFormulario(formulario).length;
   return Math.min(32_000, 2_000 + criterios * 400);
 }
 
 /**
- * Resolve o rótulo citado (`m12`) para o `mensagem.id` correspondente. Rótulo
- * fora do índice da transcrição é alucinação e derruba a avaliação.
+ * Resolves a cited label (`m12`) to its corresponding `mensagem.id`. A label outside the transcript index is a hallucination and fails the evaluation.
  */
 export function resolverEvidencia(
   transcription: Transcription,

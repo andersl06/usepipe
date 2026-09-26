@@ -1,35 +1,15 @@
 /**
- * Portado de chatwoot/chatwoot (MIT):
- * - app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb
- * - app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb
- * - `phone_number_candidates` de app/services/whatsapp/phone_number_normalization_service.rb
- *
- * O nono dígito do Brasil. Em 2012–2016 a Anatel pôs um "9" na frente de todo
- * celular, e o mesmo cliente existe nas duas formas: na planilha antiga, no
- * cadastro de outro sistema e — o caso que mais custa — no `wa_id` que a própria
- * Meta manda, que em conta antiga ainda vem sem o 9.
- *
- * A regra do original, e a razão de ela ser estreita: o 9 só entra em número de
- * oito dígitos que começa com 6, 7, 8 ou 9 (a faixa antiga de celular). Fixo
- * começa com 2 a 5 e fica como está — pôr um 9 num fixo é criar o telefone de
- * outra pessoa.
- *
- * Só o Brasil, dos três países do original. A lista de normalizadores é a
- * estrutura de lá justamente para Argentina e México entrarem acrescentando, e
- * não reescrevendo.
- *
- * `paraE164`, no fim, NÃO é porte: é o que o Pipe acrescenta para telefone
- * digitado por gente (CSV de planilha brasileira).
+ * Ported from chatwoot/chatwoot (MIT): app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb, app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb, and `phone_number_candidates` from app/services/whatsapp/phone_number_normalization_service.rb. Brazil added the ninth mobile digit in 2012–2016. The same customer may still appear in both forms, including old spreadsheets, other systems, and Meta `wa_id` values from older accounts. The original rule is narrow: add 9 only to eight-digit numbers starting with 6, 7, 8, or 9, the old mobile range. Landlines start with 2–5 and must remain unchanged; adding 9 could identify another person. Only Brazil is implemented of the source's three countries; its normalizer list allows Argentina and Mexico to be added without rewriting. `paraE164` is a Pipe addition for human-entered Brazilian CSV numbers, not a port.
  */
 
 export interface NormalizadorDeTelefone {
   /** `handles_country?` */
   atendePais(waid: string): boolean;
-  /** `normalize`: a forma canônica. */
+  /** `normalize`: canonical form. */
   normalizar(waid: string): string;
-  /** `variants`: as formas em que o contato pode já estar guardado, a canônica primeiro. */
+  /** `variants`: stored forms of this contact, canonical first. */
   variantes(waid: string): string[];
-  /** `contact_candidates`: a forma recebida primeiro, para o casamento exato ganhar. */
+  /** `contact_candidates`: received form first so an exact match wins. */
   contactCandidatos(waid: string): string[];
 }
 
@@ -61,7 +41,7 @@ export class NormalizadorBrasil implements NormalizadorDeTelefone {
     return [...new Set([waid, ...this.variantes(waid)])];
   }
 
-  /** O espelho de `normalizar`: tira o 9 só quando o que sobra é faixa antiga de celular, nunca fixo. */
+  /** Mirror of `normalizar`: remove 9 only when the remainder is an old mobile range, never a landline. */
   private formaAntiga(waid: string): string | null {
     if (!this.atendePais(waid)) return null;
     const achado = this.assinante(waid).match(MOVEL_CANONICO);
@@ -80,7 +60,7 @@ function normalizadorDoPais(digitos: string): NormalizadorDeTelefone | null {
   return NORMALIZADORES.find((n) => n.atendePais(digitos)) ?? null;
 }
 
-/** `phone_number_candidates`: sem normalizador para o país, só a própria forma. */
+/** `phone_number_candidates`: with no normalizer for the country, return only the input form. */
 export function candidatosDoTelefone(digitos: string): string[] {
   const normalizador = normalizadorDoPais(digitos);
   return normalizador ? normalizador.contactCandidatos(digitos) : [digitos];
@@ -91,19 +71,11 @@ export function normalizarWaid(digitos: string): string {
   return normalizador ? normalizador.normalizar(digitos) : digitos;
 }
 
-/** O formato que o `Contact` do Chatwoot valida: `/\A\+[1-9]\d{1,14}\z/`. */
+/** E.164 format validated by Chatwoot `Contact`. */
 export const FORMAT_E164 = /^\+[1-9]\d{1,14}$/;
 
 /**
- * Telefone como gente digita → E.164 canônico. Acréscimo do Pipe.
- *
- * - tira espaço, hífen, ponto e parêntese;
- * - sem `+`, tira o zero de tronco da frente, e número com 10 ou 11 dígitos
- *   (DDD + telefone, a forma brasileira de escrever) ganha o DDI padrão;
- * - aplica o nono dígito.
- *
- * Não valida: quem valida é `FORMATO_E164`, para a recusa sair com o motivo.
- * Vazio devolve `null` — "sem telefone" é diferente de "telefone inválido".
+ * Convert human-entered phone numbers to canonical E.164; this is a Pipe addition. Remove spaces, hyphens, periods, and parentheses. Without `+`, remove a leading trunk zero; a 10- or 11-digit Brazilian DDD plus number gets the default country code. Apply Brazil's ninth mobile digit. Do not validate here: `FORMATO_E164` validates so refusal can explain why. Empty input returns null because no phone differs from an invalid phone.
  */
 export function paraE164(cru: string | null | undefined, ddiPadrao = '55'): string | null {
   const limpo = (cru ?? '').trim();

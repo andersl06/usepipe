@@ -1,6 +1,5 @@
 /**
- * Motor de fluxo (o chatbot): porte do `Take.Blip.Builder` da Blip — ver
- * THIRD_PARTY_NOTICES.md na raiz. Lê o fluxo da Blip no formato publicado, sem tradução.
+ * Chatbot flow engine ported from Blip `Take.Blip.Builder`; see root THIRD_PARTY_NOTICES.md. It reads Blip flows in published format without translation.
  */
 export * from './condition.js';
 export * from './modelos.js';

@@ -31,8 +31,8 @@ describe('limites, copiados do settings.json da Blip', () => {
   });
 
   it('Apply the lower size limit to audio and video files', () => {
-    // O cliente da Blip valida só os 100 MB e deixa subir áudio que a plataforma
-    // recusa depois. Aqui o teto certo vale desde a validação.
+    // The Blip client checks only 100 MB and allows audio uploads that the platform
+    // rejects later. Here the correct limit applies during validation.
     expect(maxBytesDoMime('audio/mpeg')).toBe(MAX_BYTES_AUDIO_VIDEO);
     expect(maxBytesDoMime('video/mp4')).toBe(MAX_BYTES_AUDIO_VIDEO);
     expect(maxBytesDoMime('application/pdf')).toBe(MAX_BYTES_BY_FILE);
@@ -48,7 +48,7 @@ describe('limites, copiados do settings.json da Blip', () => {
   });
 
   it('Accept SVG as a document and force attachment delivery', () => {
-    // SVG é XML executável: renderizado inline vira XSS.
+    // SVG is executable XML; rendering it inline causes XSS.
     expect(mimeAceito('image/svg+xml')).toBe(true);
     expect(tipoDoMime('image/svg+xml')).toBe('documento');
     expect(serveAsAttachment('image/svg+xml')).toBe(true);
@@ -69,9 +69,7 @@ describe('tipo real pelos bytes, não pela extensão', () => {
 
   it('desmascara HTML disfarçado de PNG — o caminho do XSS', () => {
     const html = new TextEncoder().encode('<html><script>alert(1)</script>');
-    // Os bytes não são PNG, e o declarado não sobrevive à conferência.
     expect(tipoReal(html)).toBeNull();
-    // Sem assinatura, fica o declarado; quem chama já garantiu que está na lista.
     expect(mimeParaServir('text/html', html)).toBe('text/html');
     // E `text/html` nunca vai inline.
     expect(serveAsAttachment(mimeParaServir('text/html', html))).toBe(true);
@@ -199,12 +197,11 @@ describe('backend em disco', () => {
   });
 
   it('Reject a sibling path that merely shares the storage root prefix', async () => {
-    // `/tmp/pipe-storage-abc` não pode alcançar `/tmp/pipe-storage-abcMAL`.
+    // `/tmp/pipe-storage-abc` must not be able to reach `/tmp/pipe-storage-abcMAL`.
     const raiz = await raizTemporaria();
     const armazem = new StorageInDisk(raiz);
     await writeFile(`${raiz}MAL`, 'segredo');
     await expect(armazem.ler(`../${raiz.split(/[/\\]/).pop()}MAL`)).rejects.toThrow(/fora da raiz/);
-    // E o arquivo continua lá, intocado.
     expect(await readFile(`${raiz}MAL`, 'utf8')).toBe('segredo');
   });
 });

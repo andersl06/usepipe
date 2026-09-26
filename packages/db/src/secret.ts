@@ -1,35 +1,20 @@
 import { createCipheriv, createDecipheriv, randomBytes, timingSafeEqual } from 'node:crypto';
 
 /**
- * Cifra de segredo de cliente, em repouso.
+ * Encrypt tenant secrets at rest.
  *
- * O que mora em `canal.config` não é configuração comum: é o token permanente da
- * Meta, o `appSecret`, o `verifyToken` e a senha de SMTP. Com o token, qualquer um
- * manda mensagem **pelo número do cliente** — e o schema prometia "cifrado em
- * repouso" desde o primeiro dia sem que ninguém tivesse escrito a cifra. Este
- * arquivo paga essa dívida.
+ * `canal.config` holds Meta's permanent token, `appSecret`, `verifyToken`, and the SMTP password. A token holder can send messages **as the tenant's number**. The schema promised at-rest encryption from the start; this file implements it.
  *
- * O risco que ela fecha não é um cliente ler o outro pela aplicação: a RLS já
- * cuida disso. É o dump. Backup vai para storage de objetos, passa por máquina de
- * quem opera, e um `pg_dump` com token em texto claro entrega a credencial de
- * TODOS os clientes de uma vez.
+ * RLS protects tenants through the application, but not a dump. Backups reach object storage and operator machines; a plaintext `pg_dump` would reveal EVERY tenant credential.
  *
- * **Envelope com id de chave.** Cada pacote carrega qual chave o cifrou, então
- * rotacionar é adicionar a chave nova como atual e manter a antiga na lista até
- * tudo ter sido regravado. Sem o id, rotação vira migração de tudo numa janela só,
- * que é como se decide nunca rotacionar.
+ * **An envelope carries the key ID.** Rotate by making a new key current while retaining old keys until their data is rewritten. Without IDs, rotation would demand a one-shot migration and would tend never to happen.
  *
- * **AES-256-GCM**, não CBC: o GCM autentica além de cifrar. Sem autenticação, quem
- * escreve no banco pode alterar o texto cifrado e a aplicação decifra lixo sem
- * perceber — e no caso de um `phoneNumberId`, lixo dirigido é mensagem no número
- * errado.
+ * **AES-256-GCM, not CBC:** GCM authenticates ciphertext as well as encrypting it. Otherwise a database writer could tamper with ciphertext undetected; targeted corruption of `phoneNumberId` could route messages to the wrong number.
  *
- * As chaves vivem FORA do banco, em `PIPE_CHAVES_SEGREDO`, no formato
- * `<id>:<32 bytes em base64>` separado por vírgula, e a atual em
- * `PIPE_CHAVE_SEGREDO_ATUAL`. Em produção elas chegam pelo SOPS (ver `infra/`).
+ * Keys live OUTSIDE the database in `PIPE_CHAVES_SEGREDO` as comma-separated `<id>:<32 bytes em base64>` entries; `PIPE_CHAVE_SEGREDO_ATUAL` selects the current one. Production supplies them through SOPS (see `infra/`).
  */
 
-/** Marca do envelope. Sem ponto no nome: o ponto é o separador do pacote. */
+/** Envelope marker. No dot in its name because dots separate envelope fields. */
 const MARCA = 'pipev1';
 
 export class SecretError extends Error {
@@ -40,15 +25,14 @@ export class SecretError extends Error {
 }
 
 export interface Keyring {
-  /** id da chave que cifra o que for gravado agora. */
+
   atual: string;
   /** Todas as chaves conhecidas, inclusive as antigas ainda em uso. */
   chaves: Map<string, Buffer>;
 }
 
 /**
- * Lê o chaveiro do ambiente. Falha alto: chave ausente em produção é erro de
- * implantação, e seguir sem cifra seria gravar token em texto achando que não.
+ * Read the keyring from the environment and fail loudly. A missing production key is a deployment error; continuing would write tokens in plaintext while appearing to encrypt them.
  */
 export function keyringOfAmbiente(env: NodeJS.ProcessEnv = process.env): Keyring {
   const cru = env['PIPE_CHAVES_SEGREDO'];
@@ -95,7 +79,7 @@ export function cifrar(texto: string, chaveiro: Keyring): string {
   ].join('.');
 }
 
-/** Diz se o valor já é um envelope nosso. Serve para migrar sem cifrar duas vezes. */
+
 export function estaCifrado(value: string): boolean {
   return value.startsWith(`${MARCA}.`);
 }
@@ -123,19 +107,16 @@ export function decifrar(pacote: string, keyring: Keyring): string {
       decifra.final(),
     ]).toString('utf8');
   } catch {
-    // `final()` do GCM lança quando a tag não bate. Não repassamos o erro original:
-    // detalhe de falha de autenticação é o que alimenta oráculo.
+    // GCM `final()` throws when the authentication tag is wrong. Do not expose the original error:
+    // authentication-failure detail can become an oracle.
     throw new SecretError('Autenticação falhou: o dado cifrado foi alterado ou a chave é outra.');
   }
 }
 
 /**
- * Os campos de `canal.config` que são segredo.
+ * Secret fields in `canal.config`.
  *
- * Lista fechada, e não "cifra o objeto todo", porque o resto da configuração
- * precisa continuar legível e consultável — `phoneNumberId` aparece em log de
- * diagnóstico, `apiVersao` em suporte. Cifrar tudo transformaria toda pergunta
- * operacional em decifrar primeiro.
+ * Use a closed list instead of encrypting the whole object: other configuration must remain readable and queryable. `phoneNumberId` appears in diagnostics and `apiVersao` in support. Encrypting everything would require decryption for ordinary operations.
  */
 export const FIELDS_SECRETOS_OF_CHANNEL = [
   'tokenAcesso',
@@ -143,14 +124,14 @@ export const FIELDS_SECRETOS_OF_CHANNEL = [
   'verifyToken',
   'senhaSmtp',
   'clientSecret',
-  // O PIN de duas etapas que o registro do número grava (`configuracao-de-webhook.ts`).
-  // Com ele, quem tem o número migra o WhatsApp do cliente para outro provedor.
+  // Two-step PIN saved when registering the number (`configuracao-de-webhook.ts`).
+  // With it, someone controlling the number could migrate the tenant's WhatsApp to another provider.
   'pinVerificacao',
 ] as const;
 
 type Config = Record<string, unknown>;
 
-/** Cifra os campos secretos de uma configuração de canal. Idempotente. */
+
 export function cifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
   for (const campo of FIELDS_SECRETOS_OF_CHANNEL) {
@@ -162,12 +143,9 @@ export function cifrarConfig(config: Config, chaveiro: Keyring): Config {
 }
 
 /**
- * Decifra os campos secretos na leitura.
+ * Decrypt secret fields on read.
  *
- * Valor em texto claro passa direto, de propósito e só aqui: é o que permite ler
- * o que foi gravado antes desta cifra existir sem derrubar a operação. O caminho
- * de escrita não tem essa tolerância — o que for gravado a partir de agora sai
- * cifrado.
+ * Plaintext values pass through deliberately, and only here, so data written before encryption was introduced remains readable without disrupting operations. The write path has no such tolerance; new data is encrypted.
  */
 export function decifrarConfig(config: Config, chaveiro: Keyring): Config {
   const saida: Config = { ...config };
@@ -179,7 +157,7 @@ export function decifrarConfig(config: Config, chaveiro: Keyring): Config {
   return saida;
 }
 
-/** Comparação em tempo constante, para segredo que chega de fora (verifyToken). */
+
 export function secretConfere(a: string, b: string): boolean {
   const bufferA = Buffer.from(a);
   const bufferB = Buffer.from(b);

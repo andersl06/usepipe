@@ -1,8 +1,5 @@
 /**
- * Leitura do conjunto de referência a partir de JSON, validada.
- *
- * Conjunto malformado falha aqui, alto e cedo. Bancada que roda com dado torto
- * devolve número bonito e mentiroso — que é pior do que não medir.
+ * Reads and validates the JSON reference set. Malformed cases fail early and visibly: running the bench on bad data would return attractive but false numbers, worse than not measuring.
  */
 
 import { readFile } from 'node:fs/promises';

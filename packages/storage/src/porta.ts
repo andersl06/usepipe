@@ -1,30 +1,21 @@
 import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 /**
- * A porta do storage, no formato do S3.
+ * The storage port follows the S3 shape.
  *
- * "Formato do S3" quer dizer: **bucket + chave opaca + objeto**, e nada de caminho de
- * sistema de arquivos vazando para quem chama. Trocar o backend por S3, R2 ou MinIO é
- * escrever outra implementação desta interface — nenhum chamador muda.
+ * "S3 shape" means **bucket + opaque key + object**, without exposing filesystem paths to callers. Moving to S3, R2, or MinIO requires another implementation of this interface; callers do not change.
  *
- * A decisão de HOJE é disco com volume, e não MinIO, por três motivos:
+ * TODAY we use disk storage on a volume rather than MinIO for three reasons:
  *
- * 1. **RAM é o gargalo desta infra.** Já medimos ~1,9 GB por instância de CRM
- *    (`2026-09-07-integracao-twenty.md` §5.3). Um contêiner a mais por VPS custa
- *    justamente o recurso que está apertado.
- * 2. **A compatibilidade que o requisito pede é da INTERFACE**, e ela está aqui. O
- *    protocolo S3 não precisa existir na máquina para o chamador estar pronto para ele.
- * 3. **A URL assinada é nossa e simples.** O modelo da Blip não é bucket público com
- *    presign: é *file token com 15 minutos* — e é exatamente isso que `assinar` faz,
- *    com HMAC do chaveiro que já protege os outros segredos.
+ * 1. **RAM is the bottleneck in this infrastructure.** We measured about 1.9 GB per CRM instance (`2026-09-07-integracao-twenty.md` section 5.3). Another VPS container consumes the resource already under pressure.
+ * 2. **The required compatibility is at the INTERFACE**, provided here. The S3 protocol need not run on this machine for callers to be ready for it.
+ * 3. **Our signed URL is simple.** Blip uses neither a public bucket nor presigning: it uses a *15-minute file token*. That is what `assinar` provides with HMAC using the keyring that already protects other secrets.
  *
- * ponytail: disco em host único, sem replicação. No dia em que a `api` rodar em mais de
- * uma máquina, o arquivo escrito numa não aparece na outra — aí entra o backend S3,
- * que é um arquivo novo implementando esta mesma interface.
+ * ponytail: disk storage on one host has no replication. If `api` runs on multiple machines, a file written on one will not appear on another; add an S3 backend as a new implementation of this interface then.
  */
 
 export interface ObjetoGuardado {
-  /** A chave dentro do bucket. Opaca para quem chama. */
+
   key: string;
   bytes: number;
 }
@@ -41,12 +32,9 @@ export interface Storage {
 }
 
 /**
- * A chave de um anexo. **O `tenantId` é o primeiro segmento, sempre.**
+ * An attachment key. **`tenantId` is always the first segment.**
  *
- * É o isolamento por tenant no caminho do objeto: um cliente nunca compartilha prefixo
- * com outro, e no dia em que isto virar bucket S3 a política de acesso por prefixo já
- * está desenhada. O `uuid` no fim é o que impede adivinhar o objeto do vizinho mesmo
- * que alguém descubra o `tenant_id`.
+ * This isolates tenants by object path: tenants never share a prefix, and the prefix access policy is already defined if this becomes an S3 bucket. The trailing `uuid` prevents guessing another tenant's object even if its `tenant_id` is known.
  */
 export function keyOfAttachment(tenantId: string, nomeOriginal: string | null): string {
   const agora = new Date();
@@ -56,8 +44,7 @@ export function keyOfAttachment(tenantId: string, nomeOriginal: string | null): 
 }
 
 /**
- * A extensão só entra para o arquivo ter cara de arquivo quando alguém baixa. Ela
- * **não** decide tipo em lugar nenhum — quem decide é `tipoReal`.
+ * The extension only makes the downloaded file look like a file. It **never** determines type; `tipoReal` does.
  */
 function extensaoDe(nome: string | null): string {
   const ponto = (nome ?? '').lastIndexOf('.');
@@ -67,10 +54,9 @@ function extensaoDe(nome: string | null): string {
 }
 
 /**
- * Chave que sai da faixa do tenant é recusada.
+ * Reject keys outside the tenant prefix.
  *
- * A defesa contra `../` e contra id de outro cliente na URL. Vale mesmo com o link
- * assinado: assinatura prova que o link saiu de nós, não que ele é do tenant certo.
+ * This defends against `../` and another tenant's ID in the URL. It matters even for signed links: a signature proves we issued the link, not that it belongs to the right tenant.
  */
 export function keyOfTenant(chave: string, tenantId: string): boolean {
   if (chave.includes('..') || chave.startsWith('/') || chave.includes('\\')) return false;
@@ -83,17 +69,15 @@ export interface LinkAssinado {
 }
 
 /**
- * Assina `<anexoId>.<expiraEm>` com HMAC-SHA256.
+ * Sign `<anexoId>.<expiraEm>` with HMAC-SHA256.
  *
- * O segredo é o do chaveiro (`PIPE_CHAVES_SEGREDO`), o mesmo que cifra o token da
- * Meta. Quem tem o link tem o arquivo até vencer — por isso a validade é curta e igual
- * à da Blip: 15 minutos.
+ * The secret comes from the keyring (`PIPE_CHAVES_SEGREDO`), which also encrypts the Meta token. Possessing the link grants access until expiry, so the lifetime is short and matches Blip's: 15 minutes.
  */
 export function assinar(attachmentId: string, expiraEm: number, segredo: string): string {
   return createHmac('sha256', segredo).update(`${attachmentId}.${expiraEm}`).digest('hex');
 }
 
-/** Confere a assinatura e a validade. Comparação em tempo constante. */
+/** Check signature and expiry using a constant-time comparison. */
 export function assinaturaValida(
   anexoId: string,
   expiraEm: number,

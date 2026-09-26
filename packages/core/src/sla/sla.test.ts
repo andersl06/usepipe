@@ -16,11 +16,7 @@ import {
 } from './index.js';
 
 /**
- * Expediente comercial de segunda a sexta, 09:00–18:00, no fuso do tenant.
- * São Paulo está em UTC−3 o ano inteiro desde 2019, então 09:00 local = 12:00Z.
- *
- * Datas de referência (todas de 2026):
- *   02/03 segunda · 03/03 terça · 04/03 quarta · 07/03 sábado · 08/03 domingo
+ * Weekday business hours are 09:00–18:00 in the tenant timezone. São Paulo remains UTC−3 throughout these 2026 tests, so 09:00 local equals 12:00Z. Reference dates: 02/03 Monday, 03/03 Tuesday, 04/03 Wednesday, 07/03 Saturday, 08/03 Sunday.
  */
 const COMERCIAL: HourAttendance = {
   fuso: 'America/Sao_Paulo',
@@ -34,7 +30,7 @@ const COM_FERIADO: HourAttendance = {
   exceptions: [{ data: '2026-03-03', fechado: true, motivo: 'Feriado municipal' }],
 };
 
-/** Expediente partido: 09:00–12:00 e 13:00–18:00, com almoço fora. */
+/** Split schedule: 09:00–12:00 and 13:00–18:00, excluding lunch. */
 const COM_ALMOCO: HourAttendance = {
   fuso: 'America/Sao_Paulo',
   faixas: [
@@ -91,13 +87,9 @@ describe('relógio local do tenant', () => {
 
 describe('próxima abertura (§10)', () => {
   const casos: [string, string | null][] = [
-    // Dentro do expediente: a abertura é o próprio instante.
     ['2026-03-02T13:00:00Z', '2026-03-02T13:00:00.000Z'],
-    // Madrugada de segunda → abre às 09:00 local da própria segunda.
     ['2026-03-02T05:00:00Z', '2026-03-02T12:00:00.000Z'],
-    // Depois do fechamento de segunda → abre na terça.
     ['2026-03-02T21:30:00Z', '2026-03-03T12:00:00.000Z'],
-    // Sábado → abre na segunda seguinte.
     ['2026-03-07T15:00:00Z', '2026-03-09T12:00:00.000Z'],
   ];
   for (const [inbound, esperado] of casos) {
@@ -118,7 +110,6 @@ describe('segundos úteis entre dois instantes', () => {
     { nome: 'um dia comercial inteiro tem 9 horas', de: '2026-03-02T00:00:00Z', ate: '2026-03-03T00:00:00Z', esperado: 32_400 },
     { nome: 'o fim de semana inteiro vale zero', de: '2026-03-07T00:00:00Z', ate: '2026-03-09T00:00:00Z', esperado: 0 },
     { nome: 'intervalo invertido vale zero', de: '2026-03-02T14:00:00Z', ate: '2026-03-02T13:00:00Z', esperado: 0 },
-    // 17:30 de segunda até 09:30 de terça: 30 min de segunda + 30 min de terça.
     { nome: 'atravessando a virada do expediente', de: '2026-03-02T20:30:00Z', ate: '2026-03-03T12:30:00Z', esperado: 3600 },
   ];
 
@@ -129,7 +120,6 @@ describe('segundos úteis entre dois instantes', () => {
   }
 
   it('lunch outside business hours does not count', () => {
-    // 11:30 → 13:30 local: 30 min antes do almoço + 30 min depois.
     expect(
       segundosUteisEntre(utc('2026-03-02T14:30:00Z'), utc('2026-03-02T16:30:00Z'), COM_ALMOCO),
     ).toBe(3600);
@@ -172,14 +162,11 @@ describe('esperas pausam o relógio', () => {
 describe('avançar no expediente', () => {
   const casos: { nome: string; de: string; segundos: number; esperado: string | null }[] = [
     { nome: 'meia hora dentro do dia', de: '2026-03-02T13:00:00Z', segundos: 1800, esperado: '2026-03-02T13:30:00.000Z' },
-    // Começa às 17:30 local: 30 min cabem na segunda, os outros 30 caem às 09:30 de terça.
     { nome: 'atravessa a virada do expediente', de: '2026-03-02T20:30:00Z', segundos: 3600, esperado: '2026-03-03T12:30:00.000Z' },
-    // Chegou de madrugada: o relógio só começa às 09:00 local.
     { nome: 'começa na abertura seguinte', de: '2026-03-02T05:00:00Z', segundos: 1800, esperado: '2026-03-02T12:30:00.000Z' },
-    // Sexta às 17:30 → 30 min na sexta, resto na segunda.
     { nome: 'pula o fim de semana', de: '2026-03-06T20:30:00Z', segundos: 3600, esperado: '2026-03-09T12:30:00.000Z' },
     { nome: 'prazo zero não anda', de: '2026-03-02T13:00:00Z', segundos: 0, esperado: '2026-03-02T13:00:00.000Z' },
-    // 40 horas úteis a partir de segunda 09:00: 9h por dia de segunda a quinta
+    // Forty business hours from Monday 09:00: Monday through Thursday supply 36 hours; the remaining four run Friday from 09:00 to 13:00 local (16:00Z).
     // fecham 36h; as 4h restantes caem na sexta, de 09:00 a 13:00 local (16:00Z).
     { nome: 'prazo longo, em dias úteis', de: '2026-03-02T12:00:00Z', segundos: 40 * 3600, esperado: '2026-03-06T16:00:00.000Z' },
   ];
@@ -193,8 +180,8 @@ describe('avançar no expediente', () => {
   }
 
   it('feriado empurra o prazo para o dia seguinte útil', () => {
-    // 17:30 de segunda, prazo de 1h: 30 min na segunda; terça é feriado; sobra
-    // meia hora na quarta, às 09:30 local = 12:30Z.
+    // Monday 17:30 with a one-hour deadline uses 30 minutes Monday; Tuesday is a holiday, leaving
+    // 30 minutes on Wednesday, ending at 09:30 local or 12:30Z.
     expect(
       avancarNoExpediente(utc('2026-03-02T20:30:00Z'), 3600, COM_FERIADO)?.toISOString(),
     ).toBe('2026-03-04T12:30:00.000Z');
@@ -242,7 +229,6 @@ describe('SLA evaluation (§11)', () => {
   }
 
   it('a conversation arriving outside business hours does not breach overnight', () => {
-    // Chegou às 02:00 local de terça; às 08:00 local o relógio ainda não começou.
     const saida = avaliarSla({
       regra,
       inicio: utc('2026-03-03T05:00:00Z'),

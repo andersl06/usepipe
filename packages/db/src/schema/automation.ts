@@ -15,17 +15,15 @@ import { refTenant, user } from './identity.js';
 import { channel, contact, conversation } from './conversations.js';
 
 /**
- * Módulo 6 — Automação e extração. Três peças distintas que costumam ser confundidas:
- * construtor de fluxo (a conversa automática), motor de workflow (a automação do
- * sistema) e a linguagem de consulta com o dicionário de dados.
+ * Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.
  */
 
 export const STATES_FLOW = ['rascunho', 'publicado', 'arquivado'] as const;
 
-/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */
+/** Two roles for the same contact: its own conversation or routing other bots. */
 export const TYPES_FLOW = ['fluxo', 'roteador'] as const;
 
-/** O `ng-maxlength="160"` do campo "Descrição" de "Editar Fluxo" na origem. */
+/** Source `ng-maxlength="160"` on the "Descrição" field in "Editar Fluxo". */
 export const DESCRIPTION_FLOW_MAX = 160;
 
 export const flow = pgTable(
@@ -37,56 +35,27 @@ export const flow = pgTable(
     channelId: uuid('canal_id').references(() => channel.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('rascunho'),
     /**
-     * `fluxo` ou `roteador`.
-     *
-     * É o `template` da plataforma de origem (`builder` e `master`), e é o que
-     * o cartão do portal etiqueta. Roteador é o MESMO bot sem conteúdo próprio:
-     * ele só referencia outros e decide para qual deles a conversa vai — por
-     * isso é coluna, e não tabela nova.
+     * `fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.
      */
     tipo: text('tipo').notNull().default('fluxo'),
     /**
-     * O endereço da foto do contato — o `imageUri` da plataforma de origem, que
-     * é o que o cartão do portal lê para desenhar o avatar.
-     *
-     * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
-     * avisa no console e deixa a criação seguir. Migration 0020.
+     * Contact photo URL, the source platform's `imageUri` used by the portal card avatar. It is genuinely optional: source upload runs inside `try/catch`, reports only to the console, and allows creation to continue. Migration 0020.
      */
     imageUrl: text('imagem_url'),
     /**
-     * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
-     *
-     * É ele que vai na URL do contato lá (`/application/detail/{shortName}`) e
-     * é o motivo de o nome ter de começar com letra. Sem índice único: a
-     * unicidade continua sendo conferida sobre `nome`. Migration 0020.
+     * Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.
      */
     shortName: text('short_name'),
     /**
-     * A descrição do contato — o `description` de "Editar Fluxo"
-     * (`/configurations/basic`) da plataforma de origem.
-     *
-     * Opcional (o `<textarea>` não tem `required`), e quando vem tem de ter
-     * entre 2 e 160 caracteres (`ng-minlength="2"`, `ng-maxlength="160"`). O
-     * teto é `check` porque é o único limite que o banco consegue guardar
-     * sozinho; o mínimo é da `api`. Migration 0022.
+     * Contact description is the source "Editar Fluxo" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength="2"`, `ng-maxlength="160"`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.
      */
     descricao: text('descricao'),
     /**
-     * "Utilizar o contexto do Roteador" (`builder:useTunnelOwnerContext`): como serviço de
-     * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
-     * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
+     * Source "Utilizar o contexto do Roteador" (`builder:useTunnelOwnerContext`): as a router service, share variables for the (router, contact) pair with other services that enable this option. Otherwise variables belong only to this flow. Migration 0024.
      */
     usesContextOfRouter: boolean('usa_contexto_do_roteador').notNull().default(false),
     /**
-     * Configurações do contato que ainda não tinham lugar próprio: hoje só
-     * "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
-     * e "Menu Persistente" (`{ menuPersistente: { itens: [{texto,link}] } }`),
-     * as duas telas de `/configurations/welcome` e `/configurations/persistentMenu`
-     * — chave ausente é "nunca configurado". Migration 0031.
-     *
-     * Por que uma coluna e não uma tabela: são poucos campos, de UMA tela cada,
-     * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
-     * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
+     * Contact settings without a separate home: currently "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and "Menu Persistente" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.
      */
     configuration: jsonb('configuracao')
       .notNull()
@@ -101,15 +70,12 @@ export const flow = pgTable(
 );
 
 /**
- * As quatro paradas do traço "Permissão" dos modais da Equipe — as chaves
- * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
+ * The four stops of the source Team modal's "Permissão" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.
  */
 export const PAPEIS_IN_FLOW = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
 
 /**
- * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
- * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
- * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
+ * Team for this contact: who may access this flow and at what permission. Migration 0035 explains why the source assigns permission to the BOT rather than the tenant and documents the `permissoes` shape from `PermissionsList.html` at `/team/team/edit`.
  */
 export const flowMember = pgTable(
   'fluxo_membro',
@@ -123,12 +89,12 @@ export const flowMember = pgTable(
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     roleInFlow: text('papel_no_fluxo').notNull().default('visualizar'),
-    /** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */
+    /** `{ builder: 'escrever', analysis: 'ler', … }`: source resource to selected radio choice. */
     permissions: jsonb('permissoes')
       .notNull()
       .default(sql`'{}'::jsonb`)
       .$type<Partial<Record<string, 'nenhum' | 'ler' | 'escrever'>>>(),
-    /** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */
+    /** Who added this person; survives their deletion via `set null`. */
     convidadoBy: uuid('convidado_por').references(() => user.id, { onDelete: 'set null' }),
     ...carimbos(),
   },
@@ -140,8 +106,7 @@ export const flowMember = pgTable(
 );
 
 /**
- * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
- * cada coluna e por que não existe túnel no Pipe.
+ * Router services mirror Blip `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.
  */
 export const routerService = pgTable(
   'roteador_servico',
@@ -154,12 +119,12 @@ export const routerService = pgTable(
     serviceId: uuid('servico_id')
       .notNull()
       .references(() => flow.id, { onDelete: 'restrict' }),
-    /** O nome do serviço: é o `content.address` do `Redirect`. */
+    /** Service name used as the `Redirect` `content.address`. */
     nome: text('nome').notNull(),
     principal: boolean('principal').notNull().default(false),
     /** "Não redirecionar automaticamente para o principal". */
     persistente: boolean('persistente').notNull().default(false),
-    /** "Expiração do redirecionamento", da última mensagem do cliente. */
+    /** The source label "Expiração do redirecionamento", measured from the customer's last message. */
     expirationMin: integer('expiracao_min'),
     ...carimbos(),
   },
@@ -187,8 +152,7 @@ export const routerService = pgTable(
 );
 
 /**
- * O Master-State: em que serviço do roteador o contato está. O "túnel" da Blip é a
- * chave (roteador, contato) — o contato é o real, único no tenant. Migration 0024.
+ * Master-State tracks which router service holds the contact. Blip's "túnel" uses the (router, contact) pair; Pipe uses the real contact, unique within the tenant. See migration 0024.
  */
 export const positionInRouter = pgTable(
   'posicao_no_roteador',
@@ -205,13 +169,13 @@ export const positionInRouter = pgTable(
       .notNull()
       .references(() => flow.id, { onDelete: 'cascade' }),
     desde: moment('desde').notNull().defaultNow(),
-    /** Nulo = não expira (principal ou persistente). */
+    /** Null means no expiry for a primary or persistent service. */
     expiraEm: moment('expira_em'),
-    /** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */
+    /** Router context shared by services with `usa_contexto_do_roteador`. */
     context: jsonb('contexto')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    /** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */
+    /** Pending Change-User-State: the service starts at `bloco_inicial` or at the root. */
     reiniciar: boolean('reiniciar').notNull().default(false),
     blockInicial: text('bloco_inicial'),
   },
@@ -220,7 +184,7 @@ export const positionInRouter = pgTable(
 
 export const STATES_FLOW_VERSION = ['rascunho', 'publicada', 'arquivada'] as const;
 
-/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */
+/** Published versions stay separate from editable versions, following Blip. */
 export const flowVersion = pgTable(
   'fluxo_versao',
   {
@@ -233,7 +197,7 @@ export const flowVersion = pgTable(
     state: text('estado').notNull().default('rascunho'),
     publicadaEm: moment('publicada_em'),
     publishedBy: uuid('publicada_por').references(() => user.id, { onDelete: 'set null' }),
-    /** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */
+    /** Blip `Flow` global actions and `configuration`; migration 0014. */
     global: jsonb('global')
       .notNull()
       .default(sql`'{}'::jsonb`),
@@ -294,14 +258,13 @@ export const transition = pgTable(
       .references(() => block.id, { onDelete: 'cascade' }),
     forBlockId: uuid('para_bloco_id').references(() => block.id, { onDelete: 'cascade' }),
     /**
-     * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
-     * dois destinos é preenchido (migration 0014).
+     * Blip `{{variável}}` destination resolved at runtime. Exactly one of the two destinations is set (migration 0014).
      */
     forVariable: text('para_variavel'),
     condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
-    /** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */
+    /** Exit conditions are evaluated in this order; the first match wins. */
     order: integer('ordem').notNull().default(0),
   },
   (t) => [
@@ -330,8 +293,7 @@ export const executionFlow = pgTable(
     contatoId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('executando'),
     /**
-     * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
-     * é o que faz o atendente receber o cliente já sabendo o que o robô coletou.
+     * Variable map crosses the flow and survives handoff to a human agent, who receives what the bot already collected.
      */
     contexto: jsonb('contexto')
       .notNull()
@@ -345,9 +307,7 @@ export const executionFlow = pgTable(
     index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversationId),
     index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
     /**
-     * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
-     * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
-     * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
+     * Migration 0040: Dashboard, Overview, Journey, and message Log filter through `fluxo_versao.fluxo_id`, joining via `fluxo_versao_id`. Without this index, that join scans all of `execucao_fluxo`.
      */
     index('execucao_fluxo_versao_idx').on(t.tenantId, t.flowVersionId),
   ],
@@ -371,7 +331,7 @@ export const executionPasso = pgTable(
   },
   (t) => [
     index('execucao_passo_execucao_idx').on(t.tenantId, t.executionId, t.em),
-    // A mesma mensagem da Meta só vira passo uma vez (migration 0014).
+    // The same Meta message becomes a step only once (migration 0014).
     uniqueIndex('execucao_passo_entrada_uk')
       .on(t.tenantId, sql`(${t.inbound} ->> 'id_provedor')`)
       .where(sql`${t.inbound} ? 'id_provedor'`),
@@ -380,7 +340,7 @@ export const executionPasso = pgTable(
 
 export const ESTADOS_PROCESS_HTTP = ['pendente', 'chamando', 'respondida', 'retomada'] as const;
 
-/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */
+/** Store the ProcessHttp cursor separately to retain every executed position. */
 export const processHttpExecution = pgTable(
   'process_http_execucao',
   {
@@ -476,7 +436,7 @@ export const acao = pgTable(
   ],
 );
 
-/** Workflow que falha em silêncio é pior que workflow que não existe. */
+/** A workflow that fails silently is worse than no workflow. */
 export const executionWorkflow = pgTable(
   'execucao_workflow',
   {
@@ -524,8 +484,7 @@ export const querySaves = pgTable(
     tenantId: refTenant(),
     nome: text('nome').notNull(),
     /**
-     * Consulta estruturada, analisada contra o dicionário de dados do tenant. Nunca
-     * vira SQL cru vindo do cliente, e o `tenant_id` é imposto pelo servidor.
+     * Structured query validated against the tenant data dictionary. Client input never becomes raw SQL, and the server imposes `tenant_id`.
      */
     texto: text('texto').notNull(),
     parametros: jsonb('parametros')
@@ -560,11 +519,7 @@ export const schedulingQuery = pgTable(
 );
 
 /**
- * Espelho do `objectMetadata` do CRM (Twenty) do tenant — ver a migration 0015.
- *
- * `codigo` é o `nameSingular` e `rotulo` o `labelSingular`; as demais colunas têm o nome
- * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
- * declarada à mão pelo CRM caseiro.
+ * Mirror of tenant CRM (Twenty) `objectMetadata`; see migration 0015. `codigo` is `nameSingular` and `rotulo` is `labelSingular`; other columns use Twenty property names. A row with `twentyId` came from synchronization; without it, the local CRM declared it manually.
  */
 export const dictionaryObject = pgTable(
   'dicionario_objeto',
@@ -583,7 +538,7 @@ export const dictionaryObject = pgTable(
     isSystem: boolean('is_system').notNull().default(false),
     isRemote: boolean('is_remote').notNull().default(false),
     applicationId: text('application_id'),
-    /** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */
+    /** Removed from Twenty; keep the row so a block referring to it reports the missing object. */
     excluidoEm: excluidoEm(),
     ...carimbos(),
   },
@@ -591,11 +546,7 @@ export const dictionaryObject = pgTable(
 );
 
 /**
- * Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido.
- *
- * Espelho do `fieldMetadata` do Twenty: `codigo` é o `name`, `rotulo` o `label`, `tipo`
- * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
- * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
+ * Operational data for the query language, not documentation: it defines allowed fields. Mirrors Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is literal `type` (`TEXT`, `CURRENCY`, `RELATION`, etc.). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API format.
  */
 export const dictionaryField = pgTable(
   'dicionario_campo',
@@ -629,9 +580,7 @@ export const dictionaryField = pgTable(
 );
 
 /**
- * Autenticação de saída do webhook — a "Configurações de autenticação" da
- * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
- * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
+ * Outbound webhook authentication mirrors the source "Configurações de autenticação" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication requested here but absent from the source. Migration 0036.
  */
 export const TYPES_AUTHENTICATION_WEBHOOK = [
   'nenhuma',
@@ -652,24 +601,20 @@ export const webhookSaida = pgTable(
     /** Segredo do HMAC de assinatura; cifrado em repouso, como o segredo de canal. */
     secret: text('segredo').notNull(),
     ativo: boolean('ativo').notNull().default(true),
-    /** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */
+    /** `nenhuma` (default), `basica`, or `oauth2_client_credentials`; migration 0036. */
     typeAuthentication: text('tipo_autenticacao').notNull().default('nenhuma'),
-    /** Usuário da autenticação básica — não é segredo, fica legível. */
+    /** Basic-auth username is not secret and remains readable. */
     authenticationUser: text('autenticacao_usuario'),
-    /** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */
+    /** Basic-auth password is encrypted at rest by `@pipe/db/segredo`. */
     authenticationPassword: text('autenticacao_senha'),
-    /** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */
+    /** OAuth 2.0 `client_credentials` token URL is validated like the webhook URL: HTTPS and no private network. */
     oauth2UrlAuthorization: text('oauth2_url_autorizacao'),
-    /** Client ID do OAuth 2.0 — não é segredo. */
+    /** OAuth 2.0 Client ID is not secret. */
     oauth2ClientId: text('oauth2_client_id'),
     /** Client Secret do OAuth 2.0 — cifrado em repouso. */
     oauth2ClientSecret: text('oauth2_client_secret'),
     /**
-     * Cabeçalhos customizados — `[{ chave, valor }]`. Nunca inclui os
-     * reservados da assinatura (`content-type`, `x-pipe-signature`,
-     * `x-pipe-timestamp`, `x-pipe-delivery`) nem `authorization`: a regra
-     * de gravação (`dominio/gestao/integracoes.ts`) recusa antes de chegar
-     * aqui, então a coluna não precisa de `check` para isso.
+     * Custom headers are `[{ chave, valor }]`. They never include reserved signing headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`. The write rule in `dominio/gestao/integracoes.ts` rejects these before storage, so this column needs no `check`.
      */
     cabecalhos: jsonb('cabecalhos')
       .notNull()

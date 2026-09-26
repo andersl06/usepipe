@@ -21,7 +21,7 @@ export interface RequestOfQueue {
   ativa?: boolean;
 }
 
-/** Só o que veio muda; campo ausente é "não mexa" — igual ao `PATCH` de fluxo. */
+/** Only supplied fields change; an absent field means leave it untouched, as with flow `PATCH`. */
 export interface RequestOfEditOfQueue {
   nome?: string;
   cor?: string | null;
@@ -102,7 +102,7 @@ export interface RespostaProntaGravada {
 
 /* --------------------------------------------------- regras de atendimento */
 
-/** Os quatro operadores de `apps/api/src/dominio/gestao/regra-fila.ts` — duplicado à mão, como o resto deste arquivo. */
+/** The four operators in `apps/api/src/dominio/gestao/regra-fila.ts`, manually duplicated like the rest of this file. */
 export type OperatorOfRuleQueue = 'contem' | 'nao_contem' | 'igual' | 'diferente';
 
 export interface ConditionOfRuleQueue {
@@ -111,7 +111,7 @@ export interface ConditionOfRuleQueue {
   value: string;
 }
 
-/** Só o que veio muda; `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
+/** Only supplied fields change; when supplied, `condicoes` replaces all previous conditions. */
 export interface RequestOfEditOfRuleQueue {
   nome?: string;
   order?: number;
@@ -163,7 +163,7 @@ export interface RegraSlaGravada {
   ativa: boolean;
 }
 
-/* --------------------------------------------------------------- horários */
+
 
 export interface RequestOfEditOfRange {
   diaSemana?: number;

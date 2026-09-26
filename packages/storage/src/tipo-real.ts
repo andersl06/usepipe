@@ -1,23 +1,16 @@
 /**
- * Carimbo do tipo REAL do arquivo, pelos primeiros bytes.
+ * Determine the file's REAL type from its first bytes.
  *
- * Antivírus não; isto sim — foi a decisão. O motivo é direto: extensão e
- * `Content-Type` do upload são texto que o cliente escreveu, e um `.png` que na
- * verdade é HTML vira XSS na hora em que alguém abre o "anexo" no navegador. O que
- * mandamos para o `Content-Type` na leitura é o que os BYTES dizem, não o que o
- * upload prometeu.
+ * The decision was byte sniffing rather than antivirus. Upload extensions and `Content-Type` are client-supplied text; a `.png` that is actually HTML can cause XSS when someone opens the "attachment" in a browser. The response `Content-Type` follows the BYTES, not the upload claim.
  *
- * A tabela é curta de propósito: cobre os formatos que a Blip aceita e que têm
- * assinatura estável. O que não tem assinatura reconhecível (texto, csv, svg) não é
- * adivinhado — volta `null`, e quem chamou decide, sabendo que não sabe.
+ * The table is intentionally short: it covers Blip-accepted formats with stable signatures. Formats without a recognizable signature (text, CSV, SVG) are not guessed: return `null` and let the caller decide while knowing the type is unknown.
  *
- * ponytail: sniffing por magic number de tabela fixa; se um dia entrar formato exótico,
- * troque por `file-type` em vez de crescer a tabela.
+ * ponytail: sniffing uses a fixed magic-number table; if an exotic format is needed, use `file-type` instead of growing this table.
  */
 
 interface Assinatura {
   mime: string;
-  /** Bytes esperados. `null` em uma posição é curinga. */
+
   bytes: (number | null)[];
   offset?: number;
 }
@@ -29,9 +22,9 @@ const ASSINATURAS: Assinatura[] = [
   { mime: 'image/tiff', bytes: [0x49, 0x49, 0x2a, 0x00] },
   { mime: 'image/tiff', bytes: [0x4d, 0x4d, 0x00, 0x2a] },
   { mime: 'application/pdf', bytes: [0x25, 0x50, 0x44, 0x46, 0x2d] },
-  // OOXML (docx/xlsx/pptx) e zip têm a MESMA assinatura: é tudo zip. Distinguir
-  // exigiria abrir o pacote; para o que precisamos (não é HTML, não é executável),
-  // `application/zip` já responde.
+  // OOXML (docx/xlsx/pptx) and ZIP have the SAME signature: both are ZIP. Distinguishing them
+  // would require opening the archive; for our purpose (it is not HTML or an executable),
+  // `application/zip` is sufficient.
   { mime: 'application/zip', bytes: [0x50, 0x4b, 0x03, 0x04] },
   { mime: 'application/zip', bytes: [0x50, 0x4b, 0x05, 0x06] },
   { mime: 'application/x-rar-compressed', bytes: [0x52, 0x61, 0x72, 0x21, 0x1a, 0x07] },
@@ -39,12 +32,12 @@ const ASSINATURAS: Assinatura[] = [
   { mime: 'audio/ogg', bytes: [0x4f, 0x67, 0x67, 0x53] },
   { mime: 'audio/wav', bytes: [0x52, 0x49, 0x46, 0x46, null, null, null, null, 0x57, 0x41, 0x56, 0x45] },
   { mime: 'video/avi', bytes: [0x52, 0x49, 0x46, 0x46, null, null, null, null, 0x41, 0x56, 0x49, 0x20] },
-  // `ftyp` na posição 4 é a família ISO-BMFF: mp4, m4v, mov, 3gp e o áudio m4a.
+  // `ftyp` at offset 4 identifies the ISO-BMFF family: mp4, m4v, mov, 3gp, and m4a audio.
   { mime: 'video/mp4', bytes: [0x66, 0x74, 0x79, 0x70], offset: 4 },
   { mime: 'video/webm', bytes: [0x1a, 0x45, 0xdf, 0xa3] },
 ];
 
-/** O MIME que os bytes revelam, ou `null` quando não há assinatura reconhecível. */
+
 export function tipoReal(data: Uint8Array): string | null {
   for (const assinatura of ASSINATURAS) {
     const inicio = assinatura.offset ?? 0;
@@ -58,11 +51,9 @@ export function tipoReal(data: Uint8Array): string | null {
 }
 
 /**
- * Conteúdo que o navegador executa se for servido inline.
+ * Content that a browser executes if served inline.
  *
- * HTML é aceito pela Blip e por nós, mas servi-lo com o próprio `Content-Type` no
- * nosso domínio é entregar execução de script na sessão de quem abriu. Estes vão
- * sempre como `application/octet-stream` + `Content-Disposition: attachment`.
+ * Blip and Pipe accept HTML, but serving it with its own `Content-Type` on our domain would allow script execution in the opener's session. Always serve these as `application/octet-stream` with `Content-Disposition: attachment`.
  */
 const PERIGOSOS_INLINE = new Set(['text/html', 'image/svg+xml', 'application/xhtml+xml']);
 
@@ -71,11 +62,9 @@ export function serveAsAttachment(mime: string): boolean {
 }
 
 /**
- * O MIME com que o arquivo será SERVIDO.
+ * The MIME type used to SERVE the file.
  *
- * Regra: se os bytes dizem uma coisa e o upload disse outra, ganham os bytes. Quando
- * os bytes não dizem nada (texto, csv), fica o declarado — mas só se ele estiver na
- * lista de aceitos, o que quem chama já garantiu.
+ * If the bytes and upload declaration disagree, the bytes win. If the bytes identify no type (text, CSV), retain the declared type, but only if it is accepted, as the caller has already ensured.
  */
 export function mimeParaServir(declarado: string, dados: Uint8Array): string {
   const real = tipoReal(dados);

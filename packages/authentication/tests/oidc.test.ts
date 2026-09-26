@@ -13,11 +13,9 @@ import {
 import type { ConfigOidc, DescobertaOidc } from '../src/oidc.js';
 
 /**
- * Um teste por armadilha de `referencias-blip/pesquisa/sso-multi-tenant.md` §8.
+ * One test per trap in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8.
  *
- * O que une todas elas: **nenhuma dá erro quando está errada.** Todas dão login
- * concedido, para a pessoa errada, sem nada no log. É por isso que cada uma tem
- * teste próprio em vez de um "o fluxo funciona" só.
+ * When these checks are wrong, they do not raise errors: they silently grant the wrong person login. Each therefore needs its own test rather than one broad happy-path test.
  */
 
 const EMISSOR = 'https://acme.okta.example';
@@ -55,7 +53,7 @@ async function assinar(
     .sign(privateKey);
 }
 
-/** Um `fetch` que devolve o documento de descoberta pedido, sem sair para a rede. */
+
 function buscarDescoberta(document: unknown, ok = true): typeof fetch {
   return (async () => ({ ok, status: ok ? 200 : 404, json: async () => document }) as Response) as
     unknown as typeof fetch;
@@ -76,14 +74,14 @@ describe('Discover identity provider endpoints through `.well-known`', () => {
   });
 
   it('recusa emissor sem https', async () => {
-    // Descoberta em texto claro é o documento inteiro — inclusive o `jwks_uri` —
+    // Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.
     // escolhido por quem estiver no caminho.
     await expect(descobrir('http://acme.example')).rejects.toThrow(/https/);
   });
 
   it('Reject discovery metadata that names a different issuer', async () => {
-    // A raiz da família de ataques de mix-up: um emissor se dizer outro e roubar
-    // a validação de `iss` que faríamos depois.
+    // The root of IdP mix-up attacks: an issuer claiming to be another and taking over
+    // our subsequent `iss` validation.
     await expect(
       descobrir(
         EMISSOR,
@@ -139,8 +137,8 @@ describe('Verify ID tokens (`id_token`)', () => {
   });
 
   it('recusa token emitido para outro aplicativo', async () => {
-    // Sem `audience`, uma asserção feita para o app de outro entra aqui — e no
-    // Entra basta o atacante ter o próprio registro de aplicativo.
+    // Without `audience`, an assertion for another app could enter here; in
+    // Entra, the attacker only needs their own app registration.
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
@@ -197,8 +195,8 @@ describe('Verify ID tokens (`id_token`)', () => {
   });
 
   it('recusa token de outra tentativa — é o replay que o nonce fecha', async () => {
-    // A resposta passa pelo navegador e é trivial de capturar. O que impede o
-    // reenvio é o `nonce` ser de uma tentativa só, e o cookie do desafio morrer
+    // The response passes through the browser and is easy to capture. A per-attempt
+    // `nonce` prevents replay, and the challenge cookie must expire on return.
     // na volta.
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
@@ -233,18 +231,18 @@ describe('Microsoft Entra ID', () => {
   };
 
   it('Use `{tid}:{oid}` as the account key instead of `sub`', () => {
-    // O `sub` é *pairwise* por registro de aplicativo: recriar o app troca o
-    // `sub` de todo mundo e órfã TODAS as contas de uma vez. O `oid` não muda.
+    // `sub` is pairwise per app registration: recreating the app changes
+    // everyone's `sub` and orphans ALL linked accounts. `oid` stays stable.
     expect(sujeitoDoToken('entra', { sub: 'pairwise-xyz', tid, oid: 'oid-1' })).toBe(
       `${tid}:oid-1`,
     );
     expect(sujeitoDoToken('generico', { sub: 'pairwise-xyz', oid: 'oid-1' })).toBe('pairwise-xyz');
-    // Sem `oid` não há sujeito: melhor recusar do que cair no `sub`.
+    // Without `oid`, there is no Entra subject; reject rather than falling back to `sub`.
     expect(sujeitoDoToken('entra', { sub: 'pairwise-xyz', tid })).toBe('');
   });
 
   it('e-mail verificado no Entra é xms_edov, não email_verified', () => {
-    // O Entra não emite `email_verified`. Quem trata a ausência como verdadeira
+    // Entra does not emit `email_verified`. Treating its absence as true
     // abre o buraco; quem exige `email_verified` quebra o Entra inteiro.
     expect(emailVerificado('entra', { xms_edov: true })).toBe(true);
     expect(emailVerificado('entra', {})).toBe(false);
@@ -271,8 +269,8 @@ describe('Microsoft Entra ID', () => {
   });
 
   it('recusa token de OUTRO diretório da Microsoft', async () => {
-    // Em app multi-tenant, validar só a forma do `iss` deixa entrar qualquer
-    // diretório. É o `tid` conferido contra a lista do cliente que fecha.
+    // In a multitenant app, checking only the shape of `iss` admits any
+    // directory. Checking `tid` against the tenant's allowlist closes that gap.
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR_ENTRA,
@@ -290,9 +288,9 @@ describe('Microsoft Entra ID', () => {
   });
 
   it('sem xms_edov o token passa, mas marcado como não verificado', async () => {
-    // A recusa não é aqui: é na hora de casar a identidade com um usuário que já
-    // existe (`entrada.ts`). Assim o teste da conexão consegue MOSTRAR ao admin
-    // que falta habilitar o claim, em vez de só falhar.
+    // Rejection happens when matching this identity to an existing user, not here
+    // (`entrada.ts`). This lets the connection test SHOW the administrator
+    // that the claim must be enabled instead of merely failing.
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR_ENTRA,
@@ -342,7 +340,7 @@ describe('troca do código', () => {
   });
 
   it('recusa a volta com state diferente do que foi enviado', async () => {
-    // O `state` fecha o CSRF de login: a vítima entrando na conta do atacante.
+    // `state` prevents login CSRF: a victim signing into the attacker's account.
     const desafio = createChallenge();
     await expect(
       exchangeCodeOidc(config, descoberta, desafio, { code: 'abc', state: 'outro' }),

@@ -1,19 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder/FlowManager.cs (ProcessInputAsync, ProcessActionsAsync,
- * ProcessOutputsAsync, ValidateInputAsync, ValidateDocument), Hosting/ConventionsConfiguration.cs
- * (os limites), Constants.cs (formatos de data) e as exceções FlowConstructionException,
- * ActionProcessingException, OutputProcessingException e BuilderException
- * — modificado: C# → TypeScript; sem semáforo (a `api` trava a linha da execução no
- * banco), sem trace remoto (o rastro volta para virar `execucao_passo`), sem
- * subfluxo e sem `inputExpiration` (lançam), sem `ExecuteBlipFunction` (vira
- * `ExecuteScriptV2`, que não existe no Pipe) e sem os logs de monitoramento.
- *
- * A ordem de execução é a do original, e é o que importa preservar:
- * ações globais de entrada → [valida a entrada → grava `input.variable`] → ações de
- * saída do estado → condições de saída (a primeira que casar vence) → ações de "depois
- * de trocar de estado" → grava o estado → ações de entrada do próximo estado → repete
- * enquanto o próximo estado não esperar entrada → ações globais de saída.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/FlowManager.cs (`ProcessInputAsync`, `ProcessActionsAsync`, `ProcessOutputsAsync`, `ValidateInputAsync`, `ValidateDocument`), Hosting/ConventionsConfiguration.cs (limits), Constants.cs (date formats), and FlowConstructionException, ActionProcessingException, OutputProcessingException, BuilderException. Changes from C# to TypeScript: no semaphore because the `api` locks the execution row in the database; no remote trace because the returned trace becomes `execucao_passo`; subflows and `inputExpiration` throw; `ExecuteBlipFunction` maps to unsupported `ExecuteScriptV2`; no monitoring logs. Preserve execution order: global entry actions → validate input and store `input.variable` → state exit actions → first matching output → after-state-change actions → store state → next state entry actions → repeat until input is awaited → global exit actions.
  */
 
 import { avaliarConditions, paraDecimal } from './condition.js';
@@ -38,13 +24,13 @@ import { contextEhVariable, validateFlow } from './modelos.js';
 import type { ActionsProvider } from './actions.js';
 import { PROVEDOR_PADRAO, obterAcao } from './actions.js';
 
-/** `ConventionsConfiguration`: os números são os do original. */
+/** `ConventionsConfiguration` values match the source. */
 export interface MotorConfiguration {
-  /** `MaxTransitionsByInput`: a trava contra laço. */
+  /** `MaxTransitionsByInput` guards against loops. */
   maxTransitionsByInbound: number;
   /** `InputProcessingTimeout`. */
   inboundTimeLimitMs: number;
-  /** `DefaultActionExecutionTimeout`, quando a ação não diz o seu. */
+  /** `DefaultActionExecutionTimeout` applies when an action supplies none. */
   defaultActionTimeLimitMs: number;
 }
 
@@ -73,7 +59,7 @@ export interface StateRastro {
 export interface InboundRastro {
   estados: StateRastro[];
   actionsGlobal: RastroDeAcao[];
-  /** Estado em que o usuário ficou; nulo = o próximo contato recomeça na raiz. */
+  /** State left for the user; null means the next contact starts at the root. */
   stateFinalId: string | null;
   error?: string;
 }
@@ -110,7 +96,7 @@ export class ProcessingOutputError extends Error {
   }
 }
 
-/** `BuilderException`: o erro que sai do motor, com o rastro até onde deu. */
+/** `BuilderException`: engine error carrying the trace up to the failure. */
 export class MotorError extends Error {
   constructor(
     message: string,
@@ -154,10 +140,7 @@ export interface MotorOptions {
 }
 
 /**
- * `FlowManager.ProcessInputAsync`: processa UMA entrada do usuário no fluxo.
- *
- * O estado e as variáveis vivem em `contexto.variaveis`, que a `api` carrega e grava.
- * Devolve o rastro; em erro, lança `ErroDoMotor` com o rastro até onde chegou.
+ * `FlowManager.ProcessInputAsync` processes ONE user input. The `api` loads and stores state and variables in `contexto.variaveis`. Return the trace, or throw `ErroDoMotor` with the trace up to the error.
  */
 export async function processarInbound(
   context: Context,
@@ -176,7 +159,7 @@ export async function processarInbound(
   try {
     validateFlow(flow);
 
-    // Restaura o estado guardado; sem estado (ou estado que sumiu do fluxo), a raiz.
+    // Restore stored state; use the root if absent or missing from this flow.
     const stateId = obterStateId(context);
     state = flow.states.find((s) => s.id === stateId) ?? flow.states.find((s) => s.root)!;
 
@@ -219,7 +202,6 @@ export async function processarInbound(
           }
         }
 
-        // Prepara a saída do estado atual executando as ações de saída.
         await processarActions(
           context,
           corrente.outputActions,
@@ -237,7 +219,7 @@ export async function processarInbound(
           anteriorId = await substituirVariables(anteriorId, context);
 
         if (corrente.end) {
-          // `RedirectToParentFlowAsync`: sem fluxo pai, o original lança.
+          // `RedirectToParentFlowAsync`: the source throws when there is no parent flow.
           throw new BuildFlowError(
             `O estado '${corrente.id}' é de fim de subfluxo, e subfluxo não existe no Pipe.`,
           );
@@ -246,7 +228,7 @@ export async function processarInbound(
         state = await processarSaidas(context, flow, corrente);
         definirStateAnteriorId(context, anteriorId);
 
-        // Só roda o "depois de trocar" quando o estado de fato mudou.
+        // Run after-state-change actions only when the state actually changed.
         if (corrente.id !== state?.id) {
           await processarActions(
             context,
@@ -289,7 +271,6 @@ export async function processarInbound(
           apagarStateId(context);
         }
 
-        // Ações de entrada do próximo estado.
         await processarActions(
           context,
           state?.inputActions,
@@ -302,7 +283,7 @@ export async function processarInbound(
           cursorPendente,
         );
 
-        // Trava contra laço no fluxo.
+        // Guard against a flow loop.
         if (transitions++ >= configuration.maxTransitionsByInbound) {
           throw new BuildFlowError(
             `O limite de ${configuration.maxTransitionsByInbound} transições de estado por entrada foi atingido.`,
@@ -312,7 +293,7 @@ export async function processarInbound(
         atual.error = messageOf(error);
         throw error;
       } finally {
-        // Continua enquanto o próximo estado não esperar entrada.
+        // Continue while the next state does not await input.
         const inboundCondition =
           !state?.input?.conditions ||
           (await avaliarConditions(state.input.conditions, context.inbound, context));
@@ -366,7 +347,7 @@ async function processarActions(
   cursor: (CursorDeProcessHttp & { resposta?: RespostaDeHttp; consumido?: boolean }) | null,
 ): Promise<void> {
   if (!actions) return;
-  // `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.
+  // `OrderBy` is stable, as is `sort`: without `order`, retain file order.
   const ordenadas = [...actions].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const alvo = cursor && cursor.lista === lista && cursor.estadoId === stateId ? cursor : null;
   if (cursor && !cursor.consumido && !alvo) return;
@@ -392,7 +373,7 @@ async function processarActions(
       let settings: Record<string, unknown> | null = null;
       if (flowAction.settings !== undefined && flowAction.settings !== null) {
         let texto = JSON.stringify(flowAction.settings);
-        // `ExecuteTemplate` recebe o modelo cru; as demais, com as variáveis trocadas.
+        // `ExecuteTemplate` receives the raw template; other actions receive substituted variables.
         if (acao.tipo !== 'ExecuteTemplate') texto = await substituirVariables(texto, context);
         settings = JSON.parse(texto) as Record<string, unknown>;
       }
@@ -433,7 +414,7 @@ async function processarActions(
   }
 }
 
-/** `ProcessOutputsAsync`: a primeira saída que casar vence; nenhuma = estado nulo. */
+/** `ProcessOutputsAsync`: the first matching output wins; none produces a null state. */
 async function processarSaidas(
   context: Context,
   flow: FlowBlip,
@@ -470,16 +451,15 @@ async function processarSaidas(
 }
 
 /**
- * `ValidateInputAsync`: entrada fora da regra manda a mensagem de erro e para — o
- * usuário continua no mesmo estado.
+ * `ValidateInputAsync`: invalid input sends an error message and stops; the user remains in the same state.
  */
 async function stateValidarInbound(context: Context, state: State): Promise<boolean> {
   const validation = state.input?.validation;
   const conteudo = context.inbound.serializedContent;
   if (!validation || !conteudo || validateDocument(context, validation)) return true;
   if (validation.error) {
-    // Na Blip, erro com `{{variável}}` sai com `#message.spinText` e o servidor troca a
-    // variável; aqui não há servidor no meio, então a troca é feita antes.
+    // In Blip, an error containing `{{variável}}` is sent with `#message.spinText` and the server
+    // substitutes the variable; here no server intervenes, so substitution happens first.
     const texto = contextEhVariable(validation.error)
       ? await substituirVariables(validation.error, context)
       : validation.error;
@@ -514,7 +494,7 @@ const TOKENS_DE_DATA: Record<string, string> = {
   K: '(?<fuso>Z|[+-]\\d{2}:\\d{2})?',
 };
 
-/** `DateTime.TryParseExact` com espaço permitido, para os formatos acima. */
+/** `DateTime.TryParseExact` allowing spaces for the formats above. */
 function casaData(texto: string, format: string): boolean {
   const padrao = format.replace(
     /yyyy|yy|MM|dd|HH|mm|ss|K|[^A-Za-z]/g,

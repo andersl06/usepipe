@@ -1,10 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs
- * e Actions/ActionConditionsTests.cs
- * — modificado: xUnit/NSubstitute → vitest com um `ServicosDoMotor` falso; onde o
- * original usa `ExecuteScript` para gravar variável, aqui é `SetVariable` (script não
- * existe no Pipe); as asserções olham o contexto e o que saiu, e não chamadas de mock.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs, and Actions/ActionConditionsTests.cs. Changes: xUnit/NSubstitute to vitest with a fake `ServicosDoMotor`; where the original uses `ExecuteScript` to store a variable, this uses `SetVariable` because Pipe has no script action; assertions inspect context and output rather than mock calls.
  */
 import { describe, expect, it } from 'vitest';
 import { createInbound } from './context.js';

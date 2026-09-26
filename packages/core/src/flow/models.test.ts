@@ -1,7 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder.UnitTests/Models/FlowTests.cs
- * — modificado: xUnit/Shouldly → vitest; mensagens em português.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0), src/Take.Blip.Builder.UnitTests/Models/FlowTests.cs. Changes: xUnit/Shouldly to vitest; messages remain Portuguese.
  */
 import { describe, expect, it } from 'vitest';
 import { validateFlow } from './modelos.js';

@@ -1,10 +1,8 @@
 /**
- * `POST /v1/conversas/:id/encerrar` e a ação correspondente do monitoramento.
- * A Blip aceita a lista de tags removíveis de `blip-tags`; o campo singular
- * continua existindo para clientes antigos da Pipe durante a migração.
+ * `POST /v1/conversas/:id/encerrar` and the matching monitoring action. Blip accepts removable tag lists from `blip-tags`; the singular field remains for old Pipe clients during migration.
  */
 export interface CloseConversationInput {
   etiqueta_ids?: string[];
-  /** @deprecated Envie `etiqueta_ids`, que permite várias tags ou lista vazia. */
+  /** @deprecated Send `etiqueta_ids`, which accepts multiple tags or an empty list. */
   etiqueta_id?: string;
 }

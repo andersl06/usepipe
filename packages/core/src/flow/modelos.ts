@@ -1,16 +1,11 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder/Models/Flow.cs, State.cs, Input.cs, Output.cs e Action.cs
- * — modificado: C# → TypeScript; as classes viram interfaces sobre o JSON publicado da
- * Blip, com as MESMAS chaves, para o motor ler o fluxo da Blip sem tradução; os
- * `Validate()` viram `validarFluxo`; mensagens em português; `TraceSettings` e
- * `BuilderConfiguration` ficaram de fora.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/Models/Flow.cs, State.cs, Input.cs, Output.cs, and Action.cs. Changes from C# to TypeScript: classes become interfaces over published Blip JSON with the SAME keys so the engine reads it without translation; `Validate()` becomes `validarFluxo`; messages remain Portuguese; `TraceSettings` and `BuilderConfiguration` are omitted.
  */
 
 import type { ConditionBlip } from './condition.js';
 import { ValidationError, validateCondition } from './condition.js';
 
-/** `Action`. `settings` é o JSON livre de cada tipo (o `JRaw` do original). */
+/** `Action`: `settings` is free JSON per type, corresponding to original `JRaw`. */
 export interface Acao {
   id?: string;
   $title?: string;
@@ -34,7 +29,7 @@ export interface InboundValidation {
   error?: string | null;
 }
 
-/** `Input`: o que o estado espera do usuário. */
+
 export interface Inbound {
   bypass?: boolean;
   conditions?: ConditionBlip[] | null;
@@ -43,7 +38,7 @@ export interface Inbound {
   variable?: string | null;
 }
 
-/** `Output`: a transição. */
+
 export interface Saida {
   order?: number;
   conditions?: ConditionBlip[] | null;
@@ -51,8 +46,7 @@ export interface Saida {
 }
 
 /**
- * `State`. O que não é do modelo (`name`, `$position`, `$tags`…) fica no próprio objeto,
- * como o `ExtensionData` do original — é dali que `{{state.name}}` lê.
+ * `State` retains nonmodel fields (`name`, `$position`, `$tags`, etc.) on the object, like original `ExtensionData`; `{{state.name}}` reads them there.
  */
 export interface State {
   id: string;
@@ -67,7 +61,7 @@ export interface State {
   [extensao: string]: unknown;
 }
 
-/** As chaves do modelo; o resto do estado é `ExtensionData`. */
+/** Model keys; remaining state fields are `ExtensionData`. */
 export const KEYS_OF_STATE = new Set([
   'id',
   'root',
@@ -99,7 +93,7 @@ const VARIABLE_OF_INBOUND = /^([a-zA-Z0-9.]+)$/;
 
 export const ehSubfluxo = (flow: FlowBlip): boolean => flow.type?.toLowerCase() === 'subflow';
 
-/** `stateId` no formato `{{variavel}}`: destino calculado em tempo de execução. */
+/** `stateId` in `{{variavel}}` form: destination calculated at runtime. */
 export const contextEhVariable = (id: string): boolean =>
   id.startsWith('{{') && id.endsWith('}}');
 
@@ -145,9 +139,7 @@ export function validateState(state: State): void {
 }
 
 /**
- * `Flow.Validate()`: o contrato real de um fluxo válido — um só estado raiz, a raiz
- * espera entrada e não tem condição, ids únicos, destino de saída existente (ou
- * `{{variável}}`) e nenhum laço que não passe por uma entrada.
+ * `Flow.Validate()` contract for a valid flow: exactly one root state; root awaits input and has no condition; unique IDs; every output destination exists or is `{{variável}}`; and no loop bypasses input.
  */
 export function validateFlow(flow: FlowBlip): void {
   if (!flow.id) throw new ValidationError('O id do fluxo é obrigatório.');
@@ -175,7 +167,7 @@ export function validateFlow(flow: FlowBlip): void {
 
   const byId = new Map(flow.states.map((s) => [s.id, s]));
 
-  // Existe um caminho direto (sem entrada) de volta a `alvo`?
+  // Is there a direct path without input back to `alvo`?
   const podeSerAlcancado = (alvo: State, saida: Saida, vistos: Set<string>): boolean => {
     if (vistos.has(saida.stateId)) return false;
     const outputState = byId.get(saida.stateId);
@@ -195,9 +187,9 @@ export function validateFlow(flow: FlowBlip): void {
       if (!byId.has(saida.stateId) && !contextEhVariable(saida.stateId)) {
         throw new ValidationError(`O estado de destino '${saida.stateId}' da saída não existe.`);
       }
-      // Igual ao original: a segunda metade testa a entrada da RAIZ, não a do estado.
-      // Como a raiz com bypass já foi recusada acima, na prática só estado sem
-      // entrada nenhuma é conferido.
+      // As in the source, the second half tests ROOT input, not this state's input.
+      // The root with bypass was already rejected above, so in practice only a state with no
+      // input is checked.
       if (!state.input || (!subfluxo && raiz.input.bypass)) {
         if (podeSerAlcancado(state, saida, new Set())) {
           throw new ValidationError(
@@ -212,7 +204,7 @@ export function validateFlow(flow: FlowBlip): void {
   for (const a of flow.afterStateChangedActions ?? []) validarAcao(a);
 }
 
-/** Um erro de `validarFluxo` preso ao estado que o causa; `null` quando é do fluxo inteiro. */
+/** `validarFluxo` error attached to its causing state, or null for a whole-flow error. */
 export interface ByStateError {
   stateId: string | null;
   message: string;
@@ -229,15 +221,7 @@ const validationMessage = (conferir: () => void): string | null => {
 };
 
 /**
- * TODOS os erros que `validarFluxo` apontaria, e não só o primeiro — cada um preso ao
- * estado que o causa, para o Builder marcar o bloco certo.
- *
- * `validarFluxo` para no primeiro porque é o porte fiel do `Flow.Validate()`; o motor
- * não precisa de mais. A tela precisa: quem desenha quer ver de uma vez tudo o que
- * falta. Cada estado é conferido sozinho (`validarEstado` e o destino de cada saída),
- * e depois o fluxo inteiro, para apanhar o que é do conjunto — raiz ausente ou
- * repetida, id repetido, laço sem entrada. As frases são as MESMAS de `validarFluxo`:
- * lista vazia aqui é o mesmo que `validarFluxo` passar.
+ * Return ALL errors `validarFluxo` would report, each attached to its causing state so Builder marks the right block. `validarFluxo` stops at the first error to remain faithful to `Flow.Validate()`; the engine needs only that. The UI needs all missing pieces at once. Validate each state and output destination, then whole-flow conditions such as missing or duplicate root, duplicate ID, and loop without input. Messages match `validarFluxo` exactly; an empty list means validation would pass.
  */
 export function flowErrors(flow: FlowBlip): ByStateError[] {
   const errors: ByStateError[] = [];
@@ -260,7 +244,7 @@ export function flowErrors(flow: FlowBlip): ByStateError[] {
   }
 
   const geral = validationMessage(() => validateFlow(flow));
-  // O que `validarFluxo` apontou e já está na lista por estado não entra duas vezes.
+  // Do not duplicate a `validarFluxo` error already listed for a state.
   if (!geral || errors.some((e) => e.message === geral)) return errors;
 
   const raizes = estados.filter((s) => s.root);

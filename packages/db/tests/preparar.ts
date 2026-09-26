@@ -22,17 +22,13 @@ async function respondeu(url: string): Promise<boolean> {
 }
 
 /**
- * O teste de RLS só prova alguma coisa contra um Postgres de verdade. Se o do
- * `docker-compose.yml` não estiver de pé, esta rotina sobe ele e espera ficar saudável.
+ * The RLS test proves behavior only against a real Postgres instance. If the instance in `docker-compose.yml` is down, this setup starts it and waits until it is healthy.
  */
 export async function setup(): Promise<void> {
   /*
-   * Chave de cifra para o ambiente de teste.
+   * Encryption key for the test environment.
    *
-   * A cifra de segredo de canal falha alto quando não há chaveiro, e é isso que
-   * queremos em produção: melhor a API não subir do que subir gravando token da
-   * Meta em texto claro achando que não. Em teste, a chave é fixa e pública de
-   * propósito — ela não protege nada aqui, só faz o caminho existir.
+   * Channel-secret encryption fails loudly without a keyring. In production, the API must fail to start rather than silently store Meta tokens in plaintext. The test key is deliberately fixed and public: it protects no test data, but enables the encryption path.
    */
   process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('base64')}`;
   process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';

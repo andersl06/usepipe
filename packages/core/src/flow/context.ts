@@ -1,14 +1,5 @@
 /**
- * Portado de takenet/blip-sdk-csharp (Apache-2.0),
- * src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs,
- * Utils/VariableReplacer.cs e Variables/{VariableSource,InputVariableProvider,
- * StateVariableProvider,ContactVariableProvider}.cs
- * — modificado: C# → TypeScript; o contexto do usuário, que na Blip mora num serviço
- * remoto, aqui é um mapa em memória carregado de `execucao_fluxo.contexto` (quem lê e
- * grava no banco é a `api`); `LazyInput` sem IA (intenção e entidade chegam prontas ou
- * nulas); a expiração de variável não é guardada; provedores que dependem de serviço da
- * Blip (bucket, resource, tunnel, calendar, secret…) não existem e lançam, como o
- * original lança para fonte sem provedor.
+ * Ported from takenet/blip-sdk-csharp (Apache-2.0): src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs, Utils/VariableReplacer.cs, and Variables/{VariableSource,InputVariableProvider,StateVariableProvider,ContactVariableProvider}.cs. Changes from C# to TypeScript: Blip's remote user context becomes an in-memory map loaded from `execucao_fluxo.contexto` by the `api`; `LazyInput` has no AI, so intent/entity arrive prepared or null; variable expiration is not stored; Blip service providers (bucket, resource, tunnel, calendar, secret, etc.) are absent and throw, as the original does when a source lacks a provider.
  */
 
 import type { FlowBlip } from './modelos.js';
@@ -35,7 +26,7 @@ export const FONTES_OF_VARIABLE = [
 ] as const;
 export type VariableFonte = (typeof FONTES_OF_VARIABLE)[number];
 
-/** As fontes que têm provedor no Pipe. As demais lançam, como na Blip sem o provedor. */
+/** Sources with providers in Pipe; others throw, as in Blip without a provider. */
 export const FONTES_SUPORTADAS: ReadonlySet<VariableFonte> = new Set([
   'context',
   'contact',
@@ -45,7 +36,7 @@ export const FONTES_SUPORTADAS: ReadonlySet<VariableFonte> = new Set([
   'ticket',
 ]);
 
-/** A mensagem que chegou, no vocabulário LIME: `tipo` é o MIME (`text/plain`…). */
+/** Incoming message in LIME vocabulary: `tipo` is the MIME type (`text/plain`, etc.). */
 export interface InboundMessage {
   id: string;
   tipo: string;
@@ -70,7 +61,7 @@ export interface Entity {
 /** `LazyInput`. */
 export interface InboundPreguicosa {
   message: InboundMessage;
-  /** `SerializedContent`: texto puro como está, documento JSON serializado. */
+  /** `SerializedContent`: plain text unchanged, JSON document serialized. */
   serializedContent: string;
   intent?: Intent | null;
   entities?: Entity[] | null;
@@ -97,11 +88,11 @@ export interface OutputMessage {
   tipo: string;
   conteudo: unknown;
   metadados?: Record<string, string> | null;
-  /** `SendRawMessage`: o conteúdo é o texto serializado, a desserializar pelo tipo. */
+  /** `SendRawMessage`: content is serialized text to deserialize according to its type. */
   bruto?: boolean;
 }
 
-/** O atendimento humano aberto. É o `Ticket` da Blip. */
+/** Open human ticket, corresponding to Blip `Ticket`. */
 export interface Attendance {
   id: string;
   [campo: string]: unknown;
@@ -130,8 +121,7 @@ export interface CursorDeProcessHttp {
 }
 
 /**
- * As dependências externas do motor — o `ISender` e as extensões da Blip. Quem
- * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
+ * External engine dependencies mirror Blip `ISender` and extensions. The `api` implements them; network actions must run outside the inbound transaction.
  */
 export interface ServicosDoMotor {
   send(message: OutputMessage): Promise<void>;
@@ -140,14 +130,12 @@ export interface ServicosDoMotor {
     settings: Record<string, unknown> | null;
   }): Promise<Attendance>;
   registerEvent(evento: Record<string, unknown>): Promise<void>;
-  /** A api executa isto; o core só descreve a chamada e não faz rede. */
+  /** The `api` executes the request; core only describes it and performs no network access. */
   callHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
-  /** A API grava o cursor e chama a rede depois que a transação termina. */
+  /** The API stores the cursor and calls the network after the transaction ends. */
   suspendHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /**
-   * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
-   * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — "o
-   * redirecionamento funciona apenas no Bot Router" (help.blip.ai).
+   * `IRedirectManager.RedirectUserAsync` moves the contact to another router service. When absent, this flow is not behind a router and `Redirect` fails: "o redirecionamento funciona apenas no Bot Router" (help.blip.ai).
    */
   redirect?(pedido: { endereco: string; context: unknown }): Promise<void>;
 }
@@ -163,13 +151,13 @@ export interface Context {
   user: string;
   flow: FlowBlip;
   inbound: InboundPreguicosa;
-  /** O contexto do usuário, persistido. Na Blip, tudo aqui é texto. */
+  /** Persisted user context; Blip stores every value here as text. */
   variables: Record<string, string>;
-  /** `InputContext`: vale só durante esta entrada (estado atual, ticket criado…). */
+  /** `InputContext` lasts only for this input, including current state and created ticket. */
   inboundContext: Map<string, unknown>;
-  /** O contato no vocabulário da Blip (`name`, `phoneNumber`, `email`, `extras`…). */
+  /** Contact in Blip vocabulary (`name`, `phoneNumber`, `email`, `extras`, etc.). */
   contact?: Record<string, unknown> | null;
-  /** Provedores extras, ou para trocar os padrão. */
+  /** Extra providers or replacements for defaults. */
   providers?: Partial<Record<VariableFonte, VariableProvider>>;
   services: ServicosDoMotor;
 }
@@ -189,8 +177,7 @@ export function contextObterVariable(context: Context, nome: string): string | n
 }
 
 /**
- * `SetVariableAsync`. ponytail: a expiração (`expiration`) do original não é guardada —
- * a variável vale até ser apagada ou sobrescrita. Guardar exige carimbo por chave.
+ * `SetVariableAsync`. ponytail: source `expiration` is not persisted, so a variable lasts until deletion or overwrite. Persistence would require a timestamp per key.
  */
 export function definirVariable(context: Context, nome: string, value: string | null): void {
   context.variables[nome] = value ?? '';
@@ -215,7 +202,7 @@ export const definirStateAnteriorId = (c: Context, id: string): void =>
   definirVariable(c, stateAnteriorKey(c.flow.id), id);
 export const apagarStateId = (c: Context): void => apagarVariable(c, stateKey(c.flow.id));
 
-/** Lê o estado guardado num contexto já persistido, sem montar `Contexto`. */
+/** Read stored state from already persisted context without constructing `Contexto`. */
 export const stateSaved = (variables: Record<string, string>, flowId: string): string | null =>
   variables[stateKey(flowId)] ?? null;
 
@@ -224,7 +211,7 @@ export const stateSaved = (variables: Record<string, string>, flowId: string): s
 const NAME_OF_VARIABLE =
   /^(?<fonteOuNome>[\p{L}\p{N}_]+)(\.(?<nome>[\p{L}\p{N}_.]+))?(@(?<propriedade>([\p{L}\p{N}_.](\[(\d+|\$n)\])?)+))?$/iu;
 
-/** `VariableName.Parse`: `fonte.nome@propriedade`; sem fonte, é variável de contexto. */
+/** `VariableName.Parse`: `fonte.nome@propriedade`; without a source, this is a context variable. */
 export function readVariableName(texto: string): {
   fonte: VariableFonte;
   nome: string;
@@ -246,7 +233,7 @@ function comoTextoDeToken(value: unknown): string {
   return JSON.stringify(value).replace(/^"+|"+$/g, '');
 }
 
-/** `GetJsonProperty`: a propriedade (com pontos) de um valor que é objeto JSON. */
+/** `GetJsonProperty`: dotted property path into a JSON object value. */
 function propertyJson(value: string, property: string): string | null {
   let json: unknown;
   try {
@@ -263,7 +250,7 @@ function propertyJson(value: string, property: string): string | null {
   return comoTextoDeToken(json);
 }
 
-/** Leitura de propriedade sem diferenciar maiúscula — o `GetProperty` por reflexão. */
+/** Case-insensitive property access, matching reflection-based `GetProperty`. */
 function objetoProperty(objeto: unknown, nome: string): string | null {
   if (objeto === null || typeof objeto !== 'object') return null;
   const key = Object.keys(objeto).find((k) => k.toLowerCase() === nome.toLowerCase());
@@ -365,7 +352,7 @@ export async function obterVariable(context: Context, nome: string): Promise<str
 
 const VARIABLES_IN_TEXT = /{{([a-zA-Z0-9.@_-]+)}}/g;
 
-/** `VariableReplacer.ReplaceAsync`: troca `{{nome}}` pelo valor, escapado para JSON. */
+/** `VariableReplacer.ReplaceAsync`: replace `{{nome}}` with its value escaped for JSON. */
 export async function substituirVariables(value: string, context: Context): Promise<string> {
   const values = new Map<string, string | null>();
   for (const m of value.matchAll(VARIABLES_IN_TEXT)) {
@@ -377,7 +364,7 @@ export async function substituirVariables(value: string, context: Context): Prom
   return value.replace(VARIABLES_IN_TEXT, (_todo, nome: string) => values.get(nome) ?? '');
 }
 
-/** `EscapeString`: o valor entra dentro de uma string JSON e não pode quebrá-la. */
+/** `EscapeString`: the inserted value must not break the surrounding JSON string. */
 export function escaparTexto(src: string | null): string | null {
   if (src === null || src.trim() === '') return src;
   let saida = '';

@@ -1,7 +1,5 @@
 /**
- * Schema do Pipe, módulo a módulo, na ordem de dependência do modelo de dados.
- * Duas chaves estrangeiras cruzam módulos em círculo (`fila.horario_id` → Gestão e
- * `contato.conta_id` → CRM) e por isso nascem na migration 0003, fora do schema.
+ * Pipe schema organized by module in data-model dependency order. Two foreign keys cross modules in a cycle (`fila.horario_id` to Management and `contato.conta_id` to CRM), so migration 0003 creates them outside this schema.
  */
 export * from './comum.js';
 export * from './identity.js';

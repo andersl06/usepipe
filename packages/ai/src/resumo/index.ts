@@ -1,7 +1,5 @@
 /**
- * Resumo de atendimento. Duas saídas distintas, porque são dois leitores
- * diferentes: quem vai assumir a conversa agora e quem vai ler a linha do tempo
- * do lead daqui a meses.
+ * Ticket summary has two outputs for two readers: the agent taking over now and someone reading the lead timeline months later.
  */
 
 import { z } from 'zod';
@@ -21,7 +19,7 @@ const EsquemaResumo = z.object({
 
 export interface OptionsSummary {
   transcription: Transcription;
-  /** Fila, produto, campanha — o que ajude a situar a conversa. */
+  /** Queue, product, campaign, or other context for the conversation. */
   context?: string | null;
   maxPalavras?: number;
   template?: string;
@@ -64,12 +62,12 @@ async function resumirCom(
   return { resumo: data.resumo.trim(), consumo, template, prompt: identificador(prompt) };
 }
 
-/** O que aconteceu antes, para o atendente que está assumindo a conversa. */
+/** Prior events for the agent taking over the conversation. */
 export function resumirAbertura(options: OptionsSummary): Promise<ResultadoResumo> {
   return resumirCom(PROMPT_RESUMO_ABERTURA, 'resumo_abertura', options);
 }
 
-/** O que aconteceu agora, para subir na linha do tempo do lead. */
+/** Current events for the lead timeline. */
 export function resumirClosure(options: OptionsSummary): Promise<ResultadoResumo> {
   return resumirCom(PROMPT_SUMMARY_CLOSURE, 'resumo_encerramento', options);
 }

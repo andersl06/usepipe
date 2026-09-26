@@ -1,39 +1,32 @@
 /**
- * Ilustração de estado vazio.
+ * Empty-state illustration.
  *
- * Existe porque a medição do bundle da Blip mostrou `bds-illustration`
- * empacotado como componente (referencias-blip/pesquisa/blip-design-system.md, seção 4):
- * ilustração é componente, não imagem solta, e é assim que eles preenchem
- * estado vazio sem depender de foto. Foto num produto de operação envelhece,
- * pesa e nunca combina com o tema escuro.
+ * Blip bundle measurements showed `bds-illustration` packaged as a component (`referencias-blip/pesquisa/blip-design-system.md`, section 4). An illustration is a component rather than a loose image, allowing Blip-style empty states without a photo. Photos age quickly in an operations product, add weight, and clash with dark mode.
  *
- * Desenho: a mesma linguagem do símbolo da marca — monoline, traço uniforme,
- * pontas e curvas arredondadas, e o vão entre as peças fazendo parte do
- * desenho (docs/marca/MARCA.md). Duas cores por cena: o traço neutro herda
- * `currentColor` da classe `.ilustracao`, e o acento vem da paleta estendida,
- * que junto com o gráfico é o único lugar onde ela pode aparecer.
+ * The drawing follows the brand symbol's language: monoline, even stroke, rounded ends and curves, and intentional gaps between parts (docs/marca/MARCA.md). Each scene uses two colors: the neutral stroke inherits `currentColor` from `.ilustracao`, while the accent comes from the extended palette, allowed only in charts and illustrations.
  */
 
 import type { ReactNode, SVGProps } from 'react';
 
 /**
- * As cenas. Cada uma existe porque um estado vazio real do Pipe precisa dela:
+ * Each scene corresponds to a real Pipe empty state:
  *
- * - `vazio`    — a lista não tem nada ainda. Tubulação por onde nada passou.
- * - `busca`    — o filtro não achou nada. Tubulação com a lente por cima.
- * - `concluido` — a fila zerou. É o único estado vazio que é boa notícia.
- * - `erro`     — a tela não conseguiu carregar. Tubulação partida.
+ * - `vazio`: a list has nothing yet; an empty pipe.
+ * - `busca`: a filter found nothing; a lens over the pipe.
+ * - `concluido`: the queue is cleared; the one empty state that is good news.
+ * - `erro`: the screen failed to load; a broken pipe.
  */
 export type IllustrationName = 'vazio' | 'busca' | 'concluido' | 'erro';
 
 export type IllustrationProps = {
   nome?: IllustrationName;
-  /** Largura em px. Padrão 96 — cabe num cartão sem virar o assunto da tela. */
+
   tamanho?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'name'>;
 
-/* Traço uniforme de 6 na grade de 120, que é a proporção do símbolo (12 em
-   120) reduzida à metade porque a ilustração é maior que o logotipo. */
+/*
+ * A stroke of 6 on a 120-unit grid is half the brand symbol's 12-on-120 proportion because the illustration is larger than the logo.
+ */
 const TRACO = 6;
 
 export function Illustration({ nome = 'vazio', tamanho = 96, className, ...resto }: IllustrationProps) {
@@ -56,7 +49,7 @@ export function Illustration({ nome = 'vazio', tamanho = 96, className, ...resto
   );
 }
 
-/** Texto alternativo. A ilustração é decorativa, mas quem lê tela merece saber. */
+/** Alternative text. The illustration is decorative, but screen-reader users deserve a description. */
 const ROTULOS: Record<IllustrationName, string> = {
   vazio: 'Nada aqui ainda',
   busca: 'Nenhum resultado',
@@ -65,7 +58,7 @@ const ROTULOS: Record<IllustrationName, string> = {
 };
 
 const CENAS: Record<IllustrationName, ReactNode> = {
-  /* Dois cotovelos que não se encontram: o vão é o vazio. */
+
   vazio: (
     <>
       <path d="M18 96V44a18 18 0 0 1 18-18h16" stroke="currentColor" />
@@ -74,7 +67,7 @@ const CENAS: Record<IllustrationName, ReactNode> = {
     </>
   ),
 
-  /* A mesma tubulação, com a lente por cima: procurou e não achou. */
+
   busca: (
     <>
       <path d="M18 92V48a16 16 0 0 1 16-16h20" stroke="currentColor" />
@@ -84,8 +77,9 @@ const CENAS: Record<IllustrationName, ReactNode> = {
     </>
   ),
 
-  /* Fila zerada. O acento é o verde escuro da série, não a cor de marca:
-     ilustração não pinta com a marca. */
+  /*
+   * The queue is empty. The accent uses the series' dark green, not the brand color: illustrations do not use brand paint.
+   */
   concluido: (
     <>
       <path d="M18 92V48a16 16 0 0 1 16-16h52" stroke="currentColor" />
@@ -94,7 +88,7 @@ const CENAS: Record<IllustrationName, ReactNode> = {
     </>
   ),
 
-  /* Tubulação partida. Terracota, que é a cor do que exige ação. */
+
   erro: (
     <>
       <path d="M18 92V48a16 16 0 0 1 16-16h14" stroke="currentColor" />

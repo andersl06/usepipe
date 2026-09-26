@@ -12,8 +12,7 @@ import {
 } from './index.js';
 
 /**
- * Faixas do dia 1, espelhando o corte do webhook n8n `kq4lU8aFv5CKNpvr`:
- * 60 ou mais vai para closer, abaixo disso para o Comercial.
+ * Day-one bands mirror n8n webhook `kq4lU8aFv5CKNpvr`: scores of 60 or more go to closer, lower scores to Comercial.
  */
 const FAIXAS: FaixaScore[] = [
   { nome: 'frio', minimo: 0, maximo: 39 },
@@ -234,7 +233,6 @@ describe('cálculo de score', () => {
       { regra: 'r2', versao: 1, pontos: 20 },
       { regra: 'r5', versao: 1, pontos: 25 },
     ]);
-    // A maior versão entre as regras ativas é a carimbada no score_lead.
     expect(saida.versaoRegra).toBe(2);
   });
 
@@ -256,7 +254,6 @@ describe('cálculo de score', () => {
   });
 
   it('a disabled rule neither counts nor appears in the explanation', () => {
-    // r3 casaria com ana@empresa.com.br, mas está inativa.
     const saida = calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS });
     expect(saida.explanation.some((item) => item.regra === 'r3')).toBe(false);
     expect(saida.value).toBe(75);

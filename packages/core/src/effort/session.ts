@@ -1,17 +1,10 @@
 /**
- * Régua de apoio: tempo em sessão (Anexo B.2).
- *
- * Linha do tempo do atendente no dia, com as mensagens que ele enviou em todos
- * os chats. Tempo ativo é a soma dos intervalos entre mensagens consecutivas
- * **quando o intervalo é de até 10 minutos**; acima disso é pausa.
- *
- * As duas réguas convergem nos tickets conversados (11–13 min medidos em
- * produção) e uma valida a outra.
+ * Supporting session-time measure from Annex B.2. Across all chats, sum gaps between consecutive agent messages sent during a day when each gap is at most 10 minutes; longer gaps are breaks. This and the effort measure converge for handled tickets at the 11–13 minutes observed in production, providing a cross-check.
  */
 
 import { MINUTO, ordenarInstantes } from '../comum/time.js';
 
-/** Limite padrão entre duas mensagens para o tempo continuar contando. */
+/** Default maximum gap between two messages that still counts as active session time. */
 export const SESSION_INTERVAL_LIMIT_SEG = 10 * MINUTO;
 
 export interface BlockSession {
@@ -29,11 +22,7 @@ export interface TimeInSession {
 }
 
 /**
- * Soma os intervalos consecutivos de até `limiteSeg`.
- *
- * Uma mensagem sozinha vale zero segundo: o método mede intervalo entre
- * mensagens, não presença. Isso é conservador de propósito — inflar sessão
- * infla a ocupação e faz o atendente parecer mais folgado do que está.
+ * Sum consecutive gaps of at most `limiteSeg`. A single message adds zero seconds: this measures gaps, not mere presence. The conservative choice avoids inflating session time and making an agent seem less occupied than they are.
  */
 export function calcularTimeInSession(
   instantes: readonly Date[],
@@ -84,9 +73,9 @@ export interface EffortAgentDia {
   effortSeg: number;
   tickets: number;
   sessionSeg: number;
-  /** Esforço ÷ sessão. `null` quando não houve sessão medida. */
+  /** Effort divided by measured session time; null when no session was measured. */
   occupancy: number | null;
-  /** Esforço ÷ tickets, média ponderada por construção (§5). */
+  /** Effort divided by tickets, a weighted average by construction (§5). */
   effortMedioByTicketSeg: number | null;
 }
 
@@ -95,10 +84,7 @@ export function occupancy(effortSeg: number, sessionSeg: number): number | null 
 }
 
 /**
- * Consolida o dia de um atendente.
- *
- * Média ponderada por construção: soma de todo o esforço ÷ soma de todos os
- * tickets. Nunca média de médias — dia cheio pesa mais.
+ * Consolidate an agent's day. The weighted mean is total effort divided by total tickets, never the mean of daily means; a busy day carries more weight.
  */
 export function agentConsolidarDia(inbound: {
   dia: string;

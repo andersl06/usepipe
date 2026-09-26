@@ -1,11 +1,8 @@
 /**
- * Eventos de atendimento e os cinco carimbos de tempo.
- *
- * Fonte: `2026-09-05-metricas-atendimento.md` §1 e `2026-09-05-modelo-de-dados.md` §4.
- * Toda métrica deriva daqui — nunca de campo mutável da conversa.
+ * Attendance events and five timestamps, per `2026-09-05-metricas-atendimento.md` §1 and `2026-09-05-modelo-de-dados.md` §4. Every metric derives from these events, never mutable conversation fields.
  */
 
-/** Catálogo de `evento_atendimento.tipo` (modelo de dados, §4). */
+/** Catalog of `evento_atendimento.tipo` from data-model §4. */
 export type TipoEvento =
   | 'criada'
   | 'enfileirada'
@@ -38,13 +35,13 @@ export interface EventAttendance {
   encerradaBy?: ClosedBy | null;
 }
 
-/** Conversa como lista de eventos — a unidade de entrada de toda métrica. */
+/** Conversation event list, the input unit for every metric. */
 export interface ConversationEvents {
   conversationId: string;
   eventos: readonly EventAttendance[];
 }
 
-/** Os cinco carimbos de tempo da §1 da spec de métricas. */
+/** Five timestamps from metrics spec §1. */
 export interface Marcos {
   conversationId: string;
   criadaEm: Date | null;
@@ -52,13 +49,13 @@ export interface Marcos {
   firstRespostaIn: Date | null;
   encerradaEm: Date | null;
   encerradaBy: ClosedBy | null;
-  /** Quantidade de atribuições — reatribuição grava evento novo, não sobrescreve o primeiro. */
+  /** Assignment count; reassignment records a new event rather than overwriting the first. */
   assignments: number;
 }
 
 function ordenar(eventos: readonly EventAttendance[]): EventAttendance[] {
-  // Ordenação estável por instante: eventos do mesmo milissegundo mantêm a ordem
-  // de gravação, que é a ordem em que a `api` os emitiu.
+  // Stable ordering by instant: events sharing a millisecond retain their
+  // write order, which is the order in which the `api` emitted them.
   return eventos
     .map((evento, indice) => ({ evento, indice }))
     .sort((a, b) => a.evento.em.getTime() - b.evento.em.getTime() || a.indice - b.indice)
@@ -66,17 +63,7 @@ function ordenar(eventos: readonly EventAttendance[]): EventAttendance[] {
 }
 
 /**
- * Deriva os cinco carimbos a partir dos eventos de uma conversa.
- *
- * Decisões onde a spec deixa margem:
- * - `criadaEm` usa `criada`; sem ela, cai para `enfileirada` — conversa que só
- *   existe a partir da fila continua tendo início.
- * - `atribuidaEm` é a **primeira** atribuição (§1: reatribuição não sobrescreve).
- * - `primeiraRespostaEm` usa o evento `primeira_resposta`; sem ele, cai para a
- *   primeira `mensagem_saida` **com `usuarioId`**, porque saída de bot não é
- *   resposta de atendente.
- * - `encerradaEm` é o **último** `encerrada`, para conversa reaberta e fechada
- *   de novo carimbar o fechamento que vale.
+ * Derive five timestamps from conversation events. Where the spec leaves latitude: `criadaEm` uses `criada` or falls back to `enfileirada` so a queue-only conversation has a start; `atribuidaEm` is FIRST assignment; `primeiraRespostaEm` uses `primeira_resposta` or first `mensagem_saida` WITH `usuarioId` because bot output is not an agent response; `encerradaEm` is the LAST closure so a reopened conversation records its effective final close.
  */
 export function derivarMarcos(conversation: ConversationEvents): Marcos {
   const eventos = ordenar(conversation.eventos);
@@ -140,12 +127,7 @@ export function derivarMarcosDeVarias(conversations: readonly ConversationEvents
 }
 
 /**
- * Pares "mensagem do cliente → próxima mensagem do atendente" de uma conversa.
- *
- * Uma troca completa é uma entrada do cliente seguida, mais adiante na linha do
- * tempo, de uma saída do atendente. Entradas consecutivas do cliente contam como
- * **uma** troca: o relógio começa na primeira, que é quando o atendente passou a
- * dever resposta.
+ * Pairs of customer messages and the next agent message in a conversation. A complete exchange is an inbound customer message followed later by an agent outbound message. Consecutive customer messages count as ONE exchange; its clock starts at the first, when the agent began owing a response.
  */
 export function intervalosDeResposta(conversation: ConversationEvents): number[] {
   const eventos = ordenar(conversation.eventos);

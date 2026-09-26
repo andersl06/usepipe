@@ -3,9 +3,7 @@ import { esperaDaTentativa, ligar, urlOfChannel } from '../src/index.js';
 import type { SocketMinimo } from '../src/index.js';
 
 /**
- * A reconexão é a razão de este pacote existir: é a parte que, copiada em três fronts,
- * diverge em silêncio. Aqui ela é exercida com um socket de mentira e o relógio falso
- * do vitest — sem rede, sem espera real.
+ * Reconnection is why this package exists: copied across three frontends, this logic silently diverges. These tests exercise it with a fake socket and Vitest fake timers - without network access or real waiting.
  */
 
 class SocketFalso implements SocketMinimo {
@@ -71,8 +69,8 @@ describe('backoff', () => {
   });
 
   it('tem jitter de ±20% — sem ele a manada volta toda junta', () => {
-    // Quando a API reinicia todos caem no mesmo instante; sem jitter voltam no mesmo
-    // instante também.
+    // When the API restarts, all clients disconnect at once; without jitter they reconnect at the same
+    // time as well.
     expect(esperaDaTentativa(3, () => 0)).toBe(3_200);
     expect(esperaDaTentativa(3, () => 1)).toBe(4_800);
   });
@@ -107,7 +105,6 @@ describe('Manage the real-time connection', () => {
     ultimo().mandar({ tipo: 'ping' });
     ultimo().mandar({ assunto: 'conversa', id: 'c1', em: '2026-09-07T00:00:00.000Z' });
 
-    // `ping` e `inscrito` não fazem a tela rebuscar nada.
     expect(recebidos).toEqual([{ assunto: 'conversa', id: 'c1', em: '2026-09-07T00:00:00.000Z' }]);
     ligacao.fechar();
   });
@@ -144,7 +141,7 @@ describe('reconexão', () => {
 
     expect(criados).toHaveLength(2);
     ultimo().abrir();
-    // O servidor não guarda nada de quem caiu: socket novo começa sem assunto nenhum.
+    // The server keeps no state for disconnected clients: a new socket starts with no topics.
     expect(JSON.parse(ultimo().enviados[0]!)).toEqual({ assuntos: ['fila'] });
     ligacao.fechar();
   });
@@ -184,15 +181,14 @@ describe('reconexão', () => {
     ultimo().abrir(); // reconectou de verdade
 
     ultimo().cair();
-    // Volta a esperar ~1 s, não os ~2 s da tentativa anterior.
     vi.advanceTimersByTime(1_300);
     expect(criados).toHaveLength(3);
     ligacao.fechar();
   });
 
   it('derruba e reconecta depois de 35 s de silêncio — socket morto não avisa', () => {
-    // O TCP pode ficar aberto do lado do navegador enquanto o outro lado já foi
-    // embora. Sem este vigia, a tela pareceria viva e parada.
+    // TCP may remain open in the browser after the other side has
+    // gone. Without this watchdog, the screen would look alive but frozen.
     const ligacao = ligar({
       urlApi: 'http://api.teste',
       assuntos: ['conversation'],
@@ -205,20 +201,19 @@ describe('reconexão', () => {
     vi.advanceTimersByTime(34_000);
     expect(first.fechado).toBe(false);
 
-    // Um passo além dos 35 s, e NÃO 2 s: a primeira retentativa é agendada para
-    // 800–1200 ms depois da queda (backoff de 1 s com jitter de ±20%), então medir em
-    // +2 s cai depois dela e lê `ligando` ou `caiu` conforme o sorteio. Este teste
-    // passava em cerca de metade das execuções, e eu relatei verde em cima de uma.
+    // Advance just past 35 seconds, NOT 2 seconds: the first retry is scheduled
+    // 800-1200 ms after the drop (1-second backoff with +/-20% jitter), so advancing
+    // by 2 seconds reaches beyond that retry and reads `ligando` or `caiu` depending on the draw. This test
+    // passed in about half of runs, and I incorrectly reported one green run as a pass.
     vi.advanceTimersByTime(1_001);
     expect(first.fechado).toBe(true);
     expect(ligacao.state()).toBe('caiu');
 
-    // E `caiu` tem de DURAR o bastante para a tela mostrar "conexão perdida" — é para
-    // isso que `aoEstado` existe. 700 ms está abaixo do piso do backoff (800 ms).
+    // `caiu` must also LAST long enough for the screen to show "connection lost" - that is
+    // why `aoEstado` exists. 700 ms is below the backoff floor (800 ms).
     vi.advanceTimersByTime(700);
     expect(ligacao.state()).toBe('caiu');
 
-    // Passado o teto do backoff (1200 ms), aí sim tenta de novo.
     vi.advanceTimersByTime(600);
     expect(ligacao.state()).toBe('ligando');
     ligacao.fechar();

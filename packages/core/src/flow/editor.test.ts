@@ -13,7 +13,7 @@ import { validateFlow } from './modelos.js';
 import type { FlowBlip } from './modelos.js';
 import fixture from './fixtures/editor-sintetico.json' with { type: 'json' };
 
-/** Fixture sintética, no formato do editor do Builder — nada de fluxo de cliente. */
+/** Synthetic fixture in Builder editor format; contains no customer flow. */
 const exportado = fixture as unknown as ExportDoEditor;
 const copia = (): ExportDoEditor => JSON.parse(JSON.stringify(exportado)) as ExportDoEditor;
 
@@ -134,7 +134,7 @@ describe('importador do export do editor da Blip', () => {
       'entrada:expiracao': 1,
       'variavel:calendar': 1,
     });
-    // O que não é suportado continua no fluxo: nada some na conversão.
+    // Unsupported content stays in the flow; conversion silently drops nothing.
     expect(
       convertido.states.find((s) => s.id === 'menu')!.inputActions!.map((a) => a.type),
     ).toEqual([
@@ -201,7 +201,7 @@ describe('the imported flow running in the engine', () => {
 
   it('resposta fora do menu cai no "não entendi" e volta ao menu', async () => {
     const saida = await login('qualquer coisa');
-    // pos-atendimento → menu (saída padrão) manda o menu e espera.
+    // `pos-atendimento` → `menu` default exit sends the menu and waits.
     expect((saida[0] as { text: string }).text).toContain('Como posso ajudar?');
     const errado = await login('3');
     expect(errado[0]).toBe('Não entendi. Responda 1 ou 2.');

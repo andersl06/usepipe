@@ -1,14 +1,9 @@
 /**
- * Tabela. Desenhada aqui porque não dá para copiar: a do Twenty vive em
- * `twenty-front`, que é AGPL e está fora do nosso alcance, e nem Chatwoot nem
- * `twenty-ui` expõem uma.
+ * Table implemented here because Twenty's table lives in `twenty-front`, which is AGPL and unavailable to us; neither Chatwoot nor `twenty-ui` exposes one.
  *
- * A densidade é a medida no Salesforce: linha de 34px, célula com 8px de
- * padding vertical e 12px horizontal, corpo de 13px, cabeçalho de coluna em
- * caixa alta na família do corpo (não monoespaçada).
+ * Density follows Salesforce measurements: 34px rows, 8px vertical and 12px horizontal cell padding, 13px body text, and uppercase column headings in the body font rather than monospace.
  *
- * O invólucro `.scroll` não é decoração: tabela larga precisa rolar dentro do
- * próprio cartão, senão empurra a página inteira para o lado.
+ * The `.scroll` wrapper is functional: a wide table must scroll within its own card or it pushes the entire page sideways.
  */
 
 import type { ReactNode } from 'react';
@@ -16,7 +11,7 @@ import type { ReactNode } from 'react';
 export type Column<L> = {
   key: string;
   rotulo: string;
-  /** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */
+  /** Right-align and use tabular monospace, for numbers rather than text. */
   numerica?: boolean;
   celula: (linha: L) => ReactNode;
 };
@@ -32,7 +27,7 @@ export function Tabela<L>({
   colunas: readonly Column<L>[];
   linhas: readonly L[];
   linhaKey: (linha: L) => string;
-  /** Severidade vai na linha inteira (`grave`, `critico`), não só no texto. */
+  /** Severity applies to the entire row (`grave`, `critico`), not only its text. */
   classeDaLinha?: (linha: L) => string | undefined;
   empty?: ReactNode;
   larguraMinima?: number;

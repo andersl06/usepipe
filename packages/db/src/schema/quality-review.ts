@@ -17,9 +17,7 @@ import { refTenant, user } from './identity.js';
 import { conversation, queue } from './conversations.js';
 
 /**
- * Módulo 5 — Monitoria com IA. Formulário (grupo → critério → peso, com critério fatal
- * que zera a nota) × avaliação (humana ou IA) × ciclo (feedback → contestação →
- * calibração → coach).
+ * Module 5, AI quality review: form (group -> criterion -> weight, with a fatal criterion that zeroes the score), evaluation (human or AI), and cycle (feedback -> dispute -> calibration -> coaching).
  */
 
 export const formEvaluation = pgTable(
@@ -66,7 +64,7 @@ export const criterio = pgTable(
     description: text('descricao'),
     peso: numeric('peso', { precision: 6, scale: 2 }).notNull().default('1'),
     tipo: text('tipo').notNull().default('conforme'),
-    /** Critério fatal zera a nota da avaliação inteira. */
+    /** A fatal criterion zeroes the entire evaluation score. */
     fatal: boolean('fatal').notNull().default(false),
     ordem: integer('ordem').notNull().default(0),
   },
@@ -104,8 +102,7 @@ export const evaluation = pgTable(
     nota: numeric('nota', { precision: 6, scale: 2 }),
     conceito: text('conceito'),
     /**
-     * A nota da IA nasce como sugestão e vira efetiva conforme a política do tenant —
-     * sempre, só acima deste limiar, ou nunca.
+     * The AI score starts as a suggestion and becomes effective according to tenant policy: always, only above this threshold, or never.
      */
     confiancaIa: numeric('confianca_ia', { precision: 5, scale: 4 }),
     state: text('estado').notNull().default('rascunho'),
@@ -124,8 +121,7 @@ export const evaluation = pgTable(
 );
 
 /**
- * `evidencia_mensagem_id` é o trecho citado que sustenta a nota. Sem chave estrangeira
- * porque `mensagem` é particionada e sua unicidade é (id, criada_em).
+ * `evidencia_mensagem_id` identifies the quoted passage supporting the score. It has no foreign key because `mensagem` is partitioned and unique on (id, criada_em).
  */
 export const responseEvaluation = pgTable(
   'resposta_avaliacao',
@@ -169,7 +165,7 @@ export const dispute = pgTable(
   (t) => [listaCheck('contestacao_estado_ck', t.estado, STATES_DISPUTE)],
 );
 
-/** Bancada de medição: mede o desvio entre a nota humana e a da IA, critério a critério. */
+/** Calibration measures the gap between human and AI scores for each criterion. */
 export const calibration = pgTable('calibracao', {
   id: id(),
   tenantId: refTenant(),
@@ -270,7 +266,7 @@ export const classificationConversation = pgTable(
   ],
 );
 
-/** Onde o gestor decide o que automatizar: volume, tendência e conversas de exemplo. */
+
 export const insight = pgTable(
   'insight',
   {
@@ -291,7 +287,7 @@ export const insight = pgTable(
   (t) => [uniqueIndex('insight_uk').on(t.tenantId, t.periodoInicio, t.periodoFim, t.categoria)],
 );
 
-/** Sem isto o produto vende IA no prejuízo: é painel para o cliente e base de cobrança. */
+/** Without this, AI could be sold at a loss. These records support both the customer dashboard and billing. */
 export const consumoIa = pgTable(
   'consumo_ia',
   {
@@ -318,8 +314,7 @@ export const baseKnowledge = pgTable('base_conhecimento', {
 });
 
 /**
- * Incremental e versionada: documentos independentes, cada trecho rastreável até o
- * documento e a versão. É o que faz a sugestão do copiloto poder citar a fonte.
+ * Incremental and versioned: documents are independent, and every passage traces to its document and version. This lets copilot suggestions cite their source.
  */
 export const documentKnowledge = pgTable(
   'documento_conhecimento',

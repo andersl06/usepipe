@@ -1,27 +1,14 @@
 /**
- * Tipos compartilhados por todas as regras do Pipe.
- *
- * Duração é sempre **inteiro ou fracionário em segundos** — nunca `interval`,
- * nunca milissegundos — para bater com a convenção do modelo de dados
- * (`2026-09-05-modelo-de-dados.md`, §1).
+ * Types shared by all Pipe rules. Durations are integral or fractional seconds, never `interval` or milliseconds, matching data-model convention in `2026-09-05-modelo-de-dados.md` §1.
  */
 
 /**
- * Resultado padrão de toda métrica que vira número em tela ou relatório.
- *
- * `populacao` é o denominador efetivamente usado e `excluidas` é quanta coisa
- * ficou de fora do cálculo. Os dois são obrigatórios por decisão de produto
- * (spec de métricas, §2): "métrica que esconde o próprio denominador não entra
- * neste produto".
- *
- * `soma` é redundante com `valor × populacao`, mas fica exposta para a média
- * ponderada de §5 poder somar grupos sem acumular erro de arredondamento de
- * ponto flutuante.
+ * Standard result for every metric shown in a screen or report. `populacao` is the effective denominator and `excluidas` counts excluded candidates; both are mandatory by product decision (metrics spec §2): "métrica que esconde o próprio denominador não entra neste produto". `soma` is redundant with `valor × populacao` but supports weighted averages across groups without accumulating floating-point rounding error (§5).
  */
 export interface ResultadoMetrica {
-  /** Média em segundos, ou `null` quando a população é zero. Nunca `0` por falta de dado. */
+  /** Mean in seconds, or null when population is zero; never zero merely because data is absent. */
   value: number | null;
-  /** Denominador do cálculo. */
+
   population: number;
   /** Itens candidatos que ficaram fora do denominador. */
   excluidas: number;
@@ -29,7 +16,7 @@ export interface ResultadoMetrica {
   soma: number;
 }
 
-/** Constrói um `ResultadoMetrica` a partir da soma e das contagens. */
+
 export function resultado(soma: number, population: number, excluidas: number): ResultadoMetrica {
   return {
     value: population > 0 ? soma / population : null,
@@ -39,7 +26,7 @@ export function resultado(soma: number, population: number, excluidas: number): 
   };
 }
 
-/** Resultado vazio — nenhuma conversa entrou no cálculo. */
+
 export function resultEmpty(excluidas = 0): ResultadoMetrica {
   return { value: null, population: 0, excluidas, soma: 0 };
 }

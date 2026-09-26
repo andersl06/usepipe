@@ -1,14 +1,5 @@
 /**
- * Motor de lead score — `2026-09-05-pipe-design.md` §4.2 e modelo de dados §5.
- *
- * `regra_score` (condição, peso, versão, ativa) produz `score_lead`
- * (valor, faixa, explicação). A explicação é o array de `{regra, versao, pontos}`
- * que produziu o número: é o que permite responder *por que* o lead tirou 62 e
- * recalcular a base inteira quando a regra muda, sem perder o histórico.
- *
- * Determinismo é requisito, não desejo: mesma entrada, mesma saída, sempre.
- * Por isso as regras são avaliadas em ordem estável de identificador, e não na
- * ordem em que o banco devolveu as linhas.
+ * Lead scoring engine per `2026-09-05-pipe-design.md` §4.2 and data-model §5. `regra_score` conditions, weights, versions, and active flags produce `score_lead` value, band, and `explicacao`. The `{regra, versao, pontos}` explanation answers why a lead scored 62 and supports full recalculation after a rule change without losing history. Determinism is required: evaluate rules in stable identifier order rather than database row order, so the same input always yields the same output.
  */
 
 import { compararIdentificador } from '../comum/time.js';
@@ -66,15 +57,15 @@ export interface ResultadoScore {
   value: number;
   faixa: string | null;
   explanation: ItemExplanation[];
-  /** Versão de regra carimbada no `score_lead`. */
+  /** Rule version stamped on `score_lead`. */
   versaoRegra: number;
 }
 
 export interface OptionsScore {
   faixas?: readonly FaixaScore[];
-  /** Trava o valor num intervalo. Desligado por padrão — peso negativo é legítimo. */
+  /** Clamp score to a range when enabled; disabled by default because negative weights are valid. */
   limites?: { minimo?: number; maximo?: number };
-  /** Versão a carimbar. Sem ela, usa a maior versão entre as regras ativas. */
+  /** Version to stamp; defaults to the highest version among active rules. */
   versaoRegra?: number;
 }
 
@@ -84,7 +75,7 @@ function ehComposta(expressao: Expressao): expressao is ConditionComposta {
   return 'combinador' in expressao;
 }
 
-/** Lê `campo` com caminho por ponto (contato.email), sem depender de biblioteca. */
+/** Read `campo` through a dotted path such as `contato.email` without a library. */
 export function lerCampo(data: DataLead, caminho: string): unknown {
   let atual: unknown = data;
   for (const parte of caminho.split('.')) {
@@ -94,7 +85,7 @@ export function lerCampo(data: DataLead, caminho: string): unknown {
   return atual;
 }
 
-/** Texto comparável: sem acento, sem caixa, sem espaço nas pontas. */
+/** Comparable text without accents, case differences, or edge spaces. */
 function normalizarTexto(value: unknown): string {
   return String(value)
     .normalize('NFD')
@@ -122,7 +113,7 @@ function equal(a: unknown, b: unknown): boolean {
   return a === b;
 }
 
-/** Avalia uma condição folha contra os dados do lead. */
+
 export function avaliarCondition(condition: Condition, data: DataLead): boolean {
   const atual = lerCampo(data, condition.campo);
   const esperado = condition.valor;
@@ -163,7 +154,7 @@ export function avaliarCondition(condition: Condition, data: DataLead): boolean 
   }
 }
 
-/** Avalia uma expressão (folha ou composta com E/OU). */
+
 export function avaliarExpressao(expressao: Expressao, data: DataLead): boolean {
   if (!ehComposta(expressao)) return avaliarCondition(expressao, data);
   if (expressao.condicoes.length === 0) return false;
@@ -172,7 +163,7 @@ export function avaliarExpressao(expressao: Expressao, data: DataLead): boolean 
     : expressao.condicoes.some((c) => avaliarExpressao(c, data));
 }
 
-/** Encontra a faixa do valor. Faixas ordenadas por mínimo; `maximo` é inclusivo. */
+/** Find band for the score; bands are sorted by minimum and `maximo` is inclusive. */
 export function valueTier(value: number, faixas: readonly FaixaScore[]): string | null {
   const ordenadas = [...faixas].sort((a, b) => a.minimo - b.minimo);
   for (const faixa of ordenadas) {
@@ -184,13 +175,7 @@ export function valueTier(value: number, faixas: readonly FaixaScore[]): string 
 }
 
 /**
- * Calcula o score de um lead.
- *
- * - Regra inativa não é avaliada nem aparece na explicação.
- * - Só regra que casou entra na explicação — é a resposta para "por que 62".
- * - A ordem da explicação é a ordem estável de `regra.id`, para o mesmo conjunto
- *   de regras produzir exatamente o mesmo JSON qualquer que seja a ordem das
- *   linhas devolvidas pelo banco.
+ * Calculate a lead score. Inactive rules are neither evaluated nor explained. Only matching rules appear in the explanation, answering why the score is 62. Sort explanation by `regra.id` so the same rule set yields identical JSON regardless of database row order.
  */
 export function calcularScore(
   regras: readonly RegraScore[],

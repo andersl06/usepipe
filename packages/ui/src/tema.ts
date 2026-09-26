@@ -1,20 +1,11 @@
 /**
- * Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
+ * Adapted from twenty-ui (MIT): https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
  *
- * O que veio de lá é a FORMA, não os valores: tema como objeto TypeScript
- * tipado, `espaco()` como função de múltiplo de 4px, escala de raio e tokens
- * de densidade centralizados. Os valores são os do Pipe (docs/marca/MARCA.md),
- * e a organização por papel veio de medir a Blip
- * (referencias-blip/pesquisa/blip-design-system.md).
+ * We borrowed its SHAPE, not its values: a typed TypeScript theme object, `espaco()` as a 4px-multiple function, a radius scale, and centralized density tokens. Values are Pipe's (docs/marca/MARCA.md); role-based organization comes from Blip measurements (`referencias-blip/pesquisa/blip-design-system.md`).
  *
- * Este objeto é o espelho tipado de `estilos/tokens.css`. Ele existe para o
- * código que precisa de um valor em TypeScript (cálculo de layout, gráfico
- * desenhado em canvas, teste). Quem estiver escrevendo CSS deve usar a custom
- * property — não importar daqui.
+ * This object mirrors `estilos/tokens.css` in typed form for code that needs a TypeScript value, such as layout calculations, canvas charts, and tests. CSS authors should use the custom property instead of importing this object.
  *
- * As cores apontam para a custom property de propósito: assim um componente
- * que leia `TEMA.cor.marca` continua trocando de tema sozinho, sem saber que
- * tema existe.
+ * Colors deliberately reference custom properties, so a component reading `TEMA.marca.cor` changes theme without knowing that themes exist.
  */
 
 export const TEMA = {
@@ -27,7 +18,7 @@ export const TEMA = {
     s4: 'var(--p-superficie-4)',
   },
 
-  /** Quatro degraus de conteúdo, na ordem da Blip. */
+  /** Four content steps, following Blip's order. */
   conteudo: {
     padrao: 'var(--p-conteudo)',
     desabilitado: 'var(--p-conteudo-desabilitado)',
@@ -35,7 +26,7 @@ export const TEMA = {
     claro: 'var(--p-conteudo-claro)',
   },
 
-  /** Tinta translúcida em três forças. Nunca hex opaco. */
+  /** Three strengths of translucent ink; never an opaque hex value. */
   linha: {
     fraca: 'var(--p-linha)',
     media: 'var(--p-linha-media)',
@@ -43,8 +34,7 @@ export const TEMA = {
   },
 
   /**
-   * UMA cor de marca. Pinta ação primária, estado ativo e foco, e nada mais.
-   * Não é cor de rótulo, de número, de título nem de etiqueta de categoria.
+   * ONE brand color for primary actions, active state, and focus only. Never use it for labels, numbers, titles, or category tags.
    */
   marca: {
     cor: 'var(--p-marca)',
@@ -55,9 +45,7 @@ export const TEMA = {
   },
 
   /**
-   * Estado é um PAR: fundo pastel com conteúdo escuro por cima, mais a linha
-   * que os une. Nunca use só o conteúdo colorido — as três variáveis viajam
-   * juntas, senão viram duas cores diferentes em dois arquivos.
+   * A state is a PAIR: pastel background, dark foreground, and the line connecting them. Never use colored content alone; all three variables travel together so two files cannot give the state two different colors.
    */
   estado: {
     erro: {
@@ -83,13 +71,11 @@ export const TEMA = {
   },
 
   /**
-   * PALETA ESTENDIDA — EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO.
+   * EXTENDED PALETTE - ONLY FOR CHARTS AND ILLUSTRATIONS.
    *
-   * Terracota, ocre, azul profundo e sage moram aqui e só aqui. Nenhuma delas
-   * entra em cromo, etiqueta, borda, ícone ou texto de interface. Foi
-   * espalhá-las pela interface corrente que fez a tela parecer um carrossel.
+   * Terracotta, ochre, deep blue, and sage live here only. None belongs in interface chrome, tags, borders, icons, or text. Spreading them across the interface made the screen look like a carousel.
    *
-   * A ordem de `serie` é a ordem das séries de um gráfico.
+   * The order of `serie` is the chart series order.
    */
   grafico: {
     serie: [
@@ -104,12 +90,10 @@ export const TEMA = {
 
   fonte: {
     corpo: 'var(--p-fonte)',
-    /** Número tabular e rótulo de seção. Nunca nome de fase, fila ou origem. */
+    /** Tabular numbers and section labels only; never stage, queue, or source names. */
     mono: 'var(--p-fonte-mono)',
     /**
-     * Três degraus carregam a aplicação: 16, 14 e 12. O de 10 só para o
-     * verdadeiramente secundário. `titulo` e `numero` são exceção nomeada
-     * pelo papel, para continuarem sendo exceção. Régua em px, nunca rem.
+     * Three sizes carry the application: 16, 14, and 12. Size 10 is reserved for truly secondary text. `titulo` and `numero` are role-named exceptions so they remain exceptions. Sizes are in px, never rem.
      */
     tamanho: {
       lg: 'var(--p-t-lg)',
@@ -122,7 +106,7 @@ export const TEMA = {
     peso: { normal: 400, medio: 500, forte: 600 },
   },
 
-  /** Um raio padrão e duas exceções com propósito. */
+
   raio: {
     padrao: 'var(--p-r-md)',
     controle: 'var(--p-r-sm)',
@@ -140,7 +124,7 @@ export const TEMA = {
     normal: 'var(--p-dur-normal)',
   },
 
-  /** Régua de densidade. Ver docs/specs/2026-09-05-design-system.md, seção 5. */
+  /** Density scale. See docs/specs/2026-09-05-design-system.md, section 5. */
   densidade: {
     alturaTopo: 'var(--p-altura-topo)',
     alturaLinhaTabela: 'var(--p-altura-linha-tabela)',
@@ -154,15 +138,14 @@ export const TEMA = {
     traco: 1.75,
   },
 
-  /** Multiplicador de espaço. Ver `espaco()`. */
+
   multiplicadorDeEspaco: 4,
 } as const;
 
 /**
- * `espaco(2)` → `'8px'`; `espaco(1, 2)` → `'4px 8px'`.
+ * `espaco(2)` yields `'8px'`; `espaco(1, 2)` yields `'4px 8px'`.
  *
- * Existe para tornar impossível escrever um espaçamento fora do múltiplo de 4
- * por acidente. Mesmo truque do `spacing()` do twenty-ui.
+ * This makes accidental spacing outside a multiple of 4 impossible, using the same approach as twenty-ui's `spacing()`.
  */
 export function espaco(...multiplos: number[]): string {
   return multiplos.map((m) => `${m * TEMA.multiplicadorDeEspaco}px`).join(' ');
@@ -170,5 +153,5 @@ export function espaco(...multiplos: number[]): string {
 
 export type Tema = typeof TEMA;
 
-/** Os quatro estados. É a mesma lista que a `Etiqueta` aceita como tom. */
+
 export type StateName = keyof typeof TEMA.estado;

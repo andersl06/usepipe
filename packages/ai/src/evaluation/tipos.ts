@@ -1,18 +1,16 @@
 /**
- * Formulário de avaliação e resultado, espelhando `formulario_avaliacao` →
- * `grupo_criterio` → `criterio` e `avaliacao` → `resposta_avaliacao` (§6 do
- * modelo de dados). Sem acesso a banco: entra dado, sai resultado.
+ * Evaluation form and result mirror `formulario_avaliacao` → `grupo_criterio` → `criterio` and `avaliacao` → `resposta_avaliacao` (§6 of the data model). No database access: data in, result out.
  */
 
 import type { Consumo } from '../consumo/index.js';
 
 export type TipoCriterio = 'conforme' | 'escala' | 'nota';
 
-/** Escalas dos tipos que não são `conforme`. `escala` vai a 5, `nota` vai a 10. */
+/** Limits for types other than `conforme`: `escala` reaches 5 and `nota` reaches 10. */
 export const TETO_ESCALA = 5;
 export const TETO_NOTA = 10;
 
-/** `nao_se_aplica` tira o critério do denominador — não é o mesmo que zero. */
+/** `nao_se_aplica` removes the criterion from the denominator; it is not zero. */
 export const VALUES_CONFORME = ['conforme', 'nao_conforme', 'nao_se_aplica'] as const;
 export type ValueConforme = (typeof VALUES_CONFORME)[number];
 
@@ -22,7 +20,7 @@ export interface Criterio {
   description?: string | null;
   peso: number;
   tipo: TipoCriterio;
-  /** Critério fatal marcado como não conforme zera a nota da avaliação inteira. */
+  /** A fatal criterion marked noncompliant zeroes the entire evaluation score. */
   fatal: boolean;
 }
 
@@ -41,36 +39,36 @@ export interface Formulario {
   groups: readonly GrupoCriterio[];
 }
 
-/** O que a IA responde por critério, antes de a nota ser calculada aqui. */
+/** The model's response per criterion, before the score is calculated here. */
 export interface RespostaBruta {
   criterioId: string;
-  /** `conforme` | `nao_conforme` | `nao_se_aplica`, ou o número da escala como texto. */
+  /** `conforme`, `nao_conforme`, `nao_se_aplica`, or the scale number as text. */
   value: string;
   justificativa: string;
-  /** Rótulo da linha da transcrição (`m7`) que sustenta a resposta. */
+  /** Transcript line label (`m7`) supporting the answer. */
   evidencia?: string | null;
 }
 
-/** Espelha `resposta_avaliacao`. `pontos` é calculado aqui, nunca pelo modelo. */
+/** Mirrors `resposta_avaliacao`; `pontos` is calculated here, never by the model. */
 export interface RespostaEvaluation {
   criterioId: string;
   value: string;
   pontos: number;
   justificativa: string;
-  /** `mensagem.id` já resolvido a partir do rótulo. */
+  /** `mensagem.id` resolved from the label. */
   evidenciaMessageId: string | null;
 }
 
 export interface ResultEvaluation {
   formularioId: string;
-  /** Nota final na escala do formulário, já com o critério fatal aplicado. */
+  /** Final score on the form's scale, after applying fatal criteria. */
   nota: number;
-  /** Nota antes do critério fatal — é o que mostra o tamanho do estrago. */
+  /** Score before fatal criteria, showing their impact. */
   notaAntesDoFatal: number;
-  /** Critérios fatais reprovados. Vazio quando nenhum zerou a nota. */
+  /** Failed fatal criteria; empty when none zeroed the score. */
   fatalReprovados: string[];
   respostas: RespostaEvaluation[];
-  /** Confiança geral declarada pelo modelo, de 0 a 1. */
+  /** Overall model-reported confidence, from 0 to 1. */
   confianca: number;
   consumo: Consumo;
   template: string;
@@ -78,7 +76,7 @@ export interface ResultEvaluation {
   prompt: string;
 }
 
-/** Percorre os critérios de todos os grupos, na ordem do formulário. */
+
 export function criteriosDoFormulario(
   formulario: Formulario,
 ): { grupo: GrupoCriterio; criterio: Criterio }[] {

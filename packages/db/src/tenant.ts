@@ -21,12 +21,9 @@ export class TenantInvalidError extends Error {
 }
 
 /**
- * Abre a transação, fixa `pipe.tenant_id` nela e roda o trabalho dentro.
+ * Open a transaction, set `pipe.tenant_id` for it, and run the work inside.
  *
- * `set_config(..., true)` é o `set local` da §1 do modelo de dados em forma de função:
- * o `set local` do SQL não aceita parâmetro, e concatenar o uuid no texto do comando
- * seria abrir a porta que a RLS existe para fechar. Como é *local*, a variável morre
- * com a transação e não vaza para a próxima que pegar a mesma conexão do pool.
+ * `set_config(..., true)` is the parameterized form of `set local` from section 1 of the data model. SQL `set local` does not accept a parameter; concatenating the UUID into SQL would reopen the injection path RLS is meant to close. The setting is local to the transaction and cannot leak to the next borrower of the pooled connection.
  */
 export async function comTenant<T>(
   db: DatabasePipe,
@@ -42,7 +39,7 @@ export async function comTenant<T>(
   });
 }
 
-/** O tenant em vigor na transação, para log e asserção. */
+/** The tenant active in this transaction, for logging and assertions. */
 export async function tenantAtual(tx: TransactionPipe): Promise<string | null> {
   const resultado = await tx.execute<{ tenant: string | null }>(
     sql`select nullif(current_setting('pipe.tenant_id', true), '') as tenant`,

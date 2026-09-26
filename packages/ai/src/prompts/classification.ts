@@ -1,18 +1,5 @@
 /**
- * Prompt de classificação.
- *
- * Três coisas aqui vêm medidas do case-sync, onde a acurácia saiu de 26% para 64%:
- *
- * - **as opções vêm ordenadas por uso real e podadas** (+22,6pp lá). Lista
- *   alfabética completa é a pior forma de apresentar taxonomia a um modelo.
- * - **a resposta é em duas etapas**: primeiro o desfecho em uma frase, depois o
- *   rótulo (+4,3pp lá). Como o esquema de saída é gerado na ordem declarada,
- *   `desfecho` vem antes de `categoria` de propósito — é raciocínio barato e no
- *   formato certo.
- * - **nada de exemplos por similaridade e nada de definições destiladas.** Foram
- *   medidos: sozinhos davam pouco, juntos com o prior *derrubavam* a acurácia.
- *
- * A taxonomia é parâmetro, nunca constante de código.
+ * Classification prompt choices follow case-sync measurements that raised accuracy from 26% to 64%: order and prune options by observed use (+22.6 percentage points); ask for a one-sentence `desfecho` before a label (+4.3 points), preserving schema property order; omit similarity examples and distilled definitions, which reduced accuracy when combined with the prior. Taxonomy is supplied as a parameter, never hard-coded.
  */
 
 import type { Prompt } from './tipos.js';
@@ -21,13 +8,13 @@ export interface OptionTaxonomia {
   categoria: string;
   subcategoria?: string | null;
   description?: string | null;
-  /** Quantas vezes um humano escolheu esta opção. É o que ordena e poda a lista. */
+  /** How often a human chose this option; used to order and prune the list. */
   usos?: number | null;
 }
 
 export interface Taxonomia {
   options: readonly OptionTaxonomia[];
-  /** Intenções aceitas. Vazio, o modelo responde livre. */
+  /** Accepted intents; when empty, the model answers freely. */
   intents?: readonly string[];
 }
 
@@ -36,21 +23,20 @@ export interface InboundClassification {
   truncada: boolean;
   messagesOmitidas: number;
   taxonomia: Taxonomia;
-  /** Teto de opções apresentadas. Lista longa demais dilui a escolha. */
+  /** Maximum options shown; an overly long list dilutes the choice. */
   maxOptions?: number;
   context?: string | null;
 }
 
 export const MAX_OPTIONS_DEFAULT = 40;
 
-/** Chave textual de uma opção, do jeito que ela aparece na lista e volta na resposta. */
+/** Option's text key, as shown in the list and returned in the answer. */
 export function optionKey(o: OptionTaxonomia): string {
   return o.subcategoria?.trim() ? `${o.categoria} > ${o.subcategoria}` : o.categoria;
 }
 
 /**
- * Ordena por uso real (desc) e poda ao teto, com desempate alfabético para a lista
- * ser estável entre execuções — prompt que muda sozinho não pode ser medido.
+ * Sorts by observed use descending and prunes to the limit, breaking ties alphabetically for stable runs; a prompt that changes by itself cannot be measured.
  */
 export function prepararOptions(
   taxonomia: Taxonomia,

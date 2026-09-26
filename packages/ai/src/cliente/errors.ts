@@ -1,14 +1,12 @@
 /**
- * Erros do pacote. Todos explícitos: a lição mais cara do case-sync é que os oito
- * defeitos tinham a mesma assinatura — **devolviam sucesso sem fazer o trabalho**,
- * e nenhum aparecia em log de erro. Aqui nada devolve resultado parcial em silêncio.
+ * Package errors are explicit. The costliest lesson from case-sync was that eight defects shared one signature: they returned success without doing the work and never appeared in error logs. Nothing here silently returns a partial result.
  */
 
 /** O modelo respondeu, mas fora do formato combinado. Carrega o bruto para poder gravar. */
 export class FormatIaError extends Error {
   constructor(
     message: string,
-    /** O que o modelo devolveu, para o chamador gravar mesmo recusando o resultado. */
+    /** Raw model response for callers to record even when rejecting the result. */
     readonly bruto: unknown,
   ) {
     super(message);
@@ -16,7 +14,7 @@ export class FormatIaError extends Error {
   }
 }
 
-/** A chamada não chegou a produzir resposta utilizável (recusa, corte, rede). */
+/** The call produced no usable response due to refusal, truncation, or network failure. */
 export class CallIaError extends Error {
   constructor(
     message: string,

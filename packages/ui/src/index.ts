@@ -1,23 +1,14 @@
 /**
- * Design system do Pipe — fonte única de token e de componente para
- * `apps/desk`, `apps/gestao` e `apps/crm`.
+ * Pipe design system: the single source of tokens and components for `apps/desk`, `apps/gestao`, and `apps/crm`.
  *
- * O estilo NÃO é importado por este arquivo: cada aplicativo importa
- * `@pipe/ui/estilos.css` uma vez, no seu layout raiz. Manter os dois separados
- * é o que permite usar o tema tipado em código de servidor sem arrastar CSS.
+ * This file does NOT import styles: each application imports `@pipe/ui/estilos.css` once in its root layout. Keeping them separate lets server code use the typed theme without pulling in CSS.
  *
- * Decisões que este pacote existe para impor estão em
- * `docs/specs/2026-09-05-design-system.md`; a identidade continua sendo
- * `docs/marca/MARCA.md`; os números que as justificam estão em
- * `referencias-blip/pesquisa/visual-blip-salesforce.md` e em
- * `referencias-blip/pesquisa/blip-design-system.md`.
+ * The decisions enforced by this package are in `docs/specs/2026-09-05-design-system.md`; brand identity remains in `docs/marca/MARCA.md`; supporting measurements are in `referencias-blip/pesquisa/visual-blip-salesforce.md` and `referencias-blip/pesquisa/blip-design-system.md`.
  *
- * As três regras que a API pública impõe, e que nenhum aplicativo pode
- * contornar declarando cor própria:
- *   1. UMA cor de marca (moss), em ação primária e estado ativo. Mais nada.
- *   2. Estado é PAR: fundo pastel com conteúdo escuro. Quatro estados.
- *   3. A paleta estendida (`TEMA.grafico`) é exclusiva de gráfico e
- *      ilustração. Fora dali ela não existe.
+ * Its public API enforces three rules that applications must not bypass by declaring their own colors:
+ * 1. ONE brand color (moss) for primary actions and active state only.
+ * 2. A state is a PAIR: pastel background with dark content, across four states.
+ * 3. The extended palette (`TEMA.grafico`) is only for charts and illustrations.
  */
 
 export { TEMA, espaco } from './tema';

@@ -16,7 +16,7 @@ async function conjunto(): Promise<CasoReferencia[]> {
   return lerConjunto(CONJUNTO);
 }
 
-/** Avaliador de mentira: responde o gabarito, com as trocas que o teste pedir. */
+
 function avaliadorQueResponde(trocas: Record<string, Record<string, string>> = {}) {
   return async (caso: CasoReferencia): Promise<ResultEvaluation> => {
     const troca = trocas[caso.id] ?? {};
@@ -125,7 +125,6 @@ describe('bancada', () => {
 
   it('measures deviation per criterion, not just the total', async () => {
     const casos = await conjunto();
-    // Em um caso, a IA marca conforme onde o humano marcou não conforme.
     const r = await rodarBancada({
       casos,
       avaliar: avaliadorQueResponde({ 'troca-sem-prazo': { 'c-prazo': 'conforme' } }),
@@ -164,7 +163,7 @@ describe('bancada', () => {
 
   it('desvio da nota acompanha a diferença real, inclusive quando o fatal zera', async () => {
     const casos = await conjunto();
-    // A IA deixa passar a exposição de dado de terceiro: o humano zerou, ela não.
+    // The AI misses exposure of a third party's data: the human zeroed the score, but the AI did not.
     const r = await rodarBancada({
       casos,
       avaliar: avaliadorQueResponde({ 'dado-de-terceiro': { 'c-dados': 'conforme' } }),
@@ -188,7 +187,7 @@ describe('bancada', () => {
 
     expect(r.falhas).toEqual([{ casoId: 'cliente-irritado', erro: 'modelo recusou' }]);
     expect(r.casos).toBe(casos.length - 1);
-    // A falha não vira acurácia melhor nem pior: some do cálculo, mas é dita.
+    // A failed case neither improves nor worsens accuracy: it is excluded from the calculation but reported.
     expect(r.acuraciaGeral).toBe(1);
     expect(r.byCriterio[0]!.n).toBe(casos.length - 1);
   });

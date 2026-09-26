@@ -1,15 +1,5 @@
 /**
- * Classificação de atendimento: categoria, subcategoria, intenção e sentimento a
- * partir de uma taxonomia que vem por parâmetro.
- *
- * O rótulo devolvido é conferido contra a taxonomia apresentada, com a mesma
- * normalização que o case-sync precisou aprender na marra — espaço duplo e aspas
- * em HTML fizeram Cases nascerem em branco porque a comparação era literal.
- *
- * Sobre o teto da tarefa: no case-sync, 84% dos casos tinham mais de uma resposta
- * defensável e a própria atendente repetia o próprio rótulo só 53% das vezes.
- * Por isso `confianca` é parte da resposta, não um detalhe: é ela que decide se a
- * classificação entra sozinha ou vai para revisão.
+ * Ticket classification derives category, subcategory, intent, and sentiment from a supplied taxonomy. Returned labels are checked against that taxonomy with the normalization learned in case-sync: double spaces and HTML quotes caused blank Cases when labels were compared literally. In case-sync, 84% of cases had more than one defensible answer, and the same agent repeated her own label only 53% of the time. Thus `confianca` controls whether classification is accepted automatically or sent for review.
  */
 
 import { z } from 'zod';
@@ -27,8 +17,7 @@ export const SENTIMENTS = ['positivo', 'neutro', 'negativo'] as const;
 export type Sentiment = (typeof SENTIMENTS)[number];
 
 /**
- * `desfecho` vem primeiro de propósito: o modelo escreve o que aconteceu antes de
- * escolher o rótulo. Foram +4,3pp de acurácia no case-sync.
+ * `desfecho` comes first so the model describes what happened before choosing a label; this improved case-sync accuracy by 4.3 percentage points.
  */
 const EsquemaClassification = z.object({
   desfecho: z.string().min(1),
@@ -50,7 +39,7 @@ export interface OptionsClassification {
 }
 
 export interface ResultClassification {
-  /** Uma frase do que o cliente pediu e do que o atendente fez. */
+  /** One sentence describing what the customer requested and what the agent did. */
   desfecho: string;
   categoria: string;
   subcategoria: string | null;
@@ -63,8 +52,7 @@ export interface ResultClassification {
 }
 
 /**
- * Normaliza para comparar rótulo: sem acento, sem caixa, espaço colapsado e sem
- * entidade HTML. Cada uma dessas quatro já custou retrabalho no case-sync.
+ * Normalizes labels for comparison by stripping accents, ignoring case, collapsing spaces, and decoding HTML entities. Each of these caused rework in case-sync.
  */
 export function normalizarRotulo(texto: string): string {
   return texto
@@ -77,7 +65,7 @@ export function normalizarRotulo(texto: string): string {
     .toLowerCase();
 }
 
-/** Acha na taxonomia a opção que o modelo escolheu, ou `undefined`. */
+
 export function matchOption(
   options: readonly OptionTaxonomia[],
   categoria: string,
@@ -123,8 +111,7 @@ export async function classificarConversation(
 
   return {
     desfecho: data.desfecho.trim(),
-    // O rótulo gravado é o **da taxonomia**, não o que o modelo digitou: é ele que
-    // vai casar com o filtro da tela e com a agregação de `insight`.
+    // Persist the taxonomy's label, not the model's spelling: it must match UI filters and `insight` aggregation.
     categoria: escolhida.categoria,
     subcategoria: escolhida.subcategoria?.trim() || null,
     intent: data.intencao?.trim() || null,

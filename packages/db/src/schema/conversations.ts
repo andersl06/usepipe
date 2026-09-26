@@ -25,7 +25,7 @@ import {
 } from './comum.js';
 import { refTenant, user } from './identity.js';
 
-/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */
+/** Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger. */
 
 export const channel = pgTable(
   'canal',
@@ -35,21 +35,13 @@ export const channel = pgTable(
     tipo: text('tipo').notNull(),
     nome: text('nome').notNull(),
     /**
-     * Token da Meta, senha SMTP: cifrado em repouso pela `packages/db/src/segredo.ts`,
-     * com a chave fora do banco (§6). Só os campos da lista `CAMPOS_SECRETOS_DE_CANAL`
-     * são cifrados — o resto continua legível para diagnóstico.
+     * Meta token and SMTP password are encrypted at rest by `packages/db/src/segredo.ts` using a key outside the database (§6). Only fields in `CAMPOS_SECRETOS_DE_CANAL` are encrypted; the rest remain readable for diagnosis.
      */
     config: jsonb('config')
       .notNull()
       .default(sql`'{}'::jsonb`),
     /**
-     * As duas chaves de roteamento do webhook, e a razão de estarem em COLUNA e
-     * não no `config`: os eventos de template e de conta da Meta não aceitam URL
-     * por cliente e caem todos numa rota só, onde o tenant tem de sair do payload
-     * (`entry[].id` é o WABA, `metadata.phone_number_id` é o número). Resolver por
-     * payload é consulta, e consulta em jsonb sem índice é varredura.
-     *
-     * Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
+     * Webhook routing keys belong in columns rather than `config`. Meta template and account events cannot use per-customer URLs and all reach one route; the tenant must be resolved from payload (`entry[].id` is WABA, `metadata.phone_number_id` is the number). Payload resolution is a lookup, and unindexed jsonb lookup would scan. See `docs/specs/2026-09-07-webhook-por-cliente.md`.
      */
     wabaId: text('waba_id'),
     numeroId: text('numero_id'),
@@ -60,10 +52,7 @@ export const channel = pgTable(
     listaCheck('canal_tipo_ck', t.tipo, TYPES_CHANNEL),
     index('canal_tenant_tipo_idx').on(t.tenantId, t.tipo),
     /*
-     * Únicos e GLOBAIS, de propósito — não por tenant. Dois clientes com o mesmo
-     * `numero_id` é estado impossível: significaria dois donos para o mesmo
-     * número, e o banco recusa antes de a aplicação escolher errado. Parciais
-     * porque só o WhatsApp tem esses identificadores.
+     * `numero_id` is deliberately globally unique, not tenant-scoped: two tenants cannot own one number. Its index is partial because only WhatsApp has this ID. `waba_id` has a partial nonunique lookup index, so the original claim that both IDs are unique is inaccurate.
      */
     uniqueIndex('canal_numero_id_uk')
       .on(t.numeroId)
@@ -82,9 +71,7 @@ export const queue = pgTable(
     nome: text('nome').notNull(),
     cor: text('cor'),
     /**
-     * Aponta para `horario_atendimento`, que vive no módulo de Gestão. A chave
-     * estrangeira nasce na migration `0003_chaves_cruzadas` para não fazer os dois
-     * módulos se importarem em círculo.
+     * References `horario_atendimento` in the Management module. The foreign key is created by migration `0003_chaves_cruzadas` to avoid circular imports between modules.
      */
     horarioId: uuid('horario_id'),
     capacityDefault: integer('capacidade_padrao').notNull().default(5),
@@ -138,13 +125,10 @@ export const attachment = pgTable('anexo', {
   nomeOriginal: text('nome_original'),
   checksum: text('checksum'),
   /**
-   * O canal de onde a mídia recebida veio — só preenchido pelo webhook
-   * (`dominio/entrada.ts`), nunca pelo upload manual (`controladores/anexos.ts`).
-   * É de onde o download (`dominio/midia.ts`) tira o token para falar com o Graph.
-   * Ver `0033_download_de_midia.sql`.
+   * Source channel for received media, populated only by the webhook (`dominio/entrada.ts`), never manual upload (`controladores/anexos.ts`). Download logic (`dominio/midia.ts`) uses it to select the Graph token. See `0033_download_de_midia.sql`.
    */
   canalId: uuid('canal_id').references(() => channel.id, { onDelete: 'set null' }),
-  /** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é "não baixado". */
+  /** `bytes = 0` with a reference `chave_storage` (`meta:` or URL) means not downloaded. */
   downloadTentativas: integer('download_tentativas').notNull().default(0),
   downloadError: text('download_erro'),
   downloadProximaTentativaEm: moment('download_proxima_tentativa_em'),
@@ -161,21 +145,17 @@ export const contact = pgTable(
     nome: text('nome'),
     telefoneE164: text('telefone_e164'),
     email: text('email'),
-    /** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */
+    /** CPF/CNPJ stays `text`: CNPJ becomes alphanumeric starting in 2026. */
     document: text('documento'),
     avatarUrl: text('avatar_url'),
     atributos: jsonb('atributos')
       .notNull()
       .default(sql`'{}'::jsonb`),
     bloqueado: boolean('bloqueado').notNull().default(false),
-    /** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */
+    /** Conversations are personal data; data-subject deletion is supported from the start. */
     excluidoEm: moment('excluido_em'),
     /**
-     * O `id` da `person` correspondente no Twenty. É o que permite o link direto do
-     * Desk cair na FICHA do cliente em vez da home do CRM.
-     *
-     * Nulo enquanto o espelho não aconteceu — e enquanto for nulo, o Desk não mostra
-     * link nenhum. Ver `docs/specs/2026-09-07-integracao-twenty.md` §4.
+     * Corresponding Twenty `person` ID enables a direct Desk link to the customer record instead of the CRM home. Null until synchronization; while null, Desk shows no link. See `docs/specs/2026-09-07-integracao-twenty.md` §4.
      */
     twentyPessoaId: text('twenty_pessoa_id'),
     ...carimbos(),
@@ -275,9 +255,9 @@ export const conversation = pgTable(
     filaId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
     agentId: uuid('atendente_id').references(() => user.id, { onDelete: 'set null' }),
     state: text('estado').notNull().default('na_fila'),
-    /* Nasce SEM prioridade. Quem dá prioridade é regra de priorização ou gente;
-       o padrão antigo (`media`) fazia a fila ordenar por dado que ninguém
-       escolheu. Ver `NIVEIS_PRIORIDADE`. */
+    /*
+     * Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.
+     */
     priority: text('prioridade').notNull().default('sem_prioridade'),
     criadaEm: moment('criada_em').notNull().defaultNow(),
     atribuidaEm: moment('atribuida_em'),
@@ -288,14 +268,13 @@ export const conversation = pgTable(
     emEsperaDesde: moment('em_espera_desde'),
     pausadoSeg: integer('pausado_seg').notNull().default(0),
     lastMessageAt: moment('ultima_mensagem_em'),
-    /** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */
+    /** Supports automatic-close guard: do not close while an agent owes the next response. */
     lastMessageOf: text('ultima_mensagem_de'),
     /**
-     * Janela de atendimento de 24h do WhatsApp, recalculada a cada mensagem de entrada
-     * do contato. Nulo é canal sem janela (e-mail, widget).
+     * WhatsApp 24-hour service window, recalculated for each inbound contact message. Null for channels without a window, such as email and widget.
      */
     windowExpiresAt: moment('janela_expira_em'),
-    /** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */
+    /** No foreign key: `mensagem` is partitioned and its uniqueness is the pair (id, criada_em). */
     windowOpenByMessageId: uuid('janela_aberta_por_mensagem_id'),
     atualizadoEm: moment('atualizado_em'),
   },
@@ -308,9 +287,7 @@ export const conversation = pgTable(
     index('conversa_encerrada_idx').on(t.tenantId, t.encerradaEm),
     index('conversa_contato_idx').on(t.tenantId, t.contatoId, t.criadaEm.desc()),
     /**
-     * Migration 0040: o Log de mensagens do fluxo (`carregarLogDeMensagens`)
-     * acha as conversas do canal do bot por `inbox_id` antes de descer para
-     * `mensagem` — sem este índice essa busca varria `conversa` inteira.
+     * Migration 0040: the flow message log (`carregarLogDeMensagens`) finds bot-channel conversations by `inbox_id` before descending to `mensagem`. Without this index, the lookup scans all of `conversa`.
      */
     index('conversa_inbox_idx').on(t.tenantId, t.inboxId),
   ],
@@ -329,8 +306,7 @@ export const TYPES_MESSAGE = [
 ] as const;
 
 /**
- * Particionada por mês em `criada_em`. A chave primária de tabela particionada precisa
- * conter a chave de partição — daí `(id, criada_em)` em vez de só `id`.
+ * Monthly partitioning by `criada_em` requires a partitioned table's primary key to contain the partition key, hence (id, criada_em) rather than id alone.
  */
 export const message = pgTable(
   'mensagem',
@@ -348,7 +324,7 @@ export const message = pgTable(
     tipo: text('tipo').notNull().default('texto'),
     conteudo: text('conteudo'),
     attachmentId: uuid('anexo_id').references(() => attachment.id, { onDelete: 'set null' }),
-    /** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */
+    /** When set, lets effort reports subtract text the agent did not type. */
     respostaProntaId: uuid('resposta_pronta_id').references(() => respostaPronta.id, {
       onDelete: 'set null',
     }),
@@ -366,20 +342,11 @@ export const message = pgTable(
     categoriaCobranca: text('categoria_cobranca'),
     custoCentavos: integer('custo_centavos'),
     /**
-     * Amarra a resposta do cliente ao disparo que a originou: é o que faz o relatório
-     * contar a janela a partir do envio, e não pelo dia do calendário.
+     * Links a customer reply to the outbound send that prompted it, so reports measure the window from send time rather than calendar day.
      */
     disparoId: uuid('disparo_id'),
     /**
-     * O que não cabe em coluna própria e é específico do canal ou do tipo.
-     *
-     * Guarda os valores posicionais do template, que precisam sobreviver ao envio: sem
-     * isso eles só existem dentro do job da fila, e um job perdido leva junto a
-     * possibilidade de reenviar ou de auditar o que foi mandado.
-     *
-     * No Instagram, guarda a origem da conversa: mensagem direta, resposta a story com a
-     * referência do story, menção, ou comentário promovido a conversa privada com o
-     * vínculo à publicação.
+     * Channel- or type-specific data that has no dedicated column. Positional template values must survive sending: if they existed only in the queue job, a lost job would also lose retry and audit capability. For Instagram, store conversation origin: direct message, story reply and reference, mention, or comment promoted to a private conversation with its publication link.
      */
     data: jsonb('dados'),
   },
@@ -399,8 +366,7 @@ export const message = pgTable(
 );
 
 /**
- * Toda mensagem de saída passa por aqui, com estado próprio e retry com backoff.
- * `mensagem_id` fica sem chave estrangeira porque `mensagem` é particionada.
+ * Every outbound message passes through this outbox with its own status and backoff retries. `mensagem_id` has no foreign key because `mensagem` is partitioned.
  */
 export const outboxMessage = pgTable(
   'outbox_mensagem',
@@ -548,12 +514,7 @@ export const notaInterna = pgTable(
 );
 
 /**
- * Fixar e marcar como não lida — POR ATENDENTE, não por conversa (migração 0041).
- *
- * É o PIN/UNPIN e UNREAD/READ do menu do cartão da origem (`TicketMenuOptions`).
- * `fixada_em` nulo é "não fixada"; `nao_lida_em` nulo é "lida". A linha só existe
- * enquanto ao menos um dos dois estiver marcado (CHECK); o domínio apaga a linha
- * que ficou sem marcação. O teto de 50 fixadas é conferido no domínio.
+ * Pinned and manually unread markers belong to each AGENT, not the conversation (migration 0041). They mirror source card menu PIN/UNPIN and UNREAD/READ (`TicketMenuOptions`). Null `fixada_em` means unpinned; null `nao_lida_em` means read. A row exists only while at least one marker is set (CHECK), and the domain deletes unmarked rows. The domain enforces a limit of 50 pinned conversations.
  */
 export const taggingConversation = pgTable(
   'marcacao_conversa',

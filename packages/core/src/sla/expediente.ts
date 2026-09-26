@@ -1,22 +1,13 @@
 /**
- * Horário de atendimento — §10 da spec de métricas e `horario_atendimento` /
- * `horario_faixa` / `horario_excecao` do modelo de dados (§4).
- *
- * Expediente por fila, com fuso do tenant e exceções por feriado. Conversa que
- * chega fora do expediente entra na fila com marcação própria e o relógio de SLA
- * só começa a correr na abertura seguinte — senão todo SLA estoura durante a
- * madrugada.
- *
- * Zero dependência: a conversão de fuso usa `Intl.DateTimeFormat`, que já vem no
- * runtime. Nada de biblioteca de data.
+ * Service hours from metrics spec §10 and data-model §4 tables `horario_atendimento`, `horario_faixa`, and `horario_excecao`. Each queue uses the tenant timezone and holiday exceptions. A conversation arriving outside hours is queued with a marker, but its SLA clock starts at the next opening; otherwise every overnight arrival would breach SLA. Timezone conversion uses runtime `Intl.DateTimeFormat` with no date dependency.
  */
 
 export interface FaixaExpediente {
-  /** 0 = domingo … 6 = sábado, igual a `Date.prototype.getUTCDay`. */
+  /** 0 is Sunday through 6 Saturday, matching `Date.prototype.getUTCDay`. */
   diaSemana: number;
   /** `HH:MM` no fuso do tenant. */
   inicio: string;
-  /** `HH:MM` no fuso do tenant. `24:00` é meia-noite do dia seguinte. */
+  /** `HH:MM` in the tenant timezone; `24:00` means midnight of the next day. */
   fim: string;
 }
 
@@ -41,7 +32,7 @@ export interface Intervalo {
   fim: Date;
 }
 
-/** Janela em que o relógio fica parado (conversa aguardando o cliente). */
+/** Interval during which the clock is paused while the conversation awaits the customer. */
 export interface Espera {
   inicio: Date;
   /** `null` = espera ainda aberta. */
@@ -49,7 +40,7 @@ export interface Espera {
 }
 
 const MS_DIA = 86_400_000;
-/** Teto de varredura, para horário sem nenhuma faixa não virar laço infinito. */
+/** Scan horizon prevents a schedule with no open interval from looping forever. */
 export const SWEEP_DAYS_LIMIT = 366;
 
 interface PartesLocal {
@@ -80,14 +71,14 @@ function formatador(fuso: string): Intl.DateTimeFormat {
   return novo;
 }
 
-/** Quebra um instante nas partes de calendário do fuso do tenant. */
+/** Split an instant into calendar components in the tenant timezone. */
 export function partesNoFuso(instante: Date, fuso: string): PartesLocal {
   const partes = formatador(fuso).formatToParts(instante);
   const mapa: Record<string, string> = {};
   for (const parte of partes) {
     if (parte.type !== 'literal') mapa[parte.type] = parte.value;
   }
-  // Alguns runtimes devolvem "24" para meia-noite com hour12:false.
+  // Some runtimes return hour "24" for midnight with `hour12:false`.
   const hora = Number(mapa.hour) % 24;
   return {
     ano: Number(mapa.year),
@@ -103,15 +94,12 @@ export function partesNoFuso(instante: Date, fuso: string): PartesLocal {
 function offsetMs(instante: Date, fuso: string): number {
   const p = partesNoFuso(instante, fuso);
   const comoUtc = Date.UTC(p.ano, p.mes - 1, p.dia, p.hora, p.minuto, p.segundo);
-  // Zera os milissegundos dos dois lados para o deslocamento sair exato.
+  // Zero milliseconds on both sides so the offset is exact.
   return comoUtc - Math.floor(instante.getTime() / 1000) * 1000;
 }
 
 /**
- * Instante absoluto de uma data-hora local do tenant.
- *
- * Duas passadas: a primeira estima o deslocamento, a segunda corrige quando a
- * estimativa caiu do outro lado de uma virada de horário de verão.
+ * Absolute instant for a tenant-local date and time. Two passes estimate the offset, then correct it if the estimate crossed a daylight-saving transition.
  */
 export function instanteDeLocal(
   ano: number,
@@ -126,7 +114,7 @@ export function instanteDeLocal(
   return segunda;
 }
 
-/** `HH:MM` para minutos desde a meia-noite. Aceita `24:00`. */
+/** Convert `HH:MM` to minutes since midnight; accept `24:00`. */
 export function minutosDoRelogio(relogio: string): number {
   const [h, m] = relogio.split(':');
   const horas = Number(h);
@@ -162,8 +150,7 @@ function mesclar(faixas: { de: number; ate: number }[]): { de: number; ate: numb
 }
 
 /**
- * Faixas de expediente de um dia do calendário local, em minutos do dia.
- * Exceção do dia manda sobre a faixa semanal — é assim que feriado funciona.
+ * Business-hour ranges for a local calendar day, in minutes from midnight. A date-specific exception overrides the weekly schedule, enabling holidays.
  */
 export function faixasDoDia(
   horario: HourAttendance,
@@ -177,7 +164,7 @@ export function faixasDoDia(
     if (exception.inicio && exception.fim) {
       return mesclar([{ de: minutosDoRelogio(exception.inicio), ate: minutosDoRelogio(exception.fim) }]);
     }
-    // Exceção aberta sem horário próprio cai no expediente normal do dia.
+    // An open exception with no custom hours falls back to the normal schedule for that day.
   }
   const semana = diaDaSemana(ano, mes, dia);
   return mesclar(
@@ -194,8 +181,7 @@ function intersectar(a: Intervalo, de: Date, ate: Date): Intervalo | null {
 }
 
 /**
- * Intervalos de expediente entre dois instantes, já em tempo absoluto.
- * `horario` nulo significa atendimento ininterrupto (24×7).
+ * Business-hour intervals between two absolute instants. Null `horario` means uninterrupted 24×7 service.
  */
 export function intervalosUteis(
   de: Date,
@@ -207,7 +193,7 @@ export function intervalosUteis(
 
   const saida: Intervalo[] = [];
   const inicioLocal = partesNoFuso(de, horario.fuso);
-  // Começa um dia antes para não perder faixa que já estava correndo.
+  // Start one day early so an interval already in progress is not missed.
   let cursor = Date.UTC(inicioLocal.ano, inicioLocal.mes - 1, inicioLocal.dia) - MS_DIA;
   const limite = ate.getTime() + MS_DIA;
 
@@ -233,7 +219,7 @@ export function intervalosUteis(
   return saida.sort((a, b) => a.inicio.getTime() - b.inicio.getTime());
 }
 
-/** Remove das faixas o que estiver coberto por uma espera. */
+/** Subtract waiting periods from business-hour intervals. */
 export function subtrairEsperas(
   intervalos: readonly Intervalo[],
   esperas: readonly Espera[] | undefined,
@@ -268,8 +254,7 @@ export function durationTotalSeg(intervalos: readonly Intervalo[]): number {
 }
 
 /**
- * Segundos úteis entre dois instantes, descontando as esperas.
- * É o "decorrido" do SLA.
+ * Business seconds between two instants excluding waits; the SLA elapsed time.
  */
 export function segundosUteisEntre(
   de: Date,
@@ -281,12 +266,7 @@ export function segundosUteisEntre(
 }
 
 /**
- * Avança `segundos` de tempo útil a partir de `de`, pulando o que está fora do
- * expediente e o que está em espera.
- *
- * Devolve `null` quando o prazo não cabe em `LIMITE_DIAS_VARREDURA` dias — é o
- * caso de expediente vazio ou de espera aberta sem fim: prazo indefinido é
- * informação, não erro silencioso.
+ * Advance `segundos` business seconds from `de`, skipping off-hours and waits. Return null if the deadline does not fit within `LIMITE_DIAS_VARREDURA` days, including an empty schedule or open-ended wait. An undefined deadline is information, not silent failure.
  */
 export function avancarNoExpediente(
   de: Date,
@@ -296,7 +276,7 @@ export function avancarNoExpediente(
 ): Date | null {
   if (segundos <= 0) return de;
 
-  // Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura
+  // Grow search windows gradually: common cases resolve in two days without scanning a full year.
   // de um ano inteiro.
   for (const dias of [2, 8, 32, 128, SWEEP_DAYS_LIMIT]) {
     const limite = new Date(de.getTime() + dias * MS_DIA);
@@ -315,8 +295,7 @@ export function avancarNoExpediente(
 }
 
 /**
- * Primeiro instante de expediente a partir de `instante` (ele mesmo, se já
- * estiver dentro). É a "abertura seguinte" da §10.
+ * First business instant at or after `instante`, including itself when open; the next opening from §10.
  */
 export function proximaAbertura(
   instante: Date,
@@ -331,7 +310,7 @@ export function proximaAbertura(
   return null;
 }
 
-/** Está dentro do expediente neste instante? */
+
 export function dentroDoExpediente(
   instante: Date,
   horario: HourAttendance | null | undefined,

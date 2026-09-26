@@ -3,8 +3,7 @@ import type { AnyPgColumn } from 'drizzle-orm/pg-core';
 import { check, numeric, timestamp, uuid } from 'drizzle-orm/pg-core';
 
 /**
- * Convenções da §1 do modelo de dados, num lugar só. Se uma delas mudar, muda aqui —
- * é o que impede a segunda tabela de nascer com um carimbo diferente da primeira.
+ * Data-model §1 conventions live in one place. A change here prevents a second table from using a different timestamp convention.
  */
 
 export const id = () => uuid('id').primaryKey().default(sql`gen_random_uuid()`);
@@ -16,17 +15,16 @@ export const atualizadoEm = () => timestamp('atualizado_em', { withTimezone: tru
 
 export const carimbos = () => ({ criadoEm: criadoEm(), atualizadoEm: atualizadoEm() });
 
-/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */
+/** Soft deletion only where history matters; otherwise delete the row. */
 export const excluidoEm = () => timestamp('excluido_em', { withTimezone: true });
 
 export const moment = (nome: string) => timestamp(nome, { withTimezone: true });
 
-/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */
+/** Money is never floating point; currency lives in a separate column. */
 export const money = (nome: string) => numeric(nome, { precision: 14, scale: 2 });
 
 /**
- * Enumeração é `text` com `check`, nunca `enum` nativo: acrescentar valor num enum do
- * Postgres trava a migration em produção, e vamos acrescentar valor o tempo todo.
+ * Use `text` plus `check` for enumerations, never native PostgreSQL `enum`: adding enum values can lock production migrations, and values will be added often.
  */
 export function listaCheck(nome: string, column: AnyPgColumn, values: readonly string[]) {
   const literals = values.map((value) => `'${value.replace(/'/g, "''")}'`).join(', ');
@@ -52,17 +50,11 @@ export const STATES_DELIVERY = [
 export const CATEGORIAS_COBRANCA = ['livre', 'utilidade', 'marketing', 'autenticacao'] as const;
 export const CATEGORIAS_TEMPLATE = ['utilidade', 'marketing', 'autenticacao'] as const;
 /*
- * A régua de prioridade vive em `@pipe/core/conversa`, e não aqui.
- *
- * Este arquivo importa `drizzle-orm/pg-core` para montar as restrições, e quem
- * importar dele leva o driver junto. O app do atendente ordena a coluna num
- * componente de navegador; era por isso que ele mantinha um mapa paralelo de
- * pesos, que divergiu. Regra pura mora no pacote de regra pura, e o esquema
- * importa de lá para virar restrição — nunca o contrário.
+ * Priority ordering lives in `@pipe/core/conversa`, not here. Importing this file brings `drizzle-orm/pg-core` and its driver into browser consumers. The agent app formerly kept a parallel weight map that diverged. Pure rules belong in the pure rules package; the schema imports them for constraints, never the reverse.
  */
 export const TIPOS_DIMENSAO = ['fila', 'atendente', 'equipe', 'inbox', 'etiqueta'] as const;
 
-/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */
+/** Data-model §4 closed catalog for `evento_atendimento.tipo`. */
 export const TYPES_EVENT_ATTENDANCE = [
   'criada',
   'enfileirada',

@@ -1,12 +1,5 @@
 /**
- * As telas do CONTATO da Gestão (`/fluxo/:id/**`): o que `GET /v1/gestao/fluxos/…`
- * responde e o front desenha.
- *
- * Data é TEXTO (ISO 8601): é assim que atravessa o JSON. Quem mostra converte
- * com `new Date(...)` na ponta — nunca no contrato.
- *
- * A forma é a das consultas em `apps/api/src/dominio/gestao-fluxo.ts`; se uma
- * coluna entra ou sai de lá, entra ou sai daqui, e o `tsc` do front acusa.
+ * Management contact screens (`/fluxo/:id/**`) render responses from `GET /v1/gestao/fluxos/…`. Dates cross JSON as ISO 8601 text and are converted with `new Date(...)` at display time, never in the contract. Shapes follow queries in `apps/api/src/dominio/gestao-fluxo.ts`; front-end `tsc` catches changed columns.
  */
 
 /** O contato (o `fluxo`) e o canal dele — `GET /v1/gestao/fluxos/:id`. */
@@ -17,23 +10,21 @@ export interface ContactOfFlow {
   tipo: string;
   imageUrl: string | null;
   shortName: string | null;
-  /** O "Descrição" de "Editar Fluxo"; opcional lá, nula aqui. */
+  /** Description in Edit Flow: optional there, nullable here. */
   description: string | null;
   criadoEm: string | null;
   canalId: string | null;
   canalNome: string | null;
   channelType: string | null;
   channelActive: boolean | null;
-  /** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */
+  /** Channel identifier shown to viewers: phone number for WhatsApp, `@usuário` for Instagram, or Page ID for Messenger. */
   channelNumber: string | null;
 }
 
 /* ---------------------------------------------------------------- Canal */
 
 /**
- * Um canal como a página "Canais" do bot o vê — `GET /v1/gestao/fluxos/:id/canal`
- * e a resposta de `PUT`. `fluxoId`/`fluxoNome` dizem qual bot vivo está com
- * ele (um bot por número — regra da origem, `FICHA-conectar-canal-no-bot.md` §4).
+ * A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `fluxoId` and `fluxoNome` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.
  */
 export interface ChannelOfFlow {
   id: string;
@@ -46,10 +37,7 @@ export interface ChannelOfFlow {
 }
 
 /**
- * `GET /v1/gestao/fluxos/:id/canal`: o canal ligado a este bot (ou nulo) e os
- * canais ATIVOS da conta que a tela pode oferecer — os livres para ligar, e os
- * que já estão com outro bot (para dizer qual, como a origem manda "remover do
- * anterior"). Decisão Pipe: na origem o número nasce no bot e não há lista.
+ * `GET /v1/gestao/fluxos/:id/canal` returns this bot's linked channel (or null) and account channels that are ACTIVE: free channels and channels linked to another bot, so the UI can identify the previous bot as the source instructs ("remover do anterior"). Pipe deliberately differs from the source, where the number is created inside the bot and no list exists.
  */
 export interface ChannelOfFlowInScreen {
   channel: ChannelOfFlow | null;
@@ -63,13 +51,13 @@ export interface RequestOfChannelOfFlow {
 
 export interface ShellOfContact {
   contato: ContactOfFlow;
-  /** O fuso da conta, para o "criado em" e o "hoje" não serem o do navegador. */
+  /** Account timezone so "created at" and "today" use the account clock rather than the browser clock. */
   fuso: string;
 }
 
 /* ------------------------------------------------------------- Contatos */
 
-/** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */
+
 export interface ContactListed {
   id: string;
   nome: string | null;
@@ -171,7 +159,7 @@ export interface ContactGrowth {
   telefone: string;
 }
 
-/** `GET /v1/gestao/fluxos/:id/growth` — os dados são da CONTA, não do contato. */
+/** `GET /v1/gestao/fluxos/:id/growth`: data belongs to the ACCOUNT, not the contact. */
 export interface DataOfGrowth {
   channels: { id: string; nome: string }[];
   modelos: TemplateGrowth[];
@@ -179,7 +167,7 @@ export interface DataOfGrowth {
   envios: EnvioGrowth[];
 }
 
-/* ------------------------------------------------------------ Conteúdos */
+
 
 export interface TemplateListed {
   id: string;
@@ -194,15 +182,15 @@ export interface TemplateListed {
   canalNome: string;
 }
 
-/** `GET /v1/gestao/fluxos/:id/conteudos`. Sem canal WhatsApp, `modelos` é vazio. */
+/** `GET /v1/gestao/fluxos/:id/conteudos`; without a WhatsApp channel, `modelos` is empty. */
 export interface ContentItemsOfFlow {
   canalId: string | null;
   modelos: TemplateListed[];
 }
 
-/* ------------------------------------------------------------- Serviços */
 
-/** Um chatbot (um `fluxo`) — o roteador, ou o que atende um serviço. */
+
+/** A chatbot (a `fluxo`): either the router or the bot handling a service. */
 export interface RouterService {
   id: string;
   nome: string;
@@ -211,25 +199,23 @@ export interface RouterService {
   shortName: string | null;
 }
 
-/** Um serviço do roteador (`roteador_servico`): o nome e o chatbot que atende. */
+/** Router service (`roteador_servico`): its name and handling chatbot. */
 export interface LinkedService {
-  /** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */
+  /** Link ID used by `PATCH` and `DELETE …/servicos/:servicoId`. */
   id: string;
-  /** O nome do serviço: é o `address` do `Redirect`. */
+  /** Service name used as the `Redirect` address. */
   nome: string;
-  /** "É o meu chatbot principal". */
+  /** Whether this is the primary chatbot. */
   principal: boolean;
   /** "Não redirecionar automaticamente para o principal". */
   persistente: boolean;
-  /** "Expiração do redirecionamento", em minutos; nula para principal e persistente. */
+  /** The `"Expiração do redirecionamento"` label gives redirect expiration in minutes; null for primary and persistent services. */
   expirationMin: number | null;
   chatbot: RouterService;
 }
 
 /**
- * `GET /v1/gestao/fluxos/:id/servicos` — só faz sentido para roteador: para fluxo,
- * `roteador` é nulo e as listas vêm vazias. `busca` são os chatbots que podem virar
- * serviço (tipo `fluxo`, não arquivados); o não publicado aparece apagado na tela.
+ * `GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `roteador` and empty lists. `busca` contains eligible service chatbots (type `fluxo`, not archived); unpublished ones appear dimmed.
  */
 export interface DataOfServices {
   router: RouterService | null;
@@ -239,9 +225,7 @@ export interface DataOfServices {
 }
 
 /**
- * O formulário de serviço — `POST /v1/gestao/fluxos/:id/servicos` (tudo) e
- * `PATCH …/servicos/:servicoId` (só o que muda). Principal ignora `persistente` e
- * `expiracaoMin`; persistente ignora `expiracaoMin`.
+ * Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expiracaoMin`; a persistent service ignores `expiracaoMin`.
  */
 export interface RequestOfService {
   nome: string;
@@ -253,10 +237,10 @@ export interface RequestOfService {
 
 /* --------------------------------------------------------------- Portal */
 
-/** Os tamanhos de página do `bds-pagination` da origem (`items-page="[40,80,120]"`). */
+/** Page sizes from the source `bds-pagination` (`items-page="[40,80,120]"`). */
 export const BY_PAGE = [40, 80, 120] as const;
 
-/** Um cartão da grade do portal. */
+
 export interface FlowOfPortal {
   id: string;
   nome: string;
@@ -268,21 +252,16 @@ export interface FlowOfPortal {
 /** `GET /v1/gestao/fluxos?busca=&pagina=&porPagina=` — a grade, paginada no banco. */
 export interface GradeDoPortal {
   flows: FlowOfPortal[];
-  /** Quantos fluxos a conta tem ao todo, ignorando a busca. */
+  /** Total flows in the account, ignoring search. */
   total: number;
-  /** Quantos a busca encontrou. Sem busca, é igual a `total`. */
+  /** Number found by search; equals `total` when no search is active. */
   encontrados: number;
 }
 
 /* --------------------------------------------------------- Boas-vindas */
 
 /**
- * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` — "Defina a Mensagem de
- * Saudação e o botão Começar" (`/configurations/welcome`).
- *
- * Desativado é `{ ativo: false }`: `mensagem`/`textoBotao` continuam com o
- * último valor gravado (não se apagam ao desligar o interruptor), mas a tela
- * só os mostra — e só exige preenchidos — quando `ativo` é `true`.
+ * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, "Defina a Mensagem de Saudação e o botão Começar". Disabled means `{ ativo: false }`: `mensagem` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.
  */
 export interface ConfigurationOfWelcome {
   ativo: boolean;
@@ -290,19 +269,14 @@ export interface ConfigurationOfWelcome {
   textoBotao: string;
 }
 
-/** Uma linha do Menu Persistente: "Texto" e "Link" do item que dispara um comando. */
+/** Persistent Menu item row: the command item's "Texto" and "Link". */
 export interface ItemDoMenuPersistente {
   texto: string;
   link: string;
 }
 
 /**
- * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` — "Configure o menu
- * persistente de seu fluxo" (`/configurations/persistentMenu`), até 3 itens.
- *
- * `boasVindasPreenchida` é a segunda trava da origem ("Antes de salvar...
- * você precisa preencher a tela de boas-vindas"): a tela some o Salvar quando
- * falsa, e a `api` recusa o PATCH do mesmo jeito.
+ * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` mirrors `/configurations/persistentMenu`, "Configure o menu persistente de seu fluxo", with at most three items. `boasVindasPreenchida` is the source's second guard ("Antes de salvar... você precisa preencher a tela de boas-vindas"): when false, the UI hides Save and the API also rejects PATCH.
  */
 export interface ConfigurationOfMenuPersistent {
   itens: ItemDoMenuPersistente[];
@@ -312,10 +286,7 @@ export interface ConfigurationOfMenuPersistent {
 /* ------------------------------------------------------------- Builder */
 
 /**
- * O desenho como o editor da Blip o guarda, e como a cópia do Builder o pede
- * à ponte: o mapa de estados (`blip_portal:builder_working_flow`) e as ações
- * globais (`blip_portal:builder_working_global_actions`). É o `{ flow,
- * globalActions }` do botão "Exportar" do Builder, com os nomes traduzidos.
+ * Builder drawing in the format Blip stores and the Builder copy requests from the bridge: state map `blip_portal:builder_working_flow` and global actions `blip_portal:builder_working_global_actions`. It corresponds to the Builder "Exportar" button's `{ flow, globalActions }`, with translated names.
  */
 export interface DesenhoDoBuilder {
   flow: Record<string, unknown>;
@@ -323,9 +294,7 @@ export interface DesenhoDoBuilder {
 }
 
 /**
- * Um erro que o motor apontaria ao rodar o fluxo (`errosDoFluxo` de
- * `@pipe/core`), preso ao bloco que o causa. `bloco` é o `id` do estado no
- * editor; `null` quando o erro é do fluxo inteiro (sem raiz, por exemplo).
+ * Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `bloco` is the editor state `id`; null means a whole-flow error, such as a missing root.
  */
 export interface BlockError {
   block: string | null;
@@ -334,23 +303,21 @@ export interface BlockError {
 
 export type StateOfVersion = 'rascunho' | 'publicada' | 'arquivada';
 
-/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */
+/** A `fluxo_versao` row as listed by Builder history. */
 export interface VersionOfFlow {
   id: string;
   versao: number;
   estado: StateOfVersion;
   blocos: number;
   publicadaEm: string | null;
-  /** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */
+  /** Publisher name; null when the version was never published. */
   publishedBy: string | null;
   criadoEm: string | null;
   atualizadoEm: string | null;
 }
 
 /**
- * De onde veio o desenho que o Builder abre: o rascunho em edição, a versão
- * publicada (quando não há rascunho) ou o fluxo padrão (fluxo novo, nada
- * gravado ainda).
+ * Source of the Builder drawing: the editable draft, the published version when there is no draft, or the default flow when nothing has been stored yet.
  */
 export type OrigemDoDesenho = 'rascunho' | 'publicada' | 'padrao';
 
@@ -358,14 +325,14 @@ export type OrigemDoDesenho = 'rascunho' | 'publicada' | 'padrao';
 export interface BuilderOfFlow {
   flowId: string;
   origem: OrigemDoDesenho;
-  /** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */
+  /** Loaded version; null for the default flow, which does not yet exist in the database. */
   versao: VersionOfFlow | null;
-  /** A versão que o motor está rodando agora, se houver. */
+  /** Version currently running in the engine, if any. */
   publicada: VersionOfFlow | null;
   desenho: DesenhoDoBuilder;
-  /** O que impediria publicar o desenho carregado. Vazio = publicável. */
+  /** Errors blocking publication of the loaded drawing; empty means publishable. */
   errors: BlockError[];
-  /** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */
+  /** Action types the Pipe engine cannot yet run; publication is allowed, but execution fails. */
   naoSuportado: Record<string, number>;
 }
 
@@ -379,6 +346,6 @@ export interface RascunhoGravado {
 /** `POST /v1/gestao/fluxos/:id/builder/publicar`. */
 export interface VersaoPublicada {
   versao: VersionOfFlow;
-  /** A que saiu do ar para esta entrar, se havia. */
+  /** Previous version taken offline when this one went live, if any. */
   arquivada: VersionOfFlow | null;
 }

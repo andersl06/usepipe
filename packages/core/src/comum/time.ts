@@ -5,7 +5,7 @@ export const MINUTO = 60;
 export const HORA = 60 * MINUTO;
 export const DIA = 24 * HORA;
 
-/** Segundos entre dois instantes. Pode ser negativo — quem chama decide o que fazer com isso. */
+/** Seconds between instants; may be negative and callers decide how to handle it. */
 export function segundosEntre(inicio: Date, fim: Date): number {
   return (fim.getTime() - inicio.getTime()) / 1000;
 }
@@ -15,16 +15,13 @@ export function somarSegundos(instante: Date, segundos: number): Date {
   return new Date(instante.getTime() + segundos * 1000);
 }
 
-/** Ordena instantes em ordem crescente, sem mutar a lista recebida. */
+
 export function ordenarInstantes(instantes: readonly Date[]): Date[] {
   return [...instantes].sort((a, b) => a.getTime() - b.getTime());
 }
 
 /**
- * Comparação estável de identificador, por ponto de código.
- *
- * `localeCompare` depende de locale e ICU e por isso não serve como desempate
- * final de distribuição — o resultado precisa ser o mesmo em qualquer máquina.
+ * Stable identifier comparison by code point. `localeCompare` depends on locale and ICU, so it cannot break distribution ties when results must match across machines.
  */
 export function compararIdentificador(a: string, b: string): number {
   if (a === b) return 0;

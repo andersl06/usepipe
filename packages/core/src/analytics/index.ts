@@ -1,30 +1,12 @@
 /**
- * A Análise do contato — Dashboard e Mensagens ativas: a parte PURA (período,
- * formatação, escala, tipos). As consultas vivem na `api`
- * (`dominio/gestao-analise.ts`); a tela e a `api` importam daqui.
- *
- * A Análise do contato — Dashboard e Mensagens ativas.
- *
- * A régua é o `portal-fragment-analytics` da origem (`analytics-main.js`, o
- * micro-frontend React que o portal monta com `<analytics-mfe page="…">`). Lá
- * as contas moram no navegador: o período sai do `Date` local, a formatação do
- * `toLocaleString`, e cada seção pede um comando `/metrics/…` ao
- * `postmaster@analytics.msging.net`. Aqui o período e a formatação são funções
- * puras (o teste `tests/analise.test.ts` as trava), e os números saem do banco.
- *
- * ═══ AS DATAS SÃO DIAS DE CALENDÁRIO, NO FUSO DA CONTA ═══
- *
- * Lá o "hoje" é o do computador de quem abre a tela e o intervalo vai ao
- * servidor como `AAAA-MM-DDT00:00:00.000Z` (`ut()`), só com a data. Então o
- * que importa é a DATA, e aqui ela é texto `AAAA-MM-DD` calculado no fuso do
- * tenant — conta de dia com `Date.UTC` não tropeça em horário de verão.
+ * Contact Analytics Dashboard and active messages share pure period, formatting, scale, and type rules here. Queries live in the `api` (`dominio/gestao-analise.ts`); both screen and API import these rules. The source is `portal-fragment-analytics` (`analytics-main.js`), mounted as `<analytics-mfe page="…">`. There, browser `Date` and `toLocaleString` compute periods and formatting, while sections request `/metrics/…` from `postmaster@analytics.msging.net`. Here those calculations are pure and covered by `tests/analise.test.ts`, while figures come from the database. Dates mean calendar days in the account timezone. The source sends the viewer-local date as `AAAA-MM-DDT00:00:00.000Z` via `ut()`; here it is `AAAA-MM-DD` text in the tenant timezone, and `Date.UTC` day arithmetic avoids daylight-saving errors.
  */
 
-/* ------------------------------------------------------------------ período */
+
 
 /** `vT` da origem: os cinco chips da primeira fileira, na ordem. */
 export const PERIODOS_FIXOS = ['today', 'yesterday', '7days', '15days', '30days'] as const;
-/** `yT`: a segunda fileira, que só aparece com `is-displaying-dashboard-fixed-period-chips`. */
+/** `yT`: second chip row, shown only with `is-displaying-dashboard-fixed-period-chips`. */
 export const PERIODOS_DE_CALENDARIO = [
   'lastWeek',
   'lastMonth',
@@ -36,7 +18,7 @@ export type PeriodNamed =
   (typeof PERIODOS_FIXOS)[number] | (typeof PERIODOS_DE_CALENDARIO)[number];
 export type Period = PeriodNamed | 'custom';
 
-/** Os rótulos pt de `sT` (Dashboard) e `gt` (Mensagens ativas) — iguais nos dois. */
+/** Portuguese labels of `sT` (Dashboard) and `gt` (active messages), identical on both screens. */
 export const ROTULO_OF_PERIOD: Record<PeriodNamed, string> = {
   today: 'Hoje',
   yesterday: 'Ontem',
@@ -62,26 +44,19 @@ const ms = (d: string) => Date.parse(`${d}T00:00:00Z`);
 const dia = (t: number) => new Date(t).toISOString().slice(0, 10);
 const somarDias = (d: string, n: number) => dia(ms(d) + n * DIA_MS);
 
-/** A data de hoje no fuso da conta — o `new Date()` da origem, sem o fuso do servidor. */
+/** Today in the account timezone, corresponding to source `new Date()` without server timezone. */
 export function hojeNoFuso(fuso: string, agora = new Date()): string {
   return new Intl.DateTimeFormat('en-CA', { timeZone: fuso }).format(agora);
 }
 
-/** O `?periodo=` da URL; o que não for conhecido cai no `vT.Today` inicial da origem. */
+/** URL `?periodo=`; unknown values fall back to source initial `vT.Today`. */
 export function readPeriod(bruto: string | undefined): Period {
   const todos: readonly string[] = [...PERIODOS_FIXOS, ...PERIODOS_DE_CALENDARIO, 'custom'];
   return bruto && todos.includes(bruto) ? (bruto as Period) : 'today';
 }
 
 /**
- * O intervalo de cada chip — `b()` e `v()` de `xT` (e os mesmos `B()`/`z()` de
- * `St`, o filtro de Mensagens ativas).
- *
- * As esquisitices são da origem e ficam: "Últimos 7 dias" é D-7 a D-1 (sem
- * hoje), "Semana anterior" é domingo a sábado (`ht()`), "Semana atual" começa no
- * domingo (`dt()`). O personalizado aceita no máximo `limiteDias` para trás —
- * 90 no Dashboard (`st(90)` do `aT`) e 186 em Mensagens ativas (`St`) — e não
- * passa de hoje; fora disso, `null`.
+ * Chip intervals mirror `b()` and `v()` of `xT`, and `B()`/`z()` of active-message filter `St`. Preserve source quirks: "Últimos 7 dias" is D-7 through D-1, excluding today; "Semana anterior" is Sunday through Saturday (`ht()`); "Semana atual" starts Sunday (`dt()`). Custom periods cannot start more than `limiteDias` days back (90 on Dashboard via `st(90)` of `aT`, 186 on active messages via `St`) or extend beyond today; invalid bounds return null.
  */
 export function periodInterval(
   period: Period,
@@ -121,20 +96,20 @@ export function periodInterval(
   }
 }
 
-/** `ft()`: o mesmo tanto de dias, logo antes. É contra ele que a variação compara. */
+/** `ft()`: the equally long immediately preceding period used for comparison. */
 export function intervaloAnterior(i: Intervalo): Intervalo {
   const dias = Math.round((ms(i.fim) - ms(i.inicio)) / DIA_MS) + 1;
   return { inicio: somarDias(i.inicio, -dias), fim: somarDias(i.fim, -dias) };
 }
 
-/** Cada dia do intervalo, em ordem — um ponto por dia nos gráficos. */
+
 export function diasDoIntervalo(i: Intervalo): string[] {
   const dias: string[] = [];
   for (let d = i.inicio; d <= i.fim; d = somarDias(d, 1)) dias.push(d);
   return dias;
 }
 
-/** `rt()`: o rótulo curto do eixo, `dd/mm`. */
+/** `rt()`: short `dd/mm` axis label. */
 export function diaCurto(d: string): string {
   return `${d.slice(8, 10)}/${d.slice(5, 7)}`;
 }
@@ -149,7 +124,7 @@ function byExtenso(d: string): string {
   });
 }
 
-/** `IS()`: o texto do período ao lado do título ("13 de setembro de 2026 - 00h às 23h59"). */
+/** `IS()`: period label beside the title, e.g. "13 de setembro de 2026 - 00h às 23h59". */
 export function rotuloDoIntervalo(i: Intervalo): string {
   return i.inicio === i.fim
     ? `${byExtenso(i.inicio)} - 00h às 23h59`
@@ -157,10 +132,7 @@ export function rotuloDoIntervalo(i: Intervalo): string {
 }
 
 /**
- * A dica do indicador de comparação — `XS()` com o dicionário `QS`.
- *
- * `foraDoAlcance` é o ramo `outOfRangeMessage`: quando o período anterior
- * começa antes de 90 dias atrás, a origem troca a dica E apaga o número ("-").
+ * Comparison indicator hint from `XS()` and dictionary `QS`. `foraDoAlcance` mirrors `outOfRangeMessage`: if the previous period starts more than 90 days ago, the source changes the hint and clears the number to "-".
  */
 export function comparison(i: Intervalo, hoje: string): { dica: string; foraDoAlcance: boolean } {
   const anterior = rotuloDoIntervalo(intervaloAnterior(i));
@@ -171,23 +143,17 @@ export function comparison(i: Intervalo, hoje: string): { dica: string; foraDoAl
       dica: 'Não haverão resultados de comparação com o período anterior, pois o intervalo comparado ultrapassa o limite de 90 dias de dados disponíveis.',
       foraDoAlcance: true,
     };
-  /* O `.replace("-", pronome)` da origem troca só o PRIMEIRO hífen. */
+  /* The source `.replace("-", pronome)` replaces only the FIRST hyphen. */
   return {
     dica: `Em comparação com o período de ${anterior.replace('-', 'a')}.`,
     foraDoAlcance: false,
   };
 }
 
-/* --------------------------------------------------------------- números */
+
 
 /**
- * `WS()` da origem, que formata TODO número das duas telas.
- *
- * Absoluto: abaixo de 100 arredonda em 2 casas, a partir de 100 em inteiro
- * (`ZS`); ausente vira `padrao`. Percentual: recebe FRAÇÃO, multiplica por 100
- * (`jS`), e zero vira `padrao` — por isso "Taxa de rejeição" vazia é "0%" (o
- * `Tc` passado como padrão) e o indicador de comparação vazio é "-".
- * `sinal` põe "+" na frente do positivo (`PS`).
+ * Source `WS()` formats every number on both screens. Absolute values below 100 round to two decimals and values from 100 to integers (`ZS`); missing values become `padrao`. Percentages accept a FRACTION and multiply by 100 (`jS`); zero becomes `padrao`, so an empty "Taxa de rejeição" is "0%" via `Tc` while empty comparison is "-". `sinal` prefixes positive percentages with "+" (`PS`).
  */
 export function formatar(
   value: number | null | undefined,
@@ -209,11 +175,7 @@ export function formatar(
 }
 
 /**
- * Os tiques do eixo de valor dos gráficos — o `generateTicks` do chart.js
- * 3.9.1 que vem no bundle (o `niceNum` da linha ~34171: ≤1 → 1, ≤2 → 2,
- * ≤5 → 5, senão 10). Passo = `niceNum(máximo / 10)`; se o topo arredondado
- * passar de 10 espaços, o passo é refeito sobre ele. Tudo zero vira 0 a 1,
- * que é o `min === max` do `LinearScale`.
+ * Chart value-axis ticks match bundled chart.js 3.9.1 `generateTicks` and `niceNum` near line 34171: values ≤1, ≤2, ≤5, then 10. Step is `niceNum(maximum / 10)`; if rounded top exceeds ten intervals, recalculate it from that top. All zeros produce 0–1, matching `LinearScale` when `min === max`.
  */
 export function escalaDoEixo(maximo: number): { topo: number; tiques: number[] } {
   const niceNum = (v: number) => {
@@ -231,7 +193,7 @@ export function escalaDoEixo(maximo: number): { topo: number; tiques: number[] }
   return { topo, tiques };
 }
 
-/** `BS()`: variação relativa ao anterior. Anterior zero com atual positivo dá `Infinity`, que `formatar` mostra como "-". */
+/** `BS()`: relative change from the previous value. Previous zero with current positive gives `Infinity`, displayed as "-" by `formatar`. */
 export function variation(atual: number | null | undefined, anterior: number | null | undefined) {
   if (atual === null || atual === undefined || anterior === null || anterior === undefined)
     return undefined;
@@ -240,7 +202,7 @@ export function variation(atual: number | null | undefined, anterior: number | n
 
 /* ----------------------------------------------------------------- dados */
 
-/** O número do período e o do período anterior, para o indicador de comparação. */
+
 export interface ParDeContagens {
   atual: number;
   anterior: number;
@@ -249,7 +211,7 @@ export interface ParDeContagens {
 export interface DashboardData {
   /** `isMasterApplication`: muda o texto das listas de blocos e tira o link do nome. */
   router: boolean;
-  /** O nome do canal na tabela "Canais" — o `IE` da origem, que traduz domínio em nome. */
+  /** Channel name in the "Canais" table; source `IE` maps domain to name. */
   channel: string | null;
   /** `engaged-identity` e `active-identity`: quem mandou mensagem, e quem trocou qualquer mensagem. */
   contacts: {
@@ -257,7 +219,7 @@ export interface DashboardData {
     total: ParDeContagens;
     byDia: { dia: string; withInteraction: number; total: number }[];
   };
-  /** `/metrics/messages`. As médias são por contato COM interação. */
+  /** `/metrics/messages`; averages are per contact WITH interaction. */
   messages: {
     enviadas: ParDeContagens;
     recebidas: ParDeContagens;
@@ -268,24 +230,24 @@ export interface DashboardData {
     contacts: ParDeContagens;
     maisRecorrentes: { nome: string; recorrencia: number; telefone: string | null }[];
   };
-  /** `/flowmetrics`. `excecao` nulo: o Pipe não tem bloco de exceção. */
+  /** `/flowmetrics`; null `excecao` because Pipe has no exception block. */
   flow: { transbordo: ParDeContagens; total: ParDeContagens; exception: ParDeContagens | null };
-  /** `/blocks/fallback` e `/blocks/desk` — as listas de até 10 blocos. */
+  /** `/blocks/fallback` and `/blocks/desk`: lists of at most ten blocks. */
   blocksException: { nome: string; total: number }[];
   blocosTransbordo: { nome: string; total: number }[];
 }
 
-/** Os nomes que o `IE` dá aos domínios da origem, pelo tipo de canal do Pipe. */
+/** Names assigned by source `IE` to its domains, by Pipe channel type. */
 export const NAME_OF_CHANNEL: Record<string, string> = {
   whatsapp_cloud: 'Whatsapp',
   instagram: 'Instagram',
   email: 'Email',
-  /* `0mn.io` é "Blip Chat" lá: o widget é o chat do produto, e o produto aqui é o Pipe. */
+  /* Source `0mn.io` is "Blip Chat"; the widget is this product's chat, here Pipe Chat. */
   widget: 'Pipe Chat',
 };
 
 
-/** Uma linha de `/active-messages/status` (`sendDateTime` já como dia). */
+/** One `/active-messages/status` row, with `sendDateTime` already reduced to a day. */
 export interface StatusDoDia {
   dia: string;
   enviadas: number;
@@ -301,23 +263,15 @@ export interface ActiveMessagesData {
   respostasByHora: number[];
   /** `/active-messages/failed-count`. */
   falhas: { codigo: string | null; description: string; ocorrencias: number }[];
-  /** `/active-messages/template-names`: as opções do autocomplete. */
+  /** `/active-messages/template-names` autocomplete options. */
   templates: string[];
 }
 
 
-/* ═══════════════════ Visão geral, relatórios e jornada (só os tipos) ═══ */
+
 
 /**
- * Os dados da Análise do contato — Visão Geral, Relatórios Personalizados e
- * Jornada dos Contatos (`app/fluxo/[id]/analise/`).
- *
- * Na origem os três falam com `postmaster@analytics.{domínio}` por comando
- * LIME (e a Jornada, com o Cassandra do roteador). Aqui o que existir no banco
- * é lido de verdade; o que não existir devolve vazio com `ponytail:`.
- *
- * Uma transação por tela, consultas EM SÉRIE — `Promise.all` dentro do
- * `comTenant` apaga o `pipe.tenant_id` (ver `implantacao.ts`).
+ * Types for contact Analytics Overview, Custom Reports, and Contact Journey (`app/fluxo/[id]/analise/`). In the source, all three use LIME commands to `postmaster@analytics.{domínio}`, and Journey also uses router Cassandra. Here available data comes from the database; unavailable data returns empty with `ponytail:`. Use one transaction per screen and SERIAL queries: `Promise.all` within `comTenant` clears `pipe.tenant_id` (see `implantacao.ts`).
  */
 
 
@@ -327,13 +281,13 @@ export interface InstantesWindow {
   fim: Date;
 }
 
-/* ------------------------------------------------------------ Visão Geral */
 
-/** Os seis contadores dos dois cartões do `general-dashboard`. */
+
+/** Six counters in the two `general-dashboard` cards. */
 export interface ContagensDaVisaoGeral {
-  /** `metrics.activeClients`: enviaram OU receberam mensagem no período. */
+  /** `metrics.activeClients`: sent OR received a message in the period. */
   ativos: number;
-  /** `metrics.engagedClients`: ENVIARAM mensagem no período. */
+  /** `metrics.engagedClients`: SENT a message in the period. */
   engajados: number;
   total: number;
   recebidas: number;
@@ -362,14 +316,14 @@ export interface VisaoGeral {
   activeByChannel: ActiveByChannel[];
 }
 
-/** Um item de `AnalyticsReportsService.getMany`, já com o `handleReport` aplicado. */
+/** One `AnalyticsReportsService.getMany` item after `handleReport`. */
 export interface ReportCustom {
   id: string;
   nome: string | null;
   /** `owner.fullName || owner.email`. */
   criadoBy: string;
   modificadoEm: Date | null;
-  /** `owner.email === email da pessoa`: só o dono vê editar e excluir. */
+  /** `owner.email === email da pessoa`: only the owner can see edit and delete. */
   souDono: boolean;
 }
 

@@ -1,21 +1,5 @@
 /**
- * A bancada de medição, generalizada do case-sync.
- *
- * Lá ela é o que separou "melhorou" de opinião: a acurácia da classificação saiu
- * de 26% para 64% porque cada mudança foi medida contra gabarito humano, caso a
- * caso, e três das ideias mais promissoras foram **descartadas por medição** —
- * exemplos por similaridade, definições destiladas e voto majoritário pioraram ou
- * custaram 5× sem ganho.
- *
- * Duas regras de método herdadas de lá, que este arquivo respeita:
- *
- * - **compare caso a caso, não só o total.** Um ganho que quebra outros casos não
- *   é ganho. Por isso o resultado traz o desvio por critério, ordenado do pior
- *   para o melhor, e não só a acurácia geral.
- * - **falha em caso não pode virar média melhor.** Caso que estourou entra em
- *   `falhas` e fica fora do denominador, dito em voz alta.
- *
- * A saída por critério tem o mesmo formato de `calibracao_item.desvio_por_criterio`.
+ * The measurement bench, generalized from case-sync. There, measuring every change against human labels case by case raised classification accuracy from 26% to 64%; similarity examples, distilled definitions, and majority voting were discarded after measurement because they worsened results or cost 5× more without gains. Compare cases individually: a gain that breaks other cases is no gain, so results report deviation by criterion from worst to best as well as overall accuracy. A failed case must not improve the average: record it in `falhas` and exclude it from the denominator. The per-criterion output matches `calibracao_item.desvio_por_criterio`.
  */
 
 import type { ResultEvaluation } from '../evaluation/index.js';
@@ -27,26 +11,26 @@ import { somarConsumo } from '../consumo/index.js';
 import type { MessageTranscription, OptionsTranscription } from '../transcription/index.js';
 import { montarTranscription } from '../transcription/index.js';
 
-/** Uma conversa do conjunto de referência, com a avaliação feita por humano. */
+/** A reference-set conversation with a human evaluation. */
 export interface CasoReferencia {
   id: string;
   description?: string;
   context?: string | null;
   messages: MessageTranscription[];
   formulario: Formulario;
-  /** Gabarito: o valor que o humano deu a cada critério. A nota sai daqui. */
+  /** Ground truth: the value assigned by a human to each criterion; the score follows from it. */
   gabarito: { criterioId: string; value: string }[];
 }
 
 export interface DesvioCriterio {
   criterioId: string;
   nome: string;
-  /** Casos em que este critério foi medido. */
+  /** Number of cases in which this criterion was measured. */
   n: number;
   acertos: number;
   /** `acertos / n`. */
   acuracia: number;
-  /** Média de |pontos da IA − pontos do humano|, na escala da nota. */
+  /** Mean absolute difference between AI and human points, on the score scale. */
   desvioMedioPontos: number;
 }
 
@@ -69,27 +53,27 @@ export interface ResultadoBancada {
   /** Casos medidos com sucesso. */
   casos: number;
   falhas: FalhaBancada[];
-  /** Respostas idênticas ao gabarito ÷ respostas comparadas. */
+  /** Responses identical to ground truth divided by compared responses. */
   acuraciaGeral: number;
-  /** Média de |nota da IA − nota humana|, na escala do formulário. */
+  /** Mean absolute difference between AI and human scores, on the form's scale. */
   desvioMedioNota: number;
-  /** Do pior critério para o melhor: é a lista de prompts a revisar. */
+  /** Criteria from worst to best; the prompt review list. */
   byCriterio: DesvioCriterio[];
   byCaso: CasoMedido[];
   consumo: Consumo[];
 }
 
-/** Como a bancada obtém a avaliação da IA. Trocável para medir outra variação. */
+/** How the bench obtains an AI evaluation; replaceable to measure another variant. */
 export type AvaliadorBancada = (caso: CasoReferencia) => Promise<ResultEvaluation>;
 
 export interface OptionsWorkbench {
   casos: readonly CasoReferencia[];
-  /** Por padrão: monta a transcrição e chama `avaliarConversa`. */
+  /** By default, builds the transcript and calls `avaliarConversa`. */
   avaliar?: AvaliadorBancada;
   transcription?: OptionsTranscription;
   template?: string;
   chamar?: ChamadaEstruturada;
-  /** Chamado a cada caso, para a linha de comando mostrar progresso. */
+  /** Called after each case so the CLI can show progress. */
   aoTerminarCaso?: (casoId: string, medido: CasoMedido | null) => void;
 }
 
@@ -114,15 +98,12 @@ function arredondar(value: number, casas = 4): number {
   return Math.round((value + Number.EPSILON) * f) / f;
 }
 
-/** Compara duas respostas de critério do jeito que o banco as guardaria. */
+
 export function sameValue(a: string, b: string): boolean {
   return a.trim().toLowerCase() === b.trim().toLowerCase();
 }
 
-/**
- * Roda a avaliação por IA contra o conjunto de referência e devolve acurácia geral
- * e desvio por critério.
- */
+
 export async function rodarBancada(options: OptionsWorkbench): Promise<ResultadoBancada> {
   const avaliar = options.avaliar ?? avaliadorPadrao(options);
 

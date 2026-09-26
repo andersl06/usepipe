@@ -84,13 +84,7 @@ describe('audio duration', () => {
 
 describe('effort per conversation', () => {
   /**
-   * Conta feita à mão:
-   *  escrita  = 400 (texto) + 100 (nota interna) = 500 chars → 500×60÷200 = 150s
-   *  leitura  = 2.000 chars                                   → 2.000×60÷1.000 = 120s
-   *  escuta   = áudio do cliente com metadado                 → 45s
-   *  fala     = áudio do atendente de 60.000 bytes            → 60.000÷2.000 = 30s
-   *  esforço  = 150 + 120 + 45 + 30                           = 345s
-   *  resposta pronta: 600 chars fora do esforço               → 600×60÷200 = 180s
+   * Manual calculation: writing 400 message and 100 internal-note characters gives 500 × 60 ÷ 200 = 150 s; reading 2,000 characters gives 2,000 × 60 ÷ 1,000 = 120 s; listening to customer audio adds 45 s; 60,000 bytes of agent audio at 2,000 bytes/s adds 30 s. Total effort is 345 s. The 600-character canned response is excluded and would add 180 s if typed.
    */
   const messages: MessageEffort[] = [
     { conversationId: 'c1', em: em('10:00:00'), autor: 'bot', direction: 'saida', tipo: 'texto', conteudo: texto(5000) },
@@ -120,7 +114,6 @@ describe('effort per conversation', () => {
   it('a canned response leaves effort and goes to a separate column', () => {
     expect(effort.charsDeRespostaPronta).toBe(600);
     expect(effort.effortCannedResponseSeg).toBe(180);
-    // Os 180s da resposta pronta ficam fora dos 345s de esforço.
     expect(effort.effortSeg).toBe(345);
   });
 
@@ -172,11 +165,7 @@ describe('effort per conversation', () => {
 
 describe('support metric: time in session', () => {
   /**
-   * Mensagens do atendente no dia, em minutos a partir das 10:00:
-   *   0, 3, 8, 25, 30, 31, 60
-   * Intervalos: 3, 5, 17, 5, 1, 29 minutos.
-   * Só contam os de até 10 min → 3+5 = 8 min, depois 5+1 = 6 min, depois nada.
-   * Sessão = 14 min = 840s, em três blocos.
+   * Agent messages in minutes after 10:00: 0, 3, 8, 25, 30, 31, 60. Gaps are 3, 5, 17, 5, 1, 29 minutes; only gaps up to 10 count, giving 8 then 6 minutes and no later time. Session time is 14 minutes (840 seconds) across three blocks.
    */
   const instantes = [
     em('10:00:00'),
@@ -261,7 +250,7 @@ describe('agent-day consolidation', () => {
       messageInstantes: [],
     });
     // Dia cheio: 6.000s em 10 tickets (600s cada). Dia vazio: 3.600s em 2 (1.800s cada).
-    // Ponderada: 9.600 ÷ 12 = 800s. Média de médias daria (600 + 1.800) ÷ 2 = 1.200s.
+    // Weighted mean: 9,600 ÷ 12 = 800 seconds. Mean of daily means would be (600 + 1,800) ÷ 2 = 1,200 seconds.
     const ponderada =
       (cheio.effortSeg + empty.effortSeg) / (cheio.tickets + empty.tickets);
     expect(ponderada).toBe(800);

@@ -19,8 +19,7 @@ import {
 import type { TipoEvento } from '../metrics/eventos.js';
 
 /**
- * Tabela completa das 25 combinações do diagrama da §8.
- * `true` = aresta que existe no desenho; todo o resto tem de ser recusado.
+ * All 25 combinations from the §8 diagram. True means the diagram has that edge; every other transition must be rejected.
  */
 const PERMITIDAS: [StateConversation, StateConversation][] = [
   ['na_fila', 'atribuida'],

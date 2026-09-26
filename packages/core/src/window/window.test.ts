@@ -17,7 +17,7 @@ import {
 
 const utc = (iso: string) => new Date(iso);
 
-/** Cliente falou às 10:00 de 02/03; a janela vai até 10:00 de 03/03. */
+
 const ULTIMA_OF_CONTACT = utc('2026-03-02T10:00:00Z');
 const EXPIRA_EM = utc('2026-03-03T10:00:00Z');
 
@@ -46,7 +46,7 @@ describe('24-hour window', () => {
     { nome: 'logo depois da mensagem', agora: '2026-03-02T10:00:01Z', aberta: true, restante: 86_399 },
     { nome: 'faltando um segundo', agora: '2026-03-03T09:59:59Z', aberta: true, restante: 1 },
     { nome: 'faltando um milissegundo', agora: '2026-03-03T09:59:59.999Z', aberta: true, restante: 0.001 },
-    // A borda que decide se a tela oferece texto livre ou template.
+    // Boundary that decides whether the UI offers free text or a template.
     { nome: 'no exato segundo da expiração, já fechou', agora: '2026-03-03T10:00:00Z', aberta: false, restante: 0 },
     { nome: 'um milissegundo depois', agora: '2026-03-03T10:00:00.001Z', aberta: false, restante: 0 },
     { nome: 'muito depois', agora: '2026-03-05T10:00:00Z', aberta: false, restante: 0 },

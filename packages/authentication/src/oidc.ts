@@ -5,47 +5,32 @@ import { LoginError } from './google.js';
 import type { DesafioDeLogin, PessoaExterna } from './google.js';
 
 /**
- * OIDC genérico: o mesmo fluxo do `google.ts`, mas com o provedor vindo do banco.
+ * Generic OIDC uses the `google.ts` flow with a provider from the database. Google has a fixed issuer, so it needs no discovery. A tenant issuer may be Microsoft Entra ID, Google Workspace, or Okta. Only three things vary: endpoints discovered through `.well-known`, subject extraction, and verified-email interpretation.
  *
- * O Google é um emissor constante e por isso não precisa de descoberta. Aqui o
- * emissor é o do cliente — Microsoft Entra ID, Google Workspace, Okta — e tudo
- * que muda entre eles cabe em três coisas: os endpoints (descobertos por
- * `.well-known`), como se lê o sujeito e como se lê "este e-mail é verificado".
+ * The invariants are JWKS signature validation with exact `iss` and `aud`, per-attempt `state`, `nonce`, and PKCE from `criarDesafio`, and `(emissor, sujeito)` as the account key rather than email.
  *
- * O que NÃO muda, e é o que segura o resto de pé:
- *
- * - **assinatura conferida contra o JWKS do emissor**, com `iss` e `aud` exatos;
- * - **`state`, `nonce` e PKCE por tentativa**, gerados por `criarDesafio`;
- * - **a chave da conta é `(emissor, sujeito)`**, nunca o e-mail.
- *
- * As armadilhas de `referencias-blip/pesquisa/sso-multi-tenant.md` §8 estão marcadas uma a
- * uma no código abaixo. Nenhuma delas dá erro quando está errada: dá login
- * concedido.
+ * The traps in `referencias-blip/pesquisa/sso-multi-tenant.md` section 8 are called out below. When implemented incorrectly, they silently grant login rather than raise errors.
  */
 
 /**
- * Quem é o IdP. Não é enfeite: o Entra lê sujeito e e-mail verificado de um jeito
- * diferente de todo mundo, e tratar os dois iguais é exatamente o buraco da §8.
+ * The IdP kind matters: Entra obtains subject and verified-email status differently; treating it like every other provider creates the section 8 vulnerability.
  *
- * A lista vem do schema, que é onde o `check` do banco a repete. Duas listas para
- * a mesma coisa é como nasce um provedor que o código aceita e o banco recusa.
+ * The provider list comes from the schema, which repeats it in a database `check`. Separate lists could let code accept a provider that the database rejects.
  */
 export type ProvedorSso = (typeof PROVEDORES_SSO)[number];
 
 export interface ConfigOidc {
   provedor: ProvedorSso;
-  /** O `issuer`, sem `/.well-known/...`. É ele que a descoberta tem de confirmar. */
+
   emissor: string;
   clienteId: string;
   customerSecret: string;
   /** Precisa bater EXATAMENTE com o cadastrado no IdP. */
   urlOfCallback: string;
   /**
-   * Os `tid` aceitos, para app multi-tenant no Entra.
+   * Allowed `tid` values for a multitenant Entra app.
    *
-   * Sem isto, **qualquer diretório da Microsoft entra**: o `iss` de um app
-   * multi-tenant é o do diretório de quem está entrando, e a validação de `iss`
-   * sozinha passa para todos eles. É a armadilha "emissor não fixado" da §8.
+   * Without this list, **any Microsoft directory can enter**: a multitenant app's `iss` belongs to the signing-in directory, so issuer-shape validation alone admits them all. This is the unfixed-issuer trap from section 8.
    */
   tenantsEntra?: readonly string[] | undefined;
 }
@@ -65,15 +50,10 @@ interface DocumentOfDiscovery {
 }
 
 /**
- * Lê o `.well-known/openid-configuration` do emissor.
+ * Read the issuer's `.well-known/openid-configuration`. Two security checks matter:
  *
- * Duas travas, e as duas são de segurança:
- *
- * 1. **HTTPS obrigatório.** Descoberta em texto claro é o documento inteiro —
- *    inclusive o `jwks_uri` — escolhido por quem estiver no caminho.
- * 2. **O `issuer` do documento tem de ser IGUAL ao que pedimos.** É o que impede
- *    um emissor de se declarar outro e roubar a validação de `iss` (RFC 8414 §3.3,
- *    e a raiz da família de ataques de mix-up de IdP).
+ * 1. Require HTTPS. Plaintext discovery lets an intermediary choose the entire document, including `jwks_uri`.
+ * 2. Require the document's `issuer` to equal the requested issuer. This prevents one issuer from impersonating another and taking over `iss` validation (RFC 8414 section 3.3 and the IdP mix-up attack family).
  */
 export async function descobrir(
   emissor: string,
@@ -117,8 +97,7 @@ export async function descobrir(
 }
 
 /**
- * A ida ao IdP. Mesmo desafio do Google — `criarDesafio` serve aos dois, e é de
- * propósito: `state`, `nonce` e o verificador PKCE não têm nada de específico.
+ * The trip to the IdP uses the same challenge as Google. `criarDesafio` serves both deliberately: `state`, `nonce`, and the PKCE verifier are provider-independent.
  */
 export function urlOfAuthorizationOidc(
   config: ConfigOidc,
@@ -140,9 +119,7 @@ export function urlOfAuthorizationOidc(
 }
 
 /**
- * O JWKS por emissor, guardado. `createRemoteJWKSet` já traz cache e rotação de
- * chave por dentro — criar um por login refaria a busca a cada entrada e faria a
- * rotação de certificado do cliente virar um pico de requisições no IdP dele.
+ * Cache JWKS by issuer. `createRemoteJWKSet` already caches keys and handles rotation internally. Creating one per login would refetch on every entry and turn a tenant certificate rotation into a burst of requests to its IdP.
  */
 const jwksByIssuer = new Map<string, ReturnType<typeof createRemoteJWKSet>>();
 
@@ -155,7 +132,7 @@ function chavesDe(descoberta: DescobertaOidc): ReturnType<typeof createRemoteJWK
   return chaves;
 }
 
-/** Troca o código pelo `id_token` e o verifica. `buscar` e `chaves` são injetáveis para o teste. */
+
 export async function exchangeCodeOidc(
   config: ConfigOidc,
   descoberta: DescobertaOidc,
@@ -201,8 +178,8 @@ export async function verificarIdTokenOidc(
   nonce: string,
   chaves: Parameters<typeof jwtVerify>[1] = chavesDe(descoberta),
 ): Promise<PessoaExterna> {
-  // `issuer` e `audience` exatos. Sem `audience`, uma asserção emitida para outro
-  // aplicativo é aceita aqui — e no Entra basta o atacante ter o próprio app.
+  // Check exact `issuer` and `audience`. Without `audience`, an assertion issued for another
+  // application could pass here; in Entra, the attacker only needs their own app.
   const { payload } = await jwtVerify(idToken, chaves, {
     issuer: emissoresAceitos(config, descoberta),
     audience: config.clienteId,
@@ -212,8 +189,8 @@ export async function verificarIdTokenOidc(
     throw new LoginError('nonce_invalido', 'O `nonce` não confere: token reaproveitado.');
   }
 
-  // Com `aud` de vários valores, quem manda é o `azp`: sem esta conferência, um
-  // token emitido para outro cliente que nos liste junto passaria.
+  // With multiple `aud` values, `azp` identifies the authorized party. Without this check, a
+  // token issued for another client that also lists us would pass.
   if (Array.isArray(payload.aud) && payload['azp'] !== config.clienteId) {
     throw new LoginError('azp_invalido', 'O token foi emitido para outro aplicativo.');
   }
@@ -237,9 +214,7 @@ export async function verificarIdTokenOidc(
 }
 
 /**
- * No Entra multi-tenant o `iss` é `https://login.microsoftonline.com/{tid}/v2.0`,
- * e o emissor descoberto vem com o `{tenantid}` como marcador. Aceitamos os
- * emissores dos `tid` declarados, e nada além deles.
+ * In multitenant Entra, `iss` is `https://login.microsoftonline.com/{tid}/v2.0`, while discovery uses `{tenantid}` as a placeholder. Accept issuers for declared `tid` values only.
  */
 function emissoresAceitos(config: ConfigOidc, descoberta: DescobertaOidc): string[] {
   const tids = config.tenantsEntra ?? [];
@@ -260,12 +235,9 @@ function conferirTenantDoEntra(config: ConfigOidc, payload: Record<string, unkno
 }
 
 /**
- * O sujeito estável da conta.
+ * The stable account subject.
  *
- * **No Entra é `{tid}:{oid}`, nunca o `sub`.** O `sub` é *pairwise* por registro
- * de aplicativo: recriar o app troca o `sub` de todo mundo e órfã todas as contas
- * de uma vez. O `oid` é o id do usuário no diretório e não muda; o `tid` na
- * frente evita colisão entre diretórios diferentes.
+ * **For Entra, use `{tid}:{oid}`, NEVER `sub`.** `sub` is pairwise per app registration, so recreating an app changes every user's `sub` and orphans all linked accounts. `oid` is the stable directory user ID; the `tid` prefix prevents collisions across directories.
  */
 export function sujeitoDoToken(provedor: ProvedorSso, payload: Record<string, unknown>): string {
   if (provedor === 'entra') {
@@ -278,14 +250,9 @@ export function sujeitoDoToken(provedor: ProvedorSso, payload: Record<string, un
 }
 
 /**
- * Este e-mail foi verificado pelo dono do domínio?
+ * Has the domain owner verified this email?
  *
- * **O Entra não emite `email_verified`.** Quem trata a ausência como falso quebra
- * o Entra inteiro; quem trata como verdadeiro abre o buraco da §8. O equivalente
- * da Microsoft é o claim opcional `xms_edov`, que a empresa precisa habilitar no
- * registro do aplicativo — e sem ele a resposta é "não sei", que aqui vale
- * "não". Contas federadas por SAML/WS-Fed não têm domínio verificado e vêm com
- * `xms_edov` falso, o que é a resposta certa.
+ * **Entra does not emit `email_verified`.** Treating absence as false breaks Entra; treating it as true creates the section 8 vulnerability. Microsoft's equivalent is optional `xms_edov`, which the organization must enable in its app registration. Without it, the answer is unknown and therefore false here. Federated SAML/WS-Fed accounts lack a verified domain and report `xms_edov` false, as required.
  */
 export function emailVerificado(provedor: ProvedorSso, payload: Record<string, unknown>): boolean {
   if (provedor === 'entra') return payload['xms_edov'] === true;

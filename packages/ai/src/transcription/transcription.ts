@@ -1,16 +1,5 @@
 /**
- * Normaliza uma conversa em transcrição legível para o modelo: quem falou, quando,
- * o quê.
- *
- * Duas decisões vêm direto do case-sync:
- *
- * 1. **Cada linha ganha um rótulo curto (`m1`, `m2`…), não o uuid da mensagem.**
- *    O modelo cita evidência pelo rótulo e nós traduzimos de volta pelo índice. É
- *    barato em token e, principalmente, é **validável**: rótulo que não existe é
- *    erro explícito, do mesmo jeito que a opção de picklist inválida era.
- * 2. **Áudio sem transcrição é marcado como não transcrito, não some.** No
- *    case-sync, 229 áudios viraram silêncio e o resumo saiu confiante sobre uma
- *    conversa que ninguém tinha lido.
+ * Converts a conversation to a model-readable transcript with speaker, time, and content. Two case-sync lessons shape this: give each line a short label (`m1`, `m2`, etc.) instead of a message UUID, then resolve citations by index, saving tokens and making unknown labels explicit errors; and mark audio without a transcript as untranscribed rather than omitting it. In case-sync, 229 omitted audio clips left a summary confidently describing a conversation no one had read.
  */
 
 export type DirectionMessage = 'entrada' | 'saida' | 'interna';
@@ -21,7 +10,7 @@ export type TipoMessage =
 export interface AttachmentTranscription {
   nameFile?: string | null;
   durationSeg?: number | null;
-  /** Texto do áudio quando alguém já transcreveu. Ausente, a linha diz que falta. */
+  /** Audio text when already transcribed; otherwise the line says the transcript is missing. */
   transcription?: string | null;
 }
 
@@ -38,17 +27,17 @@ export interface MessageTranscription {
 }
 
 export interface LinhaTranscription {
-  /** Rótulo curto usado pelo modelo para citar evidência. */
+  /** Short label used by the model to cite evidence. */
   rotulo: string;
   messageId: string;
   texto: string;
 }
 
 export interface Transcription {
-  /** O texto que vai para o modelo. */
+
   texto: string;
   linhas: LinhaTranscription[];
-  /** `rotulo` → `mensagem.id`. É o que traduz a evidência de volta para o banco. */
+  /** `rotulo` → `mensagem.id`, mapping cited evidence back to the database. */
   indice: Record<string, string>;
   truncada: boolean;
   messagesOmitidas: number;
@@ -56,13 +45,12 @@ export interface Transcription {
 }
 
 export interface OptionsTranscription {
-  /** Orçamento total da transcrição em caracteres. */
+  /** Total character budget for the transcript. */
   maxCaracteres?: number;
   /** Teto por mensagem, antes de qualquer truncamento global. */
   maxCaracteresByMessage?: number;
   /**
-   * Fatia do orçamento reservada ao início quando precisa truncar. O resto vai
-   * para o fim. Início e fim é onde está a informação: o pedido e o desfecho.
+   * Share of the budget reserved for the beginning when truncating; the remainder goes to the end. The request and outcome are usually at these two ends.
    */
   fractionInicio?: number;
 }
@@ -73,7 +61,7 @@ export const FRACTION_START_DEFAULT = 0.4;
 
 const MARCA_CORTE = '…(cortado)';
 
-/** Como cada autor aparece na transcrição. */
+
 export function rotuloDoAutor(m: MessageTranscription): string {
   const nome = m.autorNome?.trim();
   switch (m.autorTipo) {
@@ -94,15 +82,14 @@ function duration(segundos: number | null | undefined): string {
     : 'duração desconhecida';
 }
 
-/** `dd/mm HH:MM` em UTC — sem fuso implícito, para a transcrição ser determinística. */
+/** `dd/mm HH:MM` in UTC, avoiding an implicit timezone so transcripts are deterministic. */
 export function carimboDeHora(em: Date): string {
   const iso = em.toISOString();
   return `${iso.slice(8, 10)}/${iso.slice(5, 7)} ${iso.slice(11, 16)}`;
 }
 
 /**
- * O corpo de uma mensagem já resolvido: áudio usa o texto transcrito quando
- * existe, mídia vira descrição, mensagem vazia é dita como vazia.
+ * Resolved message body: audio uses its transcript when available, media becomes a description, and an empty message is identified as empty.
  */
 export function messageCorpo(m: MessageTranscription): string {
   const texto = m.conteudo?.trim() ?? '';
@@ -133,7 +120,7 @@ function cortar(texto: string, max: number): string {
   return texto.slice(0, Math.max(0, max - MARCA_CORTE.length)) + MARCA_CORTE;
 }
 
-/** Monta a linha completa de uma mensagem, já com rótulo, hora e autor. */
+
 export function montarLinha(
   m: MessageTranscription,
   rotulo: string,
@@ -146,8 +133,7 @@ export function montarLinha(
 }
 
 /**
- * Só as linhas que sobreviveram ao truncamento entram no índice: rótulo citado
- * fora dele é alucinação, e é assim que a avaliação a pega.
+ * Index only lines retained after truncation. A cited label outside this index is a hallucination that evaluation rejects.
  */
 function indexar(linhas: readonly LinhaTranscription[]): Record<string, string> {
   const indice: Record<string, string> = {};
@@ -167,9 +153,7 @@ function semTruncar(linhas: LinhaTranscription[]): Transcription {
 }
 
 /**
- * Normaliza a conversa e, quando não cabe no orçamento, preserva início e fim,
- * dizendo quantas mensagens ficaram de fora. A ordem cronológica é imposta aqui:
- * não confie na ordem de entrada.
+ * Normalize the conversation and, if it exceeds the budget, retain its beginning and end while reporting the number of omitted messages. Enforce chronological order here; input order is not trusted.
  */
 export function montarTranscription(
   messages: readonly MessageTranscription[],

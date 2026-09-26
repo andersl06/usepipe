@@ -22,9 +22,7 @@ function keyring(atual = 'k1'): ReturnType<typeof keyringOfAmbiente> {
 }
 
 /**
- * O que estes testes protegem é a credencial do cliente: com o token da Meta
- * qualquer um manda mensagem pelo número dele. O risco não é a aplicação vazar
- * — é o dump do banco.
+ * These tests protect customer credentials: a Meta token lets someone send messages from the customer's number. A database dump is the threat this encryption addresses.
  */
 describe('Encrypt and decrypt channel secrets', () => {
   it('vai e volta', () => {
@@ -35,7 +33,7 @@ describe('Encrypt and decrypt channel secrets', () => {
   });
 
   it('dois pacotes do mesmo texto são diferentes', () => {
-    // IV aleatório por gravação. Sem isso, valores iguais viram pacotes iguais e
+    // A random IV is used for each write. Otherwise identical values yield identical envelopes and
     // o banco passa a dizer quais clientes compartilham segredo.
     const k = keyring();
     expect(cifrar('mesmo', k)).not.toBe(cifrar('mesmo', k));
@@ -104,8 +102,8 @@ describe('Encrypt and decrypt channel secrets', () => {
   });
 
   it('Cover all four channel credentials in the secret field list', () => {
-    // Se alguém adicionar um segredo novo ao canal e esquecer desta lista, ele
-    // nasce em texto claro. O teste é o lembrete.
+    // If someone adds another channel secret but omits it from this list, the value
+    // is stored in plaintext. This test is the reminder.
     expect([...FIELDS_SECRETOS_OF_CHANNEL]).toEqual(
       expect.arrayContaining(['tokenAcesso', 'appSecret', 'verifyToken', 'senhaSmtp']),
     );

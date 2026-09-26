@@ -5,7 +5,7 @@ export interface ClosureTag {
   obrigatoriaInClosure: boolean;
 }
 
-/** A Blip bloqueia a confirmação enquanto faltar qualquer tag obrigatória. */
+/** Blip blocks confirmation until all required tags are selected. */
 export function closureCanConfirm(
   etiquetas: readonly ClosureTag[],
   selecionadas: readonly string[],

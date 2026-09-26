@@ -1,15 +1,5 @@
 /**
- * Prompt de avaliação: o modelo responde o formulário critério a critério e cita a
- * linha da transcrição que sustenta cada resposta.
- *
- * A evidência não é enfeite de auditoria: é o que permite ao atendente contestar
- * com base em fato (§6 do modelo de dados) e é o que torna a nota da IA revisável.
- * Por isso ela é exigida sempre que o critério não sai conforme, e por isso ela é
- * um **rótulo da transcrição**, que dá para conferir, e não um trecho copiado, que
- * o modelo pode inventar.
- *
- * A nota **não** é pedida ao modelo. Ele responde valor e justificativa; o peso, o
- * grupo e o critério fatal são conta nossa, em `avaliacao/nota.ts`.
+ * The evaluation prompt answers each form criterion and cites the supporting transcript line. Evidence lets agents contest a score with facts (§6 of the data model) and makes AI scoring reviewable. Require evidence for every noncompliant criterion as a verifiable transcript label, rather than copied text the model might invent. Do not ask the model for a score: it returns value and rationale; `avaliacao/nota.ts` applies weights, groups, and fatal criteria.
  */
 
 import type { Formulario, GrupoCriterio } from '../evaluation/tipos.js';

@@ -3,16 +3,11 @@ import { dirname, join, resolve, sep } from 'node:path';
 import type { Storage, ObjetoGuardado, ObjetoLido } from './porta.js';
 
 /**
- * Backend em disco, dentro de um volume.
+ * Disk backend inside a volume.
  *
- * A raiz é `PIPE_STORAGE_DIR`. Em produção ela é um volume do contêiner — o arquivo
- * precisa sobreviver a `docker compose up` e a troca de imagem, exatamente como o
- * banco do CRM sobrevive.
+ * The root is `PIPE_STORAGE_DIR`. In production it is a container volume: files must survive `docker compose up` and image replacement, just as the CRM database does.
  *
- * Não existe rota estática servindo esta pasta, e isso é decisão: **quem serve o
- * arquivo é a `api`**, depois de conferir assinatura, validade e tenant. Uma pasta
- * publicada por nginx seria o "objeto público adivinhável por id" que o requisito
- * proíbe.
+ * There is deliberately no static route serving this directory: **the `api` serves files** only after checking signature, expiry, and tenant. Publishing the directory through nginx would create the guessable public object ID forbidden by the requirement.
  */
 export class StorageInDisk implements Storage {
   private readonly raiz: string;
@@ -22,11 +17,9 @@ export class StorageInDisk implements Storage {
   }
 
   /**
-   * Resolve a chave dentro da raiz e **prova que não saiu dela**.
+   * Resolve the key within the root and **prove it did not escape**.
    *
-   * A conferência é depois do `resolve`, e não antes: comparar texto antes de
-   * normalizar é como `../` passa. Aqui o caminho já está absoluto e normalizado
-   * quando a pergunta é feita.
+   * Check after `resolve`, not before: comparing path text before normalization lets `../` through. At this point the path is already absolute and normalized.
    */
   private caminho(key: string): string {
     const alvo = resolve(join(this.raiz, key));
@@ -48,7 +41,7 @@ export class StorageInDisk implements Storage {
       const data = await readFile(this.caminho(chave));
       return { data, bytes: data.byteLength };
     } catch (error) {
-      // Arquivo que não existe é ausência, não falha: quem chama devolve 404.
+      // A missing file means absence, not failure: the caller returns 404.
       if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null;
       throw error;
     }
