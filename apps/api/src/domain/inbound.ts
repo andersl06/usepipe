@@ -398,7 +398,7 @@ interface InboxResolvida {
 
 async function acharInbox(tx: TransactionPipe, channelId: string): Promise<InboxResolvida> {
   const { rows } = await tx.execute<{ id: string; queueDefaultId: string | null }>(
-    sql`select id, fila_padrao_id from inbox where canal_id = ${channelId} order by criado_em limit 1`,
+    sql`select id, fila_padrao_id as "queueDefaultId" from inbox where canal_id = ${channelId} order by criado_em limit 1`,
   );
   const linha = rows[0];
   if (!linha) throw new Error(`canal ${channelId} não tem inbox: a mensagem não tem onde cair.`);
@@ -418,7 +418,7 @@ async function findOrCreateContact(
   const candidatos =
     canal.type === 'whatsapp_cloud' ? candidatosDoTelefone(identificador) : [identificador];
   const { rows } = await tx.execute<{ contactId: string }>(sql`
-    select contato_id from contato_identidade
+    select contato_id as "contactId" from contato_identidade
      where canal_tipo = ${canal.type}
        and identificador in (${sql.join(
          candidatos.map((c) => sql`${c}`),

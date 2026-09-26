@@ -172,8 +172,8 @@ describe('Aggregate seeded data for the analytics dashboard', () => {
       ),
       { headers: cabecalho(cookie) },
     );
-    const corpo = (await r.json()) as { data: { contatos: { total: { atual: number } } } };
-    expect(corpo.dados.contatos.total.atual).toBe(0);
+    const corpo = (await r.json()) as { data: { contacts: { total: { atual: number } } } };
+    expect(corpo.data.contacts.total.atual).toBe(0);
   });
 
   it('Prevent one tenant\'s session from reading another\'s flow analytics', async () => {
@@ -265,7 +265,7 @@ describe('List message logs newest first', () => {
     );
     const corpo = (await r.json()) as { data: { content: string | null }[] };
     expect(corpo.data).toHaveLength(1);
-    expect(corpo.data[0]?.conteudo).toBe('foto.jpg');
+    expect(corpo.data[0]?.content).toBe('foto.jpg');
   });
 
   it('Ignore unknown directions without failing the query', async () => {

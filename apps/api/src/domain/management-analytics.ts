@@ -88,7 +88,7 @@ export async function carregarDashboard(
                count(*) filter (where direcao = 'saida')::int as enviadas,
                count(*) filter (where direcao = 'entrada')::int as recebidas,
                count(distinct contato_id)::int as total,
-               count(distinct contato_id) filter (where direcao = 'entrada')::int as com_interacao,
+               count(distinct contato_id) filter (where direcao = 'entrada')::int as "withInteraction",
                (select count(*) from dias where n >= 2)::int as recorrentes
           from msg
          group by rollup (dia)
@@ -400,7 +400,7 @@ export async function loadLogOfMessages(
   limite: number,
 ): Promise<Page<LinhaDoLog>> {
   const { rows: bot } = await tx.execute<{ channelId: string | null }>(
-    sql`select canal_id as "canalId" from fluxo where id = ${fluxoId}`,
+    sql`select canal_id as "channelId" from fluxo where id = ${fluxoId}`,
   );
   const channelId = bot[0]?.channelId ?? null;
   if (!channelId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };

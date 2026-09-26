@@ -142,11 +142,11 @@ describe('bot com o dublê do WhatsApp', () => {
 
     // The menu is structured in `dados`, and with 2 options the worker sends it as buttons
     // (quick reply is enabled by default). The numbered text remains the content that gets recorded.
-    const { rows } = await cenario.dono.execute<{ data: unknown }>(sql`
+    const { rows } = await cenario.dono.execute<{ dados: unknown }>(sql`
       select dados from mensagem where conversa_id = ${conversa.id}::uuid and autor_tipo = 'bot'
        order by criada_em desc limit 1
     `);
-    expect(rows[0]?.data).toEqual({
+    expect(rows[0]?.dados).toEqual({
       pergunta: { texto: 'Prazer, Ana. Como posso ajudar?', opcoes: ['Financeiro', 'Suporte'] },
     });
     const antes = dubleWhatsApp.chamadas.length;
@@ -163,7 +163,7 @@ describe('bot com o dublê do WhatsApp', () => {
     expect(conversa.estado).toBe('na_fila');
     expect(conversa.atendente_id).toBeNull();
 
-    const { rows: notas } = await cenario.dono.execute<{ body: string }>(
+    const { rows: notas } = await cenario.dono.execute<{ corpo: string }>(
       sql`select corpo from nota_interna where conversa_id = ${conversa.id}::uuid`,
     );
     expect(notas).toHaveLength(1);
@@ -171,16 +171,16 @@ describe('bot com o dublê do WhatsApp', () => {
     expect(notas[0]!.corpo).toContain('- opcao: 2');
 
     const { rows: executions } = await cenario.dono.execute<{
-      state: string;
-      code: string | null;
-      context: Record<string, string>;
+      estado: string;
+      codigo: string | null;
+      contexto: Record<string, string>;
     }>(sql`
       select e.estado, b.codigo, e.contexto from execucao_fluxo e
         left join bloco b on b.id = e.bloco_atual_id
        where e.conversa_id = ${conversa.id}::uuid
     `);
     expect(executions[0]).toMatchObject({ estado: 'concluida', codigo: 'desk:suporte' });
-    expect(executions[0]!.context['nome']).toBe('Ana');
+    expect(executions[0]!.contexto['nome']).toBe('Ana');
 
     const tipos = await eventos(conversa.id);
     expect(tipos).toContain('criada');

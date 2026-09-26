@@ -25,19 +25,19 @@ export async function candidatosOfQueue(
 ): Promise<AgentDisponivel[]> {
   const { rows } = await tx.execute<LineAgent>(sql`
     select u.id,
-           coalesce(s.estado, 'offline') as estado,
-           coalesce(fa.capacidade_override, f.capacidade_padrao) as limite,
+           coalesce(s.estado, 'offline') as state,
+           coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
-             as aguardando_atendente,
+             as "aguardandoAgent",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
-               and c.primeira_resposta_em is null)::text as sem_primeira_resposta,
+               and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
            (select max(c.atribuida_em) from conversa c
-             where c.atendente_id = u.id) as ultima_atribuicao_em
+             where c.atendente_id = u.id) as "lastAssignmentAt"
       from fila_atendente fa
       join usuario u on u.id = fa.usuario_id and u.ativo
       join fila f on f.id = fa.fila_id
@@ -70,20 +70,20 @@ export async function queuesOfAgent(
   agentId: string,
 ): Promise<AgentDisponivel[]> {
   const { rows } = await tx.execute<LineAgent & { queueId: string }>(sql`
-    select u.id, fa.fila_id,
-           coalesce(s.estado, 'offline') as estado,
-           coalesce(fa.capacidade_override, f.capacidade_padrao) as limite,
+    select u.id, fa.fila_id as "queueId",
+           coalesce(s.estado, 'offline') as state,
+           coalesce(fa.capacidade_override, f.capacidade_padrao) as "limit",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada')::text as ativas,
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
                and (c.ultima_mensagem_de is distinct from 'atendente'))::text
-             as aguardando_atendente,
+             as "aguardandoAgent",
            (select count(*) from conversa c
              where c.atendente_id = u.id and c.estado <> 'encerrada'
-               and c.primeira_resposta_em is null)::text as sem_primeira_resposta,
+               and c.primeira_resposta_em is null)::text as "withoutFirstResponse",
            (select max(c.atribuida_em) from conversa c
-             where c.atendente_id = u.id) as ultima_atribuicao_em
+             where c.atendente_id = u.id) as "lastAssignmentAt"
       from fila_atendente fa
       join usuario u on u.id = fa.usuario_id and u.ativo
       join fila f on f.id = fa.fila_id
